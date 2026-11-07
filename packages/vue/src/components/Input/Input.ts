@@ -1,7 +1,7 @@
 import clsx, { type ClassValue } from "clsx"
 import { defineComponent, h, mergeProps, nextTick, onMounted, ref, useId, watch, withDirectives, type ButtonHTMLAttributes, type InputHTMLAttributes, type PropType } from "vue"
 import type { ControlSize, SemanticColor, Sizes, Variants } from "@plexui/styles/types"
-import { X } from "../Icon/index.js"
+import { X, XCircleFilled } from "../Icon/index.js"
 import { vDefaultValue } from "../../lib/defaultValue.js"
 import { useFieldRowPill } from "../../lib/fieldRow.js"
 import { hasContent } from "../../lib/slotContent.js"
@@ -244,7 +244,8 @@ const InputComponent = defineComponent({
           ),
           showClearButton
             ? h("button", { "type": "button", "aria-label": "Clear input", "class": s.Clear, "onClick": handleClear }, [
-                h(X),
+                h(X, { class: s.ClearIcon }),
+                h(XCircleFilled, { class: s.ClearPhoneIcon }),
               ])
             : null,
           hasEndAdornment ? endAdornment : null,

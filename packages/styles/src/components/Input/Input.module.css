@@ -427,6 +427,10 @@
     width: var(--input-clear-icon-size);
     height: var(--input-clear-icon-size);
   }
+
+  > .ClearPhoneIcon {
+    display: none;
+  }
 }
 
 /* Keep the visible circle compact while the touch target has its own flex slot. */
@@ -544,6 +548,38 @@
 }
 
 @media (max-width: 767px) {
+  /* The clear button of a phone text field is the filled circle with a cross of iOS (xmark.circle.fill, a 17px
+     circle in the tertiary label: kit iOS 27 Text Fields 5433:15635, IMG_5514), drawn with the PlexUI
+     XCircleFilled icon, whose circle is 20 of its 24px box. The circle alone shows the button, without the
+     soft face of the desktop; touch.css places it on its 44px target. */
+  .Clear::before,
+  .Clear > .ClearIcon {
+    display: none;
+  }
+
+  .Clear > .ClearPhoneIcon {
+    display: block;
+    width: calc(var(--input-clear-glyph-size, 17px) * 1.2);
+    height: calc(var(--input-clear-glyph-size, 17px) * 1.2);
+    color: var(--input-clear-glyph-color, var(--mobile-label-tertiary, var(--color-text-tertiary)));
+  }
+
+  /* The circle is concentric with the field's rounded end, half the field's height from its end (22px on the
+     44px field). In a horizontal grouped row it is centred 26px from the row's edge, 10px inside the row's
+     16px inset, as in the kit. The margins move the 44px target; the circle keeps its size. Physical sides,
+     as the container's own end gutter (padding-right) and the button's desktop margin. */
+  .Container > .Clear:last-child {
+    margin-right: calc(var(--input-size) / 2 - var(--input-clear-target-size, var(--input-clear-size)) / 2 - var(--input-gutter));
+  }
+
+  .Container[data-pill] > .Clear:last-child {
+    margin-right: calc(var(--input-size) / 2 - var(--input-clear-target-size, var(--input-clear-size)) / 2 - var(--input-gutter) * var(--control-gutter-pill-scaling));
+  }
+
+  :where([data-row]:not([data-orientation="vertical"])) .Container > .Clear.Clear:last-child {
+    margin-right: calc(10px - var(--input-clear-target-size, var(--input-clear-size)) / 2);
+  }
+
   /* In a grouped row the clear button shows only while the value is being edited, as
      the text fields of iOS forms show theirs (UITextField clearButtonMode whileEditing). */
   :where([data-row]) .Container:not(:focus-within) > .Clear {

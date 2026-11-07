@@ -211,10 +211,10 @@ describe("Bar background styles", () => {
     expect(dialog).toMatch(/\.Footer\[data-content-below\]\[data-background="hard"\]::before \{\s*border-top-color: var\(--page-bar-hard-line\);/)
   })
 
-  test("a soft header fades out past its bar and a soft footer starts 27px above its actions, as a Toolbar's edges", () => {
+  test("a soft header fades out past its bar and a soft footer starts 27px above its actions and covers fully from their top, as a Toolbar's edges", () => {
     expect(page).toMatch(/\.Header \{[\s\S]*?&::before \{[^}]*inset: 0 0 -16px;[^}]*mask-image: linear-gradient\(to bottom, #000 calc\(100% - 10px - 16px\), transparent\);/)
-    expect(page).toMatch(/\.Footer \{[^}]*background: none;\s*&::before \{[^}]*inset: calc\(var\(--page-footer-padding-top\) - 27px\) 0 0;[^}]*mask-image: linear-gradient\(to bottom, transparent, #000 60px\);/)
-    expect(dialog).toMatch(/\.Footer::before \{\s*inset: -15px 0 0;[^}]*mask-image: linear-gradient\(to bottom, transparent, #000 60px\);/)
+    expect(page).toMatch(/\.Footer \{[^}]*background: none;\s*&::before \{[^}]*inset: calc\(var\(--page-footer-padding-top\) - 27px\) 0 0;[^}]*mask-image: linear-gradient\(to bottom, transparent, #000 27px\);/)
+    expect(dialog).toMatch(/\.Footer::before \{\s*inset: -15px 0 0;[^}]*mask-image: linear-gradient\(to bottom, transparent, #000 27px\);/)
   })
 
   test("a large title is the content under the row until the inline title comes in", () => {

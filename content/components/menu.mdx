@@ -23,7 +23,7 @@ import {
 
 ### Overview
 
-<ComponentPreview phoneMenuHeight={377} code={`<Menu>
+<ComponentPreview code={`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
   </Menu.Trigger>
@@ -42,7 +42,7 @@ import {
 
 ### Natural sizing
 
-<ComponentPreview phoneMenuHeight={319} details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong>: use <code>minWidth="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>minWidth</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>minWidth</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>Menu.Content</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for Radix variables used in collision detection.</li></ul></>} code={`<Menu>
+<ComponentPreview details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong>: use <code>minWidth="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>minWidth</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>minWidth</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>Menu.Content</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for Radix variables used in collision detection.</li></ul></>} code={`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><Tools /> Tools</Button>
   </Menu.Trigger>
@@ -59,7 +59,7 @@ import {
 
 ### Horizontal (icons only)
 
-<ComponentPreview phoneMenuHeight={155} details={<>
+<ComponentPreview details={<>
   <p>Set <code>layout="horizontal"</code> on <code>Menu.Content</code> for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
   <p>On a phone with <code>touch.css</code> the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
 </>} code={`<Menu>
@@ -78,7 +78,7 @@ import {
 
 ### Horizontal (icons with labels)
 
-<ComponentPreview phoneMenuHeight={155} details={<>
+<ComponentPreview details={<>
   <p>Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.</p>
   <p>On a phone with <code>touch.css</code> these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
 </>} code={`<Menu>
@@ -97,7 +97,7 @@ import {
 
 ### Grouped items
 
-<ComponentPreview phoneMenuHeight={398} details={<>Use <code>Menu.Group</code> and <code>Menu.Label</code> to organize related items into labeled sections.</>} code={`<Menu>
+<ComponentPreview details={<>Use <code>Menu.Group</code> and <code>Menu.Label</code> to organize related items into labeled sections.</>} code={`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><FileDocument /> Templates <ChevronDownMd /></Button>
   </Menu.Trigger>
@@ -121,7 +121,7 @@ import {
 
 ### Submenus
 
-<ComponentPreview phoneMenuHeight={426} details={<>Use <code>Menu.Sub</code>, <code>Menu.SubTrigger</code>, and <code>Menu.SubContent</code> for nested menus.</>} code={`<Menu>
+<ComponentPreview details={<>Use <code>Menu.Sub</code>, <code>Menu.SubTrigger</code>, and <code>Menu.SubContent</code> for nested menus.</>} code={`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost">Options <ChevronDownMd /></Button>
   </Menu.Trigger>
@@ -150,7 +150,7 @@ import {
 
 ### Checkbox items
 
-<ComponentPreview phoneMenuHeight={231} details={<>
+<ComponentPreview details={<>
   <p>Use <code>Menu.CheckboxItem</code> with <code>checked</code>, <code>onCheckedChange</code>, and <code>{"onSelect={(evt) => evt.preventDefault()}"}</code> to keep the menu open.</p>
   <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> and <code>indicatorVariant</code> say, so the phone view leaves out those controls.</p>
 </>} code={`const [settings, setSettings] = useState({
@@ -202,7 +202,7 @@ return (
 
 ### Radio items
 
-<ComponentPreview phoneMenuHeight={319} details={<>
+<ComponentPreview details={<>
   <p>Use <code>Menu.RadioGroup</code> and <code>Menu.RadioItem</code> for single-selection options.</p>
   <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> says, so the phone view leaves out that control.</p>
 </>} code={`const [value, setValue] = useState("any")
@@ -232,7 +232,7 @@ return (
 
 ### Item actions
 
-<ComponentPreview phoneMenuHeight={231} details={<>Use <code>Menu.ItemActions</code> and <code>Menu.ItemAction</code> for hover actions (e.g. delete) on an item.<br/><br/><strong>Accessibility note:</strong> these actions are not keyboard accessible due to how Radix Menu works, so they should not be critical actions with no other parity.</>} code={`<Menu>
+<ComponentPreview details={<>Use <code>Menu.ItemActions</code> and <code>Menu.ItemAction</code> for hover actions (e.g. delete) on an item.<br/><br/><strong>Accessibility note:</strong> these actions are not keyboard accessible due to how Radix Menu works, so they should not be critical actions with no other parity.</>} code={`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><History /> Conversations</Button>
   </Menu.Trigger>
@@ -262,7 +262,7 @@ return (
 
 ### Destructive items
 
-<ComponentPreview phoneMenuHeight={262} details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>Menu.Link</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={`<Menu>
+<ComponentPreview details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>Menu.Link</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={`<Menu>
   <Menu.Trigger>
     <Button color="secondary" variant="soft" uniform aria-label="More actions">
       <DotsHorizontal />

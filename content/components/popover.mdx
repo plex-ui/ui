@@ -169,7 +169,7 @@ export function PopoverControllerDemo() {
 
 These examples keep the panel beside the trigger on desktop and below it on phones, where space beside the trigger is limited.
 
-<ComponentPreview phoneMenuHeight={134} code={`import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+<ComponentPreview code={`import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 
 function Example() {
   const wide = useBreakpoint('md');
@@ -185,7 +185,7 @@ function Example() {
 
 ### Sizing the popover
 
-<ComponentPreview phoneMenuHeight={116} details={<>The popover can be sized with any combination of <code>width</code>, <code>minWidth</code>, or <code>maxWidth</code>. All popovers default to a <code>minWidth</code> of <code>300px</code>, and a <code>maxWidth</code> of <code>700px</code>, capped by the space available in the viewport.</>} code={`<Popover>
+<ComponentPreview details={<>The popover can be sized with any combination of <code>width</code>, <code>minWidth</code>, or <code>maxWidth</code>. All popovers default to a <code>minWidth</code> of <code>300px</code>, and a <code>maxWidth</code> of <code>700px</code>, capped by the space available in the viewport.</>} code={`<Popover>
   <Popover.Trigger>...</Popover.Trigger>
   <Popover.Content minWidth="auto" side="top">...</Popover.Content>
 </Popover>`} previewMinHeight={168}>
@@ -210,7 +210,7 @@ function Example() {
 
 ### Using the controller
 
-<ComponentPreview phoneMenuHeight={214} details={<>You can access <code>usePopoverController()</code> controller context from components within <code>Popover.Content</code>. The hook exposes two methods, <code>close()</code> and <code>shake()</code>. They do exactly what you think they do.<br/><br/><ul><li>Attempting to submit an empty form calls the <code>shake()</code> method</li><li>After the simulated two-second request, <code>close()</code> dismisses the popup. Closing or unmounting cancels the pending request; reopening starts a fresh session.</li></ul></>} code={controllerCode} previewMinHeight={168}>
+<ComponentPreview details={<>You can access <code>usePopoverController()</code> controller context from components within <code>Popover.Content</code>. The hook exposes two methods, <code>close()</code> and <code>shake()</code>. They do exactly what you think they do.<br/><br/><ul><li>Attempting to submit an empty form calls the <code>shake()</code> method</li><li>After the simulated two-second request, <code>close()</code> dismisses the popup. Closing or unmounting cancels the pending request; reopening starts a fresh session.</li></ul></>} code={controllerCode} previewMinHeight={168}>
   <PopoverControllerDemo />
 </ComponentPreview>
 

@@ -1,8 +1,9 @@
 /* A confirmation from the button that asks for it. On a desktop the panel sits above its button. On a phone
    it covers the button, as iOS 26 presents an action sheet that has a source: over it, without Cancel,
    cancelled by a tap anywhere else (WWDC25 "Build a UIKit app with the new design"). Its inside follows the
-   native one (iOS2 IMG_5528), the layout of a native Alert: 16 to the edge, the message in the primary label
-   at 17/22 and 31 from the edge, a 48px capsule 16 under it, its label medium as in the kit Action Sheet. */
+   native one (iOS2 IMG_5528) with the measures of the iOS 27 alert (kit iOS 27, Alerts): 14 to the edge, the
+   message in the primary label at 17/22 and 22 from the edge, a 48px capsule 24 under the message text, its
+   label medium as in the kit Action Sheet. */
 .Confirmation {
   display: flex;
   flex-direction: column;
@@ -22,11 +23,11 @@
     --popover-width: 240px;
     --popover-min-width: 0px;
     gap: 10px;
-    padding: var(--dialog-alert-padding, 16px);
+    padding: var(--dialog-alert-padding, 14px);
   }
 
   .Message {
-    padding: var(--dialog-alert-header-padding, 5px 15px 6px);
+    padding: var(--dialog-alert-header-padding, 8px 8px 14px);
     font-size: var(--dialog-mobile-type-size, 17px);
     line-height: var(--dialog-mobile-type-leading, 22px);
     overflow-wrap: anywhere;

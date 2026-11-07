@@ -153,25 +153,13 @@ const AvatarImage = ({
   )
 }
 
-// The initial of the name, and the initial of its last word, which shows only on a phone: an iOS monogram has the
-// initials of the first and the last name (Avatar.module.css)
+// The first character of the name, past any leading space and whole even when it is an emoji (a surrogate pair)
+const initialOf = (name: string): string => (Array.from(name.trim())[0] ?? "").toUpperCase()
+
 const AvatarInitial = ({ name = "" }: { name?: string }) => {
-  const [firstInitial, lastInitial] = useMemo(() => getInitials(name), [name])
+  const firstInitial = useMemo(() => initialOf(name), [name])
 
-  return (
-    <span className={s.AvatarInitial}>
-      {firstInitial}
-      {lastInitial && <span className={s.AvatarLastInitial}>{lastInitial}</span>}
-    </span>
-  )
-}
-
-// The first character of a word, whole even when it is an emoji (a surrogate pair)
-const initialOf = (word = ""): string => (Array.from(word)[0] ?? "").toUpperCase()
-
-const getInitials = (name: string): [string, string] => {
-  const words = name.trim().split(/\s+/)
-  return [initialOf(words[0]), words.length > 1 ? initialOf(words[words.length - 1]) : ""]
+  return <span className={s.AvatarInitial}>{firstInitial}</span>
 }
 
 const AvatarOverflowCount = ({ count }: { count: number }) => {

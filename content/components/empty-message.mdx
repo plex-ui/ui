@@ -4,6 +4,7 @@ description: Empty state for telling users there's nothing to show, with error, 
 metaDescription: React empty state component for telling users when there's nothing to show, with error, warning, no-results, and onboarding compositions.
 ---
 
+import emptyMessageStyles from "@/components/docs/EmptyMessageDemos.module.css"
 import {
   EmptyMessageBaseDemo,
   EmptyMessageErrorDemo,
@@ -19,7 +20,7 @@ import {
 
 ### Composition
 
-<ComponentPreview code={`<EmptyMessage>
+<ComponentPreview className={emptyMessageStyles.PhoneScreenPreview} code={`<EmptyMessage>
   <EmptyMessage.Icon>
     <Explore />
   </EmptyMessage.Icon>
@@ -37,7 +38,7 @@ import {
 
 ### Error message
 
-<ComponentPreview details={<>The <code>color</code> property enables you to display clearer intent with the message, such as showing an error state.</>} code={`<EmptyMessage>
+<ComponentPreview className={emptyMessageStyles.PhoneScreenPreview} details={<>The <code>color</code> property enables you to display clearer intent with the message, such as showing an error state.</>} code={`<EmptyMessage>
   <EmptyMessage.Icon color="danger">
     <Mic />
   </EmptyMessage.Icon>
@@ -50,7 +51,7 @@ import {
 
 ### Warning message
 
-<ComponentPreview code={`<EmptyMessage>
+<ComponentPreview className={emptyMessageStyles.PhoneScreenPreview} code={`<EmptyMessage>
   <EmptyMessage.Icon color="warning">
     <Sparkle />
   </EmptyMessage.Icon>

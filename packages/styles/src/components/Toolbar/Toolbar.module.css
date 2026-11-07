@@ -85,13 +85,13 @@
     grid-template-areas: "leading content trailing";
     padding: var(--toolbar-bottom-item-top) var(--toolbar-bottom-gutter) var(--toolbar-bottom-padding-bottom);
 
-    /* Native iOS 26 bottom search (IMG_5491): the edge starts 27pt above the capsule and covers the content
-       fully 33pt below the capsule's top, linear in between; text 4pt above the capsule keeps about 40% of its
-       contrast. The full cover then reaches the bottom of the screen. */
+    /* The edge starts 27pt above the items, as on native iOS 26 (IMG_5491), and covers the content fully from the
+       items' top down to the bottom of the screen: no content shows through a soft or glass item (owner 07.11;
+       the native glass capsule hid 33pt more of the fade). */
     &::before {
       inset: calc(var(--toolbar-bottom-item-top) - 27px) 0 0;
-      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 60px);
-      mask-image: linear-gradient(to bottom, transparent, #000 60px);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 27px);
+      mask-image: linear-gradient(to bottom, transparent, #000 27px);
     }
 
     /* The other backgrounds start at the top of the bar: the edge's place and mask, which come later than

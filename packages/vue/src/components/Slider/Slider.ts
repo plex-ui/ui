@@ -13,7 +13,6 @@ import {
   type VNode,
   type VNodeArrayChildren,
 } from "vue"
-import { useBreakpoint } from "../../composables/useBreakpoints.js"
 import { toCssVariables } from "../../lib/helpers.js"
 import { Button } from "../Button/index.js"
 import { Reload } from "../Icon/index.js"
@@ -352,7 +351,6 @@ const SliderComponent = defineComponent({
     const isMounted = ref(false)
 
     // Used to position the input over the thumb
-    const isTabletAndUp = useBreakpoint("md")
     const inputRef = ref<HTMLInputElement | null>(null)
     const rootRef = ref<HTMLElement | null>(null)
     // We assume that the width of the thumb does not change from render to render
@@ -543,15 +541,13 @@ const SliderComponent = defineComponent({
       const currentInputValue = inputValue.value
       const isPointerDown = pointerDown.value
       const mounted = isMounted.value
-      const tabletAndUp = isTabletAndUp.value
 
       const { min, max, unit, prefixUnit, trackColor, rangeColor, disabled, orientation, value } = props
       const range = isRange()
       const isVertical = orientation === "vertical"
       const singleValue = range ? 0 : (value as number)
 
-      // The input width is based on the number of characters in the input / font size
-      const inputWidth = Math.max(currentInputValue.length, 1) * (tabletAndUp ? 7.8 : 9.5)
+      const inputWidth = getValueWidth(currentInputValue)
 
       const animationDurationMS =
         range || !mounted || isPointerDown ? 0 : Math.max(Math.abs(percent.value - getPreviousPercent()) * 300, 100)
@@ -623,7 +619,7 @@ const SliderComponent = defineComponent({
                       "id": id,
                       "class": s.ValueInput,
                       "ref": inputRef,
-                      "style": { width: `${Math.ceil(inputWidth)}px` },
+                      "style": { width: inputWidth },
                       "onKeydown": handleKeyDown,
                       // React keeps the `value` attribute in sync with a controlled input
                       "^value": currentInputValue,
@@ -751,4 +747,13 @@ type SliderInstance = Omit<InstanceType<typeof SliderComponent>, "$props"> & { $
 
 export const Slider = SliderComponent as unknown as Omit<typeof SliderComponent, never> & {
   new (): SliderInstance
+}
+
+/**
+ * The value field is as wide as its characters at any font size: tabular digits are one `ch` each, and a sign,
+ * a decimal point or a separator about half of one, so a right-aligned value sits next to its prefix unit.
+ */
+const getValueWidth = (text: string): string => {
+  const digits = text.replace(/[^0-9]/g, "").length
+  return `calc(${Math.max(digits + (text.length - digits) / 2, 1)}ch + 1px)`
 }

@@ -446,7 +446,7 @@ On Phone the fields keep this web form at touch sizes: iOS has no floating label
 
 #### Label inside
 
-<ComponentPreview phoneMenuHeight={577} language="vue" details={<>Use <code>label-placement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box.</>} code={inside} previewMinHeight={380}>
+<ComponentPreview language="vue" details={<>Use <code>label-placement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box.</>} code={inside} previewMinHeight={380}>
   <VueFloatingLabelInputDemo template={inside} stageClassName="py-10" state={{ country: "es" }} />
 </ComponentPreview>
 
@@ -496,7 +496,7 @@ Choose Empty or Filled to replace the date with a preset. The invalid, disabled 
 
 #### Phone input
 
-<ComponentPreview phoneMenuHeight={497} language="vue" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses the <code>startAdornment</code> slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated.</>} code={phone} previewMinHeight={200}>
+<ComponentPreview language="vue" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses the <code>startAdornment</code> slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated.</>} code={phone} previewMinHeight={200}>
   <VueFloatingLabelInputDemo template={phone} stageClassName="py-10" state={{ country: "es", phone: "" }} />
 </ComponentPreview>
 
@@ -506,19 +506,19 @@ Choose Empty or Filled to replace the date with a preset. The invalid, disabled 
 
 #### Select
 
-<ComponentPreview phoneMenuHeight={381} language="vue" details={<>Use <code>FloatingLabelSelect</code> for plain text dropdowns. The label floats up when a value is selected, matching <code>FloatingLabelInput</code> styling.</>} code={select} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Use <code>FloatingLabelSelect</code> for plain text dropdowns. The label floats up when a value is selected, matching <code>FloatingLabelInput</code> styling.</>} code={select} previewMinHeight={168}>
   <VueFloatingLabelInputDemo template={select} stageClassName="py-10" state={{ role: "" }} />
 </ComponentPreview>
 
 #### Multiple selection
 
-<ComponentPreview phoneMenuHeight={469} language="vue" details={<>Pair <code>FloatingLabelSelect</code> with a <code>multiple</code> <code>Select</code> to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list.</>} code={multiple} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Pair <code>FloatingLabelSelect</code> with a <code>multiple</code> <code>Select</code> to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list.</>} code={multiple} previewMinHeight={168}>
   <VueFloatingLabelInputDemo template={multiple} stageClassName="py-10" state={{ skills: [] }} />
 </ComponentPreview>
 
 #### Country select
 
-<ComponentPreview phoneMenuHeight={497} language="vue" details={<>Use <code>FloatingLabelSelect</code> alongside <code>FloatingLabelInput</code> for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected.</>} code={country} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Use <code>FloatingLabelSelect</code> alongside <code>FloatingLabelInput</code> for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected.</>} code={country} previewMinHeight={168}>
   <VueFloatingLabelInputDemo template={country} stageClassName="py-10" state={{ country: "" }} />
 </ComponentPreview>
 

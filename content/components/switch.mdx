@@ -4,7 +4,7 @@ description: Toggle switch for turning settings on or off, with an optional labe
 metaDescription: React switch component for toggling settings on or off, with optional label, supporting description, and configurable label position
 ---
 
-import switchStyles from "@/components/docs/SwitchDemos.module.css"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import { SwitchStatesDemo, SwitchLabelsDemo, SwitchControlledDemo, SwitchSettingsDemo } from "@/components/docs/SwitchDemos"
 
 <UsageBlock>{`import { Switch } from "@plexui/ui/components/Switch";`}</UsageBlock>
@@ -15,7 +15,7 @@ On Phone, put switches in labelled rows with a trailing control. Use compact pre
 
 ### Overview
 
-<ComponentPreview className={switchStyles.PhoneRowsPreview} details={<>Compare off and on across enabled and disabled states. Enabled controls are interactive. Choose <code>accent</code> for the configured application accent (platform green by default), or <code>primary</code> for the default Switch style. Disabled on retains a muted accent; disabled off uses the neutral track.</>} code={`// Desktop: four states, shown together.
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Compare off and on across enabled and disabled states. Enabled controls are interactive. Choose <code>accent</code> for the configured application accent (platform green by default), or <code>primary</code> for the default Switch style. Disabled on retains a muted accent; disabled off uses the neutral track.</>} code={`// Desktop: four states, shown together.
 <Switch color="accent" aria-label="Enabled, initially off" />
 <Switch color="accent" defaultChecked aria-label="Enabled, initially on" />
 <Switch color="accent" disabled aria-label="Disabled, off" />
@@ -33,7 +33,7 @@ On Phone, put switches in labelled rows with a trailing control. Use compact pre
 
 ### Label and description
 
-<ComponentPreview className={switchStyles.PhoneRowsPreview} details={<>Click either the label or the control. Descriptions are linked with <code>aria-describedby</code>. Desktop supports both label positions; Phone keeps the label on the left. Use <code>defaultChecked</code> for an initial value and <code>name</code> for form submission.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Click either the label or the control. Descriptions are linked with <code>aria-describedby</code>. Desktop supports both label positions; Phone keeps the label on the left. Use <code>defaultChecked</code> for an initial value and <code>name</code> for form submission.</>} code={`// Desktop
 <Switch color="accent" label="Notifications" labelPosition="start" name="notifications" defaultChecked />
 <Switch color="accent" label="Weekly summary" description="Sent on Mondays." labelPosition="start" name="summary" />
 
@@ -47,7 +47,7 @@ On Phone, put switches in labelled rows with a trailing control. Use compact pre
 
 ### Controlled state
 
-<ComponentPreview className={switchStyles.PhoneRowsPreview} details={<>Change <code>checked</code> above or toggle the setting. Both update the same state. Use this pattern when your application owns the value.</>} code={`const [checked, setChecked] = useState(false)
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Change <code>checked</code> above or toggle the setting. Both update the same state. Use this pattern when your application owns the value.</>} code={`const [checked, setChecked] = useState(false)
 
 // Desktop
 <Switch color="accent" label="Airplane mode" checked={checked} onCheckedChange={setChecked} />

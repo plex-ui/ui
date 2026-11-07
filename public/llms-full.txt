@@ -318,19 +318,19 @@ Props:
   - onPointerDown (() => void) — Makes avatar interactive (renders a button)
 
 ### Overview
-A variety of avatar types: text, image, icon, and overflow. On a phone a text avatar is an iOS monogram: its color runs from light at the top to deep at the bottom, the initials are in the rounded system font where the browser has it, and a name of several words shows the initials of its first and last words.
+A variety of avatar types: text, image, icon, and overflow.
 ```tsx
 <div className="flex gap-4">
 <Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" size={48} />
-<Avatar name="Will Harper" size={48} />
+<Avatar name="Will" size={48} />
 <Avatar name="Tech support" Icon={Robot} size={48} color="primary" variant="solid" />
 </div>
 ```
 
 ### Text
-For text-based avatars, a single initial is displayed based on the name prop passed to the component. On a phone a name of several words shows the initials of its first and last words, as an iOS monogram does.
+For text-based avatars, a single initial is displayed based on the name prop passed to the component.
 ```tsx
-<Avatar name="David Park" size={48} />
+<Avatar name="David" size={48} />
 ```
 
 ### Image
@@ -361,7 +361,7 @@ To display an overflow avatar, provide a number to the overflowCount prop. The n
 ### Sizing
 To size the avatar, pass a number to the size property, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value.
 ```tsx
-<Avatar name="David Park" size={48} />
+<Avatar name="David" size={48} />
 ```
 
 ### Colors & variants
@@ -400,7 +400,7 @@ By default, avatars are fully rounded. You can override this by passing a Tailwi
 Avatars can be used as interactive elements by passing an onClick (or onPointerDown) handler. The avatar then renders a button and applies semantic and visual interaction styles.
 ```tsx
 <div className="flex items-center gap-4">
-<Avatar name="Will Harper" size={48} onClick={saySup} />
+<Avatar name="Will" size={48} onClick={saySup} />
 <Avatar
   imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
   name="Tyler"
@@ -2783,7 +2783,7 @@ const heading = useRef<HTMLDivElement>(null)
 ```
 
 ### Text field
-An alert can ask for one short value. The field fills the alert like its actions, a 48px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.
+An alert can ask for one short value. The field fills the alert like its actions, a 52px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.
 ```tsx
 const [open, setOpen] = useState(false)
 const [name, setName] = useState("New folder")

@@ -22,6 +22,35 @@
     min-block-size: min-content;
     padding-inline: var(--empty-message-padding-inline, 0px);
     padding-bottom: var(--empty-message-padding-bottom, 0px);
+
+    /* On a phone (touch.css, the iOS 27 empty state) the text keeps a further inset, and a message that fills
+       a screen can put its buttons at the bottom of the screen and centre the rest in the space above them:
+       auto margins above the content and above the buttons, with the same inset above both, so the buttons
+       keep their distance from the text. A text link stays under the text. Outside the phone layout these
+       rules do not apply, so a caller's own spacing and button widths stand. */
+    @media (max-width: 767px) {
+      > :is(.Title, .Description) {
+        padding-inline: var(--empty-message-text-inset, 0px);
+      }
+
+      &:has(> .ActionRow > [data-variant]) {
+        padding-top: var(--empty-message-fill-action-inset, 0px);
+
+        > :first-child:not(.ActionRow) {
+          margin-top: var(--empty-message-fill-content-margin, 0px);
+        }
+
+        > .ActionRow {
+          align-self: var(--empty-message-fill-action-align, auto);
+          margin-top: var(--empty-message-fill-action-margin, var(--empty-message-action-spacing, spacing(4)));
+          padding-top: var(--empty-message-fill-action-inset, 0px);
+
+          > [data-variant] {
+            width: var(--empty-message-fill-action-width, auto);
+          }
+        }
+      }
+    }
   }
 
   /* Compact: a panel, a card section or an empty list */
@@ -46,6 +75,7 @@
     .Description {
       color: var(--color-text-tertiary);
       font-size: var(--empty-message-compact-description-size, var(--font-text-sm-size));
+      font-weight: var(--font-weight-normal);
       line-height: var(--empty-message-compact-description-leading, var(--font-text-sm-line-height));
       letter-spacing: normal;
     }
@@ -139,6 +169,7 @@
   margin: 0;
   color: var(--empty-message-description-color, var(--color-text-tertiary));
   font-size: var(--empty-message-description-size, var(--font-text-sm-size));
+  font-weight: var(--empty-message-description-weight, var(--font-weight-normal));
   line-height: var(--empty-message-description-leading, var(--font-text-sm-line-height));
   letter-spacing: var(--empty-message-description-tracking, normal);
   text-align: center;

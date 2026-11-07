@@ -348,6 +348,19 @@
     --radio-group-checkmark-display: block;
 
     --slider-reset-size: 44px;
+    /* The label row reads as an iOS list row: 17px label, value and unit in the secondary label, a 20px reset
+       glyph (its arrow about 17px) on the 44px target, and no gap above the 52px slider row. */
+    --slider-label-height: 44px;
+    --slider-label-gap: 0px;
+    --slider-label-font-size: 17px;
+    --slider-label-line-height: 22px;
+    --slider-value-font-size: 17px;
+    --slider-value-line-height: 22px;
+    --slider-value-color: var(--mobile-label-secondary, var(--color-text-secondary));
+    --slider-value-color-focus: var(--color-text);
+    --slider-unit-color: var(--mobile-label-secondary, var(--color-text-secondary));
+    --slider-reset-icon-size: 20px;
+    --slider-reset-color: var(--mobile-label-secondary, var(--color-text-secondary));
     --slider-control-height: 52px;
     --slider-padding-bottom: 0px;
     --slider-track-size: 6px;
@@ -355,31 +368,44 @@
     --slider-thumb-width: 38px;
     --slider-thumb-height: 24px;
     --slider-thumb-radius: var(--radius-full);
+    /* The knob is white in both themes (kit iOS 27 Sliders 7:53847, Knob 255,255,255 in Light and Dark). */
+    --slider-thumb-background: var(--white);
     --slider-thumb-shadow: 0 0.5px 4px rgb(0 0 0 / 12%), 0 6px 13px rgb(0 0 0 / 12%);
     --progress-height: 6px;
     --progress-radius: 3px;
 
-    /* Full empty states share one content-card family; compact panels remain smaller. */
+    /* Full empty states follow the iOS 27 empty state (kit iOS 27, Empty States 5583:24408): message 22
+       Semibold and description 22 Medium in the secondary label, 26px lines with no gap, the symbol in a
+       50px circle 16px above, text 298px wide on the 402px screen (36px screen inset, 16px more for the
+       text). On a full screen the action is a 52px button across the screen 36px above its bottom, the text
+       centred in the space above it. Compact panels remain smaller. */
     --empty-message-title-size: 22px;
-    --empty-message-title-leading: 28px;
-    --empty-message-title-gap: 4px;
+    --empty-message-title-leading: 26px;
+    --empty-message-title-gap: 0px;
     --empty-message-title-only-gap: 0px;
-    --empty-message-title-weight: var(--font-weight-bold);
+    --empty-message-title-weight: var(--font-weight-semibold);
     /* No tracking of its own: the system font tracks it (22/700 "Нет приглашений" 564 at @3x, native 563). */
     --empty-message-title-tracking: normal;
-    --empty-message-description-size: 17px;
-    --empty-message-description-leading: 22px;
-    --empty-message-description-color: var(--color-text-secondary);
+    --empty-message-description-size: 22px;
+    --empty-message-description-leading: 26px;
+    --empty-message-description-weight: var(--font-weight-medium);
+    --empty-message-description-color: var(--mobile-label-secondary, var(--color-text-secondary));
     --empty-message-compact-description-size: 15px;
     --empty-message-compact-description-leading: 20px;
-    --empty-message-padding-inline: 40px;
-    --empty-message-padding-bottom: 40px;
+    --empty-message-padding-inline: 36px;
+    --empty-message-text-inset: 16px;
+    --empty-message-padding-bottom: 36px;
     --empty-message-action-spacing: 24px;
     --empty-message-action-gap: 12px;
+    --empty-message-fill-action-inset: 24px;
+    --empty-message-fill-content-margin: auto;
+    --empty-message-fill-action-margin: auto;
+    --empty-message-fill-action-align: stretch;
+    --empty-message-fill-action-width: 100%;
     --empty-message-multi-direction: column;
     --empty-message-multi-align: stretch;
     --empty-message-multi-action-width: 100%;
-    --empty-message-action-size: 48px;
+    --empty-message-action-size: 52px;
     --empty-message-action-font-size: 17px;
     --empty-message-action-line-height: 22px;
     --empty-message-action-gutter: 16px;
@@ -403,6 +429,9 @@
     --input-control-min-width: 0px;
     --input-clear-target-size: 44px;
     --input-clear-target-offset: 0px;
+    /* An iOS text field shows its caret, not a ring, while it is edited (kit iOS 27 Text Fields 5433:15635,
+       State=Typing; the alert's field 65:57149): a filled field keeps its fill when focused. */
+    --input-soft-border-color-focus: transparent;
     --floating-input-font-size: 17px;
     --floating-input-control-min-width: 0px;
     --floating-input-clear-size: 44px;

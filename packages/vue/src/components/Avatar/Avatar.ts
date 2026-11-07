@@ -65,19 +65,10 @@ const renderImage = (
     }),
   ])
 
-// The initial of the name, and the initial of its last word, which shows only on a phone: an iOS monogram has the
-// initials of the first and the last name (Avatar.module.css)
-// The first character of a word, whole even when it is an emoji (a surrogate pair)
-const initialOf = (word = ""): string => (Array.from(word)[0] ?? "").toUpperCase()
+// The first character of the name, past any leading space and whole even when it is an emoji (a surrogate pair)
+const initialOf = (name: string): string => (Array.from(name.trim())[0] ?? "").toUpperCase()
 
-const renderInitial = (name = "") => {
-  const words = name.trim().split(/\s+/)
-  const lastInitial = words.length > 1 ? initialOf(words[words.length - 1]) : ""
-  return h("span", { class: s.AvatarInitial }, [
-    initialOf(words[0]),
-    lastInitial ? h("span", { class: s.AvatarLastInitial }, lastInitial) : null,
-  ])
-}
+const renderInitial = (name = "") => h("span", { class: s.AvatarInitial }, initialOf(name))
 
 const renderOverflowCount = (count: number) => {
   const formattedCount = new Intl.NumberFormat("en", {

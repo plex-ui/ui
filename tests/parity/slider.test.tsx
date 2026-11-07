@@ -155,11 +155,16 @@ describe("Slider markup parity", () => {
     expect(react).toContain(`inputmode="${mode}"`)
   })
 
-  test("below the md breakpoint the value input is wider per character", async () => {
-    tabletAndUp = false
-    const { react, vue } = await renderPair(reactSlider(BASE), () => vueSlider(BASE))
+  test.each([
+    // Tabular digits are one `ch` each, at the 14px desktop and the 17px phone value alike; a sign or a decimal
+    // point about half of one, so a right-aligned value stays next to a prefix unit (plan 163)
+    ["digits", BASE, "4ch"],
+    ["a negative decimal (-0.50: three digits, a sign and a point)", { label: "Offset", min: -1, max: 1, step: 0.05, value: -0.5 }, "4ch"],
+    ["a prefix unit", { label: "Price", min: 0, max: 100, step: 0.5, prefixUnit: "$", value: 12.5 }, "3.5ch"],
+  ])("the value field is as wide as its characters: %s", async (_name, props, width) => {
+    const { react, vue } = await renderPair(reactSlider(props), () => vueSlider(props))
     expect(vue).toBe(react)
-    expect(react).toContain('style="width: 38px"')
+    expect(react).toContain(`width: calc(${width} + 1px)`)
   })
 
   test("a rich label: a tooltip on the label text", async () => {

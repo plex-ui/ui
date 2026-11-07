@@ -1,6 +1,6 @@
 import clsx from "clsx"
 import { computed, defineComponent, h, mergeProps, nextTick, onBeforeUnmount, onMounted, ref, useId, watch, withDirectives, type InputHTMLAttributes, type PropType, type VNodeChild } from "vue"
-import { Eye, EyeOff, X } from "../Icon/index.js"
+import { Eye, EyeOff, X, XCircleFilled } from "../Icon/index.js"
 import { FieldError } from "../FieldError/index.js"
 import { vDefaultValue, vServerText } from "../../lib/defaultValue.js"
 import { hasContent } from "../../lib/slotContent.js"
@@ -301,7 +301,7 @@ const FloatingLabelInputComponent = defineComponent({
                 ),
             endAdornment ? h("div", { class: s.EndAdornment }, endAdornment) : null,
             showClearButton
-              ? h("button", { "type": "button", "aria-label": "Clear input", "class": s.ClearButton, "onClick": handleClear }, [h(X)])
+              ? h("button", { "type": "button", "aria-label": "Clear input", "class": s.ClearButton, "onClick": handleClear }, [h(X, { class: s.ClearIcon }), h(XCircleFilled, { class: s.ClearPhoneIcon })])
               : null,
             showRevealButton
               ? h(

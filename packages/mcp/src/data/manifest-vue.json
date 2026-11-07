@@ -324,13 +324,13 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div class=\"flex gap-4\">\n  <Avatar name=\"Tyler\" image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" :size=\"48\" />\n  <Avatar name=\"Will Harper\" :size=\"48\" />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" :size=\"48\" color=\"primary\" variant=\"solid\" />\n</div>",
-          "details": "A variety of avatar types: text, image, icon, and overflow. On a phone a text avatar is an iOS monogram: its color runs from light at the top to deep at the bottom, the initials are in the rounded system font where the browser has it, and a name of several words shows the initials of its first and last words."
+          "code": "<div class=\"flex gap-4\">\n  <Avatar name=\"Tyler\" image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" :size=\"48\" />\n  <Avatar name=\"Will\" :size=\"48\" />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" :size=\"48\" color=\"primary\" variant=\"solid\" />\n</div>",
+          "details": "A variety of avatar types: text, image, icon, and overflow."
         },
         {
           "name": "Text",
-          "code": "<Avatar name=\"David Park\" :size=\"48\" />",
-          "details": "For text-based avatars, a single initial is displayed based on the name prop passed to the component. On a phone a name of several words shows the initials of its first and last words, as an iOS monogram does."
+          "code": "<Avatar name=\"David\" :size=\"48\" />",
+          "details": "For text-based avatars, a single initial is displayed based on the name prop passed to the component."
         },
         {
           "name": "Image",
@@ -349,7 +349,7 @@
         },
         {
           "name": "Sizing",
-          "code": "<Avatar name=\"David Park\" :size=\"size\" />",
+          "code": "<Avatar name=\"David\" :size=\"size\" />",
           "details": "To size the avatar, pass a number to the size prop, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value."
         },
         {
@@ -364,7 +364,7 @@
         },
         {
           "name": "Interactive",
-          "code": "<div class=\"flex items-center gap-4\">\n  <Avatar name=\"Will Harper\" :size=\"48\" @click=\"saySup\" />\n  <Avatar\n    image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n    name=\"Tyler\"\n    :size=\"48\"\n    @click=\"saySup\"\n  />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" :size=\"48\" color=\"info\" @click=\"saySup\" />\n</div>",
+          "code": "<div class=\"flex items-center gap-4\">\n  <Avatar name=\"Will\" :size=\"48\" @click=\"saySup\" />\n  <Avatar\n    image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n    name=\"Tyler\"\n    :size=\"48\"\n    @click=\"saySup\"\n  />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" :size=\"48\" color=\"info\" @click=\"saySup\" />\n</div>",
           "details": "Avatars can be used as interactive elements by listening to @click (or @pointerdown). The avatar then renders a button and applies semantic and visual interaction styles."
         }
       ],
@@ -2236,7 +2236,7 @@
         {
           "name": "Text field",
           "code": "<Dialog v-model:open=\"open\" @update:open=\"(next) => { if (next) name = 'New folder' }\">\n  <DialogTrigger>\n    <Button color=\"secondary\" variant=\"outline\">New folder</Button>\n  </DialogTrigger>\n  <DialogContent mobile-variant=\"alert\" @open-auto-focus=\"$event.preventDefault(); $refs.field.$el.querySelector('input').select()\">\n    <DialogHeader>\n      <DialogTitle>New folder</DialogTitle>\n      <DialogDescription>Enter a name for this folder.</DialogDescription>\n    </DialogHeader>\n    <DialogBody>\n      <Input ref=\"field\" v-model=\"name\" aria-label=\"Folder name\" variant=\"soft\" size=\"3xl\" pill @clear=\"name = ''\" />\n    </DialogBody>\n    <DialogFooter>\n      <DialogClose>\n        <Button color=\"primary\" variant=\"soft\">Cancel</Button>\n      </DialogClose>\n      <Button color=\"primary\" :disabled=\"!name.trim()\" @click=\"open = false\">Create</Button>\n    </DialogFooter>\n  </DialogContent>\n</Dialog>",
-          "details": "An alert can ask for one short value. The field fills the alert like its actions, a 48px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty."
+          "details": "An alert can ask for one short value. The field fills the alert like its actions, a 52px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty."
         },
         {
           "name": "Metadata details",
@@ -2382,7 +2382,7 @@
       "examples": [
         {
           "name": "Composition",
-          "code": "<div\n  class=\"flex w-full items-center justify-center\"\n  :style=\"fill === 'absolute' ? { position: 'relative', minHeight: '200px' } : undefined\"\n>\n  <EmptyMessage :fill=\"fill\" :size=\"size\">\n    <EmptyMessageIcon v-if=\"icon === 'on'\" :color=\"color\" :size=\"size\">\n      <Explore />\n    </EmptyMessageIcon>\n    <EmptyMessageTitle v-if=\"content !== 'description'\" :color=\"color\">No projects yet</EmptyMessageTitle>\n    <EmptyMessageDescription v-if=\"content !== 'title'\">\n      Create your first project to get started\n    </EmptyMessageDescription>\n    <EmptyMessageActionRow v-if=\"actions !== 'none'\">\n      <Button color=\"primary\" :size=\"size === 'sm' ? 'md' : 'xl'\">\n        <Plus class=\"mr-[-2px]\" />\n        New project\n      </Button>\n      <Button v-if=\"actions === 'two'\" color=\"secondary\" variant=\"outline\" :size=\"size === 'sm' ? 'md' : 'xl'\">Browse templates</Button>\n    </EmptyMessageActionRow>\n  </EmptyMessage>\n</div>"
+          "code": "<div\n  class=\"flex w-full flex-1 flex-col items-center justify-center\"\n  :style=\"fill === 'absolute' ? { position: 'relative', minHeight: '200px' } : undefined\"\n>\n  <EmptyMessage :fill=\"fill\" :size=\"size\">\n    <EmptyMessageIcon v-if=\"icon === 'on'\" :color=\"color\" :size=\"size\">\n      <Explore />\n    </EmptyMessageIcon>\n    <EmptyMessageTitle v-if=\"content !== 'description'\" :color=\"color\">No projects yet</EmptyMessageTitle>\n    <EmptyMessageDescription v-if=\"content !== 'title'\">\n      Create your first project to get started\n    </EmptyMessageDescription>\n    <EmptyMessageActionRow v-if=\"actions !== 'none'\">\n      <Button color=\"primary\" :size=\"size === 'sm' ? 'md' : 'xl'\">\n        <Plus class=\"mr-[-2px]\" />\n        New project\n      </Button>\n      <Button v-if=\"actions === 'two'\" color=\"secondary\" variant=\"outline\" :size=\"size === 'sm' ? 'md' : 'xl'\">Browse templates</Button>\n    </EmptyMessageActionRow>\n  </EmptyMessage>\n</div>"
         },
         {
           "name": "Error message",
@@ -6414,17 +6414,17 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<!-- Desktop -->\n<table class=\"w-full max-w-sm border-separate border-spacing-x-4 border-spacing-y-4 text-sm\">\n  <caption class=\"sr-only\">Initial switch states. Enabled switches are interactive.</caption>\n  <thead>\n    <tr>\n      <th scope=\"col\" class=\"text-left font-normal text-secondary\">State</th>\n      <th scope=\"col\" class=\"text-center font-normal text-secondary\">Off</th>\n      <th scope=\"col\" class=\"text-center font-normal text-secondary\">On</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr v-for=\"disabled in [false, true]\" :key=\"String(disabled)\">\n      <th scope=\"row\" class=\"text-left font-normal\">{{ disabled ? 'Disabled' : 'Enabled' }}</th>\n      <td v-for=\"checked in [false, true]\" :key=\"String(checked)\">\n        <div class=\"flex justify-center\">\n          <Switch\n            :color=\"color\"\n            :disabled=\"disabled\"\n            :default-checked=\"checked\"\n            :aria-label=\"(disabled ? 'Disabled' : 'Enabled') + ', initially ' + (checked ? 'on' : 'off')\"\n          />\n        </div>\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<!-- Phone -->\n<div data-switch-phone-rows class=\"flex w-full grow flex-col gap-6 bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]\">\n  <FieldGroup v-for=\"disabled in [false, true]\" :key=\"String(disabled)\" :title=\"disabled ? 'Disabled' : 'Enabled'\">\n    <Field row label=\"Initially off\"><Switch :color=\"color\" :disabled=\"disabled\" /></Field>\n    <Field row label=\"Initially on\"><Switch :color=\"color\" :disabled=\"disabled\" default-checked /></Field>\n  </FieldGroup>\n</div>",
+          "code": "<!-- Desktop -->\n<table class=\"w-full max-w-sm border-separate border-spacing-x-4 border-spacing-y-4 text-sm\">\n  <caption class=\"sr-only\">Initial switch states. Enabled switches are interactive.</caption>\n  <thead>\n    <tr>\n      <th scope=\"col\" class=\"text-left font-normal text-secondary\">State</th>\n      <th scope=\"col\" class=\"text-center font-normal text-secondary\">Off</th>\n      <th scope=\"col\" class=\"text-center font-normal text-secondary\">On</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr v-for=\"disabled in [false, true]\" :key=\"String(disabled)\">\n      <th scope=\"row\" class=\"text-left font-normal\">{{ disabled ? 'Disabled' : 'Enabled' }}</th>\n      <td v-for=\"checked in [false, true]\" :key=\"String(checked)\">\n        <div class=\"flex justify-center\">\n          <Switch\n            :color=\"color\"\n            :disabled=\"disabled\"\n            :default-checked=\"checked\"\n            :aria-label=\"(disabled ? 'Disabled' : 'Enabled') + ', initially ' + (checked ? 'on' : 'off')\"\n          />\n        </div>\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<!-- Phone -->\n<div data-phone-rows class=\"flex w-full grow flex-col gap-6 bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]\">\n  <FieldGroup v-for=\"disabled in [false, true]\" :key=\"String(disabled)\" :title=\"disabled ? 'Disabled' : 'Enabled'\">\n    <Field row label=\"Initially off\"><Switch :color=\"color\" :disabled=\"disabled\" /></Field>\n    <Field row label=\"Initially on\"><Switch :color=\"color\" :disabled=\"disabled\" default-checked /></Field>\n  </FieldGroup>\n</div>",
           "details": "Compare off and on across enabled and disabled states. Enabled controls are interactive. Choose accent for the configured application accent (platform green by default), or primary for the default Switch style. Disabled on retains a muted accent; disabled off uses the neutral track."
         },
         {
           "name": "Label and description",
-          "code": "<!-- Desktop -->\n<div class=\"flex w-full max-w-sm flex-col gap-6\">\n  <Switch color=\"accent\" label=\"Notifications\" :label-position=\"labelPosition\" name=\"notifications\" default-checked />\n  <Switch color=\"accent\" label=\"Weekly summary\" description=\"Sent on Mondays.\" :label-position=\"labelPosition\" name=\"summary\" />\n</div>\n\n<!-- Phone: Field associates the external label and description with the switch. -->\n<div data-switch-phone-rows class=\"w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]\">\n  <FieldGroup>\n    <Field row label=\"Notifications\"><Switch color=\"accent\" name=\"notifications\" default-checked /></Field>\n    <Field row label=\"Weekly summary\" description=\"Sent on Mondays.\"><Switch color=\"accent\" name=\"summary\" /></Field>\n  </FieldGroup>\n</div>",
+          "code": "<!-- Desktop -->\n<div class=\"flex w-full max-w-sm flex-col gap-6\">\n  <Switch color=\"accent\" label=\"Notifications\" :label-position=\"labelPosition\" name=\"notifications\" default-checked />\n  <Switch color=\"accent\" label=\"Weekly summary\" description=\"Sent on Mondays.\" :label-position=\"labelPosition\" name=\"summary\" />\n</div>\n\n<!-- Phone: Field associates the external label and description with the switch. -->\n<div data-phone-rows class=\"w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]\">\n  <FieldGroup>\n    <Field row label=\"Notifications\"><Switch color=\"accent\" name=\"notifications\" default-checked /></Field>\n    <Field row label=\"Weekly summary\" description=\"Sent on Mondays.\"><Switch color=\"accent\" name=\"summary\" /></Field>\n  </FieldGroup>\n</div>",
           "details": "Click either the label or the control. Descriptions are linked with aria-describedby. Desktop supports both label positions; Phone keeps the label on the left. Use default-checked for an initial value and name for form submission."
         },
         {
           "name": "Controlled state",
-          "code": "<script setup>\nimport { ref } from 'vue'\nconst checked = ref(false)\n</script>\n\n<!-- Desktop -->\n<Switch color=\"accent\" label=\"Airplane mode\" v-model:checked=\"checked\" />\n\n<!-- Phone -->\n<div data-switch-phone-rows class=\"w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]\">\n  <FieldGroup><Field row label=\"Airplane mode\"><Switch color=\"accent\" v-model:checked=\"checked\" /></Field></FieldGroup>\n</div>",
+          "code": "<script setup>\nimport { ref } from 'vue'\nconst checked = ref(false)\n</script>\n\n<!-- Desktop -->\n<Switch color=\"accent\" label=\"Airplane mode\" v-model:checked=\"checked\" />\n\n<!-- Phone -->\n<div data-phone-rows class=\"w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]\">\n  <FieldGroup><Field row label=\"Airplane mode\"><Switch color=\"accent\" v-model:checked=\"checked\" /></Field></FieldGroup>\n</div>",
           "details": "Change checked above or toggle the setting. Both update the same state. Use v-model:checked when your application owns the value."
         },
         {
@@ -7702,5 +7702,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T19:26:43.898Z"
+  "generatedAt": "2026-11-07T21:00:37.413Z"
 }

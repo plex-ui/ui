@@ -183,6 +183,31 @@
   }
 }
 
+.ClearPhoneIcon {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  /* On a phone the clear button is the filled circle with a cross of iOS (xmark.circle.fill, a 17px circle in
+     the tertiary label: kit iOS 27 Text Fields 5433:15635), drawn with the PlexUI XCircleFilled icon, whose
+     circle is 20 of its 24px box. It is centred half the field height from the field's end, concentric with
+     the rounded end: 26px on the 52px field, where the kit centres it 26px from the edge of a row. */
+  .ClearIcon {
+    display: none;
+  }
+
+  .ClearPhoneIcon {
+    display: block;
+    width: calc(var(--floating-input-clear-glyph-size, 17px) * 1.2);
+    height: calc(var(--floating-input-clear-glyph-size, 17px) * 1.2);
+    color: var(--floating-input-clear-glyph-color, var(--mobile-label-tertiary, var(--color-text-tertiary)));
+  }
+
+  .ClearButton:last-child {
+    margin-inline-end: calc(var(--floating-input-height) / 2 - var(--floating-input-clear-size, 1em) / 2 - var(--floating-input-gutter) - 1px);
+  }
+}
+
 /* Password reveal toggle — circular ghost button hugging the right edge */
 .RevealButton {
   display: flex;

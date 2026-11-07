@@ -777,7 +777,7 @@ import { phoneRows } from "@/components/docs/phoneRowsTemplate"
 
 ### Fields in rows
 
-<ComponentPreview phoneMenuHeight={310} className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: <code>:pill="false"</code> on the control keeps the rounded box. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>:block="false"</code>, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes, a soft field loses its fill too, and the value ends at its edge.</>} code={rowFields} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: <code>:pill="false"</code> on the control keeps the rounded box. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>:block="false"</code>, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes, a soft field loses its fill too, and the value ends at its edge.</>} code={rowFields} previewMinHeight={168}>
   <VuePhoneRowsDemo template={rowFields} phoneTemplate={phoneRows(rowFields)} phoneStageClassName="w-full" state={{ unit: "ml", units: [{ value: "ml", label: "Millilitres" }, { value: "g", label: "Grams" }] }} stageClassName="py-10" />
 </ComponentPreview>
 
@@ -789,7 +789,7 @@ import { phoneRows } from "@/components/docs/phoneRowsTemplate"
 
 ### Select
 
-<ComponentPreview phoneMenuHeight={285} language="vue" details={<>A Select trigger is not a native form control, so the label's <code>for</code> cannot name it. Field points the trigger's <code>aria-labelledby</code> at the label, and Select adds its value: a screen reader hears "Role, Admin". DatePicker works the same way. A control with its own <code>aria-label</code>, <code>aria-labelledby</code> or <code>label</code> keeps its name; a slot that reads the field props gets <code>aria-labelledby</code> among them to bind.</>} code={select} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>A Select trigger is not a native form control, so the label's <code>for</code> cannot name it. Field points the trigger's <code>aria-labelledby</code> at the label, and Select adds its value: a screen reader hears "Role, Admin". DatePicker works the same way. A control with its own <code>aria-label</code>, <code>aria-labelledby</code> or <code>label</code> keeps its name; a slot that reads the field props gets <code>aria-labelledby</code> among them to bind.</>} code={select} previewMinHeight={168}>
   <VueDemo template={select} state={{ role: "" }} />
 </ComponentPreview>
 
@@ -973,7 +973,7 @@ export const fieldConfigurationMobile = formScreenTemplate("Field configuration"
 
 ### Birthday with selects
 
-<ComponentPreview phoneMenuHeight={515} language="vue" details={<>Dropdown birthday picker with Month/Day/Year selects inside a labeled <code>Field</code> group. The field id goes to the month select, and the day and year selects carry their own <code>aria-label</code>.</>} code={birthdaySelect} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Dropdown birthday picker with Month/Day/Year selects inside a labeled <code>Field</code> group. The field id goes to the month select, and the day and year selects carry their own <code>aria-label</code>.</>} code={birthdaySelect} previewMinHeight={168}>
   <VueFieldDemo template={birthdaySelect} stageClassName="py-10" state={{ month: "", day: "", year: "" }} />
 </ComponentPreview>
 

@@ -5,7 +5,7 @@ import { forwardRef, useCallback, useId, useLayoutEffect, useRef, useState } fro
 import { mergeRefs } from "react-merge-refs"
 import { observeTextareaWidth } from "../../lib/observeTextareaWidth"
 
-import { Eye, EyeOff, X } from "../Icon"
+import { Eye, EyeOff, X, XCircleFilled } from "../Icon"
 import { FieldError } from "../FieldError"
 
 import s from "@plexui/styles/components/FloatingLabelInput/FloatingLabelInput.module.css"
@@ -348,7 +348,8 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
               className={s.ClearButton}
               onClick={handleClear}
             >
-              <X />
+              <X className={s.ClearIcon} />
+              <XCircleFilled className={s.ClearPhoneIcon} />
             </button>
           )}
           {showRevealButton && (

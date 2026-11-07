@@ -339,7 +339,7 @@
   }
 
   /* The footer meets the content scrolled under it by its `background`, as a bottom Toolbar does. Soft:
-     the canvas starts 27px above the actions and covers the content fully 33px below their top (native
+     the canvas starts 27px above the actions and covers the content fully from their top (native
      iOS 26 bottom bars, IMG_5491). */
   .Footer {
     position: relative;
@@ -354,8 +354,8 @@
       -webkit-backdrop-filter: blur(var(--toolbar-edge-blur-small));
       backdrop-filter: blur(var(--toolbar-edge-blur-small));
       content: "";
-      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 60px);
-      mask-image: linear-gradient(to bottom, transparent, #000 60px);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 27px);
+      mask-image: linear-gradient(to bottom, transparent, #000 27px);
       pointer-events: none;
       transition: opacity var(--transition-duration-basic), border-color var(--transition-duration-basic);
     }

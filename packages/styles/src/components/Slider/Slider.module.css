@@ -112,7 +112,7 @@
   width: var(--slider-thumb-width, 14px);
   height: var(--slider-thumb-height, 14px);
   border-radius: var(--slider-thumb-radius, 50%);
-  background: var(--gray-0);
+  background: var(--slider-thumb-background, var(--gray-0));
   box-shadow: var(--slider-thumb-shadow, inset 0 0 0 2px var(--slider-range-color));
   cursor: grab;
   outline: none;
@@ -138,9 +138,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 4px;
-  margin-bottom: 8px;
+  min-height: var(--slider-label-height, var(--control-size-2xs));
+  margin-bottom: var(--slider-label-gap, 8px);
   color: var(--color-text);
-  font-size: 14px;
+  font-size: var(--slider-label-font-size, var(--font-text-sm-size));
+  line-height: var(--slider-label-line-height, var(--font-text-sm-line-height));
 }
 
 .Reset {
@@ -152,48 +154,51 @@
     opacity 250ms ease;
   visibility: hidden;
 
-  /* Custom overrides outside the design system. Using the data attribute to win the specificity war. */
+  /* The 2xs ghost button stands as high as the value field beside it; its glyph is the reset arrow alone.
+     The data attribute wins over the Button's own size rules. */
   &[data-size="2xs"] {
-    width: var(--slider-reset-size, 22px);
-    height: var(--slider-reset-size, 22px);
+    width: var(--slider-reset-size, var(--control-size-2xs));
+    height: var(--slider-reset-size, var(--control-size-2xs));
 
     svg {
-      width: 14px;
-      height: 14px;
+      width: var(--slider-reset-icon-size, 14px);
+      height: var(--slider-reset-icon-size, 14px);
     }
   }
 }
 
+/* The value is an outline field of the 2xs size (24px, 6px gutter, the Input's outline borders) that shows
+   its border on hover and focus; the value and its unit are one line of the label's size, the unit in the
+   secondary text a space apart, and the text lines up with the end of the track. */
 .SliderValue {
   overflow: hidden;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: flex-end;
-  gap: 2px;
-  height: 26px;
-  padding: 0 4px;
-  border: 0.5px solid transparent;
-  border-radius: var(--radius-sm);
-  margin-right: -4px;
+  gap: var(--slider-value-unit-gap, 0.25em);
+  height: var(--slider-value-height, var(--control-size-2xs));
+  padding: 0 var(--slider-value-gutter, var(--control-gutter-2xs));
+  border: 1px solid transparent;
+  border-radius: var(--slider-value-radius, var(--control-radius-sm));
+  margin-inline-end: calc(-1 * var(--slider-value-gutter, var(--control-gutter-2xs)) - 1px);
   appearance: none;
   background: transparent;
+  color: var(--slider-value-color, var(--color-text));
   cursor: text;
+  font-size: var(--slider-value-font-size, var(--font-text-sm-size));
+  line-height: var(--slider-value-line-height, var(--font-text-sm-line-height));
   outline: none;
-  text-align: center;
-  transition: border-color 250ms ease;
-
-  @mixin breakpoint md {
-    height: 22px;
-  }
+  transition: border-color var(--transition-duration-basic) var(--transition-ease-basic);
 
   @media (hover: hover) and (pointer: fine) {
     .SliderWrap:hover:where(:not(:root[data-input="touch"] *)) &:not(:focus-within) {
-      border-color: var(--gray-200);
+      border-color: var(--slider-value-border-color-hover, var(--input-outline-border-color));
     }
   }
 
   &:focus-within {
-    border-color: var(--gray-500);
+    border-color: var(--slider-value-border-color-focus, var(--input-outline-border-color-focus));
+    color: var(--slider-value-color-focus, var(--color-text));
   }
 }
 
@@ -203,21 +208,16 @@
   border: 0;
   appearance: none;
   background: transparent;
-  color: var(--color-text);
-  font-size: 16px;
+  color: inherit;
+  font: inherit;
   font-variant-numeric: tabular-nums;
   outline: none;
-  text-align: left;
+  text-align: right;
   transition: width 100ms ease;
-
-  @mixin breakpoint md {
-    font-size: 13px;
-  }
 }
 
 .ValueUnit {
-  color: var(--color-text-secondary);
-  font-size: 12px;
+  color: var(--slider-unit-color, var(--color-text-secondary));
   user-select: none;
 }
 
@@ -250,27 +250,39 @@
    Range display (read-only value for range mode)
 ============================================= */
 .RangeDisplay {
-  color: var(--color-text);
-  font-size: 13px;
+  color: var(--slider-value-color, var(--color-text));
+  font-size: var(--slider-value-font-size, var(--font-text-sm-size));
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 
-/* Editable values and vertical rails are web adaptations, not native iOS controls.
-   Their touch targets occupy normal flow without changing the painted track/thumb. */
+/* The label row is a web adaptation: iOS sliders have no label or editable value. On a phone it reads as the
+   label and value of an iOS list row (touch.css: 17px label, the value and unit in the secondary label), a
+   44px line whose value and reset are touch targets. The value has no border, as the text fields of iOS
+   rows; while it is edited its text is the primary label. */
 @media (max-width: 767px) {
   .SliderValue {
-    align-items: center;
     height: auto;
     min-height: 44px;
-    margin-right: 0;
+    padding: 0;
+    border: 0;
+    margin-inline-end: 0;
   }
 
   .ValueInput {
     min-width: 44px;
     height: 44px;
-    text-align: right;
+  }
+
+  /* The reset is the row's accessory: its glyph alone on the 44px target in the secondary label, without the
+     button's face (three classes and the variant, over the Button's color rules in any sheet order). */
+  .SliderWrap .SliderLabel .Reset[data-variant="ghost"] {
+    color: var(--slider-reset-color, var(--color-text-secondary));
+
+    &::before {
+      visibility: hidden;
+    }
   }
 
   .SliderWrap[data-orientation="vertical"] .Slider {

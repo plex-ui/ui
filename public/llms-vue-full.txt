@@ -365,19 +365,19 @@ Props:
   - @pointerdown ((event: PointerEvent) => void) — Makes avatar interactive (renders a button)
 
 ### Overview
-A variety of avatar types: text, image, icon, and overflow. On a phone a text avatar is an iOS monogram: its color runs from light at the top to deep at the bottom, the initials are in the rounded system font where the browser has it, and a name of several words shows the initials of its first and last words.
+A variety of avatar types: text, image, icon, and overflow.
 ```vue
 <div class="flex gap-4">
   <Avatar name="Tyler" image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" :size="48" />
-  <Avatar name="Will Harper" :size="48" />
+  <Avatar name="Will" :size="48" />
   <Avatar name="Tech support" :Icon="Robot" :size="48" color="primary" variant="solid" />
 </div>
 ```
 
 ### Text
-For text-based avatars, a single initial is displayed based on the name prop passed to the component. On a phone a name of several words shows the initials of its first and last words, as an iOS monogram does.
+For text-based avatars, a single initial is displayed based on the name prop passed to the component.
 ```vue
-<Avatar name="David Park" :size="48" />
+<Avatar name="David" :size="48" />
 ```
 
 ### Image
@@ -408,7 +408,7 @@ To display an overflow avatar, provide a number to the overflow-count prop. The 
 ### Sizing
 To size the avatar, pass a number to the size prop, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value.
 ```vue
-<Avatar name="David Park" :size="size" />
+<Avatar name="David" :size="size" />
 ```
 
 ### Colors & variants
@@ -455,7 +455,7 @@ By default, avatars are fully rounded. You can override this by passing a Tailwi
 Avatars can be used as interactive elements by listening to @click (or @pointerdown). The avatar then renders a button and applies semantic and visual interaction styles.
 ```vue
 <div class="flex items-center gap-4">
-  <Avatar name="Will Harper" :size="48" @click="saySup" />
+  <Avatar name="Will" :size="48" @click="saySup" />
   <Avatar
     image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
     name="Tyler"
@@ -2682,7 +2682,7 @@ Use color="danger" on the action button for destructive operations.
 ```
 
 ### Text field
-An alert can ask for one short value. The field fills the alert like its actions, a 48px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.
+An alert can ask for one short value. The field fills the alert like its actions, a 52px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.
 ```vue
 <Dialog v-model:open="open" @update:open="(next) => { if (next) name = 'New folder' }">
   <DialogTrigger>
@@ -3574,7 +3574,7 @@ Props:
 ### Composition
 ```vue
 <div
-  class="flex w-full items-center justify-center"
+  class="flex w-full flex-1 flex-col items-center justify-center"
   :style="fill === 'absolute' ? { position: 'relative', minHeight: '200px' } : undefined"
 >
   <EmptyMessage :fill="fill" :size="size">
@@ -10518,7 +10518,7 @@ Compare off and on across enabled and disabled states. Enabled controls are inte
 </table>
 
 <!-- Phone -->
-<div data-switch-phone-rows class="flex w-full grow flex-col gap-6 bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
+<div data-phone-rows class="flex w-full grow flex-col gap-6 bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
   <FieldGroup v-for="disabled in [false, true]" :key="String(disabled)" :title="disabled ? 'Disabled' : 'Enabled'">
     <Field row label="Initially off"><Switch :color="color" :disabled="disabled" /></Field>
     <Field row label="Initially on"><Switch :color="color" :disabled="disabled" default-checked /></Field>
@@ -10536,7 +10536,7 @@ Click either the label or the control. Descriptions are linked with aria-describ
 </div>
 
 <!-- Phone: Field associates the external label and description with the switch. -->
-<div data-switch-phone-rows class="w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
+<div data-phone-rows class="w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
   <FieldGroup>
     <Field row label="Notifications"><Switch color="accent" name="notifications" default-checked /></Field>
     <Field row label="Weekly summary" description="Sent on Mondays."><Switch color="accent" name="summary" /></Field>
@@ -10556,7 +10556,7 @@ const checked = ref(false)
 <Switch color="accent" label="Airplane mode" v-model:checked="checked" />
 
 <!-- Phone -->
-<div data-switch-phone-rows class="w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
+<div data-phone-rows class="w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
   <FieldGroup><Field row label="Airplane mode"><Switch color="accent" v-model:checked="checked" /></Field></FieldGroup>
 </div>
 ```

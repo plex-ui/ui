@@ -21,9 +21,9 @@ import {
 
 ### Overview
 
-<ComponentPreview details={<>A variety of avatar types: text, image, icon, and overflow. On a phone a text avatar is an iOS monogram: its color runs from light at the top to deep at the bottom, the initials are in the rounded system font where the browser has it, and a name of several words shows the initials of its first and last words.</>} code={`<div className="flex gap-4">
+<ComponentPreview phonePresentation="none" details={<>A variety of avatar types: text, image, icon, and overflow.</>} code={`<div className="flex gap-4">
   <Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" size={48} />
-  <Avatar name="Will Harper" size={48} />
+  <Avatar name="Will" size={48} />
   <Avatar name="Tech support" Icon={Robot} size={48} color="primary" variant="solid" />
 </div>`} previewMinHeight={168}>
   <div className="flex gap-4">
@@ -33,13 +33,13 @@ import {
 
 ### Text
 
-<ComponentPreview details={<>For text-based avatars, a single initial is displayed based on the <code>name</code> prop passed to the component. On a phone a name of several words shows the initials of its first and last words, as an iOS monogram does.</>} code={`<Avatar name="David Park" size={48} />`} previewMinHeight={168}>
-  <Avatar name="David Park" size={48} />
+<ComponentPreview phonePresentation="none" details={<>For text-based avatars, a single initial is displayed based on the <code>name</code> prop passed to the component.</>} code={`<Avatar name="David" size={48} />`} previewMinHeight={168}>
+  <Avatar name="David" size={48} />
 </ComponentPreview>
 
 ### Image
 
-<ComponentPreview details={<>To display an image avatar, provide an absolute URL to the image with <code>imageUrl</code>. Images will have a soft fade entrance once loaded, or fall back to a text display if the image fails to load.</>} code={`<Avatar
+<ComponentPreview phonePresentation="none" details={<>To display an image avatar, provide an absolute URL to the image with <code>imageUrl</code>. Images will have a soft fade entrance once loaded, or fall back to a text display if the image fails to load.</>} code={`<Avatar
   name="Tyler"
   imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
   size={48}
@@ -53,7 +53,7 @@ import {
 
 ### Icon
 
-<ComponentPreview details={<>To display an icon avatar, provide an icon to render to the <code>Icon</code> prop. The <code>name</code> prop is not used in this case, and can be omitted.</>} code={`<Avatar
+<ComponentPreview phonePresentation="none" details={<>To display an icon avatar, provide an icon to render to the <code>Icon</code> prop. The <code>name</code> prop is not used in this case, and can be omitted.</>} code={`<Avatar
   Icon={Robot}
   size={48}
 />`} previewMinHeight={168}>
@@ -62,19 +62,19 @@ import {
 
 ### Overflow count
 
-<ComponentPreview details={<>To display an overflow avatar, provide a number to the <code>overflowCount</code> prop. The number will be automatically formatted and scaled to fit.</>} code={`<Avatar overflowCount={9} size={48} />`} previewMinHeight={228}>
+<ComponentPreview phonePresentation="none" details={<>To display an overflow avatar, provide a number to the <code>overflowCount</code> prop. The number will be automatically formatted and scaled to fit.</>} code={`<Avatar overflowCount={9} size={48} />`} previewMinHeight={228}>
   <AvatarOverflowCountDemo />
 </ComponentPreview>
 
 ### Sizing
 
-<ComponentPreview details={<>To size the avatar, pass a <code>number</code> to the <code>size</code> property, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value.</>} code={`<Avatar name="David Park" size={48} />`} previewMinHeight={228}>
+<ComponentPreview phonePresentation="none" details={<>To size the avatar, pass a <code>number</code> to the <code>size</code> property, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value.</>} code={`<Avatar name="David" size={48} />`} previewMinHeight={228}>
   <AvatarSizingDemo />
 </ComponentPreview>
 
 ### Colors & variants
 
-<ComponentPreview details={<>You can stylize the display of the avatar using the <code>color</code> and <code>variant</code> props.</>} code={`<div
+<ComponentPreview phonePresentation="none" details={<>You can stylize the display of the avatar using the <code>color</code> and <code>variant</code> props.</>} code={`<div
   className="grid items-center gap-x-8 gap-y-5"
   style={{ gridTemplateColumns: "repeat(2, minmax(0, auto)) auto", justifyItems: "center" }}
 >
@@ -100,14 +100,14 @@ import {
 
 ### Roundness
 
-<ComponentPreview details={<>By default, avatars are fully rounded. You can override this by passing a Tailwind rounding class to <code>className</code>.</>} code={`<Avatar name="Acme, co." color="primary" variant="solid" size={48} className="rounded-lg" />`} previewMinHeight={208}>
+<ComponentPreview phonePresentation="none" details={<>By default, avatars are fully rounded. You can override this by passing a Tailwind rounding class to <code>className</code>.</>} code={`<Avatar name="Acme, co." color="primary" variant="solid" size={48} className="rounded-lg" />`} previewMinHeight={208}>
   <AvatarRoundnessDemo />
 </ComponentPreview>
 
 ### Interactive
 
-<ComponentPreview details={<>Avatars can be used as interactive elements by passing an <code>onClick</code> (or <code>onPointerDown</code>) handler. The avatar then renders a <code>button</code> and applies semantic and visual interaction styles.</>} code={`<div className="flex items-center gap-4">
-  <Avatar name="Will Harper" size={48} onClick={saySup} />
+<ComponentPreview phonePresentation="none" details={<>Avatars can be used as interactive elements by passing an <code>onClick</code> (or <code>onPointerDown</code>) handler. The avatar then renders a <code>button</code> and applies semantic and visual interaction styles.</>} code={`<div className="flex items-center gap-4">
+  <Avatar name="Will" size={48} onClick={saySup} />
   <Avatar
     imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
     name="Tyler"

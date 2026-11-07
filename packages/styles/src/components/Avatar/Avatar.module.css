@@ -176,34 +176,3 @@
   flex-shrink: 0;
   font-size: calc(var(--avatar-size) * 0.7);
 }
-
-/* The initial of a name's last word shows only on a phone (below) */
-.AvatarLastInitial {
-  display: none;
-}
-
-/*
- * On a phone a monogram is an iOS monogram (Contacts, iOS 26, IMG_5615): its color falls from light at the top to
- * deep at the bottom (a 45pt avatar runs from 165,184,217 through 146,159,201 to 126,136,187: the middle color
- * mixed with 18% white above and 13% black below), and it shows the initials of the first and the last name in
- * the rounded system font, 15pt capitals on 45pt (a 21pt font). An image or an icon avatar has no gradient.
- */
-@media (max-width: 767px) {
-  /* The light and the shade lie over the avatar's own color, so a color the caller sets keeps its gradient */
-  .Avatar:is([data-variant="soft"], [data-variant="solid"]):has(> .AvatarInitial) {
-    background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.18), rgb(0 0 0 / 0.13));
-  }
-
-  .AvatarInitial,
-  .AvatarOverflowCount {
-    font-family: ui-rounded, var(--font-sans);
-  }
-
-  .AvatarLastInitial {
-    display: inline;
-  }
-
-  .AvatarInitial:has(> .AvatarLastInitial) {
-    font-size: calc(var(--avatar-size) * 0.47);
-  }
-}

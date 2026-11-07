@@ -182,7 +182,7 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 
 ### Dropdown menu
 
-<ComponentPreview phoneMenuHeight={334} details={<>Compose a primary action with a <a href="/components/menu"><code>Menu</code></a> trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….</>} code={`<ButtonGroup>
+<ComponentPreview details={<>Compose a primary action with a <a href="/components/menu"><code>Menu</code></a> trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….</>} code={`<ButtonGroup>
   <Button variant="outline" color="secondary" pill={false} size="sm">Export</Button>
   <Menu>
     <Menu.Trigger>
@@ -205,7 +205,7 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 
 ### Select
 
-<ComponentPreview phoneMenuHeight={241} details={<>
+<ComponentPreview details={<>
   <p>Mix a <a href="/components/select"><code>Select</code></a> and an <code>Input</code> inside one <code>ButtonGroup</code> for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested <code>ButtonGroup</code> to get a gap between the compound field and the send affordance.</p>
   <p>On a phone with <code>touch.css</code> the button takes the height of the 44px fields at each size shown, so the phone view leaves out the size control.</p>
 </>} code={`<ButtonGroup>
@@ -231,7 +231,7 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 
 ### Popover
 
-<ComponentPreview phoneMenuHeight={286} details={<>Same split-button shape, but the trailing trigger opens a <a href="/components/popover"><code>Popover</code></a> instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).</>} code={`<ButtonGroup>
+<ComponentPreview details={<>Same split-button shape, but the trailing trigger opens a <a href="/components/popover"><code>Popover</code></a> instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).</>} code={`<ButtonGroup>
   <Button variant="outline" color="secondary" pill={false} size="sm"><Sparkles /> Generate</Button>
   <Popover>
     <Popover.Trigger>

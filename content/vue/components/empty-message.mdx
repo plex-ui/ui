@@ -4,10 +4,11 @@ description: Empty state for telling users there's nothing to show, with error, 
 metaDescription: Vue 3 empty state component for telling users when there's nothing to show, with error, warning, no-results, and onboarding compositions.
 ---
 
+import emptyMessageStyles from "@/components/docs/EmptyMessageDemos.module.css"
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
 export const composition = `<div
-  class="flex w-full items-center justify-center"
+  class="flex w-full flex-1 flex-col items-center justify-center"
   :style="fill === 'absolute' ? { position: 'relative', minHeight: '200px' } : undefined"
 >
   <EmptyMessage :fill="fill" :size="size">
@@ -108,7 +109,7 @@ export const leftAligned = `<div class="w-[320px]">
 
 ### Composition
 
-<ComponentPreview language="vue" code={composition} previewMinHeight={168}>
+<ComponentPreview className={emptyMessageStyles.PhoneScreenPreview} language="vue" code={composition} previewMinHeight={168}>
   <VueDemo
     template={composition}
     stageClassName="flex-1 w-full py-12 flex items-center justify-center"
@@ -125,13 +126,13 @@ export const leftAligned = `<div class="w-[320px]">
 
 ### Error message
 
-<ComponentPreview language="vue" details={<>The <code>color</code> property enables you to display clearer intent with the message, such as showing an error state.</>} code={error} previewMinHeight={168}>
+<ComponentPreview className={emptyMessageStyles.PhoneScreenPreview} language="vue" details={<>The <code>color</code> property enables you to display clearer intent with the message, such as showing an error state.</>} code={error} previewMinHeight={168}>
   <VueDemo template={error} />
 </ComponentPreview>
 
 ### Warning message
 
-<ComponentPreview language="vue" code={warning} previewMinHeight={168}>
+<ComponentPreview className={emptyMessageStyles.PhoneScreenPreview} language="vue" code={warning} previewMinHeight={168}>
   <VueDemo template={warning} />
 </ComponentPreview>
 

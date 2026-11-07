@@ -5,7 +5,7 @@ import { useEffect, useId, useRef, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
 import { useFieldRowPill } from "../../lib/fieldRow"
 import { type ControlSize, type SemanticColor, type Sizes, type Variants } from "../../types"
-import { X } from "../Icon"
+import { X, XCircleFilled } from "../Icon"
 import s from "@plexui/styles/components/Input/Input.module.css"
 
 export type InputProps = {
@@ -243,7 +243,8 @@ const InputRoot = (props: InputProps) => {
       />
       {showClearButton && (
         <button type="button" aria-label="Clear input" className={s.Clear} onClick={handleClear}>
-          <X />
+          <X className={s.ClearIcon} />
+          <XCircleFilled className={s.ClearPhoneIcon} />
         </button>
       )}
       {EndAdornment}

@@ -211,13 +211,13 @@ ${controller}
 
 These examples keep the panel beside the trigger on desktop and below it on phones, where space beside the trigger is limited.
 
-<ComponentPreview phoneMenuHeight={134} language="vue" code={responsiveCode(overview)} previewMinHeight={168}>
+<ComponentPreview language="vue" code={responsiveCode(overview)} previewMinHeight={168}>
   <VuePopoverDemo template={overview} />
 </ComponentPreview>
 
 ### Sizing the popover
 
-<ComponentPreview phoneMenuHeight={116} language="vue" details={<>The popover can be sized with any combination of <code>width</code>, <code>min-width</code>, or <code>max-width</code>. All popovers default to a <code>min-width</code> of <code>300px</code>, and a <code>max-width</code> of <code>700px</code>, capped by the space available in the viewport.</>} code={sizing} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>The popover can be sized with any combination of <code>width</code>, <code>min-width</code>, or <code>max-width</code>. All popovers default to a <code>min-width</code> of <code>300px</code>, and a <code>max-width</code> of <code>700px</code>, capped by the space available in the viewport.</>} code={sizing} previewMinHeight={168}>
   <VueDemo template={sizing} />
 </ComponentPreview>
 
@@ -229,7 +229,7 @@ These examples keep the panel beside the trigger on desktop and below it on phon
 
 ### Using the controller
 
-<ComponentPreview phoneMenuHeight={214} language="vue" details={<>The default slot of <code>PopoverContent</code> receives <code>{"{ close, shake }"}</code>. Components rendered inside it can get the same two methods from <code>usePopoverController()</code> in their <code>setup()</code>. They do exactly what you think they do.<br/><br/><ul><li>Attempting to submit an empty form calls the <code>shake()</code> method</li><li>After the simulated two-second request, <code>close()</code> dismisses the popup. Closing or unmounting cancels the pending request; reopening starts a fresh session.</li></ul></>} code={controllerCode} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>The default slot of <code>PopoverContent</code> receives <code>{"{ close, shake }"}</code>. Components rendered inside it can get the same two methods from <code>usePopoverController()</code> in their <code>setup()</code>. They do exactly what you think they do.<br/><br/><ul><li>Attempting to submit an empty form calls the <code>shake()</code> method</li><li>After the simulated two-second request, <code>close()</code> dismisses the popup. Closing or unmounting cancels the pending request; reopening starts a fresh session.</li></ul></>} code={controllerCode} previewMinHeight={168}>
   <VuePopoverDemo template={controller} />
 </ComponentPreview>
 

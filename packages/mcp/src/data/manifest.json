@@ -383,13 +383,13 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div className=\"flex gap-4\">\n<Avatar name=\"Tyler\" imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" size={48} />\n<Avatar name=\"Will Harper\" size={48} />\n<Avatar name=\"Tech support\" Icon={Robot} size={48} color=\"primary\" variant=\"solid\" />\n</div>",
-          "details": "A variety of avatar types: text, image, icon, and overflow. On a phone a text avatar is an iOS monogram: its color runs from light at the top to deep at the bottom, the initials are in the rounded system font where the browser has it, and a name of several words shows the initials of its first and last words."
+          "code": "<div className=\"flex gap-4\">\n<Avatar name=\"Tyler\" imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" size={48} />\n<Avatar name=\"Will\" size={48} />\n<Avatar name=\"Tech support\" Icon={Robot} size={48} color=\"primary\" variant=\"solid\" />\n</div>",
+          "details": "A variety of avatar types: text, image, icon, and overflow."
         },
         {
           "name": "Text",
-          "code": "<Avatar name=\"David Park\" size={48} />",
-          "details": "For text-based avatars, a single initial is displayed based on the name prop passed to the component. On a phone a name of several words shows the initials of its first and last words, as an iOS monogram does."
+          "code": "<Avatar name=\"David\" size={48} />",
+          "details": "For text-based avatars, a single initial is displayed based on the name prop passed to the component."
         },
         {
           "name": "Image",
@@ -408,7 +408,7 @@
         },
         {
           "name": "Sizing",
-          "code": "<Avatar name=\"David Park\" size={48} />",
+          "code": "<Avatar name=\"David\" size={48} />",
           "details": "To size the avatar, pass a number to the size property, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value."
         },
         {
@@ -423,7 +423,7 @@
         },
         {
           "name": "Interactive",
-          "code": "<div className=\"flex items-center gap-4\">\n<Avatar name=\"Will Harper\" size={48} onClick={saySup} />\n<Avatar\n  imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n  name=\"Tyler\"\n  size={48}\n  onClick={saySup}\n/>\n<Avatar name=\"Tech support\" Icon={Robot} size={48} color=\"info\" onClick={saySup} />\n</div>",
+          "code": "<div className=\"flex items-center gap-4\">\n<Avatar name=\"Will\" size={48} onClick={saySup} />\n<Avatar\n  imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n  name=\"Tyler\"\n  size={48}\n  onClick={saySup}\n/>\n<Avatar name=\"Tech support\" Icon={Robot} size={48} color=\"info\" onClick={saySup} />\n</div>",
           "details": "Avatars can be used as interactive elements by passing an onClick (or onPointerDown) handler. The avatar then renders a button and applies semantic and visual interaction styles."
         }
       ],
@@ -2210,7 +2210,7 @@
         {
           "name": "Text field",
           "code": "const [open, setOpen] = useState(false)\nconst [name, setName] = useState(\"New folder\")\nconst field = useRef<HTMLInputElement>(null)\n\n<Dialog open={open} onOpenChange={(next) => { setOpen(next); if (next) setName(\"New folder\"); }}>\n<Dialog.Trigger>\n  <Button color=\"secondary\" variant=\"outline\">New folder</Button>\n</Dialog.Trigger>\n<Dialog.Content mobileVariant=\"alert\" onOpenAutoFocus={(event) => { event.preventDefault(); field.current?.select(); }}>\n  <Dialog.Header>\n    <Dialog.Title>New folder</Dialog.Title>\n    <Dialog.Description>Enter a name for this folder.</Dialog.Description>\n  </Dialog.Header>\n  <Dialog.Body>\n    <Input ref={field} aria-label=\"Folder name\" variant=\"soft\" size=\"3xl\" pill value={name} onChange={(event) => setName(event.target.value)} onClear={() => setName(\"\")} />\n  </Dialog.Body>\n  <Dialog.Footer>\n    <Dialog.Close>\n      <Button color=\"primary\" variant=\"soft\">Cancel</Button>\n    </Dialog.Close>\n    <Button color=\"primary\" disabled={!name.trim()} onClick={() => setOpen(false)}>Create</Button>\n  </Dialog.Footer>\n</Dialog.Content>\n</Dialog>",
-          "details": "An alert can ask for one short value. The field fills the alert like its actions, a 48px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty."
+          "details": "An alert can ask for one short value. The field fills the alert like its actions, a 52px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty."
         },
         {
           "name": "Metadata details",
@@ -7688,5 +7688,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T19:26:41.170Z"
+  "generatedAt": "2026-11-07T21:00:35.335Z"
 }

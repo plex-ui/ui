@@ -386,7 +386,7 @@
     --dialog-backdrop-fade-background: alpha(var(--color-surface-elevated), 60%);
     --dialog-alert-width: 300px;
     --dialog-alert-radius: 34px;
-    --dialog-alert-padding: 16px;
+    --dialog-alert-padding: 14px;
     --dialog-alert-action-height: 48px;
     --dialog-sheet-action-height: 50px;
     --dialog-sheet-radius: 38px;

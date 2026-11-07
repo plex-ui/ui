@@ -4,7 +4,7 @@ description: Toggle switch for turning settings on or off, with an optional labe
 metaDescription: Vue 3 switch component built on Reka UI for toggling settings, with v-model:checked, an optional label and description, and a configurable label position.
 ---
 
-import switchStyles from "@/components/docs/SwitchDemos.module.css"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import { VueSwitchDemo } from "@/components/docs/vue/VueSwitchDemo"
 import formStyles from "@/components/docs/FormRowsDemos.module.css"
 import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
@@ -37,7 +37,7 @@ export const base = `<table class="w-full max-w-sm border-separate border-spacin
 
 export const stateControls = [{ name: "color", type: "select", options: ["primary", "accent"], default: "accent" }]
 
-export const basePhone = `<div data-switch-phone-rows class="flex w-full grow flex-col gap-6 bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
+export const basePhone = `<div data-phone-rows class="flex w-full grow flex-col gap-6 bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
   <FieldGroup v-for="disabled in [false, true]" :key="String(disabled)" :title="disabled ? 'Disabled' : 'Enabled'">
     <Field row label="Initially off"><Switch :color="color" :disabled="disabled" /></Field>
     <Field row label="Initially on"><Switch :color="color" :disabled="disabled" default-checked /></Field>
@@ -50,7 +50,7 @@ export const labels = `<div class="flex w-full max-w-sm flex-col gap-6">
   <Switch color="accent" label="Weekly summary" description="Sent on Mondays." :label-position="labelPosition" name="summary" />
 </div>`
 
-export const labelsPhone = `<div data-switch-phone-rows class="w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
+export const labelsPhone = `<div data-phone-rows class="w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
   <FieldGroup>
     <Field row label="Notifications"><Switch color="accent" name="notifications" default-checked /></Field>
     <Field row label="Weekly summary" description="Sent on Mondays."><Switch color="accent" name="summary" /></Field>
@@ -61,7 +61,7 @@ export const labelControls = [{ name: "labelPosition", type: "select", options: 
 
 export const controlled = `<Switch color="accent" label="Airplane mode" v-model:checked="checked" />`
 
-export const controlledPhone = `<div data-switch-phone-rows class="w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
+export const controlledPhone = `<div data-phone-rows class="w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
   <FieldGroup><Field row label="Airplane mode"><Switch color="accent" v-model:checked="checked" /></Field></FieldGroup>
 </div>`
 
@@ -88,7 +88,7 @@ On Phone, put switches in labelled rows with a trailing control. Use compact pre
 
 ### Overview
 
-<ComponentPreview className={switchStyles.PhoneRowsPreview} language="vue" details={<>Compare off and on across enabled and disabled states. Enabled controls are interactive. Choose <code>accent</code> for the configured application accent (platform green by default), or <code>primary</code> for the default Switch style. Disabled on retains a muted accent; disabled off uses the neutral track.</>} code={`<!-- Desktop -->
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Compare off and on across enabled and disabled states. Enabled controls are interactive. Choose <code>accent</code> for the configured application accent (platform green by default), or <code>primary</code> for the default Switch style. Disabled on retains a muted accent; disabled off uses the neutral track.</>} code={`<!-- Desktop -->
 ${base}
 
 <!-- Phone -->
@@ -98,7 +98,7 @@ ${basePhone}`} previewMinHeight={240}>
 
 ### Label and description
 
-<ComponentPreview className={switchStyles.PhoneRowsPreview} language="vue" details={<>Click either the label or the control. Descriptions are linked with <code>aria-describedby</code>. Desktop supports both label positions; Phone keeps the label on the left. Use <code>default-checked</code> for an initial value and <code>name</code> for form submission.</>} code={`<!-- Desktop -->
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Click either the label or the control. Descriptions are linked with <code>aria-describedby</code>. Desktop supports both label positions; Phone keeps the label on the left. Use <code>default-checked</code> for an initial value and <code>name</code> for form submission.</>} code={`<!-- Desktop -->
 ${labels}
 
 <!-- Phone: Field associates the external label and description with the switch. -->
@@ -108,7 +108,7 @@ ${labelsPhone}`} previewMinHeight={200}>
 
 ### Controlled state
 
-<ComponentPreview className={switchStyles.PhoneRowsPreview} language="vue" details={<>Change <code>checked</code> above or toggle the setting. Both update the same state. Use <code>v-model:checked</code> when your application owns the value.</>} code={`<script setup>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Change <code>checked</code> above or toggle the setting. Both update the same state. Use <code>v-model:checked</code> when your application owns the value.</>} code={`<script setup>
 import { ref } from 'vue'
 const checked = ref(false)
 </script>

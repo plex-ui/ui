@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Progress } from '@plexui/ui/components/Progress';
 import { Label } from '@plexui/ui/components/Label';
+import { usePhoneRows } from './PhoneRows';
 
 const Slider = dynamic(
   () => import('@plexui/ui/components/Slider').then((mod) => mod.Slider),
@@ -16,6 +17,8 @@ const Slider = dynamic(
 
 export function ProgressOverviewDemo() {
   const [value, setValue] = useState(13);
+  // On a phone the bar spans the screen between its margins, as an iOS progress view does
+  const phone = usePhoneRows();
 
   useEffect(() => {
     const timer = setTimeout(() => setValue(66), 500);
@@ -23,7 +26,7 @@ export function ProgressOverviewDemo() {
   }, []);
 
   return (
-    <div style={{ width: '60%', minWidth: 240 }}>
+    <div style={phone ? { width: '100%' } : { width: '60%', minWidth: 240 }}>
       <Progress value={value} aria-label="Loading" />
     </div>
   );

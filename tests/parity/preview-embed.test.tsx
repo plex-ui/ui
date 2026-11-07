@@ -72,6 +72,23 @@ describe("Phone preview identity", () => {
   )
 })
 
+describe("Phone presentation of an embedded preview", () => {
+  afterEach(cleanup)
+
+  // An example that draws no screen of its own stands on a phone page (safe area and 16px insets) by default
+  test.each([
+    ["no presentation", {}, "screen", "true"],
+    ["an explicit screen", { phonePresentation: "screen" as const }, "screen", null],
+    ["a component", { phonePresentation: "component" as const }, "component", null],
+    ["a phone dialog", { phoneDialog: true }, "screen", null],
+  ])("%s", (_, props, presentation, page) => {
+    const view = render(<PreviewEmbed target="phone"><ComponentPreview previewId="phone" {...props}><div>Row</div></ComponentPreview></PreviewEmbed>)
+    const container = view.container.querySelector("[data-preview-embed]")
+    expect(container?.getAttribute("data-preview-presentation")).toBe(presentation)
+    expect(container?.getAttribute("data-preview-phone-page")).toBe(page)
+  })
+})
+
 describe("Modal preview underlay", () => {
   afterEach(cleanup)
 
@@ -341,8 +358,8 @@ describe("Compact Phone viewport", () => {
 
   test('Reset preview restores only its example and retains focus on the toolbar', () => {
     const view = render(<PhonePage>
-      <ComponentPreview previewId="reset-first"><ResettableExample name="First" /></ComponentPreview>
-      <ComponentPreview previewId="reset-second"><ResettableExample name="Second" /></ComponentPreview>
+      <ComponentPreview phonePresentation="component" previewId="reset-first"><ResettableExample name="First" /></ComponentPreview>
+      <ComponentPreview phonePresentation="component" previewId="reset-second"><ResettableExample name="Second" /></ComponentPreview>
     </PhonePage>);
     fireEvent.change(view.getByLabelText('First text'), { target: { value: 'Edited first' } });
     fireEvent.change(view.getByLabelText('Second text'), { target: { value: 'Edited second' } });
@@ -360,8 +377,8 @@ describe("Compact Phone viewport", () => {
 
   test('Phone reset replaces only its iframe and rejects old-frame control messages', () => {
     const view = render(<PhonePage>
-      <ComponentPreview previewId="reset-first"><ResettableExample name="First" /></ComponentPreview>
-      <ComponentPreview previewId="reset-second"><ResettableExample name="Second" /></ComponentPreview>
+      <ComponentPreview phonePresentation="component" previewId="reset-first"><ResettableExample name="First" /></ComponentPreview>
+      <ComponentPreview phonePresentation="component" previewId="reset-second"><ResettableExample name="Second" /></ComponentPreview>
     </PhonePage>);
     fireEvent.click(view.getByText('Use Phone'));
     fireEvent.click(view.getByText('Increment First'));
@@ -387,7 +404,7 @@ describe("Compact Phone viewport", () => {
   });
 
   test("components crop the visible area while accepting heights only from their own iframe", () => {
-    const view = render(<PhonePage><ComponentPreview previewId="height" previewMinHeight={240}><span>Control</span></ComponentPreview></PhonePage>)
+    const view = render(<PhonePage><ComponentPreview phonePresentation="component" previewId="height" previewMinHeight={240}><span>Control</span></ComponentPreview></PhonePage>)
     fireEvent.click(view.getByText("Use Phone"))
     const frame = view.getByTitle("Phone component preview") as HTMLIFrameElement
     const viewport = frame.parentElement!
@@ -442,7 +459,7 @@ describe("Compact Phone viewport", () => {
     const view = render(<PhonePage>
       <ComponentPreview previewId="otp-one" phonePresentation="screen"><span>First OTP</span></ComponentPreview>
       <ComponentPreview previewId="otp-two" phonePresentation="screen"><span>Second OTP</span></ComponentPreview>
-      <ComponentPreview previewId="compact"><span>Compact</span></ComponentPreview>
+      <ComponentPreview phonePresentation="component" previewId="compact"><span>Compact</span></ComponentPreview>
     </PhonePage>)
     fireEvent.click(view.getByText("Use Phone"))
     const [first, second] = view.getAllByTitle("Phone preview") as HTMLIFrameElement[]
@@ -692,7 +709,7 @@ describe("Compact Phone viewport", () => {
       useDemoControlSync("compact-disabled", disabled, setDisabled)
       return <div data-demo-controls><button onClick={() => setDisabled(!disabled)}>Toggle control</button></div>
     }
-    const view = render(<PhonePage><ComponentPreview previewId="controls"><ControlledDemo /></ComponentPreview></PhonePage>)
+    const view = render(<PhonePage><ComponentPreview phonePresentation="component" previewId="controls"><ControlledDemo /></ComponentPreview></PhonePage>)
     fireEvent.click(view.getByText("Use Phone"))
     const frame = view.getByTitle("Phone component preview") as HTMLIFrameElement
     const post = vi.spyOn(frame.contentWindow!, "postMessage")
@@ -710,8 +727,8 @@ describe("Compact Phone viewport", () => {
       return <button onClick={() => setChecked(!checked)}>{label}: {String(checked)}</button>
     }
     const view = render(<PhonePage>
-      <ComponentPreview previewId="controlled"><ControlledDemo label="Host" initial /></ComponentPreview>
-      <ComponentPreview previewId="other"><ControlledDemo label="Other" initial={false} /></ComponentPreview>
+      <ComponentPreview phonePresentation="component" previewId="controlled"><ControlledDemo label="Host" initial /></ComponentPreview>
+      <ComponentPreview phonePresentation="component" previewId="other"><ControlledDemo label="Other" initial={false} /></ComponentPreview>
     </PhonePage>)
     fireEvent.click(view.getByText("Use Phone"))
     const [frame, otherFrame] = view.getAllByTitle("Phone component preview") as HTMLIFrameElement[]

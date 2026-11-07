@@ -289,7 +289,7 @@ const heading = useRef<HTMLDivElement>(null)
 
 ### Text field
 
-<ComponentPreview phonePresentation="screen" phoneDialog details={<>An alert can ask for one short value. The field fills the alert like its actions, a 48px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.</>} code={`const [open, setOpen] = useState(false)
+<ComponentPreview phonePresentation="screen" phoneDialog details={<>An alert can ask for one short value. The field fills the alert like its actions, a 52px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.</>} code={`const [open, setOpen] = useState(false)
 const [name, setName] = useState("New folder")
 const field = useRef<HTMLInputElement>(null)
 
@@ -478,10 +478,11 @@ Alert and Sheet use these additional tokens:
 
 - `--dialog-alert-width`: compact alert width (default `300px`, `320px` from a 414px wide phone with `touch.css`, as a native alert at 430pt; capped by the viewport)
 - `--dialog-alert-radius`: alert corner radius (default `34px`)
-- `--dialog-alert-padding`: alert outer padding, the inset of a field and the actions (default `16px`)
-- `--dialog-alert-action-height`: minimum Alert action height, also the height of a field in the alert (default `48px`)
+- `--dialog-alert-padding`: alert outer padding, the inset of a field and the actions (default `14px`)
+- `--dialog-alert-action-height`: minimum Alert action height (default `48px`)
+- `--dialog-alert-field-height`: height of a field in the alert on a phone (default `52px`)
 - `--dialog-alert-background`, `--dialog-alert-backdrop-filter`: alert material on a phone (with `touch.css` the mobile glass, `--mobile-glass-background`, over `blur(10px)`)
-- `--dialog-alert-message-color`, `--dialog-alert-message-size`, `--dialog-alert-message-leading`: alert message (with `touch.css` `light-dark(var(--mobile-label-secondary), var(--alpha-40))`, `15px`, `20px`)
+- `--dialog-alert-message-color`, `--dialog-alert-message-size`, `--dialog-alert-message-leading`: alert message on a phone (default `var(--color-text)`, `17px`, `22px`)
 - `--dialog-alert-fill`: fill of a soft Cancel and a soft field in the alert (with `touch.css` `--alpha-12`)
 - `--dialog-alert-action-gap`, `--dialog-alert-action-font-weight`: gap between two inline actions and their weight (default `8px`, `600`)
 - `--dialog-sheet-action-height`: minimum Sheet action height (default `50px`)

@@ -40,11 +40,9 @@ const VARIANTS = ["soft", "solid"]
 const avatarCases: [string, Props][] = [
   ["empty", {}],
   ["name initial is upper-cased", { name: "david" }],
-  // The initial of the last word shows only on a phone (an iOS monogram)
-  ["first and last initials", { name: "will harper" }],
-  ["middle words and outer spaces", { name: "Ann  Marie Lee " }],
-  ["a leading space", { name: " Will Harper" }],
-  ["an emoji word", { name: "Ann \u{1F600}" }],
+  // The initial is a whole character: a leading space or an emoji no longer shows a blank or half a character
+  ["a leading space", { name: " Will" }],
+  ["an emoji first", { name: "\u{1F600} Ann" }],
   ["size", { name: "Will", size: 48 }],
   ["size zero", { name: "Will", size: 0 }],
   ...COLORS.flatMap((color) =>
@@ -78,6 +76,14 @@ describe("Avatar parity", () => {
   test.each(avatarCases)("%s", async (_name, props) => {
     const { react, vue } = await renderPair(reactAvatar(props), () => vueAvatar(props))
     expect(vue).toBe(react)
+  })
+
+  test("the initial is the first whole character of the name", async () => {
+    for (const [name, initial] of [[" Will", "W"], ["\u{1F600} Ann", "\u{1F600}"], ["david", "D"]]) {
+      const { react, vue } = await renderPair(reactAvatar({ name }), () => vueAvatar({ name }))
+      expect(vue).toBe(react)
+      expect(react).toMatch(new RegExp(`class="[^"]*AvatarInitial[^"]*">\\s*"${initial}"(?:\\s|$)`, "u"))
+    }
   })
 
   test("image loads, fails, and resets when the url changes", async () => {

@@ -1,0 +1,7 @@
+/* A message that fills a screen stands on the whole phone screen, as the iOS 27 empty state (kit Empty States
+   5583:24408): no page margins, the status bar over it; the message keeps its own 36px insets and centres its
+   text in the space above its action. */
+:global([data-preview-phone-page]) > .PhoneScreenPreview:not(:has([data-demo-stage])),
+:global([data-preview-phone-page]) > .PhoneScreenPreview [data-demo-stage]:not([data-demo-stage] *) {
+  padding: 0 !important;
+}

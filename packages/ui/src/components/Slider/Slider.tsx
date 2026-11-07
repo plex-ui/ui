@@ -20,7 +20,6 @@ import {
   useState,
 } from "react"
 import { useDebounceCallback, useResizeObserver } from "usehooks-ts"
-import { useBreakpoint } from "../../hooks/useBreakpoints"
 import { useIsMounted } from "../../hooks/useIsMounted"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { usePrevious } from "../../hooks/usePrevious"
@@ -210,11 +209,9 @@ export const Slider = memo((props: SliderProps) => {
   const isMounted = useIsMounted()
 
   // Used to position the input over the thumb
-  const isTabletAndUp = useBreakpoint("md")
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // The input width is based on the number of characters in the input / font size
-  const inputWidth = Math.max(inputValue.length, 1) * (isTabletAndUp ? 7.8 : 9.5)
+  const inputWidth = getValueWidth(inputValue)
 
   // Calculate animation duration based on the distance the thumb needs to move
   // Skip custom animation for range mode — let Radix handle it
@@ -421,7 +418,7 @@ export const Slider = memo((props: SliderProps) => {
                 id={id}
                 className={s.ValueInput}
                 ref={inputRef}
-                style={{ width: `${Math.ceil(inputWidth)}px` }}
+                style={{ width: inputWidth }}
                 onKeyDown={handleKeyDown}
                 value={inputValue}
                 type="text"
@@ -626,3 +623,12 @@ const SliderMarks = memo(({ marks, thumbRef, min, max }: MarksProps) => {
   )
 })
 SliderMarks.displayName = "SliderMarks"
+
+/**
+ * The value field is as wide as its characters at any font size: tabular digits are one `ch` each, and a sign,
+ * a decimal point or a separator about half of one, so a right-aligned value sits next to its prefix unit.
+ */
+const getValueWidth = (text: string): string => {
+  const digits = text.replace(/[^0-9]/g, "").length
+  return `calc(${Math.max(digits + (text.length - digits) / 2, 1)}ch + 1px)`
+}

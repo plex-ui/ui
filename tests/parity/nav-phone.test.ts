@@ -1,7 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs"
 import postcss from "postcss"
 import { describe, expect, test } from "vitest"
-import { compactPreviewHeight } from "../../components/docs/PreviewEmbed"
 
 // Plan 160, block C: bars, navigation and messages on a phone. Examples of a pointer or a desktop layout are
 // desktop only, a control a phone does not use is desktop only, page examples draw an iOS list, a trail gets the
@@ -199,49 +198,30 @@ describe("a toast on a phone", () => {
   })
 })
 
-describe("a phone preview keeps room for the menu its example opens (plan 161.menu-room)", () => {
-  // Each value is the compact preview's height with the menu open (Chromium, Phone mode, 07.11), as the
-  // calendar stages keep room for the calendar; React and Vue keep the same room.
-  /** Each reserve with the heading (### or ####) of its example, in page order */
-  const reserves = (path: string) => {
-    let heading = ""
-    const out: string[] = []
-    for (const line of read(path).split("\n")) {
-      if (/^#{3,4} /.test(line)) heading = line
-      const match = line.match(/<ComponentPreview\b[^\n]*?\bphoneMenuHeight=\{(\d+)\}/)
-      if (match) out.push(`${heading}: ${match[1]}`)
+describe("a Phone preview is a phone screen in a phone frame (plan 164)", () => {
+  const source = read("components/docs/ComponentPreview.tsx")
+  const css = read("components/docs/ComponentPreview.module.css")
+  const pages = ["content/components", "content/vue/components"].flatMap((dir) =>
+    readdirSync(`${root}/${dir}`).filter((file) => file.endsWith(".mdx")).map((file) => `${dir}/${file}`))
+
+  test("by default, and an example that is not a screen itself stands on a phone page", () => {
+    expect(source).toContain("const phonePresentation = requestedPhonePresentation ?? 'screen';")
+    expect(source).toContain("const phonePage = requestedPhonePresentation === undefined && !phoneDialog && !phoneOnly;")
+    expect(source).toContain("data-preview-phone-page={phonePage || undefined}")
+  })
+
+  test("the phone page puts the example under the status bar, within the layout margins, from the top down", () => {
+    expect(css).toContain(".PreviewContainer[data-preview-phone-page] {\n  min-height: 100dvh;\n}")
+    expect(css).toContain("padding: calc(var(--safe-area-inset-top, 0px) + 16px) var(--mobile-layout-margin, 16px) calc(var(--safe-area-inset-bottom, 0px) + 16px);")
+    expect(css).toContain(".PreviewContainer[data-preview-phone-page]:has([data-phone-rows]) {\n  background: var(--mobile-surface-grouped-primary);\n}")
+  })
+
+  test("no example asks for the compact slice or keeps room for a menu any more", () => {
+    for (const path of pages) {
+      expect(read(path), path).not.toContain('phonePresentation="component"')
+      expect(read(path), path).not.toContain("phoneMenuHeight")
     }
-    return out
-  }
-  // Every page with a reserve on either side
-  const pages = [...new Set(["content/components", "content/vue/components"].flatMap((dir) =>
-    readdirSync(`${root}/${dir}`).filter((file) => file.endsWith(".mdx") && read(`${dir}/${file}`).includes("phoneMenuHeight=")).map((file) => file.slice(0, -4))))].sort()
-
-  test("the pages with reserves", () => {
-    expect(pages).toEqual([
-      "button", "button-group", "field", "floating-label-input", "input-group", "kbd", "label", "menu", "popover",
-      "select", "select-control", "sortable", "tabs", "tag-input",
-    ])
-  })
-
-  test.each(pages)("%s keeps the same reserves in React and Vue", (page) => {
-    const [react, vue] = both(page).map(reserves)
-    expect(react.length, page).toBeGreaterThan(0)
-    expect(vue, page).toEqual(react)
-    // Every reserve on the page is on the line that opens its ComponentPreview, so none is skipped above
-    both(page).forEach((path, index) => expect(read(path).match(/phoneMenuHeight=/g)?.length, path).toBe([react, vue][index].length))
-  })
-
-  test("the compact phone preview starts at the reserve and keeps it, and taller content still grows it", () => {
-    const source = read("components/docs/ComponentPreview.tsx")
-    expect(source).toContain("useState(() => compactPreviewHeight(Math.max(minimumHeight, menuHeight)))")
-    expect(source).toContain("setContentHeight(compactPreviewHeight(data.previewHeight, menuHeight))")
-    // The prop reaches the phone viewport
-    expect(source).toContain("menuHeight: phoneMenuHeight }")
-    expect(source).toContain("menuHeight={phone.menuHeight}")
-    expect(compactPreviewHeight(100, 400)).toBe(400)
-    expect(compactPreviewHeight(600, 400)).toBe(600)
-    expect(compactPreviewHeight(900, 400)).toBe(812)
+    expect(source).not.toContain("phoneMenuHeight")
   })
 })
 
@@ -273,8 +253,9 @@ describe("Date Range Picker shortcuts on a phone (plan 161.shortcuts)", () => {
 
 describe("a component that looks the same on a phone has no Phone view (plan 161.phone-toggle)", () => {
   // No phone rule changes how these look (CodeBlock's only phone rule widens the copy button's target to 44px), so
-  // a Phone view would repeat the desktop one. Their pages show desktop previews only, in React and Vue.
-  test.each(["code-block", "markdown", "separator", "shimmer-text", "skeleton", "text-link"])("%s", (page) => {
+  // a Phone view would repeat the desktop one. Their pages show desktop previews only, in React and Vue. Avatar keeps
+  // the web look on a phone (owner 07.11: parity with the web matters more than an iOS monogram).
+  test.each(["avatar", "code-block", "markdown", "separator", "shimmer-text", "skeleton", "text-link"])("%s", (page) => {
     for (const path of both(page)) {
       const previews = read(path).match(/<ComponentPreview\b[^\n]*/g) ?? []
       expect(previews.length, path).toBeGreaterThan(0)

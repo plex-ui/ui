@@ -31,9 +31,8 @@
        (iOS2 IMG_5533), dark 34 to 45 over a page dimmed to 0 to 14 (IMG_5532); the backdrop is blurred. */
     --dialog-alert-background: var(--mobile-glass-background);
     --dialog-alert-backdrop-filter: blur(10px);
-    /* The message is the secondary label; over dark glass the native one is dimmer, 128 on 45 (IMG_5532),
-       as alpha-40 shows, while light is 131 on 233 (IMG_5533), as alpha-50 does (123). */
-    --dialog-alert-message-color: light-dark(var(--mobile-label-secondary), var(--alpha-40));
+    /* The message is the primary label, as in kit iOS 27 (Alerts 65:57149); iOS 26 had it in the secondary one. */
+    --dialog-alert-message-color: var(--color-text);
     --dialog-alert-fill: var(--alpha-12);
   }
 }

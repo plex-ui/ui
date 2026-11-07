@@ -475,9 +475,11 @@
     --dialog-panel-radius: var(--dialog-alert-radius);
   }
 
-  /* Native iOS 26 alerts (iOS2 IMG_5532 dark, IMG_5533 light, 430pt): glass, fields and actions 16 from
-     the edge, the title and message 31 (aligned with the text of a field), the message at 15/20 in the
-     secondary label, 20 from the text to a control and 16 under the actions, 8 between two actions. */
+  /* iOS 27 alerts (kit iOS 27, Alerts 65:57149, Side-by-Side): glass, fields and actions 14 from the edge, the
+     title 22 from the top and from the sides, the message 10 under the title, both 17/22 in the primary label
+     (the title semibold), 24 from the text to a field or the actions, a field block of 52px rows, 19 under it
+     to the actions, 8 between two actions. Native iOS 26 frames (iOS2 IMG_5532, IMG_5533) had the message at
+     15/20 in the secondary label; kit 27 is the reference since 07.11 (plan 162, 163). */
   .Content[data-mobile-variant="alert"] .Panel {
     gap: 10px;
     padding: var(--dialog-alert-padding);
@@ -492,8 +494,8 @@
   }
 
   .Content[data-mobile-variant="alert"] .Header {
-    gap: var(--dialog-alert-header-gap, 6px);
-    padding: var(--dialog-alert-header-padding, 5px 15px 6px);
+    gap: var(--dialog-alert-header-gap, 10px);
+    padding: var(--dialog-alert-header-padding, 8px 8px 14px);
   }
 
   .Content[data-mobile-variant="alert"] .Header > :first-child {
@@ -511,16 +513,31 @@
   }
 
   .Content[data-mobile-variant="alert"] .Description {
-    color: var(--dialog-alert-message-color, var(--color-text-secondary));
-    font-size: var(--dialog-alert-message-size, 15px);
-    line-height: var(--dialog-alert-message-leading, 20px);
+    color: var(--dialog-alert-message-color, var(--color-text));
+    font-size: var(--dialog-alert-message-size, 17px);
+    line-height: var(--dialog-alert-message-leading, 22px);
   }
 
-  /* A text field fills the alert like its actions: a 48px capsule (IMG_5532, IMG_5533). */
+  /* The message of an iOS alert is plain text: a code or a name in it reads as the rest of the message. A link
+     keeps its own color and underline, so it still reads as a link (WCAG 1.4.1). */
+  .Content[data-mobile-variant="alert"] .Description * {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    letter-spacing: inherit;
+  }
+
+  .Content[data-mobile-variant="alert"] .Description *:not(a, a *) {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* A text field fills the alert as its actions do: a 52px row with 26px corners, 19 above the actions. */
   .Content[data-mobile-variant="alert"] .Body {
-    --control-size-3xl: var(--dialog-alert-action-height);
+    --control-size-3xl: var(--dialog-alert-field-height, 52px);
     margin-inline: 0;
-    padding: 0 0 10px;
+    padding: 0 0 9px;
   }
 
   .Content[data-mobile-variant] .Footer {
@@ -567,6 +584,16 @@
 
   .Content[data-mobile-variant="alert"] .Footer > [data-variant="soft"]:where([data-color="primary"], [data-color="secondary"]) {
     --button-background-color: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));
+  }
+
+  /* A destructive action is the fill of the other actions with a red label (kit iOS 27, Alerts _Buttons,
+     Role=Destructive) */
+  .Content[data-mobile-variant="alert"] .Footer > [data-color="danger"]:where([data-variant="solid"], [data-variant="soft"]) {
+    --button-background-color: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));
+    --button-background-color-hover: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));
+    --button-background-color-active: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));
+    --button-text-color: var(--color-text-danger);
+    --button-text-color-hover: var(--color-text-danger);
   }
 
   .Content[data-mobile-variant="alert"] .Body {
@@ -629,6 +656,28 @@
     justify-content: center;
     min-height: 44px;
     padding-inline-end: 0;
+  }
+
+  /* A title with a description is the two-line title of an iOS bar (kit iOS 27, Toolbar - Top - iPhone, Title
+     2 Line; as a Toolbar's Subtitle): the title at 15/20 semibold 6px from the top of Close's 44px row and the
+     description under it at 12/16 medium in the secondary label color, both centered between the bar's actions. */
+  .Content[data-mobile-variant="sheet"] .Header:has(> .Description) > :first-child {
+    min-height: 0;
+    padding-top: 6px;
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header:has(> .Description) .Title {
+    font-size: var(--toolbar-title-compact-font-size);
+    line-height: var(--toolbar-title-compact-line-height);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header > .Description {
+    margin-top: -2px;
+    padding-bottom: 4px;
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+    font-size: var(--toolbar-subtitle-font-size);
+    font-weight: var(--toolbar-subtitle-font-weight);
+    line-height: var(--toolbar-subtitle-line-height);
   }
 
   .Content[data-mobile-variant="alert"] .Title,
@@ -744,7 +793,8 @@
      phone Toolbar do: by default the soft scroll edge of iOS 26. The material sits on a pseudo-element, so
      Header does not become a backdrop root: HeaderAction and the sibling Close sample the same content.
      Soft: under the header the panel color fades out over its bottom padding and 16px past it; over the
-     footer it starts 27px above the actions and covers the content fully 33px below their top (IMG_5491). */
+     footer it starts 27px above the actions (IMG_5491) and covers the content fully from their top, so no text
+     shows through a soft action such as Decline (owner 07.11). */
   .Content[data-mobile-variant="sheet"] .Header::after,
   .Content[data-mobile-variant="sheet"] .Footer::before {
     position: absolute;
@@ -766,8 +816,8 @@
 
   .Content[data-mobile-variant="sheet"] .Footer::before {
     inset: -15px 0 0;
-    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 60px);
-    mask-image: linear-gradient(to bottom, transparent, #000 60px);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 27px);
+    mask-image: linear-gradient(to bottom, transparent, #000 27px);
   }
 
   /* Hard and solid are opaque, glass is translucent and shows itself once content is under the bar; hard

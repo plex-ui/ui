@@ -74,7 +74,7 @@ import {
 
 ### Different controls
 
-<ComponentPreview phoneMenuHeight={577} className={phoneRowsStyles.PhoneRowsPreview} details={<>The kind of control does not matter: each row keeps its state when it moves.</>} code={`<Sortable value={rows} onChange={setRows}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>The kind of control does not matter: each row keeps its state when it moves.</>} code={`<Sortable value={rows} onChange={setRows}>
   {rows.map((row) => (
     <div key={row.id} data-row>
       <Sortable.Handle aria-label={\`Reorder \${row.label}\`} />

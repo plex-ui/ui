@@ -363,6 +363,38 @@ html.dark .PreviewInner>[data-demo-controls]>* {
   }
 }
 
+/* The default Phone view, inside the phone frame (only the iframe's markup has the attribute): an example that is
+   not a screen itself stands on a phone page where a screen's content stands (Page.Content), under the status bar
+   and 16px below it, within the 16px layout margins, from the top down; the stage keeps its own alignment across.
+   Phone rows, an inset grouped list, cover the screen with the grouped surface, as a settings screen does. */
+.PreviewContainer[data-preview-phone-page] {
+  min-height: 100dvh;
+}
+
+.PreviewContainer[data-preview-phone-page] > .PreviewInner {
+  justify-content: flex-start;
+}
+
+.PreviewContainer[data-preview-phone-page] [data-demo-stage]:not([data-demo-stage] *),
+.PreviewContainer[data-preview-phone-page] > .PreviewInner:not(:has([data-demo-stage])) {
+  justify-content: flex-start;
+  padding: calc(var(--safe-area-inset-top, 0px) + 16px) var(--mobile-layout-margin, 16px) calc(var(--safe-area-inset-bottom, 0px) + 16px);
+}
+
+.PreviewContainer[data-preview-phone-page]:has([data-phone-rows]) {
+  background: var(--mobile-surface-grouped-primary);
+}
+
+/* The rows keep their 16px screen gutters and paint the grouped surface up behind the status bar */
+.PreviewContainer[data-preview-phone-page] [data-demo-stage]:not([data-demo-stage] *):has([data-phone-rows]) {
+  padding: 0;
+}
+
+.PreviewContainer[data-preview-phone-page] [data-phone-rows] {
+  padding-top: calc(var(--safe-area-inset-top, 0px) + 16px);
+  padding-bottom: calc(var(--safe-area-inset-bottom, 0px) + 16px);
+}
+
 /* Fallback for raw components (e.g. Loading button) */
 .PreviewInner:not(:has([data-demo-controls])):not(:has([data-demo-stage])) {
   padding: 48px 24px;

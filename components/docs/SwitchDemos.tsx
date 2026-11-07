@@ -12,7 +12,7 @@ import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './Button
 
 function PhoneSwitchGroup({ children, title, footer }: { children: ReactNode; title?: string; footer?: string }) {
   return (
-    <div data-switch-phone-rows className={phoneRowsClassName}>
+    <div data-phone-rows className={phoneRowsClassName}>
       <FieldGroup title={title} footer={footer}>{children}</FieldGroup>
     </div>
   );
@@ -33,7 +33,7 @@ export function SwitchStatesDemo() {
       </div>
       <div data-demo-stage className={phone ? 'w-full' : 'flex w-full flex-1 items-center justify-center py-8'}>
         {phone ? (
-          <div data-switch-phone-rows className={phoneRowsClassName}>
+          <div data-phone-rows className={phoneRowsClassName}>
             {[false, true].map((disabled) => (
               <FieldGroup key={String(disabled)} title={disabled ? 'Disabled' : 'Enabled'}>
                 {[false, true].map((checked) => (
