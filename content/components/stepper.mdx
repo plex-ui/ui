@@ -10,6 +10,7 @@ import {
   StepperRangeDemo,
   StepperStatesDemo,
 } from "@/components/docs/StepperDemos"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { Stepper } from "@plexui/ui/components/Stepper";`}</UsageBlock>
 
@@ -32,7 +33,7 @@ const [guests, setGuests] = useState(2)
 
 ### In rows
 
-<ComponentPreview details={<>In a <code>Field</code> row the label names the stepper. Put the value in the label, such as 3 copies.</>} code={`const [copies, setCopies] = useState(1)
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>In a <code>Field</code> row the label names the stepper. Put the value in the label, such as 3 copies. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={`const [copies, setCopies] = useState(1)
 const [nights, setNights] = useState(3)
 
 <FieldGroup footer="Up to 20 copies and 14 nights.">

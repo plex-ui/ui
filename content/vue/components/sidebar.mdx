@@ -633,7 +633,7 @@ export const searchInput = `<component :is="ResponsiveSidebarProvider" class="h-
 
 ## Examples
 
-The examples use local `ResponsiveSidebarProvider`, `ResponsiveSidebar` and `SidebarDemoPage` helpers from [Responsive composition](#responsive-composition). They keep the desktop rail and use the existing `SidebarMobile` drawer with a `Page` toolbar on phones. The mobile presentation is a navigation adaptation, not an iPad sidebar squeezed into a phone.
+The examples use local `ResponsiveSidebarProvider`, `ResponsiveSidebar` and `SidebarDemoPage` helpers from [Responsive composition](#responsive-composition). They keep the desktop rail and use the existing `SidebarMobile` drawer with a `Page` toolbar on phones. The mobile presentation is a navigation adaptation, not an iPad sidebar squeezed into a phone. On a phone the examples leave out the controls that only change the desktop sidebar, `open`, `collapsible` and `labelSize`: the drawer is the same with each of them.
 
 
 The examples read their navigation data (`navGroups`, `docsSections`, `iconSections`, `consoleSections`, ...) from the setup scope, where a real app defines it in `<script setup>` with icon components imported from `@plexui/vue/components/Icon`. The default slot of `SidebarProvider` receives the sidebar state and controls (`v-slot="sidebar"`), the same object `useSidebar()` returns.
@@ -641,19 +641,19 @@ The examples read their navigation data (`navGroups`, `docsSections`, `iconSecti
 ### App Shell
 
 <ComponentPreview phonePresentation="screen" language="vue" details={<>A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. Inbox carries a quiet count <code>Badge</code>, as the inbox of a platform does. When collapsed (icon mode), hovering a parent icon opens a <code>Popover</code> flyout listing the section&apos;s items so users keep one-click access without expanding the rail.</>} code={appShell} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
-  <VueSidebarDemo template={appShell} stageClassName={STAGE} state={{ active: "workbench", expanded: { build: true, "managed-agents": true, analytics: true, cli: true, manage: true } }} controls={[{ name: "open", type: "boolean", default: true }, { name: "bordered", type: "boolean", default: false }]} />
+  <VueSidebarDemo template={appShell} stageClassName={STAGE} state={{ active: "workbench", expanded: { build: true, "managed-agents": true, analytics: true, cli: true, manage: true } }} controls={[{ name: "open", desktopOnly: true, type: "boolean", default: true }, { name: "bordered", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### App
 
 <ComponentPreview phonePresentation="screen" language="vue" details={<>The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A <code>Badge</code> in <code>SidebarMenuBadge</code> sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a <code>Menu</code> beside the icon when folded. The person row in the footer is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. In these examples, the phone toolbar opens the same navigation tree in a full-screen drawer. Set <code>--sidebar-menu-sub-max-height</code> to a group's real height for an even fold.</>} code={app} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
-  <VueSidebarDemo template={app} stageClassName={STAGE} state={{ active: "notifications", documentsOpen: true }} controls={[{ name: "open", type: "boolean", default: true }]} />
+  <VueSidebarDemo template={app} stageClassName={STAGE} state={{ active: "notifications", documentsOpen: true }} controls={[{ name: "open", desktopOnly: true, type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Basic
 
 <ComponentPreview phonePresentation="screen" language="vue" code={basic} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
-  <VueSidebarDemo template={basic} stageClassName={STAGE} state={{ activeItem: "Overview" }} controls={[{ name: "collapsible", type: "select", options: COLLAPSIBLE, default: "icon" }, { name: "labelSize", type: "select", options: LABEL_SIZES, default: "sm" }, { name: "icons", type: "boolean", default: true }, { name: "badges", type: "boolean", default: true }, { name: "footerCard", type: "boolean", default: false }, { name: "bordered", type: "boolean", default: true }]} />
+  <VueSidebarDemo template={basic} stageClassName={STAGE} state={{ activeItem: "Overview" }} controls={[{ name: "collapsible", desktopOnly: true, type: "select", options: COLLAPSIBLE, default: "icon" }, { name: "labelSize", desktopOnly: true, type: "select", options: LABEL_SIZES, default: "sm" }, { name: "icons", type: "boolean", default: true }, { name: "badges", type: "boolean", default: true }, { name: "footerCard", type: "boolean", default: false }, { name: "bordered", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Collapsible Sections

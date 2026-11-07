@@ -5,6 +5,9 @@ metaDescription: Vue 3 stepper component with minus and plus segments for small 
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows } from "@/components/docs/phoneRowsTemplate"
 
 export const overview = `<div class="flex items-center gap-4">
   <span id="stepper-guests-label">Guests</span>
@@ -51,8 +54,8 @@ A stepper changes a value by small amounts and shows no value of its own. Show t
 
 ### In rows
 
-<ComponentPreview language="vue" details={<>In a <code>Field</code> row the label names the stepper. Put the value in the label, such as 3 copies.</>} code={rows} previewMinHeight={200}>
-  <VueDemo template={rows} state={{ copies: 1, nights: 3 }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>In a <code>Field</code> row the label names the stepper. Put the value in the label, such as 3 copies. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={rows} previewMinHeight={200}>
+  <VuePhoneRowsDemo template={rows} phoneTemplate={phoneRows(rows)} phoneStageClassName="w-full" state={{ copies: 1, nights: 3 }} />
 </ComponentPreview>
 
 ### Range, step and wrap

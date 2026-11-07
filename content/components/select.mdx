@@ -213,7 +213,21 @@ const roles = [
 
 ### Column configuration
 
-<ComponentPreview details={<>A column-visibility panel built with <code>Popover</code> and <code>Switch</code>. Toggling a switch moves the column between shown and hidden groups.</>} code={`const [shown, setShown] = useState(["name", "email", "role", "status"])
+<ComponentPreview details={<>
+  <p>A column-visibility panel built with <code>Popover</code> and <code>Switch</code>. Toggling a switch moves the column between shown and hidden groups.</p>
+  <p>On a phone the panel is a sheet (<code>Dialog</code> with <code>mobileVariant="sheet"</code>) of <code>Field</code> rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes.</p>
+</>} code={`const allColumns = [
+  { id: "name", label: "Name" },
+  { id: "email", label: "Email" },
+  { id: "role", label: "Role" },
+  { id: "status", label: "Status" },
+  { id: "created", label: "Created at" },
+  { id: "lastLogin", label: "Last login" },
+  { id: "avatar", label: "Avatar" },
+  { id: "phone", label: "Phone" },
+]
+const [shown, setShown] = useState(["name", "email", "role", "status"])
+const heading = useRef<HTMLDivElement>(null)
 const toggle = (id: string) => {
   setShown((prev) =>
     prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
@@ -222,39 +236,61 @@ const toggle = (id: string) => {
 const shownColumns = allColumns.filter((c) => shown.includes(c.id))
 const hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))
 
-return (
-  <Popover>
-    <Popover.Trigger>
-      <Button color="secondary" variant="outline" size="sm">
-        <SettingsSlider width={15} height={15} /> Columns
-      </Button>
-    </Popover.Trigger>
-    <Popover.Content minWidth={240} side="bottom" align="start">
-      <div className="py-1.5">
-        {shownColumns.map((col) => (
-          <div
-            key={col.id}
-            className="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
-            onClick={() => toggle(col.id)}
-          >
-            <span className="text-sm">{col.label}</span>
-            <Switch checked aria-label={col.label} />
-          </div>
+// Desktop: a popover; a switch moves its column between the shown and hidden lists
+<Popover>
+  <Popover.Trigger>
+    <Button color="secondary" variant="outline" size="sm">
+      <SettingsSlider width={15} height={15} /> Columns
+    </Button>
+  </Popover.Trigger>
+  <Popover.Content minWidth={240} side="bottom" align="start">
+    <div className="py-1.5">
+      {shownColumns.map((col) => (
+        <div
+          key={col.id}
+          className="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
+          onClick={() => toggle(col.id)}
+        >
+          <span className="text-sm">{col.label}</span>
+          <Switch checked aria-label={col.label} />
+        </div>
+      ))}
+      {hiddenColumns.map((col) => (
+        <div
+          key={col.id}
+          className="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
+          onClick={() => toggle(col.id)}
+        >
+          <span className="text-sm text-tertiary">{col.label}</span>
+          <Switch checked={false} aria-label={col.label} />
+        </div>
+      ))}
+    </div>
+  </Popover.Content>
+</Popover>
+
+// Phone: a sheet of switch rows in a fixed order
+<Dialog>
+  <Dialog.Trigger>
+    <Button color="secondary" variant="outline" size="sm">
+      <SettingsSlider width={15} height={15} /> Columns
+    </Button>
+  </Dialog.Trigger>
+  <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
+    <Dialog.Header>
+      <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Columns</Dialog.Title></div>
+    </Dialog.Header>
+    <Dialog.Body>
+      <FieldGroup>
+        {allColumns.map((col) => (
+          <Field row key={col.id} label={col.label}>
+            <Switch color="accent" checked={shown.includes(col.id)} onCheckedChange={() => toggle(col.id)} />
+          </Field>
         ))}
-        {hiddenColumns.map((col) => (
-          <div
-            key={col.id}
-            className="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
-            onClick={() => toggle(col.id)}
-          >
-            <span className="text-sm text-tertiary">{col.label}</span>
-            <Switch checked={false} aria-label={col.label} />
-          </div>
-        ))}
-      </div>
-    </Popover.Content>
-  </Popover>
-)`} previewMinHeight={168}>
+      </FieldGroup>
+    </Dialog.Body>
+  </Dialog.Content>
+</Dialog>`} previewMinHeight={168}>
   <SelectColumnConfigDemo />
 </ComponentPreview>
 

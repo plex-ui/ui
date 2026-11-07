@@ -7823,8 +7823,9 @@ Multiple selection is supported through the multiple property. This changes how 
 ```
 
 ### Column configuration
-A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups.
+A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups. On a phone the panel is a sheet (Dialog with mobile-variant="sheet") of Field rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes.
 ```vue
+<!-- Desktop -->
 <Popover>
   <PopoverTrigger>
     <Button color="secondary" variant="outline" size="sm"><SettingsSlider :width="15" :height="15" /> Columns</Button>
@@ -7856,6 +7857,25 @@ A column-visibility panel built with Popover and Switch. Toggling a switch moves
     </div>
   </PopoverContent>
 </Popover>
+
+<!-- Phone: a sheet of switch rows in a fixed order. -->
+<Dialog>
+  <DialogTrigger>
+    <Button color="secondary" variant="outline" size="sm"><SettingsSlider :width="15" :height="15" /> Columns</Button>
+  </DialogTrigger>
+  <DialogContent mobile-variant="sheet" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
+    <DialogHeader>
+      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Columns</DialogTitle></div>
+    </DialogHeader>
+    <DialogBody>
+      <FieldGroup>
+        <Field v-for="col in allColumns" :key="col.id" row :label="col.label">
+          <Switch color="accent" :checked="shown.includes(col.id)" @update:checked="(on) => (shown = on ? [...shown, col.id] : shown.filter((c) => c !== col.id))" />
+        </Field>
+      </FieldGroup>
+    </DialogBody>
+  </DialogContent>
+</Dialog>
 ```
 
 ## Select Control
@@ -10308,7 +10328,7 @@ Name the stepper with aria-labelledby, the visible label of its value. A segment
 ```
 
 ### In rows
-In a Field row the label names the stepper. Put the value in the label, such as 3 copies.
+In a Field row the label names the stepper. Put the value in the label, such as 3 copies. On a phone the rows sit on the grouped background of an iOS settings screen.
 ```vue
 <FieldGroup class="w-full max-w-[400px]">
   <template #footer>Up to 20 copies and 14 nights.</template>

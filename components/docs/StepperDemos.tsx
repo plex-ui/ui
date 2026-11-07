@@ -4,6 +4,7 @@ import { useId, useState } from 'react';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Stepper } from '@plexui/ui/components/Stepper';
+import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 
 export function StepperOverviewDemo() {
   const label = useId();
@@ -18,9 +19,10 @@ export function StepperOverviewDemo() {
 }
 
 export function StepperRowsDemo() {
+  const phone = usePhoneRows();
   const [copies, setCopies] = useState(1);
   const [nights, setNights] = useState(3);
-  return (
+  const group = (
     <FieldGroup className="w-full max-w-[400px]" footer="Up to 20 copies and 14 nights.">
       <Field row label={copies === 1 ? '1 copy' : `${copies} copies`}>
         <Stepper value={copies} onChange={setCopies} min={1} max={20} />
@@ -30,6 +32,8 @@ export function StepperRowsDemo() {
       </Field>
     </FieldGroup>
   );
+  // On a phone the rows sit on the grouped surface of an iOS settings screen, as on the Input page
+  return phone ? <PhoneRowsStage>{group}</PhoneRowsStage> : group;
 }
 
 export function StepperRangeDemo() {

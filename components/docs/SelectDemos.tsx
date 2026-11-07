@@ -1,10 +1,11 @@
 'use client';
 
 import type React from 'react';
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { Plus, SettingsSlider, User, UserLock, Workspace } from '@plexui/ui/components/Icon';
 import { Select } from '@plexui/ui/components/Select';
 import { Popover } from '@plexui/ui/components/Popover';
+import { Dialog } from '@plexui/ui/components/Dialog';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Switch } from '@plexui/ui/components/Switch';
 import { Button } from '@plexui/ui/components/Button';
@@ -501,6 +502,8 @@ const ALL_COLUMNS = [
 const DEFAULT_SHOWN_COLUMNS = ['name', 'email', 'role', 'status'];
 
 export function SelectColumnConfigDemo() {
+  const phone = usePhoneRows();
+  const heading = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState<string[]>(DEFAULT_SHOWN_COLUMNS);
 
   const toggle = (id: string) => {
@@ -511,14 +514,37 @@ export function SelectColumnConfigDemo() {
 
   const shownColumns = ALL_COLUMNS.filter((c) => shown.includes(c.id));
   const hiddenColumns = ALL_COLUMNS.filter((c) => !shown.includes(c.id));
+  const trigger = (
+    <Button color="secondary" variant="outline" size="sm">
+      <SettingsSlider width={15} height={15} /> Columns
+    </Button>
+  );
+
+  // A phone presents the panel as a sheet of switch rows in a fixed order: as in iOS settings,
+  // a row stays in place when its switch changes
+  if (phone) return (
+    <Dialog>
+      <Dialog.Trigger>{trigger}</Dialog.Trigger>
+      <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
+        <Dialog.Header>
+          <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Columns</Dialog.Title></div>
+        </Dialog.Header>
+        <Dialog.Body>
+          <FieldGroup>
+            {ALL_COLUMNS.map((col) => (
+              <Field row key={col.id} label={col.label}>
+                <Switch color="accent" checked={shown.includes(col.id)} onCheckedChange={() => toggle(col.id)} />
+              </Field>
+            ))}
+          </FieldGroup>
+        </Dialog.Body>
+      </Dialog.Content>
+    </Dialog>
+  );
 
   return (
     <Popover>
-      <Popover.Trigger>
-        <Button color="secondary" variant="outline" size="sm">
-          <SettingsSlider width={15} height={15} /> Columns
-        </Button>
-      </Popover.Trigger>
+      <Popover.Trigger>{trigger}</Popover.Trigger>
       <Popover.Content minWidth={240} side="bottom" align="start">
         <div className="py-1.5">
           {shownColumns.length > 0 && (

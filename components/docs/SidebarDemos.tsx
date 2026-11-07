@@ -282,7 +282,7 @@ export function SidebarBaseDemo() {
         </SidebarProvider>
     </div>
     <div data-demo-controls style={controlsTableStyle}>
-      <DemoControlRow name="collapsible">
+      <DemoControlRow name="collapsible" desktopOnly>
         <SegmentedControl<'none' | 'icon' | 'offcanvas'>
           value={collapsible}
           onChange={setCollapsible}
@@ -294,7 +294,7 @@ export function SidebarBaseDemo() {
           <SegmentedControl.Option value="offcanvas">offcanvas</SegmentedControl.Option>
         </SegmentedControl>
       </DemoControlRow>
-      <DemoControlRow name="labelSize">
+      <DemoControlRow name="labelSize" desktopOnly>
         <SegmentedControl<'sm' | 'lg'>
           value={labelSize}
           onChange={setLabelSize}
@@ -2510,7 +2510,7 @@ function SidebarConsoleDemoControls() {
   if (!ctx) return null;
   return (
     <div data-demo-controls style={controlsTableStyle}>
-      <DemoControlBoolean name="open" value={ctx.open} onChange={ctx.setOpen} />
+      <DemoControlBoolean name="open" value={ctx.open} onChange={ctx.setOpen} desktopOnly />
       <DemoControlBoolean name="bordered" value={ctx.bordered} onChange={ctx.setBordered} />
     </div>
   );
@@ -2717,7 +2717,7 @@ export function SidebarAppDemo() {
         </SidebarProvider>
       </div>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="open" value={open} onChange={setOpen} />
+        <DemoControlBoolean name="open" value={open} onChange={setOpen} desktopOnly />
       </div>
     </>
   );
