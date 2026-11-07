@@ -21,8 +21,11 @@ import {
   CheckboxNotificationSettingsDemo,
 } from '@/components/docs/CheckboxDemos'
 import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { Checkbox } from "@plexui/ui/components/Checkbox";`}</UsageBlock>
+
+On Phone, a single checkbox stays next to its label, while a list of options goes in the rows of a `FieldGroup`: each `Field row` names an option and ends with the checkbox, as in an iOS settings list.
 
 ## Examples
 
@@ -37,7 +40,7 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### With Radio Group
 
-<ComponentPreview details={<>Place <code>Checkbox</code> alongside <code>RadioGroup</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts.</>} code={`const channels = [
+<ComponentPreview phonePresentation="none" details={<>Place <code>Checkbox</code> alongside <code>RadioGroup</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.</>} code={`const channels = [
   { value: "email", label: "Email", description: "Messages delivered to your inbox." },
   { value: "sms", label: "SMS", description: "Text messages to your phone number." },
   { value: "push", label: "Push", description: "Real-time alerts on your device." },
@@ -87,52 +90,52 @@ const topics = [
 
 ### Descriptions
 
-<ComponentPreview details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory.</>} code={`const [settings, setSettings] = useState({
-  marketing: true,
-  security: true,
-  everything: false,
-  mentions: true,
-  nothing: false,
+<ComponentPreview phonePresentation="none" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as Group with description and Grouped sections show, so this example is desktop only.</>} code={`const [settings, setSettings] = useState({
+  projects: true,
+  members: true,
+  csv: true,
+  json: false,
+  pdf: false,
 })
 const toggle = (key: keyof typeof settings) => () =>
   setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
 
 <div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
   <div className="pb-5">
-    <Field label="Email notifications" description="Configure which emails you receive.">
+    <Field label="Export contents" description="Choose what the archive includes.">
       {() => (
         <div className="flex flex-col gap-2.5">
           <Checkbox
             label={
               <div className="flex flex-col">
-                <span className="font-medium">Marketing</span>
-                <span className="text-xs text-secondary mt-0.5">Receive emails about new products and features.</span>
+                <span className="font-medium">Projects</span>
+                <span className="text-xs text-secondary mt-0.5">Files, comments, and version history.</span>
               </div>
             }
-            checked={settings.marketing}
-            onCheckedChange={toggle("marketing")}
+            checked={settings.projects}
+            onCheckedChange={toggle("projects")}
           />
           <Checkbox
             label={
               <div className="flex flex-col">
-                <span className="font-medium">Security</span>
-                <span className="text-xs text-secondary mt-0.5">Receive emails about account activity and security.</span>
+                <span className="font-medium">Members</span>
+                <span className="text-xs text-secondary mt-0.5">Names, roles, and email addresses.</span>
               </div>
             }
-            checked={settings.security}
-            onCheckedChange={toggle("security")}
+            checked={settings.members}
+            onCheckedChange={toggle("members")}
           />
         </div>
       )}
     </Field>
   </div>
   <div className="pt-5">
-    <Field label="Push notifications">
+    <Field label="File formats">
       {() => (
         <div className="flex flex-col gap-3">
-          <Checkbox label="Everything" checked={settings.everything} onCheckedChange={toggle("everything")} />
-          <Checkbox label="Direct messages and mentions" checked={settings.mentions} onCheckedChange={toggle("mentions")} />
-          <Checkbox label="Nothing" checked={settings.nothing} onCheckedChange={toggle("nothing")} />
+          <Checkbox label="CSV" checked={settings.csv} onCheckedChange={toggle("csv")} />
+          <Checkbox label="JSON" checked={settings.json} onCheckedChange={toggle("json")} />
+          <Checkbox label="PDF" checked={settings.pdf} onCheckedChange={toggle("pdf")} />
         </div>
       )}
     </Field>
@@ -175,9 +178,9 @@ const toggle = (key: keyof typeof settings) => () =>
 
 ### Pill
 
-<ComponentPreview details={<>
+<ComponentPreview phonePresentation="none" details={<>
   <p>Set <code>pill</code> to render the checkbox indicator with fully rounded corners (<code>border-radius: full</code>) instead of the default square radius.</p>
-  <p>On a phone with <code>touch.css</code> every checkbox indicator is round, the 22px selection circle of iOS, so <code>pill</code> makes no difference there. The phone view leaves out the <code>pill</code> control here and in the overview.</p>
+  <p>On a phone with <code>touch.css</code> every checkbox indicator is round, the 22px selection circle of iOS, so <code>pill</code> makes no difference there: the phone view leaves out the <code>pill</code> control in the overview, and this example, which would repeat the solid group of Variants, is desktop only.</p>
 </>} code={`<div className="flex flex-col gap-3">
   <Checkbox label="Unchecked" pill />
   <Checkbox label="Checked" pill defaultChecked />
@@ -188,7 +191,7 @@ const toggle = (key: keyof typeof settings) => () =>
 
 ### Ghost
 
-<ComponentPreview details={<>Use <code>variant="ghost"</code> to render the checkbox without a border or background. The checkmark uses the text color instead of white, making it suitable for subtle inline selections or task lists.</>} code={`<div className="flex flex-col gap-3">
+<ComponentPreview phonePresentation="none" details={<>Use <code>variant="ghost"</code> to render the checkbox without a border or background. The checkmark uses the text color instead of white, making it suitable for subtle inline selections or task lists. On a phone this would repeat the ghost group of Variants, so this example is desktop only.</>} code={`<div className="flex flex-col gap-3">
   <Checkbox label="Unchecked" variant="ghost" />
   <Checkbox label="Checked" variant="ghost" defaultChecked />
   <Checkbox label="Indeterminate" variant="ghost" checked="indeterminate" />
@@ -200,8 +203,8 @@ const toggle = (key: keyof typeof settings) => () =>
 
 <ComponentPreview details={<>Use <code>description</code> for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through <code>aria-describedby</code>. The description renders only next to a <code>label</code>.</>} code={`<div className="flex flex-col gap-4 max-w-sm">
   <Checkbox
-    label="Accept terms and conditions"
-    description="By checking this box, you agree to our Terms of Service and Privacy Policy."
+    label="Share usage data"
+    description="Help improve the product with anonymous usage reports."
     defaultChecked
   />
   <Checkbox
@@ -228,7 +231,7 @@ const toggle = (key: keyof typeof settings) => () =>
 
 ### Label orientation
 
-<ComponentPreview details={<>By default the checkbox renders to the left of the label. Set <code>orientation="right"</code> to place the checkbox after the label.</>} code={`<Checkbox label="Accept terms and conditions" orientation="right" />`} previewMinHeight={168}>
+<ComponentPreview details={<>By default the checkbox renders to the left of the label. Set <code>orientation="right"</code> to place the checkbox after the label.</>} code={`<Checkbox label="Remember this device" orientation="right" />`} previewMinHeight={168}>
   <CheckboxOrientationDemo />
 </ComponentPreview>
 
@@ -281,23 +284,34 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate"
 
 ### Group with description
 
-<ComponentPreview details={<>Wrap a group of checkboxes in a <code>Field</code> for a shared label and description. This is a common pattern for preference lists and settings panels.</>} code={`<Field label="Show on desktop" description="Select the items you want to display on the desktop.">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Wrap a group of checkboxes in a <code>Field</code> for a shared label and description. This is a common pattern for preference lists and settings panels. On a phone the group is a <code>FieldGroup</code> whose title and description name the list, with a row for each option.</>} code={`// Desktop
+<Field label="Download over cellular" description="Choose what can use mobile data.">
   {() => (
     <div className="flex flex-col gap-3">
-      <Checkbox label="Hard disks" defaultChecked />
-      <Checkbox label="External disks" />
-      <Checkbox label="CDs, DVDs, and iPods" />
-      <Checkbox label="Connected servers" />
+      <Checkbox label="Photos" defaultChecked />
+      <Checkbox label="Videos" />
+      <Checkbox label="Music" />
+      <Checkbox label="Podcasts" />
     </div>
   )}
-</Field>`} previewMinHeight={240}>
+</Field>
+
+// Phone
+<FieldGroup title="Download over cellular" description="Choose what can use mobile data.">
+  <Field row label="Photos"><Checkbox defaultChecked /></Field>
+  <Field row label="Videos"><Checkbox /></Field>
+  <Field row label="Music"><Checkbox /></Field>
+  <Field row label="Podcasts"><Checkbox /></Field>
+</FieldGroup>`} previewMinHeight={240}>
   <CheckboxGroupWithDescriptionDemo />
 </ComponentPreview>
 
 ### With Field
 
-<ComponentPreview details={<>Wrap checkboxes in a <code>Field</code> component for form layout with label, description, and error message support. A single control passed as the child gets <code>aria-describedby</code> and <code>aria-invalid</code> automatically; the render-prop form receives them as arguments, so spread them onto the control that should carry them.</>} code={`const [agreed, setAgreed] = useState(false)
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Wrap checkboxes in a <code>Field</code> component for form layout with label, description, and error message support. A single control passed as the child gets <code>aria-describedby</code> and <code>aria-invalid</code> automatically; the render-prop form receives them as arguments, so spread them onto the control that should carry them. On a phone the options are rows of a <code>FieldGroup</code> and a <code>FieldError</code> in its footer shows the message; link it to the checkbox it is about with <code>aria-describedby</code>.</>} code={`const [agreed, setAgreed] = useState(false)
+const errorId = useId()
 
+// Desktop
 <Field
   label="Terms"
   description="Please review and accept the terms before continuing."
@@ -310,10 +324,27 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate"
         checked={agreed}
         onCheckedChange={(next) => setAgreed(Boolean(next))}
       />
-      <Checkbox label="Subscribe to product updates" />
+      <Checkbox label="I agree to the Privacy Policy" />
     </div>
   )}
-</Field>`} previewMinHeight={200}>
+</Field>
+
+// Phone
+<FieldGroup
+  title="Terms"
+  description="Please review and accept the terms before continuing."
+  footer={showError ? <FieldError id={errorId}>You must accept the terms to continue.</FieldError> : undefined}
+>
+  <Field row label="I agree to the Terms of Service">
+    <Checkbox
+      checked={agreed}
+      onCheckedChange={(next) => setAgreed(Boolean(next))}
+      aria-invalid={showError || undefined}
+      aria-describedby={showError ? errorId : undefined}
+    />
+  </Field>
+  <Field row label="I agree to the Privacy Policy"><Checkbox /></Field>
+</FieldGroup>`} previewMinHeight={200}>
   <CheckboxWithFieldDemo />
 </ComponentPreview>
 
@@ -322,9 +353,9 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate"
 <ComponentPreview phonePresentation="screen" details={<>Use dividers to separate checkbox groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={`const [settings, setSettings] = useState({
   emailMarketing: true,
   emailSecurity: true,
-  pushEverything: false,
+  pushMessages: true,
   pushMentions: true,
-  pushNothing: false,
+  pushComments: false,
 })
 const toggle = (key: keyof typeof settings) => () =>
   setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
@@ -339,9 +370,9 @@ const toggle = (key: keyof typeof settings) => () =>
         <Field row label="Security" description="Receive emails about account activity and security."><Checkbox checked={settings.emailSecurity} onCheckedChange={toggle('emailSecurity')} /></Field>
       </FieldGroup>
       <FieldGroup title="Push notifications" description="Configure which push notifications you receive.">
-        <Field row label="Everything"><Checkbox checked={settings.pushEverything} onCheckedChange={toggle('pushEverything')} /></Field>
-        <Field row label="Direct messages and mentions"><Checkbox checked={settings.pushMentions} onCheckedChange={toggle('pushMentions')} /></Field>
-        <Field row label="Nothing"><Checkbox checked={settings.pushNothing} onCheckedChange={toggle('pushNothing')} /></Field>
+        <Field row label="Direct messages"><Checkbox checked={settings.pushMessages} onCheckedChange={toggle('pushMessages')} /></Field>
+        <Field row label="Mentions"><Checkbox checked={settings.pushMentions} onCheckedChange={toggle('pushMentions')} /></Field>
+        <Field row label="Comments"><Checkbox checked={settings.pushComments} onCheckedChange={toggle('pushComments')} /></Field>
       </FieldGroup>
     </div>
   </Page.Content>

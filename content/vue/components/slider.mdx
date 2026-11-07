@@ -5,9 +5,13 @@ metaDescription: Vue 3 slider component for fine-tuning numeric values with sing
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
 
 export const stage = "flex-1 flex flex-col items-center justify-center py-12 w-full"
 export const marksStage = "flex-1 flex flex-col items-center justify-center py-20 w-full"
+export const phoneStage = "flex-1 flex flex-col items-center justify-center py-12 px-4 w-full"
+export const phoneMarksStage = "flex-1 flex flex-col items-center justify-center py-20 px-4 w-full"
+export const fill = (template) => template.replace('<div style="width: 300px">', '<div class="w-full">')
 
 export const overview = `<div style="width: 300px">
   <Slider
@@ -109,6 +113,8 @@ const disabled = ref(false);
 
 <UsageBlock>{`import { Slider } from "@plexui/vue/components/Slider";`}</UsageBlock>
 
+On Phone, the examples below stretch the slider across the screen between 16px margins, as an iOS slider spans its row, instead of the 300px of the desktop code. For a slider in a list of settings, see the settings screen of the [Form Examples](/vue/components/form-examples).
+
 ## Examples
 
 <span id="disabled" />
@@ -116,31 +122,31 @@ const disabled = ref(false);
 ### Overview
 
 <ComponentPreview language="vue" code={overviewCode} previewMinHeight={168}>
-  <VueDemo template={overview} state={{ value: 1000 }} controls={[{ name: "disabled", type: "boolean", default: false }]} />
+  <VuePhoneRowsDemo template={overview} phoneTemplate={fill(overview)} phoneStageClassName={phoneStage} state={{ value: 1000 }} controls={[{ name: "disabled", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Adding a tooltip
 
-<ComponentPreview language="vue" details={<>A tooltip can easily be added to the Slider label by passing rich content through the <code>label</code> slot instead of a simple string.</>} code={tooltip} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>A tooltip can easily be added to the Slider label by passing rich content through the <code>label</code> slot instead of a simple string. A tooltip opens on hover, which a phone does not have, so this example is desktop only.</>} code={tooltip} previewMinHeight={168}>
   <VueDemo template={tooltip} stageClassName={stage} state={{ value: 1000 }} />
 </ComponentPreview>
 
 ### Marks
 
 <ComponentPreview language="vue" details={<>Slider marks can be easily added by passing an array of values to the <code>marks</code> prop. Responsive behaviors are handled automatically.</>} code={marks} previewMinHeight={168}>
-  <VueDemo template={marks} stageClassName={marksStage} state={{ value: 3 }} />
+  <VuePhoneRowsDemo template={marks} phoneTemplate={fill(marks)} stageClassName={marksStage} phoneStageClassName={phoneMarksStage} state={{ value: 3 }} />
 </ComponentPreview>
 
 ### Range
 
 <ComponentPreview language="vue" details={<>Set <code>range</code> to enable a dual-thumb slider for selecting a value range. <code>v-model:value</code> then binds an array instead of a single number.</>} code={range} previewMinHeight={168}>
-  <VueDemo template={range} stageClassName={stage} state={{ value: [25, 75] }} />
+  <VuePhoneRowsDemo template={range} phoneTemplate={fill(range)} stageClassName={stage} phoneStageClassName={phoneStage} state={{ value: [25, 75] }} />
 </ComponentPreview>
 
 ### Multiple thumbs
 
 <ComponentPreview language="vue" details={<>Pass three or more values to create a multi-thumb slider. Use <code>min-steps-between-thumbs</code> to enforce minimum spacing between thumbs.</>} code={multipleThumbs} previewMinHeight={168}>
-  <VueDemo template={multipleThumbs} stageClassName={stage} state={{ value: [10, 40, 70] }} />
+  <VuePhoneRowsDemo template={multipleThumbs} phoneTemplate={fill(multipleThumbs)} stageClassName={stage} phoneStageClassName={phoneStage} state={{ value: [10, 40, 70] }} />
 </ComponentPreview>
 
 ### Vertical

@@ -51,11 +51,13 @@ export function FieldGroup({
   ...rest
 }: FieldGroupProps) {
   const titleId = `field-group-${useId()}`
+  const descriptionId = `${titleId}-description`
 
   return (
     <section
       role="group"
       aria-labelledby={title ? titleId : undefined}
+      aria-describedby={description ? descriptionId : undefined}
       data-field-columns={columns ? "" : undefined}
       {...rest}
       className={clsx(s.FieldGroup, className)}
@@ -68,7 +70,7 @@ export function FieldGroup({
                 {title}
               </h2>
             )}
-            {description && <p className={s.Description}>{description}</p>}
+            {description && <p className={s.Description} id={descriptionId}>{description}</p>}
           </div>
           {action}
         </div>

@@ -448,6 +448,22 @@
     cursor: pointer;
   }
 
+  /* The same rows, with their control disabled, read as disabled: the row is that control's
+     target, as a disabled row action of the kit is gray (Lists, Row - Button, Value=Disabled
+     550:49735), and an item's own label dims with it outside a row. Without this, an option
+     that is neither selected nor available looked like any other row. A row whose control
+     still has an enabled option (a segmented control with one disabled segment) stays as it
+     is. The label takes the tertiary label and the description the quaternary one, as a
+     disabled menu item does on a phone (touch.css). */
+  .Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Content > .Control [data-row]))):has(> .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"]):is([disabled], [data-disabled], [aria-disabled="true"])):not(:has(> .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"]):not([disabled], [data-disabled], [aria-disabled="true"], [aria-hidden="true"]))),
+  .Field:where([data-row]:not([data-orientation="vertical"])):has(> .Content > .Control > :is(button, [role="button"])[aria-haspopup]:not([aria-haspopup="false"]):is([disabled], [data-disabled], [aria-disabled="true"])) {
+    --field-description-color: var(--mobile-label-quaternary, var(--color-text-disabled));
+
+    > .LabelGroup .Label {
+      color: var(--mobile-label-tertiary, var(--color-text-disabled));
+    }
+  }
+
   /* Mobile choice rows keep keyboard focus and activation without a drawn ring. */
   .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"]):focus-visible {
     outline: none;

@@ -5,6 +5,9 @@ metaDescription: Vue 3 checkbox component built on Reka UI with solid, pill, and
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const stage = "flex-1 flex items-center justify-center py-12 w-full"
 
@@ -63,21 +66,21 @@ export const alignmentControls = [
 
 export const descriptions = `<div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
   <div class="pb-5">
-    <Field label="Email notifications" description="Configure which emails you receive." v-slot="{ id }">
+    <Field label="Export contents" description="Choose what the archive includes." v-slot="{ id }">
       <div class="flex flex-col gap-2.5">
-        <Checkbox v-model:checked="settings.marketing">
+        <Checkbox v-model:checked="settings.projects">
           <template #label>
             <div class="flex flex-col">
-              <span class="font-medium">Marketing</span>
-              <span class="text-xs text-secondary mt-0.5">Receive emails about new products and features.</span>
+              <span class="font-medium">Projects</span>
+              <span class="text-xs text-secondary mt-0.5">Files, comments, and version history.</span>
             </div>
           </template>
         </Checkbox>
-        <Checkbox v-model:checked="settings.security">
+        <Checkbox v-model:checked="settings.members">
           <template #label>
             <div class="flex flex-col">
-              <span class="font-medium">Security</span>
-              <span class="text-xs text-secondary mt-0.5">Receive emails about account activity and security.</span>
+              <span class="font-medium">Members</span>
+              <span class="text-xs text-secondary mt-0.5">Names, roles, and email addresses.</span>
             </div>
           </template>
         </Checkbox>
@@ -85,11 +88,11 @@ export const descriptions = `<div class="flex flex-col max-w-sm w-full divide-y 
     </Field>
   </div>
   <div class="pt-5">
-    <Field label="Push notifications" v-slot="{ id }">
+    <Field label="File formats" v-slot="{ id }">
       <div class="flex flex-col gap-3">
-        <Checkbox label="Everything" v-model:checked="settings.everything" />
-        <Checkbox label="Direct messages and mentions" v-model:checked="settings.mentions" />
-        <Checkbox label="Nothing" v-model:checked="settings.nothing" />
+        <Checkbox label="CSV" v-model:checked="settings.csv" />
+        <Checkbox label="JSON" v-model:checked="settings.json" />
+        <Checkbox label="PDF" v-model:checked="settings.pdf" />
       </div>
     </Field>
   </div>
@@ -134,8 +137,8 @@ export const ghost = `<div class="flex flex-col gap-3">
 
 export const withDescription = `<div class="flex flex-col gap-4 max-w-sm">
   <Checkbox
-    label="Accept terms and conditions"
-    description="By checking this box, you agree to our Terms of Service and Privacy Policy."
+    label="Share usage data"
+    description="Help improve the product with anonymous usage reports."
     default-checked
   />
   <Checkbox
@@ -150,7 +153,7 @@ export const indeterminate = `<Checkbox
   label="Select all"
 />`
 
-export const orientation = `<Checkbox label="Accept terms and conditions" :orientation="orientation" />`
+export const orientation = `<Checkbox label="Remember this device" :orientation="orientation" />`
 
 export const withoutLabel = `<div class="flex gap-4">
   <Checkbox aria-label="Accept terms" />
@@ -175,12 +178,16 @@ export const group = `<div class="flex flex-col gap-3">
 </div>`
 
 export const groupWithDescription = `<div class="max-w-sm w-full">
-  <Field label="Show on desktop" description="Select the items you want to display on the desktop." v-slot="{ id }">
+  <Field label="Download over cellular" description="Choose what can use mobile data." v-slot="{ id }">
     <div class="flex flex-col gap-3">
       <Checkbox v-for="item in items" :key="item.id" :label="item.label" v-model:checked="item.checked" />
     </div>
   </Field>
 </div>`
+
+export const groupWithDescriptionPhone = `<FieldGroup title="Download over cellular" description="Choose what can use mobile data.">
+  <Field v-for="item in items" :key="item.id" row :label="item.label"><Checkbox v-model:checked="item.checked" /></Field>
+</FieldGroup>`
 
 export const withField = `<div class="flex flex-col gap-4 max-w-sm w-full">
   <Field
@@ -191,10 +198,24 @@ export const withField = `<div class="flex flex-col gap-4 max-w-sm w-full">
   >
     <div class="flex flex-col gap-3 mt-1">
       <Checkbox label="I agree to the Terms of Service" v-model:checked="agreed" />
-      <Checkbox label="Subscribe to product updates" />
+      <Checkbox label="I agree to the Privacy Policy" />
     </div>
   </Field>
 </div>`
+
+export const withFieldPhone = `<FieldGroup title="Terms" description="Please review and accept the terms before continuing.">
+  <Field row label="I agree to the Terms of Service">
+    <Checkbox
+      v-model:checked="agreed"
+      :aria-invalid="showError || undefined"
+      :aria-describedby="showError ? 'terms-error' : undefined"
+    />
+  </Field>
+  <Field row label="I agree to the Privacy Policy"><Checkbox /></Field>
+  <template v-if="showError" #footer>
+    <FieldError id="terms-error">You must accept the terms to continue.</FieldError>
+  </template>
+</FieldGroup>`
 
 export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
   <div class="pb-5">
@@ -222,9 +243,9 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
   <div class="pt-5">
     <Field label="Push notifications" description="Configure which push notifications you receive." v-slot="{ id }">
       <div class="flex flex-col gap-3">
-        <Checkbox label="Everything" v-model:checked="settings.pushEverything" />
-        <Checkbox label="Direct messages and mentions" v-model:checked="settings.pushMentions" />
-        <Checkbox label="Nothing" v-model:checked="settings.pushNothing" />
+        <Checkbox label="Direct messages" v-model:checked="settings.pushMessages" />
+        <Checkbox label="Mentions" v-model:checked="settings.pushMentions" />
+        <Checkbox label="Comments" v-model:checked="settings.pushComments" />
       </div>
     </Field>
   </div>
@@ -235,14 +256,16 @@ import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
 
 <UsageBlock>{`import { Checkbox } from "@plexui/vue/components/Checkbox";`}</UsageBlock>
 
+On Phone, a single checkbox stays next to its label, while a list of options goes in the rows of a `FieldGroup`: each `Field row` names an option and ends with the checkbox, as in an iOS settings list.
+
 export const groupedSectionsMobile = formScreenTemplate("Notifications", `<FieldGroup title="Email notifications" description="Configure which emails you receive.">
         <Field row label="Marketing" description="Receive emails about new products and features."><Checkbox v-model:checked="settings.emailMarketing" /></Field>
         <Field row label="Security" description="Receive emails about account activity and security."><Checkbox v-model:checked="settings.emailSecurity" /></Field>
       </FieldGroup>
       <FieldGroup title="Push notifications" description="Configure which push notifications you receive.">
-        <Field row label="Everything"><Checkbox v-model:checked="settings.pushEverything" /></Field>
-        <Field row label="Direct messages and mentions"><Checkbox v-model:checked="settings.pushMentions" /></Field>
-        <Field row label="Nothing"><Checkbox v-model:checked="settings.pushNothing" /></Field>
+        <Field row label="Direct messages"><Checkbox v-model:checked="settings.pushMessages" /></Field>
+        <Field row label="Mentions"><Checkbox v-model:checked="settings.pushMentions" /></Field>
+        <Field row label="Comments"><Checkbox v-model:checked="settings.pushComments" /></Field>
       </FieldGroup>`)
 
 ## Examples
@@ -263,17 +286,17 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
 
 ### With Radio Group
 
-<ComponentPreview language="vue" details={<>Place <code>Checkbox</code> alongside <code>RadioGroup</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts.</>} code={withRadioGroup} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Place <code>Checkbox</code> alongside <code>RadioGroup</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.</>} code={withRadioGroup} previewMinHeight={168}>
   <VueDemo template={withRadioGroup} stageClassName={stage} controls={alignmentControls} />
 </ComponentPreview>
 
 ### Descriptions
 
-<ComponentPreview language="vue" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory.</>} code={descriptions} previewMinHeight={380}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as Group with description and Grouped sections show, so this example is desktop only.</>} code={descriptions} previewMinHeight={380}>
   <VueDemo
     template={descriptions}
     stageClassName={stage}
-    state={{ settings: { marketing: true, security: true, everything: false, mentions: true, nothing: false } }}
+    state={{ settings: { projects: true, members: true, csv: true, json: false, pdf: false } }}
   />
 </ComponentPreview>
 
@@ -290,16 +313,16 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
 
 ### Pill
 
-<ComponentPreview language="vue" details={<>
+<ComponentPreview phonePresentation="none" language="vue" details={<>
   <p>Set <code>pill</code> to render the checkbox indicator with fully rounded corners (<code>border-radius: full</code>) instead of the default square radius.</p>
-  <p>On a phone with <code>touch.css</code> every checkbox indicator is round, the 22px selection circle of iOS, so <code>pill</code> makes no difference there. The phone view leaves out the <code>pill</code> control here and in the overview.</p>
+  <p>On a phone with <code>touch.css</code> every checkbox indicator is round, the 22px selection circle of iOS, so <code>pill</code> makes no difference there: the phone view leaves out the <code>pill</code> control in the overview, and this example, which would repeat the solid group of Variants, is desktop only.</p>
 </>} code={pill} previewMinHeight={168}>
   <VueDemo template={pill} stageClassName={stage} controls={[{ name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Ghost
 
-<ComponentPreview language="vue" details={<>Use <code>variant="ghost"</code> to render the checkbox without a border or background. The checkmark uses the text color instead of white, making it suitable for subtle inline selections or task lists.</>} code={ghost} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>variant="ghost"</code> to render the checkbox without a border or background. The checkmark uses the text color instead of white, making it suitable for subtle inline selections or task lists. On a phone this would repeat the ghost group of Variants, so this example is desktop only.</>} code={ghost} previewMinHeight={168}>
   <VueDemo template={ghost} stageClassName={stage} controls={[{ name: "disabled", type: "boolean", default: false }]} />
 </ComponentPreview>
 
@@ -344,16 +367,17 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
 
 ### Group with description
 
-<ComponentPreview language="vue" details={<>Wrap a group of checkboxes in a <code>Field</code> for a shared label and description. This is a common pattern for preference lists and settings panels.</>} code={groupWithDescription} previewMinHeight={240}>
-  <VueDemo
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Wrap a group of checkboxes in a <code>Field</code> for a shared label and description. This is a common pattern for preference lists and settings panels. On a phone the group is a <code>FieldGroup</code> whose title and description name the list, with a row for each option.</>} code={withPhone(groupWithDescription, groupWithDescriptionPhone)} previewMinHeight={240}>
+  <VuePhoneRowsDemo
     template={groupWithDescription}
+    phoneTemplate={phoneRows(groupWithDescriptionPhone)}
     stageClassName={stage}
     state={{
       items: [
-        { id: "hard-disks", label: "Hard disks", checked: true },
-        { id: "external-disks", label: "External disks", checked: false },
-        { id: "cds-dvds", label: "CDs, DVDs, and iPods", checked: false },
-        { id: "connected-servers", label: "Connected servers", checked: false },
+        { id: "photos", label: "Photos", checked: true },
+        { id: "videos", label: "Videos", checked: false },
+        { id: "music", label: "Music", checked: false },
+        { id: "podcasts", label: "Podcasts", checked: false },
       ],
     }}
   />
@@ -361,9 +385,10 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
 
 ### With Field
 
-<ComponentPreview language="vue" details={<>Wrap checkboxes in a <code>Field</code> component for form layout with label, description, and error message support. A single control passed as the child gets <code>aria-describedby</code> and <code>aria-invalid</code> automatically; with <code>v-slot</code> the slot props carry them, so bind them onto the control that should carry them.</>} code={withField} previewMinHeight={200}>
-  <VueDemo
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Wrap checkboxes in a <code>Field</code> component for form layout with label, description, and error message support. A single control passed as the child gets <code>aria-describedby</code> and <code>aria-invalid</code> automatically; with <code>v-slot</code> the slot props carry them, so bind them onto the control that should carry them. On a phone the options are rows of a <code>FieldGroup</code> and a <code>FieldError</code> in its footer shows the message; link it to the checkbox it is about with <code>aria-describedby</code>.</>} code={withPhone(withField, withFieldPhone)} previewMinHeight={200}>
+  <VuePhoneRowsDemo
     template={withField}
+    phoneTemplate={phoneRows(withFieldPhone)}
     stageClassName={stage}
     state={{ agreed: false }}
     controls={[{ name: "showError", type: "boolean", default: true }]}
@@ -377,7 +402,7 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
     template={`<template v-if="!wide">${groupedSectionsMobile}</template><template v-else>${groupedSections}</template>`}
     stageClassName={stage}
     state={{
-      settings: { emailMarketing: true, emailSecurity: true, pushEverything: false, pushMentions: true, pushNothing: false },
+      settings: { emailMarketing: true, emailSecurity: true, pushMessages: true, pushMentions: true, pushComments: false },
     }}
   />
 </ComponentPreview>

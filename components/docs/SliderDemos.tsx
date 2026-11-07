@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { Tooltip } from '@plexui/ui/components/Tooltip';
 
 import { controlsTableStyle, DemoControlBoolean } from './ButtonDemos';
+import { usePhoneRows } from './PhoneRows';
 
 const Slider = dynamic(
   () => import('@plexui/ui/components/Slider').then((mod) => mod.Slider),
@@ -19,13 +20,19 @@ function useMounted() {
   return useSyncExternalStore(subscribeMounted, getMountedSnapshot, getServerMountedSnapshot);
 }
 
+/** A slider spans a phone screen between its 16px margins, as an iOS slider spans its row; 300px on desktop. */
+function useSliderWidth() {
+  return usePhoneRows() ? '100%' : 300;
+}
+
 export function SliderBaseDemo({ disabled = false }: { disabled?: boolean }) {
   const mounted = useMounted();
+  const width = useSliderWidth();
   const [value, setValue] = useState(1000);
   if (!mounted) return <div style={{ width: 300, height: 48 }} />;
   return (
-    <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-      <div style={{ width: 300 }}>
+    <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 px-4 w-full">
+      <div style={{ width }}>
         <Slider
           label="Example field"
           min={0}
@@ -82,11 +89,12 @@ export function SliderTooltipsDemo() {
 
 export function SliderMarksDemo() {
   const mounted = useMounted();
+  const width = useSliderWidth();
   const [value, setValue] = useState(3);
   if (!mounted) return <div style={{ width: 300, height: 64 }} />;
   return (
-    <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-20 w-full">
-      <div style={{ width: 300 }}>
+    <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-20 px-4 w-full">
+      <div style={{ width }}>
         <Slider
           value={value}
           label="Passing grade"
@@ -111,11 +119,12 @@ export function SliderMarksDemo() {
 
 export function SliderRangeDemo() {
   const mounted = useMounted();
+  const width = useSliderWidth();
   const [value, setValue] = useState([25, 75]);
   if (!mounted) return <div style={{ width: 300, height: 48 }} />;
   return (
-    <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-      <div style={{ width: 300 }}>
+    <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 px-4 w-full">
+      <div style={{ width }}>
         <Slider
           range
           label="Price range"
@@ -133,11 +142,12 @@ export function SliderRangeDemo() {
 
 export function SliderMultipleThumbsDemo() {
   const mounted = useMounted();
+  const width = useSliderWidth();
   const [value, setValue] = useState([10, 40, 70]);
   if (!mounted) return <div style={{ width: 300, height: 48 }} />;
   return (
-    <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-      <div style={{ width: 300 }}>
+    <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 px-4 w-full">
+      <div style={{ width }}>
         <Slider
           range
           label="Breakpoints"

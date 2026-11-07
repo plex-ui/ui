@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Checkbox } from '@plexui/ui/components/Checkbox';
 
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { FieldError } from '@plexui/ui/components/FieldError';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import { FormScreen } from './FormRowsDemos';
-import { usePhoneRows } from './PhoneRows';
+import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 
 const VARIANT_OPTIONS = ['solid', 'ghost'] as const;
@@ -157,7 +158,7 @@ export function CheckboxOrientationDemo() {
         </DemoControlRow>
       </div>
       <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-        <Checkbox label="Accept terms and conditions" orientation={orientation} />
+        <Checkbox label="Remember this device" orientation={orientation} />
       </div>
     </>
   );
@@ -221,8 +222,8 @@ export function CheckboxWithDescriptionDemo() {
     <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
       <div className="flex flex-col gap-4 max-w-sm">
         <Checkbox
-          label="Accept terms and conditions"
-          description="By checking this box, you agree to our Terms of Service and Privacy Policy."
+          label="Share usage data"
+          description="Help improve the product with anonymous usage reports."
           defaultChecked
         />
         <Checkbox
@@ -235,17 +236,32 @@ export function CheckboxWithDescriptionDemo() {
 }
 
 export function CheckboxGroupWithDescriptionDemo() {
+  const phone = usePhoneRows();
   const [items, setItems] = useState([
-    { id: 'hard-disks', label: 'Hard disks', checked: true },
-    { id: 'external-disks', label: 'External disks', checked: false },
-    { id: 'cds-dvds', label: 'CDs, DVDs, and iPods', checked: false },
-    { id: 'connected-servers', label: 'Connected servers', checked: false },
+    { id: 'photos', label: 'Photos', checked: true },
+    { id: 'videos', label: 'Videos', checked: false },
+    { id: 'music', label: 'Music', checked: false },
+    { id: 'podcasts', label: 'Podcasts', checked: false },
   ]);
+  const setChecked = (id: string, checked: boolean) =>
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, checked } : i)));
+
+  if (phone) return (
+    <PhoneRowsStage>
+      <FieldGroup title="Download over cellular" description="Choose what can use mobile data.">
+        {items.map((item) => (
+          <Field key={item.id} row label={item.label}>
+            <Checkbox checked={item.checked} onCheckedChange={(next) => setChecked(item.id, Boolean(next))} />
+          </Field>
+        ))}
+      </FieldGroup>
+    </PhoneRowsStage>
+  );
 
   return (
     <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
       <div className="max-w-sm w-full">
-        <Field label="Show on desktop" description="Select the items you want to display on the desktop.">
+        <Field label="Download over cellular" description="Choose what can use mobile data.">
           {() => (
             <div className="flex flex-col gap-3">
               {items.map((item) => (
@@ -253,11 +269,7 @@ export function CheckboxGroupWithDescriptionDemo() {
                   key={item.id}
                   label={item.label}
                   checked={item.checked}
-                  onCheckedChange={(next) => {
-                    setItems((prev) =>
-                      prev.map((i) => (i.id === item.id ? { ...i, checked: Boolean(next) } : i))
-                    );
-                  }}
+                  onCheckedChange={(next) => setChecked(item.id, Boolean(next))}
                 />
               ))}
             </div>
@@ -269,6 +281,8 @@ export function CheckboxGroupWithDescriptionDemo() {
 }
 
 export function CheckboxWithFieldDemo() {
+  const phone = usePhoneRows();
+  const errorId = useId();
   const [agreed, setAgreed] = useState(false);
   const [showError, setShowError] = useState(true);
 
@@ -277,37 +291,57 @@ export function CheckboxWithFieldDemo() {
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="showError" value={showError} onChange={setShowError} />
       </div>
-      <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-        <div className="flex flex-col gap-4 max-w-sm w-full">
-          <Field
-            label="Terms"
+      {phone ? (
+        <PhoneRowsStage>
+          <FieldGroup
+            title="Terms"
             description="Please review and accept the terms before continuing."
-            errorMessage={showError ? 'You must accept the terms to continue.' : undefined}
+            footer={showError ? <FieldError id={errorId}>You must accept the terms to continue.</FieldError> : undefined}
           >
-            {() => (
-              <div className="flex flex-col gap-3 mt-1">
-                <Checkbox
-                  label="I agree to the Terms of Service"
-                  checked={agreed}
-                  onCheckedChange={(v) => setAgreed(Boolean(v))}
-                />
-                <Checkbox label="Subscribe to product updates" />
-              </div>
-            )}
-          </Field>
+            <Field row label="I agree to the Terms of Service">
+              <Checkbox
+                checked={agreed}
+                onCheckedChange={(v) => setAgreed(Boolean(v))}
+                aria-invalid={showError || undefined}
+                aria-describedby={showError ? errorId : undefined}
+              />
+            </Field>
+            <Field row label="I agree to the Privacy Policy"><Checkbox /></Field>
+          </FieldGroup>
+        </PhoneRowsStage>
+      ) : (
+        <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
+          <div className="flex flex-col gap-4 max-w-sm w-full">
+            <Field
+              label="Terms"
+              description="Please review and accept the terms before continuing."
+              errorMessage={showError ? 'You must accept the terms to continue.' : undefined}
+            >
+              {() => (
+                <div className="flex flex-col gap-3 mt-1">
+                  <Checkbox
+                    label="I agree to the Terms of Service"
+                    checked={agreed}
+                    onCheckedChange={(v) => setAgreed(Boolean(v))}
+                  />
+                  <Checkbox label="I agree to the Privacy Policy" />
+                </div>
+              )}
+            </Field>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
 
 export function CheckboxDescriptionsDemo() {
   const [settings, setSettings] = useState({
-    marketing: true,
-    security: true,
-    everything: false,
-    mentions: true,
-    nothing: false,
+    projects: true,
+    members: true,
+    csv: true,
+    json: false,
+    pdf: false,
   });
 
   const toggle = (key: keyof typeof settings) => () =>
@@ -317,40 +351,40 @@ export function CheckboxDescriptionsDemo() {
     <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
       <div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
         <div className="pb-5">
-          <Field label="Email notifications" description="Configure which emails you receive.">
+          <Field label="Export contents" description="Choose what the archive includes.">
             {() => (
               <div className="flex flex-col gap-2.5">
                 <Checkbox
                   label={
                     <div className="flex flex-col">
-                      <span className="font-medium">Marketing</span>
-                      <span className="text-xs text-secondary mt-0.5">Receive emails about new products and features.</span>
+                      <span className="font-medium">Projects</span>
+                      <span className="text-xs text-secondary mt-0.5">Files, comments, and version history.</span>
                     </div>
                   }
-                  checked={settings.marketing}
-                  onCheckedChange={toggle('marketing')}
+                  checked={settings.projects}
+                  onCheckedChange={toggle('projects')}
                 />
                 <Checkbox
                   label={
                     <div className="flex flex-col">
-                      <span className="font-medium">Security</span>
-                      <span className="text-xs text-secondary mt-0.5">Receive emails about account activity and security.</span>
+                      <span className="font-medium">Members</span>
+                      <span className="text-xs text-secondary mt-0.5">Names, roles, and email addresses.</span>
                     </div>
                   }
-                  checked={settings.security}
-                  onCheckedChange={toggle('security')}
+                  checked={settings.members}
+                  onCheckedChange={toggle('members')}
                 />
               </div>
             )}
           </Field>
         </div>
         <div className="pt-5">
-          <Field label="Push notifications">
+          <Field label="File formats">
             {() => (
               <div className="flex flex-col gap-3">
-                <Checkbox label="Everything" checked={settings.everything} onCheckedChange={toggle('everything')} />
-                <Checkbox label="Direct messages and mentions" checked={settings.mentions} onCheckedChange={toggle('mentions')} />
-                <Checkbox label="Nothing" checked={settings.nothing} onCheckedChange={toggle('nothing')} />
+                <Checkbox label="CSV" checked={settings.csv} onCheckedChange={toggle('csv')} />
+                <Checkbox label="JSON" checked={settings.json} onCheckedChange={toggle('json')} />
+                <Checkbox label="PDF" checked={settings.pdf} onCheckedChange={toggle('pdf')} />
               </div>
             )}
           </Field>
@@ -364,9 +398,9 @@ export function CheckboxNotificationSettingsDemo() {
   const [settings, setSettings] = useState({
     emailMarketing: true,
     emailSecurity: true,
-    pushEverything: false,
+    pushMessages: true,
     pushMentions: true,
-    pushNothing: false,
+    pushComments: false,
   });
 
   const toggle = (key: keyof typeof settings) => () =>
@@ -380,9 +414,9 @@ export function CheckboxNotificationSettingsDemo() {
         <Field row label="Security" description="Receive emails about account activity and security."><Checkbox checked={settings.emailSecurity} onCheckedChange={toggle('emailSecurity')} /></Field>
       </FieldGroup>
       <FieldGroup title="Push notifications" description="Configure which push notifications you receive.">
-        <Field row label="Everything"><Checkbox checked={settings.pushEverything} onCheckedChange={toggle('pushEverything')} /></Field>
-        <Field row label="Direct messages and mentions"><Checkbox checked={settings.pushMentions} onCheckedChange={toggle('pushMentions')} /></Field>
-        <Field row label="Nothing"><Checkbox checked={settings.pushNothing} onCheckedChange={toggle('pushNothing')} /></Field>
+        <Field row label="Direct messages"><Checkbox checked={settings.pushMessages} onCheckedChange={toggle('pushMessages')} /></Field>
+        <Field row label="Mentions"><Checkbox checked={settings.pushMentions} onCheckedChange={toggle('pushMentions')} /></Field>
+        <Field row label="Comments"><Checkbox checked={settings.pushComments} onCheckedChange={toggle('pushComments')} /></Field>
       </FieldGroup>
     </FormScreen>
   );
@@ -423,19 +457,19 @@ export function CheckboxNotificationSettingsDemo() {
             {() => (
               <div className="flex flex-col gap-3">
                 <Checkbox
-                  label="Everything"
-                  checked={settings.pushEverything}
-                  onCheckedChange={toggle('pushEverything')}
+                  label="Direct messages"
+                  checked={settings.pushMessages}
+                  onCheckedChange={toggle('pushMessages')}
                 />
                 <Checkbox
-                  label="Direct messages and mentions"
+                  label="Mentions"
                   checked={settings.pushMentions}
                   onCheckedChange={toggle('pushMentions')}
                 />
                 <Checkbox
-                  label="Nothing"
-                  checked={settings.pushNothing}
-                  onCheckedChange={toggle('pushNothing')}
+                  label="Comments"
+                  checked={settings.pushComments}
+                  onCheckedChange={toggle('pushComments')}
                 />
               </div>
             )}

@@ -133,7 +133,7 @@ export function SwitchSettingsDemo() {
     <>
       <FieldGroup title="Notifications">
         <Field row label="Push notifications"><Switch color="accent" defaultChecked /></Field>
-        <Field row label="Weekly summary" description="Sent on Mondays."><Switch color="accent" /></Field>
+        <Field row label="Product updates" description="A few emails a month."><Switch color="accent" /></Field>
       </FieldGroup>
       <FieldGroup title="Privacy" footer="You can change your data sharing preference at any time.">
         <Field row label="Share usage data"><Switch color="accent" /></Field>

@@ -5,7 +5,6 @@ metaDescription: "React color picker in the iOS 26 style: a grid of colors, a sp
 ---
 
 import { ColorPickerInlineDemo, ColorPickerOpaqueDemo, ColorWellOverviewDemo, ColorWellSizesDemo } from "@/components/docs/ColorPickerDemos"
-import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { ColorPicker, ColorWell } from "@plexui/ui/components/ColorPicker";`}</UsageBlock>
 
@@ -15,7 +14,7 @@ A color well shows a color and opens the system color picker, where people choos
 
 ### Color well
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="screen" details={<>The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (<code>null</code>). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen. Both wells here share their saved colors. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={`const [tint, setTint] = useState('#af52de')
+<ComponentPreview phonePresentation="screen" details={<>The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (<code>null</code>). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar.</>} code={`const [tint, setTint] = useState('#af52de')
 const [swatches, setSwatches] = useState(['#000000', '#007aff', '#34c759'])
 
 <FieldGroup>

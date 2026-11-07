@@ -184,4 +184,16 @@ describe("FieldGroup", () => {
     expect(pair.vue).toContain('role="group"')
     expect(pair.vue).toContain("aria-labelledby")
   })
+
+  test("the description describes the group, so a list of options keeps it on a phone", async () => {
+    const props = { title: "Payment", description: "How guests pay." }
+    const pair = await renderPair(createElement(RFieldGroup, props), () => h(FieldGroup, props))
+    expect(pair.vue).toBe(pair.react)
+    const root = new DOMParser().parseFromString(pair.react, "text/html").querySelector("section")
+    const described = root?.getAttribute("aria-describedby") ?? ""
+    expect(described).not.toBe("")
+    expect(root?.querySelector(`[id="${described}"]`)?.textContent).toContain("How guests pay.")
+    const plain = await renderPair(createElement(RFieldGroup, { title: "Payment" }), () => h(FieldGroup, { title: "Payment" }))
+    expect(plain.react).not.toContain("aria-describedby")
+  })
 })

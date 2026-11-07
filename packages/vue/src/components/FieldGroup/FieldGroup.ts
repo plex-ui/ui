@@ -34,6 +34,7 @@ const FieldGroupComponent = defineComponent({
   }>,
   setup(props, { attrs, slots }) {
     const titleId = `field-group-${useId()}`
+    const descriptionId = `${titleId}-description`
 
     return () => {
       const title = slots.title ? slots.title() : props.title
@@ -50,6 +51,7 @@ const FieldGroupComponent = defineComponent({
         {
           "role": "group",
           "aria-labelledby": hasTitle ? titleId : undefined,
+          "aria-describedby": hasDescription ? descriptionId : undefined,
           "data-field-columns": props.columns ? "" : undefined,
           ...attrs,
           "class": clsx(s.FieldGroup, attrs.class as ClassValue),
@@ -59,7 +61,7 @@ const FieldGroupComponent = defineComponent({
             ? h("div", { class: s.Header }, [
                 h("div", { class: s.HeaderText }, [
                   hasTitle ? h("h2", { class: s.Title, id: titleId }, [title as VNodeChild]) : null,
-                  hasDescription ? h("p", { class: s.Description }, [description as VNodeChild]) : null,
+                  hasDescription ? h("p", { class: s.Description, id: descriptionId }, [description as VNodeChild]) : null,
                 ]),
                 hasAction ? action : null,
               ])
