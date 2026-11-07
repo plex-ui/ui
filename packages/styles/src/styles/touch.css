@@ -443,25 +443,36 @@
     --dialog-panel-radius: 34px;
   }
 
-  /* Horizontal tabs of either variant are the native 32px segmented control (underline tabs have no
-     iOS control of their own; Tabs.module.css gives them the track). Vertical tabs are list rows there. */
-  html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
-    /* A component can ask for another kit height, such as the Color Picker's 36px segmented control. */
-    --segmented-control-size: var(--segmented-control-mobile-size, 32px);
-    --segmented-control-gutter: 2px;
-    --segmented-control-gap: 4px;
-    --segmented-control-radius: 100px;
-    --segmented-control-option-radius: 20px;
-    --segmented-control-option-gutter: 6px;
-    --segmented-control-font-size: 13.333px;
-    --segmented-control-line-height: 18px;
-    --segmented-control-font-weight: 510;
-    --segmented-control-active-font-weight: 590;
-    /* Apple iOS 26 kit Segmented control (6:57374): Fills/Tertiary track, Segmented Control - Selected Fill
-       thumb with no shadow. The theme pair lives on the root tokens, where light-dark() resolves per theme. */
-    --segmented-control-background: var(--segmented-control-mobile-background);
-    --segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);
-    --segmented-control-thumb-shadow: none;
+  /* In the kit's layer, so a component can give its own segmented control another look (the Color Picker). */
+  @layer components {
+    /* Horizontal tabs of either variant are the glass segmented control of iOS 26 toolbars (kit Toolbars 5815:55167;
+       underline tabs have no iOS control of their own, Tabs.module.css gives them the track): a 44px capsule of the
+       shared mobile glass, as toolbar buttons are, with its segments 8px from the ends and the 36px selection reaching
+       4px past its segment. Every label is 15px Medium and sits 14px inside the selection, as the label of a toolbar
+       text button does (the kit's segments are fixed boxes). Vertical tabs are list rows there. */
+    html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
+      --segmented-control-size: 44px;
+      --segmented-control-gutter: 4px;
+      --segmented-control-gap: 0px;
+      --segmented-control-thumb-outset: 4px;
+      --segmented-control-radius: 100px;
+      --segmented-control-option-radius: calc(var(--segmented-control-size) / 2 - var(--segmented-control-gutter));
+      --segmented-control-option-gutter: 10px;
+      --segmented-control-font-size: 15px;
+      --segmented-control-line-height: 20px;
+      --segmented-control-font-weight: 510;
+      --segmented-control-active-font-weight: 510;
+      /* The glass resolves on the control, under the bar or sheet that may tune it (Page, Dialog); the thumb's theme
+         pair is a root token, where light-dark() resolves per theme. */
+      --segmented-control-background: var(--mobile-glass-background);
+      --segmented-control-sheen: var(--mobile-glass-sheen);
+      --segmented-control-shadow: var(--mobile-glass-shadow);
+      --segmented-control-backdrop-filter: var(--mobile-glass-backdrop-filter);
+      --segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);
+      --segmented-control-thumb-shadow: none;
+      /* Unselected labels are the secondary label role of a phone (alpha 50%: 105 on Safari's 211 track, 109 there). */
+      --color-text-secondary: var(--mobile-label-secondary);
+    }
   }
 
   /* Fixed-width mobile segments keep their labels on one line. */

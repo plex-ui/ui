@@ -39,7 +39,7 @@ Each example shows the phone view.
 
 ### Search tab
 
-<ComponentPreview phoneOnly details={<>With <code>search</code> the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. It is a tab like the others: show the search screen when its value is selected.</>} code={`<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }}>
+<ComponentPreview phoneOnly details={<>With <code>search</code> the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. The capsule of the other tabs keeps to the leading end at their width, as in the kit and in Photos: with two tabs it ends well before the circle, with three it reaches 8px from it. It is a tab like the others: show the search screen when its value is selected.</>} code={`<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }}>
   <TabBar.Item value="home" label="Home" icon={<Home />} />
   <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
   <TabBar.Item value="photos" label="Photos" icon={<Images />} />

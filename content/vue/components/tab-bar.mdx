@@ -91,7 +91,7 @@ Each example shows the phone view.
 
 ### Search tab
 
-<ComponentPreview phoneOnly language="vue" details={<>With <code>search</code> the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. It is a tab like the others: show the search screen when its value is selected.</>} code={searchCode}>
+<ComponentPreview phoneOnly language="vue" details={<>With <code>search</code> the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. The capsule of the other tabs keeps to the leading end at their width, as in the kit and in Photos: with two tabs it ends well before the circle, with three it reaches 8px from it. It is a tab like the others: show the search screen when its value is selected.</>} code={searchCode}>
   <VueDemo stageClassName={STAGE} state={{ tab: 'home', title: 'Home' }} template={screen(`:search="{ value: 'search' }" `, four.slice(0, 3))} />
 </ComponentPreview>
 

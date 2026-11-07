@@ -45,6 +45,8 @@
     display: none;
   }
 
+  /* A sheet header's control is larger than a toolbar's (Calendar IMG_5433/5434): 48px with a 40px thumb and 17px
+     regular labels. Its glass and thumb are those of every phone segmented control (touch.css). */
   .Composer .Mode[data-variant="segmented"][data-orientation="horizontal"] {
     --segmented-control-size: 48px;
     --segmented-control-gutter: 4px;
@@ -53,22 +55,14 @@
     --segmented-control-line-height: 22px;
     --segmented-control-font-weight: var(--font-weight-normal);
     --segmented-control-active-font-weight: var(--font-weight-normal);
-    --segmented-control-background: var(--mobile-glass-background);
-    /* The thumb is darker than the glass track: about 8% black in light (228 on 247, IMG_5433/5434), alpha-08;
-       32-34 on a 54-58 track in dark (iOS2 IMG_5522/5523), gray-200 (#212121). */
-    --segmented-control-thumb-background: light-dark(var(--alpha-08), var(--gray-200));
-    --segmented-control-thumb-shadow: none;
-    /* The track is the glass of the sheet's bar, as Close and the confirm action beside it are. */
-    background-image: var(--mobile-glass-sheen);
-    box-shadow: var(--mobile-glass-shadow);
-    -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
-    backdrop-filter: var(--mobile-glass-backdrop-filter);
   }
 
   /* Keep the visible thumb 40px while each real radio has a 44px touch box. */
   .Composer .Mode [role="radio"] {
     min-height: 44px;
     margin-block: -2px;
+    /* Calendar draws both labels of its header control in the primary color. */
+    color: var(--color-text);
   }
 
   :global([data-plex-dialog][data-mobile-variant="sheet"]) .Composer > .Body {

@@ -543,10 +543,9 @@
     --segmented-control-font-weight: var(--font-weight-semibold);
     --segmented-control-thumb-background: light-dark(var(--gray-0), var(--alpha-12));
     --segmented-control-thumb-shadow: 0 1px 4px -1px rgb(0 0 0 / 20%);
-    /* Phone (touch.css), the iOS 26 kit in PlexUI alpha colors: Fills/Tertiary (118/118/128 at 12% and 24%: 240 on
-       white, 28 on black) is alpha-06 and alpha-12; the Selected Fill thumb (white, white at 27%) gray-0 and alpha-25. */
-    --segmented-control-mobile-background: light-dark(var(--alpha-06), var(--alpha-12));
-    --segmented-control-mobile-thumb-background: light-dark(var(--gray-0), var(--alpha-25));
+    /* Phone (touch.css): the thumb on the glass track, as native frames show it: about 8% black in light (228 on a
+       247 track, Calendar IMG_5433/5434) and darker than the track in dark (32-34 on 54-58, IMG_5522/5523). */
+    --segmented-control-mobile-thumb-background: light-dark(var(--alpha-08), var(--gray-200));
     --segmented-control-option-highlight-gutter: 1px;
     --segmented-control-option-highlight-background-color: light-dark(
       var(--gray-200),
@@ -601,6 +600,10 @@
     /* Phone (touch.css): the kit's Percentage field and Add button (120/120/120 at 20%: 228 on white) are alpha-12,
        and its separator (198 on white) alpha-25. */
     --color-picker-mobile-field-background: var(--alpha-12);
+    /* The picker's Mode control is the plain kit segmented control: Fills/Tertiary (118/118/128 at 12% and 24%: 240
+       on white, 28 on black) is alpha-06 and alpha-12; the Selected Fill thumb (white, white at 27%) gray-0 and alpha-25. */
+    --color-picker-mobile-mode-background: light-dark(var(--alpha-06), var(--alpha-12));
+    --color-picker-mobile-mode-thumb-background: light-dark(var(--gray-0), var(--alpha-25));
     --color-picker-mobile-separator-color: var(--alpha-25);
 
     /* =============================================

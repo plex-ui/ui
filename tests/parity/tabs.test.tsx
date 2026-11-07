@@ -1112,23 +1112,65 @@ describe("Tabs thumb positioning matches React", () => {
 describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
   const read = (path: string) => readFileSync(`${process.cwd()}/packages/styles/src/${path}`, "utf8")
 
-  test("track and thumb use the kit fills from root tokens, with no thumb shadow", () => {
+  test("the track is the glass toolbar control of the kit (5815:55167): 44px of the shared glass, a 36px thumb outset 4px", () => {
     const touch = read("styles/touch.css")
     const block = touch.match(/html :is\(\[data-variant="segmented"\], \[data-variant="underline"\]\)\[data-orientation="horizontal"\] \{([^}]*)\}/)?.[1] ?? ""
-    expect(block).toContain("--segmented-control-background: var(--segmented-control-mobile-background);")
-    expect(block).toContain("--segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);")
-    expect(block).toContain("--segmented-control-thumb-shadow: none;")
+    for (const declaration of [
+      "--segmented-control-size: 44px;",
+      "--segmented-control-gutter: 4px;",
+      "--segmented-control-gap: 0px;",
+      "--segmented-control-thumb-outset: 4px;",
+      "--segmented-control-option-radius: calc(var(--segmented-control-size) / 2 - var(--segmented-control-gutter));",
+      // 14px from the label to the selection's edge, the label inset of a toolbar text button.
+      "--segmented-control-option-gutter: 10px;",
+      "--segmented-control-font-size: 15px;",
+      "--segmented-control-line-height: 20px;",
+      "--segmented-control-font-weight: 510;",
+      "--segmented-control-active-font-weight: 510;",
+      // The same glass as toolbar buttons, resolved on the control so a bar or sheet can tune it.
+      "--segmented-control-background: var(--mobile-glass-background);",
+      "--segmented-control-sheen: var(--mobile-glass-sheen);",
+      "--segmented-control-shadow: var(--mobile-glass-shadow);",
+      "--segmented-control-backdrop-filter: var(--mobile-glass-backdrop-filter);",
+      "--segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);",
+      "--segmented-control-thumb-shadow: none;",
+    ]) {
+      expect(block).toContain(declaration)
+    }
+    // Unselected labels take the phone's secondary label role.
+    expect(block).toContain("--color-text-secondary: var(--mobile-label-secondary);")
+    // In the kit's layer, where a component's own segmented control (the Color Picker) can outrank it.
+    const layer = touch.lastIndexOf("@layer components {", touch.indexOf('html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]'))
+    expect(layer).toBeGreaterThan(-1)
+    expect(touch.slice(layer, touch.indexOf('html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]'))).not.toMatch(/^  \}/m)
     // light-dark() resolves per theme only on root tokens: an element selector under html would miss dark.
     expect(block).not.toMatch(/:\s*light-dark\(/)
     const tokens = read("styles/variables-components.css")
-    expect(tokens).toContain("--segmented-control-mobile-background: light-dark(var(--alpha-06), var(--alpha-12));")
-    expect(tokens).toContain("--segmented-control-mobile-thumb-background: light-dark(var(--gray-0), var(--alpha-25));")
+    expect(tokens).toContain("--segmented-control-mobile-thumb-background: light-dark(var(--alpha-08), var(--gray-200));")
+    expect(tokens).not.toContain("--segmented-control-mobile-background")
+    const css = read("components/Tabs/Tabs.module.css")
+    const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
+    const material = [...phone.matchAll(/\.Tabs:where\(\[data-orientation="horizontal"\]\) \{([^}]*)\}/g)].map((match) => match[1]).join("")
+    expect(material).toContain("padding-inline: calc(var(--segmented-control-gutter) + var(--segmented-control-thumb-outset, 0px));")
+    expect(material).toContain("background-image: var(--segmented-control-sheen, none);")
+    expect(material).toContain("box-shadow: var(--segmented-control-shadow, none);")
+    expect(material).toContain("backdrop-filter: var(--segmented-control-backdrop-filter, none);")
+    // The material follows the underline track, whose background shorthand would otherwise clear the sheen.
+    expect(phone.lastIndexOf("background-image: var(--segmented-control-sheen, none);")).toBeGreaterThan(phone.indexOf("background: var(--segmented-control-background);"))
+    const thumb = phone.match(/\.Tabs:where\(\[data-orientation="horizontal"\]\) > \.TabsThumb \{([^}]*)\}/)?.[1] ?? ""
+    expect(thumb).toContain("box-sizing: content-box;")
+    expect(thumb).toContain("margin-left: calc(-1 * var(--segmented-control-thumb-outset, 0px));")
+    expect(thumb).toContain("padding-inline: var(--segmented-control-thumb-outset, 0px);")
   })
 
-  test("every segment label is primary and untracked (the system font tracks it); only the weight marks the selection", () => {
+  test("the selected label is primary and the others secondary (kit 5815:55167, Safari), untracked: the system font tracks it", () => {
     const css = read("components/Tabs/Tabs.module.css")
     const phone = css.slice(css.indexOf("@media (max-width: 767px)")).match(/\.Tabs\[data-orientation="horizontal"\] \.Tab \{([^}]*)\}/)?.[1] ?? ""
-    expect(phone).toContain("color: var(--color-text);")
+    expect(phone).toContain("padding-inline: var(--segmented-control-option-gutter);")
+    // No color of its own: the base colors apply, secondary off (the phone role, touch.css) and primary on.
+    expect(phone).not.toMatch(/(^|[^-])color:/)
+    expect(css).toMatch(/\.Tab \{\s*position: relative;[^}]*color: var\(--color-text-secondary\);/)
+    expect(css).toMatch(/&\[data-state="on"\] \{[^}]*color: var\(--color-text\);/)
     expect(phone).not.toContain("letter-spacing")
     expect(read("styles/touch.css")).not.toContain("--segmented-control-letter-spacing")
   })

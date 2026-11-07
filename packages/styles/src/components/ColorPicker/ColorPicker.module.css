@@ -10,9 +10,31 @@
 }
 
 .Modes {
-  /* The kit's picker segmented control is 36px on a phone, against 32 elsewhere (touch.css). */
-  --segmented-control-mobile-size: 36px;
   margin-bottom: var(--color-picker-modes-gap);
+}
+
+/* On a phone the Mode control stays the plain segmented control of the kit's picker (0:5275), not the glass one of
+   other phone tabs (touch.css): a 36px Fills/Tertiary track, a white thumb and 13.333px labels, Semibold when
+   selected. The class with both attributes outranks the touch.css tokens on the same element (both in the kit's layer). */
+@media (max-width: 767px) {
+  .Modes[data-variant="segmented"][data-orientation="horizontal"] {
+    --segmented-control-size: 36px;
+    --segmented-control-gutter: 2px;
+    --segmented-control-gap: 4px;
+    --segmented-control-thumb-outset: 0px;
+    --segmented-control-option-gutter: 6px;
+    --segmented-control-font-size: 13.333px;
+    --segmented-control-line-height: 18px;
+    --segmented-control-font-weight: 510;
+    --segmented-control-active-font-weight: 590;
+    --segmented-control-background: var(--color-picker-mobile-mode-background);
+    --segmented-control-sheen: none;
+    --segmented-control-shadow: none;
+    --segmented-control-backdrop-filter: none;
+    --segmented-control-thumb-background: var(--color-picker-mobile-mode-thumb-background);
+    /* Every label of the plain control is primary; the weight marks the selection. */
+    --color-text-secondary: var(--color-text);
+  }
 }
 
 .Body {

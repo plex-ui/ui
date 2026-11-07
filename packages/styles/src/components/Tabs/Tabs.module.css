@@ -746,7 +746,7 @@
 
 /* =============================================
   Phone (iOS 26). iOS switches the views of a screen with one control, the segmented control
-  (kit Segmented control 6:57374); it has no underline tabs and no vertical segments.
+  (on glass, kit Toolbars 5815:55167); it has no underline tabs and no vertical segments.
 ============================================= */
 @media (max-width: 767px) {
   /* Horizontal tabs of either variant are the segmented control. Its segments share one width, as
@@ -783,14 +783,32 @@
     box-shadow: var(--segmented-control-thumb-shadow);
   }
 
+  /* The capsule's glass and ends (touch.css): the sheen, rim and blur of the shared mobile glass, segments 8px
+     from the ends and the selection 4px past its segment toward them, as in the kit. Without touch.css the track
+     keeps its fill and the selection its segment. */
+  .Tabs:where([data-orientation="horizontal"]) {
+    padding-inline: calc(var(--segmented-control-gutter) + var(--segmented-control-thumb-outset, 0px));
+    background-image: var(--segmented-control-sheen, none);
+    box-shadow: var(--segmented-control-shadow, none);
+    -webkit-backdrop-filter: var(--segmented-control-backdrop-filter, none);
+    backdrop-filter: var(--segmented-control-backdrop-filter, none);
+  }
+
+  /* The script sets the thumb to its segment's box from the left edge, so the outset is physical. */
+  .Tabs:where([data-orientation="horizontal"]) > .TabsThumb {
+    box-sizing: content-box;
+    margin-left: calc(-1 * var(--segmented-control-thumb-outset, 0px));
+    padding-inline: var(--segmented-control-thumb-outset, 0px);
+  }
+
   /* The native segment already includes its final gutter; pill scaling is desktop-only. */
+  /* The selected label is primary and the others secondary, as the kit's glass control draws them (26 and 114)
+     and Safari's tab groups show (0 and 109, iOS3 IMG_5562/5566), so the label keeps the base colors (touch.css
+     gives secondary the phone role). No tracking: the system font applies its own, as native text widths show
+     (17pt "All Inboxes" 241 at @3x in Mail, 242 in Chromium without it). */
   .Tabs[data-orientation="horizontal"] .Tab {
     padding-inline: var(--segmented-control-option-gutter);
     border-radius: var(--segmented-control-option-radius);
-    /* iOS 26 draws every segment label in the primary label color; only the weight marks the selection
-       (590 against 510), kit 6:57374 and IMG_5433/5434. No tracking: the system font applies its own, as
-       native text widths show (17pt "All Inboxes" 241 at @3x in Mail, 242 in Chromium without it). */
-    color: var(--color-text);
   }
 
   /* Vertical tabs of either variant are an inset grouped list (kit Lists, Row 550:50430): rows of

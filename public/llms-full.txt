@@ -9075,7 +9075,7 @@ const [tab, setTab] = useState('home')
 ```
 
 ### Search tab
-With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. It is a tab like the others: show the search screen when its value is selected.
+With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. The capsule of the other tabs keeps to the leading end at their width, as in the kit and in Photos: with two tabs it ends well before the circle, with three it reaches 8px from it. It is a tab like the others: show the search screen when its value is selected.
 ```tsx
 <TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }}>
 <TabBar.Item value="home" label="Home" icon={<Home />} />
@@ -9550,7 +9550,7 @@ Props:
     - children (ReactNode) — Tab label
 
 ### Overview
-Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS segmented control: segments of one width on a gray track, filling the row of a phone screen; vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls.
+Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS segmented control on glass, as toolbar buttons are: segments of one width in a 44px capsule, the selection a darker pill inside it with the primary label and the other labels secondary, filling the row of a phone screen; vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls.
 ```tsx
 const [tab, setTab] = useState("overview")
 const [disabled, setDisabled] = useState(false)
@@ -9681,7 +9681,7 @@ Vertical underline tabs with icons provide a rich navigation experience commonly
 ```
 
 ### Sizing
-Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS, and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls.
+Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 44px glass segmented control of iOS, and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls.
 ```tsx
 <Tabs variant="underline" size="md" value={tab} onChange={setTab} aria-label="Demo tabs">
 <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -9691,7 +9691,7 @@ Both variants support the full 9-step size scale. The size prop controls the hei
 ```
 
 ### Scrollable
-When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width.
+When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width. A phone scrolls them the same way inside the glass capsule, as Safari's tab groups and Telegram's chat folders do, and each segment then takes the width of its label.
 ```tsx
 <div className="flex w-full min-w-0 max-w-[400px]">
 <Tabs value={tab} onChange={setTab} aria-label="Scrollable tabs">
@@ -9708,7 +9708,7 @@ When tabs overflow their container, they automatically become horizontally scrol
 ```
 
 ### Overflow menu
-With overflow="menu", the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflowLabel sets the button's text (default "More"). Works for horizontal tabs without block.
+With overflow="menu", the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflowLabel sets the button's text (default "More"). Works for horizontal tabs without block.
 ```tsx
 <div className="flex min-w-0 max-w-full w-[360px]">
 <Tabs value={tab} onChange={setTab} variant="underline" overflow="menu" aria-label="Repository">

@@ -1,4 +1,5 @@
-import { act, fireEvent, render, within } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { act, cleanup, fireEvent, render, within } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
 import { h } from 'vue';
 import { Field as RField } from '../../packages/ui/src/components/Field';
@@ -193,4 +194,55 @@ describe.each(['React', 'Vue'])('%s Field text row', (framework) => {
             expect(click).not.toHaveBeenCalled();
         },
     );
+});
+
+describe('A start adornment in a row is a prefix of the value', () => {
+    const css = readFileSync('packages/styles/src/components/Field/Field.module.css', 'utf8');
+    const phone = css.slice(css.indexOf('@media (max-width: 767px)'));
+
+    test('the value follows a text prefix with no gap: a ghost row anywhere, every phone row; an icon, a button and a trailing unit keep the gap', () => {
+        const ghost = /\.Field:where\(\[data-row\]\) \.Control > \[data-variant="ghost"\] > :first-child:not\(input, textarea, svg, :has\(svg\)\) \+ :is\(input, textarea\) \{([^}]*)\}/.exec(css)?.[1] ?? '';
+        expect(ghost).toContain('margin-inline-start: calc(-1 * var(--input-gap));');
+        const input = /\.Field:where\(\[data-row\]\) \.Control > \[data-slot="input"\] > :first-child:not\(input, textarea, svg, :has\(svg\)\) \+ input \{([^}]*)\}/.exec(phone)?.[1] ?? '';
+        expect(input).toContain('margin-inline-start: calc(-1 * var(--input-gap));');
+        const group = /\.Field:where\(\[data-row\]\) \.Control > \[data-slot="input-group"\]:has\(> \[data-align="inline-start"\] > \[data-slot="input-group-text"\]:only-child\) > \[data-slot="input-group-control"\] \{([^}]*)\}/.exec(phone)?.[1] ?? '';
+        expect(group).toContain('padding-inline-start: 0;');
+        expect(css).not.toMatch(/inline-end[^{]*\{[^}]*padding-inline-end: 0;/);
+        // A :has() inside :has() is invalid CSS and drops the whole rule.
+        const nestedHas = (selector: string) => {
+            const stack: boolean[] = [];
+            for (let index = 0; index < selector.length; index++) {
+                if (selector.startsWith(':has(', index)) {
+                    if (stack.includes(true)) return true;
+                    stack.push(true);
+                    index += 4;
+                } else if (selector[index] === '(') stack.push(false);
+                else if (selector[index] === ')') stack.pop();
+            }
+            return false;
+        };
+        const selectors = [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{};]+)\{/g)].map((match) => match[1].trim());
+        expect(selectors.filter(nestedHas)).toEqual([]);
+        expect(nestedHas(':has(> a:not(:has(svg)))')).toBe(true);
+    });
+
+    test.each(['React', 'Vue'])('%s renders the prefix right before the input of the row', async (framework) => {
+        if (framework === 'React') {
+            render(
+                <RField row label="Website">
+                    <RInput placeholder="acme.com" startAdornment={<span>https://</span>} endAdornment={<span>.com</span>} />
+                </RField>,
+            );
+        } else {
+            mountVue(() => h(Field, { row: true, label: 'Website' }, () => h(Input, { placeholder: 'acme.com' }, { startAdornment: () => h('span', 'https://'), endAdornment: () => h('span', '.com') })));
+            await flushVue();
+        }
+        const input = document.querySelector<HTMLInputElement>('input[placeholder="acme.com"]');
+        const container = input?.parentElement;
+        expect(container?.getAttribute('data-slot')).toBe('input');
+        expect(container?.firstElementChild?.textContent).toBe('https://');
+        expect(input?.previousElementSibling).toBe(container?.firstElementChild);
+        cleanup();
+        document.body.innerHTML = '';
+    });
 });

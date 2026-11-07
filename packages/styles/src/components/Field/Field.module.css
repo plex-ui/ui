@@ -388,6 +388,12 @@
   text-align: end;
 }
 
+/* A start text in a row is a prefix of the value, such as https:// or a currency: the value follows it with no gap
+   ("$0.00"), as iOS writes a prefix. An icon keeps the gap, and so does a trailing adornment. */
+.Field:where([data-row]) .Control > [data-variant="ghost"] > :first-child:not(input, textarea, svg, :has(svg)) + :is(input, textarea) {
+  margin-inline-start: calc(-1 * var(--input-gap));
+}
+
 /* A FieldGroup with `columns`: every value starts at one column, as in an iOS form of
    typed details. A field keeps its width, a ghost takes the rest of the line, a switch
    and an action stay at the end. */
@@ -672,6 +678,17 @@
      reads as the row's text, as a Select's value does: no gutter and no fill */
   .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"]:is([data-variant="outline"], [data-variant="soft"]) {
     --input-group-gutter: 0px;
+  }
+
+  /* A leading text or text addon is a prefix of the value (https://, $): the value follows it with no gap, as iOS
+     writes "$0.00". An icon or a button keeps the gap, and so does a trailing unit. (`:has()` cannot nest, so the
+     addon is matched by its only child, an InputGroup.Text.) */
+  .Field:where([data-row]) .Control > [data-slot="input"] > :first-child:not(input, textarea, svg, :has(svg)) + input {
+    margin-inline-start: calc(-1 * var(--input-gap));
+  }
+
+  .Field:where([data-row]) .Control > [data-slot="input-group"]:has(> [data-align="inline-start"] > [data-slot="input-group-text"]:only-child) > [data-slot="input-group-control"] {
+    padding-inline-start: 0;
   }
 
   .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"] > [data-align="inline-end"] > button:last-child {

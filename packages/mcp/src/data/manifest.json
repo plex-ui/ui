@@ -6476,7 +6476,7 @@
         {
           "name": "Search tab",
           "code": "<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }}>\n<TabBar.Item value=\"home\" label=\"Home\" icon={<Home />} />\n<TabBar.Item value=\"calendar\" label=\"Calendar\" icon={<Calendar />} />\n<TabBar.Item value=\"photos\" label=\"Photos\" icon={<Images />} />\n</TabBar>",
-          "details": "With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. It is a tab like the others: show the search screen when its value is selected."
+          "details": "With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. The capsule of the other tabs keeps to the leading end at their width, as in the kit and in Photos: with two tabs it ends well before the circle, with three it reaches 8px from it. It is a tab like the others: show the search screen when its value is selected."
         },
         {
           "name": "Minimize on scroll",
@@ -6913,7 +6913,7 @@
         {
           "name": "Overview",
           "code": "const [tab, setTab] = useState(\"overview\")\nconst [disabled, setDisabled] = useState(false)\nconst [reportsDisabled, setReportsDisabled] = useState(false)\n\nreturn (\n<Tabs value={tab} onChange={setTab} disabled={disabled} aria-label=\"Demo tabs\">\n  <Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n  <Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n  <Tabs.Tab value=\"reports\" disabled={reportsDisabled}>Reports</Tabs.Tab>\n  <Tabs.Tab value=\"settings\">Settings</Tabs.Tab>\n</Tabs>\n)",
-          "details": "Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS segmented control: segments of one width on a gray track, filling the row of a phone screen; vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls."
+          "details": "Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS segmented control on glass, as toolbar buttons are: segments of one width in a 44px capsule, the selection a darker pill inside it with the primary label and the other labels secondary, filling the row of a phone screen; vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls."
         },
         {
           "name": "Segmented with icons",
@@ -6973,17 +6973,17 @@
         {
           "name": "Sizing",
           "code": "<Tabs variant=\"underline\" size=\"md\" value={tab} onChange={setTab} aria-label=\"Demo tabs\">\n<Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n<Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n<Tabs.Tab value=\"reports\">Reports</Tabs.Tab>\n</Tabs>",
-          "details": "Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS, and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls."
+          "details": "Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 44px glass segmented control of iOS, and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls."
         },
         {
           "name": "Scrollable",
           "code": "<div className=\"flex w-full min-w-0 max-w-[400px]\">\n<Tabs value={tab} onChange={setTab} aria-label=\"Scrollable tabs\">\n  <Tabs.Tab value=\"1\">Overview</Tabs.Tab>\n  <Tabs.Tab value=\"2\">Analytics</Tabs.Tab>\n  <Tabs.Tab value=\"3\">Reports</Tabs.Tab>\n  <Tabs.Tab value=\"4\">Settings</Tabs.Tab>\n  <Tabs.Tab value=\"5\">Members</Tabs.Tab>\n  <Tabs.Tab value=\"6\">Billing</Tabs.Tab>\n  <Tabs.Tab value=\"7\">Security</Tabs.Tab>\n  <Tabs.Tab value=\"8\">Integrations</Tabs.Tab>\n</Tabs>\n</div>",
-          "details": "When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width."
+          "details": "When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width. A phone scrolls them the same way inside the glass capsule, as Safari's tab groups and Telegram's chat folders do, and each segment then takes the width of its label."
         },
         {
           "name": "Overflow menu",
           "code": "<div className=\"flex min-w-0 max-w-full w-[360px]\">\n<Tabs value={tab} onChange={setTab} variant=\"underline\" overflow=\"menu\" aria-label=\"Repository\">\n  <Tabs.Tab value=\"code\">Code</Tabs.Tab>\n  <Tabs.Tab value=\"issues\" badge={12}>Issues</Tabs.Tab>\n  <Tabs.Tab value=\"pulls\" badge={3}>Pull requests</Tabs.Tab>\n  <Tabs.Tab value=\"actions\">Actions</Tabs.Tab>\n  <Tabs.Tab value=\"projects\">Projects</Tabs.Tab>\n  <Tabs.Tab value=\"insights\">Insights</Tabs.Tab>\n  <Tabs.Tab value=\"settings\">Settings</Tabs.Tab>\n</Tabs>\n</div>",
-          "details": "With overflow=\"menu\", the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflowLabel sets the button's text (default \"More\"). Works for horizontal tabs without block."
+          "details": "With overflow=\"menu\", the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflowLabel sets the button's text (default \"More\"). Works for horizontal tabs without block."
         }
       ],
       "subComponents": [
@@ -7659,5 +7659,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T09:04:20.181Z"
+  "generatedAt": "2026-11-07T10:40:23.558Z"
 }
