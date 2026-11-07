@@ -203,10 +203,18 @@ describe("Phone date capsule in a row (iOS 26 kit Date and time - Collapsed)", (
     return rules
   }
   const decls = (rule: postcss.Rule) => Object.fromEntries(rule.nodes.filter((n): n is postcss.Declaration => n.type === "decl").map((d) => [d.prop, d.value]))
+  // A rule by a part of its selector, so new or reordered rules do not shift the one a test reads
+  const find = (file: string, part: string) => {
+    const found = phone(file).filter((rule) => rule.selector.includes(part))
+    expect(found, part).toHaveLength(1)
+    return found[0]
+  }
+  const nestedDecls = (rule: postcss.Rule) => Object.fromEntries(rule.nodes.filter((n): n is postcss.Rule => n.type === "rule").map((r) => [r.selector.replace(/\s+/g, " "), decls(r)]))
 
   test("the row trigger is a 34px capsule with 11px insets on the time pill fill", () => {
-    const [root] = phone("packages/styles/src/components/Field/Field.module.css")
-    expect(root.selector).toContain(".Control > [data-date-picker][data-variant][role=\"button\"][aria-haspopup]")
+    const roots = phone("packages/styles/src/components/Field/Field.module.css").filter((rule) => rule.selector.endsWith('> .Control > [data-date-picker][data-variant][role="button"][aria-haspopup]:not([aria-haspopup="false"])'))
+    expect(roots).toHaveLength(1)
+    const [root] = roots
     expect(decls(root)).toEqual({
       "--select-control-size": "34px",
       "margin-block": "calc((var(--field-row-label-line-height) - 34px) / 2)",
@@ -214,19 +222,46 @@ describe("Phone date capsule in a row (iOS 26 kit Date and time - Collapsed)", (
       "border-radius": "var(--radius-full)",
       "color": "var(--color-text)",
     })
-    const nested = Object.fromEntries(root.nodes.filter((n): n is postcss.Rule => n.type === "rule").map((r) => [r.selector, decls(r)]))
-    expect(nested).toEqual({
+    expect(nestedDecls(root)).toEqual({
       "&::before": { "background-color": "var(--color-background-secondary-soft-alpha)" },
-      "&[data-selected=\"false\"],\n    &[data-disabled]": { color: "var(--mobile-label-tertiary, var(--color-text-tertiary))" },
+      "&[data-selected=\"false\"], &[data-disabled]": { color: "var(--mobile-label-tertiary, var(--color-text-tertiary))" },
       "&[aria-expanded=\"true\"]:not([data-disabled])": { color: "var(--link-primary-text-color)" },
     })
     // The calendar's time pill paints the same fill.
     expect(readFileSync("packages/styles/src/components/DatePicker/Calendar.module.css", "utf8")).toContain("background: var(--color-background-secondary-soft-alpha);")
   })
 
-  test("the capsule hides the pop-up chevrons only in a horizontal row", () => {
-    const [rule] = phone("packages/styles/src/components/SelectControl/SelectControl.module.css")
+  test("a date and a time are two capsules 6px apart on the trigger's clear fill (kit: two pills, gap 6)", () => {
+    const parts = find("packages/styles/src/components/Field/Field.module.css", ":has([data-date-parts])")
+    expect(parts.selector).toMatch(/> \.Control > \[data-date-picker\]\[data-variant\]\[role="button"\]\[aria-haspopup\]:not\(\[aria-haspopup="false"\]\):has\(\[data-date-parts\]\)$/)
+    expect(decls(parts)).toEqual({ "padding-inline": "0" })
+    expect(nestedDecls(parts)).toEqual({
+      "&::before": { "background-color": "transparent" },
+      "& [data-date-parts]": { "display": "flex", "gap": "6px", "min-width": "0" },
+      "& [data-date-part]": { "padding": "6px 11px", "border-radius": "var(--radius-full)", "background-color": "var(--color-background-secondary-soft-alpha)" },
+      // Short of room the date ends in an ellipsis and the time keeps its width
+      "& [data-date-part=\"date\"]": { "min-width": "0", "overflow": "hidden", "text-overflow": "ellipsis" },
+      "& [data-date-part=\"time\"]": { "flex-shrink": "0" },
+    })
+  })
+
+  test("a disabled Select or date in a horizontal row keeps the row's surface, with no frame or fill of its own", () => {
+    const rules: postcss.Rule[] = []
+    postcss.parse(readFileSync("packages/styles/src/components/Field/Field.module.css", "utf8")).walkAtRules("media", (media) => {
+      if (media.params === "(max-width: 767px)") media.walkRules((rule) => { if (rule.selector.endsWith('[role="button"][data-disabled]')) rules.push(rule) })
+    })
+    expect(rules).toHaveLength(1)
+    expect(rules[0].selector).toBe('.Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"][data-disabled]')
+    expect(decls(rules[0])).toEqual({ "--select-control-background-color": "transparent", "--select-control-border-color": "transparent" })
+  })
+
+  test("the capsule hides the pop-up chevrons only in a horizontal row, and the wrapper they leave empty", () => {
+    const rule = find("packages/styles/src/components/SelectControl/SelectControl.module.css", "[data-date-picker] .DropdownIcon")
+    const wrapper = find("packages/styles/src/components/SelectControl/SelectControl.module.css", ".IndicatorWrapper")
     expect(rule.selector).toBe(":where([data-row][data-orientation=\"horizontal\"]) .SelectControl[data-date-picker] .DropdownIcon")
     expect(decls(rule)).toEqual({ display: "none" })
+    // An empty wrapper would still take the trigger's gap: the date 8px off center, the capsule 8px short of the edge.
+    expect(wrapper.selector).toBe(":where([data-row][data-orientation=\"horizontal\"]) .SelectControl[data-date-picker] .IndicatorWrapper:not(:has(> :not(.DropdownIcon)))")
+    expect(decls(wrapper)).toEqual({ display: "none" })
   })
 })

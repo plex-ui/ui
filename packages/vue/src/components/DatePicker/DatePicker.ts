@@ -64,8 +64,13 @@ const DatePickerComponent = defineComponent({
     triggerClassName: String,
     /** Display calendar icon at the start of the trigger. @default true */
     triggerShowIcon: { type: Boolean, default: true },
-    /** Format of dates displayed in the trigger. @default "MM/dd/yy" ("MM/dd/yy HH:mm" with `showTime`) */
+    /** Format of dates displayed in the trigger. @default "MM/dd/yy" ("MM/dd/yy HH:mm" with `showTime` and no `triggerTimeFormat`) */
     triggerDateFormat: String,
+    /**
+     * With `showTime`, the format of the time shown after the date in the trigger. The date and the time are
+     * then two parts: in a row of a `FieldGroup` on a phone, the two capsules of iOS's compact date and time.
+     */
+    triggerTimeFormat: String,
     /** Display a clear action that allows the select to be unset. @default false */
     clearable: { type: Boolean, default: false },
     /** Extends select to 100% of available width. @default false */
@@ -136,8 +141,18 @@ const DatePickerComponent = defineComponent({
 
       const valueId = `${id ?? generatedId}-value`
 
-      const triggerDateFormat = props.triggerDateFormat ?? (props.showTime ? "MM/dd/yy HH:mm" : "MM/dd/yy")
-      const text = value?.toFormat(triggerDateFormat) ?? placeholder
+      const timeFormat = props.showTime ? props.triggerTimeFormat : undefined
+      const triggerDateFormat = props.triggerDateFormat ?? (props.showTime && !timeFormat ? "MM/dd/yy HH:mm" : "MM/dd/yy")
+      // With a time format the date and the time are two parts, apart by a space; a phone row draws each as a capsule
+      const text = !value
+        ? placeholder
+        : timeFormat
+          ? h("span", { "data-date-parts": "" }, [
+              h("span", { "data-date-part": "date" }, value.toFormat(triggerDateFormat)),
+              " ",
+              h("span", { "data-date-part": "time" }, value.toFormat(timeFormat)),
+            ])
+          : value.toFormat(triggerDateFormat)
 
       return h(Popover, null, {
         default: () => [

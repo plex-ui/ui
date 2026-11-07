@@ -77,23 +77,25 @@ const dayShortcuts: DateRangeShortcut[] = [
 
 export function DateRangePickerBaseDemo() {
   const [value, setValue] = useState<DateRange | null>(null);
+  const [disabled, setDisabled] = useState(false);
   const phone = usePhoneRows();
-  if (phone) return (
-    <PhoneRangeRow label="Dates">
-      <DateRangePicker triggerShowIcon={false} triggerDateFormat="MMM d" placeholder="None" value={value} onChange={setValue} shortcuts={dayShortcuts} />
-    </PhoneRangeRow>
-  );
   return (
-    <div style={{ width: 'fit-content' }}>
-      <DateRangePicker
-        size="lg"
-        pill
-        clearable
-        value={value}
-        onChange={(next) => setValue(next as DateRange | null)}
-        shortcuts={dayShortcuts}
-      />
-    </div>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+      </div>
+      {phone ? (
+        <PhoneRangeRow label="Dates">
+          <DateRangePicker triggerShowIcon={false} triggerDateFormat="MMM d" placeholder="None" disabled={disabled} value={value} onChange={setValue} />
+        </PhoneRangeRow>
+      ) : (
+        <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
+          <div style={{ width: 'fit-content' }}>
+            <DateRangePicker size="lg" pill clearable disabled={disabled} value={value} onChange={setValue} />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -129,7 +131,7 @@ export function DateRangePickerShortcutsDemo() {
   const [value, setValue] = useState<DateRange | null>(null);
   const phone = usePhoneRows();
   if (phone) return (
-    <PhoneRangeRow label="Dates">
+    <PhoneRangeRow label="Period">
       <DateRangePicker triggerShowIcon={false} triggerDateFormat="MMM d" placeholder="None" value={value} onChange={setValue} shortcuts={dayShortcuts} />
     </PhoneRangeRow>
   );

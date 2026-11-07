@@ -83,7 +83,7 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `iconType` 
 
 ### Variants
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments.</>} code={`// Desktop
+<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments. In a phone row the row is the frame, so this example is desktop only; Invalid and Disabled show the row's states.</>} code={`// Desktop
 <div className="flex w-full min-w-0 max-w-[400px] flex-col gap-6">
   <SelectControl className="w-full" variant="soft" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
   <SelectControl className="w-full" variant="outline" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
@@ -101,7 +101,7 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `iconType` 
 
 ### Sizing & roundness
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Sizing of the control is determined with the <code>size</code> prop. Each <code>size</code> provides dynamic values for various aspects of the control, including icon and indicator placement, as well <code>font-size</code> and gutter values.<br/><br/>Create fully rounded controls with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied, and the clear action is also set to <code>pill</code>. On Phone the row sets the control's size, so a row's control takes no <code>size</code> or <code>pill</code>.</>} code={`// Desktop
+<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} details={<>Sizing of the control is determined with the <code>size</code> prop. Each <code>size</code> provides dynamic values for various aspects of the control, including icon and indicator placement, as well <code>font-size</code> and gutter values.<br/><br/>Create fully rounded controls with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied, and the clear action is also set to <code>pill</code>. On Phone the row sets the control's size, so a row's control takes no <code>size</code> or <code>pill</code>, and this example is desktop only.</>} code={`// Desktop
 <SelectControl size="md" pill={false} dropdownIconType="none">Select...</SelectControl>
 <SelectControl size="md" loading>Select...</SelectControl>
 <SelectControl size="md">Select...</SelectControl>
@@ -139,7 +139,7 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `iconType` 
 
 ### Start icon
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>StartIcon</code> to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon.</>} code={`// Desktop
+<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>StartIcon</code> to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon, and this example is desktop only.</>} code={`// Desktop
 <SelectControl StartIcon={CalendarAlt}>Select date...</SelectControl>
 
 // Phone
@@ -153,7 +153,7 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `iconType` 
 
 ### Dropdown icon
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>dropdownIconType</code> to control the presentation of the dropdown indicator. In a phone row the default indicator is the up-down chevrons of an iOS pop-up button.</>} code={`// Desktop
+<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>dropdownIconType</code> to control the presentation of the dropdown indicator. In a phone row the indicator is always the up-down chevrons of an iOS pop-up button, so this example is desktop only.</>} code={`// Desktop
 <SelectControl selected dropdownIconType="dropdown" StartIcon={CalendarAlt}>Select date...</SelectControl>
 
 // Phone
@@ -227,7 +227,7 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `iconType` 
 
 ### Block
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Create full-width controls with the <code>block</code> prop. In a phone row the value sits at the row's end, so the row's control takes no <code>block</code>.</>} code={`// Desktop
+<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} details={<>Create full-width controls with the <code>block</code> prop. In a phone row the value sits at the row's end, so the row's control takes no <code>block</code>, and this example is desktop only.</>} code={`// Desktop
 <div className="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
   <SelectControl block size="lg" StartIcon={CalendarAlt}>Select...</SelectControl>
 </div>
@@ -495,7 +495,7 @@ function PhoneForm() {
         <Field row label="Phone" errorMessage={showError ? 'Phone number is not valid.' : undefined}>
           <Input ref={phoneRef} value={phone} onChange={handlePhoneChange}
             placeholder="Phone number" type="tel" inputMode="tel" autoComplete="tel-national"
-            startAdornment={<span className="text-tertiary whitespace-nowrap select-none">{dialCode}</span>} />
+            startAdornment={<span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCode}</span>} />
         </Field>
       </FieldGroup>
         </form>
@@ -509,7 +509,7 @@ function PhoneForm() {
 
 ### Optical alignment
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>opticallyAlign</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the control. In a phone row the row aligns the value with its inset, so <code>opticallyAlign</code> is for desktop.</>} code={`// Desktop
+<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>opticallyAlign</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the control. In a phone row the row aligns the value with its inset, so <code>opticallyAlign</code> is for desktop, and so is this example.</>} code={`// Desktop
 <SelectControl selected variant="ghost" opticallyAlign="start">Ghost control</SelectControl>
 
 // Phone

@@ -157,7 +157,8 @@ export const timePhone = `<FieldGroup>
   <Field row label="Starts">
     <DatePicker
       id="date-picker-time"
-      trigger-date-format="MMM d, yyyy HH:mm"
+      trigger-date-format="MMM d, yyyy"
+      trigger-time-format="HH:mm"
       :trigger-show-icon="false"
       placeholder="Select date"
       show-time
@@ -170,7 +171,8 @@ export const dropdownTimePhone = `<FieldGroup>
   <Field row label="Event">
     <DatePicker
       id="date-picker-datetime-dropdown"
-      trigger-date-format="MMM d, yyyy HH:mm"
+      trigger-date-format="MMM d, yyyy"
+      trigger-time-format="HH:mm"
       :trigger-show-icon="false"
       placeholder="Select date"
       caption-layout="dropdown"
@@ -295,7 +297,7 @@ On Phone, put a date picker in a row of a `FieldGroup`, as the [Form Examples](/
 
 ### Time picker
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Enable <code>show-time</code> to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values.</>} code={withPhone(time, timePhone)} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Enable <code>show-time</code> to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values. With <code>trigger-time-format</code> the trigger shows the date and the time as two parts: on Phone, in a row, they are two capsules, as iOS shows a date and a time.</>} code={withPhone(time, timePhone)} previewMinHeight={168}>
   <VueDatePickerDemo template={time} phoneTemplate={phoneRows(timePhone)} phoneStageClassName={phoneCalendarTimeStageClassName} />
 </ComponentPreview>
 
@@ -325,7 +327,7 @@ On Phone, put a date picker in a row of a `FieldGroup`, as the [Form Examples](/
 
 ### Without Icon
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Remove the calendar icon from the trigger by setting <code>trigger-show-icon</code> to false.</>} code={withPhone(withoutIcon, withoutIconPhone)} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>Remove the calendar icon from the trigger by setting <code>trigger-show-icon</code> to false. In a phone row the date never shows the icon, as the compact date of iOS does not, so this example is desktop only.</>} code={withPhone(withoutIcon, withoutIconPhone)} previewMinHeight={168}>
   <VueDatePickerDemo template={withoutIcon} phoneTemplate={phoneRows(withoutIconPhone)} phoneStageClassName={phoneCalendarStageClassName} />
 </ComponentPreview>
 
@@ -350,7 +352,8 @@ In the calendar, the arrow keys move focus by a day or a week, Home and End move
   { prop: "block", type: "boolean", default: "false", description: "Full-width trigger" },
   { prop: "clearable", type: "boolean", default: "false", description: "Show clear button" },
   { prop: "trigger-show-icon", type: "boolean", default: "true", description: "Show calendar icon" },
-  { prop: "trigger-date-format", type: "string", default: '"MM/dd/yy"', description: "Date format in trigger. Auto-includes time when show-time is enabled" },
+  { prop: "trigger-date-format", type: "string", default: '"MM/dd/yy"', description: "Date format in trigger. Auto-includes time when show-time is enabled and trigger-time-format is not set" },
+  { prop: "trigger-time-format", type: "string", description: "With show-time, the time format after the date in the trigger. The date and the time become two parts; in a phone row, two capsules" },
   { prop: "trigger-class-name", type: "string", description: "Class applied to the trigger" },
   { prop: "dropdown-icon-type", type: '"dropdown" | "chevronDown" | "none"', default: '"dropdown"', description: "Icon at the end of the trigger" },
   { prop: "placeholder", type: "string", default: '"Select date..."', description: "Trigger placeholder" },

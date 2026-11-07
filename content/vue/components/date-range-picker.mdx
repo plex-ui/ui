@@ -15,10 +15,12 @@ export const overview = `<div style="width: fit-content">
     size="lg"
     pill
     clearable
+    :disabled="disabled"
     v-model:value="value"
-    :shortcuts="dayShortcuts"
   />
 </div>`
+
+export const overviewControls = [{ name: "disabled", type: "boolean", default: false }]
 
 export const limits = `<div style="width: fit-content">
   <DateRangePicker
@@ -58,8 +60,8 @@ export const overviewPhone = `<FieldGroup>
       :trigger-show-icon="false"
       trigger-date-format="MMM d"
       placeholder="None"
+      :disabled="disabled"
       v-model:value="value"
-      :shortcuts="dayShortcuts"
     />
   </Field>
 </FieldGroup>`
@@ -78,7 +80,7 @@ export const limitsPhone = `<FieldGroup>
 </FieldGroup>`
 
 export const shortcutsPhone = `<FieldGroup>
-  <Field row label="Dates">
+  <Field row label="Period">
     <DateRangePicker
       :trigger-show-icon="false"
       trigger-date-format="MMM d"
@@ -107,8 +109,8 @@ On Phone, put a date range picker in a row of a `FieldGroup`, as the [Form Examp
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Bind the range (<code>[start, end]</code> luxon <code>DateTime</code>s, or <code>null</code>) with <code>v-model:value</code>. The <code>@change</code> event carries the same range and, when a shortcut was picked, that shortcut as its second argument, like React's <code>onChange(range, shortcut)</code>.</>} code={withPhone(overview, overviewPhone)} previewMinHeight={168}>
-  <VueDateRangePickerDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName={phoneCalendarStageClassName} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Bind the range (<code>[start, end]</code> luxon <code>DateTime</code>s, or <code>null</code>) with <code>v-model:value</code>. The <code>@change</code> event carries the same range.</>} code={withPhone(overview, overviewPhone)} previewMinHeight={168}>
+  <VueDateRangePickerDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName={phoneCalendarStageClassName} controls={overviewControls} stageClassName="flex-1 flex items-center justify-center py-12 w-full" />
 </ComponentPreview>
 
 ### Limits
@@ -119,7 +121,7 @@ On Phone, put a date range picker in a row of a `FieldGroup`, as the [Form Examp
 
 ### Shortcuts
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function; <code>dayShortcuts</code> here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>max-range-days</code>, is disabled.</>} code={withPhone(shortcuts, shortcutsPhone)} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and <code>@change</code> carries that shortcut as its second argument, like React's <code>onChange(range, shortcut)</code>. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function; <code>dayShortcuts</code> here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>max-range-days</code>, is disabled.</>} code={withPhone(shortcuts, shortcutsPhone)} previewMinHeight={168}>
   <VueDateRangePickerDemo template={shortcuts} phoneTemplate={phoneRows(shortcutsPhone)} phoneStageClassName={phoneCalendarStageClassName} />
 </ComponentPreview>
 

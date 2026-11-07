@@ -652,7 +652,7 @@ export function PhoneFormDemo() {
         <Field row label="Phone" errorMessage={showError ? 'Phone number is not valid.' : undefined}>
           <Input ref={phoneInputRef} value={phone} onChange={handlePhoneChange}
             placeholder="Phone number" type="tel" inputMode="tel" autoComplete="tel-national"
-            startAdornment={<span className="text-tertiary whitespace-nowrap select-none">{dialCode}</span>} />
+            startAdornment={<span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCode}</span>} />
         </Field>
       </FieldGroup>
       </FormScreen>

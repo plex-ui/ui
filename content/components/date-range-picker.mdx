@@ -20,7 +20,8 @@ On Phone, put a date range picker in a row of a `FieldGroup`, as the [Form Examp
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass the range (<code>[start, end]</code> luxon <code>DateTime</code>s, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>. When a shortcut was picked, <code>onChange</code> receives that shortcut as its second argument.</>} code={`const [value, setValue] = useState<DateRange | null>(null)
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass the range (<code>[start, end]</code> luxon <code>DateTime</code>s, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>.</>} code={`const [value, setValue] = useState<DateRange | null>(null)
+const [disabled] = useState(false)
 
 // Desktop
 <div style={{ width: "fit-content" }}>
@@ -28,9 +29,9 @@ On Phone, put a date range picker in a row of a `FieldGroup`, as the [Form Examp
     size="lg"
     pill
     clearable
+    disabled={disabled}
     value={value}
     onChange={setValue}
-    shortcuts={dayShortcuts}
   />
 </div>
 
@@ -41,9 +42,9 @@ On Phone, put a date range picker in a row of a `FieldGroup`, as the [Form Examp
       triggerShowIcon={false}
       triggerDateFormat="MMM d"
       placeholder="None"
+      disabled={disabled}
       value={value}
       onChange={setValue}
-      shortcuts={dayShortcuts}
     />
   </Field>
 </FieldGroup>`} previewMinHeight={168}>
@@ -92,7 +93,7 @@ const [value, setValue] = useState<DateRange | null>([
 
 ### Shortcuts
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>maxRangeDays</code>, is disabled.</>} code={`const dayShortcuts: DateRangeShortcut[] = [
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and <code>onChange</code> receives that shortcut as its second argument. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>maxRangeDays</code>, is disabled.</>} code={`const dayShortcuts: DateRangeShortcut[] = [
   {
     label: "Today",
     getDateRange: () => {
@@ -138,7 +139,7 @@ const [value, setValue] = useState<DateRange | null>(null)
 
 // Phone
 <FieldGroup>
-  <Field row label="Dates">
+  <Field row label="Period">
     <DateRangePicker
       triggerShowIcon={false}
       triggerDateFormat="MMM d"

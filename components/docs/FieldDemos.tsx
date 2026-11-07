@@ -432,14 +432,14 @@ export function FieldFormExampleDemo() {
     <FormScreen title="Payment details" submitLabel="Submit">
       <FieldGroup title="Payment method" description="All transactions are secure and encrypted." columns>
         <Field row label="Name on card"><Input placeholder="Jane Doe" autoComplete="cc-name" /></Field>
-        <Field row label="Card number" orientation="vertical"><Input placeholder="1234 5678 9012 3456" inputMode="numeric" autoComplete="cc-number" /></Field>
+        <Field row label="Card number" orientation="vertical"><Input variant="ghost" placeholder="1234 5678 9012 3456" inputMode="numeric" autoComplete="cc-number" /></Field>
         <Field row label="Month"><Select placeholder="MM" value={month} onChange={(option) => setMonth(option.value)} options={months} /></Field>
         <Field row label="Year"><Select placeholder="YYYY" value={year} onChange={(option) => setYear(option.value)} options={years} /></Field>
         <Field row label="CVV"><Input placeholder="123" inputMode="numeric" autoComplete="cc-csc" /></Field>
       </FieldGroup>
       <FieldGroup title="Billing address" description="The billing address associated with your payment method.">
         <Field row label="Same as shipping address"><Switch defaultChecked /></Field>
-        <Field row label="Comments" orientation="vertical"><Textarea rows={3} autoResize placeholder="Add any additional comments" /></Field>
+        <Field row label="Comments" orientation="vertical"><Textarea variant="ghost" rows={3} autoResize placeholder="Add any additional comments" /></Field>
       </FieldGroup>
     </FormScreen>
   );
@@ -850,8 +850,8 @@ export function FieldProfileSettingsDemo() {
       <FieldGroup title="Personal information" description="Your public profile details." columns>
         <Field row label="First name"><Input defaultValue="Jane" autoComplete="given-name" /></Field>
         <Field row label="Last name"><Input defaultValue="Doe" autoComplete="family-name" /></Field>
-        <Field row label="Email" orientation="vertical" description="This is the email associated with your account."><Input defaultValue="jane@example.com" type="email" autoComplete="email" /></Field>
-        <Field row label="Bio" orientation="vertical" description="Brief description for your profile. Max 160 characters."><Textarea placeholder="Tell us about yourself..." rows={3} autoResize maxLength={160} /></Field>
+        <Field row label="Email" orientation="vertical" description="This is the email associated with your account."><Input variant="ghost" defaultValue="jane@example.com" type="email" autoComplete="email" /></Field>
+        <Field row label="Bio" orientation="vertical" description="Brief description for your profile. Max 160 characters."><Textarea variant="ghost" placeholder="Tell us about yourself..." rows={3} autoResize maxLength={160} /></Field>
       </FieldGroup>
       <FieldGroup title="Preferences" description="Customize your experience." columns>
         <Field row label="Language"><Select value={language} onChange={(option) => setLanguage(option.value)} options={languages} /></Field>
@@ -991,7 +991,7 @@ export function FieldCreateProjectDemo() {
     <FormScreen title="Create project" submitLabel="Create project">
       <FieldGroup title="General" description="Basic information about your project." columns>
         <Field row label="Project name" required><Input placeholder="my-project" required /></Field>
-        <Field row label="Description" orientation="vertical" description="A short summary shown in project listings."><Textarea placeholder="What does this project do?" rows={3} autoResize /></Field>
+        <Field row label="Description" orientation="vertical" description="A short summary shown in project listings."><Textarea variant="ghost" placeholder="What does this project do?" rows={3} autoResize /></Field>
       </FieldGroup>
       <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
         <FieldGroup title="Visibility" description="Controls who can see this project.">
@@ -1001,7 +1001,7 @@ export function FieldCreateProjectDemo() {
         </FieldGroup>
       </RadioGroup>
       <FieldGroup title="Team access" description="Invite collaborators and set permissions.">
-        <Field row label="Team members" orientation="vertical" description="Add people by email address."><TagInput placeholder="Add email..." defaultValue={[{ value: 'alice@team.com', valid: true }, { value: 'bob@team.com', valid: true }]} validator={(value) => value.includes('@')} /></Field>
+        <Field row label="Team members" orientation="vertical" description="Add people by email address."><TagInput variant="ghost" placeholder="Add email..." defaultValue={[{ value: 'alice@team.com', valid: true }, { value: 'bob@team.com', valid: true }]} validator={(value) => value.includes('@')} /></Field>
       </FieldGroup>
       <FieldGroup title="Permissions" description="Default permissions for new members.">
         <Field row label="Can view project"><Switch defaultChecked /></Field>
@@ -1145,16 +1145,16 @@ export function FieldConfigurationDemo() {
   if (!wide) return (
     <FormScreen title="Field configuration" submitLabel="Save field">
       <FieldGroup title="Setup" description="Define the basic field properties." columns>
-        <Field row label="Key" orientation="vertical" description="Unique identifier used in the API. Cannot be changed later."><Input defaultValue="registration_method" /></Field>
-        <Field row label="Label" orientation="vertical" description="Human-readable name displayed in the UI."><Input defaultValue="Registration method" /></Field>
+        <Field row label="Key" orientation="vertical" description="Unique identifier used in the API. Cannot be changed later."><Input variant="ghost" defaultValue="registration_method" /></Field>
+        <Field row label="Label" orientation="vertical" description="Human-readable name displayed in the UI."><Input variant="ghost" defaultValue="Registration method" /></Field>
         <Field row label="Type"><Select value={type} onChange={(option) => setType(option.value)} options={fieldTypes} /></Field>
-        <Field row label="Default value" orientation="vertical" description="Value assigned when the field is empty."><Input placeholder="Set default value (optional)" /></Field>
+        <Field row label="Default value" orientation="vertical" description="Value assigned when the field is empty."><Input variant="ghost" placeholder="Set default value (optional)" /></Field>
       </FieldGroup>
-      <FieldGroup title="Formatting" description="Input constraints and sanitization rules." columns>
+      <FieldGroup title="Formatting" description="Input constraints and sanitization rules.">
         <Field row label="Max length" description="Max length cannot exceed 4096."><Input placeholder="256" inputMode="numeric" /></Field>
         <Field row label="HTML sanitization" description="Strip potentially unsafe HTML tags from input."><Switch /></Field>
       </FieldGroup>
-      <FieldGroup title="Privacy & access" description="Control field visibility and mutability." columns>
+      <FieldGroup title="Privacy & access" description="Control field visibility and mutability.">
         <Field row label="Not redactable" description="Prevent this field from being redacted."><Switch /></Field>
         <Field row label="Write once" description="Value can only be set once and cannot be changed."><Switch /></Field>
         <Field row label="Expires in" description="Automatically delete the field value after the specified period."><Select placeholder="Never" value={expiresIn} onChange={(option) => setExpiresIn(option.value)} options={expirations} /></Field>

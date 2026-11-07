@@ -76,7 +76,7 @@ On Phone, put a textarea under the label of a row in a `FieldGroup` (`Field row 
 
 ### Sizing
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Sizing of the textarea is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the textarea to a specific control <code>height</code> for single-line equivalent, and <code>gutterSize</code> sets the horizontal padding.<br /><br />Each <code>size</code> provides default values for <code>gutterSize</code>, as well as <code>font-size</code> and <code>border-radius</code>. Each of these values can be overridden independently.<br /><br />On Phone the row sets the type and insets, so a textarea in a row takes no <code>size</code> or <code>gutterSize</code>; <code>rows</code> sets its height.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Sizing of the textarea is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the textarea to a specific control <code>height</code> for single-line equivalent, and <code>gutterSize</code> sets the horizontal padding.<br /><br />Each <code>size</code> provides default values for <code>gutterSize</code>, as well as <code>font-size</code> and <code>border-radius</code>. Each of these values can be overridden independently.<br /><br />On Phone the row sets the type and insets, so a textarea in a row takes no <code>size</code> or <code>gutterSize</code>; <code>rows</code> sets its height. This example is desktop only, as Input's Sizing is.</>} code={`// Desktop
 <div className="w-full min-w-0 max-w-[400px]">
   <Textarea placeholder="Write a message..." size="lg" gutterSize="md" />
 </div>
@@ -140,7 +140,7 @@ On Phone, put a textarea under the label of a row in a `FieldGroup` (`Field row 
 
 ### Autofill extensions
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>By default, autofill extensions are prevented by <code>Textarea</code>. For the occasions where you want browser extensions to be present, pass <code>allowAutofillExtensions</code> to remove the disabling.<br /><br />When <code>name</code> is passed this value will default to <code>true</code>.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>By default, autofill extensions are prevented by <code>Textarea</code>. For the occasions where you want browser extensions to be present, pass <code>allowAutofillExtensions</code> to remove the disabling.<br /><br />When <code>name</code> is passed this value will default to <code>true</code>. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard, so this example is desktop only.</>} code={`// Desktop
 <div className="w-full min-w-0 max-w-[400px]">
   <Textarea name="email" placeholder="Allowed" allowAutofillExtensions />
 </div>

@@ -339,7 +339,8 @@ Props:
   - block (boolean) default: false — Full-width trigger
   - clearable (boolean) default: false — Show clear button
   - triggerShowIcon (boolean) default: true — Show calendar icon
-  - triggerDateFormat (string) default: "MM/dd/yy" — Date format in trigger. Auto-includes time when showTime is enabled
+  - triggerDateFormat (string) default: "MM/dd/yy" — Date format in trigger. Auto-includes time when showTime is enabled and triggerTimeFormat is not set
+  - triggerTimeFormat (string) — With showTime, the time format after the date in the trigger. The date and the time become two parts; in a phone row, two capsules
   - triggerClassName (string) — Class applied to the trigger
   - dropdownIconType ("dropdown" | "chevronDown" | "none") default: "dropdown" — Icon at the end of the trigger
   - placeholder (string) default: "Select date..." — Trigger placeholder

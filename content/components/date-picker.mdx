@@ -142,7 +142,7 @@ const [selectedDate, setSelectedDate] = useState<DateTime | null>(today)
 
 ### Time picker
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Enable <code>showTime</code> to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Enable <code>showTime</code> to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values. With <code>triggerTimeFormat</code> the trigger shows the date and the time as two parts: on Phone, in a row, they are two capsules, as iOS shows a date and a time.</>} code={`// Desktop
 <DatePicker
   id="date-picker-time"
   triggerDateFormat="MM/dd/yy HH:mm"
@@ -160,7 +160,8 @@ const [selectedDate, setSelectedDate] = useState<DateTime | null>(today)
   <Field row label="Starts">
     <DatePicker
       id="date-picker-time"
-      triggerDateFormat="MMM d, yyyy HH:mm"
+      triggerDateFormat="MMM d, yyyy"
+      triggerTimeFormat="HH:mm"
       triggerShowIcon={false}
       placeholder="Select date"
       showTime
@@ -194,7 +195,8 @@ const [selectedDate, setSelectedDate] = useState<DateTime | null>(today)
   <Field row label="Event">
     <DatePicker
       id="date-picker-datetime-dropdown"
-      triggerDateFormat="MMM d, yyyy HH:mm"
+      triggerDateFormat="MMM d, yyyy"
+      triggerTimeFormat="HH:mm"
       triggerShowIcon={false}
       placeholder="Select date"
       captionLayout="dropdown"
@@ -337,7 +339,7 @@ const onDateChange = (next: DateTime | null) => {
 
 ### Without Icon
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Remove the calendar icon from the trigger by setting <code>triggerShowIcon</code> to false.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Remove the calendar icon from the trigger by setting <code>triggerShowIcon</code> to false. In a phone row the date never shows the icon, as the compact date of iOS does not, so this example is desktop only.</>} code={`// Desktop
 <DatePicker
   id="date-picker-no-icon"
   triggerDateFormat="MM/dd/yy"
@@ -385,7 +387,8 @@ In the calendar, the arrow keys move focus by a day or a week, Home and End move
   { prop: "block", type: "boolean", default: "false", description: "Full-width trigger" },
   { prop: "clearable", type: "boolean", default: "false", description: "Show clear button" },
   { prop: "triggerShowIcon", type: "boolean", default: "true", description: "Show calendar icon" },
-  { prop: "triggerDateFormat", type: "string", default: '"MM/dd/yy"', description: "Date format in trigger. Auto-includes time when showTime is enabled" },
+  { prop: "triggerDateFormat", type: "string", default: '"MM/dd/yy"', description: "Date format in trigger. Auto-includes time when showTime is enabled and triggerTimeFormat is not set" },
+  { prop: "triggerTimeFormat", type: "string", description: "With showTime, the time format after the date in the trigger. The date and the time become two parts; in a phone row, two capsules" },
   { prop: "triggerClassName", type: "string", description: "Class applied to the trigger" },
   { prop: "dropdownIconType", type: '"dropdown" | "chevronDown" | "none"', default: '"dropdown"', description: "Icon at the end of the trigger" },
   { prop: "placeholder", type: "string", default: '"Select date..."', description: "Trigger placeholder" },

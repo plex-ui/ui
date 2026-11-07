@@ -101,9 +101,14 @@ export type DatePickerProps = Pick<SelectControlProps, "aria-label" | "aria-labe
   triggerShowIcon?: boolean
   /**
    * Format of dates displayed in the trigger
-   * @default "MM/dd/yy", or "MM/dd/yy HH:mm" with showTime
+   * @default "MM/dd/yy", or "MM/dd/yy HH:mm" with showTime and no triggerTimeFormat
    */
   triggerDateFormat?: string
+  /**
+   * With `showTime`, the format of the time shown after the date in the trigger. The date and the time are
+   * then two parts: in a row of a `FieldGroup` on a phone, the two capsules of iOS's compact date and time.
+   */
+  triggerTimeFormat?: string
   /**
    * Display a clear action that allows the select to be unset.
    * @default false
@@ -161,7 +166,8 @@ export const DatePicker = (props: DatePickerProps) => {
     captionLayout = "buttons",
     showTime = false,
     yearRange,
-    triggerDateFormat = showTime ? "MM/dd/yy HH:mm" : "MM/dd/yy",
+    triggerTimeFormat,
+    triggerDateFormat = showTime && !triggerTimeFormat ? "MM/dd/yy HH:mm" : "MM/dd/yy",
   } = props
 
   // min and max are inclusive, so equal bounds allow one date
@@ -225,6 +231,14 @@ export const DatePicker = (props: DatePickerProps) => {
     onChangeRef.current(null)
   }
 
+  // With a time format the date and the time are two parts, apart by a space; a phone row draws each as a capsule
+  const triggerValue = !value ? placeholder : showTime && triggerTimeFormat ? (
+    <span data-date-parts="">
+      <span data-date-part="date">{value.toFormat(triggerDateFormat)}</span>{" "}
+      <span data-date-part="time">{value.toFormat(triggerTimeFormat)}</span>
+    </span>
+  ) : value.toFormat(triggerDateFormat)
+
   return (
     <DateContext value={store}>
       <Popover>
@@ -248,9 +262,7 @@ export const DatePicker = (props: DatePickerProps) => {
             dropdownIconType={dropdownIconType}
             onClearClick={clearable ? handleClearClick : undefined}
           >
-            {ariaLabelledBy ? (
-              <span id={valueId}>{value?.toFormat(triggerDateFormat) ?? placeholder}</span>
-            ) : value?.toFormat(triggerDateFormat) ?? placeholder}
+            {ariaLabelledBy ? <span id={valueId}>{triggerValue}</span> : triggerValue}
           </SelectControl>
         </Popover.Trigger>
         <Popover.Content

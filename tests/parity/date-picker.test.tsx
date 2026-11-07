@@ -345,6 +345,9 @@ const closedCases: Array<[string, Case]> = [
   ["trigger date format", { value: oct20, props: { triggerDateFormat: "MMMM d, yyyy" } }],
   ["showTime picks the date-time format", { value: mar3, props: { showTime: true } }],
   ["showTime with an explicit format", { value: mar3, props: { showTime: true, triggerDateFormat: "MMM d, yyyy HH:mm" } }],
+  ["showTime with a time format", { value: mar3, props: { showTime: true, triggerDateFormat: "MMM d, yyyy", triggerTimeFormat: "HH:mm" } }],
+  ["a time format with aria-labelledby", { value: mar3, labelledBy: true, props: { showTime: true, triggerTimeFormat: "HH:mm" } }],
+  ["a time format, clearable and disabled", { value: mar3, props: { showTime: true, triggerTimeFormat: "HH:mm", clearable: true, disabled: true } }],
   ["disabled", { value: oct20, props: { disabled: true } }],
   ["soft", { value: oct20, props: { variant: "soft" } }],
   ["ghost", { props: { variant: "ghost" } }],
@@ -429,6 +432,30 @@ describe("DatePicker parity: markup", () => {
 
   test.each(closedCases)("closed: %s", async (_name, c) => {
     expectSame(await pair(c))
+  })
+
+  // A phone row draws the two parts as the two capsules of iOS's compact date and time (Field.module.css).
+  test("with showTime, a time format makes the date and the time two parts of the trigger", async () => {
+    const seen: string[] = []
+    const read = async () => {
+      const parts = document.querySelector(`${TRIGGER} [data-date-parts]`)
+      seen.push(parts ? `${[...parts.children].map((part) => `${part.getAttribute("data-date-part")}=${part.textContent}`).join(" ")} | ${parts.textContent} | in value ${!!parts.closest("#dp-value")}` : `none | ${document.querySelector(TRIGGER)?.textContent}`)
+    }
+    const cases: Case[] = [
+      { value: mar3, props: { showTime: true, triggerTimeFormat: "HH:mm" } },
+      { value: mar3, props: { showTime: true, triggerDateFormat: "MMM d, yyyy", triggerTimeFormat: "h:mm a" } },
+      { value: mar3, labelledBy: true, props: { showTime: true, triggerTimeFormat: "HH:mm" } },
+      { value: mar3, props: { triggerTimeFormat: "HH:mm" } },
+      { props: { showTime: true, triggerTimeFormat: "HH:mm", placeholder: "Select date" } },
+    ]
+    for (const c of cases) await walk(c, read)
+    expect(seen).toEqual([
+      ...Array(2).fill("date=03/03/25 time=08:05 | 03/03/25 08:05 | in value false"),
+      ...Array(2).fill("date=Mar 3, 2025 time=8:05 AM | Mar 3, 2025 8:05 AM | in value false"),
+      ...Array(2).fill("date=03/03/25 time=08:05 | 03/03/25 08:05 | in value true"),
+      ...Array(2).fill("none | 03/03/25"),
+      ...Array(2).fill("none | Select date"),
+    ])
   })
 
   test.each(openCases)("open: %s", async (_name, c) => {

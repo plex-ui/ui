@@ -140,7 +140,7 @@ export function DatePickerTimeDemo() {
   if (phone) return (
     <PhoneDateRows reserve="time">
       <Field row label="Starts">
-        <DatePicker id="date-picker-time" triggerDateFormat="MMM d, yyyy HH:mm" triggerShowIcon={false} placeholder="Select date" showTime value={selectedDate} onChange={setSelectedDate} />
+        <DatePicker id="date-picker-time" triggerDateFormat="MMM d, yyyy" triggerTimeFormat="HH:mm" triggerShowIcon={false} placeholder="Select date" showTime value={selectedDate} onChange={setSelectedDate} />
       </Field>
     </PhoneDateRows>
   );
@@ -165,7 +165,7 @@ export function DatePickerDateTimeDropdownDemo() {
   if (phone) return (
     <PhoneDateRows reserve="time">
       <Field row label="Event">
-        <DatePicker id="date-picker-datetime-dropdown" triggerDateFormat="MMM d, yyyy HH:mm" triggerShowIcon={false} placeholder="Select date" captionLayout="dropdown" showTime yearRange={[2020, 2030]} value={selectedDate} onChange={setSelectedDate} />
+        <DatePicker id="date-picker-datetime-dropdown" triggerDateFormat="MMM d, yyyy" triggerTimeFormat="HH:mm" triggerShowIcon={false} placeholder="Select date" captionLayout="dropdown" showTime yearRange={[2020, 2030]} value={selectedDate} onChange={setSelectedDate} />
       </Field>
     </PhoneDateRows>
   );

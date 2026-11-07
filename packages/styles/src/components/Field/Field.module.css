@@ -608,6 +608,13 @@
     text-align: end;
   }
 
+  /* A disabled Select or date in a row keeps the row's surface: the disabled frame and fill of a
+     standalone control would draw a box around the value */
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"][data-disabled] {
+    --select-control-background-color: transparent;
+    --select-control-border-color: transparent;
+  }
+
   /* A Select or a date: its value ends at the row's edge, its mark too, as the row has no pill to sit in */
   .Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"] {
     --dropdown-icon-pill-offset: 0px;
@@ -661,6 +668,40 @@
 
     &[aria-expanded="true"]:not([data-disabled]) {
       color: var(--link-primary-text-color);
+    }
+  }
+
+  /* A date and a time (showTime with a triggerTimeFormat) are two capsules 6px apart, as the kit draws them (Date and
+     time - Collapsed 30:53803) and iOS Calendar shows an event's start. Either opens the calendar, whose time
+     fields set the time; the trigger stays the row's target and takes the accent while the calendar is open. */
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > [data-date-picker][data-variant][role="button"][aria-haspopup]:not([aria-haspopup="false"]):has([data-date-parts]) {
+    padding-inline: 0;
+
+    &::before {
+      background-color: transparent;
+    }
+
+    & [data-date-parts] {
+      display: flex;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    & [data-date-part] {
+      padding: 6px 11px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-background-secondary-soft-alpha);
+    }
+
+    /* Short of room, the date ends in an ellipsis inside its capsule; the time keeps its width */
+    & [data-date-part="date"] {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    & [data-date-part="time"] {
+      flex-shrink: 0;
     }
   }
 

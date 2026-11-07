@@ -328,13 +328,13 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `icon-type`
 
 ### Variants
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments.</>} code={withPhone(variants, variantsPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments. In a phone row the row is the frame, so this example is desktop only; Invalid and Disabled show the row's states.</>} code={withPhone(variants, variantsPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueSelectDemo phoneTemplate={phoneRows(variantsPhone)} phoneStageClassName="w-full" template={variants} controls={[{ name: "invalid", type: "boolean", default: false }, { name: "disabled", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Sizing & roundness
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Sizing of the control is determined with the <code>size</code> prop. Each <code>size</code> provides dynamic values for various aspects of the control, including icon and indicator placement, as well <code>font-size</code> and gutter values.<br/><br/>Create fully rounded controls with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied, and the clear action is also set to <code>pill</code>. On Phone the row sets the control's size, so a row's control takes no <code>size</code> or <code>pill</code>.</>} code={withPhone(sizing, sizingPhone)} previewMinHeight={276}>
+<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Sizing of the control is determined with the <code>size</code> prop. Each <code>size</code> provides dynamic values for various aspects of the control, including icon and indicator placement, as well <code>font-size</code> and gutter values.<br/><br/>Create fully rounded controls with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied, and the clear action is also set to <code>pill</code>. On Phone the row sets the control's size, so a row's control takes no <code>size</code> or <code>pill</code>, and this example is desktop only.</>} code={withPhone(sizing, sizingPhone)} previewMinHeight={276}>
   <VueSelectDemo phoneTemplate={phoneRows(sizingPhone)} phoneStageClassName="w-full" desktopControlNames={["size", "pill", "variant"]} template={sizing} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }, { name: "pill", type: "boolean", default: false }, { name: "variant", type: "select", options: VARIANTS, default: "outline" }]} />
 </ComponentPreview>
 
@@ -346,13 +346,13 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `icon-type`
 
 ### Start icon
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Pass a component to <code>StartIcon</code> to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon.</>} code={withPhone(startIcon, startIconPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Pass a component to <code>StartIcon</code> to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon, and this example is desktop only.</>} code={withPhone(startIcon, startIconPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueSelectDemo phoneTemplate={phoneRows(startIconPhone)} phoneStageClassName="w-full" stageClassName={STAGE} template={startIcon} />
 </ComponentPreview>
 
 ### Dropdown icon
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>dropdown-icon-type</code> to control the presentation of the dropdown indicator. In a phone row the default indicator is the up-down chevrons of an iOS pop-up button.</>} code={withPhone(dropdownIcon, dropdownIconPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>dropdown-icon-type</code> to control the presentation of the dropdown indicator. In a phone row the indicator is always the up-down chevrons of an iOS pop-up button, so this example is desktop only.</>} code={withPhone(dropdownIcon, dropdownIconPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueSelectDemo phoneTemplate={phoneRows(dropdownIconPhone)} phoneStageClassName="w-full" desktopControlNames={["dropdownIconType"]} template={dropdownIcon} controls={[{ name: "dropdownIconType", type: "select", options: ["chevronDown", "dropdown", "none"], default: "dropdown" }]} />
 </ComponentPreview>
 
@@ -382,7 +382,7 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `icon-type`
 
 ### Block
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Create full-width controls with the <code>block</code> prop. In a phone row the value sits at the row's end, so the row's control takes no <code>block</code>.</>} code={withPhone(block, blockPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Create full-width controls with the <code>block</code> prop. In a phone row the value sits at the row's end, so the row's control takes no <code>block</code>, and this example is desktop only.</>} code={withPhone(block, blockPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueSelectDemo phoneTemplate={phoneRows(blockPhone)} phoneStageClassName="w-full" desktopControlNames={["block"]} template={block} controls={[{ name: "block", type: "boolean", default: true }]} />
 </ComponentPreview>
 
@@ -409,7 +409,7 @@ export const phoneFormMobile = formScreenTemplate("Phone number", `<FieldGroup t
   <Field row label="Phone" :error-message="submitted && !isPhoneValid(phone) ? 'Phone number is not valid.' : undefined">
     <Input ref="phoneInput" :value="phone" @update:value="(raw) => { phone = formatPhoneNumber(raw, country); submitted = false }"
       placeholder="Phone number" type="tel" inputmode="tel" autocomplete="tel-national">
-      <template #startAdornment><span class="text-tertiary whitespace-nowrap select-none">{{ countryOf(country)?.dialCode ?? '+1' }}</span></template>
+      <template #startAdornment><span class="text-tertiary whitespace-nowrap select-none mr-2">{{ countryOf(country)?.dialCode ?? '+1' }}</span></template>
     </Input>
   </Field>
 </FieldGroup>`, "Continue", "submitted = true", true)
@@ -422,7 +422,7 @@ export const phoneFormMobile = formScreenTemplate("Phone number", `<FieldGroup t
 
 ### Optical alignment
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>optically-align</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the control. In a phone row the row aligns the value with its inset, so <code>optically-align</code> is for desktop.</>} code={withPhone(opticalAlignment, opticalAlignmentPhone)} previewMinHeight={292}>
+<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>optically-align</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the control. In a phone row the row aligns the value with its inset, so <code>optically-align</code> is for desktop, and so is this example.</>} code={withPhone(opticalAlignment, opticalAlignmentPhone)} previewMinHeight={292}>
   <VueSelectDemo phoneTemplate={phoneRows(opticalAlignmentPhone)} phoneStageClassName="w-full" desktopControlNames={["opticallyAlign"]} stageClassName={NARROW_STAGE} template={opticalAlignment} controls={[{ name: "opticallyAlign", type: "select", options: ["start", "end"], default: "start" }]} />
 </ComponentPreview>
 

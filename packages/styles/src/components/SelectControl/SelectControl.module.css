@@ -685,6 +685,13 @@
     display: none;
   }
 
+  /* Without the chevrons its indicator wrapper is empty; the trigger's gap before it would leave the date 8px off
+     the capsule's center and the capsules 8px short of the row's edge. A clear button keeps the wrapper. Both rules
+     follow each other: wherever a row hides a date's chevrons, it hides the wrapper they leave empty. */
+  :where([data-row][data-orientation="horizontal"]) .SelectControl[data-date-picker] .IndicatorWrapper:not(:has(> :not(.DropdownIcon))) {
+    display: none;
+  }
+
   :where([data-row]) .DropdownIcon > .MobileDropdownGlyph {
     display: block;
     flex-shrink: 0;

@@ -2114,7 +2114,8 @@ Props:
   - block (boolean) default: false — Full-width trigger
   - clearable (boolean) default: false — Show clear button
   - triggerShowIcon (boolean) default: true — Show calendar icon
-  - triggerDateFormat (string) default: "MM/dd/yy" — Date format in trigger. Auto-includes time when showTime is enabled
+  - triggerDateFormat (string) default: "MM/dd/yy" — Date format in trigger. Auto-includes time when showTime is enabled and triggerTimeFormat is not set
+  - triggerTimeFormat (string) — With showTime, the time format after the date in the trigger. The date and the time become two parts; in a phone row, two capsules
   - triggerClassName (string) — Class applied to the trigger
   - dropdownIconType ("dropdown" | "chevronDown" | "none") default: "dropdown" — Icon at the end of the trigger
   - placeholder (string) default: "Select date..." — Trigger placeholder
@@ -2238,7 +2239,7 @@ max={DateTime.local()}
 ```
 
 ### Time picker
-Enable showTime to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values.
+Enable showTime to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values. With triggerTimeFormat the trigger shows the date and the time as two parts: on Phone, in a row, they are two capsules, as iOS shows a date and a time.
 ```tsx
 // Desktop
 <DatePicker
@@ -2258,7 +2259,8 @@ onChange={setSelectedDate}
 <Field row label="Starts">
   <DatePicker
     id="date-picker-time"
-    triggerDateFormat="MMM d, yyyy HH:mm"
+    triggerDateFormat="MMM d, yyyy"
+    triggerTimeFormat="HH:mm"
     triggerShowIcon={false}
     placeholder="Select date"
     showTime
@@ -2292,7 +2294,8 @@ onChange={setSelectedDate}
 <Field row label="Event">
   <DatePicker
     id="date-picker-datetime-dropdown"
-    triggerDateFormat="MMM d, yyyy HH:mm"
+    triggerDateFormat="MMM d, yyyy"
+    triggerTimeFormat="HH:mm"
     triggerShowIcon={false}
     placeholder="Select date"
     captionLayout="dropdown"
@@ -2433,7 +2436,7 @@ Pass timeMode="HH:MM" to DateInput to type the date and time in one field.
 ```
 
 ### Without Icon
-Remove the calendar icon from the trigger by setting triggerShowIcon to false.
+Remove the calendar icon from the trigger by setting triggerShowIcon to false. In a phone row the date never shows the icon, as the compact date of iOS does not, so this example is desktop only.
 ```tsx
 // Desktop
 <DatePicker
@@ -2491,9 +2494,10 @@ Props:
   - block (boolean) default: false — Stretch trigger to full available width
 
 ### Overview
-Pass the range ([start, end] luxon DateTimes, or null) as value and update it in onChange. When a shortcut was picked, onChange receives that shortcut as its second argument.
+Pass the range ([start, end] luxon DateTimes, or null) as value and update it in onChange.
 ```tsx
 const [value, setValue] = useState<DateRange | null>(null)
+const [disabled] = useState(false)
 
 // Desktop
 <div style={{ width: "fit-content" }}>
@@ -2501,9 +2505,9 @@ const [value, setValue] = useState<DateRange | null>(null)
   size="lg"
   pill
   clearable
+  disabled={disabled}
   value={value}
   onChange={setValue}
-  shortcuts={dayShortcuts}
 />
 </div>
 
@@ -2514,9 +2518,9 @@ const [value, setValue] = useState<DateRange | null>(null)
     triggerShowIcon={false}
     triggerDateFormat="MMM d"
     placeholder="None"
+    disabled={disabled}
     value={value}
     onChange={setValue}
-    shortcuts={dayShortcuts}
   />
 </Field>
 </FieldGroup>
@@ -2563,7 +2567,7 @@ DateTime.min(maxDate, today.endOf("month")),
 ```
 
 ### Shortcuts
-Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a label and a getDateRange() function. A shortcut whose range falls outside min and max, or is longer than maxRangeDays, is disabled.
+Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and onChange receives that shortcut as its second argument. Each shortcut has a label and a getDateRange() function. A shortcut whose range falls outside min and max, or is longer than maxRangeDays, is disabled.
 ```tsx
 const dayShortcuts: DateRangeShortcut[] = [
 {
@@ -2611,7 +2615,7 @@ const [value, setValue] = useState<DateRange | null>(null)
 
 // Phone
 <FieldGroup>
-<Field row label="Dates">
+<Field row label="Period">
   <DateRangePicker
     triggerShowIcon={false}
     triggerDateFormat="MMM d"
@@ -3656,7 +3660,7 @@ Use required to show a visual asterisk after the label. This is purely visual an
 ```
 
 ### Sizing
-The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the child is a render prop. On a phone with touch.css a text field is 44px from 3xs to 2xl and 50px at 3xl, with the 17px text of iOS: a 3xs, 2xs or xs field takes the height, text and gutter of sm, and a horizontal label lines up with it. The phone view shows the md field and leaves out the size and pill controls, here and in the Overview; the Input page leaves them out too. In a form on a phone, put fields in rows of a FieldGroup (see Rows).
+The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the child is a render prop. On a phone with touch.css a text field is 44px from 3xs to 2xl and 50px at 3xl, with the 17px text of iOS: a 3xs, 2xs or xs field takes the height, text and gutter of sm, and a horizontal label lines up with it. The Overview's phone view shows the md field without the size and pill controls, and this example is desktop only, as the Input page's Sizing is. In a form on a phone, put fields in rows of a FieldGroup (see Rows).
 ```tsx
 <div className="w-full max-w-[320px]">
 <Field
@@ -3932,14 +3936,14 @@ const [year, setYear] = useState("")
   <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
     <FieldGroup title="Payment method" description="All transactions are secure and encrypted." columns>
       <Field row label="Name on card"><Input placeholder="Jane Doe" autoComplete="cc-name" /></Field>
-      <Field row label="Card number" orientation="vertical"><Input placeholder="1234 5678 9012 3456" inputMode="numeric" autoComplete="cc-number" /></Field>
+      <Field row label="Card number" orientation="vertical"><Input variant="ghost" placeholder="1234 5678 9012 3456" inputMode="numeric" autoComplete="cc-number" /></Field>
       <Field row label="Month"><Select placeholder="MM" value={month} onChange={(option) => setMonth(option.value)} options={months} /></Field>
       <Field row label="Year"><Select placeholder="YYYY" value={year} onChange={(option) => setYear(option.value)} options={years} /></Field>
       <Field row label="CVV"><Input placeholder="123" inputMode="numeric" autoComplete="cc-csc" /></Field>
     </FieldGroup>
     <FieldGroup title="Billing address" description="The billing address associated with your payment method.">
       <Field row label="Same as shipping address"><Switch defaultChecked /></Field>
-      <Field row label="Comments" orientation="vertical"><Textarea rows={3} autoResize placeholder="Add any additional comments" /></Field>
+      <Field row label="Comments" orientation="vertical"><Textarea variant="ghost" rows={3} autoResize placeholder="Add any additional comments" /></Field>
     </FieldGroup>
   </form>
 </Page.Content>
@@ -3964,8 +3968,8 @@ const themes = [{ label: 'System', value: 'system' }, { label: 'Light', value: '
     <FieldGroup title="Personal information" description="Your public profile details." columns>
       <Field row label="First name"><Input defaultValue="Jane" autoComplete="given-name" /></Field>
       <Field row label="Last name"><Input defaultValue="Doe" autoComplete="family-name" /></Field>
-      <Field row label="Email" orientation="vertical" description="This is the email associated with your account."><Input defaultValue="jane@example.com" type="email" autoComplete="email" /></Field>
-      <Field row label="Bio" orientation="vertical" description="Brief description for your profile. Max 160 characters."><Textarea placeholder="Tell us about yourself..." rows={3} autoResize maxLength={160} /></Field>
+      <Field row label="Email" orientation="vertical" description="This is the email associated with your account."><Input variant="ghost" defaultValue="jane@example.com" type="email" autoComplete="email" /></Field>
+      <Field row label="Bio" orientation="vertical" description="Brief description for your profile. Max 160 characters."><Textarea variant="ghost" placeholder="Tell us about yourself..." rows={3} autoResize maxLength={160} /></Field>
     </FieldGroup>
     <FieldGroup title="Preferences" description="Customize your experience." columns>
       <Field row label="Language"><Select value={language} onChange={(option) => setLanguage(option.value)} options={languages} /></Field>
@@ -3997,7 +4001,7 @@ const regions = [{ label: 'US East (N. Virginia)', value: 'us-east-1' }, { label
   <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
     <FieldGroup title="General" description="Basic information about your project." columns>
       <Field row label="Project name" required><Input placeholder="my-project" required /></Field>
-      <Field row label="Description" orientation="vertical" description="A short summary shown in project listings."><Textarea placeholder="What does this project do?" rows={3} autoResize /></Field>
+      <Field row label="Description" orientation="vertical" description="A short summary shown in project listings."><Textarea variant="ghost" placeholder="What does this project do?" rows={3} autoResize /></Field>
     </FieldGroup>
     <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
       <FieldGroup title="Visibility" description="Controls who can see this project.">
@@ -4007,7 +4011,7 @@ const regions = [{ label: 'US East (N. Virginia)', value: 'us-east-1' }, { label
       </FieldGroup>
     </RadioGroup>
     <FieldGroup title="Team access" description="Invite collaborators and set permissions.">
-      <Field row label="Team members" orientation="vertical" description="Add people by email address."><TagInput placeholder="Add email..." defaultValue={[{ value: 'alice@team.com', valid: true }, { value: 'bob@team.com', valid: true }]} validator={(value) => value.includes('@')} /></Field>
+      <Field row label="Team members" orientation="vertical" description="Add people by email address."><TagInput variant="ghost" placeholder="Add email..." defaultValue={[{ value: 'alice@team.com', valid: true }, { value: 'bob@team.com', valid: true }]} validator={(value) => value.includes('@')} /></Field>
     </FieldGroup>
     <FieldGroup title="Permissions" description="Default permissions for new members.">
       <Field row label="Can view project"><Switch defaultChecked /></Field>
@@ -4040,16 +4044,16 @@ const expirations = [{ label: 'Never', value: 'never' }, { label: '30 days', val
 <Page.Content>
   <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
     <FieldGroup title="Setup" description="Define the basic field properties." columns>
-      <Field row label="Key" orientation="vertical" description="Unique identifier used in the API. Cannot be changed later."><Input defaultValue="registration_method" /></Field>
-      <Field row label="Label" orientation="vertical" description="Human-readable name displayed in the UI."><Input defaultValue="Registration method" /></Field>
+      <Field row label="Key" orientation="vertical" description="Unique identifier used in the API. Cannot be changed later."><Input variant="ghost" defaultValue="registration_method" /></Field>
+      <Field row label="Label" orientation="vertical" description="Human-readable name displayed in the UI."><Input variant="ghost" defaultValue="Registration method" /></Field>
       <Field row label="Type"><Select value={type} onChange={(option) => setType(option.value)} options={fieldTypes} /></Field>
-      <Field row label="Default value" orientation="vertical" description="Value assigned when the field is empty."><Input placeholder="Set default value (optional)" /></Field>
+      <Field row label="Default value" orientation="vertical" description="Value assigned when the field is empty."><Input variant="ghost" placeholder="Set default value (optional)" /></Field>
     </FieldGroup>
-    <FieldGroup title="Formatting" description="Input constraints and sanitization rules." columns>
+    <FieldGroup title="Formatting" description="Input constraints and sanitization rules.">
       <Field row label="Max length" description="Max length cannot exceed 4096."><Input placeholder="256" inputMode="numeric" /></Field>
       <Field row label="HTML sanitization" description="Strip potentially unsafe HTML tags from input."><Switch /></Field>
     </FieldGroup>
-    <FieldGroup title="Privacy & access" description="Control field visibility and mutability." columns>
+    <FieldGroup title="Privacy & access" description="Control field visibility and mutability.">
       <Field row label="Not redactable" description="Prevent this field from being redacted."><Switch /></Field>
       <Field row label="Write once" description="Value can only be set once and cannot be changed."><Switch /></Field>
       <Field row label="Expires in" description="Automatically delete the field value after the specified period."><Select placeholder="Never" value={expiresIn} onChange={(option) => setExpiresIn(option.value)} options={expirations} /></Field>
@@ -5099,7 +5103,7 @@ Use variant to stylize the group, like Input. On Phone the row is the frame, so 
 ```
 
 ### Sizes
-Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so the Phone preview has one size.
+Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.
 ```tsx
 // Desktop
 <InputGroup size="lg">
@@ -7125,7 +7129,7 @@ const [value, setValue] = useState("")
 ```
 
 ### Variants
-Use the variant prop to stylize the select control. Available variant styles are similar to {""}, but aligned with subtle differences from {""} variant treatments.
+Use the variant prop to stylize the select control. Available variant styles are similar to {""}, but aligned with subtle differences from {""} variant treatments. In a phone row the row is the frame, so this example is desktop only; Invalid and Disabled show the row's states.
 ```tsx
 // Desktop
 <div className="flex w-full min-w-0 max-w-[400px] flex-col gap-6">
@@ -7143,7 +7147,7 @@ Use the variant prop to stylize the select control. Available variant styles are
 ```
 
 ### Sizing & roundness
-Sizing of the control is determined with the size prop. Each size provides dynamic values for various aspects of the control, including icon and indicator placement, as well font-size and gutter values.Create fully rounded controls with the pill prop. When pill is set, extra horizontal gutter is dynamically applied, and the clear action is also set to pill. On Phone the row sets the control's size, so a row's control takes no size or pill.
+Sizing of the control is determined with the size prop. Each size provides dynamic values for various aspects of the control, including icon and indicator placement, as well font-size and gutter values.Create fully rounded controls with the pill prop. When pill is set, extra horizontal gutter is dynamically applied, and the clear action is also set to pill. On Phone the row sets the control's size, so a row's control takes no size or pill, and this example is desktop only.
 ```tsx
 // Desktop
 <SelectControl size="md" pill={false} dropdownIconType="none">Select...</SelectControl>
@@ -7181,7 +7185,7 @@ Use selected to indicate if the control has a selected value, which toggles visu
 ```
 
 ### Start icon
-Use StartIcon to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon.
+Use StartIcon to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon, and this example is desktop only.
 ```tsx
 // Desktop
 <SelectControl StartIcon={CalendarAlt}>Select date...</SelectControl>
@@ -7195,7 +7199,7 @@ Use StartIcon to display an icon in the control. Sizing, spacing, and coloring a
 ```
 
 ### Dropdown icon
-Use dropdownIconType to control the presentation of the dropdown indicator. In a phone row the default indicator is the up-down chevrons of an iOS pop-up button.
+Use dropdownIconType to control the presentation of the dropdown indicator. In a phone row the indicator is always the up-down chevrons of an iOS pop-up button, so this example is desktop only.
 ```tsx
 // Desktop
 <SelectControl selected dropdownIconType="dropdown" StartIcon={CalendarAlt}>Select date...</SelectControl>
@@ -7269,7 +7273,7 @@ Use disabled to both visually and accessibly disable the control.
 ```
 
 ### Block
-Create full-width controls with the block prop. In a phone row the value sits at the row's end, so the row's control takes no block.
+Create full-width controls with the block prop. In a phone row the value sits at the row's end, so the row's control takes no block, and this example is desktop only.
 ```tsx
 // Desktop
 <div className="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
@@ -7539,7 +7543,7 @@ return (
       <Field row label="Phone" errorMessage={showError ? 'Phone number is not valid.' : undefined}>
         <Input ref={phoneRef} value={phone} onChange={handlePhoneChange}
           placeholder="Phone number" type="tel" inputMode="tel" autoComplete="tel-national"
-          startAdornment={<span className="text-tertiary whitespace-nowrap select-none">{dialCode}</span>} />
+          startAdornment={<span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCode}</span>} />
       </Field>
     </FieldGroup>
       </form>
@@ -7551,7 +7555,7 @@ return (
 ```
 
 ### Optical alignment
-Use opticallyAlign with either "start" or "end" to offset the gutter of the control. In a phone row the row aligns the value with its inset, so opticallyAlign is for desktop.
+Use opticallyAlign with either "start" or "end" to offset the gutter of the control. In a phone row the row aligns the value with its inset, so opticallyAlign is for desktop, and so is this example.
 ```tsx
 // Desktop
 <SelectControl selected variant="ghost" opticallyAlign="start">Ghost control</SelectControl>
@@ -10077,7 +10081,7 @@ const [value, setValue] = useState("Line 1\nLine 2\nLine 3")
 ```
 
 ### Sizing
-Sizing of the textarea is controlled with size and gutterSize props. size sets the textarea to a specific control height for single-line equivalent, and gutterSize sets the horizontal padding.Each size provides default values for gutterSize, as well as font-size and border-radius. Each of these values can be overridden independently.On Phone the row sets the type and insets, so a textarea in a row takes no size or gutterSize; rows sets its height.
+Sizing of the textarea is controlled with size and gutterSize props. size sets the textarea to a specific control height for single-line equivalent, and gutterSize sets the horizontal padding.Each size provides default values for gutterSize, as well as font-size and border-radius. Each of these values can be overridden independently.On Phone the row sets the type and insets, so a textarea in a row takes no size or gutterSize; rows sets its height. This example is desktop only, as Input's Sizing is.
 ```tsx
 // Desktop
 <div className="w-full min-w-0 max-w-[400px]">
@@ -10141,7 +10145,7 @@ Pass autoSelect to select all text in the textarea, useful when pairing with oth
 ```
 
 ### Autofill extensions
-By default, autofill extensions are prevented by Textarea. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling.When name is passed this value will default to true.
+By default, autofill extensions are prevented by Textarea. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling.When name is passed this value will default to true. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard, so this example is desktop only.
 ```tsx
 // Desktop
 <div className="w-full min-w-0 max-w-[400px]">
