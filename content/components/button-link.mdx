@@ -42,7 +42,8 @@ import {
 
 ### Colors & variants
 
-<ComponentPreview details={<>Stylize the link with <code>color</code> and <code>variant</code> props.</>} code={`const colors = ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"] as const
+<ComponentPreview details={<>Stylize the link with <code>color</code> and <code>variant</code> props. On a phone the table shows the two colors of iOS buttons, accent (<code>primary</code>) and destructive (<code>danger</code>).</>} code={`// Desktop
+const colors = ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"] as const
 const variants = ["soft", "solid", "outline", "ghost"] as const
 
 <div className="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -66,6 +67,26 @@ const variants = ["soft", "solid", "outline", "ghost"] as const
       ))}
     </div>
   </div>
+</div>
+
+// Phone: the two colors of iOS buttons, accent (primary) and destructive (danger)
+<div className="grid gap-6 items-center justify-center pt-1 pb-6" style={{ gridTemplateColumns: "auto repeat(2, min-content)" }}>
+  <div />
+  {(["primary", "danger"] as const).map((color) => (
+    <div key={color} className="text-center text-sm mb-1 text-tertiary">{color}</div>
+  ))}
+  {variants.map((variant) => (
+    <Fragment key={variant}>
+      <div className="text-right text-sm mr-3 text-tertiary">{variant}</div>
+      {(["primary", "danger"] as const).map((color) => (
+        <div key={color} className="text-center">
+          <ButtonLink href="#" size="lg" color={color} variant={variant} className="whitespace-nowrap">
+            Button
+          </ButtonLink>
+        </div>
+      ))}
+    </Fragment>
+  ))}
 </div>`} previewMinHeight={280}>
   <ButtonLinkColorsMatrixDemo />
 </ComponentPreview>

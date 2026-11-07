@@ -41,6 +41,22 @@ export const colors = `<div class="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-
   </div>
 </div>`
 
+export const colorsPhone = `<div class="grid gap-6 items-center justify-center pt-1 pb-6" style="grid-template-columns: auto repeat(2, min-content)">
+  <div />
+  <div
+    v-for="color in ['primary', 'danger']"
+    :key="color"
+    class="text-center text-sm mb-1"
+    style="color: var(--color-text-tertiary)"
+  >{{ color }}</div>
+  <template v-for="variant in ['soft', 'solid', 'outline', 'ghost']" :key="variant">
+    <div class="text-right text-sm mr-3" style="color: var(--color-text-tertiary)">{{ variant }}</div>
+    <div v-for="color in ['primary', 'danger']" :key="color" class="text-center">
+      <Button :color="color" :variant="variant" size="md">Submit</Button>
+    </div>
+  </template>
+</div>`
+
 export const sizing = `<Button :color="color" :variant="variant" :size="size" :pill="pill"><Mail /> Button <ArrowRight /></Button>
 <Button :color="color" :variant="variant" :size="size" :pill="pill">Button <ArrowRight /></Button>
 <Button :color="color" :variant="variant" :size="size" :pill="pill"><Mail /> Button</Button>
@@ -147,8 +163,8 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
 
 ### Colors & variants
 
-<ComponentPreview language="vue" details={<>You can stylize the display of the button using the <code>color</code> and <code>variant</code> props.</>} className="justify-start" code={colors} previewMinHeight={168}>
-  <VuePreview template={colors} />
+<ComponentPreview language="vue" details={<>You can stylize the display of the button using the <code>color</code> and <code>variant</code> props. On a phone the table shows the two colors of iOS buttons, accent (<code>primary</code>) and destructive (<code>danger</code>).</>} className="justify-start" code={withPhone(colors, colorsPhone, "the two colors of iOS buttons, accent (primary) and destructive (danger)")} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={colors} phoneTemplate={colorsPhone} />
 </ComponentPreview>
 
 ### Sizing & roundness

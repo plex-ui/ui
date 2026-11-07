@@ -9,7 +9,6 @@ import { usePhoneRows } from './PhoneRows';
 
 const matrixLabelStyle: React.CSSProperties = {
   color: 'var(--color-text-tertiary)',
-  fontSize: '0.875rem',
 };
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
@@ -28,9 +27,42 @@ const COLORS = [
   'caution',
   'warning',
 ] as const;
+// The two colors of iOS buttons: accent (primary) and destructive (danger)
+const PHONE_COLORS = ['primary', 'danger'] as const;
 
 export function ButtonLinkColorsMatrixDemo() {
+  const phone = usePhoneRows();
   const template = `auto repeat(${COLORS.length}, min-content)`;
+  // Phone: the two colors of iOS buttons; eight columns would not fit beside the variant names
+  if (phone) {
+    return (
+      <div
+        className="grid gap-6 items-center justify-center pt-1 pb-6"
+        style={{ gridTemplateColumns: `auto repeat(${PHONE_COLORS.length}, min-content)` }}
+      >
+        <div />
+        {PHONE_COLORS.map((color) => (
+          <div key={color} className="text-center text-sm mb-1" style={matrixLabelStyle}>
+            {color}
+          </div>
+        ))}
+        {VARIANTS.map((variant) => (
+          <React.Fragment key={variant}>
+            <div className="text-right text-sm mr-3" style={matrixLabelStyle}>
+              {variant}
+            </div>
+            {PHONE_COLORS.map((color) => (
+              <div key={`${variant}-${color}`} className="text-center">
+                <ButtonLink as="a" href="#" size="lg" color={color} variant={variant} className="whitespace-nowrap">
+                  Button
+                </ButtonLink>
+              </div>
+            ))}
+          </React.Fragment>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -44,14 +76,14 @@ export function ButtonLinkColorsMatrixDemo() {
         >
           <div />
           {COLORS.map((color) => (
-            <div key={color} className="text-center mb-1" style={matrixLabelStyle}>
+            <div key={color} className="text-center text-sm mb-1" style={matrixLabelStyle}>
               {color}
             </div>
           ))}
 
           {VARIANTS.map((variant) => (
             <React.Fragment key={variant}>
-              <div className="text-right mr-3" style={matrixLabelStyle}>
+              <div className="text-right text-sm mr-3" style={matrixLabelStyle}>
                 {variant}
               </div>
               {COLORS.map((color) => (

@@ -709,8 +709,9 @@ A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only.
 ```
 
 ### Colors & variants
-You can stylize the display of the button using the color and variant props.
+You can stylize the display of the button using the color and variant props. On a phone the table shows the two colors of iOS buttons, accent (primary) and destructive (danger).
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
   <div class="pt-1 pb-6 px-8 w-max mx-auto">
     <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(8, min-content)">
@@ -733,6 +734,23 @@ You can stylize the display of the button using the color and variant props.
       </template>
     </div>
   </div>
+</div>
+
+<!-- Phone: the two colors of iOS buttons, accent (primary) and destructive (danger) -->
+<div class="grid gap-6 items-center justify-center pt-1 pb-6" style="grid-template-columns: auto repeat(2, min-content)">
+  <div />
+  <div
+    v-for="color in ['primary', 'danger']"
+    :key="color"
+    class="text-center text-sm mb-1"
+    style="color: var(--color-text-tertiary)"
+  >{{ color }}</div>
+  <template v-for="variant in ['soft', 'solid', 'outline', 'ghost']" :key="variant">
+    <div class="text-right text-sm mr-3" style="color: var(--color-text-tertiary)">{{ variant }}</div>
+    <div v-for="color in ['primary', 'danger']" :key="color" class="text-center">
+      <Button :color="color" :variant="variant" size="md">Submit</Button>
+    </div>
+  </template>
 </div>
 ```
 
@@ -1119,8 +1137,9 @@ When linking to an external URL (or when external is set), &lt;a&gt; is used wit
 ```
 
 ### Colors & variants
-Stylize the link with color and variant props.
+Stylize the link with color and variant props. On a phone the table shows the two colors of iOS buttons, accent (primary) and destructive (danger).
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
   <div class="pt-1 pb-6 px-8 w-fit min-w-full">
     <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(8, min-content)">
@@ -1142,6 +1161,18 @@ Stylize the link with color and variant props.
       </template>
     </div>
   </div>
+</div>
+
+<!-- Phone: the two colors of iOS buttons, accent (primary) and destructive (danger) -->
+<div class="grid gap-6 items-center justify-center pt-1 pb-6" style="grid-template-columns: auto repeat(2, min-content)">
+  <div />
+  <div v-for="color in ['primary', 'danger']" :key="color" class="text-center text-sm mb-1 text-tertiary">{{ color }}</div>
+  <template v-for="variant in ['soft', 'solid', 'outline', 'ghost']" :key="variant">
+    <div class="text-right text-sm mr-3 text-tertiary">{{ variant }}</div>
+    <div v-for="color in ['primary', 'danger']" :key="color" class="text-center">
+      <ButtonLink href="#" size="lg" :color="color" :variant="variant" class="whitespace-nowrap">Button</ButtonLink>
+    </div>
+  </template>
 </div>
 ```
 

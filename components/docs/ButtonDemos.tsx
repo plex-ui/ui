@@ -135,6 +135,37 @@ function ButtonColorControl({ value, onChange, options = COLOR_OPTIONS }: { valu
 }
 
 export function ButtonColorsDemo() {
+  const phone = usePhoneRows();
+  // Phone: the two colors of iOS buttons; eight columns would not fit beside the variant names
+  if (phone) {
+    return (
+      <div
+        className="grid gap-6 items-center justify-center pt-1 pb-6"
+        style={{ gridTemplateColumns: `auto repeat(${PHONE_COLOR_OPTIONS.length}, min-content)` }}
+      >
+        <div />
+        {PHONE_COLOR_OPTIONS.map((color) => (
+          <div key={color} className="text-center text-sm mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
+            {color}
+          </div>
+        ))}
+        {COLOR_MATRIX_VARIANTS.map((variant) => (
+          <React.Fragment key={variant}>
+            <div className="text-right text-sm mr-3" style={{ color: 'var(--color-text-tertiary)' }}>
+              {variant}
+            </div>
+            {PHONE_COLOR_OPTIONS.map((color) => (
+              <div key={`${variant}-${color}`} className="text-center">
+                <Button color={color} variant={variant} size="md">
+                  Submit
+                </Button>
+              </div>
+            ))}
+          </React.Fragment>
+        ))}
+      </div>
+    );
+  }
   return (
     <div
       className="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"

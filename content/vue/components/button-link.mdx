@@ -41,6 +41,17 @@ export const colors = `<div class="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-
   </div>
 </div>`
 
+export const colorsPhone = `<div class="grid gap-6 items-center justify-center pt-1 pb-6" style="grid-template-columns: auto repeat(2, min-content)">
+  <div />
+  <div v-for="color in ['primary', 'danger']" :key="color" class="text-center text-sm mb-1 text-tertiary">{{ color }}</div>
+  <template v-for="variant in ['soft', 'solid', 'outline', 'ghost']" :key="variant">
+    <div class="text-right text-sm mr-3 text-tertiary">{{ variant }}</div>
+    <div v-for="color in ['primary', 'danger']" :key="color" class="text-center">
+      <ButtonLink href="#" size="lg" :color="color" :variant="variant" class="whitespace-nowrap">Button</ButtonLink>
+    </div>
+  </template>
+</div>`
+
 export const sizing = `<div class="flex flex-col gap-2 justify-start items-start">
   <ButtonLink color="primary" :size="size" :pill="pill" href="#" class="whitespace-nowrap">
     View account <ArrowRight />
@@ -102,8 +113,8 @@ export const disabled = `<ButtonLink href="#" color="primary" :disabled="disable
 
 ### Colors & variants
 
-<ComponentPreview language="vue" details={<>Stylize the link with <code>color</code> and <code>variant</code> props.</>} code={colors} previewMinHeight={280}>
-  <VueDemo template={colors} />
+<ComponentPreview language="vue" details={<>Stylize the link with <code>color</code> and <code>variant</code> props. On a phone the table shows the two colors of iOS buttons, accent (<code>primary</code>) and destructive (<code>danger</code>).</>} code={withPhone(colors, colorsPhone, "the two colors of iOS buttons, accent (primary) and destructive (danger)")} previewMinHeight={280}>
+  <VuePhoneRowsDemo template={colors} phoneTemplate={colorsPhone} />
 </ComponentPreview>
 
 ### Sizing & roundness
