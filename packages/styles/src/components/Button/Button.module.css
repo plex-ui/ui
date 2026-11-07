@@ -127,7 +127,7 @@
     --button-gutter: var(--button-gutter-2xs, var(--control-gutter-xs));
     --button-font-size: var(--button-font-size-2xs, var(--control-font-size-sm));
     --button-icon-size: var(--button-icon-size-2xs, var(--control-icon-size-sm));
-    --button-gap: var(--button-gap-md);
+    --button-gap: var(--button-touch-gap-sm, var(--button-gap-md));
     --button-radius: var(--button-touch-radius, var(--control-radius-sm));
     --button-icon-offset: -1px;
     --indicator-size: var(--button-indicator-size-2xs, 12px);
@@ -141,7 +141,7 @@
     --button-gutter: var(--button-gutter-xs, var(--control-gutter-xs));
     --button-font-size: var(--button-font-size-xs, var(--control-font-size-md));
     --button-icon-size: var(--button-icon-size-xs, var(--control-icon-size-sm));
-    --button-gap: var(--button-gap-md);
+    --button-gap: var(--button-touch-gap-sm, var(--button-gap-md));
     --button-radius: var(--button-touch-radius, var(--control-radius-sm));
     --button-icon-offset: -1px;
     --indicator-size: var(--button-indicator-size-xs, 13px);
@@ -155,7 +155,7 @@
     --button-gutter: var(--button-gutter-sm, var(--control-gutter-sm));
     --button-font-size: var(--button-font-size-sm, var(--control-font-size-md));
     --button-icon-size: var(--control-icon-size-md);
-    --button-gap: var(--button-gap-md);
+    --button-gap: var(--button-touch-gap-sm, var(--button-gap-md));
     --button-radius: var(--button-touch-radius, var(--control-radius-sm));
     --button-icon-offset: -1px;
     --indicator-size: 15px;

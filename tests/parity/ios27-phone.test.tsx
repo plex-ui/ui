@@ -181,3 +181,24 @@ describe("other kit iOS 27 values on a phone", () => {
     expect(tokens).toContain("--progress-radius: var(--radius-full);")
   })
 })
+
+describe("content-area buttons on a phone (kit iOS 27 Button - Content Area 40:58696)", () => {
+  test("the small button (3xs to sm) leaves 3px between icon and label, the medium and large ones 4px, with touch.css only", () => {
+    const button = baseRules("packages/styles/src/components/Button/Button.module.css")
+    const gap = (size: string) => decls(button.get(`&:where([data-size="${size}"])`))["--button-gap"]
+    expect(gap("3xs")).toBe("var(--button-gap-sm)")
+    for (const size of ["2xs", "xs", "sm"]) expect(gap(size)).toBe("var(--button-touch-gap-sm, var(--button-gap-md))")
+    for (const size of ["md", "lg", "xl", "2xl", "3xl"]) expect(gap(size)).toBe("var(--button-gap-lg)")
+    // The phone root block of touch.css (the one that also sets the medium and large gap) sets the small one.
+    const roots: Record<string, string>[] = []
+    postcss.parse(touch).walkAtRules("media", (media) => {
+      if (media.params === "(max-width: 767px)") media.walkRules("html:root", (rule) => { roots.push(decls(rule)) })
+    })
+    expect(roots.find((d) => "--button-gap-lg" in d)).toMatchObject({ "--button-gap-lg": "4px", "--button-touch-gap-sm": "var(--button-gap-sm)" })
+    // The shared tier tokens stay as they are: segmented Tabs space their content with --button-gap-sm and --button-gap-md.
+    expect(touch).not.toMatch(/--button-gap-(sm|md):/)
+    const tokens = read("packages/styles/src/styles/variables-components.css")
+    expect(tokens).toContain("--button-gap-sm: 3px;")
+    expect(tokens).toContain("--button-gap-md: 4px;")
+  })
+})

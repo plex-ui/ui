@@ -82,6 +82,9 @@
     --control-font-size-md: 17px;
     --control-font-size-lg: 17px;
     --button-gap-lg: 4px;
+    /* Kit 27 Button - Content Area: 3px between symbol and label in the small button (3xs to sm), 4px in the
+       medium and large ones. A separate token, as the 4px --button-gap-md also spaces segmented Tabs. */
+    --button-touch-gap-sm: var(--button-gap-sm);
 
     /* Native text buttons: small 28px, medium 34px, large 50px. */
     --button-touch-radius: var(--radius-full);

@@ -988,7 +988,7 @@
         {
           "name": "Icons",
           "code": "// Desktop\n<Button color=\"primary\" size=\"lg\" aria-label=\"Add\">\n<PlusLg />\n</Button>\n\n// Phone: the three sizes of iOS buttons\n<div className=\"flex gap-2 items-center\">\n<Button color=\"primary\" size=\"sm\" aria-label=\"Add\"><PlusLg /></Button>\n<Button color=\"primary\" size=\"md\" aria-label=\"Add\"><PlusLg /></Button>\n<Button color=\"primary\" size=\"xl\" aria-label=\"Add\"><PlusLg /></Button>\n</div>",
-          "details": "Add icons as children. Sizing is automatic via the iconSize prop. Default values for iconSize are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutterSize is ignored. Combine with pill to make circular icons. Tighter gutters: applying a smaller gutterSize than size can create well-sized, but not exactly square, icon buttons. On a phone with touch.css the icon follows the three iOS sizes unless iconSize is set: 3xs to lg show the 18px icon and xl to 3xl the 20px one, as the kit sets a button's symbol at the size of its label (15 and 17px). With uniform the button is a 44px circle on a phone, 50px at 3xl."
+          "details": "Add icons as children. Sizing is automatic via the iconSize prop. Default values for iconSize are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutterSize is ignored. Combine with pill to make circular icons. Tighter gutters: applying a smaller gutterSize than size can create well-sized, but not exactly square, icon buttons. On a phone with touch.css the icon follows the three iOS sizes unless iconSize is set: 3xs to lg show the 18px icon and xl to 3xl the 20px one, as the kit sets a button's symbol at the size of its label (15 and 17px). With uniform the button is a 44px circle on a phone (50px at 3xl), the size of a toolbar button in the kit, as components place small uniform buttons in bars and rows; in a ButtonGroup it takes the 28, 34 or 50px height of the text buttons beside it. Without uniform an icon-only button keeps the gutters of a text button, as on the web, so the phone example is 38, 46 and 60px wide, where the kit draws icon-only content buttons as 28, 34 and 50px circles. Between an icon and a label the small button leaves 3px and the medium and large ones 4px, as in the kit."
         },
         {
           "name": "Block",
@@ -7688,5 +7688,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T21:45:50.969Z"
+  "generatedAt": "2026-11-07T22:29:41.608Z"
 }
