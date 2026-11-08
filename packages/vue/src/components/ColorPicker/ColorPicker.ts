@@ -4,6 +4,7 @@ import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "../ContextM
 import { Plus, RemoveTrash } from "../Icon/index.js"
 import { MenuItem } from "../Menu/index.js"
 import { PageControl } from "../PageControl/index.js"
+import { prefersReducedMotion } from "../../lib/helpers.js"
 import { SegmentedControl, SegmentedControlOption } from "../SegmentedControl/index.js"
 import { SliderRoot, SliderThumb, SliderTrack } from "../Slider/sliderPrimitive.js"
 import {
@@ -421,7 +422,7 @@ const ColorSwatches = defineComponent({
                       const pagesElement = pagesRef.value
                       if (!pagesElement) return
                       page.value = index
-                      pagesElement.scrollTo?.({ left: index * pagesElement.clientWidth, behavior: "smooth" })
+                      pagesElement.scrollTo?.({ left: index * pagesElement.clientWidth, behavior: prefersReducedMotion() ? "auto" : "smooth" })
                     },
                   }),
                 ]

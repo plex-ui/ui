@@ -12,6 +12,7 @@ import {
 } from "react"
 import s from "@plexui/styles/components/ColorPicker/ColorPicker.module.css"
 import { useLatestValue } from "../../hooks/useLatestValue"
+import { prefersReducedMotion } from "../../lib/helpers"
 import { ContextMenu } from "../ContextMenu"
 import { Plus, RemoveTrash } from "../Icon"
 import { PageControl } from "../PageControl"
@@ -510,7 +511,7 @@ function ColorSwatches({ color, swatches, onSelect, onChange }: ColorSwatchesPro
                 const pagesElement = pagesRef.current
                 if (!pagesElement) return
                 setPage(index)
-                pagesElement.scrollTo?.({ left: index * pagesElement.clientWidth, behavior: "smooth" })
+                pagesElement.scrollTo?.({ left: index * pagesElement.clientWidth, behavior: prefersReducedMotion() ? "auto" : "smooth" })
               }}
             />
           )}

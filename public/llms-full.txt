@@ -6346,7 +6346,7 @@ Props:
   - className (string) — CSS classes applied to the page control
 
 ### Overview
-Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells.
+Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells, and with reduced motion, as motion-reduce:scroll-auto does here.
 ```tsx
 const pagesId = useId()
 const scroller = useRef<HTMLDivElement>(null)
@@ -6355,7 +6355,7 @@ const [page, setPage] = useState(0)
 <div
 id={pagesId}
 ref={scroller}
-className="flex snap-x snap-mandatory overflow-x-auto"
+className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto"
 onScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}
 >
 {pages.map((number) => <div key={number} className="w-full shrink-0 snap-center">{number}</div>)}
@@ -6366,7 +6366,7 @@ value={page}
 aria-controls={pagesId}
 onChange={(index, { scrubbing }) => {
   setPage(index)
-  scroller.current?.scrollTo({ left: index * scroller.current.clientWidth, behavior: scrubbing ? 'instant' : 'smooth' })
+  scroller.current?.scrollTo({ left: index * scroller.current.clientWidth, behavior: scrubbing ? 'instant' : 'auto' })
 }}
 />
 ```

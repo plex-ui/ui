@@ -119,7 +119,7 @@ export const SettingsChecklistDemo = defineComponent({
         }, () => h('div', { key: step, 'data-settings-screen': screen, 'data-settings-step': step }, [fields()])),
       ]);
       // Both screens of a Page show Back, so it stays in place; in a Dialog the root's Close and Back change places.
-      const back = () => h('span', { class: s.BackViewport, 'data-demo-navigation-direction': direction, 'data-settings-direction': direction, 'data-demo-navigation-same': '' }, [h(TransitionGroup, { ...transition, class: [s.BarTransition, motionStyles.Bar] }, () => h(VueDemoBackButton, {
+      const back = () => h('span', { class: s.BackViewport, 'data-demo-navigation-direction': direction, 'data-settings-direction': direction, 'data-demo-navigation-same': '' }, [h(TransitionGroup, { ...transition, class: motionStyles.Bar }, () => h(VueDemoBackButton, {
         key: step,
         onBack: setting ? returnToSettings : undefined,
         label: setting ? 'Back to notifications' : undefined,
@@ -128,11 +128,11 @@ export const SettingsChecklistDemo = defineComponent({
       const titleContent = () => [
         h('span', { class: 'sr-only' }, label),
         h('span', { 'aria-hidden': 'true', class: [s.BarViewport, motionStyles.BarViewport], 'data-demo-navigation-direction': direction, 'data-settings-direction': direction }, [
-          h(TransitionGroup, { ...transition, class: [s.BarTransition, motionStyles.Bar] }, () => h('span', { key: step }, label)),
+          h(TransitionGroup, { ...transition, class: motionStyles.Bar }, () => h('span', { key: step }, label)),
         ]),
       ];
       const dialogAction = () => h('span', { class: s.BackViewport, 'data-demo-navigation-direction': direction, 'data-settings-direction': direction }, [
-        h(TransitionGroup, { ...transition, class: [s.BarTransition, motionStyles.Bar] }, () => h('span', {
+        h(TransitionGroup, { ...transition, class: motionStyles.Bar }, () => h('span', {
           key: step,
         }, [setting
           ? h(VueDemoBackButton, { onBack: returnToSettings, label: 'Back to notifications' })

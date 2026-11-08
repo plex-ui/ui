@@ -456,3 +456,40 @@ describe("ColorPicker tokens follow the iOS 26 kit (Color Picker - iPhone 0:5275
     expect(touch).toContain("--segmented-control-size: 44px;")
   })
 })
+
+describe("ColorPicker saved color pages and reduced motion (plan 95)", () => {
+  test("a tap on the page dots scrolls smoothly, and without animation when reduced motion is on, in React and Vue", async () => {
+    let reduced = false
+    vi.stubGlobal("matchMedia", (query: string): MediaQueryList => ({
+      media: query, matches: query === "(prefers-reduced-motion: reduce)" ? reduced : true, onchange: null,
+      addListener: vi.fn(), removeListener: vi.fn(),
+      addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(() => true),
+    }))
+    const scrolls: string[] = []
+    Object.defineProperty(HTMLElement.prototype, "scrollTo", {
+      configurable: true,
+      value(options: ScrollToOptions) { scrolls.push(`${options.left} ${options.behavior}`) },
+    })
+    const swatches = ["#000000", "#007aff", "#34c759", "#ff9500", "#ff3b30", "#af52de", "#5856d6", "#ffcc00", "#00c7be", "#8e8e93"]
+    const runs: string[][] = []
+    try {
+      await walkPair(
+        () => render(<RColorPicker defaultValue="#af52de" defaultSwatches={swatches} />),
+        () => h(ColorPicker, { defaultValue: "#af52de", defaultSwatches: swatches }),
+        async () => {
+          await settle()
+          const dots = one('[aria-label="Saved color pages"]')
+          reduced = false
+          await key(dots, { key: "ArrowRight" })
+          reduced = true
+          await key(dots, { key: "ArrowLeft" })
+          runs.push(scrolls.splice(0))
+        },
+      )
+    } finally {
+      Reflect.deleteProperty(HTMLElement.prototype, "scrollTo")
+    }
+    // jsdom lays nothing out, so every page is 0px wide; the behavior is what this checks.
+    expect(runs).toEqual([["0 smooth", "0 auto"], ["0 smooth", "0 auto"]])
+  })
+})

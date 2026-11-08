@@ -18,14 +18,14 @@ A page control shows the position of the current page in an ordered list of peer
 
 ### Overview
 
-<ComponentPreview details={<>Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as <code>details.scrubbing</code> tells.</>} code={`const pagesId = useId()
+<ComponentPreview details={<>Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as <code>details.scrubbing</code> tells, and with reduced motion, as <code>motion-reduce:scroll-auto</code> does here.</>} code={`const pagesId = useId()
 const scroller = useRef<HTMLDivElement>(null)
 const [page, setPage] = useState(0)
 
 <div
   id={pagesId}
   ref={scroller}
-  className="flex snap-x snap-mandatory overflow-x-auto"
+  className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto"
   onScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}
 >
   {pages.map((number) => <div key={number} className="w-full shrink-0 snap-center">{number}</div>)}
@@ -36,7 +36,7 @@ const [page, setPage] = useState(0)
   aria-controls={pagesId}
   onChange={(index, { scrubbing }) => {
     setPage(index)
-    scroller.current?.scrollTo({ left: index * scroller.current.clientWidth, behavior: scrubbing ? 'instant' : 'smooth' })
+    scroller.current?.scrollTo({ left: index * scroller.current.clientWidth, behavior: scrubbing ? 'instant' : 'auto' })
   }}
 />`} previewMinHeight={260}>
   <PageControlOverviewDemo />

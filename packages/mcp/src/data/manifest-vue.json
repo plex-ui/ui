@@ -4374,8 +4374,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div class=\"flex w-full max-w-[320px] flex-col items-center gap-3\">\n  <div\n    id=\"page-control-pages\"\n    ref=\"pages\"\n    class=\"flex w-full snap-x snap-mandatory overflow-x-auto rounded-2xl bg-[var(--color-surface-secondary)] [scrollbar-width:none]\"\n    @scroll=\"page = Math.round($event.target.scrollLeft / $event.target.clientWidth)\"\n  >\n    <div v-for=\"number in 5\" :key=\"number\" class=\"flex h-40 w-full shrink-0 snap-center items-center justify-center text-2xl font-semibold tabular-nums\">\n      {{ number }}\n    </div>\n  </div>\n  <PageControl\n    :count=\"5\"\n    v-model:value=\"page\"\n    aria-controls=\"page-control-pages\"\n    @change=\"(index, details) => $refs.pages.scrollTo({ left: index * $refs.pages.clientWidth, behavior: details.scrubbing ? 'instant' : 'smooth' })\"\n  />\n</div>",
-          "details": "Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells."
+          "code": "<div class=\"flex w-full max-w-[320px] flex-col items-center gap-3\">\n  <div\n    id=\"page-control-pages\"\n    ref=\"pages\"\n    class=\"flex w-full snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto rounded-2xl bg-[var(--color-surface-secondary)] [scrollbar-width:none]\"\n    @scroll=\"page = Math.round($event.target.scrollLeft / $event.target.clientWidth)\"\n  >\n    <div v-for=\"number in 5\" :key=\"number\" class=\"flex h-40 w-full shrink-0 snap-center items-center justify-center text-2xl font-semibold tabular-nums\">\n      {{ number }}\n    </div>\n  </div>\n  <PageControl\n    :count=\"5\"\n    v-model:value=\"page\"\n    aria-controls=\"page-control-pages\"\n    @change=\"(index, details) => $refs.pages.scrollTo({ left: index * $refs.pages.clientWidth, behavior: details.scrubbing ? 'instant' : 'auto' })\"\n  />\n</div>",
+          "details": "Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells, and with reduced motion, as motion-reduce:scroll-auto does here."
         },
         {
           "name": "Many pages",
@@ -7702,5 +7702,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T23:10:32.582Z"
+  "generatedAt": "2026-11-08T02:19:11.358Z"
 }

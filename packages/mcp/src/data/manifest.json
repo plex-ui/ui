@@ -4263,8 +4263,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "const pagesId = useId()\nconst scroller = useRef<HTMLDivElement>(null)\nconst [page, setPage] = useState(0)\n\n<div\nid={pagesId}\nref={scroller}\nclassName=\"flex snap-x snap-mandatory overflow-x-auto\"\nonScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}\n>\n{pages.map((number) => <div key={number} className=\"w-full shrink-0 snap-center\">{number}</div>)}\n</div>\n<PageControl\ncount={pages.length}\nvalue={page}\naria-controls={pagesId}\nonChange={(index, { scrubbing }) => {\n  setPage(index)\n  scroller.current?.scrollTo({ left: index * scroller.current.clientWidth, behavior: scrubbing ? 'instant' : 'smooth' })\n}}\n/>",
-          "details": "Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells."
+          "code": "const pagesId = useId()\nconst scroller = useRef<HTMLDivElement>(null)\nconst [page, setPage] = useState(0)\n\n<div\nid={pagesId}\nref={scroller}\nclassName=\"flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto\"\nonScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}\n>\n{pages.map((number) => <div key={number} className=\"w-full shrink-0 snap-center\">{number}</div>)}\n</div>\n<PageControl\ncount={pages.length}\nvalue={page}\naria-controls={pagesId}\nonChange={(index, { scrubbing }) => {\n  setPage(index)\n  scroller.current?.scrollTo({ left: index * scroller.current.clientWidth, behavior: scrubbing ? 'instant' : 'auto' })\n}}\n/>",
+          "details": "Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells, and with reduced motion, as motion-reduce:scroll-auto does here."
         },
         {
           "name": "Many pages",
@@ -7688,5 +7688,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T23:10:30.914Z"
+  "generatedAt": "2026-11-08T02:19:10.067Z"
 }

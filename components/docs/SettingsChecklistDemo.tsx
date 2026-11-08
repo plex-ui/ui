@@ -100,16 +100,16 @@ export function SettingsChecklistDemo() {
   }));
   const transition = { ...settingsNavigationTiming, overlay: true, onExit: hideExitingSettingsScreen, onEnter: showEnteringSettingsScreen };
   // Both screens of a Page show Back, so it stays in place; in a Dialog the root's Close and Back change places.
-  const back = <span className={s.BackViewport} data-demo-navigation-direction={navigation.direction} data-settings-direction={navigation.direction} data-demo-navigation-same=""><TransitionGroup {...transition} className={`${s.BarTransition} ${motionStyles.Bar}`}>
+  const back = <span className={s.BackViewport} data-demo-navigation-direction={navigation.direction} data-settings-direction={navigation.direction} data-demo-navigation-same=""><TransitionGroup {...transition} className={motionStyles.Bar}>
     <DemoBackButton key={navigation.step} onBack={setting ? returnToSettings : undefined} label={setting ? 'Back to notifications' : undefined} />
   </TransitionGroup></span>;
   const titleContent = <>
     <span className="sr-only">{title}</span>
     <span aria-hidden="true" className={`${s.BarViewport} ${motionStyles.BarViewport}`} data-demo-navigation-direction={navigation.direction} data-settings-direction={navigation.direction}>
-      <TransitionGroup {...transition} className={`${s.BarTransition} ${motionStyles.Bar}`}><span key={navigation.step}>{title}</span></TransitionGroup>
+      <TransitionGroup {...transition} className={motionStyles.Bar}><span key={navigation.step}>{title}</span></TransitionGroup>
     </span>
   </>;
-  const dialogAction = <span className={s.BackViewport} data-demo-navigation-direction={navigation.direction} data-settings-direction={navigation.direction}><TransitionGroup {...transition} className={`${s.BarTransition} ${motionStyles.Bar}`}>
+  const dialogAction = <span className={s.BackViewport} data-demo-navigation-direction={navigation.direction} data-settings-direction={navigation.direction}><TransitionGroup {...transition} className={motionStyles.Bar}>
     <span key={navigation.step}>
       {setting ? <DemoBackButton onBack={returnToSettings} label="Back to notifications" /> : (
         <Dialog.Close><NavigationButton action="close" aria-label="Close dialog" /></Dialog.Close>

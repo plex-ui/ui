@@ -14,7 +14,7 @@ export function PageControlOverviewDemo() {
       <div
         id={pagesId}
         ref={scroller}
-        className="flex w-full snap-x snap-mandatory overflow-x-auto rounded-2xl bg-[var(--color-surface-secondary)] [scrollbar-width:none]"
+        className="flex w-full snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto rounded-2xl bg-[var(--color-surface-secondary)] [scrollbar-width:none]"
         onScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}
       >
         {pages.map((number) => (
@@ -30,7 +30,7 @@ export function PageControlOverviewDemo() {
         onChange={(index, { scrubbing }) => {
           setPage(index);
           const element = scroller.current;
-          element?.scrollTo({ left: index * element.clientWidth, behavior: scrubbing ? 'instant' : 'smooth' });
+          element?.scrollTo({ left: index * element.clientWidth, behavior: scrubbing ? 'instant' : 'auto' });
         }}
       />
     </div>
