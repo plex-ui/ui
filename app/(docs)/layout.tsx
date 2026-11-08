@@ -5,6 +5,7 @@ import { source, componentsSource, iconsSource } from '@/lib/source';
 import { DocsGlobalNav } from '@/components/layout/DocsGlobalNav';
 import { SidebarItemWithBadge } from '@/components/layout/SidebarItemWithBadge';
 import { SidebarNav } from '@/components/layout/SidebarNav';
+import { KeepLinkedSectionInView } from '@/components/layout/KeepLinkedSectionInView';
 import { buildDocsTreeNavigation } from '@/lib/docs-navigation';
 
 export default function Layout({ children }: { children: ReactNode }) {
@@ -46,6 +47,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       }}
     >
       {children}
+      <KeepLinkedSectionInView />
     </DocsLayout>
   );
 }
