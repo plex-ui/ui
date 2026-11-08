@@ -3,14 +3,17 @@ import { DateTime } from 'luxon';
 import { Button, NavigationButton } from '@plexui/vue/components/Button';
 import { DatePicker } from '@plexui/vue/components/DatePicker';
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogHeaderAction, DialogTitle, DialogTrigger } from '@plexui/vue/components/Dialog';
-import { Field } from '@plexui/vue/components/Field';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
+import { Bell, Calendar, Clock, PlusCircle } from '@plexui/vue/components/Icon';
 import { Input } from '@plexui/vue/components/Input';
 import { SegmentedControl, SegmentedControlOption } from '@plexui/vue/components/SegmentedControl';
 import { Switch } from '@plexui/vue/components/Switch';
 import { Textarea } from '@plexui/vue/components/Textarea';
 import { cloneComposerDrafts, composerModeLabel, createComposerDrafts, type ComposerDraft, type ComposerMode } from '../segmentedComposerData';
 import s from '../SegmentedComposer.module.css';
+
+const DAY_FORMAT = 'EEE, MMM d, yyyy';
+const TIME_FORMAT = 'HH:mm';
 
 export const SegmentedComposer = defineComponent({
   name: 'SegmentedComposer',
@@ -26,6 +29,7 @@ export const SegmentedComposer = defineComponent({
     const status = ref('');
     const heading = ref<HTMLDivElement | null>(null);
     const formId = `composer-${useId()}`;
+    const rowId = useId();
     const update = <Key extends keyof ComposerDraft>(key: Key, value: ComposerDraft[Key]) => {
       drafts.value = { ...drafts.value, [mode.value]: { ...drafts.value[mode.value], [key]: value } };
     };
@@ -54,17 +58,19 @@ export const SegmentedComposer = defineComponent({
     const changeMode = (next: string) => {
       if (next === 'event' || next === 'reminder') { mode.value = next; status.value = ''; }
     };
-    const datePicker = (label: string, showTime: boolean) => {
+    const datePicker = (props: Record<string, unknown>) => {
       const date = drafts.value[mode.value].date;
       return h(DatePicker, {
         value: date ? DateTime.fromISO(date) : null,
         'onUpdate:value': (next: DateTime | null) => update('date', next?.toISO() ?? null),
-        showTime, variant: 'ghost', pill: false, triggerShowIcon: false, ariaLabel: label,
+        triggerDateFormat: DAY_FORMAT, variant: 'ghost', size: '3xl', pill: false, block: true, triggerShowIcon: false, dropdownIconType: 'none',
+        ...props,
       });
     };
 
     return () => {
       const draft = drafts.value[mode.value];
+      const start = draft.date ? DateTime.fromISO(draft.date) : null;
       const label = composerModeLabel(mode.value);
       return h('div', { 'data-demo-stage': '', class: s.Stage }, [
         h(Dialog, { open: open.value || props.pinnedOpen, 'onUpdate:open': changeOpen }, () => [
@@ -93,36 +99,69 @@ export const SegmentedComposer = defineComponent({
               })),
             ]),
             h(DialogBody, { class: s.Body }, () => h('form', { id: formId, class: s.Form, onSubmit: confirm }, [
-              h(FieldGroup, { 'aria-label': `${label} details` }, () => [
-                h(Field, { row: true, orientation: 'vertical', label: `${label} title` }, () => h(Input, {
-                  variant: 'ghost', value: draft.title, placeholder: `Name this ${mode.value}`,
+              // Calendar's composer names its fields by their placeholders alone, each field its own capsule
+              // (IMG_5433, IMG_5434).
+              h('div', { class: s.Capsules }, [
+                h(FieldGroup, { 'aria-label': `${label} title` }, () => h('div', { 'data-row': '' }, [h(Input, {
+                  variant: 'ghost', size: '3xl', class: s.Text, 'aria-label': `${label} title`, value: draft.title, placeholder: 'Title',
                   'onUpdate:value': (next: string) => update('title', next),
-                })),
-                h(Field, { row: true, orientation: 'vertical', label: 'Notes' }, () => h(Textarea, {
-                  variant: 'ghost', rows: 2, autoResize: true, value: draft.notes, placeholder: 'Add notes',
-                  'onUpdate:value': (next: string) => update('notes', next),
-                })),
+                })])),
+                mode.value === 'event'
+                  // The summary: the day at the start, the hours at the end. It opens the calendar, whose time
+                  // fields set the start; the sample event lasts an hour.
+                  ? h(FieldGroup, { 'aria-label': 'Date and time', bodyClass: s.RowsBody }, () => h('div', { 'data-row': '' }, [datePicker({
+                      showTime: true, triggerClassName: s.Summary, ariaLabel: 'Event date and time',
+                      triggerTimeFormat: start ? `${TIME_FORMAT} '– ${start.plus({ hours: 1 }).toFormat(TIME_FORMAT)}'` : TIME_FORMAT,
+                    })]))
+                  : h(FieldGroup, { 'aria-label': 'Notes' }, () => h('div', { 'data-row': '' }, [h(Textarea, {
+                      variant: 'ghost', rows: 1, autoResize: true, class: s.Text, 'aria-label': 'Notes', value: draft.notes, placeholder: 'Notes',
+                      'onUpdate:value': (next: string) => update('notes', next),
+                    })])),
               ]),
-              mode.value === 'event'
-                ? h(FieldGroup, { title: 'Date and location' }, () => [
-                    h(Field, { row: true, label: 'Starts' }, () => datePicker('Event start', true)),
-                    h(Field, { row: true, orientation: 'vertical', label: 'Location' }, () => h(Input, {
-                      variant: 'ghost', value: draft.location, placeholder: 'Add a place or video link',
+              ...(mode.value === 'event'
+                ? [
+                    h(FieldGroup, { title: 'Location' }, () => h('div', { 'data-row': '' }, [h(Input, {
+                      variant: 'ghost', size: '3xl', class: s.Text, 'aria-label': 'Location', value: draft.location, placeholder: 'Location or Video Call',
                       'onUpdate:value': (next: string) => update('location', next),
-                    })),
-                  ])
-                : h(FieldGroup, { title: 'Date and time' }, {
-                    default: () => [
-                    h(Field, { row: true, label: 'Due' }, () => datePicker('Reminder due date', draft.includeTime)),
-                    h(Field, { row: true, label: 'Time' }, () => h(Switch, {
-                      color: 'accent', checked: draft.includeTime, 'onUpdate:checked': (next: boolean) => update('includeTime', next),
-                    })),
-                    h(Field, { row: true, label: 'Urgent' }, () => h(Switch, {
-                      color: 'accent', checked: draft.urgent, 'onUpdate:checked': (next: boolean) => update('urgent', next),
-                    })),
-                    ],
-                    footer: () => 'Use the urgent flag for a reminder that needs attention.',
-                  }),
+                    }, { startAdornment: () => h(PlusCircle, { class: s.Adornment, 'aria-hidden': 'true' }) })])),
+                    h(FieldGroup, { title: 'Details' }, () => h('div', { 'data-row': '' }, [h(Textarea, {
+                      variant: 'ghost', rows: 1, autoResize: true, class: s.Text, 'aria-label': 'Notes', value: draft.notes, placeholder: 'Notes',
+                      'onUpdate:value': (next: string) => update('notes', next),
+                    })])),
+                  ]
+                : [
+                    h(FieldGroup, { title: 'Date & Time', bodyClass: s.RowsBody }, {
+                      // Each row: an icon, a title and, when set, its value under the title in the accent (IMG_5434). The
+                      // whole Date row opens the calendar; with Time on, the calendar's time fields set the hour.
+                      default: () => [
+                        h('div', { 'data-row': '', class: s.IconRow }, [
+                          h(Calendar, { class: s.RowIcon, 'aria-hidden': 'true' }),
+                          h('span', { id: `${rowId}-date`, class: s.RowTitle }, 'Date'),
+                          datePicker({ showTime: draft.includeTime, triggerClassName: s.RowTrigger, ariaLabelledby: `${rowId}-date` }),
+                        ]),
+                        h('div', { 'data-row': '', class: s.IconRow }, [
+                          h(Clock, { class: s.RowIcon, 'aria-hidden': 'true' }),
+                          h('span', { class: s.RowText }, [
+                            h('span', { id: `${rowId}-time`, class: s.RowTitle }, 'Time'),
+                            draft.includeTime && start && h('span', { id: `${rowId}-time-value`, class: s.Annotation }, start.toFormat(TIME_FORMAT)),
+                          ]),
+                          h(Switch, {
+                            color: 'accent', checked: draft.includeTime, 'onUpdate:checked': (next: boolean) => update('includeTime', next),
+                            'aria-labelledby': `${rowId}-time`, 'aria-describedby': draft.includeTime && start ? `${rowId}-time-value` : undefined,
+                          }),
+                        ]),
+                        h('div', { 'data-row': '', class: s.IconRow }, [
+                          h(Bell, { class: s.RowIcon, 'aria-hidden': 'true' }),
+                          h('span', { class: s.RowText }, [h('span', { id: `${rowId}-urgent`, class: s.RowTitle }, 'Urgent')]),
+                          h(Switch, {
+                            color: 'accent', checked: draft.urgent, 'onUpdate:checked': (next: boolean) => update('urgent', next),
+                            'aria-labelledby': `${rowId}-urgent`,
+                          }),
+                        ]),
+                      ],
+                      footer: () => 'Mark this reminder as urgent to set an alarm.',
+                    }),
+                  ]),
               props.pinnedOpen && h('p', { role: 'status', class: s.Status }, status.value),
             ])),
           ]),

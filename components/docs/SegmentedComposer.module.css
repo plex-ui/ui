@@ -25,6 +25,138 @@
   margin: 0;
 }
 
+/* Fields named by their placeholders, each in its own group (Calendar IMG_5433, IMG_5434). */
+.Capsules {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.Text {
+  width: 100%;
+}
+
+.Text[data-slot="input"],
+.Text[data-slot="textarea"] {
+  border-radius: 0;
+}
+
+/* One line of notes is as tall as the 48px title field. */
+.Text[data-slot="textarea"] {
+  --textarea-gutter-y: 14px;
+}
+
+.Adornment {
+  width: 20px;
+  height: 20px;
+  color: var(--color-text-tertiary);
+}
+
+/* The event's day at the start, its hours at the end. */
+.Summary {
+  width: 100%;
+  border-radius: 0;
+}
+
+.Summary [data-date-parts] {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.Summary [data-date-part="date"] {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.Summary [data-date-part="time"] {
+  flex-shrink: 0;
+}
+
+/* A row with a leading icon, a title and, when set, its value under it in the accent; a switch may end it. */
+.IconRow {
+  --composer-row-inline: 16px;
+  --composer-row-block: 10px;
+  --composer-row-icon: 20px;
+  --composer-row-gap: 12px;
+  --composer-row-title-height: 20px;
+  --composer-row-text-start: calc(var(--composer-row-inline) + var(--composer-row-icon) + var(--composer-row-gap));
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--composer-row-gap);
+  min-height: 48px;
+  padding: var(--composer-row-block) var(--composer-row-inline);
+}
+
+.RowIcon {
+  flex: none;
+  width: var(--composer-row-icon);
+  height: 18px;
+  color: var(--color-text-secondary);
+}
+
+.RowText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.RowTitle {
+  line-height: var(--composer-row-title-height);
+}
+
+.Annotation {
+  color: var(--link-primary-text-color);
+  font-size: var(--font-text-sm-size, 13px);
+  line-height: 18px;
+}
+
+/* The whole Date row opens the calendar: the trigger fills the row, its value sits where an annotation does, and
+   the icon and the title lie over it without taking the press. */
+.IconRow:has(> .RowTrigger) {
+  padding: 0;
+}
+
+.IconRow:has(> .RowTrigger) > .RowIcon {
+  position: absolute;
+  inset-inline-start: var(--composer-row-inline);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.IconRow:has(> .RowTrigger) > .RowTitle {
+  position: absolute;
+  inset-inline-start: var(--composer-row-text-start);
+  top: var(--composer-row-block);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.RowTrigger {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  padding: calc(var(--composer-row-block) + var(--composer-row-title-height)) var(--composer-row-inline) var(--composer-row-block) var(--composer-row-text-start);
+  border-radius: 0;
+  color: var(--link-primary-text-color);
+  font-size: var(--font-text-sm-size, 13px);
+  line-height: 18px;
+}
+
+.RowTrigger::before {
+  border-radius: 0;
+}
+
+.RowsBody {
+  overflow: hidden;
+}
+
 @media (max-width: 767px) {
   .Stage {
     padding: 0;
@@ -63,6 +195,71 @@
     margin-block: -2px;
     /* Calendar draws both labels of its header control in the primary color. */
     color: var(--color-text);
+  }
+
+  .Body {
+    --control-size-3xl: var(--field-row-min-height, 52px);
+  }
+
+  .Capsules {
+    /* 26px at 3x between the capsules of IMG_5434 and IMG_5441. */
+    gap: 9px;
+  }
+
+  .Text {
+    --input-gutter: var(--field-row-padding-inline, 16px);
+    --textarea-gutter-x: var(--field-row-padding-inline, 16px);
+    --textarea-line-height: var(--field-row-label-line-height, 22px);
+  }
+
+  /* One line of notes fills a 52px capsule, as the title does (IMG_5441: 52 and 51). */
+  .Text[data-slot="textarea"] {
+    --textarea-gutter-y: 15px;
+  }
+
+  .Summary {
+    padding-inline: var(--field-row-padding-inline, 16px);
+    font-size: var(--field-row-label-font-size, 17px);
+    line-height: var(--field-row-label-line-height, 22px);
+  }
+
+  /* IMG_5434 at 430pt: the glyph centered 34.4 from the cell edge in a 30 box at the 20 margin, the title at 64,
+     17/22 titles and 13/18 values in the accent (the digits of 15:00 stand 9.3 tall), 12 above the title and 16
+     under the value: 68 rows with a value, 52 without. */
+  .IconRow {
+    --composer-row-inline: var(--field-row-padding-inline, 16px);
+    --composer-row-block: 12px;
+    padding-block: 0;
+    --composer-row-icon: 30px;
+    --composer-row-gap: 14px;
+    --composer-row-title-height: var(--field-row-label-line-height, 22px);
+    min-height: var(--field-row-min-height, 52px);
+    font-size: var(--field-row-label-font-size, 17px);
+  }
+
+  .RowIcon {
+    height: 22px;
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+  }
+
+  .Annotation,
+  .RowTrigger {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .RowText:has(> .Annotation) {
+    padding-block: 12px 16px;
+  }
+
+  .RowTrigger {
+    min-height: var(--field-row-description-min-height, 68px);
+    padding-bottom: 16px;
+  }
+
+  /* Separators start under the titles, as in IMG_5434. */
+  .IconRow + .IconRow::after {
+    inset-inline-start: var(--composer-row-text-start);
   }
 
   :global([data-plex-dialog][data-mobile-variant="sheet"]) .Composer > .Body {

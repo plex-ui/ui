@@ -5,14 +5,17 @@ import { DateTime } from 'luxon';
 import { Button, NavigationButton } from '@plexui/ui/components/Button';
 import { DatePicker } from '@plexui/ui/components/DatePicker';
 import { Dialog } from '@plexui/ui/components/Dialog';
-import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { Bell, Calendar, Clock, PlusCircle } from '@plexui/ui/components/Icon';
 import { Input } from '@plexui/ui/components/Input';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Switch } from '@plexui/ui/components/Switch';
 import { Textarea } from '@plexui/ui/components/Textarea';
 import { cloneComposerDrafts, composerModeLabel, createComposerDrafts, type ComposerDraft, type ComposerMode } from './segmentedComposerData';
 import s from './SegmentedComposer.module.css';
+
+const DAY_FORMAT = 'EEE, MMM d, yyyy';
+const TIME_FORMAT = 'HH:mm';
 
 /** Independent mode drafts; Confirm saves only the selected local sample. */
 export function SegmentedComposer({ surface = 'grouped', pinnedOpen = false }: {
@@ -27,7 +30,9 @@ export function SegmentedComposer({ surface = 'grouped', pinnedOpen = false }: {
   const [status, setStatus] = useState('');
   const heading = useRef<HTMLDivElement>(null);
   const formId = `composer-${useId()}`;
+  const rowId = useId();
   const draft = drafts[mode];
+  const start = draft.date ? DateTime.fromISO(draft.date) : null;
   const label = composerModeLabel(mode);
   const update = <Key extends keyof ComposerDraft>(key: Key, value: ComposerDraft[Key]) =>
     setDrafts((current) => ({ ...current, [mode]: { ...current[mode], [key]: value } }));
@@ -79,34 +84,76 @@ export function SegmentedComposer({ surface = 'grouped', pinnedOpen = false }: {
           </Dialog.Header>
           <Dialog.Body className={s.Body}>
             <form id={formId} className={s.Form} onSubmit={confirm}>
-              <FieldGroup aria-label={`${label} details`}>
-                <Field row orientation="vertical" label={`${label} title`}>
-                  <Input variant="ghost" value={draft.title} placeholder={`Name this ${mode}`} onChange={(event) => update('title', event.target.value)} />
-                </Field>
-                <Field row orientation="vertical" label="Notes">
-                  <Textarea variant="ghost" rows={2} autoResize value={draft.notes} placeholder="Add notes" onChange={(event) => update('notes', event.target.value)} />
-                </Field>
-              </FieldGroup>
-              {mode === 'event' ? (
-                  <FieldGroup title="Date and location">
-                    <Field row label="Starts">
-                      <DatePicker value={draft.date ? DateTime.fromISO(draft.date) : null}
-                        onChange={(next) => update('date', next?.toISO() ?? null)} showTime
-                        variant="ghost" pill={false} triggerShowIcon={false} aria-label="Event start" />
-                    </Field>
-                    <Field row orientation="vertical" label="Location">
-                      <Input variant="ghost" value={draft.location} placeholder="Add a place or video link" onChange={(event) => update('location', event.target.value)} />
-                    </Field>
+              {/* Calendar's composer names its fields by their placeholders alone, each field its own capsule
+                  (IMG_5433, IMG_5434). */}
+              <div className={s.Capsules}>
+                <FieldGroup aria-label={`${label} title`}>
+                  <div data-row>
+                    <Input variant="ghost" size="3xl" className={s.Text} aria-label={`${label} title`} value={draft.title}
+                      placeholder="Title" onChange={(event) => update('title', event.target.value)} />
+                  </div>
+                </FieldGroup>
+                {mode === 'event' ? (
+                  <FieldGroup aria-label="Date and time" bodyClassName={s.RowsBody}>
+                    <div data-row>
+                      {/* The summary: the day at the start, the hours at the end. It opens the calendar, whose time
+                          fields set the start; the sample event lasts an hour. */}
+                      <DatePicker value={start} onChange={(next) => update('date', next?.toISO() ?? null)} showTime
+                        triggerDateFormat={DAY_FORMAT} triggerTimeFormat={start ? `${TIME_FORMAT} '– ${start.plus({ hours: 1 }).toFormat(TIME_FORMAT)}'` : TIME_FORMAT}
+                        variant="ghost" size="3xl" pill={false} block triggerShowIcon={false} dropdownIconType="none"
+                        triggerClassName={s.Summary} aria-label="Event date and time" />
+                    </div>
                   </FieldGroup>
+                ) : (
+                  <FieldGroup aria-label="Notes">
+                    <div data-row>
+                      <Textarea variant="ghost" rows={1} autoResize className={s.Text} aria-label="Notes" value={draft.notes}
+                        placeholder="Notes" onChange={(event) => update('notes', event.target.value)} />
+                    </div>
+                  </FieldGroup>
+                )}
+              </div>
+              {mode === 'event' ? (
+                <>
+                  <FieldGroup title="Location">
+                    <div data-row>
+                      <Input variant="ghost" size="3xl" className={s.Text} aria-label="Location" value={draft.location}
+                        startAdornment={<PlusCircle className={s.Adornment} aria-hidden="true" />}
+                        placeholder="Location or Video Call" onChange={(event) => update('location', event.target.value)} />
+                    </div>
+                  </FieldGroup>
+                  <FieldGroup title="Details">
+                    <div data-row>
+                      <Textarea variant="ghost" rows={1} autoResize className={s.Text} aria-label="Notes" value={draft.notes}
+                        placeholder="Notes" onChange={(event) => update('notes', event.target.value)} />
+                    </div>
+                  </FieldGroup>
+                </>
               ) : (
-                <FieldGroup title="Date and time" footer="Use the urgent flag for a reminder that needs attention.">
-                  <Field row label="Due">
-                    <DatePicker value={draft.date ? DateTime.fromISO(draft.date) : null}
-                      onChange={(next) => update('date', next?.toISO() ?? null)} showTime={draft.includeTime}
-                      variant="ghost" pill={false} triggerShowIcon={false} aria-label="Reminder due date" />
-                  </Field>
-                  <Field row label="Time"><Switch color="accent" checked={draft.includeTime} onCheckedChange={(next) => update('includeTime', next)} /></Field>
-                  <Field row label="Urgent"><Switch color="accent" checked={draft.urgent} onCheckedChange={(next) => update('urgent', next)} /></Field>
+                <FieldGroup title="Date & Time" footer="Mark this reminder as urgent to set an alarm." bodyClassName={s.RowsBody}>
+                  {/* Each row: an icon, a title and, when set, its value under the title in the accent (IMG_5434). The
+                      whole Date row opens the calendar; with Time on, the calendar's time fields set the hour. */}
+                  <div data-row className={s.IconRow}>
+                    <Calendar className={s.RowIcon} aria-hidden="true" />
+                    <span id={`${rowId}-date`} className={s.RowTitle}>Date</span>
+                    <DatePicker value={start} onChange={(next) => update('date', next?.toISO() ?? null)} showTime={draft.includeTime}
+                      triggerDateFormat={DAY_FORMAT} variant="ghost" size="3xl" pill={false} block triggerShowIcon={false}
+                      dropdownIconType="none" triggerClassName={s.RowTrigger} aria-labelledby={`${rowId}-date`} />
+                  </div>
+                  <div data-row className={s.IconRow}>
+                    <Clock className={s.RowIcon} aria-hidden="true" />
+                    <span className={s.RowText}>
+                      <span id={`${rowId}-time`} className={s.RowTitle}>Time</span>
+                      {draft.includeTime && start && <span id={`${rowId}-time-value`} className={s.Annotation}>{start.toFormat(TIME_FORMAT)}</span>}
+                    </span>
+                    <Switch color="accent" checked={draft.includeTime} onCheckedChange={(next) => update('includeTime', next)}
+                      aria-labelledby={`${rowId}-time`} aria-describedby={draft.includeTime && start ? `${rowId}-time-value` : undefined} />
+                  </div>
+                  <div data-row className={s.IconRow}>
+                    <Bell className={s.RowIcon} aria-hidden="true" />
+                    <span className={s.RowText}><span id={`${rowId}-urgent`} className={s.RowTitle}>Urgent</span></span>
+                    <Switch color="accent" checked={draft.urgent} onCheckedChange={(next) => update('urgent', next)} aria-labelledby={`${rowId}-urgent`} />
+                  </div>
                 </FieldGroup>
               )}
               {pinnedOpen && <p role="status" className={s.Status}>{status}</p>}

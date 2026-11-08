@@ -398,9 +398,9 @@ export default function ViewPreferences() {
 
 ### Segmented composer header
 
-A Close action, an Event/Reminder segmented control, and a Save action share the sheet header. Switching the segment changes the fields while preserving each draft. Save commits the selected local sample; Close, Escape, or outside dismissal discards unsaved edits. These sample values do not create calendar items. In Phone previews the sheet stays open after Save or Cancel so its state remains inspectable.
+A Close action, an Event/Reminder segmented control, and a Save action share the sheet header. Switching the segment changes the fields while preserving each draft. The fields follow the native composer: the title and the notes are named by their placeholders, each in its own group; an event shows its day and hours in one row that opens the calendar; a reminder lists Date, Time and Urgent with an icon each, a set value under its title in the accent, and a switch for the time. The whole Date row opens the calendar, whose time fields set the hour while Time is on. Save commits the selected local sample; Close, Escape, or outside dismissal discards unsaved edits. These sample values do not create calendar items. In Phone previews the sheet stays open after Save or Cancel so its state remains inspectable.
 
-Copy the [SegmentedComposer helper](https://github.com/plex-ui/ui/blob/master/components/docs/SegmentedComposer.tsx), [draft data](https://github.com/plex-ui/ui/blob/master/components/docs/segmentedComposerData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SegmentedComposer.module.css) together, preserving their relative paths. The helper uses Dialog, SegmentedControl, FieldGroup, Field, Input, Textarea, DatePicker and Switch.
+Copy the [SegmentedComposer helper](https://github.com/plex-ui/ui/blob/master/components/docs/SegmentedComposer.tsx), [draft data](https://github.com/plex-ui/ui/blob/master/components/docs/segmentedComposerData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SegmentedComposer.module.css) together, preserving their relative paths. The helper uses Dialog, SegmentedControl, FieldGroup, Input, Textarea, DatePicker, Switch and Icon.
 
 <ComponentPreview phonePresentation="screen" phoneDialog code={`import { SegmentedComposer } from './SegmentedComposer';
 
