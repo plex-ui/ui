@@ -1,0 +1,181 @@
+import { readFileSync } from "node:fs"
+import postcss, { type Rule } from "postcss"
+import { describe, expect, test } from "vitest"
+
+// Plan 169g: Button on a phone. A solid, soft or outline label is Semibold and a ghost one Regular, as iOS 26
+// screens set them (IMG_5432, IMG_5516, IMG_5437, IMG_5494, IMG_5453; the kit draws them all Regular); an icon-only
+// button is the kit's symbol button, a circle as tall as a text button of its size, with or without `uniform`
+// (Button - Content Area 40:58696; owner 08.11: uniform made every size 44). The docs pages show a phone as screens of
+// these buttons, the same in React and Vue.
+
+const root = process.cwd()
+const read = (path: string) => readFileSync(`${root}/${path}`, "utf8")
+
+/** The declarations of the rules for `selector` in a stylesheet, inside the phone media query when `phone`. */
+const declsOf = (path: string, selector: string, phone: boolean) => {
+  const decls: Record<string, string> = {}
+  postcss.parse(read(path)).walkRules((rule) => {
+    if (rule.selector !== selector) return
+    let parent = rule.parent
+    let inPhone = false
+    while (parent) {
+      if (parent.type === "atrule" && (parent as unknown as { name: string; params: string }).name === "media"
+        && (parent as unknown as { params: string }).params === "(max-width: 767px)") inPhone = true
+      parent = parent.parent as typeof parent
+    }
+    if (inPhone !== phone) return
+    rule.each((node) => { if (node.type === "decl") decls[node.prop] = node.value })
+  })
+  return decls
+}
+
+describe("Button on a phone", () => {
+  const touch = "packages/styles/src/styles/touch.css"
+
+  const steps = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
+
+  test("a filled, tinted or gray button is Semibold, on the button itself with no specificity, a disabled link too", () => {
+    expect(declsOf(touch, ':where(:is(button, a, [role="link"])[data-variant]:not([data-variant="ghost"])[data-color][data-size])', true))
+      .toEqual({ "--button-font-weight": "var(--font-weight-semibold)" })
+  })
+
+  test("the root keeps Regular for ghost buttons and drops the gutters of an icon-only button; uniform takes no size of its own", () => {
+    const rootDecls = declsOf(touch, "html:root", true)
+    expect(rootDecls).toMatchObject({
+      "--button-font-weight": "var(--font-weight-normal)",
+      "--button-icon-only-gutter-scale": "0",
+    })
+    expect(rootDecls).not.toHaveProperty("--button-icon-only-aspect-ratio")
+    for (const step of steps) expect(rootDecls, step).not.toHaveProperty(`--button-uniform-size-${step}`)
+  })
+
+  test("a uniform button falls back to the size of a text button of its step, so a component's own size reaches it", () => {
+    const css = read("packages/styles/src/components/Button/Button.module.css")
+    for (const step of steps) {
+      expect(css, step).toContain(`--button-uniform-size: var(--button-uniform-size-${step}, var(--button-size-${step}, var(--control-size-${step})));`)
+    }
+  })
+
+  test("bars and rows that want a 44px uniform button set it themselves", () => {
+    const page = read("packages/styles/src/components/Page/Page.module.css")
+    expect(page).toMatch(/\.Leading > :is\(button, a\),\n\s+\.Actions > :is\(button, a\) \{\n\s+--button-size: 44px;[\s\S]*?--button-uniform-size: 44px;/)
+    expect(read("packages/styles/src/components/Toolbar/Toolbar.module.css")).toContain("--button-uniform-size: var(--toolbar-item-size);")
+    expect(declsOf("packages/styles/src/components/DataTable/DataTable.module.css", ".PaginationButtons", false))
+      .toMatchObject({ "--button-uniform-size-sm": "var(--data-table-control-target, var(--control-size-sm))" })
+    expect(declsOf("components/docs/ComponentPreview.module.css", ".ResetPreview", true))
+      .toMatchObject({ "--button-uniform-size-xs": "var(--control-size-sm)" })
+  })
+
+  test("a desktop keeps its icon-only buttons: their tokens are set only inside the phone query", () => {
+    const sources = ["packages/styles/src/styles/touch.css", "packages/styles/src/components/Button/Button.module.css"]
+    for (const source of sources) {
+      postcss.parse(read(source)).walkDecls((decl) => {
+        if (!decl.prop.startsWith("--button-icon-only-") || decl.prop === "--button-icon-only-inset") return
+        let parent = decl.parent
+        let inPhone = false
+        while (parent) {
+          if (parent.type === "atrule" && (parent as unknown as { params: string }).params === "(max-width: 767px)") inPhone = true
+          parent = parent.parent as typeof parent
+        }
+        expect(inPhone, `${source} ${decl.prop}`).toBe(true)
+      })
+    }
+  })
+
+  test("an icon-only button is at least as wide as its own size, read on the button itself", () => {
+    expect(declsOf(touch, ':where(:is(button, a, [role="link"])[data-size]:not([data-uniform]))', true))
+      .toEqual({ "--button-icon-only-min-width": "var(--button-size)" })
+  })
+
+  test("a group of uniform buttons alone and a group beside a field keep the 44px of a control", () => {
+    const iconGroup = declsOf(touch, ':where([data-slot="button-group"]):not([data-slot="button-group"] *):not(:has(:is(button, a)[data-size]:not([data-uniform])))', true)
+    for (const step of steps) {
+      const control = ["3xs", "2xs", "xs"].includes(step) ? "sm" : step
+      expect(iconGroup[`--button-uniform-size-${step}`], step).toBe(`var(--control-size-${control})`)
+    }
+    const fieldGroup: Record<string, string> = {}
+    postcss.parse(read(touch)).walkRules((rule) => {
+      if (rule.selector.startsWith(':where([data-slot="button-group"]):has(') && rule.toString().includes("--button-size-sm: var(--control-size-sm)")) {
+        rule.each((node) => { if (node.type === "decl") fieldGroup[node.prop] = node.value })
+      }
+    })
+    // A text button there takes the field's height, and a uniform one follows it (Button.module.css)
+    for (const step of ["sm", "md", "lg", "xl", "2xl", "3xl"]) expect(fieldGroup[`--button-size-${step}`], step).toBe(`var(--control-size-${step})`)
+    for (const step of ["3xs", "2xs", "xs"]) expect(fieldGroup[`--button-uniform-size-${step}`], step).toBe("var(--control-size-sm)")
+  })
+
+  test("an icon-only button without uniform weighs as .Button alone and reads the phone tokens", () => {
+    const sheet = postcss.parse(read("packages/styles/src/components/Button/Button.module.css"))
+    let iconOnly: Rule | undefined
+    sheet.walkRules((rule) => {
+      if (rule.selector === "&:where(:not([data-uniform]):has(> .ButtonInner > svg:only-child))") iconOnly = rule
+    })
+    expect(iconOnly, "icon-only rule").toBeDefined()
+    expect((iconOnly!.parent as Rule).selector).toBe(".Button")
+    const decls: Record<string, string> = {}
+    iconOnly!.each((node) => { if (node.type === "decl") decls[node.prop] = node.value })
+    expect(Object.keys(decls).sort()).toEqual(["--button-icon-only-inset", "min-width", "padding-inline"])
+    expect(decls["min-width"]).toBe("var(--button-icon-only-min-width, auto)")
+    expect(decls["padding-inline"]).toBe("calc(var(--button-gutter) * var(--button-icon-only-gutter-scale, 1))")
+    const pill = iconOnly!.nodes.find((node): node is Rule => node.type === "rule" && node.selector === "&:where([data-pill])")
+    expect(pill?.toString()).toContain("var(--control-gutter-pill-scaling) * var(--button-icon-only-gutter-scale, 1)")
+    // Optical alignment pulls the icon to the edge by what stands around it: the gutter, or half of what the circle
+    // leaves on a phone; it outweighs the text button rules, pill included
+    for (const [side, prop] of [["start", "margin-inline-start"], ["end", "margin-inline-end"]] as const) {
+      const optical = iconOnly!.nodes.find((node): node is Rule => node.type === "rule" && node.selector === `&[data-optically-align="${side}"]`)
+      expect(optical?.toString(), side).toContain(`${prop}: calc(var(--button-icon-only-inset) * -1)`)
+    }
+  })
+
+  test("a Field row action sets its weight on its buttons, so the filled weight does not replace it", () => {
+    expect(declsOf("packages/styles/src/components/Field/Field.module.css", '.Action :where(button, a, [role="link"])', false))
+      .toEqual({ "--button-font-weight": "var(--field-row-action-font-weight)" })
+  })
+})
+
+describe("Button docs on a phone", () => {
+  const react = read("components/docs/ButtonDemos.tsx")
+  const vue = read("content/vue/components/button.mdx")
+  const pages = [read("content/components/button.mdx"), vue]
+
+  test("Selected is desktop only in React and Vue, Inert is told in States; Optical alignment has a phone view", () => {
+    for (const page of pages) {
+      expect(page).not.toContain("\n### Inert\n")
+      // The old #inert link leads to States, where inert is told
+      expect(page.indexOf('<span id="inert" />')).toBeGreaterThan(-1)
+      expect(page.indexOf('<span id="inert" />')).toBeLessThan(page.indexOf("\n### States\n"))
+      for (const title of ["Selected", "Optical alignment"]) {
+        const section = page.split(`\n### ${title}\n`)[1]
+        expect(section, title).toBeDefined()
+        const preview = section.match(/<ComponentPreview\b[^\n]*/)?.[0]
+        if (title === "Optical alignment") expect(preview, title).not.toContain('phonePresentation="none"')
+        else expect(preview, title).toContain('phonePresentation="none"')
+      }
+    }
+    expect(react).not.toContain("ButtonInertDemo")
+    // A soft button under text starts its label where the text does, 40px in, as Forgot your password? under a
+    // sign-in (IMG_5505); a phone-only control turns the offset off
+    expect(react).toContain("<Button color=\"secondary\" variant=\"soft\" size=\"xl\" opticallyAlign={align === 'start' ? 'start' : undefined}>")
+    expect(vue).toContain("<Button color=\"secondary\" variant=\"soft\" size=\"xl\" :optically-align=\"opticallyAlign === 'start' ? 'start' : undefined\">Forgot your password?</Button>")
+    for (const source of [react, vue]) expect(source).toContain("flex w-full flex-col items-start gap-4 px-6")
+    expect(vue).toContain('{ name: "opticallyAlign", type: "select", options: ["none", "start"], default: "start", phoneOnly: true }')
+  })
+
+  test("the actions of a screen are a stack 11px apart at its top, next to the controls, in React and Vue", () => {
+    for (const source of [react, vue]) {
+      expect(source).toContain('flex w-full flex-col items-center gap-[11px]')
+      for (const label of ["Other Options", "Not Now"]) expect(source).toContain(label)
+    }
+    // Owner 08.11: the buttons stand up near the example's toggles, not at the foot of the screen
+    expect(read("components/docs/ComponentPreview.module.css")).not.toContain("data-phone-actions")
+    expect(react).not.toContain("data-phone-actions")
+    expect(vue).not.toContain("data-phone-actions")
+  })
+
+  test("Sizing shows the three phone sizes with the same names in React and Vue", () => {
+    for (const [size, name, height] of [["sm", "Small", 28], ["md", "Medium", 34], ["xl", "Large", 50]] as const) {
+      expect(react).toContain(`{ size: '${size}', name: '${name}', height: ${height} }`)
+      expect(vue).toContain(`{ size: '${size}', name: '${name}', height: ${height} }`)
+    }
+  })
+})

@@ -17,6 +17,9 @@ export const docs = defineDocs({
  *  pages of a component share it. */
 const componentPageSchema = frontmatterSchema.extend({
   metaDescription: z.string().optional(),
+  /** The phone view of this page is not adapted yet: a desktop page hides its Phone switches, so no example
+   *  opens a broken or slow phone (owner 08.11). The page itself stays responsive on a phone. */
+  phoneDraft: z.boolean().optional(),
 });
 
 /** Components live at top-level URLs (/components/*) instead of

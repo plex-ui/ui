@@ -671,6 +671,22 @@ describe("Compact Phone viewport", () => {
     expect(view.queryByLabelText("All examples")).toBeNull()
   })
 
+  test("a page whose phone view is not ready (phoneDraft) shows no Phone switch", () => {
+    const page = (phoneViews: boolean) => (
+      <PreviewViewportProvider phoneViews={phoneViews}>
+        <PreviewViewportControl />
+        <ComponentPreview previewId="draft"><span>Draft example</span></ComponentPreview>
+      </PreviewViewportProvider>
+    )
+    const view = render(page(false))
+    expect(view.queryByLabelText("All examples")).toBeNull()
+    expect(view.queryByLabelText("Phone")).toBeNull()
+    expect(view.getByText("Draft example")).toBeTruthy()
+    view.rerender(page(true))
+    expect(view.getByLabelText("All examples")).toBeTruthy()
+    expect(view.getAllByLabelText("Phone").length).toBeGreaterThan(0)
+  })
+
   test("phoneDialog keeps its screen presentation without an explicit mode", () => {
     const view = render(<PhonePage><ComponentPreview previewId="dialog" phoneDialog><span>Dialog</span></ComponentPreview></PhonePage>)
     fireEvent.click(view.getByText("Use Phone"))

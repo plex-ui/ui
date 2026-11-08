@@ -58,24 +58,31 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); document.documentElement.style.removeProperty('--breakpoint-md'); });
 
 describe.each(['React', 'Vue'])('%s state-only demo consolidation', (framework) => {
-  test('loading blocks the same button without visual disablement; disabled remains independent', async () => {
+  test('loading blocks the same buttons without visual disablement; disabled remains independent', async () => {
     const view = render(framework === 'React' ? <ButtonStatesDemo /> : <VueDemo {...button} />);
     await interact(() => {});
     const page = within(view.container);
-    const submit = page.getByRole<HTMLButtonElement>('button', { name: 'Submit' });
-    expect(submit.disabled).toBe(false);
+    // Every variant takes the states (owner 08.11), so the example shows all four
+    const names = ['Solid', 'Soft', 'Outline', 'Ghost'];
+    const buttons = names.map((name) => page.getByRole<HTMLButtonElement>('button', { name }));
+    expect(buttons.map((b) => b.dataset.variant)).toEqual(['solid', 'soft', 'outline', 'ghost']);
+    for (const b of buttons) expect(b.disabled).toBe(false);
     await interact(() => fireEvent.click(page.getByRole('switch', { name: 'loading' })));
-    expect(submit.disabled).toBe(true);
-    expect(submit.hasAttribute('data-loading')).toBe(true);
-    expect(submit.hasAttribute('data-disabled')).toBe(false);
+    for (const b of buttons) {
+      expect(b.disabled).toBe(true);
+      expect(b.hasAttribute('data-loading')).toBe(true);
+      expect(b.hasAttribute('data-disabled')).toBe(false);
+    }
     await interact(() => fireEvent.click(page.getByRole('switch', { name: 'disabled' })));
-    expect(submit.hasAttribute('data-disabled')).toBe(true);
+    for (const b of buttons) expect(b.hasAttribute('data-disabled')).toBe(true);
     await interact(() => fireEvent.click(page.getByRole('switch', { name: 'loading' })));
-    expect(submit.disabled).toBe(true);
-    expect(submit.hasAttribute('data-loading')).toBe(false);
+    for (const b of buttons) {
+      expect(b.disabled).toBe(true);
+      expect(b.hasAttribute('data-loading')).toBe(false);
+    }
     await interact(() => fireEvent.click(page.getByRole('switch', { name: 'disabled' })));
-    expect(submit.disabled).toBe(false);
-    expect(page.getByRole('button', { name: 'Submit' })).toBe(submit);
+    for (const b of buttons) expect(b.disabled).toBe(false);
+    names.forEach((name, i) => expect(page.getByRole('button', { name })).toBe(buttons[i]));
   });
 
   test('date input preserves a typed date through disabled and accepts edits after re-enabling', async () => {

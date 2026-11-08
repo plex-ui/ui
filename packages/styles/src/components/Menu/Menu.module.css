@@ -191,7 +191,7 @@
 }
 
 .ItemActions {
-  /* An action keeps its xs face on a phone, where touch.css makes an xs icon button 44px. */
+  /* An action keeps its xs face on a phone, where a uniform xs button is otherwise the kit's 28px circle (touch.css). */
   --button-uniform-size-xs: var(--control-size-xs);
   --button-icon-size-xs: var(--control-icon-size-sm);
 

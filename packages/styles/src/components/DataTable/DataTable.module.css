@@ -120,6 +120,10 @@
 }
 
 .PaginationButtons {
+  /* On a phone the page buttons keep the 44px target of the table's other controls, the page size select
+     beside them; a uniform button is otherwise a circle of its size there (touch.css) */
+  --button-uniform-size-sm: var(--data-table-control-target, var(--control-size-sm));
+
   display: flex;
   flex-shrink: 0;
   align-items: center;

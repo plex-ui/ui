@@ -60,13 +60,15 @@ export function ComponentPreview({
   phoneOnly?: boolean;
   resizable?: boolean;
 }) {
-  const phonePresentation = requestedPhonePresentation ?? 'screen';
+  const pageViewport = usePreviewViewport();
+  // A page whose phone view is not ready shows no Phone switch on a desktop (frontmatter `phoneDraft`); its own
+  // phone iframe still renders the example, as a phone-only example does.
+  const phonePresentation = !pageViewport.phoneViews && !phoneOnly ? 'none' : requestedPhonePresentation ?? 'screen';
   // An example that does not draw its own screen stands on a phone page (ComponentPreview.module.css)
   const phonePage = requestedPhonePresentation === undefined && !phoneDialog && !phoneOnly;
   const [mode, setMode] = useState<Mode>('preview');
   const [resetRevision, setResetRevision] = useState(0);
   const [phoneActivation, setPhoneActivation] = useState(0);
-  const pageViewport = usePreviewViewport();
   const [override, setOverride] = useState<{ viewport: Viewport; revision: number } | null>(null);
   const viewport = phoneOnly ? 'phone' : override?.revision === pageViewport.revision ? override.viewport : pageViewport.viewport;
   const setViewport = (next: Viewport) => setOverride({ viewport: next, revision: pageViewport.revision });

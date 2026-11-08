@@ -69,9 +69,12 @@ html.dark .PreviewInner {
     display: none !important;
   }
 
-  /* The reset is a 44px icon button on a phone with touch.css; it overhangs the 32px row of
-     the view switch rather than making every preview taller. */
+  /* The reset is a 44px icon button on a phone with touch.css, the target of a bar button (a uniform
+     button is otherwise a circle of its size there); it overhangs the 32px row of the view switch rather
+     than making every preview taller. */
   .ResetPreview {
+    --button-uniform-size-xs: var(--control-size-sm);
+
     margin-block: calc((32px - var(--button-size)) / 2);
   }
 }

@@ -106,6 +106,7 @@ export default async function Page(props: {
       full={page.data.full}
       className={pageClassName}
       footer={{ enabled: false }}
+      phoneViews={!page.data.phoneDraft}
     >
       <script
         type="application/ld+json"

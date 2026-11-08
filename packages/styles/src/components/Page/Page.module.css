@@ -310,6 +310,9 @@
   .Leading > :is(button, a),
   .Actions > :is(button, a) {
     --button-size: 44px;
+    /* A uniform bar button is the 44px glass circle of a bar, as a Toolbar's; elsewhere on a phone a uniform
+       button is the circle of its step (touch.css) */
+    --button-uniform-size: 44px;
     --button-font-size: var(--toolbar-label-font-size);
     --button-line-height: var(--toolbar-label-line-height);
     --button-font-weight: var(--toolbar-label-font-weight);

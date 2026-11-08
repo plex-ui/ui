@@ -205,7 +205,8 @@ describe("a Phone preview is a phone screen in a phone frame (plan 164)", () => 
     readdirSync(`${root}/${dir}`).filter((file) => file.endsWith(".mdx")).map((file) => `${dir}/${file}`))
 
   test("by default, and an example that is not a screen itself stands on a phone page", () => {
-    expect(source).toContain("const phonePresentation = requestedPhonePresentation ?? 'screen';")
+    // A page whose phone view is not ready (frontmatter phoneDraft, plan 169h) has no phone examples on a desktop
+    expect(source).toContain("const phonePresentation = !pageViewport.phoneViews && !phoneOnly ? 'none' : requestedPhonePresentation ?? 'screen';")
     expect(source).toContain("const phonePage = requestedPhonePresentation === undefined && !phoneDialog && !phoneOnly;")
     expect(source).toContain("data-preview-phone-page={phonePage || undefined}")
   })

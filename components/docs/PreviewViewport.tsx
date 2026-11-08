@@ -10,16 +10,19 @@ type ViewportContext = typeof initialViewport & {
   change: (viewport: PreviewViewport) => void;
   hasPhoneExamples: boolean;
   registerPhoneExample: () => () => void;
+  /** False on a page whose phone view is not ready (`phoneDraft`): its examples show no Phone switch. */
+  phoneViews: boolean;
 };
 const PreviewViewportContext = createContext<ViewportContext>({
   ...initialViewport,
   change: () => {},
   hasPhoneExamples: false,
   registerPhoneExample: () => () => {},
+  phoneViews: true,
 });
 
 /** A page-wide default; an individual example may still be compared independently. */
-export function PreviewViewportProvider({ children }: { children: ReactNode }) {
+export function PreviewViewportProvider({ children, phoneViews = true }: { children: ReactNode; phoneViews?: boolean }) {
   const [state, change] = useReducer(
     (current: typeof initialViewport, viewport: PreviewViewport) => ({ viewport, revision: current.revision + 1 }),
     initialViewport,
@@ -29,7 +32,7 @@ export function PreviewViewportProvider({ children }: { children: ReactNode }) {
     setPhoneExamples((count) => count + 1);
     return () => setPhoneExamples((count) => count - 1);
   }, []);
-  return <PreviewViewportContext.Provider value={{ ...state, change, hasPhoneExamples: phoneExamples > 0, registerPhoneExample }}>{children}</PreviewViewportContext.Provider>;
+  return <PreviewViewportContext.Provider value={{ ...state, change, hasPhoneExamples: phoneExamples > 0, registerPhoneExample, phoneViews }}>{children}</PreviewViewportContext.Provider>;
 }
 
 export function usePreviewViewport() {

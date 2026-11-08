@@ -5,7 +5,7 @@ import { Button } from '@plexui/ui/components/Button';
 import { Switch } from '@plexui/ui/components/Switch';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Popover } from '@plexui/ui/components/Popover';
-import { Mail, PlusLg, ArrowRight } from '@plexui/ui/components/Icon';
+import { Mail, PlusLg, ArrowRight, CompareArrows, Delete, Clear } from '@plexui/ui/components/Icon';
 import { useDemoControlSync } from './PreviewEmbed';
 import { usePhoneRows } from './PhoneRows';
 
@@ -87,14 +87,31 @@ const ICON_SIZE_OPTIONS = ['sm', 'md', 'lg', 'xl', '2xl'] as const;
 const VARIANT_OPTIONS = ['solid', 'soft', 'outline', 'ghost'] as const;
 const OPTIONAL_SIZE_OPTIONS = ['auto', ...GUTTER_OPTIONS] as const;
 const OPTIONAL_ICON_SIZE_OPTIONS = ['auto', ...ICON_SIZE_OPTIONS] as const;
-const COLOR_MATRIX_VARIANTS = ['soft', 'solid', 'outline', 'ghost'] as const;
-// On a phone (touch.css) a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34
-// (md, lg) and large 50 (xl to 3xl), always a capsule, with the gutters and icon of its size. The phone examples
-// show those three sizes and the two colors of the iOS buttons: accent (primary) and destructive (danger).
-const PHONE_SIZE_OPTIONS = ['sm', 'md', 'xl'] as const;
+// On a phone (touch.css) a button takes one of the three heights of iOS buttons, from the kit's Button - Content
+// Area: small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule. The phone examples
+// show those three sizes and the two colors of iOS buttons: accent (primary) and destructive (danger).
+const PHONE_SIZES = [
+  { size: 'sm', name: 'Small', height: 28 },
+  { size: 'md', name: 'Medium', height: 34 },
+  { size: 'xl', name: 'Large', height: 50 },
+] as const;
 const PHONE_COLOR_OPTIONS: readonly (typeof COLOR_OPTIONS)[number][] = ['primary', 'danger'];
 // A color chosen on a desktop that the phone examples do not offer shows as primary there
 const phoneColorOf = (color: (typeof COLOR_OPTIONS)[number]) => (PHONE_COLOR_OPTIONS.includes(color) ? color : 'primary');
+const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+const labelStyle: React.CSSProperties = { color: 'var(--color-text-tertiary)' };
+
+/** The actions of a phone screen, large buttons 11px apart (IMG_5432, IMG_5516). They stand at the top of the screen,
+    next to the example's controls, not at its foot as iOS pins them (owner 08.11). */
+function PhoneActions({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex-1 flex flex-col w-full" data-demo-stage>
+      <div className="flex w-full flex-col items-center gap-[11px]">
+        {children}
+      </div>
+    </div>
+  );
+}
 const COLOR_OPTIONS = [
   'primary',
   'secondary',
@@ -134,90 +151,87 @@ function ButtonColorControl({ value, onChange, options = COLOR_OPTIONS }: { valu
   );
 }
 
-export function ButtonColorsDemo() {
-  const phone = usePhoneRows();
-  // Phone: the two colors of iOS buttons; eight columns would not fit beside the variant names
-  if (phone) {
+export function ButtonOverviewDemo() {
+  // Phone: the actions of a screen, Filled, Gray and Plain (IMG_5516 Scan QR Code over Other Options,
+  // IMG_5432 Continue over the plain Create Pass Manually), at the large size iOS gives a screen's actions
+  if (usePhoneRows()) {
     return (
-      <div
-        className="grid gap-6 items-center justify-center pt-1 pb-6"
-        style={{ gridTemplateColumns: `auto repeat(${PHONE_COLOR_OPTIONS.length}, min-content)` }}
-      >
-        <div />
-        {PHONE_COLOR_OPTIONS.map((color) => (
-          <div key={color} className="text-center text-sm mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
-            {color}
-          </div>
-        ))}
-        {COLOR_MATRIX_VARIANTS.map((variant) => (
-          <React.Fragment key={variant}>
-            <div className="text-right text-sm mr-3" style={{ color: 'var(--color-text-tertiary)' }}>
-              {variant}
-            </div>
-            {PHONE_COLOR_OPTIONS.map((color) => (
-              <div key={`${variant}-${color}`} className="text-center">
-                <Button color={color} variant={variant} size="md">
-                  Submit
-                </Button>
-              </div>
-            ))}
-          </React.Fragment>
-        ))}
-      </div>
+      <PhoneActions>
+        <Button color="primary" size="xl" block>Continue</Button>
+        <Button color="secondary" variant="soft" size="xl" block>Other Options</Button>
+        <Button color="primary" variant="ghost" size="xl" block>Not Now</Button>
+      </PhoneActions>
     );
   }
   return (
+    <div className="flex flex-wrap gap-3">
+      <Button color="primary">Submit</Button>
+      <Button variant="soft"><CompareArrows /> Compare</Button>
+      <Button color="danger" gutterSize="sm" pill={false} aria-label="Delete"><Delete /></Button>
+      <Button variant="outline">Next <ArrowRight /></Button>
+      <Button variant="ghost" color="secondary" uniform aria-label="Clear"><Clear /></Button>
+    </div>
+  );
+}
+
+export function ButtonColorsDemo() {
+  const [color, setColor] = useState<(typeof COLOR_OPTIONS)[number]>('primary');
+  const phone = usePhoneRows();
+  // Phone: every variant as a screen's action, in the two colors of iOS buttons, accent and destructive
+  if (phone) {
+    const phoneColor = phoneColorOf(color);
+    return (
+      <>
+        <div data-demo-controls style={controlsTableStyle}>
+          <ButtonColorControl value={phoneColor} onChange={setColor} options={PHONE_COLOR_OPTIONS} />
+        </div>
+        <PhoneActions>
+          {VARIANT_OPTIONS.map((variant) => (
+            <Button key={variant} color={phoneColor} variant={variant} size="xl" block>
+              {capitalize(variant)}
+            </Button>
+          ))}
+        </PhoneActions>
+      </>
+    );
+  }
+  // Desktop: a color in each row, a variant in each column, so the eight colors fit the preview's width
+  return (
     <div
-      className="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      className="grid gap-x-6 gap-y-4 items-center justify-center pt-1 pb-6"
+      style={{ gridTemplateColumns: `auto repeat(${VARIANT_OPTIONS.length}, min-content)` }}
     >
-      <div className="pt-1 pb-6 px-8 w-max mx-auto">
-        <div
-          className="grid gap-6 items-center justify-center"
-          style={{ gridTemplateColumns: `auto repeat(${COLOR_OPTIONS.length}, min-content)` }}
-        >
-          <div />
-          {COLOR_OPTIONS.map((color) => (
-            <div
-              key={color}
-              className="text-center text-sm mb-1"
-              style={{ color: 'var(--color-text-tertiary)' }}
-            >
-              {color}
+      <div />
+      {VARIANT_OPTIONS.map((variant) => (
+        <div key={variant} className="text-center text-sm mb-1" style={labelStyle}>
+          {variant}
+        </div>
+      ))}
+      {COLOR_OPTIONS.map((rowColor) => (
+        <React.Fragment key={rowColor}>
+          <div className="text-right text-sm mr-3" style={labelStyle}>
+            {rowColor}
+          </div>
+          {VARIANT_OPTIONS.map((variant) => (
+            <div key={`${rowColor}-${variant}`} className="text-center">
+              <Button color={rowColor} variant={variant} size="md">
+                Submit
+              </Button>
             </div>
           ))}
-
-          {COLOR_MATRIX_VARIANTS.map((variant) => (
-            <React.Fragment key={variant}>
-              <div
-                className="text-right text-sm mr-3"
-                style={{ color: 'var(--color-text-tertiary)' }}
-              >
-                {variant}
-              </div>
-              {COLOR_OPTIONS.map((color) => (
-                <div key={`${variant}-${color}`} className="text-center">
-                  <Button color={color} variant={variant} size="md">
-                    Submit
-                  </Button>
-                </div>
-              ))}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
+        </React.Fragment>
+      ))}
     </div>
   );
 }
 
 export function ButtonSizingDemo() {
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('xl');
   const [color, setColor] = useState<(typeof COLOR_OPTIONS)[number]>('primary');
   const [variant, setVariant] = useState<(typeof VARIANT_OPTIONS)[number]>('solid');
-  const [pill, setPill] = useState(true);
+  const [pill, setPill] = useState(false);
   const phone = usePhoneRows();
-  const args = { color, variant, size, pill };
   if (phone) {
+    // Phone: the three sizes of the kit's Button - Content Area, each with its symbol and label, label and symbol
     const phoneColor = phoneColorOf(color);
     return (
       <>
@@ -225,13 +239,15 @@ export function ButtonSizingDemo() {
           <ButtonVariantControl value={variant} onChange={setVariant} />
           <ButtonColorControl value={phoneColor} onChange={setColor} options={PHONE_COLOR_OPTIONS} />
         </div>
-        <div className="flex-1 flex flex-col gap-4 justify-center items-center py-12 w-full" data-demo-stage>
-          {PHONE_SIZE_OPTIONS.map((phoneSize) => (
-            <div key={phoneSize} className="flex gap-2 items-center">
-              <Button color={phoneColor} variant={variant} size={phoneSize}>
-                <Mail /> Button
-              </Button>
-              <Button color={phoneColor} variant={variant} size={phoneSize}>Button</Button>
+        <div className="flex-1 flex flex-col items-center gap-8 w-full" data-demo-stage>
+          {PHONE_SIZES.map(({ size, name, height }) => (
+            <div key={size} className="flex flex-col items-center gap-3">
+              <div className="text-sm" style={labelStyle}>{name} · {size} · {height}px</div>
+              <div className="flex items-center gap-2">
+                <Button color={phoneColor} variant={variant} size={size}><Mail /> Button</Button>
+                <Button color={phoneColor} variant={variant} size={size}>Button</Button>
+                <Button color={phoneColor} variant={variant} size={size} aria-label="Add"><PlusLg /></Button>
+              </div>
             </div>
           ))}
         </div>
@@ -241,35 +257,21 @@ export function ButtonSizingDemo() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
-          <SegmentedControl<(typeof SIZE_OPTIONS)[number]>
-            value={size}
-            onChange={setSize}
-            aria-label="size"
-            size="xs"
-          >
-            {SIZE_OPTIONS.map((s) => (
-              <SegmentedControl.Option key={s} value={s}>
-                {s}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
         <ButtonVariantControl value={variant} onChange={setVariant} />
         <ButtonColorControl value={color} onChange={setColor} />
         <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
       </div>
-      <div className="flex-1 flex flex-col gap-2 justify-center items-center py-12 w-full" data-demo-stage style={{ minHeight: 312 }}>
-        <Button {...args}>
-          <Mail /> Button <ArrowRight />
-        </Button>
-        <Button {...args}>
-          Button <ArrowRight />
-        </Button>
-        <Button {...args}>
-          <Mail /> Button
-        </Button>
-        <Button {...args}>Button</Button>
+      {/* Desktop: every size at once, the size's name before its buttons */}
+      <div className="flex-1 flex justify-center py-10 w-full" data-demo-stage>
+        <div className="grid gap-x-3 gap-y-3 items-center" style={{ gridTemplateColumns: 'auto auto auto' }}>
+          {SIZE_OPTIONS.map((size) => (
+            <React.Fragment key={size}>
+              <div className="text-right text-sm font-mono mr-3" style={labelStyle}>{size}</div>
+              <div><Button color={color} variant={variant} size={size} pill={pill}><Mail /> Button</Button></div>
+              <div><Button color={color} variant={variant} size={size} pill={pill}>Button</Button></div>
+            </React.Fragment>
+          ))}
+        </div>
       </div>
     </>
   );
@@ -284,7 +286,8 @@ export function ButtonIconDemo() {
   const [color, setColor] = useState<(typeof COLOR_OPTIONS)[number]>('primary');
   const phone = usePhoneRows();
   if (phone) {
-    // uniform is left out: on a phone a uniform button is currently 44px at every size
+    // Phone: an icon-only button is the kit's symbol button, a circle of its size (28, 34, 50), with or without
+    // uniform, so the phone has no uniform control (owner 08.11: uniform made every size 44)
     const phoneColor = phoneColorOf(color);
     return (
       <>
@@ -292,12 +295,15 @@ export function ButtonIconDemo() {
           <ButtonVariantControl value={variant} onChange={setVariant} />
           <ButtonColorControl value={phoneColor} onChange={setColor} options={PHONE_COLOR_OPTIONS} />
         </div>
-        <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
-          <div className="flex gap-2 items-center">
-            {PHONE_SIZE_OPTIONS.map((phoneSize) => (
-              <Button key={phoneSize} color={phoneColor} size={phoneSize} variant={variant} aria-label="Add">
-                <PlusLg />
-              </Button>
+        <div className="flex-1 flex justify-center w-full" data-demo-stage>
+          <div className="flex items-end gap-8">
+            {PHONE_SIZES.map(({ size: phoneSize, height }) => (
+              <div key={phoneSize} className="flex flex-col items-center gap-3">
+                <Button color={phoneColor} size={phoneSize} variant={variant} aria-label="Add">
+                  <PlusLg />
+                </Button>
+                <div className="text-sm" style={labelStyle}>{phoneSize} · {height}px</div>
+              </div>
             ))}
           </div>
         </div>
@@ -372,51 +378,97 @@ export function ButtonIconDemo() {
 
 export function ButtonBlockDemo() {
   const [block, setBlock] = useState(true);
-  // On a phone the main action of a screen is the large 50px button of iOS
   const phone = usePhoneRows();
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="block" value={block} onChange={setBlock} />
       </div>
-      <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
-        <div className="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
-          <Button color="primary" size={phone ? 'xl' : 'lg'} block={block}>
-            Continue
-          </Button>
+      {phone ? (
+        // Phone: a screen's main action, the large button (IMG_5432 Continue)
+        <PhoneActions>
+          <Button color="primary" size="xl" block={block}>Continue</Button>
+        </PhoneActions>
+      ) : (
+        <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
+          <div className="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
+            <Button color="primary" size="lg" block={block}>
+              Continue
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
 
+// Every variant takes the states, so the example shows all four (owner 08.11)
 export function ButtonStatesDemo() {
   const [disabled, setDisabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const phone = usePhoneRows();
+  const buttons = VARIANT_OPTIONS.map((variant) => (
+    <Button key={variant} color="primary" variant={variant} size={phone ? 'xl' : undefined} block={phone} disabled={disabled} loading={loading}>
+      {capitalize(variant)}
+    </Button>
+  ));
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
         <DemoControlBoolean name="loading" value={loading} onChange={setLoading} />
       </div>
-      <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
-        <Button color="primary" disabled={disabled} loading={loading}>Submit</Button>
-      </div>
+      {phone ? (
+        // Phone: a screen's actions, disabled until the form is complete (IMG_5500, IMG_5504)
+        <PhoneActions>{buttons}</PhoneActions>
+      ) : (
+        <div className="flex-1 flex flex-wrap items-center justify-center gap-3 py-12 w-full" data-demo-stage>
+          {buttons}
+        </div>
+      )}
     </>
   );
 }
 
-export function ButtonInertDemo() {
-  const [inert, setInert] = useState(true);
+export function ButtonOpticalAlignmentDemo() {
+  const [align, setAlign] = useState<'none' | 'start'>('start');
+  // Phone: a button under text starts its label where the text does once its gutter is offset, as Forgot your
+  // password? under the Apple Account sign-in (IMG_5505: the title, the text, the fields and the link start 40pt
+  // from the screen's edge, the link at 17pt, the large size). A soft button shows its capsule reaching past the text
+  // (owner 08.11). It is as wide as its label: a full-width button centers its label, which leaves nothing to align.
+  if (usePhoneRows()) {
+    return (
+      <>
+        <div data-demo-controls style={controlsTableStyle}>
+          <DemoControlRow name="opticallyAlign">
+            <SegmentedControl<'none' | 'start'> value={align} onChange={setAlign} aria-label="opticallyAlign" size="xs">
+              <SegmentedControl.Option value="none">none</SegmentedControl.Option>
+              <SegmentedControl.Option value="start">start</SegmentedControl.Option>
+            </SegmentedControl>
+          </DemoControlRow>
+        </div>
+        <div className="flex-1 flex flex-col w-full" data-demo-stage>
+          <div className="flex w-full flex-col items-start gap-4 px-6">
+            <p className="text-[17px] leading-[22px] text-secondary">Sign in with your email or phone number to continue.</p>
+            <Button color="secondary" variant="soft" size="xl" opticallyAlign={align === 'start' ? 'start' : undefined}>
+              Forgot your password?
+            </Button>
+          </div>
+        </div>
+      </>
+    );
+  }
   return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="inert" value={inert} onChange={setInert} />
+    <div className="flex flex-col gap-3">
+      <div className="border border-dashed border-alpha/20 rounded-md py-4 px-6">
+        <div className="mb-2 text-secondary text-sm">Default gutters</div>
+        <Button variant="ghost">Ghost button</Button>
       </div>
-      <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
-        <Button color="primary" inert={inert}>Submit</Button>
+      <div className="border border-dashed border-alpha/20 rounded-md py-4 px-6">
+        <div className="mb-2 text-secondary text-sm">{'opticallyAlign="start"'}</div>
+        <Button variant="ghost" opticallyAlign="start">Ghost button</Button>
       </div>
-    </>
+    </div>
   );
 }
 

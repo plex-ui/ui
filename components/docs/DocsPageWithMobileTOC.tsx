@@ -32,6 +32,7 @@ export function DocsPageWithMobileTOC({
   full,
   className,
   footer,
+  phoneViews,
   children,
 }: {
   toc: TOCItemType[];
@@ -39,12 +40,14 @@ export function DocsPageWithMobileTOC({
   full?: boolean;
   className?: string;
   footer?: { enabled: boolean };
+  /** False when the page's phone view is not ready (frontmatter `phoneDraft`) */
+  phoneViews?: boolean;
   children: ReactNode;
 }) {
   const popoverEnabled = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot);
 
   return (
-    <PreviewViewportProvider>
+    <PreviewViewportProvider phoneViews={phoneViews}>
     <DocsPage
       toc={showRightToc ? toc : []}
       tableOfContent={{ enabled: showRightToc }}

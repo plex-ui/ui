@@ -28,19 +28,20 @@
   }
 
   /* A content button group keeps one height (connected segments have no iOS control of their own).
-     Beside text buttons its icon-only buttons take their 28, 34 or 50px instead of the 44px of a
-     toolbar button; a group of icon-only buttons stays a 44px toolbar group. Beside a text field
-     or a select every button takes the field's height, 44px from 3xs (see the fields below). */
-  :where([data-slot="button-group"]):has(:is(button, a)[data-size]:not([data-uniform])) {
-    --button-uniform-size-3xs: var(--button-size-3xs);
-    --button-uniform-size-2xs: var(--button-size-2xs);
-    --button-uniform-size-xs: var(--button-size-xs);
-    --button-uniform-size-sm: var(--button-size-sm);
-    --button-uniform-size-md: var(--button-size-md);
-    --button-uniform-size-lg: var(--button-size-lg);
-    --button-uniform-size-xl: var(--button-size-xl);
-    --button-uniform-size-2xl: var(--button-size-2xl);
-    --button-uniform-size-3xl: var(--button-size-3xl);
+     Beside text buttons its icon-only buttons take their 28, 34 or 50px, as every uniform button does on
+     a phone (Button.module.css); a group of uniform buttons alone stays a 44px toolbar group. A nested group
+     takes the height of the outer one: the arrows of a pager stand as tall as its page numbers. Beside a
+     text field or a select every button takes the field's height, 44px from 3xs (see the fields below). */
+  :where([data-slot="button-group"]):not([data-slot="button-group"] *):not(:has(:is(button, a)[data-size]:not([data-uniform]))) {
+    --button-uniform-size-3xs: var(--control-size-sm);
+    --button-uniform-size-2xs: var(--control-size-sm);
+    --button-uniform-size-xs: var(--control-size-sm);
+    --button-uniform-size-sm: var(--control-size-sm);
+    --button-uniform-size-md: var(--control-size-md);
+    --button-uniform-size-lg: var(--control-size-lg);
+    --button-uniform-size-xl: var(--control-size-xl);
+    --button-uniform-size-2xl: var(--control-size-2xl);
+    --button-uniform-size-3xl: var(--control-size-3xl);
   }
 
   :where([data-slot="button-group"]):has(
@@ -59,6 +60,22 @@
     --button-size-xl: var(--control-size-xl);
     --button-size-2xl: var(--control-size-2xl);
     --button-size-3xl: var(--control-size-3xl);
+  }
+
+  /* A filled, tinted or gray button sets its label in Semibold at every size, as iOS 26 screens do (IMG_5432
+     Continue, IMG_5516 Scan QR Code and Other Options, IMG_5437 Learn More, IMG_5494 the amount pills, IMG_5453
+     Add Photos at 28); a plain one (ghost) keeps Regular (IMG_5432 Create Pass Manually). The kit draws them all
+     Regular (Content Area 5:108579), which the screenshots do not show. With zero specificity on the button itself,
+     a component that sets the weight on its buttons keeps it (Toolbar, Page, Dialog, Alert). A disabled ButtonLink
+     renders a span with the link role. */
+  :where(:is(button, a, [role="link"])[data-variant]:not([data-variant="ghost"])[data-color][data-size]) {
+    --button-font-weight: var(--font-weight-semibold);
+  }
+
+  /* An icon-only button that is not `uniform` is the kit's symbol button, at least as wide as it is tall
+     (Button.module.css). Set on the button, so the value is its own size. */
+  :where(:is(button, a, [role="link"])[data-size]:not([data-uniform])) {
+    --button-icon-only-min-width: var(--button-size);
   }
 
   html:root {
@@ -89,6 +106,8 @@
     /* Native text buttons: small 28px, medium 34px, large 50px. */
     --button-touch-radius: var(--radius-full);
     --button-font-weight: var(--font-weight-normal);
+    /* An icon-only button that is not `uniform` is the kit's symbol button, with no gutters (Button.module.css) */
+    --button-icon-only-gutter-scale: 0;
     --button-size-3xs: 28px;
     --button-gutter-3xs: 10px;
     --button-font-size-3xs: 15px;
@@ -133,7 +152,7 @@
     /* The kit (Buttons 507:24673) sets a button's symbol at the size of its label: 15pt in the small and
        medium buttons, 17pt in the large one. So 3xs to lg show the 18px icon and xl to 3xl the 20px one;
        3xs, 2xs and xs, the kit's small button as sm is, also take sm's loading indicator, and an icon-only
-       one sm's 44px. A component that sizes its own accessory keeps it (CodeBlock, FloatingLabelSelect, Menu, Sidebar). */
+       one is its 28px circle. A component that sizes its own accessory keeps it (CodeBlock, FloatingLabelSelect, Menu, Sidebar). */
     --button-icon-size-3xs: var(--control-icon-size-md);
     --button-icon-size-2xs: var(--control-icon-size-md);
     --button-icon-size-xs: var(--control-icon-size-md);
@@ -141,9 +160,11 @@
     --button-indicator-size-3xs: 15px;
     --button-indicator-size-2xs: 15px;
     --button-indicator-size-xs: 15px;
-    --button-uniform-size-3xs: var(--control-size-sm);
-    --button-uniform-size-2xs: var(--control-size-sm);
-    --button-uniform-size-xs: var(--control-size-sm);
+    /* A uniform button takes no size of its own here: it falls back to the size of a text button of its step
+       (Button.module.css), so it is the kit's symbol button too, a circle of 28, 34 or 50px (Button - Content
+       Area 40:58696, Label Type=Symbol), the same with or without uniform (owner 08.11: uniform made every size
+       44), and a component that sets the size of its buttons (EmptyMessage, a group beside a field) sizes it as
+       well. Bars that want 44px set it themselves (Toolbar, Page, Dialog, a group of uniform buttons below). */
 
     --sortable-handle-size: 44px;
     --sortable-handle-icon-size: 17px;

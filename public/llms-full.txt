@@ -969,8 +969,9 @@ Props:
   - onClick ((event: MouseEvent) => void) — Called on click, unless disabled
 
 ### Overview
-A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only.
+A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only. On a phone the example is a screen's actions as iOS 26 sets them: large buttons as wide as the screen, 11px apart, solid, soft and ghost. They stand at the top of the screen, next to the example's controls.
 ```tsx
+// Desktop
 <div className="flex flex-wrap gap-3">
 <Button color="primary">Submit</Button>
 <Button variant="soft"><CompareArrows /> Compare</Button>
@@ -978,111 +979,113 @@ A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only.
 <Button variant="outline">Next <ArrowRight /></Button>
 <Button variant="ghost" color="secondary" uniform aria-label="Clear"><Clear /></Button>
 </div>
+
+// Phone: the actions of a screen
+<div className="flex w-full flex-col items-center gap-[11px]">
+<Button color="primary" size="xl" block>Continue</Button>
+<Button color="secondary" variant="soft" size="xl" block>Other Options</Button>
+<Button color="primary" variant="ghost" size="xl" block>Not Now</Button>
+</div>
 ```
 
 ### Colors & variants
-You can stylize the display of the button using the color and variant props. On a phone the table shows the two colors of iOS buttons, accent (primary) and destructive (danger).
+You can stylize the display of the button using the color and variant props. On a phone each variant is a screen's action in the two colors of iOS buttons, accent (primary) and destructive (danger): iOS draws solid as Filled, soft as Tinted or Gray and ghost as Plain; outline is Plex UI's own.
 ```tsx
 // Desktop
 const colors = ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"] as const
-const variants = ["soft", "solid", "outline", "ghost"] as const
+const variants = ["solid", "soft", "outline", "ghost"] as const
 
-<div className="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-<div className="pt-1 pb-6 px-8 w-max mx-auto">
-  <div className="grid gap-6 items-center justify-center" style={{ gridTemplateColumns: "auto repeat(8, min-content)" }}>
-    <div />
-    {colors.map((color) => (
-      <div key={color} className="text-center text-sm mb-1" style={{ color: "var(--color-text-tertiary)" }}>
-        {color}
-      </div>
-    ))}
-    {variants.map((variant) => (
-      <Fragment key={variant}>
-        <div className="text-right text-sm mr-3" style={{ color: "var(--color-text-tertiary)" }}>
-          {variant}
-        </div>
-        {colors.map((color) => (
-          <div key={color} className="text-center">
-            <Button color={color} variant={variant} size="md">Submit</Button>
-          </div>
-        ))}
-      </Fragment>
-    ))}
-  </div>
-</div>
-</div>
-
-// Phone: the two colors of iOS buttons, accent (primary) and destructive (danger)
-<div className="grid gap-6 items-center justify-center pt-1 pb-6" style={{ gridTemplateColumns: "auto repeat(2, min-content)" }}>
+<div className="grid gap-x-6 gap-y-4 items-center" style={{ gridTemplateColumns: "auto repeat(4, min-content)" }}>
 <div />
-{(["primary", "danger"] as const).map((color) => (
-  <div key={color} className="text-center text-sm mb-1" style={{ color: "var(--color-text-tertiary)" }}>
-    {color}
-  </div>
-))}
 {variants.map((variant) => (
-  <Fragment key={variant}>
-    <div className="text-right text-sm mr-3" style={{ color: "var(--color-text-tertiary)" }}>
-      {variant}
-    </div>
-    {(["primary", "danger"] as const).map((color) => (
-      <div key={color} className="text-center">
-        <Button color={color} variant={variant} size="md">Submit</Button>
-      </div>
+  <div key={variant} className="text-center text-sm text-tertiary">{variant}</div>
+))}
+{colors.map((color) => (
+  <Fragment key={color}>
+    <div className="text-right text-sm text-tertiary">{color}</div>
+    {variants.map((variant) => (
+      <Button key={variant} color={color} variant={variant}>Submit</Button>
     ))}
   </Fragment>
+))}
+</div>
+
+// Phone: each variant as a screen's action, primary or danger
+<div className="flex w-full flex-col items-center gap-[11px]">
+{variants.map((variant) => (
+  <Button key={variant} color="primary" variant={variant} size="xl" block>
+    {variant.charAt(0).toUpperCase() + variant.slice(1)}
+  </Button>
 ))}
 </div>
 ```
 
 ### Sizing & roundness
-Control height with size and horizontal padding with gutterSize. Use pill for fully rounded corners. size sets the button to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize and iconSize props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button. On a phone with touch.css a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule, with the gutters and font of its size. The Phone example shows the three. Its styles are those of iOS buttons, Filled (solid), Tinted and Gray (soft) and Plain (ghost), in their two colors, accent (primary) and destructive (danger).
+Control height with size and horizontal padding with gutterSize. Use pill for fully rounded corners. size sets the button to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize and iconSize props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button. On a phone with touch.css a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule, with the gutters and font of its size. Without size a button is md, the medium one; a screen's actions take xl. The Phone example shows the three as the kit's Button - Content Area does: a symbol with a label, a label alone, and a symbol alone, a circle. The label is Semibold, and Regular on a ghost button, as on iOS 26 screens.
 ```tsx
 // Desktop
-<div className="flex flex-col gap-2 items-center">
-<Button color="primary" size="xl" pill><Mail /> Button <ArrowRight /></Button>
-<Button color="primary" size="xl" pill>Button <ArrowRight /></Button>
-<Button color="primary" size="xl" pill><Mail /> Button</Button>
-<Button color="primary" size="xl" pill>Button</Button>
+const sizes = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"] as const
+
+<div className="grid gap-3 items-center" style={{ gridTemplateColumns: "auto auto auto" }}>
+{sizes.map((size) => (
+  <Fragment key={size}>
+    <div className="text-right text-sm font-mono text-tertiary mr-3">{size}</div>
+    <div><Button color="primary" size={size}><Mail /> Button</Button></div>
+    <div><Button color="primary" size={size}>Button</Button></div>
+  </Fragment>
+))}
 </div>
 
 // Phone: the three sizes of iOS buttons, small 28, medium 34 and large 50
-<div className="flex flex-col gap-4 items-center">
-{(["sm", "md", "xl"] as const).map((size) => (
-  <div key={size} className="flex gap-2 items-center">
-    <Button color="primary" size={size}><Mail /> Button</Button>
-    <Button color="primary" size={size}>Button</Button>
+const phoneSizes = [
+{ size: "sm", name: "Small", height: 28 },
+{ size: "md", name: "Medium", height: 34 },
+{ size: "xl", name: "Large", height: 50 },
+] as const
+
+<div className="flex flex-col items-center gap-8">
+{phoneSizes.map(({ size, name, height }) => (
+  <div key={size} className="flex flex-col items-center gap-3">
+    <div className="text-sm text-tertiary">{name} · {size} · {height}px</div>
+    <div className="flex gap-2 items-center">
+      <Button color="primary" size={size}><Mail /> Button</Button>
+      <Button color="primary" size={size}>Button</Button>
+      <Button color="primary" size={size} aria-label="Add"><PlusLg /></Button>
+    </div>
   </div>
 ))}
 </div>
 ```
 
 ### Icons
-Add icons as children. Sizing is automatic via the iconSize prop. Default values for iconSize are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutterSize is ignored. Combine with pill to make circular icons. Tighter gutters: applying a smaller gutterSize than size can create well-sized, but not exactly square, icon buttons. On a phone with touch.css the icon follows the three iOS sizes unless iconSize is set: 3xs to lg show the 18px icon and xl to 3xl the 20px one, as the kit sets a button's symbol at the size of its label (15 and 17px). With uniform the button is a 44px circle on a phone (50px at 3xl), the size of a toolbar button in the kit, as components place small uniform buttons in bars and rows; in a ButtonGroup it takes the 28, 34 or 50px height of the text buttons beside it. Without uniform an icon-only button keeps the gutters of a text button, as on the web, so the phone example is 38, 46 and 60px wide, where the kit draws icon-only content buttons as 28, 34 and 50px circles. Between an icon and a label the small button leaves 3px and the medium and large ones 4px, as in the kit.
+Add icons as children. Sizing is automatic via the iconSize prop. Default values for iconSize are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutterSize is ignored. Combine with pill to make circular icons. Tighter gutters: on a desktop, applying a smaller gutterSize than size can create well-sized, but not exactly square, icon buttons. On a phone with touch.css the icon follows the three iOS sizes unless iconSize is set: 3xs to lg show the 18px icon and xl to 3xl the 20px one, as the kit sets a button's symbol at the size of its label (15 and 17px). An icon-only button is the kit's symbol button, a circle as tall as a text button of its size, 28, 34 or 50px, with or without uniform, and gutterSize does not change it. A toolbar, the bars of Page and Dialog, a ButtonGroup of uniform buttons alone and a button beside a field keep the 44px circle of a bar button in the kit (50px at 3xl). Between an icon and a label the small button leaves 3px and the medium and large ones 4px, as in the kit.
 ```tsx
 // Desktop
 <Button color="primary" size="lg" aria-label="Add">
 <PlusLg />
 </Button>
 
-// Phone: the three sizes of iOS buttons
-<div className="flex gap-2 items-center">
-<Button color="primary" size="sm" aria-label="Add"><PlusLg /></Button>
-<Button color="primary" size="md" aria-label="Add"><PlusLg /></Button>
-<Button color="primary" size="xl" aria-label="Add"><PlusLg /></Button>
+// Phone: icon-only buttons are circles of the three iOS sizes, 28, 34 and 50
+<div className="flex gap-8 items-end">
+{([["sm", 28], ["md", 34], ["xl", 50]] as const).map(([size, height]) => (
+  <div key={size} className="flex flex-col items-center gap-3">
+    <Button color="primary" size={size} aria-label="Add"><PlusLg /></Button>
+    <div className="text-sm text-tertiary">{size} · {height}px</div>
+  </div>
+))}
 </div>
 ```
 
 ### Block
-Create full-width buttons with the block prop. On a phone the main action of a screen is the large iOS button, xl (50px).
+Create full-width buttons with the block prop. On a phone a screen's main action is the large button as wide as the screen (xl, 50px).
 ```tsx
 // Desktop
 <div className="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
 <Button color="primary" size="lg" block>Continue</Button>
 </div>
 
-// Phone: the large iOS button
-<div className="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
+// Phone: the main action of a screen
+<div className="flex w-full flex-col items-center gap-[11px]">
 <Button color="primary" size="xl" block>Continue</Button>
 </div>
 ```
@@ -1095,17 +1098,30 @@ import { Button } from '@plexui/ui/components/Button';
 export default function ButtonStatesExample() {
   const [disabled] = useState(false);
   const [loading] = useState(false);
+  const variants = ['solid', 'soft', 'outline', 'ghost'] as const;
 
   return (
-    <Button color="primary" disabled={disabled} loading={loading}>Submit</Button>
+    <>
+      {/* Desktop: a row of the default size */}
+      <div className="flex flex-wrap gap-3">
+        {variants.map((variant) => (
+          <Button key={variant} color="primary" variant={variant} disabled={disabled} loading={loading}>
+            {variant.charAt(0).toUpperCase() + variant.slice(1)}
+          </Button>
+        ))}
+      </div>
+
+      {/* Phone: a screen's actions, as wide as the screen */}
+      <div className="flex w-full flex-col items-center gap-[11px]">
+        {variants.map((variant) => (
+          <Button key={variant} color="primary" variant={variant} size="xl" block disabled={disabled} loading={loading}>
+            {variant.charAt(0).toUpperCase() + variant.slice(1)}
+          </Button>
+        ))}
+      </div>
+    </>
   );
 }
-```
-
-### Inert
-Use inert to accessibly disable a button without any visual changes. Note: For accessibility reasons, disabled is used instead of applying inert directly to the button. Visual disablement in the disabled prop is applied via [data-disabled].
-```tsx
-<Button color="primary" inert>Submit</Button>
 ```
 
 ### Selected
@@ -1122,8 +1138,9 @@ Use selected to show that a button is in an open or selected state. The exact vi
 ```
 
 ### Optical alignment
-Use opticallyAlign with either "start" or "end" to offset the gutter of the button.
+Use opticallyAlign with either "start" or "end" to offset the gutter of the button. On a phone a button under text starts its label where the text does, as Forgot your password? under the Apple Account sign-in, whose text starts 40px from the screen's edge; a soft button shows its capsule reaching past the text. The button is as wide as its label: a full-width button centers its label, which leaves nothing to align.
 ```tsx
+// Desktop
 <div className="flex flex-col gap-3">
 <div className="border border-dashed border-alpha/20 rounded-md py-4 px-6">
   <div className="mb-2 text-secondary text-sm">Default gutters</div>
@@ -1133,6 +1150,12 @@ Use opticallyAlign with either "start" or "end" to offset the gutter of the butt
   <div className="mb-2 text-secondary text-sm">opticallyAlign="start"</div>
   <Button variant="ghost" opticallyAlign="start">Ghost button</Button>
 </div>
+</div>
+
+// Phone: the label starts where the text above it does, 40px from the screen's edge
+<div className="flex w-full flex-col items-start gap-4 px-6">
+<p className="text-[17px] leading-[22px] text-secondary">Sign in with your email or phone number to continue.</p>
+<Button color="secondary" variant="soft" size="xl" opticallyAlign="start">Forgot your password?</Button>
 </div>
 ```
 

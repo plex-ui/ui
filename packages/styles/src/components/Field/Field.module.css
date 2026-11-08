@@ -346,6 +346,12 @@
   grid-row: 1;
 }
 
+/* Set on the buttons too: a phone gives a filled button its own weight (touch.css), which the inherited value
+   would not outweigh. */
+.Action :where(button, a, [role="link"]) {
+  --button-font-weight: var(--field-row-action-font-weight);
+}
+
 /* A framed field in a row: its width cannot follow what is typed, so it has one,
    wider for words than for a number. A ghost has the row for its frame, a Select
    follows its value, and fields set out by a wrapper of their own size themselves. */

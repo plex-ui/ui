@@ -38,7 +38,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* With touch.css a 2xs icon button is 44px on a phone; the copy button keeps its 24px face and
+/* With touch.css a uniform 2xs button is the kit's 28px circle on a phone; the copy button keeps its 24px face and
    glyph inside the 32px box, and its target takes the 44px of iOS around the box, as the clear
    button of SelectControl does. */
 .CopyButtonContainer {
