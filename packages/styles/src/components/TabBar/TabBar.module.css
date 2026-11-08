@@ -51,8 +51,8 @@
     &[data-background="glass"]::before {
       border-top: 0.5px solid var(--page-bar-line);
       background: color-mix(in srgb, var(--tab-bar-edge-background, var(--page-background)) var(--page-bar-veil-opacity), transparent);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: var(--page-bar-glass-filter);
+      backdrop-filter: var(--page-bar-glass-filter);
       opacity: 0;
     }
 

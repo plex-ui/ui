@@ -481,14 +481,15 @@
   }
 
   /* iOS 27 alerts (kit iOS 27, Alerts 65:57149, Side-by-Side): glass, fields and actions 14 from the edge, the
-     title 22 from the top and from the sides, the message 10 under the title, both 17/22 in the primary label
-     (the title semibold), 24 from the text to a field or the actions, a field block of 52px rows, 19 under it
-     to the actions, 8 between two actions. Native iOS 26 frames (iOS2 IMG_5532, IMG_5533) had the message at
-     15/20 in the secondary label; kit 27 is the reference since 07.11 (plan 162, 163). */
+     title 22 from the top and from the sides, the message 10 under the title, both 17/22 (the title semibold),
+     24 from the text to a field or the actions, a field block of 52px rows, 19 under it to the actions, 8
+     between two actions. The colors follow native frames (mobile-materials.css): the message is the secondary
+     label, as in Files (owner 08.11); native iOS 26 frames (iOS2 IMG_5532, IMG_5533) also set it at 15/20. */
   .Content[data-mobile-variant="alert"] .Panel {
     gap: 10px;
     padding: var(--dialog-alert-padding);
     background: var(--dialog-alert-background, var(--dialog-panel-background, var(--color-surface-elevated)));
+    box-shadow: var(--dialog-alert-shadow, var(--shadow-lg), var(--shadow-hairline));
     -webkit-backdrop-filter: var(--dialog-alert-backdrop-filter, none);
     backdrop-filter: var(--dialog-alert-backdrop-filter, none);
   }
@@ -634,64 +635,17 @@
     }
   }
 
-  .Content[data-mobile-variant="sheet"] .Header {
-    position: relative;
-    z-index: 2;
-    gap: 0;
-    min-height: 70px;
-    /* Clear of the 44px actions at the layout margin, with 8px between them and the title. */
-    padding: 16px calc(var(--mobile-layout-margin, 16px) + 52px) 10px;
-    text-align: center;
-
-    &::before {
-      position: absolute;
-      top: 5px;
-      left: calc(50% - 18px);
-      width: 36px;
-      height: 5px;
-      border-radius: var(--radius-full);
-      background: var(--mobile-grabber-color, var(--color-background-secondary-soft-alpha));
-      content: "";
-    }
-  }
-
-  .Content[data-mobile-variant="sheet"] .Header > :first-child {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    padding-inline-end: 0;
-  }
-
-  /* A title with a description is the two-line title of an iOS bar (kit iOS 27, Toolbar - Top - iPhone, Title
-     2 Line; as a Toolbar's Subtitle): the title at 15/20 semibold 6px from the top of Close's 44px row and the
-     description under it at 12/16 medium in the secondary label color, both centered between the bar's actions. */
-  .Content[data-mobile-variant="sheet"] .Header:has(> .Description) > :first-child {
-    min-height: 0;
-    padding-top: 6px;
-  }
-
-  .Content[data-mobile-variant="sheet"] .Header:has(> .Description) .Title {
-    font-size: var(--toolbar-title-compact-font-size);
-    line-height: var(--toolbar-title-compact-line-height);
-  }
-
-  .Content[data-mobile-variant="sheet"] .Header > .Description {
-    margin-top: -2px;
-    padding-bottom: 4px;
-    color: var(--mobile-label-secondary, var(--color-text-secondary));
-    font-size: var(--toolbar-subtitle-font-size);
-    font-weight: var(--toolbar-subtitle-font-weight);
-    line-height: var(--toolbar-subtitle-line-height);
+  /* The header of a phone Sheet is its Toolbar (Dialog.Header renders one): the grabber, the row of controls and
+     the title are the Toolbar's. Its heading holds what the header holds besides its actions, as wide as the
+     row leaves it. */
+  .BarHeading > * {
+    max-width: 100%;
   }
 
   .Content[data-mobile-variant="alert"] .Title,
   .Content[data-mobile-variant="sheet"] .Title {
     font-weight: 590;
   }
-
-  /* The sheet title stays centered on its 44px row, so its cap middle meets the Close and confirm
-     centers as in native iOS 26 sheets (IMG_5470, IMG_5514). */
 
   .Content[data-mobile-variant="sheet"] .CloseButton {
     z-index: 3;
@@ -714,62 +668,26 @@
     color: var(--color-text);
   }
 
-  .Content[data-mobile-variant="sheet"] .HeaderAction {
-    z-index: 3;
-    top: var(--dialog-sheet-action-inset-block, 16px);
-    inset-inline-end: var(--dialog-sheet-action-inset-inline, var(--mobile-layout-margin, 16px));
-
-    /* A text action in the sheet's bar is a Liquid Glass text button, 17px Medium as a Toolbar's items
-       (kit iOS 27, Button - Liquid Glass - Text 5473:21667). */
-    & > button {
-      --button-size: var(--dialog-sheet-close-size);
-      --button-font-size: var(--toolbar-label-font-size);
-      --button-line-height: var(--toolbar-label-line-height);
-      --button-font-weight: var(--toolbar-label-font-weight);
-    }
-  }
-
-  .Content[data-mobile-variant="sheet"] .HeaderAction > button:not([data-navigation-action]) {
-    --button-icon-size: 24px;
-  }
-
   /* The glass of a sheet's bar: Close, the header actions and a control in the header, such as a segmented
      control. Native iOS 26 sheets (Calendar, IMG_5433 light, iOS2 IMG_5522 dark) light the glass along both
      edges, about 7 levels at the top fading within 2pt and again over the last 6pt at the bottom, rather
      than darkening its top. In light the capsule also has a hairline outline (196 to 227 on a 242 sheet)
-     and a soft shadow at rest, 3 levels just under it and gone within 12pt; dark glass has neither. */
-  .Content[data-mobile-variant="sheet"] :is(.Header, .CloseButton) {
+     and a soft shadow at rest, 3 levels just under it and gone within 12pt; dark glass has neither.
+     The rim of light runs along the top and the bottom and fades out at the sides, where the outline is
+     darker instead: the disabled checkmark of Calendar (IMG_5433, 08.11) is white at 0.67pt top and
+     bottom, about 230 on the diagonals and none at the sides, with an outline of 194 top and bottom and
+     155 at the sides. A rim on the top-left and bottom-right corners lit one diagonal only and made a
+     round button read as an oval (owner, 08.11). */
+  .Content[data-mobile-variant="sheet"] :is([data-toolbar], .CloseButton) {
     --mobile-glass-sheen: linear-gradient(light-dark(rgb(255 255 255 / 45%), rgb(255 255 255 / 6%)), transparent 6px, transparent calc(100% - 8px), light-dark(rgb(255 255 255 / 45%), rgb(255 255 255 / 4%)));
-    --mobile-glass-shadow: 0 4px 12px light-dark(rgb(0 0 0 / 2%), transparent), 0 0 0 0.5px light-dark(rgb(0 0 0 / 12%), transparent), inset 0.67px 0.67px 0 var(--mobile-glass-rim), inset -0.67px -0.67px 0 var(--mobile-glass-rim);
+    --mobile-glass-shadow: 0 4px 12px light-dark(rgb(0 0 0 / 2%), transparent), 0 0 0 0.5px light-dark(rgb(0 0 0 / 12%), transparent), 1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 16%), transparent), -1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 16%), transparent), inset 0 0.67px 0 var(--mobile-glass-rim), inset 0 -0.67px 0 var(--mobile-glass-rim);
   }
 
-  /* A disabled prominent action, such as confirm before there is anything to save, is a gray capsule with a white
-     glyph in that same glass, not the flat disabled fill of a button: 212 under a white check on the 242 sheet,
-     with the outline and the shadow (IMG_5433), the gray capsule of a bar (--toolbar-prominent-disabled-*). */
-  .Content[data-mobile-variant="sheet"] .HeaderAction > button[data-disabled][data-variant="solid"] {
-    --button-background-color: var(--toolbar-prominent-disabled-background);
-    --button-text-color: var(--toolbar-prominent-disabled-color);
-
-    &::before {
-      box-shadow: var(--mobile-glass-shadow);
-    }
-  }
-
-  .Content[data-mobile-variant="sheet"] .HeaderAction > button:where(:not([data-disabled], [data-mobile-material="flat"])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
-    --button-mobile-material-background: var(--mobile-glass-background);
-    --button-mobile-material-hover: var(--mobile-glass-background-hover);
-    --button-mobile-material-active: var(--mobile-glass-background-active);
-    --button-mobile-material-sheen: var(--mobile-glass-sheen);
-    --button-mobile-material-shadow: var(--mobile-glass-shadow);
-    --button-mobile-material-backdrop-filter: var(--mobile-glass-backdrop-filter);
-    --button-mobile-material-opacity: 1;
-    --button-mobile-material-scale: 1;
-  }
-
-
+  /* With no footer, the content ends above the home indicator, as Files ends its View Options footnote about
+     35pt above the sheet's edge (iOS-menu IMG_5686): the bottom safe area, at least 16px. */
   .Content[data-mobile-variant="sheet"] .Body {
     margin-inline: 0;
-    padding: 16px var(--mobile-layout-margin, 16px) max(16px, env(safe-area-inset-bottom, 0px));
+    padding: 16px var(--mobile-layout-margin, 16px) max(16px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
   }
 
   /* A phone Toolbar takes the place of the Sheet's bar. The header keeps naming the dialog. */
@@ -790,19 +708,46 @@
     display: none;
   }
 
+  /* A Toolbar the dialog places itself takes the place of the bar its header becomes: that bar keeps naming
+     the dialog, unseen, without a second Close. */
+  .Panel:has(> [data-toolbar][data-placement="top"]:not([data-dialog-bar])) > [data-dialog-bar] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    min-height: 0;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .Panel:has(> [data-toolbar][data-placement="top"]:not([data-dialog-bar])) > [data-dialog-bar] > .BarClose {
+    display: none;
+  }
+
+  /* At rest the content starts where the bar's soft edge ends, so none of it lies under the edge: Files
+     View Options starts its first group 32.7pt under the bar (IMG_5686: 64.7pt below the centre of the row
+     of controls); 16px left the first group and the first line of text cut by the edge (owner 08.11). */
   .Content[data-mobile-variant="sheet"] .Panel > .Body {
     margin-top: calc(-1 * var(--dialog-header-height, 0px));
     margin-bottom: calc(-1 * var(--dialog-footer-height, 0px));
-    padding-top: calc(16px + var(--dialog-header-height, 0px));
-    padding-bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + var(--dialog-footer-height, 0px));
-    scroll-padding-top: calc(16px + var(--dialog-header-height, 0px));
+    padding-top: calc(var(--page-bar-soft-tail, 32px) + var(--dialog-header-height, 0px));
+    padding-bottom: calc(max(16px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))) + var(--dialog-footer-height, 0px));
+    scroll-padding-top: calc(var(--page-bar-soft-tail, 32px) + var(--dialog-header-height, 0px));
     scroll-padding-bottom: calc(16px + var(--dialog-footer-height, 0px));
+  }
+
+  /* A footer keeps its actions above the home indicator itself: the content ends 16px above the footer. */
+  .Content[data-mobile-variant="sheet"] .Panel:has(> .Footer, > [data-toolbar][data-placement="bottom"]) > .Body {
+    padding-bottom: calc(16px + var(--dialog-footer-height, 0px));
   }
 
   /* The bars of a Sheet meet the content scrolled under them by their `background`, as the bars of a
      phone Toolbar do: by default the soft scroll edge of iOS 26. The material sits on a pseudo-element, so
      Header does not become a backdrop root: HeaderAction and the sibling Close sample the same content.
-     Soft: under the header the panel color fades out over its bottom padding and 16px past it; over the
+     Soft: under the header the panel color covers the content to its bottom and fades out past it, as a
+     Toolbar's soft edge does; over the
      footer it starts 27px above the actions (IMG_5491) and covers the content fully from their top, so no text
      shows through a soft action such as Decline (owner 07.11). */
   .Content[data-mobile-variant="sheet"] .Header::after,
@@ -818,10 +763,10 @@
   }
 
   .Content[data-mobile-variant="sheet"] .Header::after {
-    inset: 0 0 -16px;
+    inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));
     border-radius: var(--dialog-panel-radius);
-    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 10px - 16px), transparent);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - 10px - 16px), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);
   }
 
   .Content[data-mobile-variant="sheet"] .Footer::before {
@@ -844,8 +789,8 @@
   .Content[data-mobile-variant="sheet"] .Header[data-background="glass"]::after,
   .Content[data-mobile-variant="sheet"] .Footer[data-background="glass"]::before {
     background: var(--page-bar-veil);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: var(--page-bar-glass-filter);
+    backdrop-filter: var(--page-bar-glass-filter);
     opacity: 0;
   }
 
@@ -888,6 +833,21 @@
     --button-size: var(--dialog-sheet-action-height);
     min-height: var(--dialog-sheet-action-height);
     padding-block: 14px;
+  }
+
+  /* The prominent action of a sheet's footer takes the accent and the edge of the glass, as a bar's does (see
+     the --toolbar-prominent tokens): native setup sheets draw Continue 0/135/254, lighter along its top and
+     bottom and darker at its sides (IMG_5432 Wallet, IMG_5509; owner 08.11). */
+  .Content[data-mobile-variant="sheet"] .Footer > :where(button, a)[data-variant="solid"]:where([data-color="primary"], [data-color="info"]):not([data-disabled]) {
+    --button-background-color: var(--toolbar-prominent-background);
+    --button-background-color-hover: var(--toolbar-prominent-background-hover);
+    --button-background-color-active: var(--toolbar-prominent-background-active);
+    --button-text-color: var(--toolbar-prominent-color);
+
+    &::before {
+      background-image: var(--toolbar-prominent-sheen);
+      box-shadow: var(--toolbar-prominent-shadow);
+    }
   }
 
   .Content[data-mobile-variant="sheet"][data-mobile-placement="fullscreen"] .Header {

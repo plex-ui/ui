@@ -190,7 +190,7 @@ describe("Bar background styles", () => {
 
   test("glass is hidden until content is under the bar", () => {
     for (const css of [toolbar, page, tabBar]) {
-      expect(css).toMatch(/&\[data-background="glass"\]::before \{[^}]*backdrop-filter: blur\(20px\) saturate\(180%\);[^}]*opacity: 0;/)
+      expect(css).toMatch(/&\[data-background="glass"\]::before \{[^}]*backdrop-filter: var\(--page-bar-glass-filter\);[^}]*opacity: 0;/)
     }
     expect(toolbar).toMatch(/&\[data-scrolled\]\[data-background="glass"\]::before \{\s*opacity: 1;/)
     expect(toolbar).toMatch(/&\[data-content-below\]\[data-background="glass"\]::before \{\s*opacity: 1;/)
@@ -212,7 +212,8 @@ describe("Bar background styles", () => {
   })
 
   test("a soft header fades out past its bar and a soft footer starts 27px above its actions and covers fully from their top, as a Toolbar's edges", () => {
-    expect(page).toMatch(/\.Header \{[\s\S]*?&::before \{[^}]*inset: 0 0 -16px;[^}]*mask-image: linear-gradient\(to bottom, #000 calc\(100% - 10px - 16px\), transparent\);/)
+    // Full cover down to the bottom of the bar, then a 32px fade past it (owner 08.11; plan 170)
+    expect(page).toMatch(/\.Header \{[\s\S]*?&::before \{[^}]*inset: 0 0 calc\(-1 \* var\(--page-bar-soft-tail, 32px\)\);[^}]*mask-image: linear-gradient\(to bottom, #000 calc\(100% - var\(--page-bar-soft-tail, 32px\)\), transparent\);/)
     expect(page).toMatch(/\.Footer \{[^}]*background: none;\s*&::before \{[^}]*inset: calc\(var\(--page-footer-padding-top\) - 27px\) 0 0;[^}]*mask-image: linear-gradient\(to bottom, transparent, #000 27px\);/)
     expect(dialog).toMatch(/\.Footer::before \{\s*inset: -15px 0 0;[^}]*mask-image: linear-gradient\(to bottom, transparent, #000 27px\);/)
   })

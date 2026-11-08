@@ -1153,7 +1153,8 @@ describe("DatePicker live state regressions", () => {
           expect(groupStyle.gap).toBe("0px")
           expect(getComputedStyle(group.querySelector("span")!).position).toBe("absolute")
           expect(getComputedStyle(group.querySelector("span")!).pointerEvents).toBe("none")
-          expect(getComputedStyle(group.parentElement!).height).toBe("52px")
+          // The Time row is as tall as the month row (owner 08.11, plan 170): 44px targets with the calendar's inset
+          expect(getComputedStyle(group.parentElement!).height).toBe("var(--calendar-header-height)")
           let paint: Record<string, string> = {}
           source.walkRules((rule) => {
             if (rule.selector !== "&::before" || rule.parent?.type !== "rule" || rule.parent.selector !== ".TimeInputGroup") return

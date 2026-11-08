@@ -136,17 +136,20 @@ describe("the Slider label row on a phone", () => {
 
 describe("a phone sheet whose header has a description (kit iOS 27 Toolbar Title 2 Line)", () => {
   test("shows the two as a toolbar's two-line title", () => {
-    const rules = phoneRules("packages/styles/src/components/Dialog/Dialog.module.css")
-    const sheet = '.Content[data-mobile-variant="sheet"]'
-    expect(decls(rules.get(`${sheet} .Header:has(> .Description) .Title`))).toEqual({
+    // The header of a phone Sheet is its Toolbar (plan 170): a visible description takes the Toolbar's Subtitle,
+    // and the Toolbar sets the title above it in the compact size
+    const rules = phoneRules("packages/styles/src/components/Toolbar/Toolbar.module.css")
+    const heading = rules.get(".Heading:has(> .Subtitle)")
+    expect(decls(heading?.nodes.find((n): n is postcss.Rule => n.type === "rule" && n.selector === "& .Title"))).toEqual({
       "font-size": "var(--toolbar-title-compact-font-size)",
       "line-height": "var(--toolbar-title-compact-line-height)",
     })
-    expect(decls(rules.get(`${sheet} .Header > .Description`))).toMatchObject({
+    expect(decls(rules.get(".Subtitle"))).toMatchObject({
       color: "var(--mobile-label-secondary, var(--color-text-secondary))",
       "font-size": "var(--toolbar-subtitle-font-size)",
       "font-weight": "var(--toolbar-subtitle-font-weight)",
     })
+    for (const source of [read("packages/ui/src/components/Dialog/Dialog.tsx"), read("packages/vue/src/components/Dialog/Dialog.ts")]) expect(source).toContain("t.Subtitle")
   })
 })
 
@@ -158,8 +161,10 @@ describe("Liquid Glass text buttons on a phone (kit iOS 27 Button - Liquid Glass
       "--button-line-height": "var(--toolbar-label-line-height)",
       "--button-font-weight": "var(--toolbar-label-font-weight)",
     })
-    const dialog = phoneRules("packages/styles/src/components/Dialog/Dialog.module.css")
-    expect(decls(dialog.get("& > button"))).toMatchObject({ "--button-font-weight": "var(--toolbar-label-font-weight)", "--button-font-size": "var(--toolbar-label-font-size)" })
+    // A sheet header's action is a Toolbar item on a phone (Dialog.HeaderAction becomes Toolbar.Trailing, plan 170)
+    const toolbar = phoneRules("packages/styles/src/components/Toolbar/Toolbar.module.css")
+    expect(decls(toolbar.get(".Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)"))).toMatchObject({ "--button-font-weight": "var(--toolbar-label-font-weight)", "--button-font-size": "var(--toolbar-label-font-size)" })
+    expect(read("packages/ui/src/components/Dialog/Dialog.tsx")).toContain("<Toolbar.Trailing className={className}>")
   })
 
   test("a glass Button's label is Medium, and 17px at md and lg, with touch.css only", () => {

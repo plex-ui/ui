@@ -2,13 +2,38 @@ import { defineComponent, h, ref, useId, watch, type Component, type PropType } 
 import { Button, NavigationButton } from '@plexui/vue/components/Button';
 import { Dialog, DialogBody, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from '@plexui/vue/components/Dialog';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
-import { Disclosure, Email, Fingerprint, InfoCircle, Key, Phone, ShieldKey } from '@plexui/vue/components/Icon';
+import { Disclosure, InfoCircle } from '@plexui/vue/components/Icon';
+import { FingerprintPattern, Info, KeyRound, Mail, Phone } from 'lucide-static';
+import { LoginCircle01Icon } from '@hugeicons/core-free-icons';
 import { Toolbar, ToolbarLeading, ToolbarTrailing } from '@plexui/vue/components/Toolbar';
 import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
 import { aboutSignInMethods, setupIntro, setupMethods, type SetupChoicesLayout, type SetupMethod, type SetupMethodId } from '../setupChoicesData';
 import s from '../SetupChoicesSheet.module.css';
 
-const methodIcons: Record<SetupMethodId, Component> = { email: Email, phone: Phone, passkey: Fingerprint, 'security-key': Key };
+// Line icons whose weight the sheet sets (Lucide, as SVG markup): a native setup sheet draws its glyphs lighter as
+// they grow, which the fixed-weight PlexUI set cannot do. The styles set the line of the hero and of the rows.
+const lucide = (markup: string): Component => {
+  // The shapes alone: the markup's line breaks would read as text in the name of the row that holds the icon
+  const inner = markup.slice(markup.indexOf('>') + 1, markup.lastIndexOf('</svg>')).replace(/>\s+</g, '><').trim();
+  return defineComponent({
+    inheritAttrs: true,
+    setup: () => () => h('svg', {
+      xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor',
+      'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', innerHTML: inner,
+    }),
+  });
+};
+const methodIcons: Record<SetupMethodId, Component> = { email: lucide(Mail), phone: lucide(Phone), passkey: lucide(FingerprintPattern), 'security-key': lucide(KeyRound) };
+const InfoGlyph = lucide(Info);
+// The hero of the choices: Hugeicons Login Circle 01 (owner 08.11), its icon data drawn with the line the sheet sets,
+// as the Lucide glyphs are (the icon's own 1.5 where the sheet sets none).
+const HeroGlyph = defineComponent({
+  inheritAttrs: true,
+  setup: () => () => h('svg', {
+    xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor',
+    'stroke-width': 1.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+  }, LoginCircle01Icon.map(([tag, attrs]) => h(tag, { key: attrs.key, d: attrs.d }))),
+});
 
 /** The sheet shows the choices, or the step one of them opened. */
 type Step = 'choices' | 'about' | SetupMethodId;
@@ -67,7 +92,7 @@ export const SetupChoicesSheet = defineComponent({
     return () => {
       const current = step.value;
       const method = current === 'choices' || current === 'about' ? undefined : setupMethods.find((candidate) => candidate.id === current);
-      const heroIcon = method ? methodIcons[method.id] : current === 'about' ? InfoCircle : ShieldKey;
+      const heroIcon = method ? methodIcons[method.id] : current === 'about' ? InfoGlyph : HeroGlyph;
       const title = method?.title ?? (current === 'about' ? aboutSignInMethods.title : setupIntro.title);
       const groups = props.layout === 'grouped' ? [setupMethods] : setupMethods.map((item) => [item]);
 
@@ -110,7 +135,7 @@ export const SetupChoicesSheet = defineComponent({
             ]),
             current === 'about' && aboutSignInMethods.paragraphs.slice(1).map((paragraph) => h('p', { key: paragraph, class: s.Paragraph }, paragraph)),
           ]),
-          (method || (current === 'about' && wide.value)) && h(DialogFooter, null, () => [
+          (method || (current === 'about' && wide.value)) && h(DialogFooter, { class: s.Footer }, () => [
             wide.value && h(Button, { color: 'secondary', variant: 'soft', onClick: back }, () => 'Back'),
             method && h(Button, { color: 'primary', onClick: () => { emit('add', method); emit('update:open', false); } }, () => `Add ${method.title}`),
           ]),

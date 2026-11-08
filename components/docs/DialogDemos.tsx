@@ -95,9 +95,10 @@ export function DialogDeleteConfirmDemo() {
         <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Delete assistant?</Dialog.Title></div>
+            {/* A phone alert's message is plain text (iOS): the ID stands out on a desktop only. */}
             <Dialog.Description>
               This change will affect all API integrations using{' '}
-              <span className="font-medium text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
+              <span className="md:font-medium md:text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
               It cannot be undone.
             </Dialog.Description>
           </Dialog.Header>
@@ -172,7 +173,6 @@ export function DialogBodyDemo() {
         <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }}>
           <Dialog.Header background={background}>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Terms of service</Dialog.Title></div>
-            <Dialog.Description>Please read them before you continue.</Dialog.Description>
           </Dialog.Header>
           <Dialog.Body>
             <div className="flex flex-col gap-4 text-sm text-secondary max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
@@ -224,7 +224,7 @@ export function DialogPlacementDemo() {
           <Dialog.Trigger>
             <Button color="secondary" variant="outline">Open filters</Button>
           </Dialog.Trigger>
-          <Dialog.Content mobileVariant="sheet" mobilePlacement={activePlacement === 'fullscreen' ? 'fullscreen' : 'bottom'} onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }} placement={activePlacement} width={activePlacement === 'start' || activePlacement === 'end' ? 360 : 480}>
+          <Dialog.Content mobileVariant="sheet" surface="grouped" mobilePlacement={activePlacement === 'fullscreen' ? 'fullscreen' : 'bottom'} onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }} placement={activePlacement} width={activePlacement === 'start' || activePlacement === 'end' ? 360 : 480}>
             <Dialog.Header>
               <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Filters</Dialog.Title></div>
               <Dialog.Description className={phone ? 'sr-only' : undefined}>Narrow the list down.</Dialog.Description>

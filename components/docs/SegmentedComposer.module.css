@@ -163,18 +163,18 @@
   }
 
   .Composer {
-    --dialog-sheet-action-inset-block: 20px;
-    --dialog-sheet-action-inset-inline: var(--mobile-layout-margin, 16px);
     height: var(--dialog-panel-max-height);
   }
 
+  /* The header is the Sheet's Toolbar: Close, the type control and Save on one row, centered on each other. The
+     control fills the row between them, as Calendar's does (IMG_5433), and that sheet shows no grabber. */
   :global([data-plex-dialog][data-mobile-variant="sheet"]) .Composer > .Header {
-    min-height: 80px;
-    padding: 18px calc(var(--mobile-layout-margin, 16px) + 56px) 14px;
-  }
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
+    column-gap: var(--toolbar-item-gap);
 
-  :global([data-plex-dialog][data-mobile-variant="sheet"]) .Composer > .Header::before {
-    display: none;
+    &::after {
+      display: none;
+    }
   }
 
   /* A sheet header's control is larger than a toolbar's (Calendar IMG_5433/5434): 48px with a 40px thumb and 17px

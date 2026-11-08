@@ -705,10 +705,12 @@
 
   /* A pop-up at the end of a labeled row shows its value in the secondary label, as the option rows of
      iOS 26 Reminders and Calendar do (iOS IMG_5442: the value and its chevrons at 138 on white; iOS2
-     IMG_5523). In columns the value is the row's data and stays primary, as in an Apple Account billing
-     address (IMG_5489). Disabled, the value and the chevrons take the tertiary label. */
+     IMG_5523). Files shows its View Options values in the primary label beside the same gray chevrons
+     (iOS-menu IMG_5686: the value at 3, the chevrons at 122 on 215): such a screen sets
+     --field-row-popup-value-color. In columns the value is the row's data and stays primary, as in an Apple
+     Account billing address (IMG_5489). Disabled, the value and the chevrons take the tertiary label. */
   :where([data-row][data-orientation="horizontal"]:not([data-field-columns] *)) .SelectControl[data-selected="true"]:not([data-disabled]) {
-    color: var(--mobile-label-secondary, var(--color-text-secondary));
+    color: var(--field-row-popup-value-color, var(--mobile-label-secondary, var(--color-text-secondary)));
   }
 
   :where([data-row][data-orientation="horizontal"]:not([data-field-columns] *)) .SelectControl[data-disabled][data-variant],

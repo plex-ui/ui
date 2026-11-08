@@ -137,16 +137,31 @@
     padding-inline: var(--setup-choices-inline);
   }
 
+  /* The action lines up with the text, as Continue does in native setup sheets: 37.3pt from the edges
+     (IMG_5432, IMG_5509: x 112 to 1177 of 1290 at 3x), owner 08.11. */
+  .Footer {
+    padding-inline: var(--setup-choices-inline);
+  }
+
   .Hero {
     gap: 0;
   }
 
-  /* The hero glyph is 67pt tall in IMG_5517; a 24-unit icon draws its glyph in about 20 units. */
+  /* Native hero glyphs are 60 to 80pt across with a line of about 4.3pt (IMG_5499, 5500, 5502, 5517; 6pt in 5509),
+     and the title's letters start 43 to 53pt under the glyph. A Lucide glyph in 88px is 59 by 73, like 5509; a line
+     of 1.17 units draws 4.3pt (owner, 08.11: a PlexUI icon's line is a twelfth of its size, too heavy here). */
   .HeroIcon {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 36px;
+    width: 88px;
+    height: 88px;
+    margin-bottom: 34px;
     align-self: center;
+    stroke-width: 1.17;
+  }
+
+  /* The glyphs take the accent, 0/136/255 in the natives (IMG_5509, 5499): the info solid of PlexUI, blue-400. */
+  .HeroIcon,
+  .RowIcon {
+    color: var(--color-background-info-solid);
   }
 
   /* Title 2: the title bold, the text under it regular in the secondary label, 22/28. */
@@ -188,10 +203,11 @@
     gap: 18px;
   }
 
-  /* Rows are 57pt in the group and 59pt on their own; the icon sits 20pt in and the title starts 70pt in. */
+  /* Rows are 57pt in the group and 59pt on their own. The icon is centered 32pt in and the title starts 61pt in
+     (IMG_5499); the kit's action rows set a 17pt symbol in a 32pt column (iOS 27 Activity View, 12740:35190). */
   .Row {
     min-height: 57px;
-    padding: 8px 20px 8px 16px;
+    padding: 8px 20px 8px 20px;
     font-size: var(--field-row-label-font-size);
     line-height: var(--field-row-label-line-height);
   }
@@ -201,12 +217,15 @@
   }
 
   .RowContent {
-    gap: 24px;
+    gap: 17px;
   }
 
+  /* A 17pt symbol: the native mail glyph is 20 by 14pt with a 1.7pt line (IMG_5499); the Lucide one in 24px is 20
+     by 16, its line set to 1.7 (owner, 08.11: the 30px PlexUI icon drew 2.5). */
   .RowIcon {
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
+    stroke-width: 1.7;
   }
 
   .RowTitle {
@@ -230,7 +249,7 @@
 
   /* Separators run from the title to 20pt before the cell edge. */
   .Rows [data-row] + [data-row]::after {
-    inset-inline-start: 70px;
+    inset-inline-start: 61px;
     inset-inline-end: 20px;
   }
 }

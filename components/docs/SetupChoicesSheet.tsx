@@ -1,17 +1,31 @@
 'use client';
 
-import { useId, useRef, useState, type ComponentType, type ReactNode, type SVGProps } from 'react';
+import { createElement, useId, useRef, useState, type ReactNode, type SVGProps } from 'react';
+import { LoginCircle01Icon } from '@hugeicons/core-free-icons';
 import { Button, NavigationButton } from '@plexui/ui/components/Button';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { Disclosure, Email, Fingerprint, InfoCircle, Key, Phone, ShieldKey } from '@plexui/ui/components/Icon';
+import { Disclosure, InfoCircle } from '@plexui/ui/components/Icon';
+import { FingerprintPattern, Info, KeyRound, Mail, Phone, type LucideIcon } from 'lucide-react';
 import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import { aboutSignInMethods, setupIntro, setupMethods, type SetupChoicesLayout, type SetupMethod, type SetupMethodId } from './setupChoicesData';
 import s from './SetupChoicesSheet.module.css';
 
-type Icon = ComponentType<SVGProps<SVGSVGElement>>;
-const methodIcons: Record<SetupMethodId, Icon> = { email: Email, phone: Phone, passkey: Fingerprint, 'security-key': Key };
+// Line icons whose weight the sheet sets (Lucide): a native setup sheet draws its glyphs lighter as they grow, which
+// the fixed-weight PlexUI set cannot do. The styles set the line of the hero and of the rows.
+const methodIcons: Record<SetupMethodId, LucideIcon> = { email: Mail, phone: Phone, passkey: FingerprintPattern, 'security-key': KeyRound };
+
+// The hero of the choices: Hugeicons Login Circle 01 (owner 08.11), its icon data drawn with the line the sheet sets,
+// as the Lucide glyphs are (the icon's own 1.5 where the sheet sets none).
+function SignInGlyph(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      {LoginCircle01Icon.map(([tag, attrs]) => createElement(tag, { key: attrs.key, d: attrs.d }))}
+    </svg>
+  );
+}
 
 /** The sheet shows the choices, or the step one of them opened. */
 type Step = 'choices' | 'about' | SetupMethodId;
@@ -68,7 +82,7 @@ export function SetupChoicesSheet({ open, onOpenChange, layout = 'grouped', subt
   };
 
   const method = step === 'choices' || step === 'about' ? undefined : setupMethods.find((candidate) => candidate.id === step);
-  const HeroIcon = method ? methodIcons[method.id] : step === 'about' ? InfoCircle : ShieldKey;
+  const HeroIcon = method ? methodIcons[method.id] : step === 'about' ? Info : SignInGlyph;
   const title = method?.title ?? (step === 'about' ? aboutSignInMethods.title : setupIntro.title);
   const close = <Dialog.Close><NavigationButton action="close" aria-label="Close dialog" /></Dialog.Close>;
 
@@ -122,7 +136,7 @@ export function SetupChoicesSheet({ open, onOpenChange, layout = 'grouped', subt
           {step === 'about' && aboutSignInMethods.paragraphs.slice(1).map((paragraph) => <p key={paragraph} className={s.Paragraph}>{paragraph}</p>)}
         </Dialog.Body>
         {(method || (step === 'about' && wide)) && (
-          <Dialog.Footer>
+          <Dialog.Footer className={s.Footer}>
             {wide && <Button color="secondary" variant="soft" onClick={back}>Back</Button>}
             {method && <Button color="primary" onClick={() => { onAdd(method); onOpenChange(false); }}>Add {method.title}</Button>}
           </Dialog.Footer>

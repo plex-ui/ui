@@ -3,7 +3,11 @@
 import clsx from "clsx"
 import { Dialog as RadixDialog } from "radix-ui"
 import {
+  Children,
+  cloneElement,
   createContext,
+  Fragment,
+  isValidElement,
   useCallback,
   useContext,
   useEffect,
@@ -11,6 +15,8 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
+  type ReactElement,
   type ReactNode,
 } from "react"
 import { FloatingBoundaryProvider, useFloatingBoundaryRegistration, useFloatingBoundaryScope } from "../../hooks/useFloatingBoundary"
@@ -18,13 +24,14 @@ import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { useStableCallback } from "../../hooks/useStableCallback"
 import { NavigationButton } from "../Button/NavigationButton"
-import { ToolbarHostContext, type BarBackground, type ToolbarHost } from "../Toolbar/Toolbar"
+import { Toolbar, ToolbarHostContext, type BarBackground, type ToolbarHost } from "../Toolbar/Toolbar"
 import { NO_SCROLL_EDGES, observeScrollEdges, sameScrollEdges, type ScrollEdges } from "../../lib/scrollEdges"
 import { TransitionGroup } from "../Transition"
 import { createExitGuard, overlayTiming, overlayTimingLarge } from "../Transition/shared"
 import { attachSheetDrag } from "./sheetDrag"
 import { usePopoverDismissableSurface } from "../Popover/deferredOutsidePress"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
+import t from "@plexui/styles/components/Toolbar/Toolbar.module.css"
 
 type DialogContextValue = {
   open: boolean
@@ -148,6 +155,7 @@ const Content = ({
   const setEdges = useCallback((next: ScrollEdges) => setEdgesState((current) => sameScrollEdges(current, next) ? current : next), [])
   const scroll = useMemo(() => ({ edges, setEdges }), [edges, setEdges])
   const toolbarHost = useMemo<ToolbarHost>(() => ({ kind: "dialog", scrolled: edges.scrolled, contentBelow: edges.contentBelow }), [edges])
+  const sheet = useMemo<DialogSheetValue | null>(() => (mobileVariant === "sheet" ? { showClose } : null), [mobileVariant, showClose])
   const boundary = useFloatingBoundaryScope()
   const setRoot = boundary.setRoot
   const setPanelRef = useCallback((node: HTMLDivElement | null) => { setPanel(node); setRoot(node) }, [setRoot])
@@ -178,8 +186,11 @@ const Content = ({
   useLayoutEffect(() => {
     if (!panel) return
     const update = () => {
-      // A phone Toolbar takes the place of the header or footer bar on its side.
-      const header = panel.querySelector<HTMLElement>(`:scope > ${TOP_TOOLBAR}`) ?? panel.querySelector<HTMLElement>(`:scope > .${s.Header}`)
+      // A phone Toolbar takes the place of the header or footer bar on its side: one the dialog places itself
+      // before the bar its header becomes.
+      const header = panel.querySelector<HTMLElement>(`:scope > ${TOP_TOOLBAR}:not([data-dialog-bar])`)
+        ?? panel.querySelector<HTMLElement>(`:scope > ${TOP_TOOLBAR}`)
+        ?? panel.querySelector<HTMLElement>(`:scope > .${s.Header}`)
       const footer = panel.querySelector<HTMLElement>(`:scope > ${BOTTOM_TOOLBAR}`) ?? panel.querySelector<HTMLElement>(`:scope > .${s.Footer}`)
       panel.style.setProperty("--dialog-header-height", `${header?.offsetHeight ?? 0}px`)
       panel.style.setProperty("--dialog-footer-height", `${footer?.offsetHeight ?? 0}px`)
@@ -238,7 +249,12 @@ const Content = ({
                   </RadixDialog.Close>
                 )}
                 <DialogScrollContext.Provider value={scroll}>
-                  <ToolbarHostContext.Provider value={toolbarHost}>{children}</ToolbarHostContext.Provider>
+                  <DialogSheetContext.Provider value={sheet}>
+                    {/* A dialog opened from a header action is not inside that header's bar */}
+                    <DialogBarContext.Provider value={false}>
+                      <ToolbarHostContext.Provider value={toolbarHost}>{children}</ToolbarHostContext.Provider>
+                    </DialogBarContext.Provider>
+                  </DialogSheetContext.Provider>
                 </DialogScrollContext.Provider>
               </div>
             </RadixDialog.Content>
@@ -252,6 +268,29 @@ const Content = ({
 
 type DialogScrollValue = { edges: ScrollEdges; setEdges: (edges: ScrollEdges) => void }
 const DialogScrollContext = createContext<DialogScrollValue | null>(null)
+// What the header of a Sheet needs from its Content to become the Sheet's bar on a phone
+type DialogSheetValue = { showClose: boolean }
+const DialogSheetContext = createContext<DialogSheetValue | null>(null)
+// Inside that bar: the title, the description and the header actions take the Toolbar's parts
+const DialogBarContext = createContext(false)
+
+// The phone layout of the Dialog style sheet (its rules for the Sheet's bar use the same query). A dialog's content
+// mounts on the client only (its portal waits for the document), so its first render already knows the layout, with
+// nothing to swap after it.
+const PHONE_LAYOUT = "(width <= 767px)"
+const phoneLayout = () => (typeof window !== "undefined" && typeof window.matchMedia === "function" ? window.matchMedia(PHONE_LAYOUT) : null)
+const subscribePhoneLayout = (onChange: () => void) => {
+  const query = phoneLayout()
+  if (!query) return () => {}
+  // Safari before 14 has only the older listener methods
+  if (typeof query.addEventListener !== "function") {
+    query.addListener(onChange)
+    return () => query.removeListener(onChange)
+  }
+  query.addEventListener("change", onChange)
+  return () => query.removeEventListener("change", onChange)
+}
+const usePhoneLayout = () => useSyncExternalStore(subscribePhoneLayout, () => phoneLayout()?.matches ?? false, () => false)
 const TOP_TOOLBAR = '[data-toolbar][data-placement="top"]'
 const BOTTOM_TOOLBAR = '[data-toolbar][data-placement="bottom"]'
 
@@ -267,12 +306,47 @@ export type DialogHeaderProps = DialogSlotProps & {
   background?: DialogBarBackground
 }
 
+// The header's own parts, fragments opened up, so its actions can stand at the end of the bar. A part from a
+// fragment keeps the fragment's key before its own, so two parts never share a key.
+const headerParts = (children: ReactNode, prefix = ""): ReactNode[] =>
+  Children.toArray(children).flatMap((part) => {
+    if (!isValidElement<{ children?: ReactNode }>(part)) return [part]
+    if (part.type === Fragment) return headerParts(part.props.children, `${prefix}${String(part.key)}/`)
+    return [prefix ? cloneElement(part, { key: `${prefix}${String(part.key)}` }) : part]
+  })
+const isHeaderAction = (part: ReactNode): part is ReactElement => isValidElement(part) && part.type === HeaderAction
+
 const Header = ({ children, className, background = "soft" }: DialogHeaderProps) => {
+  const sheet = useContext(DialogSheetContext)
+  const phone = usePhoneLayout()
   const scrolled = useContext(DialogScrollContext)?.edges.scrolled
+  if (sheet && phone) {
+    const parts = headerParts(children)
+    // On a phone the header of a Sheet is its Toolbar (iOS 27 kit Sheets 507-24684, Toolbar - Top - iPhone
+    // 1-54520): Close at the leading edge, the title centered on the row of controls, the header actions at the
+    // trailing edge, all on one 44px row under the grabber.
+    return (
+      <Toolbar background={background} className={className} data-dialog-bar="">
+        <DialogBarContext.Provider value={true}>
+          {sheet.showClose && (
+            <Toolbar.Leading className={s.BarClose}>
+              <RadixDialog.Close asChild>
+                <NavigationButton action="close" variant="ghost" aria-label="Close dialog" />
+              </RadixDialog.Close>
+            </Toolbar.Leading>
+          )}
+          <div className={clsx(t.Heading, s.BarHeading)}>{parts.filter((part) => !isHeaderAction(part))}</div>
+          {parts.filter(isHeaderAction)}
+        </DialogBarContext.Provider>
+      </Toolbar>
+    )
+  }
   return <div className={clsx(s.Header, className)} data-background={background} data-scrolled={scrolled ? "" : undefined}>{children}</div>
 }
 
 const HeaderAction = ({ children, className }: DialogSlotProps) => {
+  const bar = useContext(DialogBarContext)
+  if (bar) return <Toolbar.Trailing className={className}>{children}</Toolbar.Trailing>
   return <div className={clsx(s.HeaderAction, className)}>{children}</div>
 }
 
@@ -313,12 +387,24 @@ const Footer = ({ children, className, mobileLayout, background = "soft" }: Dial
 }
 
 const Title = ({ children, className }: DialogSlotProps) => {
-  return <RadixDialog.Title className={clsx(s.Title, className)}>{children}</RadixDialog.Title>
+  const bar = useContext(DialogBarContext)
+  return <RadixDialog.Title className={clsx(bar ? t.Title : s.Title, className)}>{children}</RadixDialog.Title>
 }
 
 const Description = ({ children, className }: DialogSlotProps) => {
+  const bar = useContext(DialogBarContext)
+  const element = useRef<HTMLParagraphElement | null>(null)
+  const [shown, setShown] = useState(false)
+  useLayoutEffect(() => {
+    // In the bar a description the reader sees is the title's second line (Toolbar's subtitle); one that is only
+    // read out, visually hidden, leaves the title on its one line.
+    const node = element.current
+    // A measurement of the laid-out description, which only an effect after layout can read
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setShown(bar && !!node && node.offsetHeight > 1 && node.offsetWidth > 1)
+  }, [bar, children, className])
   return (
-    <RadixDialog.Description className={clsx(s.Description, className)}>
+    <RadixDialog.Description ref={element} className={clsx(bar && shown ? t.Subtitle : s.Description, className)}>
       {children}
     </RadixDialog.Description>
   )

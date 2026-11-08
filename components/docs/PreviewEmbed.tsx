@@ -4,6 +4,10 @@ import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef,
 import s from './PreviewEmbed.module.css';
 import { installPreviewScrollBridge } from './previewScroll';
 import { createPreviewKeyboardController, isPreviewKeyboardCommand } from './previewKeyboardInput';
+import { previewFocusGuard } from './previewFocus';
+
+// Before the example hydrates: a dialog that opens with it must not take focus from the docs page.
+previewFocusGuard();
 
 // The phone view of a preview: the page renders again in an iframe 402 wide,
 // so media queries see a phone. Only the preview with the `target` key shows,
@@ -172,7 +176,10 @@ export function PreviewEmbed({ target, children }: { target: string; children: R
       if (event.origin !== origin || event.source !== window.parent) return;
       const data: unknown = event.data;
       if (!data || typeof data !== 'object' || !('previewKey' in data) || data.previewKey !== target || !('previewKeyboardCommand' in data)) return;
-      if (isPreviewKeyboardCommand(data.previewKeyboardCommand)) keyboard.command(data.previewKeyboardCommand);
+      if (!isPreviewKeyboardCommand(data.previewKeyboardCommand)) return;
+      // The reader asked for this phone's keyboard: its field may take focus now.
+      previewFocusGuard()?.engage();
+      keyboard.command(data.previewKeyboardCommand);
     };
     window.addEventListener('message', onCommand);
     return () => { window.removeEventListener('message', onCommand); keyboard.destroy(); };

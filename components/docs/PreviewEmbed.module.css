@@ -17,8 +17,9 @@
   display: none !important;
 }
 
-/* An initially open modal should not show its trigger through the scrim. */
-:global(body:has([data-plex-dialog][data-state="open"])) .Root [data-preview-initial-dialog] [data-demo-stage] [aria-haspopup="dialog"] {
+/* An initially open modal should not show its trigger through the scrim, unless the trigger is part of the screen
+   under the sheet (a bar button, data-preview-screen), which stays as it does natively (owner, 08.11). */
+:global(body:has([data-plex-dialog][data-state="open"])) .Root [data-preview-initial-dialog] [data-demo-stage] [aria-haspopup="dialog"]:not([data-preview-screen] *) {
   visibility: hidden;
 }
 

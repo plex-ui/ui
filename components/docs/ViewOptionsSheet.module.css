@@ -25,7 +25,10 @@
     height: 100dvh;
   }
 
+  /* Files shows the values of these pop-ups in the primary label (iOS-menu IMG_5686). */
   .Sections {
+    --field-row-popup-value-color: var(--color-text);
+
     gap: 32px;
   }
 

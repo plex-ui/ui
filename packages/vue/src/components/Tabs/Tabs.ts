@@ -301,7 +301,9 @@ const TabsComponent = defineComponent({
           const bottom = top + targetHeight
           if (top < scrollTop + buffer || bottom > scrollTop + rootHeight - buffer) {
             if (attemptScroll) {
-              activeNode.scrollIntoView({ block: "center", inline: "nearest", behavior: prefersReducedMotion() ? "auto" : "smooth" })
+              // Scroll the control only: scrollIntoView also scrolls the page to it (a switch to Phone
+              // re-rendered a control far down the page and slid the page to it, owner 08.11)
+              root.scrollTo({ top: top - (rootHeight - targetHeight) / 2, behavior: prefersReducedMotion() ? "auto" : "smooth" })
             }
           }
         }
@@ -330,7 +332,9 @@ const TabsComponent = defineComponent({
           if (left < scrollLeft + buffer || right > scrollLeft + rootWidth - buffer) {
             // Cheap trick to avoid unintentional scroll on mount - transition is set after mounting
             if (attemptScroll) {
-              activeNode.scrollIntoView({ block: "nearest", inline: "center", behavior: prefersReducedMotion() ? "auto" : "smooth" })
+              // Scroll the control only: scrollIntoView also scrolls the page to it (a switch to Phone
+              // re-rendered a control far down the page and slid the page to it, owner 08.11)
+              root.scrollTo({ left: left - (rootWidth - targetWidth) / 2, behavior: prefersReducedMotion() ? "auto" : "smooth" })
             }
           }
         }

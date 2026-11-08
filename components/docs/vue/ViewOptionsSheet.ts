@@ -1,9 +1,9 @@
 import { defineComponent, h, ref, type PropType } from 'vue';
-import { Button } from '@plexui/vue/components/Button';
+import { Button, NavigationButton } from '@plexui/vue/components/Button';
 import { Dialog, DialogBody, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogHeaderAction, DialogTitle, DialogTrigger } from '@plexui/vue/components/Dialog';
 import { Field } from '@plexui/vue/components/Field';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
-import { Check } from '@plexui/vue/components/Icon';
+import { DotsHorizontal } from '@plexui/vue/components/Icon';
 import { Page, PageActions, PageBar, PageContent, PageHeader, PageTitle } from '@plexui/vue/components/Page';
 import { Select } from '@plexui/vue/components/Select';
 import { Switch } from '@plexui/vue/components/Switch';
@@ -28,7 +28,7 @@ export const ViewOptionsSheet = defineComponent({
     const update = <Key extends keyof ViewOptions>(key: Key, next: ViewOptions[Key]) => emit('update:value', { ...props.value, [key]: next });
 
     return () => h(Dialog, { open: props.open, 'onUpdate:open': (open: boolean) => emit('update:open', open) }, () => [
-      h(DialogTrigger, null, () => slots.trigger?.() ?? h(Button, { color: 'secondary', variant: 'soft', pill: true }, () => 'View options')),
+      h(DialogTrigger, null, () => slots.trigger?.() ?? h(Button, { color: 'secondary', variant: 'soft', pill: true, uniform: true, 'aria-label': 'View options' }, () => h(DotsHorizontal))),
       h(DialogContent, {
         mobileVariant: 'sheet', surface: 'grouped', showClose: false,
         onOpenAutoFocus: (event: Event) => { event.preventDefault(); heading.value?.focus({ preventScroll: true }); },
@@ -37,7 +37,8 @@ export const ViewOptionsSheet = defineComponent({
           h('div', { ref: heading, tabindex: -1, class: s.Heading }, [h(DialogTitle, null, () => 'View Options')]),
           h(DialogDescription, { class: 'sr-only' }, () => 'Choose how items are sorted and displayed. Changes apply immediately.'),
           h(DialogHeaderAction, null, () => h(DialogClose, null, () =>
-            h(Button, { color: 'info', variant: 'solid', pill: true, uniform: true, 'aria-label': 'Done' }, () => h(Check)),
+            // The shared confirm of a bar: the accent capsule and the checkmark of native sheets (IMG_5686).
+            h(NavigationButton, { action: 'confirm', 'aria-label': 'Done' }),
           )),
         ]),
         h(DialogBody, null, () => h('div', { class: s.Sections }, [
@@ -76,7 +77,7 @@ export const ViewOptionsSheetDemo = defineComponent({
     const open = ref(props.initialOpen);
     const value = ref(initialViewOptions());
     return () => h('div', { 'data-demo-stage': '' }, [
-      h(Page, { surface: 'grouped', class: s.Screen }, () => [
+      h(Page, { surface: 'grouped', class: s.Screen, 'data-preview-screen': '' }, () => [
         h(PageHeader, null, () => h(PageBar, null, () => [
           h(PageTitle, null, () => 'Files'),
           h(PageActions, null, () => h(ViewOptionsSheet, {

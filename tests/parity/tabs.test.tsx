@@ -846,11 +846,19 @@ describe("Tabs thumb positioning matches React", () => {
         return metric(this, name)
       })
     }
-    Object.defineProperty(Element.prototype, "scrollIntoView", {
+    // Tabs scroll their own row (scrollTo on the root): scrollIntoView would scroll the page to the control too
+    Object.defineProperty(Element.prototype, "scrollTo", {
       configurable: true,
       writable: true,
       value(this: Element, options: unknown) {
-        scrollCalls.push(`${this.textContent} ${JSON.stringify(options)}`)
+        scrollCalls.push(`${this.getAttribute("role")} ${JSON.stringify(options)}`)
+      },
+    })
+    Object.defineProperty(Element.prototype, "scrollIntoView", {
+      configurable: true,
+      writable: true,
+      value(this: Element) {
+        scrollCalls.push(`page scrolled to ${this.textContent}`)
       },
     })
     vi.stubGlobal(
@@ -873,6 +881,7 @@ describe("Tabs thumb positioning matches React", () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView
+    delete (Element.prototype as { scrollTo?: unknown }).scrollTo
   })
 
   type State = {
@@ -1046,10 +1055,13 @@ describe("Tabs thumb positioning matches React", () => {
     )
     expect(vue).toEqual(react)
     expect(runs[1]).toEqual(runs[0])
-    expect(runs[0]).toEqual([
-      'Integrations {"block":"nearest","inline":"center","behavior":"smooth"}',
-      'Members {"block":"nearest","inline":"center","behavior":"smooth"}',
-    ])
+    // The row scrolls to center Integrations, then back to Members; the page never moves (owner 08.11)
+    expect(runs[0]).toHaveLength(2)
+    const lefts = runs[0].map((call) => {
+      expect(call).toMatch(/^\w+ \{"left":-?[\d.]+,"behavior":"smooth"\}$/)
+      return Number(call.match(/"left":(-?[\d.]+)/)?.[1])
+    })
+    expect(lefts[0]).toBeGreaterThan(lefts[1])
   })
 
   test.each(["horizontal", "vertical"] as const)(
@@ -1105,7 +1117,8 @@ describe("Tabs thumb positioning matches React", () => {
     )
     expect(vue).toEqual(react)
     expect(runs[1]).toEqual(runs[0])
-    expect(runs[0]).toEqual(['Settings {"block":"center","inline":"nearest","behavior":"smooth"}'])
+    expect(runs[0]).toHaveLength(1)
+    expect(runs[0][0]).toMatch(/^\w+ \{"top":-?[\d.]+,"behavior":"smooth"\}$/)
   })
 })
 

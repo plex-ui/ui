@@ -1,18 +1,5 @@
 /* Read-only metadata uses native Body and Footnote roles on phones. */
 @media (max-width: 767px) {
-  .Content [data-detail-section] {
-    gap: 12px;
-  }
-
-  .Content [data-detail-heading] {
-    color: var(--color-text);
-    font-size: 17px;
-    font-weight: 600;
-    line-height: 22px;
-    letter-spacing: normal;
-    text-transform: none;
-  }
-
   .Content [data-detail-list] {
     display: flex;
     flex-direction: column;
@@ -43,10 +30,6 @@
   .Content [data-detail-row] > dd {
     grid-column: auto;
     color: var(--color-text);
-  }
-
-  .Content [data-detail-values] > * {
-    margin: 0;
   }
 
   .Content [data-detail-copy] {

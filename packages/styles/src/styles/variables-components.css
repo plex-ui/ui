@@ -101,8 +101,10 @@
     --navigation-button-size: var(--control-size-2xl);
     --navigation-button-back-icon-size: 32px;
     --navigation-button-close-icon-size: 34px;
-    /* iOS 26 kit: the 17pt checkmark of a bar button, about 15 × 14.5px of ink. */
-    --navigation-button-confirm-icon-size: 26px;
+    /* The checkmark of a bar's confirm, sized by native ink over the kit (plan 162): Files View Options draws
+       17.7 × 17.3pt with a 2.1pt line (IMG_5686), Photos New Album 18.3pt square with 2.3pt (IMG_5453); the
+       iOS 26 kit's 15 × 14.5 is smaller. The Check box of 30px draws about 17.8 × 16.5 with a 2.5px line (owner 08.11). */
+    --navigation-button-confirm-icon-size: 30px;
 
     /* =============================================
       Card
@@ -388,7 +390,9 @@
     --dialog-alert-radius: 34px;
     --dialog-alert-padding: 14px;
     --dialog-alert-action-height: 48px;
-    --dialog-sheet-action-height: 50px;
+    /* The capsule of a sheet's footer action: native setup sheets draw it 53pt tall (IMG_5432 Wallet, 159px at
+       3x; IMG_5509, 160px), owner 08.11. */
+    --dialog-sheet-action-height: 53px;
     --dialog-sheet-radius: 38px;
     /* Native iOS 26 dims the page under a phone Sheet or Alert to 80% in light (Sheets IMG_5437/5444/5453/5470/
        5471/5491, Alert iOS2 IMG_5533: white 255 to 204, grouped 242/242/247 to 193/193/197) and to 50% in dark
@@ -462,7 +466,11 @@
     /* The large title starts 21pt under the row of controls in iOS 26 Mail and Freeform (iOS2 IMG_5530, 5531,
        5534: controls 59 to 103, title baseline 157 at 430pt); the kit's 10 sets it 11pt too high. */
     --toolbar-large-title-gap: 21px;
-    --toolbar-icon-size: 24px;
+    /* A bar symbol, sized by its drawn glyph (plan 162): the kit's 44pt bar button holds a 29pt symbol box
+       that draws about 22pt (Apps 2.4, Toolbar button top 39972:316665: a check of 21.75 × 15.7, a heart of
+       22 × 20), and native Freeform draws its ellipsis 19.7pt wide with 4pt dots (IMG_5684). A PlexUI icon
+       of 26px draws the same: DotsHorizontal 19.5 wide with 4.3px dots (owner 08.11; 24px was small). */
+    --toolbar-icon-size: 26px;
     --toolbar-label-font-size: 17px;
     --toolbar-label-line-height: 22px;
     --toolbar-label-font-weight: 510;
@@ -492,6 +500,19 @@
        under a 131/131/133 glyph, 30% white: alpha-20 and alpha-30. */
     --toolbar-prominent-disabled-background: light-dark(var(--alpha-12), var(--alpha-20));
     --toolbar-prominent-disabled-color: light-dark(var(--gray-0), var(--alpha-30));
+    /* A prominent bar button (NavigationButton confirm, a solid primary or info Button) is tinted with the accent: the
+       kit's Symbol and Text - Prominent (iOS 27 Buttons - 44pt, 5720:29596) lay accents/blue #08f under a
+       #f5f5f5 symbol or label, and native glass shows 0/133/251 (Photos checkmark, IMG_5453): the info solid
+       of PlexUI, blue-400, under white (owner, 08.11). Its edge is the glass's: the sides darkened (kit, 25
+       levels; native, 0/113/217) and light along the top and the bottom (kit Glass Effect, a +40 dodge 10px
+       deep at both; native 187 at the top and 205 at the bottom on 133, 152 on the diagonals, none at the sides).
+       Set the background to --color-background-primary-solid to keep the PlexUI primary. */
+    --toolbar-prominent-background: var(--color-background-info-solid);
+    --toolbar-prominent-background-hover: var(--color-background-info-solid-hover);
+    --toolbar-prominent-background-active: var(--color-background-info-solid-active);
+    --toolbar-prominent-color: var(--color-text-info-solid);
+    --toolbar-prominent-sheen: linear-gradient(rgb(255 255 255 / 16%), transparent 6px, transparent calc(100% - 8px), rgb(255 255 255 / 16%));
+    --toolbar-prominent-shadow: 0 8px 15px light-dark(rgb(0 0 0 / 2%), transparent), 1.25px 0 0 -0.75px rgb(0 0 0 / 12%), -1.25px 0 0 -0.75px rgb(0 0 0 / 12%), inset 0 0.67px 0 rgb(255 255 255 / 35%), inset 0 -0.67px 0 rgb(255 255 255 / 35%);
 
     /* =============================================
       Page
@@ -506,8 +527,18 @@
     --page-bar-height: 36px;
     --page-bar-height-phone: 44px;
     --page-bar-gap: 24px;
-    --page-bar-veil-opacity: light-dark(72%, 60%);
-    --page-bar-veil: light-dark(rgb(255 255 255 / 72%), rgb(0 0 0 / 60%));
+    /* A glass bar: thin enough that what scrolls under it reads through the blur (owner 08.11: 72% was too
+       opaque); the Thin material of the iOS kit (Materials 224:56302) is white 40% under a 50px blur. */
+    --page-bar-veil-opacity: light-dark(55%, 50%);
+    /* The soft scroll edge covers content fully down to the bottom of the bar, as native iOS 26 bars do
+       (IMG_5503: the cover holds at 249 to 252 over white to 10pt under the row of controls, the bar's bottom),
+       then fades out over this tail past the bar (owner 08.11: 16px read too short). */
+    --page-bar-soft-tail: 32px;
+    --page-bar-veil: light-dark(rgb(255 255 255 / 55%), rgb(0 0 0 / 50%));
+    /* The blur of a glass bar: light enough that the lines scrolled under it still read as smudged text
+       (owner 08.11: at 20px the 17px text of a sheet vanished and the bar read as opaque white; 10px still
+       nearly hides it, 6px shows it). The saturation is Apple's bar material (180%). */
+    --page-bar-glass-filter: blur(6px) saturate(180%);
     --page-bar-line: light-dark(rgb(0 0 0 / 10%), var(--color-border));
     /* The line of a hard scroll edge: iOS 26 kit Materials, Scroll Edge Effect - Hard (5661:26978), 1pt black 12%. */
     --page-bar-hard-line: light-dark(rgb(0 0 0 / 12%), var(--color-border));

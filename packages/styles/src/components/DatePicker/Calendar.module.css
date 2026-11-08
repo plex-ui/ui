@@ -490,10 +490,15 @@
     --select-control-gap: 4px;
   }
 
+  /* The Time row is built as the month row is (owner 08.11): as tall, its 44px targets with the calendar's
+     inset above and below them, its label where the month starts. The time capsule is concentric with the
+     panel's corner, as the 44px edge days are: the 34px capsule sits 5px inside where a 44px circle would,
+     so 15px from the bottom and the side for the 32px corner. It is 1px inside its two 44px targets, so the
+     row ends 4px further in. */
   .TimeFooter {
     box-sizing: border-box;
-    height: 52px;
-    padding-top: 0;
+    height: var(--calendar-header-height);
+    padding: 0 4px 0 max(0px, calc(var(--field-row-padding-inline, 16px) - var(--calendar-inner-padding)));
     border-top-width: 0.5px;
     margin-top: 0;
   }
@@ -542,9 +547,12 @@
     font-weight: var(--font-weight-normal);
     line-height: 22px;
 
+    /* The phone focus treatment of the calendar: real focus, no drawn ring. The part being typed takes
+       the accent, as the date capsule does while its calendar is open. */
     &:focus {
       background: none;
-      outline-offset: -6px;
+      outline: none;
+      color: var(--link-primary-text-color);
     }
   }
 

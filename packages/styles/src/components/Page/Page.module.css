@@ -186,18 +186,18 @@
     inset: 0 0 auto;
     padding-block: var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) 10px;
 
-    /* Soft: the canvas covers content under the row and fades out over the bar's bottom padding and
-       16px past the bar, as the soft edge of a top Toolbar does. */
+    /* Soft: the canvas covers content under the bar and fades out past it, as the soft edge of a top
+       Toolbar does. */
     &::before {
       position: absolute;
       z-index: -1;
-      inset: 0 0 -16px;
+      inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));
       background: var(--page-background);
       -webkit-backdrop-filter: blur(var(--toolbar-edge-blur-small));
       backdrop-filter: blur(var(--toolbar-edge-blur-small));
       content: "";
-      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 10px - 16px), transparent);
-      mask-image: linear-gradient(to bottom, #000 calc(100% - 10px - 16px), transparent);
+      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);
+      mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);
       pointer-events: none;
       transition: opacity var(--transition-duration-basic), border-color var(--transition-duration-basic);
     }
@@ -219,8 +219,8 @@
     &[data-background="glass"]::before {
       border-bottom: 0.5px solid transparent;
       background: var(--page-bar-veil);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: var(--page-bar-glass-filter);
+      backdrop-filter: var(--page-bar-glass-filter);
       opacity: 0;
     }
 
@@ -324,6 +324,12 @@
     --button-icon-size: 17px;
   }
 
+  /* An icon alone in the circle is a bar symbol, as in a Toolbar: Files' More (IMG_5686) and Freeform's
+     ellipsis (IMG_5684) draw it 19.7pt wide, not at the size of a label beside text (owner 08.11). */
+  :is(.Leading, .Actions) > :is(button, a)[data-uniform]:not([data-navigation-action]) {
+    --button-icon-size: var(--toolbar-icon-size);
+  }
+
   :is(.Leading, .Actions) > :where(button, a)[data-uniform]:where(:not([data-disabled], [data-mobile-material="flat"])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
     --button-mobile-material-background: var(--mobile-glass-background);
     --button-mobile-material-sheen: var(--mobile-glass-sheen);
@@ -381,8 +387,8 @@
     &[data-background="glass"]::before {
       border-top: 0.5px solid var(--page-bar-line);
       background: var(--page-bar-veil);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: var(--page-bar-glass-filter);
+      backdrop-filter: var(--page-bar-glass-filter);
       opacity: 0;
     }
 

@@ -1,8 +1,11 @@
 /* Mobile glass shared by Back, Close, More and the phone toolbar: the Liquid Glass of the iOS 27 kit's bar
    buttons (Toolbars 507:25993, Buttons - 44pt 5432:23133). A translucent fill that lifts a dark backdrop and
    dims a white one a little, a hairline outline with darker sides that keeps the capsule visible on any
-   background, a faint shadow, a sheen darker at the top and lighter at the bottom, and a thin rim of light on
-   the top-left and bottom-right edges. A deeper shadow comes once content is under the control. */
+   background, a faint shadow, a sheen darker at the top and lighter at the bottom, and a thin rim of light
+   along the top and the bottom edges that fades out at the sides. The kit draws that rim on the top-left and
+   bottom-right corners; native glass lights the top and bottom alike and none of the sides (Photos Close,
+   IMG_5453; Calendar checkmark, IMG_5433; 08.11), and a rim on one diagonal made a round button read as an
+   oval. A deeper shadow comes once content is under the control. */
 @media (max-width: 767px) {
   :root {
     /* PlexUI colors. Light: the kit stacks white 25% over black 25%, 68/68/68 at 60% plus-lighter and 248 at 20%
@@ -18,9 +21,11 @@
     /* The kit's edge in light: a 0.5px outline of #e8e8e8 (gray-100) all round, and the sides 0.5px darker in
        #d0d0d0 (gray-200), with a 2% shadow 8px down. Dark glass has neither in native frames, only its rim. */
     --mobile-glass-outline: 1.25px 0 0 -0.75px light-dark(var(--gray-200), transparent), -1.25px 0 0 -0.75px light-dark(var(--gray-200), transparent), 0 0 0 0.5px light-dark(var(--gray-100), transparent);
-    --mobile-glass-shadow: 0 8px 15px light-dark(rgb(0 0 0 / 2%), transparent), var(--mobile-glass-outline), inset 0.67px 0.67px 0 var(--mobile-glass-rim), inset -0.67px -0.67px 0 var(--mobile-glass-rim);
-    --mobile-glass-shadow-raised: 0 8px 40px light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 8%)), var(--mobile-glass-outline), inset 0.67px 0.67px 0 var(--mobile-glass-rim), inset -0.67px -0.67px 0 var(--mobile-glass-rim);
-    --mobile-glass-backdrop-filter: blur(4px);
+    --mobile-glass-shadow: 0 8px 15px light-dark(rgb(0 0 0 / 2%), transparent), var(--mobile-glass-outline), inset 0 0.67px 0 var(--mobile-glass-rim), inset 0 -0.67px 0 var(--mobile-glass-rim);
+    --mobile-glass-shadow-raised: 0 8px 40px light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 8%)), var(--mobile-glass-outline), inset 0 0.67px 0 var(--mobile-glass-rim), inset 0 -0.67px 0 var(--mobile-glass-rim);
+    /* The kit's Glass Effect frosts at a radius of 6 (iOS 27 Buttons - 44pt, 5720:29596; refraction 0.7,
+       depth 30, light 0.25 are not drawn: CSS has no lens for a backdrop). */
+    --mobile-glass-backdrop-filter: blur(6px);
     --mobile-grabber-color: light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 20%));
     /* Dark menus and Select lists are glass, as native iOS 26 pop-up menus and popovers are: the glass
        of the buttons, alpha-12, over a blurred backdrop (iOS2 IMG_5524, 5525, 5528: a sheet of 28 shows at
@@ -32,13 +37,18 @@
        dark glass (iOS2 IMG_5528: a card of 44 under it at 65 to 69, the sheet of 28 at 55). */
     --popover-mobile-background: var(--menu-mobile-background);
     --popover-mobile-backdrop-filter: var(--menu-mobile-backdrop-filter);
-    /* An Alert is glass in both themes, as native iOS 26 alerts are: light 233 over a page dimmed to 204
-       (iOS2 IMG_5533), dark 34 to 45 over a page dimmed to 0 to 14 (IMG_5532); the backdrop is blurred. */
-    /* gray-50 at 64% gives the native 233 over a page dimmed to 204; the bar glass would give 226. */
-    --dialog-alert-background: light-dark(alpha(var(--gray-50), 64%), var(--alpha-12));
+    /* An Alert is glass in both themes, as native iOS alerts are. Light: Files (iOS-menu, Screenshot 18.22.08,
+       08.11) shows 237 over a page dimmed to 204, as white at 65% does; kit iOS 27 (Alerts 65:57149) comes to
+       235, an older frame to 233 (iOS2 IMG_5533). Dark: 34 to 45 over a page dimmed to 0 to 14 (IMG_5532). The
+       backdrop is blurred. The shadow is the raised glass one: 16 levels under the alert, gone within 33pt,
+       with the light rim along its edge (Files). */
+    --dialog-alert-background: light-dark(rgb(255 255 255 / 65%), var(--alpha-12));
     --dialog-alert-backdrop-filter: blur(10px);
-    /* The message is the primary label, as in kit iOS 27 (Alerts 65:57149); iOS 26 had it in the secondary one. */
-    --dialog-alert-message-color: var(--color-text);
-    --dialog-alert-fill: var(--alpha-12);
+    --dialog-alert-shadow: var(--mobile-glass-shadow-raised);
+    /* Native frames take precedence over the kit (plan 162): the message is the secondary label under a primary
+       title, as Files shows it (125 on 237) and iOS 26 did (IMG_5532, 5533); kit iOS 27 draws it primary. */
+    --dialog-alert-message-color: var(--mobile-label-secondary, var(--color-text-secondary));
+    /* A soft action and a field share one fill: Files 203 on 237 in light, 15% of black; dark 73 on 46. */
+    --dialog-alert-fill: light-dark(var(--alpha-15), var(--alpha-12));
   }
 }

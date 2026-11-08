@@ -20,20 +20,20 @@
     padding: var(--toolbar-padding-top, 0px) var(--toolbar-gutter) var(--toolbar-padding-bottom) var(--toolbar-gutter);
     color: var(--color-text);
 
-    /* Soft scroll edge: the canvas color covers content scrolled under the row of controls and fades
-       out over the bar's bottom padding and 16px past the bar, as the reference effect reaches. Native
-       iOS 26 bars hide content under the row almost entirely (IMG_5484, 5503: text behind the title at
-       7-10% of its contrast), so the fade starts below the row, not at the top of the bar. */
+    /* Soft scroll edge: the canvas color covers content scrolled under the bar down to its bottom and fades
+       out past it over --page-bar-soft-tail. Native iOS 26 bars hide content under the row almost entirely
+       (IMG_5484, 5503: text behind the title at 7-10% of its contrast) and keep that cover through the bar's
+       bottom padding (IMG_5503). */
     &::before {
       position: absolute;
       z-index: -1;
-      inset: 0 0 -16px;
+      inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));
       background: var(--toolbar-background, var(--dialog-panel-background, var(--page-background)));
       -webkit-backdrop-filter: blur(var(--toolbar-edge-blur));
       backdrop-filter: blur(var(--toolbar-edge-blur));
       content: "";
-      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--toolbar-padding-bottom) - 16px), transparent);
-      mask-image: linear-gradient(to bottom, #000 calc(100% - var(--toolbar-padding-bottom) - 16px), transparent);
+      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);
+      mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);
       pointer-events: none;
     }
 
@@ -52,8 +52,8 @@
 
     &[data-background="glass"]::before {
       background: color-mix(in srgb, var(--toolbar-background, var(--dialog-panel-background, var(--page-background))) var(--page-bar-veil-opacity), transparent);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: var(--page-bar-glass-filter);
+      backdrop-filter: var(--page-bar-glass-filter);
       opacity: 0;
     }
   }
@@ -267,7 +267,7 @@
     --button-font-weight: var(--toolbar-label-font-weight);
   }
 
-  /* iOS 26 kit: a symbol is set at 17pt in a 36pt frame, about 20px of ink, in both bars. */
+  /* A bar symbol, sized by its drawn glyph (--toolbar-icon-size: the kit's 29pt box, about 22pt of ink). */
   .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a):not([data-navigation-action]) {
     --button-icon-size: var(--toolbar-icon-size);
   }
@@ -309,6 +309,25 @@
   .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-disabled][data-variant="solid"] {
     --button-background-color: var(--toolbar-prominent-disabled-background);
     --button-text-color: var(--toolbar-prominent-disabled-color);
+
+    /* The gray capsule keeps the outline and the soft shadow of the bar's glass (Calendar, IMG_5433). */
+    &::before {
+      box-shadow: var(--mobile-glass-shadow);
+    }
+  }
+
+  /* An enabled prominent action takes the accent tint, with the edge of the glass (see the tokens). An info
+     action already is the accent and takes the same edge (View Options Done, owner 08.11). */
+  .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-variant="solid"]:where([data-color="primary"], [data-color="info"]):not([data-disabled]) {
+    --button-background-color: var(--toolbar-prominent-background);
+    --button-background-color-hover: var(--toolbar-prominent-background-hover);
+    --button-background-color-active: var(--toolbar-prominent-background-active);
+    --button-text-color: var(--toolbar-prominent-color);
+
+    &::before {
+      background-image: var(--toolbar-prominent-sheen);
+      box-shadow: var(--toolbar-prominent-shadow);
+    }
   }
 
   /* A search field (iOS 26 kit Search Top and Bottom): the row height and the glass of the bar buttons.
@@ -373,11 +392,12 @@
     white-space: nowrap;
   }
 
-  /* Two lines: title 15/20 at 6px, subtitle 12/16 below it. */
+  /* Two lines: title 15/20 at 6px, subtitle 12/16 below it. The title of a Dialog's bar can sit in a wrapper of
+     its own (one that takes focus when the Sheet opens). */
   .Heading:has(> .Subtitle) {
     transform: translateY(1px);
 
-    & > .Title {
+    & .Title {
       font-size: var(--toolbar-title-compact-font-size);
       line-height: var(--toolbar-title-compact-line-height);
     }

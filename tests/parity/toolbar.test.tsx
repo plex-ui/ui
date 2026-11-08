@@ -433,7 +433,9 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
   })
 
   test("the soft edge of a top bar covers the row of controls and fades below it (native IMG_5484, 5503)", () => {
-    expect(css).toContain("mask-image: linear-gradient(to bottom, #000 calc(100% - var(--toolbar-padding-bottom) - 16px), transparent);")
+    // Full cover down to the bottom of the bar, then a 32px fade past it (owner 08.11: 16px read too short; plan 170)
+    expect(css).toContain("inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));")
+    expect(css).toContain("mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);")
     expect(css).not.toContain("mask-image: linear-gradient(to bottom, #000, transparent);")
   })
 })

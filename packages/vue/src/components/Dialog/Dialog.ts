@@ -3,6 +3,7 @@ import {
   computed,
   createCommentVNode,
   defineComponent,
+  Fragment as FragmentVNode,
   h,
   inject,
   onBeforeUnmount,
@@ -17,6 +18,8 @@ import {
   type PropType,
   type Ref,
   type VNode,
+  type VNodeArrayChildren,
+  isVNode,
 } from "vue"
 import {
   DialogContent as RekaDialogContent,
@@ -39,15 +42,42 @@ import { attachSheetDrag } from "./sheetDrag.js"
 import { overlayTiming, overlayTimingLarge } from "../Transition/shared.js"
 import { provideFloatingBoundaryScope, useFloatingBoundaryRegistration } from "../../composables/useFloatingBoundary.js"
 import { NavigationButton } from "../Button/NavigationButton.js"
-import { TOOLBAR_HOST, type BarBackground } from "../Toolbar/Toolbar.js"
+import { TOOLBAR_HOST, Toolbar, ToolbarLeading, ToolbarTrailing, type BarBackground } from "../Toolbar/Toolbar.js"
 import { observeScrollEdges } from "../../lib/scrollEdges.js"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
+import t from "@plexui/styles/components/Toolbar/Toolbar.module.css"
 
 const DOUBLE_CLICK = 300
 
 /** Where content lies under the bars: DialogBody reports it, the bars show their lines with it. */
 type DialogScroll = { scrolled: Ref<boolean>; contentBelow: Ref<boolean> }
 const DIALOG_SCROLL: InjectionKey<DialogScroll> = Symbol("DialogScroll")
+// What the header of a Sheet needs from its content to become the Sheet's bar on a phone
+type DialogSheet = { showClose: boolean }
+const DIALOG_SHEET: InjectionKey<ComputedRef<DialogSheet | null>> = Symbol("DialogSheet")
+// Inside that bar: the title, the description and the header actions take the Toolbar's parts
+const DIALOG_BAR: InjectionKey<ComputedRef<boolean>> = Symbol("DialogBar")
+
+// The phone layout of the Dialog style sheet (its rules for the Sheet's bar use the same query). A dialog's content
+// mounts on the client only (its portal waits for the document), so it reads the layout as it mounts, with nothing to
+// swap after it.
+const PHONE_LAYOUT = "(width <= 767px)"
+const phoneLayout = () => (typeof window !== "undefined" && typeof window.matchMedia === "function" ? window.matchMedia(PHONE_LAYOUT) : null)
+const usePhoneLayout = (): Ref<boolean> => {
+  const query = phoneLayout()
+  const phone = ref(query?.matches ?? false)
+  const update = () => { phone.value = !!query?.matches }
+  if (!query) return phone
+  // Safari before 14 has only the older listener methods
+  if (typeof query.addEventListener !== "function") {
+    query.addListener(update)
+    onBeforeUnmount(() => query.removeListener(update))
+  } else {
+    query.addEventListener("change", update)
+    onBeforeUnmount(() => query.removeEventListener("change", update))
+  }
+  return phone
+}
 
 // Vue port of packages/ui/src/components/Dialog/Dialog.tsx on Reka UI
 // (the Vue lineage of Radix, same anatomy). Exports are flat (`Dialog`,
@@ -218,6 +248,9 @@ export const DialogContent = defineComponent({
     const scroll: DialogScroll = { scrolled: ref(false), contentBelow: ref(false) }
     provide(DIALOG_SCROLL, scroll)
     provide(TOOLBAR_HOST, { kind: "dialog", scrolled: scroll.scrolled, contentBelow: scroll.contentBelow })
+    provide(DIALOG_SHEET, computed(() => (props.mobileVariant === "sheet" ? { showClose: props.showClose } : null)))
+    // A dialog opened from a header action is not inside that header's bar
+    provide(DIALOG_BAR, computed(() => false))
     const mobilePlacement = computed(() =>
       props.mobileVariant === "alert"
         ? "center"
@@ -297,7 +330,11 @@ export const DialogContent = defineComponent({
       if (element) {
         const update = () => {
           // A phone Toolbar takes the place of the header or footer bar on its side.
-          const header = element.querySelector<HTMLElement>(`:scope > ${TOP_TOOLBAR}`) ?? element.querySelector<HTMLElement>(`:scope > .${s.Header}`)
+          // A phone Toolbar takes the place of the header or footer bar on its side: one the dialog places itself
+          // before the bar its header becomes.
+          const header = element.querySelector<HTMLElement>(`:scope > ${TOP_TOOLBAR}:not([data-dialog-bar])`)
+            ?? element.querySelector<HTMLElement>(`:scope > ${TOP_TOOLBAR}`)
+            ?? element.querySelector<HTMLElement>(`:scope > .${s.Header}`)
           const footer = element.querySelector<HTMLElement>(`:scope > ${BOTTOM_TOOLBAR}`) ?? element.querySelector<HTMLElement>(`:scope > .${s.Footer}`)
           element.style.setProperty("--dialog-header-height", `${header?.offsetHeight ?? 0}px`)
           element.style.setProperty("--dialog-footer-height", `${footer?.offsetHeight ?? 0}px`)
@@ -418,6 +455,12 @@ export const DialogContent = defineComponent({
 /** How a Sheet's bar meets the content scrolled under it; see `BarBackground`. */
 export type DialogBarBackground = BarBackground
 
+// The header's own parts, fragments opened up, so its actions can stand at the end of the bar
+const headerParts = (children: VNodeArrayChildren | undefined): VNodeArrayChildren =>
+  (children ?? []).flatMap((part) =>
+    isVNode(part) && part.type === FragmentVNode ? headerParts(part.children as VNodeArrayChildren) : Array.isArray(part) ? headerParts(part) : [part])
+const isHeaderAction = (part: unknown) => isVNode(part) && part.type === DialogHeaderAction
+
 export const DialogHeader = defineComponent({
   name: "DialogHeader",
   props: {
@@ -426,14 +469,34 @@ export const DialogHeader = defineComponent({
   },
   setup(props, { slots }) {
     const scroll = inject(DIALOG_SCROLL, null)
-    return () => h("div", { class: s.Header, "data-background": props.background, "data-scrolled": scroll?.scrolled.value ? "" : undefined }, slots.default?.())
+    const sheet = inject(DIALOG_SHEET, null)
+    const phone = usePhoneLayout()
+    const bar = computed(() => !!sheet?.value && phone.value)
+    provide(DIALOG_BAR, bar)
+    return () => {
+      if (!bar.value) return h("div", { class: s.Header, "data-background": props.background, "data-scrolled": scroll?.scrolled.value ? "" : undefined }, slots.default?.())
+      const parts = headerParts(slots.default?.())
+      // On a phone the header of a Sheet is its Toolbar (iOS 27 kit Sheets 507-24684, Toolbar - Top - iPhone
+      // 1-54520): Close at the leading edge, the title centered on the row of controls, the header actions at the
+      // trailing edge, all on one 44px row under the grabber.
+      return h(Toolbar, { "background": props.background, "data-dialog-bar": "" }, () => [
+        sheet?.value?.showClose
+          ? h(ToolbarLeading, { class: s.BarClose }, () => [
+              h(DialogClose, null, { default: () => [h(NavigationButton, { "action": "close", "variant": "ghost", "aria-label": "Close dialog" })] }),
+            ])
+          : null,
+        h("div", { class: [t.Heading, s.BarHeading] }, parts.filter((part) => !isHeaderAction(part))),
+        ...parts.filter(isHeaderAction),
+      ])
+    }
   },
 })
 
 export const DialogHeaderAction = defineComponent({
   name: "DialogHeaderAction",
   setup(_props, { slots }) {
-    return () => h("div", { class: s.HeaderAction }, slots.default?.())
+    const bar = inject(DIALOG_BAR, null)
+    return () => (bar?.value ? h(ToolbarTrailing, null, () => slots.default?.()) : h("div", { class: s.HeaderAction }, slots.default?.()))
   },
 })
 
@@ -495,7 +558,8 @@ export const DialogTitle = defineComponent({
   name: "DialogTitle",
   setup(_props, { slots }) {
     useMountedCount(useDialogContext().titleCount)
-    return () => h(RekaDialogTitle, { class: s.Title }, { default: () => slots.default?.() })
+    const bar = inject(DIALOG_BAR, null)
+    return () => h(RekaDialogTitle, { class: bar?.value ? t.Title : s.Title }, { default: () => slots.default?.() })
   },
 })
 
@@ -503,7 +567,18 @@ export const DialogDescription = defineComponent({
   name: "DialogDescription",
   setup(_props, { slots }) {
     useMountedCount(useDialogContext().descriptionCount)
-    return () => h(RekaDialogDescription, { class: s.Description }, { default: () => slots.default?.() })
+    const bar = inject(DIALOG_BAR, null)
+    const element = ref<{ $el?: Element } | Element | null>(null)
+    const shown = ref(false)
+    // In the bar a description the reader sees is the title's second line (Toolbar's subtitle); one that is only
+    // read out, visually hidden, leaves the title on its one line.
+    const measure = () => {
+      const node = element.value instanceof Element ? element.value : element.value?.$el
+      shown.value = !!bar?.value && node instanceof HTMLElement && node.offsetHeight > 1 && node.offsetWidth > 1
+    }
+    onMounted(measure)
+    watch(() => bar?.value, () => queueMicrotask(measure))
+    return () => h(RekaDialogDescription, { ref: element, class: bar?.value && shown.value ? t.Subtitle : s.Description }, { default: () => slots.default?.() })
   },
 })
 

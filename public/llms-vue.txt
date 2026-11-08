@@ -401,7 +401,7 @@ Props:
   DialogFooter:
     - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged
     - mobile-layout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
-Examples: Overview, Destructive confirmation, Text field, Metadata details, Sections and actions, Long details, Scrolling body, Placement, View options sheet, Segmented composer header, Setup choices
+Examples: Overview, Destructive confirmation, Text field, Metadata details, Scrolling body, Placement, View options sheet, Segmented composer header, Setup choices
 
 ## Empty Message
 Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.

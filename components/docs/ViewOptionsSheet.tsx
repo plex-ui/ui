@@ -1,11 +1,11 @@
 'use client';
 
 import { useRef, useState, type ReactNode } from 'react';
-import { Button } from '@plexui/ui/components/Button';
+import { Button, NavigationButton } from '@plexui/ui/components/Button';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { Check } from '@plexui/ui/components/Icon';
+import { DotsHorizontal } from '@plexui/ui/components/Icon';
 import { Page } from '@plexui/ui/components/Page';
 import { Select } from '@plexui/ui/components/Select';
 import { Switch } from '@plexui/ui/components/Switch';
@@ -27,7 +27,8 @@ export function ViewOptionsSheet({ open, onOpenChange, value, onValueChange, tri
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Trigger>
-        {trigger ?? <Button color="secondary" variant="soft" pill>View options</Button>}
+        {/* An icon in the bar, as the More button of Files is: native Files opens View Options from it (IMG_5686). */}
+        {trigger ?? <Button color="secondary" variant="soft" pill uniform aria-label="View options"><DotsHorizontal /></Button>}
       </Dialog.Trigger>
       <Dialog.Content mobileVariant="sheet" surface="grouped" showClose={false}
         onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
@@ -35,7 +36,8 @@ export function ViewOptionsSheet({ open, onOpenChange, value, onValueChange, tri
           <div ref={heading} tabIndex={-1} className={s.Heading}><Dialog.Title>View Options</Dialog.Title></div>
           <Dialog.Description className="sr-only">Choose how items are sorted and displayed. Changes apply immediately.</Dialog.Description>
           <Dialog.HeaderAction>
-            <Dialog.Close><Button color="info" variant="solid" pill uniform aria-label="Done"><Check /></Button></Dialog.Close>
+            {/* The shared confirm of a bar: the accent capsule and the checkmark of native sheets (IMG_5686). */}
+            <Dialog.Close><NavigationButton action="confirm" aria-label="Done" /></Dialog.Close>
           </Dialog.HeaderAction>
         </Dialog.Header>
         <Dialog.Body>
@@ -75,7 +77,8 @@ export function ViewOptionsSheetDemo({ initialOpen = false }: { initialOpen?: bo
 
   return (
     <div data-demo-stage>
-      <Page surface="grouped" className={s.Screen}>
+      {/* The bar stays on the screen under the sheet, its button included (data-preview-screen keeps the phone preview from hiding it). */}
+      <Page surface="grouped" className={s.Screen} data-preview-screen>
         <Page.Header><Page.Bar>
           <Page.Title>Files</Page.Title>
           <Page.Actions><ViewOptionsSheet open={open} onOpenChange={setOpen} value={value} onValueChange={setValue} /></Page.Actions>

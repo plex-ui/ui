@@ -76,7 +76,8 @@ describe("phone colors use PlexUI tokens", () => {
     // The value of a pop-up at the end of a labeled row is secondary too (IMG_5442, IMG_5523); in columns it is the
     // row's data and stays primary (IMG_5489), and a disabled one steps down to tertiary.
     const trailing = ':where([data-row][data-orientation="horizontal"]:not([data-field-columns] *)) .SelectControl'
-    expect(rule(popup, `${trailing}[data-selected="true"]:not([data-disabled]) {`)).toContain("color: var(--mobile-label-secondary, var(--color-text-secondary));")
+    // A screen that shows its values in the primary label sets --field-row-popup-value-color (Files, IMG_5686; plan 170)
+    expect(rule(popup, `${trailing}[data-selected="true"]:not([data-disabled]) {`)).toContain("color: var(--field-row-popup-value-color, var(--mobile-label-secondary, var(--color-text-secondary)));")
     expect(rule(popup, `${trailing}[data-disabled] .DropdownIcon:not(.DropdownIconChevron) {`)).toContain("color: var(--mobile-label-tertiary, var(--color-text-disabled));")
     expect(popup).toContain(`${trailing}[data-disabled][data-variant],\n`)
     // In columns the value stays primary and its chevrons are tertiary (IMG_5489: value 0, chevrons 197)

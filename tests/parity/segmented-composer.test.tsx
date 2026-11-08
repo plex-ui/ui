@@ -30,6 +30,9 @@ vi.mock("@plexui/vue/components/Textarea", async () => import("../../packages/vu
 type Framework = "React" | "Vue"
 const page = () => within(document.body)
 const dialog = () => page().getByRole("dialog", { name: "New calendar item" })
+// On a phone the sheet's bar draws Close; the dialog's own Close stays in the DOM under it, hidden by the style
+// sheet (as under a custom top Toolbar), which this environment does not load
+const barClose = () => within(dialog().querySelector<HTMLElement>("[data-dialog-bar]")!).getByRole("button", { name: "Close dialog" })
 const click = async (node: HTMLElement) => interact(() => { fireEvent.click(node) })
 const type = async (name: string, value: string) => interact(() => {
   const control = within(dialog()).getByRole("textbox", { name })
@@ -153,7 +156,7 @@ describe.each<Framework>(["React", "Vue"])("%s segmented composer", (framework) 
     await select("Reminder")
     await type("Reminder title", "Discard this too")
     await closeAndWait(() => method === "Close"
-      ? click(within(dialog()).getByRole("button", { name: "Close dialog" }))
+      ? click(barClose())
       : interact(() => { fireEvent.keyDown(dialog(), { key: "Escape" }) }), trigger)
     await open()
     expect(titleValue("Reminder title")).toBe("")
@@ -197,7 +200,7 @@ describe.each<Framework>(["React", "Vue"])("%s segmented composer", (framework) 
     expect(dialog().querySelectorAll("form")).toHaveLength(1)
     expect(within(dialog()).getByRole("status").textContent).toBe("Event saved: Phone draft.")
     await type("Event title", "Unsaved edit")
-    await click(within(dialog()).getByRole("button", { name: "Close dialog" }))
+    await click(barClose())
     expect(titleValue("Event title")).toBe("Phone draft")
     expect(within(dialog()).getByRole("status").textContent).toBe("Changes canceled.")
   })
