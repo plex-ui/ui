@@ -184,8 +184,10 @@
     --sortable-handle-color: var(--mobile-label-tertiary);
     --sortable-handle-color-hover: var(--mobile-label-tertiary);
 
-    /* Touch menus use selection indicators without a persistent row fill. */
+    /* Touch menus use selection indicators without a persistent row fill. A pressed row is one even fill, gray on
+       every row (Menu.module.css, the pressed capsule): the average of the native capsule, 7 to 8% black. */
     --menu-item-highlight-opacity: 0;
+    --menu-press-background: light-dark(var(--alpha-08), var(--alpha-10));
     --menu-item-press-scale: 1;
     --select-control-ghost-state-opacity: 0;
 
@@ -237,6 +239,20 @@
        IMG_5676 and IMG_5690, every row); the iOS 27 kit's 28pt column puts them at 36 and 58. */
     --menu-leading-icon-slot: 36px;
     --menu-leading-icon-gap: 8px;
+    /* A menu with a selection (iOS-menu IMG_5666 Photos, IMG_5687 and IMG_5688 Files, the owner's Files shots of 08.11,
+       at @3x): the checkmark, 10.3 to 10.7pt of ink, centred 28pt from the panel's edge in a 13px column (a row's
+       content starts 22px in); labels from 43.5pt, 8.5px after it; a row's symbol 2px further, centred at 55.5 (native
+       55.7), and its label 14px after it, from 79.5 (native 79.6). The 18px Check icon draws 10.6 by 9.9, its ink 0.4px
+       before the middle of its box, so centred at 28.1. Plain rows and section titles of such a menu start at the label
+       line: the row's 6px start (--menu-item-padding), the column and the gap. */
+    --menu-check-column: 13px;
+    --menu-check-gap: 8.5px;
+    --menu-check-size: 18px;
+    --menu-check-icon-offset: 2px;
+    --menu-check-icon-gap: 14px;
+    --menu-check-label-inset: calc(6px + var(--menu-check-column) + var(--menu-check-gap));
+    /* The chosen mode of a menu, as Photos fills Added or Captured: 12% black (IMG_5666: 222 on the 253 panel). */
+    --menu-horizontal-selected-background: light-dark(var(--alpha-12), var(--alpha-15));
     /* Kit Quick Actions (5500:7456): equal actions across the menu's width, without dividers. */
     --menu-horizontal-display: grid;
     --menu-horizontal-min-width: 238px;
@@ -682,14 +698,20 @@
     margin-inline-end: calc((var(--menu-leading-icon-slot) - var(--menu-leading-icon-size)) / 2 + var(--menu-leading-icon-gap) - var(--menu-item-gap));
   }
 
-  /* A selection row's icon follows the checkmark's column, as All Items, Favorites and Edited in the Photos filter menu
-     (iOS-menu IMG_5666: check, icon and label centers 27.6, 55.3 and 80pt from the panel's edge, so the icon stands 28pt
-     after the check and its box ends 16pt before the label, as in a plain row). */
+  /* In a menu with a checkmark column a row's symbol stands after the column, centred 55.7pt from the panel's edge,
+     and its label starts at 79.7 (iOS-menu IMG_5666: All Items, Favorites and Report a Concern; Files: Icons, List and
+     Select), on a selection row and a plain row alike. */
   html [role="menu"]:not([data-layout="horizontal"]) :is([role="menuitemradio"], [role="menuitemcheckbox"]):not(:where([role="group"][data-layout="horizontal"] *)) > :is(div, span) > svg:first-of-type {
     flex-shrink: 0;
     width: var(--menu-leading-icon-size);
     height: var(--menu-leading-icon-size);
-    margin-inline-end: calc((var(--menu-leading-icon-slot) - var(--menu-leading-icon-size)) / 2 + var(--menu-leading-icon-gap) - var(--menu-item-gap));
+    margin-inline-start: var(--menu-check-icon-offset);
+    margin-inline-end: calc(var(--menu-check-icon-gap) - var(--menu-check-gap));
+  }
+
+  html [role="menu"]:not([data-layout="horizontal"]):has(:is([role="menuitemradio"], [role="menuitemcheckbox"]):not(:where([role="group"][data-layout="horizontal"] *))) [role="menuitem"]:not(:where([role="group"][data-layout="horizontal"] *, [data-menu-header] *, [data-submenu-collapse])) > :is(div, span) > svg:first-child:not([class*="SubTriggerIcon"]) {
+    margin-inline-start: var(--menu-check-icon-offset);
+    margin-inline-end: calc(var(--menu-check-icon-gap) - var(--menu-item-gap));
   }
 
   html :is([role="menu"], [role="menu"] [role="group"])[data-layout="horizontal"] :is([role="menuitem"], [role="menuitemradio"]) > :is(div, span) > svg {

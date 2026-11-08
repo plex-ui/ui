@@ -1348,6 +1348,8 @@ const CustomSelectList = defineComponent({
           "aria-multiselectable": selectProps.multiple || undefined,
           // Without search, the list is the focused element
           "tabindex": searchable.value ? undefined : 0,
+          // iOS Safari applies :active, which draws a pressed option's capsule on a phone, only under a touch listener
+          "onTouchstartPassive": () => {},
         },
         [
           ...options,

@@ -861,8 +861,9 @@ export type MenuRadioGroupProps<T extends string> = {
    */
   indicatorPosition?: "start" | "end"
   /**
-   * `horizontal` sets the options side by side as tabs, each an icon over its label and the chosen one on a fill: the
-   * choice at the top of an iOS menu, above its list (Added and Captured in Photos). No radio indicator is drawn.
+   * `horizontal` sets the options side by side, each an icon over its label and the chosen one on a fill: a mode at the
+   * top of an iOS menu, above its list, as Photos orders by Added or by Captured. No radio indicator is drawn; choosing
+   * one closes the menu, as any item does.
    * @default "vertical"
    */
   layout?: "vertical" | "horizontal"

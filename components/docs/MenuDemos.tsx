@@ -128,8 +128,8 @@ export function MenuBaseDemo() {
       <Menu.Content width={210} minWidth={210}>
         <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
         <Menu.Separator />
-        <Menu.Link href="#">Your profile</Menu.Link>
-        <Menu.Link href="#">Terms & policies</Menu.Link>
+        <Menu.Item onSelect={() => { }}>Your profile</Menu.Item>
+        <Menu.Item onSelect={() => { }}>Terms & policies</Menu.Item>
         <Menu.Item disabled onSelect={() => { }}>
           Feature flags
         </Menu.Item>
@@ -436,12 +436,12 @@ export function MenuHorizontalIconsOnlyDemoWithControls() {
   );
 }
 
-export function MenuTabsDemo() {
+export function MenuModeSwitchDemo() {
   const [sort, setSort] = useState('added');
   const [filter, setFilter] = useState('all');
   return (
     <MenuExample
-      title="Tabs"
+      title="Mode switch"
       trigger={
         <Button color="primary" size="lg" variant="ghost">
           Library <ChevronDownMd />
@@ -528,15 +528,15 @@ export function MenuGroupedDemo() {
       <Menu.Content minWidth={220}>
         <Menu.Group>
           <Menu.Label>Active</Menu.Label>
-          <Menu.Link href="#">Welcome email</Menu.Link>
-          <Menu.Link href="#">Order confirmation</Menu.Link>
-          <Menu.Link href="#">Password reset</Menu.Link>
+          <Menu.Item onSelect={() => { }}>Welcome email</Menu.Item>
+          <Menu.Item onSelect={() => { }}>Order confirmation</Menu.Item>
+          <Menu.Item onSelect={() => { }}>Password reset</Menu.Item>
         </Menu.Group>
         <Menu.Separator />
         <Menu.Group>
           <Menu.Label>Draft</Menu.Label>
-          <Menu.Link href="#">New promo campaign</Menu.Link>
-          <Menu.Link href="#">Account deactivation</Menu.Link>
+          <Menu.Item onSelect={() => { }}>New promo campaign</Menu.Item>
+          <Menu.Item onSelect={() => { }}>Account deactivation</Menu.Item>
         </Menu.Group>
       </Menu.Content>
     </MenuExample>

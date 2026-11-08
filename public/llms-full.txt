@@ -5397,8 +5397,8 @@ On a phone each example is a screen whose menu opens from the More button of its
 <Menu.Content width={210} minWidth={210}>
   <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
   <Menu.Separator />
-  <Menu.Link href="#">Your profile</Menu.Link>
-  <Menu.Link href="#">Terms & policies</Menu.Link>
+  <Menu.Item onSelect={() => {}}>Your profile</Menu.Item>
+  <Menu.Item onSelect={() => {}}>Terms & policies</Menu.Item>
   <Menu.Item disabled onSelect={() => {}}>Feature flags</Menu.Item>
   <Menu.Separator />
   <Menu.Item onSelect={() => {}}>Logout</Menu.Item>
@@ -5416,8 +5416,8 @@ On a phone each example is a screen whose menu opens from the More button of its
     <Menu.Content align="end">
       <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
       <Menu.Separator />
-      <Menu.Link href="#">Your profile</Menu.Link>
-      <Menu.Link href="#">Terms & policies</Menu.Link>
+      <Menu.Item onSelect={() => {}}>Your profile</Menu.Item>
+      <Menu.Item onSelect={() => {}}>Terms & policies</Menu.Item>
       <Menu.Item disabled onSelect={() => {}}>Feature flags</Menu.Item>
       <Menu.Separator />
       <Menu.Item onSelect={() => {}}>Logout</Menu.Item>
@@ -5465,7 +5465,7 @@ Menu supports several sizing strategies:Natural sizing: use minWidth="auto" to h
 ```
 
 ### Horizontal (icons only)
-Set layout="horizontal" on Menu.Content for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled tabs at the top of a menu, as in Tabs below.
+Set layout="horizontal" on Menu.Content for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled mode switch at the top of a menu, as in Mode switch below.
 ```tsx
 <Menu>
 <Menu.Trigger>
@@ -5480,35 +5480,14 @@ Set layout="horizontal" on Menu.Content for an icon toolbar. Give each icon-only
 </Menu>
 ```
 
-### Tabs
-Set layout="horizontal" on a Menu.RadioGroup at the top of a menu for tabs: one choice of several, the options side by side, each an icon over its label, with the chosen one on a fill, above the list, as Photos chooses between Added and Captured. The options are radio items, so the fill moves with the value and no radio indicator is drawn. On a phone with touch.css they are equal 56px-tall tabs with a 20px icon over a 12px label, 10px from the panel's edges, the chosen one on black at 15%.
+### Mode switch
+Set layout="horizontal" on a Menu.RadioGroup at the top of a menu for a mode switch: one mode of several, the options side by side, each an icon over its label, with the chosen one on a fill, above the list, as Photos orders by Added or by Captured. The options are radio items, so the fill moves with the value, no radio indicator is drawn, and choosing one closes the menu, as any item does. On a phone with touch.css they are equal 56px-tall tiles with a 20px icon over a 12px label, 10px from the panel's edges, the chosen one on black at 12%, as in Photos. Phone only: the mode switch is an iOS pattern, which desktop menus do not have; there modes are radio items of the list, as in Radio items below.
 ```tsx
-// Desktop
 const [sort, setSort] = useState("added")
 const [filter, setFilter] = useState("all")
 
-<Menu>
-<Menu.Trigger>
-  <Button color="primary" size="lg" variant="ghost">Library <ChevronDownMd /></Button>
-</Menu.Trigger>
-<Menu.Content>
-  <Menu.RadioGroup layout="horizontal" value={sort} onChange={setSort}>
-    <Menu.RadioItem value="added"><Clock /> Added</Menu.RadioItem>
-    <Menu.RadioItem value="captured"><CameraPhoto /> Captured</Menu.RadioItem>
-  </Menu.RadioGroup>
-  <Menu.Separator />
-  <Menu.Label>Filter</Menu.Label>
-  <Menu.RadioGroup value={filter} onChange={setFilter}>
-    <Menu.RadioItem value="all"><Grid /> All items</Menu.RadioItem>
-    <Menu.RadioItem value="favorites"><Heart /> Favorites</Menu.RadioItem>
-    <Menu.RadioItem value="edited"><EditPencil /> Edited</Menu.RadioItem>
-  </Menu.RadioGroup>
-</Menu.Content>
-</Menu>
-
-// Phone: the More button of the top bar opens the menu
 <Toolbar titleStyle="large">
-  <Toolbar.Title>Tabs</Toolbar.Title>
+  <Toolbar.Title>Mode switch</Toolbar.Title>
   <Toolbar.Trailing>
     <Menu>
     <Menu.Trigger>
@@ -5533,30 +5512,8 @@ const [filter, setFilter] = useState("all")
 ```
 
 ### Header
-Put a Menu.Header first to name what the menu acts on: a picture, the name and a line under it, with a round Menu.HeaderAction at its end, as the Files menu of a file in iOS opens. The header is not an item; its action is, reached with the arrow keys like the items. On a phone with touch.css the picture is 40px, 16px from the panel's edges, the name 15px Semibold and the line under it 13px; the action is a 34px circle with a 44px target. A separator under the header stands 16px below the picture; without one the first item starts 24px below it.
+Put a Menu.Header first to name what the menu acts on: a picture, the name and a line under it, with a round Menu.HeaderAction at its end, as the Files menu of a file in iOS opens. The header is not an item; its action is, reached with the arrow keys like the items. On a phone with touch.css the picture is 40px, 16px from the panel's edges, the name 15px Semibold and the line under it 13px; the action is a 34px circle with a 44px target. A separator under the header stands 16px below the picture; without one the first item starts 24px below it. Phone only: the header is an iOS pattern, which desktop menus do not have.
 ```tsx
-// Desktop
-<Menu>
-<Menu.Trigger>
-  <Button color="primary" size="lg" variant="ghost">File <ChevronDownMd /></Button>
-</Menu.Trigger>
-<Menu.Content>
-  <Menu.Header
-    media={<img src="/demo/picture-1.svg" alt="" />}
-    description="Image · 382 KB"
-    action={<Menu.HeaderAction aria-label="Share" onSelect={() => {}}><Share /></Menu.HeaderAction>}
-  >
-    Sunset.png
-  </Menu.Header>
-  <Menu.Item onSelect={() => {}}><EditPencil /> Rename</Menu.Item>
-  <Menu.Item onSelect={() => {}}><Copy /> Copy</Menu.Item>
-  <Menu.Item onSelect={() => {}}><Folder /> Move</Menu.Item>
-  <Menu.Separator />
-  <Menu.Item onSelect={() => {}}><InfoCircle /> Get info</Menu.Item>
-</Menu.Content>
-</Menu>
-
-// Phone: the More button of the top bar opens the menu
 <Toolbar titleStyle="large">
   <Toolbar.Title>Header</Toolbar.Title>
   <Toolbar.Trailing>
@@ -5594,15 +5551,15 @@ Use Menu.Group and Menu.Label to organize related items into labeled sections.
 <Menu.Content minWidth={220}>
   <Menu.Group>
     <Menu.Label>Active</Menu.Label>
-    <Menu.Link href="#">Welcome email</Menu.Link>
-    <Menu.Link href="#">Order confirmation</Menu.Link>
-    <Menu.Link href="#">Password reset</Menu.Link>
+    <Menu.Item onSelect={() => {}}>Welcome email</Menu.Item>
+    <Menu.Item onSelect={() => {}}>Order confirmation</Menu.Item>
+    <Menu.Item onSelect={() => {}}>Password reset</Menu.Item>
   </Menu.Group>
   <Menu.Separator />
   <Menu.Group>
     <Menu.Label>Draft</Menu.Label>
-    <Menu.Link href="#">New promo campaign</Menu.Link>
-    <Menu.Link href="#">Account deactivation</Menu.Link>
+    <Menu.Item onSelect={() => {}}>New promo campaign</Menu.Item>
+    <Menu.Item onSelect={() => {}}>Account deactivation</Menu.Item>
   </Menu.Group>
 </Menu.Content>
 </Menu>
@@ -5618,15 +5575,15 @@ Use Menu.Group and Menu.Label to organize related items into labeled sections.
     <Menu.Content align="end">
       <Menu.Group>
         <Menu.Label>Active</Menu.Label>
-        <Menu.Link href="#">Welcome email</Menu.Link>
-        <Menu.Link href="#">Order confirmation</Menu.Link>
-        <Menu.Link href="#">Password reset</Menu.Link>
+        <Menu.Item onSelect={() => {}}>Welcome email</Menu.Item>
+        <Menu.Item onSelect={() => {}}>Order confirmation</Menu.Item>
+        <Menu.Item onSelect={() => {}}>Password reset</Menu.Item>
       </Menu.Group>
       <Menu.Separator />
       <Menu.Group>
         <Menu.Label>Draft</Menu.Label>
-        <Menu.Link href="#">New promo campaign</Menu.Link>
-        <Menu.Link href="#">Account deactivation</Menu.Link>
+        <Menu.Item onSelect={() => {}}>New promo campaign</Menu.Item>
+        <Menu.Item onSelect={() => {}}>Account deactivation</Menu.Item>
       </Menu.Group>
     </Menu.Content>
     </Menu>

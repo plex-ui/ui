@@ -15,7 +15,7 @@ import {
 import { flushVue, mountVue } from './harness';
 
 // Menu.Header (plan 169i): the picture, name and kind of what the menu acts on, as the iOS Files menu of a file
-// (iOS-menu IMG_5690), with a round action at its end that is a menu item; tabs, a horizontal radio group at the top of
+// (iOS-menu IMG_5690), with a round action at its end that is a menu item; a mode, a horizontal radio group at the top of
 // the menu (Photos, IMG_5665 and IMG_5666); and onOpenAutoFocus, which lets a menu that stands open leave focus where
 // it is.
 
@@ -42,9 +42,9 @@ const key = async (target: Element, name: string) => {
     });
 };
 
-type Options = { onAction?: (event: Event) => void; onOpenAutoFocus?: (event: Event) => void };
+type Options = { onAction?: (event: Event) => void; onOpenAutoFocus?: (event: Event) => void; onMode?: (value: string) => void };
 
-async function mount(framework: 'React' | 'Vue', { onAction = () => {}, onOpenAutoFocus }: Options = {}) {
+async function mount(framework: 'React' | 'Vue', { onAction = () => {}, onOpenAutoFocus, onMode = () => {} }: Options = {}) {
     if (framework === 'React') {
         render(
             <ReactMenu>
@@ -58,7 +58,7 @@ async function mount(framework: 'React' | 'Vue', { onAction = () => {}, onOpenAu
                         Sunset.png
                     </ReactMenu.Header>
                     <ReactMenu.Item onSelect={() => {}}>Rename</ReactMenu.Item>
-                    <ReactMenu.RadioGroup layout="horizontal" value="added" onChange={() => {}}>
+                    <ReactMenu.RadioGroup layout="horizontal" value="added" onChange={onMode}>
                         <ReactMenu.RadioItem value="added">Added</ReactMenu.RadioItem>
                         <ReactMenu.RadioItem value="captured">Captured</ReactMenu.RadioItem>
                     </ReactMenu.RadioGroup>
@@ -75,7 +75,7 @@ async function mount(framework: 'React' | 'Vue', { onAction = () => {}, onOpenAu
                     action: () => h(MenuHeaderAction, { ariaLabel: 'Share', onSelect: onAction }, () => 'S'),
                 }),
                 h(MenuItem, { onSelect: () => {} }, () => 'Rename'),
-                h(MenuRadioGroup, { layout: 'horizontal', value: 'added' }, () => [
+                h(MenuRadioGroup, { layout: 'horizontal', value: 'added', onChange: onMode }, () => [
                     h(MenuRadioItem, { value: 'added' }, () => 'Added'),
                     h(MenuRadioItem, { value: 'captured' }, () => 'Captured'),
                 ]),
@@ -144,18 +144,30 @@ describe.each(['React', 'Vue'] as const)('%s Menu header', framework => {
         expect(onAction).toHaveBeenCalledTimes(1);
     });
 
-    test('a horizontal radio group is tabs: one checked, no indicator position', async () => {
+    test('a horizontal radio group is a mode: one checked, no indicator position', async () => {
         const page = await mount(framework);
         await press(page.getByRole('button', { name: 'Actions' }));
         await waitFor(() => expect(page.getByRole('menu')).toBeTruthy());
         const group = page.getByRole('group');
         expect(group.getAttribute('data-layout')).toBe('horizontal');
         expect(group.hasAttribute('data-indicator-position')).toBe(false);
-        const tabs = within(group).getAllByRole('menuitemradio');
-        expect(tabs.map(tab => [tab.textContent, tab.getAttribute('aria-checked'), tab.getAttribute('data-state')])).toEqual([
+        const modes = within(group).getAllByRole('menuitemradio');
+        expect(modes.map(mode => [mode.textContent, mode.getAttribute('aria-checked'), mode.getAttribute('data-state')])).toEqual([
             ['Added', 'true', 'checked'],
             ['Captured', 'false', 'unchecked'],
         ]);
+    });
+
+    // Plan 169j: the horizontal options are a mode, as Added and Captured order Photos (IMG_5666); the owner confirmed
+    // that choosing one closes the menu, as any item does
+    test('choosing a mode closes the menu', async () => {
+        const onMode = vi.fn();
+        const page = await mount(framework, { onMode });
+        await press(page.getByRole('button', { name: 'Actions' }));
+        await waitFor(() => expect(page.getByRole('menu')).toBeTruthy());
+        await press(page.getByRole('menuitemradio', { name: 'Captured' }));
+        expect(onMode).toHaveBeenCalledWith('captured');
+        await waitFor(() => expect(page.queryByRole('menu')).toBeNull());
     });
 
     test('a header draws no box for a picture or a line that renders nothing', async () => {

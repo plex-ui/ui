@@ -64,6 +64,14 @@ ${indent(menu, 4)}
 </Toolbar>`;
 }
 
+/**
+ * The code of a phone-only React menu example, an iOS pattern that desktop menus do not have (a mode switch, a header):
+ * its state, then its phone form.
+ */
+export function menuPhoneOnlyReact(desktop: string, title: string) {
+  return `${desktop.slice(0, desktop.search(/<Menu[\s>]/))}${menuPhoneReact(desktop, title)}`;
+}
+
 /** The code of a React menu example: its desktop form, then its phone form. */
 export function withMenuPhoneReact(desktop: string, title: string) {
   return `// Desktop

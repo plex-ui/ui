@@ -5,7 +5,7 @@ metaDescription: Vue 3 dropdown menu component for structured actions with group
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
-import { menuPhoneTemplateVue, withMenuPhoneVue } from "@/components/docs/menuPhone"
+import { menuPhoneTemplateVue, menuPhoneVue, withMenuPhoneVue } from "@/components/docs/menuPhone"
 import pageStyles from "@/components/docs/PageDemos.module.css"
 
 export const STAGE = pageStyles.Stage
@@ -22,8 +22,8 @@ export const overview = `<Menu>
   <MenuContent :width="210" :min-width="210">
     <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
     <MenuSeparator />
-    <MenuLink href="#">Your profile</MenuLink>
-    <MenuLink href="#">Terms & policies</MenuLink>
+    <MenuItem @select="() => {}">Your profile</MenuItem>
+    <MenuItem @select="() => {}">Terms & policies</MenuItem>
     <MenuItem disabled @select="() => {}">Feature flags</MenuItem>
     <MenuSeparator />
     <MenuItem @select="() => {}">Logout</MenuItem>
@@ -55,7 +55,7 @@ export const horizontalIcons = `<Menu>
   </MenuContent>
 </Menu>`
 
-export const tabs = `<Menu>
+export const modeSwitch = `<Menu>
   <MenuTrigger>
     <Button color="primary" size="lg" variant="ghost">Library <ChevronDownMd /></Button>
   </MenuTrigger>
@@ -101,15 +101,15 @@ export const grouped = `<Menu>
   <MenuContent :min-width="220">
     <MenuGroup>
       <MenuLabel>Active</MenuLabel>
-      <MenuLink href="#">Welcome email</MenuLink>
-      <MenuLink href="#">Order confirmation</MenuLink>
-      <MenuLink href="#">Password reset</MenuLink>
+      <MenuItem @select="() => {}">Welcome email</MenuItem>
+      <MenuItem @select="() => {}">Order confirmation</MenuItem>
+      <MenuItem @select="() => {}">Password reset</MenuItem>
     </MenuGroup>
     <MenuSeparator />
     <MenuGroup>
       <MenuLabel>Draft</MenuLabel>
-      <MenuLink href="#">New promo campaign</MenuLink>
-      <MenuLink href="#">Account deactivation</MenuLink>
+      <MenuItem @select="() => {}">New promo campaign</MenuItem>
+      <MenuItem @select="() => {}">Account deactivation</MenuItem>
     </MenuGroup>
   </MenuContent>
 </Menu>`
@@ -253,26 +253,28 @@ export const danger = `<Menu>
 
 <ComponentPreview language="vue" phonePresentation="none" details={<>
   <p>Set <code>layout="horizontal"</code> on <code>MenuContent</code> for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
-  <p>Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled tabs at the top of a menu, as in Tabs below.</p>
+  <p>Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled mode switch at the top of a menu, as in Mode switch below.</p>
 </>} code={horizontalIcons} previewMinHeight={168}>
   <VueDemo template={horizontalIcons} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
-### Tabs
+### Mode switch
 
-<ComponentPreview language="vue" details={<>
-  <p>Set <code>layout="horizontal"</code> on a <code>MenuRadioGroup</code> at the top of a menu for tabs: one choice of several, the options side by side, each an icon over its label, with the chosen one on a fill, above the list, as Photos chooses between Added and Captured. The options are radio items, so the fill moves with the value and no radio indicator is drawn.</p>
-  <p>On a phone with <code>touch.css</code> they are equal 56px-tall tabs with a 20px icon over a 12px label, 10px from the panel's edges, the chosen one on black at 15%.</p>
-</>} code={withMenuPhoneVue(tabs, "Tabs")} previewMinHeight={168}>
-  <VueDemo template={tabs} phoneTemplate={menuPhoneTemplateVue(tabs, "Tabs", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ sort: "added", filter: "all" }} />
+<ComponentPreview phoneOnly language="vue" details={<>
+  <p>Set <code>layout="horizontal"</code> on a <code>MenuRadioGroup</code> at the top of a menu for a mode switch: one mode of several, the options side by side, each an icon over its label, with the chosen one on a fill, above the list, as Photos orders by Added or by Captured. The options are radio items, so the fill moves with the value, no radio indicator is drawn, and choosing one closes the menu, as any item does.</p>
+  <p>On a phone with <code>touch.css</code> they are equal 56px-tall tiles with a 20px icon over a 12px label, 10px from the panel's edges, the chosen one on black at 12%, as in Photos.</p>
+  <p>Phone only: the mode switch is an iOS pattern, which desktop menus do not have; there modes are radio items of the list, as in Radio items below.</p>
+</>} code={menuPhoneVue(modeSwitch, "Mode switch")} previewMinHeight={168}>
+  <VueDemo template={modeSwitch} phoneTemplate={menuPhoneTemplateVue(modeSwitch, "Mode switch", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ sort: "added", filter: "all" }} />
 </ComponentPreview>
 
 ### Header
 
-<ComponentPreview language="vue" details={<>
+<ComponentPreview phoneOnly language="vue" details={<>
   <p>Put a <code>MenuHeader</code> first to name what the menu acts on: a picture (the <code>media</code> slot), the name and a line under it, with a round <code>MenuHeaderAction</code> at its end (the <code>action</code> slot), as the Files menu of a file in iOS opens. The header is not an item; its action is, reached with the arrow keys like the items.</p>
   <p>On a phone with <code>touch.css</code> the picture is 40px, 16px from the panel's edges, the name 15px Semibold and the line under it 13px; the action is a 34px circle with a 44px target. A separator under the header stands 16px below the picture; without one the first item starts 24px below it.</p>
-</>} code={withMenuPhoneVue(header, "Header")} previewMinHeight={168}>
+  <p>Phone only: the header is an iOS pattern, which desktop menus do not have.</p>
+</>} code={menuPhoneVue(header, "Header")} previewMinHeight={168}>
   <VueDemo template={header} phoneTemplate={menuPhoneTemplateVue(header, "Header", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
 </ComponentPreview>
 
@@ -399,13 +401,13 @@ export const danger = `<Menu>
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the item" },
 ]} />
 
-**MenuRadioGroup** / **MenuRadioItem**: radio group with `v-model:value` (plus `@change`), `indicator-position` and `layout` (default `"vertical"`; `"horizontal"` sets the options side by side as tabs, the chosen one on a fill); MenuRadioItem takes `value`, `disabled` and `@select`.
+**MenuRadioGroup** / **MenuRadioItem**: radio group with `v-model:value` (plus `@change`), `indicator-position` and `layout` (default `"vertical"`; `"horizontal"` sets the options side by side as a mode switch, the chosen one on a fill); MenuRadioItem takes `value`, `disabled` and `@select`.
 
 **MenuItemActions** / **MenuItemAction**: MenuItemActions wraps hover actions; MenuItemAction emits `@click` and closes the menu.
 
 ## Styling
 
-With the optional `touch.css` stylesheet, phone menus use 34px corners (the iOS 27 kit Menu), 17px labels with 20px line height, and 13/18px subtitles. Long labels wrap and increase the item height. Each item retains a minimum 44px interaction target; a checked item keeps its checkmark without a persistent background. The default minimum menu width is 238px, while an explicit minimum width still takes precedence.
+With the optional `touch.css` stylesheet, phone menus use 34px corners (the iOS 27 kit Menu), 17px labels with 20px line height, and 13/18px subtitles. Rows are 42px, as in native iOS 26 menus, and long labels wrap and make a row taller. A pressed row is the capsule iOS draws under the finger: the whole row, 10px from the panel's edges, round at its ends, in one even gray (`--menu-press-background`). A submenu grows out of the row that opened it while the menu behind it steps back. A checked item keeps its checkmark without a persistent background, centered 28px from the panel's edge with labels at 43.5px, as native menus draw it; in a menu with checkmarks, plain rows and section titles start where the labels do. The default minimum menu width is 238px, while an explicit minimum width still takes precedence.
 
 On a phone a menu without `side-offset` grows out of its trigger and covers it, as iOS menus do: its top is the trigger's top, or its bottom when it opens upward, and its aligned edge is the trigger's edge. Without `side` it opens toward the larger part of the screen, upward from a trigger in the lower half even when it would fit below. A desktop keeps the 5px gap below the trigger.
 

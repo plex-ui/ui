@@ -688,7 +688,7 @@ Props:
     - indicatorPosition ("start" | "end") default: "end" — Checkbox position
     - indicatorVariant ("solid" | "ghost") default: "solid" — Checkbox indicator style
     - disabled (boolean) — Disable the item
-Examples: Overview, Natural sizing, Horizontal (icons only), Tabs, Header, Grouped items, Submenus, Checkbox items, Radio items, Item actions, Destructive items
+Examples: Overview, Natural sizing, Horizontal (icons only), Mode switch, Header, Grouped items, Submenus, Checkbox items, Radio items, Item actions, Destructive items
 
 ## OTP Input
 Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.

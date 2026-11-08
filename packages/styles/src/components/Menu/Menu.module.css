@@ -523,7 +523,7 @@
   }
 }
 
-/* A horizontal list, or a horizontal radio group at the top of a list: the tabs of an iOS menu, one choice of several
+/* A horizontal list, or a horizontal radio group at the top of a list: the mode switch of an iOS menu, one mode of several
    with the chosen one on a fill (iOS-menu IMG_5665 and IMG_5666, Added and Captured over the rows of Photos; iOS 27 kit
    Menu 492:52296, Control Group; Apps 2.4 Menu 40125:198566, Quick Actions). */
 :is(.MenuList, .RadioGroup)[data-layout="horizontal"] {
@@ -601,16 +601,17 @@
   }
 }
 
-/* A group's tabs reach the horizontal gutter of the menu, not the inset of its rows: 10pt from the panel's edges in
+/* A group's options reach the horizontal gutter of the menu, not the inset of its rows: 10pt from the panel's edges in
    the kit and Apps 2.4, where the rows are 16pt in. */
 .RadioGroup[data-layout="horizontal"] {
   min-width: 0;
   margin-inline: calc(var(--menu-horizontal-padding-inline, var(--menu-gutter)) - var(--menu-padding-inline, var(--menu-gutter)));
   padding-inline: 0;
 
-  /* The chosen tab stands on a fill, as Photos marks Added or Captured (IMG_5666: 214 to 223 on a 254 panel, black at
-     15%; the kit's tertiary 12% is lighter, the native screen wins) and the kit its first action; the fill tells the
-     choice, so no radio indicator is drawn. At 15% it also stays apart from a desktop highlight (8%, 10% in dark). */
+  /* The chosen mode stands on a fill, as Photos marks Added or Captured and the kit its first action; the fill tells the
+     choice, so no radio indicator is drawn. On a desktop it is 15%, apart from a highlight (8%, 10% in dark); on a phone
+     touch.css makes it the 12% of the device (IMG_5666: 222 on the 253 panel across the tile, darker only at its
+     leading edge, where the glass shades it; the kit's tertiary fill is 12% too). */
   & .RadioItem[data-state="checked"] {
     border-radius: var(--menu-item-radius);
     background: var(--menu-horizontal-selected-background, var(--alpha-15));
@@ -659,9 +660,29 @@
     padding-block: 0;
   }
 
+  /* A row's press is its own (the capsule, a tile's fill): Safari's gray tap rectangle would stack on it */
+  .MenuItem {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The pressed surface is the capsule iOS 26 draws under the finger (Files, the owner's shots of 08.11, @3x: 535 to
+     1224 in a 504 to 1255 panel, the whole 42pt row): 10pt from the panel's edges, not the row's 16, and round at its
+     ends (the menu's corner less the gutter, 24px, comes to a half circle on a row). iOS lights it under the finger and
+     darkens it away from it, 7 to 8% black on average (Files: 252 under the finger, 217 to 228 at the far end on the
+     255 panel); one even fill of that strength, as the owner proposed (08.11), --menu-press-background in touch.css. Every
+     row presses the same gray, a destructive one too. Without touch.css it is the highlight color. */
   .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *))::before {
     position: absolute;
-    inset: 0;
+    inset-block: 0;
+    inset-inline: calc(var(--menu-gutter) - var(--menu-padding-inline, var(--menu-gutter)));
+    background: var(--menu-press-background, var(--menu-item-background-color));
+  }
+
+  /* It shows the moment the finger lands and fades when it lifts. */
+  .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *)):not(:has(.ItemActions:active)):active::before {
+    opacity: 1;
+    transform: scale(var(--menu-item-press-scale, var(--scale, 0.98)));
+    transition-duration: 0s;
   }
 
   .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *)) > .PressableInner {
@@ -706,16 +727,30 @@
     color: var(--color-text);
   }
 
+  /* The checkmark column of native iOS 26 menus (iOS-menu IMG_5666 Photos, IMG_5687 and IMG_5688 Files, the owner's
+     Files shots of 08.11, at @3x): 10.3 to 10.7pt of ink centred 28pt from the panel's edge, labels from 43.5pt. A row's
+     content starts 22px in, so the column is 13px and the label follows 8.5px after it (touch.css tokens). The iOS 27
+     kit draws a 15pt checkmark centred at 34 and labels from 52; the device wins. */
   .MenuList:not([data-layout="horizontal"]) :is(.RadioItem, .CheckboxItem) {
-    gap: var(--menu-item-gap);
+    gap: var(--menu-check-gap, 8.5px);
   }
 
   .MenuList:not([data-layout="horizontal"]) :is(.RadioIndicator, .CheckboxIndicator) {
-    width: 24px;
+    width: var(--menu-check-column, 13px);
     height: 22px;
-    /* The reference keeps a 22px selection slot beside the 20px label line. */
+    /* A 22px selection slot beside the 20px label line. */
     border-radius: 0;
     box-shadow: none;
+  }
+
+  /* A menu with a checkmark column keeps it on every row: a row without a checkmark and a section title start at the
+     label column too (IMG_5666: View Options, Report a Concern and Filter:; Files: Select, New Folder, Name, Kind). */
+  .MenuList:not([data-layout="horizontal"]):has(:is(.RadioItem, .CheckboxItem):not(:where(.RadioGroup[data-layout="horizontal"] *))) {
+    & .MenuItem:not(.RadioItem, .CheckboxItem, [data-submenu-collapse]):not(:where(.RadioGroup[data-layout="horizontal"] *)),
+    & .MenuItemContent,
+    & .MenuLabel {
+      padding-inline-start: var(--menu-check-label-inset, calc(8px + 13px + 8.5px));
+    }
   }
 
   .MenuList:not([data-layout="horizontal"]) .RadioIndicatorActive::before,
@@ -724,7 +759,7 @@
   }
 
   .MenuList:not([data-layout="horizontal"]) .CheckboxCircle {
-    width: 24px;
+    width: var(--menu-check-column, 13px);
     height: 22px;
     border-radius: 0;
     background: none;
@@ -744,12 +779,13 @@
     margin-inline-start: 0;
   }
 
-  /* The 17pt checkmark of the kit: about 15 × 14.5px of ink. */
+  /* The native checkmark: 10.3 to 10.7pt of ink (IMG_5666, 5687, 5688); the 18px Check icon draws 10.6 by 9.9, centred
+     in its column with the overflow on both sides. */
   .MenuList:not([data-layout="horizontal"]) .SelectionCheck {
     display: block;
     flex-shrink: 0;
-    width: 26px;
-    height: 26px;
+    width: var(--menu-check-size, 18px);
+    height: var(--menu-check-size, 18px);
     color: inherit;
   }
 }
@@ -811,6 +847,23 @@
     & > * {
       opacity: 0.5;
     }
+  }
+
+  /* A submenu grows out of the row that opened it, in step with the parent stepping back: from the middle of its top,
+     where its heading row covers that row, over the parent's --motion-enter and on its curve. The desktop's quick
+     submenu (100ms, from its corner beside the row) came in at a different time from the parent, from the corner. */
+  .MenuList[data-submenu-phone] {
+    transform-origin: 50% 0;
+  }
+
+  .Menu[data-entering-active] .MenuList[data-submenu-phone],
+  .Menu[data-entering][data-interrupted] .MenuList[data-submenu-phone] {
+    transition-duration: var(--motion-enter);
+  }
+
+  .Menu[data-exiting-active] .MenuList[data-submenu-phone],
+  .Menu[data-exiting][data-interrupted] .MenuList[data-submenu-phone] {
+    transition-duration: var(--motion-exit);
   }
 
   /* Opening and closing keep their own timing. The rule above lists a delay for the origin, and the open and close

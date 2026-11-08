@@ -75,6 +75,10 @@ import { ignoreReleaseOverTrigger, observeMenuTriggerCover, type MenuTriggerCove
 import { completeInitialPhoneSubmenuFocus, deferInitialPhoneSubmenuFocus, delegateInitialPhoneSubmenuFocus } from "../../lib/menuInitialFocus.js"
 import s from "@plexui/styles/components/Menu/Menu.module.css"
 
+// A touch listener lets iOS Safari apply :active, which draws the pressed capsule of a phone row (Menu.module.css).
+// React listens for touchstart at its root already.
+const pressListeners = { onTouchstartPassive: () => {} }
+
 // Vue port of packages/ui/src/components/Menu/Menu.tsx. Exports are flat
 // (`Menu`, `MenuTrigger`, `MenuContent`, ...) because runtime-compiled
 // templates cannot resolve `Menu.Trigger` from the `components` option.
@@ -538,6 +542,7 @@ const MenuRootContentImpl = defineComponent({
           ...floatingBoundary.value,
           "reference": internals.trigger.value ?? undefined,
           "class": s.MenuList,
+          ...pressListeners,
           "data-pill": props.pill ? "" : undefined,
           "data-layout": isHorizontal ? "horizontal" : undefined,
           "data-size": isHorizontal && props.size ? props.size : undefined,
@@ -1322,6 +1327,7 @@ const MenuSubContentImpl = defineComponent({
           ...floatingBoundary.value,
           "reference": subInternals.trigger.value ?? undefined,
           "class": s.MenuList,
+          ...pressListeners,
           "data-submenu": "",
           "data-pill": props.pill ? "" : undefined,
           "style": {
@@ -1476,8 +1482,9 @@ export const MenuRadioGroup = defineComponent({
      */
     indicatorPosition: { type: String as PropType<"start" | "end">, default: "end" },
     /**
-     * `horizontal` sets the options side by side as tabs, each an icon over its label and the chosen one on a fill:
-     * the choice at the top of an iOS menu, above its list (Added and Captured in Photos). No radio indicator is drawn.
+     * `horizontal` sets the options side by side, each an icon over its label and the chosen one on a fill: a mode at
+     * the top of an iOS menu, above its list, as Photos orders by Added or by Captured. No radio indicator is drawn;
+     * choosing one closes the menu, as any item does.
      */
     layout: { type: String as PropType<"vertical" | "horizontal">, default: "vertical" },
   },

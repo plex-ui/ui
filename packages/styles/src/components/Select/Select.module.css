@@ -426,6 +426,12 @@
     letter-spacing: var(--menu-letter-spacing, normal);
   }
 
+  /* The capsule is the press: Safari's gray tap rectangle would stack on it */
+  .Option,
+  .Action {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   .Search,
   .ActionsContainer {
     flex-shrink: 0;
@@ -444,9 +450,19 @@
     padding-block: 0;
   }
 
-  .Option:has(> .PressableInner > .OptionLeading)::before {
+  /* The pressed capsule of a menu row (Menu.module.css, Files, the owner's shots of 08.11): 10px from the panel's
+     edges, not the option's 16, the whole row, round at its ends, in one even fill (--menu-press-background). It
+     shows the moment the finger lands and fades when it lifts. */
+  .Option::before {
     position: absolute;
-    inset: 0;
+    inset-block: 0;
+    inset-inline: calc(var(--menu-gutter) - var(--menu-padding-inline, var(--menu-gutter)));
+    background: var(--menu-press-background, var(--menu-item-background-color));
+  }
+
+  .Option:active::before {
+    opacity: 1;
+    transition-duration: 0s;
   }
 
   .PressableInner:has(> .OptionLeading) {
@@ -464,23 +480,42 @@
     gap: 8px;
   }
 
+  /* The checkmark column of a native iOS 26 pop-up menu, as Menu draws it (iOS-menu IMG_5687 and IMG_5688 Files at
+     @3x): 10.3 to 10.7pt of ink centred 28pt from the panel's edge, labels from 43.5pt. A row's content starts 22px in,
+     so the column is 13px and the label follows 8.5px after it (touch.css tokens). The iOS 27 kit draws a 15pt
+     checkmark centred at 34 and labels from 52; the device wins. The checkmark leads every row, so the desktop end
+     position moves to the start on a phone. */
   .OptionIndicatorSlot {
     justify-content: center;
-    width: 24px;
+    width: var(--menu-check-column, 13px);
     height: 22px;
   }
 
-  /* iOS 26 kit Menu Items (Menu has Selection): the checkmark leads every row in a 24px column,
-     6px before the label, so the desktop end position moves to the start on a phone. */
+  :is(.PressableInner, .OptionHardLimitHeading):has(> .OptionIndicatorSlot) {
+    gap: var(--menu-check-gap, 8.5px);
+  }
+
+  /* In a list with checkmarks, section titles, the note under a long list, the row that shows more options and the
+     actions start where the labels do, as "Filter:" and New Folder in Files (IMG_5687). A list without them keeps its
+     labels, and these, at the row's start. */
+  .MenuList:has(.OptionIndicatorSlot[data-position]) :is(
+    .OptionGroupHeading,
+    .OptionHardLimitHeading:not(:has(> .OptionIndicatorSlot)),
+    .OptionsLimit > .PressableInner:not(:has(> .OptionIndicatorSlot)),
+    .ActionInner
+  ) {
+    padding-inline-start: var(--menu-check-label-inset, calc(8px + 13px + 8.5px));
+  }
+
   .PressableInner > .OptionIndicatorSlot[data-position="end"] {
     order: -1;
     margin-left: 0;
   }
 
-  /* The 17pt checkmark of the kit: about 15 × 14.5px of ink. */
+  /* The 18px Check icon draws 10.6 by 9.9, centred in its column with the overflow on both sides. */
   .OptionCheck {
-    width: 26px;
-    height: 26px;
+    width: var(--menu-check-size, 18px);
+    height: var(--menu-check-size, 18px);
   }
 
   .OptionDescription {

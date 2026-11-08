@@ -5835,8 +5835,8 @@ On a phone each example is a screen whose menu opens from the More button of its
   <MenuContent :width="210" :min-width="210">
     <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
     <MenuSeparator />
-    <MenuLink href="#">Your profile</MenuLink>
-    <MenuLink href="#">Terms & policies</MenuLink>
+    <MenuItem @select="() => {}">Your profile</MenuItem>
+    <MenuItem @select="() => {}">Terms & policies</MenuItem>
     <MenuItem disabled @select="() => {}">Feature flags</MenuItem>
     <MenuSeparator />
     <MenuItem @select="() => {}">Logout</MenuItem>
@@ -5854,8 +5854,8 @@ On a phone each example is a screen whose menu opens from the More button of its
       <MenuContent align="end">
         <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
         <MenuSeparator />
-        <MenuLink href="#">Your profile</MenuLink>
-        <MenuLink href="#">Terms & policies</MenuLink>
+        <MenuItem @select="() => {}">Your profile</MenuItem>
+        <MenuItem @select="() => {}">Terms & policies</MenuItem>
         <MenuItem disabled @select="() => {}">Feature flags</MenuItem>
         <MenuSeparator />
         <MenuItem @select="() => {}">Logout</MenuItem>
@@ -5903,7 +5903,7 @@ Menu supports several sizing strategies:Natural sizing: use min-width="auto" to 
 ```
 
 ### Horizontal (icons only)
-Set layout="horizontal" on MenuContent for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled tabs at the top of a menu, as in Tabs below.
+Set layout="horizontal" on MenuContent for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled mode switch at the top of a menu, as in Mode switch below.
 ```vue
 <Menu>
   <MenuTrigger>
@@ -5918,32 +5918,11 @@ Set layout="horizontal" on MenuContent for an icon toolbar. Give each icon-only 
 </Menu>
 ```
 
-### Tabs
-Set layout="horizontal" on a MenuRadioGroup at the top of a menu for tabs: one choice of several, the options side by side, each an icon over its label, with the chosen one on a fill, above the list, as Photos chooses between Added and Captured. The options are radio items, so the fill moves with the value and no radio indicator is drawn. On a phone with touch.css they are equal 56px-tall tabs with a 20px icon over a 12px label, 10px from the panel's edges, the chosen one on black at 15%.
+### Mode switch
+Set layout="horizontal" on a MenuRadioGroup at the top of a menu for a mode switch: one mode of several, the options side by side, each an icon over its label, with the chosen one on a fill, above the list, as Photos orders by Added or by Captured. The options are radio items, so the fill moves with the value, no radio indicator is drawn, and choosing one closes the menu, as any item does. On a phone with touch.css they are equal 56px-tall tiles with a 20px icon over a 12px label, 10px from the panel's edges, the chosen one on black at 12%, as in Photos. Phone only: the mode switch is an iOS pattern, which desktop menus do not have; there modes are radio items of the list, as in Radio items below.
 ```vue
-<!-- Desktop -->
-<Menu>
-  <MenuTrigger>
-    <Button color="primary" size="lg" variant="ghost">Library <ChevronDownMd /></Button>
-  </MenuTrigger>
-  <MenuContent>
-    <MenuRadioGroup layout="horizontal" v-model:value="sort">
-      <MenuRadioItem value="added"><Clock /> Added</MenuRadioItem>
-      <MenuRadioItem value="captured"><CameraPhoto /> Captured</MenuRadioItem>
-    </MenuRadioGroup>
-    <MenuSeparator />
-    <MenuLabel>Filter</MenuLabel>
-    <MenuRadioGroup v-model:value="filter">
-      <MenuRadioItem value="all"><Grid /> All items</MenuRadioItem>
-      <MenuRadioItem value="favorites"><Heart /> Favorites</MenuRadioItem>
-      <MenuRadioItem value="edited"><EditPencil /> Edited</MenuRadioItem>
-    </MenuRadioGroup>
-  </MenuContent>
-</Menu>
-
-<!-- Phone: the More button of the top bar opens the menu -->
 <Toolbar title-style="large">
-  <ToolbarTitle>Tabs</ToolbarTitle>
+  <ToolbarTitle>Mode switch</ToolbarTitle>
   <ToolbarTrailing>
     <Menu>
       <MenuTrigger>
@@ -5968,30 +5947,8 @@ Set layout="horizontal" on a MenuRadioGroup at the top of a menu for tabs: one c
 ```
 
 ### Header
-Put a MenuHeader first to name what the menu acts on: a picture (the media slot), the name and a line under it, with a round MenuHeaderAction at its end (the action slot), as the Files menu of a file in iOS opens. The header is not an item; its action is, reached with the arrow keys like the items. On a phone with touch.css the picture is 40px, 16px from the panel's edges, the name 15px Semibold and the line under it 13px; the action is a 34px circle with a 44px target. A separator under the header stands 16px below the picture; without one the first item starts 24px below it.
+Put a MenuHeader first to name what the menu acts on: a picture (the media slot), the name and a line under it, with a round MenuHeaderAction at its end (the action slot), as the Files menu of a file in iOS opens. The header is not an item; its action is, reached with the arrow keys like the items. On a phone with touch.css the picture is 40px, 16px from the panel's edges, the name 15px Semibold and the line under it 13px; the action is a 34px circle with a 44px target. A separator under the header stands 16px below the picture; without one the first item starts 24px below it. Phone only: the header is an iOS pattern, which desktop menus do not have.
 ```vue
-<!-- Desktop -->
-<Menu>
-  <MenuTrigger>
-    <Button color="primary" size="lg" variant="ghost">File <ChevronDownMd /></Button>
-  </MenuTrigger>
-  <MenuContent>
-    <MenuHeader description="Image · 382 KB">
-      <template #media><img src="/demo/picture-1.svg" alt="" /></template>
-      Sunset.png
-      <template #action>
-        <MenuHeaderAction aria-label="Share" @select="() => {}"><Share /></MenuHeaderAction>
-      </template>
-    </MenuHeader>
-    <MenuItem @select="() => {}"><EditPencil /> Rename</MenuItem>
-    <MenuItem @select="() => {}"><Copy /> Copy</MenuItem>
-    <MenuItem @select="() => {}"><Folder /> Move</MenuItem>
-    <MenuSeparator />
-    <MenuItem @select="() => {}"><InfoCircle /> Get info</MenuItem>
-  </MenuContent>
-</Menu>
-
-<!-- Phone: the More button of the top bar opens the menu -->
 <Toolbar title-style="large">
   <ToolbarTitle>Header</ToolbarTitle>
   <ToolbarTrailing>
@@ -6029,15 +5986,15 @@ Use MenuGroup and MenuLabel to organize related items into labeled sections.
   <MenuContent :min-width="220">
     <MenuGroup>
       <MenuLabel>Active</MenuLabel>
-      <MenuLink href="#">Welcome email</MenuLink>
-      <MenuLink href="#">Order confirmation</MenuLink>
-      <MenuLink href="#">Password reset</MenuLink>
+      <MenuItem @select="() => {}">Welcome email</MenuItem>
+      <MenuItem @select="() => {}">Order confirmation</MenuItem>
+      <MenuItem @select="() => {}">Password reset</MenuItem>
     </MenuGroup>
     <MenuSeparator />
     <MenuGroup>
       <MenuLabel>Draft</MenuLabel>
-      <MenuLink href="#">New promo campaign</MenuLink>
-      <MenuLink href="#">Account deactivation</MenuLink>
+      <MenuItem @select="() => {}">New promo campaign</MenuItem>
+      <MenuItem @select="() => {}">Account deactivation</MenuItem>
     </MenuGroup>
   </MenuContent>
 </Menu>
@@ -6053,15 +6010,15 @@ Use MenuGroup and MenuLabel to organize related items into labeled sections.
       <MenuContent align="end">
         <MenuGroup>
           <MenuLabel>Active</MenuLabel>
-          <MenuLink href="#">Welcome email</MenuLink>
-          <MenuLink href="#">Order confirmation</MenuLink>
-          <MenuLink href="#">Password reset</MenuLink>
+          <MenuItem @select="() => {}">Welcome email</MenuItem>
+          <MenuItem @select="() => {}">Order confirmation</MenuItem>
+          <MenuItem @select="() => {}">Password reset</MenuItem>
         </MenuGroup>
         <MenuSeparator />
         <MenuGroup>
           <MenuLabel>Draft</MenuLabel>
-          <MenuLink href="#">New promo campaign</MenuLink>
-          <MenuLink href="#">Account deactivation</MenuLink>
+          <MenuItem @select="() => {}">New promo campaign</MenuItem>
+          <MenuItem @select="() => {}">Account deactivation</MenuItem>
         </MenuGroup>
       </MenuContent>
     </Menu>
