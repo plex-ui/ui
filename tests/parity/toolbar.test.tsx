@@ -9,7 +9,7 @@ import { Page as RPage } from "../../packages/ui/src/components/Page"
 import { Toolbar as RToolbar } from "../../packages/ui/src/components/Toolbar"
 import { Button, NavigationButton } from "../../packages/vue/src/components/Button"
 import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle } from "../../packages/vue/src/components/Dialog"
-import { Page, PageContent, PageHeader } from "../../packages/vue/src/components/Page"
+import { Page, PageContent, PageFooter, PageHeader } from "../../packages/vue/src/components/Page"
 import {
   Toolbar,
   ToolbarContent,
@@ -262,6 +262,73 @@ describe("Toolbar in a Sheet", () => {
     return dom
   }
 
+  test.each(["React", "Vue"] as const)("%s: a bottom bar in a Sheet, or in a Page laid out inside one, keeps its soft edge; on a page it has none (plan 172)", async (framework) => {
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Toolbar/Toolbar.module.css`, "utf8")
+    const pageCss = readFileSync(`${process.cwd()}/packages/styles/src/components/Page/Page.module.css`, "utf8")
+    const toolbarRule = css.match(/(\.Toolbar\[data-placement="bottom"\]\[data-background="soft"\][^{]*)::before \{\s*display: none;/)?.[1]
+    const footerBlock = pageCss.slice(pageCss.indexOf("  .Footer {"))
+    const footerRule = footerBlock.match(/&(\[data-background="soft"\][^{]*)::before \{\s*display: none;/)?.[1]
+    if (!toolbarRule || !footerRule) throw new Error("the soft bottom rules are missing")
+    const hidesToolbar = (el: Element | null) => Boolean(el?.matches(toolbarRule))
+    const hidesFooter = (el: Element | null) => Boolean(el?.matches(`.Footer${footerRule}`))
+    const bottom = { placement: "bottom", leading: false }
+    const reactTree = (
+      <>
+        <RPage>
+          <RPage.Content>Rows</RPage.Content>
+          {reactBar({ root: bottom, search: true, leading: false })}
+          <RPage.Footer>Footer</RPage.Footer>
+        </RPage>
+        <RDialog open>
+          <RDialog.Content mobileVariant="sheet">
+            <RDialog.Header><RDialog.Title>Orders</RDialog.Title></RDialog.Header>
+            <RDialog.Body>
+              <RPage>
+                <RPage.Content>Rows</RPage.Content>
+                {reactBar({ root: bottom, search: true, leading: false })}
+                <RPage.Footer>Footer</RPage.Footer>
+              </RPage>
+            </RDialog.Body>
+            {reactBar({ root: bottom, search: true, leading: false })}
+          </RDialog.Content>
+        </RDialog>
+      </>
+    )
+    const vueTree = () => [
+      h(Page as never, null, () => [
+        h(PageContent, null, () => "Rows"),
+        vueBar({ root: bottom, search: true, leading: false }),
+        h(PageFooter, null, () => "Footer"),
+      ]),
+      h(Dialog, { open: true }, () =>
+        h(DialogContent, { mobileVariant: "sheet" }, () => [
+          h(DialogHeader, null, () => h(DialogTitle, null, () => "Orders")),
+          h(DialogBody, null, () =>
+            h(Page as never, null, () => [
+              h(PageContent, null, () => "Rows"),
+              vueBar({ root: bottom, search: true, leading: false }),
+              h(PageFooter, null, () => "Footer"),
+            ])),
+          vueBar({ root: bottom, search: true, leading: false }),
+        ])),
+    ]
+    let unmount = () => {}
+    if (framework === "React") await act(async () => { render(reactTree) })
+    else {
+      unmount = mountVue(() => h("div", null, vueTree())).unmount
+      await flushVue()
+    }
+    const sheet = document.querySelector('[data-mobile-variant="sheet"]')
+    const bars = [...document.querySelectorAll('[data-toolbar][data-placement="bottom"]')]
+    const footers = [...document.querySelectorAll(".Footer")]
+    expect(bars).toHaveLength(3)
+    expect(footers).toHaveLength(2)
+    for (const bar of bars) expect(hidesToolbar(bar)).toBe(!sheet?.contains(bar))
+    for (const footer of footers) expect(hidesFooter(footer)).toBe(!sheet?.contains(footer))
+    expect(bars.filter((bar) => sheet?.contains(bar)).map((bar) => bar.getAttribute("data-host")).sort()).toEqual(["dialog", "page"])
+    unmount()
+  })
+
   test("both frameworks render the same Sheet", async () => {
     expect(await sheetDom("Vue")).toBe(await sheetDom("React"))
   })
@@ -413,6 +480,24 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     expect(bottom).toMatch(/&:not\(\[data-background="soft"\]\)::before \{\s*inset: 0;\s*-webkit-mask-image: none;\s*mask-image: none;/)
     // A single wide action has more room above it, and the edge moves with it.
     expect(css).toMatch(/:has\(> \.Content\[data-fill\] > :where\(button, a\)\) \{[^}]*--toolbar-bottom-item-top: var\(--toolbar-bottom-fill-padding-top\);/)
+  })
+
+  test("a bottom bar on a page leaves the content clear, a sheet's keeps its edge, and glass stands out over content (plan 172)", () => {
+    const read = (path: string) => readFileSync(`${process.cwd()}/packages/styles/src/${path}`, "utf8")
+    // Native iOS 26 draws no band under the bottom controls of a page (Mail, Phone); a sheet fades its list (IMG_5491).
+    expect(css).toMatch(/\.Toolbar\[data-placement="bottom"\]\[data-background="soft"\]:not\(\[data-host="dialog"\], \[data-mobile-variant="sheet"\] \*\)::before \{\s*display: none;/)
+    // A sheet's bar keeps the glass of the sheet, so the raised shadow no longer ties with Dialog's rule.
+    expect(css).toMatch(/\.Toolbar\[data-placement="bottom"\]\[data-content-below\]:not\(\[data-mobile-variant="sheet"\] \*\) \{\s*--mobile-glass-shadow: var\(--mobile-glass-shadow-raised\);/)
+    expect(read("components/Page/Page.module.css")).toMatch(/&\[data-background="soft"\]:not\(\[data-mobile-variant="sheet"\] \*\)::before \{\s*display: none;/)
+    expect(read("components/TabBar/TabBar.module.css")).toMatch(/&\[data-background="soft"\]::before \{\s*display: none;/)
+    expect(read("components/Dialog/Dialog.module.css")).toContain('.Content[data-mobile-variant="sheet"] .Footer::before {\n    inset: -15px 0 0;')
+    // The outline darkens what lies under it, as the kit's linear burn does, and the frost turns content into a smudge.
+    const materials = read("styles/mobile-materials.css")
+    expect(materials).toContain("0 0 0 0.5px light-dark(rgb(0 0 0 / 9%), transparent)")
+    // The sides lie over the 9% ring: 10% more comes to the kit's 18% there, not 25%.
+    expect(materials).toContain("1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 10%), transparent)")
+    expect(materials).toContain("--mobile-glass-backdrop-filter: blur(12px);")
+    expect(materials).not.toContain("light-dark(var(--gray-100), transparent)")
   })
 
   test("the title moves with the scroll, fades under the row of controls and shows inline at the end of its way", () => {

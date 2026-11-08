@@ -5786,7 +5786,7 @@ fill stops the page scrolling from 768px up, so a table can scroll inside itself
 ```
 
 ### Background
-background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: soft (the default) fades the canvas color out under the bar, hard is an opaque bar with a line, glass a translucent, blurred bar with a hairline, and solid an opaque bar with no line. Hard and glass show themselves once content is under the bar; :divider="false" keeps a header without its line.
+background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: soft (the default) fades the canvas color out under the header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, glass a translucent, blurred bar with a hairline, and solid an opaque bar with no line. Hard and glass show themselves once content is under the bar; :divider="false" keeps a header without its line.
 ```vue
 <Page>
   <PageHeader background="hard">...</PageHeader>
@@ -9672,7 +9672,7 @@ With minimize-behavior="onScrollDown" the bar shrinks to the selected tab while 
 ```
 
 ### Background
-background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) fades the canvas color in under the capsule, hard is an opaque band with a line on top, glass a translucent, blurred band with a hairline, and solid an opaque band with no line. Hard and glass show themselves while the content continues under the bar.
+background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) leaves the content clear under and around the capsule, as native iOS 26 does, hard is an opaque band with a line on top, glass a translucent, blurred band with a hairline, and solid an opaque band with no line. Hard and glass show themselves while the content continues under the bar.
 ```vue
 <Page surface="grouped">
   <Toolbar background="hard">...</Toolbar>
@@ -11029,7 +11029,7 @@ placement="bottom" sets the bar at the bottom of the page with 48px targets and 
 ```
 
 ### Background
-background sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. soft, the default, covers the content under the controls with the canvas color and fades it out past them over a light blur, with no line. hard is an opaque bar of the canvas color with a line. glass is a translucent, blurred bar with a hairline. solid is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. PageHeader, PageFooter, the bars of a Sheet and TabBar take the same values.
+background sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. soft, the default, draws no line: a top bar covers the content under its controls with the canvas color and fades it out past them over a light blur, while a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does, and each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a line. glass is a translucent, blurred bar with a hairline. solid is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. PageHeader, PageFooter, the bars of a Sheet and TabBar take the same values.
 ```vue
 <Page surface="grouped">
   <Toolbar background="hard">

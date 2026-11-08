@@ -119,6 +119,21 @@
     }
   }
 
+  /* On a page the soft edge of a bottom bar is no band at all (plan 172, owner 08.11 «ios по дефолту разве
+     добавляет фон? внизу»): native iOS 26 lets content run under and around the bottom controls, at full
+     contrast down to the screen's edge (Mail IMG_5534 and 5551, Phone IMG_5615); each glass control stands
+     out by itself. A sheet keeps its soft edge: its list fades into the panel above a bottom search field
+     (Country or region, IMG_5491), and so does a Page laid out inside one. */
+  .Toolbar[data-placement="bottom"][data-background="soft"]:not([data-host="dialog"], [data-mobile-variant="sheet"] *)::before {
+    display: none;
+  }
+
+  /* With content under it, a bottom bar's glass casts the raised shadow, as a top bar's does once scrolled.
+     A sheet's bar keeps the glass of the sheet (Dialog). */
+  .Toolbar[data-placement="bottom"][data-content-below]:not([data-mobile-variant="sheet"] *) {
+    --mobile-glass-shadow: var(--mobile-glass-shadow-raised);
+  }
+
   /* A single wide action (Apps 2.4 Fullsize) leaves 12px above it. */
   .Toolbar[data-placement="bottom"]:has(> .Content[data-fill] > :where(button, a)) {
     --toolbar-edge-blur: var(--toolbar-edge-blur-large);

@@ -64,6 +64,12 @@
       opacity: 1;
     }
 
+    /* Soft is no band: native iOS 26 lets the list run under and around the tab bar's capsule at full
+       contrast (Phone, IMG_5615; plan 172, owner 08.11), and the capsule's glass sets it off. */
+    &[data-background="soft"]::before {
+      display: none;
+    }
+
     /* With a search tab, or minimized, the capsule keeps to the leading edge and search to the trailing one. */
     &[data-search],
     &[data-minimized] {

@@ -350,9 +350,9 @@
     padding-left: 8px;
   }
 
-  /* The footer meets the content scrolled under it by its `background`, as a bottom Toolbar does. Soft:
-     the canvas starts 27px above the actions and covers the content fully from their top (native
-     iOS 26 bottom bars, IMG_5491). */
+  /* The footer meets the content scrolled under it by its `background`, as a bottom Toolbar does. Soft is no
+     band on a page: content runs under and around the actions as under native iOS 26 bottom bars (Mail
+     IMG_5534 and 5551, Phone IMG_5615; plan 172, owner 08.11), and the glass of each action sets it off. */
   .Footer {
     position: relative;
     z-index: 5;
@@ -398,6 +398,10 @@
 
     &[data-content-below][data-background="glass"]::before {
       opacity: 1;
+    }
+
+    &[data-background="soft"]:not([data-mobile-variant="sheet"] *)::before {
+      display: none;
     }
   }
 

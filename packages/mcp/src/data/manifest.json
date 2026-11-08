@@ -4249,7 +4249,7 @@
         {
           "name": "Background",
           "code": "<Page>\n<Page.Header background=\"hard\">...</Page.Header>\n<Page.Content>...</Page.Content>\n<Page.Footer background=\"hard\">\n  <Button color=\"primary\" pill block>New order</Button>\n</Page.Footer>\n</Page>",
-          "details": "background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: soft (the default) fades the canvas color out under the bar, hard is an opaque bar with a line, glass a translucent, blurred bar with a hairline, and solid an opaque bar with no line. Hard and glass show themselves once content is under the bar; divider={false} keeps a header without its line."
+          "details": "background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: soft (the default) fades the canvas color out under the header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, glass a translucent, blurred bar with a hairline, and solid an opaque bar with no line. Hard and glass show themselves once content is under the bar; divider={false} keeps a header without its line."
         }
       ],
       "subComponents": [
@@ -6422,7 +6422,7 @@
         {
           "name": "Background",
           "code": "<Page surface=\"grouped\">\n<Toolbar background=\"hard\">...</Toolbar>\n<Page.Content>...</Page.Content>\n<TabBar value={tab} onValueChange={setTab} background=\"hard\">\n  ...\n</TabBar>\n</Page>",
-          "details": "background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) fades the canvas color in under the capsule, hard is an opaque band with a line on top, glass a translucent, blurred band with a hairline, and solid an opaque band with no line. Hard and glass show themselves while the content continues under the bar."
+          "details": "background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) leaves the content clear under and around the capsule, as native iOS 26 does, hard is an opaque band with a line on top, glass a translucent, blurred band with a hairline, and solid an opaque band with no line. Hard and glass show themselves while the content continues under the bar."
         }
       ],
       "subComponents": [
@@ -7586,7 +7586,7 @@
         {
           "name": "Background",
           "code": "<Page surface=\"grouped\">\n<Toolbar background=\"hard\">\n  <Toolbar.Leading>\n    <NavigationButton action=\"back\" />\n  </Toolbar.Leading>\n  <Toolbar.Title>Orders</Toolbar.Title>\n</Toolbar>\n<Page.Content>...</Page.Content>\n<Toolbar placement=\"bottom\" background=\"hard\">\n  <Toolbar.Content>\n    <Button color=\"primary\" pill>New order</Button>\n  </Toolbar.Content>\n</Toolbar>\n</Page>",
-          "details": "background sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. soft, the default, covers the content under the controls with the canvas color and fades it out past them over a light blur, with no line. hard is an opaque bar of the canvas color with a line. glass is a translucent, blurred bar with a hairline. solid is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values."
+          "details": "background sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. soft, the default, draws no line: a top bar covers the content under its controls with the canvas color and fades it out past them over a light blur, while a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does, and each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a line. glass is a translucent, blurred bar with a hairline. solid is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values."
         },
         {
           "name": "Disabled",
@@ -7733,5 +7733,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T19:54:23.697Z"
+  "generatedAt": "2026-11-08T21:10:43.694Z"
 }

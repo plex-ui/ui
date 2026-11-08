@@ -18,14 +18,20 @@
     --mobile-glass-background-active: light-dark(alpha(var(--gray-75), 75%), var(--alpha-20));
     --mobile-glass-rim: light-dark(rgb(255 255 255 / 100%), rgb(255 255 255 / 30%));
     --mobile-glass-sheen: linear-gradient(light-dark(rgb(0 0 0 / 3%), rgb(0 0 0 / 6%)), transparent 50%, light-dark(rgb(255 255 255 / 45%), rgb(255 255 255 / 3%)));
-    /* The kit's edge in light: a 0.5px outline of #e8e8e8 (gray-100) all round, and the sides 0.5px darker in
-       #d0d0d0 (gray-200), with a 2% shadow 8px down. Dark glass has neither in native frames, only its rim. */
-    --mobile-glass-outline: 1.25px 0 0 -0.75px light-dark(var(--gray-200), transparent), -1.25px 0 0 -0.75px light-dark(var(--gray-200), transparent), 0 0 0 0.5px light-dark(var(--gray-100), transparent);
+    /* The kit's edge in light: a 0.5px outline all round and the sides 0.5px darker, with a 2% shadow 8px
+       down. The kit burns the outline in (#e8e8e8 and #d0d0d0, linear burn), so it darkens whatever lies
+       under it by 23 and 47 levels: native glass on a page dimmed to 194 shows its edge at 170 to 177
+       (IMG_5533; plan 172). Black at 9% all round does the same on any background, where a fixed gray-100
+       vanished on a gray page and read lighter than a darker one; the sides lie over it, so 10% more
+       comes to 18% there. Dark glass has neither in native frames, only its rim. */
+    --mobile-glass-outline: 1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 10%), transparent), -1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 10%), transparent), 0 0 0 0.5px light-dark(rgb(0 0 0 / 9%), transparent);
     --mobile-glass-shadow: 0 8px 15px light-dark(rgb(0 0 0 / 2%), transparent), var(--mobile-glass-outline), inset 0 0.67px 0 var(--mobile-glass-rim), inset 0 -0.67px 0 var(--mobile-glass-rim);
     --mobile-glass-shadow-raised: 0 8px 40px light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 8%)), var(--mobile-glass-outline), inset 0 0.67px 0 var(--mobile-glass-rim), inset 0 -0.67px 0 var(--mobile-glass-rim);
     /* The kit's Glass Effect frosts at a radius of 6 (iOS 27 Buttons - 44pt, 5720:29596; refraction 0.7,
-       depth 30, light 0.25 are not drawn: CSS has no lens for a backdrop). */
-    --mobile-glass-backdrop-filter: blur(6px);
+       depth 30, light 0.25 are not drawn: CSS has no lens for a backdrop). Native glass frosts much harder:
+       black 17pt text under a bottom capsule comes to 228 to 237 on 245 to 250 (Mail IMG_5551, Phone
+       IMG_5615), a smudge, where 6px left the letters legible through the capsule (plan 172). */
+    --mobile-glass-backdrop-filter: blur(12px);
     --mobile-grabber-color: light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 20%));
     /* Dark menus and Select lists are glass, as native iOS 26 pop-up menus and popovers are: the glass
        of the buttons, alpha-12, over a blurred backdrop (iOS2 IMG_5524, 5525, 5528: a sheet of 28 shows at

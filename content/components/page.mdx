@@ -73,7 +73,7 @@ import {
 
 ### Background
 
-<ComponentPreview phoneOnly details={<><code>background</code> sets how the header and the footer meet the content scrolled under them on a phone, as a <a href="/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) fades the canvas color out under the bar, <code>hard</code> is an opaque bar with a line, <code>glass</code> a translucent, blurred bar with a hairline, and <code>solid</code> an opaque bar with no line. Hard and glass show themselves once content is under the bar; <code>divider={false}</code> keeps a header without its line.</>} code={`<Page>
+<ComponentPreview phoneOnly details={<><code>background</code> sets how the header and the footer meet the content scrolled under them on a phone, as a <a href="/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) fades the canvas color out under the header and leaves the content clear under the footer's actions, as native iOS 26 does, <code>hard</code> is an opaque bar with a line, <code>glass</code> a translucent, blurred bar with a hairline, and <code>solid</code> an opaque bar with no line. Hard and glass show themselves once content is under the bar; <code>divider={false}</code> keeps a header without its line.</>} code={`<Page>
   <Page.Header background="hard">...</Page.Header>
   <Page.Content>...</Page.Content>
   <Page.Footer background="hard">

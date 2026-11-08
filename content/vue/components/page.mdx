@@ -164,7 +164,7 @@ export const fill = `<Page>
 
 ### Background
 
-<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how the header and the footer meet the content scrolled under them on a phone, as a <a href="/vue/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) fades the canvas color out under the bar, <code>hard</code> is an opaque bar with a line, <code>glass</code> a translucent, blurred bar with a hairline, and <code>solid</code> an opaque bar with no line. Hard and glass show themselves once content is under the bar; <code>:divider="false"</code> keeps a header without its line.</>} code={backgroundCode}>
+<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how the header and the footer meet the content scrolled under them on a phone, as a <a href="/vue/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) fades the canvas color out under the header and leaves the content clear under the footer's actions, as native iOS 26 does, <code>hard</code> is an opaque bar with a line, <code>glass</code> a translucent, blurred bar with a hairline, and <code>solid</code> an opaque bar with no line. Hard and glass show themselves once content is under the bar; <code>:divider="false"</code> keeps a header without its line.</>} code={backgroundCode}>
   <VueDemo stageClassName={STAGE} state={{ rows }} controls={[
     { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft" },
   ]} template={frame(`  <Page>

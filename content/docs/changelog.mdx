@@ -13,6 +13,11 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 - `Tip` in React and Vue, after the TipKit kit (macOS Mini Tip and iOS Mini Tip): a title that names a feature and a description of how to use it, an optional symbol in the description's color, actions side by side and Close in the trailing corner. `arrowEdge` (`arrow-edge` in Vue) points an inline tip at what it explains with the kit's 47 by 13 arrow; `Tip.Popover` (also `TipPopover` in Vue) anchors a tip to a control, with an arrow that faces it, without taking the focus (Tab moves from the control into the tip), closed by Close, Escape or a press outside. On a desktop it is the macOS tip: 20px corners, 17/22 semibold title over a 15/20 secondary description, a 30px Close 19px from the corner. On a phone it takes the shape TipKit's tip and most of Apple's own cards share: content at the layout margin, a 36px symbol tile, the description right under the title, a bare Close glyph in the tertiary label and each action a row of 17px text in its color under a separator; an inline tip is the opaque card of a grouped list with 26px corners, and a popover tip takes the iOS 27 alert's glass with the kit's popover shadow.
 
+### Changed
+
+- Phone bottom bars: `soft`, the default `background` of a bottom `Toolbar`, `Page.Footer` and `TabBar`, no longer paints the canvas under the controls. The content runs under and around them at full contrast, as under native iOS 26 bottom bars (Mail, Phone). A Sheet's bottom bar keeps its soft edge, and so does a `Page` laid out inside a Sheet, as native sheets fade their list above a bottom search field. Outside a Sheet, a bottom bar's glass casts the raised shadow while content is under it.
+- Phone glass controls stand out over any content: the backdrop is frosted at 12px (was 6px), so content under a control becomes a smudge as on native glass, and the outline darkens whatever lies under it (black at 9% all round, 18% at the sides), as the iOS 27 kit burns it in, instead of a fixed light gray that vanished on a gray page.
+
 ## 0.30.0 (2026-11-08)
 
 ### Added
