@@ -19,14 +19,14 @@ export const overview = `<Menu>
   <MenuTrigger>
     <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
   </MenuTrigger>
-  <MenuContent :width="210" :min-width="210">
+  <MenuContent :width="210" :min-width="210" :pill="pill">
     <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
     <MenuSeparator />
-    <MenuItem @select="() => {}">Your profile</MenuItem>
-    <MenuItem @select="() => {}">Terms & policies</MenuItem>
-    <MenuItem disabled @select="() => {}">Feature flags</MenuItem>
+    <MenuItem @select="() => {}"><ProfileCard v-if="icons" /> Your profile</MenuItem>
+    <MenuItem @select="() => {}"><Terms v-if="icons" /> Terms & policies</MenuItem>
+    <MenuItem disabled @select="() => {}"><Flask v-if="icons" /> Feature flags</MenuItem>
     <MenuSeparator />
-    <MenuItem @select="() => {}">Logout</MenuItem>
+    <MenuItem @select="() => {}"><Logout v-if="icons" /> Logout</MenuItem>
   </MenuContent>
 </Menu>`
 
@@ -239,8 +239,11 @@ export const danger = `<Menu>
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out <code>width</code>, <code>min-width</code> and <code>size</code>.</>} code={withMenuPhoneVue(overview, "Overview")} previewMinHeight={168}>
-  <VueDemo template={overview} phoneTemplate={menuPhoneTemplateVue(overview, "Overview", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
+<ComponentPreview language="vue" details={<>
+  <p>An item takes an icon before its label; <code>icons</code> shows the actions with them, while the name and email above them stay plain text, without an icon. <code>pill</code> on <code>MenuContent</code> makes a rounder list with fully rounded rows, for menus beside pill controls.</p>
+  <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out <code>width</code>, <code>min-width</code> and <code>size</code>. A pill menu is the same panel there, so the phone view leaves out <code>pill</code>.</p>
+</>} code={withMenuPhoneVue(overview, "Overview")} previewMinHeight={168}>
+  <VueDemo template={overview} phoneTemplate={menuPhoneTemplateVue(overview, "Overview", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} controls={[{ name: "icons", type: "boolean", default: false }, { name: "pill", desktopOnly: true, type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Natural sizing

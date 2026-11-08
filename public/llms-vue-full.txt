@@ -5825,21 +5825,21 @@ Props:
     - disabled (boolean) default: false — Disable the item
 
 ### Overview
-On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out width, min-width and size.
+An item takes an icon before its label; icons shows the actions with them, while the name and email above them stay plain text, without an icon. pill on MenuContent makes a rounder list with fully rounded rows, for menus beside pill controls. On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out width, min-width and size. A pill menu is the same panel there, so the phone view leaves out pill.
 ```vue
 <!-- Desktop -->
 <Menu>
   <MenuTrigger>
     <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
   </MenuTrigger>
-  <MenuContent :width="210" :min-width="210">
+  <MenuContent :width="210" :min-width="210" :pill="pill">
     <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
     <MenuSeparator />
-    <MenuItem @select="() => {}">Your profile</MenuItem>
-    <MenuItem @select="() => {}">Terms & policies</MenuItem>
-    <MenuItem disabled @select="() => {}">Feature flags</MenuItem>
+    <MenuItem @select="() => {}"><ProfileCard v-if="icons" /> Your profile</MenuItem>
+    <MenuItem @select="() => {}"><Terms v-if="icons" /> Terms & policies</MenuItem>
+    <MenuItem disabled @select="() => {}"><Flask v-if="icons" /> Feature flags</MenuItem>
     <MenuSeparator />
-    <MenuItem @select="() => {}">Logout</MenuItem>
+    <MenuItem @select="() => {}"><Logout v-if="icons" /> Logout</MenuItem>
   </MenuContent>
 </Menu>
 
@@ -5854,11 +5854,11 @@ On a phone each example is a screen whose menu opens from the More button of its
       <MenuContent align="end">
         <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
         <MenuSeparator />
-        <MenuItem @select="() => {}">Your profile</MenuItem>
-        <MenuItem @select="() => {}">Terms & policies</MenuItem>
-        <MenuItem disabled @select="() => {}">Feature flags</MenuItem>
+        <MenuItem @select="() => {}"><ProfileCard v-if="icons" /> Your profile</MenuItem>
+        <MenuItem @select="() => {}"><Terms v-if="icons" /> Terms & policies</MenuItem>
+        <MenuItem disabled @select="() => {}"><Flask v-if="icons" /> Feature flags</MenuItem>
         <MenuSeparator />
-        <MenuItem @select="() => {}">Logout</MenuItem>
+        <MenuItem @select="() => {}"><Logout v-if="icons" /> Logout</MenuItem>
       </MenuContent>
     </Menu>
   </ToolbarTrailing>

@@ -17,6 +17,7 @@ import {
   Copy,
   DotsHorizontal,
   EditPencil,
+  Flask,
   Folder,
   InfoCircle,
   UnfoldHorizontal,
@@ -27,15 +28,18 @@ import {
   History,
   ImageSquare,
   Link,
+  Logout,
   Play,
+  ProfileCard,
   Search,
   SettingsCog,
   Share,
+  Terms,
   Tools,
   Trash,
   FileDocument,
 } from '@plexui/ui/components/Icon';
-import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { menuPhoneTitle } from './menuPhone';
 import { usePreviewEmbed } from './PreviewEmbed';
 import p from './PageDemos.module.css';
@@ -116,27 +120,37 @@ export function MenuHeroContent() {
 }
 
 export function MenuBaseDemo() {
+  const [icons, setIcons] = useState(false);
+  const [pill, setPill] = useState(false);
+
   return (
-    <MenuExample
-      title="Overview"
-      trigger={
-        <Button color="primary" size="lg" variant="ghost">
-          Sample menu <ChevronDownMd />
-        </Button>
-      }
-    >
-      <Menu.Content width={210} minWidth={210}>
-        <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
-        <Menu.Separator />
-        <Menu.Item onSelect={() => { }}>Your profile</Menu.Item>
-        <Menu.Item onSelect={() => { }}>Terms & policies</Menu.Item>
-        <Menu.Item disabled onSelect={() => { }}>
-          Feature flags
-        </Menu.Item>
-        <Menu.Separator />
-        <Menu.Item onSelect={() => { }}>Logout</Menu.Item>
-      </Menu.Content>
-    </MenuExample>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="icons" value={icons} onChange={setIcons} />
+        {/* A phone menu is the iOS panel either way: touch.css gives pill the plain menu's corner and spacing */}
+        <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
+      </div>
+      <MenuExample
+        title="Overview"
+        trigger={
+          <Button color="primary" size="lg" variant="ghost">
+            Sample menu <ChevronDownMd />
+          </Button>
+        }
+      >
+        <Menu.Content width={210} minWidth={210} pill={pill}>
+          <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
+          <Menu.Separator />
+          <Menu.Item onSelect={() => { }}>{icons && <ProfileCard />} Your profile</Menu.Item>
+          <Menu.Item onSelect={() => { }}>{icons && <Terms />} Terms & policies</Menu.Item>
+          <Menu.Item disabled onSelect={() => { }}>
+            {icons && <Flask />} Feature flags
+          </Menu.Item>
+          <Menu.Separator />
+          <Menu.Item onSelect={() => { }}>{icons && <Logout />} Logout</Menu.Item>
+        </Menu.Content>
+      </MenuExample>
+    </>
   );
 }
 

@@ -25,18 +25,24 @@ import { menuPhoneOnlyReact, withMenuPhoneReact } from "@/components/docs/menuPh
 
 ### Overview
 
-<ComponentPreview details={<>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out <code>width</code>, <code>minWidth</code> and <code>size</code>.</>} code={withMenuPhoneReact(`<Menu>
+<ComponentPreview details={<>
+  <p>An item takes an icon before its label; <code>icons</code> shows the actions with them, while the name and email above them stay plain text, without an icon. <code>pill</code> on <code>Menu.Content</code> makes a rounder list with fully rounded rows, for menus beside pill controls.</p>
+  <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out <code>width</code>, <code>minWidth</code> and <code>size</code>. A pill menu is the same panel there, so the phone view leaves out <code>pill</code>.</p>
+</>} code={withMenuPhoneReact(`const [icons] = useState(false)
+const [pill] = useState(false)
+
+<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
   </Menu.Trigger>
-  <Menu.Content width={210} minWidth={210}>
+  <Menu.Content width={210} minWidth={210} pill={pill}>
     <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
     <Menu.Separator />
-    <Menu.Item onSelect={() => {}}>Your profile</Menu.Item>
-    <Menu.Item onSelect={() => {}}>Terms & policies</Menu.Item>
-    <Menu.Item disabled onSelect={() => {}}>Feature flags</Menu.Item>
+    <Menu.Item onSelect={() => {}}>{icons && <ProfileCard />} Your profile</Menu.Item>
+    <Menu.Item onSelect={() => {}}>{icons && <Terms />} Terms & policies</Menu.Item>
+    <Menu.Item disabled onSelect={() => {}}>{icons && <Flask />} Feature flags</Menu.Item>
     <Menu.Separator />
-    <Menu.Item onSelect={() => {}}>Logout</Menu.Item>
+    <Menu.Item onSelect={() => {}}>{icons && <Logout />} Logout</Menu.Item>
   </Menu.Content>
 </Menu>`, "Overview")} previewMinHeight={168}>
   <MenuBaseDemo />

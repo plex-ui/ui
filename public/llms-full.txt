@@ -5387,21 +5387,24 @@ Props:
     - disabled (boolean) — Disable the item
 
 ### Overview
-On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out width, minWidth and size.
+An item takes an icon before its label; icons shows the actions with them, while the name and email above them stay plain text, without an icon. pill on Menu.Content makes a rounder list with fully rounded rows, for menus beside pill controls. On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out width, minWidth and size. A pill menu is the same panel there, so the phone view leaves out pill.
 ```tsx
 // Desktop
+const [icons] = useState(false)
+const [pill] = useState(false)
+
 <Menu>
 <Menu.Trigger>
   <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
 </Menu.Trigger>
-<Menu.Content width={210} minWidth={210}>
+<Menu.Content width={210} minWidth={210} pill={pill}>
   <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
   <Menu.Separator />
-  <Menu.Item onSelect={() => {}}>Your profile</Menu.Item>
-  <Menu.Item onSelect={() => {}}>Terms & policies</Menu.Item>
-  <Menu.Item disabled onSelect={() => {}}>Feature flags</Menu.Item>
+  <Menu.Item onSelect={() => {}}>{icons && <ProfileCard />} Your profile</Menu.Item>
+  <Menu.Item onSelect={() => {}}>{icons && <Terms />} Terms & policies</Menu.Item>
+  <Menu.Item disabled onSelect={() => {}}>{icons && <Flask />} Feature flags</Menu.Item>
   <Menu.Separator />
-  <Menu.Item onSelect={() => {}}>Logout</Menu.Item>
+  <Menu.Item onSelect={() => {}}>{icons && <Logout />} Logout</Menu.Item>
 </Menu.Content>
 </Menu>
 
@@ -5416,11 +5419,11 @@ On a phone each example is a screen whose menu opens from the More button of its
     <Menu.Content align="end">
       <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
       <Menu.Separator />
-      <Menu.Item onSelect={() => {}}>Your profile</Menu.Item>
-      <Menu.Item onSelect={() => {}}>Terms & policies</Menu.Item>
-      <Menu.Item disabled onSelect={() => {}}>Feature flags</Menu.Item>
+      <Menu.Item onSelect={() => {}}>{icons && <ProfileCard />} Your profile</Menu.Item>
+      <Menu.Item onSelect={() => {}}>{icons && <Terms />} Terms & policies</Menu.Item>
+      <Menu.Item disabled onSelect={() => {}}>{icons && <Flask />} Feature flags</Menu.Item>
       <Menu.Separator />
-      <Menu.Item onSelect={() => {}}>Logout</Menu.Item>
+      <Menu.Item onSelect={() => {}}>{icons && <Logout />} Logout</Menu.Item>
     </Menu.Content>
     </Menu>
   </Toolbar.Trailing>
