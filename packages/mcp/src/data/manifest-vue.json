@@ -3820,13 +3820,18 @@
         },
         {
           "name": "Horizontal (icons only)",
-          "code": "<!-- Desktop -->\n<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Actions <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent layout=\"horizontal\" :size=\"size\" min-width=\"auto\">\n    <MenuItem @select=\"() => {}\"><EditPencil /><span class=\"sr-only\">Edit</span></MenuItem>\n    <MenuItem @select=\"() => {}\"><SettingsCog /><span class=\"sr-only\">Settings</span></MenuItem>\n    <MenuItem @select=\"() => {}\"><Play /><span class=\"sr-only\">Play</span></MenuItem>\n    <MenuItem @select=\"() => {}\"><UnfoldHorizontal /><span class=\"sr-only\">Expand</span></MenuItem>\n  </MenuContent>\n</Menu>\n\n<!-- Phone: the More button of the top bar opens the menu -->\n<Toolbar title-style=\"large\">\n  <ToolbarTitle>Horizontal (icons only)</ToolbarTitle>\n  <ToolbarTrailing>\n    <Menu>\n      <MenuTrigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n      </MenuTrigger>\n      <MenuContent align=\"end\" layout=\"horizontal\">\n        <MenuItem @select=\"() => {}\"><EditPencil /><span class=\"sr-only\">Edit</span></MenuItem>\n        <MenuItem @select=\"() => {}\"><SettingsCog /><span class=\"sr-only\">Settings</span></MenuItem>\n        <MenuItem @select=\"() => {}\"><Play /><span class=\"sr-only\">Play</span></MenuItem>\n        <MenuItem @select=\"() => {}\"><UnfoldHorizontal /><span class=\"sr-only\">Expand</span></MenuItem>\n      </MenuContent>\n    </Menu>\n  </ToolbarTrailing>\n</Toolbar>",
-          "details": "Set layout=\"horizontal\" on MenuContent for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. On a phone with touch.css the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control."
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Actions <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent layout=\"horizontal\" :size=\"size\" min-width=\"auto\">\n    <MenuItem @select=\"() => {}\"><EditPencil /><span class=\"sr-only\">Edit</span></MenuItem>\n    <MenuItem @select=\"() => {}\"><SettingsCog /><span class=\"sr-only\">Settings</span></MenuItem>\n    <MenuItem @select=\"() => {}\"><Play /><span class=\"sr-only\">Play</span></MenuItem>\n    <MenuItem @select=\"() => {}\"><UnfoldHorizontal /><span class=\"sr-only\">Expand</span></MenuItem>\n  </MenuContent>\n</Menu>",
+          "details": "Set layout=\"horizontal\" on MenuContent for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled tabs at the top of a menu, as in Tabs below."
         },
         {
-          "name": "Horizontal (icons with labels)",
-          "code": "<!-- Desktop -->\n<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Actions <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent layout=\"horizontal\" :size=\"size\" min-width=\"auto\">\n    <MenuItem @select=\"() => {}\"><EditPencil /> Edit</MenuItem>\n    <MenuItem @select=\"() => {}\"><SettingsCog /> Settings</MenuItem>\n    <MenuItem @select=\"() => {}\"><Play /> Play</MenuItem>\n    <MenuItem @select=\"() => {}\"><UnfoldHorizontal /> Expand</MenuItem>\n  </MenuContent>\n</Menu>\n\n<!-- Phone: the More button of the top bar opens the menu -->\n<Toolbar title-style=\"large\">\n  <ToolbarTitle>Horizontal (icons with labels)</ToolbarTitle>\n  <ToolbarTrailing>\n    <Menu>\n      <MenuTrigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n      </MenuTrigger>\n      <MenuContent align=\"end\" layout=\"horizontal\">\n        <MenuItem @select=\"() => {}\"><EditPencil /> Edit</MenuItem>\n        <MenuItem @select=\"() => {}\"><SettingsCog /> Settings</MenuItem>\n        <MenuItem @select=\"() => {}\"><Play /> Play</MenuItem>\n        <MenuItem @select=\"() => {}\"><UnfoldHorizontal /> Expand</MenuItem>\n      </MenuContent>\n    </Menu>\n  </ToolbarTrailing>\n</Toolbar>",
-          "details": "Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item. On a phone with touch.css these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control."
+          "name": "Tabs",
+          "code": "<!-- Desktop -->\n<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Library <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent>\n    <MenuRadioGroup layout=\"horizontal\" v-model:value=\"sort\">\n      <MenuRadioItem value=\"added\"><Clock /> Added</MenuRadioItem>\n      <MenuRadioItem value=\"captured\"><CameraPhoto /> Captured</MenuRadioItem>\n    </MenuRadioGroup>\n    <MenuSeparator />\n    <MenuLabel>Filter</MenuLabel>\n    <MenuRadioGroup v-model:value=\"filter\">\n      <MenuRadioItem value=\"all\"><Grid /> All items</MenuRadioItem>\n      <MenuRadioItem value=\"favorites\"><Heart /> Favorites</MenuRadioItem>\n      <MenuRadioItem value=\"edited\"><EditPencil /> Edited</MenuRadioItem>\n    </MenuRadioGroup>\n  </MenuContent>\n</Menu>\n\n<!-- Phone: the More button of the top bar opens the menu -->\n<Toolbar title-style=\"large\">\n  <ToolbarTitle>Tabs</ToolbarTitle>\n  <ToolbarTrailing>\n    <Menu>\n      <MenuTrigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n      </MenuTrigger>\n      <MenuContent align=\"end\">\n        <MenuRadioGroup layout=\"horizontal\" v-model:value=\"sort\">\n          <MenuRadioItem value=\"added\"><Clock /> Added</MenuRadioItem>\n          <MenuRadioItem value=\"captured\"><CameraPhoto /> Captured</MenuRadioItem>\n        </MenuRadioGroup>\n        <MenuSeparator />\n        <MenuLabel>Filter</MenuLabel>\n        <MenuRadioGroup v-model:value=\"filter\">\n          <MenuRadioItem value=\"all\"><Grid /> All items</MenuRadioItem>\n          <MenuRadioItem value=\"favorites\"><Heart /> Favorites</MenuRadioItem>\n          <MenuRadioItem value=\"edited\"><EditPencil /> Edited</MenuRadioItem>\n        </MenuRadioGroup>\n      </MenuContent>\n    </Menu>\n  </ToolbarTrailing>\n</Toolbar>",
+          "details": "Set layout=\"horizontal\" on a MenuRadioGroup at the top of a menu for tabs: one choice of several, the options side by side, each an icon over its label, with the chosen one on a fill, above the list, as Photos chooses between Added and Captured. The options are radio items, so the fill moves with the value and no radio indicator is drawn. On a phone with touch.css they are equal 56px-tall tabs with a 20px icon over a 12px label, 10px from the panel's edges, the chosen one on black at 15%."
+        },
+        {
+          "name": "Header",
+          "code": "<!-- Desktop -->\n<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">File <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent>\n    <MenuHeader description=\"Image · 382 KB\">\n      <template #media><img src=\"/demo/picture-1.svg\" alt=\"\" /></template>\n      Sunset.png\n      <template #action>\n        <MenuHeaderAction aria-label=\"Share\" @select=\"() => {}\"><Share /></MenuHeaderAction>\n      </template>\n    </MenuHeader>\n    <MenuItem @select=\"() => {}\"><EditPencil /> Rename</MenuItem>\n    <MenuItem @select=\"() => {}\"><Copy /> Copy</MenuItem>\n    <MenuItem @select=\"() => {}\"><Folder /> Move</MenuItem>\n    <MenuSeparator />\n    <MenuItem @select=\"() => {}\"><InfoCircle /> Get info</MenuItem>\n  </MenuContent>\n</Menu>\n\n<!-- Phone: the More button of the top bar opens the menu -->\n<Toolbar title-style=\"large\">\n  <ToolbarTitle>Header</ToolbarTitle>\n  <ToolbarTrailing>\n    <Menu>\n      <MenuTrigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n      </MenuTrigger>\n      <MenuContent align=\"end\">\n        <MenuHeader description=\"Image · 382 KB\">\n          <template #media><img src=\"/demo/picture-1.svg\" alt=\"\" /></template>\n          Sunset.png\n          <template #action>\n            <MenuHeaderAction aria-label=\"Share\" @select=\"() => {}\"><Share /></MenuHeaderAction>\n          </template>\n        </MenuHeader>\n        <MenuItem @select=\"() => {}\"><EditPencil /> Rename</MenuItem>\n        <MenuItem @select=\"() => {}\"><Copy /> Copy</MenuItem>\n        <MenuItem @select=\"() => {}\"><Folder /> Move</MenuItem>\n        <MenuSeparator />\n        <MenuItem @select=\"() => {}\"><InfoCircle /> Get info</MenuItem>\n      </MenuContent>\n    </Menu>\n  </ToolbarTrailing>\n</Toolbar>",
+          "details": "Put a MenuHeader first to name what the menu acts on: a picture (the media slot), the name and a line under it, with a round MenuHeaderAction at its end (the action slot), as the Files menu of a file in iOS opens. The header is not an item; its action is, reached with the arrow keys like the items. On a phone with touch.css the picture is 40px, 16px from the panel's edges, the name 15px Semibold and the line under it 13px; the action is a 34px circle with a 44px target. A separator under the header stands 16px below the picture; without one the first item starts 24px below it."
         },
         {
           "name": "Grouped items",
@@ -3855,7 +3860,7 @@
         },
         {
           "name": "Destructive items",
-          "code": "<!-- Desktop -->\n<Menu>\n  <MenuTrigger>\n    <Button color=\"secondary\" variant=\"soft\" uniform aria-label=\"More actions\">\n      <DotsHorizontal />\n    </Button>\n  </MenuTrigger>\n  <MenuContent align=\"end\" :min-width=\"200\">\n    <MenuItem @select=\"() => {}\"><EditPencil /> Rename</MenuItem>\n    <MenuItem @select=\"() => {}\">Duplicate</MenuItem>\n    <MenuSeparator />\n    <MenuItem @select=\"() => {}\" danger><Trash /> Delete project</MenuItem>\n  </MenuContent>\n</Menu>\n\n<!-- Phone: the More button of the top bar opens the menu -->\n<Toolbar title-style=\"large\">\n  <ToolbarTitle>Destructive items</ToolbarTitle>\n  <ToolbarTrailing>\n    <Menu>\n      <MenuTrigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n      </MenuTrigger>\n      <MenuContent align=\"end\">\n        <MenuItem @select=\"() => {}\"><EditPencil /> Rename</MenuItem>\n        <MenuItem @select=\"() => {}\">Duplicate</MenuItem>\n        <MenuSeparator />\n        <MenuItem @select=\"() => {}\" danger><Trash /> Delete project</MenuItem>\n      </MenuContent>\n    </Menu>\n  </ToolbarTrailing>\n</Toolbar>",
+          "code": "<!-- Desktop -->\n<Menu>\n  <MenuTrigger>\n    <Button color=\"secondary\" variant=\"soft\" uniform aria-label=\"More actions\">\n      <DotsHorizontal />\n    </Button>\n  </MenuTrigger>\n  <MenuContent align=\"end\" :min-width=\"200\">\n    <MenuItem @select=\"() => {}\"><EditPencil /> Rename</MenuItem>\n    <MenuItem @select=\"() => {}\"><Copy /> Duplicate</MenuItem>\n    <MenuSeparator />\n    <MenuItem @select=\"() => {}\" danger><Trash /> Delete project</MenuItem>\n  </MenuContent>\n</Menu>\n\n<!-- Phone: the More button of the top bar opens the menu -->\n<Toolbar title-style=\"large\">\n  <ToolbarTitle>Destructive items</ToolbarTitle>\n  <ToolbarTrailing>\n    <Menu>\n      <MenuTrigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n      </MenuTrigger>\n      <MenuContent align=\"end\">\n        <MenuItem @select=\"() => {}\"><EditPencil /> Rename</MenuItem>\n        <MenuItem @select=\"() => {}\"><Copy /> Duplicate</MenuItem>\n        <MenuSeparator />\n        <MenuItem @select=\"() => {}\" danger><Trash /> Delete project</MenuItem>\n      </MenuContent>\n    </Menu>\n  </ToolbarTrailing>\n</Toolbar>",
           "details": "Mark a destructive action (delete, remove, leave) with danger: the label and the highlight take the danger color, and a description keeps its secondary color. MenuLink takes danger too. Put such items last, after a separator."
         }
       ],
@@ -3938,6 +3943,11 @@
               "name": "@close-auto-focus",
               "type": "(event: Event) => void",
               "description": "Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there"
+            },
+            {
+              "name": "@open-auto-focus",
+              "type": "(event: Event) => void",
+              "description": "Emitted before focus moves into the menu as it opens; call event.preventDefault() to leave focus where it is, as for a menu that stands open when its screen appears"
             }
           ]
         },
@@ -3971,6 +3981,39 @@
               "name": "@click",
               "type": "(event: MouseEvent) => void",
               "description": "Called when the item is clicked; also makes the item interactive"
+            }
+          ]
+        },
+        {
+          "name": "MenuHeader",
+          "description": "names what the menu acts on, above its items. The default slot is the title; the media slot is a picture before it (an image, an icon or an Avatar in a 32px square, 40px on a phone: an image or icon fills it, an image gets small rounded corners), and the action slot a MenuHeaderAction at the end.",
+          "props": [
+            {
+              "name": "description",
+              "type": "string",
+              "description": "Line under the title, such as the kind and size of a file (or the description slot)"
+            }
+          ]
+        },
+        {
+          "name": "MenuHeaderAction",
+          "description": "round action at the end of a header, a menu item that closes the menu when selected. Its slot is the icon.",
+          "props": [
+            {
+              "name": "aria-label",
+              "type": "string",
+              "description": "Accessible name of the icon-only action (required)"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disable the action"
+            },
+            {
+              "name": "@select",
+              "type": "(event: Event) => void",
+              "description": "Emitted when the action is pressed; call event.preventDefault() to keep the menu open"
             }
           ]
         },
@@ -7587,5 +7630,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T11:53:32.153Z"
+  "generatedAt": "2026-11-08T14:17:45.350Z"
 }

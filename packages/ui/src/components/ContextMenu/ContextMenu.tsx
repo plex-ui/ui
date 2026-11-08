@@ -218,7 +218,7 @@ function ContextMenuContent(props: ContextMenuContentProps) {
         onCloseAutoFocus={(event) => {
           // Focus goes back to the element only when the keyboard opened the menu; a pointer leaves it where it was.
           event.preventDefault()
-          if (presentation?.kind === "keyboard") regionRef.current?.focus()
+          if (presentation?.kind === "keyboard") regionRef.current?.focus({ preventScroll: true })
         }}
       />
     </>

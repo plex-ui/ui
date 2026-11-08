@@ -252,6 +252,89 @@
   user-select: none;
 }
 
+/* A header names what the menu acts on, above its items: the picture, name and kind of a file in Files (iOS-menu
+   IMG_5690), with a round action at its end, or the picture and name of a board in Freeform (IMG_5676). It sits on
+   the rows' inline padding on a desktop; the phone sizes are in touch.css. */
+.MenuHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--menu-header-gap, spacing(2));
+  padding: var(--menu-header-padding, var(--menu-item-padding));
+  user-select: none;
+
+  /* Files leaves more room under a header that no separator closes, before the first item (IMG_5690) */
+  &:not(:has(+ .Separator)) {
+    margin-bottom: var(--menu-header-list-gap, 0px);
+  }
+}
+
+.MenuHeaderMedia {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--menu-header-media-size, var(--control-size-md));
+  height: var(--menu-header-media-size, var(--control-size-md));
+
+  & > :is(img, svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* A thumbnail has the small rounded corners of a Freeform board's (IMG_5676) */
+  & > img {
+    border-radius: var(--menu-header-media-radius, var(--radius-sm));
+    object-fit: cover;
+  }
+}
+
+.MenuHeaderText {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.MenuHeaderTitle {
+  overflow: hidden;
+  font-size: var(--menu-header-title-font-size, var(--menu-font-size));
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--menu-header-title-line-height, var(--menu-line-height));
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.MenuHeaderDescription {
+  overflow: hidden;
+  color: var(--menu-description-color, var(--color-text-secondary));
+  font-size: var(--menu-header-description-font-size, var(--font-text-xs-size));
+  line-height: var(--menu-header-description-line-height, var(--font-text-xs-line-height));
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.MenuHeaderAction {
+  flex: none;
+}
+
+/* On a phone the action takes the 44px target of iOS around its 34px face, as an item's action does; the negative
+   margin keeps the face 16px from the panel's edge, centered on the picture (IMG_5690). */
+@media (max-width: 767px) {
+  /* Under the header, so the face's size outranks Button's own surface rule whatever order the sheets load in. */
+  .MenuHeader .MenuHeaderAction {
+    min-width: 44px;
+    min-height: 44px;
+    margin: calc((var(--button-size) - 44px) / 2);
+
+    &::before,
+    &::after {
+      width: var(--button-size);
+      height: var(--button-size);
+      margin: auto;
+    }
+  }
+}
+
 .SubMenuItem {
   justify-content: space-between;
 }
@@ -342,6 +425,12 @@
     order: 1;
   }
 
+  /* Beside only an icon and a label its margin, not space-between, pushes it to the end, so the icon and the label
+     stay together at the start; a row with more elements keeps space-between, which an ml-auto child relies on. */
+  :where([data-indicator-position="end"]) .PressableInner:where(:not(:has(> :not(svg, .RadioIndicator, .CheckboxIndicator)))) > & {
+    margin-inline-start: auto;
+  }
+
   [data-highlighted] & {
     box-shadow: 0 0 0 1px var(--radio-group-indicator-border-color-hover) inset;
   }
@@ -402,6 +491,12 @@
     order: 1;
   }
 
+  /* Beside only an icon and a label its margin, not space-between, pushes it to the end, so the icon and the label
+     stay together at the start; a row with more elements keeps space-between, which an ml-auto child relies on. */
+  :where([data-indicator-position="end"]) .PressableInner:where(:not(:has(> :not(svg, .RadioIndicator, .CheckboxIndicator)))) > & {
+    margin-inline-start: auto;
+  }
+
   [data-indicator-variant="solid"] & {
     border-radius: var(--radius-full);
     box-shadow: 0 0 0 1px var(--radio-group-indicator-border-color) inset;
@@ -428,7 +523,10 @@
   }
 }
 
-.MenuList[data-layout="horizontal"] {
+/* A horizontal list, or a horizontal radio group at the top of a list: the tabs of an iOS menu, one choice of several
+   with the chosen one on a fill (iOS-menu IMG_5665 and IMG_5666, Added and Captured over the rows of Photos; iOS 27 kit
+   Menu 492:52296, Control Group; Apps 2.4 Menu 40125:198566, Quick Actions). */
+:is(.MenuList, .RadioGroup)[data-layout="horizontal"] {
   --h-icon-size: var(--menu-horizontal-icon-size, 20px);
   --h-padding: var(--menu-horizontal-item-padding, spacing(2));
   --h-gap: var(--menu-horizontal-item-gap, spacing(1));
@@ -489,12 +587,37 @@
     text-align: center;
   }
 
+  /* Under the label of a tile, not pushed to an edge by the margin of a list row. */
+  & :is(.RadioIndicator, .CheckboxIndicator) {
+    margin-inline-start: 0;
+  }
+
   & .Separator {
     display: var(--menu-horizontal-separator-display, block);
     width: 1px;
     height: auto;
     align-self: stretch;
     margin: spacing(1) 0;
+  }
+}
+
+/* A group's tabs reach the horizontal gutter of the menu, not the inset of its rows: 10pt from the panel's edges in
+   the kit and Apps 2.4, where the rows are 16pt in. */
+.RadioGroup[data-layout="horizontal"] {
+  min-width: 0;
+  margin-inline: calc(var(--menu-horizontal-padding-inline, var(--menu-gutter)) - var(--menu-padding-inline, var(--menu-gutter)));
+  padding-inline: 0;
+
+  /* The chosen tab stands on a fill, as Photos marks Added or Captured (IMG_5666: 214 to 223 on a 254 panel, black at
+     15%; the kit's tertiary 12% is lighter, the native screen wins) and the kit its first action; the fill tells the
+     choice, so no radio indicator is drawn. At 15% it also stays apart from a desktop highlight (8%, 10% in dark). */
+  & .RadioItem[data-state="checked"] {
+    border-radius: var(--menu-item-radius);
+    background: var(--menu-horizontal-selected-background, var(--alpha-15));
+  }
+
+  & .RadioItem .RadioIndicator {
+    display: none;
   }
 }
 
@@ -521,26 +644,27 @@
 
   /* No tracking of its own: the system font tracks the labels. Nine labels of native iOS 26 menus
      (iOS2 IMG_5524, 5525, 17/400) measure within 2px at @3x without it and 7 to 16px short with -0.43px. */
-  .MenuList:not([data-layout="horizontal"]) :is(.MenuItem, .MenuItemContent) {
+  .MenuList:not([data-layout="horizontal"]) :is(.MenuItem, .MenuItemContent):not(:where(.RadioGroup[data-layout="horizontal"] *)) {
     letter-spacing: var(--menu-letter-spacing, normal);
     overflow-wrap: anywhere;
   }
 
-  /* Intrinsic label height and a full-row pressed surface share the 44px target. */
-  .MenuList:not([data-layout="horizontal"]) .MenuItem {
+  /* A row is 42pt, as native iOS 26 menus space them (iOS-menu IMG_5676 and IMG_5690: labels 125 to 127px apart at
+     @3x; the iOS 27 kit draws 40), with a full-row pressed surface. */
+  .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *)) {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     align-content: center;
-    min-height: 44px;
+    min-height: 42px;
     padding-block: 0;
   }
 
-  .MenuList:not([data-layout="horizontal"]) .MenuItem::before {
+  .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *))::before {
     position: absolute;
     inset: 0;
   }
 
-  .MenuList:not([data-layout="horizontal"]) .MenuItem > .PressableInner {
+  .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *)) > .PressableInner {
     grid-area: 1 / 1;
     min-width: 0;
     padding-block: 10px;
@@ -617,6 +741,7 @@
 
   .MenuList:not([data-layout="horizontal"]) [data-indicator-position="end"] :is(.RadioIndicator, .RadioIndicatorActive, .CheckboxIndicator) {
     order: -1;
+    margin-inline-start: 0;
   }
 
   /* The 17pt checkmark of the kit: about 15 × 14.5px of ink. */
@@ -641,6 +766,14 @@
     min-width: min(var(--menu-phone-min-width, var(--menu-default-min-width, 238px)), var(--menu-phone-max-width));
     max-width: var(--menu-phone-max-width);
     max-height: min(var(--menu-max-height, 1200px), var(--menu-phone-max-height));
+  }
+
+  /* A submenu row ends in a chevron of the label's color, 6 by 10pt with its end 28pt in from the panel's
+     (iOS-menu IMG_5676, View Options: 17 by 31px at @3x, black): the 8 by 14 units of ChevronRight at 18px. */
+  .MenuList:not([data-layout="horizontal"]) .SubTriggerIcon {
+    width: 18px;
+    height: 18px;
+    opacity: 1;
   }
 
   .SubMenuItem[data-state="open"] > .PressableInner > .SubTriggerIcon {
@@ -678,5 +811,12 @@
     & > * {
       opacity: 0.5;
     }
+  }
+
+  /* Opening and closing keep their own timing. The rule above lists a delay for the origin, and the open and close
+     rules name only their properties and durations, so without this the scale of a menu coming in or going out
+     started a whole --motion-enter late, after its fade. */
+  .Menu:is([data-entering], [data-exiting]) .MenuList {
+    transition-delay: 0s;
   }
 }

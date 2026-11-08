@@ -69,6 +69,21 @@ html.dark .PreviewInner {
     display: none !important;
   }
 
+  /* The view switch is docs chrome, not a phone screen: on a phone it takes the phone size of a segmented control
+     but keeps the desktop look. touch.css sets the glass of phone tabs on the control itself; inheriting gives back
+     the root tokens: the gray track, the raised white thumb, the Semibold labels and their colors. */
+  .TabBar > [data-variant="segmented"] {
+    --segmented-control-background: inherit;
+    --segmented-control-sheen: inherit;
+    --segmented-control-shadow: inherit;
+    --segmented-control-backdrop-filter: inherit;
+    --segmented-control-thumb-background: inherit;
+    --segmented-control-thumb-shadow: inherit;
+    --segmented-control-font-weight: inherit;
+    --segmented-control-active-font-weight: inherit;
+    --color-text-secondary: inherit;
+  }
+
   /* The reset is a 44px icon button on a phone with touch.css, the target of a bar button (a uniform
      button is otherwise a circle of its size there); it overhangs the 32px row of the view switch rather
      than making every preview taller. */

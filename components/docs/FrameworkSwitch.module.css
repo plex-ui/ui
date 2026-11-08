@@ -1,0 +1,36 @@
+/* The framework switch is docs chrome, not a phone screen: on a phone it takes the phone size of tabs (the 44px row
+   and 15px labels of touch.css) but keeps the desktop look, flush underline tabs, instead of the glass capsule that
+   Tabs.module.css and touch.css make of horizontal tabs there. Inheriting gives back the root tokens: the label
+   weights and colors, and no outset of the selection. */
+@media (max-width: 767px) {
+  .Switch[data-variant="underline"] {
+    --segmented-control-thumb-outset: inherit;
+    --segmented-control-font-weight: inherit;
+    --segmented-control-active-font-weight: inherit;
+    --color-text-secondary: inherit;
+
+    display: inline-flex;
+    gap: var(--segmented-control-option-gutter);
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* The selection is the 1px line under its tab, as a flush underline tab draws it on a desktop */
+  .Switch[data-variant="underline"] > div {
+    top: auto;
+    bottom: 0;
+    height: 1px;
+    border-radius: 0;
+    background: var(--tabs-underline-indicator-color);
+    box-shadow: none;
+  }
+
+  .Switch[data-variant="underline"][data-orientation="horizontal"] > button {
+    padding-inline: 0;
+    border-radius: 0;
+  }
+}

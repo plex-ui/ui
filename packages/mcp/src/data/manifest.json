@@ -3776,13 +3776,18 @@
         },
         {
           "name": "Horizontal (icons only)",
-          "code": "// Desktop\n<Menu>\n<Menu.Trigger>\n  <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Actions <ChevronDownMd /></Button>\n</Menu.Trigger>\n<Menu.Content layout=\"horizontal\" size=\"md\" minWidth=\"auto\">\n  <Menu.Item onSelect={() => {}}><EditPencil /><span className=\"sr-only\">Edit</span></Menu.Item>\n  <Menu.Item onSelect={() => {}}><SettingsCog /><span className=\"sr-only\">Settings</span></Menu.Item>\n  <Menu.Item onSelect={() => {}}><Play /><span className=\"sr-only\">Play</span></Menu.Item>\n  <Menu.Item onSelect={() => {}}><UnfoldHorizontal /><span className=\"sr-only\">Expand</span></Menu.Item>\n</Menu.Content>\n</Menu>\n\n// Phone: the More button of the top bar opens the menu\n<Toolbar titleStyle=\"large\">\n  <Toolbar.Title>Horizontal (icons only)</Toolbar.Title>\n  <Toolbar.Trailing>\n    <Menu>\n    <Menu.Trigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n      </Menu.Trigger>\n    <Menu.Content align=\"end\" layout=\"horizontal\">\n      <Menu.Item onSelect={() => {}}><EditPencil /><span className=\"sr-only\">Edit</span></Menu.Item>\n      <Menu.Item onSelect={() => {}}><SettingsCog /><span className=\"sr-only\">Settings</span></Menu.Item>\n      <Menu.Item onSelect={() => {}}><Play /><span className=\"sr-only\">Play</span></Menu.Item>\n      <Menu.Item onSelect={() => {}}><UnfoldHorizontal /><span className=\"sr-only\">Expand</span></Menu.Item>\n    </Menu.Content>\n    </Menu>\n  </Toolbar.Trailing>\n</Toolbar>",
-          "details": "Set layout=\"horizontal\" on Menu.Content for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. On a phone with touch.css the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control."
+          "code": "<Menu>\n<Menu.Trigger>\n  <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Actions <ChevronDownMd /></Button>\n</Menu.Trigger>\n<Menu.Content layout=\"horizontal\" size=\"md\" minWidth=\"auto\">\n  <Menu.Item onSelect={() => {}}><EditPencil /><span className=\"sr-only\">Edit</span></Menu.Item>\n  <Menu.Item onSelect={() => {}}><SettingsCog /><span className=\"sr-only\">Settings</span></Menu.Item>\n  <Menu.Item onSelect={() => {}}><Play /><span className=\"sr-only\">Play</span></Menu.Item>\n  <Menu.Item onSelect={() => {}}><UnfoldHorizontal /><span className=\"sr-only\">Expand</span></Menu.Item>\n</Menu.Content>\n</Menu>",
+          "details": "Set layout=\"horizontal\" on Menu.Content for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled tabs at the top of a menu, as in Tabs below."
         },
         {
-          "name": "Horizontal (icons with labels)",
-          "code": "// Desktop\n<Menu>\n<Menu.Trigger>\n  <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Actions <ChevronDownMd /></Button>\n</Menu.Trigger>\n<Menu.Content layout=\"horizontal\" size=\"md\" minWidth=\"auto\">\n  <Menu.Item onSelect={() => {}}><EditPencil /> Edit</Menu.Item>\n  <Menu.Item onSelect={() => {}}><SettingsCog /> Settings</Menu.Item>\n  <Menu.Item onSelect={() => {}}><Play /> Play</Menu.Item>\n  <Menu.Item onSelect={() => {}}><UnfoldHorizontal /> Expand</Menu.Item>\n</Menu.Content>\n</Menu>\n\n// Phone: the More button of the top bar opens the menu\n<Toolbar titleStyle=\"large\">\n  <Toolbar.Title>Horizontal (icons with labels)</Toolbar.Title>\n  <Toolbar.Trailing>\n    <Menu>\n    <Menu.Trigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n      </Menu.Trigger>\n    <Menu.Content align=\"end\" layout=\"horizontal\">\n      <Menu.Item onSelect={() => {}}><EditPencil /> Edit</Menu.Item>\n      <Menu.Item onSelect={() => {}}><SettingsCog /> Settings</Menu.Item>\n      <Menu.Item onSelect={() => {}}><Play /> Play</Menu.Item>\n      <Menu.Item onSelect={() => {}}><UnfoldHorizontal /> Expand</Menu.Item>\n    </Menu.Content>\n    </Menu>\n  </Toolbar.Trailing>\n</Toolbar>",
-          "details": "Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item. On a phone with touch.css these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control."
+          "name": "Tabs",
+          "code": "// Desktop\nconst [sort, setSort] = useState(\"added\")\nconst [filter, setFilter] = useState(\"all\")\n\n<Menu>\n<Menu.Trigger>\n  <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Library <ChevronDownMd /></Button>\n</Menu.Trigger>\n<Menu.Content>\n  <Menu.RadioGroup layout=\"horizontal\" value={sort} onChange={setSort}>\n    <Menu.RadioItem value=\"added\"><Clock /> Added</Menu.RadioItem>\n    <Menu.RadioItem value=\"captured\"><CameraPhoto /> Captured</Menu.RadioItem>\n  </Menu.RadioGroup>\n  <Menu.Separator />\n  <Menu.Label>Filter</Menu.Label>\n  <Menu.RadioGroup value={filter} onChange={setFilter}>\n    <Menu.RadioItem value=\"all\"><Grid /> All items</Menu.RadioItem>\n    <Menu.RadioItem value=\"favorites\"><Heart /> Favorites</Menu.RadioItem>\n    <Menu.RadioItem value=\"edited\"><EditPencil /> Edited</Menu.RadioItem>\n  </Menu.RadioGroup>\n</Menu.Content>\n</Menu>\n\n// Phone: the More button of the top bar opens the menu\n<Toolbar titleStyle=\"large\">\n  <Toolbar.Title>Tabs</Toolbar.Title>\n  <Toolbar.Trailing>\n    <Menu>\n    <Menu.Trigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n      </Menu.Trigger>\n    <Menu.Content align=\"end\">\n      <Menu.RadioGroup layout=\"horizontal\" value={sort} onChange={setSort}>\n        <Menu.RadioItem value=\"added\"><Clock /> Added</Menu.RadioItem>\n        <Menu.RadioItem value=\"captured\"><CameraPhoto /> Captured</Menu.RadioItem>\n      </Menu.RadioGroup>\n      <Menu.Separator />\n      <Menu.Label>Filter</Menu.Label>\n      <Menu.RadioGroup value={filter} onChange={setFilter}>\n        <Menu.RadioItem value=\"all\"><Grid /> All items</Menu.RadioItem>\n        <Menu.RadioItem value=\"favorites\"><Heart /> Favorites</Menu.RadioItem>\n        <Menu.RadioItem value=\"edited\"><EditPencil /> Edited</Menu.RadioItem>\n      </Menu.RadioGroup>\n    </Menu.Content>\n    </Menu>\n  </Toolbar.Trailing>\n</Toolbar>",
+          "details": "Set layout=\"horizontal\" on a Menu.RadioGroup at the top of a menu for tabs: one choice of several, the options side by side, each an icon over its label, with the chosen one on a fill, above the list, as Photos chooses between Added and Captured. The options are radio items, so the fill moves with the value and no radio indicator is drawn. On a phone with touch.css they are equal 56px-tall tabs with a 20px icon over a 12px label, 10px from the panel's edges, the chosen one on black at 15%."
+        },
+        {
+          "name": "Header",
+          "code": "// Desktop\n<Menu>\n<Menu.Trigger>\n  <Button color=\"primary\" size=\"lg\" variant=\"ghost\">File <ChevronDownMd /></Button>\n</Menu.Trigger>\n<Menu.Content>\n  <Menu.Header\n    media={<img src=\"/demo/picture-1.svg\" alt=\"\" />}\n    description=\"Image · 382 KB\"\n    action={<Menu.HeaderAction aria-label=\"Share\" onSelect={() => {}}><Share /></Menu.HeaderAction>}\n  >\n    Sunset.png\n  </Menu.Header>\n  <Menu.Item onSelect={() => {}}><EditPencil /> Rename</Menu.Item>\n  <Menu.Item onSelect={() => {}}><Copy /> Copy</Menu.Item>\n  <Menu.Item onSelect={() => {}}><Folder /> Move</Menu.Item>\n  <Menu.Separator />\n  <Menu.Item onSelect={() => {}}><InfoCircle /> Get info</Menu.Item>\n</Menu.Content>\n</Menu>\n\n// Phone: the More button of the top bar opens the menu\n<Toolbar titleStyle=\"large\">\n  <Toolbar.Title>Header</Toolbar.Title>\n  <Toolbar.Trailing>\n    <Menu>\n    <Menu.Trigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n      </Menu.Trigger>\n    <Menu.Content align=\"end\">\n      <Menu.Header\n        media={<img src=\"/demo/picture-1.svg\" alt=\"\" />}\n        description=\"Image · 382 KB\"\n        action={<Menu.HeaderAction aria-label=\"Share\" onSelect={() => {}}><Share /></Menu.HeaderAction>}\n      >\n        Sunset.png\n      </Menu.Header>\n      <Menu.Item onSelect={() => {}}><EditPencil /> Rename</Menu.Item>\n      <Menu.Item onSelect={() => {}}><Copy /> Copy</Menu.Item>\n      <Menu.Item onSelect={() => {}}><Folder /> Move</Menu.Item>\n      <Menu.Separator />\n      <Menu.Item onSelect={() => {}}><InfoCircle /> Get info</Menu.Item>\n    </Menu.Content>\n    </Menu>\n  </Toolbar.Trailing>\n</Toolbar>",
+          "details": "Put a Menu.Header first to name what the menu acts on: a picture, the name and a line under it, with a round Menu.HeaderAction at its end, as the Files menu of a file in iOS opens. The header is not an item; its action is, reached with the arrow keys like the items. On a phone with touch.css the picture is 40px, 16px from the panel's edges, the name 15px Semibold and the line under it 13px; the action is a 34px circle with a 44px target. A separator under the header stands 16px below the picture; without one the first item starts 24px below it."
         },
         {
           "name": "Grouped items",
@@ -3811,7 +3816,7 @@
         },
         {
           "name": "Destructive items",
-          "code": "// Desktop\n<Menu>\n<Menu.Trigger>\n  <Button color=\"secondary\" variant=\"soft\" uniform aria-label=\"More actions\">\n    <DotsHorizontal />\n  </Button>\n</Menu.Trigger>\n<Menu.Content align=\"end\" minWidth={200}>\n  <Menu.Item onSelect={rename}><EditPencil /> Rename</Menu.Item>\n  <Menu.Item onSelect={duplicate}>Duplicate</Menu.Item>\n  <Menu.Separator />\n  <Menu.Item onSelect={remove} danger><Trash /> Delete project</Menu.Item>\n</Menu.Content>\n</Menu>\n\n// Phone: the More button of the top bar opens the menu\n<Toolbar titleStyle=\"large\">\n  <Toolbar.Title>Destructive items</Toolbar.Title>\n  <Toolbar.Trailing>\n    <Menu>\n    <Menu.Trigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n      </Menu.Trigger>\n    <Menu.Content align=\"end\">\n      <Menu.Item onSelect={rename}><EditPencil /> Rename</Menu.Item>\n      <Menu.Item onSelect={duplicate}>Duplicate</Menu.Item>\n      <Menu.Separator />\n      <Menu.Item onSelect={remove} danger><Trash /> Delete project</Menu.Item>\n    </Menu.Content>\n    </Menu>\n  </Toolbar.Trailing>\n</Toolbar>",
+          "code": "// Desktop\n<Menu>\n<Menu.Trigger>\n  <Button color=\"secondary\" variant=\"soft\" uniform aria-label=\"More actions\">\n    <DotsHorizontal />\n  </Button>\n</Menu.Trigger>\n<Menu.Content align=\"end\" minWidth={200}>\n  <Menu.Item onSelect={rename}><EditPencil /> Rename</Menu.Item>\n  <Menu.Item onSelect={duplicate}><Copy /> Duplicate</Menu.Item>\n  <Menu.Separator />\n  <Menu.Item onSelect={remove} danger><Trash /> Delete project</Menu.Item>\n</Menu.Content>\n</Menu>\n\n// Phone: the More button of the top bar opens the menu\n<Toolbar titleStyle=\"large\">\n  <Toolbar.Title>Destructive items</Toolbar.Title>\n  <Toolbar.Trailing>\n    <Menu>\n    <Menu.Trigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n      </Menu.Trigger>\n    <Menu.Content align=\"end\">\n      <Menu.Item onSelect={rename}><EditPencil /> Rename</Menu.Item>\n      <Menu.Item onSelect={duplicate}><Copy /> Duplicate</Menu.Item>\n      <Menu.Separator />\n      <Menu.Item onSelect={remove} danger><Trash /> Delete project</Menu.Item>\n    </Menu.Content>\n    </Menu>\n  </Toolbar.Trailing>\n</Toolbar>",
           "details": "Mark a destructive action (delete, remove, leave) with danger: the label and the highlight take the danger color, and a description keeps its secondary color. Menu.Link takes danger too. Put such items last, after a separator."
         }
       ],
@@ -3894,6 +3899,11 @@
               "name": "onCloseAutoFocus",
               "type": "(event: Event) => void",
               "description": "Called before focus returns to the trigger; call event.preventDefault() to keep it from moving there"
+            },
+            {
+              "name": "onOpenAutoFocus",
+              "type": "(event: Event) => void",
+              "description": "Called before focus moves into the menu as it opens; call event.preventDefault() to leave focus where it is, as for a menu that stands open when its screen appears"
             }
           ]
         },
@@ -3932,6 +3942,54 @@
               "name": "className",
               "type": "string",
               "description": "Applied to the item"
+            }
+          ]
+        },
+        {
+          "name": "Menu.Header",
+          "description": "Names what the menu acts on, above its items. The children are the title.",
+          "props": [
+            {
+              "name": "media",
+              "type": "ReactNode",
+              "description": "Picture before the title: an image, an icon or an Avatar in a 32px square (40px on a phone). An image or icon fills it; an image gets small rounded corners"
+            },
+            {
+              "name": "description",
+              "type": "ReactNode",
+              "description": "Line under the title, such as the kind and size of a file"
+            },
+            {
+              "name": "action",
+              "type": "ReactNode",
+              "description": "Round action at the end: a Menu.HeaderAction"
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "description": "Applied to the header"
+            }
+          ]
+        },
+        {
+          "name": "Menu.HeaderAction",
+          "description": "Round action at the end of a header, a menu item that closes the menu when selected. Its child is the icon.",
+          "props": [
+            {
+              "name": "aria-label",
+              "type": "string",
+              "description": "Accessible name of the icon-only action (required)"
+            },
+            {
+              "name": "onSelect",
+              "type": "(event: Event) => void",
+              "description": "Called when the action is pressed; call event.preventDefault() to keep the menu open"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disable the action"
             }
           ]
         },
@@ -7558,5 +7616,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T11:53:31.247Z"
+  "generatedAt": "2026-11-08T14:17:44.408Z"
 }

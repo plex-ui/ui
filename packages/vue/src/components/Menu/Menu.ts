@@ -18,6 +18,7 @@ import {
   type InjectionKey,
   type PropType,
   type ShallowRef,
+  type VNodeArrayChildren,
 } from "vue"
 import {
   DropdownMenuContent as RekaDropdownMenuContent,
@@ -30,6 +31,7 @@ import {
 } from "reka-ui"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
 import { isHoverPointer } from "../../lib/inputMode.js"
+import { hasContent } from "../../lib/slotContent.js"
 import { firstElementChild } from "../Tooltip/slot.js"
 import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
 import { Button } from "../Button/index.js"
@@ -446,6 +448,7 @@ const MenuRootContentImpl = defineComponent({
     size: String as PropType<"sm" | "md" | "lg">,
     pill: Boolean,
     onCloseAutoFocus: { type: Function as PropType<(event: Event) => void>, required: true },
+    onOpenAutoFocus: { type: Function as PropType<(event: Event) => void>, required: true },
     exitGuard: { type: Object as PropType<ReturnType<typeof createExitGuard>>, required: true },
   },
   setup(props, { slots }) {
@@ -490,7 +493,9 @@ const MenuRootContentImpl = defineComponent({
           const trigger = internals.trigger.value
           if (!hasInteractedOutside && trigger) {
             prepareFocusRestore(trigger)
-            trigger.focus()
+            // Without scrolling: a plain focus() scrolls every scrolling ancestor to the trigger, the page around a
+            // frame that holds the menu too
+            trigger.focus({ preventScroll: true })
           }
           hasInteractedOutside = false
           // Always prevent auto focus because we either focus manually or want user agent focus
@@ -545,7 +550,10 @@ const MenuRootContentImpl = defineComponent({
             ...contentVariables,
           },
           "onEscapeKeyDown": preventDefaultHandler,
-          "onOpenAutoFocus": (event: Event) => delegateInitialPhoneSubmenuFocus(event, level.content.value),
+          "onOpenAutoFocus": (event: Event) => {
+            props.onOpenAutoFocus(event)
+            delegateInitialPhoneSubmenuFocus(event, level.content.value)
+          },
           onCloseAutoFocus,
           onInteractOutside,
           ...handlers,
@@ -619,10 +627,16 @@ export const MenuContent = defineComponent({
      * its focus-visible ring).
      */
     closeAutoFocus: (event: Event) => typeof event.type === "string",
+    /**
+     * Focus is about to move into the menu as it opens. Call `event.preventDefault()` to leave focus where it is, as
+     * for a menu that stands open when its screen appears.
+     */
+    openAutoFocus: (event: Event) => typeof event.type === "string",
   },
   setup(props, { slots, emit }) {
     const { open } = useMenuContext()
     const onCloseAutoFocus = (event: Event) => emit("closeAutoFocus", event)
+    const onOpenAutoFocus = (event: Event) => emit("openAutoFocus", event)
     const exitGuard = createExitGuard()
 
     return () =>
@@ -639,7 +653,7 @@ export const MenuContent = defineComponent({
                   open.value
                     ? h(
                         MenuRootContentImpl,
-                        { key: "dropdown", ...props, onCloseAutoFocus, exitGuard },
+                        { key: "dropdown", ...props, onCloseAutoFocus, onOpenAutoFocus, exitGuard },
                         { default: () => slots.default?.() },
                       )
                     : createCommentVNode(),
@@ -909,6 +923,83 @@ export const MenuGroup = defineComponent({
   inheritAttrs: false,
   setup(_props, { slots, attrs }) {
     return () => h("div", { role: "group", class: attrs.class }, slots.default?.())
+  },
+})
+
+/**
+ * Names what the menu acts on, above its items: the picture, name and kind of a file in the iOS Files menu, with a
+ * round action at its end. Not an item itself; its action is. The default slot is the title; `media` is a picture
+ * before it (a thumbnail image, an icon or an Avatar, in a square of 32px, 40px on a phone: an image or icon fills
+ * the square, an image gets small rounded corners), and `action` a `MenuHeaderAction` at the end.
+ */
+export const MenuHeader = defineComponent({
+  name: "MenuHeader",
+  inheritAttrs: false,
+  props: {
+    /** A line under the title: what it is, such as its kind and size ("Folder · 382 KB"). Also a `description` slot. */
+    description: String,
+  },
+  setup(props, { slots, attrs }) {
+    return () => {
+      // A slot that renders nothing (a v-if placeholder) leaves no box, as a null or false node does in React
+      const media = slots.media?.()
+      const description = slots.description ? slots.description() : props.description
+      return h("div", { "class": [s.MenuHeader, attrs.class], "data-menu-header": "" }, [
+        hasContent(media) ? h("div", { class: s.MenuHeaderMedia }, media) : null,
+        h("div", { class: s.MenuHeaderText }, [
+          h("div", { class: s.MenuHeaderTitle }, slots.default?.()),
+          hasContent([description] as VNodeArrayChildren) ? h("div", { class: s.MenuHeaderDescription }, description) : null,
+        ]),
+        slots.action?.(),
+      ])
+    }
+  },
+})
+
+/** The round action at the end of a `MenuHeader`, such as Share: a menu item, reached with the arrow keys too. */
+export const MenuHeaderAction = defineComponent({
+  name: "MenuHeaderAction",
+  inheritAttrs: false,
+  props: {
+    /** Accessible name; the action is an icon-only button */
+    ariaLabel: { type: String, required: true },
+    /** Disables the action */
+    disabled: { type: Boolean, default: false },
+  },
+  emits: {
+    /** The action was pressed; the menu then closes. `event.preventDefault()` keeps it open. */
+    select: (event: Event) => typeof event.type === "string",
+  },
+  setup(props, { slots, attrs, emit }) {
+    const impl = useMenuItemImpl(() => props.disabled)
+    const select = useMenuItemSelect(
+      impl,
+      () => props.disabled,
+      () => (event: Event) => emit("select", event),
+    )
+
+    return () => {
+      const { listeners, rest } = splitListeners(attrs)
+      const { class: className, ...restProps } = rest
+      return h(
+        Button,
+        {
+          ...impl.attrs(),
+          ...restProps,
+          "class": [s.MenuHeaderAction, className],
+          "color": "secondary",
+          "variant": "soft",
+          "size": "md",
+          "uniform": true,
+          "pill": true,
+          "aria-label": props.ariaLabel,
+          "disabled": props.disabled,
+          "ref": impl.setElement,
+          ...selectableItemListeners(impl, select, listeners),
+        },
+        { default: () => slots.default?.() },
+      )
+    }
   },
 })
 
@@ -1384,6 +1475,11 @@ export const MenuRadioGroup = defineComponent({
      * @default end
      */
     indicatorPosition: { type: String as PropType<"start" | "end">, default: "end" },
+    /**
+     * `horizontal` sets the options side by side as tabs, each an icon over its label and the chosen one on a fill:
+     * the choice at the top of an iOS menu, above its list (Added and Captured in Photos). No radio indicator is drawn.
+     */
+    layout: { type: String as PropType<"vertical" | "horizontal">, default: "vertical" },
   },
   emits: {
     "update:value": (value: string) => typeof value === "string",
@@ -1399,8 +1495,19 @@ export const MenuRadioGroup = defineComponent({
       },
     })
 
-    return () =>
-      h("div", { "role": "group", "data-indicator-position": props.indicatorPosition }, slots.default?.())
+    return () => {
+      const horizontal = props.layout === "horizontal"
+      return h(
+        "div",
+        {
+          "role": "group",
+          "class": s.RadioGroup,
+          "data-layout": horizontal ? "horizontal" : undefined,
+          "data-indicator-position": horizontal ? undefined : props.indicatorPosition,
+        },
+        slots.default?.(),
+      )
+    }
   },
 })
 
@@ -1543,6 +1650,8 @@ export const MenuCheckboxItem = defineComponent({
 export type MenuProps = InstanceType<typeof Menu>["$props"]
 export type MenuContentProps = InstanceType<typeof MenuContent>["$props"]
 export type MenuItemProps = InstanceType<typeof MenuItem>["$props"]
+export type MenuHeaderProps = InstanceType<typeof MenuHeader>["$props"]
+export type MenuHeaderActionProps = InstanceType<typeof MenuHeaderAction>["$props"]
 export type SubmenuProps = InstanceType<typeof MenuSub>["$props"]
 export type MenuRadioGroupProps = InstanceType<typeof MenuRadioGroup>["$props"]
 export type MenuRadioItemProps = InstanceType<typeof MenuRadioItem>["$props"]

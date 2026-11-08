@@ -217,8 +217,25 @@
     --menu-label-font-size: 13px;
     --menu-label-font-weight: 510;
     --menu-label-line-height: 15px;
-    --menu-leading-icon-size: 17px;
-    --menu-leading-icon-slot: 28px;
+    /* Menu.Header, as Files (iOS-menu IMG_5690) and Freeform (IMG_5676) draw it: a 40px picture 16px from the
+       panel's top and leading edge, its name 15px Semibold 10px after it, the kind 13px under the name, and the
+       action's 34px circle 16px from the trailing edge. A separator follows 16px under the picture; with none,
+       the first item starts 24px under it. */
+    --menu-header-padding: 6px 0;
+    --menu-header-list-gap: 18px;
+    --menu-header-gap: 10px;
+    --menu-header-media-size: 40px;
+    --menu-header-title-font-size: 15px;
+    --menu-header-title-line-height: 20px;
+    --menu-header-description-font-size: 13px;
+    --menu-header-description-line-height: 18px;
+    /* A row's icon is 20px, as Apps 2.4 draws its 24-unit icons in menus (Menu 40125:198566): the glyph comes to 16
+       to 17px across, as native symbols do (iOS-menu IMG_5676: Find 49px and Favorite 49 by 46 at @3x). At 17px, the
+       size of the kit's 17pt symbol font, the same glyphs drew 13 to 14px. */
+    --menu-leading-icon-size: 20px;
+    /* Native iOS 26 menus centre the symbol 40pt in from the panel's edge and start the label at 66 (iOS-menu
+       IMG_5676 and IMG_5690, every row); the iOS 27 kit's 28pt column puts them at 36 and 58. */
+    --menu-leading-icon-slot: 36px;
     --menu-leading-icon-gap: 8px;
     /* Kit Quick Actions (5500:7456): equal actions across the menu's width, without dividers. */
     --menu-horizontal-display: grid;
@@ -231,7 +248,10 @@
     --menu-horizontal-item-gap: 5px;
     --menu-horizontal-gap: 6px;
     --menu-horizontal-padding-inline: 10px;
-    --menu-horizontal-icon-size: 13px;
+    /* The kit draws the action's symbol as 13pt text in a 22px line; a native Photos menu shows it 17pt across
+       (iOS-menu IMG_5665, the clock of Added: 51px at @3x, centred 17pt below the top of its 56pt action). A 20px
+       icon draws its 24-unit glyph about 16 to 17px across, in the same 22px line. */
+    --menu-horizontal-icon-size: 20px;
     --menu-horizontal-icon-slot: 22px;
     --menu-horizontal-label-size: 12px;
     --menu-horizontal-label-leading: 18px;
@@ -653,8 +673,8 @@
   }
 
   /* The icon's drawing keeps its own size inside the wider native leading
-     slot. Selection indicators and trailing submenu chevrons are excluded. */
-  html [role="menu"]:not([data-layout="horizontal"]) [role="menuitem"] > :is(div, span) > svg:first-child:not([class*="SubTriggerIcon"]) {
+     slot. Selection indicators, trailing submenu chevrons and the round action of a header (a Button) are excluded. */
+  html [role="menu"]:not([data-layout="horizontal"]) [role="menuitem"]:not(:where([role="group"][data-layout="horizontal"] *, [data-menu-header] *)) > :is(div, span) > svg:first-child:not([class*="SubTriggerIcon"]) {
     flex-shrink: 0;
     width: var(--menu-leading-icon-size);
     height: var(--menu-leading-icon-size);
@@ -662,7 +682,17 @@
     margin-inline-end: calc((var(--menu-leading-icon-slot) - var(--menu-leading-icon-size)) / 2 + var(--menu-leading-icon-gap) - var(--menu-item-gap));
   }
 
-  html [role="menu"][data-layout="horizontal"] [role="menuitem"] > :is(div, span) > svg {
+  /* A selection row's icon follows the checkmark's column, as All Items, Favorites and Edited in the Photos filter menu
+     (iOS-menu IMG_5666: check, icon and label centers 27.6, 55.3 and 80pt from the panel's edge, so the icon stands 28pt
+     after the check and its box ends 16pt before the label, as in a plain row). */
+  html [role="menu"]:not([data-layout="horizontal"]) :is([role="menuitemradio"], [role="menuitemcheckbox"]):not(:where([role="group"][data-layout="horizontal"] *)) > :is(div, span) > svg:first-of-type {
+    flex-shrink: 0;
+    width: var(--menu-leading-icon-size);
+    height: var(--menu-leading-icon-size);
+    margin-inline-end: calc((var(--menu-leading-icon-slot) - var(--menu-leading-icon-size)) / 2 + var(--menu-leading-icon-gap) - var(--menu-item-gap));
+  }
+
+  html :is([role="menu"], [role="menu"] [role="group"])[data-layout="horizontal"] :is([role="menuitem"], [role="menuitemradio"]) > :is(div, span) > svg {
     flex-shrink: 0;
     width: var(--menu-horizontal-icon-size);
     height: var(--menu-horizontal-icon-size);

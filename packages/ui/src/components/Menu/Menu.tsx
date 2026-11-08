@@ -71,6 +71,8 @@ type MenuContextValue = {
   /** The element of `Menu.Trigger`, which a phone menu covers */
   triggerElement: HTMLElement | null
   setTriggerElement: (element: HTMLElement | null) => void
+  /** Whether the menu is modal, which decides whether an outside interaction skips the focus return */
+  modal: boolean
 }
 
 const MenuContext = createContext<MenuContextValue | null>(null)
@@ -161,8 +163,9 @@ export const Menu = ({ children, forceOpen, onOpen, onClose, modal = false }: Me
       isUsingKeyboard,
       triggerElement,
       setTriggerElement,
+      modal,
     }),
-    [isOpen, handleOpenChange, prepareFocusRestore, triggerElement],
+    [isOpen, handleOpenChange, prepareFocusRestore, triggerElement, modal],
   )
 
   return (
@@ -434,6 +437,12 @@ export type MenuContentProps = {
    * trigger from regaining focus (and its focus-visible ring).
    */
   onCloseAutoFocus?: DropdownMenu.DropdownMenuContentProps["onCloseAutoFocus"]
+  /**
+   * Event handler called when focus moves into the menu as it opens. Call
+   * `event.preventDefault()` to leave focus where it is, as for a menu that
+   * stands open when its screen appears.
+   */
+  onOpenAutoFocus?: (event: Event) => void
 }
 
 /**
@@ -461,9 +470,11 @@ const Content = ({
   layout = "vertical",
   size,
   onCloseAutoFocus,
+  onOpenAutoFocus,
 }: MenuContentProps) => {
-  const { open, prepareFocusRestore, triggerElement } = useMenuContext()
+  const { open, prepareFocusRestore, triggerElement, modal } = useMenuContext()
   const contentRef = useRef<HTMLDivElement>(null)
+  const interactedOutside = useRef(false)
   const floatingBoundary = useFloatingBoundary(open, { bottom: 30, top: 30, left: 12, right: 12 })
   // On a phone a menu without its own offset grows out of its trigger, covers it and opens toward the larger part of
   // the screen (menuTriggerCover.ts); one that opens to a side keeps its gap
@@ -480,12 +491,35 @@ const Content = ({
   const handleCloseAutoFocus = useStableCallback((event: Event) => {
     onCloseAutoFocus?.(event)
     keepMovedFocus(event)
+    const skipFocus = interactedOutside.current
+    interactedOutside.current = false
     if (event.defaultPrevented) return
+    // A focus scope that unmounts while the menu stays open (React StrictMode replays the effects of a menu that mounts
+    // open) is no close: focus stays, and the menu is not dismissed by focus moving out to its trigger
+    if (open) {
+      event.preventDefault()
+      return
+    }
     const content = event.target
     if (!(content instanceof HTMLElement)) return
     const trigger = content.ownerDocument.getElementById(content.getAttribute("aria-labelledby") ?? "")
-    if (trigger) prepareFocusRestore(trigger)
+    if (!trigger) return
+    prepareFocusRestore(trigger)
+    // Focus returns to the trigger as Radix returns it, but without scrolling: a plain focus() scrolls every scrolling
+    // ancestor to the trigger, the page around a frame that holds the menu too
+    event.preventDefault()
+    if (!skipFocus) trigger.focus({ preventScroll: true })
   })
+  // Radix's own record of an outside interaction, which its focus return (replaced above) reads: any one when the menu
+  // is not modal, a right click when it is
+  const handleInteractOutside = (event: Parameters<NonNullable<DropdownMenu.DropdownMenuContentProps["onInteractOutside"]>>[0]) => {
+    exitGuard.onInteractOutside(event)
+    // A cancelled one leaves the menu open and Radix does not record it (Vue returns early the same way)
+    if (event.defaultPrevented) return
+    const original = event.detail.originalEvent as PointerEvent
+    const isRightClick = original.button === 2 || (original.button === 0 && original.ctrlKey === true)
+    if (!modal || isRightClick) interactedOutside.current = true
+  }
 
   return (
     <DropdownMenu.Portal forceMount>
@@ -494,7 +528,10 @@ const Content = ({
           <RootMenuContent
             key="dropdown"
             ref={contentRef}
-            onOpenAutoFocus={(event) => delegateInitialPhoneSubmenuFocus(event, contentRef.current)}
+            onOpenAutoFocus={(event) => {
+              onOpenAutoFocus?.(event)
+              delegateInitialPhoneSubmenuFocus(event, contentRef.current)
+            }}
             forceMount
             className={s.MenuList}
             data-pill={pill ? "" : undefined}
@@ -505,7 +542,7 @@ const Content = ({
             avoidCollisions
             {...floatingBoundary}
             onEscapeKeyDown={preventDefaultHandler}
-            onInteractOutside={exitGuard.onInteractOutside}
+            onInteractOutside={handleInteractOutside}
             onCloseAutoFocus={handleCloseAutoFocus}
             data-layout={isHorizontal ? "horizontal" : undefined}
             data-size={isHorizontal && size ? size : undefined}
@@ -823,6 +860,12 @@ export type MenuRadioGroupProps<T extends string> = {
    * @default end
    */
   indicatorPosition?: "start" | "end"
+  /**
+   * `horizontal` sets the options side by side as tabs, each an icon over its label and the chosen one on a fill: the
+   * choice at the top of an iOS menu, above its list (Added and Captured in Photos). No radio indicator is drawn.
+   * @default "vertical"
+   */
+  layout?: "vertical" | "horizontal"
 }
 
 const RadioGroup = <T extends string>({
@@ -830,17 +873,23 @@ const RadioGroup = <T extends string>({
   value,
   onChange,
   indicatorPosition = "end",
+  layout = "vertical",
   ...props
-}: MenuRadioGroupProps<T>) => (
-  <DropdownMenu.RadioGroup
-    {...props}
-    value={value}
-    onValueChange={(v: string) => onChange(v as T)}
-    data-indicator-position={indicatorPosition}
-  >
-    {children}
-  </DropdownMenu.RadioGroup>
-)
+}: MenuRadioGroupProps<T>) => {
+  const horizontal = layout === "horizontal"
+  return (
+    <DropdownMenu.RadioGroup
+      {...props}
+      className={s.RadioGroup}
+      value={value}
+      onValueChange={(v: string) => onChange(v as T)}
+      data-layout={horizontal ? "horizontal" : undefined}
+      data-indicator-position={horizontal ? undefined : indicatorPosition}
+    >
+      {children}
+    </DropdownMenu.RadioGroup>
+  )
+}
 
 export type MenuRadioItemProps<T extends string> = {
   value: T
@@ -930,6 +979,74 @@ const CheckboxItem = ({
   </DropdownMenu.CheckboxItem>
 )
 
+export type MenuHeaderProps = {
+  className?: string
+  /** The title: the name of what the menu acts on, such as a file or a board */
+  children: ReactNode
+  /** A line under the title: what it is, such as its kind and size ("Folder · 382 KB") */
+  description?: ReactNode
+  /**
+   * A picture before the title: a thumbnail image, an icon or an Avatar, in a square of 32px (40px on a phone). An
+   * image or icon fills the square; an image gets small rounded corners.
+   */
+  media?: ReactNode
+  /** A round action at the end of the header: a `Menu.HeaderAction` */
+  action?: ReactNode
+}
+
+/**
+ * Names what the menu acts on, above its items: the picture, name and kind of a file in the iOS Files menu, with a
+ * round action at its end. Not an item itself; its action is.
+ */
+// A node that renders nothing leaves no box, as an empty slot does in Vue
+const rendersContent = (node: ReactNode) => node != null && node !== false && node !== ""
+
+const Header = ({ className, children, description, media, action }: MenuHeaderProps) => (
+  <div className={clsx(s.MenuHeader, className)} data-menu-header="">
+    {rendersContent(media) && <div className={s.MenuHeaderMedia}>{media}</div>}
+    <div className={s.MenuHeaderText}>
+      <div className={s.MenuHeaderTitle}>{children}</div>
+      {rendersContent(description) && <div className={s.MenuHeaderDescription}>{description}</div>}
+    </div>
+    {action}
+  </div>
+)
+
+export type MenuHeaderActionProps = {
+  /** The action's icon */
+  children: ReactNode
+  /** Accessible name; the action is an icon-only button */
+  "aria-label": string
+  /** Called when the action is pressed; the menu then closes. Call `event.preventDefault()` to keep it open. */
+  onSelect?: (event: Event) => void
+  /** Disables the action */
+  disabled?: boolean
+}
+
+/** The round action at the end of a `Menu.Header`, such as Share: a menu item, reached with the arrow keys too. */
+const HeaderAction = ({ children, "aria-label": ariaLabel, onSelect, disabled }: MenuHeaderActionProps) => (
+  <DropdownMenu.Item
+    asChild
+    onSelect={onSelect}
+    disabled={disabled}
+    onPointerMove={preventTouchHover}
+    onPointerLeave={preventTouchHover}
+  >
+    <Button
+      className={s.MenuHeaderAction}
+      color="secondary"
+      variant="soft"
+      size="md"
+      uniform
+      pill
+      aria-label={ariaLabel}
+      disabled={disabled}
+    >
+      {children}
+    </Button>
+  </DropdownMenu.Item>
+)
+
 Menu.Content = Content
 Menu.Item = Item
 Menu.ItemActions = ItemActions
@@ -945,3 +1062,5 @@ Menu.RadioGroup = RadioGroup
 Menu.RadioItem = RadioItem
 Menu.Label = Label
 Menu.Group = Group
+Menu.Header = Header
+Menu.HeaderAction = HeaderAction

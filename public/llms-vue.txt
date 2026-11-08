@@ -665,12 +665,19 @@ Props:
     - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
     - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
     - @close-auto-focus ((event: Event) => void) — Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there
+    - @open-auto-focus ((event: Event) => void) — Emitted before focus moves into the menu as it opens; call event.preventDefault() to leave focus where it is, as for a menu that stands open when its screen appears
   MenuItem:
     - description (string) — Second line under the label (or the description slot). The label turns semibold on its own
     - disabled (boolean) default: false — Disable the item
     - danger (boolean) default: false — Destructive action: the item is drawn in the danger color
     - @select ((event: Event) => void) — Called when the item is selected; call event.preventDefault() to keep the menu open
     - @click ((event: MouseEvent) => void) — Called when the item is clicked; also makes the item interactive
+  MenuHeader:
+    - description (string) — Line under the title, such as the kind and size of a file (or the description slot)
+  MenuHeaderAction:
+    - aria-label (string) — Accessible name of the icon-only action (required)
+    - disabled (boolean) default: false — Disable the action
+    - @select ((event: Event) => void) — Emitted when the action is pressed; call event.preventDefault() to keep the menu open
   MenuCheckboxItem:
     - checked / v-model:checked (boolean | "indeterminate") default: false — Checked state
     - @checked-change ((checked: boolean) => void) — Emitted with update:checked when the checkbox toggles
@@ -678,7 +685,7 @@ Props:
     - indicator-position ("start" | "end") default: "end" — Checkbox position
     - indicator-variant ("solid" | "ghost") default: "solid" — Indicator style
     - disabled (boolean) default: false — Disable the item
-Examples: Overview, Natural sizing, Horizontal (icons only), Horizontal (icons with labels), Grouped items, Submenus, Checkbox items, Radio items, Item actions, Destructive items
+Examples: Overview, Natural sizing, Horizontal (icons only), Tabs, Header, Grouped items, Submenus, Checkbox items, Radio items, Item actions, Destructive items
 
 ## OTP Input
 Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.

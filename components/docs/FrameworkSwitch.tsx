@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { PreviewViewportControl } from './PreviewViewport';
 import { Tabs } from '@plexui/ui/components/Tabs';
+import styles from './FrameworkSwitch.module.css';
 
 const FRAMEWORKS = [
   { id: 'react', label: 'React', base: '/components' },
@@ -33,6 +34,7 @@ export function FrameworkSwitch({ framework, slug }: { framework: Framework; slu
         aria-label="Framework"
         variant="underline"
         flush
+        className={styles.Switch}
       >
         {FRAMEWORKS.map(({ id, label }) => (
           <Tabs.Tab key={id} value={id}>

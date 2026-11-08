@@ -10,24 +10,33 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Toolbar } from '@plexui/ui/components/Toolbar';
 import {
   ArrowUp,
+  CameraPhoto,
   ChevronDownMd,
+  Clock,
   Code,
+  Copy,
   DotsHorizontal,
   EditPencil,
+  Folder,
+  InfoCircle,
   UnfoldHorizontal,
   Functions,
   Globe,
+  Grid,
+  Heart,
   History,
   ImageSquare,
   Link,
   Play,
   Search,
   SettingsCog,
+  Share,
   Tools,
   Trash,
   FileDocument,
 } from '@plexui/ui/components/Icon';
 import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { menuPhoneTitle } from './menuPhone';
 import { usePreviewEmbed } from './PreviewEmbed';
 import p from './PageDemos.module.css';
 
@@ -56,18 +65,23 @@ function MenuExample({ title, trigger, children }: { title: string; trigger: Rea
     );
   }
   const { layout, children: items } = children.props as MenuContentProps & { children: ReactNode };
+  const heading = menuPhoneTitle(title);
   return (
     <div data-demo-stage className={p.Stage}>
       <div className={p.Frame}>
-        <Page surface="grouped">
+        <Page>
           <Toolbar titleStyle="large">
-            <Toolbar.Title>{title}</Toolbar.Title>
+            <Toolbar.Title subtitle={heading.subtitle}>{heading.title}</Toolbar.Title>
             <Toolbar.Trailing>
               <Menu forceOpen={open || undefined} onClose={() => setOpen(false)}>
                 <Menu.Trigger>
                   <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
                 </Menu.Trigger>
-                <Menu.Content align="end" layout={layout}>{items}</Menu.Content>
+                {/* A menu that stands open when the screen appears leaves focus where it is: every phone frame of the
+                    page opens its menu, and one that took focus would blur the frame before it, which closes its menu */}
+                <Menu.Content align="end" layout={layout} onOpenAutoFocus={open ? (event) => event.preventDefault() : undefined}>
+                  {items}
+                </Menu.Content>
               </Menu>
             </Toolbar.Trailing>
           </Toolbar>
@@ -422,55 +436,82 @@ export function MenuHorizontalIconsOnlyDemoWithControls() {
   );
 }
 
-export function MenuHorizontalWithLabelsDemoWithControls() {
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
-
+export function MenuTabsDemo() {
+  const [sort, setSort] = useState('added');
+  const [filter, setFilter] = useState('all');
   return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size" desktopOnly>
-          <SegmentedControl<(typeof SIZE_OPTIONS)[number]>
-            value={size}
-            onChange={setSize}
-            aria-label="size"
-            size="xs"
-          >
-            {SIZE_OPTIONS.map((o) => (
-              <SegmentedControl.Option key={o} value={o}>
-                {o}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
-      <MenuExample
-        title="Horizontal (icons with labels)"
-        trigger={
-          <Button color="primary" size="lg" variant="ghost">
-            Actions <ChevronDownMd />
-          </Button>
-        }
-      >
-        <Menu.Content layout="horizontal" size={size} minWidth="auto">
-          <Menu.Item onSelect={() => { }}>
-            <EditPencil />
-            Edit
-          </Menu.Item>
-          <Menu.Item onSelect={() => { }}>
-            <SettingsCog />
-            Settings
-          </Menu.Item>
-          <Menu.Item onSelect={() => { }}>
-            <Play />
-            Play
-          </Menu.Item>
-          <Menu.Item onSelect={() => { }}>
-            <UnfoldHorizontal />
-            Expand
-          </Menu.Item>
-        </Menu.Content>
-      </MenuExample>
-    </>
+    <MenuExample
+      title="Tabs"
+      trigger={
+        <Button color="primary" size="lg" variant="ghost">
+          Library <ChevronDownMd />
+        </Button>
+      }
+    >
+      <Menu.Content>
+        <Menu.RadioGroup layout="horizontal" value={sort} onChange={setSort}>
+          <Menu.RadioItem value="added">
+            <Clock /> Added
+          </Menu.RadioItem>
+          <Menu.RadioItem value="captured">
+            <CameraPhoto /> Captured
+          </Menu.RadioItem>
+        </Menu.RadioGroup>
+        <Menu.Separator />
+        <Menu.Label>Filter</Menu.Label>
+        <Menu.RadioGroup value={filter} onChange={setFilter}>
+          <Menu.RadioItem value="all">
+            <Grid /> All items
+          </Menu.RadioItem>
+          <Menu.RadioItem value="favorites">
+            <Heart /> Favorites
+          </Menu.RadioItem>
+          <Menu.RadioItem value="edited">
+            <EditPencil /> Edited
+          </Menu.RadioItem>
+        </Menu.RadioGroup>
+      </Menu.Content>
+    </MenuExample>
+  );
+}
+
+export function MenuHeaderDemo() {
+  return (
+    <MenuExample
+      title="Header"
+      trigger={
+        <Button color="primary" size="lg" variant="ghost">
+          File <ChevronDownMd />
+        </Button>
+      }
+    >
+      <Menu.Content>
+        <Menu.Header
+          media={<img src="/demo/picture-1.svg" alt="" />}
+          description="Image · 382 KB"
+          action={
+            <Menu.HeaderAction aria-label="Share" onSelect={() => { }}>
+              <Share />
+            </Menu.HeaderAction>
+          }
+        >
+          Sunset.png
+        </Menu.Header>
+        <Menu.Item onSelect={() => { }}>
+          <EditPencil /> Rename
+        </Menu.Item>
+        <Menu.Item onSelect={() => { }}>
+          <Copy /> Copy
+        </Menu.Item>
+        <Menu.Item onSelect={() => { }}>
+          <Folder /> Move
+        </Menu.Item>
+        <Menu.Separator />
+        <Menu.Item onSelect={() => { }}>
+          <InfoCircle /> Get info
+        </Menu.Item>
+      </Menu.Content>
+    </MenuExample>
   );
 }
 
@@ -516,7 +557,9 @@ export function MenuDangerDemo() {
         <Menu.Item onSelect={() => {}}>
           <EditPencil /> Rename
         </Menu.Item>
-        <Menu.Item onSelect={() => {}}>Duplicate</Menu.Item>
+        <Menu.Item onSelect={() => {}}>
+          <Copy /> Duplicate
+        </Menu.Item>
         <Menu.Separator />
         <Menu.Item onSelect={() => {}} danger>
           <Trash /> Delete project

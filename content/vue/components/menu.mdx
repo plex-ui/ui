@@ -55,15 +55,42 @@ export const horizontalIcons = `<Menu>
   </MenuContent>
 </Menu>`
 
-export const horizontalLabels = `<Menu>
+export const tabs = `<Menu>
   <MenuTrigger>
-    <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
+    <Button color="primary" size="lg" variant="ghost">Library <ChevronDownMd /></Button>
   </MenuTrigger>
-  <MenuContent layout="horizontal" :size="size" min-width="auto">
-    <MenuItem @select="() => {}"><EditPencil /> Edit</MenuItem>
-    <MenuItem @select="() => {}"><SettingsCog /> Settings</MenuItem>
-    <MenuItem @select="() => {}"><Play /> Play</MenuItem>
-    <MenuItem @select="() => {}"><UnfoldHorizontal /> Expand</MenuItem>
+  <MenuContent>
+    <MenuRadioGroup layout="horizontal" v-model:value="sort">
+      <MenuRadioItem value="added"><Clock /> Added</MenuRadioItem>
+      <MenuRadioItem value="captured"><CameraPhoto /> Captured</MenuRadioItem>
+    </MenuRadioGroup>
+    <MenuSeparator />
+    <MenuLabel>Filter</MenuLabel>
+    <MenuRadioGroup v-model:value="filter">
+      <MenuRadioItem value="all"><Grid /> All items</MenuRadioItem>
+      <MenuRadioItem value="favorites"><Heart /> Favorites</MenuRadioItem>
+      <MenuRadioItem value="edited"><EditPencil /> Edited</MenuRadioItem>
+    </MenuRadioGroup>
+  </MenuContent>
+</Menu>`
+
+export const header = `<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost">File <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent>
+    <MenuHeader description="Image · 382 KB">
+      <template #media><img src="/demo/picture-1.svg" alt="" /></template>
+      Sunset.png
+      <template #action>
+        <MenuHeaderAction aria-label="Share" @select="() => {}"><Share /></MenuHeaderAction>
+      </template>
+    </MenuHeader>
+    <MenuItem @select="() => {}"><EditPencil /> Rename</MenuItem>
+    <MenuItem @select="() => {}"><Copy /> Copy</MenuItem>
+    <MenuItem @select="() => {}"><Folder /> Move</MenuItem>
+    <MenuSeparator />
+    <MenuItem @select="() => {}"><InfoCircle /> Get info</MenuItem>
   </MenuContent>
 </Menu>`
 
@@ -193,7 +220,7 @@ export const danger = `<Menu>
   </MenuTrigger>
   <MenuContent align="end" :min-width="200">
     <MenuItem @select="() => {}"><EditPencil /> Rename</MenuItem>
-    <MenuItem @select="() => {}">Duplicate</MenuItem>
+    <MenuItem @select="() => {}"><Copy /> Duplicate</MenuItem>
     <MenuSeparator />
     <MenuItem @select="() => {}" danger><Trash /> Delete project</MenuItem>
   </MenuContent>
@@ -224,20 +251,29 @@ export const danger = `<Menu>
 
 ### Horizontal (icons only)
 
-<ComponentPreview language="vue" details={<>
-  <p>Set <code>layout="horizontal"</code> on <code>MenuContent</code> for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
-  <p>On a phone with <code>touch.css</code> the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
-</>} code={withMenuPhoneVue(horizontalIcons, "Horizontal (icons only)")} previewMinHeight={168}>
-  <VueDemo template={horizontalIcons} phoneTemplate={menuPhoneTemplateVue(horizontalIcons, "Horizontal (icons only)", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
+<ComponentPreview language="vue" phonePresentation="none" details={<>
+  <p>Set <code>layout="horizontal"</code> on <code>MenuContent</code> for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
+  <p>Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled tabs at the top of a menu, as in Tabs below.</p>
+</>} code={horizontalIcons} previewMinHeight={168}>
+  <VueDemo template={horizontalIcons} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
-### Horizontal (icons with labels)
+### Tabs
 
 <ComponentPreview language="vue" details={<>
-  <p>Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.</p>
-  <p>On a phone with <code>touch.css</code> these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
-</>} code={withMenuPhoneVue(horizontalLabels, "Horizontal (icons with labels)")} previewMinHeight={168}>
-  <VueDemo template={horizontalLabels} phoneTemplate={menuPhoneTemplateVue(horizontalLabels, "Horizontal (icons with labels)", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
+  <p>Set <code>layout="horizontal"</code> on a <code>MenuRadioGroup</code> at the top of a menu for tabs: one choice of several, the options side by side, each an icon over its label, with the chosen one on a fill, above the list, as Photos chooses between Added and Captured. The options are radio items, so the fill moves with the value and no radio indicator is drawn.</p>
+  <p>On a phone with <code>touch.css</code> they are equal 56px-tall tabs with a 20px icon over a 12px label, 10px from the panel's edges, the chosen one on black at 15%.</p>
+</>} code={withMenuPhoneVue(tabs, "Tabs")} previewMinHeight={168}>
+  <VueDemo template={tabs} phoneTemplate={menuPhoneTemplateVue(tabs, "Tabs", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ sort: "added", filter: "all" }} />
+</ComponentPreview>
+
+### Header
+
+<ComponentPreview language="vue" details={<>
+  <p>Put a <code>MenuHeader</code> first to name what the menu acts on: a picture (the <code>media</code> slot), the name and a line under it, with a round <code>MenuHeaderAction</code> at its end (the <code>action</code> slot), as the Files menu of a file in iOS opens. The header is not an item; its action is, reached with the arrow keys like the items.</p>
+  <p>On a phone with <code>touch.css</code> the picture is 40px, 16px from the panel's edges, the name 15px Semibold and the line under it 13px; the action is a 34px circle with a 44px target. A separator under the header stands 16px below the picture; without one the first item starts 24px below it.</p>
+</>} code={withMenuPhoneVue(header, "Header")} previewMinHeight={168}>
+  <VueDemo template={header} phoneTemplate={menuPhoneTemplateVue(header, "Header", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
 </ComponentPreview>
 
 ### Grouped items
@@ -315,6 +351,7 @@ export const danger = `<Menu>
   { prop: "layout", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction. Use horizontal for icon toolbars" },
   { prop: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Size of horizontal menu items (icon size + padding)" },
   { prop: "@close-auto-focus", type: "(event: Event) => void", description: "Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there" },
+  { prop: "@open-auto-focus", type: "(event: Event) => void", description: "Emitted before focus moves into the menu as it opens; call event.preventDefault() to leave focus where it is, as for a menu that stands open when its screen appears" },
 ]} />
 
 **MenuItem**: list item. Listen to `@select` or `@click` for actions; without either the item is non-interactive content.
@@ -335,6 +372,20 @@ export const danger = `<Menu>
 
 **MenuLabel**: non-interactive label for a group. Accepts `class`.
 
+**MenuHeader**: names what the menu acts on, above its items. The default slot is the title; the `media` slot is a picture before it (an image, an icon or an Avatar in a 32px square, 40px on a phone: an image or icon fills it, an image gets small rounded corners), and the `action` slot a MenuHeaderAction at the end.
+
+<PropsTable data={[
+  { prop: "description", type: "string", description: "Line under the title, such as the kind and size of a file (or the description slot)" },
+]} />
+
+**MenuHeaderAction**: round action at the end of a header, a menu item that closes the menu when selected. Its slot is the icon.
+
+<PropsTable data={[
+  { prop: "aria-label", type: "string", description: "Accessible name of the icon-only action (required)" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable the action" },
+  { prop: "@select", type: "(event: Event) => void", description: "Emitted when the action is pressed; call event.preventDefault() to keep the menu open" },
+]} />
+
 **MenuSub** / **MenuSubTrigger** / **MenuSubContent**: submenu wrapper (with `force-open`, `@open` and `@close`), trigger (with `disabled`), and content panel (with `width`, `min-width`, `max-height`, `side-offset` and `align-offset`).
 
 **MenuCheckboxItem**
@@ -348,7 +399,7 @@ export const danger = `<Menu>
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the item" },
 ]} />
 
-**MenuRadioGroup** / **MenuRadioItem**: radio group with `v-model:value` (plus `@change`) and `indicator-position`; MenuRadioItem takes `value`, `disabled` and `@select`.
+**MenuRadioGroup** / **MenuRadioItem**: radio group with `v-model:value` (plus `@change`), `indicator-position` and `layout` (default `"vertical"`; `"horizontal"` sets the options side by side as tabs, the chosen one on a fill); MenuRadioItem takes `value`, `disabled` and `@select`.
 
 **MenuItemActions** / **MenuItemAction**: MenuItemActions wraps hover actions; MenuItemAction emits `@click` and closes the menu.
 
