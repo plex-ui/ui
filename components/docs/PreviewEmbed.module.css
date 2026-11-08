@@ -5,6 +5,13 @@
   display: none;
 }
 
+/* Next's dev tools badge (dev only) belongs to the docs page: drawn in every phone it would sit
+   on each screen's corner as if part of the example. Its portal also holds the dev error overlay,
+   so an example that throws inside the phone shows its error in the console only. */
+:global(body):has(.Root) :global(nextjs-portal) {
+  display: none;
+}
+
 /* Its controls stay on the parent page, above the phone */
 .Root [data-demo-controls] {
   display: none !important;

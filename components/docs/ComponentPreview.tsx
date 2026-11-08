@@ -14,6 +14,7 @@ import { usePreviewViewport } from './PreviewViewport';
 import { goToPreviousExample } from './previewNavigation';
 import { isPreviewScrollDelta, scrollPreviewParent } from './previewScroll';
 import { Switch } from '@plexui/ui/components/Switch';
+import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { PreviewKeyboard, NUMERIC_KEYBOARD_HEIGHT, TEXT_KEYBOARD_HEIGHT } from './PreviewKeyboard';
 import { canSimulatePreviewKeyboard, type PreviewKeyboardCommand, type PreviewKeyboardState } from './previewKeyboardInput';
 
@@ -23,6 +24,7 @@ type PhonePresentation = 'component' | 'screen' | 'none';
 
 export function ComponentPreview({
   previewId,
+  previewTitle,
   children,
   code,
   details,
@@ -37,6 +39,8 @@ export function ComponentPreview({
 }: {
   /** Assigned by remarkPreviewId, shared by the docs page and its Phone iframe. */
   previewId: string;
+  /** The heading of the example's section (remarkPreviewId): the title of the top bar of its phone page. */
+  previewTitle?: string;
   children: ReactNode;
   code?: string;
   details?: ReactNode;
@@ -120,6 +124,13 @@ export function ComponentPreview({
     if (embedTarget !== previewId) return null;
     return (
       <div className={`${s.PreviewContainer} not-prose`} data-preview-embed data-preview-presentation={phonePresentation} data-preview-phone-page={phonePage || undefined} data-preview-initial-dialog={phoneDialog || undefined}>
+        {/* A phone page is a screen of an app: the top bar under the status bar always takes its place, and names the
+            example. It repeats the heading of the docs page, so assistive technology skips it. */}
+        {phonePage && (
+          <Toolbar className={s.PhonePageBar} aria-hidden="true">
+            {previewTitle && <Toolbar.Title>{previewTitle}</Toolbar.Title>}
+          </Toolbar>
+        )}
         <div className={`${s.PreviewInner} ${className ?? ''}`.trim()}>{normalizedChildren}</div>
       </div>
     );

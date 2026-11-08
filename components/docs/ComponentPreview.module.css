@@ -368,7 +368,31 @@ html.dark .PreviewInner>[data-demo-controls]>* {
    and 16px below it, within the 16px layout margins, from the top down; the stage keeps its own alignment across.
    Phone rows, an inset grouped list, cover the screen with the grouped surface, as a settings screen does. */
 .PreviewContainer[data-preview-phone-page] {
+  /* Where the content starts under the status bar: under the top bar, which takes the status bar's height. */
+  --phone-page-content-top: 0px;
   min-height: 100dvh;
+}
+
+/* Every phone page keeps the top bar of an app screen, so an example stands where the content of a screen
+   starts, under a bar with the example's name. The bar stays at the top as the page scrolls under it, over the
+   surface of the page. An example that draws its own top bar keeps it alone. */
+.PreviewContainer[data-preview-phone-page] > .PhonePageBar {
+  --toolbar-padding-top: var(--safe-area-inset-top, 0px);
+  --toolbar-background: var(--mobile-surface-plain-primary, var(--color-fd-background));
+  position: sticky;
+  top: 0;
+}
+
+.PreviewContainer[data-preview-phone-page]:has([data-phone-rows]) > .PhonePageBar {
+  --toolbar-background: var(--mobile-surface-grouped-primary);
+}
+
+.PreviewContainer[data-preview-phone-page]:has(> .PreviewInner [data-toolbar][data-placement="top"]) {
+  --phone-page-content-top: var(--safe-area-inset-top, 0px);
+
+  & > .PhonePageBar {
+    display: none;
+  }
 }
 
 .PreviewContainer[data-preview-phone-page] > .PreviewInner {
@@ -378,21 +402,28 @@ html.dark .PreviewInner>[data-demo-controls]>* {
 .PreviewContainer[data-preview-phone-page] [data-demo-stage]:not([data-demo-stage] *),
 .PreviewContainer[data-preview-phone-page] > .PreviewInner:not(:has([data-demo-stage])) {
   justify-content: flex-start;
-  padding: calc(var(--safe-area-inset-top, 0px) + 16px) var(--mobile-layout-margin, 16px) calc(var(--safe-area-inset-bottom, 0px) + 16px);
+  padding: calc(var(--phone-page-content-top) + 16px) var(--mobile-layout-margin, 16px) calc(var(--safe-area-inset-bottom, 0px) + 16px);
 }
 
 .PreviewContainer[data-preview-phone-page]:has([data-phone-rows]) {
   background: var(--mobile-surface-grouped-primary);
 }
 
-/* The rows keep their 16px screen gutters and paint the grouped surface up behind the status bar */
+/* The rows keep their 16px screen gutters and paint the grouped surface up behind the top bar */
 .PreviewContainer[data-preview-phone-page] [data-demo-stage]:not([data-demo-stage] *):has([data-phone-rows]) {
   padding: 0;
 }
 
 .PreviewContainer[data-preview-phone-page] [data-phone-rows] {
-  padding-top: calc(var(--safe-area-inset-top, 0px) + 16px);
+  padding-top: calc(var(--phone-page-content-top) + 16px);
   padding-bottom: calc(var(--safe-area-inset-bottom, 0px) + 16px);
+}
+
+/* A screen that opens with a group header starts with that header, as a SwiftUI Form does (native Search and
+   Calendar, 08.11): the space the header keeps above its text is the screen's top margin, so its cap height
+   stands 16 under the bar, where the cells of a group without a header start (native Camera). */
+.PreviewContainer[data-preview-phone-page] [data-phone-rows]:has(> section[role="group"]:first-child > div > div > h2) {
+  padding-top: var(--phone-page-content-top);
 }
 
 /* Fallback for raw components (e.g. Loading button) */

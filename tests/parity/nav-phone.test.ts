@@ -211,9 +211,23 @@ describe("a Phone preview is a phone screen in a phone frame (plan 164)", () => 
   })
 
   test("the phone page puts the example under the status bar, within the layout margins, from the top down", () => {
-    expect(css).toContain(".PreviewContainer[data-preview-phone-page] {\n  min-height: 100dvh;\n}")
-    expect(css).toContain("padding: calc(var(--safe-area-inset-top, 0px) + 16px) var(--mobile-layout-margin, 16px) calc(var(--safe-area-inset-bottom, 0px) + 16px);")
+    expect(css).toContain(".PreviewContainer[data-preview-phone-page] {\n  /* Where the content starts under the status bar: under the top bar, which takes the status bar's height. */\n  --phone-page-content-top: 0px;\n  min-height: 100dvh;\n}")
+    expect(css).toContain("padding: calc(var(--phone-page-content-top) + 16px) var(--mobile-layout-margin, 16px) calc(var(--safe-area-inset-bottom, 0px) + 16px);")
+    expect(css).toContain(".PreviewContainer[data-preview-phone-page] [data-phone-rows] {\n  padding-top: calc(var(--phone-page-content-top) + 16px);")
     expect(css).toContain(".PreviewContainer[data-preview-phone-page]:has([data-phone-rows]) {\n  background: var(--mobile-surface-grouped-primary);\n}")
+  })
+
+  // Owner 08.11: a phone page always keeps the top bar of an app screen and names the example in it
+  test("the phone page keeps a top bar under the status bar, titled by the example's section heading", () => {
+    expect(source).toContain("{phonePage && (\n          <Toolbar className={s.PhonePageBar} aria-hidden=\"true\">\n            {previewTitle && <Toolbar.Title>{previewTitle}</Toolbar.Title>}")
+    expect(css).toContain(".PreviewContainer[data-preview-phone-page] > .PhonePageBar {\n  --toolbar-padding-top: var(--safe-area-inset-top, 0px);")
+    expect(css).toContain("  position: sticky;\n  top: 0;\n}")
+    expect(css).toContain(".PreviewContainer[data-preview-phone-page]:has([data-phone-rows]) > .PhonePageBar {\n  --toolbar-background: var(--mobile-surface-grouped-primary);\n}")
+    // An example with its own top bar keeps it alone and starts under the status bar
+    expect(css).toContain(".PreviewContainer[data-preview-phone-page]:has(> .PreviewInner [data-toolbar][data-placement=\"top\"]) {\n  --phone-page-content-top: var(--safe-area-inset-top, 0px);\n\n  & > .PhonePageBar {\n    display: none;\n  }\n}")
+    const remark = read("lib/remark-preview-id.ts")
+    expect(remark).toContain("if (node.type === 'heading' && node.depth >= 2) heading = textOf(node).trim() || heading;")
+    expect(remark).toContain("if (heading && !titled) node.attributes.push({ type: 'mdxJsxAttribute', name: 'previewTitle', value: heading });")
   })
 
   test("no example asks for the compact slice or keeps room for a menu any more", () => {
