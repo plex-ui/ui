@@ -43,6 +43,15 @@ export type TabBarSearch = {
   label?: string
 }
 
+export type TabBarProminent = {
+  /** The value of the prominent tab. */
+  value: string
+  /** Accessible name of the prominent tab: its circle shows the symbol only. */
+  label: string
+  /** The symbol, a PlexUI icon. */
+  icon: ReactNode
+}
+
 export type TabBarProps = {
   /** The controlled value of the selected tab. Use with `onValueChange`. */
   value?: string
@@ -52,6 +61,12 @@ export type TabBarProps = {
   onValueChange?: (value: string) => void
   /** A search tab in a glass circle of its own at the trailing end, as the iOS 26 separate search tab. */
   search?: TabBarSearch
+  /**
+   * The one destination the app lifts out of the capsule, a cart or a library, in a glass circle of its own at
+   * the trailing end, as the iOS 27 prominent tab role. It takes the circle of the search tab: with both, search
+   * is the last tab of the capsule, as iOS gives search that place only when no other tab is prominent.
+   */
+  prominent?: TabBarProminent
   /**
    * `onScrollDown` minimizes the bar to the selected tab while the content of the `Page` scrolls down and
    * expands it when the content scrolls back up; a tap on the minimized tab expands it too. @default "never"
@@ -77,14 +92,15 @@ export type TabBarProps = {
 /**
  * The tab bar of a phone screen after the iOS 26 kit Tab Bar - iPhone (507:24689): two to five tabs, each a
  * symbol over a label, in a floating glass capsule at the bottom, the selected tab on a pill, and an optional
- * search tab in a circle of its own. It minimizes to the selected tab while the content scrolls down. A desktop
- * layout navigates with a Sidebar or Tabs, so the bar never renders from 768px up.
+ * search or prominent tab in a circle of its own. It minimizes to the selected tab while the content scrolls
+ * down. A desktop layout navigates with a Sidebar or Tabs, so the bar never renders from 768px up.
  */
 function TabBarRoot({
   value: valueProp,
   defaultValue,
   onValueChange,
   search,
+  prominent,
   minimizeBehavior = "never",
   minimized: minimizedProp,
   defaultMinimized = false,
@@ -174,11 +190,17 @@ function TabBarRoot({
       data-background={background}
       data-content-below={host?.contentBelow ? "" : undefined}
       data-minimized={minimized ? "" : undefined}
-      data-search={search ? "" : undefined}
+      data-search={search && !prominent ? "" : undefined}
+      data-prominent={prominent ? "" : undefined}
     >
       <TabBarContext.Provider value={context}>
-        <div className={s.Tabs}>{children}</div>
-        {search && (
+        <div className={s.Tabs}>
+          {children}
+          {search && prominent && <TabBarItem value={search.value} label={search.label ?? "Search"} icon={<SearchIcon />} />}
+        </div>
+        {prominent ? (
+          <TabBarItem className={s.Prominent} value={prominent.value} label={prominent.label} icon={prominent.icon} hideLabel />
+        ) : search && (
           <TabBarItem className={s.Search} value={search.value} label={search.label ?? "Search"} icon={<SearchIcon />} hideLabel />
         )}
       </TabBarContext.Provider>
@@ -202,7 +224,7 @@ export type TabBarItemProps = {
   onClick?: (event: MouseEvent<HTMLElement>) => void
   /** CSS classes applied to the tab */
   className?: string
-  /** @internal The search tab shows its symbol only. */
+  /** @internal The search and the prominent tab show their symbol only. */
   hideLabel?: boolean
 }
 

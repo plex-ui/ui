@@ -32,27 +32,33 @@ const TABS: Tab[] = [
 const reactIcons = { home: <RHome />, calendar: <RCalendar />, photos: <RImages />, settings: <RSettingsCog /> }
 const vueIcons = { home: Home, calendar: Calendar, photos: Images, settings: SettingsCog }
 
-type Case = Omit<RTabBarProps, "children"> & { tabs?: Tab[] }
+// The prominent tab names its symbol by key: React takes the icon in the prop, Vue in the `prominent-icon` slot.
+type Case = Omit<RTabBarProps, "children" | "prominent"> & { tabs?: Tab[]; prominent?: { value: string; label: string; icon: Tab["icon"] } }
 
-const reactBar = ({ tabs = TABS, ...props }: Case) => (
-  <RTabBar {...props}>
+const reactBar = ({ tabs = TABS, prominent, ...props }: Case) => (
+  <RTabBar {...props} prominent={prominent && { ...prominent, icon: reactIcons[prominent.icon] }}>
     {tabs.map(({ icon, ...tab }) => <RTabBar.Item key={tab.value} {...tab} icon={reactIcons[icon]} />)}
   </RTabBar>
 )
 
 const vueProps = (props: Case) => {
-  const { "aria-label": ariaLabel, onValueChange, onMinimizedChange, ...rest } = props
+  const { "aria-label": ariaLabel, onValueChange, onMinimizedChange, prominent, ...rest } = props
   delete rest.tabs
   return {
     ...rest,
+    ...(prominent && { prominent: { value: prominent.value, label: prominent.label } }),
     ...(ariaLabel !== undefined && { ariaLabel }),
     ...(onValueChange && { onValueChange }),
     ...(onMinimizedChange && { "onUpdate:minimized": onMinimizedChange }),
   }
 }
 
-const vueBar = (props: Case) => h(TabBar, vueProps(props), () =>
-  (props.tabs ?? TABS).map(({ icon, ...tab }) => h(TabBarItem, { key: tab.value, ...tab }, { icon: () => h(vueIcons[icon]) })))
+const vueSlots = (props: Case) => ({
+  "default": () => (props.tabs ?? TABS).map(({ icon, ...tab }) => h(TabBarItem, { key: tab.value, ...tab }, { icon: () => h(vueIcons[icon]) })),
+  ...(props.prominent && { "prominent-icon": () => h(vueIcons[props.prominent!.icon]) }),
+})
+
+const vueBar = (props: Case) => h(TabBar, vueProps(props), vueSlots(props))
 
 const cases: Array<[string, Case]> = [
   ["four tabs, the first selected", { defaultValue: "home" }],
@@ -60,6 +66,11 @@ const cases: Array<[string, Case]> = [
   ["three tabs and search, search selected", { tabs: TABS.slice(0, 3), search: { value: "search" }, defaultValue: "search" }],
   ["a search tab named in its own words", { tabs: TABS.slice(0, 2), search: { value: "find", label: "Find" }, defaultValue: "home" }],
   ["minimized on the second tab", { tabs: TABS.slice(0, 3), search: { value: "search" }, defaultValue: "calendar", defaultMinimized: true }],
+  ["three tabs and a prominent tab, the prominent selected", { tabs: TABS.slice(0, 3), prominent: { value: "library", label: "Library", icon: "photos" }, defaultValue: "library" }],
+  ["a prominent tab and search, search last in the capsule", { tabs: TABS.slice(0, 2), search: { value: "search" }, prominent: { value: "library", label: "Library", icon: "photos" }, defaultValue: "search" }],
+  ["minimized beside a prominent tab", { tabs: TABS.slice(0, 3), prominent: { value: "library", label: "Library", icon: "photos" }, defaultValue: "home", defaultMinimized: true }],
+  ["minimized, the prominent tab selected", { tabs: TABS.slice(0, 3), prominent: { value: "library", label: "Library", icon: "photos" }, defaultValue: "library", defaultMinimized: true }],
+  ["minimized, search selected in the capsule beside a prominent tab", { tabs: TABS.slice(0, 2), search: { value: "search" }, prominent: { value: "library", label: "Library", icon: "photos" }, defaultValue: "search", defaultMinimized: true }],
   ["a link and a disabled tab", { tabs: [{ ...TABS[0], href: "/home" }, { ...TABS[1], disabled: true }, { ...TABS[2], href: "/photos", disabled: true }], defaultValue: "home" }],
   ["named", { "aria-label": "Sections", "defaultValue": "photos" }],
 ]
@@ -132,7 +143,7 @@ const mountVueBar = async (props: Case, mode: Mode = {}): Promise<Mounted> => {
         ...(mode.controlledMinimized && { defaultMinimized: undefined, minimized: isMinimized.value }),
         "onUpdate:value": (next: string) => { values.push(next); if (mode.controlled === "follow") value.value = next },
         "onUpdate:minimized": (next: boolean) => { minimized.push(next); if (mode.controlledMinimized === "follow") isMinimized.value = next },
-      }, () => (props.tabs ?? TABS).map(({ icon, ...tab }) => h(TabBarItem, { key: tab.value, ...tab }, { icon: () => h(vueIcons[icon]) })))
+      }, vueSlots(props))
     },
   })
   mountVue(() => h(Host))
@@ -193,6 +204,20 @@ describe.each(frameworks)("%s TabBar", (_, mount) => {
     expect(bar.tab("calendar").hasAttribute("aria-expanded")).toBe(false)
     expect(bar.minimized).toEqual([false])
     expect(bar.values).toEqual([])
+  })
+
+  test("the prominent tab is a tab of its own, named by its label; search then joins the capsule", async () => {
+    const bar = await mount({ tabs: TABS.slice(0, 2), search: { value: "search" }, prominent: { value: "library", label: "Library", icon: "photos" }, defaultValue: "home" })
+    expect(bar.tab("library").getAttribute("aria-label")).toBe("Library")
+    expect(bar.tab("library").textContent).toBe("")
+    expect(bar.tab("library").querySelector("svg")).not.toBeNull()
+    expect(bar.tab("search").textContent).toBe("Search")
+    expect(bar.tab("search").parentElement).toBe(bar.tab("home").parentElement)
+    expect(bar.bar().hasAttribute("data-prominent")).toBe(true)
+    expect(bar.bar().hasAttribute("data-search")).toBe(false)
+    await click(bar.tab("library"))
+    expect(selected()).toEqual(["library"])
+    expect(bar.values).toEqual(["library"])
   })
 
   test("minimized, search still selects search", async () => {
@@ -314,7 +339,7 @@ describe.each(["React", "Vue"] as const)("%s TabBar in Page", (framework) => {
   })
 })
 
-describe("TabBar tokens follow the iOS 26 kit Tab Bar - iPhone (507:24689)", () => {
+describe("TabBar tokens follow the iOS 26 and 27 kits, Tab Bar - iPhone (507:24689, 3:70967)", () => {
   test("the bar, the capsule, the tabs and the search circle", () => {
     const tokens = read("packages/styles/src/styles/variables-components.css")
     for (const line of [
@@ -322,7 +347,9 @@ describe("TabBar tokens follow the iOS 26 kit Tab Bar - iPhone (507:24689)", () 
       "--tab-bar-gap: 8px;",
       "--tab-bar-padding-top: 12px;",
       "--tab-bar-padding-bottom: max(21px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 13px));",
-      "--tab-bar-minimized-padding-top: 26px;",
+      "--tab-bar-minimized-padding-top: 19px;",
+      "--tab-bar-minimized-gutter: 28px;",
+      "--tab-bar-minimized-padding-bottom: max(28px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 6px));",
       "--tab-bar-capsule-padding-block: 4px;",
       "--tab-bar-capsule-padding-inline: 10px;",
       "--tab-bar-item-width: 94px;",
@@ -345,8 +372,10 @@ describe("TabBar tokens follow the iOS 26 kit Tab Bar - iPhone (507:24689)", () 
     // The capsule sizes itself from 94px tabs and then shrinks them together: 302px for three, 360px for four.
     expect(css).toContain("flex: 0 1 auto;\n    flex-direction: column;")
     expect(css).toContain("width: var(--tab-bar-item-width);")
-    // The search circle carries the glass over the reset of every tab.
-    expect(css).toContain(".Tabs,\n  .Item.Search {")
+    // The search and the prominent circles carry the glass over the reset of every tab.
+    expect(css).toContain(".Tabs,\n  .Item:is(.Search, .Prominent) {")
+    // Minimized, the circles keep 28px from the sides and the bottom of the 95px bar (kit iOS 27).
+    expect(css).toContain("padding: var(--tab-bar-minimized-padding-top) var(--tab-bar-minimized-gutter) var(--tab-bar-minimized-padding-bottom);")
     for (const line of [
       "background-color: var(--mobile-glass-background);",
       "background-image: var(--mobile-glass-sheen);",

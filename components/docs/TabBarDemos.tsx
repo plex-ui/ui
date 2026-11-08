@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from 'react';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { Calendar, Home, Images, SettingsCog } from '@plexui/ui/components/Icon';
+import { Calendar, Home, Images, SettingsCog, ShoppingBag } from '@plexui/ui/components/Icon';
 import { Page } from '@plexui/ui/components/Page';
 import { TabBar } from '@plexui/ui/components/TabBar';
 import { Toolbar, type BarBackground } from '@plexui/ui/components/Toolbar';
@@ -33,9 +33,11 @@ function Rows({ label }: { label: string }) {
   );
 }
 
-function Screen({ tabs, search, minimize = false, background }: { tabs: typeof TABS; search?: boolean; minimize?: boolean; background?: BarBackground }) {
+const BAG = { value: 'bag', label: 'Bag', icon: <ShoppingBag /> };
+
+function Screen({ tabs, search, prominent, minimize = false, background }: { tabs: typeof TABS; search?: boolean; prominent?: boolean; minimize?: boolean; background?: BarBackground }) {
   const [tab, setTab] = useState(tabs[0].value);
-  const title = tab === 'search' ? 'Search' : tabs.find((item) => item.value === tab)?.label ?? '';
+  const title = tab === 'search' ? 'Search' : [...tabs, BAG].find((item) => item.value === tab)?.label ?? '';
   return (
     <Frame>
       <Page surface="grouped">
@@ -49,6 +51,7 @@ function Screen({ tabs, search, minimize = false, background }: { tabs: typeof T
           value={tab}
           onValueChange={setTab}
           search={search ? { value: 'search' } : undefined}
+          prominent={prominent ? BAG : undefined}
           minimizeBehavior={minimize ? 'onScrollDown' : 'never'}
           background={background}
         >
@@ -65,6 +68,10 @@ export function TabBarOverviewDemo() {
 
 export function TabBarSearchDemo() {
   return <Screen tabs={TABS.slice(0, 3)} search />;
+}
+
+export function TabBarProminentDemo() {
+  return <Screen tabs={TABS.slice(0, 3)} prominent />;
 }
 
 export function TabBarMinimizeDemo() {

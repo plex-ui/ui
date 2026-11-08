@@ -1080,7 +1080,7 @@ Props:
 Examples: Overview, Label and description, Controlled state, Grouped settings
 
 ## Tab Bar
-"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
+"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
 Import: import { TabBar } from "@plexui/ui/components/TabBar"
 Docs: https://plexui.com/components/tab-bar
 Props:
@@ -1088,6 +1088,7 @@ Props:
   - defaultValue (string) — Selected tab (uncontrolled)
   - onValueChange ((value: string) => void) — Called with the value of the tab a person selects
   - search ({ value: string; label?: string }) — A search tab in a glass circle of its own at the trailing end; label defaults to Search
+  - prominent ({ value: string; label: string; icon: ReactNode }) — A prominent tab in a glass circle of its own at the trailing end, in place of the search circle; search then joins the capsule
   - minimizeBehavior ("never" | "onScrollDown") default: "never" — Minimize to the selected tab while the Page content scrolls down
   - minimized (boolean) — Controlled minimized state
   - defaultMinimized (boolean) default: false — Minimized state (uncontrolled)
@@ -1103,7 +1104,7 @@ Props:
     - disabled (boolean) default: false — The tab cannot be selected
     - onClick ((event: MouseEvent) => void) — Called when the tab is pressed, before it is selected
     - className (string) — CSS classes applied to the tab
-Examples: Overview, Search tab, Minimize on scroll, Background
+Examples: Overview, Search tab, Prominent tab, Minimize on scroll, Background
 
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.

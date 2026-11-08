@@ -762,7 +762,11 @@
     --tab-bar-gap: 8px;
     --tab-bar-padding-top: 12px;
     --tab-bar-padding-bottom: max(21px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 13px));
-    --tab-bar-minimized-padding-top: 26px;
+    /* Minimized, the circles keep 28px from the sides and the bottom (kit iOS 27, Tab Bar - iPhone 3:70967,
+       Minimized=True; 21 in the iOS 26 kit), and the bar keeps its 95px so the Page under it does not move. */
+    --tab-bar-minimized-padding-top: 19px;
+    --tab-bar-minimized-gutter: 28px;
+    --tab-bar-minimized-padding-bottom: max(28px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 6px));
     --tab-bar-capsule-padding-block: 4px;
     --tab-bar-capsule-padding-inline: 10px;
     --tab-bar-item-width: 94px;

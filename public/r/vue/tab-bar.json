@@ -3,7 +3,7 @@
   "name": "tab-bar",
   "type": "registry:ui",
   "title": "Tab Bar",
-  "description": "\"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up.\"",
+  "description": "\"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up.\"",
   "dependencies": [
     "@plexui/vue"
   ],

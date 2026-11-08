@@ -8329,7 +8329,7 @@ Group related settings with FieldGroup. Use a row description to explain a locke
 ```
 
 ## Tab Bar
-"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
+"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
 Import: import { TabBar } from "@plexui/ui/components/TabBar"
 Docs: https://plexui.com/components/tab-bar
 Props:
@@ -8337,6 +8337,7 @@ Props:
   - defaultValue (string) — Selected tab (uncontrolled)
   - onValueChange ((value: string) => void) — Called with the value of the tab a person selects
   - search ({ value: string; label?: string }) — A search tab in a glass circle of its own at the trailing end; label defaults to Search
+  - prominent ({ value: string; label: string; icon: ReactNode }) — A prominent tab in a glass circle of its own at the trailing end, in place of the search circle; search then joins the capsule
   - minimizeBehavior ("never" | "onScrollDown") default: "never" — Minimize to the selected tab while the Page content scrolls down
   - minimized (boolean) — Controlled minimized state
   - defaultMinimized (boolean) default: false — Minimized state (uncontrolled)
@@ -8382,8 +8383,22 @@ With search the search tab takes a glass circle of its own at the trailing end, 
 </TabBar>
 ```
 
+### Prominent tab
+With prominent one destination leaves the capsule for a glass circle of its own at the trailing end, as the prominent tab of iOS 27 and its kit: one key destination, such as a cart or a library. It is still a tab, not an action: it shows a screen of its own when selected. A bar has one such circle, so prominent takes the place of the search circle; with both, search becomes the last tab of the capsule. The circle shows the symbol only, and label names the tab.
+```tsx
+<TabBar
+value={tab}
+onValueChange={setTab}
+prominent={{ value: 'bag', label: 'Bag', icon: <ShoppingBag /> }}
+>
+<TabBar.Item value="home" label="Home" icon={<Home />} />
+<TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
+<TabBar.Item value="photos" label="Photos" icon={<Images />} />
+</TabBar>
+```
+
 ### Minimize on scroll
-With minimizeBehavior="onScrollDown" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Tap the minimized tab to bring the others back.
+With minimizeBehavior="onScrollDown" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Minimized, the circles keep 28px from the sides and at least 28px from the bottom, as in the iOS 27 kit. Tap the minimized tab to bring the others back.
 ```tsx
 <TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }} minimizeBehavior="onScrollDown">
 ...

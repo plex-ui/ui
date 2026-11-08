@@ -6337,7 +6337,7 @@
     {
       "slug": "tab-bar",
       "name": "Tab Bar",
-      "description": "\"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up.\"",
+      "description": "\"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up.\"",
       "importPath": "@plexui/ui/components/TabBar",
       "exports": [
         "TabBar"
@@ -6362,6 +6362,11 @@
           "name": "search",
           "type": "{ value: string; label?: string }",
           "description": "A search tab in a glass circle of its own at the trailing end; label defaults to Search"
+        },
+        {
+          "name": "prominent",
+          "type": "{ value: string; label: string; icon: ReactNode }",
+          "description": "A prominent tab in a glass circle of its own at the trailing end, in place of the search circle; search then joins the capsule"
         },
         {
           "name": "minimizeBehavior",
@@ -6415,9 +6420,14 @@
           "details": "With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. The capsule of the other tabs keeps to the leading end at their width, as in the kit and in Photos: with two tabs it ends well before the circle, with three it reaches 8px from it. It is a tab like the others: show the search screen when its value is selected."
         },
         {
+          "name": "Prominent tab",
+          "code": "<TabBar\nvalue={tab}\nonValueChange={setTab}\nprominent={{ value: 'bag', label: 'Bag', icon: <ShoppingBag /> }}\n>\n<TabBar.Item value=\"home\" label=\"Home\" icon={<Home />} />\n<TabBar.Item value=\"calendar\" label=\"Calendar\" icon={<Calendar />} />\n<TabBar.Item value=\"photos\" label=\"Photos\" icon={<Images />} />\n</TabBar>",
+          "details": "With prominent one destination leaves the capsule for a glass circle of its own at the trailing end, as the prominent tab of iOS 27 and its kit: one key destination, such as a cart or a library. It is still a tab, not an action: it shows a screen of its own when selected. A bar has one such circle, so prominent takes the place of the search circle; with both, search becomes the last tab of the capsule. The circle shows the symbol only, and label names the tab."
+        },
+        {
           "name": "Minimize on scroll",
           "code": "<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }} minimizeBehavior=\"onScrollDown\">\n...\n</TabBar>",
-          "details": "With minimizeBehavior=\"onScrollDown\" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Tap the minimized tab to bring the others back."
+          "details": "With minimizeBehavior=\"onScrollDown\" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Minimized, the circles keep 28px from the sides and at least 28px from the bottom, as in the iOS 27 kit. Tap the minimized tab to bring the others back."
         },
         {
           "name": "Background",
@@ -7733,5 +7743,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T22:10:19.685Z"
+  "generatedAt": "2026-11-08T22:21:49.261Z"
 }

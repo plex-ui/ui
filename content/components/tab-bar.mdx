@@ -1,12 +1,13 @@
 ---
 title: Tab Bar
-description: "The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
+description: "The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
 metaDescription: "React phone tab bar in the iOS 26 style: a floating Liquid Glass capsule of tabs with symbols and labels, a selection pill, a separate search tab and minimize on scroll, inside a Page."
 ---
 
 import {
   TabBarOverviewDemo,
   TabBarSearchDemo,
+  TabBarProminentDemo,
   TabBarMinimizeDemo,
   TabBarBackgroundDemo,
 } from "@/components/docs/TabBarDemos"
@@ -48,9 +49,23 @@ Each example shows the phone view.
   <TabBarSearchDemo />
 </ComponentPreview>
 
+### Prominent tab
+
+<ComponentPreview phoneOnly details={<>With <code>prominent</code> one destination leaves the capsule for a glass circle of its own at the trailing end, as the prominent tab of iOS 27 and its kit: one key destination, such as a cart or a library. It is still a tab, not an action: it shows a screen of its own when selected. A bar has one such circle, so <code>prominent</code> takes the place of the search circle; with both, search becomes the last tab of the capsule. The circle shows the symbol only, and <code>label</code> names the tab.</>} code={`<TabBar
+  value={tab}
+  onValueChange={setTab}
+  prominent={{ value: 'bag', label: 'Bag', icon: <ShoppingBag /> }}
+>
+  <TabBar.Item value="home" label="Home" icon={<Home />} />
+  <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
+  <TabBar.Item value="photos" label="Photos" icon={<Images />} />
+</TabBar>`}>
+  <TabBarProminentDemo />
+</ComponentPreview>
+
 ### Minimize on scroll
 
-<ComponentPreview phoneOnly details={<>With <code>minimizeBehavior="onScrollDown"</code> the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Tap the minimized tab to bring the others back.</>} code={`<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }} minimizeBehavior="onScrollDown">
+<ComponentPreview phoneOnly details={<>With <code>minimizeBehavior="onScrollDown"</code> the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Minimized, the circles keep 28px from the sides and at least 28px from the bottom, as in the iOS 27 kit. Tap the minimized tab to bring the others back.</>} code={`<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }} minimizeBehavior="onScrollDown">
   ...
 </TabBar>`}>
   <TabBarMinimizeDemo />
@@ -77,6 +92,7 @@ Each example shows the phone view.
   { prop: "defaultValue", type: "string", description: "Selected tab (uncontrolled)" },
   { prop: "onValueChange", type: "(value: string) => void", description: "Called with the value of the tab a person selects" },
   { prop: "search", type: "{ value: string; label?: string }", description: "A search tab in a glass circle of its own at the trailing end; label defaults to Search" },
+  { prop: "prominent", type: "{ value: string; label: string; icon: ReactNode }", description: "A prominent tab in a glass circle of its own at the trailing end, in place of the search circle; search then joins the capsule" },
   { prop: "minimizeBehavior", type: '"never" | "onScrollDown"', default: '"never"', description: "Minimize to the selected tab while the Page content scrolls down" },
   { prop: "minimized", type: "boolean", description: "Controlled minimized state" },
   { prop: "defaultMinimized", type: "boolean", default: "false", description: "Minimized state (uncontrolled)" },
@@ -98,19 +114,20 @@ Each example shows the phone view.
   { prop: "className", type: "string", description: "CSS classes applied to the tab" },
 ]} />
 
-The bar is a `nav` named Tabs. Each tab is a button, or a link with `href`, and the selected one has `aria-current="page"`; every tab is a stop for the Tab key. The search tab is named by its label. Minimized, the tab that stays has `aria-expanded="false"`: pressing it brings the other tabs back.
+The bar is a `nav` named Tabs. Each tab is a button, or a link with `href`, and the selected one has `aria-current="page"`; every tab is a stop for the Tab key. The search tab and the prominent tab are named by their label. Minimized, the selected tab that stays in the capsule has `aria-expanded="false"`: pressing it brings the other tabs back. When the search or the prominent tab is the selected one, the capsule keeps its first tab, and pressing that tab selects it.
 
 ## Styling
 
 TabBar reads these component tokens. Override them at any scope to restyle it:
 
 - `--tab-bar-gutter`, `--tab-bar-gap`: space at the sides and between the capsule and the search circle (default `21px`, `8px`)
-- `--tab-bar-padding-top`, `--tab-bar-padding-bottom`, `--tab-bar-minimized-padding-top`: space above and below the capsule (default `12px`, `21px` or the safe area, `26px`)
+- `--tab-bar-padding-top`, `--tab-bar-padding-bottom`: space above and below the capsule (default `12px`, `21px` or the safe area)
+- `--tab-bar-minimized-padding-top`, `--tab-bar-minimized-gutter`, `--tab-bar-minimized-padding-bottom`: space around the minimized circles (default `19px`, `28px`, `28px` or the safe area)
 - `--tab-bar-capsule-padding-block`, `--tab-bar-capsule-padding-inline`: the capsule around the tabs (default `4px`, `10px`)
 - `--tab-bar-item-width`, `--tab-bar-item-height`, `--tab-bar-pill-outset`: the widest tab, its height and how far the pill reaches past it (default `94px`, `54px`, `6px`)
 - `--tab-bar-icon-box`, `--tab-bar-icon-size`: the line of the symbol and the icon (default `28px`, `24px`)
 - `--tab-bar-label-font-size`, `--tab-bar-label-line-height`, `--tab-bar-label-font-weight`: the label (default `10px`, `12px`, semibold)
-- `--tab-bar-search-size`, `--tab-bar-minimized-size`: the search circle and the minimized circles (default `62px`, `48px`)
+- `--tab-bar-search-size`, `--tab-bar-minimized-size`: the search or prominent circle and the minimized circles (default `62px`, `48px`)
 - `--tab-bar-item-color`, `--tab-bar-item-color-selected`, `--tab-bar-item-color-minimized`: tab colors (default `light-dark(var(--gray-750), var(--gray-850))`, `var(--color-text)`, `var(--color-text)`)
 - `--tab-bar-item-background-selected`: the selection pill (default `var(--alpha-08)`)
 - The capsule and the circles use the shared mobile glass: `--mobile-glass-background`, `--mobile-glass-sheen`, `--mobile-glass-shadow-raised` and `--mobile-glass-backdrop-filter`.

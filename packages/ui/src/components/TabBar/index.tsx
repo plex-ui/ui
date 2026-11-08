@@ -1,1 +1,1 @@
-export { TabBar, type TabBarItemProps, type TabBarProps, type TabBarSearch } from "./TabBar"
+export { TabBar, type TabBarItemProps, type TabBarProminent, type TabBarProps, type TabBarSearch } from "./TabBar"

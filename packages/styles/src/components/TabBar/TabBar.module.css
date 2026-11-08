@@ -70,22 +70,24 @@
       display: none;
     }
 
-    /* With a search tab, or minimized, the capsule keeps to the leading edge and search to the trailing one. */
+    /* With a search or a prominent tab, or minimized, the capsule keeps to the leading edge and the circle of
+       its own to the trailing one. */
     &[data-search],
+    &[data-prominent],
     &[data-minimized] {
       justify-content: space-between;
     }
 
     &[data-minimized] {
-      padding-top: var(--tab-bar-minimized-padding-top);
+      padding: var(--tab-bar-minimized-padding-top) var(--tab-bar-minimized-gutter) var(--tab-bar-minimized-padding-bottom);
     }
   }
 
   /* The glass capsule (Liquid Glass Regular, the shared mobile glass with its raised shadow). Tabs are 94px
      apart at most and share the width when there are more: four or five fill 360px, three take 302. The search
-     circle names both classes to outrank the reset of `.Item`. */
+     and prominent circles name both classes to outrank the reset of `.Item`. */
   .Tabs,
-  .Item.Search {
+  .Item:is(.Search, .Prominent) {
     border-radius: var(--radius-full);
     background-color: var(--mobile-glass-background);
     background-image: var(--mobile-glass-sheen);
@@ -188,8 +190,9 @@
     white-space: nowrap;
   }
 
-  /* The separate search tab: a 62px glass circle, its pill 54. */
-  .Item.Search {
+  /* The separate search tab, and the prominent tab of the iOS 27 kit (Type=Prominent Tab): a 62px glass circle,
+     its pill 54. */
+  .Item:is(.Search, .Prominent) {
     flex: none;
     justify-content: center;
     width: var(--tab-bar-search-size);
@@ -201,8 +204,8 @@
     }
   }
 
-  /* Minimized: the capsule is a 48px circle with the selected tab's symbol in the primary label, and search a
-     48px circle too; the other tabs hide. Both circles keep their bottom edge. */
+  /* Minimized: the capsule is a 48px circle with the selected tab's symbol in the primary label, and search or
+     the prominent tab a 48px circle too; the other tabs hide. */
   .TabBar[data-minimized] {
     & .Tabs {
       flex: none;
@@ -238,7 +241,7 @@
       white-space: nowrap;
     }
 
-    & .Item.Search {
+    & .Item:is(.Search, .Prominent) {
       width: var(--tab-bar-minimized-size);
       height: var(--tab-bar-minimized-size);
     }

@@ -1074,13 +1074,14 @@ Props:
 Examples: Overview, Label and description, Controlled state, Grouped settings
 
 ## Tab Bar
-"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
+"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
 Import: import { TabBar, TabBarItem } from "@plexui/vue/components/TabBar"
 Docs: https://plexui.com/vue/components/tab-bar
 Props:
   - value (string) — Controlled value of the selected tab; bind with v-model:value
   - default-value (string) — Selected tab (uncontrolled)
   - search ({ value: string; label?: string }) — A search tab in a glass circle of its own at the trailing end; label defaults to Search
+  - prominent ({ value: string; label: string }) — A prominent tab in a glass circle of its own at the trailing end, in place of the search circle; its symbol is the prominent-icon slot, and search then joins the capsule
   - minimize-behavior ("never" | "onScrollDown") default: "never" — Minimize to the selected tab while the Page content scrolls down
   - minimized (boolean) — Controlled minimized state; bind with v-model:minimized
   - default-minimized (boolean) default: false — Minimized state (uncontrolled)
@@ -1091,7 +1092,7 @@ Props:
     - label (string) — Label under the symbol and the name of the tab
     - href (string) — Makes the tab a link
     - disabled (boolean) default: false — The tab cannot be selected
-Examples: Overview, Search tab, Minimize on scroll, Background
+Examples: Overview, Search tab, Prominent tab, Minimize on scroll, Background
 
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.

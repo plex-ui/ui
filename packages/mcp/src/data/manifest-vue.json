@@ -6356,7 +6356,7 @@
     {
       "slug": "tab-bar",
       "name": "Tab Bar",
-      "description": "\"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up.\"",
+      "description": "\"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up.\"",
       "importPath": "@plexui/vue/components/TabBar",
       "exports": [
         "TabBar",
@@ -6377,6 +6377,11 @@
           "name": "search",
           "type": "{ value: string; label?: string }",
           "description": "A search tab in a glass circle of its own at the trailing end; label defaults to Search"
+        },
+        {
+          "name": "prominent",
+          "type": "{ value: string; label: string }",
+          "description": "A prominent tab in a glass circle of its own at the trailing end, in place of the search circle; its symbol is the prominent-icon slot, and search then joins the capsule"
         },
         {
           "name": "minimize-behavior",
@@ -6420,9 +6425,14 @@
           "details": "With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. The capsule of the other tabs keeps to the leading end at their width, as in the kit and in Photos: with two tabs it ends well before the circle, with three it reaches 8px from it. It is a tab like the others: show the search screen when its value is selected."
         },
         {
+          "name": "Prominent tab",
+          "code": "<TabBar v-model:value=\"tab\" :prominent=\"{ value: 'bag', label: 'Bag' }\">\n  <TabBarItem value=\"home\" label=\"Home\">\n    <template #icon><Home /></template>\n  </TabBarItem>\n  <TabBarItem value=\"calendar\" label=\"Calendar\">\n    <template #icon><Calendar /></template>\n  </TabBarItem>\n  <TabBarItem value=\"photos\" label=\"Photos\">\n    <template #icon><Images /></template>\n  </TabBarItem>\n  <template #prominent-icon><ShoppingBag /></template>\n</TabBar>",
+          "details": "With prominent one destination leaves the capsule for a glass circle of its own at the trailing end, as the prominent tab of iOS 27 and its kit: one key destination, such as a cart or a library. It is still a tab, not an action: it shows a screen of its own when selected. A bar has one such circle, so prominent takes the place of the search circle; with both, search becomes the last tab of the capsule. The circle shows the symbol from the prominent-icon slot only, and label names the tab."
+        },
+        {
           "name": "Minimize on scroll",
           "code": "<TabBar v-model:value=\"tab\" :search=\"{ value: 'search' }\" minimize-behavior=\"onScrollDown\">\n  ...\n</TabBar>",
-          "details": "With minimize-behavior=\"onScrollDown\" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Tap the minimized tab to bring the others back."
+          "details": "With minimize-behavior=\"onScrollDown\" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Minimized, the circles keep 28px from the sides and at least 28px from the bottom, as in the iOS 27 kit. Tap the minimized tab to bring the others back."
         },
         {
           "name": "Background",
@@ -7718,5 +7728,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T22:10:20.696Z"
+  "generatedAt": "2026-11-08T22:21:52.219Z"
 }

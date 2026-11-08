@@ -39,6 +39,14 @@ export type TabBarSearch = {
   label?: string
 }
 
+/** The prominent tab of a `TabBar`; its symbol is the `prominent-icon` slot of the bar (React `prominent.icon`). */
+export type TabBarProminent = {
+  /** The value of the prominent tab. */
+  value: string
+  /** Accessible name of the prominent tab: its circle shows the symbol only. */
+  label: string
+}
+
 const TabBarItemComponent = defineComponent({
   name: "TabBarItem",
   inheritAttrs: false,
@@ -51,7 +59,7 @@ const TabBarItemComponent = defineComponent({
     href: String,
     /** When `true`, the tab cannot be selected. */
     disabled: { type: Boolean, default: false },
-    /** @internal The search tab shows its symbol only. */
+    /** @internal The search and the prominent tab show their symbol only. */
     hideLabel: { type: Boolean, default: false },
   },
   emits: {
@@ -110,6 +118,13 @@ const TabBarComponent = defineComponent({
     defaultValue: { type: String, default: undefined },
     /** A search tab in a glass circle of its own at the trailing end, as the iOS 26 separate search tab. */
     search: { type: Object as PropType<TabBarSearch>, default: undefined },
+    /**
+     * The one destination the app lifts out of the capsule, a cart or a library, in a glass circle of its own at
+     * the trailing end, as the iOS 27 prominent tab role; its symbol is the `prominent-icon` slot. It takes the
+     * circle of the search tab: with both, search is the last tab of the capsule, as iOS gives search that place
+     * only when no other tab is prominent.
+     */
+    prominent: { type: Object as PropType<TabBarProminent>, default: undefined },
     /**
      * `onScrollDown` minimizes the bar to the selected tab while the content of the `Page` scrolls down and
      * expands it when the content scrolls back up; a tap on the minimized tab expands it too. @default "never"
@@ -203,12 +218,20 @@ const TabBarComponent = defineComponent({
       "data-background": props.background,
       "data-content-below": host?.contentBelow?.value ? "" : undefined,
       "data-minimized": minimized.value ? "" : undefined,
-      "data-search": props.search ? "" : undefined,
+      "data-search": props.search && !props.prominent ? "" : undefined,
+      "data-prominent": props.prominent ? "" : undefined,
     }, [
-      h("div", { class: s.Tabs }, slots.default?.()),
-      props.search
-        ? h(TabBarItem, { class: s.Search, value: props.search.value, label: props.search.label ?? "Search", hideLabel: true }, { icon: () => h(SearchIcon) })
-        : null,
+      h("div", { class: s.Tabs }, [
+        slots.default?.(),
+        props.search && props.prominent
+          ? h(TabBarItem, { value: props.search.value, label: props.search.label ?? "Search" }, { icon: () => h(SearchIcon) })
+          : null,
+      ]),
+      props.prominent
+        ? h(TabBarItem, { class: s.Prominent, value: props.prominent.value, label: props.prominent.label, hideLabel: true }, { icon: () => slots["prominent-icon"]?.() })
+        : props.search
+          ? h(TabBarItem, { class: s.Search, value: props.search.value, label: props.search.label ?? "Search", hideLabel: true }, { icon: () => h(SearchIcon) })
+          : null,
     ])
   },
 })
@@ -219,7 +242,7 @@ export type TabBarProps = InstanceType<typeof TabBarComponent>["$props"]
 /**
  * The tab bar of a phone screen after the iOS 26 kit Tab Bar - iPhone (507:24689): two to five tabs, each a
  * symbol over a label, in a floating glass capsule at the bottom, the selected tab on a pill, and an optional
- * search tab in a circle of its own. It minimizes to the selected tab while the content scrolls down. A desktop
- * layout navigates with a Sidebar or Tabs, so the bar never renders from 768px up.
+ * search or prominent tab in a circle of its own. It minimizes to the selected tab while the content scrolls
+ * down. A desktop layout navigates with a Sidebar or Tabs, so the bar never renders from 768px up.
  */
 export const TabBar = TabBarComponent
