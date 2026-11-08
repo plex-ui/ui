@@ -445,6 +445,10 @@
      The title fades out over 8px as it passes under the row; the soft edge then covers the row only,
      as it does for an inline title. */
   .Toolbar[data-host="page"][data-title-style="large"] {
+    /* Until the Toolbar has measured how far the title travels (a server-rendered page before it hydrates), the
+       title has not gone: the large title shows, and the row's inline copy and the bar's line stay hidden. A
+       travel of 0 showed the inline title in the row for the first frames, then swapped it for the large one. */
+    --toolbar-large-title-travel: 100000;
     --toolbar-edge-blur: var(--toolbar-edge-blur-small);
     --toolbar-large-title-scroll: calc(min(var(--page-scroll-y, 0), var(--toolbar-large-title-travel, 0) + 16) * 1px);
     grid-template-areas:

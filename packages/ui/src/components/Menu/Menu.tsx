@@ -196,6 +196,35 @@ export type MenuItemProps = {
   danger?: boolean
 }
 
+// An icon is a component, an svg or an img; text and text elements (strong, kbd) belong to the label.
+const isLeadingIcon = (part: ReactNode) =>
+  React.isValidElement(part) && (typeof part.type !== "string" || part.type === "svg" || part.type === "img")
+
+/**
+ * A described row: the label over its description. Icons that lead the label stay beside the two lines, centred on
+ * both, as iOS draws Sort By with its order under it (Reminders); a row of icons alone stacks whole.
+ */
+// A row's own children, fragments opened up as Vue's slots are, keyed again by place
+const flattenRow = (children: ReactNode): ReactNode[] =>
+  React.Children.toArray(children).flatMap((part) =>
+    React.isValidElement<{ children?: ReactNode }>(part) && part.type === React.Fragment ? flattenRow(part.props.children) : [part])
+
+const describedRow = (children: ReactNode, description: ReactNode) => {
+  const parts = flattenRow(children).map((part, index) => (React.isValidElement(part) ? React.cloneElement(part, { key: index }) : part))
+  const label = parts.findIndex((part) => !isLeadingIcon(part))
+  const lead = label > 0 ? parts.slice(0, label) : []
+  return (
+    <>
+      {lead}
+      <div className={s.ItemLeading}>
+        <div>{lead.length > 0 ? parts.slice(label) : children}</div>
+        {/* Not part of the label a phone submenu heads itself with */}
+        <div className={s.ItemDescription} data-menu-description="">{description}</div>
+      </div>
+    </>
+  )
+}
+
 const Item = ({ className, children, description, disabled, danger, onSelect, onClick }: MenuItemProps) => {
   const { open } = useMenuContext()
 
@@ -210,15 +239,7 @@ const Item = ({ className, children, description, disabled, danger, onSelect, on
 
   // A described item stacks its two lines; without a description the item
   // keeps the plain flex row that icons and ItemActions rely on.
-  const content =
-    description === undefined ? (
-      children
-    ) : (
-      <div className={s.ItemLeading}>
-        <div>{children}</div>
-        <div className={s.ItemDescription}>{description}</div>
-      </div>
-    )
+  const content = rendersContent(description) ? describedRow(children, description) : children
 
   // Custom click handlers: either callback makes the item interactive
   if (onSelect || onClick) {
@@ -705,10 +726,16 @@ const Sub = ({ children, forceOpen, onOpen, onClose }: SubmenuProps) => {
 const SubTrigger = ({
   className,
   children,
+  description,
   disabled,
 }: {
   className?: string
   children: ReactNode
+  /**
+   * Second line under the label: what the submenu has chosen, as Reminders shows "Manual" under Sort By. It stacks
+   * as an Item's description does; icons before the label stay beside both lines.
+   */
+  description?: ReactNode
   disabled?: boolean
 }) => {
   const { open } = useMenuContext()
@@ -736,7 +763,7 @@ const SubTrigger = ({
       onPointerLeave={handlePreventAfterClose}
     >
       <div className={s.PressableInner}>
-        {children}
+        {rendersContent(description) ? describedRow(children, description) : children}
         <ChevronRight width="16" height="16" className={s.SubTriggerIcon} />
       </div>
     </DropdownMenu.SubTrigger>
@@ -897,6 +924,11 @@ export type MenuRadioItemProps<T extends string> = {
   /** Class applied to the radio item */
   className?: string
   children: ReactNode
+  /**
+   * Second line under the label, as iOS shows the order of the chosen sort (Files: "Newest to Oldest" under Date). It
+   * stacks as an Item's description does.
+   */
+  description?: ReactNode
   /** Callback triggered when the radio item is pressed */
   onSelect?: DropdownMenu.DropdownMenuItemProps["onSelect"]
   /** Disables the radio item */
@@ -907,7 +939,7 @@ const preventTouchHover = (event: React.PointerEvent) => {
   if (!isHoverPointer(event)) event.preventDefault()
 }
 
-const RadioItem = <T extends string>({ className, children, ...props }: MenuRadioItemProps<T>) => (
+const RadioItem = <T extends string>({ className, children, description, ...props }: MenuRadioItemProps<T>) => (
   <DropdownMenu.RadioItem
     className={clsx(s.MenuItem, s.RadioItem, className)}
     {...props}
@@ -920,7 +952,7 @@ const RadioItem = <T extends string>({ className, children, ...props }: MenuRadi
           <Check className={s.SelectionCheck} />
         </DropdownMenu.ItemIndicator>
       </div>
-      {children}
+      {rendersContent(description) ? describedRow(children, description) : children}
     </div>
   </DropdownMenu.RadioItem>
 )

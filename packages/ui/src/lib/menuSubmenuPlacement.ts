@@ -99,6 +99,8 @@ function visibleText(element: Element, includeHidden = false): string {
   // Explicit aria-labelledby targets can supply a name while visually hidden.
   if (!includeHidden && (element.hasAttribute("hidden") || element.getAttribute("aria-hidden") === "true")) return ""
   if (["SCRIPT", "STYLE", "TEMPLATE"].includes(element.tagName)) return ""
+  // A row's second line (Sort By over "Manual") is its value, not its name
+  if (element.hasAttribute("data-menu-description")) return ""
   const style = view.getComputedStyle(element)
   if (!includeHidden && (style.display === "none" || style.visibility === "hidden" || style.visibility === "collapse")) return ""
   const ownLabel = element.getAttribute("aria-label")

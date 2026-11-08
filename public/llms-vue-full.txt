@@ -5825,21 +5825,47 @@ Props:
     - disabled (boolean) default: false — Disable the item
 
 ### Overview
-An item takes an icon before its label; icons shows the actions with them, while the name and email above them stay plain text, without an icon. pill on MenuContent makes a rounder list with fully rounded rows, for menus beside pill controls. On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out width, min-width and size. A pill menu is the same panel there, so the phone view leaves out pill.
+A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (description) while it is the chosen sort, and Group By in a submenu. Turn off icons for the same menu in plain text, and checkmarks for the folder's actions alone, a shorter menu with no checkmark column. pill on MenuContent makes a rounder list with fully rounded rows, for menus beside pill controls. On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out width, min-width and size. A pill menu is the same panel there, so the phone view leaves out pill.
 ```vue
 <!-- Desktop -->
 <Menu>
   <MenuTrigger>
-    <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
+    <Button color="primary" size="lg" variant="ghost">Downloads <ChevronDownMd /></Button>
   </MenuTrigger>
-  <MenuContent :width="210" :min-width="210" :pill="pill">
-    <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
+  <MenuContent :min-width="220" :pill="pill">
+    <MenuItem @select="() => {}"><CheckCircle v-if="icons" /> Select</MenuItem>
+    <MenuItem @select="() => {}"><FolderPlus v-if="icons" /> New Folder</MenuItem>
+    <MenuItem @select="() => {}"><FileDocument v-if="icons" /> Scan Documents</MenuItem>
+    <MenuItem @select="() => {}"><Desktop v-if="icons" /> Connect to Server</MenuItem>
     <MenuSeparator />
-    <MenuItem @select="() => {}"><ProfileCard v-if="icons" /> Your profile</MenuItem>
-    <MenuItem @select="() => {}"><Terms v-if="icons" /> Terms & policies</MenuItem>
-    <MenuItem disabled @select="() => {}"><Flask v-if="icons" /> Feature flags</MenuItem>
-    <MenuSeparator />
-    <MenuItem @select="() => {}"><Logout v-if="icons" /> Logout</MenuItem>
+    <template v-if="checkmarks">
+      <MenuRadioGroup v-model:value="view">
+        <MenuRadioItem value="icons"><VideoGrid v-if="icons" /> Icons</MenuRadioItem>
+        <MenuRadioItem value="list"><List v-if="icons" /> List</MenuRadioItem>
+      </MenuRadioGroup>
+      <MenuSeparator />
+      <MenuRadioGroup v-model:value="sort">
+        <MenuRadioItem value="name">Name</MenuRadioItem>
+        <MenuRadioItem value="kind">Kind</MenuRadioItem>
+        <MenuRadioItem value="date" :description="sort === 'date' ? 'Newest to Oldest' : undefined">Date</MenuRadioItem>
+        <MenuRadioItem value="size">Size</MenuRadioItem>
+        <MenuRadioItem value="tags">Tags</MenuRadioItem>
+      </MenuRadioGroup>
+      <MenuSeparator />
+      <MenuSub>
+        <MenuSubTrigger>Group By</MenuSubTrigger>
+        <MenuSubContent>
+          <MenuRadioGroup v-model:value="group">
+            <MenuRadioItem value="none">None</MenuRadioItem>
+            <MenuRadioItem value="kind">Kind</MenuRadioItem>
+            <MenuRadioItem value="date">Date</MenuRadioItem>
+            <MenuRadioItem value="size">Size</MenuRadioItem>
+            <MenuRadioItem value="shared">Shared by</MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuSubContent>
+      </MenuSub>
+    </template>
+    <MenuItem @select="() => {}">View Options</MenuItem>
   </MenuContent>
 </Menu>
 
@@ -5852,13 +5878,39 @@ An item takes an icon before its label; icons shows the actions with them, while
         <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
       </MenuTrigger>
       <MenuContent align="end">
-        <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
+        <MenuItem @select="() => {}"><CheckCircle v-if="icons" /> Select</MenuItem>
+        <MenuItem @select="() => {}"><FolderPlus v-if="icons" /> New Folder</MenuItem>
+        <MenuItem @select="() => {}"><FileDocument v-if="icons" /> Scan Documents</MenuItem>
+        <MenuItem @select="() => {}"><Desktop v-if="icons" /> Connect to Server</MenuItem>
         <MenuSeparator />
-        <MenuItem @select="() => {}"><ProfileCard v-if="icons" /> Your profile</MenuItem>
-        <MenuItem @select="() => {}"><Terms v-if="icons" /> Terms & policies</MenuItem>
-        <MenuItem disabled @select="() => {}"><Flask v-if="icons" /> Feature flags</MenuItem>
-        <MenuSeparator />
-        <MenuItem @select="() => {}"><Logout v-if="icons" /> Logout</MenuItem>
+        <template v-if="checkmarks">
+          <MenuRadioGroup v-model:value="view">
+            <MenuRadioItem value="icons"><VideoGrid v-if="icons" /> Icons</MenuRadioItem>
+            <MenuRadioItem value="list"><List v-if="icons" /> List</MenuRadioItem>
+          </MenuRadioGroup>
+          <MenuSeparator />
+          <MenuRadioGroup v-model:value="sort">
+            <MenuRadioItem value="name">Name</MenuRadioItem>
+            <MenuRadioItem value="kind">Kind</MenuRadioItem>
+            <MenuRadioItem value="date" :description="sort === 'date' ? 'Newest to Oldest' : undefined">Date</MenuRadioItem>
+            <MenuRadioItem value="size">Size</MenuRadioItem>
+            <MenuRadioItem value="tags">Tags</MenuRadioItem>
+          </MenuRadioGroup>
+          <MenuSeparator />
+          <MenuSub>
+            <MenuSubTrigger>Group By</MenuSubTrigger>
+            <MenuSubContent>
+              <MenuRadioGroup v-model:value="group">
+                <MenuRadioItem value="none">None</MenuRadioItem>
+                <MenuRadioItem value="kind">Kind</MenuRadioItem>
+                <MenuRadioItem value="date">Date</MenuRadioItem>
+                <MenuRadioItem value="size">Size</MenuRadioItem>
+                <MenuRadioItem value="shared">Shared by</MenuRadioItem>
+              </MenuRadioGroup>
+            </MenuSubContent>
+          </MenuSub>
+        </template>
+        <MenuItem @select="() => {}">View Options</MenuItem>
       </MenuContent>
     </Menu>
   </ToolbarTrailing>
@@ -5866,9 +5918,8 @@ An item takes an icon before its label; icons shows the actions with them, while
 ```
 
 ### Natural sizing
-Menu supports several sizing strategies:Natural sizing: use min-width="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and min-width to set the menu to a fixed size, regardless of content size.Flexible sizing: min-width can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of MenuContent. maxWidth isn't exposed as a prop because it's reserved for the custom properties used in collision detection.These are desktop sizes: on a phone a menu is at least the 238px panel of the iOS kit, so the phone code leaves them out.
+Menu supports several sizing strategies:Natural sizing: use min-width="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and min-width to set the menu to a fixed size, regardless of content size.Flexible sizing: min-width can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of MenuContent. maxWidth isn't exposed as a prop because it's reserved for the custom properties used in collision detection.Desktop only: on a phone a menu is the iOS panel, at least the 238px of the iOS kit, whatever these sizes say.
 ```vue
-<!-- Desktop -->
 <Menu>
   <MenuTrigger>
     <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><Tools /> Tools</Button>
@@ -5881,25 +5932,6 @@ Menu supports several sizing strategies:Natural sizing: use min-width="auto" to 
     <MenuItem @select="() => {}"><ImageSquare :height="18" :width="18" /> Image Generation</MenuItem>
   </MenuContent>
 </Menu>
-
-<!-- Phone: the More button of the top bar opens the menu -->
-<Toolbar title-style="large">
-  <ToolbarTitle>Natural sizing</ToolbarTitle>
-  <ToolbarTrailing>
-    <Menu>
-      <MenuTrigger>
-        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
-      </MenuTrigger>
-      <MenuContent align="end">
-        <MenuItem @select="() => {}"><Functions :height="18" :width="18" /> Function</MenuItem>
-        <MenuItem @select="() => {}"><Search :height="18" :width="18" /> File Search</MenuItem>
-        <MenuItem @select="() => {}"><Globe :height="18" :width="18" /> Web Search</MenuItem>
-        <MenuItem @select="() => {}"><Code :height="18" :width="18" /> Code Interpreter</MenuItem>
-        <MenuItem @select="() => {}"><ImageSquare :height="18" :width="18" /> Image Generation</MenuItem>
-      </MenuContent>
-    </Menu>
-  </ToolbarTrailing>
-</Toolbar>
 ```
 
 ### Horizontal (icons only)
@@ -6027,31 +6059,42 @@ Use MenuGroup and MenuLabel to organize related items into labeled sections.
 ```
 
 ### Submenus
-Use MenuSub, MenuSubTrigger, and MenuSubContent for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.
+A list's menu, as Reminders opens it on iOS: Manage Sections and Sort By open submenus, and Sort By shows the order it has chosen under its label (description on MenuSubTrigger). Use MenuSub, MenuSubTrigger, and MenuSubContent for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.
 ```vue
 <!-- Desktop -->
 <Menu>
   <MenuTrigger>
-    <Button color="primary" size="lg" variant="ghost">Options <ChevronDownMd /></Button>
+    <Button color="secondary" variant="soft" uniform aria-label="List actions">
+      <DotsHorizontal />
+    </Button>
   </MenuTrigger>
-  <MenuContent :min-width="180">
-    <MenuItem @select="() => {}">Edit</MenuItem>
-    <MenuItem @select="() => {}">Duplicate</MenuItem>
+  <MenuContent align="end" :min-width="220">
+    <MenuItem @select="() => {}"><Storyboard /> View as Columns</MenuItem>
     <MenuSeparator />
+    <MenuItem @select="() => {}"><InfoCircle /> Show List Info</MenuItem>
+    <MenuItem @select="() => {}"><CheckCircle /> Select Items</MenuItem>
     <MenuSub>
-      <MenuSubTrigger>More</MenuSubTrigger>
+      <MenuSubTrigger><List /> Manage Sections</MenuSubTrigger>
       <MenuSubContent>
-        <MenuItem @select="() => {}">Move to project…</MenuItem>
-        <MenuItem @select="() => {}">Move to folder…</MenuItem>
-        <MenuSeparator />
-        <MenuItem @select="() => {}">Advanced options…</MenuItem>
+        <MenuItem @select="() => {}"><Plus /> New Section</MenuItem>
       </MenuSubContent>
     </MenuSub>
-    <MenuSeparator />
-    <MenuItem @select="() => {}">Share</MenuItem>
-    <MenuItem @select="() => {}">Add to favorites</MenuItem>
-    <MenuSeparator />
-    <MenuItem @select="() => {}">Delete</MenuItem>
+    <MenuSub>
+      <MenuSubTrigger :description="sort"><Sort /> Sort By</MenuSubTrigger>
+      <MenuSubContent>
+        <MenuRadioGroup v-model:value="sort">
+          <MenuRadioItem value="Manual">Manual</MenuRadioItem>
+          <MenuRadioItem value="Due Date">Due Date</MenuRadioItem>
+          <MenuRadioItem value="Creation Date">Creation Date</MenuRadioItem>
+          <MenuRadioItem value="Priority">Priority</MenuRadioItem>
+          <MenuRadioItem value="Title">Title</MenuRadioItem>
+        </MenuRadioGroup>
+      </MenuSubContent>
+    </MenuSub>
+    <MenuItem @select="() => {}"><EyeOff /> Hide Completed</MenuItem>
+    <MenuItem @select="() => {}"><UploadDocuments /> Save as Template</MenuItem>
+    <MenuItem @select="() => {}"><FileDocument /> Print</MenuItem>
+    <MenuItem @select="() => {}" danger><Trash /> Delete List</MenuItem>
   </MenuContent>
 </Menu>
 
@@ -6064,23 +6107,32 @@ Use MenuSub, MenuSubTrigger, and MenuSubContent for nested menus. On a phone a s
         <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
       </MenuTrigger>
       <MenuContent align="end">
-        <MenuItem @select="() => {}">Edit</MenuItem>
-        <MenuItem @select="() => {}">Duplicate</MenuItem>
+        <MenuItem @select="() => {}"><Storyboard /> View as Columns</MenuItem>
         <MenuSeparator />
+        <MenuItem @select="() => {}"><InfoCircle /> Show List Info</MenuItem>
+        <MenuItem @select="() => {}"><CheckCircle /> Select Items</MenuItem>
         <MenuSub>
-          <MenuSubTrigger>More</MenuSubTrigger>
+          <MenuSubTrigger><List /> Manage Sections</MenuSubTrigger>
           <MenuSubContent>
-            <MenuItem @select="() => {}">Move to project…</MenuItem>
-            <MenuItem @select="() => {}">Move to folder…</MenuItem>
-            <MenuSeparator />
-            <MenuItem @select="() => {}">Advanced options…</MenuItem>
+            <MenuItem @select="() => {}"><Plus /> New Section</MenuItem>
           </MenuSubContent>
         </MenuSub>
-        <MenuSeparator />
-        <MenuItem @select="() => {}">Share</MenuItem>
-        <MenuItem @select="() => {}">Add to favorites</MenuItem>
-        <MenuSeparator />
-        <MenuItem @select="() => {}">Delete</MenuItem>
+        <MenuSub>
+          <MenuSubTrigger :description="sort"><Sort /> Sort By</MenuSubTrigger>
+          <MenuSubContent>
+            <MenuRadioGroup v-model:value="sort">
+              <MenuRadioItem value="Manual">Manual</MenuRadioItem>
+              <MenuRadioItem value="Due Date">Due Date</MenuRadioItem>
+              <MenuRadioItem value="Creation Date">Creation Date</MenuRadioItem>
+              <MenuRadioItem value="Priority">Priority</MenuRadioItem>
+              <MenuRadioItem value="Title">Title</MenuRadioItem>
+            </MenuRadioGroup>
+          </MenuSubContent>
+        </MenuSub>
+        <MenuItem @select="() => {}"><EyeOff /> Hide Completed</MenuItem>
+        <MenuItem @select="() => {}"><UploadDocuments /> Save as Template</MenuItem>
+        <MenuItem @select="() => {}"><FileDocument /> Print</MenuItem>
+        <MenuItem @select="() => {}" danger><Trash /> Delete List</MenuItem>
       </MenuContent>
     </Menu>
   </ToolbarTrailing>

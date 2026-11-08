@@ -80,6 +80,13 @@
   &:has(.ItemDescription) {
     font-weight: var(--font-weight-semibold);
   }
+
+  /* A described row keeps the icons before its label beside the two lines, as a pressable row does */
+  &:has(> .ItemLeading) {
+    display: flex;
+    align-items: center;
+    gap: var(--menu-item-gap);
+  }
 }
 
 .MenuItem {
@@ -95,8 +102,10 @@
 
   /* An item with a description keeps its label semibold in every state, so
      consumers never have to remember a className for the "item + subtitle"
-     pattern. The description's own rule keeps the second line normal. */
-  &:has(.ItemDescription) {
+     pattern. The description's own rule keeps the second line normal. The
+     line under a radio item or a submenu row is its value (Newest to Oldest,
+     Manual), not a subtitle: their labels stay regular among their neighbours. */
+  &:not(.RadioItem, .SubMenuItem):has(.ItemDescription) {
     font-weight: var(--font-weight-semibold);
   }
 
@@ -340,6 +349,8 @@
 }
 
 .SubTriggerIcon {
+  /* The chevron takes the free space, so a label stays beside its icon rather than between it and the chevron */
+  margin-inline-start: auto;
   /* slight visual offset of svg canvas */
   margin-right: -2px;
   opacity: 0.75;

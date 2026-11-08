@@ -26,23 +26,55 @@ import { menuPhoneOnlyReact, withMenuPhoneReact } from "@/components/docs/menuPh
 ### Overview
 
 <ComponentPreview details={<>
-  <p>An item takes an icon before its label; <code>icons</code> shows the actions with them, while the name and email above them stay plain text, without an icon. <code>pill</code> on <code>Menu.Content</code> makes a rounder list with fully rounded rows, for menus beside pill controls.</p>
+  <p>A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (<code>description</code>) while it is the chosen sort, and Group By in a submenu. Turn off <code>icons</code> for the same menu in plain text, and <code>checkmarks</code> for the folder's actions alone, a shorter menu with no checkmark column. <code>pill</code> on <code>Menu.Content</code> makes a rounder list with fully rounded rows, for menus beside pill controls.</p>
   <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out <code>width</code>, <code>minWidth</code> and <code>size</code>. A pill menu is the same panel there, so the phone view leaves out <code>pill</code>.</p>
-</>} code={withMenuPhoneReact(`const [icons] = useState(false)
+</>} code={withMenuPhoneReact(`const [icons] = useState(true)
+const [checkmarks] = useState(true)
 const [pill] = useState(false)
+const [view, setView] = useState("list")
+const [sort, setSort] = useState("date")
+const [group, setGroup] = useState("date")
 
 <Menu>
   <Menu.Trigger>
-    <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
+    <Button color="primary" size="lg" variant="ghost">Downloads <ChevronDownMd /></Button>
   </Menu.Trigger>
-  <Menu.Content width={210} minWidth={210} pill={pill}>
-    <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
+  <Menu.Content minWidth={220} pill={pill}>
+    <Menu.Item onSelect={() => {}}>{icons && <CheckCircle />} Select</Menu.Item>
+    <Menu.Item onSelect={() => {}}>{icons && <FolderPlus />} New Folder</Menu.Item>
+    <Menu.Item onSelect={() => {}}>{icons && <FileDocument />} Scan Documents</Menu.Item>
+    <Menu.Item onSelect={() => {}}>{icons && <Desktop />} Connect to Server</Menu.Item>
     <Menu.Separator />
-    <Menu.Item onSelect={() => {}}>{icons && <ProfileCard />} Your profile</Menu.Item>
-    <Menu.Item onSelect={() => {}}>{icons && <Terms />} Terms & policies</Menu.Item>
-    <Menu.Item disabled onSelect={() => {}}>{icons && <Flask />} Feature flags</Menu.Item>
-    <Menu.Separator />
-    <Menu.Item onSelect={() => {}}>{icons && <Logout />} Logout</Menu.Item>
+    {checkmarks && (
+      <>
+        <Menu.RadioGroup value={view} onChange={setView}>
+          <Menu.RadioItem value="icons">{icons && <VideoGrid />} Icons</Menu.RadioItem>
+          <Menu.RadioItem value="list">{icons && <List />} List</Menu.RadioItem>
+        </Menu.RadioGroup>
+        <Menu.Separator />
+        <Menu.RadioGroup value={sort} onChange={setSort}>
+          <Menu.RadioItem value="name">Name</Menu.RadioItem>
+          <Menu.RadioItem value="kind">Kind</Menu.RadioItem>
+          <Menu.RadioItem value="date" description={sort === "date" ? "Newest to Oldest" : undefined}>Date</Menu.RadioItem>
+          <Menu.RadioItem value="size">Size</Menu.RadioItem>
+          <Menu.RadioItem value="tags">Tags</Menu.RadioItem>
+        </Menu.RadioGroup>
+        <Menu.Separator />
+        <Menu.Sub>
+          <Menu.SubTrigger>Group By</Menu.SubTrigger>
+          <Menu.SubContent>
+            <Menu.RadioGroup value={group} onChange={setGroup}>
+              <Menu.RadioItem value="none">None</Menu.RadioItem>
+              <Menu.RadioItem value="kind">Kind</Menu.RadioItem>
+              <Menu.RadioItem value="date">Date</Menu.RadioItem>
+              <Menu.RadioItem value="size">Size</Menu.RadioItem>
+              <Menu.RadioItem value="shared">Shared by</Menu.RadioItem>
+            </Menu.RadioGroup>
+          </Menu.SubContent>
+        </Menu.Sub>
+      </>
+    )}
+    <Menu.Item onSelect={() => {}}>View Options</Menu.Item>
   </Menu.Content>
 </Menu>`, "Overview")} previewMinHeight={168}>
   <MenuBaseDemo />
@@ -50,7 +82,8 @@ const [pill] = useState(false)
 
 ### Natural sizing
 
-<ComponentPreview details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong>: use <code>minWidth="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>minWidth</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>minWidth</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>Menu.Content</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for Radix variables used in collision detection.</li></ul>These are desktop sizes: on a phone a menu is at least the 238px panel of the iOS kit, so the phone code leaves them out.</>} code={withMenuPhoneReact(`<Menu>
+<ComponentPreview phonePresentation="none" details={<>
+  <p>Menu supports several sizing strategies:</p><ul><li><strong>Natural sizing</strong>: use <code>minWidth="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>minWidth</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>minWidth</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>Menu.Content</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for Radix variables used in collision detection.</li></ul><p>Desktop only: on a phone a menu is the iOS panel, at least the 238px of the iOS kit, whatever these sizes say.</p></>} code={`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><Tools /> Tools</Button>
   </Menu.Trigger>
@@ -61,7 +94,7 @@ const [pill] = useState(false)
     <Menu.Item onSelect={() => {}}><Code height={18} width={18} /> Code Interpreter</Menu.Item>
     <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image Generation</Menu.Item>
   </Menu.Content>
-</Menu>`, "Natural sizing")} previewMinHeight={168}>
+</Menu>`} previewMinHeight={168}>
   <MenuNaturalSizingDemo />
 </ComponentPreview>
 
@@ -168,28 +201,44 @@ const [filter, setFilter] = useState("all")
 
 ### Submenus
 
-<ComponentPreview details={<>Use <code>Menu.Sub</code>, <code>Menu.SubTrigger</code>, and <code>Menu.SubContent</code> for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.</>} code={withMenuPhoneReact(`<Menu>
+<ComponentPreview details={<>
+  <p>A list's menu, as Reminders opens it on iOS: Manage Sections and Sort By open submenus, and Sort By shows the order it has chosen under its label (<code>description</code> on <code>Menu.SubTrigger</code>). Use <code>Menu.Sub</code>, <code>Menu.SubTrigger</code>, and <code>Menu.SubContent</code> for nested menus.</p>
+  <p>On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.</p>
+</>} code={withMenuPhoneReact(`const [sort, setSort] = useState("Manual")
+
+<Menu>
   <Menu.Trigger>
-    <Button color="primary" size="lg" variant="ghost">Options <ChevronDownMd /></Button>
+    <Button color="secondary" variant="soft" uniform aria-label="List actions">
+      <DotsHorizontal />
+    </Button>
   </Menu.Trigger>
-  <Menu.Content minWidth={180}>
-    <Menu.Item onSelect={() => {}}>Edit</Menu.Item>
-    <Menu.Item onSelect={() => {}}>Duplicate</Menu.Item>
+  <Menu.Content align="end" minWidth={220}>
+    <Menu.Item onSelect={() => {}}><Storyboard /> View as Columns</Menu.Item>
     <Menu.Separator />
+    <Menu.Item onSelect={() => {}}><InfoCircle /> Show List Info</Menu.Item>
+    <Menu.Item onSelect={() => {}}><CheckCircle /> Select Items</Menu.Item>
     <Menu.Sub>
-      <Menu.SubTrigger>More</Menu.SubTrigger>
+      <Menu.SubTrigger><List /> Manage Sections</Menu.SubTrigger>
       <Menu.SubContent>
-        <Menu.Item onSelect={() => {}}>Move to project…</Menu.Item>
-        <Menu.Item onSelect={() => {}}>Move to folder…</Menu.Item>
-        <Menu.Separator />
-        <Menu.Item onSelect={() => {}}>Advanced options…</Menu.Item>
+        <Menu.Item onSelect={() => {}}><Plus /> New Section</Menu.Item>
       </Menu.SubContent>
     </Menu.Sub>
-    <Menu.Separator />
-    <Menu.Item onSelect={() => {}}>Share</Menu.Item>
-    <Menu.Item onSelect={() => {}}>Add to favorites</Menu.Item>
-    <Menu.Separator />
-    <Menu.Item onSelect={() => {}}>Delete</Menu.Item>
+    <Menu.Sub>
+      <Menu.SubTrigger description={sort}><Sort /> Sort By</Menu.SubTrigger>
+      <Menu.SubContent>
+        <Menu.RadioGroup value={sort} onChange={setSort}>
+          <Menu.RadioItem value="Manual">Manual</Menu.RadioItem>
+          <Menu.RadioItem value="Due Date">Due Date</Menu.RadioItem>
+          <Menu.RadioItem value="Creation Date">Creation Date</Menu.RadioItem>
+          <Menu.RadioItem value="Priority">Priority</Menu.RadioItem>
+          <Menu.RadioItem value="Title">Title</Menu.RadioItem>
+        </Menu.RadioGroup>
+      </Menu.SubContent>
+    </Menu.Sub>
+    <Menu.Item onSelect={() => {}}><EyeOff /> Hide Completed</Menu.Item>
+    <Menu.Item onSelect={() => {}}><UploadDocuments /> Save as Template</Menu.Item>
+    <Menu.Item onSelect={() => {}}><FileDocument /> Print</Menu.Item>
+    <Menu.Item onSelect={() => {}} danger><Trash /> Delete List</Menu.Item>
   </Menu.Content>
 </Menu>`, "Submenus")} previewMinHeight={168}>
   <MenuSubmenuDemo />
@@ -397,7 +446,7 @@ return (
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the action" },
 ]} />
 
-**Menu.Sub** / **Menu.SubTrigger** / **Menu.SubContent**: Submenu wrapper (with `forceOpen`, `onOpen` and `onClose`), trigger (with `disabled`), and content panel (with `width`, `minWidth`, `maxHeight`, `sideOffset` and `alignOffset`).
+**Menu.Sub** / **Menu.SubTrigger** / **Menu.SubContent**: Submenu wrapper (with `forceOpen`, `onOpen` and `onClose`), trigger (with `disabled`, and `description` for a line under the label, as what the submenu has chosen), and content panel (with `width`, `minWidth`, `maxHeight`, `sideOffset` and `alignOffset`).
 
 **Menu.CheckboxItem**
 
@@ -410,7 +459,7 @@ return (
   { prop: "disabled", type: "boolean", description: "Disable the item" },
 ]} />
 
-**Menu.RadioGroup** / **Menu.RadioItem**: Radio group: `value`, `onChange`, `indicatorPosition` (default `"end"`) and `layout` (default `"vertical"`; `"horizontal"` sets the options side by side as a mode switch, the chosen one on a fill); RadioItem: `value`, `disabled` and `onSelect`.
+**Menu.RadioGroup** / **Menu.RadioItem**: Radio group: `value`, `onChange`, `indicatorPosition` (default `"end"`) and `layout` (default `"vertical"`; `"horizontal"` sets the options side by side as a mode switch, the chosen one on a fill); RadioItem: `value`, `description` (a line under the label, as the order of the chosen sort), `disabled` and `onSelect`.
 
 **Menu.ItemActions** / **Menu.ItemAction**: ItemActions wraps hover actions; ItemAction accepts `onClick` and closes the menu.
 

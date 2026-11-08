@@ -11,14 +11,17 @@ import { Toolbar } from '@plexui/ui/components/Toolbar';
 import {
   ArrowUp,
   CameraPhoto,
+  CheckCircle,
   ChevronDownMd,
   Clock,
   Code,
   Copy,
+  Desktop,
   DotsHorizontal,
   EditPencil,
-  Flask,
+  EyeOff,
   Folder,
+  FolderPlus,
   InfoCircle,
   UnfoldHorizontal,
   Functions,
@@ -28,15 +31,18 @@ import {
   History,
   ImageSquare,
   Link,
-  Logout,
+  List,
   Play,
-  ProfileCard,
+  Plus,
   Search,
   SettingsCog,
   Share,
-  Terms,
+  Sort,
+  Storyboard,
   Tools,
   Trash,
+  UploadDocuments,
+  VideoGrid,
   FileDocument,
 } from '@plexui/ui/components/Icon';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
@@ -119,14 +125,22 @@ export function MenuHeroContent() {
   );
 }
 
+/** The More menu of a folder in Files on iOS (the owner's shots of 08.11): actions with their symbols, the view, the sort
+ * order with the order of the chosen sort under it (IMG_5687: Name, Ascending), and Group By (IMG_5689) as a submenu. */
 export function MenuBaseDemo() {
-  const [icons, setIcons] = useState(false);
+  const [icons, setIcons] = useState(true);
+  const [checkmarks, setCheckmarks] = useState(true);
   const [pill, setPill] = useState(false);
+  const [view, setView] = useState('list');
+  const [sort, setSort] = useState('date');
+  const [group, setGroup] = useState('date');
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="icons" value={icons} onChange={setIcons} />
+        {/* Without the selection rows the menu is the folder's actions alone, with no checkmark column */}
+        <DemoControlBoolean name="checkmarks" value={checkmarks} onChange={setCheckmarks} />
         {/* A phone menu is the iOS panel either way: touch.css gives pill the plain menu's corner and spacing */}
         <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
       </div>
@@ -134,20 +148,46 @@ export function MenuBaseDemo() {
         title="Overview"
         trigger={
           <Button color="primary" size="lg" variant="ghost">
-            Sample menu <ChevronDownMd />
+            Downloads <ChevronDownMd />
           </Button>
         }
       >
-        <Menu.Content width={210} minWidth={210} pill={pill}>
-          <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
+        <Menu.Content minWidth={220} pill={pill}>
+          <Menu.Item onSelect={() => { }}>{icons && <CheckCircle />} Select</Menu.Item>
+          <Menu.Item onSelect={() => { }}>{icons && <FolderPlus />} New Folder</Menu.Item>
+          <Menu.Item onSelect={() => { }}>{icons && <FileDocument />} Scan Documents</Menu.Item>
+          <Menu.Item onSelect={() => { }}>{icons && <Desktop />} Connect to Server</Menu.Item>
           <Menu.Separator />
-          <Menu.Item onSelect={() => { }}>{icons && <ProfileCard />} Your profile</Menu.Item>
-          <Menu.Item onSelect={() => { }}>{icons && <Terms />} Terms & policies</Menu.Item>
-          <Menu.Item disabled onSelect={() => { }}>
-            {icons && <Flask />} Feature flags
-          </Menu.Item>
-          <Menu.Separator />
-          <Menu.Item onSelect={() => { }}>{icons && <Logout />} Logout</Menu.Item>
+          {checkmarks && (
+            <>
+              <Menu.RadioGroup value={view} onChange={setView}>
+                <Menu.RadioItem value="icons">{icons && <VideoGrid />} Icons</Menu.RadioItem>
+                <Menu.RadioItem value="list">{icons && <List />} List</Menu.RadioItem>
+              </Menu.RadioGroup>
+              <Menu.Separator />
+              <Menu.RadioGroup value={sort} onChange={setSort}>
+                <Menu.RadioItem value="name">Name</Menu.RadioItem>
+                <Menu.RadioItem value="kind">Kind</Menu.RadioItem>
+                <Menu.RadioItem value="date" description={sort === 'date' ? 'Newest to Oldest' : undefined}>Date</Menu.RadioItem>
+                <Menu.RadioItem value="size">Size</Menu.RadioItem>
+                <Menu.RadioItem value="tags">Tags</Menu.RadioItem>
+              </Menu.RadioGroup>
+              <Menu.Separator />
+              <Menu.Sub>
+                <Menu.SubTrigger>Group By</Menu.SubTrigger>
+                <Menu.SubContent>
+                  <Menu.RadioGroup value={group} onChange={setGroup}>
+                    <Menu.RadioItem value="none">None</Menu.RadioItem>
+                    <Menu.RadioItem value="kind">Kind</Menu.RadioItem>
+                    <Menu.RadioItem value="date">Date</Menu.RadioItem>
+                    <Menu.RadioItem value="size">Size</Menu.RadioItem>
+                    <Menu.RadioItem value="shared">Shared by</Menu.RadioItem>
+                  </Menu.RadioGroup>
+                </Menu.SubContent>
+              </Menu.Sub>
+            </>
+          )}
+          <Menu.Item onSelect={() => { }}>View Options</Menu.Item>
         </Menu.Content>
       </MenuExample>
     </>
@@ -185,34 +225,47 @@ export function MenuNaturalSizingDemo() {
   );
 }
 
+// A list's menu as Reminders opens it on iOS (the owner's shot of 08.11, Groceries): View as Columns over a separator,
+// then the list's actions, Manage Sections and Sort By as submenus, Sort By showing its order under it, and Delete List
+// last in red. Sort By holds Reminders' five orders (Apple's iPhone guide); Manage Sections its New Section.
 export function MenuSubmenuDemo() {
+  const [sort, setSort] = useState('Manual');
   return (
     <MenuExample
       title="Submenus"
       trigger={
-        <Button color="primary" size="lg" variant="ghost">
-          Options <ChevronDownMd />
+        <Button color="secondary" variant="soft" uniform aria-label="List actions">
+          <DotsHorizontal />
         </Button>
       }
     >
-      <Menu.Content minWidth={180}>
-        <Menu.Item onSelect={() => { }}>Edit</Menu.Item>
-        <Menu.Item onSelect={() => { }}>Duplicate</Menu.Item>
+      <Menu.Content align="end" minWidth={220}>
+        <Menu.Item onSelect={() => { }}><Storyboard /> View as Columns</Menu.Item>
         <Menu.Separator />
+        <Menu.Item onSelect={() => { }}><InfoCircle /> Show List Info</Menu.Item>
+        <Menu.Item onSelect={() => { }}><CheckCircle /> Select Items</Menu.Item>
         <Menu.Sub>
-          <Menu.SubTrigger>More</Menu.SubTrigger>
+          <Menu.SubTrigger><List /> Manage Sections</Menu.SubTrigger>
           <Menu.SubContent>
-            <Menu.Item onSelect={() => { }}>Move to project…</Menu.Item>
-            <Menu.Item onSelect={() => { }}>Move to folder…</Menu.Item>
-            <Menu.Separator />
-            <Menu.Item onSelect={() => { }}>Advanced options…</Menu.Item>
+            <Menu.Item onSelect={() => { }}><Plus /> New Section</Menu.Item>
           </Menu.SubContent>
         </Menu.Sub>
-        <Menu.Separator />
-        <Menu.Item onSelect={() => { }}>Share</Menu.Item>
-        <Menu.Item onSelect={() => { }}>Add to favorites</Menu.Item>
-        <Menu.Separator />
-        <Menu.Item onSelect={() => { }}>Delete</Menu.Item>
+        <Menu.Sub>
+          <Menu.SubTrigger description={sort}><Sort /> Sort By</Menu.SubTrigger>
+          <Menu.SubContent>
+            <Menu.RadioGroup value={sort} onChange={setSort}>
+              <Menu.RadioItem value="Manual">Manual</Menu.RadioItem>
+              <Menu.RadioItem value="Due Date">Due Date</Menu.RadioItem>
+              <Menu.RadioItem value="Creation Date">Creation Date</Menu.RadioItem>
+              <Menu.RadioItem value="Priority">Priority</Menu.RadioItem>
+              <Menu.RadioItem value="Title">Title</Menu.RadioItem>
+            </Menu.RadioGroup>
+          </Menu.SubContent>
+        </Menu.Sub>
+        <Menu.Item onSelect={() => { }}><EyeOff /> Hide Completed</Menu.Item>
+        <Menu.Item onSelect={() => { }}><UploadDocuments /> Save as Template</Menu.Item>
+        <Menu.Item onSelect={() => { }}><FileDocument /> Print</Menu.Item>
+        <Menu.Item onSelect={() => { }} danger><Trash /> Delete List</Menu.Item>
       </Menu.Content>
     </MenuExample>
   );

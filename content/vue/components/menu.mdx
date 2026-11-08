@@ -17,16 +17,42 @@ export const SIZES = ["sm", "md", "lg"]
 
 export const overview = `<Menu>
   <MenuTrigger>
-    <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
+    <Button color="primary" size="lg" variant="ghost">Downloads <ChevronDownMd /></Button>
   </MenuTrigger>
-  <MenuContent :width="210" :min-width="210" :pill="pill">
-    <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
+  <MenuContent :min-width="220" :pill="pill">
+    <MenuItem @select="() => {}"><CheckCircle v-if="icons" /> Select</MenuItem>
+    <MenuItem @select="() => {}"><FolderPlus v-if="icons" /> New Folder</MenuItem>
+    <MenuItem @select="() => {}"><FileDocument v-if="icons" /> Scan Documents</MenuItem>
+    <MenuItem @select="() => {}"><Desktop v-if="icons" /> Connect to Server</MenuItem>
     <MenuSeparator />
-    <MenuItem @select="() => {}"><ProfileCard v-if="icons" /> Your profile</MenuItem>
-    <MenuItem @select="() => {}"><Terms v-if="icons" /> Terms & policies</MenuItem>
-    <MenuItem disabled @select="() => {}"><Flask v-if="icons" /> Feature flags</MenuItem>
-    <MenuSeparator />
-    <MenuItem @select="() => {}"><Logout v-if="icons" /> Logout</MenuItem>
+    <template v-if="checkmarks">
+      <MenuRadioGroup v-model:value="view">
+        <MenuRadioItem value="icons"><VideoGrid v-if="icons" /> Icons</MenuRadioItem>
+        <MenuRadioItem value="list"><List v-if="icons" /> List</MenuRadioItem>
+      </MenuRadioGroup>
+      <MenuSeparator />
+      <MenuRadioGroup v-model:value="sort">
+        <MenuRadioItem value="name">Name</MenuRadioItem>
+        <MenuRadioItem value="kind">Kind</MenuRadioItem>
+        <MenuRadioItem value="date" :description="sort === 'date' ? 'Newest to Oldest' : undefined">Date</MenuRadioItem>
+        <MenuRadioItem value="size">Size</MenuRadioItem>
+        <MenuRadioItem value="tags">Tags</MenuRadioItem>
+      </MenuRadioGroup>
+      <MenuSeparator />
+      <MenuSub>
+        <MenuSubTrigger>Group By</MenuSubTrigger>
+        <MenuSubContent>
+          <MenuRadioGroup v-model:value="group">
+            <MenuRadioItem value="none">None</MenuRadioItem>
+            <MenuRadioItem value="kind">Kind</MenuRadioItem>
+            <MenuRadioItem value="date">Date</MenuRadioItem>
+            <MenuRadioItem value="size">Size</MenuRadioItem>
+            <MenuRadioItem value="shared">Shared by</MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuSubContent>
+      </MenuSub>
+    </template>
+    <MenuItem @select="() => {}">View Options</MenuItem>
   </MenuContent>
 </Menu>`
 
@@ -116,26 +142,37 @@ export const grouped = `<Menu>
 
 export const submenus = `<Menu>
   <MenuTrigger>
-    <Button color="primary" size="lg" variant="ghost">Options <ChevronDownMd /></Button>
+    <Button color="secondary" variant="soft" uniform aria-label="List actions">
+      <DotsHorizontal />
+    </Button>
   </MenuTrigger>
-  <MenuContent :min-width="180">
-    <MenuItem @select="() => {}">Edit</MenuItem>
-    <MenuItem @select="() => {}">Duplicate</MenuItem>
+  <MenuContent align="end" :min-width="220">
+    <MenuItem @select="() => {}"><Storyboard /> View as Columns</MenuItem>
     <MenuSeparator />
+    <MenuItem @select="() => {}"><InfoCircle /> Show List Info</MenuItem>
+    <MenuItem @select="() => {}"><CheckCircle /> Select Items</MenuItem>
     <MenuSub>
-      <MenuSubTrigger>More</MenuSubTrigger>
+      <MenuSubTrigger><List /> Manage Sections</MenuSubTrigger>
       <MenuSubContent>
-        <MenuItem @select="() => {}">Move to project…</MenuItem>
-        <MenuItem @select="() => {}">Move to folder…</MenuItem>
-        <MenuSeparator />
-        <MenuItem @select="() => {}">Advanced options…</MenuItem>
+        <MenuItem @select="() => {}"><Plus /> New Section</MenuItem>
       </MenuSubContent>
     </MenuSub>
-    <MenuSeparator />
-    <MenuItem @select="() => {}">Share</MenuItem>
-    <MenuItem @select="() => {}">Add to favorites</MenuItem>
-    <MenuSeparator />
-    <MenuItem @select="() => {}">Delete</MenuItem>
+    <MenuSub>
+      <MenuSubTrigger :description="sort"><Sort /> Sort By</MenuSubTrigger>
+      <MenuSubContent>
+        <MenuRadioGroup v-model:value="sort">
+          <MenuRadioItem value="Manual">Manual</MenuRadioItem>
+          <MenuRadioItem value="Due Date">Due Date</MenuRadioItem>
+          <MenuRadioItem value="Creation Date">Creation Date</MenuRadioItem>
+          <MenuRadioItem value="Priority">Priority</MenuRadioItem>
+          <MenuRadioItem value="Title">Title</MenuRadioItem>
+        </MenuRadioGroup>
+      </MenuSubContent>
+    </MenuSub>
+    <MenuItem @select="() => {}"><EyeOff /> Hide Completed</MenuItem>
+    <MenuItem @select="() => {}"><UploadDocuments /> Save as Template</MenuItem>
+    <MenuItem @select="() => {}"><FileDocument /> Print</MenuItem>
+    <MenuItem @select="() => {}" danger><Trash /> Delete List</MenuItem>
   </MenuContent>
 </Menu>`
 
@@ -240,16 +277,17 @@ export const danger = `<Menu>
 ### Overview
 
 <ComponentPreview language="vue" details={<>
-  <p>An item takes an icon before its label; <code>icons</code> shows the actions with them, while the name and email above them stay plain text, without an icon. <code>pill</code> on <code>MenuContent</code> makes a rounder list with fully rounded rows, for menus beside pill controls.</p>
+  <p>A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (<code>description</code>) while it is the chosen sort, and Group By in a submenu. Turn off <code>icons</code> for the same menu in plain text, and <code>checkmarks</code> for the folder's actions alone, a shorter menu with no checkmark column. <code>pill</code> on <code>MenuContent</code> makes a rounder list with fully rounded rows, for menus beside pill controls.</p>
   <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out <code>width</code>, <code>min-width</code> and <code>size</code>. A pill menu is the same panel there, so the phone view leaves out <code>pill</code>.</p>
 </>} code={withMenuPhoneVue(overview, "Overview")} previewMinHeight={168}>
-  <VueDemo template={overview} phoneTemplate={menuPhoneTemplateVue(overview, "Overview", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} controls={[{ name: "icons", type: "boolean", default: false }, { name: "pill", desktopOnly: true, type: "boolean", default: false }]} />
+  <VueDemo template={overview} phoneTemplate={menuPhoneTemplateVue(overview, "Overview", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ view: "list", sort: "date", group: "date" }} controls={[{ name: "icons", type: "boolean", default: true }, { name: "checkmarks", type: "boolean", default: true }, { name: "pill", desktopOnly: true, type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Natural sizing
 
-<ComponentPreview language="vue" details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong>: use <code>min-width="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>min-width</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>min-width</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>MenuContent</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for the custom properties used in collision detection.</li></ul>These are desktop sizes: on a phone a menu is at least the 238px panel of the iOS kit, so the phone code leaves them out.</>} code={withMenuPhoneVue(naturalSizing, "Natural sizing")} previewMinHeight={168}>
-  <VueDemo template={naturalSizing} phoneTemplate={menuPhoneTemplateVue(naturalSizing, "Natural sizing", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
+<ComponentPreview language="vue" phonePresentation="none" details={<>
+  <p>Menu supports several sizing strategies:</p><ul><li><strong>Natural sizing</strong>: use <code>min-width="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>min-width</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>min-width</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>MenuContent</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for the custom properties used in collision detection.</li></ul><p>Desktop only: on a phone a menu is the iOS panel, at least the 238px of the iOS kit, whatever these sizes say.</p></>} code={naturalSizing} previewMinHeight={168}>
+  <VueDemo template={naturalSizing} />
 </ComponentPreview>
 
 ### Horizontal (icons only)
@@ -289,8 +327,11 @@ export const danger = `<Menu>
 
 ### Submenus
 
-<ComponentPreview language="vue" details={<>Use <code>MenuSub</code>, <code>MenuSubTrigger</code>, and <code>MenuSubContent</code> for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.</>} code={withMenuPhoneVue(submenus, "Submenus")} previewMinHeight={168}>
-  <VueDemo template={submenus} phoneTemplate={menuPhoneTemplateVue(submenus, "Submenus", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
+<ComponentPreview language="vue" details={<>
+  <p>A list's menu, as Reminders opens it on iOS: Manage Sections and Sort By open submenus, and Sort By shows the order it has chosen under its label (<code>description</code> on <code>MenuSubTrigger</code>). Use <code>MenuSub</code>, <code>MenuSubTrigger</code>, and <code>MenuSubContent</code> for nested menus.</p>
+  <p>On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.</p>
+</>} code={withMenuPhoneVue(submenus, "Submenus")} previewMinHeight={168}>
+  <VueDemo template={submenus} state={{ sort: "Manual" }} phoneTemplate={menuPhoneTemplateVue(submenus, "Submenus", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
 </ComponentPreview>
 
 ### Checkbox items
@@ -391,7 +432,7 @@ export const danger = `<Menu>
   { prop: "@select", type: "(event: Event) => void", description: "Emitted when the action is pressed; call event.preventDefault() to keep the menu open" },
 ]} />
 
-**MenuSub** / **MenuSubTrigger** / **MenuSubContent**: submenu wrapper (with `force-open`, `@open` and `@close`), trigger (with `disabled`), and content panel (with `width`, `min-width`, `max-height`, `side-offset` and `align-offset`).
+**MenuSub** / **MenuSubTrigger** / **MenuSubContent**: submenu wrapper (with `force-open`, `@open` and `@close`), trigger (with `disabled`, and `description` for a line under the label, as what the submenu has chosen; also a `description` slot), and content panel (with `width`, `min-width`, `max-height`, `side-offset` and `align-offset`).
 
 **MenuCheckboxItem**
 
@@ -404,7 +445,7 @@ export const danger = `<Menu>
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the item" },
 ]} />
 
-**MenuRadioGroup** / **MenuRadioItem**: radio group with `v-model:value` (plus `@change`), `indicator-position` and `layout` (default `"vertical"`; `"horizontal"` sets the options side by side as a mode switch, the chosen one on a fill); MenuRadioItem takes `value`, `disabled` and `@select`.
+**MenuRadioGroup** / **MenuRadioItem**: radio group with `v-model:value` (plus `@change`), `indicator-position` and `layout` (default `"vertical"`; `"horizontal"` sets the options side by side as a mode switch, the chosen one on a fill); MenuRadioItem takes `value`, `description` (a line under the label, as the order of the chosen sort; also a `description` slot), `disabled` and `@select`.
 
 **MenuItemActions** / **MenuItemAction**: MenuItemActions wraps hover actions; MenuItemAction emits `@click` and closes the menu.
 

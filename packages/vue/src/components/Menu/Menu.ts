@@ -1,10 +1,13 @@
 import {
   cloneVNode,
+  Comment as CommentVNode,
   computed,
   createCommentVNode,
   defineComponent,
+  Fragment as FragmentVNode,
   h,
   inject,
+  isVNode,
   markRaw,
   onBeforeUnmount,
   onMounted,
@@ -18,6 +21,7 @@ import {
   type InjectionKey,
   type PropType,
   type ShallowRef,
+  type VNode,
   type VNodeArrayChildren,
 } from "vue"
 import {
@@ -718,6 +722,41 @@ const MenuItemInteractive = defineComponent({
   },
 })
 
+// A row's own children, with the fragments of a passed-through slot opened up, as React's Children.toArray does.
+const flattenRow = (nodes: VNodeArrayChildren): unknown[] =>
+  nodes.flatMap((node) =>
+    Array.isArray(node) ? flattenRow(node)
+    : isVNode(node) && node.type === FragmentVNode && Array.isArray(node.children) ? flattenRow(node.children as VNodeArrayChildren)
+    : [node])
+
+// An icon is a component, an svg or an img; text and text elements (strong, kbd) belong to the label. A v-if
+// placeholder is neither.
+const isLeadingIcon = (part: unknown) =>
+  isVNode(part) && (typeof part.type === "object" || typeof part.type === "function" || part.type === "svg" || part.type === "img")
+const isPlaceholder = (part: unknown) => part == null || typeof part === "boolean" || (isVNode(part) && part.type === CommentVNode)
+
+// A description counts when it renders something: a non-empty string, or a slot with content.
+const describes = (description: unknown) =>
+  Array.isArray(description) ? hasContent(description as VNodeArrayChildren) : description != null && description !== ""
+
+/**
+ * A described row: the label over its description. Icons that lead the label stay beside the two lines, centred on
+ * both, as iOS draws Sort By with its order under it (Reminders); a row of icons alone stacks whole.
+ */
+const describedRow = (children: VNode[] | undefined, description: unknown): VNodeArrayChildren => {
+  const parts = flattenRow(children ?? [])
+  const label = parts.findIndex((part) => !isLeadingIcon(part) && !isPlaceholder(part))
+  const lead = label > 0 && parts.slice(0, label).some(isLeadingIcon) ? parts.slice(0, label) : []
+  return [
+    ...(lead as VNodeArrayChildren),
+    h("div", { class: s.ItemLeading }, [
+      h("div", null, lead.length > 0 ? (parts.slice(label) as VNodeArrayChildren) : children),
+      // Not part of the label a phone submenu heads itself with
+      h("div", { class: s.ItemDescription, "data-menu-description": "" }, description as VNodeArrayChildren),
+    ]),
+  ]
+}
+
 /**
  * A menu item. Interactive (focusable, selectable) when it has a `@select` or
  * a `@click` handler; read-only content otherwise.
@@ -754,15 +793,7 @@ export const MenuItem = defineComponent({
       const description = slots.description ? slots.description() : props.description
       // A described item stacks its two lines; without a description the item
       // keeps the plain flex row that icons and ItemActions rely on.
-      const content =
-        description === undefined
-          ? slots.default?.()
-          : [
-              h("div", { class: s.ItemLeading }, [
-                h("div", null, slots.default?.()),
-                h("div", { class: s.ItemDescription }, description),
-              ]),
-            ]
+      const content = describes(description) ? describedRow(slots.default?.(), description) : slots.default?.()
 
       // Custom click handlers: either callback makes the item interactive
       if (props.onSelect || props.onClick) {
@@ -1091,6 +1122,11 @@ export const MenuSubTrigger = defineComponent({
   props: {
     /** Disables the trigger */
     disabled: { type: Boolean, default: false },
+    /**
+     * Second line under the label: what the submenu has chosen, as Reminders shows "Manual" under Sort By. It stacks
+     * as an item's description does; icons before the label stay beside both lines. Also a `description` slot.
+     */
+    description: String,
   },
   setup(props, { slots, attrs }) {
     const { open: menuOpen } = useMenuContext()
@@ -1209,6 +1245,7 @@ export const MenuSubTrigger = defineComponent({
 
     return () => {
       const open = subLevel.open()
+      const description = slots.description ? slots.description() : props.description
       return h(
         "div",
         {
@@ -1225,7 +1262,7 @@ export const MenuSubTrigger = defineComponent({
         },
         [
           h("div", { class: s.PressableInner }, [
-            slots.default?.(),
+            ...(describes(description) ? describedRow(slots.default?.(), description) : [slots.default?.()]),
             h(ChevronRight, { width: "16", height: "16", class: s.SubTriggerIcon }),
           ]),
         ],
@@ -1524,6 +1561,11 @@ export const MenuRadioItem = defineComponent({
   inheritAttrs: false,
   props: {
     value: { type: String, required: true },
+    /**
+     * Second line under the label, as iOS shows the order of the chosen sort (Files: "Newest to Oldest" under Date). It
+     * stacks as a MenuItem's description does. Also a `description` slot.
+     */
+    description: String,
     /** Disables the radio item */
     disabled: { type: Boolean, default: false },
   },
@@ -1549,6 +1591,7 @@ export const MenuRadioItem = defineComponent({
     return () => {
       const { listeners, rest } = splitListeners(attrs)
       const { class: className, ...restProps } = rest
+      const description = slots.description ? slots.description() : props.description
       return h(
         "div",
         {
@@ -1568,7 +1611,7 @@ export const MenuRadioItem = defineComponent({
                 default: () => [h(Check, { class: s.SelectionCheck })],
               }),
             ]),
-            slots.default?.(),
+            ...(describes(description) ? describedRow(slots.default?.(), description) : [slots.default?.()]),
           ]),
         ],
       )
