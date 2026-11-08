@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs"
 import { fireEvent, render, within } from "@testing-library/react"
 import { describe, expect, test, vi } from "vitest"
 import { defineComponent, h, reactive } from "vue"
-import { FileCardListDemo, FileCardWithRemoveDemo } from "../../components/docs/FileUploadDemos"
+import { FileCardDemo } from "../../components/docs/FileUploadDemos"
 import { removeFileWithFocus } from "../../components/docs/fileRemovalFocus"
 import { FileCard, FileCardGroup } from "../../packages/vue/src/components/FileUpload"
 import { flushVue, mountVue } from "./harness"
@@ -19,10 +19,8 @@ const readTemplate = (name: string, next: string) => {
   if (typeof template !== "string") throw new Error(`File card ${name} template was not resolved`)
   return template
 }
-const templates = {
-  list: readTemplate("multipleFiles", "readOnlyList"),
-  single: readTemplate("withRemove", "multipleFiles"),
-}
+// One example: a list of cards whose `onRemove` control makes them read-only
+const template = readTemplate("fileList", "fileListControls")
 
 const names = [
   "government-id-scan.pdf",
@@ -30,17 +28,19 @@ const names = [
   "non-citizen-travel-2026-approved-document.pdf",
 ]
 
-const mountExample = async (framework: string, example: "list" | "single" = "list") => {
-  if (framework === "React") render(example === "list" ? <FileCardListDemo /> : <FileCardWithRemoveDemo />)
-  else {
+const mountExample = async (framework: string, removable = true) => {
+  if (framework === "React") {
+    render(<FileCardDemo />)
+    if (!removable) await interact(() => fireEvent.click(within(document.body).getByRole("switch", { name: "onRemove" })))
+  } else {
     const Example = defineComponent({
       components: { FileCard, FileCardGroup },
       setup: () => reactive({
         files: names.map((name) => new File(["sample"], name)),
-        file: new File(["sample"], "project-brief.pdf"),
+        removable,
         removeFileWithFocus,
       }),
-      template: templates[example],
+      template,
     })
     mountVue(() => h(Example))
     await flushVue()
@@ -74,24 +74,16 @@ describe.each(["React", "Vue"])("%s standalone file-card list demo", (framework)
     expect(focus).toHaveBeenCalledWith({ preventScroll: true })
   })
 
-  test("removing the focused single file focuses its stable status", async () => {
-    await mountExample(framework, "single")
+  test("without onRemove the cards are read-only", async () => {
+    await mountExample(framework, false)
     const page = within(document.body)
-    const status = page.getByRole("status")
-    expect(status.textContent?.trim()).toBe("")
-    const focus = vi.spyOn(status, "focus")
-    const remove = page.getByRole("button", { name: "Remove project-brief.pdf" })
-    await interact(() => remove.focus())
-    await interact(() => fireEvent.click(remove))
+    // A name is split in two for its middle truncation
+    for (const name of names) expect(document.body.textContent).toContain(name)
     expect(page.queryByRole("button", { name: /^Remove / })).toBeNull()
-    expect(page.getByRole("status")).toBe(status)
-    expect(status.textContent?.trim()).toBe("File removed")
-    expect(document.activeElement).toBe(status)
-    expect(focus).toHaveBeenCalledWith({ preventScroll: true })
   })
 
-  test.each(["list", "single"] as const)("%s pointer removal without button focus does not move focus", async (example) => {
-    await mountExample(framework, example)
+  test("pointer removal without button focus does not move focus", async () => {
+    await mountExample(framework)
     const page = within(document.body)
     const outside = document.createElement("button")
     document.body.append(outside)
@@ -103,6 +95,6 @@ describe.each(["React", "Vue"])("%s standalone file-card list demo", (framework)
       })
       expect(document.activeElement).toBe(outside)
     }
-    expect(page.getByRole("status").textContent?.trim()).toBe(example === "list" ? "Files removed" : "File removed")
+    expect(page.getByRole("status").textContent?.trim()).toBe("Files removed")
   })
 })

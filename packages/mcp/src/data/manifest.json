@@ -2724,31 +2724,13 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "function Example({ errorMessage = false, disabled = false }) {\nconst [files, setFiles] = useState<File[]>([]);\n\nreturn (\n  <div className=\"w-[360px]\">\n    <FileUpload\n      accept=\".pdf,.png,.jpg,.jpeg\"\n      multiple\n      maxFiles={5}\n      maxSize={10 * 1024 * 1024}\n      value={files}\n      onValueChange={setFiles}\n      errorMessage={errorMessage ? \"Please upload at least 2 documents.\" : undefined}\n      disabled={disabled}\n    />\n  </div>\n);\n}",
-          "details": "Toggle errorMessage and disabled while keeping the selected files. The error control demonstrates a supplied message; it does not validate the number of files. Accepted types and size limits still apply."
+          "code": "function Example({ errorMessage = false, disabled = false }) {\nconst [files, setFiles] = useState<File[]>(initialFiles);\n\nreturn (\n  <div className=\"w-[360px]\">\n    <FileUpload\n      accept=\".pdf,.png,.jpg,.jpeg\"\n      multiple\n      maxFiles={5}\n      maxSize={10 * 1024 * 1024}\n      value={files}\n      onValueChange={setFiles}\n      errorMessage={errorMessage ? \"Please upload at least 2 documents.\" : undefined}\n      disabled={disabled}\n    />\n  </div>\n);\n}",
+          "details": "The example starts with three files: the list stands under the button, each file with a type icon, its name truncated in the middle, its size and a remove button. Toggle errorMessage and disabled while keeping the selected files. The error control demonstrates a supplied message; it does not validate the number of files. Accepted types and size limits still apply."
         },
         {
-          "name": "With files",
-          "code": "const [files, setFiles] = useState<File[]>(initialFiles)\n\n<div className=\"w-[360px]\">\n<FileUpload\n  accept=\".pdf,.png\"\n  multiple\n  maxFiles={5}\n  value={files}\n  onValueChange={setFiles}\n/>\n</div>",
-          "details": "File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button. initialFiles holds three File objects."
-        },
-        {
-          "name": "Read-only",
-          "code": "<div className=\"w-[360px]\">\n<FileCardGroup>\n  <FileCard file={file} />\n</FileCardGroup>\n</div>"
-        },
-        {
-          "name": "With remove",
-          "code": "function removeFileWithFocus(root, index, remove) {\n  const buttons = Array.from(root?.querySelectorAll('button:not(:disabled)') ?? []);\n  const source = buttons[index];\n  const target = buttons[index + 1] ?? buttons[index - 1] ?? root?.querySelector('[data-file-removal-status]');\n  const doc = source?.ownerDocument;\n  const restore = source !== undefined && doc?.activeElement === source;\n  remove();\n  if (!restore || !source || !doc || !(target instanceof HTMLElement)) return;\n  queueMicrotask(() => {\n    if (!source.isConnected && target.isConnected && (doc.activeElement === doc.body || doc.activeElement === source)) {\n      target.focus({ preventScroll: true });\n    }\n  });\n}\n\nconst cards = useRef<HTMLDivElement>(null)\nconst [file, setFile] = useState<File | null>(initialFile)\n\n<div ref={cards} className=\"w-[360px]\">\n{file && <FileCardGroup>\n  <FileCard file={file} onRemove={() => removeFileWithFocus(cards.current, 0, () => setFile(null))} />\n</FileCardGroup>}\n<div role=\"status\" tabIndex={-1} data-file-removal-status className={file ? \"sr-only\" : \"text-center text-sm text-tertiary\"}>\n  {file ? \"\" : \"File removed\"}\n</div>\n</div>",
-          "details": "Removing the focused file moves focus to the existing File removed status without scrolling. Pointer removal does not move focus if the remove button was not focused."
-        },
-        {
-          "name": "Multiple files",
-          "code": "function removeFileWithFocus(root, index, remove) {\n  const buttons = Array.from(root?.querySelectorAll('button:not(:disabled)') ?? []);\n  const source = buttons[index];\n  const target = buttons[index + 1] ?? buttons[index - 1] ?? root?.querySelector('[data-file-removal-status]');\n  const doc = source?.ownerDocument;\n  const restore = source !== undefined && doc?.activeElement === source;\n  remove();\n  if (!restore || !source || !doc || !(target instanceof HTMLElement)) return;\n  queueMicrotask(() => {\n    if (!source.isConnected && target.isConnected && (doc.activeElement === doc.body || doc.activeElement === source)) {\n      target.focus({ preventScroll: true });\n    }\n  });\n}\n\nconst cards = useRef<HTMLDivElement>(null)\nconst [files, setFiles] = useState<File[]>(initialFiles)\n\n<div ref={cards} className=\"w-[360px]\">\n{files.length > 0 && <FileCardGroup>\n  {files.map((file, index) => (\n    <FileCard\n      key={`${file.name}-${file.size}`}\n      file={file}\n      onRemove={() => removeFileWithFocus(cards.current, index, () => setFiles((prev) => prev.filter((_, i) => i !== index)))}\n    />\n  ))}\n</FileCardGroup>}\n<div role=\"status\" tabIndex={-1} data-file-removal-status className={files.length > 0 ? \"sr-only\" : \"text-center text-sm text-tertiary\"}>\n  {files.length > 0 ? \"\" : \"Files removed\"}\n</div>\n</div>",
-          "details": "After keyboard removal, focus moves to the next file, then the previous one, or the Files removed status when the list becomes empty. The same helper preserves the scroll position."
-        },
-        {
-          "name": "Read-only list",
-          "code": "<div className=\"w-[360px]\">\n<FileCardGroup>\n  {files.map((file) => (\n    <FileCard key={`${file.name}-${file.size}`} file={file} />\n  ))}\n</FileCardGroup>\n</div>"
+          "name": "File list",
+          "code": "function removeFileWithFocus(root, index, remove) {\n  const buttons = Array.from(root?.querySelectorAll('button:not(:disabled)') ?? []);\n  const source = buttons[index];\n  const target = buttons[index + 1] ?? buttons[index - 1] ?? root?.querySelector('[data-file-removal-status]');\n  const doc = source?.ownerDocument;\n  const restore = source !== undefined && doc?.activeElement === source;\n  remove();\n  if (!restore || !source || !doc || !(target instanceof HTMLElement)) return;\n  queueMicrotask(() => {\n    if (!source.isConnected && target.isConnected && (doc.activeElement === doc.body || doc.activeElement === source)) {\n      target.focus({ preventScroll: true });\n    }\n  });\n}\n\nfunction Example({ onRemove = true }) {\nconst cards = useRef<HTMLDivElement>(null);\nconst [files, setFiles] = useState<File[]>(initialFiles);\n\nreturn (\n  <div ref={cards} className=\"w-[360px]\">\n    {files.length > 0 && <FileCardGroup>\n      {files.map((file, index) => (\n        <FileCard\n          key={`${file.name}-${file.size}`}\n          file={file}\n          onRemove={onRemove ? () => removeFileWithFocus(cards.current, index, () => setFiles((prev) => prev.filter((_, i) => i !== index))) : undefined}\n        />\n      ))}\n    </FileCardGroup>}\n    <div role=\"status\" tabIndex={-1} data-file-removal-status className={files.length > 0 ? \"sr-only\" : \"text-center text-sm text-tertiary\"}>\n      {files.length > 0 ? \"\" : \"Files removed\"}\n    </div>\n  </div>\n);\n}",
+          "details": "One file is a list of one. Turn off onRemove for read-only cards. After keyboard removal, focus moves to the next file, then the previous one, or the Files removed status when the list becomes empty, without scrolling. Pointer removal does not move focus if the remove button was not focused."
         }
       ],
       "subComponents": [
@@ -7580,5 +7562,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T09:00:45.534Z"
+  "generatedAt": "2026-11-08T09:11:00.814Z"
 }

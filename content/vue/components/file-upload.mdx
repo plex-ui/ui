@@ -30,7 +30,7 @@ export const overviewCode = `<script setup lang="ts">
 import { ref } from 'vue';
 import { FileUpload } from '@plexui/vue/components/FileUpload';
 
-const files = ref<File[]>([]);
+const files = ref<File[]>(initialFiles);
 const errorMessage = ref(false);
 const disabled = ref(false);
 </script>
@@ -47,37 +47,13 @@ const disabled = ref(false);
   />
 </template>`
 
-export const withFiles = `<div class="w-[360px]">
-  <FileUpload
-    v-model:value="files"
-    accept=".pdf,.png"
-    multiple
-    :max-files="5"
-  />
-</div>`
-
-export const readOnly = `<div class="w-[360px]">
-  <FileCardGroup>
-    <FileCard :file="file" />
-  </FileCardGroup>
-</div>`
-
-export const withRemove = `<div ref="fileCards" class="w-[360px]">
-  <FileCardGroup v-if="file">
-    <FileCard :file="file" @remove="removeFileWithFocus($refs.fileCards, 0, () => { file = null })" />
-  </FileCardGroup>
-  <div role="status" tabindex="-1" data-file-removal-status :class="file ? 'sr-only' : 'text-center text-sm text-tertiary'">
-    {{ file ? '' : 'File removed' }}
-  </div>
-</div>`
-
-export const multipleFiles = `<div ref="fileCards" class="w-[360px]">
+export const fileList = `<div ref="fileCards" class="w-[360px]">
   <FileCardGroup v-if="files.length > 0">
     <FileCard
       v-for="(file, index) in files"
       :key="file.name + '-' + file.size"
       :file="file"
-      @remove="removeFileWithFocus($refs.fileCards, index, () => { files = files.filter((_, i) => i !== index) })"
+      :on-remove="removable ? () => removeFileWithFocus($refs.fileCards, index, () => { files = files.filter((_, i) => i !== index) }) : undefined"
     />
   </FileCardGroup>
   <div role="status" tabindex="-1" data-file-removal-status :class="files.length > 0 ? 'sr-only' : 'text-center text-sm text-tertiary'">
@@ -85,11 +61,9 @@ export const multipleFiles = `<div ref="fileCards" class="w-[360px]">
   </div>
 </div>`
 
-export const readOnlyList = `<div class="w-[360px]">
-  <FileCardGroup>
-    <FileCard v-for="file in files" :key="file.name + '-' + file.size" :file="file" />
-  </FileCardGroup>
-</div>`
+export const fileListControls = [
+  { name: "removable", label: "onRemove", type: "boolean", default: true },
+]
 
 <UsageBlock>{`import { FileUpload, FileCard, FileCardGroup } from "@plexui/vue/components/FileUpload";`}</UsageBlock>
 
@@ -97,45 +71,27 @@ export const readOnlyList = `<div class="w-[360px]">
 
 <span id="error-state" />
 <span id="disabled" />
+<span id="with-files" />
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Toggle <code>errorMessage</code> and <code>disabled</code> while keeping the selected files. The error control demonstrates a supplied message; it does not validate the number of files. Accepted types and size limits still apply.</>} code={overviewCode}>
-  <VueFileUploadDemo template={overview} controls={overviewControls} />
-</ComponentPreview>
-
-### With files
-
-<ComponentPreview language="vue" details={<>File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button. <code>files</code> starts with three <code>File</code> objects.</>} code={withFiles}>
-  <VueFileUploadDemo template={withFiles} files="all" />
+<ComponentPreview language="vue" details={<>The example starts with three files: the list stands under the button, each file with a type icon, its name truncated in the middle, its size and a remove button. Toggle <code>errorMessage</code> and <code>disabled</code> while keeping the selected files. The error control demonstrates a supplied message; it does not validate the number of files. Accepted types and size limits still apply.</>} code={overviewCode}>
+  <VueFileUploadDemo template={overview} controls={overviewControls} files="all" />
 </ComponentPreview>
 
 ## File Card
 
-Standalone file card component. Wrap with `FileCardGroup` for the bordered container. Leave out the `@remove` listener to hide the delete button.
+Standalone file card component. Wrap with `FileCardGroup` for the bordered container. Leave out the `@remove` listener (`onRemove`) to hide the delete button.
 
-### Read-only
+<span id="read-only" />
+<span id="with-remove" />
+<span id="multiple-files" />
+<span id="read-only-list" />
 
-<ComponentPreview language="vue" code={readOnly}>
-  <VueFileUploadDemo template={readOnly} />
-</ComponentPreview>
+### File list
 
-### With remove
-
-<ComponentPreview language="vue" details={<>Removing the focused file moves focus to the existing File removed status without scrolling. Pointer removal does not move focus if the remove button was not focused.</>} code={withFileRemoval(withRemove, "const file = ref(initialFile);")}>
-  <VueFileUploadDemo template={withRemove} />
-</ComponentPreview>
-
-### Multiple files
-
-<ComponentPreview language="vue" details={<>After keyboard removal, focus moves to the next file, then the previous one, or the Files removed status when the list becomes empty. The same helper preserves the scroll position.</>} code={withFileRemoval(multipleFiles, "const files = ref(initialFiles);")}>
-  <VueFileUploadDemo template={multipleFiles} files="all" />
-</ComponentPreview>
-
-### Read-only list
-
-<ComponentPreview language="vue" code={readOnlyList}>
-  <VueFileUploadDemo template={readOnlyList} files="all" />
+<ComponentPreview language="vue" details={<>One file is a list of one. Turn off <code>onRemove</code> for read-only cards. After keyboard removal, focus moves to the next file, then the previous one, or the Files removed status when the list becomes empty, without scrolling. Pointer removal does not move focus if the remove button was not focused.</>} code={withFileRemoval(fileList, "const files = ref(initialFiles);\nconst removable = ref(true);")}>
+  <VueFileUploadDemo template={fileList} controls={fileListControls} files="all" />
 </ComponentPreview>
 
 ## API

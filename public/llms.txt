@@ -482,7 +482,7 @@ Props:
   FileCardGroup:
     - children (ReactNode) — FileCard elements
     - className (string) — Additional CSS class
-Examples: Overview, With files, Read-only, With remove, Multiple files, Read-only list
+Examples: Overview, File list
 
 ## Float Input
 Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.

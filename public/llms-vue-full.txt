@@ -3931,13 +3931,13 @@ Props:
     - class (string) — Additional CSS class
 
 ### Overview
-Toggle errorMessage and disabled while keeping the selected files. The error control demonstrates a supplied message; it does not validate the number of files. Accepted types and size limits still apply.
+The example starts with three files: the list stands under the button, each file with a type icon, its name truncated in the middle, its size and a remove button. Toggle errorMessage and disabled while keeping the selected files. The error control demonstrates a supplied message; it does not validate the number of files. Accepted types and size limits still apply.
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
 import { FileUpload } from '@plexui/vue/components/FileUpload';
 
-const files = ref<File[]>([]);
+const files = ref<File[]>(initialFiles);
 const errorMessage = ref(false);
 const disabled = ref(false);
 </script>
@@ -3955,66 +3955,8 @@ const disabled = ref(false);
 </template>
 ```
 
-### With files
-File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button. files starts with three File objects.
-```vue
-<div class="w-[360px]">
-  <FileUpload
-    v-model:value="files"
-    accept=".pdf,.png"
-    multiple
-    :max-files="5"
-  />
-</div>
-```
-
-### Read-only
-```vue
-<div class="w-[360px]">
-  <FileCardGroup>
-    <FileCard :file="file" />
-  </FileCardGroup>
-</div>
-```
-
-### With remove
-Removing the focused file moves focus to the existing File removed status without scrolling. Pointer removal does not move focus if the remove button was not focused.
-```vue
-<script setup>
-import { ref } from 'vue';
-
-function removeFileWithFocus(root, index, remove) {
-  const buttons = Array.from(root?.querySelectorAll('button:not(:disabled)') ?? []);
-  const source = buttons[index];
-  const target = buttons[index + 1] ?? buttons[index - 1] ?? root?.querySelector('[data-file-removal-status]');
-  const doc = source?.ownerDocument;
-  const restore = source !== undefined && doc?.activeElement === source;
-  remove();
-  if (!restore || !source || !doc || !(target instanceof HTMLElement)) return;
-  queueMicrotask(() => {
-    if (!source.isConnected && target.isConnected && (doc.activeElement === doc.body || doc.activeElement === source)) {
-      target.focus({ preventScroll: true });
-    }
-  });
-}
-
-const file = ref(initialFile);
-</script>
-
-<template>
-<div ref="fileCards" class="w-[360px]">
-  <FileCardGroup v-if="file">
-    <FileCard :file="file" @remove="removeFileWithFocus($refs.fileCards, 0, () => { file = null })" />
-  </FileCardGroup>
-  <div role="status" tabindex="-1" data-file-removal-status :class="file ? 'sr-only' : 'text-center text-sm text-tertiary'">
-    {{ file ? '' : 'File removed' }}
-  </div>
-</div>
-</template>
-```
-
-### Multiple files
-After keyboard removal, focus moves to the next file, then the previous one, or the Files removed status when the list becomes empty. The same helper preserves the scroll position.
+### File list
+One file is a list of one. Turn off onRemove for read-only cards. After keyboard removal, focus moves to the next file, then the previous one, or the Files removed status when the list becomes empty, without scrolling. Pointer removal does not move focus if the remove button was not focused.
 ```vue
 <script setup>
 import { ref } from 'vue';
@@ -4035,6 +3977,7 @@ function removeFileWithFocus(root, index, remove) {
 }
 
 const files = ref(initialFiles);
+const removable = ref(true);
 </script>
 
 <template>
@@ -4044,7 +3987,7 @@ const files = ref(initialFiles);
       v-for="(file, index) in files"
       :key="file.name + '-' + file.size"
       :file="file"
-      @remove="removeFileWithFocus($refs.fileCards, index, () => { files = files.filter((_, i) => i !== index) })"
+      :on-remove="removable ? () => removeFileWithFocus($refs.fileCards, index, () => { files = files.filter((_, i) => i !== index) }) : undefined"
     />
   </FileCardGroup>
   <div role="status" tabindex="-1" data-file-removal-status :class="files.length > 0 ? 'sr-only' : 'text-center text-sm text-tertiary'">
@@ -4052,15 +3995,6 @@ const files = ref(initialFiles);
   </div>
 </div>
 </template>
-```
-
-### Read-only list
-```vue
-<div class="w-[360px]">
-  <FileCardGroup>
-    <FileCard v-for="file in files" :key="file.name + '-' + file.size" :file="file" />
-  </FileCardGroup>
-</div>
 ```
 
 ## Float Input

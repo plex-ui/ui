@@ -3865,10 +3865,10 @@ Props:
     - className (string) — Additional CSS class
 
 ### Overview
-Toggle errorMessage and disabled while keeping the selected files. The error control demonstrates a supplied message; it does not validate the number of files. Accepted types and size limits still apply.
+The example starts with three files: the list stands under the button, each file with a type icon, its name truncated in the middle, its size and a remove button. Toggle errorMessage and disabled while keeping the selected files. The error control demonstrates a supplied message; it does not validate the number of files. Accepted types and size limits still apply.
 ```tsx
 function Example({ errorMessage = false, disabled = false }) {
-const [files, setFiles] = useState<File[]>([]);
+const [files, setFiles] = useState<File[]>(initialFiles);
 
 return (
   <div className="w-[360px]">
@@ -3887,33 +3887,8 @@ return (
 }
 ```
 
-### With files
-File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button. initialFiles holds three File objects.
-```tsx
-const [files, setFiles] = useState<File[]>(initialFiles)
-
-<div className="w-[360px]">
-<FileUpload
-  accept=".pdf,.png"
-  multiple
-  maxFiles={5}
-  value={files}
-  onValueChange={setFiles}
-/>
-</div>
-```
-
-### Read-only
-```tsx
-<div className="w-[360px]">
-<FileCardGroup>
-  <FileCard file={file} />
-</FileCardGroup>
-</div>
-```
-
-### With remove
-Removing the focused file moves focus to the existing File removed status without scrolling. Pointer removal does not move focus if the remove button was not focused.
+### File list
+One file is a list of one. Turn off onRemove for read-only cards. After keyboard removal, focus moves to the next file, then the previous one, or the Files removed status when the list becomes empty, without scrolling. Pointer removal does not move focus if the remove button was not focused.
 ```tsx
 function removeFileWithFocus(root, index, remove) {
   const buttons = Array.from(root?.querySelectorAll('button:not(:disabled)') ?? []);
@@ -3930,65 +3905,27 @@ function removeFileWithFocus(root, index, remove) {
   });
 }
 
-const cards = useRef<HTMLDivElement>(null)
-const [file, setFile] = useState<File | null>(initialFile)
+function Example({ onRemove = true }) {
+const cards = useRef<HTMLDivElement>(null);
+const [files, setFiles] = useState<File[]>(initialFiles);
 
-<div ref={cards} className="w-[360px]">
-{file && <FileCardGroup>
-  <FileCard file={file} onRemove={() => removeFileWithFocus(cards.current, 0, () => setFile(null))} />
-</FileCardGroup>}
-<div role="status" tabIndex={-1} data-file-removal-status className={file ? "sr-only" : "text-center text-sm text-tertiary"}>
-  {file ? "" : "File removed"}
-</div>
-</div>
-```
-
-### Multiple files
-After keyboard removal, focus moves to the next file, then the previous one, or the Files removed status when the list becomes empty. The same helper preserves the scroll position.
-```tsx
-function removeFileWithFocus(root, index, remove) {
-  const buttons = Array.from(root?.querySelectorAll('button:not(:disabled)') ?? []);
-  const source = buttons[index];
-  const target = buttons[index + 1] ?? buttons[index - 1] ?? root?.querySelector('[data-file-removal-status]');
-  const doc = source?.ownerDocument;
-  const restore = source !== undefined && doc?.activeElement === source;
-  remove();
-  if (!restore || !source || !doc || !(target instanceof HTMLElement)) return;
-  queueMicrotask(() => {
-    if (!source.isConnected && target.isConnected && (doc.activeElement === doc.body || doc.activeElement === source)) {
-      target.focus({ preventScroll: true });
-    }
-  });
+return (
+  <div ref={cards} className="w-[360px]">
+    {files.length > 0 && <FileCardGroup>
+      {files.map((file, index) => (
+        <FileCard
+          key={`${file.name}-${file.size}`}
+          file={file}
+          onRemove={onRemove ? () => removeFileWithFocus(cards.current, index, () => setFiles((prev) => prev.filter((_, i) => i !== index))) : undefined}
+        />
+      ))}
+    </FileCardGroup>}
+    <div role="status" tabIndex={-1} data-file-removal-status className={files.length > 0 ? "sr-only" : "text-center text-sm text-tertiary"}>
+      {files.length > 0 ? "" : "Files removed"}
+    </div>
+  </div>
+);
 }
-
-const cards = useRef<HTMLDivElement>(null)
-const [files, setFiles] = useState<File[]>(initialFiles)
-
-<div ref={cards} className="w-[360px]">
-{files.length > 0 && <FileCardGroup>
-  {files.map((file, index) => (
-    <FileCard
-      key={`${file.name}-${file.size}`}
-      file={file}
-      onRemove={() => removeFileWithFocus(cards.current, index, () => setFiles((prev) => prev.filter((_, i) => i !== index)))}
-    />
-  ))}
-</FileCardGroup>}
-<div role="status" tabIndex={-1} data-file-removal-status className={files.length > 0 ? "sr-only" : "text-center text-sm text-tertiary"}>
-  {files.length > 0 ? "" : "Files removed"}
-</div>
-</div>
-```
-
-### Read-only list
-```tsx
-<div className="w-[360px]">
-<FileCardGroup>
-  {files.map((file) => (
-    <FileCard key={`${file.name}-${file.size}`} file={file} />
-  ))}
-</FileCardGroup>
-</div>
 ```
 
 ## Float Input

@@ -19,8 +19,9 @@ const MOCK_FILES = [
   createMockFile('non-citizen-travel-2026-approved-document.pdf', 1500, 'application/pdf'),
 ];
 
+// Starts with files, so one example shows the button and the list under it
 export function FileUploadDemo() {
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<File[]>(MOCK_FILES);
   const [errorMessage, setErrorMessage] = useState(false);
   const [disabled, setDisabled] = useState(false);
 
@@ -48,58 +49,10 @@ export function FileUploadDemo() {
   );
 }
 
-export function FileUploadWithFilesDemo() {
-  const [files, setFiles] = useState<File[]>(MOCK_FILES);
-
-  return (
-    <div data-demo-stage className="py-10">
-      <div className="w-[360px]">
-        <FileUpload
-          accept=".pdf,.png"
-          multiple
-          maxFiles={5}
-          value={files}
-          onValueChange={setFiles}
-        />
-      </div>
-    </div>
-  );
-}
-
+// One list of cards: one file is a list of one, and without onRemove the cards are read-only
 export function FileCardDemo() {
-  return (
-    <div data-demo-stage className="py-10">
-      <div className="w-[360px]">
-        <FileCardGroup>
-          <FileCard file={createMockFile('project-brief.pdf', 2400, 'application/pdf')} />
-        </FileCardGroup>
-      </div>
-    </div>
-  );
-}
-
-export function FileCardWithRemoveDemo() {
   const cards = useRef<HTMLDivElement>(null);
-  const [file, setFile] = useState<File | null>(
-    () => createMockFile('project-brief.pdf', 2400, 'application/pdf'),
-  );
-
-  return (
-    <div data-demo-stage className="py-10">
-      <div ref={cards} className="w-[360px]">
-        {file && <FileCardGroup>
-          <FileCard file={file} onRemove={() => removeFileWithFocus(cards.current, 0, () => setFile(null))} />
-        </FileCardGroup>}
-        <div role="status" tabIndex={-1} data-file-removal-status className={file ? 'sr-only' : 'text-center text-sm text-tertiary'}>
-          {file ? '' : 'File removed'}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function FileCardListDemo() {
-  const cards = useRef<HTMLDivElement>(null);
+  const [removable, setRemovable] = useState(true);
   const [files, setFiles] = useState<File[]>(MOCK_FILES);
 
   const removeFile = (index: number) => {
@@ -109,36 +62,27 @@ export function FileCardListDemo() {
   };
 
   return (
-    <div data-demo-stage className="py-10">
-      <div ref={cards} className="w-[360px]">
-        {files.length > 0 && <FileCardGroup>
-          {files.map((file, index) => (
-            <FileCard
-              key={`${file.name}-${file.size}`}
-              file={file}
-              onRemove={() => removeFile(index)}
-            />
-          ))}
-        </FileCardGroup>}
-        <div role="status" tabIndex={-1} data-file-removal-status className={files.length > 0 ? 'sr-only' : 'text-center text-sm text-tertiary'}>
-          {files.length > 0 ? '' : 'Files removed'}
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="onRemove" value={removable} onChange={setRemovable} />
+      </div>
+      <div data-demo-stage className="py-10">
+        <div ref={cards} className="w-[360px]">
+          {files.length > 0 && <FileCardGroup>
+            {files.map((file, index) => (
+              <FileCard
+                key={`${file.name}-${file.size}`}
+                file={file}
+                onRemove={removable ? () => removeFile(index) : undefined}
+              />
+            ))}
+          </FileCardGroup>}
+          <div role="status" tabIndex={-1} data-file-removal-status className={files.length > 0 ? 'sr-only' : 'text-center text-sm text-tertiary'}>
+            {files.length > 0 ? '' : 'Files removed'}
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-export function FileCardReadOnlyListDemo() {
-  return (
-    <div data-demo-stage className="py-10">
-      <div className="w-[360px]">
-        <FileCardGroup>
-          {MOCK_FILES.map((file) => (
-            <FileCard key={`${file.name}-${file.size}`} file={file} />
-          ))}
-        </FileCardGroup>
-      </div>
-    </div>
+    </>
   );
 }
 
