@@ -7,7 +7,7 @@ metaDescription: Accessible Vue 3 modal dialog component for confirmations, form
 import { VueSegmentedComposerDemo } from "@/components/docs/vue/VueSegmentedComposerDemo"
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 import detailsStyles from "@/components/docs/DialogDetailsDemos.module.css"
-import { VueDialogDetailsDemo, VueDialogPlacementDemo, VueDialogViewOptionsDemo } from "@/components/docs/vue/VueDialogDemos"
+import { VueDialogDetailsDemo, VueDialogPlacementDemo, VueDialogSetupChoicesDemo, VueDialogViewOptionsDemo } from "@/components/docs/vue/VueDialogDemos"
 
 export const overview = `<Dialog v-model:open="open">
   <DialogTrigger>
@@ -635,6 +635,25 @@ import { SegmentedComposer } from './vue/SegmentedComposer';
   <SegmentedComposer surface="grouped" />
 </template>`}>
   <VueSegmentedComposerDemo />
+</ComponentPreview>
+
+### Setup choices
+
+Rows that each open the next step: a leading icon, a title, an optional subtitle and a disclosure chevron, and the whole row is one button. On phones the sheet is on the plain surface, with the rows in one group or each in its own rounded cell. A row replaces the choices with its step in the same sheet; Back returns to the row that opened it and Close dismisses the sheet. Desktop uses a centered dialog with Back in its footer. Add confirms the local sample; nothing is sent.
+
+Copy the [SetupChoicesSheet helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SetupChoicesSheet.ts), [method data](https://github.com/plex-ui/ui/blob/master/components/docs/setupChoicesData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SetupChoicesSheet.module.css) together, preserving their relative paths. The helper uses Dialog, Toolbar, NavigationButton, FieldGroup and Button. `layout` and `subtitles` choose the presentation; the `add` event receives the confirmed method.
+
+<ComponentPreview phonePresentation="screen" phoneDialog code={`<script setup>
+import { ref } from 'vue';
+import { SetupChoicesSheet } from './vue/SetupChoicesSheet';
+
+const open = ref(false);
+</script>
+
+<template>
+  <SetupChoicesSheet v-model:open="open" layout="grouped" @add="(method) => console.log(method.id)" />
+</template>`}>
+  <VueDialogSetupChoicesDemo />
 </ComponentPreview>
 
 ## API

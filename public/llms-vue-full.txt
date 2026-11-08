@@ -3555,6 +3555,20 @@ import { SegmentedComposer } from './vue/SegmentedComposer';
 </template>
 ```
 
+### Setup choices
+```vue
+<script setup>
+import { ref } from 'vue';
+import { SetupChoicesSheet } from './vue/SetupChoicesSheet';
+
+const open = ref(false);
+</script>
+
+<template>
+<SetupChoicesSheet v-model:open="open" layout="grouped" @add="(method) => console.log(method.id)" />
+</template>
+```
+
 ## Empty Message
 Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
 Import: import { EmptyMessage, EmptyMessageActionRow, EmptyMessageDescription, EmptyMessageIcon, EmptyMessageTitle } from "@plexui/vue/components/EmptyMessage"

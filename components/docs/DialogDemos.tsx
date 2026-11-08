@@ -7,15 +7,46 @@ import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Input } from '@plexui/ui/components/Input';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { usePhoneRows } from './PhoneRows';
 import { usePhoneViewport, usePreviewEmbed } from './PreviewEmbed';
 import { BarBackgroundControl } from './ToolbarDemos';
+import { SetupChoicesSheet } from './SetupChoicesSheet';
+import setupStyles from './SetupChoicesSheet.module.css';
+import type { SetupChoicesLayout } from './setupChoicesData';
 import { ViewOptionsSheetDemo } from './ViewOptionsSheet';
 
 export function DialogViewOptionsDemo() {
   const phonePreview = usePreviewEmbed() !== null;
   return <ViewOptionsSheetDemo initialOpen={phonePreview} />;
+}
+
+const SETUP_LAYOUTS = ['grouped', 'separate'] as const satisfies readonly SetupChoicesLayout[];
+
+export function DialogSetupChoicesDemo() {
+  const phonePreview = usePreviewEmbed() !== null;
+  const [open, setOpen] = useState(phonePreview);
+  const [layout, setLayout] = useState<SetupChoicesLayout>('grouped');
+  const [subtitles, setSubtitles] = useState(false);
+  const [status, setStatus] = useState('');
+
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="layout">
+          <SegmentedControl<SetupChoicesLayout> value={layout} onChange={setLayout} aria-label="Layout" size="xs">
+            {SETUP_LAYOUTS.map((value) => <SegmentedControl.Option key={value} value={value}>{value}</SegmentedControl.Option>)}
+          </SegmentedControl>
+        </DemoControlRow>
+        <DemoControlBoolean name="subtitles" value={subtitles} onChange={setSubtitles} />
+      </div>
+      <div data-demo-stage className={setupStyles.Stage}>
+        <SetupChoicesSheet open={phonePreview || open} onOpenChange={setOpen} layout={layout} subtitles={subtitles}
+          onAdd={(method) => setStatus(`${method.title} added in this preview.`)} />
+        <p role="status" className={setupStyles.Status}>{status}</p>
+      </div>
+    </>
+  );
 }
 
 function useDialogDemoState() {

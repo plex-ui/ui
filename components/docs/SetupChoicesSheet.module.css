@@ -1,0 +1,236 @@
+/* Rows that open the next step, in a Sheet on the plain surface: a leading icon, a title, an optional subtitle and a
+   disclosure chevron. Phone values come from native iOS sheets at 3x on a 430pt screen: Set Up eSIM (IMG_5517,
+   grouped rows), Add email or phone number (IMG_5499, separate rows) and Mail support articles (IMG_5437, rows with
+   a subtitle). */
+.Stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-block: 40px;
+}
+
+.Status {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-text-sm-size);
+  line-height: var(--font-text-sm-line-height);
+}
+
+.Hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.Title {
+  margin: 0;
+}
+
+.Description {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.Choices {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.HeroIcon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+  color: var(--color-text-info);
+}
+
+.Heading {
+  outline: none;
+}
+
+.Body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.Info {
+  --button-justify-content: flex-start;
+  margin-inline-start: calc(-1 * var(--button-gutter, 12px));
+}
+
+.Rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* A pressed or hovered row keeps the group's rounded corners. */
+.RowsBody {
+  overflow: hidden;
+}
+
+.Row {
+  height: auto;
+  min-height: 56px;
+  padding-block: 10px;
+  border-radius: 0;
+  text-align: start;
+  white-space: normal;
+}
+
+.RowContent {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.RowIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--color-text-info);
+}
+
+.RowText {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.RowTitle {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+.RowSubtitle {
+  color: var(--color-text-secondary);
+  font-size: var(--font-text-sm-size);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--font-text-sm-line-height);
+}
+
+.Disclosure {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+}
+
+.Paragraph {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 767px) {
+  /* Content and groups start 38pt from the sheet edge in both native sheets. */
+  .Sheet {
+    --setup-choices-inline: 38px;
+  }
+
+  .Body {
+    padding-inline: var(--setup-choices-inline);
+  }
+
+  .Hero {
+    gap: 0;
+  }
+
+  /* The hero glyph is 67pt tall in IMG_5517; a 24-unit icon draws its glyph in about 20 units. */
+  .HeroIcon {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 36px;
+    align-self: center;
+  }
+
+  /* Title 2: the title bold, the text under it regular in the secondary label, 22/28. */
+  .Title {
+    font-size: 22px;
+    font-weight: var(--font-weight-bold);
+    line-height: 28px;
+  }
+
+  .Description,
+  .Paragraph {
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+    font-size: 22px;
+    line-height: 28px;
+  }
+
+  .Choices {
+    gap: 12px;
+  }
+
+  /* The information link in Body type, its icon 22pt (IMG_5517: Learn More beside a filled info circle; the
+     PlexUI icon set has the outlined one). */
+  .Info {
+    --button-font-size: var(--field-row-label-font-size);
+    --button-line-height: var(--field-row-label-line-height);
+  }
+
+  .Info svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .Rows {
+    margin-top: 12px;
+  }
+
+  /* Separate rows: each its own rounded cell, 18pt apart (IMG_5499). */
+  .Rows[data-layout="separate"] {
+    gap: 18px;
+  }
+
+  /* Rows are 57pt in the group and 59pt on their own; the icon sits 20pt in and the title starts 70pt in. */
+  .Row {
+    min-height: 57px;
+    padding: 8px 20px 8px 16px;
+    font-size: var(--field-row-label-font-size);
+    line-height: var(--field-row-label-line-height);
+  }
+
+  .Rows[data-layout="separate"] .Row {
+    min-height: 59px;
+  }
+
+  .RowContent {
+    gap: 24px;
+  }
+
+  .RowIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .RowTitle {
+    font-weight: 590;
+  }
+
+  /* Subtitles: Subheadline 15/20 in the secondary label (IMG_5437). */
+  .RowSubtitle {
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+    font-size: 15px;
+    line-height: 20px;
+  }
+
+  /* The chevron in the tertiary label, its glyph ending 20pt from the cell edge. */
+  .Disclosure {
+    width: 20px;
+    height: 20px;
+    margin-inline: -5px;
+    color: var(--mobile-label-tertiary, var(--color-text-tertiary));
+  }
+
+  /* Separators run from the title to 20pt before the cell edge. */
+  .Rows [data-row] + [data-row]::after {
+    inset-inline-start: 70px;
+    inset-inline-end: 20px;
+  }
+}

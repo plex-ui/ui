@@ -11,6 +11,7 @@ import {
   DialogBodyDemo,
   DialogPlacementDemo,
   DialogViewOptionsDemo,
+  DialogSetupChoicesDemo,
 } from "@/components/docs/DialogDemos"
 
 import { DialogSegmentedComposerDemo } from "@/components/docs/DialogSegmentedComposerDemo"
@@ -407,6 +408,22 @@ export default function Example() {
   return <SegmentedComposer surface="grouped" />;
 }`}>
   <DialogSegmentedComposerDemo />
+</ComponentPreview>
+
+### Setup choices
+
+Rows that each open the next step: a leading icon, a title, an optional subtitle and a disclosure chevron, and the whole row is one button. On phones the sheet is on the plain surface, with the rows in one group or each in its own rounded cell. A row replaces the choices with its step in the same sheet; Back returns to the row that opened it and Close dismisses the sheet. Desktop uses a centered dialog with Back in its footer. Add confirms the local sample; nothing is sent.
+
+Copy the [SetupChoicesSheet helper](https://github.com/plex-ui/ui/blob/master/components/docs/SetupChoicesSheet.tsx), [method data](https://github.com/plex-ui/ui/blob/master/components/docs/setupChoicesData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SetupChoicesSheet.module.css) together. The helper uses Dialog, Toolbar, NavigationButton, FieldGroup and Button. `layout` and `subtitles` choose the presentation; `onAdd` receives the confirmed method.
+
+<ComponentPreview phonePresentation="screen" phoneDialog code={`import { useState } from 'react';
+import { SetupChoicesSheet } from './SetupChoicesSheet';
+
+export default function Example() {
+  const [open, setOpen] = useState(false);
+  return <SetupChoicesSheet open={open} onOpenChange={setOpen} layout="grouped" onAdd={(method) => console.log(method.id)} />;
+}`}>
+  <DialogSetupChoicesDemo />
 </ComponentPreview>
 
 ## API

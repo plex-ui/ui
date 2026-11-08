@@ -2244,6 +2244,10 @@
         {
           "name": "Segmented composer header",
           "code": "import { SegmentedComposer } from './SegmentedComposer';\n\nexport default function Example() {\nreturn <SegmentedComposer surface=\"grouped\" />;\n}"
+        },
+        {
+          "name": "Setup choices",
+          "code": "import { useState } from 'react';\nimport { SetupChoicesSheet } from './SetupChoicesSheet';\n\nexport default function Example() {\nconst [open, setOpen] = useState(false);\nreturn <SetupChoicesSheet open={open} onOpenChange={setOpen} layout=\"grouped\" onAdd={(method) => console.log(method.id)} />;\n}"
         }
       ],
       "subComponents": [
@@ -7688,5 +7692,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T04:22:40.218Z"
+  "generatedAt": "2026-11-08T04:42:30.889Z"
 }

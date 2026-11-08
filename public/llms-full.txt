@@ -3512,6 +3512,17 @@ return <SegmentedComposer surface="grouped" />;
 }
 ```
 
+### Setup choices
+```tsx
+import { useState } from 'react';
+import { SetupChoicesSheet } from './SetupChoicesSheet';
+
+export default function Example() {
+const [open, setOpen] = useState(false);
+return <SetupChoicesSheet open={open} onOpenChange={setOpen} layout="grouped" onAdd={(method) => console.log(method.id)} />;
+}
+```
+
 ## Empty Message
 Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
 Import: import { EmptyMessage } from "@plexui/ui/components/EmptyMessage"

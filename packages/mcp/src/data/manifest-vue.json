@@ -2270,6 +2270,10 @@
         {
           "name": "Segmented composer header",
           "code": "<script setup>\nimport { SegmentedComposer } from './vue/SegmentedComposer';\n</script>\n\n<template>\n<SegmentedComposer surface=\"grouped\" />\n</template>"
+        },
+        {
+          "name": "Setup choices",
+          "code": "<script setup>\nimport { ref } from 'vue';\nimport { SetupChoicesSheet } from './vue/SetupChoicesSheet';\n\nconst open = ref(false);\n</script>\n\n<template>\n<SetupChoicesSheet v-model:open=\"open\" layout=\"grouped\" @add=\"(method) => console.log(method.id)\" />\n</template>"
         }
       ],
       "subComponents": [
@@ -7702,5 +7706,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T04:22:42.038Z"
+  "generatedAt": "2026-11-08T04:42:32.514Z"
 }
