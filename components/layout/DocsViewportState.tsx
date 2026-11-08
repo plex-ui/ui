@@ -21,14 +21,8 @@ export function DocsViewportState({
   }, [showLeftSidebar, showRightSidebar]);
 
   useEffect(() => {
+    // Popover wrappers take their z-index from globals.css (!important), so nothing here writes to them.
     const applyScrollPolicy = () => {
-      const popperWrappers = document.querySelectorAll<HTMLElement>(
-        '[data-radix-popper-content-wrapper]'
-      );
-      popperWrappers.forEach((wrapper) => {
-        wrapper.style.zIndex = '40';
-      });
-
       const leftViewport = document.querySelector<HTMLElement>(
         '#nd-sidebar .overscroll-contain'
       );
@@ -50,12 +44,27 @@ export function DocsViewportState({
     const timeout = window.setTimeout(applyScrollPolicy, 120);
     const timeoutLate = window.setTimeout(applyScrollPolicy, 420);
     const resizeObserver = new ResizeObserver(() => applyScrollPolicy());
-    const mutationObserver = new MutationObserver(() => applyScrollPolicy());
-
-    const leftViewport = document.querySelector<HTMLElement>(
+    let leftViewport = document.querySelector<HTMLElement>(
       '#nd-sidebar .overscroll-contain'
     );
-    const rightViewport = document.getElementById('nd-toc');
+    let rightViewport = document.getElementById('nd-toc');
+    // The policy reads the scroll sizes of the two sidebars, which makes the browser lay out the page. Run it only when
+    // a change lands in a sidebar (or one of them is replaced), not on every change in the page, such as an example
+    // opening a sheet.
+    const mutationObserver = new MutationObserver((records) => {
+      const left = document.querySelector<HTMLElement>('#nd-sidebar .overscroll-contain');
+      const right = document.getElementById('nd-toc');
+      const replaced = left !== leftViewport || right !== rightViewport;
+      if (left && left !== leftViewport) resizeObserver.observe(left);
+      if (right && right !== rightViewport) {
+        resizeObserver.observe(right);
+        mutationObserver.observe(right, { childList: true, subtree: true, attributes: true });
+      }
+      leftViewport = left;
+      rightViewport = right;
+      if (replaced || records.some(({ target }) => left?.contains(target) || right?.contains(target))) applyScrollPolicy();
+    });
+
     if (leftViewport) resizeObserver.observe(leftViewport);
     if (rightViewport) {
       resizeObserver.observe(rightViewport);

@@ -608,8 +608,9 @@ html.dark #nd-docs-layout.plex-docs-shell #nd-sidebar a[data-active][data-active
 /* A Plex UI Dialog in a demo is modal: while one is open, the sticky navbar
    (z-index 12000) steps under its overlay (z-index 50), so a tall, top, side
    or fullscreen dialog is not cut off under the navbar. Both the React and
-   the Vue Dialog set --dialog-width inline on the dialog element. */
-body:has([role="dialog"][style*="--dialog-width"]) #plex-global-nav {
+   the Vue Dialog mark the dialog element with data-plex-dialog. (A match on its
+   inline style made every inline style change in the page restyle all of it.) */
+body:has([data-plex-dialog]) #plex-global-nav {
   z-index: 40;
 }
 
@@ -617,7 +618,7 @@ body:has([role="dialog"][style*="--dialog-width"]) #plex-global-nav {
    inside an open dialog that would put a Select or Menu list behind the
    panel (z-index 50), so lift them over it. Popovers already open outside
    the dialog are marked data-aria-hidden by it and stay under the overlay. */
-body:has([role="dialog"][style*="--dialog-width"]) [data-radix-popper-content-wrapper]:not([data-aria-hidden]) {
+body:has([data-plex-dialog]) [data-radix-popper-content-wrapper]:not([data-aria-hidden]) {
   z-index: 60 !important;
 }
 
