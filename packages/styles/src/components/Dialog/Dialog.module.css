@@ -208,6 +208,8 @@
     --dialog-panel-radius: var(--dialog-panel-corner);
     --dialog-panel-padding-bottom: 1.25rem;
     --dialog-panel-hidden-transform: scale(0.95) translateY(8px);
+    /* A centered panel scales in with a fade, even when its desktop placement slides in opaque. */
+    --dialog-panel-hidden-opacity: 0;
     --dialog-enter-duration: var(--motion-enter);
     --dialog-exit-duration: var(--motion-exit);
     --dialog-exit-easing: var(--cubic-exit-snappy);
@@ -223,6 +225,9 @@
     --dialog-panel-radius: var(--dialog-panel-corner) var(--dialog-panel-corner) 0 0;
     --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
     --dialog-panel-hidden-transform: translateY(100%);
+    /* A bottom panel (a Sheet) slides up and back down opaque, as UIKit's default modal presentation
+       (coverVertical) does; only the scrim fades. A fading panel let the page show through it. */
+    --dialog-panel-hidden-opacity: 1;
     --dialog-enter-duration: var(--motion-enter-large);
     --dialog-exit-duration: var(--motion-exit-large);
     --dialog-exit-easing: var(--cubic-exit);

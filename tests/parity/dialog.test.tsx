@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs"
+import postcss from "postcss"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import type { ReactNode } from "react"
 import { renderToString as renderReactToString } from "react-dom/server"
@@ -701,6 +702,31 @@ describe("Dialog parity, radix-ui 1.8", () => {
     // A link keeps its color and underline (WCAG 1.4.1); everything else takes the message's color
     expect(rule(`${alert} .Description *:not(a, a *)`)).toContain("color: inherit;")
     expect(rule(`${alert} .Description *:not(a, a *)`)).toContain("text-decoration: none;")
+  })
+
+  test("on a phone a bottom panel slides in and out opaque and a centered one fades; only the scrim fades with the sheet (plan 95)", () => {
+    const root = postcss.parse(readFileSync(`${process.cwd()}/packages/styles/src/components/Dialog/Dialog.module.css`, "utf8"))
+    const phone: Array<[string, string]> = []
+    const desktop: Array<[string, string]> = []
+    root.walkDecls("--dialog-panel-hidden-opacity", (decl) => {
+      const rule = decl.parent
+      if (rule?.type !== "rule") return
+      const media = rule.parent?.type === "atrule" && "params" in rule.parent ? String(rule.parent.params) : ""
+      ;(media.includes("width <= 767px") ? phone : desktop).push([rule.selector.replace(/\s+/g, " "), decl.value])
+    })
+    expect(phone).toEqual([
+      ['.Content:where([data-mobile-placement="center"])', "0"],
+      ['.Content:where([data-mobile-placement="bottom"])', "1"],
+      ['.Content:where([data-mobile-placement="fullscreen"])', "1"],
+    ])
+    // Desktop keeps what it had: only fullscreen slides in opaque.
+    expect(desktop).toEqual([['.Content:where([data-placement="fullscreen"])', "1"]])
+    // The scrim still fades in and out.
+    const overlay: Record<string, string> = {}
+    root.walkRules(".Overlay", (rule) => rule.walkRules((inner) => {
+      if (inner.selector.includes("[data-exiting-active]")) inner.walkDecls((decl) => { overlay[decl.prop] = decl.value })
+    }))
+    expect(overlay.opacity).toBe("0")
   })
 
   test.each(["React", "Vue"])("%s: a phone Sheet and Alert dim with the mobile scrim; other phone dialogs keep the shared dim", async (framework) => {
