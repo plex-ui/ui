@@ -388,7 +388,10 @@
     text-align: start;
   }
 
+  /* The large title spans the columns of the row of controls above it, so a long one would widen their max-content
+     tracks and push the trailing button off the screen; with no width of its own it takes the row's and truncates. */
   .Toolbar[data-title-style="large"] > .Heading {
+    contain: inline-size;
     min-height: 0;
     transform: none;
 

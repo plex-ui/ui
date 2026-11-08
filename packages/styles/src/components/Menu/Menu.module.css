@@ -646,4 +646,37 @@
   .SubMenuItem[data-state="open"] > .PressableInner > .SubTriggerIcon {
     transform: rotate(90deg);
   }
+
+  /* iOS 26 submenus (iOS-menu IMG_5677, IMG_5678, IMG_5682): the row that opened one heads it in Semibold, with a
+     separator under it (Menu.tsx SubContent). */
+  .MenuList[data-submenu-phone] > [data-submenu-collapse] {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* A submenu that starts with its own separator keeps only the one under its heading row */
+  [data-submenu-collapse] + .Separator + .Separator {
+    display: none;
+  }
+
+  /* While a submenu stands over it the parent steps back, as in IMG_5677 against IMG_5676: its rows at half strength
+     (the label's ink 10 shows as 131 on the 254 panel) and the panel 0.968 of its size from its top (12px narrower on
+     each side of a 753px panel, the top in place). The placement marks it (menuSubmenuPlacement.ts) and keeps the mark
+     while the whole menu leaves. The origin returns only once the panel is back to full size. */
+  .MenuList {
+    transition: scale var(--motion-enter) var(--cubic-enter), transform-origin 0s linear var(--motion-enter);
+
+    & > * {
+      transition: opacity var(--motion-enter) var(--cubic-enter);
+    }
+  }
+
+  .MenuList[data-submenu-over] {
+    scale: 0.968;
+    transform-origin: 50% 0;
+    transition: scale var(--motion-enter) var(--cubic-enter), transform-origin 0s;
+
+    & > * {
+      opacity: 0.5;
+    }
+  }
 }

@@ -5354,10 +5354,10 @@ Props:
     - minWidth (number | "auto") default: 300 — Minimum panel width in px (vertical layout)
     - maxHeight (number) — Maximum panel height in px
     - pill (boolean) default: false — Rounder list with fully rounded rows, for menus beside pill controls. Menu.SubContent takes it too
-    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement
-    - sideOffset (number) default: 5 — Distance from the trigger in px
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement. Without it, and without sideOffset, a menu on a phone opens upward from a trigger in the lower half of the screen
+    - sideOffset (number) default: 5 — Distance from the trigger in px. Without it a menu on a phone covers its trigger
     - align ("start" | "center" | "end") default: "center" — Alignment relative to trigger
-    - alignOffset (number) default: -5 — Offset from the start or end alignment in px
+    - alignOffset (number) default: -5 — Offset from the start or end alignment in px. 0 with center alignment, and on a phone when the menu covers its trigger
     - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
     - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
     - onCloseAutoFocus ((event: Event) => void) — Called before focus returns to the trigger; call event.preventDefault() to keep it from moving there
@@ -5377,7 +5377,9 @@ Props:
     - disabled (boolean) — Disable the item
 
 ### Overview
+On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out width, minWidth and size.
 ```tsx
+// Desktop
 <Menu>
 <Menu.Trigger>
   <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
@@ -5392,11 +5394,33 @@ Props:
   <Menu.Item onSelect={() => {}}>Logout</Menu.Item>
 </Menu.Content>
 </Menu>
+
+// Phone: the More button of the top bar opens the menu
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Overview</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+    <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+    <Menu.Content align="end">
+      <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
+      <Menu.Separator />
+      <Menu.Link href="#">Your profile</Menu.Link>
+      <Menu.Link href="#">Terms & policies</Menu.Link>
+      <Menu.Item disabled onSelect={() => {}}>Feature flags</Menu.Item>
+      <Menu.Separator />
+      <Menu.Item onSelect={() => {}}>Logout</Menu.Item>
+    </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>
 ```
 
 ### Natural sizing
-Menu supports several sizing strategies:Natural sizing: use minWidth="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and minWidth to set the menu to a fixed size, regardless of content size.Flexible sizing: minWidth can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of Menu.Content. maxWidth isn't exposed as a prop because it's reserved for Radix variables used in collision detection.
+Menu supports several sizing strategies:Natural sizing: use minWidth="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and minWidth to set the menu to a fixed size, regardless of content size.Flexible sizing: minWidth can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of Menu.Content. maxWidth isn't exposed as a prop because it's reserved for Radix variables used in collision detection.These are desktop sizes: on a phone a menu is at least the 238px panel of the iOS kit, so the phone code leaves them out.
 ```tsx
+// Desktop
 <Menu>
 <Menu.Trigger>
   <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><Tools /> Tools</Button>
@@ -5409,11 +5433,31 @@ Menu supports several sizing strategies:Natural sizing: use minWidth="auto" to h
   <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image Generation</Menu.Item>
 </Menu.Content>
 </Menu>
+
+// Phone: the More button of the top bar opens the menu
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Natural sizing</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+    <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+    <Menu.Content align="end">
+      <Menu.Item onSelect={() => {}}><Functions height={18} width={18} /> Function</Menu.Item>
+      <Menu.Item onSelect={() => {}}><Search height={18} width={18} /> File Search</Menu.Item>
+      <Menu.Item onSelect={() => {}}><Globe height={18} width={18} /> Web Search</Menu.Item>
+      <Menu.Item onSelect={() => {}}><Code height={18} width={18} /> Code Interpreter</Menu.Item>
+      <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image Generation</Menu.Item>
+    </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>
 ```
 
 ### Horizontal (icons only)
 Set layout="horizontal" on Menu.Content for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. On a phone with touch.css the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control.
 ```tsx
+// Desktop
 <Menu>
 <Menu.Trigger>
   <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
@@ -5425,11 +5469,30 @@ Set layout="horizontal" on Menu.Content for an iOS-style icon toolbar. Give each
   <Menu.Item onSelect={() => {}}><UnfoldHorizontal /><span className="sr-only">Expand</span></Menu.Item>
 </Menu.Content>
 </Menu>
+
+// Phone: the More button of the top bar opens the menu
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Horizontal (icons only)</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+    <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+    <Menu.Content align="end" layout="horizontal">
+      <Menu.Item onSelect={() => {}}><EditPencil /><span className="sr-only">Edit</span></Menu.Item>
+      <Menu.Item onSelect={() => {}}><SettingsCog /><span className="sr-only">Settings</span></Menu.Item>
+      <Menu.Item onSelect={() => {}}><Play /><span className="sr-only">Play</span></Menu.Item>
+      <Menu.Item onSelect={() => {}}><UnfoldHorizontal /><span className="sr-only">Expand</span></Menu.Item>
+    </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>
 ```
 
 ### Horizontal (icons with labels)
 Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item. On a phone with touch.css these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control.
 ```tsx
+// Desktop
 <Menu>
 <Menu.Trigger>
   <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
@@ -5441,11 +5504,30 @@ Add text labels below icons for a labeled toolbar. The horizontal layout automat
   <Menu.Item onSelect={() => {}}><UnfoldHorizontal /> Expand</Menu.Item>
 </Menu.Content>
 </Menu>
+
+// Phone: the More button of the top bar opens the menu
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Horizontal (icons with labels)</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+    <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+    <Menu.Content align="end" layout="horizontal">
+      <Menu.Item onSelect={() => {}}><EditPencil /> Edit</Menu.Item>
+      <Menu.Item onSelect={() => {}}><SettingsCog /> Settings</Menu.Item>
+      <Menu.Item onSelect={() => {}}><Play /> Play</Menu.Item>
+      <Menu.Item onSelect={() => {}}><UnfoldHorizontal /> Expand</Menu.Item>
+    </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>
 ```
 
 ### Grouped items
 Use Menu.Group and Menu.Label to organize related items into labeled sections.
 ```tsx
+// Desktop
 <Menu>
 <Menu.Trigger>
   <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><FileDocument /> Templates <ChevronDownMd /></Button>
@@ -5465,11 +5547,38 @@ Use Menu.Group and Menu.Label to organize related items into labeled sections.
   </Menu.Group>
 </Menu.Content>
 </Menu>
+
+// Phone: the More button of the top bar opens the menu
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Grouped items</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+    <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+    <Menu.Content align="end">
+      <Menu.Group>
+        <Menu.Label>Active</Menu.Label>
+        <Menu.Link href="#">Welcome email</Menu.Link>
+        <Menu.Link href="#">Order confirmation</Menu.Link>
+        <Menu.Link href="#">Password reset</Menu.Link>
+      </Menu.Group>
+      <Menu.Separator />
+      <Menu.Group>
+        <Menu.Label>Draft</Menu.Label>
+        <Menu.Link href="#">New promo campaign</Menu.Link>
+        <Menu.Link href="#">Account deactivation</Menu.Link>
+      </Menu.Group>
+    </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>
 ```
 
 ### Submenus
-Use Menu.Sub, Menu.SubTrigger, and Menu.SubContent for nested menus.
+Use Menu.Sub, Menu.SubTrigger, and Menu.SubContent for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.
 ```tsx
+// Desktop
 <Menu>
 <Menu.Trigger>
   <Button color="primary" size="lg" variant="ghost">Options <ChevronDownMd /></Button>
@@ -5494,11 +5603,43 @@ Use Menu.Sub, Menu.SubTrigger, and Menu.SubContent for nested menus.
   <Menu.Item onSelect={() => {}}>Delete</Menu.Item>
 </Menu.Content>
 </Menu>
+
+// Phone: the More button of the top bar opens the menu
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Submenus</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+    <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+    <Menu.Content align="end">
+      <Menu.Item onSelect={() => {}}>Edit</Menu.Item>
+      <Menu.Item onSelect={() => {}}>Duplicate</Menu.Item>
+      <Menu.Separator />
+      <Menu.Sub>
+        <Menu.SubTrigger>More</Menu.SubTrigger>
+        <Menu.SubContent>
+          <Menu.Item onSelect={() => {}}>Move to project…</Menu.Item>
+          <Menu.Item onSelect={() => {}}>Move to folder…</Menu.Item>
+          <Menu.Separator />
+          <Menu.Item onSelect={() => {}}>Advanced options…</Menu.Item>
+        </Menu.SubContent>
+      </Menu.Sub>
+      <Menu.Separator />
+      <Menu.Item onSelect={() => {}}>Share</Menu.Item>
+      <Menu.Item onSelect={() => {}}>Add to favorites</Menu.Item>
+      <Menu.Separator />
+      <Menu.Item onSelect={() => {}}>Delete</Menu.Item>
+    </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>
 ```
 
 ### Checkbox items
 Use Menu.CheckboxItem with checked, onCheckedChange, and {"onSelect={(evt) => evt.preventDefault()}"} to keep the menu open. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition and indicatorVariant say, so the phone view leaves out those controls.
 ```tsx
+// Desktop
 const [settings, setSettings] = useState({
 showGrid: true,
 showLabels: false,
@@ -5543,11 +5684,53 @@ return (
   </Menu.Content>
 </Menu>
 )
+
+// Phone: the More button of the top bar opens the menu
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Checkbox items</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+      <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+      <Menu.Content align="end">
+        <Menu.CheckboxItem
+          checked={settings.showGrid}
+          onCheckedChange={(checked) => setSettings((s) => ({ ...s, showGrid: checked }))}
+          onSelect={(evt) => evt.preventDefault()}
+          indicatorPosition="end"
+          indicatorVariant="solid"
+        >
+          Show grid lines
+        </Menu.CheckboxItem>
+        <Menu.CheckboxItem
+          checked={settings.showLabels}
+          onCheckedChange={(checked) => setSettings((s) => ({ ...s, showLabels: checked }))}
+          onSelect={(evt) => evt.preventDefault()}
+          indicatorPosition="end"
+          indicatorVariant="solid"
+        >
+          Display labels
+        </Menu.CheckboxItem>
+        <Menu.CheckboxItem
+          checked={settings.enableShadows}
+          onCheckedChange={(checked) => setSettings((s) => ({ ...s, enableShadows: checked }))}
+          onSelect={(evt) => evt.preventDefault()}
+          indicatorPosition="end"
+          indicatorVariant="solid"
+        >
+          Enable shadows
+        </Menu.CheckboxItem>
+      </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>
 ```
 
 ### Radio items
 Use Menu.RadioGroup and Menu.RadioItem for single-selection options. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition says, so the phone view leaves out that control.
 ```tsx
+// Desktop
 const [value, setValue] = useState("any")
 
 <Menu>
@@ -5570,10 +5753,35 @@ const [value, setValue] = useState("any")
   </Menu.RadioGroup>
 </Menu.Content>
 </Menu>
+
+// Phone: the More button of the top bar opens the menu
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Radio items</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+    <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+    <Menu.Content align="end">
+      <Menu.RadioGroup
+        indicatorPosition="end"
+        value={value}
+        onChange={setValue}
+      >
+        <Menu.RadioItem value="any">Any time</Menu.RadioItem>
+        <Menu.RadioItem value="today" disabled>Today</Menu.RadioItem>
+        <Menu.RadioItem value="last7d">Last 7 days</Menu.RadioItem>
+        <Menu.RadioItem value="last30d">Last 30 days</Menu.RadioItem>
+        <Menu.RadioItem value="last3m">Last 3 months</Menu.RadioItem>
+      </Menu.RadioGroup>
+    </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>
 ```
 
 ### Item actions
-Use Menu.ItemActions and Menu.ItemAction for hover actions (e.g. delete) on an item.Accessibility note: these actions are not keyboard accessible due to how Radix Menu works, so they should not be critical actions with no other parity.
+Use Menu.ItemActions and Menu.ItemAction for hover actions (e.g. delete) on an item.Accessibility note: these actions are not keyboard accessible due to how Radix Menu works, so they should not be critical actions with no other parity.Desktop only: the rows of an iOS menu carry no actions of their own.
 ```tsx
 <Menu>
 <Menu.Trigger>
@@ -5605,6 +5813,7 @@ Use Menu.ItemActions and Menu.ItemAction for hover actions (e.g. delete) on an i
 ### Destructive items
 Mark a destructive action (delete, remove, leave) with danger: the label and the highlight take the danger color, and a description keeps its secondary color. Menu.Link takes danger too. Put such items last, after a separator.
 ```tsx
+// Desktop
 <Menu>
 <Menu.Trigger>
   <Button color="secondary" variant="soft" uniform aria-label="More actions">
@@ -5618,6 +5827,24 @@ Mark a destructive action (delete, remove, leave) with danger: the label and the
   <Menu.Item onSelect={remove} danger><Trash /> Delete project</Menu.Item>
 </Menu.Content>
 </Menu>
+
+// Phone: the More button of the top bar opens the menu
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Destructive items</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+    <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+    <Menu.Content align="end">
+      <Menu.Item onSelect={rename}><EditPencil /> Rename</Menu.Item>
+      <Menu.Item onSelect={duplicate}>Duplicate</Menu.Item>
+      <Menu.Separator />
+      <Menu.Item onSelect={remove} danger><Trash /> Delete project</Menu.Item>
+    </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>
 ```
 
 ## OTP Input

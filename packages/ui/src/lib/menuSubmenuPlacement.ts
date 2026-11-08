@@ -12,11 +12,13 @@ const clamp = (value: number, minimum: number, maximum: number) =>
 const round = (value: number) => Math.round(value * 1000) / 1000
 
 export function solvePhoneSubmenuPlacement({
-  boundary, trigger, parent, width, height, paddingTop, direction,
+  boundary, trigger, parent, reference = trigger, width, height, paddingTop, direction,
 }: {
   boundary: MenuRect
   trigger: MenuRect
   parent: MenuRect
+  /** The row's box as the primitive measures it, when the parent steps back (`readRestingMenuRects`) */
+  reference?: MenuRect
   width: number
   height: number
   paddingTop: number
@@ -29,9 +31,34 @@ export function solvePhoneSubmenuPlacement({
   const left = clamp(direction === "rtl" ? parent.right - width : parent.left, boundary.left, Math.max(boundary.left, boundary.right - width))
   const top = clamp(trigger.top - paddingTop, boundary.top, Math.max(boundary.top, boundary.bottom - height))
   return {
-    sideOffset: round(direction === "rtl" ? trigger.left - width - left : left - trigger.right),
-    alignOffset: round(top - trigger.top),
+    sideOffset: round(direction === "rtl" ? reference.left - width - left : left - reference.right),
+    alignOffset: round(top - reference.top),
   }
+}
+
+/**
+ * The boxes of a parent menu and of the row that opened a submenu at rest. While a phone submenu stands over it the
+ * parent steps back with the CSS `scale` property (Menu.module.css, iOS-menu IMG_5677), and the submenu keeps the
+ * parent's resting box, as the native one does: undo that scale around the parent's transform origin, at whatever
+ * value its transition has reached.
+ */
+export function readRestingMenuRects(parent: HTMLElement, trigger: HTMLElement): { parent: MenuRect; trigger: MenuRect; reference: MenuRect } {
+  const parentRect = parent.getBoundingClientRect()
+  const triggerRect = trigger.getBoundingClientRect()
+  const view = parent.ownerDocument.defaultView
+  const style = view?.getComputedStyle(parent)
+  const scale = Number.parseFloat(style?.scale ?? "")
+  if (!style || !Number.isFinite(scale) || scale <= 0 || scale === 1) return { parent: parentRect, trigger: triggerRect, reference: triggerRect }
+  const [originX = 0, originY = 0] = style.transformOrigin.split(" ").map((value) => Number.parseFloat(value) || 0)
+  const x = parentRect.left + originX * scale
+  const y = parentRect.top + originY * scale
+  const rest = (rect: MenuRect): MenuRect => ({
+    left: x + (rect.left - x) / scale,
+    top: y + (rect.top - y) / scale,
+    right: x + (rect.right - x) / scale,
+    bottom: y + (rect.bottom - y) / scale,
+  })
+  return { parent: rest(parentRect), trigger: rest(triggerRect), reference: triggerRect }
 }
 
 /** Consume boundary91's resolved footer padding; never subtract the footer again. */
@@ -151,6 +178,7 @@ export function observePhoneSubmenu(
     if (disposed) return
     if (!(media?.matches ?? view.innerWidth <= 767)) {
       clearPhone()
+      parent.removeAttribute("data-submenu-over")
       update({ mobile: false })
       return
     }
@@ -165,10 +193,12 @@ export function observePhoneSubmenu(
     const width = content.offsetWidth
     const height = content.offsetHeight
     const hasHeader = !!content.querySelector("[data-submenu-collapse]")
+    const resting = readRestingMenuRects(parent, trigger)
     const placement = solvePhoneSubmenuPlacement({
       boundary: available,
-      trigger: trigger.getBoundingClientRect(),
-      parent: parent.getBoundingClientRect(),
+      trigger: resting.trigger,
+      parent: resting.parent,
+      reference: resting.reference,
       width,
       height,
       paddingTop: Number.parseFloat(style.paddingTop) || 0,
@@ -184,6 +214,9 @@ export function observePhoneSubmenu(
     else content.removeAttribute("data-submenu-positioned")
     if (unavailable) content.setAttribute("data-submenu-unavailable", "")
     else content.removeAttribute("data-submenu-unavailable")
+    // The parent steps back while the submenu stands over it (Menu.module.css), not while it has nowhere to stand
+    if (ready) parent.setAttribute("data-submenu-over", "")
+    else parent.removeAttribute("data-submenu-over")
     update({ mobile: true, ready, unavailable, label, ...(placement ?? { sideOffset: 0, alignOffset: 0 }) })
     // A parent's enter transform moves its child trigger without resizing it.
     // Follow only that running transition, not an idle menu forever.
@@ -217,7 +250,14 @@ export function observePhoneSubmenu(
       view.removeEventListener("resize", schedule)
       view.visualViewport?.removeEventListener("scroll", schedule)
       view.visualViewport?.removeEventListener("resize", schedule)
-      // Retained transition nodes keep their last geometry through exit.
+      // Retained transition nodes keep their last geometry through exit, and a parent that leaves with its submenu
+      // leaves stepped back. A choice in the submenu closes it before the whole menu starts to leave, so the parent
+      // steps forward a frame later, unless by then it is leaving or another of its submenus stands over it.
+      view.requestAnimationFrame(() => {
+        if (parent.closest("[data-exiting]") || parent.getAttribute("data-state") === "closed") return
+        if (parent.querySelector('[aria-expanded="true"]')) return
+        parent.removeAttribute("data-submenu-over")
+      })
     },
   }
 }

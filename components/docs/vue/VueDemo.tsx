@@ -74,6 +74,8 @@ type VueDemoProps = {
   loop?: VueDemoLoop;
   /** Classes of the demo stage; without controls the stage renders only when set */
   stageClassName?: string;
+  /** Classes of the demo stage in the Phone preview, for a phone template that is a whole screen (a docs frame) */
+  phoneStageClassName?: string;
 };
 
 function VueDemoView({
@@ -87,9 +89,11 @@ function VueDemoView({
   phoneState,
   phoneTemplate,
   loop,
-  stageClassName,
+  stageClassName: desktopStageClassName,
+  phoneStageClassName,
 }: VueDemoProps) {
   const phonePreview = usePreviewEmbed() !== null;
+  const stageClassName = phonePreview && phoneStageClassName ? phoneStageClassName : desktopStageClassName;
   const [values, setValues] = useState<Record<string, unknown>>(() => ({
     ...createInitialDemoState(state),
     ...Object.fromEntries(controls.map((control) => [control.name, control.default])),

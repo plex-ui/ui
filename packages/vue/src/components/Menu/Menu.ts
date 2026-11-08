@@ -12,6 +12,7 @@ import {
   ref,
   shallowRef,
   watch,
+  watchEffect,
   withCtx,
   type ComputedRef,
   type InjectionKey,
@@ -68,6 +69,7 @@ import {
 import { useFloatingBoundary } from "../../composables/useFloatingBoundary.js"
 import { usePhoneSubmenu } from "../../composables/usePhoneSubmenu.js"
 import { focusPhoneSubmenuEntry } from "../../lib/menuSubmenuPlacement.js"
+import { ignoreReleaseOverTrigger, observeMenuTriggerCover, type MenuTriggerCover } from "../../lib/menuTriggerCover.js"
 import { completeInitialPhoneSubmenuFocus, deferInitialPhoneSubmenuFocus, delegateInitialPhoneSubmenuFocus } from "../../lib/menuInitialFocus.js"
 import s from "@plexui/styles/components/Menu/Menu.module.css"
 
@@ -320,7 +322,9 @@ export const MenuTrigger = defineComponent({
         level.onOpenChange(!wasOpen)
         // prevent trigger focusing when opening
         // this allows the content to be given focus without competition
-        if (!wasOpen) event.preventDefault()
+        if (wasOpen) return
+        event.preventDefault()
+        ignoreReleaseOverTrigger(event.currentTarget as HTMLElement, event.pointerId)
       }
     }
 
@@ -432,7 +436,7 @@ const MenuRootContentImpl = defineComponent({
   name: "MenuRootContentImpl",
   props: {
     side: String as PropType<MenuSide>,
-    sideOffset: { type: Number, required: true },
+    sideOffset: Number,
     align: String as PropType<MenuAlign>,
     alignOffset: Number,
     width: sizeProp,
@@ -454,6 +458,15 @@ const MenuRootContentImpl = defineComponent({
 
     const { contentHandlers, resetSearch } = provideMenuContentContext(() => level.content.value)
     provide(ParentContentKey, { resetSearch })
+    // On a phone a menu without its own offset grows out of its trigger, covers it and opens toward the larger part
+    // of the screen (menuTriggerCover.ts); one that opens to a side keeps its gap
+    const coversTrigger = () => props.sideOffset === undefined && props.side !== "left" && props.side !== "right"
+    const triggerCover = shallowRef<MenuTriggerCover | null>(null)
+    watchEffect((onCleanup) => {
+      const trigger = internals.trigger.value
+      if (!coversTrigger() || !trigger) return
+      onCleanup(observeMenuTriggerCover(trigger, (value) => { triggerCover.value = value }))
+    })
     onMounted(() => {
       level.content.value = document.getElementById(rootContext.contentId)
     })
@@ -506,15 +519,16 @@ const MenuRootContentImpl = defineComponent({
 
     return () => {
       const isHorizontal = props.layout === "horizontal"
+      const cover = coversTrigger() ? triggerCover.value : null
       return h(
         RekaDropdownMenuContent,
         {
           "forceMount": true,
           "as": MenuContentElement,
-          "side": props.side,
-          "sideOffset": props.sideOffset,
+          "side": props.side ?? cover?.side,
+          "sideOffset": cover ? cover.sideOffset : props.sideOffset ?? 5,
           "align": props.align,
-          "alignOffset": props.alignOffset ?? (props.align === "center" ? 0 : -5),
+          "alignOffset": props.alignOffset ?? (cover || props.align === "center" ? 0 : -5),
           "avoidCollisions": true,
           ...floatingBoundary.value,
           "reference": internals.trigger.value ?? undefined,
@@ -548,21 +562,27 @@ export const MenuContent = defineComponent({
   inheritAttrs: false,
   props: {
     /**
-     * The preferred side of the trigger to render against when open. Will be reversed when collisions occur.
+     * The preferred side of the trigger to render against when open. Will be reversed when collisions occur. Without
+     * it a menu on a phone opens toward the larger part of the screen: upward from a trigger in the lower half.
      * @default bottom
      */
     side: String as PropType<MenuSide>,
     /**
-     * The distance in pixels from the trigger.
+     * The distance in pixels from the trigger. Without it a menu on a phone covers its trigger, as iOS menus grow out
+     * of the control that opens them.
      * @default 5
      */
-    sideOffset: { type: Number, default: 5 },
+    sideOffset: { type: Number, default: undefined },
     /**
      * The preferred alignment against the trigger. May change when collisions occur.
      * @default center
      */
     align: String as PropType<MenuAlign>,
-    /** An offset in pixels from the "start" or "end" alignment options. */
+    /**
+     * An offset in pixels from the "start" or "end" alignment options. Without it a menu on a phone that covers its
+     * trigger keeps the trigger's edge.
+     * @default -5 with "start" or "end", 0 with "center"
+     */
     alignOffset: Number,
     /**
      * Defines the `width` property of the content
@@ -1271,6 +1291,8 @@ const MenuSubContentImpl = defineComponent({
             phone.value.mobile ? phone.value.label : "",
             h(ChevronDown, { width: "16", height: "16", class: s.SubTriggerIcon }),
           ] }) : null,
+          // A separator under the row that heads it, as iOS 26 submenus (iOS-menu IMG_5677, IMG_5682)
+          phone.value.mobile ? h("div", { "role": "separator", "aria-orientation": "horizontal", "class": s.Separator }) : null,
           slots.default?.(),
         ] },
       )

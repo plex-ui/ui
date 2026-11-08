@@ -16,6 +16,7 @@ import {
   MenuHorizontalIconsOnlyDemoWithControls,
   MenuHorizontalWithLabelsDemoWithControls,
 } from "@/components/docs/MenuDemos"
+import { withMenuPhoneReact } from "@/components/docs/menuPhone"
 
 <UsageBlock>{`import { Menu } from "@plexui/ui/components/Menu";`}</UsageBlock>
 
@@ -23,7 +24,7 @@ import {
 
 ### Overview
 
-<ComponentPreview code={`<Menu>
+<ComponentPreview details={<>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out <code>width</code>, <code>minWidth</code> and <code>size</code>.</>} code={withMenuPhoneReact(`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
   </Menu.Trigger>
@@ -36,13 +37,13 @@ import {
     <Menu.Separator />
     <Menu.Item onSelect={() => {}}>Logout</Menu.Item>
   </Menu.Content>
-</Menu>`} previewMinHeight={168}>
+</Menu>`, "Overview")} previewMinHeight={168}>
   <MenuBaseDemo />
 </ComponentPreview>
 
 ### Natural sizing
 
-<ComponentPreview details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong>: use <code>minWidth="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>minWidth</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>minWidth</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>Menu.Content</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for Radix variables used in collision detection.</li></ul></>} code={`<Menu>
+<ComponentPreview details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong>: use <code>minWidth="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>minWidth</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>minWidth</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>Menu.Content</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for Radix variables used in collision detection.</li></ul>These are desktop sizes: on a phone a menu is at least the 238px panel of the iOS kit, so the phone code leaves them out.</>} code={withMenuPhoneReact(`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><Tools /> Tools</Button>
   </Menu.Trigger>
@@ -53,7 +54,7 @@ import {
     <Menu.Item onSelect={() => {}}><Code height={18} width={18} /> Code Interpreter</Menu.Item>
     <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image Generation</Menu.Item>
   </Menu.Content>
-</Menu>`} previewMinHeight={168}>
+</Menu>`, "Natural sizing")} previewMinHeight={168}>
   <MenuNaturalSizingDemo />
 </ComponentPreview>
 
@@ -62,7 +63,7 @@ import {
 <ComponentPreview details={<>
   <p>Set <code>layout="horizontal"</code> on <code>Menu.Content</code> for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
   <p>On a phone with <code>touch.css</code> the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
-</>} code={`<Menu>
+</>} code={withMenuPhoneReact(`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
   </Menu.Trigger>
@@ -72,7 +73,7 @@ import {
     <Menu.Item onSelect={() => {}}><Play /><span className="sr-only">Play</span></Menu.Item>
     <Menu.Item onSelect={() => {}}><UnfoldHorizontal /><span className="sr-only">Expand</span></Menu.Item>
   </Menu.Content>
-</Menu>`} previewMinHeight={168}>
+</Menu>`, "Horizontal (icons only)")} previewMinHeight={168}>
   <MenuHorizontalIconsOnlyDemoWithControls />
 </ComponentPreview>
 
@@ -81,7 +82,7 @@ import {
 <ComponentPreview details={<>
   <p>Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.</p>
   <p>On a phone with <code>touch.css</code> these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
-</>} code={`<Menu>
+</>} code={withMenuPhoneReact(`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
   </Menu.Trigger>
@@ -91,13 +92,13 @@ import {
     <Menu.Item onSelect={() => {}}><Play /> Play</Menu.Item>
     <Menu.Item onSelect={() => {}}><UnfoldHorizontal /> Expand</Menu.Item>
   </Menu.Content>
-</Menu>`} previewMinHeight={168}>
+</Menu>`, "Horizontal (icons with labels)")} previewMinHeight={168}>
   <MenuHorizontalWithLabelsDemoWithControls />
 </ComponentPreview>
 
 ### Grouped items
 
-<ComponentPreview details={<>Use <code>Menu.Group</code> and <code>Menu.Label</code> to organize related items into labeled sections.</>} code={`<Menu>
+<ComponentPreview details={<>Use <code>Menu.Group</code> and <code>Menu.Label</code> to organize related items into labeled sections.</>} code={withMenuPhoneReact(`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><FileDocument /> Templates <ChevronDownMd /></Button>
   </Menu.Trigger>
@@ -115,13 +116,13 @@ import {
       <Menu.Link href="#">Account deactivation</Menu.Link>
     </Menu.Group>
   </Menu.Content>
-</Menu>`} previewMinHeight={168}>
+</Menu>`, "Grouped items")} previewMinHeight={168}>
   <MenuGroupedDemo />
 </ComponentPreview>
 
 ### Submenus
 
-<ComponentPreview details={<>Use <code>Menu.Sub</code>, <code>Menu.SubTrigger</code>, and <code>Menu.SubContent</code> for nested menus.</>} code={`<Menu>
+<ComponentPreview details={<>Use <code>Menu.Sub</code>, <code>Menu.SubTrigger</code>, and <code>Menu.SubContent</code> for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.</>} code={withMenuPhoneReact(`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost">Options <ChevronDownMd /></Button>
   </Menu.Trigger>
@@ -144,7 +145,7 @@ import {
     <Menu.Separator />
     <Menu.Item onSelect={() => {}}>Delete</Menu.Item>
   </Menu.Content>
-</Menu>`} previewMinHeight={168}>
+</Menu>`, "Submenus")} previewMinHeight={168}>
   <MenuSubmenuDemo />
 </ComponentPreview>
 
@@ -153,7 +154,7 @@ import {
 <ComponentPreview details={<>
   <p>Use <code>Menu.CheckboxItem</code> with <code>checked</code>, <code>onCheckedChange</code>, and <code>{"onSelect={(evt) => evt.preventDefault()}"}</code> to keep the menu open.</p>
   <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> and <code>indicatorVariant</code> say, so the phone view leaves out those controls.</p>
-</>} code={`const [settings, setSettings] = useState({
+</>} code={withMenuPhoneReact(`const [settings, setSettings] = useState({
   showGrid: true,
   showLabels: false,
   enableShadows: false,
@@ -196,7 +197,7 @@ return (
       </Menu.CheckboxItem>
     </Menu.Content>
   </Menu>
-)`} previewMinHeight={168}>
+)`, "Checkbox items")} previewMinHeight={168}>
   <MenuWithCheckboxesDemoWithControls />
 </ComponentPreview>
 
@@ -205,7 +206,7 @@ return (
 <ComponentPreview details={<>
   <p>Use <code>Menu.RadioGroup</code> and <code>Menu.RadioItem</code> for single-selection options.</p>
   <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> says, so the phone view leaves out that control.</p>
-</>} code={`const [value, setValue] = useState("any")
+</>} code={withMenuPhoneReact(`const [value, setValue] = useState("any")
 
 <Menu>
   <Menu.Trigger>
@@ -226,13 +227,13 @@ return (
       <Menu.RadioItem value="last3m">Last 3 months</Menu.RadioItem>
     </Menu.RadioGroup>
   </Menu.Content>
-</Menu>`} previewMinHeight={168}>
+</Menu>`, "Radio items")} previewMinHeight={168}>
   <MenuWithRadioItemsDemoWithControls />
 </ComponentPreview>
 
 ### Item actions
 
-<ComponentPreview details={<>Use <code>Menu.ItemActions</code> and <code>Menu.ItemAction</code> for hover actions (e.g. delete) on an item.<br/><br/><strong>Accessibility note:</strong> these actions are not keyboard accessible due to how Radix Menu works, so they should not be critical actions with no other parity.</>} code={`<Menu>
+<ComponentPreview phonePresentation="none" details={<>Use <code>Menu.ItemActions</code> and <code>Menu.ItemAction</code> for hover actions (e.g. delete) on an item.<br/><br/><strong>Accessibility note:</strong> these actions are not keyboard accessible due to how Radix Menu works, so they should not be critical actions with no other parity.<br/><br/>Desktop only: the rows of an iOS menu carry no actions of their own.</>} code={`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><History /> Conversations</Button>
   </Menu.Trigger>
@@ -262,7 +263,7 @@ return (
 
 ### Destructive items
 
-<ComponentPreview details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>Menu.Link</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={`<Menu>
+<ComponentPreview details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>Menu.Link</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={withMenuPhoneReact(`<Menu>
   <Menu.Trigger>
     <Button color="secondary" variant="soft" uniform aria-label="More actions">
       <DotsHorizontal />
@@ -274,7 +275,7 @@ return (
     <Menu.Separator />
     <Menu.Item onSelect={remove} danger><Trash /> Delete project</Menu.Item>
   </Menu.Content>
-</Menu>`} previewMinHeight={168}>
+</Menu>`, "Destructive items")} previewMinHeight={168}>
   <MenuDangerDemo />
 </ComponentPreview>
 
@@ -304,10 +305,10 @@ return (
   { prop: "minWidth", type: 'number | "auto"', default: "300", description: "Minimum panel width in px (vertical layout)" },
   { prop: "maxHeight", type: "number", description: "Maximum panel height in px" },
   { prop: "pill", type: "boolean", default: "false", description: "Rounder list with fully rounded rows, for menus beside pill controls. Menu.SubContent takes it too" },
-  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred placement" },
-  { prop: "sideOffset", type: "number", default: "5", description: "Distance from the trigger in px" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred placement. Without it, and without sideOffset, a menu on a phone opens upward from a trigger in the lower half of the screen" },
+  { prop: "sideOffset", type: "number", default: "5", description: "Distance from the trigger in px. Without it a menu on a phone covers its trigger" },
   { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment relative to trigger" },
-  { prop: "alignOffset", type: "number", default: "-5", description: "Offset from the start or end alignment in px" },
+  { prop: "alignOffset", type: "number", default: "-5", description: "Offset from the start or end alignment in px. 0 with center alignment, and on a phone when the menu covers its trigger" },
   { prop: "layout", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction. Use horizontal for icon toolbars" },
   { prop: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Size of horizontal menu items (icon size + padding)" },
   { prop: "onCloseAutoFocus", type: "(event: Event) => void", description: "Called before focus returns to the trigger; call event.preventDefault() to keep it from moving there" },
@@ -352,6 +353,8 @@ return (
 ## Styling
 
 With the optional `touch.css` stylesheet, phone menus use 34px corners (the iOS 27 kit Menu), 17px labels with 20px line height, and 13/18px subtitles. Long labels wrap and increase the item height. Each item retains a minimum 44px interaction target; a checked item keeps its checkmark without a persistent background. The default minimum menu width is 238px, while an explicit minimum width still takes precedence.
+
+On a phone a menu without `sideOffset` grows out of its trigger and covers it, as iOS menus do: its top is the trigger's top, or its bottom when it opens upward, and its aligned edge is the trigger's edge. Without `side` it opens toward the larger part of the screen, upward from a trigger in the lower half even when it would fit below. A desktop keeps the 5px gap below the trigger.
 
 On phones, menus and submenus inside a Page or Dialog keep clear of its visible footer. Their available space updates when the footer or viewport changes.
 

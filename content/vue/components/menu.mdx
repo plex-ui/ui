@@ -5,6 +5,11 @@ metaDescription: Vue 3 dropdown menu component for structured actions with group
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { menuPhoneTemplateVue, withMenuPhoneVue } from "@/components/docs/menuPhone"
+import pageStyles from "@/components/docs/PageDemos.module.css"
+
+export const STAGE = pageStyles.Stage
+export const FRAME = pageStyles.Frame
 
 export const INDICATOR_POSITIONS = ["start", "end"]
 export const INDICATOR_VARIANTS = ["solid", "ghost"]
@@ -207,14 +212,14 @@ export const danger = `<Menu>
 
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
-  <VueDemo template={overview} />
+<ComponentPreview language="vue" details={<>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out <code>width</code>, <code>min-width</code> and <code>size</code>.</>} code={withMenuPhoneVue(overview, "Overview")} previewMinHeight={168}>
+  <VueDemo template={overview} phoneTemplate={menuPhoneTemplateVue(overview, "Overview", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
 </ComponentPreview>
 
 ### Natural sizing
 
-<ComponentPreview language="vue" details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong>: use <code>min-width="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>min-width</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>min-width</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>MenuContent</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for the custom properties used in collision detection.</li></ul></>} code={naturalSizing} previewMinHeight={168}>
-  <VueDemo template={naturalSizing} />
+<ComponentPreview language="vue" details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong>: use <code>min-width="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>min-width</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>min-width</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>MenuContent</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for the custom properties used in collision detection.</li></ul>These are desktop sizes: on a phone a menu is at least the 238px panel of the iOS kit, so the phone code leaves them out.</>} code={withMenuPhoneVue(naturalSizing, "Natural sizing")} previewMinHeight={168}>
+  <VueDemo template={naturalSizing} phoneTemplate={menuPhoneTemplateVue(naturalSizing, "Natural sizing", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
 </ComponentPreview>
 
 ### Horizontal (icons only)
@@ -222,8 +227,8 @@ export const danger = `<Menu>
 <ComponentPreview language="vue" details={<>
   <p>Set <code>layout="horizontal"</code> on <code>MenuContent</code> for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
   <p>On a phone with <code>touch.css</code> the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
-</>} code={horizontalIcons} previewMinHeight={168}>
-  <VueDemo template={horizontalIcons} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
+</>} code={withMenuPhoneVue(horizontalIcons, "Horizontal (icons only)")} previewMinHeight={168}>
+  <VueDemo template={horizontalIcons} phoneTemplate={menuPhoneTemplateVue(horizontalIcons, "Horizontal (icons only)", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Horizontal (icons with labels)
@@ -231,20 +236,20 @@ export const danger = `<Menu>
 <ComponentPreview language="vue" details={<>
   <p>Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.</p>
   <p>On a phone with <code>touch.css</code> these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
-</>} code={horizontalLabels} previewMinHeight={168}>
-  <VueDemo template={horizontalLabels} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
+</>} code={withMenuPhoneVue(horizontalLabels, "Horizontal (icons with labels)")} previewMinHeight={168}>
+  <VueDemo template={horizontalLabels} phoneTemplate={menuPhoneTemplateVue(horizontalLabels, "Horizontal (icons with labels)", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Grouped items
 
-<ComponentPreview language="vue" details={<>Use <code>MenuGroup</code> and <code>MenuLabel</code> to organize related items into labeled sections.</>} code={grouped} previewMinHeight={168}>
-  <VueDemo template={grouped} />
+<ComponentPreview language="vue" details={<>Use <code>MenuGroup</code> and <code>MenuLabel</code> to organize related items into labeled sections.</>} code={withMenuPhoneVue(grouped, "Grouped items")} previewMinHeight={168}>
+  <VueDemo template={grouped} phoneTemplate={menuPhoneTemplateVue(grouped, "Grouped items", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
 </ComponentPreview>
 
 ### Submenus
 
-<ComponentPreview language="vue" details={<>Use <code>MenuSub</code>, <code>MenuSubTrigger</code>, and <code>MenuSubContent</code> for nested menus.</>} code={submenus} previewMinHeight={168}>
-  <VueDemo template={submenus} />
+<ComponentPreview language="vue" details={<>Use <code>MenuSub</code>, <code>MenuSubTrigger</code>, and <code>MenuSubContent</code> for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.</>} code={withMenuPhoneVue(submenus, "Submenus")} previewMinHeight={168}>
+  <VueDemo template={submenus} phoneTemplate={menuPhoneTemplateVue(submenus, "Submenus", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
 </ComponentPreview>
 
 ### Checkbox items
@@ -252,8 +257,8 @@ export const danger = `<Menu>
 <ComponentPreview language="vue" details={<>
   <p>Use <code>MenuCheckboxItem</code> with <code>v-model:checked</code> and <code>{'@select="(evt) => evt.preventDefault()"'}</code> to keep the menu open.</p>
   <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> and <code>indicatorVariant</code> say, so the phone view leaves out those controls.</p>
-</>} code={checkboxItems} previewMinHeight={168}>
-  <VueDemo template={checkboxItems} state={{ settings: { showGrid: true, showLabels: false, enableShadows: false } }} controls={[{ name: "indicatorPosition", desktopOnly: true, type: "select", options: INDICATOR_POSITIONS, default: "end" }, { name: "indicatorVariant", desktopOnly: true, type: "select", options: INDICATOR_VARIANTS, default: "solid" }]} />
+</>} code={withMenuPhoneVue(checkboxItems, "Checkbox items")} previewMinHeight={168}>
+  <VueDemo template={checkboxItems} phoneTemplate={menuPhoneTemplateVue(checkboxItems, "Checkbox items", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ settings: { showGrid: true, showLabels: false, enableShadows: false } }} controls={[{ name: "indicatorPosition", desktopOnly: true, type: "select", options: INDICATOR_POSITIONS, default: "end" }, { name: "indicatorVariant", desktopOnly: true, type: "select", options: INDICATOR_VARIANTS, default: "solid" }]} />
 </ComponentPreview>
 
 ### Radio items
@@ -261,20 +266,20 @@ export const danger = `<Menu>
 <ComponentPreview language="vue" details={<>
   <p>Use <code>MenuRadioGroup</code> and <code>MenuRadioItem</code> for single-selection options. Bind the selection with <code>v-model:value</code>.</p>
   <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> says, so the phone view leaves out that control.</p>
-</>} code={radioItems} previewMinHeight={168}>
-  <VueDemo template={radioItems} state={{ value: "any" }} controls={[{ name: "indicatorPosition", desktopOnly: true, type: "select", options: INDICATOR_POSITIONS, default: "end" }]} />
+</>} code={withMenuPhoneVue(radioItems, "Radio items")} previewMinHeight={168}>
+  <VueDemo template={radioItems} phoneTemplate={menuPhoneTemplateVue(radioItems, "Radio items", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ value: "any" }} controls={[{ name: "indicatorPosition", desktopOnly: true, type: "select", options: INDICATOR_POSITIONS, default: "end" }]} />
 </ComponentPreview>
 
 ### Item actions
 
-<ComponentPreview language="vue" details={<>Use <code>MenuItemActions</code> and <code>MenuItemAction</code> for hover actions (e.g. delete) on an item.<br/><br/><strong>Accessibility note:</strong> these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity.</>} code={itemActions} previewMinHeight={168}>
+<ComponentPreview language="vue" phonePresentation="none" details={<>Use <code>MenuItemActions</code> and <code>MenuItemAction</code> for hover actions (e.g. delete) on an item.<br/><br/><strong>Accessibility note:</strong> these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity.<br/><br/>Desktop only: the rows of an iOS menu carry no actions of their own.</>} code={itemActions} previewMinHeight={168}>
   <VueDemo template={itemActions} />
 </ComponentPreview>
 
 ### Destructive items
 
-<ComponentPreview language="vue" details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>MenuLink</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={danger} previewMinHeight={168}>
-  <VueDemo template={danger} />
+<ComponentPreview language="vue" details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>MenuLink</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={withMenuPhoneVue(danger, "Destructive items")} previewMinHeight={168}>
+  <VueDemo template={danger} phoneTemplate={menuPhoneTemplateVue(danger, "Destructive items", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
 </ComponentPreview>
 
 ## API
@@ -303,10 +308,10 @@ export const danger = `<Menu>
   { prop: "min-width", type: 'number | "auto"', default: "300", description: "Minimum panel width" },
   { prop: "max-height", type: "number", description: "Maximum panel height, in pixels" },
   { prop: "pill", type: "boolean", default: "false", description: "Rounder list with fully rounded rows, for menus beside pill controls. MenuSubContent takes it too" },
-  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred placement" },
-  { prop: "side-offset", type: "number", default: "5", description: "Distance from the trigger, in pixels" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred placement. Without it, and without side-offset, a menu on a phone opens upward from a trigger in the lower half of the screen" },
+  { prop: "side-offset", type: "number", default: "5", description: "Distance from the trigger, in pixels. Without it a menu on a phone covers its trigger" },
   { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment relative to trigger" },
-  { prop: "align-offset", type: "number", default: "-5", description: "Offset from the start or end alignment, in pixels" },
+  { prop: "align-offset", type: "number", default: "-5", description: "Offset from the start or end alignment, in pixels. 0 with center alignment, and on a phone when the menu covers its trigger" },
   { prop: "layout", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction. Use horizontal for icon toolbars" },
   { prop: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Size of horizontal menu items (icon size + padding)" },
   { prop: "@close-auto-focus", type: "(event: Event) => void", description: "Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there" },
@@ -350,6 +355,8 @@ export const danger = `<Menu>
 ## Styling
 
 With the optional `touch.css` stylesheet, phone menus use 34px corners (the iOS 27 kit Menu), 17px labels with 20px line height, and 13/18px subtitles. Long labels wrap and increase the item height. Each item retains a minimum 44px interaction target; a checked item keeps its checkmark without a persistent background. The default minimum menu width is 238px, while an explicit minimum width still takes precedence.
+
+On a phone a menu without `side-offset` grows out of its trigger and covers it, as iOS menus do: its top is the trigger's top, or its bottom when it opens upward, and its aligned edge is the trigger's edge. Without `side` it opens toward the larger part of the screen, upward from a trigger in the lower half even when it would fit below. A desktop keeps the 5px gap below the trigger.
 
 On phones, menus and submenus inside a Page or Dialog keep clear of its visible footer. Their available space updates when the footer or viewport changes.
 

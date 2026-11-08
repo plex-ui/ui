@@ -658,10 +658,10 @@ Props:
     - min-width (number | "auto") default: 300 — Minimum panel width
     - max-height (number) — Maximum panel height, in pixels
     - pill (boolean) default: false — Rounder list with fully rounded rows, for menus beside pill controls. MenuSubContent takes it too
-    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement
-    - side-offset (number) default: 5 — Distance from the trigger, in pixels
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement. Without it, and without side-offset, a menu on a phone opens upward from a trigger in the lower half of the screen
+    - side-offset (number) default: 5 — Distance from the trigger, in pixels. Without it a menu on a phone covers its trigger
     - align ("start" | "center" | "end") default: "center" — Alignment relative to trigger
-    - align-offset (number) default: -5 — Offset from the start or end alignment, in pixels
+    - align-offset (number) default: -5 — Offset from the start or end alignment, in pixels. 0 with center alignment, and on a phone when the menu covers its trigger
     - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
     - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
     - @close-auto-focus ((event: Event) => void) — Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there

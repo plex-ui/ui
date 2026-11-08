@@ -5796,10 +5796,10 @@ Props:
     - min-width (number | "auto") default: 300 — Minimum panel width
     - max-height (number) — Maximum panel height, in pixels
     - pill (boolean) default: false — Rounder list with fully rounded rows, for menus beside pill controls. MenuSubContent takes it too
-    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement
-    - side-offset (number) default: 5 — Distance from the trigger, in pixels
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement. Without it, and without side-offset, a menu on a phone opens upward from a trigger in the lower half of the screen
+    - side-offset (number) default: 5 — Distance from the trigger, in pixels. Without it a menu on a phone covers its trigger
     - align ("start" | "center" | "end") default: "center" — Alignment relative to trigger
-    - align-offset (number) default: -5 — Offset from the start or end alignment, in pixels
+    - align-offset (number) default: -5 — Offset from the start or end alignment, in pixels. 0 with center alignment, and on a phone when the menu covers its trigger
     - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
     - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
     - @close-auto-focus ((event: Event) => void) — Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there
@@ -5818,7 +5818,9 @@ Props:
     - disabled (boolean) default: false — Disable the item
 
 ### Overview
+On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out width, min-width and size.
 ```vue
+<!-- Desktop -->
 <Menu>
   <MenuTrigger>
     <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
@@ -5833,11 +5835,33 @@ Props:
     <MenuItem @select="() => {}">Logout</MenuItem>
   </MenuContent>
 </Menu>
+
+<!-- Phone: the More button of the top bar opens the menu -->
+<Toolbar title-style="large">
+  <ToolbarTitle>Overview</ToolbarTitle>
+  <ToolbarTrailing>
+    <Menu>
+      <MenuTrigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </MenuTrigger>
+      <MenuContent align="end">
+        <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
+        <MenuSeparator />
+        <MenuLink href="#">Your profile</MenuLink>
+        <MenuLink href="#">Terms & policies</MenuLink>
+        <MenuItem disabled @select="() => {}">Feature flags</MenuItem>
+        <MenuSeparator />
+        <MenuItem @select="() => {}">Logout</MenuItem>
+      </MenuContent>
+    </Menu>
+  </ToolbarTrailing>
+</Toolbar>
 ```
 
 ### Natural sizing
-Menu supports several sizing strategies:Natural sizing: use min-width="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and min-width to set the menu to a fixed size, regardless of content size.Flexible sizing: min-width can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of MenuContent. maxWidth isn't exposed as a prop because it's reserved for the custom properties used in collision detection.
+Menu supports several sizing strategies:Natural sizing: use min-width="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and min-width to set the menu to a fixed size, regardless of content size.Flexible sizing: min-width can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of MenuContent. maxWidth isn't exposed as a prop because it's reserved for the custom properties used in collision detection.These are desktop sizes: on a phone a menu is at least the 238px panel of the iOS kit, so the phone code leaves them out.
 ```vue
+<!-- Desktop -->
 <Menu>
   <MenuTrigger>
     <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><Tools /> Tools</Button>
@@ -5850,11 +5874,31 @@ Menu supports several sizing strategies:Natural sizing: use min-width="auto" to 
     <MenuItem @select="() => {}"><ImageSquare :height="18" :width="18" /> Image Generation</MenuItem>
   </MenuContent>
 </Menu>
+
+<!-- Phone: the More button of the top bar opens the menu -->
+<Toolbar title-style="large">
+  <ToolbarTitle>Natural sizing</ToolbarTitle>
+  <ToolbarTrailing>
+    <Menu>
+      <MenuTrigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </MenuTrigger>
+      <MenuContent align="end">
+        <MenuItem @select="() => {}"><Functions :height="18" :width="18" /> Function</MenuItem>
+        <MenuItem @select="() => {}"><Search :height="18" :width="18" /> File Search</MenuItem>
+        <MenuItem @select="() => {}"><Globe :height="18" :width="18" /> Web Search</MenuItem>
+        <MenuItem @select="() => {}"><Code :height="18" :width="18" /> Code Interpreter</MenuItem>
+        <MenuItem @select="() => {}"><ImageSquare :height="18" :width="18" /> Image Generation</MenuItem>
+      </MenuContent>
+    </Menu>
+  </ToolbarTrailing>
+</Toolbar>
 ```
 
 ### Horizontal (icons only)
 Set layout="horizontal" on MenuContent for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. On a phone with touch.css the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control.
 ```vue
+<!-- Desktop -->
 <Menu>
   <MenuTrigger>
     <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
@@ -5866,11 +5910,30 @@ Set layout="horizontal" on MenuContent for an iOS-style icon toolbar. Give each 
     <MenuItem @select="() => {}"><UnfoldHorizontal /><span class="sr-only">Expand</span></MenuItem>
   </MenuContent>
 </Menu>
+
+<!-- Phone: the More button of the top bar opens the menu -->
+<Toolbar title-style="large">
+  <ToolbarTitle>Horizontal (icons only)</ToolbarTitle>
+  <ToolbarTrailing>
+    <Menu>
+      <MenuTrigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </MenuTrigger>
+      <MenuContent align="end" layout="horizontal">
+        <MenuItem @select="() => {}"><EditPencil /><span class="sr-only">Edit</span></MenuItem>
+        <MenuItem @select="() => {}"><SettingsCog /><span class="sr-only">Settings</span></MenuItem>
+        <MenuItem @select="() => {}"><Play /><span class="sr-only">Play</span></MenuItem>
+        <MenuItem @select="() => {}"><UnfoldHorizontal /><span class="sr-only">Expand</span></MenuItem>
+      </MenuContent>
+    </Menu>
+  </ToolbarTrailing>
+</Toolbar>
 ```
 
 ### Horizontal (icons with labels)
 Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item. On a phone with touch.css these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control.
 ```vue
+<!-- Desktop -->
 <Menu>
   <MenuTrigger>
     <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
@@ -5882,11 +5945,30 @@ Add text labels below icons for a labeled toolbar. The horizontal layout automat
     <MenuItem @select="() => {}"><UnfoldHorizontal /> Expand</MenuItem>
   </MenuContent>
 </Menu>
+
+<!-- Phone: the More button of the top bar opens the menu -->
+<Toolbar title-style="large">
+  <ToolbarTitle>Horizontal (icons with labels)</ToolbarTitle>
+  <ToolbarTrailing>
+    <Menu>
+      <MenuTrigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </MenuTrigger>
+      <MenuContent align="end" layout="horizontal">
+        <MenuItem @select="() => {}"><EditPencil /> Edit</MenuItem>
+        <MenuItem @select="() => {}"><SettingsCog /> Settings</MenuItem>
+        <MenuItem @select="() => {}"><Play /> Play</MenuItem>
+        <MenuItem @select="() => {}"><UnfoldHorizontal /> Expand</MenuItem>
+      </MenuContent>
+    </Menu>
+  </ToolbarTrailing>
+</Toolbar>
 ```
 
 ### Grouped items
 Use MenuGroup and MenuLabel to organize related items into labeled sections.
 ```vue
+<!-- Desktop -->
 <Menu>
   <MenuTrigger>
     <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><FileDocument /> Templates <ChevronDownMd /></Button>
@@ -5906,11 +5988,38 @@ Use MenuGroup and MenuLabel to organize related items into labeled sections.
     </MenuGroup>
   </MenuContent>
 </Menu>
+
+<!-- Phone: the More button of the top bar opens the menu -->
+<Toolbar title-style="large">
+  <ToolbarTitle>Grouped items</ToolbarTitle>
+  <ToolbarTrailing>
+    <Menu>
+      <MenuTrigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </MenuTrigger>
+      <MenuContent align="end">
+        <MenuGroup>
+          <MenuLabel>Active</MenuLabel>
+          <MenuLink href="#">Welcome email</MenuLink>
+          <MenuLink href="#">Order confirmation</MenuLink>
+          <MenuLink href="#">Password reset</MenuLink>
+        </MenuGroup>
+        <MenuSeparator />
+        <MenuGroup>
+          <MenuLabel>Draft</MenuLabel>
+          <MenuLink href="#">New promo campaign</MenuLink>
+          <MenuLink href="#">Account deactivation</MenuLink>
+        </MenuGroup>
+      </MenuContent>
+    </Menu>
+  </ToolbarTrailing>
+</Toolbar>
 ```
 
 ### Submenus
-Use MenuSub, MenuSubTrigger, and MenuSubContent for nested menus.
+Use MenuSub, MenuSubTrigger, and MenuSubContent for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.
 ```vue
+<!-- Desktop -->
 <Menu>
   <MenuTrigger>
     <Button color="primary" size="lg" variant="ghost">Options <ChevronDownMd /></Button>
@@ -5935,11 +6044,43 @@ Use MenuSub, MenuSubTrigger, and MenuSubContent for nested menus.
     <MenuItem @select="() => {}">Delete</MenuItem>
   </MenuContent>
 </Menu>
+
+<!-- Phone: the More button of the top bar opens the menu -->
+<Toolbar title-style="large">
+  <ToolbarTitle>Submenus</ToolbarTitle>
+  <ToolbarTrailing>
+    <Menu>
+      <MenuTrigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </MenuTrigger>
+      <MenuContent align="end">
+        <MenuItem @select="() => {}">Edit</MenuItem>
+        <MenuItem @select="() => {}">Duplicate</MenuItem>
+        <MenuSeparator />
+        <MenuSub>
+          <MenuSubTrigger>More</MenuSubTrigger>
+          <MenuSubContent>
+            <MenuItem @select="() => {}">Move to project…</MenuItem>
+            <MenuItem @select="() => {}">Move to folder…</MenuItem>
+            <MenuSeparator />
+            <MenuItem @select="() => {}">Advanced options…</MenuItem>
+          </MenuSubContent>
+        </MenuSub>
+        <MenuSeparator />
+        <MenuItem @select="() => {}">Share</MenuItem>
+        <MenuItem @select="() => {}">Add to favorites</MenuItem>
+        <MenuSeparator />
+        <MenuItem @select="() => {}">Delete</MenuItem>
+      </MenuContent>
+    </Menu>
+  </ToolbarTrailing>
+</Toolbar>
 ```
 
 ### Checkbox items
 Use MenuCheckboxItem with v-model:checked and {'@select="(evt) => evt.preventDefault()"'} to keep the menu open. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition and indicatorVariant say, so the phone view leaves out those controls.
 ```vue
+<!-- Desktop -->
 <Menu>
   <MenuTrigger>
     <Button variant="ghost" color="primary">Checkbox menu <ChevronDownMd /></Button>
@@ -5971,11 +6112,50 @@ Use MenuCheckboxItem with v-model:checked and {'@select="(evt) => evt.preventDef
     </MenuCheckboxItem>
   </MenuContent>
 </Menu>
+
+<!-- Phone: the More button of the top bar opens the menu -->
+<Toolbar title-style="large">
+  <ToolbarTitle>Checkbox items</ToolbarTitle>
+  <ToolbarTrailing>
+    <Menu>
+      <MenuTrigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </MenuTrigger>
+      <MenuContent align="end">
+        <MenuCheckboxItem
+          v-model:checked="settings.showGrid"
+          :indicator-position="indicatorPosition"
+          :indicator-variant="indicatorVariant"
+          @select="(evt) => evt.preventDefault()"
+        >
+          Show grid lines
+        </MenuCheckboxItem>
+        <MenuCheckboxItem
+          v-model:checked="settings.showLabels"
+          :indicator-position="indicatorPosition"
+          :indicator-variant="indicatorVariant"
+          @select="(evt) => evt.preventDefault()"
+        >
+          Display labels
+        </MenuCheckboxItem>
+        <MenuCheckboxItem
+          v-model:checked="settings.enableShadows"
+          :indicator-position="indicatorPosition"
+          :indicator-variant="indicatorVariant"
+          @select="(evt) => evt.preventDefault()"
+        >
+          Enable shadows
+        </MenuCheckboxItem>
+      </MenuContent>
+    </Menu>
+  </ToolbarTrailing>
+</Toolbar>
 ```
 
 ### Radio items
 Use MenuRadioGroup and MenuRadioItem for single-selection options. Bind the selection with v-model:value. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition says, so the phone view leaves out that control.
 ```vue
+<!-- Desktop -->
 <Menu>
   <MenuTrigger>
     <Button color="primary" variant="ghost">Radio menu <ChevronDownMd /></Button>
@@ -5990,10 +6170,31 @@ Use MenuRadioGroup and MenuRadioItem for single-selection options. Bind the sele
     </MenuRadioGroup>
   </MenuContent>
 </Menu>
+
+<!-- Phone: the More button of the top bar opens the menu -->
+<Toolbar title-style="large">
+  <ToolbarTitle>Radio items</ToolbarTitle>
+  <ToolbarTrailing>
+    <Menu>
+      <MenuTrigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </MenuTrigger>
+      <MenuContent align="end">
+        <MenuRadioGroup v-model:value="value" :indicator-position="indicatorPosition">
+          <MenuRadioItem value="any">Any time</MenuRadioItem>
+          <MenuRadioItem value="today" disabled>Today</MenuRadioItem>
+          <MenuRadioItem value="last7d">Last 7 days</MenuRadioItem>
+          <MenuRadioItem value="last30d">Last 30 days</MenuRadioItem>
+          <MenuRadioItem value="last3m">Last 3 months</MenuRadioItem>
+        </MenuRadioGroup>
+      </MenuContent>
+    </Menu>
+  </ToolbarTrailing>
+</Toolbar>
 ```
 
 ### Item actions
-Use MenuItemActions and MenuItemAction for hover actions (e.g. delete) on an item.Accessibility note: these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity.
+Use MenuItemActions and MenuItemAction for hover actions (e.g. delete) on an item.Accessibility note: these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity.Desktop only: the rows of an iOS menu carry no actions of their own.
 ```vue
 <Menu>
   <MenuTrigger>
@@ -6025,6 +6226,7 @@ Use MenuItemActions and MenuItemAction for hover actions (e.g. delete) on an ite
 ### Destructive items
 Mark a destructive action (delete, remove, leave) with danger: the label and the highlight take the danger color, and a description keeps its secondary color. MenuLink takes danger too. Put such items last, after a separator.
 ```vue
+<!-- Desktop -->
 <Menu>
   <MenuTrigger>
     <Button color="secondary" variant="soft" uniform aria-label="More actions">
@@ -6038,6 +6240,24 @@ Mark a destructive action (delete, remove, leave) with danger: the label and the
     <MenuItem @select="() => {}" danger><Trash /> Delete project</MenuItem>
   </MenuContent>
 </Menu>
+
+<!-- Phone: the More button of the top bar opens the menu -->
+<Toolbar title-style="large">
+  <ToolbarTitle>Destructive items</ToolbarTitle>
+  <ToolbarTrailing>
+    <Menu>
+      <MenuTrigger>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </MenuTrigger>
+      <MenuContent align="end">
+        <MenuItem @select="() => {}"><EditPencil /> Rename</MenuItem>
+        <MenuItem @select="() => {}">Duplicate</MenuItem>
+        <MenuSeparator />
+        <MenuItem @select="() => {}" danger><Trash /> Delete project</MenuItem>
+      </MenuContent>
+    </Menu>
+  </ToolbarTrailing>
+</Toolbar>
 ```
 
 ## OTP Input

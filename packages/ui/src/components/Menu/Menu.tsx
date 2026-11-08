@@ -25,6 +25,7 @@ import { captureInitialPhoneSubmenuFocus, completeInitialPhoneSubmenuFocus, dele
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
+import { ignoreReleaseOverTrigger, observeMenuTriggerCover, type MenuTriggerCover } from "../../lib/menuTriggerCover"
 import { Button } from "../Button"
 import { Check, ChevronDown, ChevronRight } from "../Icon"
 import { useLinkComponent } from "../PlexUIProvider/internal"
@@ -67,6 +68,9 @@ type MenuContextValue = {
   setOpen: (next: boolean) => void
   prepareFocusRestore: (trigger: HTMLElement) => void
   isUsingKeyboard: React.RefObject<boolean>
+  /** The element of `Menu.Trigger`, which a phone menu covers */
+  triggerElement: HTMLElement | null
+  setTriggerElement: (element: HTMLElement | null) => void
 }
 
 const MenuContext = createContext<MenuContextValue | null>(null)
@@ -101,6 +105,7 @@ export const Menu = ({ children, forceOpen, onOpen, onClose, modal = false }: Me
   const [open, setOpen] = useState<boolean>(false)
   const isOpen = forceOpen ?? open
   const isUsingKeyboard = useRef(false)
+  const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null)
   const clearPointerFocus = useRef<(() => void) | undefined>(undefined)
 
   useEffect(() => {
@@ -154,8 +159,10 @@ export const Menu = ({ children, forceOpen, onOpen, onClose, modal = false }: Me
       setOpen: handleOpenChange,
       prepareFocusRestore,
       isUsingKeyboard,
+      triggerElement,
+      setTriggerElement,
     }),
-    [isOpen, handleOpenChange, prepareFocusRestore],
+    [isOpen, handleOpenChange, prepareFocusRestore, triggerElement],
   )
 
   return (
@@ -368,12 +375,14 @@ const Group = ({
 export type MenuContentProps = {
   children: React.ReactNode
   /**
-   * The preferred side of the trigger to render against when open. Will be reversed when collisions occur.
+   * The preferred side of the trigger to render against when open. Will be reversed when collisions occur. Without it
+   * a menu on a phone opens toward the larger part of the screen: upward from a trigger in the lower half.
    * @default bottom
    */
   side?: DropdownMenu.DropdownMenuContentProps["side"]
   /**
-   * The distance in pixels from the trigger.
+   * The distance in pixels from the trigger. Without it a menu on a phone covers its trigger, as iOS menus grow out
+   * of the control that opens them.
    * @default 5
    */
   sideOffset?: DropdownMenu.DropdownMenuContentProps["sideOffset"]
@@ -383,8 +392,9 @@ export type MenuContentProps = {
    */
   align?: DropdownMenu.DropdownMenuContentProps["align"]
   /**
-   * An offset in pixels from the "start" or "end" alignment options.
-   * @default 0
+   * An offset in pixels from the "start" or "end" alignment options. Without it a menu on a phone that covers its
+   * trigger keeps the trigger's edge.
+   * @default -5 with "start" or "end", 0 with "center"
    */
   alignOffset?: DropdownMenu.DropdownMenuContentProps["alignOffset"]
   /**
@@ -441,7 +451,7 @@ const RootMenuContent = DropdownMenu.Content as React.ForwardRefExoticComponent<
 const Content = ({
   children,
   side,
-  sideOffset = 5,
+  sideOffset,
   align,
   alignOffset,
   width,
@@ -452,9 +462,18 @@ const Content = ({
   size,
   onCloseAutoFocus,
 }: MenuContentProps) => {
-  const { open, prepareFocusRestore } = useMenuContext()
+  const { open, prepareFocusRestore, triggerElement } = useMenuContext()
   const contentRef = useRef<HTMLDivElement>(null)
   const floatingBoundary = useFloatingBoundary(open, { bottom: 30, top: 30, left: 12, right: 12 })
+  // On a phone a menu without its own offset grows out of its trigger, covers it and opens toward the larger part of
+  // the screen (menuTriggerCover.ts); one that opens to a side keeps its gap
+  const coversTrigger = open && sideOffset === undefined && side !== "left" && side !== "right"
+  const [triggerCover, setTriggerCover] = useState<MenuTriggerCover | null>(null)
+  useLayoutEffect(() => {
+    if (!coversTrigger || !triggerElement) return
+    return observeMenuTriggerCover(triggerElement, setTriggerCover)
+  }, [coversTrigger, triggerElement])
+  const cover = coversTrigger ? triggerCover : null
   const [exitGuard] = useState(createExitGuard)
   const isHorizontal = layout === "horizontal"
   // The content of a closing menu is frozen for its exit, so this reads the owner's latest handler.
@@ -479,10 +498,10 @@ const Content = ({
             forceMount
             className={s.MenuList}
             data-pill={pill ? "" : undefined}
-            side={side}
-            sideOffset={sideOffset}
+            side={side ?? cover?.side}
+            sideOffset={cover ? cover.sideOffset : sideOffset ?? 5}
             align={align}
-            alignOffset={alignOffset ?? (align === "center" ? 0 : -5)}
+            alignOffset={alignOffset ?? (cover || align === "center" ? 0 : -5)}
             avoidCollisions
             {...floatingBoundary}
             onEscapeKeyDown={preventDefaultHandler}
@@ -525,7 +544,7 @@ const Trigger = ({
   onKeyDown,
   ...restProps
 }: DropdownMenu.DropdownMenuTriggerProps & { ref?: React.Ref<HTMLButtonElement> }) => {
-  const { open, setOpen } = useMenuContext()
+  const { open, setOpen, setTriggerElement } = useMenuContext()
   const handledClick = useRef(false)
   const activation: TriggerActivation = {
     onPointerDown: (event) => {
@@ -539,7 +558,9 @@ const Trigger = ({
       if (event.pointerType === "pen" || !isHoverPointer(event)) return
       handledClick.current = true
       setOpen(!open)
-      if (!open) event.preventDefault()
+      if (open) return
+      event.preventDefault()
+      ignoreReleaseOverTrigger(event.currentTarget as HTMLElement, event.pointerId)
     },
     onPointerCancel: (event) => {
       handledClick.current = false
@@ -563,7 +584,7 @@ const Trigger = ({
   }
   return (
     <DropdownMenu.Trigger {...restProps} asChild disabled={disabled}>
-      <TriggerElement activation={activation}>{children}</TriggerElement>
+      <TriggerElement ref={setTriggerElement} activation={activation}>{children}</TriggerElement>
     </DropdownMenu.Trigger>
   )
 }
@@ -781,6 +802,8 @@ const SubContent = ({
                 </div>
               </DropdownMenu.Item>
             )}
+            {/* A separator under the row that heads it, as iOS 26 submenus (iOS-menu IMG_5677, IMG_5682) */}
+            {phone.mobile && <DropdownMenu.Separator className={s.Separator} role="separator" />}
             {children}
           </DropdownMenu.SubContent>
         )}

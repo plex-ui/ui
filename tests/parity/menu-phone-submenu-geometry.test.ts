@@ -19,6 +19,36 @@ for (const { name, api } of frameworks) describe(`${name} Phone submenu geometry
     expect(api.solvePhoneSubmenuPlacement({ ...dimensions, direction })).toEqual({ sideOffset: -264, alignOffset: -10 })
   })
 
+  test("aims at the resting boxes and measures its offsets from the row the primitive sees", () => {
+    // The parent steps back while the submenu is open (plan 169h, iOS-menu IMG_5677): the panel keeps the resting box
+    const reference = { left: 40, top: 258, right: 280, bottom: 300 }
+    expect(api.solvePhoneSubmenuPlacement({ ...dimensions, direction: "ltr", reference })).toEqual({ sideOffset: -260, alignOffset: -8 })
+  })
+
+  test("reads the resting boxes of a parent that steps back to 0.968 from its top center", () => {
+    const menu = document.createElement("div")
+    const row = document.createElement("div")
+    menu.append(row)
+    document.body.append(menu)
+    // At rest the menu is 148..386 x 62..409 and the row 156..378 x 160..204; scaled around (267, 62)
+    const scaled = (left: number, top: number, right: number, bottom: number) => {
+      const x = (value: number) => 267 + (value - 267) * 0.968
+      const y = (value: number) => 62 + (value - 62) * 0.968
+      return new DOMRect(x(left), y(top), x(right) - x(left), y(bottom) - y(top))
+    }
+    vi.spyOn(menu, "getBoundingClientRect").mockReturnValue(scaled(148, 62, 386, 409))
+    vi.spyOn(row, "getBoundingClientRect").mockReturnValue(scaled(156, 160, 378, 204))
+    const computed = window.getComputedStyle
+    vi.spyOn(window, "getComputedStyle").mockImplementation((element) =>
+      element === menu ? ({ scale: "0.968", transformOrigin: "119px 0px" } as CSSStyleDeclaration) : computed(element))
+    const resting = api.readRestingMenuRects(menu, row)
+    const round = (rect: { left: number; top: number; right: number; bottom: number }) =>
+      [rect.left, rect.top, rect.right, rect.bottom].map((value) => Math.round(value * 1000) / 1000)
+    expect(round(resting.parent)).toEqual([148, 62, 386, 409])
+    expect(round(resting.trigger)).toEqual([156, 160, 378, 204])
+    expect(round(resting.reference)).toEqual(round(scaled(156, 160, 378, 204)))
+  })
+
   test("moves the full-width child above the footer when its natural bottom does not fit", () => {
     expect(api.solvePhoneSubmenuPlacement({ ...dimensions, direction: "ltr", trigger: { ...trigger, top: 580, bottom: 624 } }))
       .toEqual({ sideOffset: -264, alignOffset: -130 })
@@ -94,17 +124,65 @@ for (const { name, api } of frameworks) describe(`${name} Phone submenu geometry
       observer.refresh()
       expect(state).toMatchObject({ mobile: true, ready: false, unavailable: true })
       expect(content.hasAttribute("data-submenu-unavailable")).toBe(true)
+      // The parent steps back only while the submenu stands over it (plan 169h)
+      expect(parent.hasAttribute("data-submenu-over")).toBe(false)
       width = 280
       observer.refresh()
       expect(state).toMatchObject({ mobile: true, ready: true, unavailable: false })
       expect(content.hasAttribute("data-submenu-unavailable")).toBe(false)
       expect(content.hasAttribute("data-submenu-positioned")).toBe(true)
+      expect(parent.hasAttribute("data-submenu-over")).toBe(true)
       height = 0
       observer.refresh()
       expect(state).toMatchObject({ mobile: true, ready: false, unavailable: false })
+      expect(parent.hasAttribute("data-submenu-over")).toBe(false)
     } finally {
       observer.dispose()
     }
+  })
+
+  test("the parent steps forward when its submenu closes, and leaves stepped back when the whole menu closes", () => {
+    vi.stubGlobal("visualViewport", { offsetLeft: 0, offsetTop: 0, width: 375, height: 812, addEventListener() {}, removeEventListener() {} })
+    vi.stubGlobal("matchMedia", () => ({ matches: true, addEventListener() {}, removeEventListener() {} }))
+    const open = () => {
+      const wrapper = document.createElement("div")
+      const parent = document.createElement("div")
+      parent.setAttribute("role", "menu")
+      const trigger = document.createElement("div")
+      parent.append(trigger)
+      wrapper.append(parent)
+      const content = document.createElement("div")
+      const header = document.createElement("div")
+      header.setAttribute("data-submenu-collapse", "")
+      content.append(header)
+      document.body.append(wrapper, content)
+      Object.defineProperty(content, "offsetWidth", { configurable: true, get: () => 238 })
+      Object.defineProperty(content, "offsetHeight", { configurable: true, get: () => 200 })
+      const observer = api.observePhoneSubmenu(trigger, content, { collisionPadding: { top: 30, right: 12, bottom: 30, left: 12 } }, () => {})
+      expect(parent.hasAttribute("data-submenu-over")).toBe(true)
+      return { wrapper, parent, observer }
+    }
+    const frames: FrameRequestCallback[] = []
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => frames.push(callback))
+    const nextFrame = () => frames.splice(0).forEach((callback) => callback(0))
+    const collapsed = open()
+    collapsed.observer.dispose()
+    nextFrame()
+    expect(collapsed.parent.hasAttribute("data-submenu-over")).toBe(false)
+    // A choice in the submenu closes it first; the whole menu starts to leave before the next frame
+    const leaving = open()
+    leaving.observer.dispose()
+    leaving.wrapper.setAttribute("data-exiting", "")
+    nextFrame()
+    expect(leaving.parent.hasAttribute("data-submenu-over")).toBe(true)
+    // Another submenu of the same menu opened meanwhile
+    const replaced = open()
+    replaced.observer.dispose()
+    const other = document.createElement("div")
+    other.setAttribute("aria-expanded", "true")
+    replaced.parent.append(other)
+    nextFrame()
+    expect(replaced.parent.hasAttribute("data-submenu-over")).toBe(true)
   })
 
   test("an empty boundary is unavailable even when max-height leaves zero layout", () => {
