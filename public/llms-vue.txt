@@ -423,16 +423,18 @@ Examples: Composition, Error message, Warning message, No results, Compact, Left
 ## Field
 Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.
 Import: import { Field } from "@plexui/vue/components/Field"
+Import: import { FieldGroup } from "@plexui/vue/components/FieldGroup"
 Docs: https://plexui.com/vue/components/field
 Props:
   - label (string) — Label text for the field
+  - hide-label (boolean) default: false — Hides the label from view; it still names the control. A description moves under the control. On a row the value or placeholder starts at the row's edge, so the row is vertical unless orientation says otherwise
   - label slot (VNode[]) — Rich label content; takes precedence over the label prop
   - description (string) — Helper text below the label; linked via aria-describedby (or the description slot)
   - error-message (string) — Error message below the control; sets aria-invalid on the child (or the errorMessage slot)
   - label-action (string) — Content at the end of the label row, such as a link that acts on the field (or the labelAction slot)
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: child's size, else "md" — Label font size; defaults to the child control's size
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
-  - orientation ("vertical" | "horizontal") default: "horizontal" on a row, else "vertical" — Layout direction of label and control
+  - orientation ("vertical" | "horizontal") default: "horizontal" on a row with a visible label, else "vertical" — Layout direction of label and control
   - row (boolean) default: false — One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other attributes reach the root only on a row
   - fill (boolean) default: false — On a row, the control takes the rest of the line after the label
   - #action (slot) — On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it
@@ -442,13 +444,14 @@ Props:
   - default slot ((fieldProps) => VNode[]) — Form control; its single root element receives id, aria-describedby and aria-invalid (plus aria-labelledby unless it has its own name) unless the slot reads fieldProps, which include aria-labelledby
   FieldGroup:
     - title (string) — Heading over the block (or the title slot); it names the group
+    - header-prominence ("standard" | "increased") default: "standard" — How much the title stands out: a quiet heading over the rows, or a title that leads its content (on a phone the iOS prominent list header, 20pt Semibold)
     - description (string) — Line under the title (or the description slot)
     - columns (boolean) default: false — Every value starts at one column, --field-row-column-width into the row, on the web and on a phone. Off, values end at the row's edge
     - bodyClass (string) — Applied to the block that holds the rows
     - default slot (VNode) — The rows
-    - action slot (VNode) — Content at the end of the header
-    - footer slot (VNode) — Content under the block
-Examples: Overview, With description, With error message, Required, Sizing, Horizontal layout, Rows, Fields in rows, Textarea, Select, Label action, Slider, Fieldset, Checkbox, Radio, Switch, Stacked fields, Validation and Errors, Optical alignment, Form example, Profile settings, Create project, Field configuration, Birthday input, Birthday with validation, Birthday segmented input, Birthday with selects
+    - action slot (VNode) — Content at the end of the header. On a phone a ghost text button reads as the list header's action: tinted text on the title's last line
+    - footer slot (VNode) — Content under the block, such as a note; its paragraphs stand apart
+Examples: Overview, Group, Other controls, Label action, Several controls, Sizing, Optical alignment
 
 ## File Upload
 Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
@@ -514,7 +517,7 @@ Docs: https://plexui.com/vue/components/floating-label-input
     - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
     - @clear-click (() => void) — Shows a clear button when a value is selected
     - @interact (() => void) — Fires on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
-Examples: Overview, Types, Label inside, Rounded box, Textarea, Password input, SSN input, Birthday input, Birthday with validation, Phone input, Select, Multiple selection, Country select, States, Clear button
+Examples: Overview, Types, Label inside, Rounded box, Textarea, Password input, Phone input, Select, Multiple selection, Country select, States
 
 ## Indicators
 Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
@@ -593,7 +596,7 @@ Props:
   - for (string) — id of the associated control. Clicks on the label focus or activate the control.
   - class (string) — Applied to the root <label> element
   - default slot (VNode[]) — Label content
-Examples: Overview, Label in Field
+Examples: Overview
 
 ## Markdown
 Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
@@ -838,10 +841,10 @@ Props:
   - #trigger / trigger (slot ({ open, onToggle }) | function) — Custom trigger element, wrapped as the popover trigger
   - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Indicator at the end of the trigger
   - side ("top" | "bottom") default: "bottom" — Preferred side of the list
-  - align ("start" | "center" | "end") default: "center" when block, otherwise "start" — Alignment of the list against the trigger
-  - list-width (number | "auto") default: trigger width (fits the options when not block) — Width of the list in px
+  - align ("start" | "center" | "end") default: "end" at the end of a Field row ("start" in a FieldGroup with columns), "center" when block, otherwise "start" — Alignment of the list against the trigger
+  - list-width (number | "auto") default: trigger width (fits the options when not block or at the end of a Field row) — Width of the list in px
   - list-min-width (number | "auto") default: trigger width — Minimum width of the list in px
-  - list-max-width (number | "auto") default: "auto" (300 when not block) — Maximum width of the list in px
+  - list-max-width (number | "auto") default: "auto" (300 when it fits the options) — Maximum width of the list in px
   - search-placeholder (string) — Search input placeholder
   - search-aria-label (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
   - #searchEmptyMessage / search-empty-message (slot | string) default: "No results found." — Shown when the search matches nothing

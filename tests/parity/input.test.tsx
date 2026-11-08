@@ -712,6 +712,8 @@ describe("Input.AdornmentButton in a phone row", () => {
       "--input-adornment-background": "transparent",
       "padding-inline": "0",
       "margin-inline-end": "calc((19px - var(--input-adornment-hit-size)) / 2)",
+      // Plan 169c: the 44px target overhangs the field evenly, so a placeholder cell stays 52 (it was 74)
+      "margin-block": "calc((var(--input-size) - var(--input-adornment-hit-size)) / 2)",
       "justify-content": "center",
     })
     const svg = row!.nodes.find((n): n is postcss.Rule => n.type === "rule" && n.selector === "> svg")

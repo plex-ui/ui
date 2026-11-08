@@ -49,6 +49,56 @@ describe("Field row", () => {
   })
 })
 
+describe("Field hideLabel (plan 169a)", () => {
+  const ghost = { variant: "ghost", placeholder: "Title" }
+  const pairOf = (field: Record<string, unknown>) =>
+    renderPair(
+      createElement(RField, { label: "Title", hideLabel: true, ...field }, createElement(RInput, ghost)),
+      () => h(Field, { label: "Title", hideLabel: true, ...field }, () => h(Input, ghost)),
+    )
+  const parse = (html: string) => new DOMParser().parseFromString(html, "text/html")
+
+  test("a row with a hidden label is vertical: the value starts at the row's edge", async () => {
+    const pair = await pairOf({ row: true })
+    expect(pair.vue).toBe(pair.react)
+    const root = parse(pair.react).querySelector('[data-slot="field"]')
+    expect(root?.getAttribute("data-label-hidden")).toBe("")
+    expect(root?.getAttribute("data-orientation")).toBe("vertical")
+    // Not a horizontal row, so the field keeps its own shape
+    expect(pair.react).not.toContain("data-pill")
+  })
+
+  test("the label stays in the document and names the control", async () => {
+    const pair = await pairOf({ row: true })
+    for (const html of [pair.react, pair.vue]) {
+      const doc = parse(html)
+      const input = doc.querySelector("input")
+      const label = doc.querySelector("label")
+      expect(label?.textContent).toContain("Title")
+      expect(input?.id).toBeTruthy()
+      expect(label?.getAttribute("for")).toBe(input?.id)
+    }
+  })
+
+  test("an orientation of its own wins, and a field outside a row keeps its orientation", async () => {
+    const row = await pairOf({ row: true, orientation: "horizontal" })
+    expect(row.vue).toBe(row.react)
+    expect(row.react).toContain('data-orientation="horizontal"')
+    expect(row.react).toContain("data-pill")
+    const plain = await pairOf({})
+    expect(plain.vue).toBe(plain.react)
+    expect(plain.react).toContain('data-orientation="vertical"')
+    expect(plain.react).toContain("data-label-hidden")
+  })
+
+  test("without it nothing is marked", async () => {
+    const pair = await pairOf({ row: true, hideLabel: false })
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.react).not.toContain("data-label-hidden")
+    expect(pair.react).toContain('data-orientation="horizontal"')
+  })
+})
+
 describe("Field row action", () => {
   const reactAction = (row: boolean) =>
     createElement(
@@ -177,6 +227,21 @@ describe("FieldGroup", () => {
     )
     expect(pair.vue).toBe(pair.react)
     expect(pair.react).not.toContain("Footer")
+  })
+
+  test("headerProminence: increased marks the group; standard adds nothing", async () => {
+    const increased = await renderPair(
+      createElement(RFieldGroup, { title: "Recently searched", headerProminence: "increased" }),
+      () => h(FieldGroup, { title: "Recently searched", headerProminence: "increased" }),
+    )
+    expect(increased.vue).toBe(increased.react)
+    expect(increased.react).toContain('data-header-prominence="increased"')
+    const standard = await renderPair(
+      createElement(RFieldGroup, { title: "Payment", headerProminence: "standard" }),
+      () => h(FieldGroup, { title: "Payment", headerProminence: "standard" }),
+    )
+    expect(standard.vue).toBe(standard.react)
+    expect(standard.react).not.toContain("data-header-prominence")
   })
 
   test("the title names the group", async () => {

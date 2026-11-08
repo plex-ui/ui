@@ -5,250 +5,68 @@ metaDescription: React input with a floating label that animates into the field 
 ---
 
 import { FloatingLabelInput } from "@plexui/ui/components/FloatingLabelInput"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import {
+  FloatingLabelInputOverviewDemo,
   FloatingLabelInputTextareaDemo,
+  FloatingLabelInputPasswordDemo,
   FloatingLabelInsideDemo,
-  FloatingLabelInputWithClearButtonDemoWithControls,
   FloatingLabelInputStatesDemo,
-  FloatingLabelInputSSNDemo,
-  FloatingLabelInputBirthdayDemo,
-  FloatingLabelInputBirthdayValidationDemo,
   FloatingLabelInputPhoneDemo,
   FloatingLabelSelectPlainDemo,
   FloatingLabelSelectMultiDemo,
   FloatingLabelSelectCountryDemo,
 } from "@/components/docs/FloatingLabelInputDemos"
 
-export const birthdayCode = `import React, { useCallback, useRef, useState } from 'react';
-import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
+export const statesCode = `const [value, setValue] = useState("")
 
-const MASK = 'MM / DD / YYYY';
+// Desktop
+<FloatingLabelInput
+  label="Email address"
+  value={value}
+  onChange={(evt) => setValue(evt.target.value)}
+  errorMessage="Email is not valid."
+  description="We'll never share your email with anyone else."
+  onClear={() => setValue("")}
+/>
 
-/**
- * Extract raw digits from a formatted birthday string.
- */
-function getDigits(value: string): string {
-  return value.replace(/\\D/g, '').slice(0, 8);
-}
-
-/**
- * Format raw digits into "MM / DD / YYYY" with partial support.
- * When a segment is complete (2 digits for month, 4 for month+day),
- * the trailing separator is included so the cursor advances past it.
- */
-function formatBirthdayValue(rawValue: string): string {
-  const digits = getDigits(rawValue);
-  const month = digits.slice(0, 2);
-  const day = digits.slice(2, 4);
-  const year = digits.slice(4, 8);
-  if (digits.length < 2) return month;
-  if (digits.length === 2) return \`\${month} / \`;
-  if (digits.length < 4) return \`\${month} / \${day}\`;
-  if (digits.length === 4) return \`\${month} / \${day} / \`;
-  return \`\${month} / \${day} / \${year}\`;
-}
-
-/**
- * Build the visible mask suffix that appears after the typed text.
- * E.g. typed "12" -> value is "12 / " -> mask suffix is "DD / YYYY"
- *      typed "1"  -> value is "1"     -> mask suffix is "M / DD / YYYY"
- */
-function getMaskSuffix(formattedValue: string): string {
-  if (formattedValue.length >= MASK.length) return '';
-  return MASK.slice(formattedValue.length);
-}
-
-
-/**
- * Split mask suffix into three parts for segment-based highlighting:
- * - before: separator text before the active segment (gray)
- * - highlight: the active/next segment placeholder chars (blue bg)
- * - after: remaining mask text after the active segment (gray)
- *
- * E.g. suffix " / DD / YYYY" => { before: " / ", highlight: "DD", after: " / YYYY" }
- *      suffix "M / DD / YYYY"  => { before: "", highlight: "M", after: " / DD / YYYY" }
- *      suffix "YYY"            => { before: "", highlight: "YYY", after: "" }
- */
-function splitMaskSuffix(suffix: string): { before: string; highlight: string; after: string } {
-  if (!suffix) return { before: '', highlight: '', after: '' };
-  const match = suffix.match(/^(\\s*\\/\\s*)?([A-Z]+)([\\s\\S]*)/);
-  if (!match) return { before: suffix, highlight: '', after: '' };
-  return {
-    before: match[1] || '',
-    highlight: match[2],
-    after: match[3] || '',
-  };
-}
-
-function BirthdayMaskedInput({
-  value,
-  onChange,
-  invalid,
-  disabled,
-  className,
-  ...rest
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  invalid?: boolean;
-  disabled?: boolean;
-  readOnly?: boolean;
-  className?: string;
-  'aria-describedby'?: string;
-}) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [focused, setFocused] = useState(false);
-
-  const handleChange = useCallback(
-    (evt: React.ChangeEvent<HTMLInputElement>) => {
-      const raw = evt.target.value;
-      const newDigits = getDigits(raw);
-      const oldDigits = getDigits(value);
-      // Backspace through a separator: raw got shorter but digit count unchanged
-      if (raw.length < value.length && newDigits.length === oldDigits.length) {
-        const trimmed = newDigits.slice(0, -1);
-        onChange(formatBirthdayValue(trimmed));
-      } else {
-        onChange(formatBirthdayValue(raw));
-      }
-    },
-    [onChange, value],
-  );
-
-  const maskSuffix = getMaskSuffix(value);
-  const showMask = focused && maskSuffix.length > 0;
-  const maskParts = splitMaskSuffix(maskSuffix);
-  return (
-    <div style={{ position: 'relative' }}>
-      <FloatingLabelInput
-        ref={inputRef}
-        label="Birthday"
-        value={value}
-        className={className}
-        disabled={disabled}
-        maxLength={14}
-        inputMode="numeric"
-        invalid={invalid}
-        onChange={handleChange}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        style={showMask ? { caretColor: 'transparent' } : undefined}
-        {...rest}
-      />
-      {showMask && (
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 calc(var(--floating-input-gutter) + 1px)',
-            pointerEvents: 'none',
-            font: 'inherit',
-            fontSize: '1rem',
-            lineHeight: '1.5rem',
-            zIndex: 2,
-            overflow: 'hidden',
-          }}
-        >
-          {/* Invisible spacer matching width of typed text */}
-          <span style={{ visibility: 'hidden', whiteSpace: 'pre' }}>
-            {value}
-          </span>
-          {/* Separator before the active segment (gray) */}
-          {maskParts.before && (
-            <span style={{ color: 'var(--color-text-tertiary)', whiteSpace: 'pre' }}>
-              {maskParts.before}
-            </span>
-          )}
-          {/* Active segment placeholder (accent highlight) */}
-          {maskParts.highlight && (
-            <span
-              style={{
-                backgroundColor: 'var(--color-background-primary-solid)',
-                color: 'white',
-                whiteSpace: 'pre',
-                borderRadius: '3px',
-                padding: '1px 1px',
-              }}
-            >
-              {maskParts.highlight}
-            </span>
-          )}
-          {/* Remaining mask text after active segment (gray) */}
-          {maskParts.after && (
-            <span style={{ color: 'var(--color-text-tertiary)', whiteSpace: 'pre' }}>
-              {maskParts.after}
-            </span>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function BirthdayExample() {
-  const [birthday, setBirthday] = useState('');
-  const [invalid] = useState(false);
-  const [disabled] = useState(false);
-  const [readOnly] = useState(false);
-
-  return (
-    <div className="w-full min-w-0 max-w-[360px]">
-      <BirthdayMaskedInput value={birthday} onChange={setBirthday}
-        invalid={invalid} disabled={disabled} readOnly={readOnly} />
-    </div>
-  );
-}`
-
-export const statesCode = `import { useState } from 'react';
-import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
-
-export default function InputStatesExample() {
-  const [value, setValue] = useState('');
-  const [invalid] = useState(false);
-  const [errorMessage] = useState(false);
-  const [description] = useState(false);
-  const [disabled] = useState(false);
-  const [readOnly] = useState(false);
-
-  return (
-    <div className="w-full min-w-0 max-w-[360px]">
-      <FloatingLabelInput
-        label="Email address"
-        value={value}
-        onChange={(evt) => setValue(evt.target.value)}
-        invalid={invalid || errorMessage}
-        errorMessage={errorMessage ? 'Email is not valid.' : undefined}
-        description={description ? "We'll never share your email with anyone else." : undefined}
-        disabled={disabled}
-        readOnly={readOnly}
-      />
-    </div>
-  );
-}`
+// Phone: a cell of a FieldGroup, named by its placeholder. The description goes in the
+// group's footer, the error stands inside the cell.
+<FieldGroup footer="We'll never share your email with anyone else.">
+  <Field row hideLabel label="Email address" errorMessage="Email is not valid.">
+    <Input
+      type="email"
+      placeholder="Email address"
+      value={value}
+      onChange={(evt) => setValue(evt.target.value)}
+      onClear={() => setValue("")}
+    />
+  </Field>
+</FieldGroup>`
 
 <UsageBlock>{`import { FloatingLabelInput } from "@plexui/ui/components/FloatingLabelInput";`}</UsageBlock>
 
-On Phone the fields keep this web form at touch sizes: iOS has no floating label. For a form that reads as iOS, put an [Input](/components/input) or a [Select](/components/select) in a row of a `FieldGroup`, as the [Form Examples](/components/form-examples) do.
+On Phone a label does not float: iOS has no floating label. Each field is a cell of a `FieldGroup` on the grouped background, and its placeholder names it: an [Input](/components/input), a [Textarea](/components/textarea) or a [Select](/components/select) in a `Field row hideLabel`, as the [Form Examples](/components/form-examples) do. The label stays for screen readers, a description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; the examples about the floating label itself (where it rests, the shape of the field) have no Phone view.
 
 ## Examples
 
 ### Overview
 
-<ComponentPreview code={`<FloatingLabelInput label="Email address" />`} previewMinHeight={168}>
-  <div className="w-[360px]">
-    <FloatingLabelInput label="Email address" />
-  </div>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={`// Desktop
+<FloatingLabelInput label="Email address" />
+
+// Phone: a cell of a FieldGroup, named by its placeholder.
+<FieldGroup>
+  <Field row hideLabel label="Email address">
+    <Input type="email" placeholder="Email address" />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
+  <FloatingLabelInputOverviewDemo />
 </ComponentPreview>
 
 ### Types
 
-<ComponentPreview details={<>Two things set the type: where the label rests, and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. Text fields, textareas and selects work the same in each.</>} code={`<div className="grid w-[44rem] max-w-[calc(100vw-5rem)] grid-cols-1 items-center gap-x-4 gap-y-6 py-8 sm:grid-cols-[10rem_1fr_1fr]">
+<ComponentPreview phonePresentation="none" details={<>Two things set the type: where the label rests, and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. Text fields, textareas and selects work the same in each. On Phone the label does not float, so this example has no Phone view.</>} code={`<div className="grid w-[44rem] max-w-[calc(100vw-5rem)] grid-cols-1 items-center gap-x-4 gap-y-6 py-8 sm:grid-cols-[10rem_1fr_1fr]">
   <div className="max-sm:hidden" />
   <div className="text-sm text-secondary max-sm:hidden">Empty</div>
   <div className="text-sm text-secondary max-sm:hidden">Filled</div>
@@ -298,7 +116,7 @@ On Phone the fields keep this web form at touch sizes: iOS has no floating label
 
 #### Label inside
 
-<ComponentPreview details={<>Use <code>labelPlacement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box.</>} code={`const [country, setCountry] = useState("es")
+<ComponentPreview phonePresentation="none" details={<>Use <code>labelPlacement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box. On Phone a cell names its field with the placeholder, so this example has no Phone view.</>} code={`const [country, setCountry] = useState("es")
 const label = countries.find((option) => option.value === country)?.label
 const trigger = useCallback(
   ({ open }: { open: boolean }) => (
@@ -327,7 +145,7 @@ const trigger = useCallback(
 
 #### Rounded box
 
-<ComponentPreview details={<>Set <code>pill={'{false}'}</code> to take the rounded box of <code>Input</code> and <code>Select</code>, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place.</>} code={`<FloatingLabelInput label="Email address" pill={false} />`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" details={<>Set <code>pill={'{false}'}</code> to take the rounded box of <code>Input</code> and <code>Select</code>, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place. On Phone the cell is the frame, so this example has no Phone view.</>} code={`<FloatingLabelInput label="Email address" pill={false} />`} previewMinHeight={168}>
   <div className="w-[360px]">
     <FloatingLabelInput label="Email address" pill={false} />
   </div>
@@ -335,68 +153,49 @@ const trigger = useCallback(
 
 ### Text fields
 
-Everything that is typed: more than one line, a password, or a value with a mask.
+Everything that is typed: more than one line, a password, or a phone number. Values with a mask, such as an [SSN](/components/input#ssn-input) or a [birthday](/components/input#birthday-input), are on the Input page: their mask works the same under a floating label.
 
 #### Textarea
 
-<ComponentPreview details={<>Use <code>multiline</code> to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height.</>} code={`<FloatingLabelInput label="Message" multiline />`}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>multiline</code> to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height. On Phone the cell grows with a <code>Textarea</code> that starts at one line.</>} code={`// Desktop
+<FloatingLabelInput label="Message" multiline />
+
+// Phone: the cell grows with the text.
+<FieldGroup>
+  <Field row hideLabel label="Message">
+    <Textarea placeholder="Message" rows={1} autoResize />
+  </Field>
+</FieldGroup>`}>
   <FloatingLabelInputTextareaDemo />
 </ComponentPreview>
 
 #### Password input
 
-<ComponentPreview details={<>A <code>type="password"</code> field ships a built-in reveal toggle: click the eye to show or hide the value. Set <code>revealable</code> to <code>false</code> to remove it.</>} code={`<FloatingLabelInput label="Password" type="password" />`} previewMinHeight={168}>
-  <div className="w-[360px]">
-    <FloatingLabelInput label="Password" type="password" />
-  </div>
-</ComponentPreview>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A <code>type="password"</code> field ships a built-in reveal toggle: click the eye to show or hide the value. Set <code>revealable</code> to <code>false</code> to remove it. On Phone the cell holds an <code>Input</code> with an <code>Input.AdornmentButton</code> at its end, as on the <a href="/components/input#password-with-visibility-toggle">Input</a> page.</>} code={`// Desktop
+<FloatingLabelInput label="Password" type="password" />
 
-#### SSN input
-
-<ComponentPreview details={<>A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (<code>XXX-XX-XXXX</code>) with highlighted segment, value masking that hides digits behind bullets (<code>•••-••-••••</code>), and a built-in <code>revealable</code> toggle to reveal the real value. <code>formatSSN</code> and <code>extractDigits</code> are plain helper functions of the example.</>} code={`const [rawDigits, setRawDigits] = useState("")
+// Phone: the reveal button stands at the end of the cell.
 const [visible, setVisible] = useState(false)
-const formatted = formatSSN(rawDigits)
 
-<FloatingLabelInput
-  label="Social Security Number"
-  value={formatted}
-  inputMode="numeric"
-  maxLength={11}
-  onChange={(evt) => setRawDigits(extractDigits(evt.target.value))}
-  style={!visible && rawDigits ? { color: 'transparent', caretColor: 'var(--color-text)' } : undefined}
-  revealable
-  onRevealedChange={setVisible}
-/>`} previewMinHeight={168}>
-  <FloatingLabelInputSSNDemo />
-</ComponentPreview>
-
-<span id="birthday-states" />
-
-#### Birthday input
-
-Choose Empty or Filled to replace the date with a preset. The invalid, disabled and readOnly controls preserve the date you entered. Invalid demonstrates styling; the next example validates the date.
-
-<ComponentPreview details={<>A date-of-birth input with an inline <code>MM / DD / YYYY</code> mask. The copied example includes its formatting and mask helpers.</>} code={birthdayCode} previewMinHeight={168}>
-  <FloatingLabelInputBirthdayDemo />
-</ComponentPreview>
-
-#### Birthday with validation
-
-<ComponentPreview details={<>Use <code>errorMessage</code> to display the birthday validation state; it also marks the input invalid. <code>formatBirthdayValue</code> and <code>isValidBirthday</code> are plain helper functions of the example.</>} code={`const [birthday, setBirthday] = useState("02 / 30 / 2001")
-
-<FloatingLabelInput
-  label="Birthday"
-  value={birthday}
-  maxLength={14}
-  onChange={(evt) => setBirthday(formatBirthdayValue(evt.target.value))}
-  errorMessage={birthday && !isValidBirthday(birthday) ? "Please enter a valid date." : undefined}
-/>`} previewMinHeight={168}>
-  <FloatingLabelInputBirthdayValidationDemo />
+<FieldGroup>
+  <Field row hideLabel label="Password">
+    <Input
+      placeholder="Password"
+      type={visible ? "text" : "password"}
+      endAdornment={
+        <Input.AdornmentButton aria-label={visible ? "Hide" : "Show"} aria-pressed={visible} onClick={() => setVisible((v) => !v)}>
+          {visible ? <EyeOff /> : <Eye />}
+        </Input.AdornmentButton>
+      }
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
+  <FloatingLabelInputPasswordDemo />
 </ComponentPreview>
 
 #### Phone input
 
-<ComponentPreview details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses <code>startAdornment</code> to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. The country list, its search predicate and trigger, <code>CountryOptionView</code>, <code>formatPhoneNumber</code> and <code>dialCodeOf</code> are helpers of the example.</>} code={`const [country, setCountry] = useState("es")
+<ComponentPreview phonePresentation="none" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses <code>startAdornment</code> to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. The country list, its search predicate and trigger, <code>CountryOptionView</code>, <code>formatPhoneNumber</code> and <code>dialCodeOf</code> are helpers of the example. On Phone the country and the number are two linked rows of one group, as in the <a href="/components/form-examples#sign-up-phone">Sign up (phone)</a> form, so this example has no Phone view.</>} code={`const [country, setCountry] = useState("es")
 const [phone, setPhone] = useState("")
 const phoneInputRef = useRef<HTMLInputElement>(null)
 
@@ -436,7 +235,8 @@ const phoneInputRef = useRef<HTMLInputElement>(null)
 
 #### Select
 
-<ComponentPreview details={<>Use <code>FloatingLabelSelect</code> for plain text dropdowns. The label floats up when a value is selected, matching <code>FloatingLabelInput</code> styling.</>} code={`import { FloatingLabelSelect } from "@plexui/ui/components/FloatingLabelSelect"
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>FloatingLabelSelect</code> for plain text dropdowns. The label floats up when a value is selected, matching <code>FloatingLabelInput</code> styling. On Phone the cell holds a plain <code>Select</code> named by its placeholder.</>} code={`// Desktop
+import { FloatingLabelSelect } from "@plexui/ui/components/FloatingLabelSelect"
 import { Select } from "@plexui/ui/components/Select"
 
 const [role, setRole] = useState("")
@@ -467,13 +267,20 @@ const trigger = useCallback(
     trigger={trigger}
     checkPosition="end"
   />
-</div>`} previewMinHeight={168}>
+</div>
+
+// Phone: a cell named by the placeholder.
+<FieldGroup>
+  <Field row hideLabel label="Role">
+    <Select value={role} options={roles} onChange={(option) => setRole(option.value)} placeholder="Role" block />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <FloatingLabelSelectPlainDemo />
 </ComponentPreview>
 
 #### Multiple selection
 
-<ComponentPreview details={<>Pair <code>FloatingLabelSelect</code> with a <code>multiple</code> <code>Select</code> to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list.</>} code={`import { FloatingLabelSelect } from "@plexui/ui/components/FloatingLabelSelect"
+<ComponentPreview phonePresentation="none" details={<>Pair <code>FloatingLabelSelect</code> with a <code>multiple</code> <code>Select</code> to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list. On Phone this is the cell of the Select example with a <code>multiple</code> Select, so it has no Phone view.</>} code={`import { FloatingLabelSelect } from "@plexui/ui/components/FloatingLabelSelect"
 import { Select } from "@plexui/ui/components/Select"
 
 const [skills, setSkills] = useState<string[]>([])
@@ -517,7 +324,7 @@ const trigger = useCallback(
 
 #### Country select
 
-<ComponentPreview details={<>Use <code>FloatingLabelSelect</code> alongside <code>FloatingLabelInput</code> for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected. <code>CountryLabel</code> is a helper of the example that shows a flag next to the name.</>} code={`import { FloatingLabelSelect } from "@plexui/ui/components/FloatingLabelSelect"
+<ComponentPreview phonePresentation="none" details={<>Use <code>FloatingLabelSelect</code> alongside <code>FloatingLabelInput</code> for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected. <code>CountryLabel</code> is a helper of the example that shows a flag next to the name. On Phone this is the cell of the Select example with a flag in its options, so it has no Phone view.</>} code={`import { FloatingLabelSelect } from "@plexui/ui/components/FloatingLabelSelect"
 import { Select, type Option } from "@plexui/ui/components/Select"
 
 // Outside the component: Select needs a stable OptionView
@@ -563,25 +370,16 @@ const trigger = useCallback(
 <span id="read-only" />
 <span id="all-states" />
 
+<span id="clear-button" />
+
 ### States
 
-Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied.
+Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied. `onClear` shows a built-in clear button: it appears when the field has a value and is not disabled or read-only, and focus returns to the field.
 
-<ComponentPreview code={statesCode} previewMinHeight={168}>
+On Phone the field is a cell named by its placeholder: the description goes in the group's footer and the error stands inside the cell. A cell has no frame to color, so `invalid` alone is desktop only.
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={statesCode} previewMinHeight={168}>
   <FloatingLabelInputStatesDemo />
-</ComponentPreview>
-
-#### Clear button
-
-<ComponentPreview details={<>Use the <code>onClear</code> prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.</>} code={`const [value, setValue] = useState("clearable@example.com")
-
-<FloatingLabelInput
-  label="Email address"
-  value={value}
-  onChange={(evt) => setValue(evt.target.value)}
-  onClear={() => setValue("")}
-/>`} previewMinHeight={168}>
-  <FloatingLabelInputWithClearButtonDemoWithControls />
 </ComponentPreview>
 
 ## API

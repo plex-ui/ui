@@ -31,6 +31,15 @@ export type FieldProps = {
    */
   description?: React.ReactNode
   /**
+   * Hides the label from view; it still names the control for assistive technology.
+   * On a `row` the value or placeholder then starts at the row's edge, as an iOS cell that
+   * shows only its placeholder or value (Notes, a title, a server's address), so the row is
+   * vertical unless `orientation` says otherwise. Words that explain the field go in the
+   * FieldGroup's `footer`.
+   * @default false
+   */
+  hideLabel?: boolean
+  /**
    * Error message displayed below the control.
    * When provided, the child control receives aria-invalid="true".
    * Uses the existing FieldError component internally.
@@ -63,7 +72,7 @@ export type FieldProps = {
    * Layout direction of label and control.
    * - "vertical": label stacked above control (default)
    * - "horizontal": label beside control
-   * @default "horizontal" on a `row`, else "vertical"
+   * @default "horizontal" on a `row` with a visible label, else "vertical"
    */
   orientation?: "vertical" | "horizontal"
   /**
@@ -111,6 +120,7 @@ export type FieldProps = {
 
 export function Field({
   label,
+  hideLabel = false,
   description,
   errorMessage,
   labelAction,
@@ -126,7 +136,7 @@ export function Field({
   children,
   ...rest
 }: FieldProps) {
-  const orientation = orientationProp ?? (row ? "horizontal" : "vertical")
+  const orientation = orientationProp ?? (row && !hideLabel ? "horizontal" : "vertical")
   const generatedId = useId()
   const forwardingRowClick = useRef(false)
   const fieldId = idProp || `field-${generatedId}`
@@ -236,6 +246,7 @@ export function Field({
         data-optically-align={opticallyAlign}
         data-row={row ? "" : undefined}
         data-fill={fill ? "" : undefined}
+        data-label-hidden={hideLabel ? "" : undefined}
       >
         <div className={s.LabelGroup}>
           {labelAction ? (

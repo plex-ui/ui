@@ -7,8 +7,17 @@ import { createContext, useContext } from "react"
  */
 export const FieldRowContext = createContext(false)
 
+/** True when the control ends a `Field row`. */
+export const useFieldRow = () => useContext(FieldRowContext)
+
+/** True in a `FieldGroup columns`, where every value starts at one column. */
+export const FieldColumnsContext = createContext(false)
+
+/** True when the control's value starts at the column of a `FieldGroup columns`. */
+export const useFieldColumns = () => useContext(FieldColumnsContext)
+
 /** The control's own `pill`, or else the shape of its row. */
 export const useFieldRowPill = (pill: boolean | undefined) => {
-  const inRow = useContext(FieldRowContext)
+  const inRow = useFieldRow()
   return pill ?? inRow
 }

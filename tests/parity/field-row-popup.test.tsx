@@ -3,15 +3,21 @@ import { act, fireEvent, render, waitFor, within } from "@testing-library/react"
 import { DateTime } from "luxon"
 import postcss from "postcss"
 import { beforeEach, describe, expect, test, vi } from "vitest"
-import { h } from "vue"
+import { defineComponent, h } from "vue"
 import { DatePicker as RDatePicker } from "../../packages/ui/src/components/DatePicker"
 import { Field as RField } from "../../packages/ui/src/components/Field"
+import { FieldGroup as RFieldGroup } from "../../packages/ui/src/components/FieldGroup"
 import { InputGroup as RInputGroup } from "../../packages/ui/src/components/InputGroup"
+import { Popover as RPopover } from "../../packages/ui/src/components/Popover"
 import { Select as RSelect } from "../../packages/ui/src/components/Select"
+import { FieldColumnsContext, FieldRowContext } from "../../packages/ui/src/lib/fieldRow"
 import { DatePicker } from "../../packages/vue/src/components/DatePicker"
 import { Field, type FieldChildProps } from "../../packages/vue/src/components/Field"
+import { FieldGroup } from "../../packages/vue/src/components/FieldGroup"
 import { InputGroup, InputGroupButton, InputGroupInput } from "../../packages/vue/src/components/InputGroup"
+import { Popover, PopoverContent, PopoverTrigger } from "../../packages/vue/src/components/Popover"
 import { Select } from "../../packages/vue/src/components/Select"
+import { provideFieldColumns, provideFieldRow } from "../../packages/vue/src/lib/fieldRow"
 import { flushVue, mountVue } from "./harness"
 
 beforeEach(() => {
@@ -91,6 +97,107 @@ describe.each(["React", "Vue"])("%s Field popup row", (framework) => {
     await waitFor(() => expect(control.getAttribute("aria-expanded")).toBe("true"))
     await waitFor(() => expect(page.getAllByRole("dialog", { hidden: true })).toHaveLength(1))
     expect(change).not.toHaveBeenCalled()
+  })
+
+  // On a phone the trigger at the row's end is only as wide as its value: a menu of the trigger's width broke every
+  // word of its options (Field, Other controls: Role, 63px). The menu fits its options and opens from the row's end.
+  test("a Select at the end of a row opens a menu that fits its options, from the row's end", async () => {
+    const { page, control } = await mountPopup("select")
+    await press(control)
+    await waitFor(() => expect(page.getAllByRole("dialog", { hidden: true })).toHaveLength(1))
+    const menu = page.getByRole("dialog", { hidden: true })
+    expect(menu.getAttribute("data-align")).toBe("end")
+    expect(menu.style.getPropertyValue("--select-list-width")).toBe("auto")
+    expect(menu.style.getPropertyValue("--select-list-max-width")).toBe("300px")
+  })
+
+  test("a Select under its label keeps a menu as wide as its field", async () => {
+    if (framework === "React") render(<RField row orientation="vertical" label="Category"><RSelect value="home" options={options} onChange={() => {}} /></RField>)
+    else {
+      mountVue(() => h(Field, { row: true, orientation: "vertical", label: "Category" }, () => h(Select, { value: "home", options, onChange: () => {} })))
+      await flushVue()
+    }
+    const page = within(document.body)
+    const control = page.getByRole("button", { name: /^Category / })
+    await press(control)
+    await waitFor(() => expect(page.getAllByRole("dialog", { hidden: true })).toHaveLength(1))
+    const menu = page.getByRole("dialog", { hidden: true })
+    expect(menu.getAttribute("data-align")).toBe("center")
+    expect(menu.style.getPropertyValue("--select-list-width")).toBe("")
+    expect(menu.style.getPropertyValue("--select-list-max-width")).toBe("auto")
+  })
+
+  // A FieldGroup with columns starts every value at one column (iOS typed details): the menu opens from there
+  // too, as Form Examples' Product already asked for by hand.
+  test("a Select in a row of a FieldGroup with columns opens its menu from the value's start", async () => {
+    if (framework === "React") render(
+      <RFieldGroup columns><RField row label="Category"><RSelect value="home" options={options} onChange={() => {}} /></RField></RFieldGroup>,
+    )
+    else {
+      mountVue(() => h(FieldGroup, { columns: true }, () =>
+        h(Field, { row: true, label: "Category" }, () => h(Select, { value: "home", options, onChange: () => {} }))))
+      await flushVue()
+    }
+    const page = within(document.body)
+    await press(page.getByRole("button", { name: /^Category / }))
+    await waitFor(() => expect(page.getAllByRole("dialog", { hidden: true })).toHaveLength(1))
+    const menu = page.getByRole("dialog", { hidden: true })
+    expect(menu.getAttribute("data-align")).toBe("start")
+    expect(menu.style.getPropertyValue("--select-list-width")).toBe("auto")
+    expect(menu.style.getPropertyValue("--select-list-max-width")).toBe("300px")
+  })
+
+  // A popup opened from a row is not that row: a Select inside it keeps the menu of a Select on its own.
+  test("a Select inside a popover opened from a row keeps its usual menu", async () => {
+    if (framework === "React") render(
+      <FieldRowContext.Provider value>
+        <FieldColumnsContext.Provider value>
+          <RPopover open>
+            <RPopover.Trigger><button type="button">Filter</button></RPopover.Trigger>
+            <RPopover.Content>
+              <RSelect value="home" options={options} onChange={() => {}} />
+              <RField row label="Kind"><RSelect value="work" options={options} onChange={() => {}} /></RField>
+            </RPopover.Content>
+          </RPopover>
+        </FieldColumnsContext.Provider>
+      </FieldRowContext.Provider>,
+    )
+    else {
+      const InRow = defineComponent({
+        setup(_, { slots }) {
+          provideFieldRow(() => true)
+          provideFieldColumns(() => true)
+          return () => slots.default?.()
+        },
+      })
+      mountVue(() => h(InRow, null, () => h(Popover, { open: true }, {
+        default: () => [
+          h(PopoverTrigger, null, { default: () => [h("button", { type: "button" }, "Filter")] }),
+          h(PopoverContent, null, { default: () => [
+            h(Select, { value: "home", options, onChange: () => {} }),
+            h(Field, { row: true, label: "Kind" }, () => h(Select, { value: "work", options, onChange: () => {} })),
+          ] }),
+        ],
+      })))
+      await flushVue()
+    }
+    const page = within(document.body)
+    const menuOf = () => page.getAllByRole("dialog", { hidden: true }).find((dialog) => dialog.style.getPropertyValue("--select-list-max-width"))
+    const control = await page.findByRole("button", { name: /^Home/ })
+    expect(control.hasAttribute("data-pill")).toBe(false)
+    await press(control)
+    await waitFor(() => expect(menuOf()).toBeTruthy())
+    expect(menuOf()!.getAttribute("data-align")).toBe("center")
+    expect(menuOf()!.style.getPropertyValue("--select-list-width")).toBe("")
+    expect(menuOf()!.style.getPropertyValue("--select-list-max-width")).toBe("auto")
+    await press(control)
+    await waitFor(() => expect(menuOf()).toBeFalsy())
+    // A row of the popup's own is a row with no columns: the columns of the group outside do not reach it
+    const kind = page.getAllByRole("button", { hidden: true }).find((button) => button.textContent === "Work")!
+    expect(kind.closest("[data-row]")).toBeTruthy()
+    await press(kind)
+    await waitFor(() => expect(menuOf()).toBeTruthy())
+    expect(menuOf()!.getAttribute("data-align")).toBe("end")
   })
 
   test.each(["select", "date"] as const)("%s clear action keeps its own behavior", async (kind) => {
@@ -245,13 +352,14 @@ describe("Phone date capsule in a row (iOS 26 kit Date and time - Collapsed)", (
     })
   })
 
-  test("a disabled Select or date in a horizontal row keeps the row's surface, with no frame or fill of its own", () => {
+  // Plan 169a: under its label too, a row is the frame of its control
+  test("a disabled Select or date in a row, beside or under its label, keeps the row's surface, with no frame or fill of its own", () => {
     const rules: postcss.Rule[] = []
     postcss.parse(readFileSync("packages/styles/src/components/Field/Field.module.css", "utf8")).walkAtRules("media", (media) => {
       if (media.params === "(max-width: 767px)") media.walkRules((rule) => { if (rule.selector.endsWith('[role="button"][data-disabled]')) rules.push(rule) })
     })
     expect(rules).toHaveLength(1)
-    expect(rules[0].selector).toBe('.Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"][data-disabled]')
+    expect(rules[0].selector).toBe('.Field:where([data-row]) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"][data-disabled]')
     expect(decls(rules[0])).toEqual({ "--select-control-background-color": "transparent", "--select-control-border-color": "transparent" })
   })
 

@@ -576,8 +576,11 @@
     margin-right: calc(var(--input-size) / 2 - var(--input-clear-target-size, var(--input-clear-size)) / 2 - var(--input-gutter) * var(--control-gutter-pill-scaling));
   }
 
-  :where([data-row]:not([data-orientation="vertical"])) .Container > .Clear.Clear:last-child {
+  /* Every row is frameless on a phone (a value under its label or alone too), so the circle keeps the row's
+     place in each; its target stands around the value's line and does not grow the row. */
+  :where([data-row]) .Container > .Clear.Clear:last-child {
     margin-right: calc(10px - var(--input-clear-target-size, var(--input-clear-size)) / 2);
+    margin-block: calc((var(--input-size) - var(--input-clear-target-size, var(--input-clear-size))) / 2);
   }
 
   /* In a grouped row the clear button shows only while the value is being edited, as
@@ -663,6 +666,9 @@
 
     padding-inline: 0;
     margin-inline-end: calc((19px - var(--input-adornment-hit-size)) / 2);
+    /* The target stands around the value's line and does not set the row's height: a cell with only its
+       value (Field hideLabel) keeps the 52px of one line, as the native password cell does. */
+    margin-block: calc((var(--input-size) - var(--input-adornment-hit-size)) / 2);
     justify-content: center;
 
     > svg {

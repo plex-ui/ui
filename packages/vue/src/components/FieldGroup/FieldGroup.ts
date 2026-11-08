@@ -1,5 +1,6 @@
 import clsx, { type ClassValue } from "clsx"
 import { defineComponent, h, useId, type PropType, type SlotsType, type VNodeArrayChildren, type VNodeChild } from "vue"
+import { provideFieldColumns } from "../../lib/fieldRow.js"
 import { hasContent } from "../../lib/slotContent.js"
 import s from "@plexui/styles/components/FieldGroup/FieldGroup.module.css"
 
@@ -15,6 +16,11 @@ const FieldGroupComponent = defineComponent({
   props: {
     /** Heading over the block (or the `title` slot); it names the group */
     title: String,
+    /**
+     * How much the title stands out: "standard" is a quiet heading over the rows, "increased" leads its
+     * content (on a phone the kit's Prominent list header). @default "standard"
+     */
+    headerProminence: { type: String as PropType<"standard" | "increased">, default: "standard" },
     /** Line under the title (or the `description` slot) */
     description: String,
     /** Every value starts at one column, `--field-row-column-width` into the row, on the web and on a phone. Off, values end at the row's edge */
@@ -27,7 +33,7 @@ const FieldGroupComponent = defineComponent({
     default?: () => VNodeChild
     title?: () => VNodeChild
     description?: () => VNodeChild
-    /** Content at the end of the header, such as a button */
+    /** Content at the end of the header, such as a button. On a phone a ghost text button reads as the list header's action */
     action?: () => VNodeChild
     /** Content under the block, such as a note */
     footer?: () => VNodeChild
@@ -35,6 +41,8 @@ const FieldGroupComponent = defineComponent({
   setup(props, { attrs, slots }) {
     const titleId = `field-group-${useId()}`
     const descriptionId = `${titleId}-description`
+    // A Select in a row of these columns opens its menu from the value's start
+    provideFieldColumns(() => props.columns)
 
     return () => {
       const title = slots.title ? slots.title() : props.title
@@ -53,6 +61,7 @@ const FieldGroupComponent = defineComponent({
           "aria-labelledby": hasTitle ? titleId : undefined,
           "aria-describedby": hasDescription ? descriptionId : undefined,
           "data-field-columns": props.columns ? "" : undefined,
+          "data-header-prominence": props.headerProminence === "increased" ? "increased" : undefined,
           ...attrs,
           "class": clsx(s.FieldGroup, attrs.class as ClassValue),
         },

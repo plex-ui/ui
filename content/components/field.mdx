@@ -5,38 +5,14 @@ metaDescription: React form field component with a label, helper text, and an er
 ---
 
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
-import { Field } from "@plexui/ui/components/Field"
-import { Input } from "@plexui/ui/components/Input"
-import { Textarea } from "@plexui/ui/components/Textarea"
-import { Select } from "@plexui/ui/components/Select"
-import { Checkbox } from "@plexui/ui/components/Checkbox"
 import {
   FieldOverviewDemo,
-  FieldWithDescriptionDemo,
-  FieldWithErrorDemo,
-  FieldRequiredDemo,
-  FieldOrientationDemo,
-  FieldRowFieldsDemo,
-  FieldRowsDemo,
-  FieldWithTextareaDemo,
-  FieldWithSelectDemo,
-  FieldLabelActionDemo,
-  FieldWithSliderDemo,
-  FieldFieldsetDemo,
-  FieldWithCheckboxGroupDemo,
-  FieldWithRadioGroupDemo,
-  FieldWithSwitchDemo,
   FieldGroupDemo,
-  FieldValidationDemo,
-  FieldFormExampleDemo,
+  FieldControlsDemo,
+  FieldLabelActionDemo,
+  FieldSeveralControlsDemo,
+  FieldSizingDemo,
   FieldOpticalAlignDemo,
-  FieldBirthdayInputDemo,
-  FieldBirthdayValidationDemo,
-  FieldBirthdaySegmentedDemo,
-  FieldBirthdaySelectDemo,
-  FieldProfileSettingsDemo,
-  FieldCreateProjectDemo,
-  FieldConfigurationDemo,
 } from "@/components/docs/FieldDemos"
 
 <UsageBlock>{`import { Field } from "@plexui/ui/components/Field";
@@ -46,305 +22,164 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
 
 ### Overview
 
-<ComponentPreview details={<>Field wraps a form control with a label, optional description, and error message. It automatically generates <code>htmlFor</code>, <code>aria-describedby</code>, and <code>aria-invalid</code> linking between the label, description, error, and child control.</>} code={`<div className="w-full max-w-[320px]">
-  <Field
-    label="Email"
-    size="md"
-    description="We'll never share your email with anyone else."
-    errorMessage="Please enter a valid email address."
-    required
-    orientation="vertical"
-  >
-    <Input placeholder="Enter email..." size="md" />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>Field wraps a form control with a label, a description and an error message, and links them: the label's <code>htmlFor</code>, <code>aria-describedby</code> and <code>aria-invalid</code> reach the control. <code>required</code> adds an asterisk after the label; it is visual only, so give the control its own <code>required</code> for form validation. The <code>layout</code> control puts the label in its four places:</p>
+  <ul>
+    <li><strong>above</strong>: the default, <code>orientation="vertical"</code>.</li>
+    <li><strong>columns</strong>: <code>orientation="horizontal"</code>, every value starting at one column.</li>
+    <li><strong>end</strong>: <code>row</code>, one line of a <code>FieldGroup</code> with the value at its end. A framed field is a pill there and takes <code>--field-row-control-width</code>, as its width cannot follow what is typed; <code>pill={'{false}'}</code> on the control keeps the rounded box.</li>
+    <li><strong>hidden</strong>: <code>hideLabel</code>. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field.</li>
+  </ul>
+  <p>On Phone a field is always a cell of a <code>FieldGroup</code> on the grouped background, as in an iOS form, in the same four places: the label above its value (<code>row orientation="vertical"</code>), values in one column (<code>FieldGroup columns</code>), the value at the end of the row, or the placeholder alone (<code>row hideLabel</code>), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's <code>footer</code>, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: <code>OTPInput</code> keeps its own digit cells on the screen, outside a group, as in <a href="/components/form-examples#verify-email">Verify email</a>.</p>
+</>} code={`// Desktop
+<Field label="Name" required>
+  <Input placeholder="Jane Appleseed" />
+</Field>
+<Field
+  label="Email"
+  required
+  description="We'll never share your email with anyone else."
+  errorMessage="Enter a valid email address."
+>
+  <Input type="email" defaultValue="jane@example" />
+</Field>
+
+// Phone: a cell of a FieldGroup; the words that explain it go in the footer.
+<FieldGroup footer="We'll never share your email with anyone else.">
+  <Field row label="Name" orientation="vertical">
+    <Input placeholder="Required" />
   </Field>
-</div>`} previewMinHeight={168}>
+  <Field row label="Email" orientation="vertical" errorMessage="Enter a valid email address.">
+    <Input type="email" defaultValue="jane@example" />
+  </Field>
+</FieldGroup>
+
+// columns: <FieldGroup columns> with rows; end: rows; hidden: placeholder only
+<Field row hideLabel label="Name">
+  <Input placeholder="Name" />
+</Field>`} previewMinHeight={168}>
   <FieldOverviewDemo />
 </ComponentPreview>
 
-### With description
+### Group
 
-<ComponentPreview details={<>Use <code>description</code> to display helper text below the label. The description is automatically linked to the control via <code>aria-describedby</code>.</>} code={`<div className="w-[320px]">
-  <Field label="Email" description="We'll never share your email with anyone else.">
-    <Input placeholder="Enter email..." />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p><code>FieldGroup</code> holds the rows and draws the hairlines between them. Its <code>title</code> names the group, <code>description</code> stands under the title, <code>action</code> at the end of the header, and <code>footer</code> under the rows; paragraphs of a footer stand apart. <code>columns</code> starts every value at one column, <code>--field-row-column-width</code> into the row.</p>
+  <p><code>headerProminence="increased"</code> makes the title lead its content, as a section of a page. On Phone the standard title is the quiet heading of an iOS list, and the increased one is the list's prominent header, 20pt Semibold in the primary label. A ghost text button in the header is the list header's action: tinted text on the title's last line, with a 44pt target. The footer is 13/16 Footnote, its paragraphs one empty line apart, as in Settings.</p>
+</>} code={`<FieldGroup
+  title="Billing address"
+  headerProminence="increased"
+  action={<Button color="primary" variant="ghost" size="sm" onClick={clear}>Clear</Button>}
+  footer={<p>Your bank checks this address against your card. <TextLink href="/billing">Learn more</TextLink></p>}
+  columns
+>
+  <Field row label="Street">
+    <Input placeholder="Required" value={street} onChange={(event) => setStreet(event.target.value)} />
   </Field>
-</div>`} previewMinHeight={168}>
-  <FieldWithDescriptionDemo />
+  <Field row label="City">
+    <Input placeholder="Required" value={city} onChange={(event) => setCity(event.target.value)} />
+  </Field>
+  <Field row label="Postcode">
+    <Input placeholder="Required" value={postcode} onChange={(event) => setPostcode(event.target.value)} />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
+  <FieldGroupDemo />
 </ComponentPreview>
 
-### With error message
+### Other controls
 
-<ComponentPreview details={<>Use <code>errorMessage</code> to display a validation error. When provided, the child control automatically receives <code>aria-invalid="true"</code>. The error is rendered using the <code>FieldError</code> component with <code>role="alert"</code> for accessibility.</>} code={`<div className="w-[320px]">
-  <Field label="Email" errorMessage="Please enter a valid email address">
-    <Input placeholder="Enter email..." />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>Field works with any form control. A native one, such as a <code>Textarea</code>, is named by the label's <code>htmlFor</code>. A <code>Select</code> or <code>DatePicker</code> trigger is not a native form control, so Field points its <code>aria-labelledby</code> at the label, and the trigger adds its value: a screen reader hears "Role, Editor". A child with a name of its own (<code>aria-label</code>, <code>aria-labelledby</code> or <code>label</code>) keeps it.</p>
+  <p>On Phone a Select or a date is the value at the end of its row, and a long text stands under its label. A group of checkboxes, radios or switches is a row per choice: see <a href="/components/checkbox#with-field">Checkbox</a>, <a href="/components/radio-group">Radio Group</a> and <a href="/components/switch">Switch</a>.</p>
+</>} code={`// Desktop
+<Field label="Role" description="What this person can change.">
+  <Select value={role} onChange={(option) => setRole(option.value)} options={roles} />
+</Field>
+<Field label="Starts">
+  <DatePicker placeholder="Select date" value={start} onChange={setStart} />
+</Field>
+<Field label="Notes">
+  <Textarea placeholder="Anything the team should know" rows={3} />
+</Field>
+
+// Phone
+<FieldGroup>
+  <Field row label="Role">
+    <Select value={role} onChange={(option) => setRole(option.value)} options={roles} />
   </Field>
-</div>`} previewMinHeight={168}>
-  <FieldWithErrorDemo />
+  <Field row label="Starts">
+    <DatePicker triggerDateFormat="MMM d, yyyy" triggerShowIcon={false} placeholder="Select date" value={start} onChange={setStart} />
+  </Field>
+  <Field row label="Notes" orientation="vertical">
+    <Textarea placeholder="Anything the team should know" rows={3} autoResize />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
+  <FieldControlsDemo />
 </ComponentPreview>
 
-### Required
+### Label action
 
-<ComponentPreview details={<>Use <code>required</code> to show a visual asterisk after the label. This is purely visual and does not add the <code>required</code> HTML attribute: pass <code>required</code> directly to the child control for form validation.</>} code={`<div className="w-[320px]">
-  <Field label="Email" required>
-    <Input placeholder="Enter email..." />
-  </Field>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>labelAction</code> for a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size. On Phone a row has no label line to hold it: the link stands under the group in the rows' text, as under the Apple Account sign-in. A group's footer is a footnote, for words to read.</>} code={`// Desktop
+<Field
+  label="Password"
+  labelAction={<TextLink href="/reset-password">Forgot password?</TextLink>}
+>
+  <Input type="password" placeholder="Enter password" />
+</Field>
+
+// Phone
+<div className="flex flex-col">
+  <FieldGroup>
+    <Field row label="Password">
+      <Input type="password" placeholder="Required" />
+    </Field>
+  </FieldGroup>
+  <TextLink primary href="/reset-password" className="mt-[15px] self-start text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)]">
+    Forgot password?
+  </TextLink>
 </div>`} previewMinHeight={168}>
-  <FieldRequiredDemo />
+  <FieldLabelActionDemo />
+</ComponentPreview>
+
+### Several controls
+
+<ComponentPreview phonePresentation="none" details={<>For more than one control, or a control that needs its props placed by hand, pass a function as <code>children</code>. It receives <code>{'{ id, "aria-labelledby", "aria-describedby", "aria-invalid" }'}</code>: put the <code>id</code> and <code>aria-labelledby</code> on the first control, so the label names it, and give the others an <code>aria-label</code> of their own. On a phone a birthday is one row and one value, whose wheel sets the day, the month and the year, as in Contacts. PlexUI has no such wheel, so this example has no Phone view.</>} code={`<Field label="Birthday">
+  {(fieldProps) => (
+    <div className="flex gap-2">
+      <div className="w-[130px]">
+        <Select id={fieldProps.id} aria-labelledby={fieldProps["aria-labelledby"]} placeholder="Month" options={months} value={month} onChange={(option) => setMonth(option.value)} />
+      </div>
+      <div className="w-[84px]">
+        <Select aria-label="Day" placeholder="Day" options={days} value={day} onChange={(option) => setDay(option.value)} />
+      </div>
+      <div className="w-[96px]">
+        <Select aria-label="Year" placeholder="Year" options={years} value={year} onChange={(option) => setYear(option.value)} />
+      </div>
+    </div>
+  )}
+</Field>`} previewMinHeight={168}>
+  <FieldSeveralControlsDemo />
 </ComponentPreview>
 
 ### Sizing
 
 <ComponentPreview phonePresentation="none" details={<>
   <p>The label and description scale with the child control: Field reads the control's <code>size</code>, so <code>{'<Input size="lg" />'}</code> gets a <code>lg</code> label without repeating it. Pass <code>size</code> to Field to set the label size yourself, or when the child is a render prop.</p>
-  <p>On a phone with <code>touch.css</code> a text field is 44px from <code>3xs</code> to <code>2xl</code> and 50px at <code>3xl</code>, with the 17px text of iOS: a <code>3xs</code>, <code>2xs</code> or <code>xs</code> field takes the height, text and gutter of <code>sm</code>, and a horizontal label lines up with it. The Overview's phone view shows the <code>md</code> field without the size and pill controls, and this example is desktop only, as the Input page's Sizing is. In a form on a phone, put fields in rows of a <code>FieldGroup</code> (see Rows).</p>
-</>} code={`<div className="w-full max-w-[320px]">
-  <Field
-    label="Email"
-    description="We'll never share your email with anyone else."
-    errorMessage="Please enter a valid email address."
-    required
-    orientation="vertical"
-  >
-    <Input placeholder="Enter email..." size="md" />
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldOverviewDemo />
-</ComponentPreview>
-
-### Horizontal layout
-
-<ComponentPreview details={<>
-  <p>Use <code>orientation="horizontal"</code> to render the label beside the control instead of above it.</p>
-  <p>On a phone with <code>touch.css</code> the control narrows to the width its label leaves, instead of running past the screen at its 240px (<code>--field-horizontal-control-flex</code>). For a form on a phone, rows are the iOS layout: see Rows below.</p>
-</>} code={`<div className="w-full max-w-[480px] flex flex-col gap-4">
-  <Field label="First name" orientation="horizontal">
-    <Input placeholder="Jane" />
-  </Field>
-  <Field label="Last name" orientation="horizontal">
-    <Input placeholder="Doe" />
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldOrientationDemo />
-</ComponentPreview>
-
-### Rows
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>row</code> for one line of a block: the label at the start, the control at the end, an error under both. <code>FieldGroup</code> holds the rows, with a title, an action and a footer, and draws the hairlines between them. With <code>touch.css</code> rows take the iOS sizes on a phone. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={`<FieldGroup title="Notifications" description="How we reach you.">
-  <Field row label="Email updates">
-    <Switch />
-  </Field>
-  <Field row label="Weekly summary" description="Sent on Mondays.">
-    <Switch />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <FieldRowsDemo />
-</ComponentPreview>
-
-### Fields in rows
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: <code>pill={false}</code> on the control keeps the rounded box. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>block={false}</code>, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes, a soft field loses its fill too, and the value ends at its edge.</>} code={`<FieldGroup>
-  <Field row label="Price">
-    <Input defaultValue="11" endAdornment="€" />
-  </Field>
-  <Field row label="Weight" description="Shown beside the name.">
-    <Input defaultValue="250" />
-  </Field>
-  <Field row label="Unit">
-    <Select block={false} align="end" options={units} value={unit} onChange={setUnit} />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <FieldRowFieldsDemo />
-</ComponentPreview>
-
-### Textarea
-
-<ComponentPreview code={`<div className="w-[320px]">
-  <Field label="Bio" description="Write a short bio for your profile.">
-    <Textarea placeholder="Tell us about yourself..." rows={3} />
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldWithTextareaDemo />
-</ComponentPreview>
-
-### Select
-
-<ComponentPreview details={<>A Select trigger is not a native form control, so the label's <code>htmlFor</code> cannot name it. Field points the trigger's <code>aria-labelledby</code> at the label, and Select adds its value: a screen reader hears "Role, Admin". DatePicker works the same way. A control with its own <code>aria-label</code>, <code>aria-labelledby</code> or <code>label</code> keeps its name.</>} code={`const [role, setRole] = useState("")
-
-<div className="w-[320px]">
-  <Field label="Role" description="Select your primary role.">
-    <Select
-      placeholder="Select a role..."
-      value={role}
-      onChange={(option) => setRole(option.value)}
-      options={[
-        { label: "Admin", value: "admin" },
-        { label: "Editor", value: "editor" },
-        { label: "Viewer", value: "viewer" },
-      ]}
-    />
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldWithSelectDemo />
-</ComponentPreview>
-
-### Label action
-
-<ComponentPreview details={<>Use <code>labelAction</code> for a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size.</>} code={`<Field
-  label="Password"
-  labelAction={<TextLink href="/reset-password">Forgot password?</TextLink>}
+  <p>On a phone a row sets the field's height, insets and type, so this example has no Phone view. Outside a row, with <code>touch.css</code> a text field is 44px from <code>3xs</code> to <code>2xl</code> and 50px at <code>3xl</code>, with the 17px text of iOS.</p>
+</>} code={`<Field
+  label="Email"
+  description="We'll never share your email with anyone else."
+  errorMessage="Enter a valid email address."
+  required
 >
-  <Input type="password" placeholder="Enter password..." />
+  <Input type="email" placeholder="name@example.com" size="md" />
 </Field>`} previewMinHeight={168}>
-  <FieldLabelActionDemo />
+  <FieldSizingDemo />
 </ComponentPreview>
-
-### Slider
-
-<ComponentPreview details={<>Field works with any form control. Use the description to display the current slider value.</>} code={`const [price, setPrice] = useState([200, 800])
-
-<div className="w-full min-w-0 max-w-[400px]">
-  <Field
-    label="Price Range"
-    description={\`Set your budget range ($\${price[0].toLocaleString()} – \${price[1].toLocaleString()}).\`}
-  >
-    <Slider range value={price} onChange={setPrice} min={0} max={1000} step={10} prefixUnit="$" />
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldWithSliderDemo />
-</ComponentPreview>
-
-### Fieldset
-
-<ComponentPreview details={<>Group related fields under a heading and description to create a logical fieldset.</>} code={`<div className="w-full min-w-0 max-w-[400px]">
-  <div className="mb-3">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Address Information</h3>
-    <p className="text-xs text-tertiary mt-0.5">We need your address to deliver your order.</p>
-  </div>
-  <div className="flex flex-col gap-4">
-    <Field label="Street Address">
-      <Input placeholder="123 Main St" />
-    </Field>
-    <div className="flex gap-3">
-      <Field label="City" className="min-w-0 flex-1">
-        <Input placeholder="New York" />
-      </Field>
-      <Field label="Postal Code" className="min-w-0 flex-1">
-        <Input placeholder="90502" />
-      </Field>
-    </div>
-  </div>
-</div>`} previewMinHeight={168}>
-  <FieldFieldsetDemo />
-</ComponentPreview>
-
-### Checkbox
-
-<ComponentPreview details={<>Wrap a group of checkboxes in a Field for a shared label and description. The render prop takes the field props, so Field renders the group as it is instead of wiring the props onto it.</>} code={`<div className="w-[320px]">
-  <Field label="Notifications" description="Choose which notifications you'd like to receive.">
-    {() => (
-      <div className="flex flex-col gap-3 mt-1">
-        <Checkbox label="Email notifications" />
-        <Checkbox label="Push notifications" />
-        <Checkbox label="SMS notifications" />
-      </div>
-    )}
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldWithCheckboxGroupDemo />
-</ComponentPreview>
-
-### Radio
-
-<ComponentPreview details={<>Use Field with <code>RadioGroup</code> for labeled radio selections. Spread the field props onto the group so its <code>aria-describedby</code> points at the description.</>} code={`const [plan, setPlan] = useState("free")
-
-<div className="w-[320px]">
-  <Field label="Subscription plan" description="Select your preferred plan.">
-    {(fieldProps) => (
-      <RadioGroup aria-label="Subscription plan" {...fieldProps} value={plan} onChange={setPlan} direction="col">
-        <RadioGroup.Item value="free">Free</RadioGroup.Item>
-        <RadioGroup.Item value="pro">Pro, $9/mo</RadioGroup.Item>
-        <RadioGroup.Item value="enterprise">Enterprise, $29/mo</RadioGroup.Item>
-      </RadioGroup>
-    )}
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldWithRadioGroupDemo />
-</ComponentPreview>
-
-### Switch
-
-<ComponentPreview details={<>Pair a Field with a <code>Switch</code> using <code>orientation="horizontal"</code> for inline toggle settings.</>} code={`const [enabled, setEnabled] = useState(false)
-
-<div className="self-stretch mx-auto !max-w-[480px]">
-  <Field label="Marketing emails" orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-    {(fieldProps) => <Switch id={fieldProps.id} checked={enabled} onCheckedChange={setEnabled} />}
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldWithSwitchDemo />
-</ComponentPreview>
-
-### Stacked fields
-
-<ComponentPreview details={<>Stack <code>Field</code> components with a divider to group related notification settings.</>} code={`<div className="w-full min-w-0 max-w-[400px] divide-y divide-alpha/15">
-  <div className="pb-6">
-    <Field
-      label="Responses"
-      description="Get notified when the assistant responds to requests that take time, like research or image generation."
-    >
-      {() => (
-        <div className="flex flex-col gap-3 mt-1">
-          <Checkbox label="Push notifications" defaultChecked />
-        </div>
-      )}
-    </Field>
-  </div>
-  <div className="py-6">
-    <Field label="Tasks" description="Get notified when tasks you've created have updates.">
-      {() => (
-        <div className="flex flex-col gap-3 mt-1">
-          <Checkbox label="Push notifications" />
-          <Checkbox label="Email notifications" />
-        </div>
-      )}
-    </Field>
-  </div>
-</div>`} previewMinHeight={168}>
-  <FieldGroupDemo />
-</ComponentPreview>
-
-### Validation and Errors
-
-<ComponentPreview details={<>Combine <code>required</code> and <code>errorMessage</code> for client-side validation feedback. Toggle errors on and off to see the visual transition.</>} code={`const [name, setName] = useState("")
-const [email, setEmail] = useState("bad-email")
-const nameError = showErrors && !name ? "Name is required" : undefined
-const emailError = showErrors && !email.includes("@") ? "Please enter a valid email address" : undefined
-
-<div className="w-[320px] flex flex-col gap-4">
-  <Field label="Name" required errorMessage={nameError}>
-    <Input placeholder="Enter your name" value={name} onChange={(evt) => setName(evt.target.value)} />
-  </Field>
-  <Field label="Email" required errorMessage={emailError}>
-    <Input placeholder="Enter your email" value={email} onChange={(evt) => setEmail(evt.target.value)} />
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldValidationDemo />
-</ComponentPreview>
-
-### Render prop pattern
-
-For controls that need explicit prop wiring, pass a function as `children`. The function receives `{ id, "aria-describedby", "aria-invalid" }` which you spread onto the control.
-
-```tsx
-<Field label="Email" errorMessage="Email is required">
-  {(fieldProps) => <Input {...fieldProps} placeholder="Enter email..." />}
-</Field>
-```
 
 ### Optical alignment
 
-<ComponentPreview details={<>
-  <p>Use <code>opticallyAlign="start"</code> to apply a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it.</p>
-  <p>The phone view leaves out the pill control, as the Input page leaves out its own.</p>
-</>} code={`<div className="w-full min-w-0 max-w-[400px]">
+<ComponentPreview phonePresentation="none" details={<>Use <code>opticallyAlign="start"</code> to apply a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it. A phone row has no frame to align, so this example has no Phone view.</>} code={`<div className="w-full min-w-0 max-w-[400px]">
   <div className="border border-dashed border-alpha/20 rounded-md py-6 px-8">
     <div className="mb-5 text-secondary text-sm">opticallyAlign="start"</div>
     <div className="flex flex-col gap-5">
@@ -354,7 +189,7 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
       <Field
         label="Email"
         description="We'll never share your email."
-        errorMessage="Please enter a valid email address."
+        errorMessage="Enter a valid email address."
         required
         opticallyAlign="start"
       >
@@ -367,309 +202,19 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
   <FieldOpticalAlignDemo />
 </ComponentPreview>
 
-### Form example
-
-<ComponentPreview phonePresentation="screen" details={<>A payment form using desktop fieldsets and a mobile Page with grouped rows, a navigation header, and a pinned submit action. The code shows the mobile composition.</>} code={`const months = Array.from({ length: 12 }, (_, i) => {
-  const value = String(i + 1).padStart(2, "0")
-  return { label: value, value }
-})
-const years = Array.from({ length: 10 }, (_, i) => {
-  const value = String(2025 + i)
-  return { label: value, value }
-})
-const [month, setMonth] = useState("")
-const [year, setYear] = useState("")
-
-// BackButton is your app's navigation action.
-<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
-  <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Payment details</Page.Title></Page.Bar></Page.Header>
-  <Page.Content>
-    <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
-      <FieldGroup title="Payment method" description="All transactions are secure and encrypted." columns>
-        <Field row label="Name on card"><Input placeholder="Jane Doe" autoComplete="cc-name" /></Field>
-        <Field row label="Card number" orientation="vertical"><Input variant="ghost" placeholder="1234 5678 9012 3456" inputMode="numeric" autoComplete="cc-number" /></Field>
-        <Field row label="Month"><Select placeholder="MM" value={month} onChange={(option) => setMonth(option.value)} options={months} /></Field>
-        <Field row label="Year"><Select placeholder="YYYY" value={year} onChange={(option) => setYear(option.value)} options={years} /></Field>
-        <Field row label="CVV"><Input placeholder="123" inputMode="numeric" autoComplete="cc-csc" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Billing address" description="The billing address associated with your payment method.">
-        <Field row label="Same as shipping address"><Switch defaultChecked /></Field>
-        <Field row label="Comments" orientation="vertical"><Textarea variant="ghost" rows={3} autoResize placeholder="Add any additional comments" /></Field>
-      </FieldGroup>
-    </form>
-  </Page.Content>
-  <Page.Footer><Button color="primary" size="3xl" pill block type="submit" form="example-form">Submit</Button></Page.Footer>
-</Page>`} previewMinHeight={168}>
-  <FieldFormExampleDemo />
-</ComponentPreview>
-
-### Profile settings
-
-<ComponentPreview phonePresentation="screen" details={<>Profile settings with text inputs, preferences, and notification switches. On Phone, FieldGroup columns align values and Page keeps the Save action below the scrolling form. The code shows the mobile composition.</>} code={`const [language, setLanguage] = useState("en")
-const [theme, setTheme] = useState("system")
-
-const languages = [{ label: 'English', value: 'en' }, { label: 'Spanish', value: 'es' }, { label: 'French', value: 'fr' }, { label: 'German', value: 'de' }, { label: 'Japanese', value: 'ja' }];
-const themes = [{ label: 'System', value: 'system' }, { label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }];
-
-// BackButton is your app's navigation action.
-<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
-  <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Profile settings</Page.Title></Page.Bar></Page.Header>
-  <Page.Content>
-    <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
-      <FieldGroup title="Personal information" description="Your public profile details." columns>
-        <Field row label="First name"><Input defaultValue="Jane" autoComplete="given-name" /></Field>
-        <Field row label="Last name"><Input defaultValue="Doe" autoComplete="family-name" /></Field>
-        <Field row label="Email" orientation="vertical" description="This is the email associated with your account."><Input variant="ghost" defaultValue="jane@example.com" type="email" autoComplete="email" /></Field>
-        <Field row label="Bio" orientation="vertical" description="Brief description for your profile. Max 160 characters."><Textarea variant="ghost" placeholder="Tell us about yourself..." rows={3} autoResize maxLength={160} /></Field>
-      </FieldGroup>
-      <FieldGroup title="Preferences" description="Customize your experience." columns>
-        <Field row label="Language"><Select value={language} onChange={(option) => setLanguage(option.value)} options={languages} /></Field>
-        <Field row label="Theme"><Select value={theme} onChange={(option) => setTheme(option.value)} options={themes} /></Field>
-      </FieldGroup>
-      <FieldGroup title="Notifications" description="Manage how you receive updates.">
-        <Field row label="Email notifications" description="Receive weekly digests and important updates."><Switch defaultChecked /></Field>
-        <Field row label="Push notifications" description="Get real-time alerts in your browser."><Switch /></Field>
-        <Field row label="Marketing emails" description="Tips, product updates, and promotions."><Switch /></Field>
-      </FieldGroup>
-    </form>
-  </Page.Content>
-  <Page.Footer><Button color="primary" size="3xl" pill block type="submit" form="example-form">Save changes</Button></Page.Footer>
-</Page>`} previewMinHeight={168}>
-  <FieldProfileSettingsDemo />
-</ComponentPreview>
-
-### Create project
-
-<ComponentPreview phonePresentation="screen" details={<>Project settings with grouped inputs, visibility choices, team access, and infrastructure. Phone uses checkmark rows for visibility and switches for permissions. The code shows the mobile composition.</>} code={`const [visibility, setVisibility] = useState("private")
-const [region, setRegion] = useState("")
-
-const regions = [{ label: 'US East (N. Virginia)', value: 'us-east-1' }, { label: 'US West (Oregon)', value: 'us-west-2' }, { label: 'Europe (Frankfurt)', value: 'eu-central-1' }, { label: 'Asia Pacific (Tokyo)', value: 'ap-northeast-1' }];
-
-// BackButton is your app's navigation action.
-<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
-  <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Create project</Page.Title></Page.Bar></Page.Header>
-  <Page.Content>
-    <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
-      <FieldGroup title="General" description="Basic information about your project." columns>
-        <Field row label="Project name" required><Input placeholder="my-project" required /></Field>
-        <Field row label="Description" orientation="vertical" description="A short summary shown in project listings."><Textarea variant="ghost" placeholder="What does this project do?" rows={3} autoResize /></Field>
-      </FieldGroup>
-      <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
-        <FieldGroup title="Visibility" description="Controls who can see this project.">
-          <Field row label="Private" description="Only invited members."><RadioGroup.Item value="private" /></Field>
-          <Field row label="Internal" description="Anyone in your organization."><RadioGroup.Item value="internal" /></Field>
-          <Field row label="Public" description="Visible to everyone."><RadioGroup.Item value="public" /></Field>
-        </FieldGroup>
-      </RadioGroup>
-      <FieldGroup title="Team access" description="Invite collaborators and set permissions.">
-        <Field row label="Team members" orientation="vertical" description="Add people by email address."><TagInput variant="ghost" placeholder="Add email..." defaultValue={[{ value: 'alice@team.com', valid: true }, { value: 'bob@team.com', valid: true }]} validator={(value) => value.includes('@')} /></Field>
-      </FieldGroup>
-      <FieldGroup title="Permissions" description="Default permissions for new members.">
-        <Field row label="Can view project"><Switch defaultChecked /></Field>
-        <Field row label="Can edit resources"><Switch defaultChecked /></Field>
-        <Field row label="Can manage members"><Switch /></Field>
-        <Field row label="Can delete project"><Switch /></Field>
-      </FieldGroup>
-      <FieldGroup title="Infrastructure" description="Deployment and resource configuration." columns>
-        <Field row label="Region"><Select placeholder="Select region" value={region} onChange={(option) => setRegion(option.value)} options={regions} /></Field>
-        <Field row label="Auto-deploy" description="Automatically deploy on push to main branch."><Switch defaultChecked /></Field>
-      </FieldGroup>
-    </form>
-  </Page.Content>
-  <Page.Footer><Button color="primary" size="3xl" pill block type="submit" form="example-form">Create project</Button></Page.Footer>
-</Page>`} previewMinHeight={168}>
-  <FieldCreateProjectDemo />
-</ComponentPreview>
-
-### Field configuration
-
-<ComponentPreview phonePresentation="screen" details={<>Field configuration organized into setup, formatting, and privacy groups. On Phone, the toolbar and Save action stay in place while the fields scroll. The code shows the mobile composition.</>} code={`const [type, setType] = useState("string")
-const [expiresIn, setExpiresIn] = useState("")
-
-const fieldTypes = [{ label: 'String', value: 'string' }, { label: 'Number', value: 'number' }, { label: 'Boolean', value: 'boolean' }, { label: 'Date', value: 'date' }, { label: 'JSON', value: 'json' }, { label: 'Rich text', value: 'richtext' }];
-const expirations = [{ label: 'Never', value: 'never' }, { label: '30 days', value: '30d' }, { label: '90 days', value: '90d' }, { label: '1 year', value: '1y' }];
-
-// BackButton is your app's navigation action.
-<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
-  <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Field configuration</Page.Title></Page.Bar></Page.Header>
-  <Page.Content>
-    <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
-      <FieldGroup title="Setup" description="Define the basic field properties." columns>
-        <Field row label="Key" orientation="vertical" description="Unique identifier used in the API. Cannot be changed later."><Input variant="ghost" defaultValue="registration_method" /></Field>
-        <Field row label="Label" orientation="vertical" description="Human-readable name displayed in the UI."><Input variant="ghost" defaultValue="Registration method" /></Field>
-        <Field row label="Type"><Select value={type} onChange={(option) => setType(option.value)} options={fieldTypes} /></Field>
-        <Field row label="Default value" orientation="vertical" description="Value assigned when the field is empty."><Input variant="ghost" placeholder="Set default value (optional)" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Formatting" description="Input constraints and sanitization rules.">
-        <Field row label="Max length" description="Max length cannot exceed 4096."><Input placeholder="256" inputMode="numeric" /></Field>
-        <Field row label="HTML sanitization" description="Strip potentially unsafe HTML tags from input."><Switch /></Field>
-      </FieldGroup>
-      <FieldGroup title="Privacy & access" description="Control field visibility and mutability.">
-        <Field row label="Not redactable" description="Prevent this field from being redacted."><Switch /></Field>
-        <Field row label="Write once" description="Value can only be set once and cannot be changed."><Switch /></Field>
-        <Field row label="Expires in" description="Automatically delete the field value after the specified period."><Select placeholder="Never" value={expiresIn} onChange={(option) => setExpiresIn(option.value)} options={expirations} /></Field>
-      </FieldGroup>
-    </form>
-  </Page.Content>
-  <Page.Footer><Button color="primary" size="3xl" pill block type="submit" form="example-form">Save field</Button></Page.Footer>
-</Page>`} previewMinHeight={168}>
-  <FieldConfigurationDemo />
-</ComponentPreview>
-
-### Birthday input
-
-<ComponentPreview details={<>A date-of-birth input with inline formatting that inserts <code>MM / DD / YYYY</code> separators as you type, wrapped in a <code>Field</code> for label and accessibility. <code>nextBirthday</code> is a plain helper function of the example.</>} code={`const [birthday, setBirthday] = useState("")
-
-<div className="w-[320px]">
-  <Field label="Birthday">
-    <Input
-      placeholder="MM / DD / YYYY"
-      value={birthday}
-      onChange={(evt) => setBirthday(nextBirthday(evt.target.value, birthday))}
-      inputMode="numeric"
-      maxLength={14}
-      autoComplete="off"
-    />
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldBirthdayInputDemo />
-</ComponentPreview>
-
-### Birthday with validation
-
-<ComponentPreview details={<>Birthday input with <code>errorMessage</code> on <code>Field</code>: Field automatically passes <code>aria-invalid</code> down and renders <code>FieldError</code>. <code>nextBirthday</code> and <code>isValidBirthday</code> are plain helper functions of the example.</>} code={`const [birthday, setBirthday] = useState("02 / 30 / 2001")
-const errorMessage = birthday && !isValidBirthday(birthday) ? "Please enter a valid date." : undefined
-
-<div className="w-[320px]">
-  <Field label="Birthday" errorMessage={errorMessage}>
-    <Input
-      placeholder="MM / DD / YYYY"
-      value={birthday}
-      onChange={(evt) => setBirthday(nextBirthday(evt.target.value, birthday))}
-      inputMode="numeric"
-      maxLength={14}
-      autoComplete="off"
-    />
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldBirthdayValidationDemo />
-</ComponentPreview>
-
-### Birthday segmented input
-
-<ComponentPreview details={<>Three compact <code>Input</code> controls composed as month/day/year with auto-advance behavior, wrapped in a <code>Field</code> for shared label and accessibility. The field id goes to the month input, and the day and year inputs carry their own <code>aria-label</code>. <code>digitsOnly</code> is a plain helper function of the example.</>} code={`const [month, setMonth] = useState("")
-const [day, setDay] = useState("")
-const [year, setYear] = useState("")
-const dayRef = useRef<HTMLInputElement>(null)
-const yearRef = useRef<HTMLInputElement>(null)
-
-<div className="w-[320px]">
-  <Field label="Birthday">
-    {(fieldProps) => (
-      <div className="flex items-center gap-2">
-        <Input
-          id={fieldProps.id}
-          value={month}
-          onChange={(evt) => {
-            const next = digitsOnly(evt.target.value, 2)
-            setMonth(next)
-            if (next.length === 2) dayRef.current?.focus()
-          }}
-          placeholder="MM"
-          inputMode="numeric"
-          maxLength={2}
-          autoComplete="off"
-          className="w-[56px]"
-        />
-        <span className="text-secondary">/</span>
-        <Input
-          ref={dayRef}
-          value={day}
-          onChange={(evt) => {
-            const next = digitsOnly(evt.target.value, 2)
-            setDay(next)
-            if (next.length === 2) yearRef.current?.focus()
-          }}
-          placeholder="DD"
-          aria-label="Day"
-          inputMode="numeric"
-          maxLength={2}
-          autoComplete="off"
-          className="w-[56px]"
-        />
-        <span className="text-secondary">/</span>
-        <Input
-          ref={yearRef}
-          value={year}
-          onChange={(evt) => setYear(digitsOnly(evt.target.value, 4))}
-          placeholder="YYYY"
-          aria-label="Year"
-          inputMode="numeric"
-          maxLength={4}
-          autoComplete="off"
-          className="w-[80px]"
-        />
-      </div>
-    )}
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldBirthdaySegmentedDemo />
-</ComponentPreview>
-
-### Birthday with selects
-
-<ComponentPreview details={<>Dropdown birthday picker with Month/Day/Year selects inside a labeled <code>Field</code> group. The field id goes to the month select, and the day and year selects carry their own <code>aria-label</code>.</>} code={`const [month, setMonth] = useState("")
-const [day, setDay] = useState("")
-const [year, setYear] = useState("")
-
-<div className="w-[320px]">
-  <Field label="Birthday">
-    {(fieldProps) => (
-      <div className="flex gap-2">
-        <div className="w-[130px]">
-          <Select
-            id={fieldProps.id}
-            value={month}
-            options={monthOptions}
-            placeholder="Month"
-            onChange={(option) => setMonth(option.value)}
-          />
-        </div>
-        <div className="w-[84px]">
-          <Select
-            value={day}
-            options={dayOptions}
-            placeholder="Day"
-            onChange={(option) => setDay(option.value)}
-            aria-label="Day"
-          />
-        </div>
-        <div className="w-[108px]">
-          <Select
-            value={year}
-            options={yearOptions}
-            placeholder="Year"
-            onChange={(option) => setYear(option.value)}
-            aria-label="Year"
-          />
-        </div>
-      </div>
-    )}
-  </Field>
-</div>`} previewMinHeight={168}>
-  <FieldBirthdaySelectDemo />
-</ComponentPreview>
+For whole forms, on the web and on a phone, see [Form Examples](/components/form-examples).
 
 ## API
 
 <PropsTable data={[
   { prop: "label", type: "ReactNode", description: "Label text for the field" },
+  { prop: "hideLabel", type: "boolean", default: "false", description: "Hides the label from view; it still names the control. A description moves under the control. On a row the value or placeholder starts at the row's edge, so the row is vertical unless orientation says otherwise" },
   { prop: "description", type: "ReactNode", description: "Helper text below the label; linked via aria-describedby" },
   { prop: "errorMessage", type: "ReactNode", description: "Error message below the control; auto-sets aria-invalid on child" },
   { prop: "labelAction", type: "ReactNode", description: "Content at the end of the label row, such as a link that acts on the field" },
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: "child's size, else \"md\"", description: "Label font size; defaults to the child control's size" },
   { prop: "required", type: "boolean", default: "false", description: "Shows a required asterisk after the label (visual only)" },
-  { prop: "orientation", type: '"vertical" | "horizontal"', default: '"horizontal" on a row, else "vertical"', description: "Layout direction of label and control" },
+  { prop: "orientation", type: '"vertical" | "horizontal"', default: '"horizontal" on a row with a visible label, else "vertical"', description: "Layout direction of label and control" },
   { prop: "row", type: "boolean", default: "false", description: "One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other div props reach the root only on a row" },
   { prop: "fill", type: "boolean", default: "false", description: "On a row, the control takes the rest of the line after the label" },
   { prop: "action", type: "ReactNode", description: "On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it" },
@@ -683,9 +228,10 @@ const [year, setYear] = useState("")
 
 <PropsTable data={[
   { prop: "title", type: "ReactNode", description: "Heading over the block; it names the group" },
+  { prop: "headerProminence", type: '"standard" | "increased"', default: '"standard"', description: "How much the title stands out: a quiet heading over the rows, or a title that leads its content (on a phone the iOS prominent list header, 20pt Semibold)" },
   { prop: "description", type: "ReactNode", description: "Line under the title" },
-  { prop: "action", type: "ReactNode", description: "Content at the end of the header" },
-  { prop: "footer", type: "ReactNode", description: "Content under the block" },
+  { prop: "action", type: "ReactNode", description: "Content at the end of the header. On a phone a ghost text button reads as the list header's action: tinted text on the title's last line" },
+  { prop: "footer", type: "ReactNode", description: "Content under the block, such as a note; its paragraphs stand apart" },
   { prop: "columns", type: "boolean", default: "false", description: "Every value starts at one column, --field-row-column-width into the row, on the web and on a phone. Off, values end at the row's edge" },
   { prop: "bodyClassName", type: "string", description: "Applied to the block that holds the rows" },
   { prop: "children", type: "ReactNode", description: "The rows" },
@@ -740,11 +286,18 @@ FieldGroup reads these:
 
 - `--field-group-background`: block background (default `transparent`)
 - `--field-group-border-width`: block border (default `1px`)
-- `--field-group-description-font-size`: description size (default `var(--font-text-xs-size)`)
-- `--field-group-description-line-height`: description line height (default `var(--font-text-xs-line-height)`)
+- `--field-group-description-font-size`: description size (default `var(--font-text-sm-size)`; 15px on a phone)
+- `--field-group-description-line-height`: description line height (default `var(--font-text-sm-line-height)`; 20px on a phone)
+- `--field-group-footer-font-size`: footer size (default the description size; 13px on a phone)
+- `--field-group-footer-line-height`: footer line height (default the description line height; 16px on a phone)
+- `--field-group-footer-padding`: footer padding (default `8px 0 0`)
+- `--field-group-footer-paragraph-gap`: space between footer paragraphs (default `spacing(2)`; 16px on a phone)
+- `--field-group-header-min-height`: header height (default `spacing(8)`)
+- `--field-group-header-padding-bottom`: space under the header (default `spacing(2)`)
 - `--field-group-radius`: block radius (default `1rem`)
 - `--field-group-title-color`: title color (default `var(--color-text)`)
 - `--field-group-title-font-size`: title size (default `var(--font-text-md-size)`)
 - `--field-group-title-font-weight`: title weight (default `var(--font-weight-medium)`)
+- `--field-group-title-letter-spacing`: title tracking (default `normal`)
 - `--field-group-title-line-height`: title line height (default `var(--font-text-md-line-height)`)
 - `--field-group-title-padding-inline`: title inset (default `0`)

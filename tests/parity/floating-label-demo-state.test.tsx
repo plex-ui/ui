@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { act, cleanup, fireEvent, render, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { FloatingLabelInputBirthdayDemo, FloatingLabelInputStatesDemo } from '../../components/docs/FloatingLabelInputDemos';
-import { VueDemo, type VueDemoControl } from '../../components/docs/vue/VueDemo';
-import { VueFloatingLabelInputDemo } from '../../components/docs/vue/VueFloatingLabelInputDemos';
+import { FloatingLabelInputStatesDemo } from '../../components/docs/FloatingLabelInputDemos';
+import type { VueDemoControl } from '../../components/docs/vue/VueDemo';
+import { VuePhoneRowsDemo } from '../../components/docs/vue/VuePhoneRowsDemo';
+import { phoneRows } from '../../components/docs/phoneRowsTemplate';
 import { flushVue } from './harness';
 
 vi.mock('../../components/docs/VuePreview', async () => ({
@@ -16,7 +17,7 @@ vi.mock('../../components/docs/PreviewEmbed.module.css', () => ({ default: { Roo
 const mdx = readFileSync('content/vue/components/floating-label-input.mdx', 'utf8');
 function example(name: string, next: string) {
   const source = mdx.slice(mdx.indexOf(`export const ${name} = `), mdx.indexOf(`export const ${next} = `)).replaceAll('export const ', 'const ');
-  const result: unknown = new Function(`${source}; return { template: ${name}, controls: ${name}Controls };`)();
+  const result: unknown = new Function(`${source}; return { template: ${name}, controls: ${name}Controls, phone: typeof ${name}Phone === 'string' ? ${name}Phone : undefined };`)();
   if (!result || typeof result !== 'object' || !('template' in result) || typeof result.template !== 'string' || !('controls' in result) || !Array.isArray(result.controls)) {
     throw new Error(`Missing ${name} example`);
   }
@@ -25,7 +26,9 @@ function example(name: string, next: string) {
       throw new Error('Invalid demo control');
     }
     if (control.type === 'boolean' && typeof control.default === 'boolean') {
-      return { name: control.name, type: 'boolean', default: control.default };
+      const label = 'label' in control && typeof control.label === 'string' ? control.label : undefined;
+      const desktopOnly = 'desktopOnly' in control && control.desktopOnly === true;
+      return { name: control.name, label, desktopOnly, type: 'boolean', default: control.default };
     }
     if (control.type !== 'select' || typeof control.default !== 'string' || !('label' in control) || typeof control.label !== 'string' || !('options' in control) || !Array.isArray(control.options)) {
       throw new Error('Invalid preset control');
@@ -36,17 +39,24 @@ function example(name: string, next: string) {
     });
     return { name: control.name, label: control.label, type: 'select', default: control.default, options };
   });
-  return { template: result.template, controls };
+  const phone = 'phone' in result && typeof result.phone === 'string' ? result.phone : undefined;
+  return { template: result.template, controls, phone };
 }
 const states = example('states', 'textarea');
-const birthday = example('birthday', 'birthdayValidation');
 const interact = async (action: () => void) => { await act(async () => { action(); await flushVue(); }); };
-beforeEach(() => vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} }));
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+// The demos choose their phone layout by the md breakpoint: a desktop window unless a test narrows it
+let width = 1024;
+beforeEach(() => {
+  width = 1024;
+  vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} });
+  document.documentElement.style.setProperty('--breakpoint-md', '768px');
+  vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('min-width') && width >= Number(/min-width: (\d+)px/.exec(query)?.[1]), media: query, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, dispatchEvent: () => true, onchange: null }));
+});
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); document.documentElement.style.removeProperty('--breakpoint-md'); });
 
 describe.each(['React', 'Vue'])('%s floating label demo controls', (framework) => {
   test('state controls preserve the edited node, value and selection; only presets replace the value', async () => {
-    const view = render(framework === 'React' ? <FloatingLabelInputStatesDemo /> : <VueDemo {...states} />);
+    const view = render(framework === 'React' ? <FloatingLabelInputStatesDemo /> : <VuePhoneRowsDemo template={states.template} phoneTemplate={phoneRows(states.phone ?? '')} controls={states.controls} />);
     await interact(() => {});
     const page = within(view.container);
     const input = page.getByRole<HTMLInputElement>('textbox', { name: 'Email address' });
@@ -72,6 +82,19 @@ describe.each(['React', 'Vue'])('%s floating label demo controls', (framework) =
     await toggle('readOnly');
     expect(input.readOnly).toBe(true);
     await toggle('readOnly');
+    expect(page.queryByRole('button', { name: 'Clear input' })).toBeNull();
+    await toggle('onClear');
+    expect(page.getByRole('button', { name: 'Clear input' })).toBeTruthy();
+    await toggle('readOnly');
+    expect(page.queryByRole('button', { name: 'Clear input' })).toBeNull();
+    await toggle('readOnly');
+    await interact(() => fireEvent.click(page.getByRole('button', { name: 'Clear input' })));
+    expect(input.value).toBe('');
+    expect(page.getByRole('textbox', { name: 'Email address' })).toBe(input);
+    await interact(() => fireEvent.input(input, { target: { value: 'edited@example.com' } }));
+    await interact(() => input.setSelectionRange(2, 7));
+    await toggle('onClear');
+    expect(page.queryByRole('button', { name: 'Clear input' })).toBeNull();
     await toggle('errorMessage');
     await toggle('description');
     expect(page.queryByText('Email is not valid.')).toBeNull();
@@ -82,35 +105,33 @@ describe.each(['React', 'Vue'])('%s floating label demo controls', (framework) =
     expect(input.value).toBe('');
     expect(page.getByRole('textbox', { name: 'Email address' })).toBe(input);
   });
+});
 
-  test('birthday controls keep partial mask edits; separator deletion and explicit presets remain usable', async () => {
-    const view = render(framework === 'React' ? <FloatingLabelInputBirthdayDemo /> : <VueFloatingLabelInputDemo {...birthday} state={{ focused: false }} />);
+describe.each(['React', 'Vue'])('%s floating label States on a phone', (framework) => {
+  test('the field is a cell named by its placeholder: the error inside the cell, the description in the footer', async () => {
+    width = 402;
+    const view = render(framework === 'React' ? <FloatingLabelInputStatesDemo /> : <VuePhoneRowsDemo template={states.template} phoneTemplate={phoneRows(states.phone ?? '')} controls={states.controls} />);
     await interact(() => {});
     const page = within(view.container);
-    const input = page.getByRole<HTMLInputElement>('textbox', { name: 'Birthday' });
-    await interact(() => { input.focus(); fireEvent.input(input, { target: { value: '021' } }); });
-    expect(input.value).toBe('02 / 1');
-    await interact(() => input.setSelectionRange(5, 6));
-    for (const name of ['invalid', 'disabled', 'readOnly']) {
-      await interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
-      expect(page.getByRole('textbox', { name: 'Birthday' })).toBe(input);
-      expect(input.value).toBe('02 / 1');
-      expect([input.selectionStart, input.selectionEnd]).toEqual([5, 6]);
-    }
+    const input = page.getByRole<HTMLInputElement>('textbox', { name: 'Email address' });
+    expect(input.placeholder).toBe('Email address');
+    const cell = input.closest('[data-slot="field"]');
+    expect(cell?.hasAttribute('data-row')).toBe(true);
+    expect(cell?.hasAttribute('data-label-hidden')).toBe(true);
+    // A cell has no frame to color: invalid alone is a desktop control, hidden on a phone
+    expect(page.getByRole('switch', { name: 'invalid', exact: true }).closest('[data-demo-desktop-only]')).not.toBeNull();
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'errorMessage', exact: true })));
+    expect(page.getByText('Email is not valid.').closest('[data-slot="field"]')).toBe(cell);
     expect(input.getAttribute('aria-invalid')).toBe('true');
-    expect(input.disabled).toBe(true);
-    expect(input.readOnly).toBe(true);
-    for (const name of ['invalid', 'disabled', 'readOnly']) {
-      await interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
-    }
-    await interact(() => fireEvent.input(input, { target: { value: '02 / ' } }));
-    expect(input.value).toBe('02 / ');
-    await interact(() => fireEvent.input(input, { target: { value: '02 /' } }));
-    expect(input.value).toBe('0');
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'description', exact: true })));
+    const description = page.getByText("We'll never share your email with anyone else.");
+    expect(description.closest('[data-slot="field"]')).toBeNull();
+    expect(description.closest('[role="group"]')).toBe(cell?.closest('[role="group"]'));
     await interact(() => fireEvent.click(page.getByRole('radio', { name: 'Filled', exact: true })));
-    expect(input.value).toBe('01 / 15 / 1995');
-    await interact(() => fireEvent.click(page.getByRole('radio', { name: 'Empty', exact: true })));
+    expect(input.value).toBe('jane.doe@example.com');
+    expect(page.queryByRole('button', { name: 'Clear input' })).toBeNull();
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'onClear', exact: true })));
+    await interact(() => fireEvent.click(page.getByRole('button', { name: 'Clear input' })));
     expect(input.value).toBe('');
-    expect(page.getByRole('textbox', { name: 'Birthday' })).toBe(input);
   });
 });

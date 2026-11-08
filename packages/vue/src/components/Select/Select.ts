@@ -38,7 +38,7 @@ import {
 } from "reka-ui"
 import type { ControlSize } from "@plexui/styles/types"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
-import { useFieldRowPill } from "../../lib/fieldRow.js"
+import { useFieldColumns, useFieldRow, useFieldRowPill } from "../../lib/fieldRow.js"
 import { preventDefaultHandler, toCssVariables, waitForAnimationFrame } from "../../lib/helpers.js"
 import { Check, Info, Search } from "../Icon/index.js"
 import { Input } from "../Input/index.js"
@@ -194,17 +194,17 @@ const selectProps = {
   block: { type: Boolean, default: undefined },
   /** Preferred side of the trigger to render against when open. @default "bottom" */
   side: { type: String as PropType<PopoverSide>, default: "bottom" },
-  /** Preferred alignment against the trigger. @default "center" when block, otherwise "start" */
+  /** Preferred alignment against the trigger. @default "end" at the end of a `Field row` ("start" in a `FieldGroup columns`), "center" when block, otherwise "start" */
   align: String as PropType<PopoverAlign>,
   /** Offset in pixels from the "start" or "end" alignment. @default 0 */
   alignOffset: Number,
   /** Collision detection of the menu. @default true */
   avoidCollisions: { type: Boolean, default: true },
-  /** Width of the menu. @default the trigger width (fits the options when not block) */
+  /** Width of the menu. @default the trigger width (fits the options when not block or at the end of a `Field row`) */
   listWidth: [Number, String] as PropType<ListSize>,
   /** `min-width` of the menu, in pixels. @default the trigger width */
   listMinWidth: [Number, String] as PropType<ListSize>,
-  /** `max-width` of the menu, in pixels. @default "auto" (300 when not block) */
+  /** `max-width` of the menu, in pixels. @default "auto" (300 when it fits the options) */
   listMaxWidth: [Number, String] as PropType<ListSize>,
   /** Predicate used to filter searches */
   searchPredicate: Function as PropType<SearchPredicate<Option>>,
@@ -400,10 +400,15 @@ const SelectComponent = defineComponent({
   setup(rawProps, { emit, slots }) {
     const props = rawProps as unknown as SelectPropsValue
     const pill = useFieldRowPill(() => props.pill)
+    // At the end of a Field row the menu opens from the row's end and fits its options: on a phone
+    // the trigger there is only as wide as its value, so a menu of the trigger's width breaks every word.
+    // In a `FieldGroup columns` the value starts at the column, and so does its menu.
+    const inRow = useFieldRow()
+    const inColumns = useFieldColumns()
     // Block default is dynamic, based on `variant`
     const block = computed(() => props.block ?? props.variant !== "ghost")
-    // Align default is dynamic, based on `block`
-    const align = computed<PopoverAlign>(() => props.align ?? (block.value ? "center" : "start"))
+    // Align default is dynamic, based on the row and `block`
+    const align = computed<PopoverAlign>(() => props.align ?? (inRow.value ? (inColumns.value ? "start" : "end") : block.value ? "center" : "start"))
     // Flush with the trigger's edge, as the prop documents
     const alignOffset = computed(() => props.alignOffset ?? 0)
 
@@ -461,9 +466,9 @@ const SelectComponent = defineComponent({
     // Locking down searchable count to a single value
     const searchable = computed(() => optionsCount.value > 15)
 
-    // A block menu matches its field. An inline one fits its options: no narrower than
-    // its trigger (the CSS fallback reads the trigger width), no wider than 300px.
-    const fitsOptions = computed(() => !block.value && props.listWidth === undefined)
+    // A block menu matches its field. An inline one, or one at the end of a Field row, fits its
+    // options: no narrower than its trigger (the CSS fallback reads the trigger width), no wider than 300px.
+    const fitsOptions = computed(() => (!block.value || inRow.value) && props.listWidth === undefined)
     const listWidth = computed(() => props.listWidth ?? (fitsOptions.value ? "auto" : undefined))
     const listMaxWidth = computed(() => props.listMaxWidth ?? (fitsOptions.value ? 300 : "auto"))
 

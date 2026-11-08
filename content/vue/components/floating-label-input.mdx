@@ -5,11 +5,20 @@ metaDescription: Vue 3 floating label input component with validation messages, 
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
-import { VueFloatingLabelInputDemo } from "@/components/docs/vue/VueFloatingLabelInputDemos"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import { VueFloatingLabelInputDemo, VueFloatingLabelInputRowsDemo } from "@/components/docs/vue/VueFloatingLabelInputDemos"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const overview = `<div class="w-[360px]">
   <FloatingLabelInput label="Email address" />
 </div>`
+
+export const overviewPhone = `<FieldGroup>
+  <Field row hide-label label="Email address">
+    <Input type="email" placeholder="Email address" />
+  </Field>
+</FieldGroup>`
 
 export const states = `<div class="w-full min-w-0 max-w-[360px]">
   <FloatingLabelInput
@@ -20,43 +29,36 @@ export const states = `<div class="w-full min-w-0 max-w-[360px]">
     :description="description ? \`We'll never share your email with anyone else.\` : undefined"
     :disabled="disabled"
     :read-only="readOnly"
+    :on-clear="clearable ? () => (value = '') : undefined"
   />
 </div>`
 
 export const statesControls = [
   { name: "value", label: "preset", type: "select", options: [{ value: "", label: "Empty" }, { value: "jane.doe@example.com", label: "Filled" }], default: "" },
-  { name: "invalid", type: "boolean", default: false },
+  { name: "invalid", type: "boolean", default: false, desktopOnly: true },
   { name: "errorMessage", type: "boolean", default: false },
   { name: "description", type: "boolean", default: false },
   { name: "disabled", type: "boolean", default: false },
   { name: "readOnly", type: "boolean", default: false },
+  { name: "clearable", label: "onClear", type: "boolean", default: false },
 ]
 
-export const statesCode = `<script setup lang="ts">
-import { ref } from 'vue';
-import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
-
-const value = ref('');
-const invalid = ref(false);
-const errorMessage = ref(false);
-const description = ref(false);
-const disabled = ref(false);
-const readOnly = ref(false);
-</script>
-
-<template>
-<div class="w-full min-w-0 max-w-[360px]">
-  <FloatingLabelInput
-    v-model:value="value"
-    label="Email address"
-    :invalid="invalid || errorMessage"
-    :error-message="errorMessage ? 'Email is not valid.' : undefined"
-    :description="description ? \`We'll never share your email with anyone else.\` : undefined"
-    :disabled="disabled"
-    :read-only="readOnly"
-  />
-</div>
-</template>`
+export const statesPhone = `<FieldGroup>
+  <Field row hide-label label="Email address" :error-message="errorMessage ? 'Email is not valid.' : undefined">
+    <Input
+      v-model:value="value"
+      type="email"
+      placeholder="Email address"
+      :invalid="errorMessage"
+      :disabled="disabled"
+      :read-only="readOnly"
+      :on-clear="clearable ? () => (value = '') : undefined"
+    />
+  </Field>
+  <template v-if="description" #footer>
+    <p>We'll never share your email with anyone else.</p>
+  </template>
+</FieldGroup>`
 
 export const textarea = `<div class="w-[360px]">
   <FloatingLabelInput
@@ -67,198 +69,29 @@ export const textarea = `<div class="w-[360px]">
   />
 </div>`
 
-export const clearButton = `<div class="w-[360px]">
-  <FloatingLabelInput
-    v-model:value="value"
-    label="Email address"
-    :disabled="disabled"
-    :read-only="readOnly"
-    @clear="value = ''"
-  />
-</div>`
+export const textareaPhone = `<FieldGroup>
+  <Field row hide-label label="Message">
+    <Textarea v-if="multiline" v-model:value="value" placeholder="Message" :rows="1" auto-resize />
+    <Input v-else v-model:value="value" placeholder="Message" />
+  </Field>
+</FieldGroup>`
 
 export const password = `<div class="w-[360px]">
   <FloatingLabelInput label="Password" type="password" />
 </div>`
 
-export const ssn = `<div class="w-[360px]">
-  <div style="position: relative">
-    <FloatingLabelInput
-      label="Social Security Number"
-      :value="formatSSN(digits)"
-      maxlength="11"
-      inputmode="numeric"
-      autocomplete="off"
-      :style="{
-        fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-        ...(!visible && digits
-          ? { color: 'transparent', caretColor: 'transparent' }
-          : focused && ssnMask(digits).suffix
-            ? { caretColor: 'transparent' }
-            : {}),
-      }"
-      revealable
-      @update:value="(raw) => (digits = nextSSNDigits(raw, digits))"
-      @focus="focused = true"
-      @blur="focused = false"
-      @revealed-change="(revealed) => (visible = revealed)"
-    />
-    <div
-      v-if="(!visible && digits) || (focused && ssnMask(digits).suffix)"
-      aria-hidden="true"
-      style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; font-family: var(--font-mono, ui-monospace, monospace); overflow: hidden"
-    >
-      <span v-if="!visible && digits" style="white-space: pre">{{ formatSSN(digits).replace(/[0-9]/g, '•') }}</span>
-      <span v-else style="visibility: hidden; white-space: pre">{{ formatSSN(digits) }}</span>
-      <template v-if="focused && ssnMask(digits).suffix">
-        <span v-if="ssnMask(digits).before" style="color: var(--color-text-tertiary); white-space: pre">{{ ssnMask(digits).before }}</span>
-        <span
-          v-if="ssnMask(digits).highlight"
-          style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
-        >{{ ssnMask(digits).highlight }}</span>
-        <span v-if="ssnMask(digits).after" style="color: var(--color-text-tertiary); white-space: pre">{{ ssnMask(digits).after }}</span>
+export const passwordPhone = `<FieldGroup>
+  <Field row hide-label label="Password">
+    <Input placeholder="Password" :type="visible ? 'text' : 'password'">
+      <template #endAdornment>
+        <InputAdornmentButton :aria-label="visible ? 'Hide' : 'Show'" :aria-pressed="visible" @click="visible = !visible">
+          <EyeOff v-if="visible" />
+          <Eye v-else />
+        </InputAdornmentButton>
       </template>
-    </div>
-  </div>
-</div>`
-
-export const birthday = `<div class="w-full min-w-0 max-w-[360px]">
-  <div style="position: relative">
-    <FloatingLabelInput
-      label="Birthday"
-      :invalid="invalid"
-      :disabled="disabled"
-      :read-only="readOnly"
-      :value="birthday"
-      maxlength="14"
-      inputmode="numeric"
-      :style="focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined"
-      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
-      @focus="focused = true"
-      @blur="focused = false"
-    />
-    <div
-      v-if="focused && birthdayMask(birthday).suffix"
-      aria-hidden="true"
-      style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; overflow: hidden"
-    >
-      <span style="visibility: hidden; white-space: pre">{{ birthday }}</span>
-      <span v-if="birthdayMask(birthday).before" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).before }}</span>
-      <span
-        v-if="birthdayMask(birthday).highlight"
-        style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
-      >{{ birthdayMask(birthday).highlight }}</span>
-      <span v-if="birthdayMask(birthday).after" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).after }}</span>
-    </div>
-  </div>
-</div>`
-
-export const birthdayControls = [
-  { name: "birthday", label: "preset", type: "select", options: [{ value: "", label: "Empty" }, { value: "01 / 15 / 1995", label: "Filled" }], default: "" },
-  { name: "invalid", type: "boolean", default: false },
-  { name: "disabled", type: "boolean", default: false },
-  { name: "readOnly", type: "boolean", default: false },
-]
-
-export const birthdayCode = `<script setup lang="ts">
-import { ref } from 'vue';
-import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
-
-const birthday = ref('');
-const focused = ref(false);
-const invalid = ref(false);
-const disabled = ref(false);
-const readOnly = ref(false);
-
-const BIRTHDAY_MASK = 'MM / DD / YYYY';
-
-type MaskParts = { suffix: string; before: string; highlight: string; after: string };
-
-const splitMask = (suffix: string, pattern: RegExp): MaskParts => {
-  if (!suffix) return { suffix, before: '', highlight: '', after: '' };
-  const match = suffix.match(pattern);
-  if (!match) return { suffix, before: suffix, highlight: '', after: '' };
-  return { suffix, before: match[1] || '', highlight: match[2] ?? '', after: match[3] || '' };
-};
-
-const getBirthdayDigits = (value: string) => value.replace(/\\D/g, '').slice(0, 8);
-
-/** \`01151995\` → \`01 / 15 / 1995\`, with the separator added as soon as a part is full */
-const formatBirthday = (rawValue: string) => {
-  const digits = getBirthdayDigits(rawValue);
-  const month = digits.slice(0, 2);
-  const day = digits.slice(2, 4);
-  const year = digits.slice(4, 8);
-  if (digits.length < 2) return month;
-  if (digits.length === 2) return \`\${month} / \`;
-  if (digits.length < 4) return \`\${month} / \${day}\`;
-  if (digits.length === 4) return \`\${month} / \${day} / \`;
-  return \`\${month} / \${day} / \${year}\`;
-};
-
-/** Formatted value after an edit; backspacing over a separator removes the digit before it */
-const nextBirthday = (raw: string, value: string) => {
-  const newDigits = getBirthdayDigits(raw);
-  if (raw.length < value.length && newDigits.length === getBirthdayDigits(value).length) {
-    return formatBirthday(newDigits.slice(0, -1));
-  }
-  return formatBirthday(raw);
-};
-
-/** The rest of \`MM / DD / YYYY\` after the typed value, split around the next part */
-const birthdayMask = (value: string) => {
-  const suffix = value.length >= BIRTHDAY_MASK.length ? '' : BIRTHDAY_MASK.slice(value.length);
-  return splitMask(suffix, /^(\\s*\\/\\s*)?([A-Z]+)([\\s\\S]*)/);
-};
-
-</script>
-
-<template>
-<div class="w-full min-w-0 max-w-[360px]">
-  <div style="position: relative">
-    <FloatingLabelInput
-      label="Birthday"
-      :invalid="invalid"
-      :disabled="disabled"
-      :read-only="readOnly"
-      :value="birthday"
-      maxlength="14"
-      inputmode="numeric"
-      :style="focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined"
-      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
-      @focus="focused = true"
-      @blur="focused = false"
-    />
-    <div
-      v-if="focused && birthdayMask(birthday).suffix"
-      aria-hidden="true"
-      style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; overflow: hidden"
-    >
-      <span style="visibility: hidden; white-space: pre">{{ birthday }}</span>
-      <span v-if="birthdayMask(birthday).before" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).before }}</span>
-      <span
-        v-if="birthdayMask(birthday).highlight"
-        style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
-      >{{ birthdayMask(birthday).highlight }}</span>
-      <span v-if="birthdayMask(birthday).after" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).after }}</span>
-    </div>
-  </div>
-</div>
-</template>`
-
-export const birthdayValidation = `<div class="w-[360px]">
-  <div class="flex flex-col gap-1.5">
-    <component
-      :is="BirthdayMaskedInput"
-      v-model:value="birthday"
-      :invalid="!!birthday && !isValidBirthday(birthday)"
-      :aria-describedby="birthday && !isValidBirthday(birthday) ? 'birthday-validation-demo-error' : undefined"
-    />
-    <FieldError v-if="birthday && !isValidBirthday(birthday)" id="birthday-validation-demo-error">
-      Please enter a valid date.
-    </FieldError>
-  </div>
-</div>`
+    </Input>
+  </Field>
+</FieldGroup>`
 
 export const types = `<div class="grid w-[44rem] max-w-[calc(100vw-5rem)] grid-cols-1 items-center gap-x-4 gap-y-6 py-8 sm:grid-cols-[10rem_1fr_1fr]">
   <div class="max-sm:hidden"></div>
@@ -334,6 +167,12 @@ export const select = `<div class="w-[360px]">
     </template>
   </Select>
 </div>`
+
+export const selectPhone = `<FieldGroup>
+  <Field row hide-label label="Role">
+    <Select v-model:value="role" :options="roleOptions" placeholder="Role" block />
+  </Field>
+</FieldGroup>`
 
 export const multiple = `<div class="w-[360px]">
   <Select
@@ -428,75 +267,53 @@ export const phone = `<div class="w-[360px] flex flex-col gap-3">
 
 <UsageBlock>{`import { FloatingLabelInput } from "@plexui/vue/components/FloatingLabelInput";`}</UsageBlock>
 
-On Phone the fields keep this web form at touch sizes: iOS has no floating label. For a form that reads as iOS, put an [Input](/vue/components/input) or a [Select](/vue/components/select) in a row of a `FieldGroup`, as the [Form Examples](/vue/components/form-examples) do.
+On Phone a label does not float: iOS has no floating label. Each field is a cell of a `FieldGroup` on the grouped background, and its placeholder names it: an [Input](/vue/components/input), a [Textarea](/vue/components/textarea) or a [Select](/vue/components/select) in a `Field row hide-label`, as the [Form Examples](/vue/components/form-examples) do. The label stays for screen readers, a description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; the examples about the floating label itself (where it rests, the shape of the field) have no Phone view.
 
 ## Examples
 
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
-  <VueDemo template={overview} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={withPhone(overview, overviewPhone, "a cell of a FieldGroup, named by its placeholder")} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" />
 </ComponentPreview>
 
 ### Types
 
-<ComponentPreview language="vue" details={<>Two things set the type: where the label rests, and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. Text fields, textareas and selects work the same in each.</>} code={types} previewMinHeight={320}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Two things set the type: where the label rests, and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. Text fields, textareas and selects work the same in each. On Phone the label does not float, so this example has no Phone view.</>} code={types} previewMinHeight={320}>
   <VueDemo template={types} />
 </ComponentPreview>
 
 #### Label inside
 
-<ComponentPreview language="vue" details={<>Use <code>label-placement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box.</>} code={inside} previewMinHeight={380}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>label-placement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box. On Phone a cell names its field with the placeholder, so this example has no Phone view.</>} code={inside} previewMinHeight={380}>
   <VueFloatingLabelInputDemo template={inside} stageClassName="py-10" state={{ country: "es" }} />
 </ComponentPreview>
 
 #### Rounded box
 
-<ComponentPreview language="vue" details={<>Set <code>:pill="false"</code> to take the rounded box of <code>Input</code> and <code>Select</code>, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place.</>} code={box} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Set <code>:pill="false"</code> to take the rounded box of <code>Input</code> and <code>Select</code>, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place. On Phone the cell is the frame, so this example has no Phone view.</>} code={box} previewMinHeight={168}>
   <VueFloatingLabelInputDemo template={box} stageClassName="py-10" />
 </ComponentPreview>
 
 ### Text fields
 
-Everything that is typed: more than one line, a password, or a value with a mask.
+Everything that is typed: more than one line, a password, or a phone number. Values with a mask, such as an [SSN](/vue/components/input#ssn-input) or a [birthday](/vue/components/input#birthday-input), are on the Input page: their mask works the same under a floating label.
 
 #### Textarea
 
-<ComponentPreview language="vue" details={<>Use <code>multiline</code> to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height.</>} code={textarea}>
-  <VueDemo template={textarea} stageClassName="py-10" state={{ value: "" }} controls={[{ name: "multiline", type: "select", options: [{ value: true, label: "true" }, { value: false, label: "false" }], default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>multiline</code> to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height. On Phone the cell grows with a <code>Textarea</code> that starts at one line.</>} code={withPhone(textarea, textareaPhone, "the cell grows with the text")}>
+  <VuePhoneRowsDemo template={textarea} phoneTemplate={phoneRows(textareaPhone)} phoneStageClassName="w-full" stageClassName="py-10" state={{ value: "" }} controls={[{ name: "multiline", type: "select", options: [{ value: true, label: "true" }, { value: false, label: "false" }], default: true }]} />
 </ComponentPreview>
 
 #### Password input
 
-<ComponentPreview language="vue" details={<>A <code>type="password"</code> field ships a built-in reveal toggle: click the eye to show or hide the value. Set <code>revealable</code> to <code>false</code> to remove it.</>} code={password} previewMinHeight={168}>
-  <VueDemo template={password} />
-</ComponentPreview>
-
-#### SSN input
-
-<ComponentPreview language="vue" details={<>A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (<code>XXX-XX-XXXX</code>) with highlighted segment, value masking that hides digits behind bullets (<code>•••-••-••••</code>), and a built-in <code>revealable</code> toggle to reveal the real value. <code>formatSSN</code>, <code>nextSSNDigits</code> and <code>ssnMask</code> are plain helper functions of the example.</>} code={ssn} previewMinHeight={168}>
-  <VueFloatingLabelInputDemo template={ssn} stageClassName="py-10" state={{ digits: "", visible: false, focused: false }} />
-</ComponentPreview>
-
-<span id="birthday-states" />
-
-#### Birthday input
-
-Choose Empty or Filled to replace the date with a preset. The invalid, disabled and readOnly controls preserve the date you entered. Invalid demonstrates styling; the next example validates the date.
-
-<ComponentPreview language="vue" details={<>A date-of-birth input with an inline <code>MM / DD / YYYY</code> mask. The copied example includes its formatting and mask helpers.</>} code={birthdayCode} previewMinHeight={168}>
-  <VueFloatingLabelInputDemo template={birthday} controls={birthdayControls} state={{ focused: false }} stageClassName="py-10 w-full flex justify-center" />
-</ComponentPreview>
-
-#### Birthday with validation
-
-<ComponentPreview language="vue" details={<>Use <code>invalid</code> and an error message to display the birthday validation state. Here the masked input of the Birthday input example is a component, <code>BirthdayMaskedInput</code>, and the error shows in a <code>FieldError</code> below it.</>} code={birthdayValidation} previewMinHeight={168}>
-  <VueFloatingLabelInputDemo template={birthdayValidation} stageClassName="py-10" state={{ birthday: "02 / 30 / 2001" }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A <code>type="password"</code> field ships a built-in reveal toggle: click the eye to show or hide the value. Set <code>revealable</code> to <code>false</code> to remove it. On Phone the cell holds an <code>Input</code> with an <code>InputAdornmentButton</code> at its end, as on the <a href="/vue/components/input#password-with-visibility-toggle">Input</a> page.</>} code={withPhone(password, passwordPhone, "the reveal button stands at the end of the cell")} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={password} phoneTemplate={phoneRows(passwordPhone)} phoneStageClassName="w-full" state={{ visible: false }} />
 </ComponentPreview>
 
 #### Phone input
 
-<ComponentPreview language="vue" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses the <code>startAdornment</code> slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated.</>} code={phone} previewMinHeight={200}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses the <code>startAdornment</code> slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. On Phone the country and the number are two linked rows of one group, as in the <a href="/vue/components/form-examples#sign-up-phone">Sign up (phone)</a> form, so this example has no Phone view.</>} code={phone} previewMinHeight={200}>
   <VueFloatingLabelInputDemo template={phone} stageClassName="py-10" state={{ country: "es", phone: "" }} />
 </ComponentPreview>
 
@@ -506,19 +323,19 @@ Choose Empty or Filled to replace the date with a preset. The invalid, disabled 
 
 #### Select
 
-<ComponentPreview language="vue" details={<>Use <code>FloatingLabelSelect</code> for plain text dropdowns. The label floats up when a value is selected, matching <code>FloatingLabelInput</code> styling.</>} code={select} previewMinHeight={168}>
-  <VueFloatingLabelInputDemo template={select} stageClassName="py-10" state={{ role: "" }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>FloatingLabelSelect</code> for plain text dropdowns. The label floats up when a value is selected, matching <code>FloatingLabelInput</code> styling. On Phone the cell holds a plain <code>Select</code> named by its placeholder.</>} code={withPhone(select, selectPhone, "a cell named by the placeholder")} previewMinHeight={168}>
+  <VueFloatingLabelInputRowsDemo template={select} phoneTemplate={phoneRows(selectPhone)} phoneStageClassName="w-full" stageClassName="py-10" state={{ role: "" }} />
 </ComponentPreview>
 
 #### Multiple selection
 
-<ComponentPreview language="vue" details={<>Pair <code>FloatingLabelSelect</code> with a <code>multiple</code> <code>Select</code> to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list.</>} code={multiple} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Pair <code>FloatingLabelSelect</code> with a <code>multiple</code> <code>Select</code> to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list. On Phone this is the cell of the Select example with a <code>multiple</code> Select, so it has no Phone view.</>} code={multiple} previewMinHeight={168}>
   <VueFloatingLabelInputDemo template={multiple} stageClassName="py-10" state={{ skills: [] }} />
 </ComponentPreview>
 
 #### Country select
 
-<ComponentPreview language="vue" details={<>Use <code>FloatingLabelSelect</code> alongside <code>FloatingLabelInput</code> for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected.</>} code={country} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>FloatingLabelSelect</code> alongside <code>FloatingLabelInput</code> for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected. On Phone this is the cell of the Select example with a flag in its options, so it has no Phone view.</>} code={country} previewMinHeight={168}>
   <VueFloatingLabelInputDemo template={country} stageClassName="py-10" state={{ country: "" }} />
 </ComponentPreview>
 
@@ -530,18 +347,16 @@ Choose Empty or Filled to replace the date with a preset. The invalid, disabled 
 <span id="read-only" />
 <span id="all-states" />
 
+<span id="clear-button" />
+
 ### States
 
-Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied.
+Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied. `onClear` shows a built-in clear button: it appears when the field has a value and is not disabled or read-only, and focus returns to the field. Listen to `@clear`, or bind `:on-clear` as here to switch it on and off.
 
-<ComponentPreview language="vue" code={statesCode} previewMinHeight={168}>
-  <VueDemo template={states} controls={statesControls} stageClassName="py-10 w-full flex justify-center" />
-</ComponentPreview>
+On Phone the field is a cell named by its placeholder: the description goes in the group's footer and the error stands inside the cell. A cell has no frame to color, so `invalid` alone is desktop only.
 
-#### Clear button
-
-<ComponentPreview language="vue" details={<>Listen to <code>@clear</code> to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.</>} code={clearButton} previewMinHeight={168}>
-  <VueDemo template={clearButton} stageClassName="py-10" state={{ value: "clearable@example.com" }} controls={[{ name: "disabled", type: "boolean", default: false }, { name: "readOnly", type: "boolean", default: false }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={withPhone(states, statesPhone, "a cell of a FieldGroup; the description goes in the footer, the error stands inside the cell")} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={states} phoneTemplate={phoneRows(statesPhone)} phoneStageClassName="w-full" controls={statesControls} stageClassName="py-10 w-full flex justify-center" />
 </ComponentPreview>
 
 ## API

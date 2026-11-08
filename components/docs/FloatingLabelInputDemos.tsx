@@ -14,7 +14,8 @@ import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Input } from '@plexui/ui/components/Input';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import { ChevronDown } from '@plexui/ui/components/Icon';
+import { ChevronDown, Eye, EyeOff } from '@plexui/ui/components/Icon';
+import { Textarea } from '@plexui/ui/components/Textarea';
 import { AuthFormStage } from './AuthFormStage';
 import { AuthInput } from './AuthInput';
 import { AuthFields } from './AuthFields';
@@ -22,6 +23,7 @@ import { AuthLegalNotice } from './AuthLegalNotice';
 import authFieldsStyles from './AuthFields.module.css';
 import { FormScreen } from './FormRowsDemos';
 import { COUNTRY_LOOKUP, COUNTRY_OPTIONS } from './PhoneInputDemos';
+import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 import { usePhoneViewport } from './PreviewEmbed';
 import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
@@ -98,159 +100,7 @@ function isValidBirthday(value: string): boolean {
   return day >= 1 && day <= maxDay;
 }
 
-// ---------------------------------------------------------------------------
-// SSN mask utilities
-// ---------------------------------------------------------------------------
-
-const SSN_MASK = 'XXX-XX-XXXX';
-
 type FormSubmitEvent = { preventDefault: () => void };
-
-function getSSNDigits(value: string): string {
-  return value.replace(/\D/g, '').slice(0, 9);
-}
-
-function formatSSNValue(rawValue: string): string {
-  const digits = getSSNDigits(rawValue);
-  if (digits.length < 3) return digits;
-  if (digits.length === 3) return `${digits}-`;
-  if (digits.length < 5) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-  if (digits.length === 5) return `${digits.slice(0, 3)}-${digits.slice(3)}-`;
-  return `${digits.slice(0, 3)}-${digits.slice(3, 5)}-${digits.slice(5)}`;
-}
-
-function getSSNMaskSuffix(formatted: string): string {
-  if (formatted.length >= SSN_MASK.length) return '';
-  return SSN_MASK.slice(formatted.length);
-}
-
-function splitSSNMaskSuffix(suffix: string): { before: string; highlight: string; after: string } {
-  if (!suffix) return { before: '', highlight: '', after: '' };
-  const match = suffix.match(/^(-?)([X]+)([\s\S]*)/);
-  if (!match) return { before: suffix, highlight: '', after: '' };
-  return {
-    before: match[1] || '',
-    highlight: match[2],
-    after: match[3] || '',
-  };
-}
-
-// ---------------------------------------------------------------------------
-// SSNMaskedInput — FloatingLabelInput + SSN formatting + value masking + toggle
-// ---------------------------------------------------------------------------
-
-function SSNMaskedInput() {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [rawDigits, setRawDigits] = useState('');
-  const [visible, setVisible] = useState(false);
-  const [focused, setFocused] = useState(false);
-
-  const formatted = formatSSNValue(rawDigits);
-  const masked = formatted.replace(/\d/g, '\u2022');
-
-  const handleChange = useCallback(
-    (evt: React.ChangeEvent<HTMLInputElement>) => {
-      const raw = evt.target.value;
-      const newDigits = getSSNDigits(raw);
-      const oldDigits = rawDigits;
-      // Backspace through a separator: raw got shorter but digit count unchanged
-      if (raw.length < formatted.length && newDigits.length === oldDigits.length) {
-        setRawDigits(oldDigits.slice(0, -1));
-      } else {
-        setRawDigits(newDigits);
-      }
-    },
-    [rawDigits, formatted],
-  );
-
-  const maskSuffix = getSSNMaskSuffix(formatted);
-  const showBulletOverlay = !visible && rawDigits.length > 0;
-  const showMaskOverlay = focused && maskSuffix.length > 0;
-  const maskParts = splitSSNMaskSuffix(maskSuffix);
-
-  return (
-    <div style={{ position: 'relative' }}>
-      <FloatingLabelInput
-        ref={inputRef}
-        label="Social Security Number"
-        value={formatted}
-        maxLength={11}
-        inputMode="numeric"
-        autoComplete="off"
-        onChange={handleChange}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        style={{
-          fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-          ...(!visible && rawDigits
-            ? { color: 'transparent', caretColor: 'transparent' }
-            : showMaskOverlay
-              ? { caretColor: 'transparent' }
-              : undefined),
-        }}
-        revealable
-        onRevealedChange={setVisible}
-      />
-      {(showBulletOverlay || showMaskOverlay) && (
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 calc(var(--floating-input-gutter) + 1px)',
-            pointerEvents: 'none',
-            font: 'inherit',
-            fontSize: '1rem',
-            lineHeight: '1.5rem',
-            zIndex: 2,
-            fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-            overflow: 'hidden',
-          }}
-        >
-          {showBulletOverlay ? (
-            <span style={{ whiteSpace: 'pre' }}>{masked}</span>
-          ) : (
-            <span style={{ visibility: 'hidden', whiteSpace: 'pre' }}>
-              {formatted}
-            </span>
-          )}
-          {showMaskOverlay && (
-            <>
-              {maskParts.before && (
-                <span style={{ color: 'var(--color-text-tertiary)', whiteSpace: 'pre' }}>
-                  {maskParts.before}
-                </span>
-              )}
-              {maskParts.highlight && (
-                <span
-                  style={{
-                    backgroundColor: 'var(--color-background-primary-solid)',
-                    color: 'white',
-                    whiteSpace: 'pre',
-                    borderRadius: '3px',
-                    padding: '1px 1px',
-                  }}
-                >
-                  {maskParts.highlight}
-                </span>
-              )}
-              {maskParts.after && (
-                <span style={{ color: 'var(--color-text-tertiary)', whiteSpace: 'pre' }}>
-                  {maskParts.after}
-                </span>
-              )}
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // BirthdayMaskedInput - FloatingLabelInput + OpenAI-style inline mask
@@ -370,7 +220,32 @@ function BirthdayMaskedInput({
 // ---------------------------------------------------------------------------
 // Exported demos
 // ---------------------------------------------------------------------------
+
+// On a phone a label does not float: each field is a row of a FieldGroup, and its placeholder names it, as in the
+// native forms (iOS 5505, 5625). The label stays for assistive technology (Field hideLabel).
+
+export function FloatingLabelInputOverviewDemo() {
+  const phone = usePhoneRows();
+  if (phone) {
+    return (
+      <PhoneRowsStage>
+        <FieldGroup>
+          <Field row hideLabel label="Email address">
+            <Input type="email" placeholder="Email address" />
+          </Field>
+        </FieldGroup>
+      </PhoneRowsStage>
+    );
+  }
+  return (
+    <div className="w-[360px]">
+      <FloatingLabelInput label="Email address" />
+    </div>
+  );
+}
+
 export function FloatingLabelInputTextareaDemo() {
+  const phone = usePhoneRows();
   const [multiline, setMultiline] = useState(true);
   const [value, setValue] = useState('');
 
@@ -389,59 +264,80 @@ export function FloatingLabelInputTextareaDemo() {
           </SegmentedControl>
         </DemoControlRow>
       </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-[360px]">
-          <FloatingLabelInput
-            key={String(multiline)}
-            label="Message"
-            multiline={multiline}
-            value={value}
-            onChange={(evt) => setValue(evt.target.value)}
-          />
+      {phone ? (
+        <PhoneRowsStage>
+          <FieldGroup>
+            <Field row hideLabel label="Message">
+              {multiline ? (
+                <Textarea placeholder="Message" rows={1} autoResize value={value} onChange={(evt) => setValue(evt.target.value)} />
+              ) : (
+                <Input placeholder="Message" value={value} onChange={(evt) => setValue(evt.target.value)} />
+              )}
+            </Field>
+          </FieldGroup>
+        </PhoneRowsStage>
+      ) : (
+        <div data-demo-stage className="py-10">
+          <div className="w-[360px]">
+            <FloatingLabelInput
+              key={String(multiline)}
+              label="Message"
+              multiline={multiline}
+              value={value}
+              onChange={(evt) => setValue(evt.target.value)}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
 
-export function FloatingLabelInputWithClearButtonDemoWithControls() {
-  const [value, setValue] = useState('clearable@example.com');
-  const [disabled, setDisabled] = useState(false);
-  const [readOnly, setReadOnly] = useState(false);
+export function FloatingLabelInputPasswordDemo() {
+  const phone = usePhoneRows();
+  const [visible, setVisible] = useState(false);
+  if (phone) {
+    return (
+      <PhoneRowsStage>
+        <FieldGroup>
+          <Field row hideLabel label="Password">
+            <Input
+              placeholder="Password"
+              type={visible ? 'text' : 'password'}
+              endAdornment={
+                <Input.AdornmentButton aria-label={visible ? 'Hide' : 'Show'} aria-pressed={visible} onClick={() => setVisible((v) => !v)}>
+                  {visible ? <EyeOff /> : <Eye />}
+                </Input.AdornmentButton>
+              }
+            />
+          </Field>
+        </FieldGroup>
+      </PhoneRowsStage>
+    );
+  }
   return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
-        <DemoControlBoolean name="readOnly" value={readOnly} onChange={setReadOnly} />
-      </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-[360px]">
-          <FloatingLabelInput
-            label="Email address"
-            value={value}
-            onChange={(evt) => setValue(evt.target.value)}
-            onClear={() => setValue('')}
-            disabled={disabled}
-            readOnly={readOnly}
-          />
-        </div>
-      </div>
-    </>
+    <div className="w-[360px]">
+      <FloatingLabelInput label="Password" type="password" />
+    </div>
   );
 }
+
 type FloatingLabelValuePreset = 'empty' | 'filled' | 'custom';
 
 export function FloatingLabelInputStatesDemo() {
+  const phone = usePhoneRows();
   const [value, setValue] = useState('');
   const [invalid, setInvalid] = useState(false);
   const [errorMessage, setErrorMessage] = useState(false);
   const [description, setDescription] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [readOnly, setReadOnly] = useState(false);
+  const [clearable, setClearable] = useState(false);
   const preset: FloatingLabelValuePreset = value === '' ? 'empty' : value === 'jane.doe@example.com' ? 'filled' : 'custom';
   const applyPreset = (next: FloatingLabelValuePreset) => {
     if (next !== 'custom') setValue(next === 'filled' ? 'jane.doe@example.com' : '');
   };
+  const descriptionText = "We'll never share your email with anyone else.";
 
   return (
     <>
@@ -452,94 +348,48 @@ export function FloatingLabelInputStatesDemo() {
             <SegmentedControl.Option value="filled">Filled</SegmentedControl.Option>
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} />
+        <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} desktopOnly />
         <DemoControlBoolean name="errorMessage" value={errorMessage} onChange={setErrorMessage} />
         <DemoControlBoolean name="description" value={description} onChange={setDescription} />
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
         <DemoControlBoolean name="readOnly" value={readOnly} onChange={setReadOnly} />
+        <DemoControlBoolean name="onClear" value={clearable} onChange={setClearable} />
       </div>
-      <div data-demo-stage className="py-10 w-full flex justify-center">
-        <div className="w-full min-w-0 max-w-[360px]">
-          <FloatingLabelInput
-            label="Email address"
-            value={value}
-            onChange={(evt) => setValue(evt.target.value)}
-            invalid={invalid || errorMessage}
-            errorMessage={errorMessage ? 'Email is not valid.' : undefined}
-            description={description ? "We'll never share your email with anyone else." : undefined}
-            disabled={disabled}
-            readOnly={readOnly}
-          />
+      {phone ? (
+        <PhoneRowsStage>
+          <FieldGroup footer={description ? <p>{descriptionText}</p> : undefined}>
+            <Field row hideLabel label="Email address" errorMessage={errorMessage ? 'Email is not valid.' : undefined}>
+              <Input
+                type="email"
+                placeholder="Email address"
+                value={value}
+                onChange={(evt) => setValue(evt.target.value)}
+                invalid={errorMessage}
+                disabled={disabled}
+                readOnly={readOnly}
+                onClear={clearable ? () => setValue('') : undefined}
+              />
+            </Field>
+          </FieldGroup>
+        </PhoneRowsStage>
+      ) : (
+        <div data-demo-stage className="py-10 w-full flex justify-center">
+          <div className="w-full min-w-0 max-w-[360px]">
+            <FloatingLabelInput
+              label="Email address"
+              value={value}
+              onChange={(evt) => setValue(evt.target.value)}
+              invalid={invalid || errorMessage}
+              errorMessage={errorMessage ? 'Email is not valid.' : undefined}
+              description={description ? descriptionText : undefined}
+              disabled={disabled}
+              readOnly={readOnly}
+              onClear={clearable ? () => setValue('') : undefined}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </>
-  );
-}
-export function FloatingLabelInputSSNDemo() {
-  return (
-    <div data-demo-stage className="py-10">
-      <div className="w-[360px]">
-        <SSNMaskedInput />
-      </div>
-    </div>
-  );
-}
-export function FloatingLabelInputBirthdayDemo() {
-  const [birthday, setBirthday] = useState('');
-  const [invalid, setInvalid] = useState(false);
-  const [disabled, setDisabled] = useState(false);
-  const [readOnly, setReadOnly] = useState(false);
-  const preset: FloatingLabelValuePreset = birthday === '' ? 'empty' : birthday === '01 / 15 / 1995' ? 'filled' : 'custom';
-  const applyPreset = (next: FloatingLabelValuePreset) => {
-    if (next !== 'custom') setBirthday(next === 'filled' ? '01 / 15 / 1995' : '');
-  };
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="preset">
-          <SegmentedControl<FloatingLabelValuePreset> value={preset} onChange={applyPreset} aria-label="preset" size="xs">
-            <SegmentedControl.Option value="empty">Empty</SegmentedControl.Option>
-            <SegmentedControl.Option value="filled">Filled</SegmentedControl.Option>
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} />
-        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
-        <DemoControlBoolean name="readOnly" value={readOnly} onChange={setReadOnly} />
-      </div>
-      <div data-demo-stage className="py-10 w-full flex justify-center">
-        <div className="w-full min-w-0 max-w-[360px]">
-          <BirthdayMaskedInput
-            value={birthday}
-            onChange={setBirthday}
-            invalid={invalid}
-            disabled={disabled}
-            readOnly={readOnly}
-          />
-        </div>
-      </div>
-    </>
-  );
-}
-export function FloatingLabelInputBirthdayValidationDemo() {
-  const [birthday, setBirthday] = useState('02 / 30 / 2001');
-  const errorMessage = birthday ? (isValidBirthday(birthday) ? undefined : 'Please enter a valid date.') : undefined;
-  const errorId = 'birthday-validation-demo-error';
-
-  return (
-    <div data-demo-stage className="py-10">
-      <div className="w-[360px]">
-        <div className="flex flex-col gap-1.5">
-          <BirthdayMaskedInput
-            value={birthday}
-            onChange={setBirthday}
-            invalid={!!errorMessage}
-            aria-describedby={errorMessage ? errorId : undefined}
-          />
-          {errorMessage && <FieldError id={errorId}>{errorMessage}</FieldError>}
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -958,10 +808,22 @@ function useRoleTrigger(role: string, onClear: () => void) {
 }
 
 export function FloatingLabelSelectPlainDemo() {
+  const phone = usePhoneRows();
   const [role, setRole] = useState('');
   const handleClear = useCallback(() => setRole(''), []);
   const trigger = useRoleTrigger(role, handleClear);
 
+  if (phone) {
+    return (
+      <PhoneRowsStage>
+        <FieldGroup>
+          <Field row hideLabel label="Role">
+            <Select value={role} options={ROLES} onChange={(option) => setRole(option.value)} placeholder="Role" block />
+          </Field>
+        </FieldGroup>
+      </PhoneRowsStage>
+    );
+  }
   return (
     <div data-demo-stage className="py-10">
       <div className="w-[360px]">

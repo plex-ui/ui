@@ -65,9 +65,11 @@ describe("the clear button of a phone text field (kit iOS 27 Text Fields 5433:15
     expect(decls(rules.get(".Container > .Clear:last-child"))).toEqual({
       "margin-right": "calc(var(--input-size) / 2 - var(--input-clear-target-size, var(--input-clear-size)) / 2 - var(--input-gutter))",
     })
-    // A horizontal row puts it 10px inside the row's 16px inset: 26px from the row's edge, as the kit does
-    expect(decls(rules.get(':where([data-row]:not([data-orientation="vertical"])) .Container > .Clear.Clear:last-child'))).toEqual({
+    // A row puts it 10px inside the row's 16px inset: 26px from the row's edge, as the kit does, with the label
+    // beside, above or hidden (plan 169c: a placeholder cell is a vertical row). Its 44px target does not grow the row.
+    expect(decls(rules.get(':where([data-row]) .Container > .Clear.Clear:last-child'))).toEqual({
       "margin-right": "calc(10px - var(--input-clear-target-size, var(--input-clear-size)) / 2)",
+      "margin-block": "calc((var(--input-size) - var(--input-clear-target-size, var(--input-clear-size))) / 2)",
     })
     expect(touch).toContain("--input-clear-target-size: 44px;")
   })
@@ -231,8 +233,9 @@ describe("lists on a phone (kit iOS 27 Lists 507:24675)", () => {
     expect(read("packages/styles/src/styles/variables-components.css")).not.toMatch(/--sortable-handle-(order|margin-start|margin-end|field-margin-start):/)
   })
 
-  test("a FieldGroup footer is Footnote, 13/18 (Grouped Table Footer)", () => {
+  // Plan 169a: kit Grouped Table Footer 35:55757 is Tight Leading Footnote 13/16, as native Settings sets it; 13/18 was a mistake
+  test("a FieldGroup footer is Tight Leading Footnote, 13/16 (Grouped Table Footer)", () => {
     expect(touch).toContain("--field-group-footer-font-size: 13px;")
-    expect(touch).toContain("--field-group-footer-line-height: 18px;")
+    expect(touch).toContain("--field-group-footer-line-height: 16px;")
   })
 })

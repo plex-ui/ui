@@ -19,6 +19,7 @@ import {
   type ReactNode,
 } from "react"
 import { mergeRefs } from "react-merge-refs"
+import { FieldColumnsContext, FieldRowContext } from "../../lib/fieldRow"
 import { useTimeout } from "usehooks-ts"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
@@ -442,7 +443,10 @@ const ContentImpl = ({
           collisionPadding={collisionPadding}
           onKeyDown={handleKeyDown}
         >
-          {children}
+          {/* A popup opened from a Field row is not that row: its own controls keep their usual shape and menus */}
+          <FieldRowContext.Provider value={false}>
+            <FieldColumnsContext.Provider value={false}>{children}</FieldColumnsContext.Provider>
+          </FieldRowContext.Provider>
         </Popper.Content>
       </DismissableLayer>
     </FocusScope>

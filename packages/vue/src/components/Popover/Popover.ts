@@ -25,6 +25,7 @@ import {
   useId,
 } from "reka-ui"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
+import { provideFieldColumns, provideFieldRow } from "../../lib/fieldRow.js"
 import { dataAttributes, focusableElements, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
 import { TransitionGroup } from "../Transition/index.js"
 import { overlayTiming } from "../Transition/shared.js"
@@ -546,6 +547,9 @@ export const PopoverContent = defineComponent({
   props: contentProps,
   setup(props, { slots, attrs }) {
     const { open, showOnHover, setOpen } = usePopoverContext()
+    // A popup opened from a Field row is not that row: its own controls keep their usual shape and menus
+    provideFieldRow(() => false)
+    provideFieldColumns(() => false)
 
     useEscCloseStack(open, () => {
       setOpen(false)

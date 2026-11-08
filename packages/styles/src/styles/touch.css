@@ -358,6 +358,11 @@
     --checkbox-radius: var(--radius-full);
     --checkbox-label-font-size: 17px;
     --checkbox-label-line-height: 22px;
+    /* A Label on a phone is the text of a list row: the body type of the checkbox, radio and switch labels and of a
+       Field row's label (iOS kit Body 17/22 Regular). */
+    --label-font-size: 17px;
+    --label-line-height: 22px;
+    --label-font-weight: 400;
     --checkbox-description-font-size: 15px;
     --checkbox-description-line-height: 20px;
     --radio-group-target-size: 44px;
@@ -515,14 +520,19 @@
     --field-group-title-font-weight: 590;
     --field-group-header-min-height: 39px;
     --field-group-header-align: end;
-    --field-group-header-padding-bottom: 9px;
+    /* Native iOS 26 Settings and Calendar (08.11): a header's cap height stands 23pt above its cells
+       (Search 22.67 and 23, Display 23.33), so its 22px line ends 6 above them. */
+    --field-group-header-padding-bottom: 6px;
     --field-group-footer-font-size: 13px;
-    /* Kit iOS 27 Lists, Grouped Table Footer: Footnote, 13/18. */
-    --field-group-footer-line-height: 18px;
+    /* Kit iOS 27 Lists, Grouped Table Footer 35:55757: Tight Leading Footnote 13/16, as a Settings footer
+       measures (5514: lines 16pt apart, paragraphs one empty line apart). */
+    --field-group-footer-line-height: 16px;
+    --field-group-footer-paragraph-gap: 16px;
     --field-group-footer-padding: 8px var(--mobile-layout-margin) 6px;
     --field-group-title-padding-inline: var(--mobile-layout-margin);
-    --field-group-description-font-size: 13px;
-    --field-group-description-line-height: 18px;
+    /* Kit iOS 27 Lists, Header 517:38042: the Subtitle under a header is Subheadline 15/20, secondary. */
+    --field-group-description-font-size: 15px;
+    --field-group-description-line-height: 20px;
   }
 
   html [data-mobile-placement="bottom"]:not([data-mobile-variant]) {

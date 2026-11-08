@@ -3700,16 +3700,18 @@ Use align="start" for an empty state that sits under a section heading instead o
 ## Field
 Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.
 Import: import { Field } from "@plexui/vue/components/Field"
+Import: import { FieldGroup } from "@plexui/vue/components/FieldGroup"
 Docs: https://plexui.com/vue/components/field
 Props:
   - label (string) — Label text for the field
+  - hide-label (boolean) default: false — Hides the label from view; it still names the control. A description moves under the control. On a row the value or placeholder starts at the row's edge, so the row is vertical unless orientation says otherwise
   - label slot (VNode[]) — Rich label content; takes precedence over the label prop
   - description (string) — Helper text below the label; linked via aria-describedby (or the description slot)
   - error-message (string) — Error message below the control; sets aria-invalid on the child (or the errorMessage slot)
   - label-action (string) — Content at the end of the label row, such as a link that acts on the field (or the labelAction slot)
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: child's size, else "md" — Label font size; defaults to the child control's size
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
-  - orientation ("vertical" | "horizontal") default: "horizontal" on a row, else "vertical" — Layout direction of label and control
+  - orientation ("vertical" | "horizontal") default: "horizontal" on a row with a visible label, else "vertical" — Layout direction of label and control
   - row (boolean) default: false — One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other attributes reach the root only on a row
   - fill (boolean) default: false — On a row, the control takes the rest of the line after the label
   - #action (slot) — On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it
@@ -3719,301 +3721,162 @@ Props:
   - default slot ((fieldProps) => VNode[]) — Form control; its single root element receives id, aria-describedby and aria-invalid (plus aria-labelledby unless it has its own name) unless the slot reads fieldProps, which include aria-labelledby
   FieldGroup:
     - title (string) — Heading over the block (or the title slot); it names the group
+    - header-prominence ("standard" | "increased") default: "standard" — How much the title stands out: a quiet heading over the rows, or a title that leads its content (on a phone the iOS prominent list header, 20pt Semibold)
     - description (string) — Line under the title (or the description slot)
     - columns (boolean) default: false — Every value starts at one column, --field-row-column-width into the row, on the web and on a phone. Off, values end at the row's edge
     - bodyClass (string) — Applied to the block that holds the rows
     - default slot (VNode) — The rows
-    - action slot (VNode) — Content at the end of the header
-    - footer slot (VNode) — Content under the block
+    - action slot (VNode) — Content at the end of the header. On a phone a ghost text button reads as the list header's action: tinted text on the title's last line
+    - footer slot (VNode) — Content under the block, such as a note; its paragraphs stand apart
 
 ### Overview
-Field wraps a form control with a label, optional description, and error message. It automatically generates the label's for, aria-describedby, and aria-invalid linking between the label, description, error, and child control.
+Field wraps a form control with a label, a description and an error message, and links them: the label's for, aria-describedby and aria-invalid reach the control. required adds an asterisk after the label; it is visual only, so give the control its own required for form validation. The layout control puts the label in its four places: above: the default, orientation="vertical". columns: orientation="horizontal", every value starting at one column. end: row, one line of a FieldGroup with the value at its end. A framed field is a pill there and takes --field-row-control-width, as its width cannot follow what is typed; :pill="false" on the control keeps the rounded box. hidden: hide-label. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field. On Phone a field is always a cell of a FieldGroup on the grouped background, as in an iOS form, in the same four places: the label above its value (row orientation="vertical"), values in one column (FieldGroup columns), the value at the end of the row, or the placeholder alone (row hide-label), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's footer slot, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: OTPInput keeps its own digit cells on the screen, outside a group, as in Verify email.
 ```vue
-<div :class="horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'">
-  <Field
-    label="Email"
-    :size="size"
-    :description="description ? 'We\'ll never share your email with anyone else.' : undefined"
-    :error-message="errorMessage ? 'Please enter a valid email address.' : undefined"
-    :required="required"
-    :orientation="horizontal ? 'horizontal' : 'vertical'"
-  >
-    <Input placeholder="Enter email..." :size="size" :pill="pill" />
+<!-- Desktop -->
+<Field label="Name" required>
+  <Input placeholder="Jane Appleseed" />
+</Field>
+<Field
+  label="Email"
+  required
+  description="We'll never share your email with anyone else."
+  error-message="Enter a valid email address."
+>
+  <Input type="email" default-value="jane@example" />
+</Field>
+
+<!-- Phone: a cell of a FieldGroup; the words that explain it go in the footer. -->
+<FieldGroup>
+  <Field row label="Name" orientation="vertical">
+    <Input placeholder="Required" />
   </Field>
+  <Field row label="Email" orientation="vertical" error-message="Enter a valid email address.">
+    <Input type="email" default-value="jane@example" />
+  </Field>
+  <template #footer>We'll never share your email with anyone else.</template>
+</FieldGroup>
+
+<!-- columns: <FieldGroup columns> with rows; end: rows; hidden: placeholder only -->
+<Field row hide-label label="Name">
+  <Input placeholder="Name" />
+</Field>
+```
+
+### Group
+FieldGroup holds the rows and draws the hairlines between them. Its title names the group, description stands under the title, the action slot at the end of the header, and the footer slot under the rows; paragraphs of a footer stand apart. columns starts every value at one column, --field-row-column-width into the row. header-prominence="increased" makes the title lead its content, as a section of a page. On Phone the standard title is the quiet heading of an iOS list, and the increased one is the list's prominent header, 20pt Semibold in the primary label. A ghost text button in the header is the list header's action: tinted text on the title's last line, with a 44pt target. The footer is 13/16 Footnote, its paragraphs one empty line apart, as in Settings.
+```vue
+<FieldGroup title="Billing address" :header-prominence="headerProminence" :columns="columns">
+  <template v-if="action" #action>
+    <Button color="primary" variant="ghost" size="sm" @click="street = ''; city = ''; postcode = ''">Clear</Button>
+  </template>
+  <Field row label="Street">
+    <Input placeholder="Required" v-model:value="street" autocomplete="address-line1" />
+  </Field>
+  <Field row label="City">
+    <Input placeholder="Required" v-model:value="city" autocomplete="address-level2" />
+  </Field>
+  <Field row label="Postcode">
+    <Input placeholder="Required" v-model:value="postcode" autocomplete="postal-code" />
+  </Field>
+  <template v-if="footer" #footer>
+    <p>Your bank checks this address against your card. <TextLink href="#group">Learn more</TextLink></p>
+  </template>
+</FieldGroup>
+```
+
+### Other controls
+Field works with any form control. A native one, such as a Textarea, is named by the label's for. A Select or DatePicker trigger is not a native form control, so Field points its aria-labelledby at the label, and the trigger adds its value: a screen reader hears "Role, Editor". A child with a name of its own (aria-label, aria-labelledby or label) keeps it. On Phone a Select or a date is the value at the end of its row, and a long text stands under its label. A group of checkboxes, radios or switches is a row per choice: see Checkbox, Radio Group and Switch.
+```vue
+<!-- Desktop -->
+<div class="flex w-full max-w-[320px] flex-col gap-4">
+  <Field label="Role" description="What this person can change.">
+    <Select v-model:value="role" :options="roles" />
+  </Field>
+  <Field label="Starts">
+    <DatePicker v-model:value="start" placeholder="Select date" />
+  </Field>
+  <Field label="Notes">
+    <Textarea placeholder="Anything the team should know" :rows="3" />
+  </Field>
+</div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Role">
+    <Select v-model:value="role" :options="roles" />
+  </Field>
+  <Field row label="Starts">
+    <DatePicker v-model:value="start" trigger-date-format="MMM d, yyyy" :trigger-show-icon="false" placeholder="Select date" />
+  </Field>
+  <Field row label="Notes" orientation="vertical">
+    <Textarea placeholder="Anything the team should know" :rows="3" auto-resize />
+  </Field>
+</FieldGroup>
+```
+
+### Label action
+Use the labelAction slot (or the label-action string prop) for a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size. On Phone a row has no label line to hold it: the link stands under the group in the rows' text, as under the Apple Account sign-in. A group's footer is a footnote, for words to read.
+```vue
+<!-- Desktop -->
+<div class="w-[320px]">
+  <Field label="Password">
+    <template #labelAction>
+      <TextLink href="#label-action">Forgot password?</TextLink>
+    </template>
+    <Input type="password" placeholder="Enter password" autocomplete="current-password" />
+  </Field>
+</div>
+
+<!-- Phone -->
+<div class="flex flex-col">
+  <FieldGroup>
+    <Field row label="Password">
+      <Input type="password" placeholder="Required" autocomplete="current-password" />
+    </Field>
+  </FieldGroup>
+  <TextLink primary href="#label-action" class="mt-[15px] self-start text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)]">
+    Forgot password?
+  </TextLink>
 </div>
 ```
 
-### With description
-Use description to display helper text below the label. The description is automatically linked to the control via aria-describedby.
+### Several controls
+For more than one control, or a control that needs its props placed by hand, read the default slot's props (v-slot="fieldProps"): {'{ id, "aria-labelledby", "aria-describedby", "aria-invalid" }'}. A slot that reads them renders its content as it is, so you bind them where they belong: put the id and aria-labelledby on the first control, so the label names it, and give the others an aria-label of their own. On a phone a birthday is one row and one value, whose wheel sets the day, the month and the year, as in Contacts. PlexUI has no such wheel, so this example has no Phone view.
 ```vue
 <div class="w-[320px]">
-  <Field label="Email" description="We'll never share your email with anyone else.">
-    <Input placeholder="Enter email..." />
-  </Field>
-</div>
-```
-
-### With error message
-Use error-message to display a validation error. When provided, the child control automatically receives aria-invalid="true". The error is rendered using the FieldError component with role="alert" for accessibility.
-```vue
-<div class="w-[320px]">
-  <Field
-    label="Email"
-    :error-message="errorMessage ? 'Please enter a valid email address' : undefined"
-  >
-    <Input placeholder="Enter email..." />
-  </Field>
-</div>
-```
-
-### Required
-Use required to show a visual asterisk after the label. This is purely visual and does not add the required HTML attribute: pass required directly to the child control for form validation.
-```vue
-<div class="w-[320px]">
-  <Field label="Email" :required="required">
-    <Input placeholder="Enter email..." />
+  <Field label="Birthday" v-slot="fieldProps">
+    <div class="flex gap-2">
+      <div class="w-[130px]">
+        <Select :id="fieldProps.id" :aria-labelledby="fieldProps['aria-labelledby']" v-model:value="month" :options="months" placeholder="Month" />
+      </div>
+      <div class="w-[84px]">
+        <Select v-model:value="day" :options="days" placeholder="Day" aria-label="Day" />
+      </div>
+      <div class="w-[96px]">
+        <Select v-model:value="year" :options="years" placeholder="Year" aria-label="Year" />
+      </div>
+    </div>
   </Field>
 </div>
 ```
 
 ### Sizing
-The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props. On a phone with touch.css a text field is 44px from 3xs to 2xl and 50px at 3xl, with the 17px text of iOS: a 3xs, 2xs or xs field takes the height, text and gutter of sm, and a horizontal label lines up with it. The Overview's phone view shows the md field without the size and pill controls, and this example is desktop only, as the Input page's Sizing is. In a form on a phone, put fields in rows of a FieldGroup (see Rows).
+The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props. On a phone a row sets the field's height, insets and type, so this example has no Phone view. Outside a row, with touch.css a text field is 44px from 3xs to 2xl and 50px at 3xl, with the 17px text of iOS.
 ```vue
-<div :class="horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'">
+<div class="w-full max-w-[320px]">
   <Field
     label="Email"
-    :size="size"
-    :description="description ? 'We\'ll never share your email with anyone else.' : undefined"
-    :error-message="errorMessage ? 'Please enter a valid email address.' : undefined"
-    :required="required"
-    :orientation="horizontal ? 'horizontal' : 'vertical'"
-  >
-    <Input placeholder="Enter email..." :size="size" :pill="pill" />
-  </Field>
-</div>
-```
-
-### Horizontal layout
-Use orientation="horizontal" to render the label beside the control instead of above it. On a phone with touch.css the control narrows to the width its label leaves, instead of running past the screen at its 240px (--field-horizontal-control-flex). For a form on a phone, rows are the iOS layout: see Rows below.
-```vue
-<div class="w-full max-w-[480px] flex flex-col gap-4">
-  <Field label="First name" :orientation="orientation">
-    <Input placeholder="Jane" />
-  </Field>
-  <Field label="Last name" :orientation="orientation">
-    <Input placeholder="Doe" />
-  </Field>
-</div>
-```
-
-### Rows
-Use row for one line of a block: the label at the start, the control at the end, an error under both. FieldGroup holds the rows, with a title, an action and a footer, and draws the hairlines between them. With touch.css rows take the iOS sizes on a phone. On a phone the rows sit on the grouped background of an iOS settings screen.
-```vue
-<div class="w-full max-w-[480px]">
-  <FieldGroup title="Notifications" description="How we reach you.">
-    <Field row label="Email updates">
-      <Switch />
-    </Field>
-    <Field row label="Weekly summary" description="Sent on Mondays.">
-      <Switch />
-    </Field>
-  </FieldGroup>
-</div>
-```
-
-### Fields in rows
-A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: :pill="false" on the control keeps the rounded box. Its width cannot follow what is typed, so it takes --field-row-control-width. A Select follows its value with :block="false", and every control ends on the edge of the row. On a phone the row is the frame: the frame goes, a soft field loses its fill too, and the value ends at its edge.
-```vue
-<div class="w-full max-w-[480px]">
-  <FieldGroup>
-    <Field row label="Price">
-      <Input default-value="11" inputmode="decimal">
-        <template #endAdornment>€</template>
-      </Input>
-    </Field>
-    <Field row label="Weight" description="Shown beside the name.">
-      <Input default-value="250" inputmode="decimal" />
-    </Field>
-    <Field row label="Unit">
-      <Select v-model:value="unit" :block="false" align="end" :options="units" />
-    </Field>
-  </FieldGroup>
-</div>
-```
-
-### Textarea
-```vue
-<div class="w-[320px]">
-  <Field label="Bio" description="Write a short bio for your profile.">
-    <Textarea placeholder="Tell us about yourself..." :rows="3" />
-  </Field>
-</div>
-```
-
-### Select
-A Select trigger is not a native form control, so the label's for cannot name it. Field points the trigger's aria-labelledby at the label, and Select adds its value: a screen reader hears "Role, Admin". DatePicker works the same way. A control with its own aria-label, aria-labelledby or label keeps its name; a slot that reads the field props gets aria-labelledby among them to bind.
-```vue
-<div class="w-[320px]">
-  <Field label="Role" description="Select your primary role.">
-    <Select
-      placeholder="Select a role..."
-      v-model:value="role"
-      :options="[
-        { label: 'Admin', value: 'admin' },
-        { label: 'Editor', value: 'editor' },
-        { label: 'Viewer', value: 'viewer' },
-      ]"
-    />
-  </Field>
-</div>
-```
-
-### Label action
-Use the labelAction slot (or the label-action string prop) for a link or a small control that acts on the field, at the end of the label row. It takes the label's font size.
-```vue
-<div class="w-[320px]">
-  <Field label="Password">
-    <template #labelAction>
-      <TextLink href="#reset-password">Forgot password?</TextLink>
-    </template>
-    <Input type="password" placeholder="Enter password..." />
-  </Field>
-</div>
-```
-
-### Slider
-Field works with any form control. Use the description to display the current slider value.
-```vue
-<div class="w-full min-w-0 max-w-[400px]">
-  <Field
-    label="Price Range"
-    :description="'Set your budget range ($' + price[0].toLocaleString() + ' – ' + price[1].toLocaleString() + ').'"
-  >
-    <Slider range v-model:value="price" :min="0" :max="1000" :step="10" prefix-unit="$" />
-  </Field>
-</div>
-```
-
-### Fieldset
-Group related fields under a heading and description to create a logical fieldset.
-```vue
-<div class="w-full min-w-0 max-w-[400px]">
-  <div class="mb-3">
-    <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Address Information</h3>
-    <p class="text-xs text-tertiary mt-0.5">We need your address to deliver your order.</p>
-  </div>
-  <div class="flex flex-col gap-4">
-    <Field label="Street Address">
-      <Input placeholder="123 Main St" />
-    </Field>
-    <div class="flex gap-3">
-      <Field label="City" class="min-w-0 flex-1">
-        <Input placeholder="New York" />
-      </Field>
-      <Field label="Postal Code" class="min-w-0 flex-1">
-        <Input placeholder="90502" />
-      </Field>
-    </div>
-  </div>
-</div>
-```
-
-### Checkbox
-Wrap a group of checkboxes in a Field for a shared label and description. The slot takes the field props (v-slot="{'{ id }'}"), so Field renders the group as it is instead of wiring the props onto it.
-```vue
-<div class="w-[320px]">
-  <Field
-    label="Notifications"
-    description="Choose which notifications you'd like to receive."
-    v-slot="{ id }"
-  >
-    <div class="flex flex-col gap-3 mt-1">
-      <Checkbox label="Email notifications" />
-      <Checkbox label="Push notifications" />
-      <Checkbox label="SMS notifications" />
-    </div>
-  </Field>
-</div>
-```
-
-### Radio
-Use Field with RadioGroup for labeled radio selections. Bind the field props onto the group (v-bind="fieldProps") so its aria-describedby points at the description.
-```vue
-<div class="w-[320px]">
-  <Field label="Subscription plan" description="Select your preferred plan." v-slot="fieldProps">
-    <RadioGroup aria-label="Subscription plan" v-bind="fieldProps" v-model:value="plan" direction="col">
-      <RadioGroupItem value="free">Free</RadioGroupItem>
-      <RadioGroupItem value="pro">Pro, $9/mo</RadioGroupItem>
-      <RadioGroupItem value="enterprise">Enterprise, $29/mo</RadioGroupItem>
-    </RadioGroup>
-  </Field>
-</div>
-```
-
-### Switch
-Pair a Field with a Switch using orientation="horizontal" for inline toggle settings.
-```vue
-<div class="self-stretch mx-auto !max-w-[480px]">
-  <Field
-    label="Marketing emails"
-    orientation="horizontal"
-    class="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
-    v-slot="fieldProps"
-  >
-    <Switch :id="fieldProps.id" v-model:checked="enabled" />
-  </Field>
-</div>
-```
-
-### Stacked fields
-Stack Field components with a divider to group related notification settings.
-```vue
-<div class="w-full min-w-0 max-w-[400px] divide-y divide-alpha/15">
-  <div class="pb-6">
-    <Field
-      label="Responses"
-      description="Get notified when the assistant responds to requests that take time, like research or image generation."
-      v-slot="{ id }"
-    >
-      <div class="flex flex-col gap-3 mt-1">
-        <Checkbox label="Push notifications" default-checked />
-      </div>
-    </Field>
-  </div>
-  <div class="py-6">
-    <Field
-      label="Tasks"
-      description="Get notified when tasks you've created have updates."
-      v-slot="{ id }"
-    >
-      <div class="flex flex-col gap-3 mt-1">
-        <Checkbox label="Push notifications" />
-        <Checkbox label="Email notifications" />
-      </div>
-    </Field>
-  </div>
-</div>
-```
-
-### Validation and Errors
-Combine required and error-message for client-side validation feedback. Toggle errors on and off to see the visual transition.
-```vue
-<div class="w-[320px] flex flex-col gap-4">
-  <Field label="Name" required :error-message="showErrors && !name ? 'Name is required' : undefined">
-    <Input placeholder="Enter your name" v-model:value="name" />
-  </Field>
-  <Field
-    label="Email"
+    description="We'll never share your email with anyone else."
+    error-message="Enter a valid email address."
     required
-    :error-message="showErrors && !email.includes('@') ? 'Please enter a valid email address' : undefined"
   >
-    <Input placeholder="Enter your email" v-model:value="email" />
+    <Input type="email" placeholder="name@example.com" :size="size" :pill="pill" />
   </Field>
 </div>
 ```
 
 ### Optical alignment
-Use optically-align="start" to apply a negative margin on the child control, aligning its text with the surrounding content. Works with pill inputs. The label, description, and error message stay at the container edge while the control extends past it. The phone view leaves out the pill control, as the Input page leaves out its own.
+Use optically-align="start" to apply a negative margin on the child control, aligning its text with the surrounding content. Works with pill inputs. The label, description, and error message stay at the container edge while the control extends past it. A phone row has no frame to align, so this example has no Phone view.
 ```vue
 <div class="w-full min-w-0 max-w-[400px]">
   <div class="border border-dashed border-alpha/20 rounded-md py-6 px-8">
@@ -4027,7 +3890,7 @@ Use optically-align="start" to apply a negative margin on the child control, ali
       <Field
         label="Email"
         description="We'll never share your email."
-        error-message="Please enter a valid email address."
+        error-message="Enter a valid email address."
         required
         :optically-align="opticallyAlign ? 'start' : undefined"
       >
@@ -4036,268 +3899,6 @@ Use optically-align="start" to apply a negative margin on the child control, ali
     </div>
     <Button class="mt-6" color="primary" variant="soft" :pill="pill">Submit</Button>
   </div>
-</div>
-```
-
-### Form example
-A payment form using desktop fieldsets and a mobile Page with grouped rows, a navigation header, and a pinned submit action. The code shows the mobile composition.
-```vue
-<Page surface="grouped" class="h-dvh" data-form-screen style="--page-content-padding-top:10px; --page-content-padding-bottom:16px; --page-footer-gutter:24px; --page-footer-padding-bottom:max(24px, env(safe-area-inset-bottom, 0px))">
-  <Toolbar>
-    <ToolbarLeading><DemoBackButton /></ToolbarLeading>
-    <ToolbarTitle>Payment details</ToolbarTitle>
-  </Toolbar>
-  <PageContent data-form-content>
-    <form ref="screenForm" class="flex flex-col gap-6" @submit.prevent="" >
-      <FieldGroup title="Payment method" description="All transactions are secure and encrypted." columns>
-        <Field row label="Name on card"><Input placeholder="Jane Doe" autocomplete="cc-name" /></Field>
-        <Field row label="Card number" orientation="vertical"><Input variant="ghost" placeholder="1234 5678 9012 3456" inputmode="numeric" autocomplete="cc-number" /></Field>
-        <Field row label="Month"><Select placeholder="MM" v-model:value="month" :options="months" /></Field>
-        <Field row label="Year"><Select placeholder="YYYY" v-model:value="year" :options="years" /></Field>
-        <Field row label="CVV"><Input placeholder="123" inputmode="numeric" autocomplete="cc-csc" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Billing address" description="The billing address associated with your payment method.">
-        <Field row label="Same as shipping address"><Switch :default-checked="true" /></Field>
-        <Field row label="Comments" orientation="vertical"><Textarea variant="ghost" :rows="3" auto-resize placeholder="Add any additional comments" /></Field>
-      </FieldGroup>
-    </form>
-  </PageContent>
-  <PageFooter data-form-footer><Button color="primary" size="3xl" pill block @click="$refs.screenForm.requestSubmit()">Submit</Button></PageFooter>
-  <Toolbar placement="bottom"><ToolbarContent fill><Button color="primary" pill block @click="$refs.screenForm.requestSubmit()">Submit</Button></ToolbarContent></Toolbar>
-</Page>
-```
-
-### Profile settings
-Profile settings with text inputs, preferences, and notification switches. On Phone, FieldGroup columns align values and Page keeps the Save action below the scrolling form. The code shows the mobile composition.
-```vue
-<Page surface="grouped" class="h-dvh" data-form-screen style="--page-content-padding-top:10px; --page-content-padding-bottom:16px; --page-footer-gutter:24px; --page-footer-padding-bottom:max(24px, env(safe-area-inset-bottom, 0px))">
-  <Toolbar>
-    <ToolbarLeading><DemoBackButton /></ToolbarLeading>
-    <ToolbarTitle>Profile settings</ToolbarTitle>
-  </Toolbar>
-  <PageContent data-form-content>
-    <form ref="screenForm" class="flex flex-col gap-6" @submit.prevent="" >
-      <FieldGroup title="Personal information" description="Your public profile details." columns>
-        <Field row label="First name"><Input default-value="Jane" autocomplete="given-name" /></Field>
-        <Field row label="Last name"><Input default-value="Doe" autocomplete="family-name" /></Field>
-        <Field row label="Email" orientation="vertical" description="This is the email associated with your account."><Input variant="ghost" default-value="jane@example.com" type="email" autocomplete="email" /></Field>
-        <Field row label="Bio" orientation="vertical" description="Brief description for your profile. Max 160 characters."><Textarea variant="ghost" placeholder="Tell us about yourself..." :rows="3" auto-resize :maxLength="160" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Preferences" description="Customize your experience." columns>
-        <Field row label="Language"><Select v-model:value="language" :options="languages" /></Field>
-        <Field row label="Theme"><Select v-model:value="theme" :options="themes" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Notifications" description="Manage how you receive updates.">
-        <Field row label="Email notifications" description="Receive weekly digests and important updates."><Switch :default-checked="true" /></Field>
-        <Field row label="Push notifications" description="Get real-time alerts in your browser."><Switch /></Field>
-        <Field row label="Marketing emails" description="Tips, product updates, and promotions."><Switch /></Field>
-      </FieldGroup>
-    </form>
-  </PageContent>
-  <PageFooter data-form-footer><Button color="primary" size="3xl" pill block @click="$refs.screenForm.requestSubmit()">Save changes</Button></PageFooter>
-  <Toolbar placement="bottom"><ToolbarContent fill><Button color="primary" pill block @click="$refs.screenForm.requestSubmit()">Save changes</Button></ToolbarContent></Toolbar>
-</Page>
-```
-
-### Create project
-Project settings with grouped inputs, visibility choices, team access, and infrastructure. Phone uses checkmark rows for visibility and switches for permissions. The code shows the mobile composition.
-```vue
-<Page surface="grouped" class="h-dvh" data-form-screen style="--page-content-padding-top:10px; --page-content-padding-bottom:16px; --page-footer-gutter:24px; --page-footer-padding-bottom:max(24px, env(safe-area-inset-bottom, 0px))">
-  <Toolbar>
-    <ToolbarLeading><DemoBackButton /></ToolbarLeading>
-    <ToolbarTitle>Create project</ToolbarTitle>
-  </Toolbar>
-  <PageContent data-form-content>
-    <form ref="screenForm" class="flex flex-col gap-6" @submit.prevent="" >
-      <FieldGroup title="General" description="Basic information about your project." columns>
-        <Field row label="Project name" required><Input placeholder="my-project" required /></Field>
-        <Field row label="Description" orientation="vertical" description="A short summary shown in project listings."><Textarea variant="ghost" placeholder="What does this project do?" :rows="3" auto-resize /></Field>
-      </FieldGroup>
-      <RadioGroup direction="col" class="w-full" v-model:value="visibility" aria-label="Visibility">
-        <FieldGroup title="Visibility" description="Controls who can see this project.">
-          <Field row label="Private" description="Only invited members."><RadioGroupItem value="private" /></Field>
-          <Field row label="Internal" description="Anyone in your organization."><RadioGroupItem value="internal" /></Field>
-          <Field row label="Public" description="Visible to everyone."><RadioGroupItem value="public" /></Field>
-        </FieldGroup>
-      </RadioGroup>
-      <FieldGroup title="Team access" description="Invite collaborators and set permissions.">
-        <Field row label="Team members" orientation="vertical" description="Add people by email address."><TagInput variant="ghost" placeholder="Add email..." :default-value="[{ value: 'alice@team.com', valid: true }, { value: 'bob@team.com', valid: true }]" :validator="(value) => value.includes('@')" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Permissions" description="Default permissions for new members.">
-        <Field row label="Can view project"><Switch :default-checked="true" /></Field>
-        <Field row label="Can edit resources"><Switch :default-checked="true" /></Field>
-        <Field row label="Can manage members"><Switch /></Field>
-        <Field row label="Can delete project"><Switch /></Field>
-      </FieldGroup>
-      <FieldGroup title="Infrastructure" description="Deployment and resource configuration." columns>
-        <Field row label="Region"><Select placeholder="Select region" v-model:value="region" :options="regions" /></Field>
-        <Field row label="Auto-deploy" description="Automatically deploy on push to main branch."><Switch :default-checked="true" /></Field>
-      </FieldGroup>
-    </form>
-  </PageContent>
-  <PageFooter data-form-footer><Button color="primary" size="3xl" pill block @click="$refs.screenForm.requestSubmit()">Create project</Button></PageFooter>
-  <Toolbar placement="bottom"><ToolbarContent fill><Button color="primary" pill block @click="$refs.screenForm.requestSubmit()">Create project</Button></ToolbarContent></Toolbar>
-</Page>
-```
-
-### Field configuration
-Field configuration organized into setup, formatting, and privacy groups. On Phone, the toolbar and Save action stay in place while the fields scroll. The code shows the mobile composition.
-```vue
-<Page surface="grouped" class="h-dvh" data-form-screen style="--page-content-padding-top:10px; --page-content-padding-bottom:16px; --page-footer-gutter:24px; --page-footer-padding-bottom:max(24px, env(safe-area-inset-bottom, 0px))">
-  <Toolbar>
-    <ToolbarLeading><DemoBackButton /></ToolbarLeading>
-    <ToolbarTitle>Field configuration</ToolbarTitle>
-  </Toolbar>
-  <PageContent data-form-content>
-    <form ref="screenForm" class="flex flex-col gap-6" @submit.prevent="" >
-      <FieldGroup title="Setup" description="Define the basic field properties." columns>
-        <Field row label="Key" orientation="vertical" description="Unique identifier used in the API. Cannot be changed later."><Input variant="ghost" default-value="registration_method" /></Field>
-        <Field row label="Label" orientation="vertical" description="Human-readable name displayed in the UI."><Input variant="ghost" default-value="Registration method" /></Field>
-        <Field row label="Type"><Select v-model:value="type" :options="fieldTypes" /></Field>
-        <Field row label="Default value" orientation="vertical" description="Value assigned when the field is empty."><Input variant="ghost" placeholder="Set default value (optional)" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Formatting" description="Input constraints and sanitization rules.">
-        <Field row label="Max length" description="Max length cannot exceed 4096."><Input placeholder="256" inputmode="numeric" /></Field>
-        <Field row label="HTML sanitization" description="Strip potentially unsafe HTML tags from input."><Switch /></Field>
-      </FieldGroup>
-      <FieldGroup title="Privacy & access" description="Control field visibility and mutability.">
-        <Field row label="Not redactable" description="Prevent this field from being redacted."><Switch /></Field>
-        <Field row label="Write once" description="Value can only be set once and cannot be changed."><Switch /></Field>
-        <Field row label="Expires in" description="Automatically delete the field value after the specified period."><Select placeholder="Never" v-model:value="expiresIn" :options="expirations" /></Field>
-      </FieldGroup>
-    </form>
-  </PageContent>
-  <PageFooter data-form-footer><Button color="primary" size="3xl" pill block @click="$refs.screenForm.requestSubmit()">Save field</Button></PageFooter>
-  <Toolbar placement="bottom"><ToolbarContent fill><Button color="primary" pill block @click="$refs.screenForm.requestSubmit()">Save field</Button></ToolbarContent></Toolbar>
-</Page>
-```
-
-### Birthday input
-A date-of-birth input with inline formatting that inserts MM / DD / YYYY separators as you type, wrapped in a Field for label and accessibility. nextBirthday is a plain helper function of the example.
-```vue
-<div class="w-[320px]">
-  <Field label="Birthday">
-    <Input
-      placeholder="MM / DD / YYYY"
-      :value="birthday"
-      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
-      inputmode="numeric"
-      maxlength="14"
-      autocomplete="off"
-    />
-  </Field>
-</div>
-```
-
-### Birthday with validation
-Birthday input with error-message on Field: Field automatically passes aria-invalid down and renders FieldError. nextBirthday and isValidBirthday are plain helper functions of the example.
-```vue
-<div class="w-[320px]">
-  <Field
-    label="Birthday"
-    :error-message="birthday && !isValidBirthday(birthday) ? 'Please enter a valid date.' : undefined"
-  >
-    <Input
-      placeholder="MM / DD / YYYY"
-      :value="birthday"
-      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
-      inputmode="numeric"
-      maxlength="14"
-      autocomplete="off"
-    />
-  </Field>
-</div>
-```
-
-### Birthday segmented input
-Three compact Input controls composed as month/day/year with auto-advance behavior, wrapped in a Field for shared label and accessibility. The field id goes to the month input, and the day and year inputs carry their own aria-label. digitsOnly is a plain helper function of the example.
-```vue
-<div class="w-[320px]">
-  <Field label="Birthday" v-slot="fieldProps">
-    <div class="flex items-center gap-2">
-      <Input
-        :id="fieldProps.id"
-        :value="month"
-        @update:value="(raw) => { month = digitsOnly(raw, 2); if (month.length === 2) $refs.dayInput.focus() }"
-        placeholder="MM"
-        inputmode="numeric"
-        maxlength="2"
-        size="md"
-        variant="outline"
-        autocomplete="off"
-        class="w-[56px]"
-      />
-      <span class="text-secondary">/</span>
-      <Input
-        ref="dayInput"
-        :value="day"
-        @update:value="(raw) => { day = digitsOnly(raw, 2); if (day.length === 2) $refs.yearInput.focus() }"
-        placeholder="DD"
-        aria-label="Day"
-        inputmode="numeric"
-        maxlength="2"
-        size="md"
-        variant="outline"
-        autocomplete="off"
-        class="w-[56px]"
-      />
-      <span class="text-secondary">/</span>
-      <Input
-        ref="yearInput"
-        :value="year"
-        @update:value="(raw) => (year = digitsOnly(raw, 4))"
-        placeholder="YYYY"
-        aria-label="Year"
-        inputmode="numeric"
-        maxlength="4"
-        size="md"
-        variant="outline"
-        autocomplete="off"
-        class="w-[80px]"
-      />
-    </div>
-  </Field>
-</div>
-```
-
-### Birthday with selects
-Dropdown birthday picker with Month/Day/Year selects inside a labeled Field group. The field id goes to the month select, and the day and year selects carry their own aria-label.
-```vue
-<div class="w-[320px]">
-  <Field label="Birthday" v-slot="fieldProps">
-    <div class="flex gap-2">
-      <div class="w-[130px]">
-        <Select
-          :id="fieldProps.id"
-          v-model:value="month"
-          :options="birthdayMonthOptions"
-          placeholder="Month"
-          size="md"
-          variant="outline"
-        />
-      </div>
-      <div class="w-[84px]">
-        <Select
-          v-model:value="day"
-          :options="birthdayDayOptions"
-          placeholder="Day"
-          size="md"
-          variant="outline"
-          aria-label="Day"
-        />
-      </div>
-      <div class="w-[108px]">
-        <Select
-          v-model:value="year"
-          :options="birthdayYearOptions"
-          placeholder="Year"
-          size="md"
-          variant="outline"
-          aria-label="Year"
-        />
-      </div>
-    </div>
-  </Field>
 </div>
 ```
 
@@ -4500,13 +4101,21 @@ Docs: https://plexui.com/vue/components/floating-label-input
 
 ### Overview
 ```vue
+<!-- Desktop -->
 <div class="w-[360px]">
   <FloatingLabelInput label="Email address" />
 </div>
+
+<!-- Phone: a cell of a FieldGroup, named by its placeholder -->
+<FieldGroup>
+  <Field row hide-label label="Email address">
+    <Input type="email" placeholder="Email address" />
+  </Field>
+</FieldGroup>
 ```
 
 ### Types
-Two things set the type: where the label rests, and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. Text fields, textareas and selects work the same in each.
+Two things set the type: where the label rests, and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. Text fields, textareas and selects work the same in each. On Phone the label does not float, so this example has no Phone view.
 ```vue
 <div class="grid w-[44rem] max-w-[calc(100vw-5rem)] grid-cols-1 items-center gap-x-4 gap-y-6 py-8 sm:grid-cols-[10rem_1fr_1fr]">
   <div class="max-sm:hidden"></div>
@@ -4534,7 +4143,7 @@ Two things set the type: where the label rests, and the shape of the field. An e
 ```
 
 ### Label inside
-Use label-placement="inside" on FloatingLabelInput and FloatingLabelSelect for long forms such as an address: the label stays inside the box, with the value under it. It works with multiline, adornments, errors and the clear button, and always takes the rounded box.
+Use label-placement="inside" on FloatingLabelInput and FloatingLabelSelect for long forms such as an address: the label stays inside the box, with the value under it. It works with multiline, adornments, errors and the clear button, and always takes the rounded box. On Phone a cell names its field with the placeholder, so this example has no Phone view.
 ```vue
 <div class="flex w-[360px] flex-col gap-3">
   <FloatingLabelInput label="Full name" label-placement="inside" default-value="Jane Doe" />
@@ -4563,7 +4172,7 @@ Use label-placement="inside" on FloatingLabelInput and FloatingLabelSelect for l
 ```
 
 ### Rounded box
-Set :pill="false" to take the rounded box of Input and Select, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place.
+Set :pill="false" to take the rounded box of Input and Select, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place. On Phone the cell is the frame, so this example has no Phone view.
 ```vue
 <div class="w-[360px]">
   <FloatingLabelInput label="Email address" :pill="false" />
@@ -4571,8 +4180,9 @@ Set :pill="false" to take the rounded box of Input and Select, with the label on
 ```
 
 ### Textarea
-Use multiline to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height.
+Use multiline to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height. On Phone the cell grows with a Textarea that starts at one line.
 ```vue
+<!-- Desktop -->
 <div class="w-[360px]">
   <FloatingLabelInput
     :key="String(multiline)"
@@ -4581,171 +4191,41 @@ Use multiline to render an auto-growing textarea with the same floating-label tr
     :multiline="multiline"
   />
 </div>
+
+<!-- Phone: the cell grows with the text -->
+<FieldGroup>
+  <Field row hide-label label="Message">
+    <Textarea v-if="multiline" v-model:value="value" placeholder="Message" :rows="1" auto-resize />
+    <Input v-else v-model:value="value" placeholder="Message" />
+  </Field>
+</FieldGroup>
 ```
 
 ### Password input
-A type="password" field ships a built-in reveal toggle: click the eye to show or hide the value. Set revealable to false to remove it.
+A type="password" field ships a built-in reveal toggle: click the eye to show or hide the value. Set revealable to false to remove it. On Phone the cell holds an Input with an InputAdornmentButton at its end, as on the Input page.
 ```vue
+<!-- Desktop -->
 <div class="w-[360px]">
   <FloatingLabelInput label="Password" type="password" />
 </div>
-```
 
-### SSN input
-A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (XXX-XX-XXXX) with highlighted segment, value masking that hides digits behind bullets (•••-••-••••), and a built-in revealable toggle to reveal the real value. formatSSN, nextSSNDigits and ssnMask are plain helper functions of the example.
-```vue
-<div class="w-[360px]">
-  <div style="position: relative">
-    <FloatingLabelInput
-      label="Social Security Number"
-      :value="formatSSN(digits)"
-      maxlength="11"
-      inputmode="numeric"
-      autocomplete="off"
-      :style="{
-        fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-        ...(!visible && digits
-          ? { color: 'transparent', caretColor: 'transparent' }
-          : focused && ssnMask(digits).suffix
-            ? { caretColor: 'transparent' }
-            : {}),
-      }"
-      revealable
-      @update:value="(raw) => (digits = nextSSNDigits(raw, digits))"
-      @focus="focused = true"
-      @blur="focused = false"
-      @revealed-change="(revealed) => (visible = revealed)"
-    />
-    <div
-      v-if="(!visible && digits) || (focused && ssnMask(digits).suffix)"
-      aria-hidden="true"
-      style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; font-family: var(--font-mono, ui-monospace, monospace); overflow: hidden"
-    >
-      <span v-if="!visible && digits" style="white-space: pre">{{ formatSSN(digits).replace(/[0-9]/g, '•') }}</span>
-      <span v-else style="visibility: hidden; white-space: pre">{{ formatSSN(digits) }}</span>
-      <template v-if="focused && ssnMask(digits).suffix">
-        <span v-if="ssnMask(digits).before" style="color: var(--color-text-tertiary); white-space: pre">{{ ssnMask(digits).before }}</span>
-        <span
-          v-if="ssnMask(digits).highlight"
-          style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
-        >{{ ssnMask(digits).highlight }}</span>
-        <span v-if="ssnMask(digits).after" style="color: var(--color-text-tertiary); white-space: pre">{{ ssnMask(digits).after }}</span>
+<!-- Phone: the reveal button stands at the end of the cell -->
+<FieldGroup>
+  <Field row hide-label label="Password">
+    <Input placeholder="Password" :type="visible ? 'text' : 'password'">
+      <template #endAdornment>
+        <InputAdornmentButton :aria-label="visible ? 'Hide' : 'Show'" :aria-pressed="visible" @click="visible = !visible">
+          <EyeOff v-if="visible" />
+          <Eye v-else />
+        </InputAdornmentButton>
       </template>
-    </div>
-  </div>
-</div>
-```
-
-### Birthday input
-A date-of-birth input with an inline MM / DD / YYYY mask. The copied example includes its formatting and mask helpers.
-```vue
-<script setup lang="ts">
-import { ref } from 'vue';
-import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
-
-const birthday = ref('');
-const focused = ref(false);
-const invalid = ref(false);
-const disabled = ref(false);
-const readOnly = ref(false);
-
-const BIRTHDAY_MASK = 'MM / DD / YYYY';
-
-type MaskParts = { suffix: string; before: string; highlight: string; after: string };
-
-const splitMask = (suffix: string, pattern: RegExp): MaskParts => {
-  if (!suffix) return { suffix, before: '', highlight: '', after: '' };
-  const match = suffix.match(pattern);
-  if (!match) return { suffix, before: suffix, highlight: '', after: '' };
-  return { suffix, before: match[1] || '', highlight: match[2] ?? '', after: match[3] || '' };
-};
-
-const getBirthdayDigits = (value: string) => value.replace(/\D/g, '').slice(0, 8);
-
-/** `01151995` → `01 / 15 / 1995`, with the separator added as soon as a part is full */
-const formatBirthday = (rawValue: string) => {
-  const digits = getBirthdayDigits(rawValue);
-  const month = digits.slice(0, 2);
-  const day = digits.slice(2, 4);
-  const year = digits.slice(4, 8);
-  if (digits.length < 2) return month;
-  if (digits.length === 2) return `${month} / `;
-  if (digits.length < 4) return `${month} / ${day}`;
-  if (digits.length === 4) return `${month} / ${day} / `;
-  return `${month} / ${day} / ${year}`;
-};
-
-/** Formatted value after an edit; backspacing over a separator removes the digit before it */
-const nextBirthday = (raw: string, value: string) => {
-  const newDigits = getBirthdayDigits(raw);
-  if (raw.length < value.length && newDigits.length === getBirthdayDigits(value).length) {
-    return formatBirthday(newDigits.slice(0, -1));
-  }
-  return formatBirthday(raw);
-};
-
-/** The rest of `MM / DD / YYYY` after the typed value, split around the next part */
-const birthdayMask = (value: string) => {
-  const suffix = value.length >= BIRTHDAY_MASK.length ? '' : BIRTHDAY_MASK.slice(value.length);
-  return splitMask(suffix, /^(\s*\/\s*)?([A-Z]+)([\s\S]*)/);
-};
-
-</script>
-
-<template>
-<div class="w-full min-w-0 max-w-[360px]">
-  <div style="position: relative">
-    <FloatingLabelInput
-      label="Birthday"
-      :invalid="invalid"
-      :disabled="disabled"
-      :read-only="readOnly"
-      :value="birthday"
-      maxlength="14"
-      inputmode="numeric"
-      :style="focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined"
-      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
-      @focus="focused = true"
-      @blur="focused = false"
-    />
-    <div
-      v-if="focused && birthdayMask(birthday).suffix"
-      aria-hidden="true"
-      style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; overflow: hidden"
-    >
-      <span style="visibility: hidden; white-space: pre">{{ birthday }}</span>
-      <span v-if="birthdayMask(birthday).before" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).before }}</span>
-      <span
-        v-if="birthdayMask(birthday).highlight"
-        style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
-      >{{ birthdayMask(birthday).highlight }}</span>
-      <span v-if="birthdayMask(birthday).after" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).after }}</span>
-    </div>
-  </div>
-</div>
-</template>
-```
-
-### Birthday with validation
-Use invalid and an error message to display the birthday validation state. Here the masked input of the Birthday input example is a component, BirthdayMaskedInput, and the error shows in a FieldError below it.
-```vue
-<div class="w-[360px]">
-  <div class="flex flex-col gap-1.5">
-    <component
-      :is="BirthdayMaskedInput"
-      v-model:value="birthday"
-      :invalid="!!birthday && !isValidBirthday(birthday)"
-      :aria-describedby="birthday && !isValidBirthday(birthday) ? 'birthday-validation-demo-error' : undefined"
-    />
-    <FieldError v-if="birthday && !isValidBirthday(birthday)" id="birthday-validation-demo-error">
-      Please enter a valid date.
-    </FieldError>
-  </div>
-</div>
+    </Input>
+  </Field>
+</FieldGroup>
 ```
 
 ### Phone input
-A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated.
+A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. On Phone the country and the number are two linked rows of one group, as in the Sign up (phone) form, so this example has no Phone view.
 ```vue
 <div class="w-[360px] flex flex-col gap-3">
   <Select
@@ -4782,8 +4262,9 @@ A country code selector paired with a FloatingLabelInput that uses the startAdor
 ```
 
 ### Select
-Use FloatingLabelSelect for plain text dropdowns. The label floats up when a value is selected, matching FloatingLabelInput styling.
+Use FloatingLabelSelect for plain text dropdowns. The label floats up when a value is selected, matching FloatingLabelInput styling. On Phone the cell holds a plain Select named by its placeholder.
 ```vue
+<!-- Desktop -->
 <div class="w-[360px]">
   <Select
     v-model:value="role"
@@ -4805,10 +4286,17 @@ Use FloatingLabelSelect for plain text dropdowns. The label floats up when a val
     </template>
   </Select>
 </div>
+
+<!-- Phone: a cell named by the placeholder -->
+<FieldGroup>
+  <Field row hide-label label="Role">
+    <Select v-model:value="role" :options="roleOptions" placeholder="Role" block />
+  </Field>
+</FieldGroup>
 ```
 
 ### Multiple selection
-Pair FloatingLabelSelect with a multiple Select to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list.
+Pair FloatingLabelSelect with a multiple Select to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list. On Phone this is the cell of the Select example with a multiple Select, so it has no Phone view.
 ```vue
 <div class="w-[360px]">
   <Select
@@ -4842,7 +4330,7 @@ Pair FloatingLabelSelect with a multiple Select to collect several values while 
 ```
 
 ### Country select
-Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected.
+Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected. On Phone this is the cell of the Select example with a flag in its options, so it has no Phone view.
 ```vue
 <div class="w-[360px]">
   <Select
@@ -4875,19 +4363,7 @@ Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling
 
 ### States
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue';
-import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
-
-const value = ref('');
-const invalid = ref(false);
-const errorMessage = ref(false);
-const description = ref(false);
-const disabled = ref(false);
-const readOnly = ref(false);
-</script>
-
-<template>
+<!-- Desktop -->
 <div class="w-full min-w-0 max-w-[360px]">
   <FloatingLabelInput
     v-model:value="value"
@@ -4897,23 +4373,27 @@ const readOnly = ref(false);
     :description="description ? `We'll never share your email with anyone else.` : undefined"
     :disabled="disabled"
     :read-only="readOnly"
+    :on-clear="clearable ? () => (value = '') : undefined"
   />
 </div>
-</template>
-```
 
-### Clear button
-Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.
-```vue
-<div class="w-[360px]">
-  <FloatingLabelInput
-    v-model:value="value"
-    label="Email address"
-    :disabled="disabled"
-    :read-only="readOnly"
-    @clear="value = ''"
-  />
-</div>
+<!-- Phone: a cell of a FieldGroup; the description goes in the footer, the error stands inside the cell -->
+<FieldGroup>
+  <Field row hide-label label="Email address" :error-message="errorMessage ? 'Email is not valid.' : undefined">
+    <Input
+      v-model:value="value"
+      type="email"
+      placeholder="Email address"
+      :invalid="errorMessage"
+      :disabled="disabled"
+      :read-only="readOnly"
+      :on-clear="clearable ? () => (value = '') : undefined"
+    />
+  </Field>
+  <template v-if="description" #footer>
+    <p>We'll never share your email with anyone else.</p>
+  </template>
+</FieldGroup>
 ```
 
 ## Indicators
@@ -5061,7 +4541,7 @@ Props:
 ```
 
 ### Variants
-Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. The state control shows each variant empty, with a value, invalid and disabled. You decide how the invalid state is removed, whether that's through @focus, @update:value, a submit handler, etc.; [data-invalid] is applied to the container for custom styling. disabled greys the input out and prevents user interactions. On Phone the row is the frame, and the value stands in one of three places: at the end of the row, at one column for the whole group with FieldGroup columns, or under the label with orientation="vertical" and a ghost input. A row has no frame to color, so an error is the row's error-message under it.
+Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. The state control shows each variant empty, with a value, invalid and disabled. You decide how the invalid state is removed, whether that's through @focus, @update:value, a submit handler, etc.; [data-invalid] is applied to the container for custom styling. disabled greys the input out and prevents user interactions. On Phone the row is the frame, and the value stands in one of three places: at the end of the row, at one column for the whole group with FieldGroup columns, or under the label with orientation="vertical". A row has no frame to color, so an error is the row's error-message under it.
 ```vue
 <!-- Desktop -->
 <div class="flex flex-col gap-2 w-[320px]">
@@ -6207,64 +5687,11 @@ Props:
   - default slot (VNode[]) — Label content
 
 ### Overview
-Clicking the label toggles the checkbox it points at. Here accepted starts as true.
+Clicking the label toggles the checkbox it points at. Here accepted starts as true. On Phone the label takes the body type of a list row, 17/22 regular, the same as the labels of Checkbox, Switch and a Field row.
 ```vue
 <div style="display: flex; align-items: center; gap: 8px">
   <Checkbox id="label-demo-terms" v-model:checked="accepted" />
   <Label for="label-demo-terms">Accept terms and conditions</Label>
-</div>
-```
-
-### Label in Field
-For stacked form rows with descriptions, errors, and horizontal layouts, use the Field component. It renders the label internally, hooks up for automatically, and handles the surrounding spacing.
-```vue
-<div style="width: 100%; max-width: 420px">
-  <div style="display: flex; flex-direction: column; gap: 16px">
-    <CardHeader>
-      <CardTitle>Payment Method</CardTitle>
-      <CardDescription>All transactions are secure and encrypted</CardDescription>
-    </CardHeader>
-
-    <Field label="Name on Card">
-      <Input placeholder="Aisha Cooper" />
-    </Field>
-
-    <Field label="Card Number" description="Enter your 16-digit card number">
-      <Input placeholder="1234 5678 9012 3456" inputmode="numeric" />
-    </Field>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px">
-      <Field label="Month">
-        <Select v-model:value="month" :options="monthOptions" placeholder="MM" />
-      </Field>
-      <Field label="Year">
-        <Select v-model:value="year" :options="yearOptions" placeholder="YYYY" />
-      </Field>
-      <Field label="CVV">
-        <Input placeholder="123" inputmode="numeric" />
-      </Field>
-    </div>
-
-    <Separator />
-
-    <CardHeader>
-      <CardTitle>Billing Address</CardTitle>
-      <CardDescription>The billing address associated with your payment method</CardDescription>
-    </CardHeader>
-
-    <Checkbox v-model:checked="sameAsShipping" label="Same as shipping address" />
-
-    <Separator />
-
-    <Field label="Comments">
-      <Textarea placeholder="Add any additional comments" :rows="3" />
-    </Field>
-
-    <div style="display: flex; gap: 8px">
-      <Button color="primary" variant="solid">Submit</Button>
-      <Button color="secondary" variant="outline">Cancel</Button>
-    </div>
-  </div>
 </div>
 ```
 
@@ -7715,10 +7142,10 @@ Props:
   - #trigger / trigger (slot ({ open, onToggle }) | function) — Custom trigger element, wrapped as the popover trigger
   - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Indicator at the end of the trigger
   - side ("top" | "bottom") default: "bottom" — Preferred side of the list
-  - align ("start" | "center" | "end") default: "center" when block, otherwise "start" — Alignment of the list against the trigger
-  - list-width (number | "auto") default: trigger width (fits the options when not block) — Width of the list in px
+  - align ("start" | "center" | "end") default: "end" at the end of a Field row ("start" in a FieldGroup with columns), "center" when block, otherwise "start" — Alignment of the list against the trigger
+  - list-width (number | "auto") default: trigger width (fits the options when not block or at the end of a Field row) — Width of the list in px
   - list-min-width (number | "auto") default: trigger width — Minimum width of the list in px
-  - list-max-width (number | "auto") default: "auto" (300 when not block) — Maximum width of the list in px
+  - list-max-width (number | "auto") default: "auto" (300 when it fits the options) — Maximum width of the list in px
   - search-placeholder (string) — Search input placeholder
   - search-aria-label (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
   - #searchEmptyMessage / search-empty-message (slot | string) default: "No results found." — Shown when the search matches nothing

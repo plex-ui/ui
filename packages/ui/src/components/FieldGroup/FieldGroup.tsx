@@ -5,17 +5,28 @@ import { useId } from "react"
 
 import s from "@plexui/styles/components/FieldGroup/FieldGroup.module.css"
 
+import { FieldColumnsContext } from "../../lib/fieldRow"
+
 export type FieldGroupProps = {
   /**
    * Heading over the block. It names the group.
    */
   title?: React.ReactNode
   /**
+   * How much the title stands out. "standard" is a quiet heading over the rows (on a
+   * phone the kit's Nested list header: 17 Semibold, secondary). "increased" leads its
+   * content, as a section of a page does (the kit's Prominent header: 20 Semibold,
+   * primary).
+   * @default "standard"
+   */
+  headerProminence?: "standard" | "increased"
+  /**
    * Line under the title.
    */
   description?: React.ReactNode
   /**
-   * Content at the end of the header, such as a button.
+   * Content at the end of the header, such as a button. On a phone a ghost text button
+   * reads as the list header's action: tinted text on the title's last line.
    */
   action?: React.ReactNode
   /**
@@ -41,6 +52,7 @@ export type FieldGroupProps = {
 /** A titled block of rows: `Field row` lines with hairlines between them. */
 export function FieldGroup({
   title,
+  headerProminence = "standard",
   description,
   action,
   footer,
@@ -59,6 +71,7 @@ export function FieldGroup({
       aria-labelledby={title ? titleId : undefined}
       aria-describedby={description ? descriptionId : undefined}
       data-field-columns={columns ? "" : undefined}
+      data-header-prominence={headerProminence === "increased" ? "increased" : undefined}
       {...rest}
       className={clsx(s.FieldGroup, className)}
     >
@@ -75,7 +88,9 @@ export function FieldGroup({
           {action}
         </div>
       )}
-      <div className={clsx(s.Body, bodyClassName)}>{children}</div>
+      <div className={clsx(s.Body, bodyClassName)}>
+        <FieldColumnsContext.Provider value={columns}>{children}</FieldColumnsContext.Provider>
+      </div>
       {footer != null && typeof footer !== "boolean" && footer !== "" && (
         <div className={s.Footer}>{footer}</div>
       )}

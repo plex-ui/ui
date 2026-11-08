@@ -14,8 +14,8 @@
     {
       "path": "components/ui/field/index.ts",
       "type": "registry:ui",
-      "content": "export * from \"@plexui/vue/components/Field\"\n"
+      "content": "export * from \"@plexui/vue/components/Field\"\nexport * from \"@plexui/vue/components/FieldGroup\"\n"
     }
   ],
-  "docs": "Import as `import { Field } from '@/components/ui/field'`. See https://plexui.com/vue/components/field for props and examples."
+  "docs": "Import as `import { Field, FieldGroup } from '@/components/ui/field'`. See https://plexui.com/vue/components/field for props and examples."
 }

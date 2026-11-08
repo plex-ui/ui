@@ -11,6 +11,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Added
 
+- `Field hideLabel` in React and Vue (plan 169a): the label is hidden from view and still names the control, and a description moves under the control. On a `row` the value or placeholder starts at the row's edge, the first line centered in the row's 52px, as an iOS cell that shows only its placeholder or value (Notes, a title, a server's address); the row is vertical unless `orientation` says otherwise.
+- `FieldGroup headerProminence` in React and Vue: `"increased"` makes the title lead its content; on a phone it is the kit's Prominent list header (Lists, Header 517:38042), 20/25 Semibold in the primary label, 10px above the rows. A ghost text button in the header is the kit's header action on a phone: tinted text (a `primary` or `secondary` button takes the link color) on the title's last line, 17/22 as native (the kit draws 15/20), with a 44px target that does not make the header taller.
 - `ColorPicker` and `ColorWell` in React and Vue, after the iOS 26 kit Color Pickers. The picker chooses a color from Grid (the kit's 120 colors, the chosen one in a white ring), Spectrum (the hues from top to bottom, white through the full hue to black across, as the system picker draws it) or Sliders (red, green and blue, and a hex field), sets its Opacity (`supportsAlpha`), and keeps saved colors (`swatches`) in pages of ten with Add after the last; Delete or Backspace, or Delete in a saved color's context menu, removes one. The well is the kit's Picker Button, 28px or 36px, the color inside a rainbow ring or the rainbow alone with no color; it opens the picker in a Popover, and on a phone in a floating glass sheet of the kit's size with the eyedropper (where the browser has the EyeDropper API), the title and Close. Colors are `#rrggbb`, or `#rrggbbaa` with opacity. New icon: `Eyedropper`.
 - `ContextMenu` in React and Vue: the actions of an element, after the iOS 26 kit Context Menu. A secondary click opens the menu at the pointer; a touch and hold of half a second opens it 18px below the element, at the edge on the side of the touch, over the kit's dimming (black at 23% over a 30px blur) with the element cut out in its own corners, or the kit's 30px, and the kit's shadow around it; the press that opened it neither activates the element nor moves focus off the menu. In a Dialog or a Sheet the dimming covers it too, and the menu stays open when the finger lifts. Shift F10 or the Context Menu key opens it under a focused element and closing returns focus there. The items are the Menu ones, also under `ContextMenu`. With several context menus on a page, each one's anchor, dimming and menu reach the body together and in that order, in Vue as in React.
 - `TabBar` in React and Vue: the tab bar of a phone screen after the iOS 26 kit Tab Bar - iPhone: two to five sections, each a PlexUI icon over a 10px label, in a floating capsule of the shared mobile glass 21px from the sides and the bottom, the selected tab on an `alpha-08` pill in the primary text and the others in the Sidebar item gray. `search` adds a search tab in a 62px glass circle of its own at the trailing end. `minimizeBehavior="onScrollDown"` shrinks the bar to 48px circles of the selected tab and search while the `Page` content scrolls down, and brings it back on a scroll up or a tap on the tab that stays, as `tabBarMinimizeBehavior` does. The bar reserves its height on the `Page`, like a bottom `Toolbar`, and never renders from 768px up. The tabs are buttons, or links with `href`, and the selected one has `aria-current="page"`.
@@ -24,6 +26,13 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Changed
 
+- Field rows on a phone (plan 169a): a row with its label above the value removes the frame of every field, not only a ghost one, so an outline or soft Input, Textarea, InputGroup, Select or date under its label starts where the label does; a disabled text field dims its row's label with its value, as an unavailable row of iOS Settings. FieldGroup on a phone: the footer is the kit's Tight Leading Footnote 13/16 again (Grouped Table Footer 35:55757, and 16pt lines in a Settings footer, 5514; 13/18 since 160 E was a mistake), its paragraphs one empty line apart (`--field-group-footer-paragraph-gap`); a description under the title is the kit's header Subtitle, 15/20.
+- Field docs (plan 169b), React and Vue: one example for each idea. Overview puts the label in its four places with a `layout` control (above, columns, end, hidden), and on Phone shows each as a cell of a FieldGroup with its words in the footer, its error inside the cell and "Required" as the placeholder of a required field; Group shows the FieldGroup header, action, footer and columns; Other controls and Label action show both views: on a phone the label action is a link under the group in the rows' 17/22 text, as Forgot your password? under the Apple Account sign-in, and a group's footer stays a footnote for words to read. Several controls (the render prop), Sizing and Optical alignment are desktop only: on a phone a birthday is one row whose wheel sets the day, the month and the year, as in Contacts. The examples that repeated these (With description, With error message, Required, Horizontal layout, Rows, Fields in rows, Textarea, Select, Slider, Fieldset, Checkbox, Radio, Switch, Stacked fields, Validation, the render prop section, four birthday fields) and the four whole forms, which Form Examples and the Input page already show, are gone.
+- `Select` at the end of a `Field row` (React and Vue): the menu opens from the row's end (`align` "end") and fits its options, no narrower than the trigger and no wider than 300px (`listWidth` "auto", `listMaxWidth` 300), as on a phone the trigger there is only as wide as its value and a menu of its width broke the options letter by letter. In a `FieldGroup columns` the value starts at the column and the menu opens from it (`align` "start"). Under its label the menu stays as wide as the field. A Popover opened from a row no longer passes the row to its own controls: a Select inside it keeps its usual shape and menu.
+- A `Field row` with `hideLabel` and a description or an error under the value keeps the insets of a row with text under its label (12px on a phone): hiding the label no longer moves the value 3px down and makes the row 6px taller.
+- On a phone a `Label` is the text of a list row, 17/22 Regular (`--label-font-size`, `--label-line-height`, `--label-font-weight`), as the labels of checkboxes, radios, switches and Field rows. In a row, the 44px target of an Input adornment or Clear button stands around the value's line and no longer makes a cell with only its value taller than 52px.
+- FieldGroup on a phone: a header ends 6px above its rows (was 9px), so its cap height stands 23pt above the first cell, as native Settings and Calendar measure (Search 22.67 and 23, Display 23.33).
+- Docs: every phone page example that does not draw its own screen stands under a top `Toolbar` titled by its section heading (`previewTitle`), with the content from 132px as a `Page.Content` under a toolbar; an example that opens with a group header starts with that header, as a SwiftUI Form does. Inside the phone the Next.js dev badge is hidden.
 - Dialog docs: the Segmented composer body follows the native iOS calendar composer in React and Vue. The title and the notes are fields named by their placeholders, each in its own capsule; an event shows its day and hours in one row that opens the calendar; a reminder lists Date, Time and Urgent rows with a leading icon, the set value under the title in the accent (rows 68px with a value, 52px without, titles 64px into the cell at the 20px margin), a switch for the time and the urgent flag, and a footer. The whole Date row opens the calendar.
 - `LoadingIndicator` on a phone with the touch stylesheet follows the iOS 27 kit Spinner: 20px by default, the Regular spinner (was 30px), also inside a field, in an `Input` adornment, an `InputGroup` addon or a `SelectControl` (instead of the text size, 17px in a row); up to 16px it takes the Small spokes (kit Small 14) and from 28px the Large ones (kit Large 35). Desktop keeps the control's text size. New token `--control-indicator-size`. In a phone row, an `InputGroup`'s inline addons take the accessory tone, as `Input`'s prefix and unit do.
 - Input Group docs on a phone: no row repeats between examples. A row keeps a prefix in a column or a unit after the value at the row's edge, never both; Variants shows where a row places the value, Sizes is desktop only as Input's Sizing is, Align a block-start text as the row's label and a block-end text as the group's footer, Button a scan button in the card row, Spinner a value being checked.
@@ -1514,7 +1523,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     Added <code>placeholder</code> prop with focus-only visibility: placeholder text appears when the input is focused and the label has floated above.
   </li>
   <li>
-    <strong>Birthday masked input</strong> (<a href="/components/field#birthday-input">Field</a>)<br/>
+    <strong>Birthday masked input</strong> (<a href="/components/input#birthday-input">Input</a>)<br/>
     Composition demo for segmented birthday input with segment highlighting, cursor positioning through separators, and live validation. Includes both masked and segmented select variants.
   </li>
   <li>
@@ -1555,7 +1564,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     Replaced hardcoded blue focus ring color with neutral design tokens for consistency with the rest of the system.
   </li>
   <li>
-    <strong>Birthday segment highlight token</strong> (<a href="/components/field#birthday-input">Field</a>)<br/>
+    <strong>Birthday segment highlight token</strong> (<a href="/components/input#birthday-input">Input</a>)<br/>
     Uses <code>primary/solid</code> token for active segment highlight instead of hardcoded color.
   </li>
   <li>
@@ -1568,11 +1577,11 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 <ul className="changelog-list">
   <li>
-    <strong>Birthday mask cursor positioning</strong> (<a href="/components/field#birthday-input">Field</a>)<br/>
+    <strong>Birthday mask cursor positioning</strong> (<a href="/components/input#birthday-input">Input</a>)<br/>
     Fixed cursor advancing past separators on complete segment and handling backspace through separator characters in the masked birthday input.
   </li>
   <li>
-    <strong>Birthday inputs browser autocomplete</strong> (<a href="/components/field#birthday-input">Field</a>)<br/>
+    <strong>Birthday inputs browser autocomplete</strong> (<a href="/components/input#birthday-input">Input</a>)<br/>
     Fixed segmented birthday inputs triggering unwanted browser autocomplete dropdown.
   </li>
   <li>
@@ -1678,7 +1687,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     Removed unused sidebar variants (<code>floating</code>, <code>inset</code>, <code>dual-tier</code>) from type definitions, documentation, and CSS. The component now supports only <code>sidebar</code> (default) and <code>docs</code> variants.
   </li>
   <li>
-    <strong>Field horizontal orientation refactored</strong> (<a href="/components/field#horizontal-layout">Field</a>)<br/>
+    <strong>Field horizontal orientation refactored</strong> (<a href="/components/field#overview">Field</a>)<br/>
     Restructured HTML to use <code>LabelGroup</code> (label + description) and <code>Content</code> (control + error) containers for proper horizontal layout. Added fixed-width CSS variables <code>--field-horizontal-label-width</code> and <code>--field-horizontal-control-width</code>. Label vertical centering now uses <code>calc((control-height - label-line-height) / 2)</code> per size for pixel-perfect alignment.
   </li>
   <li>

@@ -17,7 +17,7 @@ import React, {
 import { useFloatingBoundary } from "../../hooks/useFloatingBoundary"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
-import { useFieldRowPill } from "../../lib/fieldRow"
+import { useFieldColumns, useFieldRow, useFieldRowPill } from "../../lib/fieldRow"
 import { keepMovedFocus, preventDefaultHandler, toCssVariables, waitForAnimationFrame } from "../../lib/helpers"
 import { Check, Info, Search } from "../Icon"
 import type { ControlSize } from "../../types"
@@ -217,7 +217,7 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
   side?: PopoverSide
   /**
    * The preferred alignment against the trigger. May change when collisions occur.
-   * @default center
+   * @default "end" at the end of a `Field row` ("start" in a `FieldGroup columns`), "center" when block, otherwise "start"
    */
   align?: PopoverAlign
   /**
@@ -232,7 +232,7 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
   avoidCollisions?: boolean
   /**
    * Set the width of the custom select menu
-   * @default the width of the trigger (fits the options when not block)
+   * @default the width of the trigger (fits the options when not block or at the end of a `Field row`)
    */
   listWidth?: number | "auto"
   /**
@@ -242,7 +242,7 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
   listMinWidth?: number | "auto"
   /**
    * Defines the `max-width` property of the custom select menu, in pixels.
-   * @default auto (300 when not block)
+   * @default auto (300 when it fits the options)
    */
   listMaxWidth?: number | "auto"
   /** Predicate used to filter searches */
@@ -413,10 +413,15 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     checkPosition = 'start',
   } = props
   const pill = useFieldRowPill(pillProp)
+  // At the end of a Field row the menu opens from the row's end and fits its options: on a phone
+  // the trigger there is only as wide as its value, so a menu of the trigger's width breaks every word.
+  // In a `FieldGroup columns` the value starts at the column, and so does its menu.
+  const inRow = useFieldRow()
+  const inColumns = useFieldColumns()
   // Block default is dynamic, based on `variant`
   const block = props.block ?? variant !== "ghost"
-  // Align default is dynamic, based on `block`
-  const align = props.align ?? (block ? "center" : "start")
+  // Align default is dynamic, based on the row and `block`
+  const align = props.align ?? (inRow ? (inColumns ? "start" : "end") : block ? "center" : "start")
   // Flush with the trigger's edge, as the prop documents. The old -5 nudge for
   // "start"/"end" tried to line the option labels up with the trigger's text and
   // instead left the menu hanging past the field it belongs to.
@@ -477,9 +482,9 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
   // Locking down searchable count to a single value. Could make this customizable in the future, but would want guardrails.
   const searchable = optionsCount > 15
 
-  // A block menu matches its field. An inline one fits its options: no narrower than
-  // its trigger (the CSS fallback reads the trigger width), no wider than 300px.
-  const fitsOptions = !block && props.listWidth === undefined
+  // A block menu matches its field. An inline one, or one at the end of a Field row, fits its
+  // options: no narrower than its trigger (the CSS fallback reads the trigger width), no wider than 300px.
+  const fitsOptions = (!block || inRow) && props.listWidth === undefined
   const listWidth = props.listWidth ?? (fitsOptions ? "auto" : undefined)
   const listMaxWidth = props.listMaxWidth ?? (fitsOptions ? 300 : "auto")
 

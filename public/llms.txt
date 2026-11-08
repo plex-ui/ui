@@ -428,12 +428,13 @@ Import: import { FieldGroup } from "@plexui/ui/components/FieldGroup"
 Docs: https://plexui.com/components/field
 Props:
   - label (ReactNode) — Label text for the field
+  - hideLabel (boolean) default: false — Hides the label from view; it still names the control. A description moves under the control. On a row the value or placeholder starts at the row's edge, so the row is vertical unless orientation says otherwise
   - description (ReactNode) — Helper text below the label; linked via aria-describedby
   - errorMessage (ReactNode) — Error message below the control; auto-sets aria-invalid on child
   - labelAction (ReactNode) — Content at the end of the label row, such as a link that acts on the field
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: child's size, else "md" — Label font size; defaults to the child control's size
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
-  - orientation ("vertical" | "horizontal") default: "horizontal" on a row, else "vertical" — Layout direction of label and control
+  - orientation ("vertical" | "horizontal") default: "horizontal" on a row with a visible label, else "vertical" — Layout direction of label and control
   - row (boolean) default: false — One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other div props reach the root only on a row
   - fill (boolean) default: false — On a row, the control takes the rest of the line after the label
   - action (ReactNode) — On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it
@@ -443,14 +444,15 @@ Props:
   - className (string) — Applied to the root wrapper
   FieldGroup:
     - title (ReactNode) — Heading over the block; it names the group
+    - headerProminence ("standard" | "increased") default: "standard" — How much the title stands out: a quiet heading over the rows, or a title that leads its content (on a phone the iOS prominent list header, 20pt Semibold)
     - description (ReactNode) — Line under the title
-    - action (ReactNode) — Content at the end of the header
-    - footer (ReactNode) — Content under the block
+    - action (ReactNode) — Content at the end of the header. On a phone a ghost text button reads as the list header's action: tinted text on the title's last line
+    - footer (ReactNode) — Content under the block, such as a note; its paragraphs stand apart
     - columns (boolean) default: false — Every value starts at one column, --field-row-column-width into the row, on the web and on a phone. Off, values end at the row's edge
     - bodyClassName (string) — Applied to the block that holds the rows
     - children (ReactNode) — The rows
     - className (string) — Applied to the root section
-Examples: Overview, With description, With error message, Required, Sizing, Horizontal layout, Rows, Fields in rows, Textarea, Select, Label action, Slider, Fieldset, Checkbox, Radio, Switch, Stacked fields, Validation and Errors, Optical alignment, Form example, Profile settings, Create project, Field configuration, Birthday input, Birthday with validation, Birthday segmented input, Birthday with selects
+Examples: Overview, Group, Other controls, Label action, Several controls, Sizing, Optical alignment
 
 ## File Upload
 Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
@@ -518,7 +520,7 @@ Docs: https://plexui.com/components/floating-label-input
     - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
     - onClearClick (() => void) — Shows a clear button when a value is selected
     - onInteract (() => void) — Called on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
-Examples: Overview, Types, Label inside, Rounded box, Textarea, Password input, SSN input, Birthday input, Birthday with validation, Phone input, Select, Multiple selection, Country select, States, Clear button
+Examples: Overview, Types, Label inside, Rounded box, Textarea, Password input, Phone input, Select, Multiple selection, Country select, States
 
 ## Indicators
 Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
@@ -594,7 +596,7 @@ Docs: https://plexui.com/components/label
 Props:
   - htmlFor (string) default: — — id of the associated control. Clicks on the label focus or activate the control.
   - className (string) default: — — Applied to the root <label> element
-Examples: Overview, Label in Field
+Examples: Overview
 
 ## Markdown Editor
 Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.
@@ -862,10 +864,10 @@ Props:
   - trigger (({ open, onToggle }) => ReactNode) — Custom trigger element, wrapped as the popover trigger
   - dropdownIconType ("chevronDown" | "dropdown" | "none") default: "dropdown" — Indicator at the end of the trigger
   - side ("top" | "bottom") default: "bottom" — Preferred side of the list
-  - align ("start" | "center" | "end") default: "center" when block, otherwise "start" — Alignment of the list against the trigger
-  - listWidth (number | "auto") default: trigger width (fits the options when not block) — Width of the list in px
+  - align ("start" | "center" | "end") default: "end" at the end of a Field row ("start" in a FieldGroup with columns), "center" when block, otherwise "start" — Alignment of the list against the trigger
+  - listWidth (number | "auto") default: trigger width (fits the options when not block or at the end of a Field row) — Width of the list in px
   - listMinWidth (number | "auto") default: trigger width — Minimum width of the list in px
-  - listMaxWidth (number | "auto") default: "auto" (300 when not block) — Maximum width of the list in px
+  - listMaxWidth (number | "auto") default: "auto" (300 when it fits the options) — Maximum width of the list in px
   - searchPlaceholder (string) — Search input placeholder
   - searchAriaLabel (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
   - searchEmptyMessage (ReactNode) default: "No results found." — Shown when the search matches nothing

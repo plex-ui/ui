@@ -246,7 +246,7 @@ export const multiplePhone = `<FieldGroup>
 
 <UsageBlock>{`import { Select } from "@plexui/vue/components/Select";`}</UsageBlock>
 
-On Phone, put a select in a row of a `FieldGroup` with `:block="false"` and `align="end"`, as the [Form Examples](/vue/components/form-examples) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
+On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Form Examples](/vue/components/form-examples) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and the menu opens from the row's end, sized to its options. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
 
 ## Examples
 
@@ -323,10 +323,10 @@ Searchable menus name their input `Search options` by default. Set `search-aria-
   { prop: "#trigger / trigger", type: "slot ({ open, onToggle }) | function", description: "Custom trigger element, wrapped as the popover trigger" },
   { prop: "dropdown-icon-type", type: '"chevronDown" | "dropdown" | "none"', default: '"dropdown"', description: "Indicator at the end of the trigger" },
   { prop: "side", type: '"top" | "bottom"', default: '"bottom"', description: "Preferred side of the list" },
-  { prop: "align", type: '"start" | "center" | "end"', default: '"center" when block, otherwise "start"', description: "Alignment of the list against the trigger" },
-  { prop: "list-width", type: 'number | "auto"', default: "trigger width (fits the options when not block)", description: "Width of the list in px" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"end" at the end of a Field row ("start" in a FieldGroup with columns), "center" when block, otherwise "start"', description: "Alignment of the list against the trigger" },
+  { prop: "list-width", type: 'number | "auto"', default: "trigger width (fits the options when not block or at the end of a Field row)", description: "Width of the list in px" },
   { prop: "list-min-width", type: 'number | "auto"', default: "trigger width", description: "Minimum width of the list in px" },
-  { prop: "list-max-width", type: 'number | "auto"', default: '"auto" (300 when not block)', description: "Maximum width of the list in px" },
+  { prop: "list-max-width", type: 'number | "auto"', default: '"auto" (300 when it fits the options)', description: "Maximum width of the list in px" },
   { prop: "search-placeholder", type: "string", description: "Search input placeholder" },
   { prop: "search-aria-label", type: "string", default: '"Search options"', description: "Accessible name of the search input, independent of the trigger label" },
   { prop: "#searchEmptyMessage / search-empty-message", type: "slot | string", default: '"No results found."', description: "Shown when the search matches nothing" },

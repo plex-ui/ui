@@ -1,383 +1,277 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useState } from 'react';
+import type { DateTime } from 'luxon';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Input } from '@plexui/ui/components/Input';
 import { Textarea } from '@plexui/ui/components/Textarea';
 import { Select } from '@plexui/ui/components/Select';
+import { DatePicker } from '@plexui/ui/components/DatePicker';
 import { Button } from '@plexui/ui/components/Button';
-import { Checkbox } from '@plexui/ui/components/Checkbox';
-import { Switch } from '@plexui/ui/components/Switch';
-import { RadioGroup } from '@plexui/ui/components/RadioGroup';
-import { TagInput } from '@plexui/ui/components/TagInput';
 import { TextLink } from '@plexui/ui/components/TextLink';
-import dynamic from 'next/dynamic';
-import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import { FormScreen } from './FormRowsDemos';
-
-const months = Array.from({ length: 12 }, (_, index) => { const value = String(index + 1).padStart(2, '0'); return { label: value, value }; });
-const years = Array.from({ length: 10 }, (_, index) => { const value = String(2025 + index); return { label: value, value }; });
-const languages = [{ label: 'English', value: 'en' }, { label: 'Spanish', value: 'es' }, { label: 'French', value: 'fr' }, { label: 'German', value: 'de' }, { label: 'Japanese', value: 'ja' }];
-const themes = [{ label: 'System', value: 'system' }, { label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }];
-const regions = [{ label: 'US East (N. Virginia)', value: 'us-east-1' }, { label: 'US West (Oregon)', value: 'us-west-2' }, { label: 'Europe (Frankfurt)', value: 'eu-central-1' }, { label: 'Asia Pacific (Tokyo)', value: 'ap-northeast-1' }];
-const fieldTypes = [{ label: 'String', value: 'string' }, { label: 'Number', value: 'number' }, { label: 'Boolean', value: 'boolean' }, { label: 'Date', value: 'date' }, { label: 'JSON', value: 'json' }, { label: 'Rich text', value: 'richtext' }];
-const expirations = [{ label: 'Never', value: 'never' }, { label: '30 days', value: '30d' }, { label: '90 days', value: '90d' }, { label: '1 year', value: '1y' }];
-
-const Slider = dynamic(
-  () => import('@plexui/ui/components/Slider').then((mod) => mod.Slider),
-  { ssr: false }
-);
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
-import { PhoneRowsStage, useDesktopOnlyState, usePhoneRows } from './PhoneRows';
+import { PhoneRowsStage, phoneCalendarSecondRowStageClassName, usePhoneRows } from './PhoneRows';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 
+/** Where the label stands: above, in columns (values from one column), with the value at the row's end, or hidden. */
+const LAYOUTS = ['above', 'columns', 'end', 'hidden'] as const;
+type Layout = (typeof LAYOUTS)[number];
+
+const roles = [{ label: 'Admin', value: 'admin' }, { label: 'Editor', value: 'editor' }, { label: 'Viewer', value: 'viewer' }];
+
+function SegmentedRow<T extends string>({ name, value, options, onChange }: { name: string; value: T; options: readonly T[]; onChange: (value: T) => void }) {
+  return (
+    <DemoControlRow name={name}>
+      <SegmentedControl<T> value={value} onChange={onChange} aria-label={name} size="xs">
+        {options.map((option) => (
+          <SegmentedControl.Option key={option} value={option}>{option}</SegmentedControl.Option>
+        ))}
+      </SegmentedControl>
+    </DemoControlRow>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Overview: one field in four places of its label. On the web a field stands on its own; on a phone it is a cell
+// of a FieldGroup, as every iOS form is, and its words go in the group's footer.
+// ---------------------------------------------------------------------------
+
 export function FieldOverviewDemo() {
-  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [layout, setLayout] = useState<Layout>('above');
   const [description, setDescription] = useState(true);
   const [error, setError] = useState(true);
   const [required, setRequired] = useState(true);
-  const [horizontal, setHorizontal] = useState(false);
-  const [pill, setPill, shownPill] = useDesktopOnlyState(false);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size" desktopOnly>
-          <SegmentedControl<(typeof SIZE_OPTIONS)[number]>
-            value={size}
-            onChange={setSize}
-            aria-label="size"
-            size="xs"
-          >
-            {SIZE_OPTIONS.map((s) => (
-              <SegmentedControl.Option key={s} value={s}>
-                {s}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
-        <DemoControlBoolean name="description" value={description} onChange={setDescription} />
-        <DemoControlBoolean name="errorMessage" value={error} onChange={setError} />
-        <DemoControlBoolean name="required" value={required} onChange={setRequired} />
-        <DemoControlBoolean name="horizontal" value={horizontal} onChange={setHorizontal} />
-      </div>
-      <div data-demo-stage className="py-10">
-        <div className={horizontal ? "w-full max-w-[480px]" : "w-full max-w-[320px]"}>
-          <Field
-            label="Email"
-            size={shownSize}
-            description={description ? "We'll never share your email with anyone else." : undefined}
-            errorMessage={error ? "Please enter a valid email address." : undefined}
-            required={required}
-            orientation={horizontal ? "horizontal" : "vertical"}
-          >
-            <Input placeholder="Enter email..." size={shownSize} pill={shownPill} />
-          </Field>
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function FieldWithDescriptionDemo() {
-  return (
-    <div className="w-[320px]">
-      <Field
-        label="Email"
-        description="We'll never share your email with anyone else."
-      >
-        <Input placeholder="Enter email..." />
-      </Field>
-    </div>
-  );
-}
-
-export function FieldWithErrorDemo() {
-  const [showError, setShowError] = useState(true);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="errorMessage" value={showError} onChange={setShowError} />
-      </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-[320px]">
-          <Field
-            label="Email"
-            errorMessage={showError ? 'Please enter a valid email address' : undefined}
-          >
-            <Input placeholder="Enter email..." />
-          </Field>
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function FieldRequiredDemo() {
-  const [required, setRequired] = useState(true);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="required" value={required} onChange={setRequired} />
-      </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-[320px]">
-          <Field label="Email" required={required}>
-            <Input placeholder="Enter email..." />
-          </Field>
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function FieldRowsDemo() {
+  const [disabled, setDisabled] = useState(false);
   const phone = usePhoneRows();
-  const group = (
-    <div className="w-full max-w-[480px]">
-      <FieldGroup title="Notifications" description="How we reach you.">
-        <Field row label="Email updates">
-          <Switch />
-        </Field>
-        <Field row label="Weekly summary" description="Sent on Mondays.">
-          <Switch />
-        </Field>
-      </FieldGroup>
+
+  const note = "We'll never share your email with anyone else.";
+  const errorMessage = error ? 'Enter a valid email address.' : undefined;
+  const email = error ? 'jane@example' : undefined;
+  const hidden = layout === 'hidden';
+
+  const controls = (
+    <div data-demo-controls style={controlsTableStyle}>
+      <SegmentedRow name="layout" value={layout} options={LAYOUTS} onChange={setLayout} />
+      <DemoControlBoolean name="description" value={description} onChange={setDescription} />
+      <DemoControlBoolean name="errorMessage" value={error} onChange={setError} />
+      <DemoControlBoolean name="required" value={required} onChange={setRequired} />
+      <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
     </div>
   );
-  // On a phone the rows sit on the grouped surface of an iOS settings screen, as on the Input page
-  return phone ? <PhoneRowsStage>{group}</PhoneRowsStage> : group;
-}
 
-export function FieldRowFieldsDemo() {
-  const [unit, setUnit] = useState('ml');
+  if (phone) {
+    // A required field says so in its placeholder, as iOS account forms do; a hidden label leaves the placeholder
+    // to name the field
+    const placeholder = (name: string, example: string) => (hidden ? name : required ? 'Required' : example);
+    const orientation = layout === 'above' ? 'vertical' : undefined;
+    return (
+      <>
+        {controls}
+        <PhoneRowsStage>
+          <FieldGroup columns={layout === 'columns'} footer={description ? note : undefined}>
+            <Field row label="Name" orientation={orientation} hideLabel={hidden}>
+              <Input placeholder={placeholder('Name', 'Jane Appleseed')} autoComplete="name" disabled={disabled} />
+            </Field>
+            <Field row label="Email" orientation={orientation} hideLabel={hidden} errorMessage={errorMessage}>
+              <Input key={String(error)} type="email" placeholder={placeholder('Email', 'name@example.com')} defaultValue={email} autoComplete="email" disabled={disabled} />
+            </Field>
+          </FieldGroup>
+        </PhoneRowsStage>
+      </>
+    );
+  }
 
-  const phone = usePhoneRows();
-  const group = (
-    <div className="w-full max-w-[480px]">
-      <FieldGroup>
-        <Field row label="Price">
-          <Input defaultValue="11" endAdornment="€" inputMode="decimal" />
-        </Field>
-        <Field row label="Weight" description="Shown beside the name.">
-          <Input defaultValue="250" inputMode="decimal" />
-        </Field>
-        <Field row label="Unit">
-          <Select
-            block={false}
-            align="end"
-            options={[
-              { value: 'ml', label: 'Millilitres' },
-              { value: 'g', label: 'Grams' },
-            ]}
-            value={unit}
-            onChange={(option) => setUnit(option.value)}
-          />
-        </Field>
-      </FieldGroup>
-    </div>
-  );
-  // On a phone the rows sit on the grouped surface of an iOS settings screen, as on the Input page
-  return phone ? <PhoneRowsStage>{group}</PhoneRowsStage> : group;
-}
-
-export function FieldOrientationDemo() {
-  const [orientation, setOrientation] = useState<'vertical' | 'horizontal'>('horizontal');
+  const name = <Input placeholder={hidden ? 'Name' : 'Jane Appleseed'} autoComplete="name" disabled={disabled} />;
+  const emailInput = <Input key={String(error)} type="email" placeholder={hidden ? 'Email' : 'name@example.com'} defaultValue={email} autoComplete="email" disabled={disabled} />;
   return (
     <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="orientation">
-          <SegmentedControl<'vertical' | 'horizontal'>
-            value={orientation}
-            onChange={setOrientation}
-            aria-label="orientation"
-            size="xs"
-          >
-            <SegmentedControl.Option value="vertical">vertical</SegmentedControl.Option>
-            <SegmentedControl.Option value="horizontal">horizontal</SegmentedControl.Option>
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
+      {controls}
       <div data-demo-stage className="py-10">
-        <div className="w-full max-w-[480px] flex flex-col gap-4">
-          <Field label="First name" orientation={orientation}>
-            <Input placeholder="Jane" />
-          </Field>
-          <Field label="Last name" orientation={orientation}>
-            <Input placeholder="Doe" />
-          </Field>
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function FieldWithTextareaDemo() {
-  return (
-    <div className="w-[320px]">
-      <Field label="Bio" description="Write a short bio for your profile.">
-        <Textarea placeholder="Tell us about yourself..." rows={3} />
-      </Field>
-    </div>
-  );
-}
-
-export function FieldWithSelectDemo() {
-  const [role, setRole] = useState('');
-  return (
-    <div className="w-[320px]">
-      <Field label="Role" description="Select your primary role.">
-        <Select
-          placeholder="Select a role..."
-          value={role}
-          onChange={(opt) => setRole(opt.value)}
-          options={[
-            { label: 'Admin', value: 'admin' },
-            { label: 'Editor', value: 'editor' },
-            { label: 'Viewer', value: 'viewer' },
-          ]}
-        />
-      </Field>
-    </div>
-  );
-}
-
-export function FieldLabelActionDemo() {
-  return (
-    <div className="w-[320px]">
-      <Field label="Password" labelAction={<TextLink href="#reset-password">Forgot password?</TextLink>}>
-        <Input type="password" placeholder="Enter password..." />
-      </Field>
-    </div>
-  );
-}
-
-export function FieldWithSliderDemo() {
-  const [price, setPrice] = useState<number[]>([200, 800]);
-  return (
-    <div className="w-full min-w-0 max-w-[400px]">
-      <Field label="Price Range" description={`Set your budget range ($${price[0].toLocaleString()} – ${price[1].toLocaleString()}).`}>
-        <Slider
-          range
-          value={price}
-          onChange={setPrice}
-          min={0}
-          max={1000}
-          step={10}
-          prefixUnit="$"
-        />
-      </Field>
-    </div>
-  );
-}
-
-export function FieldFieldsetDemo() {
-  return (
-    <div className="w-full min-w-0 max-w-[400px]">
-      <div className="mb-3">
-        <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Address Information</h3>
-        <p className="text-xs text-tertiary mt-0.5">We need your address to deliver your order.</p>
-      </div>
-      <div className="flex flex-col gap-4">
-        <Field label="Street Address">
-          <Input placeholder="123 Main St" />
-        </Field>
-        <div className="flex gap-3">
-          <Field label="City" className="min-w-0 flex-1">
-            <Input placeholder="New York" />
-          </Field>
-          <Field label="Postal Code" className="min-w-0 flex-1">
-            <Input placeholder="90502" />
-          </Field>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function FieldWithCheckboxGroupDemo() {
-  return (
-    <div className="w-[320px]">
-      <Field label="Notifications" description="Choose which notifications you'd like to receive.">
-        {() => (
-          <div className="flex flex-col gap-3 mt-1">
-            <Checkbox label="Email notifications" />
-            <Checkbox label="Push notifications" />
-            <Checkbox label="SMS notifications" />
+        {layout === 'end' ? (
+          <div className="w-full max-w-[480px]">
+            <FieldGroup>
+              <Field row label="Name" required={required}>{name}</Field>
+              <Field row label="Email" required={required} description={description ? note : undefined} errorMessage={errorMessage}>{emailInput}</Field>
+            </FieldGroup>
+          </div>
+        ) : (
+          <div className={`flex w-full flex-col gap-4 ${layout === 'columns' ? 'max-w-[480px]' : 'max-w-[320px]'}`}>
+            <Field label="Name" required={required} hideLabel={hidden} orientation={layout === 'columns' ? 'horizontal' : 'vertical'}>{name}</Field>
+            <Field label="Email" required={required} hideLabel={hidden} orientation={layout === 'columns' ? 'horizontal' : 'vertical'} description={description ? note : undefined} errorMessage={errorMessage}>{emailInput}</Field>
           </div>
         )}
-      </Field>
-    </div>
+      </div>
+    </>
   );
 }
 
-export function FieldWithRadioGroupDemo() {
-  const [plan, setPlan] = useState('free');
-  return (
-    <div className="w-[320px]">
-      <Field label="Subscription plan" description="Select your preferred plan.">
-        {(fieldProps) => (
-          <RadioGroup
-            aria-label="Subscription plan"
-            {...fieldProps}
-            value={plan}
-            onChange={setPlan}
-            direction="col"
-          >
-            <RadioGroup.Item value="free">Free</RadioGroup.Item>
-            <RadioGroup.Item value="pro">Pro, $9/mo</RadioGroup.Item>
-            <RadioGroup.Item value="enterprise">Enterprise, $29/mo</RadioGroup.Item>
-          </RadioGroup>
-        )}
-      </Field>
-    </div>
-  );
-}
+// ---------------------------------------------------------------------------
+// FieldGroup: the header (standard or increased, an action at its end), the rows, the footer
+// ---------------------------------------------------------------------------
 
-export function FieldWithSwitchDemo() {
-  const [enabled, setEnabled] = useState(false);
-  return (
-    <div className="self-stretch mx-auto !max-w-[480px]">
-      <Field label="Marketing emails" orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-        {(fieldProps) => (
-          <Switch
-            id={fieldProps.id}
-            checked={enabled}
-            onCheckedChange={setEnabled}
-          />
-        )}
-      </Field>
-    </div>
-  );
-}
+const ADDRESS = { street: '12 Market Street', city: 'Springfield', postcode: '62701' };
 
 export function FieldGroupDemo() {
+  const [prominence, setProminence] = useState<'standard' | 'increased'>('standard');
+  const [action, setAction] = useState(true);
+  const [footer, setFooter] = useState(true);
+  const [columns, setColumns] = useState(false);
+  const [address, setAddress] = useState(ADDRESS);
+  const phone = usePhoneRows();
+  const edit = (key: keyof typeof ADDRESS) => (event: React.ChangeEvent<HTMLInputElement>) => setAddress({ ...address, [key]: event.target.value });
+
+  const group = (
+    <FieldGroup
+      title="Billing address"
+      headerProminence={prominence}
+      action={action ? <Button color="primary" variant="ghost" size="sm" onClick={() => setAddress({ street: '', city: '', postcode: '' })}>Clear</Button> : undefined}
+      footer={footer ? <p>Your bank checks this address against your card. <TextLink href="#group">Learn more</TextLink></p> : undefined}
+      columns={columns}
+    >
+      <Field row label="Street"><Input placeholder="Required" value={address.street} onChange={edit('street')} autoComplete="address-line1" /></Field>
+      <Field row label="City"><Input placeholder="Required" value={address.city} onChange={edit('city')} autoComplete="address-level2" /></Field>
+      <Field row label="Postcode"><Input placeholder="Required" value={address.postcode} onChange={edit('postcode')} autoComplete="postal-code" /></Field>
+    </FieldGroup>
+  );
+
   return (
-    <div className="w-full min-w-0 max-w-[400px] divide-y divide-alpha/15">
-      <div className="pb-6">
-        <Field
-          label="Responses"
-          description="Get notified when the assistant responds to requests that take time, like research or image generation."
-        >
-          {() => (
-            <div className="flex flex-col gap-3 mt-1">
-              <Checkbox label="Push notifications" defaultChecked />
-            </div>
-          )}
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <SegmentedRow name="headerProminence" value={prominence} options={['standard', 'increased'] as const} onChange={setProminence} />
+        <DemoControlBoolean name="action" value={action} onChange={setAction} />
+        <DemoControlBoolean name="footer" value={footer} onChange={setFooter} />
+        <DemoControlBoolean name="columns" value={columns} onChange={setColumns} />
+      </div>
+      {phone ? <PhoneRowsStage>{group}</PhoneRowsStage> : (
+        <div data-demo-stage className="py-10">
+          <div className="w-full max-w-[480px]">{group}</div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Other controls: a native one is named by the label's `htmlFor`; a Select or DatePicker trigger by
+// `aria-labelledby`, which Field adds
+// ---------------------------------------------------------------------------
+
+export function FieldControlsDemo() {
+  const [role, setRole] = useState('editor');
+  const [start, setStart] = useState<DateTime | null>(null);
+  const phone = usePhoneRows();
+
+  if (phone) {
+    return (
+      <PhoneRowsStage className={phoneCalendarSecondRowStageClassName}>
+        <FieldGroup>
+          <Field row label="Role">
+            <Select value={role} onChange={(option) => setRole(option.value)} options={roles} />
+          </Field>
+          <Field row label="Starts">
+            <DatePicker triggerDateFormat="MMM d, yyyy" triggerShowIcon={false} placeholder="Select date" value={start} onChange={setStart} />
+          </Field>
+          <Field row label="Notes" orientation="vertical">
+            <Textarea placeholder="Anything the team should know" rows={3} autoResize />
+          </Field>
+        </FieldGroup>
+      </PhoneRowsStage>
+    );
+  }
+
+  return (
+    <div data-demo-stage className="py-10">
+      <div className="flex w-full max-w-[320px] flex-col gap-4">
+        <Field label="Role" description="What this person can change.">
+          <Select value={role} onChange={(option) => setRole(option.value)} options={roles} />
+        </Field>
+        <Field label="Starts">
+          <DatePicker placeholder="Select date" value={start} onChange={setStart} />
+        </Field>
+        <Field label="Notes">
+          <Textarea placeholder="Anything the team should know" rows={3} />
         </Field>
       </div>
-      <div className="py-6">
-        <Field
-          label="Tasks"
-          description="Get notified when tasks you've created have updates."
-        >
-          {() => (
-            <div className="flex flex-col gap-3 mt-1">
-              <Checkbox label="Push notifications" />
-              <Checkbox label="Email notifications" />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Label action: on the web at the end of the label row; a phone has no label row, so the link stands under the group
+// ---------------------------------------------------------------------------
+
+export function FieldLabelActionDemo() {
+  const phone = usePhoneRows();
+  const link = <TextLink href="#label-action">Forgot password?</TextLink>;
+
+  // A row has no label line. As "Forgot your password?" under the Apple Account sign-in (IMG_5505), the link
+  // stands under the group in the rows' 17/22 text, from the group's edge, its line 15 below: an action, not a footnote
+  if (phone) {
+    return (
+      <PhoneRowsStage>
+        <div className="flex flex-col">
+          <FieldGroup>
+            <Field row label="Password">
+              <Input type="password" placeholder="Required" autoComplete="current-password" />
+            </Field>
+          </FieldGroup>
+          <TextLink primary href="#label-action" className="mt-[15px] self-start text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)]">Forgot password?</TextLink>
+        </div>
+      </PhoneRowsStage>
+    );
+  }
+
+  return (
+    <div data-demo-stage className="py-10">
+      <div className="w-[320px]">
+        <Field label="Password" labelAction={link}>
+          <Input type="password" placeholder="Enter password" autoComplete="current-password" />
+        </Field>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Several controls in one field: the render prop puts the field's id on the first; the others name themselves
+// ---------------------------------------------------------------------------
+
+const BIRTHDAY_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  .map((month, index) => ({ label: month, value: String(index + 1).padStart(2, '0') }));
+const BIRTHDAY_DAYS = Array.from({ length: 31 }, (_, index) => {
+  const day = String(index + 1);
+  return { label: day, value: day };
+});
+const BIRTHDAY_YEARS = Array.from({ length: 2025 - 1920 + 1 }, (_, index) => {
+  const year = String(2025 - index);
+  return { label: year, value: year };
+});
+
+export function FieldSeveralControlsDemo() {
+  const [month, setMonth] = useState('');
+  const [day, setDay] = useState('');
+  const [year, setYear] = useState('');
+
+  // The web only: on a phone a birthday is one row and one value, whose wheel sets day, month and year
+  // (Contacts, IMG_5644); PlexUI has no such wheel
+  return (
+    <div data-demo-stage className="py-10">
+      <div className="w-[320px]">
+        <Field label="Birthday">
+          {(fieldProps) => (
+            <div className="flex gap-2">
+              <div className="w-[130px]">
+                <Select id={fieldProps.id} aria-labelledby={fieldProps['aria-labelledby']} value={month} options={BIRTHDAY_MONTHS} placeholder="Month" onChange={(option) => setMonth(option.value)} />
+              </div>
+              <div className="w-[84px]">
+                <Select value={day} options={BIRTHDAY_DAYS} placeholder="Day" aria-label="Day" onChange={(option) => setDay(option.value)} />
+              </div>
+              <div className="w-[96px]">
+                <Select value={year} options={BIRTHDAY_YEARS} placeholder="Year" aria-label="Year" onChange={(option) => setYear(option.value)} />
+              </div>
             </div>
           )}
         </Field>
@@ -386,142 +280,24 @@ export function FieldGroupDemo() {
   );
 }
 
-export function FieldValidationDemo() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('bad-email');
-  const [submitted, setSubmitted] = useState(true);
+// ---------------------------------------------------------------------------
+// Sizing and optical alignment: the web only. On a phone a row sets the field's height, insets and type.
+// ---------------------------------------------------------------------------
 
-  const nameError = submitted && !name ? 'Name is required' : undefined;
-  const emailError = submitted && !email.includes('@') ? 'Please enter a valid email address' : undefined;
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="show errors" value={submitted} onChange={setSubmitted} />
-      </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-[320px] flex flex-col gap-4">
-          <Field label="Name" required errorMessage={nameError}>
-            <Input
-              placeholder="Enter your name"
-              value={name}
-              onChange={(evt) => setName(evt.target.value)}
-            />
-          </Field>
-          <Field label="Email" required errorMessage={emailError}>
-            <Input
-              placeholder="Enter your email"
-              value={email}
-              onChange={(evt) => setEmail(evt.target.value)}
-            />
-          </Field>
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function FieldFormExampleDemo() {
+export function FieldSizingDemo() {
+  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
   const [pill, setPill] = useState(false);
-  const [month, setMonth] = useState('');
-  const [year, setYear] = useState('');
-
-  const wide = useBreakpoint('md');
-
-  if (!wide) return (
-    <FormScreen title="Payment details" submitLabel="Submit">
-      <FieldGroup title="Payment method" description="All transactions are secure and encrypted." columns>
-        <Field row label="Name on card"><Input placeholder="Jane Doe" autoComplete="cc-name" /></Field>
-        <Field row label="Card number" orientation="vertical"><Input variant="ghost" placeholder="1234 5678 9012 3456" inputMode="numeric" autoComplete="cc-number" /></Field>
-        <Field row label="Month"><Select placeholder="MM" value={month} onChange={(option) => setMonth(option.value)} options={months} /></Field>
-        <Field row label="Year"><Select placeholder="YYYY" value={year} onChange={(option) => setYear(option.value)} options={years} /></Field>
-        <Field row label="CVV"><Input placeholder="123" inputMode="numeric" autoComplete="cc-csc" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Billing address" description="The billing address associated with your payment method.">
-        <Field row label="Same as shipping address"><Switch defaultChecked /></Field>
-        <Field row label="Comments" orientation="vertical"><Textarea variant="ghost" rows={3} autoResize placeholder="Add any additional comments" /></Field>
-      </FieldGroup>
-    </FormScreen>
-  );
-
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
+        <SegmentedRow name="size" value={size} options={SIZE_OPTIONS} onChange={setSize} />
         <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
       </div>
-
-      <div data-demo-stage>
-        <div className="flex flex-col gap-8 w-full !max-w-[460px]">
-          <fieldset className="flex flex-col gap-5">
-            <div className="mb-1">
-              <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Payment Method</h3>
-              <p className="text-xs text-tertiary mt-0.5">All transactions are secure and encrypted</p>
-            </div>
-
-            <Field label="Name on Card">
-              <Input placeholder="Evil Rabbit" pill={pill} autoComplete="off" />
-            </Field>
-
-            <Field label="Card Number">
-              <Input placeholder="1234 5678 9012 3456" pill={pill} autoComplete="off" />
-            </Field>
-
-            <div className="grid grid-cols-3 gap-3">
-              <Field label="Month">
-                {(fieldProps) => (
-                  <Select
-                    id={fieldProps.id}
-                    placeholder="MM"
-                    pill={pill}
-                    value={month}
-                    onChange={(opt) => setMonth(opt.value)}
-                    options={Array.from({ length: 12 }, (_, i) => {
-                      const v = String(i + 1).padStart(2, '0');
-                      return { label: v, value: v };
-                    })}
-                  />
-                )}
-              </Field>
-              <Field label="Year">
-                {(fieldProps) => (
-                  <Select
-                    id={fieldProps.id}
-                    placeholder="YYYY"
-                    pill={pill}
-                    value={year}
-                    onChange={(opt) => setYear(opt.value)}
-                    options={Array.from({ length: 10 }, (_, i) => {
-                      const v = String(2025 + i);
-                      return { label: v, value: v };
-                    })}
-                  />
-                )}
-              </Field>
-              <Field label="CVV">
-                <Input placeholder="123" pill={pill} />
-              </Field>
-            </div>
-          </fieldset>
-
-          <hr className="border-default" />
-
-          <fieldset className="flex flex-col gap-5">
-            <div className="mb-1">
-              <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Billing Address</h3>
-              <p className="text-xs text-tertiary mt-0.5">The billing address associated with your payment method</p>
-            </div>
-
-            <Checkbox label="Same as shipping address" defaultChecked />
-
-            <Field label="Comments">
-              <Textarea placeholder="Add any additional comments" />
-            </Field>
-          </fieldset>
-
-          <div className="flex gap-2">
-            <Button color="primary" pill={pill}>Submit</Button>
-            <Button color="secondary" variant="outline" pill={pill}>Cancel</Button>
-          </div>
+      <div data-demo-stage className="py-10">
+        <div className="w-full max-w-[320px]">
+          <Field label="Email" description="We'll never share your email with anyone else." errorMessage="Enter a valid email address." required>
+            <Input type="email" placeholder="name@example.com" size={size} pill={pill} />
+          </Field>
         </div>
       </div>
     </>
@@ -530,43 +306,35 @@ export function FieldFormExampleDemo() {
 
 export function FieldOpticalAlignDemo() {
   const [opticallyAlign, setOpticallyAlign] = useState(true);
-  const [pill, setPill, shownPill] = useDesktopOnlyState(false);
+  const [pill, setPill] = useState(false);
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="opticallyAlign" value={opticallyAlign} onChange={setOpticallyAlign} />
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
+        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
       </div>
       <div data-demo-stage className="py-10">
         <div className="w-full min-w-0 max-w-[400px]">
           <div className="border border-dashed border-alpha/20 rounded-md py-6 px-8">
             <div className="mb-5 text-secondary text-sm">
-              {opticallyAlign ? 'opticallyAlign="start"' : "Default"}
+              {opticallyAlign ? 'opticallyAlign="start"' : 'Default'}
             </div>
             <div className="flex flex-col gap-5">
-              <Field
-                label="Full name"
-                opticallyAlign={opticallyAlign ? "start" : undefined}
-              >
-                <Input placeholder="Jane Doe" pill={shownPill} />
+              <Field label="Full name" opticallyAlign={opticallyAlign ? 'start' : undefined}>
+                <Input placeholder="Jane Doe" pill={pill} />
               </Field>
               <Field
                 label="Email"
                 description="We'll never share your email."
-                errorMessage="Please enter a valid email address."
+                errorMessage="Enter a valid email address."
                 required
-                opticallyAlign={opticallyAlign ? "start" : undefined}
+                opticallyAlign={opticallyAlign ? 'start' : undefined}
               >
-                <Input placeholder="jane@example.com" pill={shownPill} />
+                <Input placeholder="jane@example.com" pill={pill} />
               </Field>
             </div>
-            <Button
-              className="mt-6"
-              color="primary"
-              variant="soft"
-              pill={shownPill}
-            >
+            <Button className="mt-6" color="primary" variant="soft" pill={pill}>
               Submit
             </Button>
           </div>
@@ -575,704 +343,3 @@ export function FieldOpticalAlignDemo() {
     </>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Birthday composition demos
-// ---------------------------------------------------------------------------
-
-const BIRTHDAY_MONTH_OPTIONS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-].map((month, index) => ({
-  label: month,
-  value: String(index + 1).padStart(2, '0'),
-}));
-
-const BIRTHDAY_DAY_OPTIONS = Array.from({ length: 31 }, (_, index) => {
-  const day = String(index + 1).padStart(2, '0');
-  return { label: day, value: day };
-});
-
-const BIRTHDAY_YEAR_OPTIONS = Array.from({ length: 2025 - 1920 + 1 }, (_, index) => {
-  const year = String(2025 - index);
-  return { label: year, value: year };
-});
-
-function getBirthdayDigits(value: string): string {
-  return value.replace(/\D/g, '').slice(0, 8);
-}
-
-function formatBirthdayValue(rawValue: string): string {
-  const digits = getBirthdayDigits(rawValue);
-  const month = digits.slice(0, 2);
-  const day = digits.slice(2, 4);
-  const year = digits.slice(4, 8);
-  if (digits.length < 2) return month;
-  if (digits.length === 2) return `${month} / `;
-  if (digits.length < 4) return `${month} / ${day}`;
-  if (digits.length === 4) return `${month} / ${day} / `;
-  return `${month} / ${day} / ${year}`;
-}
-
-function isValidBirthday(value: string): boolean {
-  const parsed = value.match(/^(\d{2})\s\/\s(\d{2})\s\/\s(\d{4})$/);
-  if (!parsed) return false;
-  const m = Number(parsed[1]);
-  const d = Number(parsed[2]);
-  const y = Number(parsed[3]);
-  if (m < 1 || m > 12) return false;
-  const maxDay = new Date(y, m, 0).getDate();
-  return d >= 1 && d <= maxDay;
-}
-
-export function FieldBirthdayInputDemo() {
-  const [birthday, setBirthday] = useState('');
-
-  const handleChange = useCallback(
-    (evt: React.ChangeEvent<HTMLInputElement>) => {
-      const raw = evt.target.value;
-      const newDigits = getBirthdayDigits(raw);
-      const oldDigits = getBirthdayDigits(birthday);
-      if (raw.length < birthday.length && newDigits.length === oldDigits.length) {
-        setBirthday(formatBirthdayValue(newDigits.slice(0, -1)));
-      } else {
-        setBirthday(formatBirthdayValue(raw));
-      }
-    },
-    [birthday],
-  );
-
-  return (
-    <div data-demo-stage className="py-10">
-      <div className="w-[320px]">
-        <Field label="Birthday">
-          <Input
-            placeholder="MM / DD / YYYY"
-            value={birthday}
-            onChange={handleChange}
-            inputMode="numeric"
-            maxLength={14}
-            autoComplete="off"
-          />
-        </Field>
-      </div>
-    </div>
-  );
-}
-
-export function FieldBirthdayValidationDemo() {
-  const [birthday, setBirthday] = useState('02 / 30 / 2001');
-  const errorMessage = birthday ? (isValidBirthday(birthday) ? undefined : 'Please enter a valid date.') : undefined;
-
-  const handleChange = useCallback(
-    (evt: React.ChangeEvent<HTMLInputElement>) => {
-      const raw = evt.target.value;
-      const newDigits = getBirthdayDigits(raw);
-      const oldDigits = getBirthdayDigits(birthday);
-      if (raw.length < birthday.length && newDigits.length === oldDigits.length) {
-        setBirthday(formatBirthdayValue(newDigits.slice(0, -1)));
-      } else {
-        setBirthday(formatBirthdayValue(raw));
-      }
-    },
-    [birthday],
-  );
-
-  return (
-    <div data-demo-stage className="py-10">
-      <div className="w-[320px]">
-        <Field label="Birthday" errorMessage={errorMessage}>
-          <Input
-            placeholder="MM / DD / YYYY"
-            value={birthday}
-            onChange={handleChange}
-            inputMode="numeric"
-            maxLength={14}
-            autoComplete="off"
-          />
-        </Field>
-      </div>
-    </div>
-  );
-}
-
-export function FieldBirthdaySegmentedDemo() {
-  const [month, setMonth] = useState('');
-  const [day, setDay] = useState('');
-  const [year, setYear] = useState('');
-
-  const dayRef = useRef<HTMLInputElement>(null);
-  const yearRef = useRef<HTMLInputElement>(null);
-
-  const handleSegmentChange = (
-    rawValue: string,
-    maxLength: number,
-    setValue: (value: string) => void,
-    nextRef?: React.RefObject<HTMLInputElement | null>,
-  ) => {
-    const nextValue = rawValue.replace(/\D/g, '').slice(0, maxLength);
-    setValue(nextValue);
-
-    if (nextRef && nextValue.length === maxLength) {
-      nextRef.current?.focus();
-    }
-  };
-
-  return (
-    <div data-demo-stage className="py-10">
-      <div className="w-[320px]">
-        <Field label="Birthday">
-          {(fieldProps) => (
-            <div className="flex items-center gap-2">
-              <Input
-                id={fieldProps.id}
-                value={month}
-                onChange={(evt) => handleSegmentChange(evt.target.value, 2, setMonth, dayRef)}
-                placeholder="MM"
-                inputMode="numeric"
-                maxLength={2}
-                size="md"
-                variant="outline"
-                autoComplete="off"
-                className="w-[56px]"
-              />
-              <span className="text-secondary">/</span>
-              <Input
-                ref={dayRef}
-                value={day}
-                onChange={(evt) => handleSegmentChange(evt.target.value, 2, setDay, yearRef)}
-                placeholder="DD"
-                aria-label="Day"
-                inputMode="numeric"
-                maxLength={2}
-                size="md"
-                variant="outline"
-                autoComplete="off"
-                className="w-[56px]"
-              />
-              <span className="text-secondary">/</span>
-              <Input
-                ref={yearRef}
-                value={year}
-                onChange={(evt) => handleSegmentChange(evt.target.value, 4, setYear)}
-                placeholder="YYYY"
-                aria-label="Year"
-                inputMode="numeric"
-                maxLength={4}
-                size="md"
-                variant="outline"
-                autoComplete="off"
-                className="w-[80px]"
-              />
-            </div>
-          )}
-        </Field>
-      </div>
-    </div>
-  );
-}
-
-export function FieldBirthdaySelectDemo() {
-  const [month, setMonth] = useState('');
-  const [day, setDay] = useState('');
-  const [year, setYear] = useState('');
-
-  return (
-    <div data-demo-stage className="py-10">
-      <div className="w-[320px]">
-        <Field label="Birthday">
-          {(fieldProps) => (
-            <div className="flex gap-2">
-              <div className="w-[130px]">
-                <Select
-                  id={fieldProps.id}
-                  value={month}
-                  options={BIRTHDAY_MONTH_OPTIONS}
-                  placeholder="Month"
-                  size="md"
-                  variant="outline"
-                  onChange={(option) => setMonth(option.value)}
-                />
-              </div>
-              <div className="w-[84px]">
-                <Select
-                  value={day}
-                  options={BIRTHDAY_DAY_OPTIONS}
-                  placeholder="Day"
-                  size="md"
-                  variant="outline"
-                  onChange={(option) => setDay(option.value)}
-                  aria-label="Day"
-                />
-              </div>
-              <div className="w-[108px]">
-                <Select
-                  value={year}
-                  options={BIRTHDAY_YEAR_OPTIONS}
-                  placeholder="Year"
-                  size="md"
-                  variant="outline"
-                  onChange={(option) => setYear(option.value)}
-                  aria-label="Year"
-                />
-              </div>
-            </div>
-          )}
-        </Field>
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Form example: User Profile Settings
-// ---------------------------------------------------------------------------
-
-export function FieldProfileSettingsDemo() {
-  const [pill, setPill] = useState(false);
-  const [language, setLanguage] = useState('en');
-  const [theme, setTheme] = useState('system');
-
-  const wide = useBreakpoint('md');
-
-  if (!wide) return (
-    <FormScreen title="Profile settings" submitLabel="Save changes">
-      <FieldGroup title="Personal information" description="Your public profile details." columns>
-        <Field row label="First name"><Input defaultValue="Jane" autoComplete="given-name" /></Field>
-        <Field row label="Last name"><Input defaultValue="Doe" autoComplete="family-name" /></Field>
-        <Field row label="Email" orientation="vertical" description="This is the email associated with your account."><Input variant="ghost" defaultValue="jane@example.com" type="email" autoComplete="email" /></Field>
-        <Field row label="Bio" orientation="vertical" description="Brief description for your profile. Max 160 characters."><Textarea variant="ghost" placeholder="Tell us about yourself..." rows={3} autoResize maxLength={160} /></Field>
-      </FieldGroup>
-      <FieldGroup title="Preferences" description="Customize your experience." columns>
-        <Field row label="Language"><Select value={language} onChange={(option) => setLanguage(option.value)} options={languages} /></Field>
-        <Field row label="Theme"><Select value={theme} onChange={(option) => setTheme(option.value)} options={themes} /></Field>
-      </FieldGroup>
-      <FieldGroup title="Notifications" description="Manage how you receive updates.">
-        <Field row label="Email notifications" description="Receive weekly digests and important updates."><Switch defaultChecked /></Field>
-        <Field row label="Push notifications" description="Get real-time alerts in your browser."><Switch /></Field>
-        <Field row label="Marketing emails" description="Tips, product updates, and promotions."><Switch /></Field>
-      </FieldGroup>
-    </FormScreen>
-  );
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
-      </div>
-
-      <div data-demo-stage>
-        <div className="flex flex-col gap-8 w-full !max-w-[460px]">
-          <fieldset className="flex flex-col gap-5">
-            <div className="mb-1">
-              <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Personal Information</h3>
-              <p className="text-xs text-tertiary mt-0.5">Your public profile details</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="First name">
-                <Input placeholder="Jane" defaultValue="Jane" pill={pill} />
-              </Field>
-              <Field label="Last name">
-                <Input placeholder="Doe" defaultValue="Doe" pill={pill} />
-              </Field>
-            </div>
-
-            <Field label="Email" description="This is the email associated with your account.">
-              <Input placeholder="jane@example.com" defaultValue="jane@example.com" pill={pill} />
-            </Field>
-
-            <Field label="Bio" description="Brief description for your profile. Max 160 characters.">
-              <Textarea placeholder="Tell us about yourself..." rows={3} />
-            </Field>
-          </fieldset>
-
-          <hr className="border-default" />
-
-          <fieldset className="flex flex-col gap-5">
-            <div className="mb-1">
-              <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Preferences</h3>
-              <p className="text-xs text-tertiary mt-0.5">Customize your experience</p>
-            </div>
-
-            <Field label="Language">
-              {(fieldProps) => (
-                <Select
-                  id={fieldProps.id}
-                  pill={pill}
-                  value={language}
-                  onChange={(opt) => setLanguage(opt.value)}
-                  options={[
-                    { label: 'English', value: 'en' },
-                    { label: 'Spanish', value: 'es' },
-                    { label: 'French', value: 'fr' },
-                    { label: 'German', value: 'de' },
-                    { label: 'Japanese', value: 'ja' },
-                  ]}
-                />
-              )}
-            </Field>
-
-            <Field label="Theme" description="Select your preferred appearance.">
-              {() => (
-                <RadioGroup
-                  aria-label="Theme"
-                  value={theme}
-                  onChange={setTheme}
-                  direction="col"
-                >
-                  <RadioGroup.Item value="system">System</RadioGroup.Item>
-                  <RadioGroup.Item value="light">Light</RadioGroup.Item>
-                  <RadioGroup.Item value="dark">Dark</RadioGroup.Item>
-                </RadioGroup>
-              )}
-            </Field>
-          </fieldset>
-
-          <hr className="border-default" />
-
-          <fieldset className="flex flex-col gap-5">
-            <div className="mb-1">
-              <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Notifications</h3>
-              <p className="text-xs text-tertiary mt-0.5">Manage how you receive updates</p>
-            </div>
-
-            <Field label="Email notifications" description="Receive weekly digests and important updates." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-              {(fieldProps) => (
-                <Switch id={fieldProps.id} defaultChecked />
-              )}
-            </Field>
-
-            <Field label="Push notifications" description="Get real-time alerts in your browser." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-              {(fieldProps) => (
-                <Switch id={fieldProps.id} />
-              )}
-            </Field>
-
-            <Field label="Marketing emails" description="Tips, product updates, and promotions." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-              {(fieldProps) => (
-                <Switch id={fieldProps.id} />
-              )}
-            </Field>
-          </fieldset>
-
-          <div className="flex gap-2">
-            <Button color="primary" pill={pill}>Save changes</Button>
-            <Button color="secondary" variant="outline" pill={pill}>Cancel</Button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Form example: Create Project
-// ---------------------------------------------------------------------------
-
-export function FieldCreateProjectDemo() {
-  const [pill, setPill] = useState(false);
-  const [visibility, setVisibility] = useState('private');
-  const [region, setRegion] = useState('');
-
-  const wide = useBreakpoint('md');
-
-  if (!wide) return (
-    <FormScreen title="Create project" submitLabel="Create project">
-      <FieldGroup title="General" description="Basic information about your project." columns>
-        <Field row label="Project name" required><Input placeholder="my-project" required /></Field>
-        <Field row label="Description" orientation="vertical" description="A short summary shown in project listings."><Textarea variant="ghost" placeholder="What does this project do?" rows={3} autoResize /></Field>
-      </FieldGroup>
-      <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
-        <FieldGroup title="Visibility" description="Controls who can see this project.">
-          <Field row label="Private" description="Only invited members."><RadioGroup.Item value="private" /></Field>
-          <Field row label="Internal" description="Anyone in your organization."><RadioGroup.Item value="internal" /></Field>
-          <Field row label="Public" description="Visible to everyone."><RadioGroup.Item value="public" /></Field>
-        </FieldGroup>
-      </RadioGroup>
-      <FieldGroup title="Team access" description="Invite collaborators and set permissions.">
-        <Field row label="Team members" orientation="vertical" description="Add people by email address."><TagInput variant="ghost" placeholder="Add email..." defaultValue={[{ value: 'alice@team.com', valid: true }, { value: 'bob@team.com', valid: true }]} validator={(value) => value.includes('@')} /></Field>
-      </FieldGroup>
-      <FieldGroup title="Permissions" description="Default permissions for new members.">
-        <Field row label="Can view project"><Switch defaultChecked /></Field>
-        <Field row label="Can edit resources"><Switch defaultChecked /></Field>
-        <Field row label="Can manage members"><Switch /></Field>
-        <Field row label="Can delete project"><Switch /></Field>
-      </FieldGroup>
-      <FieldGroup title="Infrastructure" description="Deployment and resource configuration." columns>
-        <Field row label="Region"><Select placeholder="Select region" value={region} onChange={(option) => setRegion(option.value)} options={regions} /></Field>
-        <Field row label="Auto-deploy" description="Automatically deploy on push to main branch."><Switch defaultChecked /></Field>
-      </FieldGroup>
-    </FormScreen>
-  );
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
-      </div>
-
-      <div data-demo-stage>
-        <div className="flex flex-col gap-8 w-full !max-w-[460px]">
-          <fieldset className="flex flex-col gap-5">
-            <div className="mb-1">
-              <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">General</h3>
-              <p className="text-xs text-tertiary mt-0.5">Basic information about your project</p>
-            </div>
-
-            <Field label="Project name" required>
-              <Input placeholder="my-project" pill={pill} />
-            </Field>
-
-            <Field label="Description" description="A short summary shown in project listings.">
-              <Textarea placeholder="What does this project do?" rows={3} />
-            </Field>
-
-            <Field label="Visibility" description="Controls who can see this project.">
-              {() => (
-                <RadioGroup
-                  aria-label="Visibility"
-                  value={visibility}
-                  onChange={setVisibility}
-                  direction="col"
-                >
-                  <RadioGroup.Item value="private">Private, only invited members</RadioGroup.Item>
-                  <RadioGroup.Item value="internal">Internal, anyone in your organization</RadioGroup.Item>
-                  <RadioGroup.Item value="public">Public, visible to everyone</RadioGroup.Item>
-                </RadioGroup>
-              )}
-            </Field>
-          </fieldset>
-
-          <hr className="border-default" />
-
-          <fieldset className="flex flex-col gap-5">
-            <div className="mb-1">
-              <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Team Access</h3>
-              <p className="text-xs text-tertiary mt-0.5">Invite collaborators and set permissions</p>
-            </div>
-
-            <Field label="Team members" description="Add people by email address.">
-              {(fieldProps) => (
-                <TagInput
-                  id={fieldProps.id}
-                  placeholder="Add email..."
-                  defaultValue={[
-                    { value: 'alice@team.com', valid: true },
-                    { value: 'bob@team.com', valid: true },
-                  ]}
-                  validator={(v) => v.includes('@')}
-                />
-              )}
-            </Field>
-
-            <Field label="Permissions" description="Default permissions for new members.">
-              {() => (
-                <div className="flex flex-col gap-3 mt-1">
-                  <Checkbox label="Can view project" defaultChecked />
-                  <Checkbox label="Can edit resources" defaultChecked />
-                  <Checkbox label="Can manage members" />
-                  <Checkbox label="Can delete project" />
-                </div>
-              )}
-            </Field>
-          </fieldset>
-
-          <hr className="border-default" />
-
-          <fieldset className="flex flex-col gap-5">
-            <div className="mb-1">
-              <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Infrastructure</h3>
-              <p className="text-xs text-tertiary mt-0.5">Deployment and resource configuration</p>
-            </div>
-
-            <Field label="Region">
-              {(fieldProps) => (
-                <Select
-                  id={fieldProps.id}
-                  pill={pill}
-                  placeholder="Select region..."
-                  value={region}
-                  onChange={(opt) => setRegion(opt.value)}
-                  options={[
-                    { label: 'US East (N. Virginia)', value: 'us-east-1' },
-                    { label: 'US West (Oregon)', value: 'us-west-2' },
-                    { label: 'Europe (Frankfurt)', value: 'eu-central-1' },
-                    { label: 'Asia Pacific (Tokyo)', value: 'ap-northeast-1' },
-                  ]}
-                />
-              )}
-            </Field>
-
-            <Field label="Auto-deploy" description="Automatically deploy on push to main branch." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-              {(fieldProps) => (
-                <Switch id={fieldProps.id} defaultChecked />
-              )}
-            </Field>
-          </fieldset>
-
-          <div className="flex gap-2">
-            <Button color="primary" pill={pill}>Create project</Button>
-            <Button color="secondary" variant="outline" pill={pill}>Cancel</Button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Form example: Field Configuration (API key / CMS field setup)
-// ---------------------------------------------------------------------------
-
-export function FieldConfigurationDemo() {
-  const [pill, setPill] = useState(false);
-  const [type, setType] = useState('string');
-  const [expiresIn, setExpiresIn] = useState('');
-
-  const wide = useBreakpoint('md');
-
-  if (!wide) return (
-    <FormScreen title="Field configuration" submitLabel="Save field">
-      <FieldGroup title="Setup" description="Define the basic field properties." columns>
-        <Field row label="Key" orientation="vertical" description="Unique identifier used in the API. Cannot be changed later."><Input variant="ghost" defaultValue="registration_method" /></Field>
-        <Field row label="Label" orientation="vertical" description="Human-readable name displayed in the UI."><Input variant="ghost" defaultValue="Registration method" /></Field>
-        <Field row label="Type"><Select value={type} onChange={(option) => setType(option.value)} options={fieldTypes} /></Field>
-        <Field row label="Default value" orientation="vertical" description="Value assigned when the field is empty."><Input variant="ghost" placeholder="Set default value (optional)" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Formatting" description="Input constraints and sanitization rules.">
-        <Field row label="Max length" description="Max length cannot exceed 4096."><Input placeholder="256" inputMode="numeric" /></Field>
-        <Field row label="HTML sanitization" description="Strip potentially unsafe HTML tags from input."><Switch /></Field>
-      </FieldGroup>
-      <FieldGroup title="Privacy & access" description="Control field visibility and mutability.">
-        <Field row label="Not redactable" description="Prevent this field from being redacted."><Switch /></Field>
-        <Field row label="Write once" description="Value can only be set once and cannot be changed."><Switch /></Field>
-        <Field row label="Expires in" description="Automatically delete the field value after the specified period."><Select placeholder="Never" value={expiresIn} onChange={(option) => setExpiresIn(option.value)} options={expirations} /></Field>
-      </FieldGroup>
-    </FormScreen>
-  );
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
-      </div>
-
-      <div data-demo-stage>
-        <div className="flex flex-col gap-8 w-full !max-w-[460px]">
-          <fieldset className="flex flex-col gap-5">
-            <div className="mb-1">
-              <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Setup</h3>
-              <p className="text-xs text-tertiary mt-0.5">Define the basic field properties</p>
-            </div>
-
-            <Field label="Key" description="Unique identifier used in the API. Cannot be changed later.">
-              <Input placeholder="registration_method" defaultValue="registration_method" pill={pill} />
-            </Field>
-
-            <Field label="Label" description="Human-readable name displayed in the UI.">
-              <Input placeholder="Registration method" defaultValue="Registration method" pill={pill} />
-            </Field>
-
-            <Field label="Type">
-              {(fieldProps) => (
-                <Select
-                  id={fieldProps.id}
-                  pill={pill}
-                  value={type}
-                  onChange={(opt) => setType(opt.value)}
-                  options={[
-                    { label: 'String', value: 'string' },
-                    { label: 'Number', value: 'number' },
-                    { label: 'Boolean', value: 'boolean' },
-                    { label: 'Date', value: 'date' },
-                    { label: 'JSON', value: 'json' },
-                    { label: 'Rich text', value: 'richtext' },
-                  ]}
-                />
-              )}
-            </Field>
-
-            <Field label="Default value" description="Value assigned when the field is empty.">
-              <Input placeholder="Set default value (optional)" pill={pill} />
-            </Field>
-          </fieldset>
-
-          <hr className="border-default" />
-
-          <fieldset className="flex flex-col gap-5">
-            <div className="mb-1">
-              <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Formatting</h3>
-              <p className="text-xs text-tertiary mt-0.5">Input constraints and sanitization rules</p>
-            </div>
-
-            <Field label="Max length" description="Max length cannot exceed 4096.">
-              <Input placeholder="256" inputMode="numeric" pill={pill} />
-            </Field>
-
-            <Field label="HTML sanitization" description="Strip potentially unsafe HTML tags from input." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-              {(fieldProps) => (
-                <Switch id={fieldProps.id} />
-              )}
-            </Field>
-          </fieldset>
-
-          <hr className="border-default" />
-
-          <fieldset className="flex flex-col gap-5">
-            <div className="mb-1">
-              <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Privacy & Access</h3>
-              <p className="text-xs text-tertiary mt-0.5">Control field visibility and mutability</p>
-            </div>
-
-            <Field label="Not redactable" description="Prevent this field from being redacted." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-              {(fieldProps) => (
-                <Switch id={fieldProps.id} />
-              )}
-            </Field>
-
-            <Field label="Write once" description="Value can only be set once and cannot be changed." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-              {(fieldProps) => (
-                <Switch id={fieldProps.id} />
-              )}
-            </Field>
-
-            <Field label="Expires in" description="Automatically delete the field value after the specified period.">
-              {(fieldProps) => (
-                <Select
-                  id={fieldProps.id}
-                  pill={pill}
-                  placeholder="Never"
-                  value={expiresIn}
-                  onChange={(opt) => setExpiresIn(opt.value)}
-                  options={[
-                    { label: 'Never', value: 'never' },
-                    { label: '30 days', value: '30d' },
-                    { label: '90 days', value: '90d' },
-                    { label: '1 year', value: '1y' },
-                  ]}
-                />
-              )}
-            </Field>
-          </fieldset>
-
-          <div className="flex gap-2">
-            <Button color="primary" pill={pill}>Save field</Button>
-            <Button color="secondary" variant="outline" pill={pill}>Cancel</Button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-

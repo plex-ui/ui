@@ -295,6 +295,19 @@
   justify-self: stretch;
 }
 
+/* A row with a hidden label (`hideLabel`) holds its value alone, from the row's edge. A frameless
+   value, a ghost field, has its first line centered in the row's height, as an iOS cell that shows
+   only its placeholder or value; more lines grow the row downwards. With a description or an error
+   under the value the row keeps the insets of a row with text under its label, so hiding the label
+   moves nothing. */
+.Field:where([data-row][data-label-hidden][data-orientation="vertical"]) {
+  padding-block: var(--field-row-padding-block);
+}
+
+.Field:where([data-row][data-label-hidden][data-orientation="vertical"]):has(> .Content > .Control > [data-variant="ghost"] > :is(input, textarea)):not(:has(> .LabelGroup > .Description, > .Content > :not(.Control))) {
+  padding-block: calc((var(--field-row-min-height) - var(--field-row-label-line-height)) / 2);
+}
+
 /* A control that fills the row, such as a list of tags: it starts after the label
    and ends at the row's edge, on one line for all the rows of a group. A list can
    wrap: the label and the action stay on its first line. */
@@ -464,6 +477,21 @@
     }
   }
 
+  /* A disabled text field in a row reads as disabled as a whole, as an unavailable row of iOS Settings
+     is gray: its label dims with its value. (A Select's hidden form input does not count.) */
+  .Field:where([data-row]):has(> .Content > .Control :is(input:not([type="checkbox"], [type="radio"], [type="hidden"], [aria-hidden="true"]), textarea):disabled) {
+    --field-description-color: var(--mobile-label-quaternary, var(--color-text-disabled));
+
+    > .LabelGroup .Label {
+      color: var(--mobile-label-tertiary, var(--color-text-disabled));
+    }
+  }
+
+  /* Every text field of a phone row is frameless, so a row with a hidden label centers its first line */
+  .Field:where([data-row][data-label-hidden][data-orientation="vertical"]):has(> .Content > .Control > [data-variant] > :is(input, textarea)):not(:has(> .LabelGroup > .Description, > .Content > :not(.Control))) {
+    padding-block: calc((var(--field-row-min-height) - var(--field-row-label-line-height)) / 2);
+  }
+
   /* Mobile choice rows keep keyboard focus and activation without a drawn ring. */
   .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"]):focus-visible {
     outline: none;
@@ -600,8 +628,10 @@
     justify-self: stretch;
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > :is([data-variant="outline"], [data-variant="soft"]):is(:has(> input), :has(> textarea)),
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"] {
+  /* Under its label too, a value is the row's text (kit Lists, a value under its title; Contacts' fields):
+     the frames and the gutters of the web go, so the value starts where the label does. */
+  .Field:where([data-row]) .Control > :is([data-variant="outline"], [data-variant="soft"]):is(:has(> input), :has(> textarea)),
+  .Field:where([data-row]) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"] {
     --input-outline-border-color: transparent;
     --input-outline-border-color-hover: transparent;
     --input-outline-border-color-focus: transparent;
@@ -610,7 +640,7 @@
     --input-soft-border-color-focus: transparent;
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > :is([data-variant="outline"], [data-variant="soft"]):is(:has(> input), :has(> textarea)) {
+  .Field:where([data-row]) .Control > :is([data-variant="outline"], [data-variant="soft"]):is(:has(> input), :has(> textarea)) {
     --input-size: var(--field-row-label-line-height);
     --input-gutter: 0px;
     --input-adornment-offset: 0px;
@@ -626,34 +656,34 @@
 
   /* A disabled Select or date in a row keeps the row's surface: the disabled frame and fill of a
      standalone control would draw a box around the value */
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"][data-disabled] {
+  .Field:where([data-row]) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"][data-disabled] {
     --select-control-background-color: transparent;
     --select-control-border-color: transparent;
   }
 
   /* A Select or a date: its value ends at the row's edge, its mark too, as the row has no pill to sit in */
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"] {
+  .Field:where([data-row]) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"] {
     --dropdown-icon-pill-offset: 0px;
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"] {
+  .Field:where([data-row]) .Control :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"] {
     padding-inline: 0;
   }
 
   /* The Field already delegates its non-interactive area to this linked popup.
      Keep one row surface; the trigger remains its only keyboard stop. */
-  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"]) {
+  .Field:where([data-row]) > .Content > .Control > :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"]) {
     --select-control-size: var(--field-row-label-line-height);
     border-radius: 0;
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"])::before {
+  .Field:where([data-row]) > .Content > .Control > :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"])::before {
     background-color: transparent;
     box-shadow: none;
     transform: none;
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"])::after {
+  .Field:where([data-row]) > .Content > .Control > :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"])::after {
     outline: none;
     transform: none;
   }
@@ -736,7 +766,7 @@
 
   /* An InputGroup: its value and its unit end at the row's edge too. A button at the end
      reads as the row's text, as a Select's value does: no gutter and no fill */
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"]:is([data-variant="outline"], [data-variant="soft"]) {
+  .Field:where([data-row]) .Control > [data-slot="input-group"]:is([data-variant="outline"], [data-variant="soft"]) {
     --input-group-gutter: 0px;
   }
 
@@ -805,4 +835,33 @@
   [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])) .Control > :is([data-variant="outline"], [data-variant="soft"])[role="button"] {
     width: 100%;
   }
+}
+
+/* =============================================
+   Hidden label  (hideLabel)
+   The label still names the control for assistive
+   technology. Last in the file, so it outranks the
+   label's own padding in a row.
+============================================= */
+.Field:where([data-label-hidden]) > .LabelGroup:not(:has(> .Description, > .LabelRow)),
+.Field:where([data-label-hidden]) > .LabelGroup > .Label,
+.Field:where([data-label-hidden]) > .LabelGroup > .LabelRow > .Label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Words that describe a field with a hidden label follow the field: above it they would read as its label */
+.Field:where([data-label-hidden]:not([data-orientation="horizontal"])) > .LabelGroup:has(> .Description) {
+  order: 1;
+}
+
+.Field:where([data-row][data-label-hidden][data-orientation="vertical"]) > .LabelGroup {
+  grid-row: auto;
 }

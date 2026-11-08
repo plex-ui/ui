@@ -25,6 +25,15 @@
   font-size: var(--field-group-title-font-size);
   line-height: var(--field-group-title-line-height);
   font-weight: var(--field-group-title-font-weight);
+  letter-spacing: var(--field-group-title-letter-spacing, normal);
+}
+
+/* headerProminence="increased": the title leads its content, as a section of a page */
+.FieldGroup[data-header-prominence="increased"] {
+  --field-group-title-color: var(--color-text);
+  --field-group-title-font-size: var(--font-heading-sm-size);
+  --field-group-title-line-height: var(--font-heading-sm-line-height);
+  --field-group-title-font-weight: var(--font-heading-sm-weight);
 }
 
 .Description {
@@ -54,6 +63,54 @@
   .FieldGroup {
     --field-group-description-color: var(--mobile-label-secondary, var(--color-text-secondary));
     --field-group-title-color: var(--mobile-label-secondary, var(--color-text-secondary));
+  }
+
+  /* The kit's Prominent list header (Lists, Header 517:38042, Type=Prominent): Title 3 Semibold
+     20/25 in the primary label, 10pt above the rows. Its -0.45 tracking is the one the system font
+     applies itself at 20pt, so the title keeps normal tracking (system-font-tracking.test.ts). */
+  .FieldGroup[data-header-prominence="increased"] {
+    --field-group-title-color: var(--color-text);
+    --field-group-title-font-size: 20px;
+    --field-group-title-line-height: 25px;
+    --field-group-title-font-weight: 590;
+    --field-group-header-min-height: 45px;
+    --field-group-header-padding-bottom: 10px;
+  }
+
+  /* A text action at the end of the header (kit _Header Trailing Accessories, Type=Action 39:67340) is
+     tinted text at the list's text inset, on the title's last line as the kit sets it. Its size is the
+     native one, body 17/22 (5559 Clear; the kit draws 15/20), as a row's text action. Its target keeps
+     44px without making the header taller. */
+  .Header > button[data-variant="ghost"]:not([data-uniform]) {
+    --button-size: 44px;
+    --button-gutter: 0px;
+    --button-font-size: var(--field-row-label-font-size);
+    --button-line-height: var(--field-row-label-line-height);
+    --button-font-weight: var(--font-weight-normal);
+    --button-justify-content: flex-end;
+    --button-background-color: transparent;
+    --button-background-color-active: transparent;
+    --button-mobile-material-background: transparent;
+    --button-mobile-material-hover: transparent;
+    --button-mobile-material-active: transparent;
+    --button-mobile-material-shadow: none;
+    --button-mobile-material-backdrop-filter: none;
+
+    flex-shrink: 0;
+    min-width: 44px;
+    margin-block: calc((var(--field-row-label-line-height) - 44px) / 2);
+    margin-inline-end: var(--field-group-title-padding-inline);
+  }
+
+  /* A link in the footer is tinted text, as iOS writes "Learn more…" under a group (5483, 5489) */
+  .Footer a[href] {
+    color: var(--link-primary-text-color);
+    text-decoration: none;
+  }
+
+  .Header > button[data-variant="ghost"]:not([data-uniform]):is([data-color="primary"], [data-color="secondary"]) {
+    --button-text-color: var(--link-primary-text-color);
+    --button-text-color-hover: var(--link-primary-text-color);
   }
 
   .Body > [data-row] + [data-row],
@@ -111,5 +168,10 @@
 
   & > p {
     margin: 0;
+  }
+
+  /* Paragraphs stand apart; on a phone by one empty line, as in a Settings footer (5514) */
+  & > p + p {
+    margin-top: var(--field-group-footer-paragraph-gap, spacing(2));
   }
 }

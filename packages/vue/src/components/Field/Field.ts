@@ -168,6 +168,12 @@ const FieldComponent = defineComponent({
   props: {
     /** Label text for the field (or the `label` slot) */
     label: String,
+    /**
+     * Hides the label from view; it still names the control. On a `row` the value or placeholder
+     * then starts at the row's edge, as an iOS cell that shows only its value, so the row is
+     * vertical unless `orientation` says otherwise. @default false
+     */
+    hideLabel: { type: Boolean, default: false },
     /** Helper text below the label, linked via `aria-describedby` (or the `description` slot) */
     description: String,
     /**
@@ -181,7 +187,7 @@ const FieldComponent = defineComponent({
     size: String as PropType<ControlSize>,
     /** Shows a required asterisk after the label. Visual only: no `required` attribute. @default false */
     required: { type: Boolean, default: false },
-    /** Layout direction of label and control. @default "horizontal" on a `row`, else "vertical" */
+    /** Layout direction of label and control. @default "horizontal" on a `row` with a visible label, else "vertical" */
     orientation: String as PropType<"vertical" | "horizontal">,
     /** One line of a FieldGroup. Its non-interactive area focuses the text editor or activates the choice control or popup trigger. @default false */
     row: { type: Boolean, default: false },
@@ -206,11 +212,11 @@ const FieldComponent = defineComponent({
     const generatedId = useId()
     let forwardingRowClick = false
 
-    provideFieldRow(() => !!props.row && (props.orientation ?? "horizontal") === "horizontal")
+    provideFieldRow(() => !!props.row && (props.orientation ?? (props.hideLabel ? "vertical" : "horizontal")) === "horizontal")
 
     return () => {
       const { required, row, opticallyAlign } = props
-      const orientation = props.orientation ?? (row ? "horizontal" : "vertical")
+      const orientation = props.orientation ?? (row && !props.hideLabel ? "horizontal" : "vertical")
       const fieldId = props.id || `field-${generatedId}`
       const labelId = `${fieldId}-label`
 
@@ -267,6 +273,7 @@ const FieldComponent = defineComponent({
           "data-optically-align": opticallyAlign,
           "data-row": row ? "" : undefined,
           "data-fill": props.fill ? "" : undefined,
+          "data-label-hidden": props.hideLabel ? "" : undefined,
         }, row ? {
           onClick: (event: MouseEvent) => {
             if (forwardingRowClick) return

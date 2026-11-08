@@ -5,220 +5,190 @@ metaDescription: Vue 3 form field component with a label, helper text, and an er
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
-import { VueFieldDemo, VueFieldScreenDemo } from "@/components/docs/vue/VueFieldDemos"
-
-export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneCalendarSecondRowStageClassName, phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const overviewControls = [
-  { name: "size", desktopOnly: true, type: "select", options: sizeOptions, default: "md" },
-  { name: "pill", desktopOnly: true, type: "boolean", default: false },
+  { name: "layout", type: "select", options: ["above", "columns", "end", "hidden"], default: "above" },
   { name: "description", type: "boolean", default: true },
   { name: "errorMessage", type: "boolean", default: true },
   { name: "required", type: "boolean", default: true },
-  { name: "horizontal", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
 ]
 
-export const pillControl = [{ name: "pill", desktopOnly: true, type: "boolean", default: false }]
-
-export const overview = `<div :class="horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'">
-  <Field
-    label="Email"
-    :size="size"
-    :description="description ? 'We\\'ll never share your email with anyone else.' : undefined"
-    :error-message="errorMessage ? 'Please enter a valid email address.' : undefined"
-    :required="required"
-    :orientation="horizontal ? 'horizontal' : 'vertical'"
-  >
-    <Input placeholder="Enter email..." :size="size" :pill="pill" />
-  </Field>
-</div>`
-
-export const withDescription = `<div class="w-[320px]">
-  <Field label="Email" description="We'll never share your email with anyone else.">
-    <Input placeholder="Enter email..." />
-  </Field>
-</div>`
-
-export const withError = `<div class="w-[320px]">
-  <Field
-    label="Email"
-    :error-message="errorMessage ? 'Please enter a valid email address' : undefined"
-  >
-    <Input placeholder="Enter email..." />
-  </Field>
-</div>`
-
-export const required = `<div class="w-[320px]">
-  <Field label="Email" :required="required">
-    <Input placeholder="Enter email..." />
-  </Field>
-</div>`
-
-export const orientation = `<div class="w-full max-w-[480px] flex flex-col gap-4">
-  <Field label="First name" :orientation="orientation">
-    <Input placeholder="Jane" />
-  </Field>
-  <Field label="Last name" :orientation="orientation">
-    <Input placeholder="Doe" />
-  </Field>
-</div>`
-
-export const rowFields = `<div class="w-full max-w-[480px]">
+export const overview = `<div v-if="layout === 'end'" class="w-full max-w-[480px]">
   <FieldGroup>
-    <Field row label="Price">
-      <Input default-value="11" inputmode="decimal">
-        <template #endAdornment>€</template>
-      </Input>
+    <Field row label="Name" :required="required">
+      <Input placeholder="Jane Appleseed" autocomplete="name" :disabled="disabled" />
     </Field>
-    <Field row label="Weight" description="Shown beside the name.">
-      <Input default-value="250" inputmode="decimal" />
-    </Field>
-    <Field row label="Unit">
-      <Select v-model:value="unit" :block="false" align="end" :options="units" />
-    </Field>
-  </FieldGroup>
-</div>`
-
-export const rows = `<div class="w-full max-w-[480px]">
-  <FieldGroup title="Notifications" description="How we reach you.">
-    <Field row label="Email updates">
-      <Switch />
-    </Field>
-    <Field row label="Weekly summary" description="Sent on Mondays.">
-      <Switch />
+    <Field
+      row
+      label="Email"
+      :required="required"
+      :description="description ? 'We\\'ll never share your email with anyone else.' : undefined"
+      :error-message="errorMessage ? 'Enter a valid email address.' : undefined"
+    >
+      <Input :key="String(errorMessage)" type="email" placeholder="name@example.com" :default-value="errorMessage ? 'jane@example' : undefined" autocomplete="email" :disabled="disabled" />
     </Field>
   </FieldGroup>
-</div>`
-
-export const textarea = `<div class="w-[320px]">
-  <Field label="Bio" description="Write a short bio for your profile.">
-    <Textarea placeholder="Tell us about yourself..." :rows="3" />
+</div>
+<div v-else :class="['flex w-full flex-col gap-4', layout === 'columns' ? 'max-w-[480px]' : 'max-w-[320px]']">
+  <Field label="Name" :required="required" :hide-label="layout === 'hidden'" :orientation="layout === 'columns' ? 'horizontal' : 'vertical'">
+    <Input :placeholder="layout === 'hidden' ? 'Name' : 'Jane Appleseed'" autocomplete="name" :disabled="disabled" />
+  </Field>
+  <Field
+    label="Email"
+    :required="required"
+    :hide-label="layout === 'hidden'"
+    :orientation="layout === 'columns' ? 'horizontal' : 'vertical'"
+    :description="description ? 'We\\'ll never share your email with anyone else.' : undefined"
+    :error-message="errorMessage ? 'Enter a valid email address.' : undefined"
+  >
+    <Input :key="String(errorMessage)" type="email" :placeholder="layout === 'hidden' ? 'Email' : 'name@example.com'" :default-value="errorMessage ? 'jane@example' : undefined" autocomplete="email" :disabled="disabled" />
   </Field>
 </div>`
 
-export const select = `<div class="w-[320px]">
-  <Field label="Role" description="Select your primary role.">
-    <Select
-      placeholder="Select a role..."
-      v-model:value="role"
-      :options="[
-        { label: 'Admin', value: 'admin' },
-        { label: 'Editor', value: 'editor' },
-        { label: 'Viewer', value: 'viewer' },
-      ]"
-    />
+export const overviewPhone = `<FieldGroup :columns="layout === 'columns'">
+  <Field row label="Name" :orientation="layout === 'above' ? 'vertical' : undefined" :hide-label="layout === 'hidden'">
+    <Input :placeholder="layout === 'hidden' ? 'Name' : required ? 'Required' : 'Jane Appleseed'" autocomplete="name" :disabled="disabled" />
+  </Field>
+  <Field
+    row
+    label="Email"
+    :orientation="layout === 'above' ? 'vertical' : undefined"
+    :hide-label="layout === 'hidden'"
+    :error-message="errorMessage ? 'Enter a valid email address.' : undefined"
+  >
+    <Input :key="String(errorMessage)" type="email" :placeholder="layout === 'hidden' ? 'Email' : required ? 'Required' : 'name@example.com'" :default-value="errorMessage ? 'jane@example' : undefined" autocomplete="email" :disabled="disabled" />
+  </Field>
+  <template v-if="description" #footer>We'll never share your email with anyone else.</template>
+</FieldGroup>`
+
+export const overviewCode = withPhone(`<Field label="Name" required>
+  <Input placeholder="Jane Appleseed" />
+</Field>
+<Field
+  label="Email"
+  required
+  description="We'll never share your email with anyone else."
+  error-message="Enter a valid email address."
+>
+  <Input type="email" default-value="jane@example" />
+</Field>`, `<FieldGroup>
+  <Field row label="Name" orientation="vertical">
+    <Input placeholder="Required" />
+  </Field>
+  <Field row label="Email" orientation="vertical" error-message="Enter a valid email address.">
+    <Input type="email" default-value="jane@example" />
+  </Field>
+  <template #footer>We'll never share your email with anyone else.</template>
+</FieldGroup>
+
+<!-- columns: <FieldGroup columns> with rows; end: rows; hidden: placeholder only -->
+<Field row hide-label label="Name">
+  <Input placeholder="Name" />
+</Field>`, "a cell of a FieldGroup; the words that explain it go in the footer.")
+
+export const groupControls = [
+  { name: "headerProminence", type: "select", options: ["standard", "increased"], default: "standard" },
+  { name: "action", type: "boolean", default: true },
+  { name: "footer", type: "boolean", default: true },
+  { name: "columns", type: "boolean", default: false },
+]
+
+export const group = `<FieldGroup title="Billing address" :header-prominence="headerProminence" :columns="columns">
+  <template v-if="action" #action>
+    <Button color="primary" variant="ghost" size="sm" @click="street = ''; city = ''; postcode = ''">Clear</Button>
+  </template>
+  <Field row label="Street">
+    <Input placeholder="Required" v-model:value="street" autocomplete="address-line1" />
+  </Field>
+  <Field row label="City">
+    <Input placeholder="Required" v-model:value="city" autocomplete="address-level2" />
+  </Field>
+  <Field row label="Postcode">
+    <Input placeholder="Required" v-model:value="postcode" autocomplete="postal-code" />
+  </Field>
+  <template v-if="footer" #footer>
+    <p>Your bank checks this address against your card. <TextLink href="#group">Learn more</TextLink></p>
+  </template>
+</FieldGroup>`
+
+export const roles = [{ label: "Admin", value: "admin" }, { label: "Editor", value: "editor" }, { label: "Viewer", value: "viewer" }]
+
+export const controls = `<div class="flex w-full max-w-[320px] flex-col gap-4">
+  <Field label="Role" description="What this person can change.">
+    <Select v-model:value="role" :options="roles" />
+  </Field>
+  <Field label="Starts">
+    <DatePicker v-model:value="start" placeholder="Select date" />
+  </Field>
+  <Field label="Notes">
+    <Textarea placeholder="Anything the team should know" :rows="3" />
   </Field>
 </div>`
+
+export const controlsPhone = `<FieldGroup>
+  <Field row label="Role">
+    <Select v-model:value="role" :options="roles" />
+  </Field>
+  <Field row label="Starts">
+    <DatePicker v-model:value="start" trigger-date-format="MMM d, yyyy" :trigger-show-icon="false" placeholder="Select date" />
+  </Field>
+  <Field row label="Notes" orientation="vertical">
+    <Textarea placeholder="Anything the team should know" :rows="3" auto-resize />
+  </Field>
+</FieldGroup>`
 
 export const labelAction = `<div class="w-[320px]">
   <Field label="Password">
     <template #labelAction>
-      <TextLink href="#reset-password">Forgot password?</TextLink>
+      <TextLink href="#label-action">Forgot password?</TextLink>
     </template>
-    <Input type="password" placeholder="Enter password..." />
+    <Input type="password" placeholder="Enter password" autocomplete="current-password" />
   </Field>
 </div>`
 
-export const slider = `<div class="w-full min-w-0 max-w-[400px]">
-  <Field
-    label="Price Range"
-    :description="'Set your budget range ($' + price[0].toLocaleString() + ' – ' + price[1].toLocaleString() + ').'"
-  >
-    <Slider range v-model:value="price" :min="0" :max="1000" :step="10" prefix-unit="$" />
-  </Field>
-</div>`
-
-export const fieldset = `<div class="w-full min-w-0 max-w-[400px]">
-  <div class="mb-3">
-    <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Address Information</h3>
-    <p class="text-xs text-tertiary mt-0.5">We need your address to deliver your order.</p>
-  </div>
-  <div class="flex flex-col gap-4">
-    <Field label="Street Address">
-      <Input placeholder="123 Main St" />
+export const labelActionPhone = `<div class="flex flex-col">
+  <FieldGroup>
+    <Field row label="Password">
+      <Input type="password" placeholder="Required" autocomplete="current-password" />
     </Field>
-    <div class="flex gap-3">
-      <Field label="City" class="min-w-0 flex-1">
-        <Input placeholder="New York" />
-      </Field>
-      <Field label="Postal Code" class="min-w-0 flex-1">
-        <Input placeholder="90502" />
-      </Field>
-    </div>
-  </div>
+  </FieldGroup>
+  <TextLink primary href="#label-action" class="mt-[15px] self-start text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)]">
+    Forgot password?
+  </TextLink>
 </div>`
 
-export const checkboxGroup = `<div class="w-[320px]">
-  <Field
-    label="Notifications"
-    description="Choose which notifications you'd like to receive."
-    v-slot="{ id }"
-  >
-    <div class="flex flex-col gap-3 mt-1">
-      <Checkbox label="Email notifications" />
-      <Checkbox label="Push notifications" />
-      <Checkbox label="SMS notifications" />
+export const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map((month, index) => ({ label: month, value: String(index + 1).padStart(2, "0") }))
+export const days = Array.from({ length: 31 }, (_, index) => ({ label: String(index + 1), value: String(index + 1) }))
+export const years = Array.from({ length: 2025 - 1920 + 1 }, (_, index) => ({ label: String(2025 - index), value: String(2025 - index) }))
+
+export const severalControls = `<div class="w-[320px]">
+  <Field label="Birthday" v-slot="fieldProps">
+    <div class="flex gap-2">
+      <div class="w-[130px]">
+        <Select :id="fieldProps.id" :aria-labelledby="fieldProps['aria-labelledby']" v-model:value="month" :options="months" placeholder="Month" />
+      </div>
+      <div class="w-[84px]">
+        <Select v-model:value="day" :options="days" placeholder="Day" aria-label="Day" />
+      </div>
+      <div class="w-[96px]">
+        <Select v-model:value="year" :options="years" placeholder="Year" aria-label="Year" />
+      </div>
     </div>
   </Field>
 </div>`
 
-export const radioGroup = `<div class="w-[320px]">
-  <Field label="Subscription plan" description="Select your preferred plan." v-slot="fieldProps">
-    <RadioGroup aria-label="Subscription plan" v-bind="fieldProps" v-model:value="plan" direction="col">
-      <RadioGroupItem value="free">Free</RadioGroupItem>
-      <RadioGroupItem value="pro">Pro, $9/mo</RadioGroupItem>
-      <RadioGroupItem value="enterprise">Enterprise, $29/mo</RadioGroupItem>
-    </RadioGroup>
-  </Field>
-</div>`
-
-export const switchField = `<div class="self-stretch mx-auto !max-w-[480px]">
-  <Field
-    label="Marketing emails"
-    orientation="horizontal"
-    class="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
-    v-slot="fieldProps"
-  >
-    <Switch :id="fieldProps.id" v-model:checked="enabled" />
-  </Field>
-</div>`
-
-export const fieldGroup = `<div class="w-full min-w-0 max-w-[400px] divide-y divide-alpha/15">
-  <div class="pb-6">
-    <Field
-      label="Responses"
-      description="Get notified when the assistant responds to requests that take time, like research or image generation."
-      v-slot="{ id }"
-    >
-      <div class="flex flex-col gap-3 mt-1">
-        <Checkbox label="Push notifications" default-checked />
-      </div>
-    </Field>
-  </div>
-  <div class="py-6">
-    <Field
-      label="Tasks"
-      description="Get notified when tasks you've created have updates."
-      v-slot="{ id }"
-    >
-      <div class="flex flex-col gap-3 mt-1">
-        <Checkbox label="Push notifications" />
-        <Checkbox label="Email notifications" />
-      </div>
-    </Field>
-  </div>
-</div>`
-
-export const validation = `<div class="w-[320px] flex flex-col gap-4">
-  <Field label="Name" required :error-message="showErrors && !name ? 'Name is required' : undefined">
-    <Input placeholder="Enter your name" v-model:value="name" />
-  </Field>
+export const sizing = `<div class="w-full max-w-[320px]">
   <Field
     label="Email"
+    description="We'll never share your email with anyone else."
+    error-message="Enter a valid email address."
     required
-    :error-message="showErrors && !email.includes('@') ? 'Please enter a valid email address' : undefined"
   >
-    <Input placeholder="Enter your email" v-model:value="email" />
+    <Input type="email" placeholder="name@example.com" :size="size" :pill="pill" />
   </Field>
 </div>`
 
@@ -234,7 +204,7 @@ export const opticalAlign = `<div class="w-full min-w-0 max-w-[400px]">
       <Field
         label="Email"
         description="We'll never share your email."
-        error-message="Please enter a valid email address."
+        error-message="Enter a valid email address."
         required
         :optically-align="opticallyAlign ? 'start' : undefined"
       >
@@ -245,749 +215,85 @@ export const opticalAlign = `<div class="w-full min-w-0 max-w-[400px]">
   </div>
 </div>`
 
-export const formExample = `<div class="flex flex-col gap-8 w-full !max-w-[460px]">
-  <fieldset class="flex flex-col gap-5">
-    <div class="mb-1">
-      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Payment Method</h3>
-      <p class="text-xs text-tertiary mt-0.5">All transactions are secure and encrypted</p>
-    </div>
-
-    <Field label="Name on Card">
-      <Input placeholder="Evil Rabbit" :pill="pill" autocomplete="off" />
-    </Field>
-
-    <Field label="Card Number">
-      <Input placeholder="1234 5678 9012 3456" :pill="pill" autocomplete="off" />
-    </Field>
-
-    <div class="grid grid-cols-3 gap-3">
-      <Field label="Month" v-slot="fieldProps">
-        <Select :id="fieldProps.id" placeholder="MM" :pill="pill" v-model:value="month" :options="months" />
-      </Field>
-      <Field label="Year" v-slot="fieldProps">
-        <Select :id="fieldProps.id" placeholder="YYYY" :pill="pill" v-model:value="year" :options="years" />
-      </Field>
-      <Field label="CVV">
-        <Input placeholder="123" :pill="pill" />
-      </Field>
-    </div>
-  </fieldset>
-
-  <hr class="border-default" />
-
-  <fieldset class="flex flex-col gap-5">
-    <div class="mb-1">
-      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Billing Address</h3>
-      <p class="text-xs text-tertiary mt-0.5">The billing address associated with your payment method</p>
-    </div>
-
-    <Checkbox label="Same as shipping address" default-checked />
-
-    <Field label="Comments">
-      <Textarea placeholder="Add any additional comments" />
-    </Field>
-  </fieldset>
-
-  <div class="flex gap-2">
-    <Button color="primary" :pill="pill">Submit</Button>
-    <Button color="secondary" variant="outline" :pill="pill">Cancel</Button>
-  </div>
-</div>`
-
-export const switchRowClass = "justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
-
-export const profileSettings = `<div class="flex flex-col gap-8 w-full !max-w-[460px]">
-  <fieldset class="flex flex-col gap-5">
-    <div class="mb-1">
-      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Personal Information</h3>
-      <p class="text-xs text-tertiary mt-0.5">Your public profile details</p>
-    </div>
-
-    <div class="grid grid-cols-2 gap-3">
-      <Field label="First name">
-        <Input placeholder="Jane" default-value="Jane" :pill="pill" />
-      </Field>
-      <Field label="Last name">
-        <Input placeholder="Doe" default-value="Doe" :pill="pill" />
-      </Field>
-    </div>
-
-    <Field label="Email" description="This is the email associated with your account.">
-      <Input placeholder="jane@example.com" default-value="jane@example.com" :pill="pill" />
-    </Field>
-
-    <Field label="Bio" description="Brief description for your profile. Max 160 characters.">
-      <Textarea placeholder="Tell us about yourself..." :rows="3" />
-    </Field>
-  </fieldset>
-
-  <hr class="border-default" />
-
-  <fieldset class="flex flex-col gap-5">
-    <div class="mb-1">
-      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Preferences</h3>
-      <p class="text-xs text-tertiary mt-0.5">Customize your experience</p>
-    </div>
-
-    <Field label="Language" v-slot="fieldProps">
-      <Select
-        :id="fieldProps.id"
-        :pill="pill"
-        v-model:value="language"
-        :options="[
-          { label: 'English', value: 'en' },
-          { label: 'Spanish', value: 'es' },
-          { label: 'French', value: 'fr' },
-          { label: 'German', value: 'de' },
-          { label: 'Japanese', value: 'ja' },
-        ]"
-      />
-    </Field>
-
-    <Field label="Theme" description="Select your preferred appearance." v-slot="{ id }">
-      <RadioGroup aria-label="Theme" v-model:value="theme" direction="col">
-        <RadioGroupItem value="system">System</RadioGroupItem>
-        <RadioGroupItem value="light">Light</RadioGroupItem>
-        <RadioGroupItem value="dark">Dark</RadioGroupItem>
-      </RadioGroup>
-    </Field>
-  </fieldset>
-
-  <hr class="border-default" />
-
-  <fieldset class="flex flex-col gap-5">
-    <div class="mb-1">
-      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Notifications</h3>
-      <p class="text-xs text-tertiary mt-0.5">Manage how you receive updates</p>
-    </div>
-
-    <Field
-      label="Email notifications"
-      description="Receive weekly digests and important updates."
-      orientation="horizontal"
-      class="${switchRowClass}"
-      v-slot="fieldProps"
-    >
-      <Switch :id="fieldProps.id" default-checked />
-    </Field>
-
-    <Field
-      label="Push notifications"
-      description="Get real-time alerts in your browser."
-      orientation="horizontal"
-      class="${switchRowClass}"
-      v-slot="fieldProps"
-    >
-      <Switch :id="fieldProps.id" />
-    </Field>
-
-    <Field
-      label="Marketing emails"
-      description="Tips, product updates, and promotions."
-      orientation="horizontal"
-      class="${switchRowClass}"
-      v-slot="fieldProps"
-    >
-      <Switch :id="fieldProps.id" />
-    </Field>
-  </fieldset>
-
-  <div class="flex gap-2">
-    <Button color="primary" :pill="pill">Save changes</Button>
-    <Button color="secondary" variant="outline" :pill="pill">Cancel</Button>
-  </div>
-</div>`
-
-export const createProject = `<div class="flex flex-col gap-8 w-full !max-w-[460px]">
-  <fieldset class="flex flex-col gap-5">
-    <div class="mb-1">
-      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">General</h3>
-      <p class="text-xs text-tertiary mt-0.5">Basic information about your project</p>
-    </div>
-
-    <Field label="Project name" required>
-      <Input placeholder="my-project" :pill="pill" />
-    </Field>
-
-    <Field label="Description" description="A short summary shown in project listings.">
-      <Textarea placeholder="What does this project do?" :rows="3" />
-    </Field>
-
-    <Field label="Visibility" description="Controls who can see this project." v-slot="{ id }">
-      <RadioGroup aria-label="Visibility" v-model:value="visibility" direction="col">
-        <RadioGroupItem value="private">Private, only invited members</RadioGroupItem>
-        <RadioGroupItem value="internal">Internal, anyone in your organization</RadioGroupItem>
-        <RadioGroupItem value="public">Public, visible to everyone</RadioGroupItem>
-      </RadioGroup>
-    </Field>
-  </fieldset>
-
-  <hr class="border-default" />
-
-  <fieldset class="flex flex-col gap-5">
-    <div class="mb-1">
-      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Team Access</h3>
-      <p class="text-xs text-tertiary mt-0.5">Invite collaborators and set permissions</p>
-    </div>
-
-    <Field label="Team members" description="Add people by email address." v-slot="fieldProps">
-      <TagInput
-        :id="fieldProps.id"
-        placeholder="Add email..."
-        :default-value="[
-          { value: 'alice@team.com', valid: true },
-          { value: 'bob@team.com', valid: true },
-        ]"
-        :validator="(value) => value.includes('@')"
-      />
-    </Field>
-
-    <Field label="Permissions" description="Default permissions for new members." v-slot="{ id }">
-      <div class="flex flex-col gap-3 mt-1">
-        <Checkbox label="Can view project" default-checked />
-        <Checkbox label="Can edit resources" default-checked />
-        <Checkbox label="Can manage members" />
-        <Checkbox label="Can delete project" />
-      </div>
-    </Field>
-  </fieldset>
-
-  <hr class="border-default" />
-
-  <fieldset class="flex flex-col gap-5">
-    <div class="mb-1">
-      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Infrastructure</h3>
-      <p class="text-xs text-tertiary mt-0.5">Deployment and resource configuration</p>
-    </div>
-
-    <Field label="Region" v-slot="fieldProps">
-      <Select
-        :id="fieldProps.id"
-        :pill="pill"
-        placeholder="Select region..."
-        v-model:value="region"
-        :options="[
-          { label: 'US East (N. Virginia)', value: 'us-east-1' },
-          { label: 'US West (Oregon)', value: 'us-west-2' },
-          { label: 'Europe (Frankfurt)', value: 'eu-central-1' },
-          { label: 'Asia Pacific (Tokyo)', value: 'ap-northeast-1' },
-        ]"
-      />
-    </Field>
-
-    <Field
-      label="Auto-deploy"
-      description="Automatically deploy on push to main branch."
-      orientation="horizontal"
-      class="${switchRowClass}"
-      v-slot="fieldProps"
-    >
-      <Switch :id="fieldProps.id" default-checked />
-    </Field>
-  </fieldset>
-
-  <div class="flex gap-2">
-    <Button color="primary" :pill="pill">Create project</Button>
-    <Button color="secondary" variant="outline" :pill="pill">Cancel</Button>
-  </div>
-</div>`
-
-export const fieldConfiguration = `<div class="flex flex-col gap-8 w-full !max-w-[460px]">
-  <fieldset class="flex flex-col gap-5">
-    <div class="mb-1">
-      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Setup</h3>
-      <p class="text-xs text-tertiary mt-0.5">Define the basic field properties</p>
-    </div>
-
-    <Field label="Key" description="Unique identifier used in the API. Cannot be changed later.">
-      <Input placeholder="registration_method" default-value="registration_method" :pill="pill" />
-    </Field>
-
-    <Field label="Label" description="Human-readable name displayed in the UI.">
-      <Input placeholder="Registration method" default-value="Registration method" :pill="pill" />
-    </Field>
-
-    <Field label="Type" v-slot="fieldProps">
-      <Select
-        :id="fieldProps.id"
-        :pill="pill"
-        v-model:value="type"
-        :options="[
-          { label: 'String', value: 'string' },
-          { label: 'Number', value: 'number' },
-          { label: 'Boolean', value: 'boolean' },
-          { label: 'Date', value: 'date' },
-          { label: 'JSON', value: 'json' },
-          { label: 'Rich text', value: 'richtext' },
-        ]"
-      />
-    </Field>
-
-    <Field label="Default value" description="Value assigned when the field is empty.">
-      <Input placeholder="Set default value (optional)" :pill="pill" />
-    </Field>
-  </fieldset>
-
-  <hr class="border-default" />
-
-  <fieldset class="flex flex-col gap-5">
-    <div class="mb-1">
-      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Formatting</h3>
-      <p class="text-xs text-tertiary mt-0.5">Input constraints and sanitization rules</p>
-    </div>
-
-    <Field label="Max length" description="Max length cannot exceed 4096.">
-      <Input placeholder="256" inputmode="numeric" :pill="pill" />
-    </Field>
-
-    <Field
-      label="HTML sanitization"
-      description="Strip potentially unsafe HTML tags from input."
-      orientation="horizontal"
-      class="${switchRowClass}"
-      v-slot="fieldProps"
-    >
-      <Switch :id="fieldProps.id" />
-    </Field>
-  </fieldset>
-
-  <hr class="border-default" />
-
-  <fieldset class="flex flex-col gap-5">
-    <div class="mb-1">
-      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Privacy & Access</h3>
-      <p class="text-xs text-tertiary mt-0.5">Control field visibility and mutability</p>
-    </div>
-
-    <Field
-      label="Not redactable"
-      description="Prevent this field from being redacted."
-      orientation="horizontal"
-      class="${switchRowClass}"
-      v-slot="fieldProps"
-    >
-      <Switch :id="fieldProps.id" />
-    </Field>
-
-    <Field
-      label="Write once"
-      description="Value can only be set once and cannot be changed."
-      orientation="horizontal"
-      class="${switchRowClass}"
-      v-slot="fieldProps"
-    >
-      <Switch :id="fieldProps.id" />
-    </Field>
-
-    <Field
-      label="Expires in"
-      description="Automatically delete the field value after the specified period."
-      v-slot="fieldProps"
-    >
-      <Select
-        :id="fieldProps.id"
-        :pill="pill"
-        placeholder="Never"
-        v-model:value="expiresIn"
-        :options="[
-          { label: 'Never', value: 'never' },
-          { label: '30 days', value: '30d' },
-          { label: '90 days', value: '90d' },
-          { label: '1 year', value: '1y' },
-        ]"
-      />
-    </Field>
-  </fieldset>
-
-  <div class="flex gap-2">
-    <Button color="primary" :pill="pill">Save field</Button>
-    <Button color="secondary" variant="outline" :pill="pill">Cancel</Button>
-  </div>
-</div>`
-
-export const birthdayInput = `<div class="w-[320px]">
-  <Field label="Birthday">
-    <Input
-      placeholder="MM / DD / YYYY"
-      :value="birthday"
-      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
-      inputmode="numeric"
-      maxlength="14"
-      autocomplete="off"
-    />
-  </Field>
-</div>`
-
-export const birthdayValidation = `<div class="w-[320px]">
-  <Field
-    label="Birthday"
-    :error-message="birthday && !isValidBirthday(birthday) ? 'Please enter a valid date.' : undefined"
-  >
-    <Input
-      placeholder="MM / DD / YYYY"
-      :value="birthday"
-      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
-      inputmode="numeric"
-      maxlength="14"
-      autocomplete="off"
-    />
-  </Field>
-</div>`
-
-export const birthdaySegmented = `<div class="w-[320px]">
-  <Field label="Birthday" v-slot="fieldProps">
-    <div class="flex items-center gap-2">
-      <Input
-        :id="fieldProps.id"
-        :value="month"
-        @update:value="(raw) => { month = digitsOnly(raw, 2); if (month.length === 2) $refs.dayInput.focus() }"
-        placeholder="MM"
-        inputmode="numeric"
-        maxlength="2"
-        size="md"
-        variant="outline"
-        autocomplete="off"
-        class="w-[56px]"
-      />
-      <span class="text-secondary">/</span>
-      <Input
-        ref="dayInput"
-        :value="day"
-        @update:value="(raw) => { day = digitsOnly(raw, 2); if (day.length === 2) $refs.yearInput.focus() }"
-        placeholder="DD"
-        aria-label="Day"
-        inputmode="numeric"
-        maxlength="2"
-        size="md"
-        variant="outline"
-        autocomplete="off"
-        class="w-[56px]"
-      />
-      <span class="text-secondary">/</span>
-      <Input
-        ref="yearInput"
-        :value="year"
-        @update:value="(raw) => (year = digitsOnly(raw, 4))"
-        placeholder="YYYY"
-        aria-label="Year"
-        inputmode="numeric"
-        maxlength="4"
-        size="md"
-        variant="outline"
-        autocomplete="off"
-        class="w-[80px]"
-      />
-    </div>
-  </Field>
-</div>`
-
-export const birthdaySelect = `<div class="w-[320px]">
-  <Field label="Birthday" v-slot="fieldProps">
-    <div class="flex gap-2">
-      <div class="w-[130px]">
-        <Select
-          :id="fieldProps.id"
-          v-model:value="month"
-          :options="birthdayMonthOptions"
-          placeholder="Month"
-          size="md"
-          variant="outline"
-        />
-      </div>
-      <div class="w-[84px]">
-        <Select
-          v-model:value="day"
-          :options="birthdayDayOptions"
-          placeholder="Day"
-          size="md"
-          variant="outline"
-          aria-label="Day"
-        />
-      </div>
-      <div class="w-[108px]">
-        <Select
-          v-model:value="year"
-          :options="birthdayYearOptions"
-          placeholder="Year"
-          size="md"
-          variant="outline"
-          aria-label="Year"
-        />
-      </div>
-    </div>
-  </Field>
-</div>`
-
-import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
-import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
-import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
-import { phoneRows } from "@/components/docs/phoneRowsTemplate"
-
-<UsageBlock>{`import { Field } from "@plexui/vue/components/Field";`}</UsageBlock>
+<UsageBlock>{`import { Field } from "@plexui/vue/components/Field";
+import { FieldGroup } from "@plexui/vue/components/FieldGroup";`}</UsageBlock>
 
 ## Examples
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Field wraps a form control with a label, optional description, and error message. It automatically generates the label's <code>for</code>, <code>aria-describedby</code>, and <code>aria-invalid</code> linking between the label, description, error, and child control.</>} code={overview} previewMinHeight={168}>
-  <VueDemo template={overview} stageClassName="py-10" controls={overviewControls} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>Field wraps a form control with a label, a description and an error message, and links them: the label's <code>for</code>, <code>aria-describedby</code> and <code>aria-invalid</code> reach the control. <code>required</code> adds an asterisk after the label; it is visual only, so give the control its own <code>required</code> for form validation. The <code>layout</code> control puts the label in its four places:</p>
+  <ul>
+    <li><strong>above</strong>: the default, <code>orientation="vertical"</code>.</li>
+    <li><strong>columns</strong>: <code>orientation="horizontal"</code>, every value starting at one column.</li>
+    <li><strong>end</strong>: <code>row</code>, one line of a <code>FieldGroup</code> with the value at its end. A framed field is a pill there and takes <code>--field-row-control-width</code>, as its width cannot follow what is typed; <code>:pill="false"</code> on the control keeps the rounded box.</li>
+    <li><strong>hidden</strong>: <code>hide-label</code>. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field.</li>
+  </ul>
+  <p>On Phone a field is always a cell of a <code>FieldGroup</code> on the grouped background, as in an iOS form, in the same four places: the label above its value (<code>row orientation="vertical"</code>), values in one column (<code>FieldGroup columns</code>), the value at the end of the row, or the placeholder alone (<code>row hide-label</code>), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's <code>footer</code> slot, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: <code>OTPInput</code> keeps its own digit cells on the screen, outside a group, as in <a href="/vue/components/form-examples#verify-email">Verify email</a>.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" stageClassName="py-10" controls={overviewControls} />
 </ComponentPreview>
 
-### With description
+### Group
 
-<ComponentPreview language="vue" details={<>Use <code>description</code> to display helper text below the label. The description is automatically linked to the control via <code>aria-describedby</code>.</>} code={withDescription} previewMinHeight={168}>
-  <VueDemo template={withDescription} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p><code>FieldGroup</code> holds the rows and draws the hairlines between them. Its <code>title</code> names the group, <code>description</code> stands under the title, the <code>action</code> slot at the end of the header, and the <code>footer</code> slot under the rows; paragraphs of a footer stand apart. <code>columns</code> starts every value at one column, <code>--field-row-column-width</code> into the row.</p>
+  <p><code>header-prominence="increased"</code> makes the title lead its content, as a section of a page. On Phone the standard title is the quiet heading of an iOS list, and the increased one is the list's prominent header, 20pt Semibold in the primary label. A ghost text button in the header is the list header's action: tinted text on the title's last line, with a 44pt target. The footer is 13/16 Footnote, its paragraphs one empty line apart, as in Settings.</p>
+</>} code={group} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={`<div class="w-full max-w-[480px]">${group}</div>`} phoneTemplate={phoneRows(group)} phoneStageClassName="w-full" stageClassName="py-10" controls={groupControls} state={{ street: "12 Market Street", city: "Springfield", postcode: "62701" }} />
 </ComponentPreview>
 
-### With error message
+### Other controls
 
-<ComponentPreview language="vue" details={<>Use <code>error-message</code> to display a validation error. When provided, the child control automatically receives <code>aria-invalid="true"</code>. The error is rendered using the <code>FieldError</code> component with <code>role="alert"</code> for accessibility.</>} code={withError} previewMinHeight={168}>
-  <VueDemo template={withError} stageClassName="py-10" controls={[{ name: "errorMessage", type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>Field works with any form control. A native one, such as a <code>Textarea</code>, is named by the label's <code>for</code>. A <code>Select</code> or <code>DatePicker</code> trigger is not a native form control, so Field points its <code>aria-labelledby</code> at the label, and the trigger adds its value: a screen reader hears "Role, Editor". A child with a name of its own (<code>aria-label</code>, <code>aria-labelledby</code> or <code>label</code>) keeps it.</p>
+  <p>On Phone a Select or a date is the value at the end of its row, and a long text stands under its label. A group of checkboxes, radios or switches is a row per choice: see <a href="/vue/components/checkbox#with-field">Checkbox</a>, <a href="/vue/components/radio-group">Radio Group</a> and <a href="/vue/components/switch">Switch</a>.</p>
+</>} code={withPhone(controls, controlsPhone)} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={controls} phoneTemplate={phoneRows(controlsPhone)} phoneStageClassName={phoneCalendarSecondRowStageClassName} stageClassName="py-10" state={{ role: "editor", roles, start: null }} />
 </ComponentPreview>
 
-### Required
+### Label action
 
-<ComponentPreview language="vue" details={<>Use <code>required</code> to show a visual asterisk after the label. This is purely visual and does not add the <code>required</code> HTML attribute: pass <code>required</code> directly to the child control for form validation.</>} code={required} previewMinHeight={168}>
-  <VueDemo template={required} stageClassName="py-10" controls={[{ name: "required", type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>labelAction</code> slot (or the <code>label-action</code> string prop) for a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size. On Phone a row has no label line to hold it: the link stands under the group in the rows' text, as under the Apple Account sign-in. A group's footer is a footnote, for words to read.</>} code={withPhone(labelAction, labelActionPhone)} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={labelAction} phoneTemplate={phoneRows(labelActionPhone)} phoneStageClassName="w-full" stageClassName="py-10" />
+</ComponentPreview>
+
+### Several controls
+
+<ComponentPreview phonePresentation="none" language="vue" details={<>For more than one control, or a control that needs its props placed by hand, read the default slot's props (<code>v-slot="fieldProps"</code>): <code>{'{ id, "aria-labelledby", "aria-describedby", "aria-invalid" }'}</code>. A slot that reads them renders its content as it is, so you bind them where they belong: put the <code>id</code> and <code>aria-labelledby</code> on the first control, so the label names it, and give the others an <code>aria-label</code> of their own. On a phone a birthday is one row and one value, whose wheel sets the day, the month and the year, as in Contacts. PlexUI has no such wheel, so this example has no Phone view.</>} code={severalControls} previewMinHeight={168}>
+  <VueDemo template={severalControls} stageClassName="py-10" state={{ month: "", day: "", year: "", months, days, years }} />
 </ComponentPreview>
 
 ### Sizing
 
 <ComponentPreview phonePresentation="none" language="vue" details={<>
   <p>The label and description scale with the child control: Field reads the control's <code>size</code>, so <code>{'<Input size="lg" />'}</code> gets a <code>lg</code> label without repeating it. Pass <code>size</code> to Field to set the label size yourself, or when the slot reads the field props.</p>
-  <p>On a phone with <code>touch.css</code> a text field is 44px from <code>3xs</code> to <code>2xl</code> and 50px at <code>3xl</code>, with the 17px text of iOS: a <code>3xs</code>, <code>2xs</code> or <code>xs</code> field takes the height, text and gutter of <code>sm</code>, and a horizontal label lines up with it. The Overview's phone view shows the <code>md</code> field without the size and pill controls, and this example is desktop only, as the Input page's Sizing is. In a form on a phone, put fields in rows of a <code>FieldGroup</code> (see Rows).</p>
-</>} code={overview} previewMinHeight={168}>
-  <VueDemo template={overview} stageClassName="py-10" controls={overviewControls} />
+  <p>On a phone a row sets the field's height, insets and type, so this example has no Phone view. Outside a row, with <code>touch.css</code> a text field is 44px from <code>3xs</code> to <code>2xl</code> and 50px at <code>3xl</code>, with the 17px text of iOS.</p>
+</>} code={sizing} previewMinHeight={168}>
+  <VueDemo template={sizing} stageClassName="py-10" controls={[{ name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" }, { name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
-
-### Horizontal layout
-
-<ComponentPreview language="vue" details={<>
-  <p>Use <code>orientation="horizontal"</code> to render the label beside the control instead of above it.</p>
-  <p>On a phone with <code>touch.css</code> the control narrows to the width its label leaves, instead of running past the screen at its 240px (<code>--field-horizontal-control-flex</code>). For a form on a phone, rows are the iOS layout: see Rows below.</p>
-</>} code={orientation} previewMinHeight={168}>
-  <VueDemo template={orientation} stageClassName="py-10" controls={[{ name: "orientation", type: "select", options: ["vertical", "horizontal"], default: "horizontal" }]} />
-</ComponentPreview>
-
-### Rows
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>row</code> for one line of a block: the label at the start, the control at the end, an error under both. <code>FieldGroup</code> holds the rows, with a title, an action and a footer, and draws the hairlines between them. With <code>touch.css</code> rows take the iOS sizes on a phone. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={rows} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={rows} phoneTemplate={phoneRows(rows)} phoneStageClassName="w-full" stageClassName="py-10" />
-</ComponentPreview>
-
-### Fields in rows
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: <code>:pill="false"</code> on the control keeps the rounded box. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>:block="false"</code>, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes, a soft field loses its fill too, and the value ends at its edge.</>} code={rowFields} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={rowFields} phoneTemplate={phoneRows(rowFields)} phoneStageClassName="w-full" state={{ unit: "ml", units: [{ value: "ml", label: "Millilitres" }, { value: "g", label: "Grams" }] }} stageClassName="py-10" />
-</ComponentPreview>
-
-### Textarea
-
-<ComponentPreview language="vue" code={textarea} previewMinHeight={168}>
-  <VueDemo template={textarea} />
-</ComponentPreview>
-
-### Select
-
-<ComponentPreview language="vue" details={<>A Select trigger is not a native form control, so the label's <code>for</code> cannot name it. Field points the trigger's <code>aria-labelledby</code> at the label, and Select adds its value: a screen reader hears "Role, Admin". DatePicker works the same way. A control with its own <code>aria-label</code>, <code>aria-labelledby</code> or <code>label</code> keeps its name; a slot that reads the field props gets <code>aria-labelledby</code> among them to bind.</>} code={select} previewMinHeight={168}>
-  <VueDemo template={select} state={{ role: "" }} />
-</ComponentPreview>
-
-### Label action
-
-<ComponentPreview language="vue" details={<>Use the <code>labelAction</code> slot (or the <code>label-action</code> string prop) for a link or a small control that acts on the field, at the end of the label row. It takes the label's font size.</>} code={labelAction} previewMinHeight={168}>
-  <VueDemo template={labelAction} />
-</ComponentPreview>
-
-### Slider
-
-<ComponentPreview language="vue" details={<>Field works with any form control. Use the description to display the current slider value.</>} code={slider} previewMinHeight={168}>
-  <VueDemo template={slider} state={{ price: [200, 800] }} />
-</ComponentPreview>
-
-### Fieldset
-
-<ComponentPreview language="vue" details={<>Group related fields under a heading and description to create a logical fieldset.</>} code={fieldset} previewMinHeight={168}>
-  <VueDemo template={fieldset} />
-</ComponentPreview>
-
-### Checkbox
-
-<ComponentPreview language="vue" details={<>Wrap a group of checkboxes in a Field for a shared label and description. The slot takes the field props (<code>v-slot="{'{ id }'}"</code>), so Field renders the group as it is instead of wiring the props onto it.</>} code={checkboxGroup} previewMinHeight={168}>
-  <VueDemo template={checkboxGroup} />
-</ComponentPreview>
-
-### Radio
-
-<ComponentPreview language="vue" details={<>Use Field with <code>RadioGroup</code> for labeled radio selections. Bind the field props onto the group (<code>v-bind="fieldProps"</code>) so its <code>aria-describedby</code> points at the description.</>} code={radioGroup} previewMinHeight={168}>
-  <VueDemo template={radioGroup} state={{ plan: "free" }} />
-</ComponentPreview>
-
-### Switch
-
-<ComponentPreview language="vue" details={<>Pair a Field with a <code>Switch</code> using <code>orientation="horizontal"</code> for inline toggle settings.</>} code={switchField} previewMinHeight={168}>
-  <VueDemo template={switchField} state={{ enabled: false }} />
-</ComponentPreview>
-
-### Stacked fields
-
-<ComponentPreview language="vue" details={<>Stack <code>Field</code> components with a divider to group related notification settings.</>} code={fieldGroup} previewMinHeight={168}>
-  <VueDemo template={fieldGroup} />
-</ComponentPreview>
-
-### Validation and Errors
-
-<ComponentPreview language="vue" details={<>Combine <code>required</code> and <code>error-message</code> for client-side validation feedback. Toggle errors on and off to see the visual transition.</>} code={validation} previewMinHeight={168}>
-  <VueDemo template={validation} stageClassName="py-10" state={{ name: "", email: "bad-email" }} controls={[{ name: "showErrors", label: "show errors", type: "boolean", default: true }]} />
-</ComponentPreview>
-
-### Slot props pattern
-
-Field's default slot receives `{ id, "aria-describedby", "aria-invalid" }` (plus `opticallyAlign` when set). A slot that reads these props renders its content as it is, so you bind them where they belong, like React's render prop. A slot that does not read them gets its single root element wired by Field.
-
-```vue
-<Field label="Email" error-message="Email is required" v-slot="fieldProps">
-  <Input v-bind="fieldProps" placeholder="Enter email..." />
-</Field>
-```
 
 ### Optical alignment
 
-<ComponentPreview language="vue" details={<>
-  <p>Use <code>optically-align="start"</code> to apply a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it.</p>
-  <p>The phone view leaves out the pill control, as the Input page leaves out its own.</p>
-</>} code={opticalAlign} previewMinHeight={168}>
-  <VueDemo template={opticalAlign} stageClassName="py-10" controls={[{ name: "opticallyAlign", type: "boolean", default: true }, { name: "pill", desktopOnly: true, type: "boolean", default: false }]} />
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>optically-align="start"</code> to apply a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it. A phone row has no frame to align, so this example has no Phone view.</>} code={opticalAlign} previewMinHeight={168}>
+  <VueDemo template={opticalAlign} stageClassName="py-10" controls={[{ name: "opticallyAlign", type: "boolean", default: true }, { name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 
-export const formExampleMobile = formScreenTemplate("Payment details", `<FieldGroup title="Payment method" description="All transactions are secure and encrypted." columns>
-        <Field row label="Name on card"><Input placeholder="Jane Doe" autocomplete="cc-name" /></Field>
-        <Field row label="Card number" orientation="vertical"><Input variant="ghost" placeholder="1234 5678 9012 3456" inputmode="numeric" autocomplete="cc-number" /></Field>
-        <Field row label="Month"><Select placeholder="MM" v-model:value="month" :options="months" /></Field>
-        <Field row label="Year"><Select placeholder="YYYY" v-model:value="year" :options="years" /></Field>
-        <Field row label="CVV"><Input placeholder="123" inputmode="numeric" autocomplete="cc-csc" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Billing address" description="The billing address associated with your payment method.">
-        <Field row label="Same as shipping address"><Switch :default-checked="true" /></Field>
-        <Field row label="Comments" orientation="vertical"><Textarea variant="ghost" :rows="3" auto-resize placeholder="Add any additional comments" /></Field>
-      </FieldGroup>`, "Submit")
-
-export const profileSettingsMobile = formScreenTemplate("Profile settings", `<FieldGroup title="Personal information" description="Your public profile details." columns>
-        <Field row label="First name"><Input default-value="Jane" autocomplete="given-name" /></Field>
-        <Field row label="Last name"><Input default-value="Doe" autocomplete="family-name" /></Field>
-        <Field row label="Email" orientation="vertical" description="This is the email associated with your account."><Input variant="ghost" default-value="jane@example.com" type="email" autocomplete="email" /></Field>
-        <Field row label="Bio" orientation="vertical" description="Brief description for your profile. Max 160 characters."><Textarea variant="ghost" placeholder="Tell us about yourself..." :rows="3" auto-resize :maxLength="160" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Preferences" description="Customize your experience." columns>
-        <Field row label="Language"><Select v-model:value="language" :options="languages" /></Field>
-        <Field row label="Theme"><Select v-model:value="theme" :options="themes" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Notifications" description="Manage how you receive updates.">
-        <Field row label="Email notifications" description="Receive weekly digests and important updates."><Switch :default-checked="true" /></Field>
-        <Field row label="Push notifications" description="Get real-time alerts in your browser."><Switch /></Field>
-        <Field row label="Marketing emails" description="Tips, product updates, and promotions."><Switch /></Field>
-      </FieldGroup>`, "Save changes")
-
-export const createProjectMobile = formScreenTemplate("Create project", `<FieldGroup title="General" description="Basic information about your project." columns>
-        <Field row label="Project name" required><Input placeholder="my-project" required /></Field>
-        <Field row label="Description" orientation="vertical" description="A short summary shown in project listings."><Textarea variant="ghost" placeholder="What does this project do?" :rows="3" auto-resize /></Field>
-      </FieldGroup>
-      <RadioGroup direction="col" class="w-full" v-model:value="visibility" aria-label="Visibility">
-        <FieldGroup title="Visibility" description="Controls who can see this project.">
-          <Field row label="Private" description="Only invited members."><RadioGroupItem value="private" /></Field>
-          <Field row label="Internal" description="Anyone in your organization."><RadioGroupItem value="internal" /></Field>
-          <Field row label="Public" description="Visible to everyone."><RadioGroupItem value="public" /></Field>
-        </FieldGroup>
-      </RadioGroup>
-      <FieldGroup title="Team access" description="Invite collaborators and set permissions.">
-        <Field row label="Team members" orientation="vertical" description="Add people by email address."><TagInput variant="ghost" placeholder="Add email..." :default-value="[{ value: 'alice@team.com', valid: true }, { value: 'bob@team.com', valid: true }]" :validator="(value) => value.includes('@')" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Permissions" description="Default permissions for new members.">
-        <Field row label="Can view project"><Switch :default-checked="true" /></Field>
-        <Field row label="Can edit resources"><Switch :default-checked="true" /></Field>
-        <Field row label="Can manage members"><Switch /></Field>
-        <Field row label="Can delete project"><Switch /></Field>
-      </FieldGroup>
-      <FieldGroup title="Infrastructure" description="Deployment and resource configuration." columns>
-        <Field row label="Region"><Select placeholder="Select region" v-model:value="region" :options="regions" /></Field>
-        <Field row label="Auto-deploy" description="Automatically deploy on push to main branch."><Switch :default-checked="true" /></Field>
-      </FieldGroup>`, "Create project")
-
-export const fieldConfigurationMobile = formScreenTemplate("Field configuration", `<FieldGroup title="Setup" description="Define the basic field properties." columns>
-        <Field row label="Key" orientation="vertical" description="Unique identifier used in the API. Cannot be changed later."><Input variant="ghost" default-value="registration_method" /></Field>
-        <Field row label="Label" orientation="vertical" description="Human-readable name displayed in the UI."><Input variant="ghost" default-value="Registration method" /></Field>
-        <Field row label="Type"><Select v-model:value="type" :options="fieldTypes" /></Field>
-        <Field row label="Default value" orientation="vertical" description="Value assigned when the field is empty."><Input variant="ghost" placeholder="Set default value (optional)" /></Field>
-      </FieldGroup>
-      <FieldGroup title="Formatting" description="Input constraints and sanitization rules.">
-        <Field row label="Max length" description="Max length cannot exceed 4096."><Input placeholder="256" inputmode="numeric" /></Field>
-        <Field row label="HTML sanitization" description="Strip potentially unsafe HTML tags from input."><Switch /></Field>
-      </FieldGroup>
-      <FieldGroup title="Privacy & access" description="Control field visibility and mutability.">
-        <Field row label="Not redactable" description="Prevent this field from being redacted."><Switch /></Field>
-        <Field row label="Write once" description="Value can only be set once and cannot be changed."><Switch /></Field>
-        <Field row label="Expires in" description="Automatically delete the field value after the specified period."><Select placeholder="Never" v-model:value="expiresIn" :options="expirations" /></Field>
-      </FieldGroup>`, "Save field")
-
-### Form example
-
-<ComponentPreview phonePresentation="screen" language="vue" details={<>A payment form using desktop fieldsets and a mobile Page with grouped rows, a navigation header, and a pinned submit action. The code shows the mobile composition.</>} code={formExampleMobile} previewMinHeight={168}>
-  <VueFieldScreenDemo template={`<template v-if="!wide">${formExampleMobile}</template><template v-else>${formExample}</template>`} stageClassName="" state={{ month: "", year: "" }} controls={pillControl} />
-</ComponentPreview>
-
-### Profile settings
-
-<ComponentPreview phonePresentation="screen" language="vue" details={<>Profile settings with text inputs, preferences, and notification switches. On Phone, FieldGroup columns align values and Page keeps the Save action below the scrolling form. The code shows the mobile composition.</>} code={profileSettingsMobile} previewMinHeight={168}>
-  <VueFieldScreenDemo template={`<template v-if="!wide">${profileSettingsMobile}</template><template v-else>${profileSettings}</template>`} stageClassName="" state={{ language: "en", theme: "system" }} controls={pillControl} />
-</ComponentPreview>
-
-### Create project
-
-<ComponentPreview phonePresentation="screen" language="vue" details={<>Project settings with grouped inputs, visibility choices, team access, and infrastructure. Phone uses checkmark rows for visibility and switches for permissions. The code shows the mobile composition.</>} code={createProjectMobile} previewMinHeight={168}>
-  <VueFieldScreenDemo template={`<template v-if="!wide">${createProjectMobile}</template><template v-else>${createProject}</template>`} stageClassName="" state={{ visibility: "private", region: "" }} controls={pillControl} />
-</ComponentPreview>
-
-### Field configuration
-
-<ComponentPreview phonePresentation="screen" language="vue" details={<>Field configuration organized into setup, formatting, and privacy groups. On Phone, the toolbar and Save action stay in place while the fields scroll. The code shows the mobile composition.</>} code={fieldConfigurationMobile} previewMinHeight={168}>
-  <VueFieldScreenDemo template={`<template v-if="!wide">${fieldConfigurationMobile}</template><template v-else>${fieldConfiguration}</template>`} stageClassName="" state={{ type: "string", expiresIn: "" }} controls={pillControl} />
-</ComponentPreview>
-
-### Birthday input
-
-<ComponentPreview language="vue" details={<>A date-of-birth input with inline formatting that inserts <code>MM / DD / YYYY</code> separators as you type, wrapped in a <code>Field</code> for label and accessibility. <code>nextBirthday</code> is a plain helper function of the example.</>} code={birthdayInput} previewMinHeight={168}>
-  <VueFieldDemo template={birthdayInput} stageClassName="py-10" state={{ birthday: "" }} />
-</ComponentPreview>
-
-### Birthday with validation
-
-<ComponentPreview language="vue" details={<>Birthday input with <code>error-message</code> on <code>Field</code>: Field automatically passes <code>aria-invalid</code> down and renders <code>FieldError</code>. <code>nextBirthday</code> and <code>isValidBirthday</code> are plain helper functions of the example.</>} code={birthdayValidation} previewMinHeight={168}>
-  <VueFieldDemo template={birthdayValidation} stageClassName="py-10" state={{ birthday: "02 / 30 / 2001" }} />
-</ComponentPreview>
-
-### Birthday segmented input
-
-<ComponentPreview language="vue" details={<>Three compact <code>Input</code> controls composed as month/day/year with auto-advance behavior, wrapped in a <code>Field</code> for shared label and accessibility. The field id goes to the month input, and the day and year inputs carry their own <code>aria-label</code>. <code>digitsOnly</code> is a plain helper function of the example.</>} code={birthdaySegmented} previewMinHeight={168}>
-  <VueFieldDemo template={birthdaySegmented} stageClassName="py-10" state={{ month: "", day: "", year: "" }} />
-</ComponentPreview>
-
-### Birthday with selects
-
-<ComponentPreview language="vue" details={<>Dropdown birthday picker with Month/Day/Year selects inside a labeled <code>Field</code> group. The field id goes to the month select, and the day and year selects carry their own <code>aria-label</code>.</>} code={birthdaySelect} previewMinHeight={168}>
-  <VueFieldDemo template={birthdaySelect} stageClassName="py-10" state={{ month: "", day: "", year: "" }} />
-</ComponentPreview>
+For whole forms, on the web and on a phone, see [Form Examples](/vue/components/form-examples).
 
 ## API
 
 <PropsTable data={[
   { prop: "label", type: "string", description: "Label text for the field" },
+  { prop: "hide-label", type: "boolean", default: "false", description: "Hides the label from view; it still names the control. A description moves under the control. On a row the value or placeholder starts at the row's edge, so the row is vertical unless orientation says otherwise" },
   { prop: "label slot", type: "VNode[]", description: "Rich label content; takes precedence over the label prop" },
   { prop: "description", type: "string", description: "Helper text below the label; linked via aria-describedby (or the description slot)" },
   { prop: "error-message", type: "string", description: "Error message below the control; sets aria-invalid on the child (or the errorMessage slot)" },
   { prop: "label-action", type: "string", description: "Content at the end of the label row, such as a link that acts on the field (or the labelAction slot)" },
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: "child's size, else \"md\"", description: "Label font size; defaults to the child control's size" },
   { prop: "required", type: "boolean", default: "false", description: "Shows a required asterisk after the label (visual only)" },
-  { prop: "orientation", type: '"vertical" | "horizontal"', default: '"horizontal" on a row, else "vertical"', description: "Layout direction of label and control" },
+  { prop: "orientation", type: '"vertical" | "horizontal"', default: '"horizontal" on a row with a visible label, else "vertical"', description: "Layout direction of label and control" },
   { prop: "row", type: "boolean", default: "false", description: "One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other attributes reach the root only on a row" },
   { prop: "fill", type: "boolean", default: "false", description: "On a row, the control takes the rest of the line after the label" },
   { prop: "#action", type: "slot", description: "On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it" },
@@ -1001,12 +307,13 @@ export const fieldConfigurationMobile = formScreenTemplate("Field configuration"
 
 <PropsTable data={[
   { prop: "title", type: "string", description: "Heading over the block (or the title slot); it names the group" },
+  { prop: "header-prominence", type: '"standard" | "increased"', default: '"standard"', description: "How much the title stands out: a quiet heading over the rows, or a title that leads its content (on a phone the iOS prominent list header, 20pt Semibold)" },
   { prop: "description", type: "string", description: "Line under the title (or the description slot)" },
   { prop: "columns", type: "boolean", default: "false", description: "Every value starts at one column, --field-row-column-width into the row, on the web and on a phone. Off, values end at the row's edge" },
   { prop: "bodyClass", type: "string", description: "Applied to the block that holds the rows" },
   { prop: "default slot", type: "VNode", description: "The rows" },
-  { prop: "action slot", type: "VNode", description: "Content at the end of the header" },
-  { prop: "footer slot", type: "VNode", description: "Content under the block" },
+  { prop: "action slot", type: "VNode", description: "Content at the end of the header. On a phone a ghost text button reads as the list header's action: tinted text on the title's last line" },
+  { prop: "footer slot", type: "VNode", description: "Content under the block, such as a note; its paragraphs stand apart" },
 ]} />
 
 ## Styling
@@ -1057,11 +364,18 @@ FieldGroup reads these:
 
 - `--field-group-background`: block background (default `transparent`)
 - `--field-group-border-width`: block border (default `1px`)
-- `--field-group-description-font-size`: description size (default `var(--font-text-xs-size)`)
-- `--field-group-description-line-height`: description line height (default `var(--font-text-xs-line-height)`)
+- `--field-group-description-font-size`: description size (default `var(--font-text-sm-size)`; 15px on a phone)
+- `--field-group-description-line-height`: description line height (default `var(--font-text-sm-line-height)`; 20px on a phone)
+- `--field-group-footer-font-size`: footer size (default the description size; 13px on a phone)
+- `--field-group-footer-line-height`: footer line height (default the description line height; 16px on a phone)
+- `--field-group-footer-padding`: footer padding (default `8px 0 0`)
+- `--field-group-footer-paragraph-gap`: space between footer paragraphs (default `spacing(2)`; 16px on a phone)
+- `--field-group-header-min-height`: header height (default `spacing(8)`)
+- `--field-group-header-padding-bottom`: space under the header (default `spacing(2)`)
 - `--field-group-radius`: block radius (default `1rem`)
 - `--field-group-title-color`: title color (default `var(--color-text)`)
 - `--field-group-title-font-size`: title size (default `var(--font-text-md-size)`)
 - `--field-group-title-font-weight`: title weight (default `var(--font-weight-medium)`)
+- `--field-group-title-letter-spacing`: title tracking (default `normal`)
 - `--field-group-title-line-height`: title line height (default `var(--font-text-md-line-height)`)
 - `--field-group-title-padding-inline`: title inset (default `0`)
