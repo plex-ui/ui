@@ -143,7 +143,9 @@ const SwitchComponent = defineComponent({
                   ControlButton,
                   {
                     "listeners": listeners,
-                    "after": { onClick: afterClick },
+                    // A touch listener lets iOS Safari apply :active, which draws the pressed knob of a phone
+                    // (Switch.module.css). React listens for touchstart at its root already.
+                    "after": { onClick: afterClick, onTouchstartPassive: () => {} },
                     "drop": ["onKeydown"],
                     "id": id,
                     "class": s.Track,

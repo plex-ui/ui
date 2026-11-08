@@ -5,8 +5,10 @@ import { describe, expect, test } from "vitest"
 import { h } from "vue"
 import { FloatingLabelInput as RFloatingLabelInput } from "../../packages/ui/src/components/FloatingLabelInput"
 import { Input as RInput } from "../../packages/ui/src/components/Input"
+import { Tabs as RTabs } from "../../packages/ui/src/components/Tabs"
 import { FloatingLabelInput } from "../../packages/vue/src/components/FloatingLabelInput"
 import { Input } from "../../packages/vue/src/components/Input"
+import { Tabs, TabsTab } from "../../packages/vue/src/components/Tabs"
 import { renderPair } from "./pair"
 
 // Plan 163: the phone rules taken from the iOS 27 kit (text field clear, empty state, slider label row, sheet title).
@@ -244,3 +246,81 @@ describe("lists on a phone (kit iOS 27 Lists 507:24675)", () => {
     expect(touch).toContain("--field-group-footer-line-height: 16px;")
   })
 })
+
+// Plan 173 block B: the states of the kit's Toggles (29:56814) and Sliders (7:53847), Pressed and Disabled.
+describe("phone Switch and Slider states (kit iOS 27 Toggles 29:56814, Sliders 7:53847)", () => {
+  const materials = read("packages/styles/src/styles/mobile-materials.css")
+
+  test("a knob held down is a clear lens of glass 58 x 38 on the 38 x 24 knob's centre; without touch.css it stays", () => {
+    expect(materials).toContain("--mobile-knob-lens-scale: calc(58 / 38) calc(38 / 24);")
+    expect(materials).toContain("--mobile-knob-lens-background: rgb(255 255 255 / 9%);")
+    expect(materials).toMatch(/--mobile-knob-lens-shadow: 0 4\.5px 8px rgb\(0 0 0 \/ 12%\), 0 0 0 0\.33px rgb\(0 0 0 \/ 20%\), inset 0 0\.5px 0 rgb\(255 255 255 \/ 16%\), inset 0 -0\.5px 0 rgb\(255 255 255 \/ 16%\);/)
+    const sw = phoneRules("packages/styles/src/components/Switch/Switch.module.css")
+    expect(decls(sw.get(".Track:active:not([data-disabled]) > .Thumb"))).toEqual({
+      scale: "var(--mobile-knob-lens-scale, none)",
+      "background-color": "var(--mobile-knob-lens-background, var(--switch-thumb-color))",
+      "box-shadow": "var(--mobile-knob-lens-shadow, var(--switch-thumb-shadow))",
+    })
+    // The checked knob moves by translate, so the lens's scale does not stretch the move (it did with transform).
+    const base = baseRules("packages/styles/src/components/Switch/Switch.module.css")
+    expect(decls(base.get(".Thumb"))).toMatchObject({ transition: "translate 200ms var(--cubic-enter)" })
+    expect(decls(base.get(".Thumb")?.nodes.find((n): n is postcss.Rule => n.type === "rule" && n.selector === '[data-state="checked"] &'))).toEqual({
+      translate: "calc(var(--switch-track-width) - var(--switch-thumb-width) - var(--switch-thumb-offset) * 2) 0",
+    })
+    expect(decls(sw.get(".Thumb")).transition).toMatch(/^translate 200ms var\(--cubic-enter\),\s*scale 200ms/)
+    const slider = phoneRules("packages/styles/src/components/Slider/Slider.module.css")
+    const lens = {
+      scale: "var(--mobile-knob-lens-scale, none)",
+      "background-color": "var(--mobile-knob-lens-background, var(--slider-thumb-background, var(--gray-0)))",
+      "box-shadow": "var(--mobile-knob-lens-shadow, var(--slider-thumb-shadow, inset 0 0 0 2px var(--slider-range-color)))",
+    }
+    expect(decls(slider.get('.Slider[data-orientation="horizontal"][data-pressed]:not([data-range], [data-disabled]) .Thumb,\n  .Slider[data-orientation="horizontal"][data-pressed][data-range]:not([data-disabled]) .Thumb:focus'))).toEqual(lens)
+    // The thumb still slides to a value set in code; a vertical slider keeps its own knob.
+    expect(decls(slider.get('.Slider[data-orientation="horizontal"] .Thumb')).transition).toMatch(/^left var\(--slider-duration\) var\(--cubic-move\),/)
+  })
+
+  test("disabled, both keep their colors at half opacity; the switch knob casts no shadow (IMG_5442)", () => {
+    const sw = phoneRules("packages/styles/src/components/Switch/Switch.module.css")
+    const track = sw.get(".Track[data-disabled]")
+    expect(decls(track)).toEqual({ background: "var(--switch-track-color)", opacity: "0.5" })
+    expect(decls(track?.nodes.find((n): n is postcss.Rule => n.type === "rule" && n.selector === '&[data-state="checked"]'))).toEqual({ background: "var(--switch-track-color-checked)" })
+    expect(decls(sw.get(".Thumb[data-disabled]"))).toEqual({ background: "var(--switch-thumb-color)" })
+    expect(touch).toContain("--switch-thumb-shadow: none;")
+    // A 38 x 24 knob, as the kit's, so the lens comes to its 58 x 38.
+    expect(touch).toContain("--switch-thumb-width: 38px;")
+    expect(decls(phoneRules("packages/styles/src/components/Slider/Slider.module.css").get(".Slider[data-disabled]"))).toEqual({ opacity: "0.5" })
+    // The phone rules use the query of touch.css, where the lens tokens live; desktop keeps its own look.
+    expect(read("packages/styles/src/components/Switch/Switch.module.css")).not.toContain("767.98px")
+    expect(baseRules("packages/styles/src/components/Switch/Switch.module.css").has(".Track:active:not([data-disabled]) > .Thumb")).toBe(false)
+  })
+})
+
+describe("a disabled Button and pop-up on a phone (kit iOS 27 Button - Content Area 40:58696, Pop-up Button 410:50387)", () => {
+  test("label in the tertiary label, where the desktop gray-400 read 143 on white", () => {
+    expect(decls(phoneRules("packages/styles/src/components/Button/Button.module.css").get(".Button[data-disabled][data-variant]"))).toEqual({
+      "--button-text-color": "var(--mobile-label-tertiary, var(--color-text-disabled))",
+    })
+    const select = phoneRules("packages/styles/src/components/SelectControl/SelectControl.module.css").get(".SelectControl[data-disabled][data-variant]")
+    expect(decls(select)).toEqual({ color: "var(--mobile-label-tertiary, var(--color-text-disabled))" })
+    // The chevrons rest at 75%; the tertiary label is dimmed already, so they show at full opacity.
+    expect(decls(select?.nodes.find((n): n is postcss.Rule => n.type === "rule" && n.selector === ".DropdownIcon"))).toEqual({ color: "var(--mobile-label-tertiary, var(--color-text-disabled))", opacity: "1" })
+  })
+})
+
+describe("a disabled segmented control on a phone (kit iOS 27 Segmented Controls 10460:145)", () => {
+  test("a Tabs group disabled as a whole marks its root, the same in React and Vue, and shows at half opacity", async () => {
+    const out = await renderPair(
+      createElement(RTabs as unknown as ComponentType<Props>, { value: "a", onChange: noop, disabled: true, "aria-label": "Views" },
+        createElement(RTabs.Tab as unknown as ComponentType<Props>, { value: "a" }, "Day"),
+        createElement(RTabs.Tab as unknown as ComponentType<Props>, { value: "b" }, "Week")),
+      () => h(Tabs as never, { value: "a", disabled: true, "aria-label": "Views" }, () => [h(TabsTab as never, { value: "a" }, () => "Day"), h(TabsTab as never, { value: "b" }, () => "Week")]),
+    )
+    expect(out.vue).toBe(out.react)
+    expect(out.react).toMatch(/class="Tabs"[^>]*data-disabled=""/)
+    const rule = phoneRules("packages/styles/src/components/Tabs/Tabs.module.css").get('.Tabs[data-disabled][data-orientation="horizontal"]')
+    expect(decls(rule)).toEqual({ opacity: "0.5" })
+    // Its segments are not dimmed a second time.
+    expect(decls(rule?.nodes.find((n): n is postcss.Rule => n.type === "rule" && n.selector === "& > .Tab[data-disabled]"))).toEqual({ opacity: "1" })
+  })
+})
+

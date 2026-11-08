@@ -32,6 +32,15 @@
        black 17pt text under a bottom capsule comes to 228 to 237 on 245 to 250 (Mail IMG_5551, Phone
        IMG_5615), a smudge, where 6px left the letters legible through the capsule (plan 172). */
     --mobile-glass-backdrop-filter: blur(12px);
+    /* A knob held down turns into a clear lens of glass, 58 x 38 around the 38 x 24 knob and on the same centre
+       (kit iOS 27, Toggles 29:56814 and Sliders 7:53847, State=Pressed): white at 9% over the track, a 0.5pt
+       edge burned in (#ccc, linear burn: black at 20%), a light rim 0.75pt in along the top and the bottom
+       (Specular Light, 40 levels added) and a soft shadow 7pt down (a black ring blurred by 6 at half opacity).
+       The knob grows by scale, so the lengths below are the kit's divided by it. The lens's refraction (0.8,
+       depth 7) has no CSS equivalent. */
+    --mobile-knob-lens-scale: calc(58 / 38) calc(38 / 24);
+    --mobile-knob-lens-background: rgb(255 255 255 / 9%);
+    --mobile-knob-lens-shadow: 0 4.5px 8px rgb(0 0 0 / 12%), 0 0 0 0.33px rgb(0 0 0 / 20%), inset 0 0.5px 0 rgb(255 255 255 / 16%), inset 0 -0.5px 0 rgb(255 255 255 / 16%);
     --mobile-grabber-color: light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 20%));
     /* Dark menus and Select lists are glass, as native iOS 26 pop-up menus and popovers are: the glass
        of the buttons, alpha-12, over a blurred backdrop (iOS2 IMG_5524, 5525, 5528: a sheet of 28 shows at

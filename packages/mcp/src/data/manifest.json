@@ -1561,7 +1561,7 @@
         {
           "name": "Overview",
           "code": "<ContextMenu>\n<ContextMenu.Trigger>\n  <div tabIndex={0}>Groceries</div>\n</ContextMenu.Trigger>\n<ContextMenu.Content>\n  <ContextMenu.Item onSelect={copy}><Copy /> Copy</ContextMenu.Item>\n  <ContextMenu.Item onSelect={share}><Share /> Share</ContextMenu.Item>\n  <ContextMenu.Item onSelect={pin}><Pin /> Pin</ContextMenu.Item>\n  <ContextMenu.Separator />\n  <ContextMenu.Item danger onSelect={remove}><RemoveTrash /> Delete</ContextMenu.Item>\n</ContextMenu.Content>\n</ContextMenu>",
-          "details": "Wrap the element in ContextMenu.Trigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 18px below it, at the edge on the side of the touch. The press that opened the menu does not activate the element. On a phone the rows sit on the grouped background of an iOS list."
+          "details": "Wrap the element in ContextMenu.Trigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. On a phone the rows sit on the grouped background of an iOS list."
         },
         {
           "name": "Rounded elements",
@@ -6854,7 +6854,7 @@
         {
           "name": "Overview",
           "code": "const [tab, setTab] = useState(\"overview\")\nconst [disabled, setDisabled] = useState(false)\nconst [reportsDisabled, setReportsDisabled] = useState(false)\n\nreturn (\n<Tabs value={tab} onChange={setTab} disabled={disabled} aria-label=\"Demo tabs\">\n  <Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n  <Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n  <Tabs.Tab value=\"reports\" disabled={reportsDisabled}>Reports</Tabs.Tab>\n  <Tabs.Tab value=\"settings\">Settings</Tabs.Tab>\n</Tabs>\n)",
-          "details": "Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS segmented control on glass, as toolbar buttons are: segments of one width in a 44px capsule, the selection a darker pill inside it with the primary label and the other labels secondary, filling the row of a phone screen; vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls."
+          "details": "Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS segmented control on glass, as toolbar buttons are: segments of one width in a 44px capsule, the selection a darker pill inside it with the primary label and the other labels secondary, filling the row of a phone screen; vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls."
         },
         {
           "name": "Segmented with icons",
@@ -7733,5 +7733,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T21:10:43.694Z"
+  "generatedAt": "2026-11-08T22:10:19.685Z"
 }

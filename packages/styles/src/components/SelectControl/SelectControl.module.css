@@ -592,6 +592,18 @@
     min-height: 44px;
   }
 
+  /* Disabled, the value and its chevrons are the tertiary label, as the iOS 27 kit's Pop-up Button (410:50387,
+     Is Enabled=False: 60,60,67 at 30%) and as a disabled Button on a phone. */
+  .SelectControl[data-disabled][data-variant] {
+    color: var(--mobile-label-tertiary, var(--color-text-disabled));
+
+    /* At full opacity: the tertiary label already is the dimmed color (the chevrons rest at 75%). */
+    .DropdownIcon {
+      color: var(--mobile-label-tertiary, var(--color-text-disabled));
+      opacity: 1;
+    }
+  }
+
   /* Keep the dropdown's own space. A wider clear slot reduces the text's
      available width instead of extending an invisible target over the icon. */
   .IndicatorWrapper:has(> .Clear) {

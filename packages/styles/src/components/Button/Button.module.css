@@ -993,6 +993,14 @@
     }
   }
 
+  /* A disabled button labels in the tertiary label, as the iOS 27 kit's content-area button (Button - Content Area
+     40:58696, Is Enabled=False: 60,60,67 at 30%, 196 on white, in every style, destructive too), where the desktop
+     gray-400 read 143. Its fill stays the disabled fill (the kit's 118,118,128 at 12% is 239 on white, alpha-05
+     242) and a borderless one has none. Toolbar actions keep the colors of their bar (Toolbar.module.css). */
+  .Button[data-disabled][data-variant] {
+    --button-text-color: var(--mobile-label-tertiary, var(--color-text-disabled));
+  }
+
   .Button:is([data-mobile-material="flat"], [data-disabled]) {
     --button-mobile-material-background: initial;
     --button-mobile-material-hover: initial;

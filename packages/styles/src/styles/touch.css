@@ -333,8 +333,12 @@
 
     --switch-track-width: 64px;
     --switch-track-height: 28px;
-    --switch-thumb-width: 39px;
+    /* The knob is 38 x 24, as the iOS 27 kit's (Toggles 29:56814), between native knobs of 37.7 (IMG_5526) and
+       40 (IMG_5442); the pressed lens is then 58 x 38, as the kit's. It casts no shadow: native iOS 26 goes
+       straight from the white knob to the track (Reminders, IMG_5442), and the kit's Knob has no effect. */
+    --switch-thumb-width: 38px;
     --switch-thumb-offset: 2px;
+    --switch-thumb-shadow: none;
     --switch-label-font-size: 17px;
     --switch-label-line-height: 22px;
     --switch-label-font-weight: 400;
@@ -344,11 +348,10 @@
     --switch-label-padding-top: 3px;
     /* An off track is the tertiary label, as the native one is: 197 on a white card (iOS IMG_5442), 101 on a
        #2c2c2e sheet card (iOS2 IMG_5526), 30% of the label color in both themes. alpha-25 shows at 194 on
-       white and 100 on gray-300. A disabled off track is one step lighter (alpha-15): the desktop gray-300 of the
-       dark theme is the color of an elevated card and would vanish on it. Checked and accent tracks keep theirs. */
+       white and 100 on gray-300. Checked and accent tracks keep theirs. A disabled switch keeps these colors at
+       half opacity (Switch.module.css), so the desktop disabled colors do not apply. */
     --switch-track-color: var(--alpha-25);
     --switch-track-color-hover: var(--alpha-30);
-    --switch-track-color-disabled: var(--alpha-15);
 
     /* iOS 26 kit Stepper (507:24687): a 92 x 32 capsule of two 46px segments, minus and plus at 17pt semibold
        (the PlexUI icons at 22px draw 13px of ink), a 1 x 24 separator, and a 44px target. */

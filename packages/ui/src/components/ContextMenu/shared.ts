@@ -2,8 +2,9 @@
 export const CONTEXT_MENU_LONG_PRESS = 500
 /** A touch that moves farther than this before then scrolls or drags instead. */
 export const CONTEXT_MENU_LONG_PRESS_SLOP = 10
-/** The kit's gap between the preview and the menu (Context Menu, Alignment=Vertical: 160 + 18 = 178). */
-export const CONTEXT_MENU_PREVIEW_GAP = 18
+/** The kit's gap between the preview and the menu: iOS 27 Context Menu 125:58750, Alignment=Vertical, the menu at
+ * 176.5 under a content area that ends at 160.5 (the iOS 26 kit had 18). */
+export const CONTEXT_MENU_PREVIEW_GAP = 16
 /** The kit's preview corner (Content Area, radius 30), for an element without corners of its own. */
 const PREVIEW_RADIUS = 30
 

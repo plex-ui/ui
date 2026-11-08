@@ -17,6 +17,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 - Phone bottom bars: `soft`, the default `background` of a bottom `Toolbar`, `Page.Footer` and `TabBar`, no longer paints the canvas under the controls. The content runs under and around them at full contrast, as under native iOS 26 bottom bars (Mail, Phone). A Sheet's bottom bar keeps its soft edge, and so does a `Page` laid out inside a Sheet, as native sheets fade their list above a bottom search field. Outside a Sheet, a bottom bar's glass casts the raised shadow while content is under it.
 - Phone glass controls stand out over any content: the backdrop is frosted at 12px (was 6px), so content under a control becomes a smudge as on native glass, and the outline darkens whatever lies under it (black at 9% all round, 18% at the sides), as the iOS 27 kit burns it in, instead of a fixed light gray that vanished on a gray page.
+- `ContextMenu` opens its menu 16px below the preview (was 18), as the iOS 27 kit's context menu.
+- Phone `Switch` and `Slider` take the states of the iOS 27 kit: a knob held down turns into a clear lens of glass 58 by 38 on its centre, a disabled control keeps its colors at half opacity (on a phone a disabled `Slider` looked enabled before), and the switch knob is the kit's 38 by 24 (was 39) with no shadow, as the native one. A `Tabs` group disabled as a whole shows at half opacity on a phone, its capsule and selection too, as the kit's disabled segmented control, and a disabled phone `Button`, `Select` or `SelectControl` labels in the tertiary label of iOS, as the kit's content-area and pop-up buttons.
 
 ## 0.30.0 (2026-11-08)
 

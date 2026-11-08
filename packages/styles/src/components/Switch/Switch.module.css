@@ -73,12 +73,12 @@
   border-radius: var(--radius-full);
   background: var(--switch-thumb-color);
   box-shadow: var(--switch-thumb-shadow);
-  transition: transform 200ms var(--cubic-enter);
+  transition: translate 200ms var(--cubic-enter);
 
+  /* The translate property, not a transform: the pressed lens of a phone scales the knob on its own centre,
+     and a scale would multiply a translation inside the transform. */
   [data-state="checked"] & {
-    transform: translateX(
-      calc(var(--switch-track-width) - var(--switch-thumb-width) - var(--switch-thumb-offset) * 2)
-    );
+    translate: calc(var(--switch-track-width) - var(--switch-thumb-width) - var(--switch-thumb-offset) * 2) 0;
   }
 
   &[data-disabled] {
@@ -138,5 +138,37 @@
 
   [data-disabled] & {
     cursor: not-allowed;
+  }
+}
+
+/* A phone switch after the iOS 27 kit (Toggles 29:56814). Held down, the knob turns into the lens of glass
+   (mobile-materials.css) over the track, on the knob's centre; without touch.css the knob stays as it is.
+   Disabled, the switch keeps its colors and shows at half opacity (Is Enabled=False). */
+@media (max-width: 767px) {
+  .Thumb {
+    transition:
+      translate 200ms var(--cubic-enter),
+      scale 200ms var(--cubic-enter),
+      background-color 200ms var(--cubic-enter),
+      box-shadow 200ms var(--cubic-enter);
+  }
+
+  .Track:active:not([data-disabled]) > .Thumb {
+    scale: var(--mobile-knob-lens-scale, none);
+    background-color: var(--mobile-knob-lens-background, var(--switch-thumb-color));
+    box-shadow: var(--mobile-knob-lens-shadow, var(--switch-thumb-shadow));
+  }
+
+  .Track[data-disabled] {
+    background: var(--switch-track-color);
+    opacity: 0.5;
+
+    &[data-state="checked"] {
+      background: var(--switch-track-color-checked);
+    }
+  }
+
+  .Thumb[data-disabled] {
+    background: var(--switch-thumb-color);
   }
 }

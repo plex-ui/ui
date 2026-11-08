@@ -503,6 +503,7 @@ const TabsComponent = defineComponent({
                 "data-flush": isFlush ? "" : undefined,
                 "data-size": props.size,
                 "data-gutter-size": props.gutterSize,
+                "data-disabled": props.disabled ? "" : undefined,
                 ...restAttrs,
               },
               { default: () => [h("div", { class: s.TabsThumb, ref: thumbRef }), slots.default?.()] },

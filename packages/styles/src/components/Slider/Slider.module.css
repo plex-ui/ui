@@ -289,4 +289,28 @@
     width: max(44px, var(--slider-control-height, 44px));
     padding-right: 0;
   }
+
+  /* The knob being dragged turns into the lens of glass (mobile-materials.css), on its centre (kit iOS 27
+     Sliders 7:53847, State=Pressed); without touch.css it stays as it is. The slider is pressed from the first
+     touch, wherever on the track it lands; of a range, the nearest knob, which the press focuses. A vertical
+     slider is a web layout with no iOS knob, so it keeps its own. */
+  .Slider[data-orientation="horizontal"] .Thumb {
+    transition:
+      left var(--slider-duration) var(--cubic-move),
+      scale 200ms var(--cubic-enter),
+      background-color 200ms var(--cubic-enter),
+      box-shadow 200ms var(--cubic-enter);
+  }
+
+  .Slider[data-orientation="horizontal"][data-pressed]:not([data-range], [data-disabled]) .Thumb,
+  .Slider[data-orientation="horizontal"][data-pressed][data-range]:not([data-disabled]) .Thumb:focus {
+    scale: var(--mobile-knob-lens-scale, none);
+    background-color: var(--mobile-knob-lens-background, var(--slider-thumb-background, var(--gray-0)));
+    box-shadow: var(--mobile-knob-lens-shadow, var(--slider-thumb-shadow, inset 0 0 0 2px var(--slider-range-color)));
+  }
+
+  /* Disabled, the track, its fill and the knob show at half opacity (State=Disabled). */
+  .Slider[data-disabled] {
+    opacity: 0.5;
+  }
 }

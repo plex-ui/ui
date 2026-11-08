@@ -3,7 +3,7 @@
 import clsx from "clsx"
 import clamp from "lodash/clamp"
 import round from "lodash/round"
-import { Slider as RadixSlider } from "radix-ui"
+import { Direction, Slider as RadixSlider } from "radix-ui"
 import {
   type ChangeEventHandler,
   type ElementRef,
@@ -137,6 +137,25 @@ type RangeSliderProps = SliderBaseProps & {
 
 export type SliderProps = SingleSliderProps | RangeSliderProps
 
+/**
+ * A press on the track of a range moves the thumb whose value lies nearest the press, which Radix focuses only
+ * once that value changes. Focusing it at once lets a phone draw the knob being pressed as the lens of glass
+ * (Slider.module.css), even when the press leaves the value as it is. The thumb is the one Radix moves: the
+ * pointer mapped onto min to max across the root (from the right in a right-to-left direction, which Radix
+ * takes from a DirectionProvider), the nearest value, the first on a tie. A press on a thumb itself is left
+ * to Radix, which focuses that thumb.
+ */
+const focusThumbToMove = (event: PointerEvent, root: HTMLElement, values: number[], min: number, max: number, vertical: boolean, rtl: boolean) => {
+  const thumbs = Array.from(root.querySelectorAll<HTMLElement>('[role="slider"]'))
+  if (thumbs.includes(event.target as HTMLElement)) return
+  const rect = root.getBoundingClientRect()
+  const ratio = vertical ? (rect.bottom - event.clientY) / rect.height : (rtl ? rect.right - event.clientX : event.clientX - rect.left) / rect.width
+  const pointerValue = min + ratio * (max - min)
+  const distances = values.map((value) => Math.abs(value - pointerValue))
+  const thumb = thumbs[distances.indexOf(Math.min(...distances))]
+  if (thumb && thumb !== document.activeElement) thumb.focus({ preventScroll: true, focusVisible: false } as FocusOptions)
+}
+
 export const Slider = memo((props: SliderProps) => {
   const {
     className,
@@ -162,6 +181,8 @@ export const Slider = memo((props: SliderProps) => {
 
   const isRange = props.range === true
   const isVertical = orientation === "vertical"
+  // The direction Radix slides in: no `dir` is passed, so it is the one of a DirectionProvider, else left to right.
+  const direction = Direction.useDirection()
 
   const id = useId()
   const labelId = `${id}-label`
@@ -451,8 +472,15 @@ export const Slider = memo((props: SliderProps) => {
           minStepsBetweenThumbs={minStepsBetweenThumbs}
           onBlur={onBlur}
           onFocus={onFocus}
-          onPointerDown={() => { if (!disabled) setPointerDown(true) }}
+          onPointerDown={(event) => {
+            if (disabled) return
+            setPointerDown(true)
+            if (isRange) focusThumbToMove(event.nativeEvent, event.currentTarget, radixValue, min, max, isVertical, direction === "rtl")
+          }}
           onPointerUp={() => setPointerDown(false)}
+          onPointerCancel={() => setPointerDown(false)}
+          data-pressed={pointerDown ? "" : undefined}
+          data-range={isRange ? "" : undefined}
           style={toCssVariables({
             "slider-duration": `${animationDurationMS}ms`,
             "slider-track-color": trackColor,

@@ -764,6 +764,16 @@
     grid-auto-columns: minmax(0, 1fr);
   }
 
+  /* Disabled as a whole, the control shows at half opacity, its capsule, selection and labels alike (kit iOS 27
+     Segmented Controls 10460:145, where the disabled control is the enabled one at 50%), not its labels alone. */
+  .Tabs[data-disabled][data-orientation="horizontal"] {
+    opacity: 0.5;
+
+    & > .Tab[data-disabled] {
+      opacity: 1;
+    }
+  }
+
   .Tabs:where([data-variant="underline"][data-orientation="horizontal"]) {
     --segmented-control-option-radius: calc(var(--segmented-control-radius) - var(--segmented-control-gutter));
 

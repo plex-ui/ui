@@ -58,7 +58,8 @@ describe("phone colors use PlexUI tokens", () => {
     const touch = readFileSync(`${styles}/touch.css`, "utf8")
     expect(touch).toContain("--switch-track-color: var(--alpha-25);")
     expect(touch).toContain("--switch-track-color-hover: var(--alpha-30);")
-    expect(touch).toContain("--switch-track-color-disabled: var(--alpha-15);")
+    // A disabled phone switch keeps these colors at half opacity (kit iOS 27 Toggles, plan 173): no disabled track of its own.
+    expect(touch).not.toContain("--switch-track-color-disabled:")
     // native: 197 on a white card, 101 on a #2c2c2e sheet card (the elevated card is gray-300 here)
     expect(Math.abs(over("--alpha-25", "--gray-0", 0) - 197)).toBeLessThanOrEqual(4)
     expect(Math.abs(over("--alpha-25", "--gray-300", 1) - 101)).toBeLessThanOrEqual(4)

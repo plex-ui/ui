@@ -104,6 +104,25 @@ const extractSize = (entry: ResizeObserverEntry, box: ResizeEntryBox, sizeType: 
 // The minimum difference we enforce between marks, in pixels
 const MINIMUM_MARK_SPACING_PX = 16
 
+/**
+ * A press on the track of a range moves the thumb whose value lies nearest the press, which the slider primitive
+ * (a port of Radix) focuses only once that value changes. Focusing it at once lets a phone draw the knob being
+ * pressed as the lens of glass (Slider.module.css), even when the press leaves the value as it is. The thumb is
+ * the one the primitive moves: the pointer mapped onto min to max across the root (from the right in a
+ * right-to-left direction; the port maps left to right), the nearest value, the first on a tie. A press on a
+ * thumb itself is left to the primitive, which focuses that thumb.
+ */
+const focusThumbToMove = (event: PointerEvent, root: HTMLElement, values: number[], min: number, max: number, vertical: boolean, rtl: boolean) => {
+  const thumbs = Array.from(root.querySelectorAll<HTMLElement>('[role="slider"]'))
+  if (thumbs.includes(event.target as HTMLElement)) return
+  const rect = root.getBoundingClientRect()
+  const ratio = vertical ? (rect.bottom - event.clientY) / rect.height : (rtl ? rect.right - event.clientX : event.clientX - rect.left) / rect.width
+  const pointerValue = min + ratio * (max - min)
+  const distances = values.map((value) => Math.abs(value - pointerValue))
+  const thumb = thumbs[distances.indexOf(Math.min(...distances))]
+  if (thumb && thumb !== document.activeElement) thumb.focus({ preventScroll: true, focusVisible: false } as FocusOptions)
+}
+
 const SliderMarks = defineComponent({
   name: "SliderMarks",
   props: {
@@ -653,12 +672,19 @@ const SliderComponent = defineComponent({
               // React's onFocus / onBlur bubble from the thumbs
               "onFocusin": (evt: FocusEvent) => emit("focus", evt),
               "onFocusout": (evt: FocusEvent) => emit("blur", evt),
-              "onPointerdown": () => {
-                if (!disabled) pointerDown.value = true
+              "onPointerdown": (event: PointerEvent) => {
+                if (disabled) return
+                pointerDown.value = true
+                if (range) focusThumbToMove(event, event.currentTarget as HTMLElement, radixValue, props.min, props.max, isVertical, false)
               },
               "onPointerup": () => {
                 pointerDown.value = false
               },
+              "onPointercancel": () => {
+                pointerDown.value = false
+              },
+              "data-pressed": isPointerDown ? "" : undefined,
+              "data-range": range ? "" : undefined,
               "style": toCssVariables({
                 "slider-duration": `${animationDurationMS}ms`,
                 "slider-track-color": trackColor,

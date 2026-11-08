@@ -193,7 +193,7 @@ const phoneSizes = [
 
 ### States
 
-Use disabled to visually and accessibly disable the button. Loading shows a spinner and prevents interaction through its default inert state. The controls demonstrate these props; they do not start an asynchronous action. Every variant takes both states. On a phone the buttons are a screen's actions, the large ones as wide as the screen. `inert` blocks a button without any visual change: it applies `disabled` for accessibility, and the look of a disabled button comes only from `[data-disabled]`.
+Use disabled to visually and accessibly disable the button. Loading shows a spinner and prevents interaction through its default inert state. The controls demonstrate these props; they do not start an asynchronous action. Every variant takes both states. On a phone the buttons are a screen's actions, the large ones as wide as the screen. A disabled button there labels in the tertiary label of iOS, as the iOS 27 kit's buttons do. `inert` blocks a button without any visual change: it applies `disabled` for accessibility, and the look of a disabled button comes only from `[data-disabled]`.
 
 <ComponentPreview code={statesCode} previewMinHeight={168}>
   <ButtonStatesDemo />

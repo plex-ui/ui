@@ -1,5 +1,6 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, useSyncExternalStore, type ReactNode } from "react"
+import { Direction } from "radix-ui"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { h, reactive, type VNode } from "vue"
 import { Slider as RSlider } from "../../packages/ui/src/components/Slider"
@@ -1155,5 +1156,100 @@ describe("Slider review fixes", () => {
     expect(result.vueLog).toEqual(result.reactLog)
     expect(result.reactLog).toContain("change 1000")
     expect(valueOf(result.react[0]!)).toBe("1000")
+  })
+})
+
+// Plan 173 block B: the phone knob turns into a lens of glass while the slider is pressed (Slider.module.css).
+describe("Slider pressed state", () => {
+  test.each(["React", "Vue"] as const)("%s: a slider is pressed from the first touch until it lifts or the touch is cancelled, and marks a range", async (framework) => {
+    for (const props of [{ ...BASE }, { label: "Hours", min: 0, max: 10, step: 1, value: [2, 8], range: true }] as Props[]) {
+      let unmount = () => {}
+      if (framework === "React") await act(async () => { render(createElement(RSlider as never, { ...props, onChange: () => {} })) })
+      else {
+        unmount = mountVue(() => h(Slider as never, toVue(props))).unmount
+        await flushVue()
+      }
+      const root = document.querySelector<HTMLElement>(".Slider")!
+      expect(root.hasAttribute("data-range")).toBe(props.range === true)
+      expect(root.hasAttribute("data-pressed")).toBe(false)
+      for (const [press, release] of [[fireEvent.pointerDown, fireEvent.pointerUp], [fireEvent.pointerDown, fireEvent.pointerCancel]] as const) {
+        await act(async () => { press(root, { pointerId: 1 }) })
+        await flushVue()
+        expect(root.hasAttribute("data-pressed")).toBe(true)
+        await act(async () => { release(root, { pointerId: 1 }) })
+        await flushVue()
+        expect(root.hasAttribute("data-pressed")).toBe(false)
+      }
+      if (framework === "React") cleanup()
+      else unmount()
+    }
+  })
+
+  test.each(["React", "Vue"] as const)("%s: a press on the track of a range focuses the thumb the primitive moves, also when the value stays", async (framework) => {
+    // A 340px track from 0 to 10. Radix moves the thumb whose value lies nearest the pointer's value, not the
+    // thumb drawn nearest it: its thumbs sit inset from the ends, so the two can differ.
+    rects = (element) => (element.classList.contains("Slider") ? { left: 0, top: 0, width: 340, height: 52 } : undefined)
+    const cases = [
+      // At 40px the pointer is 1.18: nearer the upper 2 than the lower 0, which is drawn nearer. 2 stays 2.
+      { value: [0, 2], step: 2, focused: 0, x: 40, expected: 1 },
+      // At 68px the pointer is the lower thumb's own 2: Radix changes nothing and focuses nothing.
+      { value: [2, 8], step: 1, focused: 1, x: 68, expected: 0 },
+    ]
+    for (const { value, step, focused, x, expected } of cases) {
+      const props = { label: "Hours", min: 0, max: 10, step, value, range: true }
+      let unmount = () => {}
+      if (framework === "React") await act(async () => { render(createElement(RSlider as never, { ...props, onChange: () => {} })) })
+      else {
+        unmount = mountVue(() => h(Slider as never, toVue(props))).unmount
+        await flushVue()
+      }
+      const root = document.querySelector<HTMLElement>(".Slider")!
+      const thumbs = Array.from(root.querySelectorAll<HTMLElement>('[role="slider"]'))
+      thumbs[focused]!.focus()
+      await act(async () => { fireEvent.pointerDown(root, { pointerId: 1, clientX: x, clientY: 26 }) })
+      await flushVue()
+      expect(document.activeElement).toBe(thumbs[expected])
+      await act(async () => { fireEvent.pointerUp(root, { pointerId: 1, clientX: x, clientY: 26 }) })
+      if (framework === "React") cleanup()
+      else unmount()
+    }
+  })
+
+  test("React: in a right-to-left direction the press is mapped from the right, as Radix slides", async () => {
+    rects = (element) => (element.classList.contains("Slider") ? { left: 0, top: 0, width: 340, height: 52 } : undefined)
+    // At 68px of 340 from the left, right to left the pointer is 80: the upper thumb's own value, which Radix keeps.
+    const props = { label: "Hours", min: 0, max: 100, step: 10, value: [20, 80], range: true, onChange: () => {} }
+    await act(async () => { render(createElement(Direction.DirectionProvider, { dir: "rtl" }, createElement(RSlider as never, props))) })
+    const root = document.querySelector<HTMLElement>(".Slider")!
+    const [lower, upper] = Array.from(root.querySelectorAll<HTMLElement>('[role="slider"]'))
+    lower!.focus()
+    await act(async () => { fireEvent.pointerDown(root, { pointerId: 1, clientX: 68, clientY: 26 }) })
+    expect(document.activeElement).toBe(upper)
+    await act(async () => { fireEvent.pointerUp(root, { pointerId: 1, clientX: 68, clientY: 26 }) })
+    cleanup()
+  })
+
+  test.each(["React", "Vue"] as const)("%s: a press on a thumb of a range is left to the primitive, so a focused thumb keeps its focus", async (framework) => {
+    rects = (element) => (element.classList.contains("Slider") ? { left: 0, top: 0, width: 340, height: 52 } : undefined)
+    // [5, 5]: both thumbs on one value, where the nearest by value is the first on a tie.
+    const props = { label: "Hours", min: 0, max: 10, step: 1, value: [5, 5], range: true }
+    let unmount = () => {}
+    if (framework === "React") await act(async () => { render(createElement(RSlider as never, { ...props, onChange: () => {} })) })
+    else {
+      unmount = mountVue(() => h(Slider as never, toVue(props))).unmount
+      await flushVue()
+    }
+    const root = document.querySelector<HTMLElement>(".Slider")!
+    const upper = root.querySelectorAll<HTMLElement>('[role="slider"]')[1]!
+    upper.focus()
+    let focusMoves = 0
+    root.addEventListener("focusout", () => { focusMoves += 1 })
+    await act(async () => { fireEvent.pointerDown(upper, { pointerId: 1, clientX: 170, clientY: 26 }) })
+    await flushVue()
+    expect(document.activeElement).toBe(upper)
+    expect(focusMoves).toBe(0)
+    await act(async () => { fireEvent.pointerUp(upper, { pointerId: 1, clientX: 170, clientY: 26 }) })
+    if (framework === "React") cleanup()
+    else unmount()
   })
 })

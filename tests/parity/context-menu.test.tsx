@@ -156,7 +156,7 @@ describe.each([
     expect(menu()).toBeNull()
     await settle(150)
     expect(menu()).not.toBeNull()
-    // The touch was on the trailing half, so the menu keeps to the trailing edge, 18px below the element.
+    // The touch was on the trailing half, so the menu keeps to the trailing edge, 16px below the element.
     expect(menu()?.getAttribute("data-align")).toBe("end")
     expect(anchor()?.style.cssText).toBe("left: 16px; top: 100px; width: 370px; height: 52px;")
     const dimming = overlay()
@@ -237,7 +237,7 @@ describe("ContextMenu placement and dimming helpers are the same in React and Vu
   test.each([reactShared, vueShared])("placement and hole", (shared) => {
     expect(shared.contextMenuPlacement(null)).toEqual({ side: "bottom", align: "start", sideOffset: 2, alignOffset: 0 })
     expect(shared.contextMenuPlacement({ kind: "keyboard", rect: REGION })).toEqual({ side: "bottom", align: "start", sideOffset: 5, alignOffset: 0 })
-    expect(shared.contextMenuPlacement({ kind: "preview", rect: REGION, radius: 12, align: "end" })).toEqual({ side: "bottom", align: "end", sideOffset: 18, alignOffset: 0 })
+    expect(shared.contextMenuPlacement({ kind: "preview", rect: REGION, radius: 12, align: "end" })).toEqual({ side: "bottom", align: "end", sideOffset: 16, alignOffset: 0 })
     expect(shared.CONTEXT_MENU_LONG_PRESS).toBe(500)
     expect(shared.CONTEXT_MENU_LONG_PRESS_SLOP).toBe(10)
     const mask = shared.contextMenuHoleMask({ kind: "preview", rect: { x: 10.004, y: 20, width: 100, height: 40 }, radius: 12, align: "start" }, { width: 402, height: 874 })

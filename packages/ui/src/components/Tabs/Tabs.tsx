@@ -325,6 +325,7 @@ const TabsRoot = <T extends string>({
       data-flush={isFlush ? "" : undefined}
       data-size={size}
       data-gutter-size={gutterSize}
+      data-disabled={restProps.disabled ? "" : undefined}
       {...restProps}
     >
       <div className={s.TabsThumb} ref={thumbRef} />
