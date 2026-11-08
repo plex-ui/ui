@@ -63,9 +63,14 @@ describe.each(["React", "Vue"])("%s phone edit flow", (framework) => {
       if (!form) throw new Error("Continue must own the active form")
       await interact(() => fireEvent.submit(form))
     }
+    // Row 87: Edit opens its screen as a step forward and Back returns as a step back, as the Back chevron says.
+    const direction = () => document.querySelector<HTMLElement>("[data-demo-navigation-direction]")?.dataset.demoNavigationDirection
     expect(phone().readOnly).toBe(true)
     await enter(page.getByLabelText("Password", { exact: true }), "UnfinishedPassword9")
     await click(page.getByRole("button", { name: "Edit", exact: true }))
+    if (!wide) expect(direction()).toBe("forward")
+    // Back on both Page screens stays in place; in a sheet Close becomes Back, so that bar still crosses.
+    if (!wide) expect(document.querySelector("[data-demo-navigation-same]") !== null).toBe(!dialog)
     expect(phone().readOnly).toBe(false)
     expect(phone().value).toBe("555 123 4567")
     await enter(phone(), "12")
@@ -80,6 +85,7 @@ describe.each(["React", "Vue"])("%s phone edit flow", (framework) => {
     await click(page.getByRole("button", { name: "Edit", exact: true }))
     await enter(phone(), "1112223333")
     await click(page.getByRole("button", { name: wide ? "Back" : "Back to password", exact: true }))
+    if (!wide) expect(direction()).toBe("back")
     await waitFor(() => expect(phone().readOnly).toBe(true))
     expect(phone().value).toBe("+1 555 987 6543")
   })

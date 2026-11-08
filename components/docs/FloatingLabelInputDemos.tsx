@@ -1808,7 +1808,7 @@ export function FloatingLabelInputPasswordFormDemo() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
-      <AuthFormStage navigation={wide ? undefined : { step: navigationStep, direction: editingPhone ? 'back' : 'forward' }} title={title} surface={presentation.surface} dialog={presentation.dialog}
+      <AuthFormStage navigation={wide ? undefined : { step: navigationStep, direction: editingPhone ? 'forward' : 'back' }} title={title} surface={presentation.surface} dialog={presentation.dialog}
         onDialogChange={presentation.setDialog} onBack={editingPhone ? closePhoneEditor : undefined}
         backLabel={editingPhone ? 'Back to password' : undefined}
         footer={<Button color="primary" size="3xl" type="submit" form={formId} pill block>Continue</Button>}>

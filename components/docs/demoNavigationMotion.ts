@@ -13,6 +13,8 @@ export function hideExitingDemoScreen(element: HTMLElement | SVGElement): void {
   // changes the TransitionGroup style again. Keep the Settings87 caller valid.
   const offset = element.style.getPropertyValue('--demo-navigation-exit-scroll-offset') || element.style.getPropertyValue('--settings-exit-scroll-offset');
   if (offset) element.style.top = offset;
+  // The incoming screen covers this one to its full height, even when it is shorter (DemoNavigation.module.css).
+  element.parentElement?.style.setProperty('--demo-navigation-exit-height', `${element.getBoundingClientRect().height}px`);
   // A pinned CTA must only target the entering form during the transition.
   const ids: Array<[HTMLFormElement, string]> = [];
   element.querySelectorAll<HTMLFormElement>('form[id]').forEach((form) => {

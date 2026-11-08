@@ -160,6 +160,8 @@ describe.each<Framework>(["React", "Vue"])("%s Settings checklist pages", (frame
     expect(pageContent().scrollTop).toBe(0)
     await click(page.getByRole("checkbox", { name: "Email", exact: true }))
     expect(page.getAllByRole("checkbox", { checked: false })).toHaveLength(3)
+    // Row 87: on a Page both screens show Back, so the bar keeps it in place instead of passing a copy across.
+    expect(page.getByRole("button", { name: "Back to notifications" }).closest("[data-demo-navigation-same]")).not.toBeNull()
     await click(page.getByRole("button", { name: "Back to notifications" }))
     const returned = page.getByRole("button", { name: "Delivery: None" })
     await waitFor(() => expect(document.activeElement).toBe(returned))
@@ -189,6 +191,8 @@ describe.each<Framework>(["React", "Vue"])("%s Settings checklist pages", (frame
     expect(page.getByRole("dialog", { name: "Delivery" })).toBe(dialog)
     expect(within(dialog).queryByRole("button", { name: "Close dialog" })).toBeNull()
     expect(within(dialog).getAllByRole("button", { name: "Back to notifications" })).toHaveLength(1)
+    // Close on the first screen and Back on the second change places: the bar is not kept.
+    expect(dialog.querySelector("[data-demo-navigation-same]")).toBeNull()
     expect(pageContent().scrollTop).toBe(0)
     expect(document.activeElement).toBe(dialog.querySelector("[data-settings-title]"))
 

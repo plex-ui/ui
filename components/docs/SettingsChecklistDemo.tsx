@@ -99,7 +99,8 @@ export function SettingsChecklistDemo() {
     [id]: checked ? [...current[id], value] : current[id].filter((item) => item !== value),
   }));
   const transition = { ...settingsNavigationTiming, overlay: true, onExit: hideExitingSettingsScreen, onEnter: showEnteringSettingsScreen };
-  const back = <span className={s.BackViewport} data-demo-navigation-direction={navigation.direction} data-settings-direction={navigation.direction}><TransitionGroup {...transition} className={`${s.BarTransition} ${motionStyles.Bar}`}>
+  // Both screens of a Page show Back, so it stays in place; in a Dialog the root's Close and Back change places.
+  const back = <span className={s.BackViewport} data-demo-navigation-direction={navigation.direction} data-settings-direction={navigation.direction} data-demo-navigation-same=""><TransitionGroup {...transition} className={`${s.BarTransition} ${motionStyles.Bar}`}>
     <DemoBackButton key={navigation.step} onBack={setting ? returnToSettings : undefined} label={setting ? 'Back to notifications' : undefined} />
   </TransitionGroup></span>;
   const titleContent = <>

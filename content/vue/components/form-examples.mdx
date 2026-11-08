@@ -350,7 +350,7 @@ export const phoneLogin = `<component :is="AuthFormStage" title="Log in with pho
 
 export const passwordState = { password: "", submitted: false, editingPhone: false, navigationStep: 0, focusPhoneEditor: false, phoneCountry: "us", phone: "555 123 4567", draftCountry: "us", draftPhone: "555 123 4567", returnToEdit: false }
 
-export const password = `<component :is="AuthFormStage" :navigation="wide ? undefined : { step: navigationStep, direction: editingPhone ? 'back' : 'forward' }" :title="editingPhone ? 'Edit phone number' : 'Enter your password'" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface" :on-back="editingPhone ? () => { returnToEdit = true; editingPhone = false; navigationStep++; focusPhoneEditor = false; submitted = false } : undefined" :back-label="editingPhone ? 'Back to password' : undefined">
+export const password = `<component :is="AuthFormStage" :navigation="wide ? undefined : { step: navigationStep, direction: editingPhone ? 'forward' : 'back' }" :title="editingPhone ? 'Edit phone number' : 'Enter your password'" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface" :on-back="editingPhone ? () => { returnToEdit = true; editingPhone = false; navigationStep++; focusPhoneEditor = false; submitted = false } : undefined" :back-label="editingPhone ? 'Back to password' : undefined">
   <template #default="{ formId }">
     <div class="w-[360px]">
       <div class="mb-6 text-center">

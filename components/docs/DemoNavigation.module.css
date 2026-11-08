@@ -67,15 +67,28 @@
   top: var(--demo-navigation-exit-scroll-offset, 0px);
 }
 
+/* A screen fills the display on a phone, so the one that arrives covers a taller one leaving under it to
+   its full height: its surface reaches down past its own content while the other leaves. */
+.Viewport:has(> .Content[data-exiting]) > .Content:not([data-exiting])::after {
+  content: "";
+  position: absolute;
+  inset: 100% 0 auto;
+  height: max(0px, calc(var(--demo-navigation-exit-height, 0px) - 100%));
+  background: inherit;
+  pointer-events: none;
+}
+
 :is(.Content, .Bar)[data-entering-active],
 :is(.Content, .Bar)[data-entering][data-interrupted] {
   opacity: 1;
   transform: translateX(0);
 }
 
+/* The outgoing screen stays opaque: the incoming one covers it going forward and uncovers it going Back.
+   UIKit keeps both screens drawn and puts a dimming view between them; a fade let the text of both
+   screens show through each other. */
 .Content[data-exiting-active],
 .Content[data-exiting][data-interrupted] {
-  opacity: 0;
   transform: translateX(calc(-30% * var(--demo-navigation-sign)));
 }
 
@@ -101,12 +114,33 @@
   z-index: 3;
 }
 
+/* A step forward taken while a screen still leaves by Back arrives above it. */
+[data-demo-navigation-direction="forward"] > .Content[data-demo-exit-direction="back"][data-exiting] {
+  z-index: 1;
+}
+
 .Content[data-demo-exit-direction="back"]:is([data-exiting-active], [data-exiting][data-interrupted]) {
   transform: translateX(calc(100% * var(--demo-navigation-sign)));
 }
 
 .Bar[data-demo-exit-direction="back"]:is([data-exiting-active], [data-exiting][data-interrupted]) {
   transform: translateX(calc(24px * var(--demo-navigation-sign)));
+}
+
+/* A bar control both screens show (Back on each) is one control to the person: it stays where it is
+   instead of passing a copy of itself across. The outgoing copy goes at once, the incoming one is there
+   at once, and it still ignores taps until the step settles (the rule above). */
+[data-demo-navigation-same][data-demo-navigation-direction] > .Bar.Bar:is([data-entering], [data-exiting]) {
+  transform: none;
+  transition: none;
+}
+
+[data-demo-navigation-same][data-demo-navigation-direction] > .Bar.Bar[data-entering] {
+  opacity: 1;
+}
+
+[data-demo-navigation-same][data-demo-navigation-direction] > .Bar.Bar[data-exiting] {
+  visibility: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {

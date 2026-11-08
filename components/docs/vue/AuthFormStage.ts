@@ -49,8 +49,8 @@ export const AuthFormStage = defineComponent({
                 ? h(DemoNavigationView, { navigation: motion }, () => h('div', { class: authStyles.Form }, slots.default?.({ formId })))
                 : slots.default?.({ formId });
             // The title stays in the form; the bars carry only the way out and the action.
-            const bar = (leading: () => VNode) => h(Toolbar, null, () =>
-                h(ToolbarLeading, null, () => motion ? h(DemoNavigationView, { navigation: motion, part: 'bar' }, leading) : leading()));
+            const bar = (leading: () => VNode, control: 'back' | 'close') => h(Toolbar, null, () =>
+                h(ToolbarLeading, null, () => motion ? h(DemoNavigationView, { navigation: motion, part: 'bar', control }, leading) : leading()));
             const close = () => h(DialogClose, null, () => h(NavigationButton, { action: 'close', 'aria-label': 'Close dialog' }));
             const phoneFooter = () => slots.footer && h(Toolbar, { placement: 'bottom' }, () =>
                 h(ToolbarContent, { fill: true, class: authStyles.PhoneFooter }, () => slots.footer?.({ formId })));
@@ -83,7 +83,7 @@ export const AuthFormStage = defineComponent({
                                     },
                                     {
                                         default: () => [
-                                            bar(onBack ? back : close),
+                                            onBack ? bar(back, 'back') : bar(close, 'close'),
                                             h(DialogHeader, null, {
                                                 default: () => [
                                                     h('div', { ref: heading, tabindex: -1 }, [
@@ -143,7 +143,7 @@ export const AuthFormStage = defineComponent({
                 { ref: presence.pageRef, tabindex: -1, role: 'region', 'aria-label': props.title, class: authStyles.Screen, surface: props.surface },
                 {
                     default: () => [
-                        bar(back),
+                        bar(back, 'back'),
                         h(
                             PageContent,
                             { class: authStyles.Content },

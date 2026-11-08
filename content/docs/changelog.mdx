@@ -107,6 +107,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Fixed
 
+- Docs, examples that move between screens on a phone (Form examples: Settings with selection pages, and Edit in Enter password; React and Vue): the screen that leaves stays opaque. Going forward the new screen covers it to its full height, even when the new one is shorter, and Back uncovers the previous one; it used to fade, so the text of both screens showed through each other. Back on both screens stays in place instead of a second chevron crossing the first; Back and Close still change places. In Enter password, Edit now opens Edit phone number as a step forward and Back to password returns as a step back (the directions were swapped).
+- Docs: Vue examples come with the page from the server, as React ones do, so a full page load no longer shows an empty preview that grows once Vue starts. Until then the preview ignores input, so Enter in a field cannot send a form and reload the page.
 - `Avatar` (React and Vue) takes the first whole character of the name as its initial, after any leading space, so a name that starts with an emoji or another character outside the basic plane shows it whole instead of half of it.
 - Switch docs: on a phone the rows of the examples started under the status bar; they now use the shared phone rows, as the other choice pages do, in React and Vue.
 - Kbd docs (Vue): the In a tooltip and a menu example spaces its items 16px apart, as the React example does, instead of 24px.

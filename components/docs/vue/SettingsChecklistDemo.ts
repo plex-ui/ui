@@ -118,7 +118,8 @@ export const SettingsChecklistDemo = defineComponent({
           style: { '--settings-exit-scroll-offset': `${scrollOffset}px` },
         }, () => h('div', { key: step, 'data-settings-screen': screen, 'data-settings-step': step }, [fields()])),
       ]);
-      const back = () => h('span', { class: s.BackViewport, 'data-demo-navigation-direction': direction, 'data-settings-direction': direction }, [h(TransitionGroup, { ...transition, class: [s.BarTransition, motionStyles.Bar] }, () => h(VueDemoBackButton, {
+      // Both screens of a Page show Back, so it stays in place; in a Dialog the root's Close and Back change places.
+      const back = () => h('span', { class: s.BackViewport, 'data-demo-navigation-direction': direction, 'data-settings-direction': direction, 'data-demo-navigation-same': '' }, [h(TransitionGroup, { ...transition, class: [s.BarTransition, motionStyles.Bar] }, () => h(VueDemoBackButton, {
         key: step,
         onBack: setting ? returnToSettings : undefined,
         label: setting ? 'Back to notifications' : undefined,

@@ -1,4 +1,6 @@
+import { readFileSync } from "node:fs"
 import { fireEvent, within } from "@testing-library/react"
+import postcss from "postcss"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { defineComponent, h } from "vue"
 import { DemoNavigationView as RNavigation } from "../../components/docs/DemoNavigation"
@@ -44,7 +46,7 @@ function reactScreen(state: ScreenState) {
   const title = titleOf(state.screen)
   return <div dir={state.dir}>
     <h1><RNavigation part="bar" navigation={navigation}><span data-title-entry={state.step}>{title}</span></RNavigation></h1>
-    <div data-part="actions"><RNavigation part="bar" navigation={navigation}><button type="button" data-action-entry={state.step}>{actionOf(state.screen)}</button></RNavigation></div>
+    <div data-part="actions"><RNavigation part="bar" navigation={navigation} control={actionOf(state.screen)}><button type="button" data-action-entry={state.step}>{actionOf(state.screen)}</button></RNavigation></div>
     <div data-part="body"><RNavigation navigation={navigation}>
       <form id={state.formId} aria-label={`${title} form`} data-screen={state.screen} data-entry={state.step}
         onSubmit={(event) => { event.preventDefault(); submissions.push(`${state.screen}:${state.step}:${state.value}`) }}>
@@ -67,7 +69,7 @@ function vueScreen(state: ScreenState) {
   }, [h(VFields, { label: `${title} value`, value, fieldId: fieldsId(step) })])
   return h("div", { dir }, [
     h("h1", [h(VNavigation, { part: "bar", navigation }, { default: () => h("span", { "data-title-entry": step }, title) })]),
-    h("div", { "data-part": "actions" }, [h(VNavigation, { part: "bar", navigation }, { default: () => h("button", { type: "button", "data-action-entry": step }, actionOf(screen)) })]),
+    h("div", { "data-part": "actions" }, [h(VNavigation, { part: "bar", navigation, control: actionOf(screen) }, { default: () => h("button", { type: "button", "data-action-entry": step }, actionOf(screen)) })]),
     h("div", { "data-part": "body" }, [h(VNavigation, { navigation }, { default: () => form })]),
     h("button", { type: "submit", form: formId, "data-pinned-cta": "" }, "Continue"),
   ])
@@ -244,5 +246,74 @@ describe("shared navigation exit ownership", () => {
     expect(entry.hasAttribute("inert")).toBe(false)
     expect(entry.hasAttribute("aria-hidden")).toBe(false)
     expect(form.id).toBe("retained-form")
+  })
+})
+
+// Row 87: Back on both screens is one control that stays in place, and the outgoing screen is covered or
+// uncovered without fading through the incoming one.
+describe("navigation bar control and outgoing screen", () => {
+  const same = (part: string) => document.querySelector(`${part} > [data-demo-navigation-direction]`)?.hasAttribute("data-demo-navigation-same")
+  test("a bar control the step before showed too is marked to stay in place, a changed one is not", async () => {
+    const pair = await walkPairWithState(initial, reactScreen, vueScreen, async ({ set, advance, snapshot }) => {
+      expect(same('[data-part="actions"]')).toBe(false)
+      await set({ step: 1, direction: "forward", screen: "edit", value: "draft-B" })
+      expect(same('[data-part="actions"]')).toBe(false)
+      await advance(16)
+      await advance(16)
+      await advance(301)
+      await set({ step: 2, direction: "forward", screen: "edit", value: "draft-C" })
+      expect(same('[data-part="actions"]')).toBe(true)
+      expect(document.querySelectorAll('[data-part="actions"] [data-action-entry]')).toHaveLength(2)
+      // The title names no control to keep, and the content is no bar: both still cross.
+      expect(same("h1")).toBe(false)
+      expect(same('[data-part="body"]')).toBe(false)
+      snapshot()
+      await advance(16)
+      await advance(301)
+      await set({ step: 3, direction: "back", screen: "password", value: "draft-D" })
+      expect(same('[data-part="actions"]')).toBe(false)
+      snapshot()
+    })
+    expect(pair.vue).toEqual(pair.react)
+  })
+
+  test("the stylesheet keeps the outgoing screen opaque and covered, and the kept control still", () => {
+    const root = postcss.parse(readFileSync("components/docs/DemoNavigation.module.css", "utf8"))
+    const decls = (selector: string) => {
+      const out: Record<string, string> = {}
+      root.walkRules((rule) => {
+        if (rule.parent?.type === "atrule" || !rule.selectors.includes(selector)) return
+        rule.walkDecls((decl) => { out[decl.prop] = decl.value })
+      })
+      return out
+    }
+    // Forward and Back exits move the screen and leave its opacity alone.
+    expect(decls(".Content[data-exiting-active]").transform).toContain("-30%")
+    expect(decls(".Content[data-exiting-active]").opacity).toBeUndefined()
+    const backExit = '.Content[data-demo-exit-direction="back"]:is([data-exiting-active], [data-exiting][data-interrupted])'
+    expect(decls(backExit).transform).toContain("100%")
+    expect(decls(backExit).opacity).toBeUndefined()
+    // The incoming screen's surface reaches down over a taller one leaving under it.
+    expect(decls(".Viewport:has(> .Content[data-exiting]) > .Content:not([data-exiting])::after")).toMatchObject({
+      height: "max(0px, calc(var(--demo-navigation-exit-height, 0px) - 100%))", background: "inherit",
+    })
+    // A step forward taken during a Back exit arrives above the screen still leaving.
+    expect(decls('[data-demo-navigation-direction="forward"] > .Content[data-demo-exit-direction="back"][data-exiting]')["z-index"]).toBe("1")
+    // The kept control: neither copy moves, the incoming one is there and the outgoing one is not.
+    const kept = "[data-demo-navigation-same][data-demo-navigation-direction] > .Bar.Bar"
+    expect(decls(`${kept}:is([data-entering], [data-exiting])`)).toEqual({ transform: "none", transition: "none" })
+    expect(decls(`${kept}[data-entering]`)).toEqual({ opacity: "1" })
+    expect(decls(`${kept}[data-exiting]`)).toEqual({ visibility: "hidden" })
+  })
+
+  test("an outgoing screen hands its height to the screen that covers it", () => {
+    const viewport = document.createElement("div")
+    const entry = document.createElement("div")
+    viewport.append(entry)
+    document.body.append(viewport)
+    entry.getBoundingClientRect = () => DOMRect.fromRect({ width: 370, height: 612 })
+    hideExitingDemoScreen(entry)
+    expect(viewport.style.getPropertyValue("--demo-navigation-exit-height")).toBe("612px")
+    viewport.remove()
   })
 })

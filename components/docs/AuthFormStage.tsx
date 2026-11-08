@@ -51,9 +51,9 @@ export function AuthFormStage({
   const back = <DemoBackButton onBack={onBack} label={backLabel} />;
   const formContent = motion ? <DemoNavigationView navigation={motion}><div className={s.Form}>{children}</div></DemoNavigationView> : children;
   // The title stays in the form; the bars carry only the way out and the action.
-  const bar = (leading: ReactNode) => (
+  const bar = (leading: ReactNode, control: 'back' | 'close') => (
     <Toolbar>
-      <Toolbar.Leading>{motion ? <DemoNavigationView navigation={motion} part="bar">{leading}</DemoNavigationView> : leading}</Toolbar.Leading>
+      <Toolbar.Leading>{motion ? <DemoNavigationView navigation={motion} part="bar" control={control}>{leading}</DemoNavigationView> : leading}</Toolbar.Leading>
     </Toolbar>
   );
   const close = <Dialog.Close><NavigationButton action="close" aria-label="Close dialog" /></Dialog.Close>;
@@ -76,7 +76,7 @@ export function AuthFormStage({
                 if (!phonePreview) headingRef.current?.focus({ preventScroll: true });
               }}
             >
-              {bar(onBack ? back : close)}
+              {onBack ? bar(back, 'back') : bar(close, 'close')}
               <Dialog.Header>
                 <div ref={headingRef} tabIndex={-1}>
                   <Dialog.Title className="sr-only">{title}</Dialog.Title>
@@ -103,7 +103,7 @@ export function AuthFormStage({
         )
       ) : (
         <Page ref={bindPage} tabIndex={-1} role="region" aria-label={title} surface={surface} className={s.Screen}>
-          {bar(back)}
+          {bar(back, 'back')}
           <Page.Content className={s.Content}>
             <div className={s.Form} data-preview-keyboard={keyboard}>{formContent}</div>
           </Page.Content>
