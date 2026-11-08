@@ -51,4 +51,5 @@ if (typeof globalThis.CSS?.escape !== "function") {
 }
 
 // jsdom has no scrollIntoView, and an open Select calls it a frame later, when its test may be over.
-Element.prototype.scrollIntoView ??= () => {}
+// A server-side test (`@vitest-environment node`) has no Element at all.
+if (typeof Element !== "undefined") Element.prototype.scrollIntoView ??= () => {}
