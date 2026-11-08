@@ -262,11 +262,17 @@ Sub: `Tip.Popover` -- the same content props plus `open` / `defaultOpen` / `onOp
 
 Props: `count` (required), `value` / `defaultValue` (page index from 0), `onChange(index, { scrubbing })`, `background` (`"automatic"` | `"prominent"` | `"minimal"`), `valueText`, `aria-label` (default "Pages") / `aria-labelledby`, `aria-controls`. Dots for a carousel or onboarding; scroll without animation while `scrubbing`.
 
+### IndexBar
+
+**Import:** `@plexui/ui/components/IndexBar`
+
+Props: `items` (required, the section titles in order, such as `"A"` to `"Z"`), `onSelect(item, index)` (on a press, on each new letter while dragging, from the keys), `aria-label` (default "Section index"), `aria-controls`, `className`. The iOS section index of a long sorted list: phone only (under 768px), at the trailing edge of the nearest positioned container (a `Page`); scroll the list to the section in `onSelect`. Collapses to letters and dots when they do not fit. One vertical slider for assistive technology.
+
 ### TabBar
 
-**Import:** `@plexui/ui/components/TabBar` -- also exports the types `TabBarItemProps`, `TabBarSearch`
+**Import:** `@plexui/ui/components/TabBar` -- also exports the types `TabBarItemProps`, `TabBarSearch`, `TabBarProminent`
 
-Props: `value` / `defaultValue`, `onValueChange`, `search` (`{ value, label? }`, a search tab in a circle of its own), `minimizeBehavior` (`"never"` | `"onScrollDown"`), `minimized` / `defaultMinimized`, `onMinimizedChange`, `aria-label` (default "Tabs")
+Props: `value` / `defaultValue`, `onValueChange`, `search` (`{ value, label? }`, a search tab in a circle of its own), `prominent` (`{ value, label, icon }`, a prominent tab in that circle instead; search then joins the capsule), `minimizeBehavior` (`"never"` | `"onScrollDown"`), `minimized` / `defaultMinimized`, `onMinimizedChange`, `aria-label` (default "Tabs")
 
 Sub: `TabBar.Item` -- props: `value`, `label`, `icon` (a PlexUI icon), `href`, `disabled`, `onClick`
 

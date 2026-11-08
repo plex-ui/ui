@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 59
+Components: 60
 
 ## Setup
 
@@ -3697,6 +3697,32 @@ Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling
     <p>We'll never share your email with anyone else.</p>
   </template>
 </FieldGroup>
+```
+
+## Index Bar
+"The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up."
+Import: import { IndexBar } from "@plexui/vue/components/IndexBar"
+Docs: https://plexui.com/vue/components/index-bar
+Props:
+  - items (string[]) — The titles of the sections, in order: usually letters, such as A to Z and #
+  - id (string) — The id of the index bar
+  - aria-label (string) default: "Section index" — Name of the index bar
+  - aria-controls (string) — The id of the list the index scrolls
+
+### Overview
+Put the bar in a Page, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as UIKit centres its index, its letters 15px apart and 10px from the edge, in the info color, as native iOS draws its tint; a Page ends its rows 20px from the edge beside it, as a native list does. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; the select event receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it.
+```vue
+<Page surface="grouped">
+  <Toolbar>
+    <ToolbarTitle>Countries</ToolbarTitle>
+  </Toolbar>
+  <PageContent ref="content">
+    <FieldGroup v-for="section in sections" :key="section.letter" :title="section.letter" :data-section="section.letter">
+      ...
+    </FieldGroup>
+  </PageContent>
+  <IndexBar :items="sections.map((section) => section.letter)" @select="(letter) => scrollToSection(content, letter)" />
+</Page>
 ```
 
 ## Indicators

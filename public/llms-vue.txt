@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 59
+Components: 60
 
 ## Setup
 
@@ -518,6 +518,17 @@ Docs: https://plexui.com/vue/components/floating-label-input
     - @clear-click (() => void) — Shows a clear button when a value is selected
     - @interact (() => void) — Fires on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
 Examples: Overview, Types, Label inside, Rounded box, Textarea, Password input, Phone input, Select, Multiple selection, Country select, States
+
+## Index Bar
+"The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up."
+Import: import { IndexBar } from "@plexui/vue/components/IndexBar"
+Docs: https://plexui.com/vue/components/index-bar
+Props:
+  - items (string[]) — The titles of the sections, in order: usually letters, such as A to Z and #
+  - id (string) — The id of the index bar
+  - aria-label (string) default: "Section index" — Name of the index bar
+  - aria-controls (string) — The id of the list the index scrolls
+Examples: Overview
 
 ## Indicators
 Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.

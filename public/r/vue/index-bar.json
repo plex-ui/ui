@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "index-bar",
+  "type": "registry:ui",
+  "title": "Index Bar",
+  "description": "\"The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up.\"",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/index-bar/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/IndexBar\"\n"
+    }
+  ],
+  "docs": "Import as `import { IndexBar } from '@/components/ui/index-bar'`. See https://plexui.com/vue/components/index-bar for props and examples."
+}

@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 59
+Components: 60
 
 ## Setup
 
@@ -3794,6 +3794,41 @@ const [value, setValue] = useState("")
     />
   </Field>
 </FieldGroup>
+```
+
+## Index Bar
+"The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up."
+Import: import { IndexBar } from "@plexui/ui/components/IndexBar"
+Docs: https://plexui.com/components/index-bar
+Props:
+  - items (string[]) — The titles of the sections, in order: usually letters, such as A to Z and #
+  - onSelect ((item: string, index: number) => void) — Called with the title and the index of the section to show: on a press, on each new letter while dragging, and from the keys
+  - id (string) — The id of the index bar
+  - aria-label (string) default: "Section index" — Name of the index bar
+  - aria-controls (string) — The id of the list the index scrolls
+  - onFocus ((event: FocusEvent) => void) — Called when the index bar gains focus
+  - onBlur ((event: FocusEvent) => void) — Called when the index bar loses focus
+  - className (string) — CSS classes applied to the strip of the index bar
+
+### Overview
+Put the bar in a Page, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as UIKit centres its index, its letters 15px apart and 10px from the edge, in the info color, as native iOS draws its tint; a Page ends its rows 20px from the edge beside it, as a native list does. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; onSelect receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it.
+```tsx
+const content = useRef<HTMLDivElement>(null)
+
+<Page surface="grouped">
+<Toolbar>
+  <Toolbar.Title>Countries</Toolbar.Title>
+</Toolbar>
+<Page.Content ref={content}>
+  {sections.map(({ letter, names }) => (
+    <FieldGroup key={letter} title={letter} data-section={letter}>...</FieldGroup>
+  ))}
+</Page.Content>
+<IndexBar
+  items={sections.map(({ letter }) => letter)}
+  onSelect={(letter) => scrollToSection(content.current, letter)}
+/>
+</Page>
 ```
 
 ## Indicators

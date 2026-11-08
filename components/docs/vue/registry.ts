@@ -59,6 +59,7 @@ import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
 import { FloatingLabelSelect } from '@plexui/vue/components/FloatingLabelSelect';
 import { CircularProgress, LoadingDots, LoadingIndicator } from '@plexui/vue/components/Indicator';
 import { Image } from '@plexui/vue/components/Image';
+import { IndexBar } from '@plexui/vue/components/IndexBar';
 import { Input, InputAdornmentButton } from '@plexui/vue/components/Input';
 import {
   InputGroup,
@@ -298,6 +299,7 @@ const components: Record<string, Component> = {
   FloatingLabelInput,
   FloatingLabelSelect,
   Image,
+  IndexBar,
   Input,
   InputAdornmentButton,
   InputGroup,

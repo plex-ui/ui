@@ -1,0 +1,78 @@
+/* The section index of a phone list, after native iOS (a country list in a sheet, IMG_5491) and the iOS 27 kit
+   Index Bar (Lists 48:56457): a column of letters at the trailing edge of the list, centred between its bars, that jumps to
+   a section under the finger. Where the letters do not fit, every other one gives way to a dot, as UIKit's
+   index does. A desktop list has no index, so the bar never renders from 768px up. */
+.IndexBar {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  /* A strip down the trailing edge of the nearest positioned container (a Page is one), between the bars of a
+     Page or the safe areas, as UIKit centres its index between the bars (IMG_5491: 485.5pt, halfway between the
+     header and the search bar, not the middle of the sheet). Only the letters take touches, so the rows beside
+     and under the strip keep theirs. */
+  .IndexBar {
+    position: absolute;
+    z-index: 4;
+    inset-block: 0;
+    inset-inline-end: var(--index-bar-inset-inline-end);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: var(--index-bar-width);
+    padding-block:
+      var(--page-top, var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))
+      var(--page-bottom, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+    pointer-events: none;
+  }
+
+  .Rail {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    color: var(--index-bar-color);
+    font-size: var(--index-bar-font-size);
+    font-weight: var(--index-bar-font-weight);
+    line-height: var(--index-bar-line-height);
+    text-align: center;
+    pointer-events: auto;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    /* A drag along the letters moves through the sections, not the page. */
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+
+    /* No room for a line between the bars. */
+    &[hidden] {
+      display: none;
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    /* The ring hugs the column: an offset would reach past the edge of the Page, which clips it. */
+    &:focus-visible {
+      border-radius: calc(var(--index-bar-width) / 2);
+      outline: 2px solid var(--color-ring);
+      outline-offset: 0;
+    }
+
+    /* The target reaches out to the edge and in toward the content, --index-bar-target-width in all. */
+    &::before {
+      position: absolute;
+      inset-block: 0;
+      inset-inline: calc(var(--index-bar-width) + var(--index-bar-inset-inline-end) - var(--index-bar-target-width)) calc(-1 * var(--index-bar-inset-inline-end));
+      content: "";
+    }
+  }
+
+  .Item {
+    display: block;
+    height: var(--index-bar-line-height);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}

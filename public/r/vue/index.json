@@ -199,6 +199,14 @@
       ]
     },
     {
+      "name": "index-bar",
+      "type": "registry:ui",
+      "description": "\"The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up.\"",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "indicators",
       "type": "registry:ui",
       "description": "Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.",

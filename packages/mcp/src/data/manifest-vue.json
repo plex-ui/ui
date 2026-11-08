@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 59,
+  "componentCount": 60,
   "components": [
     {
       "slug": "accordion",
@@ -3020,6 +3020,46 @@
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/floating-label-input"
+    },
+    {
+      "slug": "index-bar",
+      "name": "Index Bar",
+      "description": "\"The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up.\"",
+      "importPath": "@plexui/vue/components/IndexBar",
+      "exports": [
+        "IndexBar"
+      ],
+      "props": [
+        {
+          "name": "items",
+          "type": "string[]",
+          "description": "The titles of the sections, in order: usually letters, such as A to Z and #"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "The id of the index bar"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "default": "\"Section index\"",
+          "description": "Name of the index bar"
+        },
+        {
+          "name": "aria-controls",
+          "type": "string",
+          "description": "The id of the list the index scrolls"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Page surface=\"grouped\">\n  <Toolbar>\n    <ToolbarTitle>Countries</ToolbarTitle>\n  </Toolbar>\n  <PageContent ref=\"content\">\n    <FieldGroup v-for=\"section in sections\" :key=\"section.letter\" :title=\"section.letter\" :data-section=\"section.letter\">\n      ...\n    </FieldGroup>\n  </PageContent>\n  <IndexBar :items=\"sections.map((section) => section.letter)\" @select=\"(letter) => scrollToSection(content, letter)\" />\n</Page>",
+          "details": "Put the bar in a Page, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as UIKit centres its index, its letters 15px apart and 10px from the edge, in the info color, as native iOS draws its tint; a Page ends its rows 20px from the edge beside it, as a native list does. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; the select event receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/index-bar"
     },
     {
       "slug": "indicators",
@@ -7728,5 +7768,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T22:21:52.219Z"
+  "generatedAt": "2026-11-08T22:59:45.545Z"
 }

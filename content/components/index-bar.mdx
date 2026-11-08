@@ -1,0 +1,63 @@
+---
+title: Index Bar
+description: "The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up."
+metaDescription: "React phone section index in the iOS style: a column of letters at the trailing edge of a list that jumps to a section on a press and moves through the sections while dragging, one slider for assistive technology."
+---
+
+import { IndexBarOverviewDemo } from "@/components/docs/IndexBarDemos"
+
+<UsageBlock>{`import { IndexBar } from "@plexui/ui/components/IndexBar";`}</UsageBlock>
+
+An index bar takes people through a long list that is sorted by its titles, such as countries or contacts, as the iOS section index does: a letter for each section down the trailing edge, and a press or a drag on a letter shows its section. Give a list one only when it is long and its sections are its letters. A desktop list has no index, so the bar renders under 768px only.
+
+## Examples
+
+The example shows the phone view.
+
+### Overview
+
+<ComponentPreview phoneOnly details={<>Put the bar in a <code>Page</code>, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as UIKit centres its index, its letters 15px apart and 10px from the edge, in the info color, as native iOS draws its tint; a <code>Page</code> ends its rows 20px from the edge beside it, as a native list does. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; <code>onSelect</code> receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it.</>} code={`const content = useRef<HTMLDivElement>(null)
+
+<Page surface="grouped">
+  <Toolbar>
+    <Toolbar.Title>Countries</Toolbar.Title>
+  </Toolbar>
+  <Page.Content ref={content}>
+    {sections.map(({ letter, names }) => (
+      <FieldGroup key={letter} title={letter} data-section={letter}>...</FieldGroup>
+    ))}
+  </Page.Content>
+  <IndexBar
+    items={sections.map(({ letter }) => letter)}
+    onSelect={(letter) => scrollToSection(content.current, letter)}
+  />
+</Page>`}>
+  <IndexBarOverviewDemo />
+</ComponentPreview>
+
+## API
+
+### IndexBar
+
+<PropsTable data={[
+  { prop: "items", type: "string[]", description: "The titles of the sections, in order: usually letters, such as A to Z and #" },
+  { prop: "onSelect", type: "(item: string, index: number) => void", description: "Called with the title and the index of the section to show: on a press, on each new letter while dragging, and from the keys" },
+  { prop: "id", type: "string", description: "The id of the index bar" },
+  { prop: "aria-label", type: "string", default: '"Section index"', description: "Name of the index bar" },
+  { prop: "aria-controls", type: "string", description: "The id of the list the index scrolls" },
+  { prop: "onFocus", type: "(event: FocusEvent) => void", description: "Called when the index bar gains focus" },
+  { prop: "onBlur", type: "(event: FocusEvent) => void", description: "Called when the index bar loses focus" },
+  { prop: "className", type: "string", description: "CSS classes applied to the strip of the index bar" },
+]} />
+
+The bar is one stop for the Tab key: a vertical slider named Section index, read as the letter of the current section, as the iOS section index is one adjustable element for VoiceOver. Down and Up, or Right and Left, move one section; Home and End go to the first and the last; Enter or Space shows the current section again. The letters themselves are hidden from assistive technology. While a pointer presses the bar, it has `data-pressed`.
+
+## Styling
+
+IndexBar reads these component tokens. Override them at any scope to restyle it:
+
+- `--index-bar-width`, `--index-bar-inset-inline-end`: the column of letters and its space from the trailing edge (default `16px`, `2px`)
+- `--index-bar-font-size`, `--index-bar-line-height`, `--index-bar-font-weight`: the letters and the space from one to the next (default `11px`, `15px`, medium)
+- `--index-bar-color`: the letters (default `var(--color-text-info)`)
+- `--index-bar-target-width`: how far in from the edge a press reaches the bar (default `30px`)
+- `--index-bar-content-inset-inline-end`: how far from the trailing edge a `Page` ends its rows beside the bar (default `20px`)

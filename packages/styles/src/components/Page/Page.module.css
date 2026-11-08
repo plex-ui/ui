@@ -174,6 +174,12 @@
     }
   }
 
+  /* An IndexBar takes the trailing edge from the rows, as a native list beside its section index ends its rows
+     20pt from the edge, clear of the letters 10pt from it (IMG_5491). */
+  .Page:has(> [data-index-bar]) > .Content {
+    padding-inline-end: max(var(--page-gutter), var(--index-bar-content-inset-inline-end, 0px));
+  }
+
   /* A phone Toolbar takes the place of the bar on its side. */
   .Page:has(> [data-toolbar][data-placement="top"]) > .Header,
   .Page:has(> [data-toolbar][data-placement="bottom"]) > .Footer {

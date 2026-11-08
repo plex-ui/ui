@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 59,
+  "componentCount": 60,
   "components": [
     {
       "slug": "accordion",
@@ -3006,6 +3006,66 @@
         }
       ],
       "docsUrl": "https://plexui.com/components/floating-label-input"
+    },
+    {
+      "slug": "index-bar",
+      "name": "Index Bar",
+      "description": "\"The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up.\"",
+      "importPath": "@plexui/ui/components/IndexBar",
+      "exports": [
+        "IndexBar"
+      ],
+      "props": [
+        {
+          "name": "items",
+          "type": "string[]",
+          "description": "The titles of the sections, in order: usually letters, such as A to Z and #"
+        },
+        {
+          "name": "onSelect",
+          "type": "(item: string, index: number) => void",
+          "description": "Called with the title and the index of the section to show: on a press, on each new letter while dragging, and from the keys"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "The id of the index bar"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "default": "\"Section index\"",
+          "description": "Name of the index bar"
+        },
+        {
+          "name": "aria-controls",
+          "type": "string",
+          "description": "The id of the list the index scrolls"
+        },
+        {
+          "name": "onFocus",
+          "type": "(event: FocusEvent) => void",
+          "description": "Called when the index bar gains focus"
+        },
+        {
+          "name": "onBlur",
+          "type": "(event: FocusEvent) => void",
+          "description": "Called when the index bar loses focus"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "description": "CSS classes applied to the strip of the index bar"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "const content = useRef<HTMLDivElement>(null)\n\n<Page surface=\"grouped\">\n<Toolbar>\n  <Toolbar.Title>Countries</Toolbar.Title>\n</Toolbar>\n<Page.Content ref={content}>\n  {sections.map(({ letter, names }) => (\n    <FieldGroup key={letter} title={letter} data-section={letter}>...</FieldGroup>\n  ))}\n</Page.Content>\n<IndexBar\n  items={sections.map(({ letter }) => letter)}\n  onSelect={(letter) => scrollToSection(content.current, letter)}\n/>\n</Page>",
+          "details": "Put the bar in a Page, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as UIKit centres its index, its letters 15px apart and 10px from the edge, in the info color, as native iOS draws its tint; a Page ends its rows 20px from the edge beside it, as a native list does. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; onSelect receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it."
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/index-bar"
     },
     {
       "slug": "indicators",
@@ -7743,5 +7803,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T22:21:49.261Z"
+  "generatedAt": "2026-11-08T22:59:43.201Z"
 }
