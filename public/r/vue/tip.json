@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "tip",
+  "type": "registry:ui",
+  "title": "Tip",
+  "description": "A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/tip/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Tip\"\n"
+    }
+  ],
+  "docs": "Import as `import { Tip, TipPopover } from '@/components/ui/tip'`. See https://plexui.com/vue/components/tip for props and examples."
+}

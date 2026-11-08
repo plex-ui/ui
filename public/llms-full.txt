@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 58
+Components: 59
 
 ## Setup
 
@@ -9419,6 +9419,91 @@ By default, autofill extensions are prevented by Textarea. For the occasions whe
   <Textarea variant="ghost" name="address" autoComplete="street-address" placeholder="Allowed" allowAutofillExtensions autoResize rows={2} />
 </Field>
 </FieldGroup>
+```
+
+## Tip
+A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.
+Import: import { Tip } from "@plexui/ui/components/Tip"
+Docs: https://plexui.com/components/tip
+Props:
+  - title (ReactNode) — The tip's title: what the feature is
+  - description (ReactNode) — One or two sentences on how to use it
+  - icon (ReactNode) — A symbol or image that leads the message
+  - actions (ReactNode) — Buttons for the tip's actions, side by side below the message
+  - onClose (() => void) — Shows the Close button; called when it is clicked
+  - arrowEdge ("top" | "bottom" | "left" | "right") — Draws an arrow at this edge, pointing at what the tip explains
+  - className (string) — CSS classes applied to the tip
+  - ref (Ref<HTMLDivElement>) — Ref applied to the tip
+  Tip.Popover:
+    - open (boolean) — Shows the tip (controlled)
+    - defaultOpen (boolean) default: false — Shows the tip at first (uncontrolled)
+    - onOpenChange ((open: boolean) => void) — Called when the tip opens or closes
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — The side of the control the tip shows on, turned when it does not fit
+    - align ("start" | "center" | "end") default: "center" — The alignment against the control
+    - sideOffset (number) default: 4 — The distance from the control to the arrow's point, in pixels
+    - closeButton (boolean) default: true — Shows the Close button
+    - className (string) — CSS classes applied to the popover around the tip and its arrow
+
+### Overview
+An inline tip takes its place in the layout. A symbol leads the message in the secondary color; onClose shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background.
+```tsx
+const [shown, setShown] = useState(true)
+
+{shown && (
+<Tip
+  icon={<Bookmark />}
+  title="Save it for later"
+  description="Bookmarked articles wait in your reading list, ready offline on every device."
+  onClose={() => setShown(false)}
+/>
+)}
+```
+
+### Actions
+Actions sit side by side below the message, each as wide as the others. Use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them.
+```tsx
+<Tip
+icon={<Bell />}
+title="Turn on notifications"
+description="Get a message when someone replies to your post or mentions you."
+actions={
+  <>
+    <Button color="primary" variant="soft" size="sm" pill>Not now</Button>
+    <Button color="primary" size="sm" pill>Turn on</Button>
+  </>
+}
+/>
+```
+
+### Arrow
+With arrowEdge an inline tip points at what it explains with the kit's arrow, centered on that edge. The tip leaves room for the arrow on that side.
+```tsx
+<Button color="secondary" variant="soft" uniform pill aria-label="Filter">
+<Filter />
+</Button>
+<Tip
+arrowEdge="top"
+title="Filter the list"
+description="Show only the items from the last week, month or year."
+/>
+```
+
+### Popover
+A popover tip floats next to its control with an arrow that points at it. The control stays usable and keeps the focus. Close, Escape or a press outside the tip and its control closes it, through onOpenChange. Show it when the control appears; here the button shows it.
+```tsx
+const [open, setOpen] = useState(false)
+
+<Tip.Popover
+open={open}
+onOpenChange={setOpen}
+title="Filter the list"
+description="Show only the items from the last week, month or year."
+>
+<Button color="secondary" variant="soft" onClick={() => setOpen(!open)}>
+  <Filter />
+  Filter
+</Button>
+</Tip.Popover>
 ```
 
 ## Toast

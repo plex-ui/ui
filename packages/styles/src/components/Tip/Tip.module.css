@@ -1,0 +1,340 @@
+/* A tip after TipKit (kit TipKit Community: macOS Mini Tip 118:5175, iOS Mini Tip 41:1351; tokens in
+   variables-components.css). The kit's three styles: an inline tip (Hint), an inline tip with an arrow at one
+   edge (Annotation, `arrowEdge`) and a tip anchored to a control (Popover, `Tip.Popover`). An optional symbol
+   leads the message, Close sits in the trailing corner and the actions take a line of their own below. */
+.Transition {
+  /* CSS Modules requires a top-level class to create the string map entry */
+}
+
+.Tip {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  column-gap: 12px;
+  row-gap: var(--tip-gap);
+  box-sizing: border-box;
+  padding: var(--tip-padding-top) var(--tip-padding-inline) var(--tip-padding-bottom);
+  border-radius: var(--tip-radius);
+  background: var(--tip-background);
+  color: var(--color-text);
+  text-align: start;
+
+  &:not(:has(> .Actions)) {
+    padding-bottom: var(--tip-padding-top);
+  }
+}
+
+/* The symbol: 6 in from the padding in a 44 by 54 frame, 12 from the text, in the description's color */
+.Icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--tip-icon-frame-width);
+  height: var(--tip-icon-frame-height);
+  margin-inline-start: 6px;
+  color: var(--tip-description-color);
+
+  & > svg {
+    width: var(--tip-icon-size);
+    height: var(--tip-icon-size);
+  }
+}
+
+.Message {
+  flex: 1;
+  min-width: 0;
+
+  /* Next to a symbol the whole message stops short of Close (the kit's 172 of 206) */
+  .Tip:has(> .Icon):has(> .Close) & {
+    padding-inline-end: calc(var(--tip-close-size) + var(--tip-close-offset) - var(--tip-padding-inline) + 1px);
+  }
+}
+
+.Title {
+  margin: 0;
+  font-size: var(--tip-title-font-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--tip-title-line-height);
+  text-wrap: pretty;
+
+  /* The kit's title stops short of Close (234 of 268); the description runs under it */
+  .Tip:has(> .Close):not(:has(> .Icon)) & {
+    padding-inline-end: calc(var(--tip-close-size) + var(--tip-close-offset) - var(--tip-padding-inline) + 1px);
+  }
+
+  & ~ .Description {
+    margin-top: var(--tip-description-gap);
+  }
+}
+
+.Description {
+  margin: 0;
+  color: var(--tip-description-color);
+  font-size: var(--tip-description-font-size);
+  line-height: var(--tip-description-line-height);
+  text-wrap: pretty;
+}
+
+/* Side by side, each as wide as the others (the kit's 128 and 128 in 268) */
+.Actions {
+  display: flex;
+  flex: 1 0 100%;
+  flex-flow: row wrap;
+  gap: 10px var(--tip-action-gap);
+
+  & > * {
+    flex: 1 0 0;
+    min-width: calc(50% - var(--tip-action-gap) / 2);
+    max-width: 100%;
+  }
+}
+
+/* Two classes: over the Button's own size and position, whichever stylesheet loads first */
+.Tip > .Close {
+  --button-uniform-size: var(--tip-close-size);
+  --button-icon-size: var(--tip-close-icon-size);
+  position: absolute;
+  top: var(--tip-close-offset);
+  inset-inline-end: var(--tip-close-offset);
+}
+
+/* =============================================
+  Annotation: the arrow at one edge of an inline tip, in its fill. The tip leaves room for it.
+============================================= */
+.Tip[data-arrow-edge]::before {
+  position: absolute;
+  width: var(--tip-arrow-width);
+  height: var(--tip-arrow-height);
+  background: inherit;
+  /* The kit's arrow (47 by 13), pointing down */
+  clip-path: path("M0 0C1.71 0 3.42 -.01 5.14 .01C6.78 .03 8.61 .06 10.21 .66C11.93 1.31 13.07 2.44 14.22 3.78C15.04 4.74 16.67 6.8 17.46 7.79C18.1 8.6 19.37 10.21 20.06 10.98C20.93 11.96 22.01 13 23.5 13C24.99 13 26.07 11.96 26.94 10.98C27.63 10.21 28.9 8.6 29.54 7.79C30.33 6.8 31.96 4.74 32.78 3.78C33.93 2.44 35.07 1.31 36.79 .66C38.39 .06 40.22 .03 41.86 .01C43.58 -.01 45.29 0 47 0Z");
+  content: "";
+}
+
+.Tip[data-arrow-edge="top"] {
+  margin-top: var(--tip-arrow-height);
+
+  &::before {
+    bottom: 100%;
+    left: calc(50% - var(--tip-arrow-width) / 2);
+    transform: rotate(180deg);
+  }
+}
+
+.Tip[data-arrow-edge="bottom"] {
+  margin-bottom: var(--tip-arrow-height);
+
+  &::before {
+    top: 100%;
+    left: calc(50% - var(--tip-arrow-width) / 2);
+  }
+}
+
+/* A sideways arrow turns about its own center, so it is moved by half its length less half its height */
+.Tip[data-arrow-edge="left"] {
+  margin-left: var(--tip-arrow-height);
+
+  &::before {
+    top: calc(50% - var(--tip-arrow-height) / 2);
+    right: calc(100% - (var(--tip-arrow-width) - var(--tip-arrow-height)) / 2);
+    transform: rotate(90deg);
+  }
+}
+
+.Tip[data-arrow-edge="right"] {
+  margin-right: var(--tip-arrow-height);
+
+  &::before {
+    top: calc(50% - var(--tip-arrow-height) / 2);
+    left: calc(100% - (var(--tip-arrow-width) - var(--tip-arrow-height)) / 2);
+    transform: rotate(-90deg);
+  }
+}
+
+/* =============================================
+  Popover: the tip and its arrow, which Radix places at the anchor and turns to face it
+============================================= */
+.Popover {
+  z-index: 50;
+  position: relative;
+  width: min(var(--tip-popover-width), var(--radix-popover-content-available-width, var(--reka-popover-content-available-width, 100vw)));
+  /* One shadow around the tip and its arrow (there is no glass to keep on a desktop) */
+  filter: drop-shadow(0 0 var(--shadow-hairline-width) var(--shadow-hairline-color)) drop-shadow(var(--tip-popover-shadow));
+  transform-origin: var(--radix-popover-content-transform-origin, var(--reka-popover-content-transform-origin));
+  will-change: transform;
+
+  &:focus {
+    outline: none;
+  }
+
+  & > .Tip {
+    background: var(--tip-popover-background);
+  }
+
+  /* Visibility transitions: the scale on the popover, the fade on the tip and the arrow themselves (a fading
+     parent would hide the backdrop from their glass on a phone) */
+  .Transition[data-entering] & {
+    transform: scale(0.95);
+  }
+
+  .Transition[data-entering] & :is(.Tip, .Arrow) {
+    opacity: 0;
+  }
+
+  .Transition[data-entering-active] &,
+  .Transition[data-entering][data-interrupted] & {
+    transform: scale(1);
+    transition: transform var(--motion-enter) var(--cubic-enter);
+  }
+
+  .Transition[data-entering-active] & :is(.Tip, .Arrow),
+  .Transition[data-entering][data-interrupted] & :is(.Tip, .Arrow) {
+    opacity: 1;
+    transition: opacity var(--motion-enter) var(--cubic-enter);
+  }
+
+  .Transition[data-exiting-active] &,
+  .Transition[data-exiting][data-interrupted] & {
+    transform: scale(0.95);
+    transition: transform var(--motion-exit) var(--cubic-exit-snappy);
+  }
+
+  .Transition[data-exiting-active] & :is(.Tip, .Arrow),
+  .Transition[data-exiting][data-interrupted] & :is(.Tip, .Arrow) {
+    opacity: 0;
+    transition: opacity var(--motion-exit) var(--cubic-exit-snappy);
+  }
+}
+
+/* Drawn pointing down; Radix turns it toward the anchor */
+.Arrow {
+  display: block;
+  width: var(--tip-arrow-width);
+  height: var(--tip-arrow-height);
+  background: var(--tip-popover-background);
+  clip-path: path("M0 0C1.71 0 3.42 -.01 5.14 .01C6.78 .03 8.61 .06 10.21 .66C11.93 1.31 13.07 2.44 14.22 3.78C15.04 4.74 16.67 6.8 17.46 7.79C18.1 8.6 19.37 10.21 20.06 10.98C20.93 11.96 22.01 13 23.5 13C24.99 13 26.07 11.96 26.94 10.98C27.63 10.21 28.9 8.6 29.54 7.79C30.33 6.8 31.96 4.74 32.78 3.78C33.93 2.44 35.07 1.31 36.79 .66C38.39 .06 40.22 .03 41.86 .01C43.58 -.01 45.29 0 47 0Z");
+}
+
+/* iPhone (plan 171, owner 08.11, comments 46 to 50). Apple's cards differ from app to app (IMG_5723, 5725,
+   5726, 5728, 5729, 5730); a tip takes the shape TipKit's own tip and most of them share. It is the card of a
+   grouped list: opaque as a grouped cell, 26 corners, no shadow (white on 242,242,246), its content at the iOS
+   layout margin (20 at 430pt). The symbol is a 36 tile at the margin and the text starts 12 after it (IMG_5726);
+   the title line starts 14 down, the 15/20 description right under it in the secondary label, and the whole
+   message stops short of Close. Close is a bare 12pt glyph in the tertiary label (197,197,199), its center 28
+   from the trailing edge and 23 from the top, in a 44 target (IMG_5726, 5730). Actions are rows under a
+   separator that runs from the text to the trailing margin, as in iOS 26 lists (IMG_5729, 5730): 17 regular
+   text in the action's color, 46 tall, one under another. A popover tip has the same content in the iOS 27
+   alert's glass with the kit's popover shadow (0 10 30, black at 20%), its arrow the same glass. */
+@media (max-width: 767px) {
+  .Tip {
+    --tip-padding-top: 14px;
+    --tip-padding-inline: var(--mobile-layout-margin, 16px);
+    --tip-padding-bottom: 0px;
+    --tip-gap: 11px;
+    --tip-description-gap: 0px;
+    --tip-icon-size: 36px;
+    --tip-icon-frame-width: 36px;
+    --tip-icon-frame-height: 36px;
+    --tip-close-size: 22px;
+    --tip-close-offset: 17px;
+    --tip-close-icon-size: 22px;
+    border-radius: 26px;
+    background: var(--mobile-surface-grouped-secondary, var(--tip-background));
+  }
+
+  .Icon {
+    margin-inline-start: 0;
+  }
+
+  /* The whole message stops short of Close, with or without a symbol */
+  .Tip:has(> .Close) > .Message {
+    padding-inline-end: calc(var(--tip-close-size) + var(--tip-close-offset) - var(--tip-padding-inline) + 1px);
+  }
+
+  .Tip:has(> .Close):not(:has(> .Icon)) .Title {
+    padding-inline-end: 0;
+  }
+
+  /* [data-variant]: over the Button's own soft fill and label. The glyph sits in a 44 target. */
+  .Tip > .Close[data-variant] {
+    --tip-close-target-inset: calc((44px - var(--tip-close-size)) / 2);
+    --button-uniform-size: 44px;
+    --button-background-color: transparent;
+    --button-background-color-hover: transparent;
+    --button-background-color-active: transparent;
+    --button-text-color: var(--mobile-label-tertiary, var(--color-text-tertiary));
+    --button-text-color-hover: var(--mobile-label-tertiary, var(--color-text-tertiary));
+    top: calc(12px - var(--tip-close-target-inset));
+    inset-inline-end: calc(var(--tip-close-offset) - var(--tip-close-target-inset));
+
+    &::before,
+    &::after {
+      inset: var(--tip-close-target-inset);
+    }
+  }
+
+  /* The actions reach the bottom edge; beside a symbol they start under the text */
+  .Tip > .Actions {
+    flex-flow: column nowrap;
+    gap: 0;
+  }
+
+  .Tip:has(> .Icon) > .Actions {
+    padding-inline-start: calc(var(--tip-icon-frame-width) + 12px);
+  }
+
+  /* Each action is a row of text in its own color under a separator ([data-variant]: over the Button's own) */
+  .Tip > .Actions > [data-variant] {
+    --button-size: auto;
+    --button-gutter: 0px;
+    --button-radius: 0;
+    --button-font-size: 17px;
+    --button-font-weight: var(--font-weight-normal);
+    --button-line-height: 22px;
+    --button-justify-content: flex-start;
+    --button-background-color: transparent;
+    --button-background-color-hover: transparent;
+    --button-background-color-active: transparent;
+    --button-text-color: var(--tip-action-color, var(--color-text));
+    --button-text-color-hover: var(--tip-action-color, var(--color-text));
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    min-height: 46px;
+    padding: 12px 0;
+    border-top: 1px solid var(--color-border);
+    /* Set on the row as well: touch.css sets the variable on the button itself (as Toolbar does) */
+    font-weight: var(--font-weight-normal);
+    text-align: start;
+    white-space: normal;
+  }
+
+  .Tip > .Actions > [data-color="primary"] { --tip-action-color: var(--color-text-primary-ghost); }
+  .Tip > .Actions > [data-color="secondary"] { --tip-action-color: var(--color-text-secondary-ghost); }
+  .Tip > .Actions > [data-color="danger"] { --tip-action-color: var(--color-text-danger-ghost); }
+  .Tip > .Actions > [data-color="success"] { --tip-action-color: var(--color-text-success-ghost); }
+  .Tip > .Actions > [data-color="warning"] { --tip-action-color: var(--color-text-warning-ghost); }
+  .Tip > .Actions > [data-color="caution"] { --tip-action-color: var(--color-text-caution-ghost); }
+  .Tip > .Actions > [data-color="info"] { --tip-action-color: var(--color-text-info-ghost); }
+  .Tip > .Actions > [data-color="discovery"] { --tip-action-color: var(--color-text-discovery-ghost); }
+
+  .Popover {
+    filter: none;
+
+    & > .Tip {
+      background: var(--dialog-alert-background, var(--tip-popover-background));
+      box-shadow: var(--tip-popover-shadow);
+      -webkit-backdrop-filter: var(--dialog-alert-backdrop-filter, none);
+      backdrop-filter: var(--dialog-alert-backdrop-filter, none);
+    }
+  }
+
+  .Arrow {
+    background: var(--dialog-alert-background, var(--tip-popover-background));
+    -webkit-backdrop-filter: var(--dialog-alert-backdrop-filter, none);
+    backdrop-filter: var(--dialog-alert-backdrop-filter, none);
+  }
+}

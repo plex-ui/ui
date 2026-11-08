@@ -553,6 +553,43 @@
     --popover-radius: var(--radius-xl);
 
     /* =============================================
+      Tip
+    ============================================= */
+    /* A tip as the TipKit kit draws it (TipKit Community, macOS Mini Tip 118:5175 and iOS Mini Tip 41:1351, the
+       same layout on both): 300 wide as a popover, 22 above, 16 at the sides and below (22 below when no action
+       shows), the title 17/22 semibold over the description 15/20 4 below it, 22 to the actions, the actions
+       side by side 12 apart. Close is a 30 circle 19 from the top and the trailing edge, its glyph about 11pt
+       drawn (a 20px X draws 11). A symbol is 34pt in a 44 by 54 frame 6 in from the padding and 12 from the
+       text, in the description's color (a 40px icon draws about 34). The arrow of a popover and an annotation is the kit's 47 by 13 curve.
+       macOS rounds the tip 20 (iOS: 26, see the phone rules in Tip.module.css). An inline tip on macOS is
+       black at 5% (alpha-05); a popover tip takes the PlexUI popover surface, and the kit's iOS popover shadow
+       (0 10 30, black at 20%) drawn around the arrow too. */
+    --tip-popover-width: 300px;
+    --tip-radius: 20px;
+    --tip-padding-top: 22px;
+    --tip-padding-inline: 16px;
+    --tip-padding-bottom: 16px;
+    --tip-gap: 22px;
+    --tip-title-font-size: 17px;
+    --tip-title-line-height: 22px;
+    --tip-description-font-size: 15px;
+    --tip-description-line-height: 20px;
+    --tip-description-gap: 4px;
+    --tip-description-color: var(--color-text-secondary);
+    --tip-action-gap: 12px;
+    --tip-icon-size: 40px;
+    --tip-icon-frame-width: 44px;
+    --tip-icon-frame-height: 54px;
+    --tip-close-size: 30px;
+    --tip-close-offset: 19px;
+    --tip-close-icon-size: 20px;
+    --tip-arrow-width: 47px;
+    --tip-arrow-height: 13px;
+    --tip-background: var(--alpha-05);
+    --tip-popover-background: var(--color-surface-elevated);
+    --tip-popover-shadow: 0 10px 30px rgb(0 0 0 / 20%);
+
+    /* =============================================
       RadioGroup
     ============================================= */
     --radio-group-col-gap: spacing(2.5);

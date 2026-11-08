@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 58,
+  "componentCount": 59,
   "components": [
     {
       "slug": "accordion",
@@ -7312,6 +7312,104 @@
       "docsUrl": "https://plexui.com/vue/components/textarea"
     },
     {
+      "slug": "tip",
+      "name": "Tip",
+      "description": "A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.",
+      "importPath": "@plexui/vue/components/Tip",
+      "exports": [
+        "Tip",
+        "TipPopover"
+      ],
+      "props": [
+        {
+          "name": "title",
+          "type": "string",
+          "description": "The tip's title: what the feature is (or the title slot)"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "One or two sentences on how to use it (or the description slot)"
+        },
+        {
+          "name": "on-close",
+          "type": "() => void",
+          "description": "Shows the Close button; called when it is clicked"
+        },
+        {
+          "name": "arrow-edge",
+          "type": "\"top\" | \"bottom\" | \"left\" | \"right\"",
+          "description": "Draws an arrow at this edge, pointing at what the tip explains"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"flex w-full max-w-[360px] flex-col items-center gap-3\">\n  <Tip\n    v-if=\"shown\"\n    title=\"Save it for later\"\n    description=\"Bookmarked articles wait in your reading list, ready offline on every device.\"\n    class=\"w-full\"\n    :on-close=\"() => (shown = false)\"\n  >\n    <template #icon><Bookmark /></template>\n  </Tip>\n  <Button v-else color=\"secondary\" variant=\"soft\" @click=\"shown = true\">Show the tip again</Button>\n</div>",
+          "details": "An inline tip takes its place in the layout. A symbol in the icon slot leads the message in the secondary color; on-close shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background."
+        },
+        {
+          "name": "Actions",
+          "code": "<div class=\"w-full max-w-[360px]\">\n  <Tip\n    title=\"Turn on notifications\"\n    description=\"Get a message when someone replies to your post or mentions you.\"\n  >\n    <template #icon><Bell /></template>\n    <template #actions>\n      <Button color=\"primary\" variant=\"soft\" size=\"sm\" pill>Not now</Button>\n      <Button color=\"primary\" size=\"sm\" pill>Turn on</Button>\n    </template>\n  </Tip>\n</div>",
+          "details": "Actions in the actions slot sit side by side below the message, each as wide as the others. Use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them."
+        },
+        {
+          "name": "Arrow",
+          "code": "<div class=\"flex w-full max-w-[360px] flex-col items-center gap-1\">\n  <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Filter\">\n    <Filter />\n  </Button>\n  <Tip\n    arrow-edge=\"top\"\n    title=\"Filter the list\"\n    description=\"Show only the items from the last week, month or year.\"\n    class=\"w-full\"\n  />\n</div>",
+          "details": "With arrow-edge an inline tip points at what it explains with the kit's arrow, centered on that edge. The tip leaves room for the arrow on that side."
+        },
+        {
+          "name": "Popover",
+          "code": "<TipPopover\n  v-model:open=\"open\"\n  title=\"Filter the list\"\n  description=\"Show only the items from the last week, month or year.\"\n>\n  <Button color=\"secondary\" variant=\"soft\" @click=\"open = !open\">\n    <Filter />\n    Filter\n  </Button>\n</TipPopover>",
+          "details": "A popover tip floats next to its control, the default slot, with an arrow that points at it. The control stays usable and keeps the focus. Close, Escape or a press outside the tip and its control closes it, through v-model:open. Show it when the control appears; here the button shows it."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "TipPopover",
+          "description": "Takes title, description and the slots as Tip does; the default slot is the control it explains. Tip.Popover is the same component.",
+          "props": [
+            {
+              "name": "open",
+              "type": "boolean",
+              "description": "Shows the tip (controlled); bind with v-model:open"
+            },
+            {
+              "name": "default-open",
+              "type": "boolean",
+              "default": "false",
+              "description": "Shows the tip at first (uncontrolled)"
+            },
+            {
+              "name": "side",
+              "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
+              "default": "\"bottom\"",
+              "description": "The side of the control the tip shows on, turned when it does not fit"
+            },
+            {
+              "name": "align",
+              "type": "\"start\" | \"center\" | \"end\"",
+              "default": "\"center\"",
+              "description": "The alignment against the control"
+            },
+            {
+              "name": "side-offset",
+              "type": "number",
+              "default": "4",
+              "description": "The distance from the control to the arrow's point, in pixels"
+            },
+            {
+              "name": "close-button",
+              "type": "boolean",
+              "default": "true",
+              "description": "Shows the Close button"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/tip"
+    },
+    {
       "slug": "toast",
       "name": "Toast",
       "description": "Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.",
@@ -7620,5 +7718,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T18:46:46.974Z"
+  "generatedAt": "2026-11-08T19:54:25.931Z"
 }

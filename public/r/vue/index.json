@@ -447,6 +447,14 @@
       ]
     },
     {
+      "name": "tip",
+      "type": "registry:ui",
+      "description": "A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "toast",
       "type": "registry:ui",
       "description": "Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.",

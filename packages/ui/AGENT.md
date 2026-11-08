@@ -230,6 +230,14 @@ Props: `value`, `defaultValue`, `onChange`, `direction` ("row" | "col", default:
 
 Sub: `RadioGroup.Item` -- props: `value`, `disabled`, `orientation`, `block`, `children`
 
+### Tip
+
+**Import:** `@plexui/ui/components/Tip`
+
+Props: `title`, `description`, `icon`, `actions`, `onClose` (shows Close), `arrowEdge` (`"top"` | `"bottom"` | `"left"` | `"right"`), `className`, `ref`. A TipKit tip that teaches a feature; one at a time, never for errors (Alert, Toast).
+
+Sub: `Tip.Popover` -- the same content props plus `open` / `defaultOpen` / `onOpenChange`, `side` (default `"bottom"`), `align`, `sideOffset` (default 4), `closeButton` (default true); its only child is the control it explains, which keeps the focus; Tab moves from the control into the tip.
+
 ### Tooltip
 
 **Import:** `@plexui/ui/components/Tooltip` -- exports `Tooltip`, `CopyTooltip`

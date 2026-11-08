@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 58
+Components: 59
 
 ## Setup
 
@@ -10726,6 +10726,88 @@ By default, autofill extensions are prevented by Textarea. For the occasions whe
     />
   </Field>
 </FieldGroup>
+```
+
+## Tip
+A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.
+Import: import { Tip, TipPopover } from "@plexui/vue/components/Tip"
+Docs: https://plexui.com/vue/components/tip
+Props:
+  - title (string) — The tip's title: what the feature is (or the title slot)
+  - description (string) — One or two sentences on how to use it (or the description slot)
+  - on-close (() => void) — Shows the Close button; called when it is clicked
+  - arrow-edge ("top" | "bottom" | "left" | "right") — Draws an arrow at this edge, pointing at what the tip explains
+  TipPopover:
+    - open (boolean) — Shows the tip (controlled); bind with v-model:open
+    - default-open (boolean) default: false — Shows the tip at first (uncontrolled)
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — The side of the control the tip shows on, turned when it does not fit
+    - align ("start" | "center" | "end") default: "center" — The alignment against the control
+    - side-offset (number) default: 4 — The distance from the control to the arrow's point, in pixels
+    - close-button (boolean) default: true — Shows the Close button
+
+### Overview
+An inline tip takes its place in the layout. A symbol in the icon slot leads the message in the secondary color; on-close shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background.
+```vue
+<div class="flex w-full max-w-[360px] flex-col items-center gap-3">
+  <Tip
+    v-if="shown"
+    title="Save it for later"
+    description="Bookmarked articles wait in your reading list, ready offline on every device."
+    class="w-full"
+    :on-close="() => (shown = false)"
+  >
+    <template #icon><Bookmark /></template>
+  </Tip>
+  <Button v-else color="secondary" variant="soft" @click="shown = true">Show the tip again</Button>
+</div>
+```
+
+### Actions
+Actions in the actions slot sit side by side below the message, each as wide as the others. Use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them.
+```vue
+<div class="w-full max-w-[360px]">
+  <Tip
+    title="Turn on notifications"
+    description="Get a message when someone replies to your post or mentions you."
+  >
+    <template #icon><Bell /></template>
+    <template #actions>
+      <Button color="primary" variant="soft" size="sm" pill>Not now</Button>
+      <Button color="primary" size="sm" pill>Turn on</Button>
+    </template>
+  </Tip>
+</div>
+```
+
+### Arrow
+With arrow-edge an inline tip points at what it explains with the kit's arrow, centered on that edge. The tip leaves room for the arrow on that side.
+```vue
+<div class="flex w-full max-w-[360px] flex-col items-center gap-1">
+  <Button color="secondary" variant="soft" uniform pill aria-label="Filter">
+    <Filter />
+  </Button>
+  <Tip
+    arrow-edge="top"
+    title="Filter the list"
+    description="Show only the items from the last week, month or year."
+    class="w-full"
+  />
+</div>
+```
+
+### Popover
+A popover tip floats next to its control, the default slot, with an arrow that points at it. The control stays usable and keeps the focus. Close, Escape or a press outside the tip and its control closes it, through v-model:open. Show it when the control appears; here the button shows it.
+```vue
+<TipPopover
+  v-model:open="open"
+  title="Filter the list"
+  description="Show only the items from the last week, month or year."
+>
+  <Button color="secondary" variant="soft" @click="open = !open">
+    <Filter />
+    Filter
+  </Button>
+</TipPopover>
 ```
 
 ## Toast

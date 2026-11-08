@@ -1,0 +1,130 @@
+---
+title: Tip
+description: A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.
+metaDescription: React tip component after Apple TipKit with inline tips, an arrow pointing at a control, popover tips anchored to a control, a symbol, actions and a close button, and iPhone styles after native iOS tips, with the iOS alert's glass for a popover tip.
+---
+
+import {
+  TipOverviewDemo,
+  TipActionsDemo,
+  TipArrowDemo,
+  TipPopoverDemo,
+} from "@/components/docs/TipDemos"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+
+<UsageBlock>{`import { Tip } from "@plexui/ui/components/Tip";`}</UsageBlock>
+
+A tip teaches a feature people might not find on their own: a title that names it and a sentence or two on how to use it. Show one tip at a time, close to what it explains, and stop showing it once the feature is used or the tip is closed. A tip is not for errors or for news about a task: use an [Alert](/components/alert) or a [Toast](/components/toast). It follows the TipKit kit, the macOS Mini Tip on a desktop and on a phone the shape TipKit's tip and most of Apple's own cards share, on the card of a grouped list or, for a popover tip, in the iOS 27 alert's glass. Apple's apps also draw cards of their own, with a large image, a centered layout or capsule buttons; build those from a [Card](/components/card) and [Buttons](/components/button).
+
+## Examples
+
+### Overview
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>An inline tip takes its place in the layout. A symbol leads the message in the secondary color; <code>onClose</code> shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background.</>} code={`const [shown, setShown] = useState(true)
+
+{shown && (
+  <Tip
+    icon={<Bookmark />}
+    title="Save it for later"
+    description="Bookmarked articles wait in your reading list, ready offline on every device."
+    onClose={() => setShown(false)}
+  />
+)}`} previewMinHeight={220}>
+  <TipOverviewDemo />
+</ComponentPreview>
+
+### Actions
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Actions sit side by side below the message, each as wide as the others. Use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them.</>} code={`<Tip
+  icon={<Bell />}
+  title="Turn on notifications"
+  description="Get a message when someone replies to your post or mentions you."
+  actions={
+    <>
+      <Button color="primary" variant="soft" size="sm" pill>Not now</Button>
+      <Button color="primary" size="sm" pill>Turn on</Button>
+    </>
+  }
+/>`} previewMinHeight={220}>
+  <TipActionsDemo />
+</ComponentPreview>
+
+### Arrow
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>With <code>arrowEdge</code> an inline tip points at what it explains with the kit's arrow, centered on that edge. The tip leaves room for the arrow on that side.</>} code={`<Button color="secondary" variant="soft" uniform pill aria-label="Filter">
+  <Filter />
+</Button>
+<Tip
+  arrowEdge="top"
+  title="Filter the list"
+  description="Show only the items from the last week, month or year."
+/>`} previewMinHeight={240}>
+  <TipArrowDemo />
+</ComponentPreview>
+
+### Popover
+
+<ComponentPreview details={<>A popover tip floats next to its control with an arrow that points at it. The control stays usable and keeps the focus. Close, Escape or a press outside the tip and its control closes it, through <code>onOpenChange</code>. Show it when the control appears; here the button shows it.</>} code={`const [open, setOpen] = useState(false)
+
+<Tip.Popover
+  open={open}
+  onOpenChange={setOpen}
+  title="Filter the list"
+  description="Show only the items from the last week, month or year."
+>
+  <Button color="secondary" variant="soft" onClick={() => setOpen(!open)}>
+    <Filter />
+    Filter
+  </Button>
+</Tip.Popover>`} previewMinHeight={260}>
+  <TipPopoverDemo />
+</ComponentPreview>
+
+## API
+
+### Tip
+
+<PropsTable data={[
+  { prop: "title", type: "ReactNode", description: "The tip's title: what the feature is" },
+  { prop: "description", type: "ReactNode", description: "One or two sentences on how to use it" },
+  { prop: "icon", type: "ReactNode", description: "A symbol or image that leads the message" },
+  { prop: "actions", type: "ReactNode", description: "Buttons for the tip's actions, side by side below the message" },
+  { prop: "onClose", type: "() => void", description: "Shows the Close button; called when it is clicked" },
+  { prop: "arrowEdge", type: '"top" | "bottom" | "left" | "right"', description: "Draws an arrow at this edge, pointing at what the tip explains" },
+  { prop: "className", type: "string", description: "CSS classes applied to the tip" },
+  { prop: "ref", type: "Ref<HTMLDivElement>", description: "Ref applied to the tip" },
+]} />
+
+### Tip.Popover
+
+Takes `title`, `description`, `icon` and `actions` as Tip does, and the control it explains as its only child.
+
+<PropsTable data={[
+  { prop: "open", type: "boolean", description: "Shows the tip (controlled)" },
+  { prop: "defaultOpen", type: "boolean", default: "false", description: "Shows the tip at first (uncontrolled)" },
+  { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called when the tip opens or closes" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "The side of the control the tip shows on, turned when it does not fit" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "The alignment against the control" },
+  { prop: "sideOffset", type: "number", default: "4", description: "The distance from the control to the arrow's point, in pixels" },
+  { prop: "closeButton", type: "boolean", default: "true", description: "Shows the Close button" },
+  { prop: "className", type: "string", description: "CSS classes applied to the popover around the tip and its arrow" },
+]} />
+
+An inline tip is a note named by its title. A popover tip is a non-modal dialog named by its title and described by its description; it does not move the focus, so the control it explains keeps it, and it stays open while the focus moves. Tab moves from the control into the tip and from the tip on to what follows the control. Close is a button named Close tip.
+
+## Styling
+
+Tip reads these component tokens. Override them at any scope to restyle it; at 767px and below the tip sets its padding, gap and Close tokens on itself, so override those on the tip:
+
+- `--tip-radius`: the corners (default `20px`; `26px` at 767px and below)
+- `--tip-padding-top`, `--tip-padding-inline`, `--tip-padding-bottom`: the padding (default `22px`, `16px`, `16px`; at 767px and below `14px`, the layout margin, `0px`, as the action rows reach the bottom edge; the top value below as well without actions)
+- `--tip-gap`: space between the message and the actions (default `22px`; `11px` at 767px and below)
+- `--tip-title-font-size`, `--tip-title-line-height`: the title (default `17px`, `22px`, semibold)
+- `--tip-description-font-size`, `--tip-description-line-height`, `--tip-description-gap`: the description and its space under the title (default `15px`, `20px`, `4px`; no space at 767px and below)
+- `--tip-description-color`: the description and the symbol (default `var(--color-text-secondary)`)
+- `--tip-action-gap`: space between actions (default `12px`)
+- `--tip-icon-size`, `--tip-icon-frame-width`, `--tip-icon-frame-height`: the symbol and its frame (default `40px`, `44px`, `54px`; a `36px` tile at 767px and below)
+- `--tip-close-size`, `--tip-close-offset`, `--tip-close-icon-size`: Close and its distance from the corner (default `30px`, `19px`, `20px`; a bare `22px` glyph 17px from the trailing edge at 767px and below)
+- `--tip-arrow-width`, `--tip-arrow-height`: the arrow (default `47px`, `13px`)
+- `--tip-background`: an inline tip (default `var(--alpha-05)`; the grouped cell, `--mobile-surface-grouped-secondary`, at 767px and below)
+- `--tip-popover-width`, `--tip-popover-background`, `--tip-popover-shadow`: a popover tip (default `300px`, `var(--color-surface-elevated)`, `0 10px 30px rgb(0 0 0 / 20%)`; the alert's glass at 767px and below)

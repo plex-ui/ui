@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 58,
+  "componentCount": 59,
   "components": [
     {
       "slug": "accordion",
@@ -7306,6 +7306,133 @@
       "docsUrl": "https://plexui.com/components/textarea"
     },
     {
+      "slug": "tip",
+      "name": "Tip",
+      "description": "A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.",
+      "importPath": "@plexui/ui/components/Tip",
+      "exports": [
+        "Tip"
+      ],
+      "props": [
+        {
+          "name": "title",
+          "type": "ReactNode",
+          "description": "The tip's title: what the feature is"
+        },
+        {
+          "name": "description",
+          "type": "ReactNode",
+          "description": "One or two sentences on how to use it"
+        },
+        {
+          "name": "icon",
+          "type": "ReactNode",
+          "description": "A symbol or image that leads the message"
+        },
+        {
+          "name": "actions",
+          "type": "ReactNode",
+          "description": "Buttons for the tip's actions, side by side below the message"
+        },
+        {
+          "name": "onClose",
+          "type": "() => void",
+          "description": "Shows the Close button; called when it is clicked"
+        },
+        {
+          "name": "arrowEdge",
+          "type": "\"top\" | \"bottom\" | \"left\" | \"right\"",
+          "description": "Draws an arrow at this edge, pointing at what the tip explains"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "description": "CSS classes applied to the tip"
+        },
+        {
+          "name": "ref",
+          "type": "Ref<HTMLDivElement>",
+          "description": "Ref applied to the tip"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "const [shown, setShown] = useState(true)\n\n{shown && (\n<Tip\n  icon={<Bookmark />}\n  title=\"Save it for later\"\n  description=\"Bookmarked articles wait in your reading list, ready offline on every device.\"\n  onClose={() => setShown(false)}\n/>\n)}",
+          "details": "An inline tip takes its place in the layout. A symbol leads the message in the secondary color; onClose shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background."
+        },
+        {
+          "name": "Actions",
+          "code": "<Tip\nicon={<Bell />}\ntitle=\"Turn on notifications\"\ndescription=\"Get a message when someone replies to your post or mentions you.\"\nactions={\n  <>\n    <Button color=\"primary\" variant=\"soft\" size=\"sm\" pill>Not now</Button>\n    <Button color=\"primary\" size=\"sm\" pill>Turn on</Button>\n  </>\n}\n/>",
+          "details": "Actions sit side by side below the message, each as wide as the others. Use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them."
+        },
+        {
+          "name": "Arrow",
+          "code": "<Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Filter\">\n<Filter />\n</Button>\n<Tip\narrowEdge=\"top\"\ntitle=\"Filter the list\"\ndescription=\"Show only the items from the last week, month or year.\"\n/>",
+          "details": "With arrowEdge an inline tip points at what it explains with the kit's arrow, centered on that edge. The tip leaves room for the arrow on that side."
+        },
+        {
+          "name": "Popover",
+          "code": "const [open, setOpen] = useState(false)\n\n<Tip.Popover\nopen={open}\nonOpenChange={setOpen}\ntitle=\"Filter the list\"\ndescription=\"Show only the items from the last week, month or year.\"\n>\n<Button color=\"secondary\" variant=\"soft\" onClick={() => setOpen(!open)}>\n  <Filter />\n  Filter\n</Button>\n</Tip.Popover>",
+          "details": "A popover tip floats next to its control with an arrow that points at it. The control stays usable and keeps the focus. Close, Escape or a press outside the tip and its control closes it, through onOpenChange. Show it when the control appears; here the button shows it."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "Tip.Popover",
+          "description": "Takes title, description, icon and actions as Tip does, and the control it explains as its only child.",
+          "props": [
+            {
+              "name": "open",
+              "type": "boolean",
+              "description": "Shows the tip (controlled)"
+            },
+            {
+              "name": "defaultOpen",
+              "type": "boolean",
+              "default": "false",
+              "description": "Shows the tip at first (uncontrolled)"
+            },
+            {
+              "name": "onOpenChange",
+              "type": "(open: boolean) => void",
+              "description": "Called when the tip opens or closes"
+            },
+            {
+              "name": "side",
+              "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
+              "default": "\"bottom\"",
+              "description": "The side of the control the tip shows on, turned when it does not fit"
+            },
+            {
+              "name": "align",
+              "type": "\"start\" | \"center\" | \"end\"",
+              "default": "\"center\"",
+              "description": "The alignment against the control"
+            },
+            {
+              "name": "sideOffset",
+              "type": "number",
+              "default": "4",
+              "description": "The distance from the control to the arrow's point, in pixels"
+            },
+            {
+              "name": "closeButton",
+              "type": "boolean",
+              "default": "true",
+              "description": "Shows the Close button"
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "description": "CSS classes applied to the popover around the tip and its arrow"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/tip"
+    },
+    {
       "slug": "toast",
       "name": "Toast",
       "description": "Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.",
@@ -7606,5 +7733,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T18:46:45.951Z"
+  "generatedAt": "2026-11-08T19:54:23.697Z"
 }

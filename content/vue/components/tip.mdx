@@ -1,0 +1,136 @@
+---
+title: Tip
+description: A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.
+metaDescription: Vue 3 tip component after Apple TipKit with inline tips, an arrow pointing at a control, popover tips anchored to a control with v-model:open, a symbol, actions and a close button, and iPhone styles after native iOS tips, with the iOS alert's glass for a popover tip.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows } from "@/components/docs/phoneRowsTemplate"
+
+export const overview = `<div class="flex w-full max-w-[360px] flex-col items-center gap-3">
+  <Tip
+    v-if="shown"
+    title="Save it for later"
+    description="Bookmarked articles wait in your reading list, ready offline on every device."
+    class="w-full"
+    :on-close="() => (shown = false)"
+  >
+    <template #icon><Bookmark /></template>
+  </Tip>
+  <Button v-else color="secondary" variant="soft" @click="shown = true">Show the tip again</Button>
+</div>`
+
+export const actions = `<div class="w-full max-w-[360px]">
+  <Tip
+    title="Turn on notifications"
+    description="Get a message when someone replies to your post or mentions you."
+  >
+    <template #icon><Bell /></template>
+    <template #actions>
+      <Button color="primary" variant="soft" size="sm" pill>Not now</Button>
+      <Button color="primary" size="sm" pill>Turn on</Button>
+    </template>
+  </Tip>
+</div>`
+
+export const arrow = `<div class="flex w-full max-w-[360px] flex-col items-center gap-1">
+  <Button color="secondary" variant="soft" uniform pill aria-label="Filter">
+    <Filter />
+  </Button>
+  <Tip
+    arrow-edge="top"
+    title="Filter the list"
+    description="Show only the items from the last week, month or year."
+    class="w-full"
+  />
+</div>`
+
+export const popover = `<TipPopover
+  v-model:open="open"
+  title="Filter the list"
+  description="Show only the items from the last week, month or year."
+>
+  <Button color="secondary" variant="soft" @click="open = !open">
+    <Filter />
+    Filter
+  </Button>
+</TipPopover>`
+
+<UsageBlock>{`import { Tip, TipPopover } from "@plexui/vue/components/Tip";`}</UsageBlock>
+
+A tip teaches a feature people might not find on their own: a title that names it and a sentence or two on how to use it. Show one tip at a time, close to what it explains, and stop showing it once the feature is used or the tip is closed. A tip is not for errors or for news about a task: use an [Alert](/vue/components/alert) or a [Toast](/vue/components/toast). It follows the TipKit kit, the macOS Mini Tip on a desktop and on a phone the shape TipKit's tip and most of Apple's own cards share, on the card of a grouped list or, for a popover tip, in the iOS 27 alert's glass. Apple's apps also draw cards of their own, with a large image, a centered layout or capsule buttons; build those from a [Card](/vue/components/card) and [Buttons](/vue/components/button).
+
+## Examples
+
+### Overview
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>An inline tip takes its place in the layout. A symbol in the <code>icon</code> slot leads the message in the secondary color; <code>on-close</code> shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background.</>} code={overview} previewMinHeight={220}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" state={{ shown: true }} />
+</ComponentPreview>
+
+### Actions
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Actions in the <code>actions</code> slot sit side by side below the message, each as wide as the others. Use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them.</>} code={actions} previewMinHeight={220}>
+  <VuePhoneRowsDemo template={actions} phoneTemplate={phoneRows(actions)} phoneStageClassName="w-full" />
+</ComponentPreview>
+
+### Arrow
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>With <code>arrow-edge</code> an inline tip points at what it explains with the kit's arrow, centered on that edge. The tip leaves room for the arrow on that side.</>} code={arrow} previewMinHeight={240}>
+  <VuePhoneRowsDemo template={arrow} phoneTemplate={phoneRows(arrow)} phoneStageClassName="w-full" />
+</ComponentPreview>
+
+### Popover
+
+<ComponentPreview language="vue" details={<>A popover tip floats next to its control, the default slot, with an arrow that points at it. The control stays usable and keeps the focus. Close, Escape or a press outside the tip and its control closes it, through <code>v-model:open</code>. Show it when the control appears; here the button shows it.</>} code={popover} previewMinHeight={260}>
+  <VueDemo template={popover} state={{ open: false }} />
+</ComponentPreview>
+
+## API
+
+### Tip
+
+<PropsTable data={[
+  { prop: "title", type: "string", description: "The tip's title: what the feature is (or the title slot)" },
+  { prop: "description", type: "string", description: "One or two sentences on how to use it (or the description slot)" },
+  { prop: "on-close", type: "() => void", description: "Shows the Close button; called when it is clicked" },
+  { prop: "arrow-edge", type: '"top" | "bottom" | "left" | "right"', description: "Draws an arrow at this edge, pointing at what the tip explains" },
+]} />
+
+**Slots**: `icon`, a symbol or image that leads the message; `actions`, buttons side by side below the message; `title` and `description` in place of the props. `class` lands on the tip.
+
+### TipPopover
+
+Takes `title`, `description` and the slots as Tip does; the default slot is the control it explains. `Tip.Popover` is the same component.
+
+<PropsTable data={[
+  { prop: "open", type: "boolean", description: "Shows the tip (controlled); bind with v-model:open" },
+  { prop: "default-open", type: "boolean", default: "false", description: "Shows the tip at first (uncontrolled)" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "The side of the control the tip shows on, turned when it does not fit" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "The alignment against the control" },
+  { prop: "side-offset", type: "number", default: "4", description: "The distance from the control to the arrow's point, in pixels" },
+  { prop: "close-button", type: "boolean", default: "true", description: "Shows the Close button" },
+]} />
+
+**Events**: `update:open` when the tip opens or closes. `class` lands on the popover around the tip and its arrow.
+
+An inline tip is a note named by its title. A popover tip is a non-modal dialog named by its title and described by its description; it does not move the focus, so the control it explains keeps it, and it stays open while the focus moves. Tab moves from the control into the tip and from the tip on to what follows the control. Close is a button named Close tip.
+
+## Styling
+
+Tip reads these component tokens. Override them at any scope to restyle it; at 767px and below the tip sets its padding, gap and Close tokens on itself, so override those on the tip:
+
+- `--tip-radius`: the corners (default `20px`; `26px` at 767px and below)
+- `--tip-padding-top`, `--tip-padding-inline`, `--tip-padding-bottom`: the padding (default `22px`, `16px`, `16px`; at 767px and below `14px`, the layout margin, `0px`, as the action rows reach the bottom edge; the top value below as well without actions)
+- `--tip-gap`: space between the message and the actions (default `22px`; `11px` at 767px and below)
+- `--tip-title-font-size`, `--tip-title-line-height`: the title (default `17px`, `22px`, semibold)
+- `--tip-description-font-size`, `--tip-description-line-height`, `--tip-description-gap`: the description and its space under the title (default `15px`, `20px`, `4px`; no space at 767px and below)
+- `--tip-description-color`: the description and the symbol (default `var(--color-text-secondary)`)
+- `--tip-action-gap`: space between actions (default `12px`)
+- `--tip-icon-size`, `--tip-icon-frame-width`, `--tip-icon-frame-height`: the symbol and its frame (default `40px`, `44px`, `54px`; a `36px` tile at 767px and below)
+- `--tip-close-size`, `--tip-close-offset`, `--tip-close-icon-size`: Close and its distance from the corner (default `30px`, `19px`, `20px`; a bare `22px` glyph 17px from the trailing edge at 767px and below)
+- `--tip-arrow-width`, `--tip-arrow-height`: the arrow (default `47px`, `13px`)
+- `--tip-background`: an inline tip (default `var(--alpha-05)`; the grouped cell, `--mobile-surface-grouped-secondary`, at 767px and below)
+- `--tip-popover-width`, `--tip-popover-background`, `--tip-popover-shadow`: a popover tip (default `300px`, `var(--color-surface-elevated)`, `0 10px 30px rgb(0 0 0 / 20%)`; the alert's glass at 767px and below)
