@@ -3858,7 +3858,7 @@
         {
           "name": "Math",
           "code": "<Markdown includeMath>{markdownWithLatex}</Markdown>",
-          "details": "Use includeMath to enable LaTeX rendering."
+          "details": "Use includeMath to enable LaTeX rendering. The KaTeX styles and fonts come with @plexui/styles, so formulas need no other setup."
         }
       ],
       "docsUrl": "https://plexui.com/components/markdown"
@@ -7688,5 +7688,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T02:19:10.067Z"
+  "generatedAt": "2026-11-08T04:22:40.218Z"
 }

@@ -1,5 +1,5 @@
 import { watch } from "node:fs"
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises"
+import { cp, mkdir, readdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -13,6 +13,8 @@ const __dirname = path.dirname(__filename)
 const PROJECT_ROOT = path.resolve(__dirname, "..")
 const SRC_DIR = path.join(PROJECT_ROOT, "src")
 const OUT_DIR = path.join(PROJECT_ROOT, "dist/es")
+/** Files the CSS refers to by url(), copied beside it as they are. */
+const ASSET_DIRS = ["styles/katex-fonts"]
 
 /**
  * Recursively collect every `.css` file within the provided directory.
@@ -76,6 +78,10 @@ async function buildCss() {
     await writeFile(to, result.css, "utf8")
   }
 
+  for (const dir of ASSET_DIRS) {
+    await cp(path.join(SRC_DIR, dir), path.join(OUT_DIR, dir), { recursive: true })
+  }
+
   console.log(
     `[build-css] Processed ${cssFiles.length} CSS file${cssFiles.length === 1 ? "" : "s"}.`,
   )
@@ -88,7 +94,7 @@ async function run() {
 
   if (!isWatchMode) return
 
-  console.log("[build-css] Watching src/ for CSS changes...")
+  console.log("[build-css] Watching src/ for CSS and font changes...")
   let rebuildTimer = null
   const scheduleRebuild = () => {
     if (rebuildTimer) clearTimeout(rebuildTimer)
@@ -97,7 +103,8 @@ async function run() {
     }, 100)
   }
   watch(SRC_DIR, { recursive: true }, (_event, filename) => {
-    if (filename && filename.endsWith(".css")) scheduleRebuild()
+    const name = filename?.split(path.sep).join("/")
+    if (name && (name.endsWith(".css") || ASSET_DIRS.some((dir) => name.startsWith(`${dir}/`)))) scheduleRebuild()
   })
 }
 

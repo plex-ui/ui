@@ -6003,7 +6003,7 @@ Use Markdown to render rich markdown text.
 ```
 
 ### Math
-Use includeMath to enable LaTeX rendering.
+Use includeMath to enable LaTeX rendering. The KaTeX styles and fonts come with @plexui/styles, so formulas need no other setup.
 ```tsx
 <Markdown includeMath>{markdownWithLatex}</Markdown>
 ```

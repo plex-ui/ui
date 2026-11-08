@@ -6282,7 +6282,7 @@ Use Markdown to render rich markdown text. The markdown is the text of the defau
 ```
 
 ### Math
-Use include-math to enable LaTeX rendering.
+Use include-math to enable LaTeX rendering. The KaTeX styles and fonts come with @plexui/styles, so formulas need no other setup.
 ```vue
 <Markdown include-math>{{ markdownWithLatex }}</Markdown>
 ```

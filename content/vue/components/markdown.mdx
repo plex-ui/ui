@@ -25,7 +25,7 @@ export const math = `<Markdown include-math>{{ markdownWithLatex }}</Markdown>`
 
 ### Math
 
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>include-math</code> to enable LaTeX rendering.</>} code={math} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>include-math</code> to enable LaTeX rendering. The KaTeX styles and fonts come with <code>@plexui/styles</code>, so formulas need no other setup.</>} code={math} previewMinHeight={168}>
   <div className="w-full max-w-[700px] mx-auto py-8">
     <VueDemo template={math} state={{ markdownWithLatex }} />
   </div>

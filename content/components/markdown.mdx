@@ -23,7 +23,7 @@ import { ComponentSource } from "@/components/docs/ComponentSource"
 
 ### Math
 
-<ComponentPreview phonePresentation="none" details={<>Use <code>includeMath</code> to enable LaTeX rendering.</>} code={`<Markdown includeMath>{markdownWithLatex}</Markdown>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" details={<>Use <code>includeMath</code> to enable LaTeX rendering. The KaTeX styles and fonts come with <code>@plexui/styles</code>, so formulas need no other setup.</>} code={`<Markdown includeMath>{markdownWithLatex}</Markdown>`} previewMinHeight={168}>
   <div className="w-full max-w-[700px] mx-auto py-8">
     <Markdown includeMath>{markdownWithLatex}</Markdown>
   </div>
