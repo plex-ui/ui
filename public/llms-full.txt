@@ -4924,7 +4924,7 @@ Props:
   Menu.Trigger:
     - disabled (boolean) default: false — Prevent the menu from opening
   Menu.Content:
-    - width (number | "auto") default: "auto" — Panel width in px
+    - width (number | "auto") default: fits content, 250 on a phone — Panel width in px. Without it the panel fits its content, or with touch.css on a phone is 250px, as an iOS menu; "auto" fits the content there too
     - minWidth (number | "auto") default: 300 — Minimum panel width in px (vertical layout)
     - maxHeight (number) — Maximum panel height in px
     - pill (boolean) default: false — Rounder list with fully rounded rows, for menus beside pill controls. Menu.SubContent takes it too
@@ -4961,7 +4961,7 @@ Props:
     - disabled (boolean) — Disable the item
 
 ### Overview
-A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (description) while it is the chosen sort, and Group By in a submenu. Turn off icons for the same menu in plain text, and checkmarks for the folder's actions alone, a shorter menu with no checkmark column. pill on Menu.Content makes a rounder list with fully rounded rows, for menus beside pill controls. On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out width, minWidth and size. A pill menu is the same panel there, so the phone view leaves out pill.
+A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (description) while it is the chosen sort, and Group By in a submenu. Turn off icons for the same menu in plain text, and checkmarks for the folder's actions alone, a shorter menu with no checkmark column. pill on Menu.Content makes a rounder list with fully rounded rows, for menus beside pill controls. On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 250px panel of iOS menus, so the phone code leaves out width, minWidth and size. A pill menu is the same panel there, so the phone view leaves out pill.
 ```tsx
 // Desktop
 const [icons] = useState(true)
@@ -5065,7 +5065,7 @@ const [group, setGroup] = useState("date")
 ```
 
 ### Natural sizing
-Menu supports several sizing strategies:Natural sizing: use minWidth="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and minWidth to set the menu to a fixed size, regardless of content size.Flexible sizing: minWidth can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of Menu.Content. maxWidth isn't exposed as a prop because it's reserved for Radix variables used in collision detection.Desktop only: on a phone a menu is the iOS panel, at least the 238px of the iOS kit, whatever these sizes say.
+Menu supports several sizing strategies:Natural sizing: use minWidth="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and minWidth to set the menu to a fixed size, regardless of content size.Flexible sizing: minWidth can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of Menu.Content. maxWidth isn't exposed as a prop because it's reserved for Radix variables used in collision detection.Desktop only: on a phone a menu is the 250px panel of iOS menus, unless it sets a width or a larger minimum width of its own.
 ```tsx
 <Menu>
 <Menu.Trigger>
@@ -5158,26 +5158,31 @@ Put a Menu.Header first to name what the menu acts on: a picture, the name and a
 ```
 
 ### Grouped items
-Use Menu.Group and Menu.Label to organize related items into labeled sections.
+Use Menu.Group and Menu.Label to organize related items into labeled sections. The example is the filter of the message list, as Messages opens it on iOS: the mailboxes, a section labeled Filter By, and Manage Filtering under a separator. Both radio groups hold one value, so one checkmark marks the list shown. On a phone a section label and a row without an icon start after the checkmark column, where the icons of the other rows start, as in iOS menus.
 ```tsx
 // Desktop
+const [filter, setFilter] = useState("messages")
+
 <Menu>
 <Menu.Trigger>
-  <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><FileDocument /> Templates <ChevronDownMd /></Button>
+  <Button variant="ghost" color="primary"><Filter /> Filter <ChevronDownMd /></Button>
 </Menu.Trigger>
 <Menu.Content minWidth={220}>
-  <Menu.Group>
-    <Menu.Label>Active</Menu.Label>
-    <Menu.Item onSelect={() => {}}>Welcome email</Menu.Item>
-    <Menu.Item onSelect={() => {}}>Order confirmation</Menu.Item>
-    <Menu.Item onSelect={() => {}}>Password reset</Menu.Item>
-  </Menu.Group>
+  <Menu.RadioGroup value={filter} onChange={setFilter}>
+    <Menu.RadioItem value="messages"><Chats /> Messages</Menu.RadioItem>
+    <Menu.RadioItem value="spam"><XSquare /> Spam</Menu.RadioItem>
+    <Menu.RadioItem value="deleted"><Trash /> Recently Deleted</Menu.RadioItem>
+  </Menu.RadioGroup>
   <Menu.Separator />
   <Menu.Group>
-    <Menu.Label>Draft</Menu.Label>
-    <Menu.Item onSelect={() => {}}>New promo campaign</Menu.Item>
-    <Menu.Item onSelect={() => {}}>Account deactivation</Menu.Item>
+    <Menu.Label>Filter By</Menu.Label>
+    <Menu.RadioGroup value={filter} onChange={setFilter}>
+      <Menu.RadioItem value="unread"><Chat /> Unread</Menu.RadioItem>
+      <Menu.RadioItem value="drafts"><ChatTripleDots /> Drafts</Menu.RadioItem>
+    </Menu.RadioGroup>
   </Menu.Group>
+  <Menu.Separator />
+  <Menu.Item onSelect={() => {}}>Manage Filtering</Menu.Item>
 </Menu.Content>
 </Menu>
 
@@ -5190,18 +5195,21 @@ Use Menu.Group and Menu.Label to organize related items into labeled sections.
         <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
       </Menu.Trigger>
     <Menu.Content align="end">
-      <Menu.Group>
-        <Menu.Label>Active</Menu.Label>
-        <Menu.Item onSelect={() => {}}>Welcome email</Menu.Item>
-        <Menu.Item onSelect={() => {}}>Order confirmation</Menu.Item>
-        <Menu.Item onSelect={() => {}}>Password reset</Menu.Item>
-      </Menu.Group>
+      <Menu.RadioGroup value={filter} onChange={setFilter}>
+        <Menu.RadioItem value="messages"><Chats /> Messages</Menu.RadioItem>
+        <Menu.RadioItem value="spam"><XSquare /> Spam</Menu.RadioItem>
+        <Menu.RadioItem value="deleted"><Trash /> Recently Deleted</Menu.RadioItem>
+      </Menu.RadioGroup>
       <Menu.Separator />
       <Menu.Group>
-        <Menu.Label>Draft</Menu.Label>
-        <Menu.Item onSelect={() => {}}>New promo campaign</Menu.Item>
-        <Menu.Item onSelect={() => {}}>Account deactivation</Menu.Item>
+        <Menu.Label>Filter By</Menu.Label>
+        <Menu.RadioGroup value={filter} onChange={setFilter}>
+          <Menu.RadioItem value="unread"><Chat /> Unread</Menu.RadioItem>
+          <Menu.RadioItem value="drafts"><ChatTripleDots /> Drafts</Menu.RadioItem>
+        </Menu.RadioGroup>
       </Menu.Group>
+      <Menu.Separator />
+      <Menu.Item onSelect={() => {}}>Manage Filtering</Menu.Item>
     </Menu.Content>
     </Menu>
   </Toolbar.Trailing>
@@ -5292,50 +5300,53 @@ const [sort, setSort] = useState("Manual")
 ```
 
 ### Checkbox items
-Use Menu.CheckboxItem with checked, onCheckedChange, and {"onSelect={(evt) => evt.preventDefault()}"} to keep the menu open. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition and indicatorVariant say, so the phone view leaves out those controls.
+Use Menu.CheckboxItem with checked, onCheckedChange, and {"onSelect={(evt) => evt.preventDefault()}"} to keep the menu open. The example is the view options of a mailbox, as Mail opens them on iOS: three options that are each on or off, and About Categories under a separator. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition and indicatorVariant say, so the phone view leaves out those controls. A row without a checkmark keeps its column, so every icon and label lines up, and a long label wraps under itself.
 ```tsx
 // Desktop
-const [settings, setSettings] = useState({
-showGrid: true,
-showLabels: false,
-enableShadows: false,
+const [view, setView] = useState({
+categories: true,
+priority: true,
+contactPhotos: false,
 })
 
 return (
 <Menu>
   <Menu.Trigger>
     <Button variant="ghost" color="primary">
-      Checkbox menu <ChevronDownMd />
+      View <ChevronDownMd />
     </Button>
   </Menu.Trigger>
-  <Menu.Content minWidth={200}>
+  <Menu.Content minWidth={220}>
+    <Menu.Label>View Options</Menu.Label>
     <Menu.CheckboxItem
-      checked={settings.showGrid}
-      onCheckedChange={(checked) => setSettings((s) => ({ ...s, showGrid: checked }))}
+      checked={view.categories}
+      onCheckedChange={(checked) => setView((v) => ({ ...v, categories: checked }))}
       onSelect={(evt) => evt.preventDefault()}
       indicatorPosition="end"
       indicatorVariant="solid"
     >
-      Show grid lines
+      <Storyboard /> Show Categories
     </Menu.CheckboxItem>
     <Menu.CheckboxItem
-      checked={settings.showLabels}
-      onCheckedChange={(checked) => setSettings((s) => ({ ...s, showLabels: checked }))}
+      checked={view.priority}
+      onCheckedChange={(checked) => setView((v) => ({ ...v, priority: checked }))}
       onSelect={(evt) => evt.preventDefault()}
       indicatorPosition="end"
       indicatorVariant="solid"
     >
-      Display labels
+      <Atom /> Show Priority
     </Menu.CheckboxItem>
     <Menu.CheckboxItem
-      checked={settings.enableShadows}
-      onCheckedChange={(checked) => setSettings((s) => ({ ...s, enableShadows: checked }))}
+      checked={view.contactPhotos}
+      onCheckedChange={(checked) => setView((v) => ({ ...v, contactPhotos: checked }))}
       onSelect={(evt) => evt.preventDefault()}
       indicatorPosition="end"
       indicatorVariant="solid"
     >
-      Enable shadows
+      <AvatarProfile /> Show Contact Photos
     </Menu.CheckboxItem>
+    <Menu.Separator />
+    <Menu.Item onSelect={() => {}}><InfoCircle /> About Categories</Menu.Item>
   </Menu.Content>
 </Menu>
 )
@@ -5349,33 +5360,36 @@ return (
         <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
       </Menu.Trigger>
       <Menu.Content align="end">
+        <Menu.Label>View Options</Menu.Label>
         <Menu.CheckboxItem
-          checked={settings.showGrid}
-          onCheckedChange={(checked) => setSettings((s) => ({ ...s, showGrid: checked }))}
+          checked={view.categories}
+          onCheckedChange={(checked) => setView((v) => ({ ...v, categories: checked }))}
           onSelect={(evt) => evt.preventDefault()}
           indicatorPosition="end"
           indicatorVariant="solid"
         >
-          Show grid lines
+          <Storyboard /> Show Categories
         </Menu.CheckboxItem>
         <Menu.CheckboxItem
-          checked={settings.showLabels}
-          onCheckedChange={(checked) => setSettings((s) => ({ ...s, showLabels: checked }))}
+          checked={view.priority}
+          onCheckedChange={(checked) => setView((v) => ({ ...v, priority: checked }))}
           onSelect={(evt) => evt.preventDefault()}
           indicatorPosition="end"
           indicatorVariant="solid"
         >
-          Display labels
+          <Atom /> Show Priority
         </Menu.CheckboxItem>
         <Menu.CheckboxItem
-          checked={settings.enableShadows}
-          onCheckedChange={(checked) => setSettings((s) => ({ ...s, enableShadows: checked }))}
+          checked={view.contactPhotos}
+          onCheckedChange={(checked) => setView((v) => ({ ...v, contactPhotos: checked }))}
           onSelect={(evt) => evt.preventDefault()}
           indicatorPosition="end"
           indicatorVariant="solid"
         >
-          Enable shadows
+          <AvatarProfile /> Show Contact Photos
         </Menu.CheckboxItem>
+        <Menu.Separator />
+        <Menu.Item onSelect={() => {}}><InfoCircle /> About Categories</Menu.Item>
       </Menu.Content>
     </Menu>
   </Toolbar.Trailing>

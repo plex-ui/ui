@@ -122,21 +122,24 @@ export const header = `<Menu>
 
 export const grouped = `<Menu>
   <MenuTrigger>
-    <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><FileDocument /> Templates <ChevronDownMd /></Button>
+    <Button variant="ghost" color="primary"><Filter /> Filter <ChevronDownMd /></Button>
   </MenuTrigger>
   <MenuContent :min-width="220">
-    <MenuGroup>
-      <MenuLabel>Active</MenuLabel>
-      <MenuItem @select="() => {}">Welcome email</MenuItem>
-      <MenuItem @select="() => {}">Order confirmation</MenuItem>
-      <MenuItem @select="() => {}">Password reset</MenuItem>
-    </MenuGroup>
+    <MenuRadioGroup v-model:value="filter">
+      <MenuRadioItem value="messages"><Chats /> Messages</MenuRadioItem>
+      <MenuRadioItem value="spam"><XSquare /> Spam</MenuRadioItem>
+      <MenuRadioItem value="deleted"><Trash /> Recently Deleted</MenuRadioItem>
+    </MenuRadioGroup>
     <MenuSeparator />
     <MenuGroup>
-      <MenuLabel>Draft</MenuLabel>
-      <MenuItem @select="() => {}">New promo campaign</MenuItem>
-      <MenuItem @select="() => {}">Account deactivation</MenuItem>
+      <MenuLabel>Filter By</MenuLabel>
+      <MenuRadioGroup v-model:value="filter">
+        <MenuRadioItem value="unread"><Chat /> Unread</MenuRadioItem>
+        <MenuRadioItem value="drafts"><ChatTripleDots /> Drafts</MenuRadioItem>
+      </MenuRadioGroup>
     </MenuGroup>
+    <MenuSeparator />
+    <MenuItem @select="() => {}">Manage Filtering</MenuItem>
   </MenuContent>
 </Menu>`
 
@@ -178,33 +181,36 @@ export const submenus = `<Menu>
 
 export const checkboxItems = `<Menu>
   <MenuTrigger>
-    <Button variant="ghost" color="primary">Checkbox menu <ChevronDownMd /></Button>
+    <Button variant="ghost" color="primary">View <ChevronDownMd /></Button>
   </MenuTrigger>
-  <MenuContent :min-width="200">
+  <MenuContent :min-width="220">
+    <MenuLabel>View Options</MenuLabel>
     <MenuCheckboxItem
-      v-model:checked="settings.showGrid"
+      v-model:checked="view.categories"
       :indicator-position="indicatorPosition"
       :indicator-variant="indicatorVariant"
       @select="(evt) => evt.preventDefault()"
     >
-      Show grid lines
+      <Storyboard /> Show Categories
     </MenuCheckboxItem>
     <MenuCheckboxItem
-      v-model:checked="settings.showLabels"
+      v-model:checked="view.priority"
       :indicator-position="indicatorPosition"
       :indicator-variant="indicatorVariant"
       @select="(evt) => evt.preventDefault()"
     >
-      Display labels
+      <Atom /> Show Priority
     </MenuCheckboxItem>
     <MenuCheckboxItem
-      v-model:checked="settings.enableShadows"
+      v-model:checked="view.contactPhotos"
       :indicator-position="indicatorPosition"
       :indicator-variant="indicatorVariant"
       @select="(evt) => evt.preventDefault()"
     >
-      Enable shadows
+      <AvatarProfile /> Show Contact Photos
     </MenuCheckboxItem>
+    <MenuSeparator />
+    <MenuItem @select="() => {}"><InfoCircle /> About Categories</MenuItem>
   </MenuContent>
 </Menu>`
 
@@ -278,7 +284,7 @@ export const danger = `<Menu>
 
 <ComponentPreview language="vue" details={<>
   <p>A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (<code>description</code>) while it is the chosen sort, and Group By in a submenu. Turn off <code>icons</code> for the same menu in plain text, and <code>checkmarks</code> for the folder's actions alone, a shorter menu with no checkmark column. <code>pill</code> on <code>MenuContent</code> makes a rounder list with fully rounded rows, for menus beside pill controls.</p>
-  <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out <code>width</code>, <code>min-width</code> and <code>size</code>. A pill menu is the same panel there, so the phone view leaves out <code>pill</code>.</p>
+  <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 250px panel of iOS menus, so the phone code leaves out <code>width</code>, <code>min-width</code> and <code>size</code>. A pill menu is the same panel there, so the phone view leaves out <code>pill</code>.</p>
 </>} code={withMenuPhoneVue(overview, "Overview")} previewMinHeight={168}>
   <VueDemo template={overview} phoneTemplate={menuPhoneTemplateVue(overview, "Overview", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ view: "list", sort: "date", group: "date" }} controls={[{ name: "icons", type: "boolean", default: true }, { name: "checkmarks", type: "boolean", default: true }, { name: "pill", desktopOnly: true, type: "boolean", default: false }]} />
 </ComponentPreview>
@@ -286,7 +292,7 @@ export const danger = `<Menu>
 ### Natural sizing
 
 <ComponentPreview language="vue" phonePresentation="none" details={<>
-  <p>Menu supports several sizing strategies:</p><ul><li><strong>Natural sizing</strong>: use <code>min-width="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>min-width</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>min-width</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>MenuContent</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for the custom properties used in collision detection.</li></ul><p>Desktop only: on a phone a menu is the iOS panel, at least the 238px of the iOS kit, whatever these sizes say.</p></>} code={naturalSizing} previewMinHeight={168}>
+  <p>Menu supports several sizing strategies:</p><ul><li><strong>Natural sizing</strong>: use <code>min-width="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>min-width</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>min-width</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>MenuContent</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for the custom properties used in collision detection.</li></ul><p>Desktop only: on a phone a menu is the 250px panel of iOS menus, unless it sets a width or a larger minimum width of its own.</p></>} code={naturalSizing} previewMinHeight={168}>
   <VueDemo template={naturalSizing} />
 </ComponentPreview>
 
@@ -321,8 +327,11 @@ export const danger = `<Menu>
 
 ### Grouped items
 
-<ComponentPreview language="vue" details={<>Use <code>MenuGroup</code> and <code>MenuLabel</code> to organize related items into labeled sections.</>} code={withMenuPhoneVue(grouped, "Grouped items")} previewMinHeight={168}>
-  <VueDemo template={grouped} phoneTemplate={menuPhoneTemplateVue(grouped, "Grouped items", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
+<ComponentPreview language="vue" details={<>
+  <p>Use <code>MenuGroup</code> and <code>MenuLabel</code> to organize related items into labeled sections. The example is the filter of the message list, as Messages opens it on iOS: the mailboxes, a section labeled Filter By, and Manage Filtering under a separator. Both radio groups hold one value, so one checkmark marks the list shown.</p>
+  <p>On a phone a section label and a row without an icon start after the checkmark column, where the icons of the other rows start, as in iOS menus.</p>
+</>} code={withMenuPhoneVue(grouped, "Grouped items")} previewMinHeight={168}>
+  <VueDemo template={grouped} state={{ filter: "messages" }} phoneTemplate={menuPhoneTemplateVue(grouped, "Grouped items", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
 </ComponentPreview>
 
 ### Submenus
@@ -337,10 +346,10 @@ export const danger = `<Menu>
 ### Checkbox items
 
 <ComponentPreview language="vue" details={<>
-  <p>Use <code>MenuCheckboxItem</code> with <code>v-model:checked</code> and <code>{'@select="(evt) => evt.preventDefault()"'}</code> to keep the menu open.</p>
-  <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> and <code>indicatorVariant</code> say, so the phone view leaves out those controls.</p>
+  <p>Use <code>MenuCheckboxItem</code> with <code>v-model:checked</code> and <code>{'@select="(evt) => evt.preventDefault()"'}</code> to keep the menu open. The example is the view options of a mailbox, as Mail opens them on iOS: three options that are each on or off, and About Categories under a separator.</p>
+  <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> and <code>indicatorVariant</code> say, so the phone view leaves out those controls. A row without a checkmark keeps its column, so every icon and label lines up, and a long label wraps under itself.</p>
 </>} code={withMenuPhoneVue(checkboxItems, "Checkbox items")} previewMinHeight={168}>
-  <VueDemo template={checkboxItems} phoneTemplate={menuPhoneTemplateVue(checkboxItems, "Checkbox items", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ settings: { showGrid: true, showLabels: false, enableShadows: false } }} controls={[{ name: "indicatorPosition", desktopOnly: true, type: "select", options: INDICATOR_POSITIONS, default: "end" }, { name: "indicatorVariant", desktopOnly: true, type: "select", options: INDICATOR_VARIANTS, default: "solid" }]} />
+  <VueDemo template={checkboxItems} phoneTemplate={menuPhoneTemplateVue(checkboxItems, "Checkbox items", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ view: { categories: true, priority: true, contactPhotos: false } }} controls={[{ name: "indicatorPosition", desktopOnly: true, type: "select", options: INDICATOR_POSITIONS, default: "end" }, { name: "indicatorVariant", desktopOnly: true, type: "select", options: INDICATOR_VARIANTS, default: "solid" }]} />
 </ComponentPreview>
 
 ### Radio items
@@ -386,7 +395,7 @@ export const danger = `<Menu>
 **MenuContent**
 
 <PropsTable data={[
-  { prop: "width", type: 'number | "auto"', default: '"auto"', description: "Panel width (numbers are pixels)" },
+  { prop: "width", type: 'number | "auto"', default: "fits content, 250 on a phone", description: 'Panel width (numbers are pixels). Without it the panel fits its content, or with touch.css on a phone is 250px, as an iOS menu; "auto" fits the content there too' },
   { prop: "min-width", type: 'number | "auto"', default: "300", description: "Minimum panel width" },
   { prop: "max-height", type: "number", description: "Maximum panel height, in pixels" },
   { prop: "pill", type: "boolean", default: "false", description: "Rounder list with fully rounded rows, for menus beside pill controls. MenuSubContent takes it too" },
@@ -451,7 +460,7 @@ export const danger = `<Menu>
 
 ## Styling
 
-With the optional `touch.css` stylesheet, phone menus use 34px corners (the iOS 27 kit Menu), 17px labels with 20px line height, and 13/18px subtitles. Rows are 42px, as in native iOS 26 menus, and long labels wrap and make a row taller. A pressed row is the capsule iOS draws under the finger: the whole row, 10px from the panel's edges, round at its ends, in one even gray (`--menu-press-background`). A submenu grows out of the row that opened it while the menu behind it steps back. A checked item keeps its checkmark without a persistent background, centered 28px from the panel's edge with labels at 43.5px, as native menus draw it; in a menu with checkmarks, plain rows and section titles start where the labels do. The default minimum menu width is 238px, while an explicit minimum width still takes precedence.
+With the optional `touch.css` stylesheet, phone menus use 34px corners (the iOS 27 kit Menu), 17px labels with 20px line height, and 13/18px subtitles. Rows are 42px, as in native iOS 26 menus, and long labels wrap and make a row taller. A pressed row is the capsule iOS draws under the finger: the whole row, 10px from the panel's edges, round at its ends, in one even gray (`--menu-press-background`). A submenu grows out of the row that opened it while the menu behind it steps back. A checked item keeps its checkmark without a persistent background, centered 28px from the panel's edge with labels at 43.5px, as native menus draw it; in a menu with checkmarks, plain rows and section titles start where the labels do. A menu and a submenu are 250px wide, as native iOS menus are, so a long label wraps under itself; an explicit width or minimum width still takes precedence, and a submenu of `auto` width fits its content.
 
 On a phone a menu without `side-offset` grows out of its trigger and covers it, as iOS menus do: its top is the trigger's top, or its bottom when it opens upward, and its aligned edge is the trigger's edge. Without `side` it opens toward the larger part of the screen, upward from a trigger in the lower half even when it would fit below. A desktop keeps the 5px gap below the trigger.
 
@@ -463,8 +472,9 @@ Menu reads these component tokens. Override them at any scope to restyle it:
 - `--menu-font-size`: font size (default `var(--font-text-sm-size)`)
 - `--menu-gutter`: gutter (default `spacing(1.5)`)
 - `--menu-item-background-color`: item background color (default `light-dark(var(--alpha-08), var(--alpha-10))`)
-- `--menu-default-min-width`: default minimum width before a content-level override (300px on desktop, 238px with touch styles)
-- `--menu-horizontal-min-width`: minimum width of a horizontal menu (none on desktop, 238px with touch styles)
+- `--menu-default-width`: default width before a content-level override (none on desktop, 250px with touch styles)
+- `--menu-default-min-width`: default minimum width before a content-level override (300px on desktop, 250px with touch styles)
+- `--menu-horizontal-min-width`: minimum width of a horizontal menu (none on desktop, 250px with touch styles)
 - `--menu-item-press-scale`: pressed surface scale (1 with touch styles; otherwise follows the pointer interaction scale)
 - `--menu-item-gap`: item gap (default `spacing(1.5)`)
 - `--menu-item-padding`: item padding (default `spacing(1.5) spacing(2)`)

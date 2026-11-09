@@ -27,7 +27,7 @@ import { menuPhoneOnlyReact, withMenuPhoneReact } from "@/components/docs/menuPh
 
 <ComponentPreview details={<>
   <p>A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (<code>description</code>) while it is the chosen sort, and Group By in a submenu. Turn off <code>icons</code> for the same menu in plain text, and <code>checkmarks</code> for the folder's actions alone, a shorter menu with no checkmark column. <code>pill</code> on <code>Menu.Content</code> makes a rounder list with fully rounded rows, for menus beside pill controls.</p>
-  <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out <code>width</code>, <code>minWidth</code> and <code>size</code>. A pill menu is the same panel there, so the phone view leaves out <code>pill</code>.</p>
+  <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 250px panel of iOS menus, so the phone code leaves out <code>width</code>, <code>minWidth</code> and <code>size</code>. A pill menu is the same panel there, so the phone view leaves out <code>pill</code>.</p>
 </>} code={withMenuPhoneReact(`const [icons] = useState(true)
 const [checkmarks] = useState(true)
 const [pill] = useState(false)
@@ -83,7 +83,7 @@ const [group, setGroup] = useState("date")
 ### Natural sizing
 
 <ComponentPreview phonePresentation="none" details={<>
-  <p>Menu supports several sizing strategies:</p><ul><li><strong>Natural sizing</strong>: use <code>minWidth="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>minWidth</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>minWidth</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>Menu.Content</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for Radix variables used in collision detection.</li></ul><p>Desktop only: on a phone a menu is the iOS panel, at least the 238px of the iOS kit, whatever these sizes say.</p></>} code={`<Menu>
+  <p>Menu supports several sizing strategies:</p><ul><li><strong>Natural sizing</strong>: use <code>minWidth="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>minWidth</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>minWidth</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>Menu.Content</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for Radix variables used in collision detection.</li></ul><p>Desktop only: on a phone a menu is the 250px panel of iOS menus, unless it sets a width or a larger minimum width of its own.</p></>} code={`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><Tools /> Tools</Button>
   </Menu.Trigger>
@@ -177,23 +177,31 @@ const [filter, setFilter] = useState("all")
 
 ### Grouped items
 
-<ComponentPreview details={<>Use <code>Menu.Group</code> and <code>Menu.Label</code> to organize related items into labeled sections.</>} code={withMenuPhoneReact(`<Menu>
+<ComponentPreview details={<>
+  <p>Use <code>Menu.Group</code> and <code>Menu.Label</code> to organize related items into labeled sections. The example is the filter of the message list, as Messages opens it on iOS: the mailboxes, a section labeled Filter By, and Manage Filtering under a separator. Both radio groups hold one value, so one checkmark marks the list shown.</p>
+  <p>On a phone a section label and a row without an icon start after the checkmark column, where the icons of the other rows start, as in iOS menus.</p>
+</>} code={withMenuPhoneReact(`const [filter, setFilter] = useState("messages")
+
+<Menu>
   <Menu.Trigger>
-    <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><FileDocument /> Templates <ChevronDownMd /></Button>
+    <Button variant="ghost" color="primary"><Filter /> Filter <ChevronDownMd /></Button>
   </Menu.Trigger>
   <Menu.Content minWidth={220}>
-    <Menu.Group>
-      <Menu.Label>Active</Menu.Label>
-      <Menu.Item onSelect={() => {}}>Welcome email</Menu.Item>
-      <Menu.Item onSelect={() => {}}>Order confirmation</Menu.Item>
-      <Menu.Item onSelect={() => {}}>Password reset</Menu.Item>
-    </Menu.Group>
+    <Menu.RadioGroup value={filter} onChange={setFilter}>
+      <Menu.RadioItem value="messages"><Chats /> Messages</Menu.RadioItem>
+      <Menu.RadioItem value="spam"><XSquare /> Spam</Menu.RadioItem>
+      <Menu.RadioItem value="deleted"><Trash /> Recently Deleted</Menu.RadioItem>
+    </Menu.RadioGroup>
     <Menu.Separator />
     <Menu.Group>
-      <Menu.Label>Draft</Menu.Label>
-      <Menu.Item onSelect={() => {}}>New promo campaign</Menu.Item>
-      <Menu.Item onSelect={() => {}}>Account deactivation</Menu.Item>
+      <Menu.Label>Filter By</Menu.Label>
+      <Menu.RadioGroup value={filter} onChange={setFilter}>
+        <Menu.RadioItem value="unread"><Chat /> Unread</Menu.RadioItem>
+        <Menu.RadioItem value="drafts"><ChatTripleDots /> Drafts</Menu.RadioItem>
+      </Menu.RadioGroup>
     </Menu.Group>
+    <Menu.Separator />
+    <Menu.Item onSelect={() => {}}>Manage Filtering</Menu.Item>
   </Menu.Content>
 </Menu>`, "Grouped items")} previewMinHeight={168}>
   <MenuGroupedDemo />
@@ -247,49 +255,52 @@ const [filter, setFilter] = useState("all")
 ### Checkbox items
 
 <ComponentPreview details={<>
-  <p>Use <code>Menu.CheckboxItem</code> with <code>checked</code>, <code>onCheckedChange</code>, and <code>{"onSelect={(evt) => evt.preventDefault()}"}</code> to keep the menu open.</p>
-  <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> and <code>indicatorVariant</code> say, so the phone view leaves out those controls.</p>
-</>} code={withMenuPhoneReact(`const [settings, setSettings] = useState({
-  showGrid: true,
-  showLabels: false,
-  enableShadows: false,
+  <p>Use <code>Menu.CheckboxItem</code> with <code>checked</code>, <code>onCheckedChange</code>, and <code>{"onSelect={(evt) => evt.preventDefault()}"}</code> to keep the menu open. The example is the view options of a mailbox, as Mail opens them on iOS: three options that are each on or off, and About Categories under a separator.</p>
+  <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> and <code>indicatorVariant</code> say, so the phone view leaves out those controls. A row without a checkmark keeps its column, so every icon and label lines up, and a long label wraps under itself.</p>
+</>} code={withMenuPhoneReact(`const [view, setView] = useState({
+  categories: true,
+  priority: true,
+  contactPhotos: false,
 })
 
 return (
   <Menu>
     <Menu.Trigger>
       <Button variant="ghost" color="primary">
-        Checkbox menu <ChevronDownMd />
+        View <ChevronDownMd />
       </Button>
     </Menu.Trigger>
-    <Menu.Content minWidth={200}>
+    <Menu.Content minWidth={220}>
+      <Menu.Label>View Options</Menu.Label>
       <Menu.CheckboxItem
-        checked={settings.showGrid}
-        onCheckedChange={(checked) => setSettings((s) => ({ ...s, showGrid: checked }))}
+        checked={view.categories}
+        onCheckedChange={(checked) => setView((v) => ({ ...v, categories: checked }))}
         onSelect={(evt) => evt.preventDefault()}
         indicatorPosition="end"
         indicatorVariant="solid"
       >
-        Show grid lines
+        <Storyboard /> Show Categories
       </Menu.CheckboxItem>
       <Menu.CheckboxItem
-        checked={settings.showLabels}
-        onCheckedChange={(checked) => setSettings((s) => ({ ...s, showLabels: checked }))}
+        checked={view.priority}
+        onCheckedChange={(checked) => setView((v) => ({ ...v, priority: checked }))}
         onSelect={(evt) => evt.preventDefault()}
         indicatorPosition="end"
         indicatorVariant="solid"
       >
-        Display labels
+        <Atom /> Show Priority
       </Menu.CheckboxItem>
       <Menu.CheckboxItem
-        checked={settings.enableShadows}
-        onCheckedChange={(checked) => setSettings((s) => ({ ...s, enableShadows: checked }))}
+        checked={view.contactPhotos}
+        onCheckedChange={(checked) => setView((v) => ({ ...v, contactPhotos: checked }))}
         onSelect={(evt) => evt.preventDefault()}
         indicatorPosition="end"
         indicatorVariant="solid"
       >
-        Enable shadows
+        <AvatarProfile /> Show Contact Photos
       </Menu.CheckboxItem>
+      <Menu.Separator />
+      <Menu.Item onSelect={() => {}}><InfoCircle /> About Categories</Menu.Item>
     </Menu.Content>
   </Menu>
 )`, "Checkbox items")} previewMinHeight={168}>
@@ -396,7 +407,7 @@ return (
 **Menu.Content**
 
 <PropsTable data={[
-  { prop: "width", type: 'number | "auto"', default: '"auto"', description: "Panel width in px" },
+  { prop: "width", type: 'number | "auto"', default: "fits content, 250 on a phone", description: 'Panel width in px. Without it the panel fits its content, or with touch.css on a phone is 250px, as an iOS menu; "auto" fits the content there too' },
   { prop: "minWidth", type: 'number | "auto"', default: "300", description: "Minimum panel width in px (vertical layout)" },
   { prop: "maxHeight", type: "number", description: "Maximum panel height in px" },
   { prop: "pill", type: "boolean", default: "false", description: "Rounder list with fully rounded rows, for menus beside pill controls. Menu.SubContent takes it too" },
@@ -465,7 +476,7 @@ return (
 
 ## Styling
 
-With the optional `touch.css` stylesheet, phone menus use 34px corners (the iOS 27 kit Menu), 17px labels with 20px line height, and 13/18px subtitles. Rows are 42px, as in native iOS 26 menus, and long labels wrap and make a row taller. A pressed row is the capsule iOS draws under the finger: the whole row, 10px from the panel's edges, round at its ends, in one even gray (`--menu-press-background`). A submenu grows out of the row that opened it while the menu behind it steps back. A checked item keeps its checkmark without a persistent background, centered 28px from the panel's edge with labels at 43.5px, as native menus draw it; in a menu with checkmarks, plain rows and section titles start where the labels do. The default minimum menu width is 238px, while an explicit minimum width still takes precedence.
+With the optional `touch.css` stylesheet, phone menus use 34px corners (the iOS 27 kit Menu), 17px labels with 20px line height, and 13/18px subtitles. Rows are 42px, as in native iOS 26 menus, and long labels wrap and make a row taller. A pressed row is the capsule iOS draws under the finger: the whole row, 10px from the panel's edges, round at its ends, in one even gray (`--menu-press-background`). A submenu grows out of the row that opened it while the menu behind it steps back. A checked item keeps its checkmark without a persistent background, centered 28px from the panel's edge with labels at 43.5px, as native menus draw it; in a menu with checkmarks, plain rows and section titles start where the labels do. A menu and a submenu are 250px wide, as native iOS menus are, so a long label wraps under itself; an explicit width or minimum width still takes precedence, and a submenu of `auto` width fits its content.
 
 On a phone a menu without `sideOffset` grows out of its trigger and covers it, as iOS menus do: its top is the trigger's top, or its bottom when it opens upward, and its aligned edge is the trigger's edge. Without `side` it opens toward the larger part of the screen, upward from a trigger in the lower half even when it would fit below. A desktop keeps the 5px gap below the trigger.
 
@@ -477,8 +488,9 @@ Menu reads these component tokens. Override them at any scope to restyle it:
 - `--menu-font-size`: font size (default `var(--font-text-sm-size)`)
 - `--menu-gutter`: gutter (default `spacing(1.5)`)
 - `--menu-item-background-color`: item background color (default `light-dark(var(--alpha-08), var(--alpha-10))`)
-- `--menu-default-min-width`: default minimum width before a content-level override (300px on desktop, 238px with touch styles)
-- `--menu-horizontal-min-width`: minimum width of a horizontal menu (none on desktop, 238px with touch styles)
+- `--menu-default-width`: default width before a content-level override (none on desktop, 250px with touch styles)
+- `--menu-default-min-width`: default minimum width before a content-level override (300px on desktop, 250px with touch styles)
+- `--menu-horizontal-min-width`: minimum width of a horizontal menu (none on desktop, 250px with touch styles)
 - `--menu-item-press-scale`: pressed surface scale (1 with touch styles; otherwise follows the pointer interaction scale)
 - `--menu-item-gap`: item gap (default `spacing(1.5)`)
 - `--menu-item-padding`: item padding (default `spacing(1.5) spacing(2)`)

@@ -666,7 +666,7 @@ Props:
   MenuTrigger:
     - disabled (boolean) default: false — Prevent the menu from opening
   MenuContent:
-    - width (number | "auto") default: "auto" — Panel width (numbers are pixels)
+    - width (number | "auto") default: fits content, 250 on a phone — Panel width (numbers are pixels). Without it the panel fits its content, or with touch.css on a phone is 250px, as an iOS menu; "auto" fits the content there too
     - min-width (number | "auto") default: 300 — Minimum panel width
     - max-height (number) — Maximum panel height, in pixels
     - pill (boolean) default: false — Rounder list with fully rounded rows, for menus beside pill controls. MenuSubContent takes it too

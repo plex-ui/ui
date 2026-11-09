@@ -12,7 +12,8 @@
 .MenuList {
   z-index: 50;
   overflow: auto;
-  width: var(--menu-width, auto);
+  /* A width of its own only with touch.css: the 250px panel of an iOS menu, in which a long label wraps */
+  width: var(--menu-width, var(--menu-default-width, auto));
   min-width: var(--menu-min-width, var(--menu-default-min-width, 300px));
   max-width: var(--radix-dropdown-menu-content-available-width);
   max-height: min(
@@ -537,6 +538,12 @@
 /* A horizontal list, or a horizontal radio group at the top of a list: the mode switch of an iOS menu, one mode of several
    with the chosen one on a fill (iOS-menu IMG_5665 and IMG_5666, Added and Captured over the rows of Photos; iOS 27 kit
    Menu 492:52296, Control Group; Apps 2.4 Menu 40125:198566, Quick Actions). */
+/* A horizontal list is as wide as its actions: equal columns, each as wide as its widest label, never less than a menu
+   (--menu-horizontal-min-width), not the fixed width of a list of rows. */
+.MenuList[data-layout="horizontal"] {
+  width: var(--menu-width, auto);
+}
+
 :is(.MenuList, .RadioGroup)[data-layout="horizontal"] {
   --h-icon-size: var(--menu-horizontal-icon-size, 20px);
   --h-padding: var(--menu-horizontal-item-padding, spacing(2));
@@ -809,7 +816,8 @@
   }
 
   .MenuList[data-submenu-phone] {
-    width: var(--menu-phone-width, max-content);
+    /* The width of the menu it opens over, which it covers (iOS-menu IMG_5677) */
+    width: var(--menu-phone-width, var(--menu-default-width, max-content));
     min-width: min(var(--menu-phone-min-width, var(--menu-default-min-width, 238px)), var(--menu-phone-max-width));
     max-width: var(--menu-phone-max-width);
     max-height: min(var(--menu-max-height, 1200px), var(--menu-phone-max-height));

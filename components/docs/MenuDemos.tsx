@@ -10,7 +10,12 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Toolbar } from '@plexui/ui/components/Toolbar';
 import {
   ArrowUp,
+  Atom,
+  AvatarProfile,
   CameraPhoto,
+  Chat,
+  ChatTripleDots,
+  Chats,
   CheckCircle,
   ChevronDownMd,
   Clock,
@@ -20,6 +25,7 @@ import {
   DotsHorizontal,
   EditPencil,
   EyeOff,
+  Filter,
   Folder,
   FolderPlus,
   InfoCircle,
@@ -44,6 +50,7 @@ import {
   UploadDocuments,
   VideoGrid,
   FileDocument,
+  XSquare,
 } from '@plexui/ui/components/Icon';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { menuPhoneTitle } from './menuPhone';
@@ -312,10 +319,10 @@ export function MenuItemActionsDemo() {
 }
 
 export function MenuWithCheckboxesDemoWithControls() {
-  const [settings, setSettings] = useState({
-    showGrid: true,
-    showLabels: false,
-    enableShadows: false,
+  const [view, setView] = useState({
+    categories: true,
+    priority: true,
+    contactPhotos: false,
   });
   const [indicatorPosition, setIndicatorPosition] = useState<
     (typeof INDICATOR_POSITION_OPTIONS)[number]
@@ -360,38 +367,43 @@ export function MenuWithCheckboxesDemoWithControls() {
         title="Checkbox items"
         trigger={
           <Button variant="ghost" color="primary">
-            Checkbox menu <ChevronDownMd />
+            View <ChevronDownMd />
           </Button>
         }
       >
-        <Menu.Content minWidth={200}>
+        <Menu.Content minWidth={220}>
+          <Menu.Label>View Options</Menu.Label>
           <Menu.CheckboxItem
-            checked={settings.showGrid}
-            onCheckedChange={(checked) => setSettings((s) => ({ ...s, showGrid: checked }))}
+            checked={view.categories}
+            onCheckedChange={(checked) => setView((v) => ({ ...v, categories: checked }))}
             onSelect={(evt) => evt.preventDefault()}
             indicatorPosition={indicatorPosition}
             indicatorVariant={indicatorVariant}
           >
-            Show grid lines
+            <Storyboard /> Show Categories
           </Menu.CheckboxItem>
           <Menu.CheckboxItem
-            checked={settings.showLabels}
-            onCheckedChange={(checked) => setSettings((s) => ({ ...s, showLabels: checked }))}
+            checked={view.priority}
+            onCheckedChange={(checked) => setView((v) => ({ ...v, priority: checked }))}
             onSelect={(evt) => evt.preventDefault()}
             indicatorPosition={indicatorPosition}
             indicatorVariant={indicatorVariant}
           >
-            Display labels
+            <Atom /> Show Priority
           </Menu.CheckboxItem>
           <Menu.CheckboxItem
-            checked={settings.enableShadows}
-            onCheckedChange={(checked) => setSettings((s) => ({ ...s, enableShadows: checked }))}
+            checked={view.contactPhotos}
+            onCheckedChange={(checked) => setView((v) => ({ ...v, contactPhotos: checked }))}
             onSelect={(evt) => evt.preventDefault()}
             indicatorPosition={indicatorPosition}
             indicatorVariant={indicatorVariant}
           >
-            Enable shadows
+            <AvatarProfile /> Show Contact Photos
           </Menu.CheckboxItem>
+          <Menu.Separator />
+          <Menu.Item onSelect={() => {}}>
+            <InfoCircle /> About Categories
+          </Menu.Item>
         </Menu.Content>
       </MenuExample>
     </>
@@ -583,28 +595,42 @@ export function MenuHeaderDemo() {
 }
 
 export function MenuGroupedDemo() {
+  const [filter, setFilter] = useState('messages');
   return (
     <MenuExample
       title="Grouped items"
       trigger={
-        <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5">
-          <FileDocument /> Templates <ChevronDownMd />
+        <Button variant="ghost" color="primary">
+          <Filter /> Filter <ChevronDownMd />
         </Button>
       }
     >
       <Menu.Content minWidth={220}>
-        <Menu.Group>
-          <Menu.Label>Active</Menu.Label>
-          <Menu.Item onSelect={() => { }}>Welcome email</Menu.Item>
-          <Menu.Item onSelect={() => { }}>Order confirmation</Menu.Item>
-          <Menu.Item onSelect={() => { }}>Password reset</Menu.Item>
-        </Menu.Group>
+        <Menu.RadioGroup value={filter} onChange={setFilter}>
+          <Menu.RadioItem value="messages">
+            <Chats /> Messages
+          </Menu.RadioItem>
+          <Menu.RadioItem value="spam">
+            <XSquare /> Spam
+          </Menu.RadioItem>
+          <Menu.RadioItem value="deleted">
+            <Trash /> Recently Deleted
+          </Menu.RadioItem>
+        </Menu.RadioGroup>
         <Menu.Separator />
         <Menu.Group>
-          <Menu.Label>Draft</Menu.Label>
-          <Menu.Item onSelect={() => { }}>New promo campaign</Menu.Item>
-          <Menu.Item onSelect={() => { }}>Account deactivation</Menu.Item>
+          <Menu.Label>Filter By</Menu.Label>
+          <Menu.RadioGroup value={filter} onChange={setFilter}>
+            <Menu.RadioItem value="unread">
+              <Chat /> Unread
+            </Menu.RadioItem>
+            <Menu.RadioItem value="drafts">
+              <ChatTripleDots /> Drafts
+            </Menu.RadioItem>
+          </Menu.RadioGroup>
         </Menu.Group>
+        <Menu.Separator />
+        <Menu.Item onSelect={() => {}}>Manage Filtering</Menu.Item>
       </Menu.Content>
     </MenuExample>
   );

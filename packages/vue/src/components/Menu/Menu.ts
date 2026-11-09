@@ -602,8 +602,8 @@ export const MenuContent = defineComponent({
      */
     alignOffset: Number,
     /**
-     * Defines the `width` property of the content
-     * @default auto
+     * Defines the `width` property of the content. Without it the menu fits its content, or with `touch.css` on a phone
+     * is the 250px panel of an iOS menu; `"auto"` fits its content there too.
      */
     width: sizeProp,
     /**
@@ -1277,7 +1277,7 @@ const MenuSubContentImpl = defineComponent({
   props: {
     sideOffset: { type: Number, required: true },
     alignOffset: { type: Number, required: true },
-    width: { type: sizeProp, required: true },
+    width: sizeProp,
     minWidth: sizeProp,
     maxHeight: Number,
     pill: Boolean,
@@ -1372,7 +1372,8 @@ const MenuSubContentImpl = defineComponent({
               "menu-width": props.width,
               "menu-min-width": props.minWidth ?? "auto",
               "menu-max-height": props.maxHeight,
-              "menu-phone-width": phone.value.mobile && typeof props.width === "number" ? props.width : undefined,
+              // A submenu of "auto" width fits its content on a phone too; without one it takes the menu's 250px (touch.css)
+              "menu-phone-width": phone.value.mobile ? (props.width === "auto" ? "max-content" : props.width) : undefined,
               "menu-phone-min-width": phone.value.mobile ? (props.minWidth === "auto" ? 0 : props.minWidth) : undefined,
             }),
             ...contentVariables,
@@ -1442,8 +1443,11 @@ export const MenuSubContent = defineComponent({
     sideOffset: { type: Number, default: 4 },
     /** An offset in pixels along the trigger. @default -6 */
     alignOffset: { type: Number, default: -6 },
-    /** Defines the `width` property of the content. @default "auto" */
-    width: { type: sizeProp, default: "auto" },
+    /**
+     * The width of the submenu. Without it the submenu fits its content, or with `touch.css` on a phone is the 250px
+     * of a menu; `"auto"` fits its content there too.
+     */
+    width: sizeProp,
     /** Defines the `min-width` property of the content. @default "auto" */
     minWidth: sizeProp,
     /** Defines the `max-height` property of the content, in pixels. */

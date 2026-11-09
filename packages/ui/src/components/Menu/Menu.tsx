@@ -422,8 +422,8 @@ export type MenuContentProps = {
    */
   alignOffset?: DropdownMenu.DropdownMenuContentProps["alignOffset"]
   /**
-   * Defines the `width` property of the content
-   * @default auto
+   * Defines the `width` property of the content. Without it the menu fits its content, or with `touch.css` on a phone
+   * is the 250px panel of an iOS menu; `"auto"` fits its content there too.
    */
   width?: number | "auto"
   /**
@@ -774,6 +774,10 @@ type SubContentProps = {
   children: ReactNode
   sideOffset?: DropdownMenu.DropdownMenuSubContentProps["sideOffset"]
   alignOffset?: DropdownMenu.DropdownMenuSubContentProps["alignOffset"]
+  /**
+   * The width of the submenu. Without it the submenu fits its content, or with `touch.css` on a phone is the 250px of a
+   * menu; `"auto"` fits its content there too.
+   */
   width?: number | "auto"
   minWidth?: number | "auto"
   maxHeight?: number
@@ -784,7 +788,7 @@ const SubContent = ({
   children,
   sideOffset = 4,
   alignOffset = -6,
-  width = "auto",
+  width,
   minWidth,
   maxHeight,
   pill = false,
@@ -854,7 +858,8 @@ const SubContent = ({
               "menu-width": width,
               "menu-min-width": minWidth ?? "auto",
               "menu-max-height": maxHeight,
-              "menu-phone-width": phone.mobile && typeof width === "number" ? width : undefined,
+              // A submenu of "auto" width fits its content on a phone too; without one it takes the menu's 250px (touch.css)
+              "menu-phone-width": phone.mobile ? (width === "auto" ? "max-content" : width) : undefined,
               "menu-phone-min-width": phone.mobile ? (minWidth === "auto" ? 0 : minWidth) : undefined,
             })}
           >

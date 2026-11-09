@@ -5214,7 +5214,7 @@ Props:
   MenuTrigger:
     - disabled (boolean) default: false — Prevent the menu from opening
   MenuContent:
-    - width (number | "auto") default: "auto" — Panel width (numbers are pixels)
+    - width (number | "auto") default: fits content, 250 on a phone — Panel width (numbers are pixels). Without it the panel fits its content, or with touch.css on a phone is 250px, as an iOS menu; "auto" fits the content there too
     - min-width (number | "auto") default: 300 — Minimum panel width
     - max-height (number) — Maximum panel height, in pixels
     - pill (boolean) default: false — Rounder list with fully rounded rows, for menus beside pill controls. MenuSubContent takes it too
@@ -5247,7 +5247,7 @@ Props:
     - disabled (boolean) default: false — Disable the item
 
 ### Overview
-A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (description) while it is the chosen sort, and Group By in a submenu. Turn off icons for the same menu in plain text, and checkmarks for the folder's actions alone, a shorter menu with no checkmark column. pill on MenuContent makes a rounder list with fully rounded rows, for menus beside pill controls. On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 238px panel of the iOS kit, so the phone code leaves out width, min-width and size. A pill menu is the same panel there, so the phone view leaves out pill.
+A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (description) while it is the chosen sort, and Group By in a submenu. Turn off icons for the same menu in plain text, and checkmarks for the folder's actions alone, a shorter menu with no checkmark column. pill on MenuContent makes a rounder list with fully rounded rows, for menus beside pill controls. On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 250px panel of iOS menus, so the phone code leaves out width, min-width and size. A pill menu is the same panel there, so the phone view leaves out pill.
 ```vue
 <!-- Desktop -->
 <Menu>
@@ -5340,7 +5340,7 @@ A folder's menu, as Files opens it on iOS: actions with their icons, then the vi
 ```
 
 ### Natural sizing
-Menu supports several sizing strategies:Natural sizing: use min-width="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and min-width to set the menu to a fixed size, regardless of content size.Flexible sizing: min-width can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of MenuContent. maxWidth isn't exposed as a prop because it's reserved for the custom properties used in collision detection.Desktop only: on a phone a menu is the iOS panel, at least the 238px of the iOS kit, whatever these sizes say.
+Menu supports several sizing strategies:Natural sizing: use min-width="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and min-width to set the menu to a fixed size, regardless of content size.Flexible sizing: min-width can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of MenuContent. maxWidth isn't exposed as a prop because it's reserved for the custom properties used in collision detection.Desktop only: on a phone a menu is the 250px panel of iOS menus, unless it sets a width or a larger minimum width of its own.
 ```vue
 <Menu>
   <MenuTrigger>
@@ -5430,26 +5430,29 @@ Put a MenuHeader first to name what the menu acts on: a picture (the media slot)
 ```
 
 ### Grouped items
-Use MenuGroup and MenuLabel to organize related items into labeled sections.
+Use MenuGroup and MenuLabel to organize related items into labeled sections. The example is the filter of the message list, as Messages opens it on iOS: the mailboxes, a section labeled Filter By, and Manage Filtering under a separator. Both radio groups hold one value, so one checkmark marks the list shown. On a phone a section label and a row without an icon start after the checkmark column, where the icons of the other rows start, as in iOS menus.
 ```vue
 <!-- Desktop -->
 <Menu>
   <MenuTrigger>
-    <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><FileDocument /> Templates <ChevronDownMd /></Button>
+    <Button variant="ghost" color="primary"><Filter /> Filter <ChevronDownMd /></Button>
   </MenuTrigger>
   <MenuContent :min-width="220">
-    <MenuGroup>
-      <MenuLabel>Active</MenuLabel>
-      <MenuItem @select="() => {}">Welcome email</MenuItem>
-      <MenuItem @select="() => {}">Order confirmation</MenuItem>
-      <MenuItem @select="() => {}">Password reset</MenuItem>
-    </MenuGroup>
+    <MenuRadioGroup v-model:value="filter">
+      <MenuRadioItem value="messages"><Chats /> Messages</MenuRadioItem>
+      <MenuRadioItem value="spam"><XSquare /> Spam</MenuRadioItem>
+      <MenuRadioItem value="deleted"><Trash /> Recently Deleted</MenuRadioItem>
+    </MenuRadioGroup>
     <MenuSeparator />
     <MenuGroup>
-      <MenuLabel>Draft</MenuLabel>
-      <MenuItem @select="() => {}">New promo campaign</MenuItem>
-      <MenuItem @select="() => {}">Account deactivation</MenuItem>
+      <MenuLabel>Filter By</MenuLabel>
+      <MenuRadioGroup v-model:value="filter">
+        <MenuRadioItem value="unread"><Chat /> Unread</MenuRadioItem>
+        <MenuRadioItem value="drafts"><ChatTripleDots /> Drafts</MenuRadioItem>
+      </MenuRadioGroup>
     </MenuGroup>
+    <MenuSeparator />
+    <MenuItem @select="() => {}">Manage Filtering</MenuItem>
   </MenuContent>
 </Menu>
 
@@ -5462,18 +5465,21 @@ Use MenuGroup and MenuLabel to organize related items into labeled sections.
         <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
       </MenuTrigger>
       <MenuContent align="end">
-        <MenuGroup>
-          <MenuLabel>Active</MenuLabel>
-          <MenuItem @select="() => {}">Welcome email</MenuItem>
-          <MenuItem @select="() => {}">Order confirmation</MenuItem>
-          <MenuItem @select="() => {}">Password reset</MenuItem>
-        </MenuGroup>
+        <MenuRadioGroup v-model:value="filter">
+          <MenuRadioItem value="messages"><Chats /> Messages</MenuRadioItem>
+          <MenuRadioItem value="spam"><XSquare /> Spam</MenuRadioItem>
+          <MenuRadioItem value="deleted"><Trash /> Recently Deleted</MenuRadioItem>
+        </MenuRadioGroup>
         <MenuSeparator />
         <MenuGroup>
-          <MenuLabel>Draft</MenuLabel>
-          <MenuItem @select="() => {}">New promo campaign</MenuItem>
-          <MenuItem @select="() => {}">Account deactivation</MenuItem>
+          <MenuLabel>Filter By</MenuLabel>
+          <MenuRadioGroup v-model:value="filter">
+            <MenuRadioItem value="unread"><Chat /> Unread</MenuRadioItem>
+            <MenuRadioItem value="drafts"><ChatTripleDots /> Drafts</MenuRadioItem>
+          </MenuRadioGroup>
         </MenuGroup>
+        <MenuSeparator />
+        <MenuItem @select="() => {}">Manage Filtering</MenuItem>
       </MenuContent>
     </Menu>
   </ToolbarTrailing>
@@ -5562,38 +5568,41 @@ A list's menu, as Reminders opens it on iOS: Manage Sections and Sort By open su
 ```
 
 ### Checkbox items
-Use MenuCheckboxItem with v-model:checked and {'@select="(evt) => evt.preventDefault()"'} to keep the menu open. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition and indicatorVariant say, so the phone view leaves out those controls.
+Use MenuCheckboxItem with v-model:checked and {'@select="(evt) => evt.preventDefault()"'} to keep the menu open. The example is the view options of a mailbox, as Mail opens them on iOS: three options that are each on or off, and About Categories under a separator. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition and indicatorVariant say, so the phone view leaves out those controls. A row without a checkmark keeps its column, so every icon and label lines up, and a long label wraps under itself.
 ```vue
 <!-- Desktop -->
 <Menu>
   <MenuTrigger>
-    <Button variant="ghost" color="primary">Checkbox menu <ChevronDownMd /></Button>
+    <Button variant="ghost" color="primary">View <ChevronDownMd /></Button>
   </MenuTrigger>
-  <MenuContent :min-width="200">
+  <MenuContent :min-width="220">
+    <MenuLabel>View Options</MenuLabel>
     <MenuCheckboxItem
-      v-model:checked="settings.showGrid"
+      v-model:checked="view.categories"
       :indicator-position="indicatorPosition"
       :indicator-variant="indicatorVariant"
       @select="(evt) => evt.preventDefault()"
     >
-      Show grid lines
+      <Storyboard /> Show Categories
     </MenuCheckboxItem>
     <MenuCheckboxItem
-      v-model:checked="settings.showLabels"
+      v-model:checked="view.priority"
       :indicator-position="indicatorPosition"
       :indicator-variant="indicatorVariant"
       @select="(evt) => evt.preventDefault()"
     >
-      Display labels
+      <Atom /> Show Priority
     </MenuCheckboxItem>
     <MenuCheckboxItem
-      v-model:checked="settings.enableShadows"
+      v-model:checked="view.contactPhotos"
       :indicator-position="indicatorPosition"
       :indicator-variant="indicatorVariant"
       @select="(evt) => evt.preventDefault()"
     >
-      Enable shadows
+      <AvatarProfile /> Show Contact Photos
     </MenuCheckboxItem>
+    <MenuSeparator />
+    <MenuItem @select="() => {}"><InfoCircle /> About Categories</MenuItem>
   </MenuContent>
 </Menu>
 
@@ -5606,30 +5615,33 @@ Use MenuCheckboxItem with v-model:checked and {'@select="(evt) => evt.preventDef
         <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
       </MenuTrigger>
       <MenuContent align="end">
+        <MenuLabel>View Options</MenuLabel>
         <MenuCheckboxItem
-          v-model:checked="settings.showGrid"
+          v-model:checked="view.categories"
           :indicator-position="indicatorPosition"
           :indicator-variant="indicatorVariant"
           @select="(evt) => evt.preventDefault()"
         >
-          Show grid lines
+          <Storyboard /> Show Categories
         </MenuCheckboxItem>
         <MenuCheckboxItem
-          v-model:checked="settings.showLabels"
+          v-model:checked="view.priority"
           :indicator-position="indicatorPosition"
           :indicator-variant="indicatorVariant"
           @select="(evt) => evt.preventDefault()"
         >
-          Display labels
+          <Atom /> Show Priority
         </MenuCheckboxItem>
         <MenuCheckboxItem
-          v-model:checked="settings.enableShadows"
+          v-model:checked="view.contactPhotos"
           :indicator-position="indicatorPosition"
           :indicator-variant="indicatorVariant"
           @select="(evt) => evt.preventDefault()"
         >
-          Enable shadows
+          <AvatarProfile /> Show Contact Photos
         </MenuCheckboxItem>
+        <MenuSeparator />
+        <MenuItem @select="() => {}"><InfoCircle /> About Categories</MenuItem>
       </MenuContent>
     </Menu>
   </ToolbarTrailing>

@@ -192,10 +192,14 @@
     --select-control-ghost-state-opacity: 0;
 
     --menu-gutter: 10px;
-    --menu-default-min-width: 238px;
+    /* A menu is 250pt wide, as native iOS 26 menus are, whatever their labels (iOS-menu IMG_5648 to 5720, 750px at
+       @3x in Photos, Files, Reminders, Mail and Messages); a long label wraps (Mail, Show Contact Photos, IMG_5707).
+       The iOS 27 kit draws 238; the device wins. A menu's own width or minimum width still wins. */
+    --menu-default-width: 250px;
+    --menu-default-min-width: 250px;
     --menu-padding-inline: 16px;
     --menu-shadow: 0 8px 40px rgb(0 0 0 / 12%);
-    /* A menu has the corner of the iOS 27 kit Menu (Menus: 238 wide, r34), as a popover on a phone does. */
+    /* A menu has the corner of the iOS 27 kit Menu (Menus: r34), as a popover on a phone does. */
     --menu-radius: 34px;
     --menu-radius-pill: 34px;
     /* A popover on a phone has the corner of an iOS 26 action sheet presented from its source: 34px, as
@@ -255,7 +259,7 @@
     --menu-horizontal-selected-background: light-dark(var(--alpha-12), var(--alpha-15));
     /* Kit Quick Actions (5500:7456): equal actions across the menu's width, without dividers. */
     --menu-horizontal-display: grid;
-    --menu-horizontal-min-width: 238px;
+    --menu-horizontal-min-width: 250px;
     --menu-horizontal-separator-display: none;
     --menu-horizontal-item-display: flex;
     --menu-horizontal-item-height: 56px;

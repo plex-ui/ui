@@ -4,7 +4,7 @@
  * On a phone a menu opens from a button of the top bar, as the More button opens the menu of an album in Photos
  * (iOS-menu IMG_5657) and of a collection (IMG_5664), over the large title of the screen. The phone form of a menu
  * example is made from its desktop code, so both stay one menu: the trigger becomes that More button, and the panel
- * drops its desktop width, minimum width and size (a phone menu is the kit's 238px panel, iOS 27 Menus) and aligns to
+ * drops its desktop width, minimum width and size (a phone menu is the 250px panel of native iOS menus, touch.css) and aligns to
  * the end of the button, which it covers (Menu: a menu without `sideOffset` grows out of its trigger on a phone); a
  * horizontal panel stays horizontal. The React demo renders the same form (MenuDemos.tsx `MenuExample`).
  */
