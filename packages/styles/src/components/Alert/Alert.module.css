@@ -299,7 +299,8 @@
     }
   }
 
-  .Alert .Actions > :where(button, a, [role="link"]) {
+  /* `mobileActions="own"`: the buttons keep the size they are given, for an alert inside a block of its own buttons */
+  .Alert:where(:not([data-mobile-actions="own"])) .Actions > :where(button, a, [role="link"]) {
     --button-size: var(--button-size-xl, 50px);
     --button-font-size: var(--button-font-size-xl, 17px);
     --button-font-weight: var(--font-weight-semibold);

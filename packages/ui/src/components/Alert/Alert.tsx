@@ -9,6 +9,8 @@ import { CheckCircle, Info, Warning, X } from "../Icon"
 import { Button } from "../Button"
 import s from "@plexui/styles/components/Alert/Alert.module.css"
 
+export type AlertMobileActions = "capsules" | "own"
+
 export type AlertProps = {
   /**
    * Color for the button
@@ -30,6 +32,12 @@ export type AlertProps = {
   actions?: ReactNode
   /** Sets the placement of `actions` always on the end or the bottom. Default behavior is automatic placement based on sizing. */
   actionsPlacement?: "end" | "bottom"
+  /**
+   * How the actions show at 767px and below: 50px capsules side by side, as the buttons of an iOS tip (TipKit), or
+   * the buttons as given, at their own size, for an alert inside a block of buttons of its own.
+   * @default "capsules"
+   */
+  mobileActions?: AlertMobileActions
   /** Optional override for the default indicator of the alert. When `false`, no indicator is shown. */
   indicator?: ReactNode | false
   /** Class applied to the alert container */
@@ -55,6 +63,7 @@ export const Alert = ({
   description,
   actions,
   actionsPlacement,
+  mobileActions = "capsules",
   indicator,
   className,
   actionsClassName,
@@ -88,6 +97,7 @@ export const Alert = ({
       role={color === "danger" ? "alert" : undefined}
       data-actions-placement={actionsPlacement ?? actionsAutoPlacement}
       data-banner={banner ? "" : undefined}
+      data-mobile-actions={mobileActions === "own" ? "own" : undefined}
       {...restProps}
     >
       {indicator === false ? null : (

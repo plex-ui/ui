@@ -304,6 +304,8 @@ const alertCases: Array<[string, Props]> = [
   ["actionsPlacement bottom", { title: "Terms", actions: "two", actionsPlacement: "bottom" }],
   ["actionsPlacement end", { title: "Terms", actions: "two", actionsPlacement: "end" }],
   ["actionsClassName", { actions: "one", actionsClassName: "gap-1" }],
+  ["mobileActions own", { title: "Terms", actions: "two", mobileActions: "own" }],
+  ["mobileActions capsules", { title: "Terms", actions: "two", mobileActions: "capsules" }],
   ["custom indicator", { indicator: "bulb", description: "rich" }],
   ["no indicator", { indicator: false, description: "Version 2.18.5" }],
   ["class and attributes", { className: "items-start", id: "notice", "aria-live": "polite" }],
@@ -327,6 +329,16 @@ describe("Alert parity", () => {
     expect(vue).toBe(react)
     expect(react).not.toContain("Title")
     expect(react).not.toContain("Actions")
+  })
+
+  // Plan 176 (peer app request): an alert inside a block of its own buttons keeps their size on a phone
+  test("mobileActions own marks the alert, and only the capsule rule sizes the actions", async () => {
+    const { react } = await renderPair(reactAlert({ title: "Terms", actions: "one", mobileActions: "own" }), () => vueAlert({ title: "Terms", actions: "one", mobileActions: "own" }))
+    expect(react).toContain('data-mobile-actions="own"')
+    const { react: plain } = await renderPair(reactAlert({ title: "Terms", actions: "one" }), () => vueAlert({ title: "Terms", actions: "one" }))
+    expect(plain).not.toContain("data-mobile-actions")
+    const css = (await import("node:fs")).readFileSync(`${process.cwd()}/packages/styles/src/components/Alert/Alert.module.css`, "utf8")
+    expect(css).toMatch(/\.Alert:where\(:not\(\[data-mobile-actions="own"\]\)\) \.Actions > :where\(button, a, \[role="link"\]\) \{\s*--button-size: var\(--button-size-xl, 50px\);/)
   })
 
   test("v-if'd actions slot renders no actions container", async () => {

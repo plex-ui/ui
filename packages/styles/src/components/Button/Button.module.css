@@ -970,7 +970,9 @@
     --button-outline-context-background: var(--mobile-neutral-outline-background, var(--button-outline-background));
   }
 
-  .Button[data-mobile-material="glass"]:where(:not([data-disabled])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
+  /* A disabled glass button keeps its glass and dims its symbol or label (below), as a bar button does (iOS 26 kit
+     _Button - Symbol, Text and Back, State=Disabled; owner 09.11). Its hover and press stay off (Button states). */
+  .Button[data-mobile-material="glass"]:where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
     --button-mobile-material-background: var(--mobile-glass-background);
     --button-mobile-material-hover: var(--mobile-glass-background-hover);
     --button-mobile-material-active: var(--mobile-glass-background-active);
@@ -1001,7 +1003,7 @@
     --button-text-color: var(--mobile-label-tertiary, var(--color-text-disabled));
   }
 
-  .Button:is([data-mobile-material="flat"], [data-disabled]) {
+  .Button:is([data-mobile-material="flat"], [data-disabled]:where(:not([data-mobile-material="glass"]))) {
     --button-mobile-material-background: initial;
     --button-mobile-material-hover: initial;
     --button-mobile-material-active: initial;
@@ -1010,5 +1012,18 @@
     --button-mobile-material-backdrop-filter: initial;
     --button-mobile-material-opacity: initial;
     --button-mobile-material-scale: initial;
+  }
+
+  /* A uniform button draws its 28 or 34px circle and takes touches 44px around its center, as the close button
+     of a phone Alert does (owner 09.11): the minimum target of Apple's guidelines. A larger one keeps its size. In a
+     ButtonGroup or beside the text of a field it keeps its own box, so it never takes the taps of a neighbor. */
+  .Button[data-uniform]:not(:is([data-slot="button-group"], [data-slot="input-group"], [data-slot="input"], [data-slot="textarea"]) *) > .ButtonInner::before {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+    content: "";
   }
 }

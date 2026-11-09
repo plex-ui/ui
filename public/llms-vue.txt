@@ -55,6 +55,7 @@ Props:
   - description (string | slot) — Description text
   - actions (slot) — Actions (for example buttons)
   - actions-placement ("end" | "bottom") — Placement of actions; automatic from sizing when unset
+  - mobile-actions ("capsules" | "own") default: "capsules" — At 767px and below: 50px capsules as in an iOS tip, or the buttons at their own size, for an alert inside a block of its own buttons
   - actions-class-name (string) — Class applied to the actions container
   - color (SemanticColors) default: "primary" — Color scheme
   - variant ("solid" | "soft" | "outline") default: "outline" — Style variant

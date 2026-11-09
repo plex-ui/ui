@@ -54,6 +54,7 @@ Props:
   - description (ReactNode) — Description text
   - actions (ReactNode) — Actions (for example buttons)
   - actionsPlacement ("end" | "bottom") — Placement of actions; automatic from sizing when unset
+  - mobileActions ("capsules" | "own") default: "capsules" — At 767px and below: 50px capsules as in an iOS tip, or the buttons at their own size, for an alert inside a block of its own buttons
   - actionsClassName (string) — Class applied to the actions container
   - color (SemanticColors) default: "primary" — Color scheme
   - variant ("solid" | "soft" | "outline") default: "outline" — Style variant

@@ -124,6 +124,7 @@ Props:
   - description (ReactNode) — Description text
   - actions (ReactNode) — Actions (for example buttons)
   - actionsPlacement ("end" | "bottom") — Placement of actions; automatic from sizing when unset
+  - mobileActions ("capsules" | "own") default: "capsules" — At 767px and below: 50px capsules as in an iOS tip, or the buttons at their own size, for an alert inside a block of its own buttons
   - actionsClassName (string) — Class applied to the actions container
   - color (SemanticColors) default: "primary" — Color scheme
   - variant ("solid" | "soft" | "outline") default: "outline" — Style variant
@@ -133,7 +134,7 @@ Props:
   - className (string) — Class applied to the alert container
 
 ### Overview
-On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants.
+On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants. With mobileActions="own" the actions keep the size you give the buttons, for an alert inside a block of its own buttons.
 ```tsx
 <Alert
 title="Scheduled maintenance"

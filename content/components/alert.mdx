@@ -18,7 +18,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 <div id="first-component-page">
 ### Overview
 
-<ComponentPreview details={<>On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants.</>} code={`<Alert
+<ComponentPreview details={<>On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants. With <code>mobileActions="own"</code> the actions keep the size you give the buttons, for an alert inside a block of its own buttons.</>} code={`<Alert
   title="Scheduled maintenance"
   description="We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database."
   onDismiss={() => {}}
@@ -170,6 +170,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
   { prop: "description", type: "ReactNode", description: "Description text" },
   { prop: "actions", type: "ReactNode", description: "Actions (for example buttons)" },
   { prop: "actionsPlacement", type: '"end" | "bottom"', description: "Placement of actions; automatic from sizing when unset" },
+  { prop: "mobileActions", type: '"capsules" | "own"', default: '"capsules"', description: "At 767px and below: 50px capsules as in an iOS tip, or the buttons at their own size, for an alert inside a block of its own buttons" },
   { prop: "actionsClassName", type: "string", description: "Class applied to the actions container" },
   { prop: "color", type: "SemanticColors", default: '"primary"', description: "Color scheme" },
   { prop: "variant", type: '"solid" | "soft" | "outline"', default: '"outline"', description: "Style variant" },

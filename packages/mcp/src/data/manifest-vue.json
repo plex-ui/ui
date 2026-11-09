@@ -177,6 +177,12 @@
           "description": "Placement of actions; automatic from sizing when unset"
         },
         {
+          "name": "mobile-actions",
+          "type": "\"capsules\" | \"own\"",
+          "default": "\"capsules\"",
+          "description": "At 767px and below: 50px capsules as in an iOS tip, or the buttons at their own size, for an alert inside a block of its own buttons"
+        },
+        {
           "name": "actions-class-name",
           "type": "string",
           "description": "Class applied to the actions container"
@@ -214,7 +220,7 @@
         {
           "name": "Overview",
           "code": "<Alert\n  title=\"Scheduled maintenance\"\n  description=\"We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database.\"\n  @dismiss=\"() => {}\"\n/>",
-          "details": "On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants."
+          "details": "On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants. With mobile-actions=\"own\" the actions keep the size you give the buttons, for an alert inside a block of its own buttons."
         },
         {
           "name": "Colors & variants",
@@ -7973,5 +7979,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T14:27:43.962Z"
+  "generatedAt": "2026-11-09T14:46:09.560Z"
 }

@@ -25,6 +25,8 @@ import s from "@plexui/styles/components/Alert/Alert.module.css"
 // The actions auto placement mirrors usehooks-ts `useResizeObserver`: it
 // reacts to the container's content-box width only.
 
+export type AlertMobileActions = "capsules" | "own"
+
 export type AlertColor = SemanticColors<
   "primary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"
 >
@@ -64,6 +66,11 @@ const AlertComponent = defineComponent({
     description: String,
     /** Places `actions` at the end or the bottom. Automatic from sizing when unset. */
     actionsPlacement: String as PropType<"end" | "bottom">,
+    /**
+     * How the actions show at 767px and below: 50px capsules side by side, as the buttons of an iOS tip (TipKit),
+     * or the buttons as given, at their own size, for an alert inside a block of buttons of its own. @default "capsules"
+     */
+    mobileActions: { type: String as PropType<AlertMobileActions>, default: "capsules" },
     /** `false` hides the indicator. Use the `indicator` slot to replace it. */
     indicator: { type: Boolean, default: undefined },
     /** Class applied to the actions container */
@@ -126,6 +133,7 @@ const AlertComponent = defineComponent({
           "role": color === "danger" ? "alert" : undefined,
           "data-actions-placement": props.actionsPlacement ?? actionsAutoPlacement.value,
           "data-banner": props.banner ? "" : undefined,
+          "data-mobile-actions": props.mobileActions === "own" ? "own" : undefined,
         },
         [
           props.indicator === false

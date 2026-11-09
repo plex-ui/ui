@@ -179,3 +179,29 @@ describe("Button docs on a phone", () => {
     }
   })
 })
+
+// Owner 09.11 (plan 176 item 7): a disabled glass button keeps its glass and dims only its symbol or label, as a bar
+// button does (iOS 26 kit _Button - Symbol, Text and Back, State=Disabled); a uniform button draws 28 or 34 and takes
+// touches 44px around its center, as the close button of a phone Alert.
+describe("A glass or uniform Button on a phone", () => {
+  const css = "packages/styles/src/components/Button/Button.module.css"
+  test("a disabled glass button keeps the glass; flat and other disabled buttons drop the material", () => {
+    expect(declsOf(css, '.Button[data-mobile-material="glass"]:where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"])', true))
+      .toMatchObject({ "--button-mobile-material-background": "var(--mobile-glass-background)", "--button-mobile-material-opacity": "1" })
+    expect(declsOf(css, '.Button:is([data-mobile-material="flat"], [data-disabled]:where(:not([data-mobile-material="glass"])))', true))
+      .toMatchObject({ "--button-mobile-material-background": "initial" })
+    expect(declsOf(css, '.Button[data-disabled][data-variant]', true)).toEqual({ "--button-text-color": "var(--mobile-label-tertiary, var(--color-text-disabled))" })
+  })
+
+  test("a uniform button takes touches 44px around its center and keeps its drawn size, but not beside a neighbor", () => {
+    expect(declsOf(css, '.Button[data-uniform]:not(:is([data-slot="button-group"], [data-slot="input-group"], [data-slot="input"], [data-slot="textarea"]) *) > .ButtonInner::before', true)).toEqual({
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      width: "max(100%, 44px)",
+      height: "max(100%, 44px)",
+      transform: "translate(-50%, -50%)",
+      content: '""',
+    })
+  })
+})

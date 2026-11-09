@@ -127,7 +127,7 @@ export const banner = `<div class="flex flex-col items-stretch justify-center ga
 <div id="first-component-page">
 ### Overview
 
-<ComponentPreview details={<>On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants.</>} language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview details={<>On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants. With <code>mobile-actions="own"</code> the actions keep the size you give the buttons, for an alert inside a block of its own buttons.</>} language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueDemo template={overview} />
 </ComponentPreview>
 
@@ -190,6 +190,7 @@ export const banner = `<div class="flex flex-col items-stretch justify-center ga
   { prop: "description", type: "string | slot", description: "Description text" },
   { prop: "actions", type: "slot", description: "Actions (for example buttons)" },
   { prop: "actions-placement", type: '"end" | "bottom"', description: "Placement of actions; automatic from sizing when unset" },
+  { prop: "mobile-actions", type: '"capsules" | "own"', default: '"capsules"', description: "At 767px and below: 50px capsules as in an iOS tip, or the buttons at their own size, for an alert inside a block of its own buttons" },
   { prop: "actions-class-name", type: "string", description: "Class applied to the actions container" },
   { prop: "color", type: "SemanticColors", default: '"primary"', description: "Color scheme" },
   { prop: "variant", type: '"solid" | "soft" | "outline"', default: '"outline"', description: "Style variant" },
