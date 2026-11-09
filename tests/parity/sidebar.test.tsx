@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, createRef, useSyncExternalStore, type ComponentType, type ReactElement, type ReactNode } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
-import { createApp, defineComponent, h, reactive, ref, type Component, type VNode, type VNodeChild } from "vue"
+import { createApp, defineComponent, h, reactive, ref, Transition, type Component, type VNode, type VNodeChild } from "vue"
 import { Badge as ReactBadge } from "../../packages/ui/src/components/Badge"
 import * as ReactIcons from "../../packages/ui/src/components/Icon"
 import * as ReactSidebar from "../../packages/ui/src/components/Sidebar"
@@ -1157,6 +1157,137 @@ describe("Sidebar mobile", () => {
     )
     expect(vue).toEqual(react)
     expect(react).toEqual(["first", "prevented:true", "last", "prevented:true", "first", "prevented:false"])
+  })
+
+  test("when what opened the drawer can no longer take focus, closing it focuses the menu button", async () => {
+    const { react, vue } = await walkSpec(
+      {},
+      () =>
+        n(
+          "SidebarProvider",
+          null,
+          n("SidebarInset", null, n("SidebarMobileMenuButton", { "data-testid": "menu" })),
+          // Stands for a row of another drawer that closed while this one was open
+          n("div", { "data-testid": "holder" }, n("SidebarTrigger", { "data-testid": "opener" })),
+          n("SidebarMobile", { contained: true }, n("button", { "data-testid": "inside" }, "Inside")),
+        ),
+      async ({ fire, focus, note }) => {
+        // An opener that can still take focus gets it back
+        await focus('[data-testid="opener"]')
+        await fire('[data-testid="opener"]', "click")
+        note(focused())
+        await fire(() => document.activeElement, "keyDown", { key: "Escape" })
+        note(focused())
+        // One that has gone inert hands it to the menu button
+        await fire('[data-testid="opener"]', "click")
+        note(focused())
+        document.querySelector('[data-testid="holder"]')!.setAttribute("inert", "")
+        await fire(() => document.activeElement, "keyDown", { key: "Escape" })
+        note(focused())
+      },
+      { mobile: true },
+    )
+    expect(vue).toEqual(react)
+    expect(react).toEqual(["inside", "opener", "inside", "menu"])
+  })
+
+  test("a drawer unmounted while open hands focus to a menu button that stays on the page", async () => {
+    const { react, vue } = await walkSpec(
+      { second: true },
+      (state) =>
+        n(
+          "div",
+          null,
+          n("SidebarProvider", null, n("SidebarInset", null, n("SidebarMobileMenuButton", { "data-testid": "first-menu" }))),
+          ...(state.second
+            ? [
+                n(
+                  "SidebarProvider",
+                  null,
+                  // A header outside the inset: not inert while the drawer is open
+                  n("header", null, n("SidebarMobileMenuButton", { "data-testid": "second-menu" })),
+                  n("div", { "data-testid": "holder" }, n("SidebarTrigger", { "data-testid": "opener" })),
+                  n("SidebarMobile", { contained: true }, n("button", { "data-testid": "inside" }, "Inside")),
+                ),
+              ]
+            : []),
+        ),
+      async ({ fire, focus, note, set }) => {
+        await focus('[data-testid="opener"]')
+        await fire('[data-testid="opener"]', "click")
+        note(focused())
+        document.querySelector('[data-testid="holder"]')!.setAttribute("inert", "")
+        await set({ second: false })
+        note(focused())
+      },
+      { mobile: true },
+    )
+    expect(vue).toEqual(react)
+    expect(react).toEqual(["inside", "first-menu"])
+  })
+
+  test("only the drawer unmounted while open hands focus to its own provider's menu button first", async () => {
+    const { react, vue } = await walkSpec(
+      { drawer: true },
+      (state) =>
+        n(
+          "div",
+          null,
+          // Earlier on the page: picked only when the drawer's own provider has no menu button
+          n("SidebarProvider", null, n("SidebarInset", null, n("SidebarMobileMenuButton", { "data-testid": "first-menu" }))),
+          n(
+            "SidebarProvider",
+            null,
+            n("header", null, n("SidebarMobileMenuButton", { "data-testid": "second-menu" })),
+            n("div", { "data-testid": "holder" }, n("SidebarTrigger", { "data-testid": "opener" })),
+            ...(state.drawer ? [n("SidebarMobile", { contained: true }, n("button", { "data-testid": "inside" }, "Inside"))] : []),
+          ),
+        ),
+      async ({ fire, focus, note, set }) => {
+        await focus('[data-testid="opener"]')
+        await fire('[data-testid="opener"]', "click")
+        note(focused())
+        document.querySelector('[data-testid="holder"]')!.setAttribute("inert", "")
+        await set({ drawer: false })
+        note(focused())
+      },
+      { mobile: true },
+    )
+    expect(vue).toEqual(react)
+    expect(react).toEqual(["inside", "second-menu"])
+  })
+
+  test("Vue: a provider leaving through a <Transition> hands focus to a menu button once it has gone", async () => {
+    // React has no leaving transition: what unmounts leaves the page at once
+    mobile = true
+    const shown = ref(true)
+    const { SidebarProvider, SidebarInset, SidebarMobileMenuButton, SidebarMobile } = VueSidebar
+    mountVue(() =>
+      h("div", null, [
+        h(SidebarProvider, null, () => h(SidebarInset, null, () => h(SidebarMobileMenuButton, { "data-testid": "first-menu" }))),
+        h(Transition, { duration: 30 }, () =>
+          shown.value
+            ? h("div", null, [
+                h(SidebarProvider, null, () => [
+                  h("header", null, [h(SidebarMobileMenuButton, { "data-testid": "second-menu" })]),
+                  h(SidebarMobile, { contained: true }, () => h("button", { "data-testid": "inside" }, "Inside")),
+                ]),
+              ])
+            : null,
+        ),
+      ]),
+    )
+    await flushVue()
+    const secondMenu = document.querySelector<HTMLElement>('[data-testid="second-menu"]')!
+    secondMenu.focus()
+    secondMenu.click()
+    await flushVue()
+    expect(focused()).toBe("inside")
+    shown.value = false
+    await flushVue()
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    expect(document.querySelector('[data-testid="second-menu"]')).toBeNull()
+    expect(focused()).toBe("first-menu")
   })
 
   test("back at phone width with the drawer still open, focus moves into it again", async () => {

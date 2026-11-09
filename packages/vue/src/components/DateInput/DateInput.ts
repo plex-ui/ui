@@ -1,10 +1,6 @@
 import {
   maskitoDateOptionsGenerator,
   maskitoDateTimeOptionsGenerator,
-  maskitoParseDate,
-  maskitoParseDateTime,
-  maskitoStringifyDate,
-  maskitoStringifyDateTime,
   type MaskitoDateMode,
   type MaskitoDateParams,
   type MaskitoDateTimeParams,
@@ -24,6 +20,14 @@ import {
   withDirectives,
   type PropType,
 } from "vue"
+import {
+  dateInputValueKey,
+  formatDateInput,
+  keepTypedValue,
+  maskDate,
+  parseDateInput,
+  type DateInputFormat,
+} from "../../lib/dateInputText.js"
 import { Input, type InputProps } from "../Input/index.js"
 
 // Vue port of packages/ui/src/components/DateInput/DateInput.tsx: an Input
@@ -45,6 +49,9 @@ import { Input, type InputProps } from "../Input/index.js"
 //   read the same way here, from the event bubbling through Input's container.
 //   Input's `update:value` only keeps its controlled value in step, so Input
 //   does not put the previous text back.
+// - The text is made from the value's own fields in its own zone and read
+//   back into that zone (lib/dateInputText, shared with React), never through
+//   the browser's local Date.
 
 const DateInputComponent = defineComponent({
   name: "DateInput",
@@ -77,15 +84,26 @@ const DateInputComponent = defineComponent({
   },
   setup(props, { attrs, slots, emit, expose }) {
     const hasTime = computed(() => !!props.timeMode)
-    // React memoizes on the dates' milliseconds, not on the DateTime objects
+    // React memoizes on the dates' milliseconds and the value's zone, not on the DateTime objects
+    const zone = computed(() => (props.value?.isValid ? (props.value.zoneName ?? undefined) : undefined))
     const minMs = computed(() => props.min?.toMillis())
     const maxMs = computed(() => props.max?.toMillis())
+
+    const textFormat = computed<DateInputFormat>(() => ({
+      mode: props.mode,
+      separator: props.separator,
+      timeMode: props.timeMode,
+      dateTimeSeparator: props.dateTimeSeparator,
+      min: minMs.value,
+      max: maxMs.value,
+      zone: zone.value,
+    }))
 
     const dateParams = computed<MaskitoDateParams>(() => ({
       mode: props.mode,
       separator: props.separator,
-      ...(minMs.value !== undefined ? { min: new Date(minMs.value) } : undefined),
-      ...(maxMs.value !== undefined ? { max: new Date(maxMs.value) } : undefined),
+      ...(minMs.value !== undefined ? { min: maskDate(minMs.value, zone.value) } : undefined),
+      ...(maxMs.value !== undefined ? { max: maskDate(maxMs.value, zone.value) } : undefined),
     }))
 
     const dateTimeParams = computed<MaskitoDateTimeParams>(() => ({
@@ -94,37 +112,44 @@ const DateInputComponent = defineComponent({
       timeMode: props.timeMode ?? "HH:MM",
       dateTimeSeparator: props.dateTimeSeparator,
       ...(props.timeStep ? { timeStep: props.timeStep } : undefined),
-      ...(minMs.value !== undefined ? { min: new Date(minMs.value) } : undefined),
-      ...(maxMs.value !== undefined ? { max: new Date(maxMs.value) } : undefined),
+      ...(minMs.value !== undefined ? { min: maskDate(minMs.value, zone.value) } : undefined),
+      ...(maxMs.value !== undefined ? { max: maskDate(maxMs.value, zone.value) } : undefined),
     }))
 
-    // Like React's memo, new options whenever either set of params changes
+    // Like React's memo, new options whenever either set of params changes. The mask shows a complete text as the
+    // value reads it (lib/dateInputText)
     const maskOptions = computed(() => {
       const date = dateParams.value
       const dateTime = dateTimeParams.value
-      return hasTime.value ? maskitoDateTimeOptionsGenerator(dateTime) : maskitoDateOptionsGenerator(date)
+      const format = textFormat.value
+      return keepTypedValue(
+        hasTime.value ? maskitoDateTimeOptionsGenerator(dateTime) : maskitoDateOptionsGenerator(date),
+        format,
+      )
     })
 
-    const inputValue = ref("")
+    const format = (date: DateTime | null) => formatDateInput(date, textFormat.value)
+    const parse = (str: string) => parseDateInput(str, textFormat.value)
 
-    const format = (date: DateTime | null) => {
-      if (!date) return ""
-      return hasTime.value
-        ? maskitoStringifyDateTime(date.toJSDate(), dateTimeParams.value)
-        : maskitoStringifyDate(date.toJSDate(), dateParams.value)
-    }
-
-    const parse = (str: string) =>
-      hasTime.value ? maskitoParseDateTime(str, dateTimeParams.value) : maskitoParseDate(str, dateParams.value)
-
-    // React formats the value in an effect: the first render (and the server
-    // markup) has an empty field, without the clear button
-    const syncInputValue = () => {
+    // The first render, on the server too, already shows the value. A new
+    // value or format shows it again before the next render, as React does
+    // during its render
+    const inputValue = ref(format(props.value))
+    const syncKey = computed(() =>
+      [
+        dateInputValueKey(props.value),
+        props.mode,
+        props.separator,
+        props.timeMode,
+        props.dateTimeSeparator,
+        props.timeStep,
+        minMs.value,
+        maxMs.value,
+      ].join("|"),
+    )
+    watch(syncKey, () => {
       inputValue.value = format(props.value)
-    }
-    const valueMsKey = computed(() => props.value?.toMillis() ?? null)
-    watch([valueMsKey, hasTime, dateParams, dateTimeParams], syncInputValue)
-    onMounted(syncInputValue)
+    })
 
     const change = (value: DateTime | null) => {
       emit("update:value", value)
@@ -147,7 +172,7 @@ const DateInputComponent = defineComponent({
       const parsed = parse(str)
 
       if (parsed) {
-        change(DateTime.fromJSDate(parsed))
+        change(parsed)
       }
     }
 

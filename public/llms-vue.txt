@@ -306,7 +306,7 @@ Masked text input for typing dates and times, with automatic formatting, min and
 Import: import { DateInput } from "@plexui/vue/components/DateInput"
 Docs: https://plexui.com/vue/components/date-input
 Props:
-  - value / v-model:value (DateTime | null) — Selected date (Luxon DateTime)
+  - value / v-model:value (DateTime | null) — Selected date (Luxon DateTime). The field shows its date and time in its own zone, and a typed date is made in that zone (Luxon's default zone without a value)
   - @update:value ((date: DateTime | null) => void) — Emitted when a complete valid date is entered or the field is cleared
   - @change ((date: DateTime | null) => void) — Same payload as update:value, named after React's onChange
   - mode (MaskitoDateMode) default: "dd/mm/yyyy" — Date format mode: dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, etc.

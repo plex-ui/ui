@@ -1720,7 +1720,7 @@
         {
           "name": "value / v-model:value",
           "type": "DateTime | null",
-          "description": "Selected date (Luxon DateTime)"
+          "description": "Selected date (Luxon DateTime). The field shows its date and time in its own zone, and a typed date is made in that zone (Luxon's default zone without a value)"
         },
         {
           "name": "@update:value",
@@ -5772,7 +5772,7 @@
         },
         {
           "name": "SidebarMobile",
-          "description": "The phone drawer, with its backdrop. While it is open it is a modal dialog (role=\"dialog\", aria-modal, labelled \"Menu\" unless you pass aria-label): focus moves to its first control and stays inside, SidebarInset is inert, Escape inside it closes it (a @keydown handler that calls event.preventDefault(), or a menu over it that takes its own Escape, keeps it open), and focus goes back to the control that opened it. Closed, it is inert. A swipe in from the edge it slides from opens it, and a swipe back closes it; the drawer follows the finger and finishes by speed or distance.",
+          "description": "The phone drawer, with its backdrop. While it is open it is a modal dialog (role=\"dialog\", aria-modal, labelled \"Menu\" unless you pass aria-label): focus moves to its first control and stays inside, SidebarInset is inert, Escape inside it closes it (a @keydown handler that calls event.preventDefault(), or a menu over it that takes its own Escape, keeps it open), and focus goes back to the control that opened it, or to the SidebarMobileMenuButton when that control can no longer take focus (it sat in another drawer that has closed, or it is gone). Closed, it is inert. A swipe in from the edge it slides from opens it, and a swipe back closes it; the drawer follows the finger and finishes by speed or distance.",
           "props": [
             {
               "name": "contained",
@@ -8013,5 +8013,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T15:09:42.732Z"
+  "generatedAt": "2026-11-09T16:55:45.672Z"
 }

@@ -89,7 +89,13 @@ import { ChevronRightMd, Disclosure, Search as SearchIcon, Sidebar as SidebarIco
 import { Input, type InputProps } from "../Input"
 import { Tooltip } from "../Tooltip"
 import s from "@plexui/styles/components/Sidebar/Sidebar.module.css"
-import { attachDrawerSwipe, closeOnUnhandledEscape, drawerInitialFocus, loopDrawerFocus } from "../../lib/phoneDrawer"
+import {
+  attachDrawerSwipe,
+  closeOnUnhandledEscape,
+  drawerInitialFocus,
+  returnDrawerFocus,
+  loopDrawerFocus,
+} from "../../lib/phoneDrawer"
 import {
   SidebarProvider,
   useSidebar,
@@ -781,6 +787,8 @@ export const SidebarMobileMenuButton = forwardRef<HTMLButtonElement, SidebarMobi
         ref={ref}
         type="button"
         data-expanded={openMobile ? "" : undefined}
+        // Where focus goes when a drawer closes and what opened it can no longer take it (lib/phoneDrawer)
+        data-sidebar-mobile-menu-button=""
         className={clsx(s.MobileMenuButton, className)}
         onClick={(event) => {
           // The caller's handler runs first and can cancel the toggle
@@ -824,23 +832,28 @@ export const SidebarMobile = forwardRef<HTMLDivElement, SidebarMobileProps>(
   ({ className, children, contained, disclosure = true, onKeyDown, ...props }, ref) => {
     const { isMobile, openMobile, setOpenMobile } = useSidebar()
     const drawerRef = useRef<HTMLDivElement>(null)
+    // What the swipe and the keys read when they happen, kept current after each render
     const state = useRef({ open: openMobile, isMobile, setOpenMobile })
-    state.current = { open: openMobile, isMobile, setOpenMobile }
+    useEffect(() => {
+      state.current = { open: openMobile, isMobile, setOpenMobile }
+    })
 
-    // Focus moves in on open and back to what opened the drawer on close. A drawer that is not contained shows only
-    // at phone width, so going back to it from a wide window moves focus in again.
+    // Focus moves in on open and back to what opened the drawer on close, or to a menu button when that can no longer
+    // take it. A drawer that is not contained shows only at phone width, so going back to it from a wide window moves
+    // focus in again.
     const shown = openMobile && (isMobile || Boolean(contained))
     useEffect(() => {
       const drawer = drawerRef.current
       if (!shown || !drawer) return
       const trigger = document.activeElement
+      // Taken now: on unmount the cleanup runs once the drawer has left the page, with no provider around it
+      const root = drawer.closest("[data-mobile-menu]")
       if (!drawer.contains(document.activeElement)) drawerInitialFocus(drawer).focus({ preventScroll: true })
       return () => {
         const active = document.activeElement
         const lost = !active || active === document.body || drawer.contains(active)
-        if (lost && trigger instanceof HTMLElement && trigger.isConnected && !drawer.contains(trigger)) {
-          trigger.focus({ preventScroll: true })
-        }
+        // On unmount a menu button that left with the drawer is gone too, and is not picked
+        if (lost) returnDrawerFocus(trigger, drawer, root)
       }
     }, [shown])
 

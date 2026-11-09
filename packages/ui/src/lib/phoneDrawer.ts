@@ -192,6 +192,39 @@ export const drawerTabbables = (drawer: HTMLElement) =>
 /** The first control of the open drawer, or the drawer itself */
 export const drawerInitialFocus = (drawer: HTMLElement) => drawerTabbables(drawer)[0] ?? drawer
 
+const MENU_BUTTON = "[data-sidebar-mobile-menu-button]"
+const PROVIDER = "[data-mobile-menu]"
+
+/** Focus can go there: connected, not disabled, not inert or hidden, visible */
+const canTakeFocus = (element: Element | null): element is HTMLElement =>
+  element instanceof HTMLElement &&
+  element.isConnected &&
+  !element.matches(":disabled") &&
+  !element.closest("[inert], [hidden]") &&
+  (typeof element.checkVisibility !== "function" || element.checkVisibility({ visibilityProperty: true }))
+
+/**
+ * Focuses where focus goes when the drawer closes: the control that opened it, or, when that cannot take focus (it
+ * sat in another drawer that has closed since, it is gone, or it was the page itself), the menu button of this
+ * drawer's provider, then any menu button on the page. The first that takes focus; `null` when none does. A drawer
+ * that has already left the page has no provider around it, so `root` is the provider taken while it was open.
+ */
+export const returnDrawerFocus = (
+  opener: Element | null,
+  drawer: HTMLElement,
+  root: Element | null = drawer.closest(PROVIDER),
+): HTMLElement | null => {
+  // The provider's own menu buttons, not those of a provider inside it
+  const own = [...(root?.querySelectorAll(MENU_BUTTON) ?? [])].filter((button) => button.closest(PROVIDER) === root)
+  const candidates = [opener, ...own, ...document.querySelectorAll(MENU_BUTTON)]
+  for (const candidate of candidates) {
+    if (!canTakeFocus(candidate) || drawer.contains(candidate) || candidate === candidate.ownerDocument.body) continue
+    candidate.focus({ preventScroll: true })
+    if (candidate.ownerDocument.activeElement === candidate) return candidate
+  }
+  return null
+}
+
 /**
  * Tab from the last control goes to the first and Shift+Tab from the first to the last, so focus stays in the open
  * drawer. A layer over it in a portal (a menu, a dialog) keeps its own Tab.

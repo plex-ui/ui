@@ -6,7 +6,7 @@ import * as vueDrawer from "../../packages/vue/src/lib/phoneDrawer"
 // opens and closes it, Tab going round it and Escape left to layers over it. The DOM here has no layout: the root
 // spans 0 to 400px and the drawer's width is set per test.
 
-for (const [framework, { attachDrawerSwipe, closeOnUnhandledEscape, loopDrawerFocus }] of [["React", reactDrawer], ["Vue", vueDrawer]] as const) {
+for (const [framework, { attachDrawerSwipe, closeOnUnhandledEscape, returnDrawerFocus, loopDrawerFocus }] of [["React", reactDrawer], ["Vue", vueDrawer]] as const) {
   describe(`${framework} drawer swipe`, () => {
     let root: HTMLElement
     let drawer: HTMLElement
@@ -258,6 +258,103 @@ for (const [framework, { attachDrawerSwipe, closeOnUnhandledEscape, loopDrawerFo
       document.body.removeEventListener("keydown", stopper)
       window.dispatchEvent(new KeyboardEvent("keydown", { key: "a" }))
       expect(closed).toBe(1)
+    })
+  })
+  describe(`${framework} drawer focus on close`, () => {
+    test("focus goes back to the opener, or to the first menu button that takes it", () => {
+      document.body.innerHTML = ""
+      const other = document.createElement("div")
+      other.setAttribute("data-mobile-menu", "hidden")
+      const otherButton = document.createElement("button")
+      otherButton.setAttribute("data-sidebar-mobile-menu-button", "")
+      other.append(otherButton)
+      const root = document.createElement("div")
+      root.setAttribute("data-mobile-menu", "visible")
+      const ownButton = document.createElement("button")
+      ownButton.setAttribute("data-sidebar-mobile-menu-button", "")
+      const drawer = document.createElement("div")
+      const insideButton = document.createElement("button")
+      insideButton.setAttribute("data-sidebar-mobile-menu-button", "")
+      drawer.append(insideButton)
+      const holder = document.createElement("div")
+      const opener = document.createElement("button")
+      holder.append(opener)
+      root.append(ownButton, drawer, holder)
+      document.body.append(other, root)
+      const returned = (from: Element | null) => {
+        ;(document.activeElement as HTMLElement | null)?.blur()
+        const target = returnDrawerFocus(from, drawer)
+        expect(document.activeElement).toBe(target ?? document.body)
+        return target
+      }
+
+      expect(returned(opener)).toBe(opener)
+      // In a drawer that has closed since, inert: the provider's own menu button, never one in this drawer
+      holder.setAttribute("inert", "")
+      expect(returned(opener)).toBe(ownButton)
+      // The page itself (the drawer opened by a swipe) takes no focus back
+      expect(returned(document.body)).toBe(ownButton)
+      // Gone, with the provider's button disabled: another provider's
+      opener.remove()
+      ownButton.disabled = true
+      expect(returned(opener)).toBe(otherButton)
+      expect(returned(null)).toBe(otherButton)
+      // A button that does not take focus when asked is passed over
+      otherButton.focus = () => {}
+      expect(returned(opener)).toBeNull()
+      // An opener inside the drawer itself is not one to go back to
+      expect(returned(insideButton)).toBeNull()
+      document.body.innerHTML = ""
+    })
+
+    test("a drawer that has left the page goes to the provider it was open in, before others on the page", () => {
+      document.body.innerHTML = ""
+      const menuIn = (parent: HTMLElement) => {
+        const button = document.createElement("button")
+        button.setAttribute("data-sidebar-mobile-menu-button", "")
+        parent.append(button)
+        return button
+      }
+      const other = document.createElement("div")
+      other.setAttribute("data-mobile-menu", "hidden")
+      const otherButton = menuIn(other)
+      const root = document.createElement("div")
+      root.setAttribute("data-mobile-menu", "visible")
+      const ownButton = menuIn(root)
+      const drawer = document.createElement("div")
+      root.append(drawer)
+      document.body.append(other, root)
+      const provider = drawer.closest("[data-mobile-menu]")
+      drawer.remove()
+
+      expect(returnDrawerFocus(null, drawer)).toBe(otherButton)
+      ;(document.activeElement as HTMLElement | null)?.blur()
+      expect(returnDrawerFocus(null, drawer, provider)).toBe(ownButton)
+      expect(document.activeElement).toBe(ownButton)
+      document.body.innerHTML = ""
+    })
+
+    test("a provider inside the drawer's provider keeps its menu buttons: they open another drawer", () => {
+      document.body.innerHTML = ""
+      const root = document.createElement("div")
+      root.setAttribute("data-mobile-menu", "visible")
+      const nested = document.createElement("div")
+      nested.setAttribute("data-mobile-menu", "hidden")
+      const nestedButton = document.createElement("button")
+      nestedButton.setAttribute("data-sidebar-mobile-menu-button", "")
+      nested.append(nestedButton)
+      const ownButton = document.createElement("button")
+      ownButton.setAttribute("data-sidebar-mobile-menu-button", "")
+      const drawer = document.createElement("div")
+      root.append(nested, ownButton, drawer)
+      document.body.append(root)
+
+      expect(returnDrawerFocus(null, drawer)).toBe(ownButton)
+      // Without a button of its own, the first on the page that takes focus
+      ownButton.remove()
+      ;(document.activeElement as HTMLElement | null)?.blur()
+      expect(returnDrawerFocus(null, drawer)).toBe(nestedButton)
+      document.body.innerHTML = ""
     })
   })
 }

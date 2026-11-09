@@ -6,6 +6,7 @@ import {
   inject,
   onBeforeUnmount,
   onMounted,
+  onUnmounted,
   provide,
   ref,
   Text,
@@ -22,7 +23,13 @@ import {
   type VNode,
   type VNodeArrayChildren,
 } from "vue"
-import { attachDrawerSwipe, closeOnUnhandledEscape, drawerInitialFocus, loopDrawerFocus } from "../../lib/phoneDrawer.js"
+import {
+  attachDrawerSwipe,
+  closeOnUnhandledEscape,
+  drawerInitialFocus,
+  returnDrawerFocus,
+  loopDrawerFocus,
+} from "../../lib/phoneDrawer.js"
 import { Button } from "../Button/index.js"
 import { ChevronRightMd, Disclosure, Search as SearchIcon, Sidebar as SidebarIcon, SidebarMenuMobile, X } from "../Icon/index.js"
 import { Input, type InputProps } from "../Input/index.js"
@@ -808,6 +815,8 @@ export const SidebarMobileMenuButton = defineComponent({
         {
           "type": "button",
           "data-expanded": sidebar.openMobile ? "" : undefined,
+          // Where focus goes when a drawer closes and what opened it can no longer take it (lib/phoneDrawer)
+          "data-sidebar-mobile-menu-button": "",
           "class": [s.MobileMenuButton, className],
           // The caller's listener runs first and can cancel the toggle
           "onClick": composeEventHandlers(onClick, () => sidebar.setOpenMobile(!sidebar.openMobile)),
@@ -835,6 +844,17 @@ export const SidebarMobileMenuButton = defineComponent({
  * goes back to the control that opened it. A swipe in from the edge it slides from opens it and a swipe back closes
  * it (lib/phoneDrawer).
  */
+/** Runs `run` once `element` has left the page: a leaving `<Transition>` keeps it there for its animation */
+const whenDetached = (element: Element, run: () => void) => {
+  if (!element.isConnected) return run()
+  const observer = new MutationObserver(() => {
+    if (element.isConnected) return
+    observer.disconnect()
+    run()
+  })
+  observer.observe(element.ownerDocument, { childList: true, subtree: true })
+}
+
 const SidebarMobileComponent = defineComponent({
   name: "SidebarMobile",
   inheritAttrs: false,
@@ -853,22 +873,32 @@ const SidebarMobileComponent = defineComponent({
     }
 
     let detachSwipe: (() => void) | undefined
+    // Vue runs a watcher's cleanup on unmount while the drawer is still on the page, where React runs it once the
+    // drawer has left: focus goes back once the drawer has left (after unmount, or after a leaving <Transition>), so a
+    // menu button that leaves with the drawer is not picked
+    let unmounting = false
+    let restoreAfterUnmount: (() => void) | undefined
     onMounted(() => {
-      // Focus moves in on open and back to what opened the drawer on close (from mount, as React's effect). A drawer
-      // that is not contained shows only at phone width, so going back to it from a wide window moves focus in again.
+      // Focus moves in on open and back to what opened the drawer on close, or to a menu button when that can no longer
+      // take it (from mount, as React's effect). A drawer that is not contained shows only at phone width, so going
+      // back to it from a wide window moves focus in again.
       watch(
         () => sidebar.openMobile && (sidebar.isMobile || Boolean(props.contained)),
         (open, _, onCleanup) => {
           const el = drawer.value
           if (!open || !el) return
           const trigger = document.activeElement
+          // Taken now: after unmount the drawer has left the page, with no provider around it
+          const root = el.closest("[data-mobile-menu]")
           if (!el.contains(document.activeElement)) drawerInitialFocus(el).focus({ preventScroll: true })
           onCleanup(() => {
-            const active = document.activeElement
-            const lost = !active || active === document.body || el.contains(active)
-            if (lost && trigger instanceof HTMLElement && trigger.isConnected && !el.contains(trigger)) {
-              trigger.focus({ preventScroll: true })
+            const restore = () => {
+              const active = document.activeElement
+              const lost = !active || active === document.body || el.contains(active)
+              if (lost) returnDrawerFocus(trigger, el, root)
             }
+            if (unmounting) restoreAfterUnmount = () => whenDetached(el, restore)
+            else restore()
           })
         },
         { flush: "post", immediate: true },
@@ -885,7 +915,14 @@ const SidebarMobileComponent = defineComponent({
         enabled: () => sidebar.isMobile,
       })
     })
-    onBeforeUnmount(() => detachSwipe?.())
+    onBeforeUnmount(() => {
+      unmounting = true
+      detachSwipe?.()
+    })
+    onUnmounted(() => {
+      restoreAfterUnmount?.()
+      restoreAfterUnmount = undefined
+    })
 
     const onDrawerKeydown = (event: KeyboardEvent) => {
       const el = drawer.value

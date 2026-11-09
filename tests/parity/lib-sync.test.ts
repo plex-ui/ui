@@ -22,6 +22,7 @@ const COPIES = [
   "menuInitialFocus",
   "menuTriggerCover",
   "phoneDrawer",
+  "dateInputText",
 ]
 
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8")

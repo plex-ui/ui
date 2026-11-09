@@ -307,7 +307,7 @@ Masked text input for typing dates and times, with automatic formatting, min and
 Import: import { DateInput } from "@plexui/ui/components/DateInput"
 Docs: https://plexui.com/components/date-input
 Props:
-  - value (DateTime | null) — Required. Selected date (Luxon DateTime)
+  - value (DateTime | null) — Required. Selected date (Luxon DateTime). The field shows its date and time in its own zone, and a typed date is made in that zone (Luxon's default zone without a value)
   - onChange ((date: DateTime | null) => void) — Required. Called when a complete valid date is entered or the field is cleared
   - mode (MaskitoDateMode) default: "dd/mm/yyyy" — Date format mode: dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, etc.
   - separator (string) default: "." — Character between date parts

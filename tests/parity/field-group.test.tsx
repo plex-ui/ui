@@ -262,3 +262,19 @@ describe("FieldGroup", () => {
     expect(plain.react).not.toContain("aria-describedby")
   })
 })
+
+describe("FieldGroup separators on a phone", () => {
+  test("the line between rows starts and ends by tokens: at the text by default, after an icon where a row sets it", async () => {
+    const { readFileSync } = await import("node:fs")
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/FieldGroup/FieldGroup.module.css`, "utf8")
+    expect(css).toContain(
+      "inset-inline: var(--field-group-separator-inset-start, var(--field-group-separator-inset, 0px))\n      var(--field-group-separator-inset-end, var(--field-group-separator-inset, 0px));",
+    )
+    const touch = readFileSync(`${process.cwd()}/packages/styles/src/styles/touch.css`, "utf8")
+    expect(touch).toContain("--field-group-separator-inset: var(--mobile-layout-margin);")
+    // The composer's icon rows start the line under their titles through the token, not a rule of their own
+    const composer = readFileSync(`${process.cwd()}/components/docs/SegmentedComposer.module.css`, "utf8")
+    expect(composer).toContain("--field-group-separator-inset-start: var(--composer-row-text-start);")
+    expect(composer).not.toContain(".IconRow + .IconRow::after")
+  })
+})

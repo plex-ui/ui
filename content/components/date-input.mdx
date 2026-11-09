@@ -188,7 +188,7 @@ const [date, setDate] = useState<DateTime | null>(today)
 ## API
 
 <PropsTable data={[
-  { prop: "value", type: "DateTime | null", description: "Required. Selected date (Luxon DateTime)" },
+  { prop: "value", type: "DateTime | null", description: "Required. Selected date (Luxon DateTime). The field shows its date and time in its own zone, and a typed date is made in that zone (Luxon's default zone without a value)" },
   { prop: "onChange", type: "(date: DateTime | null) => void", description: "Required. Called when a complete valid date is entered or the field is cleared" },
   { prop: "mode", type: "MaskitoDateMode", default: '"dd/mm/yyyy"', description: "Date format mode: dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, etc." },
   { prop: "separator", type: "string", default: '"."', description: "Character between date parts" },

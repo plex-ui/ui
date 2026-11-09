@@ -258,8 +258,8 @@
   }
 
   /* Separators start under the titles, as in IMG_5434. */
-  .IconRow + .IconRow::after {
-    inset-inline-start: var(--composer-row-text-start);
+  .IconRow {
+    --field-group-separator-inset-start: var(--composer-row-text-start);
   }
 
   :global([data-plex-dialog][data-mobile-variant="sheet"]) .Composer > .Body {

@@ -611,7 +611,7 @@ Renders a collapsible submenu container for nested navigation.
 
 ### SidebarMobile
 
-The phone drawer, with its backdrop. While it is open it is a modal dialog (`role="dialog"`, `aria-modal`, labelled "Menu" unless you pass `aria-label`): focus moves to its first control and stays inside, `SidebarInset` is inert, Escape inside it closes it (an `onKeyDown` that calls `event.preventDefault()`, or a menu over it that takes its own Escape, keeps it open), and focus goes back to the control that opened it. Closed, it is inert. A swipe in from the edge it slides from opens it, and a swipe back closes it; the drawer follows the finger and finishes by speed or distance.
+The phone drawer, with its backdrop. While it is open it is a modal dialog (`role="dialog"`, `aria-modal`, labelled "Menu" unless you pass `aria-label`): focus moves to its first control and stays inside, `SidebarInset` is inert, Escape inside it closes it (an `onKeyDown` that calls `event.preventDefault()`, or a menu over it that takes its own Escape, keeps it open), and focus goes back to the control that opened it, or to the `SidebarMobileMenuButton` when that control can no longer take focus (it sat in another drawer that has closed, or it is gone). Closed, it is inert. A swipe in from the edge it slides from opens it, and a swipe back closes it; the drawer follows the finger and finishes by speed or distance.
 
 <PropsTable data={[
   { prop: "contained", type: "boolean", default: "false", description: "Positions the drawer and backdrop absolute inside a frame instead of fixed to the window" },

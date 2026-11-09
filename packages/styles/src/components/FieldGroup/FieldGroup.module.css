@@ -163,12 +163,16 @@
   }
 
   /* Draw inside the row: 44px controls + 4px padding on each side stay 52px.
-     Sortable owns ::before for its drag placeholder, so use ::after here. */
+     Sortable owns ::before for its drag placeholder, so use ::after here.
+     The line starts at the row's text, the layout margin (iOS 26 Settings, IMG_5512: 20 at 430pt), and a row that
+     leads with an icon starts it after the icon, where its text starts (kit Lists Row 550:50430: a 28 symbol column
+     and 8 to the text): set --field-group-separator-inset-start on that row, or on the group for every row. */
   .Body > [data-row] + [data-row]::after,
   .Body > [data-sortable] > [data-row] + [data-row]::after {
     content: "";
     position: absolute;
-    inset-inline: var(--field-group-separator-inset, 0px);
+    inset-inline: var(--field-group-separator-inset-start, var(--field-group-separator-inset, 0px))
+      var(--field-group-separator-inset-end, var(--field-group-separator-inset, 0px));
     top: 0;
     height: 1px;
     background: var(--color-border);

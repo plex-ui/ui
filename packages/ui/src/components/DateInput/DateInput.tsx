@@ -3,19 +3,23 @@
 import {
   maskitoDateOptionsGenerator,
   maskitoDateTimeOptionsGenerator,
-  maskitoParseDate,
-  maskitoParseDateTime,
-  maskitoStringifyDate,
-  maskitoStringifyDateTime,
   type MaskitoDateMode,
   type MaskitoDateParams,
   type MaskitoDateTimeParams,
   type MaskitoTimeMode,
 } from "@maskito/kit"
 import { useMaskito } from "@maskito/react"
-import { DateTime } from "luxon"
-import { useEffect, useMemo, useState } from "react"
+import { type DateTime } from "luxon"
+import { useMemo, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
+import {
+  dateInputValueKey,
+  formatDateInput,
+  keepTypedValue,
+  maskDate,
+  parseDateInput,
+  type DateInputFormat,
+} from "../../lib/dateInputText"
 import { Input, type InputProps } from "../Input"
 
 export type DateInputProps = {
@@ -55,16 +59,24 @@ export const DateInput = (props: DateInputProps) => {
   } = props
 
   const hasTime = !!timeMode
+  // The value's text is made from its own fields in its own zone (lib/dateInputText),
+  // so these are keys, not the DateTime objects
+  const zone = value?.isValid ? (value.zoneName ?? undefined) : undefined
+  const minMs = min?.toMillis()
+  const maxMs = max?.toMillis()
 
+  const textFormat = useMemo<DateInputFormat>(
+    () => ({ mode, separator, timeMode, dateTimeSeparator, min: minMs, max: maxMs, zone }),
+    [mode, separator, timeMode, dateTimeSeparator, minMs, maxMs, zone],
+  )
   const dateParams = useMemo<MaskitoDateParams>(
     () => ({
       mode,
       separator,
-      ...(min ? { min: min.toJSDate() } : undefined),
-      ...(max ? { max: max.toJSDate() } : undefined),
+      ...(minMs !== undefined ? { min: maskDate(minMs, zone) } : undefined),
+      ...(maxMs !== undefined ? { max: maskDate(maxMs, zone) } : undefined),
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mode, separator, min?.toMillis(), max?.toMillis()],
+    [mode, separator, minMs, maxMs, zone],
   )
 
   const dateTimeParams = useMemo<MaskitoDateTimeParams>(
@@ -74,40 +86,36 @@ export const DateInput = (props: DateInputProps) => {
       timeMode: timeMode ?? "HH:MM",
       dateTimeSeparator,
       ...(timeStep ? { timeStep } : undefined),
-      ...(min ? { min: min.toJSDate() } : undefined),
-      ...(max ? { max: max.toJSDate() } : undefined),
+      ...(minMs !== undefined ? { min: maskDate(minMs, zone) } : undefined),
+      ...(maxMs !== undefined ? { max: maskDate(maxMs, zone) } : undefined),
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mode, separator, timeMode, dateTimeSeparator, timeStep, min?.toMillis(), max?.toMillis()],
+    [mode, separator, timeMode, dateTimeSeparator, timeStep, minMs, maxMs, zone],
   )
 
+  // The mask shows a complete text as the value reads it (lib/dateInputText)
   const maskOptions = useMemo(
     () =>
-      hasTime
-        ? maskitoDateTimeOptionsGenerator(dateTimeParams)
-        : maskitoDateOptionsGenerator(dateParams),
-    [hasTime, dateParams, dateTimeParams],
+      keepTypedValue(
+        hasTime ? maskitoDateTimeOptionsGenerator(dateTimeParams) : maskitoDateOptionsGenerator(dateParams),
+        textFormat,
+      ),
+    [hasTime, dateParams, dateTimeParams, textFormat],
   )
 
   const maskRef = useMaskito({ options: maskOptions })
 
-  const [inputValue, setInputValue] = useState("")
+  const format = (date: DateTime | null) => formatDateInput(date, textFormat)
+  const parse = (str: string) => parseDateInput(str, textFormat)
 
-  const format = (date: DateTime | null) => {
-    if (!date) return ""
-    return hasTime
-      ? maskitoStringifyDateTime(date.toJSDate(), dateTimeParams)
-      : maskitoStringifyDate(date.toJSDate(), dateParams)
-  }
-
-  const parse = (str: string) =>
-    hasTime ? maskitoParseDateTime(str, dateTimeParams) : maskitoParseDate(str, dateParams)
-
-  const valueMsKey = value?.toMillis() ?? null
-  useEffect(() => {
+  // The first render, on the server too, already shows the value. A new value
+  // or format shows it again during the render, so no frame has the old text
+  const syncKey = [dateInputValueKey(value), mode, separator, timeMode, dateTimeSeparator, timeStep, minMs, maxMs].join("|")
+  const [inputValue, setInputValue] = useState(() => format(value))
+  const [shownKey, setShownKey] = useState(syncKey)
+  if (shownKey !== syncKey) {
+    setShownKey(syncKey)
     setInputValue(format(value))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [valueMsKey, hasTime, dateParams, dateTimeParams])
+  }
 
   const handleInput = (evt: React.FormEvent<HTMLInputElement>) => {
     const str = evt.currentTarget.value
@@ -121,7 +129,7 @@ export const DateInput = (props: DateInputProps) => {
     const parsed = parse(str)
 
     if (parsed) {
-      onChange(DateTime.fromJSDate(parsed))
+      onChange(parsed)
     }
   }
 

@@ -168,13 +168,13 @@ describe("DateInput SSR parity", () => {
     ["clearable with a value", { value, clearable: true }, "15.03.2024"],
     ["date and time", { value, timeMode: "HH:MM" }, "15.03.2024, 14:30"],
     ["empty", { clearable: true }, ""],
-  ])("%s: the server renders an empty field, hydration formats the value", async (_name, props, shown) => {
+  ])("%s: the server already renders the value, hydration keeps it", async (_name, props, shown) => {
     const { react, vue } = await dateInputSsrPair(props)
     expect(vue).toEqual(react)
-    // Formatting runs in an effect: no text, clear button or adornment attribute on the server
-    expect(react[0]).toMatch(/<input [^\n]*value=""/)
-    expect(react[0]).not.toContain("Clear input")
-    expect(react[0]).not.toContain("data-has-end-adornment")
+    // The first render shows the value: no empty field that the mask then fills
+    expect(react[0]).toContain(`value="${shown}"`)
+    expect(react[0].includes("Clear input")).toBe(Boolean(props.clearable && shown))
+    expect(react[1]).toBe(react[0])
     expect(react[2]).toBe(shown)
   })
 })
@@ -701,6 +701,103 @@ describe("DateInput value flow parity", () => {
     expect(vue).toEqual(react)
     expect(react[0]).toContain('aria-invalid="true"')
     expect(react[1]).not.toContain('aria-invalid="true"')
+  })
+})
+
+// The text is the value's own wall clock in its own zone and typed text is read
+// back into that zone, never through the browser's local Date (whose time is
+// counted from local midnight, an hour off on a day the clocks move). The zones
+// are chosen so this holds whatever zone the machine is in.
+describe("DateInput zones and daylight saving parity", () => {
+  test.each<[string, DateTime, string]>([
+    ["New York, the day its clocks go forward", DateTime.fromISO("2025-03-09T05:00", { zone: "America/New_York" }), "09.03.2025, 05:00"],
+    ["Berlin, the day its clocks go forward", DateTime.fromISO("2025-03-30T05:00", { zone: "Europe/Berlin" }), "30.03.2025, 05:00"],
+    ["Berlin, the day its clocks go back", DateTime.fromISO("2025-10-26T05:00", { zone: "Europe/Berlin" }), "26.10.2025, 05:00"],
+    ["Tokyo", DateTime.fromISO("2024-03-15T23:45", { zone: "Asia/Tokyo" }), "15.03.2024, 23:45"],
+  ])("%s: the field shows the value's own time", async (_name, zoned, shown) => {
+    const { react, vue } = await walk({ value: zoned, timeMode: "HH:MM" }, async ({ snap }) => snap())
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain(`value: ${JSON.stringify(shown)}`)
+  })
+
+  test("a date typed over a value is made in the value's zone", async () => {
+    const { react, vue } = await walk(
+      { value: DateTime.fromISO("2025-03-01T12:00", { zone: "America/New_York" }), timeMode: "HH:MM" },
+      async ({ input, run, snap }) => {
+        await run(() => input().setSelectionRange(0, input().value.length))
+        await run(() => typeText(input(), "090320250500"))
+        snap()
+      },
+      { accept: false },
+    )
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain('value: "09.03.2025, 05:00"')
+    expect(react[0]).toContain("change 2025-03-09T05:00:00.000-04:00")
+  })
+
+  test("without a value, a typed time on a day the clocks move is the time typed", async () => {
+    // Berlin and most of Europe go forward at 02:00 on 30 March 2025, New York on 9 March
+    for (const digits of ["300320250500", "090320250500"]) {
+      const { react, vue } = await walk({ value: null, timeMode: "HH:MM" }, typeSteps(digits))
+      expect(vue).toEqual(react)
+      const day = `2025-03-${digits.slice(0, 2)}T05:00:00.000`
+      expect(react.at(-1)).toContain(`change ${day}`)
+    }
+  })
+
+  test("in a Berlin browser, the hour its clocks skip can be typed for a UTC value, and min holds on the UTC clock", async () => {
+    const before = process.env.TZ
+    process.env.TZ = "Europe/Berlin"
+    try {
+      const utc = (iso: string) => DateTime.fromISO(iso, { zone: "UTC" })
+      const { react, vue } = await walk(
+        { value: utc("2025-03-29T12:00"), timeMode: "HH:MM", min: utc("2025-03-30T02:30") },
+        async ({ input, run, snap }) => {
+          for (const digits of ["300320250245", "300320250315", "300320250100"]) {
+            await run(() => input().setSelectionRange(0, input().value.length))
+            await run(() => typeText(input(), digits))
+            snap()
+          }
+        },
+        { accept: false },
+      )
+      expect(vue).toEqual(react)
+      // Berlin has no 02:45 on 30 March 2025; UTC has
+      expect(react[0]).toContain('value: "30.03.2025, 02:45"')
+      expect(react[0]).toContain("change 2025-03-30T02:45:00.000Z")
+      expect(react[1]).toContain("change 2025-03-30T03:15:00.000Z")
+      // Before min: min on the UTC clock, 02:30, not Berlin's 03:30
+      expect(react[2]).toContain('value: "30.03.2025, 02:30"')
+      expect(react[2]).toContain("change 2025-03-30T02:30:00.000Z")
+    } finally {
+      if (before === undefined) delete process.env.TZ
+      else process.env.TZ = before
+    }
+  })
+
+  test("a time the clocks skip, typed over the value it moves forward to, shows that value's time", async () => {
+    // Berlin has no 02:30 on 30 March 2025: it reads as 03:30, the value already there, so the value does not change
+    const { react, vue } = await walk(
+      { value: DateTime.fromISO("2025-03-30T03:30", { zone: "Europe/Berlin" }), timeMode: "HH:MM" },
+      async ({ input, run, snap }) => {
+        await run(() => input().setSelectionRange(0, input().value.length))
+        await run(() => typeText(input(), "300320250230"))
+        snap()
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain('value: "30.03.2025, 03:30"')
+    expect(react[0]).toContain("change 2025-03-30T03:30:00.000+02:00")
+  })
+
+  test("a value moved to another zone shows that zone's time", async () => {
+    const zoned = DateTime.fromISO("2024-03-15T14:30", { zone: "Europe/Berlin" })
+    const { react, vue } = await walk({ value: zoned, timeMode: "HH:MM" }, async ({ set, snap }) => {
+      await set({ value: zoned.setZone("Asia/Tokyo") })
+      snap()
+    })
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain('value: "15.03.2024, 22:30"')
   })
 })
 
