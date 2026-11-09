@@ -14,6 +14,7 @@ import { useMemo, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
 import {
   dateInputValueKey,
+  dateInputZone,
   formatDateInput,
   keepTypedValue,
   maskDate,
@@ -61,7 +62,7 @@ export const DateInput = (props: DateInputProps) => {
   const hasTime = !!timeMode
   // The value's text is made from its own fields in its own zone (lib/dateInputText),
   // so these are keys, not the DateTime objects
-  const zone = value?.isValid ? (value.zoneName ?? undefined) : undefined
+  const zone = dateInputZone(value)
   const minMs = min?.toMillis()
   const maxMs = max?.toMillis()
 

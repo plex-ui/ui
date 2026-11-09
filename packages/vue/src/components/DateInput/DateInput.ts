@@ -22,6 +22,7 @@ import {
 } from "vue"
 import {
   dateInputValueKey,
+  dateInputZone,
   formatDateInput,
   keepTypedValue,
   maskDate,
@@ -85,7 +86,7 @@ const DateInputComponent = defineComponent({
   setup(props, { attrs, slots, emit, expose }) {
     const hasTime = computed(() => !!props.timeMode)
     // React memoizes on the dates' milliseconds and the value's zone, not on the DateTime objects
-    const zone = computed(() => (props.value?.isValid ? (props.value.zoneName ?? undefined) : undefined))
+    const zone = computed(() => dateInputZone(props.value))
     const minMs = computed(() => props.min?.toMillis())
     const maxMs = computed(() => props.max?.toMillis())
 

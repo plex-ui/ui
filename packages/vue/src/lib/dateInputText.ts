@@ -1,6 +1,6 @@
 import type { MaskitoOptions, MaskitoPostprocessor } from "@maskito/core"
 import { maskitoParseTime, maskitoStringifyTime, type MaskitoDateMode, type MaskitoTimeMode } from "@maskito/kit"
-import { DateTime } from "luxon"
+import { DateTime, type Zone } from "luxon"
 
 // DateInput's text and value, converted through the Luxon DateTime's own
 // calendar fields in its own zone. Maskito's date helpers go through the
@@ -18,32 +18,50 @@ export type DateInputFormat = {
   min?: number
   /** Latest allowed instant, in milliseconds */
   max?: number
-  /** Zone of the value: typed dates are made in it. Luxon's default zone when not set */
-  zone?: string
+  /** Zone of the value (dateInputZone): typed dates are made in it. Luxon's default zone when not set */
+  zone?: Zone | string
 }
 
 const MS_IN_HOUR = 3_600_000
 const MS_IN_MINUTE = 60_000
 const MS_IN_SECOND = 1_000
 
-const inZone = (zone: string | undefined) => (zone ? { zone } : undefined)
+const inZone = (zone: Zone | string | undefined) => (zone ? { zone } : undefined)
 
 const pad = (value: number, length: number) => String(value).padStart(length, "0")
+
+const zones = new Map<string, Zone>()
+
+/**
+ * The zone typed dates are made in: the value's own zone object (Luxon's default zone without a value). A zone rebuilt
+ * from its name can be another one: Luxon's system zone becomes the zone of its name, the zone named UTC becomes the
+ * fixed UTC offset, and a name like UTC+5:5 (a 5:05 offset) does not parse back. The same object for the same zone,
+ * so it keys a memo.
+ */
+export const dateInputZone = (value: DateTime | null | undefined): Zone | undefined => {
+  if (!value?.isValid) return undefined
+  const { zone } = value
+  const key = zone.isUniversal ? `${zone.type} ${zone.offset(0)}` : `${zone.type} ${zone.name}`
+  const known = zones.get(key)
+  if (known) return known
+  zones.set(key, zone)
+  return zone
+}
 
 /** The key a DateInput re-shows its value on: the instant and the zone. */
 export const dateInputValueKey = (value: DateTime | null | undefined) =>
   value?.isValid ? `${value.toMillis()} ${value.zoneName}` : ""
 
 // Maskito's own range: 0001-01-01 to 9999-12-31, end of day
-const lowest = (zone: string | undefined) => DateTime.fromObject({ year: 1, month: 1, day: 1 }, inZone(zone))
-const highest = (zone: string | undefined) =>
+const lowest = (zone: Zone | string | undefined) => DateTime.fromObject({ year: 1, month: 1, day: 1 }, inZone(zone))
+const highest = (zone: Zone | string | undefined) =>
   DateTime.fromObject({ year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, millisecond: 999 }, inZone(zone))
 
 /**
  * Within min and max, and within Maskito's own range when the mode has a year: a date typed without one is in
  * year 0, which that range would turn into 0001-01-01.
  */
-const clampToRange = (value: DateTime, format: DateInputFormat, zone: string | undefined) => {
+const clampToRange = (value: DateTime, format: DateInputFormat, zone: Zone | string | undefined) => {
   const withYear = format.mode.includes("y")
   const min = format.min ?? (withYear ? lowest(zone).toMillis() : undefined)
   const max = format.max ?? (withYear ? highest(zone).toMillis() : undefined)
@@ -67,7 +85,7 @@ const wallText = (shown: DateTime, format: DateInputFormat) => {
 
 /** The text a DateInput shows for a value: its wall clock in its own zone, kept within min and max. */
 export const formatDateInput = (value: DateTime | null, format: DateInputFormat) =>
-  value?.isValid ? wallText(clampToRange(value, format, value.zoneName ?? undefined), format) : ""
+  value?.isValid ? wallText(clampToRange(value, format, value.zone), format) : ""
 
 const segment = (digits: string, letters: string, letter: string) =>
   digits.slice(letters.indexOf(letter), letters.lastIndexOf(letter) + 1)
@@ -78,7 +96,7 @@ type Fields = { year: number; month: number; day: number; hour: number; minute: 
  * Each instant the fields show in the zone, earliest first: two in an hour the clocks repeat, one in a time they skip,
  * moved forward as Luxon does. `[]` for a date that does not exist.
  */
-const passesAt = (fields: Fields, zone: string | undefined) => {
+const passesAt = (fields: Fields, zone: Zone | string | undefined) => {
   const parsed = DateTime.fromObject(fields, inZone(zone))
   if (!parsed.isValid) return []
   const passes = parsed.getPossibleOffsets().sort((a, b) => a.toMillis() - b.toMillis())
@@ -163,7 +181,7 @@ export const parseDateInput = (text: string, format: DateInputFormat) => {
  * zone, so the mask compares wall clocks. Only its steps for a date not yet
  * complete read them, as keepTypedValue takes over the rest.
  */
-export const maskDate = (millis: number, zone: string | undefined) => {
+export const maskDate = (millis: number, zone: Zone | string | undefined) => {
   const shown = DateTime.fromMillis(millis, inZone(zone))
   const date = new Date(shown.year, shown.month - 1, shown.day, shown.hour, shown.minute, shown.second, shown.millisecond)
   // Years 0 to 99 would read as 1900 to 1999

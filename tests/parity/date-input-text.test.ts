@@ -1,6 +1,6 @@
 import { maskitoTransform } from "@maskito/core"
 import { maskitoDateOptionsGenerator, maskitoDateTimeOptionsGenerator } from "@maskito/kit"
-import { DateTime } from "luxon"
+import { DateTime, FixedOffsetZone, IANAZone, type Zone } from "luxon"
 import { describe, expect, test, vi } from "vitest"
 import * as reactText from "../../packages/ui/src/lib/dateInputText"
 import * as vueText from "../../packages/vue/src/lib/dateInputText"
@@ -27,7 +27,7 @@ const inLocalZone = <T>(zone: string, run: () => T): T => {
   }
 }
 
-for (const [framework, { dateInputValueKey, formatDateInput, keepTypedValue, maskDate, parseDateInput }] of [
+for (const [framework, { dateInputValueKey, dateInputZone, formatDateInput, keepTypedValue, maskDate, parseDateInput }] of [
   ["React", reactText],
   ["Vue", vueText],
 ] as const) {
@@ -166,6 +166,26 @@ for (const [framework, { dateInputValueKey, formatDateInput, keepTypedValue, mas
       expect(dateInputValueKey(DateTime.fromISO("2024-03-15T14:30", { zone: BERLIN }))).toBe(dateInputValueKey(value))
       expect(dateInputValueKey(value.plus({ minutes: 1 }))).not.toBe(dateInputValueKey(value))
       expect(dateInputValueKey(value.setZone(NEW_YORK))).not.toBe(dateInputValueKey(value))
+    })
+
+    test("a typed date keeps the value's own zone object, the same one for the same zone", () => {
+      const at = (zone: string | Zone) => DateTime.fromISO("2024-03-15T14:30", { zone })
+      expect(dateInputZone(at(BERLIN))?.name).toBe(BERLIN)
+      expect(dateInputZone(at("UTC+3"))).toBe(dateInputZone(at("UTC+3")))
+      expect(dateInputZone(at("UTC+3"))).not.toBe(dateInputZone(at("UTC+4")))
+      expect(dateInputZone(DateTime.invalid("test"))).toBeUndefined()
+      expect(dateInputZone(null)).toBeUndefined()
+      // In a UTC browser the system zone is not the zone named UTC: Luxon prints one as +00:00, the other as Z
+      inLocalZone("UTC", () => {
+        const typed = parseDateInput("15.03.2024", { ...dateFormat, zone: dateInputZone(DateTime.fromISO("2024-01-01")) })
+        expect(typed?.toISO()).toBe("2024-03-15T00:00:00.000+00:00")
+      })
+      // The zone named UTC is not the fixed UTC offset either
+      const ianaUtc = parseDateInput("15.03.2024", { ...dateFormat, zone: dateInputZone(at(IANAZone.create("UTC"))) })
+      expect(ianaUtc?.zone.type).toBe("iana")
+      // A 5:05 offset is named UTC+5:5, which does not parse back
+      const offset = parseDateInput("15.03.2024", { ...dateFormat, zone: dateInputZone(at(FixedOffsetZone.instance(305))) })
+      expect(offset?.offset).toBe(305)
     })
 
     test("the mask's min and max carry the wall clock in the value's zone", () => {
