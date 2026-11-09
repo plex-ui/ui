@@ -113,7 +113,8 @@ describe("an inline Alert on a phone takes the shape and text of an iOS tip (Tip
 
   test("the actions on a line of their own as 50px capsules, Dismiss as a close button in the corner", () => {
     expect(phoneRule(css, ".Actions")).toMatchObject({ flex: "1 0 100%", gap: "10px 12px", margin: "0" })
-    expect(phoneRule(css, '.Alert .Actions > :where(button, a, [role="link"])')).toMatchObject({
+    // Unless the Alert keeps its buttons' own size (mobileActions="own")
+    expect(phoneRule(css, '.Alert:where(:not([data-mobile-actions="own"])) .Actions > :where(button, a, [role="link"])')).toMatchObject({
       "--button-size": "var(--button-size-xl, 50px)",
       "--button-gutter": "var(--button-gutter-xl, 20px)",
       "--button-font-weight": "var(--font-weight-semibold)",
