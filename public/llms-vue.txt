@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 62
+Components: 63
 
 ## Setup
 
@@ -1320,6 +1320,29 @@ Docs: https://plexui.com/vue/components/toast
     - mobile-offset (string | number | { top?; right?; bottom?; left? }) default: 16px top and bottom, 14px at the sides, past the safe area — Gutter under 600px, where a toast fills the width between the side gutters. Explicit edges override their defaults; omitted edges keep them, and the page's --toast-mobile-offset-top or --toast-mobile-offset-bottom sets the top or bottom one.
     - gap (number) — Gap between stacked toasts in px
 Examples: Overview, Variants, Description, Action, Promise, Long content, Compact, Persistent
+
+## Toggle Group
+A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.
+Import: import { ToggleGroup, ToggleGroupItem } from "@plexui/vue/components/ToggleGroup"
+Docs: https://plexui.com/vue/components/toggle-group
+Props:
+  - value (string[]) — Controlled values of the pressed items; bind with v-model:value
+  - default-value (string[]) default: [] — Values of the items pressed at first (uncontrolled)
+  - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Fill of a pressed item, a solid button in this color
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Size of the items, as the Button sizes
+  - pill (boolean) default: false — Fully rounded items; with uniform, circles
+  - uniform (boolean) default: false — Items as wide as they are tall, for a letter or an icon
+  - block (boolean) default: false — Fills the width of its container, the items spread across it
+  - disabled (boolean) default: false — Disables every item
+  - dir ("ltr" | "rtl") default: "ltr" — Reading direction of the items, which the arrow keys follow
+  - aria-label (string) — Name of the group, when no visible label names it
+  - aria-labelledby (string) — The id of the visible label of the group
+  - id (string) — The id of the group
+  ToggleGroupItem:
+    - value (string) — Value of the item, in the group's value while it is pressed
+    - disabled (boolean) default: false — Disables the item
+    - aria-label (string) — Name of the item, when its content does not say it in full, such as a weekday's letter
+Examples: Overview, Text, Color and size, Disabled
 
 ## Toolbar
 "The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up."

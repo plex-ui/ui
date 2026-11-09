@@ -487,6 +487,14 @@
       ]
     },
     {
+      "name": "toggle-group",
+      "type": "registry:ui",
+      "description": "A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "toolbar",
       "type": "registry:ui",
       "description": "\"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up.\"",

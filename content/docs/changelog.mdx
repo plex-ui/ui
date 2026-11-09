@@ -7,6 +7,20 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `ToggleGroup` and `ToggleGroup.Item` (React; `ToggleGroup` and `ToggleGroupItem` in Vue): a row of buttons, any number pressed at a time, such as the days an alarm repeats on. Each item is a Button, solid in the group's `color` while pressed and soft secondary otherwise, with the group's `size`, `pill` and `uniform`; `block` fills the row and spreads the items. A toolbar with one Tab stop, the arrow keys between items in the reading direction of `dir`, `aria-pressed` on each; an item's click handler runs first and `preventDefault()` keeps it as it is. A disabled item keeps showing whether it is pressed, at half opacity (`--toggle-group-disabled-opacity`). On a phone with `touch.css` a `pill` `uniform` item is the iOS Clock weekday button: a 35pt circle, its letter at 17pt Semibold (`--toggle-group-round-size`, `--toggle-group-round-font-size`).
+
+### Fixed
+
+- Vue `Tabs`: after Shift+Tab out of the tabs, Tab comes back to the selected tab again, as in React. The group gave its tab stop back only when it lost focus itself, not one of its tabs.
+- Vue `TabsTab`: a `@click.once` listener that calls `preventDefault()` keeps the selection, as a plain `@click` one does. `click` is now an emitted event of the tab, so every listener runs before the selection.
+- Vue `Tabs`: `.once` focus, focusout and mousedown listeners on the tabs or a tab can cancel with `preventDefault()`, as plain ones can, each once per event. A `@keydown` listener added to a tab after it mounted still runs before the arrow keys move focus and can cancel them. A tab's `@focusout` that calls `preventDefault()` keeps the tabs out of the Tab order after Shift+Tab, as React's `onBlur` on a tab does.
+
+---
+
 ## 0.38.0 (2026-11-09)
 
 ### Added

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "toggle-group",
+  "type": "registry:ui",
+  "title": "Toggle Group",
+  "description": "A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/toggle-group/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/ToggleGroup\"\n"
+    }
+  ],
+  "docs": "Import as `import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'`. See https://plexui.com/vue/components/toggle-group for props and examples."
+}

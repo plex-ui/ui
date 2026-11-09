@@ -19,13 +19,19 @@ import {
   type HTMLAttributes,
   type InjectionKey,
   type PropType,
-  type Ref,
   type VNode,
   type VNodeArrayChildren,
 } from "vue"
 import { RovingFocusGroup, RovingFocusItem } from "reka-ui"
 import type { ControlSize, SemanticColors, Sizes, Variants } from "@plexui/styles/types"
 import { handlePressableMouseEnter, prefersReducedMotion, waitForAnimationFrame } from "../../lib/helpers.js"
+import {
+  GROUP_COMPOSED,
+  ITEM_COMPOSED,
+  RovingElement,
+  focusFirst,
+  splitListeners,
+} from "../../lib/rovingFocus.js"
 import CheckMd from "../Icon/svg/CheckMd.js"
 import ChevronDownMd from "../Icon/svg/ChevronDownMd.js"
 import { LoadingIndicator } from "../Indicator/index.js"
@@ -92,92 +98,6 @@ const extractSize = (entry: ResizeObserverEntry, box: ResizeEntryBox, sizeType: 
   return Array.isArray(boxSize) ? boxSize[0][sizeType] : boxSize[sizeType]
 }
 
-// Radix RovingFocusGroup's focusFirst
-const focusFirst = (candidates: HTMLElement[]) => {
-  const previouslyFocused = document.activeElement
-  for (const candidate of candidates) {
-    if (candidate === previouslyFocused) return
-    candidate.focus({ preventScroll: false })
-    if (document.activeElement !== previouslyFocused) return
-  }
-}
-
-const callHandlers = (handlers: unknown, event: Event) => {
-  for (const handler of Array.isArray(handlers) ? handlers : [handlers]) {
-    if (typeof handler === "function") handler(event)
-  }
-}
-
-// Events a caller's handler called preventDefault() on. React's synthetic
-// event reports that call in `defaultPrevented` even when the native event is
-// not cancelable (focus), for every later handler of the same event.
-const preventedEvents = new WeakSet<Event>()
-
-const isPrevented = (event: Event) => event.defaultPrevented || preventedEvents.has(event)
-
-const callCallerHandlers = (handlers: unknown, event: Event) => {
-  if (!handlers) return
-  const preventDefault = event.preventDefault
-  event.preventDefault = () => {
-    preventedEvents.add(event)
-    preventDefault.call(event)
-  }
-  try {
-    callHandlers(handlers, event)
-  } finally {
-    Reflect.deleteProperty(event, "preventDefault")
-  }
-}
-
-// Internal: the element Tabs and TabsTab render through Reka's
-// RovingFocusGroup and RovingFocusItem with `asChild`. Reka merges its
-// handlers into these attrs and would run them before the caller's. Radix
-// composes them the other way (composeEventHandlers): the caller's handler
-// runs first, and Radix skips its own once the event is default-prevented.
-// So the caller's listeners for the `composed` events arrive separately in
-// `listeners` and are composed that way here.
-const RovingElement = defineComponent({
-  name: "TabsRovingElement",
-  inheritAttrs: false,
-  props: {
-    as: { type: String, required: true },
-    elementRef: Object as PropType<Ref<HTMLElement | null>>,
-    /** Events whose Reka handler Radix composes after the caller's */
-    composed: { type: Array as PropType<string[]>, required: true },
-    /** The caller's listeners for the `composed` events */
-    listeners: { type: Object as PropType<Record<string, unknown>>, default: () => ({}) },
-  },
-  setup(props, { attrs, slots }) {
-    return () => {
-      const handlers: Record<string, (event: Event) => void> = {}
-      for (const key of props.composed) {
-        const caller = props.listeners[key]
-        const internal = attrs[key]
-        handlers[key] = (event: Event) => {
-          callCallerHandlers(caller, event)
-          if (!isPrevented(event)) callHandlers(internal, event)
-        }
-      }
-      return h(props.as, { ...attrs, ...handlers, ref: props.elementRef }, slots.default?.())
-    }
-  },
-})
-
-/** Splits the caller's listeners for `keys` from the other attributes. */
-const splitListeners = (attrs: Record<string, unknown>, keys: string[]) => {
-  const listeners: Record<string, unknown> = {}
-  const rest: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(attrs)) {
-    if (keys.includes(key)) listeners[key] = value
-    else rest[key] = value
-  }
-  return { listeners, rest }
-}
-
-// Radix RovingFocusGroup composes mousedown, focus and blur; its items
-// mousedown and focus (keydown too, which Reka already leaves to the caller)
-const GROUP_COMPOSED = ["onMousedown", "onFocus", "onBlur"]
-const ITEM_COMPOSED = ["onMousedown", "onFocus"]
 
 const tabsProps = {
   /** Controlled value for the group. Bind with `v-model:value`; leave unset for an uncontrolled group. */
@@ -559,15 +479,21 @@ const TabComponent = defineComponent({
     /** Disable the individual tab */
     disabled: { type: Boolean, default: undefined },
   },
-  setup(props, { slots, attrs }) {
+  emits: {
+    /** A click, before the tab is selected; `event.preventDefault()` keeps the selection */
+    click: (event: MouseEvent) => {
+      void event
+      return true
+    },
+  },
+  setup(props, { slots, attrs, emit }) {
     const context = useTabsContext()
 
     return () => {
       const disabled = context.disabled.value || !!props.disabled
       const selected = context.value.value
       const pressed = !!selected && selected === props.value
-      const { onClick, ...otherAttrs } = attrs
-      const { listeners, rest: restAttrs } = splitListeners(otherAttrs, ITEM_COMPOSED)
+      const { listeners, rest: restAttrs } = splitListeners(attrs, ITEM_COMPOSED)
 
       // Normalize badge prop; the slot replaces its content
       const badgeSlot = slots.badge?.()
@@ -585,7 +511,8 @@ const TabComponent = defineComponent({
       const handleClick = (event: MouseEvent) => {
         // React does not dispatch mouse handlers on a disabled button
         if (disabled) return
-        callHandlers(onClick, event)
+        // An emitted event, so a `.once` listener runs before the selection too
+        emit("click", event)
         if (event.defaultPrevented) return
         context.setValue(pressed ? "" : props.value)
       }

@@ -1,0 +1,155 @@
+---
+title: Toggle Group
+description: A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.
+metaDescription: Vue 3 toggle group component for multi-select toggle buttons, v-model:value, round weekday pickers, pressed and released states, roving keyboard focus, and Button sizes and colors.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const week = [1, 2, 3, 4, 5, 6, 7].map((day) => {
+  const date = Date.UTC(2024, 0, day)
+  const format = (weekday) => new Intl.DateTimeFormat("en-US", { weekday, timeZone: "UTC" }).format(date)
+  return { value: String(day), letter: format("narrow"), short: format("short"), name: format("long") }
+})
+
+export const overview = `<div class="flex w-full max-w-[350px] flex-col gap-4">
+  <div class="flex items-baseline justify-between gap-4">
+    <span id="repeat-label">Repeat</span>
+    <span class="text-secondary">{{
+      days.length === 0 ? 'Never'
+        : days.length === 1 ? 'Every ' + week.find((day) => day.value === days[0]).name
+        : new Intl.ListFormat('en-US').format(week.filter((day) => days.includes(day.value)).map((day) => day.short))
+    }}</span>
+  </div>
+  <ToggleGroup aria-labelledby="repeat-label" v-model:value="days" pill uniform block>
+    <ToggleGroupItem v-for="day in week" :key="day.value" :value="day.value" :aria-label="day.name">
+      {{ day.letter }}
+    </ToggleGroupItem>
+  </ToggleGroup>
+</div>`
+
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { ToggleGroup, ToggleGroupItem } from '@plexui/vue/components/ToggleGroup';
+
+const week = [1, 2, 3, 4, 5, 6, 7].map((day) => {
+  // 1 January 2024 is a Monday
+  const date = Date.UTC(2024, 0, day);
+  const format = (weekday: 'narrow' | 'long') =>
+    new Intl.DateTimeFormat('en-US', { weekday, timeZone: 'UTC' }).format(date);
+  return { value: String(day), letter: format('narrow'), name: format('long') };
+});
+
+const days = ref(['3', '4', '5']);
+</script>
+
+<template>
+  <span id="repeat-label">Repeat</span>
+  <ToggleGroup aria-labelledby="repeat-label" v-model:value="days" pill uniform block>
+    <ToggleGroupItem v-for="day in week" :key="day.value" :value="day.value" :aria-label="day.name">
+      {{ day.letter }}
+    </ToggleGroupItem>
+  </ToggleGroup>
+</template>`
+
+export const text = `<ToggleGroup aria-label="Show" :default-value="['unread']">
+  <ToggleGroupItem value="unread">Unread</ToggleGroupItem>
+  <ToggleGroupItem value="starred">Starred</ToggleGroupItem>
+  <ToggleGroupItem value="mentions">Mentions</ToggleGroupItem>
+</ToggleGroup>`
+
+export const color = `<ToggleGroup aria-label="Toppings" :color="color" :size="size" :pill="pill" :default-value="['olives', 'basil']">
+  <ToggleGroupItem value="olives">Olives</ToggleGroupItem>
+  <ToggleGroupItem value="basil">Basil</ToggleGroupItem>
+  <ToggleGroupItem value="onion">Onion</ToggleGroupItem>
+  <ToggleGroupItem value="peppers">Peppers</ToggleGroupItem>
+</ToggleGroup>`
+
+export const colorControls = [
+  { name: "color", type: "select", options: ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"], default: "info" },
+  { name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "lg" },
+  { name: "pill", type: "boolean", default: true },
+]
+
+export const disabled = `<div class="flex flex-col items-start gap-3">
+  <span id="notify-label">Notify me by</span>
+  <ToggleGroup aria-labelledby="notify-label" :disabled="disabled" :default-value="['email', 'push']">
+    <ToggleGroupItem value="email" disabled>Email</ToggleGroupItem>
+    <ToggleGroupItem value="push">Push</ToggleGroupItem>
+    <ToggleGroupItem value="sms" disabled>SMS</ToggleGroupItem>
+  </ToggleGroup>
+  <span class="text-sm text-secondary">Account emails are always on. Add a phone number to get SMS.</span>
+</div>`
+
+<UsageBlock>{`import { ToggleGroup, ToggleGroupItem } from "@plexui/vue/components/ToggleGroup";`}</UsageBlock>
+
+A toggle group sets several on or off choices that belong together, where any number may be on, such as the days an alarm repeats on. Each item is a Button: solid in the group's color while pressed, soft secondary otherwise. For one choice out of several, use a SegmentedControl or a RadioGroup; for a single setting, a Switch or a Checkbox.
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Round items spread across their row are the weekday buttons of the iOS Clock app's Repeat row, as in Add Alarm. On a phone with <code>touch.css</code> each is a 35pt circle with its letter at 17pt Semibold, as the native ones are. A narrow letter alone does not name a day: give each item the day's full name with <code>aria-label</code>. The summary beside the label is the app's to write; the example reads as the Clock app's does.</>} code={overviewCode} previewMinHeight={180}>
+  <VueDemo template={overview} state={{ days: ["3", "4", "5"], week }} />
+</ComponentPreview>
+
+### Text
+
+<ComponentPreview language="vue" details={<>Items of text take the width of their label, here filters that can be on together. Without <code>block</code> the group is as wide as its items, 8px apart.</>} code={text} previewMinHeight={140}>
+  <VueDemo template={text} />
+</ComponentPreview>
+
+### Color and size
+
+<ComponentPreview language="vue" details={<>Change <code>color</code>, <code>size</code> and <code>pill</code> above. The group's <code>color</code> fills a pressed item, a solid button; an item that is not pressed stays a soft secondary button whatever the color. <code>size</code> sizes every item as it sizes a Button, from <code>3xs</code> (22px) to <code>3xl</code> (48px); on a phone with <code>touch.css</code> the items take the three iOS button heights. <code>pill</code> rounds them fully.</>} code={color} previewMinHeight={180}>
+  <VueDemo template={color} controls={colorControls} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" details={<><code>disabled</code> on an item keeps it as it is: Email stays pressed, as account emails cannot be turned off, and SMS stays released until there is a phone number. Turn on <code>disabled</code> above to disable the whole group. A disabled item shows at half opacity, pressed or not, as iOS dims a disabled segmented control, and it can be neither pressed nor reached with the arrow keys.</>} code={disabled} previewMinHeight={180}>
+  <VueDemo template={disabled} controls={[{ name: "disabled", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+## API
+
+### ToggleGroup
+
+<PropsTable data={[
+  { prop: "value", type: "string[]", description: "Controlled values of the pressed items; bind with v-model:value" },
+  { prop: "default-value", type: "string[]", default: "[]", description: "Values of the items pressed at first (uncontrolled)" },
+  { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Fill of a pressed item, a solid button in this color" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Size of the items, as the Button sizes" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded items; with uniform, circles" },
+  { prop: "uniform", type: "boolean", default: "false", description: "Items as wide as they are tall, for a letter or an icon" },
+  { prop: "block", type: "boolean", default: "false", description: "Fills the width of its container, the items spread across it" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disables every item" },
+  { prop: "dir", type: '"ltr" | "rtl"', default: '"ltr"', description: "Reading direction of the items, which the arrow keys follow" },
+  { prop: "aria-label", type: "string", description: "Name of the group, when no visible label names it" },
+  { prop: "aria-labelledby", type: "string", description: "The id of the visible label of the group" },
+  { prop: "id", type: "string", description: "The id of the group" },
+]} />
+
+**Events**: `update:value` and `change`, each with the values of the pressed items, a newly pressed one last.
+
+### ToggleGroupItem
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "Value of the item, in the group's value while it is pressed" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disables the item" },
+  { prop: "aria-label", type: "string", description: "Name of the item, when its content does not say it in full, such as a weekday's letter" },
+]} />
+
+**Events**: `click`, before the item is pressed or released; `event.preventDefault()` keeps it as it is.
+
+**Slots**: `default`, the content of the item: a label, a letter or an icon.
+
+The group is a toolbar with one Tab stop. Tab enters it on the first pressed item, else on the item focused last, else on the first, and the arrow keys move between items in the reading direction of `dir`, looping at the ends. Space and Enter press or release the focused item. Each item is a button with `aria-pressed`.
+
+## Styling
+
+ToggleGroup reads these component tokens. Override them at any scope to restyle it; the items read the Button tokens:
+
+- `--toggle-group-gap`: space between items without `block` (default `8px`)
+- `--toggle-group-disabled-opacity`: opacity of a disabled item, pressed or not (default `0.5`)
+- `--toggle-group-round-size`, `--toggle-group-round-font-size`: the circle of a `pill` `uniform` item and its letter at 767px and below with `touch.css` (`35px`, `17px`, the weekday buttons of the iOS Clock app)

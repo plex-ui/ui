@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 62,
+  "componentCount": 63,
   "components": [
     {
       "slug": "accordion",
@@ -7865,6 +7865,156 @@
       "docsUrl": "https://plexui.com/components/toast"
     },
     {
+      "slug": "toggle-group",
+      "name": "Toggle Group",
+      "description": "A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.",
+      "importPath": "@plexui/ui/components/ToggleGroup",
+      "exports": [
+        "ToggleGroup"
+      ],
+      "props": [
+        {
+          "name": "value",
+          "type": "string[]",
+          "description": "Controlled values of the pressed items"
+        },
+        {
+          "name": "defaultValue",
+          "type": "string[]",
+          "default": "[]",
+          "description": "Values of the items pressed at first (uncontrolled)"
+        },
+        {
+          "name": "onChange",
+          "type": "(value: string[]) => void",
+          "description": "Called when an item is pressed or released, a newly pressed one last"
+        },
+        {
+          "name": "color",
+          "type": "\"primary\" | \"secondary\" | \"danger\" | \"success\" | \"info\" | \"discovery\" | \"caution\" | \"warning\"",
+          "default": "\"primary\"",
+          "description": "Fill of a pressed item, a solid button in this color"
+        },
+        {
+          "name": "size",
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
+          "default": "\"md\"",
+          "description": "Size of the items, as the Button sizes"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "false",
+          "description": "Fully rounded items; with uniform, circles"
+        },
+        {
+          "name": "uniform",
+          "type": "boolean",
+          "default": "false",
+          "description": "Items as wide as they are tall, for a letter or an icon"
+        },
+        {
+          "name": "block",
+          "type": "boolean",
+          "default": "false",
+          "description": "Fills the width of its container, the items spread across it"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disables every item"
+        },
+        {
+          "name": "dir",
+          "type": "\"ltr\" | \"rtl\"",
+          "default": "\"ltr\"",
+          "description": "Reading direction of the items, which the arrow keys follow"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "description": "Name of the group, when no visible label names it"
+        },
+        {
+          "name": "aria-labelledby",
+          "type": "string",
+          "description": "The id of the visible label of the group"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "The id of the group"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "description": "CSS classes applied to the group"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "const week = [1, 2, 3, 4, 5, 6, 7].map((day) => {\n// 1 January 2024 is a Monday\nconst date = Date.UTC(2024, 0, day)\nconst format = (weekday: 'narrow' | 'long') =>\n  new Intl.DateTimeFormat('en-US', { weekday, timeZone: 'UTC' }).format(date)\nreturn { value: String(day), letter: format('narrow'), name: format('long') }\n})\n\nconst [days, setDays] = useState(['3', '4', '5'])\n\n<span id=\"repeat-label\">Repeat</span>\n<ToggleGroup aria-labelledby=\"repeat-label\" value={days} onChange={setDays} pill uniform block>\n{week.map((day) => (\n  <ToggleGroup.Item key={day.value} value={day.value} aria-label={day.name}>\n    {day.letter}\n  </ToggleGroup.Item>\n))}\n</ToggleGroup>",
+          "details": "Round items spread across their row are the weekday buttons of the iOS Clock app's Repeat row, as in Add Alarm. On a phone with touch.css each is a 35pt circle with its letter at 17pt Semibold, as the native ones are. A narrow letter alone does not name a day: give each item the day's full name with aria-label. The summary beside the label is the app's to write; here it reads as the Clock app's does."
+        },
+        {
+          "name": "Text",
+          "code": "<ToggleGroup aria-label=\"Show\" defaultValue={['unread']}>\n<ToggleGroup.Item value=\"unread\">Unread</ToggleGroup.Item>\n<ToggleGroup.Item value=\"starred\">Starred</ToggleGroup.Item>\n<ToggleGroup.Item value=\"mentions\">Mentions</ToggleGroup.Item>\n</ToggleGroup>",
+          "details": "Items of text take the width of their label, here filters that can be on together. Without block the group is as wide as its items, 8px apart."
+        },
+        {
+          "name": "Color and size",
+          "code": "<ToggleGroup aria-label=\"Toppings\" color=\"info\" size=\"lg\" pill defaultValue={['olives', 'basil']}>\n<ToggleGroup.Item value=\"olives\">Olives</ToggleGroup.Item>\n<ToggleGroup.Item value=\"basil\">Basil</ToggleGroup.Item>\n<ToggleGroup.Item value=\"onion\">Onion</ToggleGroup.Item>\n<ToggleGroup.Item value=\"peppers\">Peppers</ToggleGroup.Item>\n</ToggleGroup>",
+          "details": "Change color, size and pill above. The group's color fills a pressed item, a solid button; an item that is not pressed stays a soft secondary button whatever the color. size sizes every item as it sizes a Button, from 3xs (22px) to 3xl (48px); on a phone with touch.css the items take the three iOS button heights. pill rounds them fully."
+        },
+        {
+          "name": "Disabled",
+          "code": "<span id=\"notify-label\">Notify me by</span>\n<ToggleGroup aria-labelledby=\"notify-label\" defaultValue={['email', 'push']}>\n<ToggleGroup.Item value=\"email\" disabled>Email</ToggleGroup.Item>\n<ToggleGroup.Item value=\"push\">Push</ToggleGroup.Item>\n<ToggleGroup.Item value=\"sms\" disabled>SMS</ToggleGroup.Item>\n</ToggleGroup>\n<span className=\"text-sm text-secondary\">Account emails are always on. Add a phone number to get SMS.</span>",
+          "details": "disabled on an item keeps it as it is: Email stays pressed, as account emails cannot be turned off, and SMS stays released until there is a phone number. Turn on disabled above to disable the whole group. A disabled item shows at half opacity, pressed or not, as iOS dims a disabled segmented control, and it can be neither pressed nor reached with the arrow keys."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "ToggleGroup.Item",
+          "props": [
+            {
+              "name": "value",
+              "type": "string",
+              "description": "Value of the item, in the group's value while it is pressed"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disables the item"
+            },
+            {
+              "name": "aria-label",
+              "type": "string",
+              "description": "Name of the item, when its content does not say it in full, such as a weekday's letter"
+            },
+            {
+              "name": "onClick",
+              "type": "(event: MouseEvent) => void",
+              "description": "Called on a click before the item is pressed or released; event.preventDefault() keeps it as it is"
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "description": "CSS classes applied to the item"
+            },
+            {
+              "name": "children",
+              "type": "ReactNode",
+              "description": "Content of the item: a label, a letter or an icon"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/toggle-group"
+    },
+    {
       "slug": "toolbar",
       "name": "Toolbar",
       "description": "\"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up.\"",
@@ -8080,5 +8230,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T18:01:18.144Z"
+  "generatedAt": "2026-11-09T20:11:54.707Z"
 }

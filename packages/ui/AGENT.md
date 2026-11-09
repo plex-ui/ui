@@ -238,6 +238,14 @@ Props: `title`, `description`, `icon`, `actions`, `mobileActions` (`"rows"` defa
 
 Sub: `Tip.Popover` -- the same content props plus `open` / `defaultOpen` / `onOpenChange`, `side` (default `"bottom"`), `align`, `sideOffset` (default 4), `closeButton` (default true); its only child is the control it explains, which keeps the focus; Tab moves from the control into the tip.
 
+### ToggleGroup
+
+**Import:** `@plexui/ui/components/ToggleGroup`
+
+Props: `value` / `defaultValue` (`string[]`), `onChange(value)` (a newly pressed value last), `color` (fill of a pressed item, default `"primary"`), `size` (Button sizes, default `"md"`), `pill`, `uniform`, `block` (fills the row, items spread apart), `disabled`, `dir` (`"ltr"` / `"rtl"`, the arrow keys follow it), `aria-label` / `aria-labelledby`, `id`, `className`. Any number of items pressed; for one choice use SegmentedControl or RadioGroup. A toolbar with one Tab stop and arrow keys.
+
+Sub: `ToggleGroup.Item` -- `value`, `disabled`, `aria-label` (the full name when the content is a letter), `onClick` (runs first; `preventDefault()` keeps the item as it is), `className`, children. A Button: solid in the group's color when pressed, soft secondary otherwise; a disabled one stays so at half opacity. `pill uniform block` is the iOS Clock weekday row (35pt circles, 17pt letters on a phone with touch.css).
+
 ### Tooltip
 
 **Import:** `@plexui/ui/components/Tooltip` -- exports `Tooltip`, `CopyTooltip`

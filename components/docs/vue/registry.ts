@@ -188,6 +188,7 @@ import { TextLink } from '@plexui/vue/components/TextLink';
 import { Tip, TipPopover } from '@plexui/vue/components/Tip';
 import { PhoneLayout } from '@plexui/vue/components/PhoneLayout';
 import { Toaster } from '@plexui/vue/components/Toast';
+import { ToggleGroup, ToggleGroupItem } from '@plexui/vue/components/ToggleGroup';
 import {
   CopyTooltip,
   Tooltip,
@@ -439,6 +440,8 @@ const components: Record<string, Component> = {
   Tip,
   TipPopover,
   Toaster,
+  ToggleGroup,
+  ToggleGroupItem,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,

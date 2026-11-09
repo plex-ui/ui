@@ -1,0 +1,116 @@
+---
+title: Toggle Group
+description: A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.
+metaDescription: React toggle group component for multi-select toggle buttons, round weekday pickers, pressed and released states, roving keyboard focus, and Button sizes and colors.
+---
+
+import {
+  ToggleGroupOverviewDemo,
+  ToggleGroupTextDemo,
+  ToggleGroupColorDemo,
+  ToggleGroupDisabledDemo,
+} from "@/components/docs/ToggleGroupDemos"
+
+<UsageBlock>{`import { ToggleGroup } from "@plexui/ui/components/ToggleGroup";`}</UsageBlock>
+
+A toggle group sets several on or off choices that belong together, where any number may be on, such as the days an alarm repeats on. Each item is a Button: solid in the group's color while pressed, soft secondary otherwise. For one choice out of several, use a SegmentedControl or a RadioGroup; for a single setting, a Switch or a Checkbox.
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>Round items spread across their row are the weekday buttons of the iOS Clock app's Repeat row, as in Add Alarm. On a phone with <code>touch.css</code> each is a 35pt circle with its letter at 17pt Semibold, as the native ones are. A narrow letter alone does not name a day: give each item the day's full name with <code>aria-label</code>. The summary beside the label is the app's to write; here it reads as the Clock app's does.</>} code={`const week = [1, 2, 3, 4, 5, 6, 7].map((day) => {
+  // 1 January 2024 is a Monday
+  const date = Date.UTC(2024, 0, day)
+  const format = (weekday: 'narrow' | 'long') =>
+    new Intl.DateTimeFormat('en-US', { weekday, timeZone: 'UTC' }).format(date)
+  return { value: String(day), letter: format('narrow'), name: format('long') }
+})
+
+const [days, setDays] = useState(['3', '4', '5'])
+
+<span id="repeat-label">Repeat</span>
+<ToggleGroup aria-labelledby="repeat-label" value={days} onChange={setDays} pill uniform block>
+  {week.map((day) => (
+    <ToggleGroup.Item key={day.value} value={day.value} aria-label={day.name}>
+      {day.letter}
+    </ToggleGroup.Item>
+  ))}
+</ToggleGroup>`} previewMinHeight={180}>
+  <ToggleGroupOverviewDemo />
+</ComponentPreview>
+
+### Text
+
+<ComponentPreview details={<>Items of text take the width of their label, here filters that can be on together. Without <code>block</code> the group is as wide as its items, 8px apart.</>} code={`<ToggleGroup aria-label="Show" defaultValue={['unread']}>
+  <ToggleGroup.Item value="unread">Unread</ToggleGroup.Item>
+  <ToggleGroup.Item value="starred">Starred</ToggleGroup.Item>
+  <ToggleGroup.Item value="mentions">Mentions</ToggleGroup.Item>
+</ToggleGroup>`} previewMinHeight={140}>
+  <ToggleGroupTextDemo />
+</ComponentPreview>
+
+### Color and size
+
+<ComponentPreview details={<>Change <code>color</code>, <code>size</code> and <code>pill</code> above. The group's <code>color</code> fills a pressed item, a solid button; an item that is not pressed stays a soft secondary button whatever the color. <code>size</code> sizes every item as it sizes a Button, from <code>3xs</code> (22px) to <code>3xl</code> (48px); on a phone with <code>touch.css</code> the items take the three iOS button heights. <code>pill</code> rounds them fully.</>} code={`<ToggleGroup aria-label="Toppings" color="info" size="lg" pill defaultValue={['olives', 'basil']}>
+  <ToggleGroup.Item value="olives">Olives</ToggleGroup.Item>
+  <ToggleGroup.Item value="basil">Basil</ToggleGroup.Item>
+  <ToggleGroup.Item value="onion">Onion</ToggleGroup.Item>
+  <ToggleGroup.Item value="peppers">Peppers</ToggleGroup.Item>
+</ToggleGroup>`} previewMinHeight={180}>
+  <ToggleGroupColorDemo />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview details={<><code>disabled</code> on an item keeps it as it is: Email stays pressed, as account emails cannot be turned off, and SMS stays released until there is a phone number. Turn on <code>disabled</code> above to disable the whole group. A disabled item shows at half opacity, pressed or not, as iOS dims a disabled segmented control, and it can be neither pressed nor reached with the arrow keys.</>} code={`<span id="notify-label">Notify me by</span>
+<ToggleGroup aria-labelledby="notify-label" defaultValue={['email', 'push']}>
+  <ToggleGroup.Item value="email" disabled>Email</ToggleGroup.Item>
+  <ToggleGroup.Item value="push">Push</ToggleGroup.Item>
+  <ToggleGroup.Item value="sms" disabled>SMS</ToggleGroup.Item>
+</ToggleGroup>
+<span className="text-sm text-secondary">Account emails are always on. Add a phone number to get SMS.</span>`} previewMinHeight={180}>
+  <ToggleGroupDisabledDemo />
+</ComponentPreview>
+
+## API
+
+### ToggleGroup
+
+<PropsTable data={[
+  { prop: "value", type: "string[]", description: "Controlled values of the pressed items" },
+  { prop: "defaultValue", type: "string[]", default: "[]", description: "Values of the items pressed at first (uncontrolled)" },
+  { prop: "onChange", type: "(value: string[]) => void", description: "Called when an item is pressed or released, a newly pressed one last" },
+  { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Fill of a pressed item, a solid button in this color" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Size of the items, as the Button sizes" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded items; with uniform, circles" },
+  { prop: "uniform", type: "boolean", default: "false", description: "Items as wide as they are tall, for a letter or an icon" },
+  { prop: "block", type: "boolean", default: "false", description: "Fills the width of its container, the items spread across it" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disables every item" },
+  { prop: "dir", type: '"ltr" | "rtl"', default: '"ltr"', description: "Reading direction of the items, which the arrow keys follow" },
+  { prop: "aria-label", type: "string", description: "Name of the group, when no visible label names it" },
+  { prop: "aria-labelledby", type: "string", description: "The id of the visible label of the group" },
+  { prop: "id", type: "string", description: "The id of the group" },
+  { prop: "className", type: "string", description: "CSS classes applied to the group" },
+]} />
+
+### ToggleGroup.Item
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "Value of the item, in the group's value while it is pressed" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disables the item" },
+  { prop: "aria-label", type: "string", description: "Name of the item, when its content does not say it in full, such as a weekday's letter" },
+  { prop: "onClick", type: "(event: MouseEvent) => void", description: "Called on a click before the item is pressed or released; event.preventDefault() keeps it as it is" },
+  { prop: "className", type: "string", description: "CSS classes applied to the item" },
+  { prop: "children", type: "ReactNode", description: "Content of the item: a label, a letter or an icon" },
+]} />
+
+The group is a toolbar with one Tab stop. Tab enters it on the first pressed item, else on the item focused last, else on the first, and the arrow keys move between items in the reading direction of `dir`, looping at the ends. Space and Enter press or release the focused item. Each item is a button with `aria-pressed`.
+
+## Styling
+
+ToggleGroup reads these component tokens. Override them at any scope to restyle it; the items read the Button tokens:
+
+- `--toggle-group-gap`: space between items without `block` (default `8px`)
+- `--toggle-group-disabled-opacity`: opacity of a disabled item, pressed or not (default `0.5`)
+- `--toggle-group-round-size`, `--toggle-group-round-font-size`: the circle of a `pill` `uniform` item and its letter at 767px and below with `touch.css` (`35px`, `17px`, the weekday buttons of the iOS Clock app)

@@ -806,6 +806,16 @@
     --page-control-background: var(--alpha-08);
 
     /* =============================================
+      Toggle group
+    ============================================= */
+    /* Space between items when the group does not fill its row (with `block` they spread apart). touch.css sets
+       the round item of a phone, the iOS Clock weekday circle. */
+    --toggle-group-gap: 8px;
+    /* A disabled item, pressed or not, is the enabled one at this opacity (the iOS 27 kit's disabled segmented
+       control is the enabled one at 50%) */
+    --toggle-group-disabled-opacity: 0.5;
+
+    /* =============================================
       Stepper
     ============================================= */
     --stepper-height: var(--control-size-md);

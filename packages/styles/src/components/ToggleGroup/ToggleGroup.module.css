@@ -1,0 +1,29 @@
+/* A row of toggle buttons, any number pressed at a time. Each item is a Button: solid in the group's color while
+   pressed, soft secondary otherwise, so it takes the Button sizes, colors and focus ring. With
+   `block` the row fills its container and spreads the items, the first and the last at the edges, as the weekday
+   circles of the iOS Clock Repeat row (Add Alarm, IMG_5753 to IMG_5755 at 430pt). touch.css sizes a round item
+   as that circle on a phone. */
+.ToggleGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--toggle-group-gap);
+  vertical-align: middle;
+
+  &:where([data-block]) {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+.Item {
+  flex-shrink: 0;
+
+  /* A disabled item is the enabled one at half opacity, pressed or not, so it keeps showing its state: as a
+     disabled segmented control is the enabled one at 50% (kit iOS 27 Segmented Controls 10460:145) and a disabled
+     Tab shows at 0.5. Button's own disabled look paints a pressed and a released item alike, so the items are
+     inert Buttons and dim here. */
+  &:where([disabled]) {
+    opacity: var(--toggle-group-disabled-opacity);
+  }
+}

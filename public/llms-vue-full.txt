@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 62
+Components: 63
 
 ## Setup
 
@@ -11233,6 +11233,91 @@ Pass duration: Infinity for toasts that stay open until the user acts on them. T
 >
   Persistent toast
 </Button>
+```
+
+## Toggle Group
+A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.
+Import: import { ToggleGroup, ToggleGroupItem } from "@plexui/vue/components/ToggleGroup"
+Docs: https://plexui.com/vue/components/toggle-group
+Props:
+  - value (string[]) — Controlled values of the pressed items; bind with v-model:value
+  - default-value (string[]) default: [] — Values of the items pressed at first (uncontrolled)
+  - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Fill of a pressed item, a solid button in this color
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Size of the items, as the Button sizes
+  - pill (boolean) default: false — Fully rounded items; with uniform, circles
+  - uniform (boolean) default: false — Items as wide as they are tall, for a letter or an icon
+  - block (boolean) default: false — Fills the width of its container, the items spread across it
+  - disabled (boolean) default: false — Disables every item
+  - dir ("ltr" | "rtl") default: "ltr" — Reading direction of the items, which the arrow keys follow
+  - aria-label (string) — Name of the group, when no visible label names it
+  - aria-labelledby (string) — The id of the visible label of the group
+  - id (string) — The id of the group
+  ToggleGroupItem:
+    - value (string) — Value of the item, in the group's value while it is pressed
+    - disabled (boolean) default: false — Disables the item
+    - aria-label (string) — Name of the item, when its content does not say it in full, such as a weekday's letter
+
+### Overview
+Round items spread across their row are the weekday buttons of the iOS Clock app's Repeat row, as in Add Alarm. On a phone with touch.css each is a 35pt circle with its letter at 17pt Semibold, as the native ones are. A narrow letter alone does not name a day: give each item the day's full name with aria-label. The summary beside the label is the app's to write; the example reads as the Clock app's does.
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { ToggleGroup, ToggleGroupItem } from '@plexui/vue/components/ToggleGroup';
+
+const week = [1, 2, 3, 4, 5, 6, 7].map((day) => {
+  // 1 January 2024 is a Monday
+  const date = Date.UTC(2024, 0, day);
+  const format = (weekday: 'narrow' | 'long') =>
+    new Intl.DateTimeFormat('en-US', { weekday, timeZone: 'UTC' }).format(date);
+  return { value: String(day), letter: format('narrow'), name: format('long') };
+});
+
+const days = ref(['3', '4', '5']);
+</script>
+
+<template>
+  <span id="repeat-label">Repeat</span>
+  <ToggleGroup aria-labelledby="repeat-label" v-model:value="days" pill uniform block>
+    <ToggleGroupItem v-for="day in week" :key="day.value" :value="day.value" :aria-label="day.name">
+      {{ day.letter }}
+    </ToggleGroupItem>
+  </ToggleGroup>
+</template>
+```
+
+### Text
+Items of text take the width of their label, here filters that can be on together. Without block the group is as wide as its items, 8px apart.
+```vue
+<ToggleGroup aria-label="Show" :default-value="['unread']">
+  <ToggleGroupItem value="unread">Unread</ToggleGroupItem>
+  <ToggleGroupItem value="starred">Starred</ToggleGroupItem>
+  <ToggleGroupItem value="mentions">Mentions</ToggleGroupItem>
+</ToggleGroup>
+```
+
+### Color and size
+Change color, size and pill above. The group's color fills a pressed item, a solid button; an item that is not pressed stays a soft secondary button whatever the color. size sizes every item as it sizes a Button, from 3xs (22px) to 3xl (48px); on a phone with touch.css the items take the three iOS button heights. pill rounds them fully.
+```vue
+<ToggleGroup aria-label="Toppings" :color="color" :size="size" :pill="pill" :default-value="['olives', 'basil']">
+  <ToggleGroupItem value="olives">Olives</ToggleGroupItem>
+  <ToggleGroupItem value="basil">Basil</ToggleGroupItem>
+  <ToggleGroupItem value="onion">Onion</ToggleGroupItem>
+  <ToggleGroupItem value="peppers">Peppers</ToggleGroupItem>
+</ToggleGroup>
+```
+
+### Disabled
+disabled on an item keeps it as it is: Email stays pressed, as account emails cannot be turned off, and SMS stays released until there is a phone number. Turn on disabled above to disable the whole group. A disabled item shows at half opacity, pressed or not, as iOS dims a disabled segmented control, and it can be neither pressed nor reached with the arrow keys.
+```vue
+<div class="flex flex-col items-start gap-3">
+  <span id="notify-label">Notify me by</span>
+  <ToggleGroup aria-labelledby="notify-label" :disabled="disabled" :default-value="['email', 'push']">
+    <ToggleGroupItem value="email" disabled>Email</ToggleGroupItem>
+    <ToggleGroupItem value="push">Push</ToggleGroupItem>
+    <ToggleGroupItem value="sms" disabled>SMS</ToggleGroupItem>
+  </ToggleGroup>
+  <span class="text-sm text-secondary">Account emails are always on. Add a phone number to get SMS.</span>
+</div>
 ```
 
 ## Toolbar

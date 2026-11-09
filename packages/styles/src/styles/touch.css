@@ -411,6 +411,10 @@
        (iOS 27 kit Page Controls). */
     --page-control-target-size: 44px;
     --page-control-dot-color: var(--mobile-label-tertiary);
+    /* A round ToggleGroup item: the iOS Clock weekday circle (IMG_5753 to IMG_5755: 105px at @3x, letters with
+       36px caps). The circles of a block row are 17.5pt apart at 430pt, from space-between. */
+    --toggle-group-round-size: 35px;
+    --toggle-group-round-font-size: 17px;
 
     --checkbox-target-size: 44px;
     --checkbox-target-offset: 0px;
@@ -639,6 +643,30 @@
       /* Unselected labels are the secondary label role of a phone (alpha 50%: 105 on Safari's 211 track, 109 there). */
       --color-text-secondary: var(--mobile-label-secondary);
     }
+  }
+
+  /* A round ToggleGroup item is the weekday circle of the iOS Clock Repeat row (Add Alarm, IMG_5753 to IMG_5755 at
+     430pt): a 35pt circle, its letter 17pt Semibold (12pt caps), at every size. Set on the item, so it is the
+     item's own size whatever the Button step gives a uniform button. */
+  :where([data-slot="toggle-group"]) > :where([data-pill][data-uniform]) {
+    --button-uniform-size-3xs: var(--toggle-group-round-size);
+    --button-uniform-size-2xs: var(--toggle-group-round-size);
+    --button-uniform-size-xs: var(--toggle-group-round-size);
+    --button-uniform-size-sm: var(--toggle-group-round-size);
+    --button-uniform-size-md: var(--toggle-group-round-size);
+    --button-uniform-size-lg: var(--toggle-group-round-size);
+    --button-uniform-size-xl: var(--toggle-group-round-size);
+    --button-uniform-size-2xl: var(--toggle-group-round-size);
+    --button-uniform-size-3xl: var(--toggle-group-round-size);
+    --button-font-size-3xs: var(--toggle-group-round-font-size);
+    --button-font-size-2xs: var(--toggle-group-round-font-size);
+    --button-font-size-xs: var(--toggle-group-round-font-size);
+    --button-font-size-sm: var(--toggle-group-round-font-size);
+    --button-font-size-md: var(--toggle-group-round-font-size);
+    --button-font-size-lg: var(--toggle-group-round-font-size);
+    --button-font-size-xl: var(--toggle-group-round-font-size);
+    --button-font-size-2xl: var(--toggle-group-round-font-size);
+    --button-font-size-3xl: var(--toggle-group-round-font-size);
   }
 
   /* Fixed-width mobile segments keep their labels on one line. */

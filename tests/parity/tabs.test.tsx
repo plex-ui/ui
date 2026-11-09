@@ -609,6 +609,27 @@ describe("Tabs behaves like React", () => {
     expect(vueChange).not.toHaveBeenCalled()
   })
 
+  test("Vue: a `.once` click listener that calls preventDefault() cancels the selection too", async () => {
+    const vueChange = vi.fn()
+    const cancelOnce = vi.fn((event: Event) => event.preventDefault())
+    mountVue(() =>
+      h(Tabs, { "value": "overview", "onUpdate:value": vueChange, "aria-label": "Sections" }, {
+        default: () => [
+          h(TabsTab, { value: "overview" }, { default: () => "Overview" }),
+          h(TabsTab, { value: "analytics", onClickOnce: cancelOnce }, { default: () => "Analytics" }),
+        ],
+      }),
+    )
+    await flushVue()
+    fireEvent.click(findTab("Analytics"))
+    await flushVue()
+    expect(cancelOnce).toHaveBeenCalledTimes(1)
+    expect(vueChange).not.toHaveBeenCalled()
+    fireEvent.click(findTab("Analytics"))
+    await flushVue()
+    expect(vueChange).toHaveBeenCalledWith("analytics")
+  })
+
   test("arrow keys, Home and End move focus without selecting; Enter/Space activation selects", async () => {
     const spec: GroupSpec = {
       value: "overview",
