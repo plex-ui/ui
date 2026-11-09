@@ -550,7 +550,7 @@ Column groups (a column definition with `columns`) render a header that spans it
 
 <PropsTable data={[
   { prop: "idCell(accessor)", type: "CellComponent", description: "Monospace ID with copy-on-click tooltip" },
-  { prop: "dateTimeCell(accessor, options?)", type: "CellComponent", description: "Formatted datetime with Intl.DateTimeFormat" },
+  { prop: "dateTimeCell(accessor, options?)", type: "CellComponent", description: "Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is" },
   { prop: "statusCell(accessor, colorMap?)", type: "CellComponent", description: "Badge cell with automatic status-to-color mapping" },
   { prop: "tooltipHeader(label, description)", type: "HeaderComponent", description: "Header with dashed underline and info tooltip" },
 ]} />

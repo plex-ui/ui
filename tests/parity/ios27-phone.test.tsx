@@ -295,6 +295,32 @@ describe("phone Switch and Slider states (kit iOS 27 Toggles 29:56814, Sliders 7
   })
 })
 
+// Plan 175.6: a disabled slider on a desktop looked as an enabled one
+describe("a disabled Slider on a desktop (macOS 27 kit, Slider, State=Disabled 8536:112)", () => {
+  const css = "packages/styles/src/components/Slider/Slider.module.css"
+  const nested = (rule: postcss.Rule | undefined) =>
+    Object.fromEntries((rule?.nodes ?? []).filter((n): n is postcss.Rule => n.type === "rule").map((r) => [r.selector, decls(r)]))
+
+  test("the fill takes the track's color, both at 60% of the track (6% of 10% in the kit), and the knob's ring follows", () => {
+    const disabled = baseRules(css).get(".Slider[data-disabled]")
+    expect(decls(disabled)).toEqual({ "--slider-disabled-color": "color-mix(in srgb, var(--slider-track-color) 60%, transparent)" })
+    expect(nested(disabled)).toEqual({
+      "& :is(.Track, .Range)": { background: "var(--slider-disabled-color)" },
+      "& .Thumb": { "box-shadow": "var(--slider-thumb-shadow, inset 0 0 0 2px var(--slider-disabled-color))" },
+    })
+  })
+
+  test("a phone keeps the iOS kit's half opacity in the slider's own colors", () => {
+    const phone = phoneRules(css).get(".Slider[data-disabled]")
+    expect(decls(phone)).toEqual({ opacity: "0.5" })
+    expect(nested(phone)).toEqual({
+      "& .Track": { background: "var(--slider-track-color)" },
+      "& .Range": { background: "var(--slider-range-color)" },
+      "& .Thumb": { "box-shadow": "var(--slider-thumb-shadow, inset 0 0 0 2px var(--slider-range-color))" },
+    })
+  })
+})
+
 describe("a disabled Button and pop-up on a phone (kit iOS 27 Button - Content Area 40:58696, Pop-up Button 410:50387)", () => {
   test("label in the tertiary label, where the desktop gray-400 read 143 on white", () => {
     expect(decls(phoneRules("packages/styles/src/components/Button/Button.module.css").get(".Button[data-disabled][data-variant]"))).toEqual({

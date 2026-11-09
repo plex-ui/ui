@@ -1193,7 +1193,7 @@ Docs: https://plexui.com/vue/components/table
     - class (string) — Class applied to the header button (or text when the column cannot sort)
   Column helpers:
     - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
-    - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat
+    - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is
     - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
     - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
 Examples: Overview, With footer, Minimal, Variant, Sorting, Pagination, Row click, Row selection, Cell variants, Filtering, Column visibility

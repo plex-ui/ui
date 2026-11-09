@@ -3,6 +3,8 @@
 // are normalized away; everything else must match exactly:
 // - `data-radix-*` / `data-reka-*`, `data-dismissable-layer`, and
 //   `data-v-app` on the test's Vue mount container
+// - `data-allow-mismatch`, Vue's word for a text hydration may find different,
+//   which React says with `suppressHydrationWarning` and no attribute
 // - focus guard spans that Radix / Reka insert around modal content
 // - Vue Dialog's extra tabindex=-1 fallback on its direct Panel child; its
 //   logical-open FocusScope and fallback behavior are checked in dialog-lifecycle
@@ -21,7 +23,7 @@
 // `.indeterminate`, `.selected`) after the attributes: React and Vue set these
 // as DOM properties, which the attributes do not always reflect.
 
-const DROPPED_ATTRIBUTE = /^(data-radix-.*|data-reka-.*|data-dismissable-layer|data-v-app)$/
+const DROPPED_ATTRIBUTE = /^(data-radix-.*|data-reka-.*|data-dismissable-layer|data-v-app|data-allow-mismatch)$/
 const ID_REFERENCE = new Set(["aria-labelledby", "aria-describedby", "aria-controls", "aria-activedescendant", "for"])
 // Library ids (radix-*, reka-*) and ids built from React's useId (`_r_0_`,
 // `_R_0_`, older `«r0»` / `:r0:`) or Vue's useId (`v-0`, `v-1-2`), alone or

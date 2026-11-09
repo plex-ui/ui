@@ -7,6 +7,18 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Changed
+
+- `Slider` disabled on a desktop looks disabled, as the macOS 27 kit draws it: the fill takes the track's color and both lighten to 60% of the track, the fill a shade darker where it lies over the track, and the thumb's ring lightens with the fill. It looked like an enabled slider before. A phone keeps the iOS kit's half opacity.
+
+### Fixed
+
+- `dateTimeCell` failed to hydrate on a page rendered on a server (React error 418, a Vue mismatch) for a reader outside UTC, and in Safari for every reader: the server wrote the time in its own zone, and WebKit words a date differently from Node ("Jan 15, 2023 at 09:00 AM"). The server and the first render on the client now write the time in UTC (or in the `timeZone` of the options), the cell lets hydration differ in its wording, and the reader's zone and wording follow right after. An ISO date or time written without a zone (`2023-01-15`, `2023-01-15T09:00`) now shows as written in every zone: before, each runtime read it in its own zone, and a date alone showed the day before west of UTC. Offsets are read the same in every engine (`+02`, `-0530`). A value that is no date (`2023-02-30`, an hour of 25) shows as it is instead of throwing, and a date written another way (`Jan 15, 2023 09:00`) is written as it is on the server and read in the reader's browser.
+
+---
+
 ## 0.41.0 (2026-11-09)
 
 ### Changed

@@ -133,6 +133,23 @@
   }
 }
 
+/* Disabled, the fill takes the track's color and both lighten to 60% of the track, as the accent leaves a
+   disabled macOS slider (macOS 27 kit, Slider, State=Disabled 8536:112: the track and its filled part both
+   the label color at 6%, where Idle has the track at 10% and the filled part in the accent; the filled part
+   lies over the track, so it stays a shade darker; the knob as Idle). The knob's ring is the fill's color,
+   so it lightens with it. On a phone the iOS kit's half opacity stands instead (below). */
+.Slider[data-disabled] {
+  --slider-disabled-color: color-mix(in srgb, var(--slider-track-color) 60%, transparent);
+
+  & :is(.Track, .Range) {
+    background: var(--slider-disabled-color);
+  }
+
+  & .Thumb {
+    box-shadow: var(--slider-thumb-shadow, inset 0 0 0 2px var(--slider-disabled-color));
+  }
+}
+
 .SliderLabel {
   display: flex;
   align-items: center;
@@ -318,8 +335,20 @@
     box-shadow: var(--mobile-knob-lens-shadow, var(--slider-thumb-shadow, inset 0 0 0 2px var(--slider-range-color)));
   }
 
-  /* Disabled, the track, its fill and the knob show at half opacity (State=Disabled). */
+  /* Disabled, the track, its fill and the knob show at half opacity (State=Disabled), in their own colors. */
   .Slider[data-disabled] {
     opacity: 0.5;
+
+    & .Track {
+      background: var(--slider-track-color);
+    }
+
+    & .Range {
+      background: var(--slider-range-color);
+    }
+
+    & .Thumb {
+      box-shadow: var(--slider-thumb-shadow, inset 0 0 0 2px var(--slider-range-color));
+    }
   }
 }

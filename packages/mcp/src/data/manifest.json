@@ -7069,7 +7069,7 @@
             {
               "name": "dateTimeCell(accessor, options?)",
               "type": "CellComponent",
-              "description": "Formatted datetime with Intl.DateTimeFormat"
+              "description": "Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is"
             },
             {
               "name": "statusCell(accessor, colorMap?)",
@@ -8230,5 +8230,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T22:11:47.723Z"
+  "generatedAt": "2026-11-09T23:21:26.712Z"
 }
