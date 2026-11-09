@@ -744,20 +744,20 @@
     /* =============================================
       Index bar (phone)
     ============================================= */
-    /* The section index of a phone list. Native iOS (a country list in a sheet, IMG_5491; 08.11) takes precedence
-       over the iOS 27 kit (Lists, Index Bar 48:56457: 12/16 medium, 14pt apart, in a 16pt column): letters of
-       about 11pt (a cap height of 7.7pt) 15pt apart, centred 10pt from the trailing edge, in the medium weight of
-       the kit. The kit tints them systemBlue; PlexUI draws that tint as info, as it does the prominent toolbar
-       button. The target reaches 30px in from the edge (agent: the kit and native frames show no target). A
-       Page keeps its rows 20px from the trailing edge beside an index, where native rows end (IMG_5491). */
+    /* The section index of a phone list, after native iOS Contacts (IMG_5737; 09.11) and the iOS 27 kit (Lists,
+       Index Bar 48:56457), which agree: letters of about 11pt (a cap height of 7.7-8pt) 14pt apart (13.8 native),
+       in a 16pt column at the trailing edge, centred 8pt from it (7.7 native), in the medium weight of the kit.
+       The country list of a sheet (IMG_5491: 15pt apart, 10pt from the edge) is the exception. The kit tints them
+       systemBlue; PlexUI draws that tint as info, as it does the prominent toolbar button. The target reaches 30px
+       in from the edge (agent: the kit and native frames show no target). A list keeps its margins beside the
+       index, whose letters sit in the trailing one (Contacts rows end 16pt from the edge). */
     --index-bar-width: 16px;
-    --index-bar-inset-inline-end: 2px;
+    --index-bar-inset-inline-end: 0px;
     --index-bar-font-size: 11px;
-    --index-bar-line-height: 15px;
+    --index-bar-line-height: 14px;
     --index-bar-font-weight: var(--font-weight-medium);
     --index-bar-color: var(--color-text-info);
     --index-bar-target-width: 30px;
-    --index-bar-content-inset-inline-end: 20px;
 
     /* =============================================
       Page control

@@ -3056,7 +3056,7 @@
         {
           "name": "Overview",
           "code": "<Page surface=\"grouped\">\n  <Toolbar>\n    <ToolbarTitle>Countries</ToolbarTitle>\n  </Toolbar>\n  <PageContent ref=\"content\">\n    <FieldGroup v-for=\"section in sections\" :key=\"section.letter\" :title=\"section.letter\" :data-section=\"section.letter\">\n      ...\n    </FieldGroup>\n  </PageContent>\n  <IndexBar :items=\"sections.map((section) => section.letter)\" @select=\"(letter) => scrollToSection(content, letter)\" />\n</Page>",
-          "details": "Put the bar in a Page, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as UIKit centres its index, its letters 15px apart and 10px from the edge, in the info color, as native iOS draws its tint; a Page ends its rows 20px from the edge beside it, as a native list does. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; the select event receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it."
+          "details": "Put the bar in a Page, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as iOS centres its index, its letters 14px apart and centred 8px from the edge, in the info color, as native iOS draws its tint (Contacts and the iOS 27 kit). The rows keep the margins of the list, and the letters sit in the trailing one, as in Contacts. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; the select event receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/index-bar"
@@ -7701,7 +7701,7 @@
         {
           "name": "Background",
           "code": "<Page surface=\"grouped\">\n  <Toolbar background=\"hard\">\n    <ToolbarLeading>\n      <NavigationButton action=\"back\" />\n    </ToolbarLeading>\n    <ToolbarTitle>Orders</ToolbarTitle>\n  </Toolbar>\n  <PageContent>...</PageContent>\n  <Toolbar placement=\"bottom\" background=\"hard\">\n    <ToolbarContent>\n      <Button color=\"primary\" pill>New order</Button>\n    </ToolbarContent>\n  </Toolbar>\n</Page>",
-          "details": "background sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. soft, the default, draws no line: a top bar covers the content under its controls with the canvas color and fades it out past them over a light blur, while a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does, and each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a line. glass is a translucent, blurred bar with a hairline. solid is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. PageHeader, PageFooter, the bars of a Sheet and TabBar take the same values."
+          "details": "background sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. soft, the default, draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a line. glass is a translucent, blurred bar with a hairline. solid is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. PageHeader, PageFooter, the bars of a Sheet and TabBar take the same values."
         },
         {
           "name": "Disabled",
@@ -7854,5 +7854,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T00:05:08.455Z"
+  "generatedAt": "2026-11-09T00:22:56.211Z"
 }

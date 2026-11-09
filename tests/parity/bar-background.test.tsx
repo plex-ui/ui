@@ -218,6 +218,13 @@ describe("Bar background styles", () => {
     expect(dialog).toMatch(/\.Footer::before \{\s*inset: -15px 0 0;[^}]*mask-image: linear-gradient\(to bottom, transparent, #000 27px\);/)
   })
 
+  test("a top bar of controls alone covers only the status bar, as in Notes; a bar with a title covers its row, as in Contacts", () => {
+    expect(toolbar).toMatch(/\.Toolbar\[data-host="page"\]\[data-placement="top"\]\[data-background="soft"\]:not\(\[data-mobile-variant="sheet"\] \*\):not\(:has\(> \.Heading, > \.Content\[data-fill\]\)\)::before \{\s*inset: 0 0 auto;\s*height: var\(--toolbar-padding-top, 0px\);\s*-webkit-mask-image: linear-gradient\(to bottom, #000, transparent\);\s*mask-image: linear-gradient\(to bottom, #000, transparent\);/)
+    expect(page).toMatch(/&\[data-background="soft"\]:not\(\[data-mobile-variant="sheet"\] \*\):not\(:has\(:is\(\.Heading, \.Title\)\)\)::before \{\s*inset: 0 0 auto;\s*height: var\(--safe-area-inset-top, env\(safe-area-inset-top, 0px\)\);\s*-webkit-mask-image: linear-gradient\(to bottom, #000, transparent\);\s*mask-image: linear-gradient\(to bottom, #000, transparent\);/)
+    // A titled bar keeps the full cover and the fade past it.
+    expect(toolbar).toMatch(/&::before \{[^}]*inset: 0 0 calc\(-1 \* var\(--page-bar-soft-tail, 32px\)\);/)
+  })
+
   test("a large title is the content under the row until the inline title comes in", () => {
     const large = toolbar.slice(toolbar.indexOf('.Toolbar[data-host="page"][data-title-style="large"] {'))
     expect(large).toMatch(/&\[data-scrolled\]\[data-background="glass"\]::before \{\s*opacity: clamp\(0, \(var\(--page-scroll-y, 0\) - var\(--toolbar-large-title-travel, 0\) \+ 8\) \/ 8, 1\);/)

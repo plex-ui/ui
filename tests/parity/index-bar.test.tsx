@@ -274,12 +274,12 @@ describe("IndexBar tokens follow native iOS and the iOS 27 kit Index Bar (48:564
   const tokens = read("packages/styles/src/styles/variables-components.css")
   const css = read("packages/styles/src/components/IndexBar/IndexBar.module.css")
 
-  test("11px medium letters 15px apart, centred 10px from the edge, in the info color", () => {
+  test("11px medium letters 14px apart, centred 8px from the edge, in the info color", () => {
     for (const token of [
       "--index-bar-width: 16px;",
-      "--index-bar-inset-inline-end: 2px;",
+      "--index-bar-inset-inline-end: 0px;",
       "--index-bar-font-size: 11px;",
-      "--index-bar-line-height: 15px;",
+      "--index-bar-line-height: 14px;",
       "--index-bar-font-weight: var(--font-weight-medium);",
       "--index-bar-color: var(--color-text-info);",
       "--index-bar-target-width: 30px;",
@@ -297,16 +297,16 @@ describe("IndexBar tokens follow native iOS and the iOS 27 kit Index Bar (48:564
     expect(css).toContain("height: var(--index-bar-line-height);")
   })
 
-  test("centred between the bars of a Page, its target 30px from the edge, its ring inside the Page", () => {
+  test("centred between the bars of a Page, its target 30px from the edge, its ring inside the column", () => {
     expect(css).toContain("var(--page-top, var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))")
     expect(css).toContain("var(--page-bottom, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));")
     expect(css).toContain("inset-inline: calc(var(--index-bar-width) + var(--index-bar-inset-inline-end) - var(--index-bar-target-width)) calc(-1 * var(--index-bar-inset-inline-end));")
-    expect(css).toContain("outline-offset: 0;")
+    expect(css).toContain("outline-offset: -2px;")
     expect(css).toMatch(/&\[hidden\] \{\n\s+display: none;/)
   })
 
-  test("a Page keeps its rows 20px from the trailing edge beside an index, where native rows end", () => {
-    expect(tokens).toContain("--index-bar-content-inset-inline-end: 20px;")
-    expect(read("packages/styles/src/components/Page/Page.module.css")).toContain(".Page:has(> [data-index-bar]) > .Content {\n    padding-inline-end: max(var(--page-gutter), var(--index-bar-content-inset-inline-end, 0px));")
+  test("a list keeps its margins beside an index, as Contacts does: the Page does not move its rows", () => {
+    expect(tokens).not.toContain("--index-bar-content-inset-inline-end")
+    expect(read("packages/styles/src/components/Page/Page.module.css")).not.toContain("[data-index-bar]")
   })
 })

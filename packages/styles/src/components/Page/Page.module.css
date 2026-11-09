@@ -174,12 +174,6 @@
     }
   }
 
-  /* An IndexBar takes the trailing edge from the rows, as a native list beside its section index ends its rows
-     20pt from the edge, clear of the letters 10pt from it (IMG_5491). */
-  .Page:has(> [data-index-bar]) > .Content {
-    padding-inline-end: max(var(--page-gutter), var(--index-bar-content-inset-inline-end, 0px));
-  }
-
   /* A phone Toolbar takes the place of the bar on its side. */
   .Page:has(> [data-toolbar][data-placement="top"]) > .Header,
   .Page:has(> [data-toolbar][data-placement="bottom"]) > .Footer {
@@ -206,6 +200,15 @@
       mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);
       pointer-events: none;
       transition: opacity var(--transition-duration-basic), border-color var(--transition-duration-basic);
+    }
+
+    /* A bar of controls alone covers only the status bar and leaves the content clear under its controls, as a
+       top Toolbar without a title does (Notes, IMG_5734 and 5736). A Page inside a Sheet keeps the full edge. */
+    &[data-background="soft"]:not([data-mobile-variant="sheet"] *):not(:has(:is(.Heading, .Title)))::before {
+      inset: 0 0 auto;
+      height: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+      -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+      mask-image: linear-gradient(to bottom, #000, transparent);
     }
 
     /* Hard and solid are opaque, glass is translucent and shows itself once content is under the bar.

@@ -104,7 +104,7 @@ A page needs a bounded parent. These demos use a 420px frame on desktop and the 
 }
 ```
 
-Under 768px the header contains a 44px toolbar row with 10px below it, plus the device top safe area. It floats over the content and meets what scrolls under it by its `background`, see [Background](#background): by default the canvas color covers the content under the row and fades out below it. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner.
+Under 768px the header contains a 44px toolbar row with 10px below it, plus the device top safe area. It floats over the content and meets what scrolls under it by its `background`, see [Background](#background): by default the canvas color covers the content under the row and fades out below it. A bar without a title, of controls alone, covers only the status bar and leaves the content clear under its controls, as native iOS 26 does. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner.
 
 Keep the row to a title and one group of actions. The bar has no room for a second row, so anything set under `Page.Bar`, such as a search field, belongs at the top of `Page.Content` on a phone. `useBreakpoint("md")` tells which one to render. Use `Page.Leading` for a Back button or the menu button of a sidebar. The title stays centred between the leading and trailing controls.
 

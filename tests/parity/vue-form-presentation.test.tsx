@@ -59,10 +59,11 @@ describe('Vue form presentation controls', () => {
     expect(page.getByRole('dialog').getAttribute('data-surface')).toBe('plain');
     // Docs mirrors these controls outside the Phone iframe, beyond its modal scope.
     await interact(() => fireEvent.click(controls.getByRole('radio', { name: 'per-digit', hidden: true })));
-    const digit = page.getByLabelText<HTMLInputElement>('Digit 1');
+    // The per-digit field mounts inside the Sheet a tick later: wait for it rather than race it.
+    const digit = await page.findByLabelText<HTMLInputElement>('Digit 1');
     await interact(() => fireEvent.input(digit, { target: { value: '7' } }));
     await interact(() => fireEvent.click(controls.getByRole('switch', { name: 'dialog', hidden: true })));
-    expect(page.getByLabelText<HTMLInputElement>('Digit 1').value).toBe('7');
+    expect((await page.findByLabelText<HTMLInputElement>('Digit 1')).value).toBe('7');
     await interact(() => fireEvent.click(controls.getByRole('radio', { name: 'text-field' })));
     expect(page.getByRole('textbox', { name: 'Code' })).toHaveProperty('value', 'ABC123');
   });

@@ -521,6 +521,9 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     // Full cover down to the bottom of the bar, then a 32px fade past it (owner 08.11: 16px read too short; plan 170)
     expect(css).toContain("inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));")
     expect(css).toContain("mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);")
-    expect(css).not.toContain("mask-image: linear-gradient(to bottom, #000, transparent);")
+    // The plain fade over the whole height is left to a bar of controls alone, which covers only the status bar (Notes).
+    const plain = css.split("mask-image: linear-gradient(to bottom, #000, transparent);").length - 1
+    expect(plain).toBe(2)
+    expect(css).toMatch(/:not\(:has\(> \.Heading, > \.Content\[data-fill\]\)\)::before \{\s*inset: 0 0 auto;\s*height: var\(--toolbar-padding-top, 0px\);\s*-webkit-mask-image: linear-gradient\(to bottom, #000, transparent\);\s*mask-image: linear-gradient\(to bottom, #000, transparent\);\s*\}/)
   })
 })

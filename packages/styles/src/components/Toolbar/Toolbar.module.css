@@ -154,6 +154,19 @@
     }
   }
 
+  /* A top bar of controls alone, with no title, leaves the content clear under its controls: on a page the soft
+     edge covers only the status bar and fades out to its bottom, as in Notes (IMG_5734, 5736: text at 18% of its
+     contrast at the top and at 44%, blurred, 37pt down, clear from 53pt; a top safe area of 59pt). Each glass
+     control stands out by itself, as on a bottom bar. With a title the edge covers the row, as in Contacts
+     (IMG_5737) and Settings (IMG_5484, 5503): the title needs it. A Page laid out inside a Sheet keeps the full
+     edge, as its bottom bar does: the frames show no sheet without a title. */
+  .Toolbar[data-host="page"][data-placement="top"][data-background="soft"]:not([data-mobile-variant="sheet"] *):not(:has(> .Heading, > .Content[data-fill]))::before {
+    inset: 0 0 auto;
+    height: var(--toolbar-padding-top, 0px);
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+    mask-image: linear-gradient(to bottom, #000, transparent);
+  }
+
   /* Leading alignment, compact titles and filled content share one row from the start edge. */
   .Toolbar:is([data-title-align="start"], [data-title-style="compact-large"], [data-title-style="compact-medium"]),
   .Toolbar:has(> .Content[data-fill]) {
