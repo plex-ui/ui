@@ -198,15 +198,38 @@
 }
 
 /* A toast stays an in-app web message: it takes the look of an iOS notification banner on a phone
-   (below) but not its behavior. These targets and wrapping rules adapt Sonner's controls for touch:
-   an action stands under the message, which keeps the toast's width. */
+   (below) but not its behavior. These targets and wrapping rules adapt Sonner's controls for touch.
+   One button stands at the trailing end of the message's row, where the kit's banner keeps its
+   one trailing item, the time (Notification - Collapsed Stack=1 0:11292), and the message wraps in
+   its own column. Beside a button the message keeps some room, and a button that would leave it
+   less wraps under it: half the row where the toast fills the width (a phone, below); 8em in a
+   toast as wide as its content, as half of a width the message itself sets would push a short
+   message off its row. Neither floor passes the row but the icon's 28px, so the message never
+   leaves the icon alone. Two buttons stand together under the message, as the banner keeps one
+   item at its end and Sonner draws them as two separate children. A button is whatever follows
+   the message: the renderers put only the cancel and the action there, theirs or the caller's own
+   element. */
 @media (max-width: 767px), (pointer: coarse) {
   .Toast[data-styled="true"] {
     flex-wrap: wrap;
 
     & > .Content {
-      flex: 1 1 calc(100% - 28px);
+      flex: 1 1 0;
       min-width: 0;
+    }
+
+    &:has(> .Content ~ *) > .Content {
+      min-width: min(8em, 100% - 28px);
+    }
+
+    @media (width <= 600px) {
+      &:not(.Compact):has(> .Content ~ *) > .Content {
+        min-width: 50%;
+      }
+    }
+
+    &:has(> .Content ~ * ~ *) > .Content {
+      flex-basis: calc(100% - 28px);
     }
 
     & > :is(.ActionButton, .CancelButton) {
@@ -226,6 +249,8 @@
     /* The 20px close face stays compact inside a separate 44px target. Reserve
        the leading space so neither its target nor its ring covers the message. */
     &:has([data-close-button]) {
+      /* The 44px target inside the padding box and Sonner's 1px border above and below */
+      min-height: 46px;
       padding-inline-start: 56px !important;
     }
 
@@ -271,14 +296,16 @@
 
 /* On a phone a toast takes the corners, padding and text of the iOS notification banner, the
    system's own message at the top of the screen (kit iOS 27, Notifications, Notification - Collapsed
-   Stack=1 0:11292): corners 24, padding 14, a 10px gap, the title at 15/17 semibold and the
-   description at 15/18. The kit's -0.23 tracking of 15pt text is left to the system font, which
-   tracks it itself. It keeps its own width and opaque surface, not the banner's glass and width. Its buttons are drawn as a medium phone Button (touch.css): a 34px capsule,
-   15/20 regular, gutter 14, centered in the 44px target above. */
+   Stack=1 0:11292): corners 24, padding 12 above and below and 14 at the sides, a 10px gap, the
+   title at 15/17 semibold and the description at 15/18. The kit's -0.23 tracking of 15pt text is
+   left to the system font, which tracks it itself. It keeps its own width and opaque surface, not
+   the banner's glass and width. Its buttons are drawn as a medium phone Button (touch.css): a 34px
+   capsule, 15/20 regular, gutter 14, its 44px target reaching 5px past it into the padding, so a
+   one-line toast with a button is 58 high. */
 @media (max-width: 767px) {
   .Toast[data-styled="true"] {
     gap: 10px !important;
-    padding: 14px !important;
+    padding: 12px 14px !important;
     border-radius: 24px !important;
     letter-spacing: normal;
 
@@ -295,7 +322,6 @@
     & > :is(.ActionButton, .CancelButton) {
       position: relative;
       min-height: 34px;
-      margin-block: 5px !important;
       padding: 7px 14px !important;
       border-radius: var(--radius-full) !important;
       font-size: 15px !important;

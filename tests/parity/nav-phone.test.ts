@@ -152,7 +152,7 @@ describe("a toast on a phone", () => {
   test("takes the corners, padding and text of the kit's notification banner", () => {
     expect(phoneRule(css, '.Toast[data-styled="true"]')).toEqual({
       gap: "10px !important",
-      padding: "14px !important",
+      padding: "12px 14px !important",
       "border-radius": "24px !important",
       "letter-spacing": "normal",
     })
@@ -178,15 +178,44 @@ describe("a toast on a phone", () => {
     expect(phoneRule(css, "& > :is(.ActionButton, .CancelButton)")).toEqual({
       position: "relative",
       "min-height": "34px",
-      "margin-block": "5px !important",
       padding: "7px 14px !important",
       "border-radius": "var(--radius-full) !important",
       "font-size": "15px !important",
       "font-weight": "var(--font-weight-normal) !important",
       "line-height": "20px",
     })
-    // 34 + 5 + 5: the target of the coarse-pointer block above
+    // 34 + 5 + 5: the target of the coarse-pointer block above, reaching into the 12px padding
     expect(phoneRule(css, "&::after")).toEqual({ position: "absolute", inset: "-5px 0", content: '""' })
+  })
+
+  // Peer 09.11 (plan 176 release 12): one short line and Undo took a 101 high card, the button on a line of its own
+  test("puts one button at the trailing end of the message's row, as the banner keeps its time; two stand under it", () => {
+    const coarse: Record<string, Record<string, string>> = {}
+    postcss.parse(read(css)).walkAtRules("media", (media) => {
+      if (media.params !== "(max-width: 767px), (pointer: coarse)") return
+      media.walkRules((rule) => {
+        if (!rule.selector.includes("Content")) return
+        rule.walkDecls((decl) => { (coarse[rule.selector] ??= {})[decl.prop] = decl.value })
+      })
+    })
+    expect(coarse).toEqual({
+      // The message grows into the row beside one button
+      "& > .Content": { flex: "1 1 0", "min-width": "0" },
+      // In a toast as wide as its content it keeps 8em beside a button, which wraps under it otherwise
+      // (Codex r12b: a long label crushed the message), and never more than the row but the icon's 28px
+      // A button is whatever follows the message: a caller's own action element too (Codex r12c)
+      "&:has(> .Content ~ *) > .Content": { "min-width": "min(8em, 100% - 28px)" },
+      // Where the toast fills the width it keeps at least half the row; a wider button wraps under it.
+      // Half of a width the message sets would push a short message off its row, leaving the icon alone (Codex r12)
+      "&:not(.Compact):has(> .Content ~ *) > .Content": { "min-width": "50%" },
+      // Two buttons leave the message the row but the icon's 28px, so they stand together under it
+      "&:has(> .Content ~ * ~ *) > .Content": { "flex-basis": "calc(100% - 28px)" },
+    })
+    const floors: string[] = []
+    postcss.parse(read(css)).walkAtRules("media", (media) => {
+      if (media.params === "(width <= 600px)" && media.parent?.type === "rule") media.walkRules((rule) => { floors.push(rule.selector) })
+    })
+    expect(floors).toEqual(["&:not(.Compact):has(> .Content ~ *) > .Content"])
   })
 
   test("a toast with a close button keeps the close button's room before the message", () => {
@@ -195,7 +224,8 @@ describe("a toast on a phone", () => {
     postcss.parse(read(css)).walkAtRules("media", (media) => {
       if (media.params === "(max-width: 767px), (pointer: coarse)") media.walkRules((rule) => { if (rule.selector.includes(":has([data-close-button])")) rule.walkDecls((decl) => { coarse.push(`${rule.selector} ${decl.prop}: ${decl.value}${decl.important ? " !important" : ""}`) }) })
     })
-    expect(coarse).toEqual(["&:has([data-close-button]) padding-inline-start: 56px !important"])
+    // A toast with only a line of text is not shorter than the 44px target and Sonner's two 1px borders (Codex r12)
+    expect(coarse).toEqual(["&:has([data-close-button]) min-height: 46px", "&:has([data-close-button]) padding-inline-start: 56px !important"])
   })
 })
 

@@ -89,7 +89,7 @@ Render `<Toaster />` once near the root of your app, then call `toast(...)` from
 <div id="first-component-page">
 ### Overview
 
-<ComponentPreview details={<>On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.</>} language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview details={<>On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content). Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.</>} language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueToastDemo template={overview} />
 </ComponentPreview>
 

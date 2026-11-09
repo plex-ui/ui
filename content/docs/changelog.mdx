@@ -7,6 +7,14 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Changed
+
+- `Toast` on a phone stands in one row: one button sits at the end of the message's row, as the time sits at the end of an iOS notification banner, and the message wraps in its own column. A one-line toast with an action is 60 high instead of about 100. A cancel and an action together still stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content, a compact one or one on a tablet). The toast's padding is the banner's 12 above and below and 14 at the sides, and a toast with a close button is never shorter than the button's 44px target.
+
+---
+
 ## 0.40.0 (2026-11-09)
 
 ### Changed

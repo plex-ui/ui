@@ -122,6 +122,21 @@ describe("Toast parity", () => {
     expect(onCancel).not.toHaveBeenCalled()
   })
 
+  // Release 12 (plan 176): on a phone the message keeps its room beside whatever follows it, so the
+  // stylesheet keys its floors on `.Content ~ *`; only the cancel and the action may stand there (Codex r12c)
+  test("only the cancel and the action follow the message, the caller's own elements too", async () => {
+    const after: string[][] = []
+    await walkToasts({}, async ({ toast, advance }) => {
+      const own = (label: string) => isVue() ? h("a", { href: "#", "data-own": label }, label) : createElement("a", { href: "#", "data-own": label }, label)
+      toast("Message sent", { cancel: own("Keep"), action: own("History") } as never)
+      await settle(advance)
+      const next: string[] = []
+      for (let el = document.querySelector("[data-sonner-toast] [data-content]")!.nextElementSibling; el; el = el.nextElementSibling) next.push(`${el.tagName.toLowerCase()} ${el.getAttribute("data-own")}`)
+      after.push(next)
+    })
+    expect(after).toEqual([["a Keep", "a History"], ["a Keep", "a History"]])
+  })
+
   test("cancel button closes the toast", async () => {
     const onCancel = vi.fn()
     const result = await walkToasts({}, async ({ toast, advance, snapshot, run }) => {
