@@ -193,6 +193,17 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /* Leading controls and nothing trailing: two columns. An empty trailing column and its gap took 12px from
+     the search field or the title. A large title keeps its own two rows. */
+  .Toolbar:not([data-title-style="large"]):has(> .Leading):not(:has(> .Trailing)):is([data-title-align="start"], [data-title-style="compact-large"], [data-title-style="compact-medium"], :has(> .Content[data-fill])) {
+    grid-template-areas: "leading heading";
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+
+  .Toolbar:not([data-title-style="large"]):has(> .Leading):not(:has(> .Trailing)):has(> .Content[data-fill]) {
+    grid-template-areas: "leading content";
+  }
+
   /* Large title: the controls stay in their own row and the title sits below it. */
   .Toolbar[data-title-style="large"] {
     --toolbar-edge-blur: var(--toolbar-edge-blur-large);

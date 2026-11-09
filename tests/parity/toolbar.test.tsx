@@ -550,3 +550,13 @@ describe("Phone bottom bar after iOS 26 Mail and Contacts (430 x 932)", () => {
     expect(read("components/ButtonGroup/ButtonGroup.module.css")).toMatch(/& > :where\(button, a, \[role="link"\]\)\[data-icon-size="sm"\]:where\(:not\(\[data-navigation-action\]\)\) \{\s*--button-icon-size: var\(--toolbar-icon-size-sm\);/)
   })
 })
+
+// Owner 09.11 (plan 176 item 6): with leading controls and nothing trailing, an empty trailing column and its gap
+// took 12px from the search field or the title.
+describe("A bar with leading controls and nothing trailing", () => {
+  const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Toolbar/Toolbar.module.css`, "utf8")
+  test("has two columns for a filled content or a title from the start edge, and a large title keeps its rows", () => {
+    expect(css).toMatch(/\.Toolbar:not\(\[data-title-style="large"\]\):has\(> \.Leading\):not\(:has\(> \.Trailing\)\):is\(\[data-title-align="start"\], \[data-title-style="compact-large"\], \[data-title-style="compact-medium"\], :has\(> \.Content\[data-fill\]\)\) \{\s*grid-template-areas: "leading heading";\s*grid-template-columns: max-content minmax\(0, 1fr\);/)
+    expect(css).toMatch(/\.Toolbar:not\(\[data-title-style="large"\]\):has\(> \.Leading\):not\(:has\(> \.Trailing\)\):has\(> \.Content\[data-fill\]\) \{\s*grid-template-areas: "leading content";/)
+  })
+})
