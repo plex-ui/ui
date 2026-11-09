@@ -3778,7 +3778,7 @@
         {
           "name": "Formats and line breaks",
           "code": "function Example() {\nconst [value, setValue] = useState(initialMd);\n\nreturn (\n  <MarkdownEditor aria-label=\"Message\" formats={[\"bold\", \"link\"]} breaks\n    value={value} onChange={setValue} />\n);\n}",
-          "details": "Use formats to choose what the editor offers: bold, italic, orderedList, bulletList and link, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. Pasted and incoming markdown keeps its text without it, and the markdown the editor writes leaves it out: here the italic and the list of the initial value become plain text. With breaks, a single newline is a line break, read and written as one newline. Both are read when the editor is created."
+          "details": "Use formats to choose what the editor offers: bold, italic, orderedList, bulletList and link, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. In pasted text its markers stay text, as if they were typed, and so do those of headings, quotes, code and rules, which the editor never offers. Pasted HTML and incoming markdown keep its text without it, and the markdown the editor writes leaves it out: here the italic and the list of the initial value become plain text. With breaks, a single newline is a line break, read and written as one newline. Both are read when the editor is created."
         },
         {
           "name": "With Field",
@@ -8230,5 +8230,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T20:11:54.707Z"
+  "generatedAt": "2026-11-09T20:59:00.790Z"
 }

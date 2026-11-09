@@ -191,7 +191,8 @@ const MarkdownEditorComponent = defineComponent({
     defaultValue: { type: String, default: undefined },
     /**
      * The formats the editor offers, read when the editor is created. A format left out has no toolbar button,
-     * shortcut or input rule; pasted and incoming content keeps its text without it, and the markdown does not write it.
+     * shortcut or input rule; in pasted text its markers stay text, as typed, pasted HTML and incoming markdown keep
+     * its text without it, and the markdown does not write it.
      * @default ["bold", "italic", "orderedList", "bulletList", "link"]
      */
     formats: { type: Array as PropType<MarkdownEditorFormat[]>, default: undefined },

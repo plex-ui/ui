@@ -1,5 +1,7 @@
-import type { AnyExtension } from "@tiptap/core"
-import type { Node as ProseMirrorNode } from "@tiptap/pm/model"
+import { Extension, type AnyExtension } from "@tiptap/core"
+import { defaultMarkdownSerializer } from "@tiptap/pm/markdown"
+import { DOMParser as ProseMirrorDOMParser, type Mark, type Node as ProseMirrorNode, type Slice } from "@tiptap/pm/model"
+import { Plugin, PluginKey } from "@tiptap/pm/state"
 import Document from "@tiptap/extension-document"
 import Paragraph from "@tiptap/extension-paragraph"
 import Text from "@tiptap/extension-text"
@@ -45,6 +47,8 @@ const LISTS = [
 type SerializerState = {
   out: string
   atBlockStart: boolean
+  /** Inside a link written as an autolink, "<" and ">" around its URL */
+  inAutolink?: boolean
   write: (content?: string) => void
   text: (text: string, escape?: boolean) => void
 }
@@ -83,31 +87,99 @@ const lineBreak = (breaks: boolean) =>
 const LINE_OPENER = /^(?:\d+(?=[.)](?:[ \t]|$))|(?=-|\+(?:[ \t]|$)|#{1,6}(?:[ \t]|$)))/
 // A line of "=" makes the line above it a heading
 const HEADING_UNDERLINE = /^(?==+[ \t]*$)/
-const escapeHtml = (text: string) => text.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+// A line of "|", ":" and at least one "-" makes the line above it the head of a table ("-" first is escaped already)
+const TABLE_DELIMITER = /^(?=[|:][|: \t]*-[-|: \t]*$)/
+// A character reference markdown reads as its character: "&" and a name, or "#" and at most seven decimal or six
+// hexadecimal digits, then ";". Its "&" is written as "&amp;", so a typed "&lt;" stays those four characters
+const CHARACTER_REFERENCE = /&(?=#\d{1,7};|#[xX][\da-fA-F]{1,6};|[A-Za-z][A-Za-z\d]{1,31};)/g
+const escapeHtml = (text: string) =>
+  text.replace(CHARACTER_REFERENCE, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 
-// Text as tiptap-markdown writes it (with "<" and ">" as entities), escaping what would open a block at the start of
-// a line, so the line keeps its text when the markdown is read again. After a line break the line continues the
-// paragraph and is never code, so an opener is escaped after any white space, also white space written before it
-// (a marked one is written outside its mark). At the start of a paragraph, as prosemirror-markdown does, after up to
-// three spaces: four columns start code there, where an escape would show
+// A letter, a mark or a digit: a run of "_" between two of them is inside a word, where it opens no emphasis
+const WORD_CHARACTER = /[\p{L}\p{M}\p{N}]/u
+
+// Text escaped as prosemirror-markdown escapes it, but for "_": it keeps a "_" with a word character, or another "_",
+// on each side, so "__s__" was "\__s_\_", read again as "_", an italic "s" and "_". A run of "_" stays as it is only
+// inside a word, each "_" of any other is escaped
+const writeEscaped = (state: SerializerState, text: string) => {
+  let at = 0
+  for (const run of text.matchAll(/_+/g)) {
+    const end = run.index + run[0].length
+    if (run.index > at) state.text(text.slice(at, run.index))
+    const insideWord = WORD_CHARACTER.test(text[run.index - 1] ?? "") && WORD_CHARACTER.test(text[end] ?? "")
+    state.text(insideWord ? run[0] : run[0].replace(/_/g, "\\_"), false)
+    at = end
+  }
+  if (at < text.length) state.text(text.slice(at))
+}
+
+// Text as tiptap-markdown writes it (with "<" and ">" as entities, and the "&" of a character reference), escaping
+// what would open a block at the start of a line, so the line keeps its text when the markdown is read again. After a
+// line break the line continues the paragraph and is never code, so an opener is escaped after any white space, also
+// white space written before it (a marked one is written outside its mark). At the start of a paragraph, as
+// prosemirror-markdown does, after up to three spaces: four columns start code there, so white space that reaches
+// them is not written (markdown would drop it anyway). The URL of an autolink is written as it is: markdown reads no
+// escape or reference there
 const EditorText = Text.extend({
   addStorage() {
     return {
       ...this.parent?.(),
       markdown: {
         serialize(state: SerializerState, node: ProseMirrorNode, parent: ProseMirrorNode) {
-          const text = escapeHtml(node.text ?? "")
+          if (state.inAutolink) {
+            state.atBlockStart = false
+            return state.text(node.text ?? "", false)
+          }
+          let text = escapeHtml(node.text ?? "")
+          // Four columns of white space start code at the start of a paragraph, and markdown drops less: none is written
+          const leading = state.atBlockStart ? /^[ \t]*/.exec(text)![0] : ""
+          if (leading.includes("\t") || leading.length >= 4) text = text.slice(leading.length)
           const lineStart = lineStarts.get(state)
           const afterBreak = lineStart?.parent === parent && !state.atBlockStart && /^[ \t]*$/.test(state.out.slice(lineStart.at))
           const space = (afterBreak ? /^[ \t]*/ : state.atBlockStart ? /^ {0,3}/ : null)?.exec(text)?.[0]
           const rest = space === undefined ? "" : text.slice(space.length)
-          const opener = space === undefined ? null : LINE_OPENER.exec(rest) ?? (afterBreak ? HEADING_UNDERLINE.exec(rest) : null)
+          const opener =
+            space === undefined
+              ? null
+              : LINE_OPENER.exec(rest) ?? (afterBreak ? HEADING_UNDERLINE.exec(rest) ?? TABLE_DELIMITER.exec(rest) : null)
           // The opener is escaped here; prosemirror-markdown's own escape at the start of a paragraph would escape it twice
           state.atBlockStart = false
-          if (!opener) return state.text(text)
+          if (!opener) return writeEscaped(state, text)
           const at = space!.length + opener[0].length
           state.text(`${text.slice(0, at)}\\`, false)
-          state.text(text.slice(at))
+          writeEscaped(state, text.slice(at))
+        },
+        parse: {},
+      },
+    }
+  },
+})
+
+// A link as prosemirror-markdown writes it, but a line ending of its title is a character reference: markdown reads a
+// title over two lines, and a pasted one can start a block on the second ("# h"), which would end the paragraph and
+// the link with it when read again. The "&" of a reference in the title is written as "&amp;", as in text, and a
+// backslash that would escape what follows (punctuation, the reference of a line ending, the closing quote) as two
+const markdownLink = defaultMarkdownSerializer.marks.link!
+const EditorLink = LinkExtension.extend({
+  addStorage() {
+    return {
+      ...this.parent?.(),
+      markdown: {
+        serialize: {
+          ...markdownLink,
+          close(state: SerializerState, mark: Mark, parent: ProseMirrorNode, index: number) {
+            const title = mark.attrs.title as string | null | undefined
+            const attrs = title
+              ? {
+                  ...mark.attrs,
+                  title: title
+                    .replace(/\\(?=[!-/:-@[-`{-~\r\n]|$)/g, "\\\\")
+                    .replace(CHARACTER_REFERENCE, "&amp;")
+                    .replace(/\r\n?|\n/g, "&#10;"),
+                }
+              : mark.attrs
+            return (markdownLink.close as (...args: unknown[]) => string)(state, { ...mark, attrs }, parent, index)
+          },
         },
         parse: {},
       },
@@ -124,13 +196,131 @@ const listItemOf = (tags: ReadonlySet<string>) =>
     },
   })
 
+/* ------------------------------------------------------------------ */
+/*  Pasting text                                                       */
+/* ------------------------------------------------------------------ */
+
+// The parts of markdown-it and of tiptap-markdown's parser that pasting uses
+type MarkdownItToken = { type: string; tag: string; nesting: number; markup: string; content: string; children: MarkdownItToken[] | null }
+type InlineState = { pos: number; src: string; push: (type: string, tag: string, nesting: number) => MarkdownItToken }
+type InlineRule = (state: InlineState, silent: boolean) => boolean
+type BlockState = { src: string; bMarks: number[]; tShift: number[] }
+type BlockRule = (state: BlockState, startLine: number, endLine: number, silent: boolean) => boolean
+type Ruler<Rule> = {
+  __rules__: { name: string; fn: Rule; alt: string[] }[]
+  at: (name: string, fn: Rule, options: { alt: string[] }) => void
+}
+type MarkdownIt = {
+  options: { linkify?: boolean; breaks?: boolean }
+  disable: (rules: string[]) => MarkdownIt
+  core: { ruler: { after: (rule: string, name: string, fn: (state: { tokens: MarkdownItToken[] }) => void) => void } }
+  block: { ruler: Ruler<BlockRule> }
+  inline: { ruler: Ruler<InlineRule> }
+}
+
+// Runs `wrap` in place of a markdown-it rule, which it can call, keeping the rule's place in the chains it ends
+// (its `alt`, which Ruler.at would otherwise empty)
+function wrapRule<Rule>(ruler: Ruler<Rule>, name: string, wrap: (rule: Rule) => Rule) {
+  const { fn, alt } = ruler.__rules__.find((rule) => rule.name === name)!
+  ruler.at(name, wrap(fn), { alt: [...alt] })
+}
+type MarkdownParser = {
+  md: MarkdownIt
+  parse: (content: string, options: { inline: boolean }) => string
+  withPatchedRenderer: (md: MarkdownIt) => MarkdownIt
+}
+
+// Blocks and inlines the editor never offers: pasted, their markers stay text, as typed. An image is read as one and
+// kept as its source text (pasteMarkdownIt)
+const NEVER_OFFERED = ["heading", "lheading", "blockquote", "code", "fence", "hr", "table", "backticks", "strikethrough"]
+
+
+// The markdown-it that reads pasted text when a format is left out: the editor's own (its options and tiptap-markdown's
+// renderer), without the rules of the formats left out and of the blocks never offered. An image is its source text,
+// all of it, as markdown-it reads it (disabled, its "[...](...)" would be a link where links are offered). With one
+// list left out, a line its marker opens is no list (and does not end a paragraph); with one of bold and italic left
+// out, its delimiters are turned back into text
+function pasteMarkdownIt(editorMd: MarkdownIt, parser: MarkdownParser, formats: ReadonlySet<MarkdownEditorFormat>) {
+  const MarkdownItClass = editorMd.constructor as new (options: object) => MarkdownIt
+  const md = parser.withPatchedRenderer(
+    new MarkdownItClass({ html: false, linkify: editorMd.options.linkify, breaks: editorMd.options.breaks }),
+  )
+  const rules = [...NEVER_OFFERED]
+  if (!formats.has("link")) rules.push("link", "autolink", "reference")
+  if (!LISTS.some(([format]) => formats.has(format))) rules.push("list")
+  if (!formats.has("bold") && !formats.has("italic")) rules.push("emphasis")
+  md.disable(rules)
+  wrapRule(md.inline.ruler, "image", (image) => (state, silent) => {
+    const start = state.pos
+    if (!image(state, true)) return false
+    if (!silent) state.push("text", "", 0).content = state.src.slice(start, state.pos)
+    return true
+  })
+  if (formats.has("bulletList") !== formats.has("orderedList")) {
+    wrapRule(md.block.ruler, "list", (list) => (state, startLine, endLine, silent) => {
+      const marker = state.src.charCodeAt(state.bMarks[startLine]! + state.tShift[startLine]!)
+      const ordered = marker >= 0x30 && marker <= 0x39
+      if (!formats.has(ordered ? "orderedList" : "bulletList")) return false
+      return list(state, startLine, endLine, silent)
+    })
+  }
+  if (formats.has("bold") !== formats.has("italic")) {
+    const leftOut = formats.has("bold") ? ["em_open", "em_close"] : ["strong_open", "strong_close"]
+    md.core.ruler.after("inline", "left_out_emphasis", ({ tokens }) => {
+      for (const token of tokens.flatMap((block) => block.children ?? [])) {
+        if (!leftOut.includes(token.type)) continue
+        Object.assign(token, { type: "text", tag: "", nesting: 0, content: token.markup })
+      }
+    })
+  }
+  return md
+}
+
+// Pasted text is read as markdown, as tiptap-markdown does, but the syntax of a format left out stays text with its
+// markers, as it does when typed: "- one" pasted where lists are left out is the line "- one", not "one". Before
+// tiptap-markdown's paste (its plugin comes later); pasted HTML and a plain-text paste (Shift) are left to it
+const leftOutSyntaxPaste = (formats: ReadonlySet<MarkdownEditorFormat>) =>
+  Extension.create({
+    name: "markdownEditorPaste",
+    priority: 1000,
+    addProseMirrorPlugins() {
+      const { editor } = this
+      let md: MarkdownIt | undefined
+      return [
+        new Plugin({
+          key: new PluginKey("markdownEditorPaste"),
+          props: {
+            clipboardTextParser(text, context, plainText) {
+              // No slice: the next parser reads it
+              if (plainText) return null as unknown as Slice
+              const { parser } = (editor.storage as unknown as { markdown: { parser: MarkdownParser } }).markdown
+              const editorMd = parser.md
+              md ??= pasteMarkdownIt(editorMd, parser, formats)
+              let html: string
+              parser.md = md
+              try {
+                html = parser.parse(text, { inline: true })
+              } finally {
+                parser.md = editorMd
+              }
+              const body = new window.DOMParser().parseFromString(`<body>${html}</body>`, "text/html").body
+              return ProseMirrorDOMParser.fromSchema(editor.schema).parseSlice(body, { preserveWhitespace: true, context })
+            },
+          },
+        }),
+      ]
+    },
+  })
+
 /**
- * The editor's extensions. A format left out has no mark or node: its shortcut and input rule are gone, and pasted or
- * incoming content keeps its text without it, so the markdown going out does not write it either.
+ * The editor's extensions. A format left out has no mark or node: its shortcut and input rule are gone, in pasted text
+ * its markers stay text, as typed, and pasted HTML and incoming markdown keep its text without it, so the markdown
+ * going out does not write it either.
  */
 export const markdownEditorExtensions = ({ formats, breaks }: MarkdownEditorSchema, placeholder?: string): AnyExtension[] => {
   const lists = LISTS.filter(([format]) => formats.has(format))
   return [
+    ...(MARKDOWN_EDITOR_FORMATS.every((format) => formats.has(format)) ? [] : [leftOutSyntaxPaste(formats)]),
     Document,
     Paragraph,
     EditorText,
@@ -138,7 +328,7 @@ export const markdownEditorExtensions = ({ formats, breaks }: MarkdownEditorSche
     ...(formats.has("bold") ? [BoldExtension] : []),
     ...(formats.has("italic") ? [ItalicExtension] : []),
     ...(formats.has("link")
-      ? [LinkExtension.configure({ openOnClick: false, HTMLAttributes: { rel: "noopener noreferrer nofollow" } })]
+      ? [EditorLink.configure({ openOnClick: false, HTMLAttributes: { rel: "noopener noreferrer nofollow" } })]
       : []),
     ...(formats.has("bulletList") ? [BulletList] : []),
     ...(formats.has("orderedList") ? [OrderedList] : []),

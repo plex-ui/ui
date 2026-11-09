@@ -2,7 +2,7 @@ import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, useSyncExternalStore, type ReactElement } from "react"
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest"
 import { h, reactive, type VNode } from "vue"
-import type { Editor as CoreEditor } from "@tiptap/core"
+import type { Editor as CoreEditor, JSONContent } from "@tiptap/core"
 import { Translate as ReactTranslate } from "../../packages/ui/src/components/Icon"
 import {
   MarkdownEditor as ReactMarkdownEditor,
@@ -1159,17 +1159,175 @@ describe("MarkdownEditor parity: formats", () => {
     )
   })
 
-  test("pasted text and HTML keep their text without the formats left out", async () => {
+  test("pasted text keeps the markers of the formats left out as text, pasted HTML keeps their text without them", async () => {
     expectSame(
       await walkEditor({ formats: ["bold"] }, async ({ snapshot, command, fire, focus }) => {
         await focus(PM)
         await fire(PM, "paste", clipboard({ "text/plain": "**b** *i* [l](https://example.com)\n\n- one\n1. two" }))
-        expect(markdown()).toBe("**b** i l\n\none\n\ntwo")
+        // A pasted newline is a line break, as it was with every format (ProseMirror keeps the pasted lines)
+        expect(markdown()).toBe("**b** \\*i\\* \\[l\\](https://example.com)\n\n\\- one\\\n1\\. two")
         await command((e) => e.commands.clearContent(true))
         await fire(PM, "paste", clipboard({
           "text/html": '<p><strong>b</strong> <em>i</em> <a href="https://example.com">l</a></p><ul><li>one</li></ul><ol><li>two</li></ol>',
         }))
         expect(markdown()).toBe("**b** i l\n\none\n\ntwo")
+        snapshot()
+      }),
+    )
+  })
+
+  // Pasted text reads as it would be typed: what a format left out or a block never offered would open stays text with
+  // its markers, a format offered still reads, and the markdown written reads back the same
+  test("pasted text reads as typed and reads back the same", async () => {
+    const pastes: Array<[pasted: string, text: string, written: string]> = [
+      ["- one\n- two", "- one\n- two", "\\- one\n\\- two"],
+      ["*it* and **b**", "*it* and b", "\\*it\\* and **b**"],
+      ["# Title\n> quote\n1. first", "# Title\n> quote\n1. first", "\\# Title\n&gt; quote\n1\\. first"],
+      [
+        "```\ncode\n```\n---\n~~gone~~ `tick`",
+        "```\ncode\n```\n---\n~~gone~~ `tick`",
+        "\\`\\`\\`\ncode\n\\`\\`\\`\n\\---\n\\~\\~gone\\~\\~ \\`tick\\`",
+      ],
+      [
+        "Title\n===\nx | y\n|---|---|\n![alt](https://example.com/a.png)",
+        "Title\n===\nx | y\n|---|---|\n![alt](https://example.com/a.png)",
+        // The URL is a link, as a pasted URL is where links are offered
+        "Title\n\\===\nx | y\n\\|---|---|\n!\\[alt\\](<https://example.com/a.png>)",
+      ],
+      ["[a link](https://example.com) and __bold__", "a link and bold", "[a link](https://example.com) and **bold**"],
+    ]
+    expectSame(
+      await walkEditor({ formats: BOLD_AND_LINK, breaks: true }, async ({ snapshot, command, fire, focus }) => {
+        await focus(PM)
+        for (const [pasted, text, written] of pastes) {
+          await command((e) => e.commands.clearContent(true))
+          await fire(PM, "paste", clipboard({ "text/plain": pasted }))
+          expect(editorOf().getText(), pasted).toBe(text)
+          expect(markdown(), pasted).toBe(written)
+          const doc = editorOf().getJSON()
+          await command((e) => e.commands.setContent(written))
+          expect(editorOf().getJSON(), pasted).toEqual(doc)
+          snapshot()
+        }
+        // A plain-text paste (Shift) is left to ProseMirror: a paragraph a line
+        await command((e) => e.commands.clearContent(true))
+        await fire(PM, "keyDown", { key: "Shift", keyCode: 16, shiftKey: true })
+        await fire(PM, "paste", clipboard({ "text/plain": "- one\n**b**" }))
+        // Bold's paste rule still reads "**b**", as with every format
+        expect(markdown()).toBe("\\- one\n\n**b**")
+        await fire(PM, "keyUp", { key: "Shift", keyCode: 16 })
+      }),
+    )
+  })
+
+  test("pasted text with one list and one of bold and italic offered keeps the markers of the other", async () => {
+    const pasted = "- a\n- 2) c\n\n1. b\n\n**strong** *em* __s__ _e_\n\n![img](x) [l](y)"
+    expectSame(
+      await walkEditor({ formats: ["italic", "bulletList"], breaks: true }, async ({ snapshot, command, fire, focus }) => {
+        await focus(PM)
+        await fire(PM, "paste", clipboard({ "text/plain": pasted }))
+        expect(document.querySelectorAll(`${PM} ul > li`)).toHaveLength(2)
+        expect(Array.from(document.querySelectorAll(`${PM} em`), (em) => em.textContent)).toEqual(["em", "e"])
+        expect(Array.from(document.querySelectorAll(`${PM} p`), (p) => p.textContent)).toEqual(["a", "2) c", "1. b", "**strong** em __s__ e", "![img](x) [l](y)"])
+        const written = markdown()
+        expect(written).toBe("- a\n- 2\\) c\n\n1\\. b\n\n\\*\\*strong\\*\\* *em* \\_\\_s\\_\\_ *e*\n\n!\\[img\\](x) \\[l\\](y)")
+        const doc = editorOf().getJSON()
+        await command((e) => e.commands.setContent(written))
+        expect(editorOf().getJSON()).toEqual(doc)
+        snapshot()
+      }),
+    )
+  })
+
+  test("pasted text: white space that would start code, an image in an autolink, an image by reference", async () => {
+    // The document read back: markdown drops the white space at the start of a paragraph
+    const trimmed = (doc: JSONContent): JSONContent => {
+      const [paragraph] = doc.content!
+      const [first, ...rest] = paragraph!.content!
+      const text = first!.text!.trimStart()
+      return { ...doc, content: [{ ...paragraph, content: text ? [{ ...first, text }, ...rest] : rest }] }
+    }
+    expectSame(
+      await walkEditor({ formats: BOLD_AND_LINK, breaks: true }, async ({ snapshot, command, fire, focus }) => {
+        await focus(PM)
+        // Pasted, the spaces stay; written, they would start code, so they are not
+        for (const [pasted, written] of [["    _x_", "\\_x\\_"], ["    **bold**", "**bold**"]]) {
+          await command((e) => e.commands.clearContent(true))
+          await fire(PM, "paste", clipboard({ "text/plain": pasted }))
+          expect(editorOf().getText()).toBe(pasted.replace("**", "").replace("**", ""))
+          const doc = editorOf().getJSON()
+          expect(markdown(), pasted).toBe(written)
+          await command((e) => e.commands.setContent(markdown()))
+          expect(editorOf().getJSON(), pasted).toEqual(trimmed(doc))
+        }
+        // An autolink keeps its address; an image by reference is its source text, the definition is a link's
+        await command((e) => e.commands.clearContent(true))
+        await fire(PM, "paste", clipboard({ "text/plain": "<https://plexui.com/![a]>" }))
+        expect(editorOf().getText()).toBe("https://plexui.com/![a]")
+        expect(markdown()).toBe("<https://plexui.com/![a]>")
+        await command((e) => e.commands.setContent(markdown()))
+        // markdown-it percent-encodes the brackets of the address it reads: the same address
+        expect(editorOf().getText()).toBe("https://plexui.com/![a]")
+        expect(decodeURI(document.querySelector(`${PM} a`)!.getAttribute("href")!)).toBe("https://plexui.com/![a]")
+        await command((e) => e.commands.clearContent(true))
+        await fire(PM, "paste", clipboard({ "text/plain": "![alt][logo] and ![x](x.png)\n\n[logo]: https://plexui.com/img.png" }))
+        expect(editorOf().getText()).toBe("![alt][logo] and ![x](x.png)")
+        expect(document.querySelector(`${PM} a`)).toBeNull()
+        expect(markdown()).toBe("!\\[alt\\]\\[logo\\] and !\\[x\\](x.png)")
+        const doc = editorOf().getJSON()
+        await command((e) => e.commands.setContent(markdown()))
+        expect(editorOf().getJSON()).toEqual(doc)
+        snapshot()
+      }),
+    )
+  })
+
+  test("pasted text: a link title over two lines, a list marker inside an image of a list left out", async () => {
+    expectSame(
+      await walkEditor({ formats: ["link", "bulletList"], breaks: true }, async ({ snapshot, command, fire, focus }) => {
+        await focus(PM)
+        // The title's line ending is written as a reference: its second line would start a heading
+        await fire(PM, "paste", clipboard({ "text/plain": '[a](https://plexui.com "title\n# h &amp;lt;")' }))
+        expect(document.querySelector(`${PM} a`)?.getAttribute("title")).toBe("title\n# h &lt;")
+        expect(markdown()).toBe('[a](https://plexui.com "title&#10;# h &amp;lt;")')
+        let doc = editorOf().getJSON()
+        await command((e) => e.commands.setContent(markdown()))
+        expect(editorOf().getJSON()).toEqual(doc)
+        // A backslash before a line ending, a quote or the end, and one before a letter, read back as they were
+        const title = 'a\\\nb " c\\d &lt; \\'
+        await command((e) =>
+          e.commands.setContent({
+            type: "doc",
+            content: [{ type: "paragraph", content: [{ type: "text", text: "x", marks: [{ type: "link", attrs: { href: "https://plexui.com", title } }] }] }],
+          }),
+        )
+        expect(markdown()).toBe('[x](https://plexui.com "a\\\\&#10;b \\" c\\d &amp;lt; \\\\")')
+        await command((e) => e.commands.setContent(markdown()))
+        expect(document.querySelector(`${PM} a`)?.getAttribute("title")).toBe(title)
+        // An image keeps its source as it was pasted; an ordered marker opens no list and ends no paragraph
+        await command((e) => e.commands.clearContent(true))
+        await fire(PM, "paste", clipboard({ "text/plain": "![a\n2. b](c)\n1. d\n- e" }))
+        const [first, list] = editorOf().getJSON().content!
+        expect(first!.content!.map((node) => node.text ?? "\n").join("")).toBe("![a\n2. b](c)\n1. d")
+        expect(list!.type).toBe("bulletList")
+        expect(markdown()).toBe("!\\[a\n2\\. b\\](c)\n1\\. d\n\n- e")
+        doc = editorOf().getJSON()
+        await command((e) => e.commands.setContent(markdown()))
+        expect(editorOf().getJSON()).toEqual(doc)
+        snapshot()
+      }),
+    )
+  })
+
+  test("with every format, pasted text reads as before: a heading is its text, a newline a line break", async () => {
+    expectSame(
+      await walkEditor({}, async ({ snapshot, command, fire, focus }) => {
+        await focus(PM)
+        await fire(PM, "paste", clipboard({ "text/plain": "# Title\n- *one*" }))
+        expect(markdown()).toBe("Title\n\n- *one*")
+        await command((e) => e.commands.clearContent(true))
+        await fire(PM, "paste", clipboard({ "text/plain": "a\nb" }))
+        expect(markdown()).toBe("a\\\nb")
         snapshot()
       }),
     )
@@ -1182,6 +1340,59 @@ describe("MarkdownEditor parity: formats", () => {
         snapshot()
         expect(toolbarLabels()).toEqual(["Bold", "|", "Link"])
         expect(markdown()).toBe("a b")
+      }),
+    )
+  })
+})
+
+describe("MarkdownEditor parity: escapes", () => {
+  // The writer escapes "<" and ">", and the "&" of what markdown reads as a character reference, so typed text that
+  // looks like one keeps its characters when read again
+  test("typed text that looks like a character reference reads back the same", async () => {
+    const typed = "&lt; &amp; &#60; &#x3C; &copy; & AT&T &nbsp <b> &foo;"
+    expectSame(
+      await walkEditor({}, async ({ snapshot, command }) => {
+        await command((e) => e.commands.setContent({ type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: typed }] }] }))
+        const written = markdown()
+        expect(written).toBe("&amp;lt; &amp;amp; &amp;#60; &amp;#x3C; &amp;copy; & AT&T &nbsp &lt;b&gt; &amp;foo;")
+        await command((e) => e.commands.setContent(written))
+        expect(editorOf().getText()).toBe(typed)
+        snapshot()
+      }),
+    )
+  })
+
+  // prosemirror-markdown keeps a "_" with a word character or another "_" on each side, so "__s__" read back italic
+  test("a run of underscores stays as it is only inside a word, and reads back the same", async () => {
+    const typed = "__s__ a__b _x_ snake_case Foo_(bar) é_é ___"
+    expectSame(
+      await walkEditor({}, async ({ snapshot, command }) => {
+        const doc = { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: typed }] }] }
+        await command((e) => e.commands.setContent(doc))
+        const written = markdown()
+        expect(written).toBe("\\_\\_s\\_\\_ a__b \\_x\\_ snake_case Foo\\_(bar) é_é \\_\\_\\_")
+        await command((e) => e.commands.setContent(written))
+        expect(editorOf().getJSON()).toEqual(doc)
+        snapshot()
+      }),
+    )
+  })
+
+  // markdown reads no escape in an autolink: an escaped "_" or "~" would end up in the link's address
+  test("the URL of an autolink is written as it is and reads back the same", async () => {
+    const url = "https://en.wikipedia.org/wiki/Foo_(bar)/~x*y"
+    expectSame(
+      await walkEditor({}, async ({ snapshot, command }) => {
+        const link = { type: "link", attrs: { href: url } }
+        await command((e) =>
+          e.commands.setContent({ type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "see " }, { type: "text", text: url, marks: [link] }] }] }),
+        )
+        const doc = editorOf().getJSON()
+        const written = markdown()
+        expect(written).toBe(`see <${url}>`)
+        await command((e) => e.commands.setContent(written))
+        expect(editorOf().getJSON()).toEqual(doc)
+        snapshot()
       }),
     )
   })
@@ -1220,13 +1431,12 @@ describe("MarkdownEditor parity: line breaks", () => {
     expectSame(
       await walkEditor({ breaks }, async ({ snapshot, command }) => {
         for (const line of lines) {
-          // Four columns of white space start code at the start of a paragraph: only the line after a break
-          const code = /^( {4}|\t)/.test(line)
+          // At the start of a paragraph, white space of four columns would start code: it is not written
           const doc = {
             type: "doc",
             content: [
               { type: "paragraph", content: [{ type: "text", text: "a" }, { type: "hardBreak" }, { type: "text", text: line }] },
-              ...(code ? [] : [{ type: "paragraph", content: [{ type: "text", text: line }] }]),
+              { type: "paragraph", content: [{ type: "text", text: line }] },
             ],
           }
           const read = JSON.parse(JSON.stringify(doc).replaceAll(JSON.stringify(line), JSON.stringify(line.trimStart())))
@@ -1291,7 +1501,8 @@ describe("MarkdownEditor parity: line breaks", () => {
         { type: "paragraph", content: [text("a"), { type: "hardBreak" }, text("- b")] },
       ],
     ]
-    // A break ends with its paragraph: the next one starts as a paragraph does, where four spaces are code
+    // A break ends with its paragraph: the next one starts as a paragraph does, where four spaces would start code, so
+    // they are not written and its opener is escaped
     const nextParagraph = {
       type: "doc",
       content: [
@@ -1308,7 +1519,9 @@ describe("MarkdownEditor parity: line breaks", () => {
           expect(editorOf().getJSON(), JSON.stringify(markdownText)).toEqual(editorOf().schema.nodeFromJSON({ type: "doc", content: [read] }).toJSON())
         }
         await command((e) => e.commands.setContent(nextParagraph))
-        expect(markdown()).not.toContain("\\-")
+        expect(markdown()).toMatch(/\n\n\\- b$/)
+        await command((e) => e.commands.setContent(markdown()))
+        expect(editorOf().getJSON().content?.[1]).toEqual({ type: "paragraph", content: [text("- b")] })
       }),
     )
   })

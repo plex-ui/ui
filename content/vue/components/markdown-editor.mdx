@@ -144,7 +144,7 @@ export const variants = `<div class="flex flex-col gap-4 w-full min-w-0 max-w-[5
 
 ### Formats and line breaks
 
-<ComponentPreview language="vue" details={<>Use <code>formats</code> to choose what the editor offers: <code>bold</code>, <code>italic</code>, <code>orderedList</code>, <code>bulletList</code> and <code>link</code>, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. Pasted and incoming markdown keeps its text without it, and the markdown the editor writes leaves it out: here the italic and the list of the initial value become plain text. With <code>breaks</code>, a single newline is a line break, read and written as one newline. Both are read when the editor is created.</>} code={formatsCode} previewMinHeight={220}>
+<ComponentPreview language="vue" details={<>Use <code>formats</code> to choose what the editor offers: <code>bold</code>, <code>italic</code>, <code>orderedList</code>, <code>bulletList</code> and <code>link</code>, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. In pasted text its markers stay text, as if they were typed, and so do those of headings, quotes, code and rules, which the editor never offers. Pasted HTML and incoming markdown keep its text without it, and the markdown the editor writes leaves it out: here the italic and the list of the initial value become plain text. With <code>breaks</code>, a single newline is a line break, read and written as one newline. Both are read when the editor is created.</>} code={formatsCode} previewMinHeight={220}>
   <VueDemo template={formats} state={{ value: formatsMd }} />
 </ComponentPreview>
 

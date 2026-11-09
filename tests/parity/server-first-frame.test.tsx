@@ -177,6 +177,7 @@ describe("a Markdown Editor shows its markdown before the editor exists", () => 
     ["line endings CRLF and CR, tabs around them, a link over two lines", "a\r\nb\rc\t\nd \t\n\te\n\n[one\ntwo](https://example.com) *x\ny*"],
     ["newlines from character references are text", "a&#10;b &#xA; c&#13;&#10;d &NewLine;e\\&#10;f\na&#13;\r\nb"],
     ["references too long to be references, white space from references at the end of a line", "a&#00000010;\nb&#x000000A;\nc&#9;\nd&#32;\ne&Tab; \nf&#32;&#32;\ng"],
+    ["what the editor writes for text: the & of a reference, escaped markers", "&amp;lt; &amp;#60; AT&T &lt;b&gt;\nx | y\n\\|---|---|\n!\\[alt\\](https://example.com/a.png) \\*a\\*"],
   ]
 
   const frames = async (props: Record<string, unknown>) => {

@@ -57,7 +57,8 @@ export type MarkdownEditorProps = {
   onChange?: (markdown: string) => void
   /**
    * The formats the editor offers, read when the editor is created. A format left out has no toolbar button, shortcut
-   * or input rule; pasted and incoming content keeps its text without it, and the markdown does not write it
+   * or input rule; in pasted text its markers stay text, as typed, pasted HTML and incoming markdown keep its text
+   * without it, and the markdown does not write it
    * @default ["bold", "italic", "orderedList", "bulletList", "link"]
    */
   formats?: MarkdownEditorFormat[]

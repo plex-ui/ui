@@ -7,6 +7,23 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Changed
+
+- `MarkdownEditor` with `formats` that leave something out: pasted text keeps the markers of a format left out as text, as if they were typed, and so do headings, quotes, code, rules, tables and images, which the editor never offers: `- one` pasted where lists are left out is the line `- one`, `*it*` where italic is left out stays `*it*`. The formats offered still read, and the markdown written reads back as the same text. Pasted HTML, a plain-text paste (Shift) and an editor with every format paste as before.
+
+### Fixed
+
+- `MarkdownEditor` writes the `&` of what markdown reads as a character reference as `&amp;`, so typed `&lt;` or `&copy;` stays those characters when its markdown is read again instead of turning into `<` or `©`.
+- `MarkdownEditor` escapes a run of `_` unless it is inside a word, so typed `__s__` reads back as that text, not an italic `s` between two underscores.
+- `MarkdownEditor` writes the URL of a link shown as its own address (`<https://...>`) as it is: an `_`, `~` or `*` in it was escaped, and the backslash ended up in the address when read again.
+- `MarkdownEditor` escapes a line of `|`, `:` and `-` after a line break, which would turn the line above it into the head of a table.
+- `MarkdownEditor` does not write white space of four columns or more at the start of a paragraph, which read back as code, its escapes showing. Markdown drops white space there anyway.
+- `MarkdownEditor` writes a line ending in a link's title as `&#10;`, so a title over two lines reads back as the same link even when its second line would start a block.
+
+---
+
 ## 0.39.0 (2026-11-09)
 
 ### Added
