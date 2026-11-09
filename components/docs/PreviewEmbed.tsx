@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import s from './PreviewEmbed.module.css';
 import { installPreviewScrollBridge } from './previewScroll';
 import { createPreviewKeyboardController, isPreviewKeyboardCommand } from './previewKeyboardInput';
@@ -79,6 +80,19 @@ export function createDemoControlChannel(key: string, authority: 'host' | 'embed
 
 /** Set by the parent page's preview while it shows the phone view. */
 export const DemoControlHostContext = createContext<DemoControlChannel | null>(null);
+
+/** Set by the parent page's preview in the phone view: where controls for the bottom of the screen go, after the phone. */
+export const DemoControlsBottomSlotContext = createContext<HTMLElement | null>(null);
+
+/**
+ * A group of controls for what sits at the bottom of the screen (owner 09.11): it follows the stage, under the
+ * preview, and in the phone view it moves after the phone, so the reading and Tab order match what is seen.
+ */
+export function DemoControlsBottom({ children, style }: { children: ReactNode; style?: CSSProperties }) {
+  const slot = useContext(DemoControlsBottomSlotContext);
+  const group = <div data-demo-controls="bottom" style={style}>{children}</div>;
+  return slot ? createPortal(group, slot) : group;
+}
 const DemoControlEmbedContext = createContext<DemoControlChannel | null>(null);
 
 /** Whether this demo is displayed in Phone mode, including its controls outside the iframe. */

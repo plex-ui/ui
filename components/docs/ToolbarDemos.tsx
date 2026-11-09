@@ -10,7 +10,7 @@ import { Page } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Toolbar, type BarBackground, type ToolbarTitleAlign, type ToolbarTitleStyle } from '@plexui/ui/components/Toolbar';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
-import { usePreviewEmbed } from './PreviewEmbed';
+import { DemoControlsBottom, usePreviewEmbed } from './PreviewEmbed';
 import s from './PageDemos.module.css';
 import t from './ToolbarDemos.module.css';
 
@@ -153,13 +153,6 @@ export function ToolbarBottomDemo() {
 
   return (
     <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="content">
-          <SegmentedControl<BottomContent> aria-label="content" size="xs" value={content} onChange={setContent}>
-            {BOTTOM_CONTENT.map((value) => <SegmentedControl.Option key={value} value={value}>{value}</SegmentedControl.Option>)}
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
       <Frame>
         <Page surface="grouped">
           <Toolbar>
@@ -198,34 +191,58 @@ export function ToolbarBottomDemo() {
           )}
         </Page>
       </Frame>
+      {/* The content is the bottom bar's, so its control stands under the preview (owner 09.11) */}
+      <DemoControlsBottom style={controlsTableStyle}>
+        <DemoControlRow name="content">
+          <SegmentedControl<BottomContent> aria-label="content" size="xs" value={content} onChange={setContent}>
+            {BOTTOM_CONTENT.map((value) => <SegmentedControl.Option key={value} value={value}>{value}</SegmentedControl.Option>)}
+          </SegmentedControl>
+        </DemoControlRow>
+      </DemoControlsBottom>
     </>
   );
 }
 
 export const BAR_BACKGROUNDS = ['soft', 'hard', 'glass', 'solid'] as const satisfies readonly BarBackground[];
 
-/** The `background` control of the bar demos: one SegmentedControl over the four scroll edge styles. */
-export function BarBackgroundControl({ value, onChange, phoneOnly = false }: { value: BarBackground; onChange: (value: BarBackground) => void; phoneOnly?: boolean }) {
+/** One `background` row of the bar demos: a SegmentedControl over the four scroll edge styles. */
+export function BarBackgroundRow({ name, value, onChange, phoneOnly = false }: { name: string; value: BarBackground; onChange: (value: BarBackground) => void; phoneOnly?: boolean }) {
   return (
-    <div data-demo-controls style={controlsTableStyle}>
-      <DemoControlRow name="background" phoneOnly={phoneOnly}>
-        <SegmentedControl<BarBackground> aria-label="background" size="xs" value={value} onChange={onChange}>
-          {BAR_BACKGROUNDS.map((background) => <SegmentedControl.Option key={background} value={background}>{background}</SegmentedControl.Option>)}
-        </SegmentedControl>
-      </DemoControlRow>
-    </div>
+    <DemoControlRow name={name} phoneOnly={phoneOnly}>
+      <SegmentedControl<BarBackground> aria-label={name} size="xs" value={value} onChange={onChange}>
+        {BAR_BACKGROUNDS.map((background) => <SegmentedControl.Option key={background} value={background}>{background}</SegmentedControl.Option>)}
+      </SegmentedControl>
+    </DemoControlRow>
+  );
+}
+
+/**
+ * The `background` controls of the bar demos around their stage: the top and the bottom bar each take their own,
+ * glass and soft by default as the bars themselves, and each control stands on the side of its bar (owner 09.11).
+ */
+export function BarBackgroundControls({ top, onTopChange, bottom, onBottomChange, phoneOnly = false, children }: { top: BarBackground; onTopChange: (value: BarBackground) => void; bottom: BarBackground; onBottomChange: (value: BarBackground) => void; phoneOnly?: boolean; children: React.ReactNode }) {
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <BarBackgroundRow name="background (top)" value={top} onChange={onTopChange} phoneOnly={phoneOnly} />
+      </div>
+      {children}
+      <DemoControlsBottom style={controlsTableStyle}>
+        <BarBackgroundRow name="background (bottom)" value={bottom} onChange={onBottomChange} phoneOnly={phoneOnly} />
+      </DemoControlsBottom>
+    </>
   );
 }
 
 export function ToolbarBackgroundDemo() {
-  const [background, setBackground] = useState<BarBackground>('glass');
+  const [top, setTop] = useState<BarBackground>('glass');
+  const [bottom, setBottom] = useState<BarBackground>('soft');
 
   return (
-    <>
-      <BarBackgroundControl value={background} onChange={setBackground} />
+    <BarBackgroundControls top={top} onTopChange={setTop} bottom={bottom} onBottomChange={setBottom}>
       <Frame>
         <Page surface="grouped">
-          <Toolbar background={background}>
+          <Toolbar background={top}>
             <Toolbar.Leading>
               <NavigationButton action="back" />
             </Toolbar.Leading>
@@ -234,14 +251,14 @@ export function ToolbarBackgroundDemo() {
           <Page.Content>
             <Rows />
           </Page.Content>
-          <Toolbar placement="bottom" background={background}>
+          <Toolbar placement="bottom" background={bottom}>
             <Toolbar.Content>
               <Button color="primary" pill>New order</Button>
             </Toolbar.Content>
           </Toolbar>
         </Page>
       </Frame>
-    </>
+    </BarBackgroundControls>
   );
 }
 

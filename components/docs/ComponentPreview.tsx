@@ -8,7 +8,7 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Button } from '@plexui/ui/components/Button';
 import { Eye, Code, InfoCircle, Desktop, Mobile, Reload } from '@plexui/ui/components/Icon';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import { DemoControlHostContext, compactPreviewHeight, createDemoControlChannel, usePreviewEmbed } from './PreviewEmbed';
+import { DemoControlHostContext, DemoControlsBottomSlotContext, compactPreviewHeight, createDemoControlChannel, usePreviewEmbed } from './PreviewEmbed';
 import s from './ComponentPreview.module.css';
 import { usePreviewViewport } from './PreviewViewport';
 import { goToPreviousExample } from './previewNavigation';
@@ -93,6 +93,7 @@ export function ComponentPreview({
   const normalizedChildren = hasControls
     ? (() => {
         const controls: ReactNode[] = [];
+        const bottomControls: ReactNode[] = [];
         const stageChildren: ReactNode[] = [];
 
         for (const child of childArray) {
@@ -100,7 +101,8 @@ export function ComponentPreview({
             React.isValidElement(child) &&
             (child as React.ReactElement<ElementProps>).props['data-demo-controls'] !== undefined
           ) {
-            controls.push(child);
+            // Controls for the bottom of the screen follow the stage, as they show under it
+            ((child as React.ReactElement<ElementProps>).props['data-demo-controls'] === 'bottom' ? bottomControls : controls).push(child);
             continue;
           }
 
@@ -116,6 +118,7 @@ export function ComponentPreview({
           <>
             {controls}
             {hasExplicitStage ? stageChildren : stageChildren.length > 0 ? <div data-demo-stage>{stageChildren}</div> : null}
+            {bottomControls}
           </>
         );
       })()
@@ -222,7 +225,8 @@ export function ComponentPreview({
 /* ------------------------------------------------------------------ */
 
 /**
- * The demo stays mounted on this page, its controls above the phone and its stage
+ * The demo stays mounted on this page, its controls above the phone (or under it, for a DemoControlsBottom
+ * group) and its stage
  * hidden. Values sync both ways, keeping the control bar and iframe in step.
  */
 function PhonePreview({
@@ -388,6 +392,7 @@ function PreviewPane({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number | null>(null);
+  const [bottomControls, setBottomControls] = useState<HTMLDivElement | null>(null);
   const dragging = useRef(false);
   // An example picks its phone or desktop composition after hydration (useBreakpoint is false on the
   // first render), so the server markup is the phone one. On a wide page it stays out of sight until then.
@@ -474,7 +479,9 @@ function PreviewPane({
         data-phone={phone ? '' : undefined}
       >
         <DemoControlHostContext.Provider value={host}>
-          <div className={s.PreviewInner} data-preview-hydrating={hydrated ? undefined : ''}>{children}</div>
+          <DemoControlsBottomSlotContext.Provider value={phone ? bottomControls : null}>
+            <div className={s.PreviewInner} data-preview-hydrating={hydrated ? undefined : ''}>{children}</div>
+          </DemoControlsBottomSlotContext.Provider>
         </DemoControlHostContext.Provider>
         {resizable && !phone && (
           <div
@@ -499,6 +506,8 @@ function PreviewPane({
           activation={phone.activation}
         />
       )}
+      {/* Controls for the bottom of the screen follow the phone, on screen and in the reading order */}
+      {phone && <div ref={setBottomControls} className={s.PhoneControls} />}
     </div>
   );
 }

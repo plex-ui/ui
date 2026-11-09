@@ -7,7 +7,7 @@ import { Page, type PageBarBackground, type PageWidth } from '@plexui/ui/compone
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { useDemoControlSync } from './PreviewEmbed';
-import { BarBackgroundControl, Rows } from './ToolbarDemos';
+import { BarBackgroundControls, Rows } from './ToolbarDemos';
 import s from './PageDemos.module.css';
 
 // The frame of a preview is narrower than both widths, so at their real size all three look alike.
@@ -117,14 +117,14 @@ export function PageFillDemo() {
 }
 
 export function PageBackgroundDemo() {
-  const [background, setBackground] = useState<PageBarBackground>('glass');
+  const [top, setTop] = useState<PageBarBackground>('glass');
+  const [bottom, setBottom] = useState<PageBarBackground>('soft');
 
   return (
-    <>
-      <BarBackgroundControl value={background} onChange={setBackground} />
+    <BarBackgroundControls top={top} onTopChange={setTop} bottom={bottom} onBottomChange={setBottom}>
       <Frame>
         <Page>
-          <Page.Header background={background}>
+          <Page.Header background={top}>
             <Page.Bar>
               <Page.Title>Orders</Page.Title>
             </Page.Bar>
@@ -132,11 +132,11 @@ export function PageBackgroundDemo() {
           <Page.Content>
             <Rows />
           </Page.Content>
-          <Page.Footer background={background}>
+          <Page.Footer background={bottom}>
             <Button color="primary" pill block>New order</Button>
           </Page.Footer>
         </Page>
       </Frame>
-    </>
+    </BarBackgroundControls>
   );
 }

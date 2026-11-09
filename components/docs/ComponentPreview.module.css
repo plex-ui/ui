@@ -24,30 +24,31 @@
 }
 
 /* Without them the first and last shown rows take the edges of the controls table. */
-.Wrapper[data-preview-viewport="phone"] .PreviewInner>[data-demo-controls]>:not([data-demo-desktop-only]):not(:not([data-demo-desktop-only]) ~ *) {
+.Wrapper[data-preview-viewport="phone"] :is(.PreviewInner, .PhoneControls)>[data-demo-controls]>:not([data-demo-desktop-only]):not(:not([data-demo-desktop-only]) ~ *) {
   border-top: none !important;
 }
 
-.Wrapper[data-preview-viewport="phone"] .PreviewInner>[data-demo-controls]>:not([data-demo-desktop-only]):not(:has(~ :not([data-demo-desktop-only]))) {
+.Wrapper[data-preview-viewport="phone"] :is(.PreviewInner, .PhoneControls)>[data-demo-controls]>:not([data-demo-desktop-only]):not(:has(~ :not([data-demo-desktop-only]))) {
   border-bottom: 1px solid var(--demo-controls-edge);
 }
 
 @media (max-width: 767px) {
-  .Wrapper .PreviewInner>[data-demo-controls]>:not([data-demo-desktop-only]):not(:not([data-demo-desktop-only]) ~ *) {
+  .Wrapper :is(.PreviewInner, .PhoneControls)>[data-demo-controls]>:not([data-demo-desktop-only]):not(:not([data-demo-desktop-only]) ~ *) {
     border-top: none !important;
   }
 
-  .Wrapper .PreviewInner>[data-demo-controls]>:not([data-demo-desktop-only]):not(:has(~ :not([data-demo-desktop-only]))) {
+  .Wrapper :is(.PreviewInner, .PhoneControls)>[data-demo-controls]>:not([data-demo-desktop-only]):not(:has(~ :not([data-demo-desktop-only]))) {
     border-bottom: 1px solid var(--demo-controls-edge);
   }
 }
 
-.PreviewInner {
+.PreviewInner,
+.PhoneControls {
   --demo-controls-edge: rgb(0 0 0 / 5%);
 }
 
-[data-theme='dark'] .PreviewInner,
-html.dark .PreviewInner {
+[data-theme='dark'] :is(.PreviewInner, .PhoneControls),
+html.dark :is(.PreviewInner, .PhoneControls) {
   --demo-controls-edge: rgb(255 255 255 / 5%);
 }
 
@@ -315,7 +316,7 @@ html.dark .PreviewContent[data-resizable] {
   }
 }
 
-.PreviewInner>[data-demo-controls] {
+:is(.PreviewInner, .PhoneControls)>[data-demo-controls] {
   margin: 0 !important;
   width: 100% !important;
   order: 0;
@@ -323,21 +324,57 @@ html.dark .PreviewContent[data-resizable] {
   background: var(--docs-controls-bg, #ffffff) !important;
 }
 
-.PreviewInner>[data-demo-controls]>* {
+:is(.PreviewInner, .PhoneControls)>[data-demo-controls]>* {
   border-top-color: rgb(0 0 0 / 5%) !important;
 }
 
-[data-theme='dark'] .PreviewInner>[data-demo-controls]>*,
-html.dark .PreviewInner>[data-demo-controls]>* {
+[data-theme='dark'] :is(.PreviewInner, .PhoneControls)>[data-demo-controls]>*,
+html.dark :is(.PreviewInner, .PhoneControls)>[data-demo-controls]>* {
   border-top-color: rgb(255 255 255 / 5%) !important;
 }
 
-.PreviewInner>[data-demo-controls]>*:first-child {
+:is(.PreviewInner, .PhoneControls)>[data-demo-controls]>*:first-child {
   border-top: none !important;
 }
 
-.PreviewInner>[data-demo-controls]> :last-child {
+:is(.PreviewInner, .PhoneControls)>[data-demo-controls]> :last-child {
   border-bottom: 1px solid var(--demo-controls-edge);
+}
+
+/* A group of controls for what sits at the bottom of the screen, such as a TabBar or a bottom bar, stands under
+   the preview, so a change shows next to its controls on a laptop screen (owner 09.11); a group for the top stays
+   above. In the phone view DemoControlsBottom portals it into .PhoneControls, after the phone. */
+:is(.PreviewInner, .PhoneControls)>[data-demo-controls="bottom"] {
+  order: 2;
+}
+
+.PhoneControls {
+  display: flex;
+  flex-direction: column;
+}
+
+.PhoneControls:empty {
+  display: none;
+}
+
+:is(.PreviewInner, .PhoneControls)>[data-demo-controls="bottom"]>*:first-child,
+.Wrapper[data-preview-viewport="phone"] :is(.PreviewInner, .PhoneControls)>[data-demo-controls="bottom"]>:not([data-demo-desktop-only]):not(:not([data-demo-desktop-only]) ~ *) {
+  border-top: 1px solid var(--demo-controls-edge) !important;
+}
+
+:is(.PreviewInner, .PhoneControls)>[data-demo-controls="bottom"]> :last-child,
+.Wrapper[data-preview-viewport="phone"] :is(.PreviewInner, .PhoneControls)>[data-demo-controls="bottom"]>:not([data-demo-desktop-only]):not(:has(~ :not([data-demo-desktop-only]))) {
+  border-bottom: none;
+}
+
+@media (max-width: 767px) {
+  .Wrapper :is(.PreviewInner, .PhoneControls)>[data-demo-controls="bottom"]>:not([data-demo-desktop-only]):not(:not([data-demo-desktop-only]) ~ *) {
+    border-top: 1px solid var(--demo-controls-edge) !important;
+  }
+
+  .Wrapper :is(.PreviewInner, .PhoneControls)>[data-demo-controls="bottom"]>:not([data-demo-desktop-only]):not(:has(~ :not([data-demo-desktop-only]))) {
+    border-bottom: none;
+  }
 }
 
 .PreviewInner [data-demo-stage] {
@@ -478,14 +515,14 @@ html.dark .PreviewInner>[data-demo-controls]>* {
 }
 
 /* Ensure controls in rows are perfectly centered */
-.PreviewInner [data-demo-controls]>div {
+:is(.PreviewInner, .PhoneControls) [data-demo-controls]>div {
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-height: 40px;
 }
 
-.PreviewInner [data-demo-controls]>div> :last-child {
+:is(.PreviewInner, .PhoneControls) [data-demo-controls]>div> :last-child {
   display: flex;
   align-items: center;
   align-self: stretch;

@@ -164,11 +164,12 @@ export const fill = `<Page>
 
 ### Background
 
-<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how the header and the footer meet the content scrolled under them on a phone, as a <a href="/vue/components/toolbar#background">Toolbar</a> does: <code>glass</code>, the header's default, is a translucent, blurred bar with a hairline, <code>soft</code>, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, <code>hard</code> is an opaque bar with a line, and <code>solid</code> an opaque bar with no line. Glass and hard show themselves once content is under the bar; <code>:divider="false"</code> keeps a header without its line.</>} code={backgroundCode}>
+<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how the header and the footer meet the content scrolled under them on a phone, as a <a href="/vue/components/toolbar#background">Toolbar</a> does: <code>glass</code>, the header's default, is a translucent, blurred bar with a hairline, <code>soft</code>, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, <code>hard</code> is an opaque bar with a line, and <code>solid</code> an opaque bar with no line. Glass and hard show themselves once content is under the bar; <code>:divider="false"</code> keeps a header without its line. The example sets the top and the bottom bar apart: the control of the bottom bar stands under the preview.</>} code={backgroundCode}>
   <VueDemo stageClassName={STAGE} state={{ rows }} controls={[
-    { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "glass" },
+    { name: "topBackground", label: "background (top)", type: "select", options: ["soft", "hard", "glass", "solid"], default: "glass" },
+    { name: "bottomBackground", label: "background (bottom)", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft", placement: "bottom" },
   ]} template={frame(`  <Page>
-    <PageHeader :background="background">
+    <PageHeader :background="topBackground">
       <PageBar>
         <PageTitle>Orders</PageTitle>
       </PageBar>
@@ -176,7 +177,7 @@ export const fill = `<Page>
     <PageContent>
       ${list}
     </PageContent>
-    <PageFooter :background="background">
+    <PageFooter :background="bottomBackground">
       <Button color="primary" pill block>New order</Button>
     </PageFooter>
   </Page>`)} />

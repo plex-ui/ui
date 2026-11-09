@@ -5,7 +5,7 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from '../ButtonDemos';
 import { SliderValueControl } from '../SliderValueControl';
 import { VuePreview } from '../VuePreview';
-import { usePreviewEmbed } from '../PreviewEmbed';
+import { DemoControlsBottom, usePreviewEmbed } from '../PreviewEmbed';
 import { usePhoneRows } from '../PhoneRows';
 import { createInitialDemoState } from './initialDemoState';
 
@@ -17,17 +17,38 @@ export type VueDemoControl = {
   name: string;
   label?: string;
   phoneOnly?: boolean;
+  /** `bottom`: the control is for what sits at the bottom of the screen, and stands under the preview */
+  placement?: 'bottom';
   /** Hidden on a phone (narrow page or Phone preview), where the template gets its `phoneDefault`, else `default` */
   desktopOnly?: boolean;
 } & (
   | { type: 'boolean'; default: boolean; phoneDefault?: boolean }
-  /** `phoneOptions`: the options shown on a phone; a value outside them shows as `default` there */
-  | { type: 'select'; options: readonly VueDemoOption[]; phoneOptions?: readonly VueDemoOption[]; default: string | boolean; phoneDefault?: string | boolean }
+  /**
+   * `phoneOptions`: the options shown on a phone; a value outside them shows as `default` there.
+   * `limit`: numeric options stay at most `total` less the boolean controls named in `taken` that are on;
+   * the others are disabled, and a value over the limit shows as the largest option that fits.
+   */
+  | { type: 'select'; options: readonly VueDemoOption[]; phoneOptions?: readonly VueDemoOption[]; default: string | boolean; phoneDefault?: string | boolean; limit?: { total: number; taken: readonly string[] } }
   | { type: 'range'; min: number; max: number; step: number; default: number; phoneDefault?: number }
 );
 
 const optionsOf = (options: readonly VueDemoOption[]) =>
   options.map((option) => (typeof option === 'string' ? { value: option, label: option } : option));
+
+const overLimit = (control: VueDemoControl, value: unknown, values: Record<string, unknown>) =>
+  control.type === 'select' && control.limit !== undefined
+  && Number(value) > control.limit.total - control.limit.taken.filter((name) => values[name] === true).length;
+
+/** A value a control's `limit` rules out shows as the largest option that fits */
+const withinLimits = (controls: readonly VueDemoControl[], values: Record<string, unknown>) => {
+  const next = { ...values };
+  for (const control of controls) {
+    if (control.type !== 'select' || !overLimit(control, next[control.name], next)) continue;
+    const fits = optionsOf(control.options).filter((option) => !overLimit(control, option.value, next));
+    if (fits.length > 0) next[control.name] = fits[fits.length - 1].value;
+  }
+  return next;
+};
 
 /**
  * Restarts a demo on a timer, like the React demos that loop a simulation:
@@ -104,7 +125,7 @@ function VueDemoView({
   const [modifiedControls, setModifiedControls] = useState<ReadonlySet<string>>(() => new Set(
     phonePreview ? Object.keys(phoneState ?? {}) : [],
   ));
-  const props = useMemo(() => ({
+  const props = useMemo(() => withinLimits(controls, {
     ...values,
     ...(reactiveControlDefaults ? Object.fromEntries(controls
       .filter((control) => !modifiedControls.has(control.name) && control.name !== loop?.name)
@@ -168,52 +189,59 @@ function VueDemoView({
     );
   }
 
+  const renderControl = (control: VueDemoControl) =>
+    control.type === 'boolean' ? (
+      <DemoControlBoolean
+        key={control.name}
+        name={control.label ?? control.name}
+        value={props[control.name] as boolean}
+        onChange={set(control.name)}
+        phoneOnly={control.phoneOnly}
+        desktopOnly={control.desktopOnly}
+      />
+    ) : control.type === 'range' ? (
+      <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
+        <SliderValueControl
+          ariaLabel={control.label ?? control.name}
+          min={control.min}
+          max={control.max}
+          step={control.step}
+          value={props[control.name] as number}
+          onChange={set(control.name)}
+          width="min(42vw, 340px)"
+        />
+      </DemoControlRow>
+    ) : (
+      <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
+        <SegmentedControl<string>
+          value={optionsFor(control).find((option) => option.value === props[control.name])?.label ?? ''}
+          onChange={(label) => {
+            const value = optionsFor(control).find((option) => option.label === label)?.value;
+            // A limited control's shown value coming back (the phone view's sync) keeps the value asked for
+            if (control.limit && value === props[control.name]) return;
+            set(control.name)(value);
+          }}
+          aria-label={control.label ?? control.name}
+          size="xs"
+        >
+          {optionsFor(control).map((option) => (
+            <SegmentedControl.Option key={option.label} value={option.label} disabled={overLimit(control, option.value, props)}>
+              {option.label}
+            </SegmentedControl.Option>
+          ))}
+        </SegmentedControl>
+      </DemoControlRow>
+    );
+  const topControls = shownControls.filter((control) => control.placement !== 'bottom');
+  const bottomControls = shownControls.filter((control) => control.placement === 'bottom');
+
   return (
     <>
-      <div data-demo-controls style={controlsTableStyle}>
-        {shownControls.map((control) =>
-          control.type === 'boolean' ? (
-            <DemoControlBoolean
-              key={control.name}
-              name={control.label ?? control.name}
-              value={props[control.name] as boolean}
-              onChange={set(control.name)}
-              phoneOnly={control.phoneOnly}
-              desktopOnly={control.desktopOnly}
-            />
-          ) : control.type === 'range' ? (
-            <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
-              <SliderValueControl
-                ariaLabel={control.label ?? control.name}
-                min={control.min}
-                max={control.max}
-                step={control.step}
-                value={props[control.name] as number}
-                onChange={set(control.name)}
-                width="min(42vw, 340px)"
-              />
-            </DemoControlRow>
-          ) : (
-            <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
-              <SegmentedControl<string>
-                value={optionsFor(control).find((option) => option.value === props[control.name])?.label ?? ''}
-                onChange={(label) => set(control.name)(optionsFor(control).find((option) => option.label === label)?.value)}
-                aria-label={control.label ?? control.name}
-                size="xs"
-              >
-                {optionsFor(control).map((option) => (
-                  <SegmentedControl.Option key={option.label} value={option.label}>
-                    {option.label}
-                  </SegmentedControl.Option>
-                ))}
-              </SegmentedControl>
-            </DemoControlRow>
-          ),
-        )}
-      </div>
+      {topControls.length > 0 && <div data-demo-controls style={controlsTableStyle}>{topControls.map(renderControl)}</div>}
       <div className={stageClassName ?? DEFAULT_STAGE} data-demo-stage>
         {preview}
       </div>
+      {bottomControls.length > 0 && <DemoControlsBottom style={controlsTableStyle}>{bottomControls.map(renderControl)}</DemoControlsBottom>}
     </>
   );
 }

@@ -12,7 +12,7 @@
   display: none;
 }
 
-/* Its controls stay on the parent page, above the phone */
+/* Its controls stay on the parent page, above the phone or under it */
 .Root [data-demo-controls] {
   display: none !important;
 }

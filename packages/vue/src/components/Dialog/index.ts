@@ -4,6 +4,7 @@ export {
   DialogClose,
   DialogContent,
   DialogDescription,
+  DialogDescriptionSlot,
   DialogFooter,
   DialogHeader,
   DialogHeaderAction,

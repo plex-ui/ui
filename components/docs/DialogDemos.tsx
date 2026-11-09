@@ -10,7 +10,7 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { usePhoneRows } from './PhoneRows';
 import { usePhoneViewport, usePreviewEmbed } from './PreviewEmbed';
-import { BarBackgroundControl } from './ToolbarDemos';
+import { BarBackgroundControls } from './ToolbarDemos';
 import { SetupChoicesSheet } from './SetupChoicesSheet';
 import setupStyles from './SetupChoicesSheet.module.css';
 import type { SetupChoicesLayout } from './setupChoicesData';
@@ -160,18 +160,18 @@ export function DialogBodyDemo() {
   const [open, setOpen, phonePreview] = useDialogDemoState();
   const heading = useRef<HTMLDivElement>(null);
   // The bars of a phone Sheet only: a desktop dialog keeps its own header and footer.
-  const [background, setBackground] = useState<DialogBarBackground>('glass');
+  const [top, setTop] = useState<DialogBarBackground>('glass');
+  const [bottom, setBottom] = useState<DialogBarBackground>('soft');
 
   return (
-    <>
-    <BarBackgroundControl phoneOnly value={background} onChange={setBackground} />
+    <BarBackgroundControls phoneOnly top={top} onTopChange={setTop} bottom={bottom} onBottomChange={setBottom}>
     <div data-demo-stage className="py-10 flex justify-center">
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Trigger>
           <Button color="secondary" variant="outline">Review terms</Button>
         </Dialog.Trigger>
         <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }}>
-          <Dialog.Header background={background}>
+          <Dialog.Header background={top}>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Terms of service</Dialog.Title></div>
           </Dialog.Header>
           <Dialog.Body>
@@ -181,7 +181,7 @@ export function DialogBodyDemo() {
               ))}
             </div>
           </Dialog.Body>
-          <Dialog.Footer background={background}>
+          <Dialog.Footer background={bottom}>
             <Dialog.Close>
               <Button color="secondary" variant="soft">Decline</Button>
             </Dialog.Close>
@@ -190,7 +190,7 @@ export function DialogBodyDemo() {
         </Dialog.Content>
       </Dialog>
     </div>
-    </>
+    </BarBackgroundControls>
   );
 }
 

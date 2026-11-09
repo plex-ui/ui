@@ -9,6 +9,7 @@ import {
   DialogBody,
   DialogContent,
   DialogDescription,
+  DialogDescriptionSlot,
   DialogHeader,
   DialogHeaderAction,
   DialogTitle,
@@ -18,7 +19,8 @@ import { flushVue, mountVue } from "./harness"
 // Plan 170: on a phone the header of a Sheet is its Toolbar (Close leading, the heading, the header actions
 // trailing), the same DOM in React and Vue. A dialog opened from a header action is not inside that bar: its
 // header stays a dialog header. Plan 176 (owner 09.11): the bar holds the title alone; the description stands
-// under it, at the top of the body when there is one.
+// under it, at the top of the body when there is one, or first at a DescriptionSlot of the content's own (an app
+// whose scroller sits in a form so that Enter submits).
 type Framework = "React" | "Vue"
 
 const ReactSheet = () => (
@@ -77,9 +79,45 @@ const vueSheetWithBody = () => h(Dialog, { open: true }, () => h(DialogContent, 
   h(DialogBody, null, () => h("p", null, "Body text")),
 ]))
 
-const mount = async (framework: Framework, body = false) => {
-  if (framework === "React") await act(async () => { render(body ? <ReactSheetWithBody /> : <ReactSheet />) })
-  else mountVue(body ? vueSheetWithBody : vueSheet)
+const ReactSheetWithOwnScroller = ({ body }: { body: boolean }) => {
+  const content = (
+    <div className="own-scroller">
+      <ReactDialog.DescriptionSlot />
+      <p>Form fields</p>
+    </div>
+  )
+  return (
+    <ReactDialog open>
+      <ReactDialog.Content mobileVariant="sheet">
+        <ReactDialog.Header>
+          <ReactDialog.Title>Edit</ReactDialog.Title>
+          <ReactDialog.Description>Hidden · Out of stock</ReactDialog.Description>
+        </ReactDialog.Header>
+        {body ? <ReactDialog.Body>{content}</ReactDialog.Body> : <form>{content}</form>}
+      </ReactDialog.Content>
+    </ReactDialog>
+  )
+}
+
+const vueSheetWithOwnScroller = (body: boolean) => () => {
+  const content = () => h("div", { class: "own-scroller" }, [h(DialogDescriptionSlot), h("p", null, "Form fields")])
+  return h(Dialog, { open: true }, () => h(DialogContent, { mobileVariant: "sheet" }, () => [
+    h(DialogHeader, null, () => [
+      h(DialogTitle, null, () => "Edit"),
+      h(DialogDescription, null, () => "Hidden · Out of stock"),
+    ]),
+    body ? h(DialogBody, null, content) : h("form", null, [content()]),
+  ]))
+}
+
+type Variant = "bar" | "body" | "own" | "own-in-body"
+const mount = async (framework: Framework, variant: Variant | boolean = "bar") => {
+  const kind: Variant = variant === true ? "body" : variant === false ? "bar" : variant
+  if (framework === "React") {
+    const element = kind === "body" ? <ReactSheetWithBody /> : kind === "bar" ? <ReactSheet /> : <ReactSheetWithOwnScroller body={kind === "own-in-body"} />
+    await act(async () => { render(element) })
+  } else mountVue(kind === "body" ? vueSheetWithBody : kind === "bar" ? vueSheet : vueSheetWithOwnScroller(kind === "own-in-body"))
+  await flushVue()
   await flushVue()
 }
 
@@ -136,6 +174,31 @@ describe.each<Framework>(["React", "Vue"])("%s phone Sheet header", (framework) 
     expect(body.lastElementChild?.textContent).toBe("Body text")
     expect(dialog.querySelectorAll("p").length).toBe(2)
     expect(dialog.getAttribute("aria-describedby")).toBe(description.id)
+  })
+
+  test("starts content of its own with the description at a DescriptionSlot, as in a form without a body", async () => {
+    await mount(framework, "own")
+    const dialog = dialogNamed("Edit")
+    const scroller = dialog.querySelector<HTMLElement>(".own-scroller")!
+    const slot = scroller.firstElementChild as HTMLElement
+    expect(slot.className).toContain("SheetDescriptionSlot")
+    const description = slot.querySelector("p")!
+    expect(description.textContent).toBe("Hidden · Out of stock")
+    // Nothing of it stays in the flow under the bar
+    const bar = dialog.querySelector<HTMLElement>("[data-dialog-bar]")!
+    expect(bar.nextElementSibling?.className ?? "").not.toContain("SheetDescription")
+    expect(dialog.querySelectorAll("p").length).toBe(2)
+    expect(dialog.getAttribute("aria-describedby")).toBe(description.id)
+  })
+
+  test("puts the description at a DescriptionSlot before the top of the body", async () => {
+    await mount(framework, "own-in-body")
+    const dialog = dialogNamed("Edit")
+    const body = dialog.querySelector<HTMLElement>('[class*="Body"]')!
+    expect(body.firstElementChild?.className).toContain("SheetDescriptionSlot")
+    expect(body.firstElementChild?.childElementCount).toBe(0)
+    const own = dialog.querySelector<HTMLElement>(".own-scroller")!.firstElementChild as HTMLElement
+    expect(own.querySelector("p")?.textContent).toBe("Hidden · Out of stock")
   })
 
   test("leaves a dialog opened from a header action out of the bar", async () => {

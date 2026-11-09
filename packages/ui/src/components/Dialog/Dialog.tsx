@@ -208,10 +208,13 @@ const Content = ({
   const setEdges = useCallback((next: ScrollEdges) => setEdgesState((current) => sameScrollEdges(current, next) ? current : next), [])
   const scroll = useMemo(() => ({ edges, setEdges }), [edges, setEdges])
   const toolbarHost = useMemo<ToolbarHost>(() => ({ kind: "dialog", scrolled: edges.scrolled, contentBelow: edges.contentBelow }), [edges])
-  // Where Dialog.Body takes a phone Sheet's description: the first text of the content, under the bar
-  const [descriptionSlot, setDescriptionSlot] = useState<HTMLElement | null>(null)
+  // Where a phone Sheet's description goes: the first text of the content, under the bar. Dialog.Body offers
+  // its top; a Dialog.DescriptionSlot of the content's own, such as a scroller inside a form, comes first.
+  const [bodySlot, setBodySlot] = useState<HTMLElement | null>(null)
+  const [ownSlot, setOwnSlot] = useState<HTMLElement | null>(null)
+  const descriptionSlot = ownSlot ?? bodySlot
   const sheet = useMemo<DialogSheetValue | null>(
-    () => (mobileVariant === "sheet" ? { showClose, descriptionSlot, setDescriptionSlot } : null),
+    () => (mobileVariant === "sheet" ? { showClose, descriptionSlot, setBodySlot, setOwnSlot } : null),
     [mobileVariant, showClose, descriptionSlot],
   )
   const boundary = useFloatingBoundaryScope()
@@ -356,7 +359,8 @@ const DialogScrollContext = createContext<DialogScrollValue | null>(null)
 type DialogSheetValue = {
   showClose: boolean
   descriptionSlot: HTMLElement | null
-  setDescriptionSlot: (slot: HTMLElement | null) => void
+  setBodySlot: (slot: HTMLElement | null) => void
+  setOwnSlot: (slot: HTMLElement | null) => void
 }
 const DialogSheetContext = createContext<DialogSheetValue | null>(null)
 // Inside that bar: the title, the description and the header actions take the Toolbar's parts
@@ -440,7 +444,7 @@ const Body = ({ children, className }: DialogSlotProps) => {
   const sheet = useContext(DialogSheetContext)
   const phone = usePhoneLayout()
   // A phone Sheet's description starts the body (Dialog.Header portals it here)
-  const setDescriptionSlot = sheet && phone ? sheet.setDescriptionSlot : null
+  const setDescriptionSlot = sheet && phone ? sheet.setBodySlot : null
   const element = useRef<HTMLDivElement | null>(null)
   useLayoutEffect(() => {
     const body = element.current
@@ -454,6 +458,18 @@ const Body = ({ children, className }: DialogSlotProps) => {
       {children}
     </div>
   )
+}
+
+/**
+ * Where a phone Sheet's description goes in content of your own, such as a scroller inside a form so that Enter
+ * submits: the description starts it, as it starts Dialog.Body, and it comes before the body's place. It renders
+ * nothing outside a phone Sheet.
+ */
+const DescriptionSlot = () => {
+  const sheet = useContext(DialogSheetContext)
+  const phone = usePhoneLayout()
+  const setOwnSlot = sheet && phone ? sheet.setOwnSlot : null
+  return setOwnSlot ? <div ref={setOwnSlot} className={s.SheetDescriptionSlot} /> : null
 }
 
 export type DialogFooterProps = DialogSlotProps & {
@@ -538,5 +554,6 @@ Dialog.Body = Body
 Dialog.Footer = Footer
 Dialog.Title = Title
 Dialog.Description = Description
+Dialog.DescriptionSlot = DescriptionSlot
 Dialog.Close = Close
 Dialog.Steps = Steps

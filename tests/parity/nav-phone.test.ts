@@ -56,7 +56,7 @@ test("Copy Tooltip: the hover delay is a desktop control, a tap copies at once",
 describe("Page examples on a phone", () => {
   test("draw their orders as the rows of a FieldGroup, as the Toolbar examples do", () => {
     const react = read("components/docs/PageDemos.tsx")
-    expect(react).toContain("import { BarBackgroundControl, Rows } from './ToolbarDemos';")
+    expect(react).toContain("import { BarBackgroundControls, Rows } from './ToolbarDemos';")
     expect(react).not.toMatch(/function Rows\(/)
     expect(read("components/docs/ToolbarDemos.tsx")).toMatch(/export function Rows\(\) \{\n {2}return \(\n {4}<FieldGroup>/)
     const vue = read("content/vue/components/page.mdx")

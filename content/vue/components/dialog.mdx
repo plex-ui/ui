@@ -150,6 +150,8 @@ export const body = `<Dialog v-model:open="open">
   </DialogContent>
 </Dialog>`
 
+export const bodyBars = body.replace('<DialogHeader>', '<DialogHeader :background="topBackground">').replace('<DialogFooter>', '<DialogFooter :background="bottomBackground">')
+
 export const placement = `<Dialog v-model:open="open">
   <DialogTrigger>
     <Button color="secondary" variant="outline">Open filters</Button>
@@ -381,8 +383,9 @@ Alert actions wrap onto separate rows when their labels need more space. Set `<D
 ### Scrolling body
 
 <ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Put long content in <code>DialogBody</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, <code>background</code> on <code>DialogHeader</code> and <code>DialogFooter</code> sets how the Sheet's bars meet the body scrolled under them, as a <a href="/vue/components/toolbar#background">Toolbar</a>'s do: by default <code>glass</code> on the header and <code>soft</code> on the footer, or <code>hard</code> or <code>solid</code>.</>} code={body} previewMinHeight={120}>
-  <VueDemo template={body} phoneTemplate={body.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '').replace('<DialogHeader>', '<DialogHeader :background="background">').replace('<DialogFooter>', '<DialogFooter :background="background">')} controls={[
-    { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "glass", phoneOnly: true },
+  <VueDemo template={bodyBars} phoneTemplate={bodyBars.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} controls={[
+    { name: "topBackground", label: "background (top)", type: "select", options: ["soft", "hard", "glass", "solid"], default: "glass", phoneOnly: true },
+    { name: "bottomBackground", label: "background (bottom)", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft", phoneOnly: true, placement: "bottom" },
   ]} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false, terms }} />
 </ComponentPreview>
 
@@ -502,6 +505,8 @@ Over a phone keyboard the dialog covers the part of the window the keyboard leav
 **DialogDescription**: supporting text under the title.
 
 **DialogBody**: the scrolling part between the header and the footer. With it, only the body scrolls. Accepts `class`.
+
+**DialogDescriptionSlot**: where a phone Sheet's description goes in content of your own that takes the place of `DialogBody`, such as a scroller inside a `form` so that Enter submits. Put it first in that content: the description starts it, as it starts `DialogBody`, and it comes before the body's place. Without either, the description stands under the bar in the flow of the Sheet, so keep the bar in flow there. It renders nothing outside a phone Sheet.
 
 **DialogFooter**: footer area for action buttons. Mobile alert actions are 48px pills in a wrapping row by default. Mobile sheets use 50px pill actions, 24px side gutters and at least 24px below the actions, including the bottom safe area. Standard dialogs and sheets stack their mobile actions.
 

@@ -66,7 +66,9 @@ const DIALOG_SHEET: InjectionKey<ComputedRef<DialogSheet | null>> = Symbol("Dial
 // Inside that bar: the title, the description and the header actions take the Toolbar's parts
 const DIALOG_BAR: InjectionKey<ComputedRef<boolean>> = Symbol("DialogBar")
 // Where DialogBody takes a phone Sheet's description: the first text of the content, under the bar
-const DIALOG_DESCRIPTION_SLOT: InjectionKey<Ref<HTMLElement | null>> = Symbol("DialogDescriptionSlot")
+// Where a phone Sheet's description goes: the top of DialogBody, or first a DialogDescriptionSlot of the content's own
+type DialogDescriptionSlots = { body: Ref<HTMLElement | null>; own: Ref<HTMLElement | null> }
+const DIALOG_DESCRIPTION_SLOT: InjectionKey<DialogDescriptionSlots> = Symbol("DialogDescriptionSlot")
 
 // The phone layout of the Dialog style sheet (its rules for the Sheet's bar use the same query). A dialog's content
 // mounts on the client only (its portal waits for the document), so it reads the layout as it mounts, with nothing to
@@ -288,7 +290,7 @@ export const DialogContent = defineComponent({
     provide(DIALOG_SHEET, computed(() => (props.mobileVariant === "sheet" ? { showClose: props.showClose } : null)))
     // A dialog opened from a header action is not inside that header's bar
     provide(DIALOG_BAR, computed(() => false))
-    provide(DIALOG_DESCRIPTION_SLOT, shallowRef<HTMLElement | null>(null))
+    provide(DIALOG_DESCRIPTION_SLOT, { body: shallowRef<HTMLElement | null>(null), own: shallowRef<HTMLElement | null>(null) })
     const mobilePlacement = computed(() =>
       props.mobileVariant === "alert"
         ? "center"
@@ -582,7 +584,7 @@ export const DialogHeader = defineComponent({
       if (!bar.value) return h("div", mergeProps({ "class": s.Header, "data-background": props.background, "data-scrolled": scroll?.scrolled.value ? "" : undefined }, attrs), slots.default?.())
       const parts = headerParts(slots.default?.())
       const descriptions = parts.filter(isDescription)
-      const slot = descriptionSlot?.value ?? null
+      const slot = descriptionSlot ? descriptionSlot.own.value ?? descriptionSlot.body.value : null
       // On a phone the header of a Sheet is its Toolbar (iOS 27 kit Sheets 507-24684, Toolbar - Top - iPhone
       // 1-54520): Close at the leading edge, the title alone centered on the row of controls, the header actions
       // at the trailing edge, all on one 44px row under the grabber.
@@ -623,7 +625,7 @@ export const DialogBody = defineComponent({
     const descriptionSlot = inject(DIALOG_DESCRIPTION_SLOT, null)
     const phone = usePhoneLayout()
     const setDescriptionSlot = (slot: unknown) => {
-      if (descriptionSlot) descriptionSlot.value = slot instanceof HTMLElement ? slot : null
+      if (descriptionSlot) descriptionSlot.body.value = slot instanceof HTMLElement ? slot : null
     }
     const element = ref<HTMLElement | null>(null)
     let stop: (() => void) | undefined
@@ -642,6 +644,24 @@ export const DialogBody = defineComponent({
       sheet?.value && phone.value ? h("div", { ref: setDescriptionSlot, class: s.SheetDescriptionSlot }) : null,
       slots.default?.(),
     ])
+  },
+})
+
+/**
+ * Where a phone Sheet's description goes in content of your own, such as a scroller inside a form so that Enter
+ * submits: the description starts it, as it starts DialogBody, and it comes before the body's place. It renders
+ * nothing outside a phone Sheet.
+ */
+export const DialogDescriptionSlot = defineComponent({
+  name: "DialogDescriptionSlot",
+  setup() {
+    const sheet = inject(DIALOG_SHEET, null)
+    const descriptionSlot = inject(DIALOG_DESCRIPTION_SLOT, null)
+    const phone = usePhoneLayout()
+    const setOwnSlot = (slot: unknown) => {
+      if (descriptionSlot) descriptionSlot.own.value = slot instanceof HTMLElement ? slot : null
+    }
+    return () => (sheet?.value && phone.value ? h("div", { ref: setOwnSlot, class: s.SheetDescriptionSlot }) : null)
   },
 })
 

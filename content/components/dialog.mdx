@@ -452,6 +452,8 @@ Over a phone keyboard the dialog covers the part of the window the keyboard leav
 
 **Dialog.Body**: the scrolling part between the header and the footer. With it, only the body scrolls. Accepts `className`.
 
+**Dialog.DescriptionSlot**: where a phone Sheet's description goes in content of your own that takes the place of `Dialog.Body`, such as a scroller inside a `form` so that Enter submits. Put it first in that content: the description starts it, as it starts `Dialog.Body`, and it comes before the body's place. Without either, the description stands under the bar in the flow of the Sheet, so keep the bar in flow there. It renders nothing outside a phone Sheet.
+
 **Dialog.Footer**: footer area for action buttons. Mobile alert actions are 48px pills in a wrapping row by default. Mobile sheets use 50px pill actions, 24px side gutters and at least 24px below the actions, including the bottom safe area. Standard dialogs and sheets stack their mobile actions.
 
 <PropsTable data={[

@@ -271,7 +271,7 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
 
 <ComponentPreview phoneOnly language="vue" details={<><code>placement="bottom"</code> sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. <code>ToolbarContent</code> centers a main action; with <code>fill</code> a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, and a bottom bar draws no band: the content runs under and around its glass, as in iOS 26 Mail and Contacts. A search field holds <code>SearchSm</code>, set in Regular; a plus next to it takes <code>iconSize="sm"</code>, as Contacts draws it smaller than the other symbols. The page content scrolls under both bars.</>} code={bottom}>
   <VueDemo stageClassName={STAGE} state={{ rows }} controls={[
-    { name: "content", type: "select", options: ["buttons", "search", "action"], default: "buttons" },
+    { name: "content", type: "select", options: ["buttons", "search", "action"], default: "buttons", placement: "bottom" },
   ]} template={frame(`  <Page surface="grouped">
     <Toolbar>
       <ToolbarTitle>Orders</ToolbarTitle>
@@ -312,11 +312,12 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
 
 ### Background
 
-<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how a bar meets the content scrolled under it. <code>glass</code>, the default of a top bar, is a translucent, blurred bar with a hairline. <code>soft</code>, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. <code>hard</code> is an opaque bar of the canvas color with a line. <code>solid</code> is an opaque bar with no line. Glass and hard show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. <code>PageHeader</code>, <code>PageFooter</code>, the bars of a Sheet and <code>TabBar</code> take the same values.</>} code={backgroundCode}>
+<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how a bar meets the content scrolled under it. <code>glass</code>, the default of a top bar, is a translucent, blurred bar with a hairline. <code>soft</code>, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. <code>hard</code> is an opaque bar of the canvas color with a line. <code>solid</code> is an opaque bar with no line. Glass and hard show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. <code>PageHeader</code>, <code>PageFooter</code>, the bars of a Sheet and <code>TabBar</code> take the same values. The example sets the top and the bottom bar apart: the control of the bottom bar stands under the preview.</>} code={backgroundCode}>
   <VueDemo stageClassName={STAGE} state={{ rows }} controls={[
-    { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "glass" },
+    { name: "topBackground", label: "background (top)", type: "select", options: ["soft", "hard", "glass", "solid"], default: "glass" },
+    { name: "bottomBackground", label: "background (bottom)", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft", placement: "bottom" },
   ]} template={frame(`  <Page surface="grouped">
-    <Toolbar :background="background">
+    <Toolbar :background="topBackground">
       <ToolbarLeading>
         <NavigationButton action="back" />
       </ToolbarLeading>
@@ -325,7 +326,7 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
     <PageContent>
       ${list}
     </PageContent>
-    <Toolbar placement="bottom" :background="background">
+    <Toolbar placement="bottom" :background="bottomBackground">
       <ToolbarContent>
         <Button color="primary" pill>New order</Button>
       </ToolbarContent>

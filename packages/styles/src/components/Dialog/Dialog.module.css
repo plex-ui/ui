@@ -700,8 +700,10 @@
 
   /* The bar of a phone Sheet holds its title alone, centered on the row (iOS 27 kit Sheets 507-24684; owner
      09.11): the description reads as the first text of the content under the bar, in the type of the sheet
-     and the label color, as the kit 27 alert writes its message. In Dialog.Body it starts the body and
-     scrolls with it; without a body it stands under the bar, at the body's insets. */
+     and the label color, as the kit 27 alert writes its message. In Dialog.Body, or a Dialog.DescriptionSlot
+     at the top of content of the app's own, it starts that content and scrolls with it; without either it
+     stands under the bar, in flow, at the body's insets. The margins sit on the text itself, so a description
+     hidden on a phone (display none, or visually hidden) leaves no space. */
   .SheetDescriptionSlot,
   .SheetDescription {
     display: contents;
@@ -715,7 +717,7 @@
     margin: var(--page-bar-soft-tail, 32px) var(--mobile-layout-margin, 16px) 16px;
   }
 
-  .Body > .SheetDescriptionSlot:not(:last-child) .Description {
+  .SheetDescriptionSlot:not(:last-child) .Description {
     margin-bottom: 16px;
   }
 
