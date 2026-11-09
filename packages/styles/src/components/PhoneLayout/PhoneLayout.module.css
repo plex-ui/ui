@@ -1,0 +1,12 @@
+/* What a PhoneLayout holds is laid out as on a phone at any window width: the style sheets apply their phone rules
+   inside `[data-plex-layout="phone"]` (postcss/phoneLayoutScope.mjs). The box is the screen of that phone: dialogs
+   portal into it, and with layout containment it is the containing block of their fixed layers, so they cover the
+   box and not the window. Overflow is clipped as a screen clips it; the owner's class can change it. */
+.PhoneLayout {
+  position: relative;
+  contain: layout;
+}
+
+:where(.PhoneLayout) {
+  overflow: clip;
+}

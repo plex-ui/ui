@@ -1046,13 +1046,13 @@
 }
 
 /* Phone drawer search: the iOS 26 kit Sidebar Search Field (5840:30501), a 44px capsule with 11px insets
-   on the field's own soft fill. The magnifier and its gap are those of the toolbar search (26px PlexUI
-   Search and 4px: text at 41; the kit glyph frame 21 and gap 8 put it at 40). The glyph and the
-   placeholder take the secondary label, as the kit's Vibrant Secondary. */
+   on the field's own soft fill. The magnifier is the 26px PlexUI Search with a 4px gap (text at 41; the kit
+   glyph frame 21 and gap 8 put it at 40), the earlier toolbar search, which now follows the native bottom bar.
+   The glyph and the placeholder take the secondary label, as the kit's Vibrant Secondary. */
 @media (max-width: 767px) {
   .MobileSidebar .Input > [data-slot="input"][data-variant] {
     --input-size: 44px;
-    --input-gap: var(--toolbar-search-icon-gap);
+    --input-gap: 4px;
     --input-adornment-offset: 0px;
     --control-gutter-pill-scaling: 1;
     --input-placeholder-text-color: var(--mobile-label-secondary, var(--color-text-secondary));
@@ -1061,8 +1061,8 @@
 
     & > svg {
       flex: none;
-      width: var(--toolbar-search-icon-size);
-      height: var(--toolbar-search-icon-size);
+      width: 26px;
+      height: 26px;
       color: var(--mobile-label-secondary, var(--color-text-secondary));
     }
   }

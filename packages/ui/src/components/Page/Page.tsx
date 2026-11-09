@@ -133,12 +133,12 @@ export type PageHeaderProps = HTMLAttributes<HTMLDivElement> & {
    * @default true
    */
   divider?: boolean
-  /** How the bar meets the content scrolled under it on a phone. @default "soft" */
+  /** How the bar meets the content scrolled under it on a phone. @default "glass" */
   background?: PageBarBackground
   ref?: Ref<HTMLDivElement>
 }
 
-function PageHeader({ divider = true, background = "soft", className, children, ref, ...restProps }: PageHeaderProps) {
+function PageHeader({ divider = true, background = "glass", className, children, ref, ...restProps }: PageHeaderProps) {
   const { edges: { scrolled }, setHeaderHeight } = usePageContext("Header")
   const element = useRef<HTMLDivElement | null>(null)
   const setRef = useCallback((node: HTMLDivElement | null) => {

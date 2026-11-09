@@ -24,11 +24,11 @@ export type ToolbarTitleStyle = "inline" | "large" | "compact-large" | "compact-
 export type ToolbarTitleAlign = "center" | "start"
 /**
  * How a bar meets the content scrolled under it, after the scroll edge effect of iOS 26:
- * - `"soft"`: at the top, the canvas color covers the content under the bar's controls and fades out past them, over a
+ * - `"soft"` (the default of a bottom bar): at the top, the canvas color covers the content under the bar's controls and fades out past them, over a
  *   light blur; at the bottom of a page the content stays clear under and around the controls, as on native iOS 26,
  *   and a Sheet's bottom bar fades its content into the panel
  * - `"hard"`: an opaque bar of the canvas color with a line once content is under it
- * - `"glass"`: a translucent, blurred bar with a hairline, shown once content is under it
+ * - `"glass"` (the default of a top bar): a translucent, blurred bar with a hairline, shown once content is under it
  * - `"solid"`: an opaque bar of the canvas color without a line
  */
 export type BarBackground = "soft" | "hard" | "glass" | "solid"
@@ -77,8 +77,8 @@ const ToolbarComponent = defineComponent({
     titleStyle: { type: String as PropType<ToolbarTitleStyle>, default: "inline" },
     /** Alignment of an inline title. Compact and large titles always start at the leading edge. @default "center" */
     titleAlign: { type: String as PropType<ToolbarTitleAlign>, default: "center" },
-    /** How the bar meets the content scrolled under it on a phone. @default "soft" */
-    background: { type: String as PropType<ToolbarBackground>, default: "soft" },
+    /** How the bar meets the content scrolled under it on a phone. @default "glass" at the top, "soft" at the bottom */
+    background: { type: String as PropType<ToolbarBackground>, default: undefined },
   },
   setup(props, { slots }) {
     const host = inject(TOOLBAR_HOST, null)
@@ -112,7 +112,7 @@ const ToolbarComponent = defineComponent({
       "data-placement": props.placement,
       "data-title-style": props.placement === "top" ? props.titleStyle : undefined,
       "data-title-align": props.placement === "top" ? props.titleAlign : undefined,
-      "data-background": props.background === "edge" ? "soft" : props.background,
+      "data-background": props.background === "edge" ? "soft" : (props.background ?? (props.placement === "bottom" ? "soft" : "glass")),
       "data-host": host?.kind,
       "data-scrolled": props.placement === "top" && host?.scrolled?.value ? "" : undefined,
       "data-content-below": props.placement === "bottom" && host?.contentBelow?.value ? "" : undefined,
@@ -125,7 +125,7 @@ export type ToolbarProps = {
   placement?: ToolbarPlacement
   titleStyle?: ToolbarTitleStyle
   titleAlign?: ToolbarTitleAlign
-  /** How the bar meets the content scrolled under it on a phone. @default "soft" */
+  /** How the bar meets the content scrolled under it on a phone. @default "glass" at the top, "soft" at the bottom */
   background?: ToolbarBackground
 } & HTMLAttributes
 

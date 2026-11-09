@@ -7,6 +7,7 @@ metaDescription: React tip component after Apple TipKit with inline tips, an arr
 import {
   TipOverviewDemo,
   TipActionsDemo,
+  TipPermissionDemo,
   TipArrowDemo,
   TipPopoverDemo,
 } from "@/components/docs/TipDemos"
@@ -49,6 +50,18 @@ A tip teaches a feature people might not find on their own: a title that names i
   <TipActionsDemo />
 </ComponentPreview>
 
+### Buttons on a phone
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>With <code>mobileActions="buttons"</code> the actions keep their buttons on a phone: each is a capsule as wide as the tip under the message, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button.</>} code={`<Tip
+  icon={<Bell />}
+  title="Get alerts"
+  description="Hear about severe weather where you are, even when the app is closed."
+  mobileActions="buttons"
+  actions={<Button color="primary" variant="soft" size="sm" pill>Turn on</Button>}
+/>`} previewMinHeight={200}>
+  <TipPermissionDemo />
+</ComponentPreview>
+
 ### Arrow
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>With <code>arrowEdge</code> an inline tip points at what it explains with the kit's arrow, centered on that edge. The tip leaves room for the arrow on that side.</>} code={`<Button color="secondary" variant="soft" uniform pill aria-label="Filter">
@@ -89,6 +102,7 @@ A tip teaches a feature people might not find on their own: a title that names i
   { prop: "description", type: "ReactNode", description: "One or two sentences on how to use it" },
   { prop: "icon", type: "ReactNode", description: "A symbol or image that leads the message" },
   { prop: "actions", type: "ReactNode", description: "Buttons for the tip's actions, side by side below the message" },
+  { prop: "mobileActions", type: '"rows" | "buttons"', default: '"rows"', description: "How the actions show at 767px and below: rows of text under a separator, or the buttons as given, each a full-width capsule" },
   { prop: "onClose", type: "() => void", description: "Shows the Close button; called when it is clicked" },
   { prop: "arrowEdge", type: '"top" | "bottom" | "left" | "right"', description: "Draws an arrow at this edge, pointing at what the tip explains" },
   { prop: "className", type: "string", description: "CSS classes applied to the tip" },
@@ -97,7 +111,7 @@ A tip teaches a feature people might not find on their own: a title that names i
 
 ### Tip.Popover
 
-Takes `title`, `description`, `icon` and `actions` as Tip does, and the control it explains as its only child.
+Takes `title`, `description`, `icon`, `actions` and `mobileActions` as Tip does, and the control it explains as its only child.
 
 <PropsTable data={[
   { prop: "open", type: "boolean", description: "Shows the tip (controlled)" },
@@ -117,8 +131,8 @@ An inline tip is a note named by its title. A popover tip is a non-modal dialog 
 Tip reads these component tokens. Override them at any scope to restyle it; at 767px and below the tip sets its padding, gap and Close tokens on itself, so override those on the tip:
 
 - `--tip-radius`: the corners (default `20px`; `26px` at 767px and below)
-- `--tip-padding-top`, `--tip-padding-inline`, `--tip-padding-bottom`: the padding (default `22px`, `16px`, `16px`; at 767px and below `14px`, the layout margin, `0px`, as the action rows reach the bottom edge; the top value below as well without actions)
-- `--tip-gap`: space between the message and the actions (default `22px`; `11px` at 767px and below)
+- `--tip-padding-top`, `--tip-padding-inline`, `--tip-padding-bottom`: the padding (default `22px`, `16px`, `16px`; at 767px and below `14px`, the layout margin, `0px`, as the action rows reach the bottom edge, or `16px` under action buttons; the top value below as well without actions)
+- `--tip-gap`: space between the message and the actions (default `22px`; `11px` at 767px and below, `16px` above action buttons)
 - `--tip-title-font-size`, `--tip-title-line-height`: the title (default `17px`, `22px`, semibold)
 - `--tip-description-font-size`, `--tip-description-line-height`, `--tip-description-gap`: the description and its space under the title (default `15px`, `20px`, `4px`; no space at 767px and below)
 - `--tip-description-color`: the description and the symbol (default `var(--color-text-secondary)`)

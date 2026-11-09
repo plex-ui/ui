@@ -12,6 +12,8 @@ import {
   DialogPlacementDemo,
   DialogViewOptionsDemo,
   DialogSetupChoicesDemo,
+  DialogStepsDemo,
+  DialogKeepOpenDemo,
 } from "@/components/docs/DialogDemos"
 
 import { DialogSegmentedComposerDemo } from "@/components/docs/DialogSegmentedComposerDemo"
@@ -250,7 +252,7 @@ const field = useRef<HTMLInputElement>(null)
 
 ### Scrolling body
 
-<ComponentPreview phonePresentation="screen" phoneDialog details={<>Put long content in <code>Dialog.Body</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, <code>background</code> on <code>Dialog.Header</code> and <code>Dialog.Footer</code> sets how the Sheet's bars meet the body scrolled under them, as a <a href="/components/toolbar#background">Toolbar</a>'s do: <code>soft</code> by default, or <code>hard</code>, <code>glass</code> or <code>solid</code>.</>} code={`const heading = useRef<HTMLDivElement>(null)
+<ComponentPreview phonePresentation="screen" phoneDialog details={<>Put long content in <code>Dialog.Body</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, <code>background</code> on <code>Dialog.Header</code> and <code>Dialog.Footer</code> sets how the Sheet's bars meet the body scrolled under them, as a <a href="/components/toolbar#background">Toolbar</a>'s do: by default <code>glass</code> on the header and <code>soft</code> on the footer, or <code>hard</code> or <code>solid</code>.</>} code={`const heading = useRef<HTMLDivElement>(null)
 
 <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
   <Dialog.Header>
@@ -338,6 +340,74 @@ export default function Example() {
   <DialogSetupChoicesDemo />
 </ComponentPreview>
 
+### Steps
+
+<ComponentPreview phonePresentation="screen" phoneDialog details={<>Put the steps of a flow in <code>Dialog.Steps</code>: a new <code>step</code> comes in from the trailing edge over the one before, which moves a third of the way out under it, as a push on iOS. <code>direction="back"</code> reverses it for a return to a step before. The new step starts at its top, the steps reach the panel's edges, and focus in the step that leaves moves to the one that comes in. With reduced motion the step changes at once.</>} code={`const [open, setOpen] = useState(false)
+const [step, setStep] = useState('email')
+const [direction, setDirection] = useState('forward')
+const go = (next, to) => { setDirection(to); setStep(next) }
+
+<Dialog open={open} onOpenChange={setOpen}>
+  <Dialog.Trigger>
+    <Button color="secondary" variant="outline">Sign in</Button>
+  </Dialog.Trigger>
+  <Dialog.Content mobileVariant="sheet" width={420}>
+    <Dialog.Header>
+      <Dialog.Title>Sign in</Dialog.Title>
+    </Dialog.Header>
+    <Dialog.Body>
+      <Dialog.Steps step={step} direction={direction}>
+        {step === 'email' ? (
+          <Field label="Email" description="We send a code to this address.">
+            <Input type="email" placeholder="you@example.com" />
+          </Field>
+        ) : (
+          <Field label="Code" description="Enter the code we sent to your email.">
+            <Input inputMode="numeric" autoComplete="one-time-code" placeholder="6-digit code" />
+          </Field>
+        )}
+      </Dialog.Steps>
+    </Dialog.Body>
+    <Dialog.Footer>
+      {step === 'code' && <Button color="primary" variant="soft" onClick={() => go('email', 'back')}>Back</Button>}
+      {step === 'email'
+        ? <Button color="primary" onClick={() => go('code', 'forward')}>Continue</Button>
+        : <Button color="primary" onClick={() => setOpen(false)}>Verify</Button>}
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog>`}>
+  <DialogStepsDemo />
+</ComponentPreview>
+
+### Keep it open
+
+<ComponentPreview phonePresentation="screen" phoneDialog details={<>Escape and a press or a focus outside ask <code>onEscapeKeyDown</code> and <code>onInteractOutside</code> first: <code>event.preventDefault()</code> keeps the dialog open, such as for a form with unsaved changes, or for a press on a developer panel over the page. The Close button and <code>Dialog.Close</code> still close it.</>} code={`const [open, setOpen] = useState(false)
+const [name, setName] = useState('Mia')
+const dirty = name !== 'Mia'
+const hold = (event) => { if (dirty) event.preventDefault() }
+
+<Dialog open={open} onOpenChange={setOpen}>
+  <Dialog.Trigger>
+    <Button color="secondary" variant="outline">Edit profile</Button>
+  </Dialog.Trigger>
+  <Dialog.Content width={420} onEscapeKeyDown={hold} onInteractOutside={hold}>
+    <Dialog.Header>
+      <Dialog.Title>Edit profile</Dialog.Title>
+    </Dialog.Header>
+    <Field label="Name">
+      <Input value={name} onChange={(event) => setName(event.target.value)} />
+    </Field>
+    <Dialog.Footer>
+      <Dialog.Close>
+        <Button color="primary" variant="soft">Discard</Button>
+      </Dialog.Close>
+      <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog>`}>
+  <DialogKeepOpenDemo />
+</ComponentPreview>
+
 ## API
 
 **Dialog** (root)
@@ -360,11 +430,19 @@ export default function Example() {
   { prop: "mobilePlacement", type: '"center" | "bottom" | "fullscreen"', description: "Placement at 767px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered" },
   { prop: "onOpenAutoFocus", type: "(event: Event) => void", description: "Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field" },
   { prop: "onCloseAutoFocus", type: "(event: Event) => void", description: "Called when focus returns on close; call event.preventDefault() to keep it elsewhere" },
+  { prop: "onEscapeKeyDown", type: "(event: KeyboardEvent) => void", description: "Called on Escape before the dialog closes; call event.preventDefault() to keep it open" },
+  { prop: "onInteractOutside", type: "(event: DialogInteractOutsideEvent) => void", description: "Called on a press or a focus outside the dialog before it closes; call event.preventDefault() to keep it open. event.detail.originalEvent is the browser's event" },
+  { prop: "zIndex", type: "number", default: "50", description: "Stack order of the overlay and the dialog, for a page whose own layers sit above 50" },
+  { prop: "rootProps", type: "DialogLayerProps", description: "className, style and data attributes for the fixed layer that holds the panel. Data attributes on Dialog.Content land there too" },
+  { prop: "overlayProps", type: "DialogLayerProps", description: "className, style and data attributes for the overlay" },
+  { prop: "layout", type: '"auto" | "phone"', default: '"auto"', description: "phone lays the dialog out as on a phone at any window width, with the dialogs it opens. Inside a PhoneLayout it always is" },
 ]} />
+
+Over a phone keyboard the dialog covers the part of the window the keyboard leaves visible, so a sheet sits on the keyboard and a centered panel stays in view. Inside a [PhoneLayout](/components/phone-layout) it portals into the PhoneLayout box and covers it instead of the window.
 
 **Dialog.Trigger**: opens the dialog; renders its child element (Radix `asChild`).
 
-**Dialog.Header**: wrapper for title, description and an optional header action. In a phone Sheet the header is the Sheet's Toolbar: Close at the leading edge, the title centered on the 44px row of controls and the header action at the trailing edge, as in the iOS 27 kit. A description the reader sees is the title's second line; a visually hidden one only names the sheet. If the Dialog has its own top Toolbar, that one replaces the header's bar. In a phone Sheet, `background` sets how the bar meets the body scrolled under it: `soft` (the default), `hard`, `glass` or `solid`, as on a [Toolbar](/components/toolbar#background).
+**Dialog.Header**: wrapper for title, description and an optional header action. In a phone Sheet the header is the Sheet's Toolbar: Close at the leading edge, the title centered on the 44px row of controls and the header action at the trailing edge, as in the iOS 27 kit. A description the reader sees is the title's second line; a visually hidden one only names the sheet. If the Dialog has its own top Toolbar, that one replaces the header's bar. In a phone Sheet, `background` sets how the bar meets the body scrolled under it: `glass` (the default), `soft`, `hard` or `solid`, as on a [Toolbar](/components/toolbar#background).
 
 **Dialog.HeaderAction**: positions one toolbar control beside Close on desktop and opposite Close in a mobile sheet. Place it directly inside Dialog.Header (a fragment there is fine, a component of your own that returns it is not: a phone Sheet looks for it among the header's own parts to stand it at the trailing edge) and label icon-only controls. Mobile alerts hide this slot.
 
@@ -383,6 +461,14 @@ export default function Example() {
 
 **Dialog.Close**: closes the dialog when its child is activated.
 
+**Dialog.Steps**: the steps of a flow, such as a sign-in that asks for an email and then a code. Place it in Dialog.Body.
+
+<PropsTable data={[
+  { prop: "step", type: "string | number", description: "The step on screen. A new value brings its content in" },
+  { prop: "direction", type: '"forward" | "back"', default: '"forward"', description: "forward brings the new step in from the trailing edge over the one before; back returns to a step before it" },
+  { prop: "className", type: "string", description: "Additional CSS class on the steps" },
+]} />
+
 ## Styling
 
 Use `surface="grouped"` on dialog content for grouped forms. The default `surface="plain"` suits confirmations and standalone content. Mobile dialogs use elevated dark surface levels; the choice is independent of alert/sheet geometry and the bars' `background`.
@@ -392,6 +478,9 @@ Dialog reads the shared semantic color, typography and spacing tokens listed in 
 - `--dialog-panel-background`: panel color, and the color of a Sheet's soft, hard and solid bars; mobile follows the selected elevated surface role
 - `--dialog-close-background`: close button background (default `transparent`)
 - `--dialog-close-background-hover`: close button background on hover
+- `--dialog-z-index`: stack order of the overlay and the dialog (default `50`; `zIndex` sets it)
+- `--dialog-viewport-height`: the height the panel fits in (default `100dvh`; the dialog sets it over a phone keyboard and inside a PhoneLayout)
+- `--dialog-steps-background`: background of a step, which covers the one under it as it comes in (default the panel color)
 
 Standard mobile appearance uses these tokens:
 

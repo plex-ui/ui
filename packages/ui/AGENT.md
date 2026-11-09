@@ -234,7 +234,7 @@ Sub: `RadioGroup.Item` -- props: `value`, `disabled`, `orientation`, `block`, `c
 
 **Import:** `@plexui/ui/components/Tip`
 
-Props: `title`, `description`, `icon`, `actions`, `onClose` (shows Close), `arrowEdge` (`"top"` | `"bottom"` | `"left"` | `"right"`), `className`, `ref`. A TipKit tip that teaches a feature; one at a time, never for errors (Alert, Toast).
+Props: `title`, `description`, `icon`, `actions`, `mobileActions` (`"rows"` default: on a phone each action is a row of text; `"buttons"`: the buttons as given, each a full-width 48px capsule, for a card that asks for a permission), `onClose` (shows Close), `arrowEdge` (`"top"` | `"bottom"` | `"left"` | `"right"`), `className`, `ref`. A TipKit tip that teaches a feature; one at a time, never for errors (Alert, Toast).
 
 Sub: `Tip.Popover` -- the same content props plus `open` / `defaultOpen` / `onOpenChange`, `side` (default `"bottom"`), `align`, `sideOffset` (default 4), `closeButton` (default true); its only child is the control it explains, which keeps the focus; Tab moves from the control into the tip.
 
@@ -278,7 +278,7 @@ Props: `leading`, `trailing` (`SwipeAction[]`: `{ id, label, Icon?, color?, onSe
 
 **Import:** `@plexui/ui/components/TabBar` -- also exports the types `TabBarItemProps`, `TabBarSearch`, `TabBarProminent`
 
-Props: `value` / `defaultValue`, `onValueChange`, `search` (`{ value, label? }`, a search tab in a circle of its own), `prominent` (`{ value, label, icon }`, a prominent tab in that circle instead; search then joins the capsule), `minimizeBehavior` (`"never"` | `"onScrollDown"`), `minimized` / `defaultMinimized`, `onMinimizedChange`, `aria-label` (default "Tabs")
+Props: `value` / `defaultValue`, `onValueChange`, `search` (`{ value, label? }`, a search tab in a circle of its own), `prominent` (`{ value, label, icon }`, a prominent tab in that circle instead; search then joins the capsule), `minimizeBehavior` (`"never"` | `"onScrollDown"`), `minimized` / `defaultMinimized`, `onMinimizedChange`, `background` (`"soft"` default, `"glass"`, `"hard"`, `"solid"`; top bars, a top Toolbar, Page.Header and a Sheet's Dialog.Header, default to `"glass"`, bottom bars to `"soft"`, no band on a page), `aria-label` (default "Tabs")
 
 Sub: `TabBar.Item` -- props: `value`, `label`, `icon` (a PlexUI icon), `href`, `disabled`, `onClick`
 
@@ -353,7 +353,13 @@ Tabs renders the tab buttons only; render the panel for the active `value` yours
 
 Props: `open`, `onOpenChange`
 
-Sub: `Dialog.Trigger` (renders its child), `Dialog.Content` (props: `width` (480), `showClose` (true)), `Dialog.Header`, `Dialog.Title`, `Dialog.Description`, `Dialog.Footer`, `Dialog.Close` (renders its child)
+Sub: `Dialog.Trigger` (renders its child), `Dialog.Content` (props: `width` (480), `showClose` (true), `onEscapeKeyDown(event)` and `onInteractOutside(event)` (call `event.preventDefault()` to keep it open), `zIndex` (50), `rootProps` and `overlayProps` (`className`, `style`, `data-*` on the content layer and the scrim), `layout` (`"auto"` | `"phone"`: `"phone"` takes the phone presentation at any width), `data-*` on the content layer), `Dialog.Header`, `Dialog.Title`, `Dialog.Description`, `Dialog.Footer`, `Dialog.Close` (renders its child), `Dialog.Steps` (props: `step` (the key of the shown step), `direction` (`"forward"` | `"back"`): the next step slides in from the trailing edge as an iOS push, the previous one from the leading edge). Over a phone keyboard the panel fits the visual viewport (`--dialog-viewport-height`).
+
+### PhoneLayout
+
+**Import:** `@plexui/ui/components/PhoneLayout` -- also exports `usePhoneLayout`, `PhoneLayoutContext` and the types `PhoneLayoutProps`, `PhoneLayoutValue`
+
+Props: the props of a `div`. Lays out what it holds as on a phone at any window width, such as a phone frame on a desktop page: components take their phone presentation inside it, and a `Dialog` opened inside it covers the box instead of the window. Give it a size. `usePhoneLayout()` is true inside a `PhoneLayout`, a `Dialog` with `layout="phone"`, or a window 767px wide or narrower.
 
 ### DatePicker
 

@@ -37,11 +37,15 @@ import { overlayTiming } from "../Transition/shared.js"
 /** The edge of an inline tip that points at what it explains. */
 export type TipArrowEdge = "top" | "bottom" | "left" | "right"
 
+/** How a tip's actions show on a phone. */
+export type TipMobileActions = "rows" | "buttons"
+
 type BodyOptions = {
   title?: string
   description?: string
   onClose?: () => void
   arrowEdge?: TipArrowEdge
+  mobileActions?: TipMobileActions
   className?: unknown
   titleId: string
   descriptionId: string
@@ -62,6 +66,7 @@ const renderBody = (options: BodyOptions, slots: Slots) => {
       "role": options.role,
       "aria-labelledby": options.role ? options.titleId : undefined,
       "data-arrow-edge": options.arrowEdge,
+      "data-mobile-actions": options.mobileActions === "buttons" ? options.mobileActions : undefined,
     },
     [
       hasContent(icon) ? h("div", { class: s.Icon }, icon) : null,
@@ -108,6 +113,12 @@ const contentProps = {
   title: String,
   /** One or two sentences on how to use it (or the `description` slot). */
   description: String,
+  /**
+   * How the actions show at 767px and below: rows of text under a separator, as iOS tips show them, or the buttons
+   * as given, each a full-width capsule under the message, as an iOS card that asks for a permission.
+   * @default "rows"
+   */
+  mobileActions: String as PropType<TipMobileActions>,
 }
 
 const TipComponent = defineComponent({
@@ -315,6 +326,7 @@ export const TipPopover = defineComponent({
                                   {
                                     title: props.title,
                                     description: props.description,
+                                    mobileActions: props.mobileActions,
                                     onClose: props.closeButton ? () => setOpen(false) : undefined,
                                     titleId,
                                     descriptionId,

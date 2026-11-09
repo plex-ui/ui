@@ -344,7 +344,7 @@ const PopoverContentImpl = defineComponent({
       if (triggerRef.value?.contains(originalEvent.target as Node)) return
       pressedOutside = true
       setOpen(false)
-    })
+    }, () => contentRef.value)
     const handleCloseAutoFocus = (event: Event) => {
       if (showOnHover.value || pressedOutside) event.preventDefault()
       else keepMovedFocus(event)

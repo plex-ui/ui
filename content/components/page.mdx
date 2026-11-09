@@ -73,7 +73,7 @@ import {
 
 ### Background
 
-<ComponentPreview phoneOnly details={<><code>background</code> sets how the header and the footer meet the content scrolled under them on a phone, as a <a href="/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) fades the canvas color out under the header and leaves the content clear under the footer's actions, as native iOS 26 does, <code>hard</code> is an opaque bar with a line, <code>glass</code> a translucent, blurred bar with a hairline, and <code>solid</code> an opaque bar with no line. Hard and glass show themselves once content is under the bar; <code>divider={false}</code> keeps a header without its line.</>} code={`<Page>
+<ComponentPreview phoneOnly details={<><code>background</code> sets how the header and the footer meet the content scrolled under them on a phone, as a <a href="/components/toolbar#background">Toolbar</a> does: <code>glass</code>, the header's default, is a translucent, blurred bar with a hairline, <code>soft</code>, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, <code>hard</code> is an opaque bar with a line, and <code>solid</code> an opaque bar with no line. Glass and hard show themselves once content is under the bar; <code>divider={false}</code> keeps a header without its line.</>} code={`<Page>
   <Page.Header background="hard">...</Page.Header>
   <Page.Content>...</Page.Content>
   <Page.Footer background="hard">
@@ -104,7 +104,7 @@ A page needs a bounded parent. These demos use a 420px frame on desktop and the 
 }
 ```
 
-Under 768px the header contains a 44px toolbar row with 10px below it, plus the device top safe area. It floats over the content and meets what scrolls under it by its `background`, see [Background](#background): by default the canvas color covers the content under the row and fades out below it. A bar without a title, of controls alone, covers only the status bar and leaves the content clear under its controls, as native iOS 26 does. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner.
+Under 768px the header contains a 44px toolbar row with 10px below it, plus the device top safe area. It floats over the content and meets what scrolls under it by its `background`, see [Background](#background): by default it is a translucent, blurred bar with a hairline once content is under it. With `background="soft"` the canvas color covers the content under the row and fades out below it, and a bar without a title, of controls alone, covers only the status bar and leaves the content clear under its controls, as native iOS 26 does. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner.
 
 Keep the row to a title and one group of actions. The bar has no room for a second row, so anything set under `Page.Bar`, such as a search field, belongs at the top of `Page.Content` on a phone. `useBreakpoint("md")` tells which one to render. Use `Page.Leading` for a Back button or the menu button of a sidebar. The title stays centred between the leading and trailing controls.
 
@@ -128,7 +128,7 @@ All other `<div>` attributes are forwarded to the root.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `background` | `"soft" \| "hard" \| "glass" \| "solid"` | `"soft"` | How the bar meets the content scrolled under it on a phone, see [Background](#background) |
+| `background` | `"soft" \| "hard" \| "glass" \| "solid"` | `"glass"` | How the bar meets the content scrolled under it on a phone, see [Background](#background) |
 | `divider` | `boolean` | `true` | Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background |
 | `className` | `string` | — | Applied to the band |
 
@@ -146,7 +146,7 @@ Children stand in the shared column. All other `<div>` attributes and `ref` go t
 
 ### Page.Footer
 
-Actions stay below the scrolling `Page.Content`. `background` sets how the footer meets the content under it on a phone, as the header's does (default `"soft"`). The footer shares the page column and includes at least 16px of bottom padding, or the device's bottom safe area when larger. Give `Page` a bounded height, such as `100dvh`, to keep the footer at the bottom of the screen. Native div attributes are forwarded to the footer.
+Actions stay below the scrolling `Page.Content`. `background` sets how the footer meets the content under it on a phone, as the header's does (default `"soft"`, so the content stays clear under its actions). The footer shares the page column and includes at least 16px of bottom padding, or the device's bottom safe area when larger. Give `Page` a bounded height, such as `100dvh`, to keep the footer at the bottom of the screen. Native div attributes are forwarded to the footer.
 
 ### Compound parts
 
@@ -163,7 +163,7 @@ Actions stay below the scrolling `Page.Content`. `background` sets how the foote
 
 `surface="plain"` is the default mobile canvas. Use `surface="grouped"` for screens of related field groups: light mode uses a gray canvas with white groups; dark mode uses the corresponding base surface levels. This palette is separate from the bars' `background` and leaves desktop colors unchanged.
 
-`Page.Header` and `Page.Footer` take `background`: `soft` (the default), `hard`, `glass` or `solid`, see [Background](#background). Use hard or solid bars when the content should not show through them on phones.
+`Page.Header` and `Page.Footer` take `background`: `glass` (the header's default), `soft` (the footer's default), `hard` or `solid`, see [Background](#background). Use hard or solid bars when the content should not show through them on phones.
 
 Page reads these component tokens. Override them at any scope to restyle it:
 

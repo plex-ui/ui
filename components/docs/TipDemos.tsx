@@ -53,6 +53,22 @@ export function TipActionsDemo() {
   );
 }
 
+export function TipPermissionDemo() {
+  return (
+    <OnPhoneRows>
+      <div className="w-full max-w-[360px]">
+        <Tip
+          icon={<Bell />}
+          title="Get alerts"
+          description="Hear about severe weather where you are, even when the app is closed."
+          mobileActions="buttons"
+          actions={<Button color="primary" variant="soft" size="sm" pill>Turn on</Button>}
+        />
+      </div>
+    </OnPhoneRows>
+  );
+}
+
 export function TipArrowDemo() {
   return (
     <OnPhoneRows>

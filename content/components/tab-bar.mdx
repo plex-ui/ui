@@ -73,7 +73,7 @@ Each example shows the phone view.
 
 ### Background
 
-<ComponentPreview phoneOnly details={<><code>background</code> sets how the bar meets the content scrolled under it, as a <a href="/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) leaves the content clear under and around the capsule, as native iOS 26 does, <code>hard</code> is an opaque band with a line on top, <code>glass</code> a translucent, blurred band with a hairline, and <code>solid</code> an opaque band with no line. Hard and glass show themselves while the content continues under the bar.</>} code={`<Page surface="grouped">
+<ComponentPreview phoneOnly details={<><code>background</code> sets how the bar meets the content scrolled under it, as a <a href="/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) leaves the content clear under and around the capsule, as native iOS 26 does, <code>glass</code> is a translucent, blurred band with a hairline, <code>hard</code> is an opaque band with a line on top, and <code>solid</code> an opaque band with no line. Glass and hard show themselves while the content continues under the bar.</>} code={`<Page surface="grouped">
   <Toolbar background="hard">...</Toolbar>
   <Page.Content>...</Page.Content>
   <TabBar value={tab} onValueChange={setTab} background="hard">

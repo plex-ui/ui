@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "phone-layout",
+  "type": "registry:ui",
+  "title": "Phone Layout",
+  "description": "Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/phone-layout/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/PhoneLayout\"\n"
+    }
+  ],
+  "docs": "Import as `import { PhoneLayout } from '@/components/ui/phone-layout'`. See https://plexui.com/vue/components/phone-layout for props and examples."
+}

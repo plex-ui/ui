@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 61
+Components: 62
 
 ## Setup
 
@@ -399,10 +399,20 @@ Props:
     - mobile-placement ("center" | "bottom" | "fullscreen") — Placement at 767px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered
     - @open-auto-focus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
     - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
+    - @escape-key-down ((event: KeyboardEvent) => void) — Called on Escape before the dialog closes; call event.preventDefault() to keep it open
+    - @interact-outside ((event: DialogInteractOutsideEvent) => void) — Called on a press or a focus outside the dialog before it closes; call event.preventDefault() to keep it open. event.detail.originalEvent is the browser's event
+    - z-index (number) default: 50 — Stack order of the overlay and the dialog, for a page whose own layers sit above 50
+    - root-props (DialogLayerProps) — class, style and data attributes for the fixed layer that holds the panel. Data attributes on DialogContent land there too
+    - overlay-props (DialogLayerProps) — class, style and data attributes for the overlay
+    - layout ("auto" | "phone") default: "auto" — phone lays the dialog out as on a phone at any window width, with the dialogs it opens. Inside a PhoneLayout it always is
   DialogFooter:
     - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged
     - mobile-layout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
-Examples: Overview, Destructive confirmation, Text field, Metadata details, Scrolling body, Placement, View options sheet, Segmented composer header, Setup choices
+  DialogSteps:
+    - step (string | number) — The step on screen. A new value brings its content in
+    - direction ("forward" | "back") default: "forward" — forward brings the new step in from the trailing edge over the one before; back returns to a step before it
+    - class (string) — Additional CSS class on the steps
+Examples: Overview, Destructive confirmation, Text field, Metadata details, Scrolling body, Placement, View options sheet, Segmented composer header, Setup choices, Steps, Keep it open
 
 ## Empty Message
 Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
@@ -725,7 +735,7 @@ Props:
   - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
   - class (string) — Class of the root element
   PageHeader:
-    - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it on a phone, see Background
+    - background ("soft" | "hard" | "glass" | "solid") default: "glass" — How the bar meets the content scrolled under it on a phone, see Background
     - divider (boolean) default: true — Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background
     - class (string) — Class of the band
   PageContent:
@@ -748,6 +758,15 @@ Props:
   - aria-controls (string) — The id of the element that shows the pages
   - id (string) — The id of the page control
 Examples: Overview, Many pages, Background
+
+## Phone Layout
+Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.
+Import: import { PhoneLayout } from "@plexui/vue/components/PhoneLayout"
+Docs: https://plexui.com/vue/components/phone-layout
+Props:
+  - class (string) — Class on the box, such as its size and corners
+  - style (string | CSSProperties) — Style on the box
+Examples: Overview
 
 ## Popover
 A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.
@@ -1268,6 +1287,7 @@ Props:
   - description (string) — One or two sentences on how to use it (or the description slot)
   - on-close (() => void) — Shows the Close button; called when it is clicked
   - arrow-edge ("top" | "bottom" | "left" | "right") — Draws an arrow at this edge, pointing at what the tip explains
+  - mobile-actions ("rows" | "buttons") default: "rows" — How the actions show at 767px and below: rows of text under a separator, or the buttons as given, each a full-width capsule
   TipPopover:
     - open (boolean) — Shows the tip (controlled); bind with v-model:open
     - default-open (boolean) default: false — Shows the tip at first (uncontrolled)
@@ -1275,7 +1295,7 @@ Props:
     - align ("start" | "center" | "end") default: "center" — The alignment against the control
     - side-offset (number) default: 4 — The distance from the control to the arrow's point, in pixels
     - close-button (boolean) default: true — Shows the Close button
-Examples: Overview, Actions, Arrow, Popover
+Examples: Overview, Actions, Buttons on a phone, Arrow, Popover
 
 ## Toast
 Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.
@@ -1297,7 +1317,7 @@ Props:
   - placement ("top" | "bottom") default: "top" — Top bar with 44px targets, or bottom bar with 48px targets
   - titleStyle ("inline" | "large" | "compact-large" | "compact-medium") default: "inline" — Size and place of ToolbarTitle in a top bar
   - titleAlign ("center" | "start") default: "center" — Alignment of an inline title. Large and compact titles always start at the leading edge
-  - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft
+  - background ("soft" | "hard" | "glass" | "solid") default: "glass" at the top, "soft" at the bottom — How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft
   - class (string) — Class of the bar
   ToolbarTitle:
     - subtitle (string) — Second, smaller line below the title. The subtitle slot takes precedence

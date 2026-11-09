@@ -1,1 +1,12 @@
-export { Dialog, type DialogBarBackground, type DialogHeaderProps, type DialogFooterProps, type DialogContentProps, type DialogPlacement, type DialogProps } from "./Dialog"
+export {
+  Dialog,
+  type DialogBarBackground,
+  type DialogContentProps,
+  type DialogFooterProps,
+  type DialogHeaderProps,
+  type DialogInteractOutsideEvent,
+  type DialogLayerProps,
+  type DialogPlacement,
+  type DialogProps,
+  type DialogStepsProps,
+} from "./Dialog"

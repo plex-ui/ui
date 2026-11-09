@@ -295,6 +295,14 @@
       ]
     },
     {
+      "name": "phone-layout",
+      "type": "registry:ui",
+      "description": "Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "popover",
       "type": "registry:ui",
       "description": "A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.",

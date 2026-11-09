@@ -271,13 +271,13 @@ describe("Toolbar in a Sheet", () => {
     if (!toolbarRule || !footerRule) throw new Error("the soft bottom rules are missing")
     const hidesToolbar = (el: Element | null) => Boolean(el?.matches(toolbarRule))
     const hidesFooter = (el: Element | null) => Boolean(el?.matches(`.Footer${footerRule}`))
-    const bottom = { placement: "bottom", leading: false }
+    const bottom = { placement: "bottom", leading: false, background: "soft" }
     const reactTree = (
       <>
         <RPage>
           <RPage.Content>Rows</RPage.Content>
           {reactBar({ root: bottom, search: true, leading: false })}
-          <RPage.Footer>Footer</RPage.Footer>
+          <RPage.Footer background="soft">Footer</RPage.Footer>
         </RPage>
         <RDialog open>
           <RDialog.Content mobileVariant="sheet">
@@ -286,7 +286,7 @@ describe("Toolbar in a Sheet", () => {
               <RPage>
                 <RPage.Content>Rows</RPage.Content>
                 {reactBar({ root: bottom, search: true, leading: false })}
-                <RPage.Footer>Footer</RPage.Footer>
+                <RPage.Footer background="soft">Footer</RPage.Footer>
               </RPage>
             </RDialog.Body>
             {reactBar({ root: bottom, search: true, leading: false })}
@@ -298,7 +298,7 @@ describe("Toolbar in a Sheet", () => {
       h(Page as never, null, () => [
         h(PageContent, null, () => "Rows"),
         vueBar({ root: bottom, search: true, leading: false }),
-        h(PageFooter, null, () => "Footer"),
+        h(PageFooter, { background: "soft" }, () => "Footer"),
       ]),
       h(Dialog, { open: true }, () =>
         h(DialogContent, { mobileVariant: "sheet" }, () => [
@@ -307,7 +307,7 @@ describe("Toolbar in a Sheet", () => {
             h(Page as never, null, () => [
               h(PageContent, null, () => "Rows"),
               vueBar({ root: bottom, search: true, leading: false }),
-              h(PageFooter, null, () => "Footer"),
+              h(PageFooter, { background: "soft" }, () => "Footer"),
             ])),
           vueBar({ root: bottom, search: true, leading: false }),
         ])),
@@ -525,5 +525,28 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     const plain = css.split("mask-image: linear-gradient(to bottom, #000, transparent);").length - 1
     expect(plain).toBe(2)
     expect(css).toMatch(/:not\(:has\(> \.Heading, > \.Content\[data-fill\]\)\)::before \{\s*inset: 0 0 auto;\s*height: var\(--toolbar-padding-top, 0px\);\s*-webkit-mask-image: linear-gradient\(to bottom, #000, transparent\);\s*mask-image: linear-gradient\(to bottom, #000, transparent\);\s*\}/)
+  })
+})
+
+describe("Phone bottom bar after iOS 26 Mail and Contacts (430 x 932)", () => {
+  const read = (path: string) => readFileSync(`${process.cwd()}/packages/styles/src/${path}`, "utf8")
+  test("its tokens: 28 above the home indicator, the search field's magnifier, text and placeholder, the smaller symbol", () => {
+    const tokens = read("styles/variables-components.css")
+    for (const token of [
+      "--toolbar-bottom-padding-bottom: max(16px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 6px));",
+      "--toolbar-search-gutter: 10.54px;",
+      "--toolbar-search-icon-gap: 6.43px;",
+      "--toolbar-search-icon-size: 23.75px;",
+      "--toolbar-search-font-weight: 400;",
+      "--toolbar-search-placeholder-color: light-dark(var(--alpha-40), var(--alpha-60));",
+      "--toolbar-icon-size-sm: 23.56px;",
+    ]) expect(tokens).toContain(token)
+  })
+
+  test("the search field and a button with iconSize=\"sm\" take them, in a Toolbar.Group and a ButtonGroup too", () => {
+    const toolbar = read("components/Toolbar/Toolbar.module.css")
+    expect(toolbar).toMatch(/\[data-slot="input"\]\[data-variant\] \{[^}]*--input-placeholder-text-color: var\(--toolbar-search-placeholder-color\);[^}]*font-weight: var\(--toolbar-search-font-weight\);/)
+    expect(toolbar).toMatch(/\.Toolbar :is\(\.Leading, \.Trailing, \.Content, \.Group\) > :where\(button, a\)\[data-icon-size="sm"\]:not\(\[data-navigation-action\]\) \{\s*--button-icon-size: var\(--toolbar-icon-size-sm\);/)
+    expect(read("components/ButtonGroup/ButtonGroup.module.css")).toMatch(/& > :where\(button, a, \[role="link"\]\)\[data-icon-size="sm"\]:where\(:not\(\[data-navigation-action\]\)\) \{\s*--button-icon-size: var\(--toolbar-icon-size-sm\);/)
   })
 })

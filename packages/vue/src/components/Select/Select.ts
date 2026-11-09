@@ -864,14 +864,14 @@ const SelectPopoverContent = defineComponent({
   name: "SelectPopoverContent",
   setup() {
     const { props, align, alignOffset, listWidth, listMaxWidth, pill } = useSelectContext()
-    const { handleRootOpenChange, popoverTriggerEl, open } = inject(CustomSelectContextKey)!
+    const { handleRootOpenChange, popoverTriggerEl, open, selectContentRef } = inject(CustomSelectContextKey)!
     const floatingBoundary = useFloatingBoundary(() => open.value && props.avoidCollisions, { bottom: 30, top: 30 })
     // Radix (1.8.1) dismisses on the click that follows a primary pointer down outside
     const { onPointerDownOutside, onFocusOutside } = useDeferredPointerDownOutside((originalEvent) => {
       // The trigger is not outside: Radix's non-modal content keeps the popover open
       if (popoverTriggerEl.value?.contains(originalEvent.target as Node | null)) return
       handleRootOpenChange(false)
-    })
+    }, () => selectContentRef.value)
 
     return () =>
       h(

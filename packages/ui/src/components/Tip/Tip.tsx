@@ -14,6 +14,9 @@ import { overlayTiming } from "../Transition/shared"
 /** The edge of an inline tip that points at what it explains. */
 export type TipArrowEdge = "top" | "bottom" | "left" | "right"
 
+/** How a tip's actions show on a phone. */
+export type TipMobileActions = "rows" | "buttons"
+
 type TipContentProps = {
   /** The tip's title: what the feature is. */
   title: ReactNode
@@ -23,6 +26,12 @@ type TipContentProps = {
   icon?: ReactNode
   /** Buttons for the tip's actions, side by side below the message. */
   actions?: ReactNode
+  /**
+   * How the actions show at 767px and below: rows of text under a separator, as iOS tips show them, or the buttons
+   * as given, each a full-width capsule under the message, as an iOS card that asks for a permission.
+   * @default "rows"
+   */
+  mobileActions?: TipMobileActions
 }
 
 export type TipProps = TipContentProps & {
@@ -46,13 +55,14 @@ type TipBodyProps = TipContentProps & {
   role?: string
 }
 
-const TipBody = ({ title, description, icon, actions, onClose, arrowEdge, className, ref, titleId, descriptionId, role }: TipBodyProps) => (
+const TipBody = ({ title, description, icon, actions, mobileActions, onClose, arrowEdge, className, ref, titleId, descriptionId, role }: TipBodyProps) => (
   <div
     ref={ref}
     className={clsx(s.Tip, className)}
     role={role}
     aria-labelledby={role ? titleId : undefined}
     data-arrow-edge={arrowEdge}
+    data-mobile-actions={mobileActions === "buttons" ? mobileActions : undefined}
   >
     {icon && <div className={s.Icon}>{icon}</div>}
     <div className={s.Message}>

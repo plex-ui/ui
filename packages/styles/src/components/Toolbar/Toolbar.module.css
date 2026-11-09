@@ -301,6 +301,11 @@
     --button-icon-size: var(--toolbar-icon-size);
   }
 
+  /* A symbol with less ink (the plus of Contacts, IMG_5737) asks for the smaller box with iconSize="sm". */
+  .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-icon-size="sm"]:not([data-navigation-action]) {
+    --button-icon-size: var(--toolbar-icon-size-sm);
+  }
+
   .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a):not([data-navigation-action], [data-uniform]) {
     --button-gutter: var(--toolbar-label-gutter);
   }
@@ -369,11 +374,11 @@
     --input-adornment-offset: 0px;
     --control-gutter-pill-scaling: 1;
     --input-soft-background-color: var(--mobile-glass-background);
-    --input-placeholder-text-color: var(--mobile-label-tertiary, var(--color-text-tertiary));
+    --input-placeholder-text-color: var(--toolbar-search-placeholder-color);
     border-radius: var(--radius-full);
     background-image: var(--mobile-glass-sheen);
     box-shadow: var(--mobile-glass-shadow);
-    font-weight: var(--toolbar-label-font-weight);
+    font-weight: var(--toolbar-search-font-weight);
     -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
     backdrop-filter: var(--mobile-glass-backdrop-filter);
 

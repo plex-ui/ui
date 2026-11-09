@@ -15,13 +15,13 @@ import {
   useMemo,
   useRef,
   useState,
-  useSyncExternalStore,
+  type CSSProperties,
   type ReactElement,
   type ReactNode,
 } from "react"
 import { FloatingBoundaryProvider, useFloatingBoundaryRegistration, useFloatingBoundaryScope } from "../../hooks/useFloatingBoundary"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
-import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
+import { cancelableKeyCopy, dataAttributes, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { useStableCallback } from "../../hooks/useStableCallback"
 import { NavigationButton } from "../Button/NavigationButton"
 import { Toolbar, ToolbarHostContext, type BarBackground, type ToolbarHost } from "../Toolbar/Toolbar"
@@ -29,6 +29,9 @@ import { NO_SCROLL_EDGES, observeScrollEdges, sameScrollEdges, type ScrollEdges 
 import { TransitionGroup } from "../Transition"
 import { createExitGuard, overlayTiming, overlayTimingLarge } from "../Transition/shared"
 import { attachSheetDrag } from "./sheetDrag"
+import { watchDialogViewport } from "./dialogViewport"
+import { enterStep, leaveStep, releaseStepHeight, settleStepHeight, STEP_TIMING } from "./dialogSteps"
+import { PhoneLayoutContext, usePhoneLayout, type PhoneLayoutValue } from "../PhoneLayout/PhoneLayout"
 import { usePopoverDismissableSurface } from "../Popover/deferredOutsidePress"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
 import t from "@plexui/styles/components/Toolbar/Toolbar.module.css"
@@ -97,6 +100,16 @@ const Trigger = ({ children }: { children: ReactNode }) => {
 
 export type DialogPlacement = "center" | "top" | "bottom" | "start" | "end" | "fullscreen"
 
+/** A press or a focus outside the dialog; `event.detail.originalEvent` is the browser's event. */
+export type DialogInteractOutsideEvent = CustomEvent<{ originalEvent: PointerEvent | FocusEvent }>
+
+/** Class, style and data attributes for one of the dialog's layers. */
+export type DialogLayerProps = {
+  className?: string
+  style?: CSSProperties
+  [dataAttribute: `data-${string}`]: string | number | boolean | undefined
+}
+
 export type DialogContentProps = {
   children: ReactNode
   width?: number | string
@@ -127,6 +140,28 @@ export type DialogContentProps = {
   onOpenAutoFocus?: (event: Event) => void
   /** Called when focus returns on close. Call `event.preventDefault()` to keep it elsewhere. */
   onCloseAutoFocus?: (event: Event) => void
+  /**
+   * Called on Escape before the dialog closes. Call `event.preventDefault()` to keep it open, such as for a form
+   * with unsaved changes.
+   */
+  onEscapeKeyDown?: (event: KeyboardEvent) => void
+  /**
+   * Called on a press or a focus outside the dialog before it closes. Call `event.preventDefault()` to keep it open,
+   * such as for a press on a developer panel over the page.
+   */
+  onInteractOutside?: (event: DialogInteractOutsideEvent) => void
+  /** Stack order of the overlay and the dialog. @default 50 */
+  zIndex?: number
+  /** Class, style and data attributes for the fixed layer that holds the panel. Data attributes of Content land here too. */
+  rootProps?: DialogLayerProps
+  /** Class, style and data attributes for the overlay. */
+  overlayProps?: DialogLayerProps
+  /**
+   * `phone` lays the dialog out as on a phone at any window width. Inside a PhoneLayout it always is.
+   * @default "auto"
+   */
+  layout?: "auto" | "phone"
+  [dataAttribute: `data-${string}`]: string | number | boolean | undefined
 }
 
 const Content = ({
@@ -141,8 +176,24 @@ const Content = ({
   surface = "plain",
   onOpenAutoFocus,
   onCloseAutoFocus,
+  onEscapeKeyDown,
+  onInteractOutside,
+  zIndex,
+  rootProps,
+  overlayProps,
+  layout = "auto",
+  ...rest
 }: DialogContentProps) => {
   const { open, setOpen } = useDialogContext()
+  const outerPhoneLayout = useContext(PhoneLayoutContext)
+  // A dialog laid out as on a phone by its own prop, outside a PhoneLayout, keeps the window: what it holds and
+  // the dialogs it opens are phone ones too.
+  const phoneLayout = useMemo<PhoneLayoutValue | null>(
+    () => outerPhoneLayout ?? (layout === "phone" ? { container: null } : null),
+    [outerPhoneLayout, layout],
+  )
+  const [content, setContent] = useState<HTMLDivElement | null>(null)
+  useDialogViewport(content, outerPhoneLayout?.container ?? null)
   const overlaySurfaceRef = usePopoverDismissableSurface()
   const mobilePlacement =
     mobileVariant === "alert"
@@ -170,7 +221,12 @@ const Content = ({
     keepMovedFocus(event)
   })
 
-  useEscCloseStack(open, () => {
+  useEscCloseStack(open, (event) => {
+    if (onEscapeKeyDown) {
+      const request = cancelableKeyCopy(event)
+      onEscapeKeyDown(request)
+      if (request.defaultPrevented) return
+    }
     setOpen(false)
   })
 
@@ -209,9 +265,15 @@ const Content = ({
     return () => { observer?.disconnect(); children.disconnect() }
   }, [panel])
 
+  const layerStyle = toCssVariables({ "dialog-z-index": zIndex === undefined ? undefined : String(zIndex) })
+
   return (
     <FloatingBoundaryProvider value={boundary}>
-    <RadixDialog.Portal forceMount>
+    <PhoneLayoutContext value={phoneLayout}>
+    <RadixDialog.Portal forceMount container={outerPhoneLayout?.container ?? undefined}>
+      {/* Portaled out of any phone layout, a phone dialog carries its own scope, above its transition: the phone
+          rules of the style sheet start there. */}
+      <PhoneScope enabled={phoneLayout !== null && !outerPhoneLayout?.container}>
       {/* A dialog mounted open enters too, as `open` set with the mount does */}
       <TransitionGroup
         {...(crossesScreen ? overlayTimingLarge : overlayTiming)}
@@ -222,12 +284,20 @@ const Content = ({
       >
         {open && (
           <div key="dialog">
-            <RadixDialog.Overlay ref={overlaySurfaceRef} className={s.Overlay} />
+            <RadixDialog.Overlay
+              {...overlayProps}
+              ref={overlaySurfaceRef}
+              className={clsx(s.Overlay, overlayProps?.className)}
+              style={{ ...layerStyle, ...overlayProps?.style }}
+            />
             <RadixDialog.Content
+              {...dataAttributes(rest)}
+              {...rootProps}
+              ref={setContent}
               forceMount
-              className={s.Content}
+              className={clsx(s.Content, rootProps?.className)}
               data-plex-dialog=""
-              style={toCssVariables({ "dialog-width": width })}
+              style={{ ...toCssVariables({ "dialog-width": width }), ...layerStyle, ...rootProps?.style }}
               data-placement={placement === "center" ? undefined : placement}
               data-mobile-placement={mobilePlacement}
               data-mobile-variant={mobileVariant}
@@ -235,6 +305,8 @@ const Content = ({
               data-pill={pill ? "" : undefined}
               onEscapeKeyDown={preventDefaultHandler}
               onInteractOutside={(event) => {
+                onInteractOutside?.(event)
+                if (event.defaultPrevented) return
                 // The second click of a double click lands on the overlay: it must not undo the first
                 if (performance.now() - openedAt.current < DOUBLE_CLICK) event.preventDefault()
                 else exitGuard.onInteractOutside(event)
@@ -261,7 +333,9 @@ const Content = ({
           </div>
         )}
       </TransitionGroup>
+      </PhoneScope>
     </RadixDialog.Portal>
+    </PhoneLayoutContext>
     </FloatingBoundaryProvider>
   )
 }
@@ -274,23 +348,12 @@ const DialogSheetContext = createContext<DialogSheetValue | null>(null)
 // Inside that bar: the title, the description and the header actions take the Toolbar's parts
 const DialogBarContext = createContext(false)
 
-// The phone layout of the Dialog style sheet (its rules for the Sheet's bar use the same query). A dialog's content
-// mounts on the client only (its portal waits for the document), so its first render already knows the layout, with
-// nothing to swap after it.
-const PHONE_LAYOUT = "(width <= 767px)"
-const phoneLayout = () => (typeof window !== "undefined" && typeof window.matchMedia === "function" ? window.matchMedia(PHONE_LAYOUT) : null)
-const subscribePhoneLayout = (onChange: () => void) => {
-  const query = phoneLayout()
-  if (!query) return () => {}
-  // Safari before 14 has only the older listener methods
-  if (typeof query.addEventListener !== "function") {
-    query.addListener(onChange)
-    return () => query.removeListener(onChange)
-  }
-  query.addEventListener("change", onChange)
-  return () => query.removeEventListener("change", onChange)
+const PhoneScope = ({ enabled, children }: { enabled: boolean; children: ReactNode }) =>
+  enabled ? <div className={s.PhoneScope} data-plex-layout="phone">{children}</div> : children
+
+const useDialogViewport = (content: HTMLElement | null, container: HTMLElement | null) => {
+  useLayoutEffect(() => (content ? watchDialogViewport(content, container) : undefined), [content, container])
 }
-const usePhoneLayout = () => useSyncExternalStore(subscribePhoneLayout, () => phoneLayout()?.matches ?? false, () => false)
 const TOP_TOOLBAR = '[data-toolbar][data-placement="top"]'
 const BOTTOM_TOOLBAR = '[data-toolbar][data-placement="bottom"]'
 
@@ -302,7 +365,7 @@ type DialogSlotProps = {
 /** How a Sheet's bar meets the content scrolled under it; see `BarBackground`. */
 export type DialogBarBackground = BarBackground
 export type DialogHeaderProps = DialogSlotProps & {
-  /** How the bar meets the content scrolled under it in a phone Sheet. @default "soft" */
+  /** How the bar meets the content scrolled under it in a phone Sheet. @default "glass" */
   background?: DialogBarBackground
 }
 
@@ -316,7 +379,7 @@ const headerParts = (children: ReactNode, prefix = ""): ReactNode[] =>
   })
 const isHeaderAction = (part: ReactNode): part is ReactElement => isValidElement(part) && part.type === HeaderAction
 
-const Header = ({ children, className, background = "soft" }: DialogHeaderProps) => {
+const Header = ({ children, className, background = "glass" }: DialogHeaderProps) => {
   const sheet = useContext(DialogSheetContext)
   const phone = usePhoneLayout()
   const scrolled = useContext(DialogScrollContext)?.edges.scrolled
@@ -410,6 +473,28 @@ const Description = ({ children, className }: DialogSlotProps) => {
   )
 }
 
+export type DialogStepsProps = {
+  /** The step on screen. A new value brings its content in. */
+  step: string | number
+  /**
+   * `forward` brings the new step in from the trailing edge over the one before, as a push on iOS; `back` returns to
+   * a step before it.
+   * @default "forward"
+   */
+  direction?: "forward" | "back"
+  children: ReactNode
+  className?: string
+}
+
+/** The steps of a flow inside a dialog, such as a sign-in that asks for an email and then a code. */
+const Steps = ({ step, direction = "forward", children, className }: DialogStepsProps) => (
+  <div className={clsx(s.Steps, className)} data-direction={direction}>
+    <TransitionGroup {...STEP_TIMING} as="div" overlay className={s.Step} onEnter={enterStep} onExit={leaveStep} onExitActive={settleStepHeight} onExitComplete={releaseStepHeight}>
+      <div key={step} data-dialog-step="" tabIndex={-1}>{children}</div>
+    </TransitionGroup>
+  </div>
+)
+
 const Close = ({ children }: { children: ReactNode }) => {
   return <RadixDialog.Close asChild>{children}</RadixDialog.Close>
 }
@@ -423,3 +508,4 @@ Dialog.Footer = Footer
 Dialog.Title = Title
 Dialog.Description = Description
 Dialog.Close = Close
+Dialog.Steps = Steps

@@ -11,8 +11,10 @@ import {
   onUnmounted,
   provide,
   ref,
+  shallowRef,
   watch,
   type ComputedRef,
+  type CSSProperties,
   type HTMLAttributes,
   type InjectionKey,
   type PropType,
@@ -34,11 +36,14 @@ import {
   useId,
 } from "reka-ui"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
-import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
+import { cancelableKeyCopy, dataAttributes, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
 import { dismissableSurfaces, useDeferredPointerDownOutside } from "../Popover/deferredPointerDownOutside.js"
 import { firstElementChild } from "../Tooltip/slot.js"
 import { TransitionGroup } from "../Transition/index.js"
 import { attachSheetDrag } from "./sheetDrag.js"
+import { watchDialogViewport } from "./dialogViewport.js"
+import { enterStep, leaveStep, releaseStepHeight, settleStepHeight, STEP_TIMING } from "./dialogSteps.js"
+import { PHONE_LAYOUT as PHONE_LAYOUT_SCOPE, type PhoneLayoutValue } from "../PhoneLayout/PhoneLayout.js"
 import { overlayTiming, overlayTimingLarge } from "../Transition/shared.js"
 import { provideFloatingBoundaryScope, useFloatingBoundaryRegistration } from "../../composables/useFloatingBoundary.js"
 import { NavigationButton } from "../Button/NavigationButton.js"
@@ -63,10 +68,13 @@ const DIALOG_BAR: InjectionKey<ComputedRef<boolean>> = Symbol("DialogBar")
 // swap after it.
 const PHONE_LAYOUT = "(width <= 767px)"
 const phoneLayout = () => (typeof window !== "undefined" && typeof window.matchMedia === "function" ? window.matchMedia(PHONE_LAYOUT) : null)
-const usePhoneLayout = (): Ref<boolean> => {
+const usePhoneLayout = (): Readonly<Ref<boolean>> => {
+  // Inside a PhoneLayout, or a dialog with `layout="phone"`, at any window width
+  const scope = inject(PHONE_LAYOUT_SCOPE, null)
   const query = phoneLayout()
-  const phone = ref(query?.matches ?? false)
-  const update = () => { phone.value = !!query?.matches }
+  const narrow = ref(query?.matches ?? false)
+  const phone = computed(() => !!scope?.phone.value || narrow.value)
+  const update = () => { narrow.value = !!query?.matches }
   if (!query) return phone
   // Safari before 14 has only the older listener methods
   if (typeof query.addEventListener !== "function") {
@@ -242,9 +250,33 @@ export const DialogContent = defineComponent({
     onOpenAutoFocus: Function as PropType<(event: Event) => void>,
     /** Called when focus returns on close; `event.preventDefault()` keeps it elsewhere. */
     onCloseAutoFocus: Function as PropType<(event: Event) => void>,
+    /**
+     * Called on Escape before the dialog closes; `event.preventDefault()` keeps it open, such as for a form with
+     * unsaved changes.
+     */
+    onEscapeKeyDown: Function as PropType<(event: KeyboardEvent) => void>,
+    /**
+     * Called on a press or a focus outside the dialog before it closes; `event.preventDefault()` keeps it open, such
+     * as for a press on a developer panel over the page.
+     */
+    onInteractOutside: Function as PropType<(event: DialogInteractOutsideEvent) => void>,
+    /** Stack order of the overlay and the dialog. @default 50 */
+    zIndex: Number,
+    /** Class, style and data attributes for the fixed layer that holds the panel. Data attributes of DialogContent land here too. */
+    rootProps: Object as PropType<DialogLayerProps>,
+    /** Class, style and data attributes for the overlay. */
+    overlayProps: Object as PropType<DialogLayerProps>,
+    /** `phone` lays the dialog out as on a phone at any window width. Inside a PhoneLayout it always is. @default "auto" */
+    layout: { type: String as PropType<"auto" | "phone">, default: "auto" },
   },
   setup(props, { slots, attrs }) {
     const { open, setOpen, titleCount, descriptionCount } = useDialogContext()
+    const outerPhoneLayout = inject(PHONE_LAYOUT_SCOPE, null)
+    // A dialog laid out as on a phone by its own prop, outside a PhoneLayout, keeps the window: what it holds and
+    // the dialogs it opens are phone ones too, for as long as the prop says so.
+    const phoneLayout = computed(() => !!outerPhoneLayout?.phone.value || props.layout === "phone")
+    const portalTarget = computed(() => outerPhoneLayout?.container.value ?? null)
+    provide(PHONE_LAYOUT_SCOPE, { container: outerPhoneLayout?.container ?? shallowRef(null), phone: phoneLayout } satisfies PhoneLayoutValue)
     const scroll: DialogScroll = { scrolled: ref(false), contentBelow: ref(false) }
     provide(DIALOG_SCROLL, scroll)
     provide(TOOLBAR_HOST, { kind: "dialog", scrolled: scroll.scrolled, contentBelow: scroll.contentBelow })
@@ -260,6 +292,19 @@ export const DialogContent = defineComponent({
     // Radix's root makes the content id; Reka's trigger does, so a dialog
     // without one would render `id=""`
     rootContext.contentId ||= useId(undefined, "reka-dialog-content")
+    // Reka replaces the root's content ref as it mounts, so the layer is found from the panel once it is in place
+    const panelNode = shallowRef<HTMLElement | null>(null)
+    let stopViewport: (() => void) | undefined
+    watch(
+      [panelNode, portalTarget],
+      ([panel, box]) => {
+        stopViewport?.()
+        const content = panel?.closest<HTMLElement>("[data-plex-dialog]")
+        stopViewport = content ? watchDialogViewport(content, box) : undefined
+      },
+      { flush: "post", immediate: true },
+    )
+    onBeforeUnmount(() => stopViewport?.())
 
     const handleCloseAutoFocus = (rekaEvent: Event) => {
       // Reka announces unmount before descendant scopes release their traps.
@@ -284,22 +329,43 @@ export const DialogContent = defineComponent({
 
     // Escape goes through the shared stack, as in React, so the dialog
     // closes before overlays opened earlier (a forced-open Tooltip)
-    useEscCloseStack(open, () => {
+    useEscCloseStack(open, (event) => {
+      if (props.onEscapeKeyDown) {
+        const request = cancelableKeyCopy(event)
+        props.onEscapeKeyDown(request)
+        if (request.defaultPrevented) return
+      }
       setOpen(false)
     })
 
     // The second click of a double click lands on the overlay: it must not undo the first
     let openedAt = 0
 
-    // Radix's modal content: a Ctrl+click (macOS right click) does not dismiss
+    // The owner's handler comes first; a prevented interaction keeps the dialog open
+    const ownerKeepsOpen = (event: DialogInteractOutsideEvent) => {
+      props.onInteractOutside?.(event)
+      return event.defaultPrevented
+    }
+    // Radix's modal content: a Ctrl+click (macOS right click) does not dismiss. A deferred press asks the owner when
+    // the click completes it, as Radix does, so a form that changed meanwhile can still forbid closing.
     const outsidePress = useDeferredPointerDownOutside((originalEvent) => {
+      const request = new CustomEvent("dismissableLayer.pointerDownOutside", { cancelable: true, detail: { originalEvent } })
+      if (ownerKeepsOpen(request)) return
       if (!originalEvent.ctrlKey && performance.now() - openedAt >= DOUBLE_CLICK) setOpen(false)
-    })
+    }, () => rootContext.contentElement.value)
     const handlePointerDownOutside = (event: Parameters<typeof outsidePress.onPointerDownOutside>[0]) => {
       // The native modal owner outlives logical open. An exiting layer must not
       // start a deferred dismissal that closes a trigger-driven reopen.
-      if (!open.value) event.preventDefault()
-      else outsidePress.onPointerDownOutside(event)
+      if (!open.value) return event.preventDefault()
+      // A primary mouse or pen press waits for its click; a touch or another button dismisses now, as Reka does
+      const { originalEvent } = event.detail
+      if (originalEvent.button === 0 && originalEvent.pointerType !== "touch") return outsidePress.onPointerDownOutside(event)
+      if (!ownerKeepsOpen(event as DialogInteractOutsideEvent)) outsidePress.onPointerDownOutside(event)
+    }
+    // Focus moving out while a press waits for its click is that press, as on Radix: the owner hears of it once
+    const handleFocusOutside = (event: Parameters<typeof outsidePress.onFocusOutside>[0]) => {
+      outsidePress.onFocusOutside(event)
+      if (!event.defaultPrevented) props.onInteractOutside?.(event as DialogInteractOutsideEvent)
     }
     const handleInteractOutside = (event: Event) => {
       if (!open.value) event.preventDefault()
@@ -326,6 +392,7 @@ export const DialogContent = defineComponent({
       barChildren?.disconnect()
       detachDrag = undefined
       panelElement = element
+      panelNode.value = element ?? null
       boundary.setRoot(element)
       if (element) {
         const update = () => {
@@ -375,14 +442,23 @@ export const DialogContent = defineComponent({
 
     const renderDialog = () =>
       h(DialogSurface, { key: "dialog" }, () => [
-        h(RekaDialogOverlay, { class: s.Overlay, forceMount: true, ref: setOverlayRef, "data-state": open.value ? "open" : "closed" }),
+        h(RekaDialogOverlay, {
+          ...props.overlayProps,
+          class: [s.Overlay, props.overlayProps?.class],
+          style: [layerStyle(), props.overlayProps?.style],
+          forceMount: true,
+          ref: setOverlayRef,
+          "data-state": open.value ? "open" : "closed",
+        }),
         h(
           RekaDialogContent,
           {
+            ...dataAttributes(attrs),
+            ...props.rootProps,
             "forceMount": true,
-            "class": s.Content,
+            "class": [s.Content, props.rootProps?.class],
             "data-plex-dialog": "",
-            "style": toCssVariables({ "dialog-width": props.width }),
+            "style": [toCssVariables({ "dialog-width": props.width }), layerStyle(), props.rootProps?.style],
             "data-placement": props.placement === "center" ? undefined : props.placement,
             "data-mobile-placement": mobilePlacement.value,
             "data-mobile-variant": props.mobileVariant,
@@ -396,7 +472,7 @@ export const DialogContent = defineComponent({
             ...(descriptionCount.value > 0 ? {} : { "aria-describedby": undefined }),
             "onEscapeKeyDown": preventDefaultHandler,
             "onPointerDownOutside": handlePointerDownOutside,
-            "onFocusOutside": outsidePress.onFocusOutside,
+            "onFocusOutside": handleFocusOutside,
             "onInteractOutside": handleInteractOutside,
           },
           {
@@ -428,13 +504,19 @@ export const DialogContent = defineComponent({
         ),
       ])
 
+    const layerStyle = () => toCssVariables({ "dialog-z-index": props.zIndex === undefined ? undefined : String(props.zIndex) })
+
     return () => {
       const { placement } = props
       const crossesScreen =
         placement === "bottom" || placement === "start" || placement === "end" || placement === "fullscreen" || mobilePlacement.value === "bottom" || mobilePlacement.value === "fullscreen"
-      return h(RekaDialogPortal, null, {
+      // Portaled out of any phone layout, a phone dialog carries its own scope, above its transition: the phone rules
+      // of the style sheet start there.
+      const scoped = (group: VNode) =>
+        phoneLayout.value && !portalTarget.value ? h("div", { class: s.PhoneScope, "data-plex-layout": "phone" }, [group]) : group
+      return h(RekaDialogPortal, { to: portalTarget.value ?? undefined }, {
         default: () => [
-          h(
+          scoped(h(
             TransitionGroup,
             // A dialog mounted open enters too, as `v-if` and `open` together do
             {
@@ -445,7 +527,7 @@ export const DialogContent = defineComponent({
             },
             // `open && <div>` in React: closed still renders the empty wrapper
             { default: () => [open.value ? renderDialog() : createCommentVNode()] },
-          ),
+          )),
         ],
       })
     }
@@ -464,8 +546,8 @@ const isHeaderAction = (part: unknown) => isVNode(part) && part.type === DialogH
 export const DialogHeader = defineComponent({
   name: "DialogHeader",
   props: {
-    /** How the bar meets the content scrolled under it in a phone Sheet. @default "soft" */
-    background: { type: String as PropType<DialogBarBackground>, default: "soft" },
+    /** How the bar meets the content scrolled under it in a phone Sheet. @default "glass" */
+    background: { type: String as PropType<DialogBarBackground>, default: "glass" },
   },
   setup(props, { slots }) {
     const scroll = inject(DIALOG_SCROLL, null)
@@ -593,12 +675,56 @@ export const DialogClose = defineComponent({
   },
 })
 
+/** The steps of a flow inside a dialog, such as a sign-in that asks for an email and then a code. */
+export const DialogSteps = defineComponent({
+  name: "DialogSteps",
+  props: {
+    /** The step on screen. A new value brings its content in. */
+    step: { type: [String, Number] as PropType<string | number>, required: true },
+    /**
+     * `forward` brings the new step in from the trailing edge over the one before, as a push on iOS; `back` returns
+     * to a step before it.
+     * @default "forward"
+     */
+    direction: { type: String as PropType<"forward" | "back">, default: "forward" },
+  },
+  setup(props, { slots }) {
+    return () => {
+      // Resolve this step now, so a step that leaves cannot read the next one
+      const entry = h("div", { "key": props.step, "data-dialog-step": "", "tabindex": -1 }, slots.default?.())
+      return h("div", { "class": s.Steps, "data-direction": props.direction }, [
+        h(TransitionGroup, {
+          ...STEP_TIMING,
+          as: "div",
+          overlay: true,
+          class: s.Step,
+          onEnter: enterStep,
+          onExit: leaveStep,
+          onExitActive: settleStepHeight,
+          onExitComplete: releaseStepHeight,
+        }, () => [entry]),
+      ])
+    }
+  },
+})
+
 export type DialogProps = InstanceType<typeof Dialog>["$props"]
 
 export type DialogPlacement = "center" | "top" | "bottom" | "start" | "end" | "fullscreen"
+
+/** A press or a focus outside the dialog; `event.detail.originalEvent` is the browser's event. */
+export type DialogInteractOutsideEvent = CustomEvent<{ originalEvent: PointerEvent | FocusEvent }>
+
+/** Class, style and data attributes for one of the dialog's layers. */
+export type DialogLayerProps = {
+  class?: HTMLAttributes["class"]
+  style?: string | CSSProperties
+  [dataAttribute: `data-${string}`]: string | number | boolean | undefined
+}
 
 /** DialogContent props; `class` lands on the panel, like `className` in React. */
 export type DialogContentProps = InstanceType<typeof DialogContent>["$props"] & { class?: HTMLAttributes["class"] }
 
 export type DialogHeaderProps = InstanceType<typeof DialogHeader>["$props"]
 export type DialogFooterProps = InstanceType<typeof DialogFooter>["$props"]
+export type DialogStepsProps = InstanceType<typeof DialogSteps>["$props"]

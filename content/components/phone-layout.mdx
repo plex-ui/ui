@@ -1,0 +1,59 @@
+---
+title: Phone Layout
+description: Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.
+metaDescription: React PhoneLayout component that gives the components inside it their phone presentation at any window width and keeps dialogs inside its box.
+---
+
+import { PhoneLayoutOverviewDemo } from "@/components/docs/PhoneLayoutDemos"
+
+<UsageBlock>{`import { PhoneLayout } from "@plexui/ui/components/PhoneLayout";`}</UsageBlock>
+
+Components take their phone presentation in a window 767px wide or narrower. Inside a PhoneLayout they take it at any width: a Dialog becomes a phone sheet, a Button takes its phone size. For one dialog only, use `layout="phone"` on [Dialog.Content](/components/dialog#api). Menus, popovers, selects and tooltips still open at the end of the page and take the window's presentation; they follow a PhoneLayout in a later release.
+
+## Examples
+
+### Overview
+
+<ComponentPreview phonePresentation="none" details={<>The box is the screen of the phone: a Dialog opened inside it portals into the box and covers it instead of the window. Give the box a size; let a child of it scroll rather than the box, so a dialog stays in place.</>} code={`const [open, setOpen] = useState(false)
+
+<PhoneLayout style={{ width: 375, height: 600, borderRadius: 40, border: '1px solid var(--color-border)' }}>
+  <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog.Trigger>
+      <Button color="primary">New list</Button>
+    </Dialog.Trigger>
+    <Dialog.Content mobileVariant="sheet">
+      <Dialog.Header>
+        <Dialog.Title>New list</Dialog.Title>
+      </Dialog.Header>
+      <Dialog.Body>
+        <Field label="Name">
+          <Input placeholder="Groceries" />
+        </Field>
+      </Dialog.Body>
+      <Dialog.Footer>
+        <Button color="primary" onClick={() => setOpen(false)}>Create</Button>
+      </Dialog.Footer>
+    </Dialog.Content>
+  </Dialog>
+</PhoneLayout>`}>
+  <PhoneLayoutOverviewDemo />
+</ComponentPreview>
+
+## API
+
+### PhoneLayout
+
+Renders a `div` and accepts its props. It marks the box with `data-plex-layout="phone"`: the style sheets apply their phone rules inside such an element at any window width, and their desktop rules (768px and up) do not apply there.
+
+<PropsTable data={[
+  { prop: "className", type: "string", description: "Class on the box, such as its size and corners" },
+  { prop: "style", type: "CSSProperties", description: "Style on the box" },
+]} />
+
+### usePhoneLayout
+
+`usePhoneLayout()` returns whether components where it is called are laid out as on a phone: inside a PhoneLayout or a Dialog with `layout="phone"`, or in a window 767px wide or narrower. On the server it is false outside a PhoneLayout.
+
+## Styling
+
+The box has layout containment, so it is the containing block of the fixed layers of the dialogs inside it, and it clips its overflow as a screen does; a class of your own can change the overflow. Set `--safe-area-inset-top` and `--safe-area-inset-bottom` on the box when the frame draws a status bar or a home indicator: phone sheets and bars read them before the window's safe area.

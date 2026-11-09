@@ -1,3 +1,4 @@
+import { PHONE_LAYOUT_SCOPE } from './phoneLayout';
 /** Geometry shared by anchored menus in a Page or Dialog with pinned actions. */
 export type FloatingFooterInset = { boundary: HTMLElement; bottom: number } | null;
 
@@ -58,7 +59,8 @@ export function observeFloatingFooter(
     const start = () => {
         stopMobile?.();
         stopMobile = undefined;
-        if (!media.matches) {
+        // A phone layout keeps its phone geometry at any window width
+        if (!media.matches && !root.closest(PHONE_LAYOUT_SCOPE)) {
             onChange(null);
             return;
         }

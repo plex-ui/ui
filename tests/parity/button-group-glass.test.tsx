@@ -56,7 +56,7 @@ describe("ButtonGroup glass on a phone", () => {
     expect(phone).toMatch(/& > \[data-slot="button-group-separator"\] \{\s*display: none;/)
     expect(phone).toMatch(/--button-size: var\(--button-group-glass-item-size\);/)
     // Every item rule takes a disabled ButtonLink, a span with the link role, too
-    expect(phone.match(/& > :where\(button, a, \[role="link"\]\)/g)).toHaveLength(5)
+    expect(phone.match(/& > :where\(button, a, \[role="link"\]\)/g)).toHaveLength(6)
     expect(phone).not.toMatch(/:where\(button, a\)/)
     expect(phone).toMatch(/--button-mobile-material-background: transparent;/)
     expect(phone).toMatch(/--button-border-color: transparent;/)

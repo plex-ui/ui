@@ -2,7 +2,7 @@ import { onBeforeUnmount, onMounted, toValue, watch, type MaybeRefOrGetter } fro
 
 type Handler = {
   id: symbol
-  callback: () => void
+  callback: (event: KeyboardEvent) => void
 }
 
 let handlers: Handler[] = []
@@ -15,7 +15,7 @@ const handleKeyDown = (evt: KeyboardEvent) => {
 
     if (firstHandler) {
       evt.preventDefault()
-      firstHandler.callback()
+      firstHandler.callback(evt)
     }
   }
 }
@@ -32,9 +32,9 @@ const managerListener = () => {
 
 /**
  * Escape closes the most recently registered listener first, so nested
- * overlays close one at a time.
+ * overlays close one at a time. The callback gets the key event, already prevented.
  */
-export const useEscCloseStack = (listening: MaybeRefOrGetter<boolean>, cb: () => void) => {
+export const useEscCloseStack = (listening: MaybeRefOrGetter<boolean>, cb: (event: KeyboardEvent) => void) => {
   const id = Symbol("esc-close")
   const handler: Handler = { id, callback: cb }
   const unregister = () => {

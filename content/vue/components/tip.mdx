@@ -35,6 +35,19 @@ export const actions = `<div class="w-full max-w-[360px]">
   </Tip>
 </div>`
 
+export const permission = `<div class="w-full max-w-[360px]">
+  <Tip
+    title="Get alerts"
+    description="Hear about severe weather where you are, even when the app is closed."
+    mobile-actions="buttons"
+  >
+    <template #icon><Bell /></template>
+    <template #actions>
+      <Button color="primary" variant="soft" size="sm" pill>Turn on</Button>
+    </template>
+  </Tip>
+</div>`
+
 export const arrow = `<div class="flex w-full max-w-[360px] flex-col items-center gap-1">
   <Button color="secondary" variant="soft" uniform pill aria-label="Filter">
     <Filter />
@@ -76,6 +89,12 @@ A tip teaches a feature people might not find on their own: a title that names i
   <VuePhoneRowsDemo template={actions} phoneTemplate={phoneRows(actions)} phoneStageClassName="w-full" />
 </ComponentPreview>
 
+### Buttons on a phone
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>With <code>mobile-actions="buttons"</code> the actions keep their buttons on a phone: each is a capsule as wide as the tip under the message, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button.</>} code={permission} previewMinHeight={200}>
+  <VuePhoneRowsDemo template={permission} phoneTemplate={phoneRows(permission)} phoneStageClassName="w-full" />
+</ComponentPreview>
+
 ### Arrow
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>With <code>arrow-edge</code> an inline tip points at what it explains with the kit's arrow, centered on that edge. The tip leaves room for the arrow on that side.</>} code={arrow} previewMinHeight={240}>
@@ -97,6 +116,7 @@ A tip teaches a feature people might not find on their own: a title that names i
   { prop: "description", type: "string", description: "One or two sentences on how to use it (or the description slot)" },
   { prop: "on-close", type: "() => void", description: "Shows the Close button; called when it is clicked" },
   { prop: "arrow-edge", type: '"top" | "bottom" | "left" | "right"', description: "Draws an arrow at this edge, pointing at what the tip explains" },
+  { prop: "mobile-actions", type: '"rows" | "buttons"', default: '"rows"', description: "How the actions show at 767px and below: rows of text under a separator, or the buttons as given, each a full-width capsule" },
 ]} />
 
 **Slots**: `icon`, a symbol or image that leads the message; `actions`, buttons side by side below the message; `title` and `description` in place of the props. `class` lands on the tip.
@@ -123,8 +143,8 @@ An inline tip is a note named by its title. A popover tip is a non-modal dialog 
 Tip reads these component tokens. Override them at any scope to restyle it; at 767px and below the tip sets its padding, gap and Close tokens on itself, so override those on the tip:
 
 - `--tip-radius`: the corners (default `20px`; `26px` at 767px and below)
-- `--tip-padding-top`, `--tip-padding-inline`, `--tip-padding-bottom`: the padding (default `22px`, `16px`, `16px`; at 767px and below `14px`, the layout margin, `0px`, as the action rows reach the bottom edge; the top value below as well without actions)
-- `--tip-gap`: space between the message and the actions (default `22px`; `11px` at 767px and below)
+- `--tip-padding-top`, `--tip-padding-inline`, `--tip-padding-bottom`: the padding (default `22px`, `16px`, `16px`; at 767px and below `14px`, the layout margin, `0px`, as the action rows reach the bottom edge, or `16px` under action buttons; the top value below as well without actions)
+- `--tip-gap`: space between the message and the actions (default `22px`; `11px` at 767px and below, `16px` above action buttons)
 - `--tip-title-font-size`, `--tip-title-line-height`: the title (default `17px`, `22px`, semibold)
 - `--tip-description-font-size`, `--tip-description-line-height`, `--tip-description-gap`: the description and its space under the title (default `15px`, `20px`, `4px`; no space at 767px and below)
 - `--tip-description-color`: the description and the symbol (default `var(--color-text-secondary)`)

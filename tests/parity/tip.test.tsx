@@ -29,7 +29,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-type Case = { icon?: boolean, actions?: boolean, close?: boolean, arrowEdge?: RTipProps["arrowEdge"], description?: boolean }
+type Case = { icon?: boolean, actions?: boolean, close?: boolean, arrowEdge?: RTipProps["arrowEdge"], description?: boolean, mobileActions?: RTipProps["mobileActions"] }
 const cases: Array<[string, Case]> = [
   ["text only", { description: true }],
   ["a title alone", {}],
@@ -37,6 +37,8 @@ const cases: Array<[string, Case]> = [
   ["Close without a symbol", { close: true, description: true }],
   ["an arrow at the top", { arrowEdge: "top", description: true }],
   ["an arrow at the leading side", { arrowEdge: "left", description: true, close: true }],
+  ["buttons on a phone", { icon: true, actions: true, description: true, mobileActions: "buttons" }],
+  ["rows on a phone, said", { actions: true, mobileActions: "rows" }],
 ]
 
 const reactTip = (c: Case) => (
@@ -47,6 +49,7 @@ const reactTip = (c: Case) => (
     actions={c.actions ? <><RButton color="primary" variant="soft">Not now</RButton><RButton color="primary">Turn on</RButton></> : undefined}
     onClose={c.close ? () => {} : undefined}
     arrowEdge={c.arrowEdge}
+    mobileActions={c.mobileActions}
     className="custom"
   />
 )
@@ -59,6 +62,7 @@ const vueTip = (c: Case) => () =>
       description: c.description ? "Bookmarked articles wait in your reading list." : undefined,
       onClose: c.close ? () => {} : undefined,
       arrowEdge: c.arrowEdge,
+      mobileActions: c.mobileActions,
       class: "custom",
     },
     {
@@ -71,6 +75,17 @@ describe("an inline Tip", () => {
   test.each(cases)("%s renders the same DOM in React and Vue", async (_name, c) => {
     const pair = await renderPair(reactTip(c), vueTip(c))
     expect(pair.vue).toBe(pair.react)
+  })
+
+  test.each(["React", "Vue"] as const)('%s: mobileActions="buttons" marks the tip, rows leave it unmarked', async (framework) => {
+    for (const mobileActions of ["buttons", "rows", undefined] as const) {
+      cleanup()
+      document.body.innerHTML = ""
+      if (framework === "React") render(reactTip({ actions: true, mobileActions }))
+      else mountVue(vueTip({ actions: true, mobileActions }))
+      await flushVue()
+      expect(document.querySelector('[role="note"]')!.getAttribute("data-mobile-actions")).toBe(mobileActions === "buttons" ? "buttons" : null)
+    }
   })
 
   test.each(["React", "Vue"] as const)("%s: a note named by its title, its parts in order, Close named Close tip", async (framework) => {
@@ -281,9 +296,18 @@ describe("Tip styles", () => {
     ]) expect(phone).toContain(value)
     // Close is a bare glyph; each action is a row of text in its own color under a separator
     expect(phone).toMatch(/\.Tip > \.Close\[data-variant\] \{[^}]*--button-background-color: transparent;/)
-    expect(phone).toMatch(/\.Tip > \.Actions > \[data-variant\] \{[^}]*border-top: 1px solid var\(--color-border\);/)
+    expect(phone).toMatch(/\.Tip:not\(\[data-mobile-actions="buttons"\]\) > \.Actions > \[data-variant\] \{[^}]*border-top: 1px solid var\(--color-border\);/)
     expect(phone).toContain('.Tip > .Actions > [data-color="primary"] { --tip-action-color: var(--color-text-primary-ghost); }')
-    expect(phone).toMatch(/\.Tip > \.Actions > \[data-variant\] \{[^}]*--button-font-weight: var\(--font-weight-normal\);/)
+    expect(phone).toMatch(/\.Tip:not\(\[data-mobile-actions="buttons"\]\) > \.Actions > \[data-variant\] \{[^}]*--button-font-weight: var\(--font-weight-normal\);/)
     expect(phone).not.toContain("--dialog-alert-action-height")
+  })
+
+  test('mobileActions="buttons": full-width 48 capsules 16 under the message and above the edge, from the symbol\'s edge (IMG_5728)', () => {
+    const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
+    expect(phone).toMatch(/\.Tip\[data-mobile-actions="buttons"\] \{[^}]*--tip-padding-bottom: 16px;[^}]*--tip-gap: 16px;/)
+    expect(phone).toMatch(/\.Tip\[data-mobile-actions="buttons"\] > \.Actions \{[^}]*gap: 10px;/)
+    expect(phone).toMatch(/\.Tip\[data-mobile-actions="buttons"\] > \.Actions > \[data-variant\] \{[^}]*--button-size: 48px;[^}]*--button-font-size: 17px;[^}]*--button-radius: var\(--radius-full\);[^}]*width: 100%;/)
+    // The rows' indent after the symbol is not theirs
+    expect(phone).toContain('.Tip:not([data-mobile-actions="buttons"]):has(> .Icon) > .Actions {')
   })
 })

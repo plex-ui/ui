@@ -132,7 +132,7 @@ Each example shows the phone view.
 
 ### Background
 
-<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how the bar meets the content scrolled under it, as a <a href="/vue/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) leaves the content clear under and around the capsule, as native iOS 26 does, <code>hard</code> is an opaque band with a line on top, <code>glass</code> a translucent, blurred band with a hairline, and <code>solid</code> an opaque band with no line. Hard and glass show themselves while the content continues under the bar.</>} code={backgroundCode}>
+<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how the bar meets the content scrolled under it, as a <a href="/vue/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) leaves the content clear under and around the capsule, as native iOS 26 does, <code>glass</code> is a translucent, blurred band with a hairline, <code>hard</code> is an opaque band with a line on top, and <code>solid</code> an opaque band with no line. Glass and hard show themselves while the content continues under the bar.</>} code={backgroundCode}>
   <VueDemo stageClassName={STAGE} state={{ tab: 'home', title: 'Home' }} controls={[
     { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft" },
   ]} template={screen(`:background="background" `, four).replace('<Toolbar>', '<Toolbar :background="background">')} />

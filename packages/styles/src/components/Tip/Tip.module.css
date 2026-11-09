@@ -281,12 +281,12 @@
     gap: 0;
   }
 
-  .Tip:has(> .Icon) > .Actions {
+  .Tip:not([data-mobile-actions="buttons"]):has(> .Icon) > .Actions {
     padding-inline-start: calc(var(--tip-icon-frame-width) + 12px);
   }
 
   /* Each action is a row of text in its own color under a separator ([data-variant]: over the Button's own) */
-  .Tip > .Actions > [data-variant] {
+  .Tip:not([data-mobile-actions="buttons"]) > .Actions > [data-variant] {
     --button-size: auto;
     --button-gutter: 0px;
     --button-radius: 0;
@@ -320,6 +320,31 @@
   .Tip > .Actions > [data-color="caution"] { --tip-action-color: var(--color-text-caution-ghost); }
   .Tip > .Actions > [data-color="info"] { --tip-action-color: var(--color-text-info-ghost); }
   .Tip > .Actions > [data-color="discovery"] { --tip-action-color: var(--color-text-discovery-ghost); }
+
+  /* mobileActions="buttons": each action keeps its Button's color and variant as a full-width capsule under the
+     message, as the card in Settings that opens the Support app (IMG_5728, at 430pt): the tinted capsule spans the
+     card's content from the symbol's edge, 48 tall, 16 under the text and 16 above the card's edge, its label 17.
+     Several stand 10 apart, as the stacked actions of a phone Dialog. [data-variant]: over the Button's own size. */
+  .Tip[data-mobile-actions="buttons"] {
+    --tip-padding-bottom: 16px;
+    --tip-gap: 16px;
+  }
+
+  .Tip[data-mobile-actions="buttons"] > .Actions {
+    gap: 10px;
+  }
+
+  .Tip[data-mobile-actions="buttons"] > .Actions > [data-variant] {
+    --button-size: 48px;
+    --button-font-size: 17px;
+    --button-line-height: 22px;
+    /* A capsule without `pill` or touch.css too */
+    --button-radius: var(--radius-full);
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
 
   .Popover {
     filter: none;

@@ -6,6 +6,7 @@ import platformUIFunctions from "./postcss/functions.mjs"
 import injectBreakpoints from "./postcss/injectBreakpoints.mjs"
 import platformUIMixins from "./postcss/mixins.mjs"
 import platformUILightDark from "./postcss/parseLightDark.mjs"
+import phoneLayoutScope from "./postcss/phoneLayoutScope.mjs"
 import wrapModulesInLayer from "./postcss/wrapModulesInLayer.mjs"
 
 /**
@@ -40,6 +41,8 @@ export function platformUIRequiredPlugins(config = {}) {
     platformUIFunctions(),
     platformUIMixins({ breakpoints }),
     postcssNested(),
+    // Phone rules inside a PhoneLayout too, whatever the window's width (needs the flat rules postcss-nested leaves)
+    phoneLayoutScope(),
     // When browser support becomes adequate to use light-dark() directly, remove this plugin.
     platformUILightDark(),
     autoprefixer(),

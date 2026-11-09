@@ -160,7 +160,7 @@ export function DialogBodyDemo() {
   const [open, setOpen, phonePreview] = useDialogDemoState();
   const heading = useRef<HTMLDivElement>(null);
   // The bars of a phone Sheet only: a desktop dialog keeps its own header and footer.
-  const [background, setBackground] = useState<DialogBarBackground>('soft');
+  const [background, setBackground] = useState<DialogBarBackground>('glass');
 
   return (
     <>
@@ -252,5 +252,82 @@ export function DialogPlacementDemo() {
         </Dialog>
       </div>
     </>
+  );
+}
+
+// Plan 176: a sign-in that asks for an email and then a code, each step pushed in the same sheet.
+export function DialogStepsDemo() {
+  const [open, setOpen] = useDialogDemoState();
+  const [step, setStep] = useState<'email' | 'code'>('email');
+  const [direction, setDirection] = useState<'forward' | 'back'>('forward');
+  const [email, setEmail] = useState('');
+  const go = (next: 'email' | 'code', to: 'forward' | 'back') => { setDirection(to); setStep(next); };
+
+  return (
+    <div data-demo-stage className="py-10 flex justify-center">
+      <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (!next) { setStep('email'); setDirection('forward'); } }}>
+        <Dialog.Trigger>
+          <Button color="secondary" variant="outline">Sign in</Button>
+        </Dialog.Trigger>
+        <Dialog.Content mobileVariant="sheet" width={420}>
+          <Dialog.Header>
+            <Dialog.Title>Sign in</Dialog.Title>
+          </Dialog.Header>
+          <Dialog.Body>
+            <Dialog.Steps step={step} direction={direction}>
+              {step === 'email' ? (
+                <Field label="Email" description="We send a code to this address.">
+                  <Input type="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} />
+                </Field>
+              ) : (
+                <Field label="Code" description={`Enter the code we sent to ${email || 'your email'}.`}>
+                  <Input inputMode="numeric" autoComplete="one-time-code" placeholder="6-digit code" />
+                </Field>
+              )}
+            </Dialog.Steps>
+          </Dialog.Body>
+          <Dialog.Footer>
+            {step === 'code' && <Button color="primary" variant="soft" onClick={() => go('email', 'back')}>Back</Button>}
+            {step === 'email'
+              ? <Button color="primary" onClick={() => go('code', 'forward')}>Continue</Button>
+              : <Button color="primary" onClick={() => setOpen(false)}>Verify</Button>}
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
+    </div>
+  );
+}
+
+// Plan 176: a form with unsaved changes stays open on Escape and on a press outside.
+export function DialogKeepOpenDemo() {
+  const [open, setOpen] = useDialogDemoState();
+  const [name, setName] = useState('Mia');
+  const [held, setHeld] = useState(false);
+  const dirty = name !== 'Mia';
+  const hold = (event: Event) => { if (dirty) { event.preventDefault(); setHeld(true); } };
+
+  return (
+    <div data-demo-stage className="py-10 flex justify-center">
+      <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (!next) { setName('Mia'); setHeld(false); } }}>
+        <Dialog.Trigger>
+          <Button color="secondary" variant="outline">Edit profile</Button>
+        </Dialog.Trigger>
+        <Dialog.Content width={420} onEscapeKeyDown={hold} onInteractOutside={hold}>
+          <Dialog.Header>
+            <Dialog.Title>Edit profile</Dialog.Title>
+            <Dialog.Description>{held ? 'Save or discard your changes to close.' : 'Escape and a press outside close it until you change the name.'}</Dialog.Description>
+          </Dialog.Header>
+          <Field label="Name">
+            <Input value={name} onChange={(event) => { setName(event.target.value); setHeld(false); }} />
+          </Field>
+          <Dialog.Footer>
+            <Dialog.Close>
+              <Button color="primary" variant="soft">Discard</Button>
+            </Dialog.Close>
+            <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
+    </div>
   );
 }

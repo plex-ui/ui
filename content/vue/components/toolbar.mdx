@@ -63,7 +63,7 @@ export const search = `<Toolbar>
   <ToolbarContent fill>
     <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
       <template #startAdornment>
-        <Search />
+        <SearchSm />
       </template>
     </Input>
   </ToolbarContent>
@@ -89,6 +89,19 @@ export const bottom = `<Page surface="grouped">
     </ToolbarTrailing>
   </Toolbar>
 </Page>
+
+<Toolbar placement="bottom">
+  <ToolbarContent fill>
+    <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
+      <template #startAdornment>
+        <SearchSm />
+      </template>
+    </Input>
+  </ToolbarContent>
+  <ToolbarTrailing>
+    <Button color="secondary" variant="soft" uniform pill icon-size="sm" aria-label="New order"><PlusLg /></Button>
+  </ToolbarTrailing>
+</Toolbar>
 
 <Toolbar placement="bottom">
   <ToolbarContent fill>
@@ -240,7 +253,7 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
       <ToolbarContent fill>
         <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
           <template #startAdornment>
-            <Search />
+            <SearchSm />
           </template>
         </Input>
       </ToolbarContent>
@@ -256,7 +269,7 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
 
 ### Bottom
 
-<ComponentPreview phoneOnly language="vue" details={<><code>placement="bottom"</code> sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. <code>ToolbarContent</code> centers a main action; with <code>fill</code> a search field or a single action takes the whole row. The page content scrolls under both bars.</>} code={bottom}>
+<ComponentPreview phoneOnly language="vue" details={<><code>placement="bottom"</code> sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. <code>ToolbarContent</code> centers a main action; with <code>fill</code> a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, and a bottom bar draws no band: the content runs under and around its glass, as in iOS 26 Mail and Contacts. A search field holds <code>SearchSm</code>, set in Regular; a plus next to it takes <code>iconSize="sm"</code>, as Contacts draws it smaller than the other symbols. The page content scrolls under both bars.</>} code={bottom}>
   <VueDemo stageClassName={STAGE} state={{ rows }} controls={[
     { name: "content", type: "select", options: ["buttons", "search", "action"], default: "buttons" },
   ]} template={frame(`  <Page surface="grouped">
@@ -281,10 +294,13 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
       <ToolbarContent fill>
         <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
           <template #startAdornment>
-            <Search />
+            <SearchSm />
           </template>
         </Input>
       </ToolbarContent>
+      <ToolbarTrailing>
+        <Button color="secondary" variant="soft" uniform pill icon-size="sm" aria-label="New order"><PlusLg /></Button>
+      </ToolbarTrailing>
     </Toolbar>
     <Toolbar v-else placement="bottom">
       <ToolbarContent fill>
@@ -296,9 +312,9 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
 
 ### Background
 
-<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. <code>soft</code>, the default, draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. <code>hard</code> is an opaque bar of the canvas color with a line. <code>glass</code> is a translucent, blurred bar with a hairline. <code>solid</code> is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. <code>PageHeader</code>, <code>PageFooter</code>, the bars of a Sheet and <code>TabBar</code> take the same values.</>} code={backgroundCode}>
+<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how a bar meets the content scrolled under it. <code>glass</code>, the default of a top bar, is a translucent, blurred bar with a hairline. <code>soft</code>, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. <code>hard</code> is an opaque bar of the canvas color with a line. <code>solid</code> is an opaque bar with no line. Glass and hard show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. <code>PageHeader</code>, <code>PageFooter</code>, the bars of a Sheet and <code>TabBar</code> take the same values.</>} code={backgroundCode}>
   <VueDemo stageClassName={STAGE} state={{ rows }} controls={[
-    { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft" },
+    { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "glass" },
   ]} template={frame(`  <Page surface="grouped">
     <Toolbar :background="background">
       <ToolbarLeading>
@@ -375,7 +391,7 @@ Put the Back button of a phone screen in the toolbar only. A desktop layout show
   { prop: "placement", type: '"top" | "bottom"', default: '"top"', description: "Top bar with 44px targets, or bottom bar with 48px targets" },
   { prop: "titleStyle", type: '"inline" | "large" | "compact-large" | "compact-medium"', default: '"inline"', description: "Size and place of ToolbarTitle in a top bar" },
   { prop: "titleAlign", type: '"center" | "start"', default: '"center"', description: "Alignment of an inline title. Large and compact titles always start at the leading edge" },
-  { prop: "background", type: '"soft" | "hard" | "glass" | "solid"', default: '"soft"', description: "How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft" },
+  { prop: "background", type: '"soft" | "hard" | "glass" | "solid"', default: '"glass" at the top, "soft" at the bottom', description: "How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft" },
   { prop: "class", type: "string", description: "Class of the bar" },
 ]} />
 
@@ -410,11 +426,13 @@ Toolbar reads these component tokens. Override them at any scope to restyle it:
 - `--toolbar-group-padding`, `--toolbar-group-gap`: inner padding and spacing of a capsule in the top bar (default `2px` and `12px`; `4px` and `6px` in the bottom bar)
 - `--toolbar-padding-bottom`: space below the top row (default `10px`)
 - `--toolbar-sheet-padding-top`: space for the grabber in a Sheet (default `16px`)
-- `--toolbar-bottom-padding-top`, `--toolbar-bottom-padding-bottom`: padding of the bottom bar (default `4px`, and `16px` or the bottom safe area less `2px`)
+- `--toolbar-bottom-padding-top`, `--toolbar-bottom-padding-bottom`: padding of the bottom bar (default `4px`, and the bottom safe area less `6px`, at least `16px`: the 48px items stand 28px above the screen's edge over the 34px home indicator inset, as in iOS 26 Mail and Contacts)
 - `--mobile-glass-background`, `--mobile-glass-sheen`, `--mobile-glass-shadow`, `--mobile-glass-shadow-raised`, `--mobile-glass-backdrop-filter`: glass of the buttons, capsules and search field, at rest and with content under the bar
 - `--toolbar-title-font-size`, `--toolbar-large-title-font-size`, `--toolbar-medium-title-font-size`: title sizes (default `17px`, `34px` and `22px`)
 - `--toolbar-large-title-gap`: space between the row of controls and a large title (default `21px`)
-- `--toolbar-icon-size`, `--toolbar-search-icon-size`: icon boxes of the buttons and of the search field (default `24px` and `26px`)
+- `--toolbar-icon-size`, `--toolbar-icon-size-sm`, `--toolbar-search-icon-size`: icon boxes of the buttons, of a button with `iconSize="sm"` and of the search field (default `26px`, `23.56px` and `23.75px`). A symbol with less ink, as `PlusLg`, takes `iconSize="sm"`, and a search field takes `SearchSm`, so they draw the 17.67px plus and the 16.33px magnifier of iOS 26
+- `--toolbar-search-gutter`, `--toolbar-search-icon-gap`: space before the magnifier and between it and the text (default `10.54px` and `6.43px`: the magnifier's ink starts 14px into the field and the text's ink at 41.67px)
+- `--toolbar-search-font-weight`, `--toolbar-search-placeholder-color`: the search text in Regular (`400`) and its placeholder in the secondary label color (default `light-dark(var(--alpha-40), var(--alpha-60))`)
 - `--toolbar-background`: color of the fading edge and of a hard, glass or solid bar (defaults to the Sheet or page canvas)
 - `--page-bar-hard-line`: line of a hard bar (default `light-dark(rgb(0 0 0 / 12%), var(--color-border))`, the iOS 26 kit's Hard edge)
 - `--page-bar-line`, `--page-bar-veil-opacity`: hairline and opacity of a glass bar (default `light-dark(rgb(0 0 0 / 10%), var(--color-border))` and `light-dark(72%, 60%)`)

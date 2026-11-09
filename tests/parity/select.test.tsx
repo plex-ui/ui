@@ -891,6 +891,29 @@ describe("Select pointer behaviour parity", () => {
     expect(result.react[3]).toContain('focus: <button class=""> "Outside"')
   })
 
+  // Radix defers a touch outside like a mouse press: focus moving out before its click is that touch
+  test("a touch outside holds focus moving out until its click", async () => {
+    const touch = { button: 0, pointerType: "touch" }
+    const result = await walk({ value: "apple" }, async ({ open, fire, focus, advance, snapshot }) => {
+      // The touch lands on one thing outside and focus moves to another
+      const touched = document.createElement("div")
+      document.body.append(touched)
+      await open()
+      await fire(() => touched, "pointerDown", touch)
+      await fire(() => touched, "pointerUp", touch)
+      await focus('[data-testid="outside"]')
+      await advance(1)
+      snapshot() // still open
+      await fire(() => touched, "click", { button: 0 })
+      await advance(1)
+      snapshot() // closed
+      touched.remove()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).toContain('role="dialog"')
+    expect(result.react[1]).not.toContain('role="dialog"')
+  })
+
   test("a press outside whose click is stopped, or a pointer down inside before the click, keeps it open", async () => {
     const outside = '[data-testid="outside"]'
     const stop = (evt: Event) => evt.stopPropagation()

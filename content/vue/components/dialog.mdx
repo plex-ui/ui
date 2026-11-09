@@ -9,6 +9,53 @@ import { VueDemo } from "@/components/docs/vue/VueDemo"
 import detailsStyles from "@/components/docs/DialogDetailsDemos.module.css"
 import { VueDialogDetailsDemo, VueDialogPlacementDemo, VueDialogSetupChoicesDemo, VueDialogViewOptionsDemo } from "@/components/docs/vue/VueDialogDemos"
 
+export const steps = `<Dialog v-model:open="open" @update:open="(next) => { if (!next) { step = 'email'; direction = 'forward' } }">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">Sign in</Button>
+  </DialogTrigger>
+  <DialogContent mobile-variant="sheet" :width="420">
+    <DialogHeader>
+      <DialogTitle>Sign in</DialogTitle>
+    </DialogHeader>
+    <DialogBody>
+      <DialogSteps :step="step" :direction="direction">
+        <Field v-if="step === 'email'" label="Email" description="We send a code to this address.">
+          <Input v-model:value="email" type="email" placeholder="you@example.com" />
+        </Field>
+        <Field v-else label="Code" :description="'Enter the code we sent to ' + (email || 'your email') + '.'">
+          <Input inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" />
+        </Field>
+      </DialogSteps>
+    </DialogBody>
+    <DialogFooter>
+      <Button v-if="step === 'code'" color="primary" variant="soft" @click="direction = 'back'; step = 'email'">Back</Button>
+      <Button v-if="step === 'email'" color="primary" @click="direction = 'forward'; step = 'code'">Continue</Button>
+      <Button v-else color="primary" @click="open = false">Verify</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>`
+
+export const keepOpen = `<Dialog v-model:open="open" @update:open="(next) => { if (!next) { profileName = 'Mia'; held = false } }">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">Edit profile</Button>
+  </DialogTrigger>
+  <DialogContent :width="420" @escape-key-down="(event) => { if (profileName !== 'Mia') { event.preventDefault(); held = true } }" @interact-outside="(event) => { if (profileName !== 'Mia') { event.preventDefault(); held = true } }">
+    <DialogHeader>
+      <DialogTitle>Edit profile</DialogTitle>
+      <DialogDescription>{{ held ? 'Save or discard your changes to close.' : 'Escape and a press outside close it until you change the name.' }}</DialogDescription>
+    </DialogHeader>
+    <Field label="Name">
+      <Input v-model:value="profileName" @update:value="held = false" />
+    </Field>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="primary" variant="soft">Discard</Button>
+      </DialogClose>
+      <Button color="primary" @click="open = false">Save</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>`
+
 export const overview = `<Dialog v-model:open="open">
   <DialogTrigger>
     <Button color="secondary" variant="outline">Open dialog</Button>
@@ -49,7 +96,7 @@ export const destructive = `<Dialog v-model:open="open">
   </DialogContent>
 </Dialog>`
 
-export const textField = `<Dialog v-model:open="open" @update:open="(next) => { if (next) name = 'New folder' }">
+export const textField = `<Dialog v-model:open="open" @update:open="(next) => { if (next) folderName = 'New folder' }">
   <DialogTrigger>
     <Button color="secondary" variant="outline">New folder</Button>
   </DialogTrigger>
@@ -59,13 +106,13 @@ export const textField = `<Dialog v-model:open="open" @update:open="(next) => { 
       <DialogDescription>Enter a name for this folder.</DialogDescription>
     </DialogHeader>
     <DialogBody>
-      <Input ref="field" v-model="name" aria-label="Folder name" variant="soft" size="3xl" pill @clear="name = ''" />
+      <Input ref="field" v-model:value="folderName" aria-label="Folder name" variant="soft" size="3xl" pill @clear="folderName = ''" />
     </DialogBody>
     <DialogFooter>
       <DialogClose>
         <Button color="primary" variant="soft">Cancel</Button>
       </DialogClose>
-      <Button color="primary" :disabled="!name.trim()" @click="open = false">Create</Button>
+      <Button color="primary" :disabled="!folderName.trim()" @click="open = false">Create</Button>
     </DialogFooter>
   </DialogContent>
 </Dialog>`
@@ -322,7 +369,7 @@ Alert actions wrap onto separate rows when their labels need more space. Set `<D
 ### Text field
 
 <ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>An alert can ask for one short value. The field fills the alert like its actions, a 52px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.</>} code={textField} previewMinHeight={120}>
-  <VueDemo template={textField} phoneTemplate={textField.replace('v-model:open="open"', ':open="true"').replace("; $refs.field.$el.querySelector('input').select()", '')} phoneState={{ open: true, name: 'New folder' }} stageClassName="py-10 flex justify-center" state={{ open: false, name: 'New folder' }} />
+  <VueDemo template={textField} phoneTemplate={textField.replace('v-model:open="open"', ':open="true"').replace("; $refs.field.$el.querySelector('input').select()", '')} phoneState={{ open: true, folderName: 'New folder' }} stageClassName="py-10 flex justify-center" state={{ open: false, folderName: 'New folder' }} />
 </ComponentPreview>
 
 ### Metadata details
@@ -333,9 +380,9 @@ Alert actions wrap onto separate rows when their labels need more space. Set `<D
 
 ### Scrolling body
 
-<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Put long content in <code>DialogBody</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, <code>background</code> on <code>DialogHeader</code> and <code>DialogFooter</code> sets how the Sheet's bars meet the body scrolled under them, as a <a href="/vue/components/toolbar#background">Toolbar</a>'s do: <code>soft</code> by default, or <code>hard</code>, <code>glass</code> or <code>solid</code>.</>} code={body} previewMinHeight={120}>
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Put long content in <code>DialogBody</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, <code>background</code> on <code>DialogHeader</code> and <code>DialogFooter</code> sets how the Sheet's bars meet the body scrolled under them, as a <a href="/vue/components/toolbar#background">Toolbar</a>'s do: by default <code>glass</code> on the header and <code>soft</code> on the footer, or <code>hard</code> or <code>solid</code>.</>} code={body} previewMinHeight={120}>
   <VueDemo template={body} phoneTemplate={body.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '').replace('<DialogHeader>', '<DialogHeader :background="background">').replace('<DialogFooter>', '<DialogFooter :background="background">')} controls={[
-    { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft", phoneOnly: true },
+    { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "glass", phoneOnly: true },
   ]} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false, terms }} />
 </ComponentPreview>
 
@@ -401,6 +448,18 @@ const open = ref(false);
   <VueDialogSetupChoicesDemo />
 </ComponentPreview>
 
+### Steps
+
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Put the steps of a flow in <code>DialogSteps</code>: a new <code>step</code> comes in from the trailing edge over the one before, which moves a third of the way out under it, as a push on iOS. <code>direction="back"</code> reverses it for a return to a step before. The new step starts at its top, the steps reach the panel's edges, and focus in the step that leaves moves to the one that comes in. With reduced motion the step changes at once.</>} code={steps} previewMinHeight={120}>
+  <VueDemo template={steps} phoneTemplate={steps.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true, step: 'email', direction: 'forward', email: '' }} stageClassName="py-10 flex justify-center" state={{ open: false, step: 'email', direction: 'forward', email: '' }} />
+</ComponentPreview>
+
+### Keep it open
+
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Escape and a press or a focus outside ask <code>@escape-key-down</code> and <code>@interact-outside</code> first: <code>event.preventDefault()</code> keeps the dialog open, such as for a form with unsaved changes, or for a press on a developer panel over the page. The Close button and <code>DialogClose</code> still close it.</>} code={keepOpen} previewMinHeight={120}>
+  <VueDemo template={keepOpen} phoneTemplate={keepOpen.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true, profileName: 'Mia', held: false }} stageClassName="py-10 flex justify-center" state={{ open: false, profileName: 'Mia', held: false }} />
+</ComponentPreview>
+
 ## API
 
 **Dialog** (root)
@@ -422,11 +481,19 @@ const open = ref(false);
   { prop: "mobile-placement", type: '"center" | "bottom" | "fullscreen"', description: "Placement at 767px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered" },
   { prop: "@open-auto-focus", type: "(event: Event) => void", description: "Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field" },
   { prop: "@close-auto-focus", type: "(event: Event) => void", description: "Called when focus returns on close; call event.preventDefault() to keep it elsewhere" },
+  { prop: "@escape-key-down", type: "(event: KeyboardEvent) => void", description: "Called on Escape before the dialog closes; call event.preventDefault() to keep it open" },
+  { prop: "@interact-outside", type: "(event: DialogInteractOutsideEvent) => void", description: "Called on a press or a focus outside the dialog before it closes; call event.preventDefault() to keep it open. event.detail.originalEvent is the browser's event" },
+  { prop: "z-index", type: "number", default: "50", description: "Stack order of the overlay and the dialog, for a page whose own layers sit above 50" },
+  { prop: "root-props", type: "DialogLayerProps", description: "class, style and data attributes for the fixed layer that holds the panel. Data attributes on DialogContent land there too" },
+  { prop: "overlay-props", type: "DialogLayerProps", description: "class, style and data attributes for the overlay" },
+  { prop: "layout", type: '"auto" | "phone"', default: '"auto"', description: "phone lays the dialog out as on a phone at any window width, with the dialogs it opens. Inside a PhoneLayout it always is" },
 ]} />
+
+Over a phone keyboard the dialog covers the part of the window the keyboard leaves visible, so a sheet sits on the keyboard and a centered panel stays in view. Inside a [PhoneLayout](/vue/components/phone-layout) it portals into the PhoneLayout box and covers it instead of the window.
 
 **DialogTrigger**: opens the dialog; renders its child element (Reka's `as-child`).
 
-**DialogHeader**: wrapper for title, description and an optional header action. In a phone Sheet the header is the Sheet's Toolbar: Close at the leading edge, the title centered on the 44px row of controls and the header action at the trailing edge, as in the iOS 27 kit. A description the reader sees is the title's second line; a visually hidden one only names the sheet. If the Dialog has its own top Toolbar, that one replaces the header's bar. In a phone Sheet, `background` sets how the bar meets the body scrolled under it: `soft` (the default), `hard`, `glass` or `solid`, as on a [Toolbar](/vue/components/toolbar#background).
+**DialogHeader**: wrapper for title, description and an optional header action. In a phone Sheet the header is the Sheet's Toolbar: Close at the leading edge, the title centered on the 44px row of controls and the header action at the trailing edge, as in the iOS 27 kit. A description the reader sees is the title's second line; a visually hidden one only names the sheet. If the Dialog has its own top Toolbar, that one replaces the header's bar. In a phone Sheet, `background` sets how the bar meets the body scrolled under it: `glass` (the default), `soft`, `hard` or `solid`, as on a [Toolbar](/vue/components/toolbar#background).
 
 **DialogHeaderAction**: positions one toolbar control beside Close on desktop and opposite Close in a mobile sheet. Place it directly inside DialogHeader (a fragment there is fine, a component of your own that returns it is not: a phone Sheet looks for it among the header's own parts to stand it at the trailing edge) and label icon-only controls. Mobile alerts hide this slot.
 
@@ -445,6 +512,14 @@ const open = ref(false);
 
 **DialogClose**: closes the dialog when its child is activated.
 
+**DialogSteps**: the steps of a flow, such as a sign-in that asks for an email and then a code. Place it in DialogBody.
+
+<PropsTable data={[
+  { prop: "step", type: "string | number", description: "The step on screen. A new value brings its content in" },
+  { prop: "direction", type: '"forward" | "back"', default: '"forward"', description: "forward brings the new step in from the trailing edge over the one before; back returns to a step before it" },
+  { prop: "class", type: "string", description: "Additional CSS class on the steps" },
+]} />
+
 ## Styling
 
 Use `surface="grouped"` on dialog content for grouped forms. The default `surface="plain"` suits confirmations and standalone content. Mobile dialogs use elevated dark surface levels; the choice is independent of alert/sheet geometry and the bars' `background`.
@@ -454,6 +529,9 @@ Dialog reads the shared semantic color, typography and spacing tokens listed in 
 - `--dialog-panel-background`: panel color, and the color of a Sheet's soft, hard and solid bars; mobile follows the selected elevated surface role
 - `--dialog-close-background`: close button background (default `transparent`)
 - `--dialog-close-background-hover`: close button background on hover
+- `--dialog-z-index`: stack order of the overlay and the dialog (default `50`; `z-index` sets it)
+- `--dialog-viewport-height`: the height the panel fits in (default `100dvh`; the dialog sets it over a phone keyboard and inside a PhoneLayout)
+- `--dialog-steps-background`: background of a step, which covers the one under it as it comes in (default the panel color)
 
 Standard mobile appearance uses these tokens:
 

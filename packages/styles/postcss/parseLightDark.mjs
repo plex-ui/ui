@@ -2,6 +2,24 @@ import postcss from "postcss"
 import selectorParser from "postcss-selector-parser"
 import valueParser from "postcss-value-parser"
 
+// A selector that starts on the root element itself (`html:root`, or `:root` before the phone layout scope)
+const ROOT_COMPOUND = /^(?::root|html)(?:\[[^\]]*\]|:[\w-]+(?:\([^)]*\))?|\.[\w-]+)*(?=$|[\s>+~])/
+
+/**
+ * The selectors for one theme of a rule that is not a bare theme scope. The theme attribute sits on an ancestor, or,
+ * for a selector that starts on the root element, on the root itself (no element is above it) or inside it; the root
+ * keeps its specificity so the dark rule, emitted after the light one, wins.
+ * @param {string} selector
+ * @param {"light" | "dark"} theme
+ */
+export const themedSelectors = (selector, theme) => {
+  const scope = `:where([data-theme="${theme}"])`
+  const root = ROOT_COMPOUND.exec(selector)
+  if (!root) return [`${scope} ${selector}`]
+  const rest = selector.slice(root[0].length).trim()
+  return rest ? [`${root[0]}${scope} ${rest}`, `${root[0]} ${scope} ${rest}`] : [`${root[0]}${scope}`]
+}
+
 /** @type {import('postcss').PluginCreator} */
 export default function platformUILightDark() {
   return {
@@ -152,8 +170,8 @@ export default function platformUILightDark() {
             }
 
             // Themed nested only for non-simple selectors
-            lightParts.push(...otherSelectors.map((s) => `:where([data-theme="light"]) ${s}`))
-            darkParts.push(...otherSelectors.map((s) => `:where([data-theme="dark"]) ${s}`))
+            lightParts.push(...otherSelectors.flatMap((s) => themedSelectors(s, "light")))
+            darkParts.push(...otherSelectors.flatMap((s) => themedSelectors(s, "dark")))
 
             // Dedupe while preserving order
             const uniq = (arr) => Array.from(new Set(arr))

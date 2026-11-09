@@ -149,6 +149,28 @@ export const toFilterProperty = ({ blur }: { blur?: number | undefined } = {}) =
 export const dataAttributes = (props: Record<string, unknown>) =>
   Object.fromEntries(Object.entries(props).filter(([key]) => key.startsWith("data-")))
 
+/**
+ * A copy of a key event that a handler can cancel. An event that reaches the Escape stack is already prevented, so
+ * its own `defaultPrevented` cannot tell whether an owner's handler asked to keep the overlay open. The copy keeps
+ * the key, the modifiers and the target.
+ */
+export const cancelableKeyCopy = (event: KeyboardEvent): KeyboardEvent => {
+  const copy = new KeyboardEvent(event.type, {
+    key: event.key,
+    code: event.code,
+    location: event.location,
+    repeat: event.repeat,
+    isComposing: event.isComposing,
+    ctrlKey: event.ctrlKey,
+    shiftKey: event.shiftKey,
+    altKey: event.altKey,
+    metaKey: event.metaKey,
+    cancelable: true,
+  })
+  Object.defineProperty(copy, "target", { value: event.target })
+  return copy
+}
+
 export const preventDefaultHandler = (evt: Event) => {
   evt.preventDefault()
 }

@@ -3,7 +3,7 @@ import { useLatestValue } from "./useLatestValue"
 
 type Handler = {
   id: string
-  callback: React.MutableRefObject<() => void>
+  callback: React.MutableRefObject<(event: KeyboardEvent) => void>
 }
 
 let handlers: Handler[] = []
@@ -16,7 +16,7 @@ const handleKeyDown = (evt: KeyboardEvent) => {
 
     if (firstHandler) {
       evt.preventDefault()
-      firstHandler.callback.current?.()
+      firstHandler.callback.current?.(evt)
     }
   }
 }
@@ -41,7 +41,11 @@ const unregisterHandler = ({ id }: Handler) => {
   managerListener()
 }
 
-export const useEscCloseStack = (listening: boolean, cb: () => void) => {
+/**
+ * Escape closes the most recently registered listener first, so nested overlays close one at a time. The callback
+ * gets the key event, already prevented.
+ */
+export const useEscCloseStack = (listening: boolean, cb: (event: KeyboardEvent) => void) => {
   const id = useId()
   const latestCallback = useLatestValue(cb)
 

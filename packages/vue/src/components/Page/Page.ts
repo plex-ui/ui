@@ -116,8 +116,8 @@ export const PageHeader = defineComponent({
      * @default true
      */
     divider: { type: Boolean, default: true },
-    /** How the bar meets the content scrolled under it on a phone. @default "soft" */
-    background: { type: String as PropType<PageBarBackground>, default: "soft" },
+    /** How the bar meets the content scrolled under it on a phone. @default "glass" */
+    background: { type: String as PropType<PageBarBackground>, default: "glass" },
   },
   setup(props, { slots }) {
     const { scrolled, headerHeight } = injectPageContext("PageHeader")

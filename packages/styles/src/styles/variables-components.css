@@ -503,11 +503,21 @@
     --toolbar-sheet-padding-top: 16px;
     --toolbar-bottom-padding-top: 4px;
     --toolbar-bottom-fill-padding-top: 12px;
-    --toolbar-bottom-padding-bottom: max(16px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 2px));
+    /* Native iOS 26 bottom bars (Mail, Contacts, Notes at 430 x 932, IMG_5551, 5737, 5736) stand their 48pt items
+       28 above the screen's edge, the 34 home indicator inset less 6. Without an inset (a browser page without
+       viewport-fit=cover) they keep 16 to the window's edge. */
+    --toolbar-bottom-padding-bottom: max(16px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 6px));
     --toolbar-search-padding-bottom: 14px;
-    --toolbar-search-gutter: 11px;
-    --toolbar-search-icon-gap: 4px;
-    --toolbar-search-icon-size: 26px;
+    /* The search field of those bars: the magnifier draws 16.33 of ink with a stroke of 2, 14.0 from the field's
+       edge, and "Search" starts at 41.67, set in Regular in the secondary label color (rgb 148 to 150 on the
+       glass). SearchSm in a 23.75px box draws that ink: 3.46 of the box lies before it, so the gutter is 10.54. The
+       S of "Search" inks 0.95 after its origin in SF Pro 17, so the gap to the text is 6.43 (overlaid on IMG_5737:
+       the ink starts at 41.67 and sits on the native baseline within 0.33). */
+    --toolbar-search-gutter: 10.54px;
+    --toolbar-search-icon-gap: 6.43px;
+    --toolbar-search-icon-size: 23.75px;
+    --toolbar-search-font-weight: 400;
+    --toolbar-search-placeholder-color: light-dark(var(--alpha-40), var(--alpha-60));
     --toolbar-flat-opacity: 80%;
     --toolbar-flat-blur: 60px;
     /* The large title starts 21pt under the row of controls in iOS 26 Mail and Freeform (iOS2 IMG_5530, 5531,
@@ -518,6 +528,9 @@
        22 × 20), and native Freeform draws its ellipsis 19.7pt wide with 4pt dots (IMG_5684). A PlexUI icon
        of 26px draws the same: DotsHorizontal 19.5 wide with 4.3px dots (owner 08.11; 24px was small). */
     --toolbar-icon-size: 26px;
+    /* A symbol with less ink, as the plus of a Contacts bar: 17.67 of ink with a stroke of 2 (IMG_5737), which
+       PlusLg draws in a 23.56px box. A bar button with iconSize="sm" takes it. */
+    --toolbar-icon-size-sm: 23.56px;
     --toolbar-label-font-size: 17px;
     --toolbar-label-line-height: 22px;
     --toolbar-label-font-weight: 510;

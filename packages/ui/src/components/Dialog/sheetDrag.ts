@@ -1,3 +1,5 @@
+import { isPhoneLayout } from "../../lib/phoneLayout"
+
 // A bottom sheet follows the finger. A drag from its top 44px moves it 1:1, never up. Past 30% of its
 // height, or at 0.5px/ms, it closes; otherwise it returns. Buttons in that strip keep their press.
 const GRIP = 44
@@ -57,7 +59,7 @@ export const attachSheetDrag = (panel: HTMLElement, close: () => void) => {
   }
 
   const onStart = (event: TouchEvent) => {
-    const phone = view.matchMedia?.("(max-width: 767px)").matches ?? view.innerWidth <= 767
+    const phone = isPhoneLayout(panel)
     if (event.touches.length !== 1 || !phone || panel.closest(EXITING)) return
     const { clientY } = event.touches[0]
     if (clientY - panel.getBoundingClientRect().top > GRIP) return

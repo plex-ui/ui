@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 61
+Components: 62
 
 ## Setup
 
@@ -2787,9 +2787,19 @@ Props:
     - mobilePlacement ("center" | "bottom" | "fullscreen") — Placement at 767px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered
     - onOpenAutoFocus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
     - onCloseAutoFocus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
+    - onEscapeKeyDown ((event: KeyboardEvent) => void) — Called on Escape before the dialog closes; call event.preventDefault() to keep it open
+    - onInteractOutside ((event: DialogInteractOutsideEvent) => void) — Called on a press or a focus outside the dialog before it closes; call event.preventDefault() to keep it open. event.detail.originalEvent is the browser's event
+    - zIndex (number) default: 50 — Stack order of the overlay and the dialog, for a page whose own layers sit above 50
+    - rootProps (DialogLayerProps) — className, style and data attributes for the fixed layer that holds the panel. Data attributes on Dialog.Content land there too
+    - overlayProps (DialogLayerProps) — className, style and data attributes for the overlay
+    - layout ("auto" | "phone") default: "auto" — phone lays the dialog out as on a phone at any window width, with the dialogs it opens. Inside a PhoneLayout it always is
   Dialog.Footer:
     - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged
     - mobileLayout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
+  Dialog.Steps:
+    - step (string | number) — The step on screen. A new value brings its content in
+    - direction ("forward" | "back") default: "forward" — forward brings the new step in from the trailing edge over the one before; back returns to a step before it
+    - className (string) — Additional CSS class on the steps
 
 ### Overview
 ```tsx
@@ -3011,7 +3021,7 @@ export function DetailsDialogExample() {
 ```
 
 ### Scrolling body
-Put long content in Dialog.Body: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, background on Dialog.Header and Dialog.Footer sets how the Sheet's bars meet the body scrolled under them, as a Toolbar's do: soft by default, or hard, glass or solid.
+Put long content in Dialog.Body: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, background on Dialog.Header and Dialog.Footer sets how the Sheet's bars meet the body scrolled under them, as a Toolbar's do: by default glass on the header and soft on the footer, or hard or solid.
 ```tsx
 const heading = useRef<HTMLDivElement>(null)
 
@@ -3083,6 +3093,74 @@ export default function Example() {
 const [open, setOpen] = useState(false);
 return <SetupChoicesSheet open={open} onOpenChange={setOpen} layout="grouped" onAdd={(method) => console.log(method.id)} />;
 }
+```
+
+### Steps
+Put the steps of a flow in Dialog.Steps: a new step comes in from the trailing edge over the one before, which moves a third of the way out under it, as a push on iOS. direction="back" reverses it for a return to a step before. The new step starts at its top, the steps reach the panel's edges, and focus in the step that leaves moves to the one that comes in. With reduced motion the step changes at once.
+```tsx
+const [open, setOpen] = useState(false)
+const [step, setStep] = useState('email')
+const [direction, setDirection] = useState('forward')
+const go = (next, to) => { setDirection(to); setStep(next) }
+
+<Dialog open={open} onOpenChange={setOpen}>
+<Dialog.Trigger>
+  <Button color="secondary" variant="outline">Sign in</Button>
+</Dialog.Trigger>
+<Dialog.Content mobileVariant="sheet" width={420}>
+  <Dialog.Header>
+    <Dialog.Title>Sign in</Dialog.Title>
+  </Dialog.Header>
+  <Dialog.Body>
+    <Dialog.Steps step={step} direction={direction}>
+      {step === 'email' ? (
+        <Field label="Email" description="We send a code to this address.">
+          <Input type="email" placeholder="you@example.com" />
+        </Field>
+      ) : (
+        <Field label="Code" description="Enter the code we sent to your email.">
+          <Input inputMode="numeric" autoComplete="one-time-code" placeholder="6-digit code" />
+        </Field>
+      )}
+    </Dialog.Steps>
+  </Dialog.Body>
+  <Dialog.Footer>
+    {step === 'code' && <Button color="primary" variant="soft" onClick={() => go('email', 'back')}>Back</Button>}
+    {step === 'email'
+      ? <Button color="primary" onClick={() => go('code', 'forward')}>Continue</Button>
+      : <Button color="primary" onClick={() => setOpen(false)}>Verify</Button>}
+  </Dialog.Footer>
+</Dialog.Content>
+</Dialog>
+```
+
+### Keep it open
+Escape and a press or a focus outside ask onEscapeKeyDown and onInteractOutside first: event.preventDefault() keeps the dialog open, such as for a form with unsaved changes, or for a press on a developer panel over the page. The Close button and Dialog.Close still close it.
+```tsx
+const [open, setOpen] = useState(false)
+const [name, setName] = useState('Mia')
+const dirty = name !== 'Mia'
+const hold = (event) => { if (dirty) event.preventDefault() }
+
+<Dialog open={open} onOpenChange={setOpen}>
+<Dialog.Trigger>
+  <Button color="secondary" variant="outline">Edit profile</Button>
+</Dialog.Trigger>
+<Dialog.Content width={420} onEscapeKeyDown={hold} onInteractOutside={hold}>
+  <Dialog.Header>
+    <Dialog.Title>Edit profile</Dialog.Title>
+  </Dialog.Header>
+  <Field label="Name">
+    <Input value={name} onChange={(event) => setName(event.target.value)} />
+  </Field>
+  <Dialog.Footer>
+    <Dialog.Close>
+      <Button color="primary" variant="soft">Discard</Button>
+    </Dialog.Close>
+    <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
+  </Dialog.Footer>
+</Dialog.Content>
+</Dialog>
 ```
 
 ## Empty Message
@@ -5622,7 +5700,7 @@ Props:
   - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
   - className (string) default: — — Applied to the root element
   Page.Header:
-    - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it on a phone, see Background
+    - background ("soft" | "hard" | "glass" | "solid") default: "glass" — How the bar meets the content scrolled under it on a phone, see Background
     - divider (boolean) default: true — Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background
     - className (string) default: — — Applied to the band
   Page.Content:
@@ -5684,7 +5762,7 @@ fill stops the page scrolling from 768px up, so a table can scroll inside itself
 ```
 
 ### Background
-background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: soft (the default) fades the canvas color out under the header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, glass a translucent, blurred bar with a hairline, and solid an opaque bar with no line. Hard and glass show themselves once content is under the bar; divider={false} keeps a header without its line.
+background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: glass, the header's default, is a translucent, blurred bar with a hairline, soft, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, and solid an opaque bar with no line. Glass and hard show themselves once content is under the bar; divider={false} keeps a header without its line.
 ```tsx
 <Page>
 <Page.Header background="hard">...</Page.Header>
@@ -5693,6 +5771,41 @@ background sets how the header and the footer meet the content scrolled under th
   <Button color="primary" pill block>New order</Button>
 </Page.Footer>
 </Page>
+```
+
+## Phone Layout
+Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.
+Import: import { PhoneLayout } from "@plexui/ui/components/PhoneLayout"
+Docs: https://plexui.com/components/phone-layout
+Props:
+  - className (string) — Class on the box, such as its size and corners
+  - style (CSSProperties) — Style on the box
+
+### Overview
+The box is the screen of the phone: a Dialog opened inside it portals into the box and covers it instead of the window. Give the box a size; let a child of it scroll rather than the box, so a dialog stays in place.
+```tsx
+const [open, setOpen] = useState(false)
+
+<PhoneLayout style={{ width: 375, height: 600, borderRadius: 40, border: '1px solid var(--color-border)' }}>
+<Dialog open={open} onOpenChange={setOpen}>
+  <Dialog.Trigger>
+    <Button color="primary">New list</Button>
+  </Dialog.Trigger>
+  <Dialog.Content mobileVariant="sheet">
+    <Dialog.Header>
+      <Dialog.Title>New list</Dialog.Title>
+    </Dialog.Header>
+    <Dialog.Body>
+      <Field label="Name">
+        <Input placeholder="Groceries" />
+      </Field>
+    </Dialog.Body>
+    <Dialog.Footer>
+      <Button color="primary" onClick={() => setOpen(false)}>Create</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog>
+</PhoneLayout>
 ```
 
 ## Popover
@@ -8564,7 +8677,7 @@ With minimizeBehavior="onScrollDown" the bar shrinks to the selected tab while t
 ```
 
 ### Background
-background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) leaves the content clear under and around the capsule, as native iOS 26 does, hard is an opaque band with a line on top, glass a translucent, blurred band with a hairline, and solid an opaque band with no line. Hard and glass show themselves while the content continues under the bar.
+background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) leaves the content clear under and around the capsule, as native iOS 26 does, glass is a translucent, blurred band with a hairline, hard is an opaque band with a line on top, and solid an opaque band with no line. Glass and hard show themselves while the content continues under the bar.
 ```tsx
 <Page surface="grouped">
 <Toolbar background="hard">...</Toolbar>
@@ -9603,6 +9716,7 @@ Props:
   - description (ReactNode) — One or two sentences on how to use it
   - icon (ReactNode) — A symbol or image that leads the message
   - actions (ReactNode) — Buttons for the tip's actions, side by side below the message
+  - mobileActions ("rows" | "buttons") default: "rows" — How the actions show at 767px and below: rows of text under a separator, or the buttons as given, each a full-width capsule
   - onClose (() => void) — Shows the Close button; called when it is clicked
   - arrowEdge ("top" | "bottom" | "left" | "right") — Draws an arrow at this edge, pointing at what the tip explains
   - className (string) — CSS classes applied to the tip
@@ -9645,6 +9759,18 @@ actions={
     <Button color="primary" size="sm" pill>Turn on</Button>
   </>
 }
+/>
+```
+
+### Buttons on a phone
+With mobileActions="buttons" the actions keep their buttons on a phone: each is a capsule as wide as the tip under the message, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button.
+```tsx
+<Tip
+icon={<Bell />}
+title="Get alerts"
+description="Hear about severe weather where you are, even when the app is closed."
+mobileActions="buttons"
+actions={<Button color="primary" variant="soft" size="sm" pill>Turn on</Button>}
 />
 ```
 
@@ -9765,7 +9891,7 @@ Props:
   - placement ("top" | "bottom") default: "top" — Top bar with 44px targets, or bottom bar with 48px targets
   - titleStyle ("inline" | "large" | "compact-large" | "compact-medium") default: "inline" — Size and place of Toolbar.Title in a top bar
   - titleAlign ("center" | "start") default: "center" — Alignment of an inline title. Large and compact titles always start at the leading edge
-  - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it, see Background. "edge" is the earlier name of "soft"
+  - background ("soft" | "hard" | "glass" | "solid") default: "glass" at the top, "soft" at the bottom — How the bar meets the content scrolled under it, see Background. "edge" is the earlier name of "soft"
   - className (string) default: — — Applied to the bar
   Toolbar.Title:
     - subtitle (ReactNode) default: — — Second, smaller line below the title
@@ -9824,7 +9950,7 @@ Toolbar.Content fill stretches a search field between the leading and trailing i
 ```tsx
 <Toolbar>
 <Toolbar.Content fill>
-  <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<Search />} />
+  <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
 </Toolbar.Content>
 <Toolbar.Trailing>
   <NavigationButton action="close" aria-label="Close search" />
@@ -9833,7 +9959,7 @@ Toolbar.Content fill stretches a search field between the leading and trailing i
 ```
 
 ### Bottom
-placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The page content scrolls under both bars.
+placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, and a bottom bar draws no band: the content runs under and around its glass, as in iOS 26 Mail and Contacts. A search field holds SearchSm, set in Regular; a plus next to it takes iconSize="sm", as Contacts draws it smaller than the other symbols. The page content scrolls under both bars.
 ```tsx
 <Page surface="grouped">
 <Toolbar>
@@ -9855,13 +9981,22 @@ placement="bottom" sets the bar at the bottom of the page with 48px targets and 
 
 <Toolbar placement="bottom">
 <Toolbar.Content fill>
+  <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+</Toolbar.Content>
+<Toolbar.Trailing>
+  <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="New order"><PlusLg /></Button>
+</Toolbar.Trailing>
+</Toolbar>
+
+<Toolbar placement="bottom">
+<Toolbar.Content fill>
   <Button color="primary" pill block><Plus /> New order</Button>
 </Toolbar.Content>
 </Toolbar>
 ```
 
 ### Background
-background sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. soft, the default, draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a line. glass is a translucent, blurred bar with a hairline. solid is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values.
+background sets how a bar meets the content scrolled under it. glass, the default of a top bar, is a translucent, blurred bar with a hairline. soft, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a line. solid is an opaque bar with no line. Glass and hard show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values.
 ```tsx
 <Page surface="grouped">
 <Toolbar background="hard">

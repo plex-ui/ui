@@ -117,7 +117,7 @@ export function PageFillDemo() {
 }
 
 export function PageBackgroundDemo() {
-  const [background, setBackground] = useState<PageBarBackground>('soft');
+  const [background, setBackground] = useState<PageBarBackground>('glass');
 
   return (
     <>

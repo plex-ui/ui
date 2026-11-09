@@ -2,10 +2,15 @@
   position: relative;
 }
 
+/* A phone dialog portaled out of any PhoneLayout carries the phone scope itself (Content `layout="phone"`). */
+.PhoneScope {
+  display: contents;
+}
+
 .Overlay {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: var(--dialog-z-index, 50);
   background: rgb(0 0 0 / 0.5);
 
   .Transition[data-entering] & {
@@ -36,7 +41,7 @@
   --dialog-content-padding: 1rem;
   --dialog-panel-width: var(--dialog-width, 480px);
   --dialog-panel-height: auto;
-  --dialog-panel-max-height: calc(100dvh - 2rem);
+  --dialog-panel-max-height: calc(var(--dialog-viewport-height, 100dvh) - 2rem);
   --dialog-panel-corner: var(--radius-xl);
   --dialog-panel-radius: var(--dialog-panel-corner);
   --dialog-panel-padding-bottom: 1.25rem;
@@ -47,7 +52,7 @@
 
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: var(--dialog-z-index, 50);
   display: flex;
   align-items: var(--dialog-content-align);
   justify-content: var(--dialog-content-justify);
@@ -59,6 +64,14 @@
 
   &:focus {
     outline: none;
+  }
+
+  /* Over a phone keyboard the layer covers the part of the window the keyboard leaves visible (the visual
+     viewport), so a sheet sits on the keyboard and a panel stays in view. */
+  &[data-visual-viewport] {
+    top: var(--dialog-viewport-top, 0px);
+    bottom: auto;
+    height: var(--dialog-viewport-height, 100%);
   }
 }
 
@@ -132,7 +145,7 @@
   --dialog-content-align: flex-start;
   --dialog-content-padding: min(12vh, 6rem) 1rem 1rem;
   /* A tall panel ends 1rem above the bottom edge, like a centered one */
-  --dialog-panel-max-height: calc(100dvh - min(12vh, 6rem) - 1rem);
+  --dialog-panel-max-height: calc(var(--dialog-viewport-height, 100dvh) - min(12vh, 6rem) - 1rem);
 }
 
 .Content:where([data-placement="bottom"]) {
@@ -204,7 +217,7 @@
     --dialog-content-padding: 1rem;
     --dialog-panel-width: var(--dialog-width, 480px);
     --dialog-panel-height: auto;
-    --dialog-panel-max-height: calc(100dvh - 2rem);
+    --dialog-panel-max-height: calc(var(--dialog-viewport-height, 100dvh) - 2rem);
     --dialog-panel-radius: var(--dialog-panel-corner);
     --dialog-panel-padding-bottom: 1.25rem;
     --dialog-panel-hidden-transform: scale(0.95) translateY(8px);
@@ -221,7 +234,7 @@
     --dialog-content-padding: 0;
     --dialog-panel-width: 100%;
     --dialog-panel-height: auto;
-    --dialog-panel-max-height: calc(100dvh - 2rem);
+    --dialog-panel-max-height: calc(var(--dialog-viewport-height, 100dvh) - 2rem);
     --dialog-panel-radius: var(--dialog-panel-corner) var(--dialog-panel-corner) 0 0;
     --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
     --dialog-panel-hidden-transform: translateY(100%);
@@ -332,6 +345,7 @@
   overscroll-behavior: contain;
   margin-inline: -1.25rem;
   padding: 2px 1.25rem;
+  --dialog-steps-gutter: 1.25rem;
 }
 
 .Footer {
@@ -476,7 +490,7 @@
     --dialog-content-padding: 1rem;
     --dialog-panel-width: var(--dialog-alert-width);
     --dialog-panel-height: auto;
-    --dialog-panel-max-height: calc(100dvh - 2rem);
+    --dialog-panel-max-height: calc(var(--dialog-viewport-height, 100dvh) - 2rem);
     --dialog-panel-radius: var(--dialog-alert-radius);
   }
 
@@ -544,6 +558,7 @@
     --control-size-3xl: var(--dialog-alert-field-height, 52px);
     margin-inline: 0;
     padding: 0 0 9px;
+    --dialog-steps-gutter: 0px;
   }
 
   .Content[data-mobile-variant] .Footer {
@@ -616,12 +631,12 @@
 
   .Content[data-mobile-variant="sheet"] {
     --field-group-radius: 26px;
-    --dialog-panel-max-height: calc(100dvh - var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) - 16px);
+    --dialog-panel-max-height: calc(var(--dialog-viewport-height, 100dvh) - var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) - 16px);
     --dialog-panel-radius: var(--dialog-sheet-radius) var(--dialog-sheet-radius) 0 0;
   }
 
   .Content[data-mobile-variant="sheet"][data-mobile-placement="fullscreen"] {
-    --dialog-panel-max-height: 100dvh;
+    --dialog-panel-max-height: var(--dialog-viewport-height, 100dvh);
     --dialog-panel-radius: 0;
   }
 
@@ -688,6 +703,7 @@
   .Content[data-mobile-variant="sheet"] .Body {
     margin-inline: 0;
     padding: 16px var(--mobile-layout-margin, 16px) max(16px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+    --dialog-steps-gutter: var(--mobile-layout-margin, 16px);
   }
 
   /* A phone Toolbar takes the place of the Sheet's bar. The header keeps naming the dialog. */
@@ -891,5 +907,101 @@
     --mobile-neutral-outline-background: var(--mobile-surface-secondary);
     --mobile-neutral-outline-hover: color-mix(in srgb, var(--mobile-surface-secondary) 96%, var(--color-text));
     --mobile-neutral-outline-active: color-mix(in srgb, var(--mobile-surface-secondary) 94%, var(--color-text));
+  }
+}
+
+/* =============================================
+   Steps: the next step of a flow comes in from the trailing edge over the
+   one before, which moves a third of the way out under it, as a push on iOS;
+   Back reverses it. The steps reach the panel's edges and keep the body's
+   gutter inside, so a step slides in from the edge of the panel.
+============================================= */
+.Steps {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  overflow-y: visible;
+  margin-inline: calc(-1 * var(--dialog-steps-gutter, 0px));
+}
+
+.Step {
+  --dialog-steps-sign: 1;
+  position: relative;
+  z-index: 2;
+  padding-inline: var(--dialog-steps-gutter, 0px);
+  background: var(--dialog-steps-background, var(--dialog-panel-background, var(--color-surface-elevated)));
+  transform: translateX(0);
+
+  &:dir(rtl) {
+    --dialog-steps-sign: -1;
+  }
+
+  /* The step that comes in takes focus from the one that leaves, without a ring around the whole step */
+  & > [data-dialog-step]:focus {
+    outline: none;
+  }
+}
+
+.Step[data-entering] {
+  transform: translateX(calc(100% * var(--dialog-steps-sign)));
+}
+
+.Step[data-exiting] {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* The step that comes in covers a taller one leaving under it to its full height */
+.Steps:has(> .Step[data-exiting]) > .Step:not([data-exiting])::after {
+  content: "";
+  position: absolute;
+  inset: 100% 0 auto;
+  height: max(0px, calc(var(--dialog-steps-exit-height, 0px) - 100%));
+  background: inherit;
+  pointer-events: none;
+}
+
+.Step[data-entering-active],
+.Step[data-entering][data-interrupted] {
+  transform: translateX(0);
+}
+
+/* The step that leaves stays opaque: the one that comes in covers it going forward and uncovers it going back */
+.Step[data-exiting-active],
+.Step[data-exiting][data-interrupted] {
+  transform: translateX(calc(-30% * var(--dialog-steps-sign)));
+}
+
+.Step:is([data-entering-active], [data-exiting-active], [data-interrupted]) {
+  transition: transform var(--motion-enter-large) var(--cubic-enter);
+}
+
+.Steps[data-direction="back"] > .Step[data-entering]:not([data-entering-active], [data-interrupted]) {
+  transform: translateX(calc(-30% * var(--dialog-steps-sign)));
+}
+
+.Step[data-exit-direction="back"][data-exiting] {
+  z-index: 3;
+}
+
+/* A step forward taken while a step still leaves by Back arrives above it */
+.Steps[data-direction="forward"] > .Step[data-exit-direction="back"][data-exiting] {
+  z-index: 1;
+}
+
+.Step[data-exit-direction="back"]:is([data-exiting-active], [data-exiting][data-interrupted]) {
+  transform: translateX(calc(100% * var(--dialog-steps-sign)));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .Step {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .Step[data-exiting] {
+    visibility: hidden;
   }
 }

@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 61,
+  "componentCount": 62,
   "components": [
     {
       "slug": "accordion",
@@ -2222,7 +2222,7 @@
         {
           "name": "Scrolling body",
           "code": "const heading = useRef<HTMLDivElement>(null)\n\n<Dialog.Content mobileVariant=\"sheet\" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>\n<Dialog.Header>\n  <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Terms of service</Dialog.Title></div>\n</Dialog.Header>\n<Dialog.Body>\n  <div className=\"flex flex-col gap-4 text-sm text-secondary max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]\">\n    {terms.map((term) => <p key={term}>{term}</p>)}\n  </div>\n</Dialog.Body>\n<Dialog.Footer>\n  <Dialog.Close><Button color=\"secondary\" variant=\"soft\">Decline</Button></Dialog.Close>\n  <Button color=\"primary\">Accept</Button>\n</Dialog.Footer>\n</Dialog.Content>",
-          "details": "Put long content in Dialog.Body: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, background on Dialog.Header and Dialog.Footer sets how the Sheet's bars meet the body scrolled under them, as a Toolbar's do: soft by default, or hard, glass or solid."
+          "details": "Put long content in Dialog.Body: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, background on Dialog.Header and Dialog.Footer sets how the Sheet's bars meet the body scrolled under them, as a Toolbar's do: by default glass on the header and soft on the footer, or hard or solid."
         },
         {
           "name": "Placement",
@@ -2240,6 +2240,16 @@
         {
           "name": "Setup choices",
           "code": "import { useState } from 'react';\nimport { SetupChoicesSheet } from './SetupChoicesSheet';\n\nexport default function Example() {\nconst [open, setOpen] = useState(false);\nreturn <SetupChoicesSheet open={open} onOpenChange={setOpen} layout=\"grouped\" onAdd={(method) => console.log(method.id)} />;\n}"
+        },
+        {
+          "name": "Steps",
+          "code": "const [open, setOpen] = useState(false)\nconst [step, setStep] = useState('email')\nconst [direction, setDirection] = useState('forward')\nconst go = (next, to) => { setDirection(to); setStep(next) }\n\n<Dialog open={open} onOpenChange={setOpen}>\n<Dialog.Trigger>\n  <Button color=\"secondary\" variant=\"outline\">Sign in</Button>\n</Dialog.Trigger>\n<Dialog.Content mobileVariant=\"sheet\" width={420}>\n  <Dialog.Header>\n    <Dialog.Title>Sign in</Dialog.Title>\n  </Dialog.Header>\n  <Dialog.Body>\n    <Dialog.Steps step={step} direction={direction}>\n      {step === 'email' ? (\n        <Field label=\"Email\" description=\"We send a code to this address.\">\n          <Input type=\"email\" placeholder=\"you@example.com\" />\n        </Field>\n      ) : (\n        <Field label=\"Code\" description=\"Enter the code we sent to your email.\">\n          <Input inputMode=\"numeric\" autoComplete=\"one-time-code\" placeholder=\"6-digit code\" />\n        </Field>\n      )}\n    </Dialog.Steps>\n  </Dialog.Body>\n  <Dialog.Footer>\n    {step === 'code' && <Button color=\"primary\" variant=\"soft\" onClick={() => go('email', 'back')}>Back</Button>}\n    {step === 'email'\n      ? <Button color=\"primary\" onClick={() => go('code', 'forward')}>Continue</Button>\n      : <Button color=\"primary\" onClick={() => setOpen(false)}>Verify</Button>}\n  </Dialog.Footer>\n</Dialog.Content>\n</Dialog>",
+          "details": "Put the steps of a flow in Dialog.Steps: a new step comes in from the trailing edge over the one before, which moves a third of the way out under it, as a push on iOS. direction=\"back\" reverses it for a return to a step before. The new step starts at its top, the steps reach the panel's edges, and focus in the step that leaves moves to the one that comes in. With reduced motion the step changes at once."
+        },
+        {
+          "name": "Keep it open",
+          "code": "const [open, setOpen] = useState(false)\nconst [name, setName] = useState('Mia')\nconst dirty = name !== 'Mia'\nconst hold = (event) => { if (dirty) event.preventDefault() }\n\n<Dialog open={open} onOpenChange={setOpen}>\n<Dialog.Trigger>\n  <Button color=\"secondary\" variant=\"outline\">Edit profile</Button>\n</Dialog.Trigger>\n<Dialog.Content width={420} onEscapeKeyDown={hold} onInteractOutside={hold}>\n  <Dialog.Header>\n    <Dialog.Title>Edit profile</Dialog.Title>\n  </Dialog.Header>\n  <Field label=\"Name\">\n    <Input value={name} onChange={(event) => setName(event.target.value)} />\n  </Field>\n  <Dialog.Footer>\n    <Dialog.Close>\n      <Button color=\"primary\" variant=\"soft\">Discard</Button>\n    </Dialog.Close>\n    <Button color=\"primary\" onClick={() => setOpen(false)}>Save</Button>\n  </Dialog.Footer>\n</Dialog.Content>\n</Dialog>",
+          "details": "Escape and a press or a focus outside ask onEscapeKeyDown and onInteractOutside first: event.preventDefault() keeps the dialog open, such as for a form with unsaved changes, or for a press on a developer panel over the page. The Close button and Dialog.Close still close it."
         }
       ],
       "subComponents": [
@@ -2300,6 +2310,38 @@
               "name": "onCloseAutoFocus",
               "type": "(event: Event) => void",
               "description": "Called when focus returns on close; call event.preventDefault() to keep it elsewhere"
+            },
+            {
+              "name": "onEscapeKeyDown",
+              "type": "(event: KeyboardEvent) => void",
+              "description": "Called on Escape before the dialog closes; call event.preventDefault() to keep it open"
+            },
+            {
+              "name": "onInteractOutside",
+              "type": "(event: DialogInteractOutsideEvent) => void",
+              "description": "Called on a press or a focus outside the dialog before it closes; call event.preventDefault() to keep it open. event.detail.originalEvent is the browser's event"
+            },
+            {
+              "name": "zIndex",
+              "type": "number",
+              "default": "50",
+              "description": "Stack order of the overlay and the dialog, for a page whose own layers sit above 50"
+            },
+            {
+              "name": "rootProps",
+              "type": "DialogLayerProps",
+              "description": "className, style and data attributes for the fixed layer that holds the panel. Data attributes on Dialog.Content land there too"
+            },
+            {
+              "name": "overlayProps",
+              "type": "DialogLayerProps",
+              "description": "className, style and data attributes for the overlay"
+            },
+            {
+              "name": "layout",
+              "type": "\"auto\" | \"phone\"",
+              "default": "\"auto\"",
+              "description": "phone lays the dialog out as on a phone at any window width, with the dialogs it opens. Inside a PhoneLayout it always is"
             }
           ]
         },
@@ -2317,6 +2359,28 @@
               "name": "mobileLayout",
               "type": "\"inline\" | \"stacked\"",
               "description": "Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit"
+            }
+          ]
+        },
+        {
+          "name": "Dialog.Steps",
+          "description": "the steps of a flow, such as a sign-in that asks for an email and then a code. Place it in Dialog.Body.",
+          "props": [
+            {
+              "name": "step",
+              "type": "string | number",
+              "description": "The step on screen. A new value brings its content in"
+            },
+            {
+              "name": "direction",
+              "type": "\"forward\" | \"back\"",
+              "default": "\"forward\"",
+              "description": "forward brings the new step in from the trailing edge over the one before; back returns to a step before it"
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "description": "Additional CSS class on the steps"
             }
           ]
         }
@@ -4316,7 +4380,7 @@
         {
           "name": "Background",
           "code": "<Page>\n<Page.Header background=\"hard\">...</Page.Header>\n<Page.Content>...</Page.Content>\n<Page.Footer background=\"hard\">\n  <Button color=\"primary\" pill block>New order</Button>\n</Page.Footer>\n</Page>",
-          "details": "background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: soft (the default) fades the canvas color out under the header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, glass a translucent, blurred bar with a hairline, and solid an opaque bar with no line. Hard and glass show themselves once content is under the bar; divider={false} keeps a header without its line."
+          "details": "background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: glass, the header's default, is a translucent, blurred bar with a hairline, soft, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, and solid an opaque bar with no line. Glass and hard show themselves once content is under the bar; divider={false} keeps a header without its line."
         }
       ],
       "subComponents": [
@@ -4326,7 +4390,7 @@
             {
               "name": "background",
               "type": "\"soft\" | \"hard\" | \"glass\" | \"solid\"",
-              "default": "\"soft\"",
+              "default": "\"glass\"",
               "description": "How the bar meets the content scrolled under it on a phone, see Background"
             },
             {
@@ -4368,6 +4432,41 @@
         }
       ],
       "docsUrl": "https://plexui.com/components/page"
+    },
+    {
+      "slug": "phone-layout",
+      "name": "Phone Layout",
+      "description": "Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.",
+      "importPath": "@plexui/ui/components/PhoneLayout",
+      "exports": [
+        "PhoneLayout"
+      ],
+      "props": [
+        {
+          "name": "className",
+          "type": "string",
+          "description": "Class on the box, such as its size and corners"
+        },
+        {
+          "name": "style",
+          "type": "CSSProperties",
+          "description": "Style on the box"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "const [open, setOpen] = useState(false)\n\n<PhoneLayout style={{ width: 375, height: 600, borderRadius: 40, border: '1px solid var(--color-border)' }}>\n<Dialog open={open} onOpenChange={setOpen}>\n  <Dialog.Trigger>\n    <Button color=\"primary\">New list</Button>\n  </Dialog.Trigger>\n  <Dialog.Content mobileVariant=\"sheet\">\n    <Dialog.Header>\n      <Dialog.Title>New list</Dialog.Title>\n    </Dialog.Header>\n    <Dialog.Body>\n      <Field label=\"Name\">\n        <Input placeholder=\"Groceries\" />\n      </Field>\n    </Dialog.Body>\n    <Dialog.Footer>\n      <Button color=\"primary\" onClick={() => setOpen(false)}>Create</Button>\n    </Dialog.Footer>\n  </Dialog.Content>\n</Dialog>\n</PhoneLayout>",
+          "details": "The box is the screen of the phone: a Dialog opened inside it portals into the box and covers it instead of the window. Give the box a size; let a child of it scroll rather than the box, so a dialog stays in place."
+        }
+      ],
+      "hooks": [
+        {
+          "name": "usePhoneLayout",
+          "description": "`usePhoneLayout()` returns whether components where it is called are laid out as on a phone: inside a PhoneLayout or a Dialog with `layout=\"phone\"`, or in a window 767px wide or narrower. On the server it is false outside a PhoneLayout."
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/phone-layout"
     },
     {
       "slug": "popover",
@@ -6595,7 +6694,7 @@
         {
           "name": "Background",
           "code": "<Page surface=\"grouped\">\n<Toolbar background=\"hard\">...</Toolbar>\n<Page.Content>...</Page.Content>\n<TabBar value={tab} onValueChange={setTab} background=\"hard\">\n  ...\n</TabBar>\n</Page>",
-          "details": "background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) leaves the content clear under and around the capsule, as native iOS 26 does, hard is an opaque band with a line on top, glass a translucent, blurred band with a hairline, and solid an opaque band with no line. Hard and glass show themselves while the content continues under the bar."
+          "details": "background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) leaves the content clear under and around the capsule, as native iOS 26 does, glass is a translucent, blurred band with a hairline, hard is an opaque band with a line on top, and solid an opaque band with no line. Glass and hard show themselves while the content continues under the bar."
         }
       ],
       "subComponents": [
@@ -7508,6 +7607,12 @@
           "description": "Buttons for the tip's actions, side by side below the message"
         },
         {
+          "name": "mobileActions",
+          "type": "\"rows\" | \"buttons\"",
+          "default": "\"rows\"",
+          "description": "How the actions show at 767px and below: rows of text under a separator, or the buttons as given, each a full-width capsule"
+        },
+        {
           "name": "onClose",
           "type": "() => void",
           "description": "Shows the Close button; called when it is clicked"
@@ -7540,6 +7645,11 @@
           "details": "Actions sit side by side below the message, each as wide as the others. Use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them."
         },
         {
+          "name": "Buttons on a phone",
+          "code": "<Tip\nicon={<Bell />}\ntitle=\"Get alerts\"\ndescription=\"Hear about severe weather where you are, even when the app is closed.\"\nmobileActions=\"buttons\"\nactions={<Button color=\"primary\" variant=\"soft\" size=\"sm\" pill>Turn on</Button>}\n/>",
+          "details": "With mobileActions=\"buttons\" the actions keep their buttons on a phone: each is a capsule as wide as the tip under the message, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button."
+        },
+        {
           "name": "Arrow",
           "code": "<Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Filter\">\n<Filter />\n</Button>\n<Tip\narrowEdge=\"top\"\ntitle=\"Filter the list\"\ndescription=\"Show only the items from the last week, month or year.\"\n/>",
           "details": "With arrowEdge an inline tip points at what it explains with the kit's arrow, centered on that edge. The tip leaves room for the arrow on that side."
@@ -7553,7 +7663,7 @@
       "subComponents": [
         {
           "name": "Tip.Popover",
-          "description": "Takes title, description, icon and actions as Tip does, and the control it explains as its only child.",
+          "description": "Takes title, description, icon, actions and mobileActions as Tip does, and the control it explains as its only child.",
           "props": [
             {
               "name": "open",
@@ -7720,7 +7830,7 @@
         {
           "name": "background",
           "type": "\"soft\" | \"hard\" | \"glass\" | \"solid\"",
-          "default": "\"soft\"",
+          "default": "\"glass\" at the top, \"soft\" at the bottom",
           "description": "How the bar meets the content scrolled under it, see Background. \"edge\" is the earlier name of \"soft\""
         },
         {
@@ -7748,18 +7858,18 @@
         },
         {
           "name": "Search",
-          "code": "<Toolbar>\n<Toolbar.Content fill>\n  <Input variant=\"soft\" pill placeholder=\"Search\" aria-label=\"Search orders\" startAdornment={<Search />} />\n</Toolbar.Content>\n<Toolbar.Trailing>\n  <NavigationButton action=\"close\" aria-label=\"Close search\" />\n</Toolbar.Trailing>\n</Toolbar>",
+          "code": "<Toolbar>\n<Toolbar.Content fill>\n  <Input variant=\"soft\" pill placeholder=\"Search\" aria-label=\"Search orders\" startAdornment={<SearchSm />} />\n</Toolbar.Content>\n<Toolbar.Trailing>\n  <NavigationButton action=\"close\" aria-label=\"Close search\" />\n</Toolbar.Trailing>\n</Toolbar>",
           "details": "Toolbar.Content fill stretches a search field between the leading and trailing items. The field takes the row height and the material of the bar buttons."
         },
         {
           "name": "Bottom",
-          "code": "<Page surface=\"grouped\">\n<Toolbar>\n  <Toolbar.Title>Orders</Toolbar.Title>\n</Toolbar>\n<Page.Content>...</Page.Content>\n<Toolbar placement=\"bottom\">\n  <Toolbar.Leading>\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Filter\"><Filter /></Button>\n  </Toolbar.Leading>\n  <Toolbar.Content>\n    <Button color=\"primary\" pill>New order</Button>\n  </Toolbar.Content>\n  <Toolbar.Trailing>\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Search\"><Search /></Button>\n  </Toolbar.Trailing>\n</Toolbar>\n</Page>\n\n<Toolbar placement=\"bottom\">\n<Toolbar.Content fill>\n  <Button color=\"primary\" pill block><Plus /> New order</Button>\n</Toolbar.Content>\n</Toolbar>",
-          "details": "placement=\"bottom\" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The page content scrolls under both bars."
+          "code": "<Page surface=\"grouped\">\n<Toolbar>\n  <Toolbar.Title>Orders</Toolbar.Title>\n</Toolbar>\n<Page.Content>...</Page.Content>\n<Toolbar placement=\"bottom\">\n  <Toolbar.Leading>\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Filter\"><Filter /></Button>\n  </Toolbar.Leading>\n  <Toolbar.Content>\n    <Button color=\"primary\" pill>New order</Button>\n  </Toolbar.Content>\n  <Toolbar.Trailing>\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Search\"><Search /></Button>\n  </Toolbar.Trailing>\n</Toolbar>\n</Page>\n\n<Toolbar placement=\"bottom\">\n<Toolbar.Content fill>\n  <Input variant=\"soft\" pill placeholder=\"Search\" aria-label=\"Search orders\" startAdornment={<SearchSm />} />\n</Toolbar.Content>\n<Toolbar.Trailing>\n  <Button color=\"secondary\" variant=\"soft\" uniform pill iconSize=\"sm\" aria-label=\"New order\"><PlusLg /></Button>\n</Toolbar.Trailing>\n</Toolbar>\n\n<Toolbar placement=\"bottom\">\n<Toolbar.Content fill>\n  <Button color=\"primary\" pill block><Plus /> New order</Button>\n</Toolbar.Content>\n</Toolbar>",
+          "details": "placement=\"bottom\" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, and a bottom bar draws no band: the content runs under and around its glass, as in iOS 26 Mail and Contacts. A search field holds SearchSm, set in Regular; a plus next to it takes iconSize=\"sm\", as Contacts draws it smaller than the other symbols. The page content scrolls under both bars."
         },
         {
           "name": "Background",
           "code": "<Page surface=\"grouped\">\n<Toolbar background=\"hard\">\n  <Toolbar.Leading>\n    <NavigationButton action=\"back\" />\n  </Toolbar.Leading>\n  <Toolbar.Title>Orders</Toolbar.Title>\n</Toolbar>\n<Page.Content>...</Page.Content>\n<Toolbar placement=\"bottom\" background=\"hard\">\n  <Toolbar.Content>\n    <Button color=\"primary\" pill>New order</Button>\n  </Toolbar.Content>\n</Toolbar>\n</Page>",
-          "details": "background sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. soft, the default, draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a line. glass is a translucent, blurred bar with a hairline. solid is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values."
+          "details": "background sets how a bar meets the content scrolled under it. glass, the default of a top bar, is a translucent, blurred bar with a hairline. soft, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a line. solid is an opaque bar with no line. Glass and hard show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values."
         },
         {
           "name": "Disabled",
@@ -7906,5 +8016,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T05:45:14.287Z"
+  "generatedAt": "2026-11-09T08:21:53.172Z"
 }

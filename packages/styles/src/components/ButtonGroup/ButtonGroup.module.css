@@ -237,6 +237,11 @@
       --button-icon-size: var(--toolbar-icon-size);
     }
 
+    /* A symbol with less ink takes the bar's smaller box, as in Toolbar.Group (see --toolbar-icon-size-sm). */
+    & > :where(button, a, [role="link"])[data-icon-size="sm"]:where(:not([data-navigation-action])) {
+      --button-icon-size: var(--toolbar-icon-size-sm);
+    }
+
     & > :where(button, a, [role="link"]):where(:not([data-navigation-action], [data-uniform])) {
       --button-gutter: var(--button-group-glass-label-gutter);
     }

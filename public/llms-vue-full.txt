@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 61
+Components: 62
 
 ## Setup
 
@@ -2691,9 +2691,19 @@ Props:
     - mobile-placement ("center" | "bottom" | "fullscreen") — Placement at 767px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered
     - @open-auto-focus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
     - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
+    - @escape-key-down ((event: KeyboardEvent) => void) — Called on Escape before the dialog closes; call event.preventDefault() to keep it open
+    - @interact-outside ((event: DialogInteractOutsideEvent) => void) — Called on a press or a focus outside the dialog before it closes; call event.preventDefault() to keep it open. event.detail.originalEvent is the browser's event
+    - z-index (number) default: 50 — Stack order of the overlay and the dialog, for a page whose own layers sit above 50
+    - root-props (DialogLayerProps) — class, style and data attributes for the fixed layer that holds the panel. Data attributes on DialogContent land there too
+    - overlay-props (DialogLayerProps) — class, style and data attributes for the overlay
+    - layout ("auto" | "phone") default: "auto" — phone lays the dialog out as on a phone at any window width, with the dialogs it opens. Inside a PhoneLayout it always is
   DialogFooter:
     - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged
     - mobile-layout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
+  DialogSteps:
+    - step (string | number) — The step on screen. A new value brings its content in
+    - direction ("forward" | "back") default: "forward" — forward brings the new step in from the trailing edge over the one before; back returns to a step before it
+    - class (string) — Additional CSS class on the steps
 
 ### Overview
 ```vue
@@ -2745,7 +2755,7 @@ Use color="danger" on the action button for destructive operations.
 ### Text field
 An alert can ask for one short value. The field fills the alert like its actions, a 52px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.
 ```vue
-<Dialog v-model:open="open" @update:open="(next) => { if (next) name = 'New folder' }">
+<Dialog v-model:open="open" @update:open="(next) => { if (next) folderName = 'New folder' }">
   <DialogTrigger>
     <Button color="secondary" variant="outline">New folder</Button>
   </DialogTrigger>
@@ -2755,13 +2765,13 @@ An alert can ask for one short value. The field fills the alert like its actions
       <DialogDescription>Enter a name for this folder.</DialogDescription>
     </DialogHeader>
     <DialogBody>
-      <Input ref="field" v-model="name" aria-label="Folder name" variant="soft" size="3xl" pill @clear="name = ''" />
+      <Input ref="field" v-model:value="folderName" aria-label="Folder name" variant="soft" size="3xl" pill @clear="folderName = ''" />
     </DialogBody>
     <DialogFooter>
       <DialogClose>
         <Button color="primary" variant="soft">Cancel</Button>
       </DialogClose>
-      <Button color="primary" :disabled="!name.trim()" @click="open = false">Create</Button>
+      <Button color="primary" :disabled="!folderName.trim()" @click="open = false">Create</Button>
     </DialogFooter>
   </DialogContent>
 </Dialog>
@@ -2892,7 +2902,7 @@ const rows = [
 ```
 
 ### Scrolling body
-Put long content in DialogBody: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, background on DialogHeader and DialogFooter sets how the Sheet's bars meet the body scrolled under them, as a Toolbar's do: soft by default, or hard, glass or solid.
+Put long content in DialogBody: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, background on DialogHeader and DialogFooter sets how the Sheet's bars meet the body scrolled under them, as a Toolbar's do: by default glass on the header and soft on the footer, or hard or solid.
 ```vue
 <Dialog v-model:open="open">
   <DialogTrigger>
@@ -2980,6 +2990,61 @@ const open = ref(false);
 <template>
 <SetupChoicesSheet v-model:open="open" layout="grouped" @add="(method) => console.log(method.id)" />
 </template>
+```
+
+### Steps
+Put the steps of a flow in DialogSteps: a new step comes in from the trailing edge over the one before, which moves a third of the way out under it, as a push on iOS. direction="back" reverses it for a return to a step before. The new step starts at its top, the steps reach the panel's edges, and focus in the step that leaves moves to the one that comes in. With reduced motion the step changes at once.
+```vue
+<Dialog v-model:open="open" @update:open="(next) => { if (!next) { step = 'email'; direction = 'forward' } }">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">Sign in</Button>
+  </DialogTrigger>
+  <DialogContent mobile-variant="sheet" :width="420">
+    <DialogHeader>
+      <DialogTitle>Sign in</DialogTitle>
+    </DialogHeader>
+    <DialogBody>
+      <DialogSteps :step="step" :direction="direction">
+        <Field v-if="step === 'email'" label="Email" description="We send a code to this address.">
+          <Input v-model:value="email" type="email" placeholder="you@example.com" />
+        </Field>
+        <Field v-else label="Code" :description="'Enter the code we sent to ' + (email || 'your email') + '.'">
+          <Input inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" />
+        </Field>
+      </DialogSteps>
+    </DialogBody>
+    <DialogFooter>
+      <Button v-if="step === 'code'" color="primary" variant="soft" @click="direction = 'back'; step = 'email'">Back</Button>
+      <Button v-if="step === 'email'" color="primary" @click="direction = 'forward'; step = 'code'">Continue</Button>
+      <Button v-else color="primary" @click="open = false">Verify</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+### Keep it open
+Escape and a press or a focus outside ask @escape-key-down and @interact-outside first: event.preventDefault() keeps the dialog open, such as for a form with unsaved changes, or for a press on a developer panel over the page. The Close button and DialogClose still close it.
+```vue
+<Dialog v-model:open="open" @update:open="(next) => { if (!next) { profileName = 'Mia'; held = false } }">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">Edit profile</Button>
+  </DialogTrigger>
+  <DialogContent :width="420" @escape-key-down="(event) => { if (profileName !== 'Mia') { event.preventDefault(); held = true } }" @interact-outside="(event) => { if (profileName !== 'Mia') { event.preventDefault(); held = true } }">
+    <DialogHeader>
+      <DialogTitle>Edit profile</DialogTitle>
+      <DialogDescription>{{ held ? 'Save or discard your changes to close.' : 'Escape and a press outside close it until you change the name.' }}</DialogDescription>
+    </DialogHeader>
+    <Field label="Name">
+      <Input v-model:value="profileName" @update:value="held = false" />
+    </Field>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="primary" variant="soft">Discard</Button>
+      </DialogClose>
+      <Button color="primary" @click="open = false">Save</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
 ```
 
 ## Empty Message
@@ -5807,7 +5872,7 @@ Props:
   - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
   - class (string) — Class of the root element
   PageHeader:
-    - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it on a phone, see Background
+    - background ("soft" | "hard" | "glass" | "solid") default: "glass" — How the bar meets the content scrolled under it on a phone, see Background
     - divider (boolean) default: true — Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background
     - class (string) — Class of the band
   PageContent:
@@ -5868,7 +5933,7 @@ fill stops the page scrolling from 768px up, so a table can scroll inside itself
 ```
 
 ### Background
-background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: soft (the default) fades the canvas color out under the header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, glass a translucent, blurred bar with a hairline, and solid an opaque bar with no line. Hard and glass show themselves once content is under the bar; :divider="false" keeps a header without its line.
+background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: glass, the header's default, is a translucent, blurred bar with a hairline, soft, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, and solid an opaque bar with no line. Glass and hard show themselves once content is under the bar; :divider="false" keeps a header without its line.
 ```vue
 <Page>
   <PageHeader background="hard">...</PageHeader>
@@ -5937,6 +6002,41 @@ The capsule behind the dots shows while a pointer presses or scrubs with automat
   <span class="text-sm text-secondary">Minimal</span>
   <PageControl :count="4" aria-label="Minimal background" background="minimal" />
 </div>
+```
+
+## Phone Layout
+Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.
+Import: import { PhoneLayout } from "@plexui/vue/components/PhoneLayout"
+Docs: https://plexui.com/vue/components/phone-layout
+Props:
+  - class (string) — Class on the box, such as its size and corners
+  - style (string | CSSProperties) — Style on the box
+
+### Overview
+The box is the screen of the phone: a Dialog opened inside it portals into the box and covers it instead of the window. Give the box a size; let a child of it scroll rather than the box, so a dialog stays in place.
+```vue
+<PhoneLayout style="width: 375px; height: 600px; border-radius: 40px; border: 1px solid var(--color-border); background: var(--color-background)">
+  <div style="display: flex; height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 24px">
+    <Dialog v-model:open="open">
+      <DialogTrigger>
+        <Button color="primary">New list</Button>
+      </DialogTrigger>
+      <DialogContent mobile-variant="sheet">
+        <DialogHeader>
+          <DialogTitle>New list</DialogTitle>
+        </DialogHeader>
+        <DialogBody>
+          <Field label="Name">
+            <Input placeholder="Groceries" />
+          </Field>
+        </DialogBody>
+        <DialogFooter>
+          <Button color="primary" @click="open = false">Create</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  </div>
+</PhoneLayout>
 ```
 
 ## Popover
@@ -9839,7 +9939,7 @@ With minimize-behavior="onScrollDown" the bar shrinks to the selected tab while 
 ```
 
 ### Background
-background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) leaves the content clear under and around the capsule, as native iOS 26 does, hard is an opaque band with a line on top, glass a translucent, blurred band with a hairline, and solid an opaque band with no line. Hard and glass show themselves while the content continues under the bar.
+background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) leaves the content clear under and around the capsule, as native iOS 26 does, glass is a translucent, blurred band with a hairline, hard is an opaque band with a line on top, and solid an opaque band with no line. Glass and hard show themselves while the content continues under the bar.
 ```vue
 <Page surface="grouped">
   <Toolbar background="hard">...</Toolbar>
@@ -10904,6 +11004,7 @@ Props:
   - description (string) — One or two sentences on how to use it (or the description slot)
   - on-close (() => void) — Shows the Close button; called when it is clicked
   - arrow-edge ("top" | "bottom" | "left" | "right") — Draws an arrow at this edge, pointing at what the tip explains
+  - mobile-actions ("rows" | "buttons") default: "rows" — How the actions show at 767px and below: rows of text under a separator, or the buttons as given, each a full-width capsule
   TipPopover:
     - open (boolean) — Shows the tip (controlled); bind with v-model:open
     - default-open (boolean) default: false — Shows the tip at first (uncontrolled)
@@ -10941,6 +11042,23 @@ Actions in the actions slot sit side by side below the message, each as wide as 
     <template #actions>
       <Button color="primary" variant="soft" size="sm" pill>Not now</Button>
       <Button color="primary" size="sm" pill>Turn on</Button>
+    </template>
+  </Tip>
+</div>
+```
+
+### Buttons on a phone
+With mobile-actions="buttons" the actions keep their buttons on a phone: each is a capsule as wide as the tip under the message, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button.
+```vue
+<div class="w-full max-w-[360px]">
+  <Tip
+    title="Get alerts"
+    description="Hear about severe weather where you are, even when the app is closed."
+    mobile-actions="buttons"
+  >
+    <template #icon><Bell /></template>
+    <template #actions>
+      <Button color="primary" variant="soft" size="sm" pill>Turn on</Button>
     </template>
   </Tip>
 </div>
@@ -11096,7 +11214,7 @@ Props:
   - placement ("top" | "bottom") default: "top" — Top bar with 44px targets, or bottom bar with 48px targets
   - titleStyle ("inline" | "large" | "compact-large" | "compact-medium") default: "inline" — Size and place of ToolbarTitle in a top bar
   - titleAlign ("center" | "start") default: "center" — Alignment of an inline title. Large and compact titles always start at the leading edge
-  - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft
+  - background ("soft" | "hard" | "glass" | "solid") default: "glass" at the top, "soft" at the bottom — How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft
   - class (string) — Class of the bar
   ToolbarTitle:
     - subtitle (string) — Second, smaller line below the title. The subtitle slot takes precedence
@@ -11157,7 +11275,7 @@ ToolbarContent fill stretches a search field between the leading and trailing it
   <ToolbarContent fill>
     <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
       <template #startAdornment>
-        <Search />
+        <SearchSm />
       </template>
     </Input>
   </ToolbarContent>
@@ -11168,7 +11286,7 @@ ToolbarContent fill stretches a search field between the leading and trailing it
 ```
 
 ### Bottom
-placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. ToolbarContent centers a main action; with fill a search field or a single action takes the whole row. The page content scrolls under both bars.
+placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. ToolbarContent centers a main action; with fill a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, and a bottom bar draws no band: the content runs under and around its glass, as in iOS 26 Mail and Contacts. A search field holds SearchSm, set in Regular; a plus next to it takes iconSize="sm", as Contacts draws it smaller than the other symbols. The page content scrolls under both bars.
 ```vue
 <Page surface="grouped">
   <Toolbar>
@@ -11190,13 +11308,26 @@ placement="bottom" sets the bar at the bottom of the page with 48px targets and 
 
 <Toolbar placement="bottom">
   <ToolbarContent fill>
+    <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
+      <template #startAdornment>
+        <SearchSm />
+      </template>
+    </Input>
+  </ToolbarContent>
+  <ToolbarTrailing>
+    <Button color="secondary" variant="soft" uniform pill icon-size="sm" aria-label="New order"><PlusLg /></Button>
+  </ToolbarTrailing>
+</Toolbar>
+
+<Toolbar placement="bottom">
+  <ToolbarContent fill>
     <Button color="primary" pill block><Plus /> New order</Button>
   </ToolbarContent>
 </Toolbar>
 ```
 
 ### Background
-background sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. soft, the default, draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a line. glass is a translucent, blurred bar with a hairline. solid is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. PageHeader, PageFooter, the bars of a Sheet and TabBar take the same values.
+background sets how a bar meets the content scrolled under it. glass, the default of a top bar, is a translucent, blurred bar with a hairline. soft, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a line. solid is an opaque bar with no line. Glass and hard show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. PageHeader, PageFooter, the bars of a Sheet and TabBar take the same values.
 ```vue
 <Page surface="grouped">
   <Toolbar background="hard">

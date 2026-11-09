@@ -87,17 +87,17 @@ const scroll = async (framework: Framework, element: HTMLElement, { top, height 
 }
 
 describe("Bar background", () => {
-  test.each(FRAMEWORKS)("%s: every bar is soft by default", async (framework) => {
+  test.each(FRAMEWORKS)("%s: a top bar is glass and a bottom bar soft by default", async (framework) => {
     await mountPage(framework)
-    expect(backgrounds(".Header, .Footer")).toEqual(["soft", "soft"])
+    expect(backgrounds(".Header, .Footer")).toEqual(["glass", "soft"])
     cleanup()
     document.body.innerHTML = ""
     await mountPage(framework, undefined, "toolbars")
-    expect(backgrounds("[data-toolbar], nav")).toEqual(["soft", "soft", "soft"])
+    expect(backgrounds("[data-toolbar], nav")).toEqual(["glass", "soft", "soft"])
     cleanup()
     document.body.innerHTML = ""
     await mountSheet(framework)
-    expect(backgrounds(".Header, .Footer")).toEqual(["soft", "soft"])
+    expect(backgrounds(".Header, .Footer")).toEqual(["glass", "soft"])
   })
 
   test.each(FRAMEWORKS.flatMap((framework) => BACKGROUNDS.map((background) => [framework, background] as const)))(

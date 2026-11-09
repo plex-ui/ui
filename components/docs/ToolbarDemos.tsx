@@ -4,7 +4,7 @@ import { useState, type ReactNode } from 'react';
 import { Button, NavigationButton } from '@plexui/ui/components/Button';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { DotsHorizontal, Filter, InfoCircle, Plus, Search, Translate } from '@plexui/ui/components/Icon';
+import { DotsHorizontal, Filter, InfoCircle, Plus, PlusLg, Search, SearchSm, Translate } from '@plexui/ui/components/Icon';
 import { Input } from '@plexui/ui/components/Input';
 import { Page } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
@@ -131,7 +131,7 @@ export function ToolbarSearchDemo() {
       <Page surface="grouped">
         <Toolbar>
           <Toolbar.Content fill>
-            <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<Search />} />
+            <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
           </Toolbar.Content>
           <Toolbar.Trailing>
             <NavigationButton action="close" aria-label="Close search" />
@@ -183,8 +183,11 @@ export function ToolbarBottomDemo() {
           ) : content === 'search' ? (
             <Toolbar placement="bottom">
               <Toolbar.Content fill>
-                <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<Search />} />
+                <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
               </Toolbar.Content>
+              <Toolbar.Trailing>
+                <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="New order"><PlusLg /></Button>
+              </Toolbar.Trailing>
             </Toolbar>
           ) : (
             <Toolbar placement="bottom">
@@ -215,7 +218,7 @@ export function BarBackgroundControl({ value, onChange, phoneOnly = false }: { v
 }
 
 export function ToolbarBackgroundDemo() {
-  const [background, setBackground] = useState<BarBackground>('soft');
+  const [background, setBackground] = useState<BarBackground>('glass');
 
   return (
     <>
