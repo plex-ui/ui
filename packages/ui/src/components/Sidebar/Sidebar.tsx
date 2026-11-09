@@ -67,6 +67,7 @@
 
 import clsx from "clsx"
 import { Slot } from "radix-ui"
+import { mergeRefs } from "react-merge-refs"
 import {
   cloneElement,
   createContext,
@@ -74,7 +75,9 @@ import {
   isValidElement,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
+  useRef,
   useState,
   type ComponentProps,
   type PointerEvent,
@@ -86,6 +89,7 @@ import { ChevronRightMd, Disclosure, Search as SearchIcon, Sidebar as SidebarIco
 import { Input, type InputProps } from "../Input"
 import { Tooltip } from "../Tooltip"
 import s from "@plexui/styles/components/Sidebar/Sidebar.module.css"
+import { attachDrawerSwipe, closeOnUnhandledEscape, drawerInitialFocus, loopDrawerFocus } from "../../lib/phoneDrawer"
 import {
   SidebarProvider,
   useSidebar,
@@ -105,7 +109,8 @@ const cleanProps = <P extends object>(props: P): Omit<P, "data-toggle"> => {
 export { SidebarProvider, useSidebar }
 export type { SidebarCollapsible, SidebarProviderVariant, SidebarSide, SidebarVariant }
 
-// Rows inside the mobile drawer end with a disclosure chevron (see the drawer list in the styles).
+// Rows inside the mobile drawer end with a disclosure chevron (see the drawer list in the styles), unless the drawer
+// leaves it out (`disclosure={false}`).
 const SidebarDrawerContext = createContext(false)
 
 /** The chevron of a drawer row that leads to another page. */
@@ -689,9 +694,18 @@ SidebarCardFooter.displayName = "SidebarCardFooter"
 export type SidebarInsetProps = ComponentProps<"main">
 
 export const SidebarInset = forwardRef<HTMLElement, SidebarInsetProps>(
-  ({ className, ...props }, ref) => (
-    <main ref={ref} className={clsx(s.Inset, className)} {...cleanProps(props)} />
-  ),
+  ({ className, ...props }, ref) => {
+    const { isMobile, openMobile } = useSidebar()
+    // Behind the open phone drawer the page takes no focus or touch; `inert` of your own wins
+    return (
+      <main
+        ref={ref}
+        className={clsx(s.Inset, className)}
+        inert={isMobile && openMobile ? true : undefined}
+        {...cleanProps(props)}
+      />
+    )
+  },
 )
 SidebarInset.displayName = "SidebarInset"
 
@@ -793,11 +807,55 @@ SidebarMobileMenuButton.displayName = "SidebarMobileMenuButton"
 export type SidebarMobileProps = ComponentProps<"div"> & {
   /** When true, drawer is positioned absolute instead of fixed (for contained demos) */
   contained?: boolean
+  /**
+   * Rows that lead to another page end with a disclosure chevron, as in an iOS list. `false` leaves it out.
+   * @default true
+   */
+  disclosure?: boolean
 }
 
+/**
+ * The phone drawer: a modal dialog while it is open. Focus moves into it and Tab goes round its controls, the page
+ * behind is inert (SidebarInset), Escape inside it closes it after any layer over it has taken its own, and focus
+ * goes back to the control that opened it. A swipe in from the edge it slides from opens it and a swipe back closes
+ * it (lib/phoneDrawer).
+ */
 export const SidebarMobile = forwardRef<HTMLDivElement, SidebarMobileProps>(
-  ({ className, children, contained, ...props }, ref) => {
-    const { setOpenMobile } = useSidebar()
+  ({ className, children, contained, disclosure = true, onKeyDown, ...props }, ref) => {
+    const { isMobile, openMobile, setOpenMobile } = useSidebar()
+    const drawerRef = useRef<HTMLDivElement>(null)
+    const state = useRef({ open: openMobile, isMobile, setOpenMobile })
+    state.current = { open: openMobile, isMobile, setOpenMobile }
+
+    // Focus moves in on open and back to what opened the drawer on close. A drawer that is not contained shows only
+    // at phone width, so going back to it from a wide window moves focus in again.
+    const shown = openMobile && (isMobile || Boolean(contained))
+    useEffect(() => {
+      const drawer = drawerRef.current
+      if (!shown || !drawer) return
+      const trigger = document.activeElement
+      if (!drawer.contains(document.activeElement)) drawerInitialFocus(drawer).focus({ preventScroll: true })
+      return () => {
+        const active = document.activeElement
+        const lost = !active || active === document.body || drawer.contains(active)
+        if (lost && trigger instanceof HTMLElement && trigger.isConnected && !drawer.contains(trigger)) {
+          trigger.focus({ preventScroll: true })
+        }
+      }
+    }, [shown])
+
+    useEffect(() => {
+      const drawer = drawerRef.current
+      const root = drawer?.closest<HTMLElement>("[data-mobile-menu]")
+      if (!drawer || !root) return
+      return attachDrawerSwipe({
+        root,
+        drawer,
+        isOpen: () => state.current.open,
+        setOpen: (open) => state.current.setOpenMobile(open),
+        enabled: () => state.current.isMobile,
+      })
+    }, [])
 
     return (
       <>
@@ -810,11 +868,24 @@ export const SidebarMobile = forwardRef<HTMLDivElement, SidebarMobileProps>(
 
         {/* Drawer */}
         <div
-          ref={ref}
+          ref={mergeRefs([ref, drawerRef])}
+          role="dialog"
+          aria-modal={openMobile ? true : undefined}
+          aria-label="Menu"
+          tabIndex={-1}
+          inert={openMobile ? undefined : true}
           className={clsx(s.MobileSidebar, contained && s.contained, className)}
+          onKeyDown={(event) => {
+            // Your handler runs first and can keep the drawer open with preventDefault()
+            onKeyDown?.(event)
+            const drawer = drawerRef.current
+            if (!openMobile || !drawer) return
+            loopDrawerFocus(event.nativeEvent, drawer)
+            closeOnUnhandledEscape(event.nativeEvent, drawer, () => state.current.setOpenMobile(false))
+          }}
           {...cleanProps(props)}
         >
-          <SidebarDrawerContext.Provider value>{children}</SidebarDrawerContext.Provider>
+          <SidebarDrawerContext.Provider value={disclosure}>{children}</SidebarDrawerContext.Provider>
         </div>
       </>
     )

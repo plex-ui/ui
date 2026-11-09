@@ -1,6 +1,6 @@
 'use client';
 
-import { defineComponent, h, ref, watch, type PropType } from 'vue';
+import { defineComponent, h, type PropType } from 'vue';
 import { NavigationButton } from '@plexui/vue/components/Button';
 import { Page, PageBar, PageContent, PageHeader, PageLeading, PageTitle } from '@plexui/vue/components/Page';
 import { Sidebar, SidebarInset, SidebarMobile, SidebarMobileMenuButton, SidebarProvider, useSidebar as sidebarContext, type SidebarCollapsible, type SidebarProviderVariant } from '@plexui/vue/components/Sidebar';
@@ -34,19 +34,12 @@ export const ResponsiveSidebar = defineComponent({
   inheritAttrs: false,
   setup(_, { attrs, slots }) {
     const sidebar = sidebarContext();
-    const closeRef = ref<{ $el: HTMLButtonElement } | null>(null);
-    watch(() => sidebar.isMobile && sidebar.openMobile, (open, _, cleanup) => {
-      if (!open) return;
-      const trigger = document.activeElement;
-      closeRef.value?.$el.focus();
-      cleanup(() => { if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus(); });
-    }, { flush: 'post' });
     return () => sidebar.isMobile
-      ? h(SidebarMobile, { contained: true, class: s.Drawer, inert: sidebar.openMobile ? undefined : true, role: 'navigation', 'aria-label': 'Main navigation' }, () =>
+      ? h(SidebarMobile, { contained: true, class: s.Drawer, 'aria-label': 'Navigation' }, () =>
         h(Page, { surface: 'grouped' }, () => [
           h(Toolbar, { titleStyle: 'large' }, () => [
             h(ToolbarTitle, null, () => 'Navigation'),
-            h(ToolbarTrailing, null, () => h(NavigationButton, { action: 'close', 'aria-label': 'Close menu', ref: closeRef, onClick: () => sidebar.setOpenMobile(false) })),
+            h(ToolbarTrailing, null, () => h(NavigationButton, { action: 'close', 'aria-label': 'Close menu', onClick: () => sidebar.setOpenMobile(false) })),
           ]),
           h(PageContent, { class: s.NavigationContent, onClick: (event: MouseEvent) => {
             if (!event.defaultPrevented && isSidebarNavigationSelection(event.target)) sidebar.setOpenMobile(false);
@@ -61,7 +54,7 @@ export const SidebarDemoPage = defineComponent({
   props: { title: { type: String, required: true } },
   setup(props, { slots }) {
     const sidebar = sidebarContext();
-    return () => h(SidebarInset, { class: s.Inset, inert: sidebar.isMobile && sidebar.openMobile ? true : undefined }, () => sidebar.isMobile
+    return () => h(SidebarInset, { class: s.Inset }, () => sidebar.isMobile
       ? h(Page, null, () => [
         h(PageHeader, null, () => h(PageBar, null, () => [
           h(PageLeading, null, () => h(SidebarMobileMenuButton)),

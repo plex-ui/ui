@@ -689,12 +689,12 @@ The examples read their navigation data (`navGroups`, `docsSections`, `iconSecti
 
 ## Responsive composition
 
-These application-local helpers choose the layout from the viewport. Desktop collapse remains independent of the mobile drawer. On a phone the drawer is a grouped page with a large title and a close button, as the sidebar of an iPhone app is: each menu is a card of 52px rows, a group label heads its section, a row that leads to a page ends with a disclosure chevron, and an item with a submenu keeps its own chevron, which turns down as its items open under it. The page and hidden drawer are inert at the appropriate time, and focus returns to the menu button after closing. Keep navigation selection handlers on the row buttons; popup and disclosure buttons do not close the drawer.
+These application-local helpers choose the layout from the viewport. Desktop collapse remains independent of the mobile drawer. On a phone the drawer is a grouped page with a large title and a close button, as the sidebar of an iPhone app is: each menu is a card of 52px rows, a group label heads its section, a row that leads to a page ends with a disclosure chevron, and an item with a submenu keeps its own chevron, which turns down as its items open under it. The drawer itself is a modal dialog while it is open: focus moves into it and stays there, the page behind it is inert, Escape inside it closes it, and focus returns to the menu button. A swipe in from the edge it slides from opens it, and a swipe back closes it. Keep navigation selection handlers on the row buttons; popup and disclosure buttons do not close the drawer.
 
 Save the helpers in `responsive-sidebar.ts` and the styles in `responsive-sidebar.module.css`:
 
 ```ts
-import { defineComponent, h, ref, watch, type PropType } from 'vue';
+import { defineComponent, h, type PropType } from 'vue';
 import { NavigationButton } from '@plexui/vue/components/Button';
 import { Page, PageBar, PageContent, PageHeader, PageLeading, PageTitle } from '@plexui/vue/components/Page';
 import { Sidebar, SidebarInset, SidebarMobile, SidebarMobileMenuButton, SidebarProvider, useSidebar as sidebarContext, type SidebarCollapsible, type SidebarProviderVariant } from '@plexui/vue/components/Sidebar';
@@ -734,19 +734,12 @@ export const ResponsiveSidebar = defineComponent({
   inheritAttrs: false,
   setup(_, { attrs, slots }) {
     const sidebar = sidebarContext();
-    const closeRef = ref<{ $el: HTMLButtonElement } | null>(null);
-    watch(() => sidebar.isMobile && sidebar.openMobile, (open, _, cleanup) => {
-      if (!open) return;
-      const trigger = document.activeElement;
-      closeRef.value?.$el.focus();
-      cleanup(() => { if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus(); });
-    }, { flush: 'post' });
     return () => sidebar.isMobile
-      ? h(SidebarMobile, { contained: true, class: s.Drawer, inert: sidebar.openMobile ? undefined : true, role: 'navigation', 'aria-label': 'Main navigation' }, () =>
+      ? h(SidebarMobile, { contained: true, class: s.Drawer, 'aria-label': 'Navigation' }, () =>
         h(Page, { surface: 'grouped' }, () => [
           h(Toolbar, { titleStyle: 'large' }, () => [
             h(ToolbarTitle, null, () => 'Navigation'),
-            h(ToolbarTrailing, null, () => h(NavigationButton, { action: 'close', 'aria-label': 'Close menu', ref: closeRef, onClick: () => sidebar.setOpenMobile(false) })),
+            h(ToolbarTrailing, null, () => h(NavigationButton, { action: 'close', 'aria-label': 'Close menu', onClick: () => sidebar.setOpenMobile(false) })),
           ]),
           h(PageContent, { class: s.NavigationContent, onClick: (event: MouseEvent) => {
             if (!event.defaultPrevented && isSidebarNavigationSelection(event.target)) sidebar.setOpenMobile(false);
@@ -761,7 +754,7 @@ export const SidebarDemoPage = defineComponent({
   props: { title: { type: String, required: true } },
   setup(props, { slots }) {
     const sidebar = sidebarContext();
-    return () => h(SidebarInset, { class: s.Inset, inert: sidebar.isMobile && sidebar.openMobile ? true : undefined }, () => sidebar.isMobile
+    return () => h(SidebarInset, { class: s.Inset }, () => sidebar.isMobile
       ? h(Page, null, () => [
         h(PageHeader, null, () => h(PageBar, null, () => [
           h(PageLeading, null, () => h(SidebarMobileMenuButton)),
@@ -836,6 +829,9 @@ Handles sidebar state and provides context to all child components. Wrap your ap
   { prop: "default-open", type: "boolean", default: "true", description: "Initial open state (uncontrolled)" },
   { prop: "open", type: "boolean", description: "Controlled open state. Bind with v-model:open" },
   { prop: "@update:open", type: "(open: boolean) => void", description: "Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits" },
+  { prop: "default-open-mobile", type: "boolean", default: "false", description: "Initial open state of the phone drawer (uncontrolled)" },
+  { prop: "open-mobile", type: "boolean", description: "Controlled open state of the phone drawer. Bind with v-model:open-mobile" },
+  { prop: "@update:open-mobile", type: "(open: boolean) => void", description: "Emitted when the phone drawer opens or closes: its menu button, its backdrop, Escape or a swipe; powers v-model:open-mobile. Without open-mobile the provider keeps its own state and still emits" },
   { prop: "class", type: "string", description: "Class of the provider's wrapper" },
   { prop: "style", type: "StyleValue", description: "Style of the provider's wrapper, e.g. --sidebar-width" },
   { prop: "default slot", type: "{ state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar }", description: "Receives the sidebar context, the object useSidebar() returns" },
@@ -903,6 +899,15 @@ Renders a collapsible submenu container for nested navigation.
   { prop: "is-active", type: "boolean", default: "false", description: "Highlight the current page (aria-current=\"page\")" },
   { prop: "indent", type: "0 | 1 | 2 | 3", default: "0", description: "Nesting level; each level adds 12px of left margin" },
   { prop: "as-child", type: "boolean", default: "false", description: "Render the single child element (e.g. a RouterLink) as the button" },
+]} />
+
+### SidebarMobile
+
+The phone drawer, with its backdrop. While it is open it is a modal dialog (`role="dialog"`, `aria-modal`, labelled "Menu" unless you pass `aria-label`): focus moves to its first control and stays inside, `SidebarInset` is inert, Escape inside it closes it (a `@keydown` handler that calls `event.preventDefault()`, or a menu over it that takes its own Escape, keeps it open), and focus goes back to the control that opened it. Closed, it is inert. A swipe in from the edge it slides from opens it, and a swipe back closes it; the drawer follows the finger and finishes by speed or distance.
+
+<PropsTable data={[
+  { prop: "contained", type: "boolean", default: "false", description: "Positions the drawer and backdrop absolute inside a frame instead of fixed to the window" },
+  { prop: "disclosure", type: "boolean", default: "true", description: "Rows that lead to another page end with a disclosure chevron, as in an iOS list. false leaves it out" },
 ]} />
 
 ### SidebarTrigger

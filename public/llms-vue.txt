@@ -955,6 +955,9 @@ Props:
     - default-open (boolean) default: true — Initial open state (uncontrolled)
     - open (boolean) — Controlled open state. Bind with v-model:open
     - @update:open ((open: boolean) => void) — Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits
+    - default-open-mobile (boolean) default: false — Initial open state of the phone drawer (uncontrolled)
+    - open-mobile (boolean) — Controlled open state of the phone drawer. Bind with v-model:open-mobile
+    - @update:open-mobile ((open: boolean) => void) — Emitted when the phone drawer opens or closes: its menu button, its backdrop, Escape or a swipe; powers v-model:open-mobile. Without open-mobile the provider keeps its own state and still emits
     - class (string) — Class of the provider's wrapper
     - style (StyleValue) — Style of the provider's wrapper, e.g. --sidebar-width
     - default slot ({ state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar }) — Receives the sidebar context, the object useSidebar() returns
@@ -977,6 +980,9 @@ Props:
     - is-active (boolean) default: false — Highlight the current page (aria-current="page")
     - indent (0 | 1 | 2 | 3) default: 0 — Nesting level; each level adds 12px of left margin
     - as-child (boolean) default: false — Render the single child element (e.g. a RouterLink) as the button
+  SidebarMobile:
+    - contained (boolean) default: false — Positions the drawer and backdrop absolute inside a frame instead of fixed to the window
+    - disclosure (boolean) default: true — Rows that lead to another page end with a disclosure chevron, as in an iOS list. false leaves it out
   SidebarCard:
     - variant ("default" | "elevated") default: "default" — Visual variant
     - dismissible (boolean) default: false — Shows dismiss button

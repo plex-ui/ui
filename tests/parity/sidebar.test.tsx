@@ -123,7 +123,11 @@ const VueProbe = defineComponent({
 const reactTypes: Record<string, unknown> = { ...ReactIcons, ...ReactSidebar, Badge: ReactBadge, Probe: ReactProbe }
 const vueTypes: Record<string, unknown> = { ...VueIcons, ...VueSidebar, Badge: VueBadge, Probe: VueProbe }
 
-const VUE_PROP_NAMES: Record<string, string> = { onOpenChange: "onUpdate:open" }
+const VUE_PROP_NAMES: Record<string, string> = {
+  onOpenChange: "onUpdate:open",
+  onOpenMobileChange: "onUpdate:openMobile",
+  onKeyDown: "onKeydown",
+}
 
 const toReact = (spec: Spec): ReactNode => {
   if (typeof spec === "string") return spec
@@ -207,6 +211,8 @@ type Tools<T> = {
   /** Fires a DOM event; returns false when a listener called preventDefault() */
   fire: (target: Target, event: keyof typeof fireEvent, init?: object) => Promise<boolean>
   focus: (target: Target) => Promise<void>
+  /** Dispatches a bubbling, cancelable event with these fields (touches, timeStamp) */
+  dispatch: (target: Target, type: string, fields: Record<string, unknown>) => Promise<boolean>
   /** Advances the fake clock */
   advance: (ms: number) => Promise<void>
   /** Updates the state both apps read */
@@ -277,6 +283,15 @@ const walk = async <T extends object>(
         vi.setSystemTime(Date.now() + 1)
         ;(resolve(target) as HTMLElement).focus()
       }),
+    dispatch: async (target, type, fields) => {
+      let result = true
+      await run(() => {
+        const event = new Event(type, { bubbles: true, cancelable: true })
+        for (const [key, value] of Object.entries(fields)) Object.defineProperty(event, key, { value })
+        result = resolve(target).dispatchEvent(event)
+      })
+      return result
+    },
     advance: (ms) => run(() => vi.advanceTimersByTime(ms)),
     set: (patch) => run(() => apply(patch)),
     setMobile: (value) =>
@@ -1037,7 +1052,7 @@ describe("Sidebar mobile", () => {
         snapshot()
         await fire('button[class*="MobileMenuButton"]', "click")
         snapshot()
-        await fire("body", "keyDown", { key: "Escape" })
+        await fire(() => document.activeElement, "keyDown", { key: "Escape" })
         snapshot()
         await fire(TRIGGER, "click")
         snapshot()
@@ -1045,7 +1060,7 @@ describe("Sidebar mobile", () => {
         snapshot()
         note(`prevented:${!(await fire("body", "keyDown", { key: "b", metaKey: true }))}`)
         snapshot()
-        await fire("body", "keyDown", { key: "Escape" })
+        await fire(() => document.activeElement, "keyDown", { key: "Escape" })
         snapshot()
         note(document.cookie)
       },
@@ -1065,6 +1080,231 @@ describe("Sidebar mobile", () => {
     expect(react[7]).toContain('data-mobile-menu="hidden"')
     // The desktop state never changed
     expect(react[8]).toBe("")
+  })
+
+  const focused = () => document.activeElement?.getAttribute("data-testid") ?? document.activeElement?.tagName ?? "none"
+  const drawerSpec = (providerProps: Props = {}, drawerProps: Props = {}, insideProps: Props = {}) =>
+    n(
+      "SidebarProvider",
+      providerProps,
+      n("SidebarInset", null, n("SidebarMobileMenuButton", { "data-testid": "menu" }), n("p", null, "Page")),
+      n(
+        "SidebarMobile",
+        { contained: true, ...drawerProps },
+        n("SidebarMobileHeader", null, "Menu"),
+        n("button", { "data-testid": "inside", ...insideProps }, "Inside"),
+      ),
+    )
+
+  test("the open drawer is a modal dialog: focus moves in, the page is inert, Escape closes it and focus goes back", async () => {
+    const { react, vue } = await walkSpec(
+      {},
+      () => drawerSpec(),
+      async ({ snapshot, fire, focus, note }) => {
+        snapshot()
+        await focus('[data-testid="menu"]')
+        await fire('[data-testid="menu"]', "click")
+        snapshot()
+        note(focused())
+        await fire(() => document.activeElement, "keyDown", { key: "Escape" })
+        snapshot()
+        note(focused())
+        // Escape outside the drawer leaves it to the page
+        await fire('[data-testid="menu"]', "click")
+        await fire("body", "keyDown", { key: "Escape" })
+        snapshot()
+      },
+      { mobile: true },
+    )
+    expect(vue).toEqual(react)
+    const drawer = (html: string) => html.match(/<div[^>]*role="dialog"[^>]*>/)?.[0] ?? ""
+    const main = (html: string) => html.match(/<main[^>]*>/)?.[0] ?? ""
+    expect(drawer(react[0])).toContain('aria-label="Menu"')
+    expect(drawer(react[0])).toContain('tabindex="-1"')
+    expect(drawer(react[0])).toContain('inert=""')
+    expect(drawer(react[0])).not.toContain("aria-modal")
+    expect(main(react[0])).not.toContain("inert")
+    expect(drawer(react[1])).toContain('aria-modal="true"')
+    expect(drawer(react[1])).not.toContain("inert")
+    expect(main(react[1])).toContain('inert=""')
+    expect(react[2]).toBe("inside")
+    expect(react[3]).toContain('data-mobile-menu="hidden"')
+    expect(react[4]).toBe("menu")
+    expect(react[5]).toContain('data-mobile-menu="visible"')
+  })
+
+  test("Tab from the last control of the open drawer goes to the first, Shift+Tab from the first to the last", async () => {
+    const { react, vue } = await walkSpec(
+      {},
+      () =>
+        n(
+          "SidebarProvider",
+          null,
+          n("SidebarInset", null, n("SidebarMobileMenuButton", { "data-testid": "menu" })),
+          n("SidebarMobile", { contained: true }, n("button", { "data-testid": "first" }, "First"), n("button", { "data-testid": "last" }, "Last")),
+        ),
+      async ({ fire, focus, note }) => {
+        await fire('[data-testid="menu"]', "click")
+        note(focused())
+        note(`prevented:${!(await fire(() => document.activeElement, "keyDown", { key: "Tab", shiftKey: true }))}`)
+        note(focused())
+        note(`prevented:${!(await fire(() => document.activeElement, "keyDown", { key: "Tab" }))}`)
+        note(focused())
+        await focus('[data-testid="first"]')
+        note(`prevented:${!(await fire(() => document.activeElement, "keyDown", { key: "Tab" }))}`)
+      },
+      { mobile: true },
+    )
+    expect(vue).toEqual(react)
+    expect(react).toEqual(["first", "prevented:true", "last", "prevented:true", "first", "prevented:false"])
+  })
+
+  test("back at phone width with the drawer still open, focus moves into it again", async () => {
+    const { react, vue } = await walkSpec(
+      {},
+      () =>
+        n(
+          "SidebarProvider",
+          null,
+          n("SidebarInset", null, n("SidebarMobileMenuButton", { "data-testid": "menu" }), n("button", { "data-testid": "page" }, "Page")),
+          n("SidebarMobile", null, n("button", { "data-testid": "inside" }, "Inside")),
+        ),
+      async ({ fire, focus, note, setMobile }) => {
+        await fire('[data-testid="menu"]', "click")
+        note(focused())
+        await setMobile(false)
+        await focus('[data-testid="page"]')
+        note(focused())
+        await setMobile(true)
+        note(focused())
+      },
+      { mobile: true },
+    )
+    expect(vue).toEqual(react)
+    expect(react).toEqual(["inside", "page", "inside"])
+  })
+
+  test("an Escape a layer inside the drawer or your onKeyDown has prevented keeps it open", async () => {
+    const preventEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") event.preventDefault()
+    }
+    for (const [drawerProps, insideProps] of [[{}, { onKeyDown: preventEscape }], [{ onKeyDown: preventEscape }, {}]] as const) {
+      const { react, vue } = await walkSpec(
+        {},
+        () => drawerSpec({}, drawerProps, insideProps),
+        async ({ snapshot, fire }) => {
+          await fire('[data-testid="menu"]', "click")
+          await fire(() => document.activeElement, "keyDown", { key: "Escape" })
+          snapshot()
+        },
+        { mobile: true },
+      )
+      expect(vue).toEqual(react)
+      expect(react[0]).toContain('data-mobile-menu="visible"')
+    }
+  })
+
+  test("openMobile is controlled and onOpenMobileChange reports each request; defaultOpenMobile starts it open", async () => {
+    const log: string[] = []
+    const { react, vue } = await walkSpec(
+      { open: false, follow: false },
+      (state, apply) =>
+        drawerSpec({
+          openMobile: state.open,
+          onOpenMobileChange: (value: boolean) => {
+            log.push(String(value))
+            if (state.follow) apply({ open: value })
+          },
+        }),
+      async ({ snapshot, fire, set, note }) => {
+        log.length = 0
+        await fire('[data-testid="menu"]', "click")
+        snapshot()
+        await set({ follow: true })
+        await fire('[data-testid="menu"]', "click")
+        snapshot()
+        await set({ open: false })
+        snapshot()
+        note(log.join(","))
+      },
+      { mobile: true },
+    )
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain('data-mobile-menu="hidden"')
+    expect(react[1]).toContain('data-mobile-menu="visible"')
+    expect(react[2]).toContain('data-mobile-menu="hidden"')
+    expect(react[3]).toBe("true,true")
+
+    const initial = await walkSpec(
+      {},
+      () => drawerSpec({ defaultOpenMobile: true }),
+      async ({ snapshot, note }) => {
+        snapshot()
+        note(focused())
+      },
+      { mobile: true },
+    )
+    expect(initial.vue).toEqual(initial.react)
+    expect(initial.react[0]).toContain('data-mobile-menu="visible"')
+    expect(initial.react[1]).toBe("inside")
+  })
+
+  test("a swipe in from the edge opens the drawer, a swipe back closes it, a vertical one leaves it", async () => {
+    // jsdom lays nothing out: the provider's right edge is at 0 and the drawer travels the window's width
+    const touch = (x: number, y = 10) => [{ clientX: x, clientY: y }]
+    const root = '[data-mobile-menu]'
+    const { react, vue } = await walkSpec(
+      {},
+      () => drawerSpec(),
+      async ({ snapshot, dispatch, advance, note }) => {
+        await dispatch("main", "touchstart", { touches: touch(-5), timeStamp: 0 })
+        await dispatch("main", "touchmove", { touches: touch(-8, 100), timeStamp: 50 })
+        await dispatch("main", "touchend", { touches: [], timeStamp: 60 })
+        snapshot()
+        await dispatch("main", "touchstart", { touches: touch(-5), timeStamp: 100 })
+        note(`moved:${await dispatch("main", "touchmove", { touches: touch(-205), timeStamp: 200 })}`)
+        snapshot()
+        await dispatch("main", "touchend", { touches: [], timeStamp: 210 })
+        await advance(20)
+        snapshot()
+        await dispatch(root, "touchstart", { touches: touch(-500), timeStamp: 300 })
+        await dispatch(root, "touchmove", { touches: touch(-300), timeStamp: 400 })
+        await dispatch(root, "touchend", { touches: [], timeStamp: 410 })
+        await advance(20)
+        snapshot()
+      },
+      { mobile: true },
+    )
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain('data-mobile-menu="hidden"')
+    expect(react[0]).not.toContain("data-mobile-dragging")
+    // The finger moved 200 of 1024px: the move is the drawer's, not the page's
+    expect(react[1]).toBe("moved:false")
+    expect(react[2]).toContain("data-mobile-dragging")
+    expect(react[2]).toContain("--sidebar-drawer-progress: 0.1953125")
+    expect(react[3]).toContain('data-mobile-menu="visible"')
+    expect(react[3]).not.toContain("data-mobile-dragging")
+    expect(react[3]).not.toContain("--sidebar-drawer-progress")
+    expect(react[4]).toContain('data-mobile-menu="hidden"')
+  })
+
+  test("disclosure={false} leaves the chevron out of the drawer rows", async () => {
+    const row = n("SidebarMenu", null, n("SidebarMenuItem", null, n("SidebarMenuButton", null, "Inbox")), n("SidebarMenuSub", null, n("SidebarMenuSubItem", null, n("SidebarMenuSubButton", null, "Files"))))
+    const { react, vue } = await pair(n("SidebarProvider", null, n("SidebarMobile", { contained: true, disclosure: false }, row)))
+    expect(vue).toBe(react)
+    expect(react).not.toContain("MenuDisclosure")
+  })
+
+  test("the drag styles: the drawer, the backdrop and the App page follow --sidebar-drawer-progress", () => {
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Sidebar/Sidebar.module.css`, "utf8")
+    expect(css).toMatch(/\.MobileSidebar \{[^}]*--sidebar-drawer-edge: right;/)
+    expect(css).toMatch(/\.App \.MobileSidebar \{\s*--sidebar-drawer-edge: left;/)
+    expect(css).toMatch(/:global\(\[data-mobile-dragging\]\[data-mobile-menu\]\) \.MobileSidebar\.MobileSidebar \{\s*left: calc\(\(1 - var\(--sidebar-drawer-progress, 0\)\) \* 100%\);/)
+    // The App drag rules outweigh its open state, whose shade rule comes later
+    expect(css).toContain(".App.App[data-mobile-dragging][data-mobile-menu] .MobileSidebar::after {")
+    expect(css).toContain("opacity: var(--sidebar-drawer-progress, 0);")
+    expect(css).toContain("transform: translateX(calc(var(--sidebar-drawer-width) * var(--sidebar-drawer-progress, 0)));")
+    expect(css).toContain("opacity: calc(1 - var(--sidebar-drawer-progress, 0));")
   })
 
   test("Escape does nothing while the mobile menu is closed", async () => {

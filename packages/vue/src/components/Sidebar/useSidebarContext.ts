@@ -8,7 +8,6 @@ import {
   provide,
   reactive,
   ref,
-  watch,
   type InjectionKey,
   type PropType,
   type SlotsType,
@@ -24,8 +23,11 @@ import s from "@plexui/styles/components/Sidebar/Sidebar.module.css"
 //   content slot exposes its controller.
 // - `open` + `update:open` support `v-model:open`. As in React, the provider
 //   is controlled only when `open` is passed; `update:open` is emitted either way.
-// - Mobile detection, the Cmd/Ctrl+B shortcut and the Escape listener start
-//   on mount, as React's effects do (SSR-safe).
+//   `openMobile` + `update:openMobile` (`v-model:open-mobile`) do the same for
+//   the phone drawer.
+// - Mobile detection and the Cmd/Ctrl+B shortcut start on mount, as React's
+//   effects do (SSR-safe). Escape closes the drawer from inside it
+//   (SidebarMobile), so a layer over it takes its own Escape first.
 
 // Constants
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
@@ -106,6 +108,10 @@ const SidebarProviderComponent = defineComponent({
     defaultOpen: { type: Boolean, default: true },
     /** Controlled open state (`v-model:open`) */
     open: { type: Boolean, default: undefined },
+    /** Controlled open state of the phone drawer, SidebarMobile (`v-model:open-mobile`) */
+    openMobile: { type: Boolean, default: undefined },
+    /** Initial open state of the phone drawer (uncontrolled). @default false */
+    defaultOpenMobile: { type: Boolean, default: false },
     /** Collapsible mode. @default "offcanvas" */
     collapsible: { type: String as PropType<SidebarCollapsible>, default: "offcanvas" },
     /** "app" is the shell of a product: a quiet rail, pill rows and on a phone a drawer under the page. @default "sidebar" */
@@ -114,11 +120,15 @@ const SidebarProviderComponent = defineComponent({
   emits: {
     /** The open state changes (`v-model:open`) */
     "update:open": (_open: boolean) => true,
+    /** The phone drawer opens or closes: its menu button, its backdrop, Escape or a swipe (`v-model:open-mobile`) */
+    "update:openMobile": (_open: boolean) => true,
   },
   slots: Object as SlotsType<{ default?: (context: SidebarContextValue) => unknown }>,
   setup(props, { attrs, slots, emit }) {
     const isMobile = useIsMobile()
-    const openMobile = ref(false)
+    // Controlled vs uncontrolled state for the phone drawer
+    const internalOpenMobile = ref(props.defaultOpenMobile)
+    const openMobile = computed(() => props.openMobile ?? internalOpenMobile.value)
 
     // Controlled vs uncontrolled state for desktop
     const internalOpen = ref(props.defaultOpen)
@@ -140,7 +150,10 @@ const SidebarProviderComponent = defineComponent({
     }
 
     const setOpenMobile: SetBoolean = (value) => {
-      openMobile.value = typeof value === "function" ? value(openMobile.value) : value
+      const next = typeof value === "function" ? value(openMobile.value) : value
+      if (next === openMobile.value) return
+      if (props.openMobile === undefined) internalOpenMobile.value = next
+      emit("update:openMobile", next)
     }
 
     // Toggle function that handles both mobile and desktop
@@ -174,23 +187,6 @@ const SidebarProviderComponent = defineComponent({
     }
     onMounted(() => window.addEventListener("keydown", handleShortcut))
     onBeforeUnmount(() => window.removeEventListener("keydown", handleShortcut))
-
-    // Close mobile menu on escape key
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpenMobile(false)
-      }
-    }
-    watch(
-      openMobile,
-      (isOpen, _, onCleanup) => {
-        if (!isOpen) return
-        window.addEventListener("keydown", handleEscape)
-        onCleanup(() => window.removeEventListener("keydown", handleEscape))
-      },
-      { flush: "post" },
-    )
-    onBeforeUnmount(() => window.removeEventListener("keydown", handleEscape))
 
     // Derive state from open boolean
     const state = computed<SidebarState>(() => (open.value ? "expanded" : "collapsed"))

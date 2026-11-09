@@ -7533,6 +7533,9 @@ Props:
     - defaultOpen (boolean) default: true — Initial open state (uncontrolled)
     - open (boolean) — Controlled open state
     - onOpenChange ((open: boolean) => void) — Called when open state changes. Without open the provider keeps its own state and still calls it
+    - defaultOpenMobile (boolean) default: false — Initial open state of the phone drawer (uncontrolled)
+    - openMobile (boolean) — Controlled open state of the phone drawer
+    - onOpenMobileChange ((open: boolean) => void) — Called when the phone drawer opens or closes: its menu button, its backdrop, Escape or a swipe. Without openMobile the provider keeps its own state and still calls it
     - className (string) — Class of the provider's wrapper
     - style (CSSProperties) — Style of the provider's wrapper, e.g. --sidebar-width
   SidebarGroup:
@@ -7554,6 +7557,9 @@ Props:
     - isActive (boolean) default: false — Highlight the current page (aria-current="page")
     - indent (0 | 1 | 2 | 3) default: 0 — Nesting level; each level adds 12px of left margin
     - asChild (boolean) default: false — Render the single child element (e.g. a router link) as the button
+  SidebarMobile:
+    - contained (boolean) default: false — Positions the drawer and backdrop absolute inside a frame instead of fixed to the window
+    - disclosure (boolean) default: true — Rows that lead to another page end with a disclosure chevron, as in an iOS list. false leaves it out
   SidebarCard:
     - variant ("default" | "elevated") default: "default" — Visual variant
     - dismissible (boolean) default: false — Shows dismiss button

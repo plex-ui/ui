@@ -5629,6 +5629,22 @@
               "description": "Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits"
             },
             {
+              "name": "default-open-mobile",
+              "type": "boolean",
+              "default": "false",
+              "description": "Initial open state of the phone drawer (uncontrolled)"
+            },
+            {
+              "name": "open-mobile",
+              "type": "boolean",
+              "description": "Controlled open state of the phone drawer. Bind with v-model:open-mobile"
+            },
+            {
+              "name": "@update:open-mobile",
+              "type": "(open: boolean) => void",
+              "description": "Emitted when the phone drawer opens or closes: its menu button, its backdrop, Escape or a swipe; powers v-model:open-mobile. Without open-mobile the provider keeps its own state and still emits"
+            },
+            {
               "name": "class",
               "type": "string",
               "description": "Class of the provider's wrapper"
@@ -5751,6 +5767,24 @@
               "type": "boolean",
               "default": "false",
               "description": "Render the single child element (e.g. a RouterLink) as the button"
+            }
+          ]
+        },
+        {
+          "name": "SidebarMobile",
+          "description": "The phone drawer, with its backdrop. While it is open it is a modal dialog (role=\"dialog\", aria-modal, labelled \"Menu\" unless you pass aria-label): focus moves to its first control and stays inside, SidebarInset is inert, Escape inside it closes it (a @keydown handler that calls event.preventDefault(), or a menu over it that takes its own Escape, keeps it open), and focus goes back to the control that opened it. Closed, it is inert. A swipe in from the edge it slides from opens it, and a swipe back closes it; the drawer follows the finger and finishes by speed or distance.",
+          "props": [
+            {
+              "name": "contained",
+              "type": "boolean",
+              "default": "false",
+              "description": "Positions the drawer and backdrop absolute inside a frame instead of fixed to the window"
+            },
+            {
+              "name": "disclosure",
+              "type": "boolean",
+              "default": "true",
+              "description": "Rows that lead to another page end with a disclosure chevron, as in an iOS list. false leaves it out"
             }
           ]
         },
@@ -7979,5 +8013,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T14:46:09.560Z"
+  "generatedAt": "2026-11-09T15:09:42.732Z"
 }

@@ -1191,6 +1191,8 @@
   background: var(--sidebar-background, var(--color-surface));
   user-select: none;
   visibility: hidden;
+  /* The edge the drawer slides in from, read by the swipe that opens and closes it (lib/phoneDrawer) */
+  --sidebar-drawer-edge: right;
   transition:
     left var(--sidebar-mobile-exit-duration) var(--cubic-exit),
     visibility 0s var(--sidebar-mobile-exit-duration);
@@ -1236,6 +1238,30 @@
 
 :global([data-mobile-menu="visible"]) .MobileSidebar > *:nth-child(3) {
   transition-delay: 0.27s;
+}
+
+/* Under a finger the drawer follows it: --sidebar-drawer-progress goes from 0 (closed) to 1 (open). Its left edge
+   moves, as it does when it opens and closes, so on release it animates on from there to the state the swipe ends in.
+   The drag rule outweighs the open contained drawer's place. */
+:global([data-mobile-dragging][data-mobile-menu]) .MobileBackdrop {
+  pointer-events: none;
+  opacity: var(--sidebar-drawer-progress, 0);
+  visibility: visible;
+  transition: none;
+}
+
+:global([data-mobile-dragging][data-mobile-menu]) .MobileSidebar.MobileSidebar {
+  left: calc((1 - var(--sidebar-drawer-progress, 0)) * 100%);
+  right: auto;
+  width: 100%;
+  visibility: visible;
+  transition: none;
+}
+
+:global([data-mobile-dragging][data-mobile-menu]) .MobileSidebar > * {
+  opacity: 1;
+  transform: none;
+  transition: none;
 }
 
 /* Mobile menu item - larger for touch */
@@ -1534,6 +1560,11 @@
   background: var(--color-surface);
 }
 
+/* Under a finger it has the open drawer's background; where it is comes from the drag rule */
+:global([data-mobile-dragging][data-mobile-menu]) .MobileSidebar.contained {
+  background: var(--color-surface);
+}
+
 /* =============================================
    Footer Links (horizontal layout)
 ============================================= */
@@ -1786,6 +1817,31 @@
     right: auto;
     width: var(--sidebar-drawer-width);
     transition: visibility 0s;
+  }
+
+  /* The app drawer stays under the page and the page follows the finger. The drag rules outweigh the open and
+     closed ones and the contained drawer's. */
+  .App .MobileSidebar {
+    --sidebar-drawer-edge: left;
+  }
+
+  .App.App[data-mobile-dragging][data-mobile-menu] .Inset {
+    box-shadow: 0 0 2rem rgb(0 0 0 / 12%);
+    transform: translateX(calc(var(--sidebar-drawer-width) * var(--sidebar-drawer-progress, 0)));
+    transition: none;
+  }
+
+  .App.App[data-mobile-dragging][data-mobile-menu] .MobileSidebar {
+    left: 0;
+    right: auto;
+    width: var(--sidebar-drawer-width);
+    visibility: visible;
+    transition: none;
+  }
+
+  .App.App[data-mobile-dragging][data-mobile-menu] .MobileSidebar::after {
+    opacity: calc(1 - var(--sidebar-drawer-progress, 0));
+    transition: none;
   }
 
   .App .MobileSidebar > * {

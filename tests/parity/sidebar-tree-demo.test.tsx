@@ -96,7 +96,7 @@ describe.each(["React", "Vue"])("%s Sidebar tree examples", (framework) => {
     expect(disclosure.getAttribute("aria-expanded")).toBe("false")
     expect(list.hasAttribute("inert")).toBe(true)
     expect(document.activeElement).toBe(disclosure)
-    expect(view.container.querySelector('[role="navigation"]')?.hasAttribute("inert")).toBe(false)
+    expect(view.container.querySelector('[role="dialog"]')?.hasAttribute("inert")).toBe(false)
     await interact(() => fireEvent.click(select))
     expect(select.getAttribute("data-active")).toBe("true")
     expect(disclosure.getAttribute("aria-expanded")).toBe("false")

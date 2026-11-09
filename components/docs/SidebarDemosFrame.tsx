@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { NavigationButton } from '@plexui/ui/components/Button';
 import { Page } from '@plexui/ui/components/Page';
 import {
@@ -25,22 +25,15 @@ export function ResponsiveSidebarProvider({ className, open, variant, ...props }
 
 /** Reuses one navigation tree in the desktop rail and the mobile drawer. */
 export function ResponsiveSidebar({ children, ...props }: SidebarProps) {
-  const { isMobile, openMobile, setOpenMobile } = useSidebar();
-  const closeRef = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    if (!isMobile || !openMobile) return;
-    const trigger = document.activeElement;
-    closeRef.current?.focus();
-    return () => { if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus(); };
-  }, [isMobile, openMobile]);
+  const { isMobile, setOpenMobile } = useSidebar();
   if (!isMobile) return <Sidebar {...props}>{children}</Sidebar>;
   return (
-    <SidebarMobile contained className={s.Drawer} inert={!openMobile} role="navigation" aria-label="Main navigation">
+    <SidebarMobile contained className={s.Drawer} aria-label="Navigation">
       <Page surface="grouped">
         <Toolbar titleStyle="large">
           <Toolbar.Title>Navigation</Toolbar.Title>
           <Toolbar.Trailing>
-            <NavigationButton action="close" aria-label="Close menu" ref={closeRef} onClick={() => setOpenMobile(false)} />
+            <NavigationButton action="close" aria-label="Close menu" onClick={() => setOpenMobile(false)} />
           </Toolbar.Trailing>
         </Toolbar>
         <Page.Content className={s.NavigationContent} onClick={(event) => {
@@ -54,9 +47,9 @@ export function ResponsiveSidebar({ children, ...props }: SidebarProps) {
 }
 
 export function SidebarDemoPage({ title, children }: { title: ReactNode; children: ReactNode }) {
-  const { isMobile, openMobile } = useSidebar();
+  const { isMobile } = useSidebar();
   return (
-    <SidebarInset className={s.Inset} inert={isMobile && openMobile}>
+    <SidebarInset className={s.Inset}>
       {isMobile ? (
         <Page>
           <Page.Header>

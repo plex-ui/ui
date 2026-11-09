@@ -7,6 +7,21 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `SidebarProvider` `openMobile`, `defaultOpenMobile` and `onOpenMobileChange` (Vue `v-model:open-mobile` and `default-open-mobile`): the phone drawer can be opened and closed from your own state.
+- `SidebarMobile` `disclosure`: `false` leaves the disclosure chevron out of the drawer rows.
+- `SidebarMobile` follows a finger: a swipe in from the edge it slides from opens it, and a swipe back closes it, finishing by speed or by distance.
+
+### Changed
+
+- `SidebarMobile` is a modal dialog while it is open (`role="dialog"`, `aria-modal`, labelled "Menu" unless you pass `aria-label`): focus moves to its first control and stays inside, `SidebarInset` is inert behind it, and focus goes back to the control that opened it. Closed, it is inert.
+- Escape closes the drawer from inside it instead of from `window`, so a menu or dialog over it takes its own Escape first and an `onKeyDown` (Vue `@keydown`) that calls `preventDefault()` keeps it open.
+
+---
+
 ## 0.35.0 (2026-11-09)
 
 ### Added

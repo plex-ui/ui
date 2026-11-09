@@ -394,12 +394,12 @@ const subMenuId = treeId + "-" + id;
 
 ## Responsive composition
 
-These application-local helpers choose the layout from the viewport. Desktop collapse remains independent of the mobile drawer. On a phone the drawer is a grouped page with a large title and a close button, as the sidebar of an iPhone app is: each menu is a card of 52px rows, a group label heads its section, a row that leads to a page ends with a disclosure chevron, and an item with a submenu keeps its own chevron, which turns down as its items open under it. The page and hidden drawer are inert at the appropriate time, and focus returns to the menu button after closing. Keep navigation selection handlers on the row buttons; popup and disclosure buttons do not close the drawer.
+These application-local helpers choose the layout from the viewport. Desktop collapse remains independent of the mobile drawer. On a phone the drawer is a grouped page with a large title and a close button, as the sidebar of an iPhone app is: each menu is a card of 52px rows, a group label heads its section, a row that leads to a page ends with a disclosure chevron, and an item with a submenu keeps its own chevron, which turns down as its items open under it. The drawer itself is a modal dialog while it is open: focus moves into it and stays there, the page behind it is inert, Escape inside it closes it, and focus returns to the menu button. A swipe in from the edge it slides from opens it, and a swipe back closes it. Keep navigation selection handlers on the row buttons; popup and disclosure buttons do not close the drawer.
 
 Save the helpers in `responsive-sidebar.tsx` and the styles in `responsive-sidebar.module.css`:
 
 ```tsx
-import { useEffect, useRef, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { NavigationButton } from '@plexui/ui/components/Button';
 import { Page } from '@plexui/ui/components/Page';
 import {
@@ -430,22 +430,15 @@ export function ResponsiveSidebarProvider({ className, open, variant, ...props }
 
 /** Reuses one navigation tree in the desktop rail and the mobile drawer. */
 export function ResponsiveSidebar({ children, ...props }: SidebarProps) {
-  const { isMobile, openMobile, setOpenMobile } = useSidebar();
-  const closeRef = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    if (!isMobile || !openMobile) return;
-    const trigger = document.activeElement;
-    closeRef.current?.focus();
-    return () => { if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus(); };
-  }, [isMobile, openMobile]);
+  const { isMobile, setOpenMobile } = useSidebar();
   if (!isMobile) return <Sidebar {...props}>{children}</Sidebar>;
   return (
-    <SidebarMobile contained className={s.Drawer} inert={!openMobile} role="navigation" aria-label="Main navigation">
+    <SidebarMobile contained className={s.Drawer} aria-label="Navigation">
       <Page surface="grouped">
         <Toolbar titleStyle="large">
           <Toolbar.Title>Navigation</Toolbar.Title>
           <Toolbar.Trailing>
-            <NavigationButton action="close" aria-label="Close menu" ref={closeRef} onClick={() => setOpenMobile(false)} />
+            <NavigationButton action="close" aria-label="Close menu" onClick={() => setOpenMobile(false)} />
           </Toolbar.Trailing>
         </Toolbar>
         <Page.Content className={s.NavigationContent} onClick={(event) => {
@@ -459,9 +452,9 @@ export function ResponsiveSidebar({ children, ...props }: SidebarProps) {
 }
 
 export function SidebarDemoPage({ title, children }: { title: ReactNode; children: ReactNode }) {
-  const { isMobile, openMobile } = useSidebar();
+  const { isMobile } = useSidebar();
   return (
-    <SidebarInset className={s.Inset} inert={isMobile && openMobile}>
+    <SidebarInset className={s.Inset}>
       {isMobile ? (
         <Page>
           <Page.Header>
@@ -545,6 +538,9 @@ Handles sidebar state and provides context to all child components. Wrap your ap
   { prop: "defaultOpen", type: "boolean", default: "true", description: "Initial open state (uncontrolled)" },
   { prop: "open", type: "boolean", description: "Controlled open state" },
   { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called when open state changes. Without open the provider keeps its own state and still calls it" },
+  { prop: "defaultOpenMobile", type: "boolean", default: "false", description: "Initial open state of the phone drawer (uncontrolled)" },
+  { prop: "openMobile", type: "boolean", description: "Controlled open state of the phone drawer" },
+  { prop: "onOpenMobileChange", type: "(open: boolean) => void", description: "Called when the phone drawer opens or closes: its menu button, its backdrop, Escape or a swipe. Without openMobile the provider keeps its own state and still calls it" },
   { prop: "className", type: "string", description: "Class of the provider's wrapper" },
   { prop: "style", type: "CSSProperties", description: "Style of the provider's wrapper, e.g. --sidebar-width" },
 ]} />
@@ -611,6 +607,15 @@ Renders a collapsible submenu container for nested navigation.
   { prop: "isActive", type: "boolean", default: "false", description: "Highlight the current page (aria-current=\"page\")" },
   { prop: "indent", type: "0 | 1 | 2 | 3", default: "0", description: "Nesting level; each level adds 12px of left margin" },
   { prop: "asChild", type: "boolean", default: "false", description: "Render the single child element (e.g. a router link) as the button" },
+]} />
+
+### SidebarMobile
+
+The phone drawer, with its backdrop. While it is open it is a modal dialog (`role="dialog"`, `aria-modal`, labelled "Menu" unless you pass `aria-label`): focus moves to its first control and stays inside, `SidebarInset` is inert, Escape inside it closes it (an `onKeyDown` that calls `event.preventDefault()`, or a menu over it that takes its own Escape, keeps it open), and focus goes back to the control that opened it. Closed, it is inert. A swipe in from the edge it slides from opens it, and a swipe back closes it; the drawer follows the finger and finishes by speed or distance.
+
+<PropsTable data={[
+  { prop: "contained", type: "boolean", default: "false", description: "Positions the drawer and backdrop absolute inside a frame instead of fixed to the window" },
+  { prop: "disclosure", type: "boolean", default: "true", description: "Rows that lead to another page end with a disclosure chevron, as in an iOS list. false leaves it out" },
 ]} />
 
 ### SidebarTrigger

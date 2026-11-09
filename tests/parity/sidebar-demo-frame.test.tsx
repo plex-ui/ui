@@ -75,7 +75,7 @@ async function openMenu() {
 describe.each(["React", "Vue"])("%s responsive sidebar demo", (framework) => {
   test("uses a mobile drawer, preserves disclosure, then closes after selecting a leaf", async () => {
     const select = await mountFrame(framework)
-    const navigation = document.querySelector('[role="navigation"]')!
+    const navigation = document.querySelector('[role="dialog"]')!
     expect(document.querySelector("aside")).toBeNull()
     expect(navigation.hasAttribute("inert")).toBe(true)
     const trigger = await openMenu()
@@ -97,8 +97,9 @@ describe.each(["React", "Vue"])("%s responsive sidebar demo", (framework) => {
   test("Escape closes the drawer and restores the toolbar trigger", async () => {
     await mountFrame(framework)
     const trigger = await openMenu()
-    await act(async () => { fireEvent.keyDown(window, { key: "Escape" }); await flushVue() })
-    expect(document.querySelector('[role="navigation"]')?.hasAttribute("inert")).toBe(true)
+    // From inside the drawer, where focus is: a layer over it takes its own Escape first
+    await act(async () => { fireEvent.keyDown(document.activeElement!, { key: "Escape" }); await flushVue() })
+    expect(document.querySelector('[role="dialog"]')?.hasAttribute("inert")).toBe(true)
     expect(document.activeElement).toBe(trigger)
   })
 
@@ -106,7 +107,7 @@ describe.each(["React", "Vue"])("%s responsive sidebar demo", (framework) => {
     viewport.mobile = false
     await mountFrame(framework)
     expect(document.querySelector("aside")).toBeTruthy()
-    expect(document.querySelector('[role="navigation"]')).toBeNull()
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
     expect(document.querySelector('[data-sidebar="collapsed"]')).toBeTruthy()
     expect(document.querySelector('main [aria-label="Open menu"]')).toBeNull()
   })

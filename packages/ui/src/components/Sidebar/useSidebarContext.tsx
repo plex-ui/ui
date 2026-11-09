@@ -90,6 +90,19 @@ export type SidebarProviderProps = {
    */
   onOpenChange?: (open: boolean) => void
   /**
+   * Controlled open state of the phone drawer (`SidebarMobile`)
+   */
+  openMobile?: boolean
+  /**
+   * Initial open state of the phone drawer (uncontrolled)
+   * @default false
+   */
+  defaultOpenMobile?: boolean
+  /**
+   * Called when the phone drawer opens or closes: its menu button, its backdrop, Escape or a swipe
+   */
+  onOpenMobileChange?: (open: boolean) => void
+  /**
    * Collapsible mode
    * @default "offcanvas"
    */
@@ -115,13 +128,28 @@ export const SidebarProvider = ({
   defaultOpen = true,
   open: openProp,
   onOpenChange: setOpenProp,
+  openMobile: openMobileProp,
+  defaultOpenMobile = false,
+  onOpenMobileChange,
   collapsible = "offcanvas",
   variant = "sidebar",
   style,
   className,
 }: SidebarProviderProps) => {
   const isMobile = useIsMobile()
-  const [openMobile, setOpenMobile] = useState(false)
+  // Controlled vs uncontrolled state for the phone drawer
+  const [_openMobile, _setOpenMobile] = useState(defaultOpenMobile)
+  const openMobile = openMobileProp ?? _openMobile
+
+  const setOpenMobile = useCallback(
+    (value: boolean | ((prev: boolean) => boolean)) => {
+      const next = typeof value === "function" ? value(openMobile) : value
+      if (next === openMobile) return
+      if (openMobileProp === undefined) _setOpenMobile(next)
+      onOpenMobileChange?.(next)
+    },
+    [openMobile, openMobileProp, onOpenMobileChange],
+  )
 
   // Controlled vs uncontrolled state for desktop
   const [_open, _setOpen] = useState(defaultOpen)
@@ -152,7 +180,7 @@ export const SidebarProvider = ({
     } else {
       setOpen((prev) => !prev)
     }
-  }, [isMobile, setOpen])
+  }, [isMobile, setOpen, setOpenMobile])
 
   // Keyboard shortcut: Cmd/Ctrl + B
   useEffect(() => {
@@ -180,19 +208,7 @@ export const SidebarProvider = ({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [toggleSidebar, collapsible])
 
-  // Close mobile menu on escape key
-  useEffect(() => {
-    if (!openMobile) return
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpenMobile(false)
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [openMobile])
+  // Escape closes the drawer from inside it (SidebarMobile), so a layer over it takes its own Escape first
 
   // Derive state from open boolean
   const state: SidebarState = open ? "expanded" : "collapsed"
@@ -209,7 +225,7 @@ export const SidebarProvider = ({
       collapsible,
       toggleSidebar,
     }),
-    [state, open, setOpen, openMobile, isMobile, collapsible, toggleSidebar],
+    [state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar],
   )
 
   return (

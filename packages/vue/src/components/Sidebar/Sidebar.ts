@@ -9,6 +9,7 @@ import {
   provide,
   ref,
   Text,
+  watch,
   type AnchorHTMLAttributes,
   type ButtonHTMLAttributes,
   type DefineComponent,
@@ -16,10 +17,12 @@ import {
   type InjectionKey,
   type LiHTMLAttributes,
   type PropType,
+  type Ref,
   type Slots,
   type VNode,
   type VNodeArrayChildren,
 } from "vue"
+import { attachDrawerSwipe, closeOnUnhandledEscape, drawerInitialFocus, loopDrawerFocus } from "../../lib/phoneDrawer.js"
 import { Button } from "../Button/index.js"
 import { ChevronRightMd, Disclosure, Search as SearchIcon, Sidebar as SidebarIcon, SidebarMenuMobile, X } from "../Icon/index.js"
 import { Input, type InputProps } from "../Input/index.js"
@@ -329,8 +332,10 @@ export const SidebarMenuItem = SidebarMenuItemComponent as typeof SidebarMenuIte
 // Shared by every row of the rail: moving to the next one shows its label at once.
 let railLeftAt = 0
 
-// Rows inside the mobile drawer end with a disclosure chevron (see the drawer list in the styles).
-const sidebarDrawerKey: InjectionKey<boolean> = Symbol("SidebarDrawer")
+// Rows inside the mobile drawer end with a disclosure chevron (see the drawer list in the styles), unless the drawer
+// leaves it out (`:disclosure="false"`).
+const sidebarDrawerKey: InjectionKey<Ref<boolean>> = Symbol("SidebarDrawer")
+const notInDrawer = computed(() => false)
 
 /** The chevron of a drawer row that leads to another page. */
 const menuDisclosure = () => h("span", { "class": s.MenuDisclosure, "aria-hidden": "true" }, [h(Disclosure)])
@@ -351,7 +356,7 @@ const SidebarMenuButtonComponent = defineComponent({
   },
   setup(props, { attrs, slots }) {
     const sidebar = useSidebar()
-    const inDrawer = inject(sidebarDrawerKey, false)
+    const drawerRows = inject(sidebarDrawerKey, notInDrawer)
     const openDelay = ref<number>()
 
     return () => {
@@ -373,7 +378,7 @@ const SidebarMenuButtonComponent = defineComponent({
       }
       const content = slots.default?.()
       const wrap = (children: VNodeArrayChildren | undefined) =>
-        h("span", { class: s.MenuButtonInner }, inDrawer ? [children, menuDisclosure()] : children)
+        h("span", { class: s.MenuButtonInner }, drawerRows.value ? [children, menuDisclosure()] : children)
       let button: VNode
       if (props.asChild) {
         // With asChild the child element is the button, so the inner wrapper
@@ -574,7 +579,7 @@ const SidebarMenuSubButtonComponent = defineComponent({
     indent: { type: Number as PropType<0 | 1 | 2 | 3>, default: 0 },
   },
   setup(props, { attrs, slots }) {
-    const inDrawer = inject(sidebarDrawerKey, false)
+    const drawerRows = inject(sidebarDrawerKey, notInDrawer)
     return () => {
       const { className, rest } = cleanAttrs(attrs)
       const ownProps = {
@@ -584,7 +589,7 @@ const SidebarMenuSubButtonComponent = defineComponent({
         ...rest,
       }
       const content = slots.default?.()
-      if (!inDrawer) return props.asChild ? renderAsChild(content, ownProps) : h("button", ownProps, content)
+      if (!drawerRows.value) return props.asChild ? renderAsChild(content, ownProps) : h("button", ownProps, content)
       // In the drawer the disclosure follows the content, inside the child element with asChild
       if (props.asChild) {
         const child = firstElementChild(content)
@@ -705,8 +710,25 @@ export const SidebarCardFooter = part<SidebarCardFooterProps>("SidebarCardFooter
 
 export type SidebarInsetProps = HTMLAttributes
 
-/** Main content area next to the sidebar, a `<main>`. */
-export const SidebarInset = part<SidebarInsetProps>("SidebarInset", "main", s.Inset)
+/**
+ * Main content area next to the sidebar, a `<main>`. Behind the open phone drawer it takes no focus or touch
+ * (`inert`); an `inert` of your own wins.
+ */
+export const SidebarInset = defineComponent({
+  name: "SidebarInset",
+  inheritAttrs: false,
+  setup(_props, { attrs, slots }) {
+    const sidebar = useSidebar()
+    return () => {
+      const { className, rest } = cleanAttrs(attrs)
+      return h(
+        "main",
+        { inert: sidebar.isMobile && sidebar.openMobile ? "" : undefined, ...rest, class: [s.Inset, className] },
+        slots.default?.(),
+      )
+    }
+  },
+}) as unknown as Part<SidebarInsetProps>
 
 // =============================================
 // Layout Container
@@ -807,20 +829,76 @@ export const SidebarMobileMenuButton = defineComponent({
 // Mobile Sidebar
 // =============================================
 
+/**
+ * The phone drawer: a modal dialog while it is open. Focus moves into it and Tab goes round its controls, the page
+ * behind is inert (SidebarInset), Escape inside it closes it after any layer over it has taken its own, and focus
+ * goes back to the control that opened it. A swipe in from the edge it slides from opens it and a swipe back closes
+ * it (lib/phoneDrawer).
+ */
 const SidebarMobileComponent = defineComponent({
   name: "SidebarMobile",
   inheritAttrs: false,
   props: {
     /** When true, drawer is positioned absolute instead of fixed (for contained demos) */
     contained: { type: Boolean, default: undefined },
+    /** Rows that lead to another page end with a disclosure chevron, as in an iOS list. `false` leaves it out. @default true */
+    disclosure: { type: Boolean, default: true },
   },
   setup(props, { attrs, slots }) {
     const sidebar = useSidebar()
-    provide(sidebarDrawerKey, true)
+    provide(sidebarDrawerKey, computed(() => props.disclosure))
+    const drawer = ref<HTMLElement>()
+    const setDrawer = (el: unknown) => {
+      drawer.value = el instanceof HTMLElement ? el : ((el as { $el?: unknown } | null)?.$el as HTMLElement | undefined)
+    }
+
+    let detachSwipe: (() => void) | undefined
+    onMounted(() => {
+      // Focus moves in on open and back to what opened the drawer on close (from mount, as React's effect). A drawer
+      // that is not contained shows only at phone width, so going back to it from a wide window moves focus in again.
+      watch(
+        () => sidebar.openMobile && (sidebar.isMobile || Boolean(props.contained)),
+        (open, _, onCleanup) => {
+          const el = drawer.value
+          if (!open || !el) return
+          const trigger = document.activeElement
+          if (!el.contains(document.activeElement)) drawerInitialFocus(el).focus({ preventScroll: true })
+          onCleanup(() => {
+            const active = document.activeElement
+            const lost = !active || active === document.body || el.contains(active)
+            if (lost && trigger instanceof HTMLElement && trigger.isConnected && !el.contains(trigger)) {
+              trigger.focus({ preventScroll: true })
+            }
+          })
+        },
+        { flush: "post", immediate: true },
+      )
+
+      const el = drawer.value
+      const root = el?.closest<HTMLElement>("[data-mobile-menu]")
+      if (!el || !root) return
+      detachSwipe = attachDrawerSwipe({
+        root,
+        drawer: el,
+        isOpen: () => sidebar.openMobile,
+        setOpen: (open) => sidebar.setOpenMobile(open),
+        enabled: () => sidebar.isMobile,
+      })
+    })
+    onBeforeUnmount(() => detachSwipe?.())
+
+    const onDrawerKeydown = (event: KeyboardEvent) => {
+      const el = drawer.value
+      if (!sidebar.openMobile || !el) return
+      loopDrawerFocus(event, el)
+      closeOnUnhandledEscape(event, el, () => sidebar.setOpenMobile(false))
+    }
 
     return () => {
       const { className, rest } = cleanAttrs(attrs)
+      const { onKeydown: userKeydown, ...drawerAttrs } = rest
       const contained = props.contained && s.contained
+      const open = sidebar.openMobile
       return [
         // Backdrop
         h("div", {
@@ -829,7 +907,25 @@ const SidebarMobileComponent = defineComponent({
           "aria-hidden": "true",
         }),
         // Drawer
-        h("div", { class: [s.MobileSidebar, contained, className], ...rest }, slots.default?.()),
+        h(
+          "div",
+          {
+            "ref": setDrawer,
+            "role": "dialog",
+            "aria-modal": open ? "true" : undefined,
+            "aria-label": "Menu",
+            "tabindex": -1,
+            "inert": open ? undefined : "",
+            ...drawerAttrs,
+            "class": [s.MobileSidebar, contained, className],
+            // Your handler runs first and can keep the drawer open with preventDefault(), as onKeyDown in React
+            "onKeydown": (event: KeyboardEvent) => {
+              for (const handler of [userKeydown].flat()) if (typeof handler === "function") handler(event)
+              onDrawerKeydown(event)
+            },
+          },
+          slots.default?.(),
+        ),
       ]
     }
   },
