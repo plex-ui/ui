@@ -415,7 +415,6 @@ export const password = `<component :is="AuthFormStage" :navigation="wide ? unde
           </Button>
         </template>
         <div v-if="wide" class="flex gap-3 mt-2">
-          <Button v-if="editingPhone" type="button" color="secondary" variant="ghost" @click="returnToEdit = true; editingPhone = false; navigationStep++; focusPhoneEditor = false; submitted = false">Back</Button>
           <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>
         </div>
         <p v-if="!editingPhone" class="text-base text-center mt-4" :class="authFieldsStyles.CrossActionRow">

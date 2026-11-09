@@ -42,7 +42,7 @@ describe.each(["React", "Vue"])("%s phone edit flow", (framework) => {
     { wide: false, dialog: false },
     { wide: false, dialog: true },
     { wide: true, dialog: false },
-  ])("Edit validates and applies a phone draft; Back retains the saved number ($wide/$dialog)", async ({ wide, dialog }) => {
+  ])("Edit validates and applies a phone draft; on a phone Back retains the saved number, a desktop has no Back ($wide/$dialog)", async ({ wide, dialog }) => {
     viewport.wide = wide
     if (framework === "React") {
       render(<FloatingLabelInputPasswordFormDemo />)
@@ -83,9 +83,20 @@ describe.each(["React", "Vue"])("%s phone edit flow", (framework) => {
     expect(page.getByLabelText<HTMLInputElement>("Password", { exact: true }).value).toBe("UnfinishedPassword9")
     expect(document.activeElement).toBe(page.getByRole("button", { name: "Edit", exact: true }))
     await click(page.getByRole("button", { name: "Edit", exact: true }))
-    await enter(phone(), "1112223333")
-    await click(page.getByRole("button", { name: wide ? "Back" : "Back to password", exact: true }))
-    if (!wide) expect(direction()).toBe("back")
+    await enter(phone(), "5551112222")
+    if (wide) {
+      // Row 116: a desktop has no Back buttons (owner 05.11): none stands beside Continue, which applies the
+      // number and returns to the password.
+      // The phone's top bar stays in the DOM, hidden by CSS from 768px (jsdom applies none of it).
+      const form = page.getByRole<HTMLButtonElement>("button", { name: "Continue", exact: true }).form!
+      expect(within(form).queryByRole("button", { name: /back/i })).toBeNull()
+      await submit()
+      await waitFor(() => expect(phone().readOnly).toBe(true))
+      expect(phone().value).toBe("+1 555 111 2222")
+      return
+    }
+    await click(page.getByRole("button", { name: "Back to password", exact: true }))
+    expect(direction()).toBe("back")
     await waitFor(() => expect(phone().readOnly).toBe(true))
     expect(phone().value).toBe("+1 555 987 6543")
   })

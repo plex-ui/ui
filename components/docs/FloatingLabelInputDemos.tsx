@@ -1696,7 +1696,6 @@ export function FloatingLabelInputPasswordFormDemo() {
               <AuthFields>{phoneSummary}{passwordInput}</AuthFields>{forgotPassword}
             </>}
             {wide && <div className="flex gap-3 mt-2">
-              {editingPhone && <Button type="button" color="secondary" variant="ghost" onClick={closePhoneEditor}>Back</Button>}
               <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>
             </div>}
             {!editingPhone && <p className={['text-base text-center mt-4', authFieldsStyles.CrossActionRow].join(' ')}>

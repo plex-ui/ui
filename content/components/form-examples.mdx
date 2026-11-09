@@ -534,7 +534,7 @@ const presentation = useScreenPresentation();
 
 ## Enter password
 
-<ComponentPreview phonePresentation="screen" details={<>Edit opens the existing country and phone controls in the same Page or Sheet. Continue validates and applies the number; Back keeps the previous number and unfinished password. On phones, Continue remains in the footer.</>} code={`'use client';
+<ComponentPreview phonePresentation="screen" details={<>Edit opens the existing country and phone controls in the same Page or Sheet. Continue validates and applies the number. On phones, Back in the top bar keeps the previous number and unfinished password, and Continue remains in the footer; a desktop has no Back buttons, so Continue returns to the password.</>} code={`'use client';
 import { useId, useRef, useState } from 'react';
 import { Button } from '@plexui/ui/components/Button';
 import { Select } from '@plexui/ui/components/Select';
@@ -639,7 +639,6 @@ export function FloatingLabelInputPasswordFormDemo() {
               <AuthFields>{phoneSummary}{passwordInput}</AuthFields>{forgotPassword}
             </>}
             {wide && <div className="flex gap-3 mt-2">
-              {editingPhone && <Button type="button" color="secondary" variant="ghost" onClick={closePhoneEditor}>Back</Button>}
               <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>
             </div>}
             {!editingPhone && <p className={['text-base text-center mt-4', authFieldsStyles.CrossActionRow].join(' ')}>
