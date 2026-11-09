@@ -2,14 +2,73 @@
 title: Button Group
 description: Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
 metaDescription: Vue 3 button group component that joins buttons, inputs and other controls into one unit for toolbars, steppers, split buttons and search affordances.
-phoneDraft: true
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import { withPhone } from "@/components/docs/phoneRowsTemplate"
+import pageStyles from "@/components/docs/PageDemos.module.css"
+
+export const STAGE = pageStyles.Stage
+
+export const frame = (body) => `<div class="${pageStyles.Frame}">
+${body}
+</div>`
+
+{/* Phone: the bars of a note, as in iOS Notes (IMG_5734, 5736). A ButtonGroup in a Toolbar is the kit's glass Button Group. */}
+export const overviewPhone = `<Page>
+  <Toolbar>
+    <ToolbarLeading>
+      <NavigationButton action="back" />
+    </ToolbarLeading>
+    <ToolbarTrailing>
+      <ButtonGroup aria-label="Note actions">
+        <Button color="secondary" variant="soft" uniform pill aria-label="Pin"><Pin /></Button>
+        <Button color="secondary" variant="soft" uniform pill aria-label="Tag"><Tag /></Button>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </ButtonGroup>
+    </ToolbarTrailing>
+  </Toolbar>
+  <PageContent>
+    <div class="flex flex-col gap-3 text-[17px] leading-[22px]">
+      <p class="text-[28px] leading-[34px] font-semibold">Weekend trip</p>
+      <p v-for="line in note" :key="line">{{ line }}</p>
+    </div>
+  </PageContent>
+  <Toolbar placement="bottom">
+    <ToolbarLeading>
+      <ButtonGroup aria-label="Editing tools">
+        <Button color="secondary" variant="soft" uniform pill aria-label="Checklist"><NotebookCheck /></Button>
+        <Button color="secondary" variant="soft" uniform pill aria-label="Attach"><Clip /></Button>
+        <Button color="secondary" variant="soft" uniform pill aria-label="Markup"><Pens /></Button>
+      </ButtonGroup>
+    </ToolbarLeading>
+    <ToolbarTrailing>
+      <Button color="secondary" variant="soft" uniform pill aria-label="New note"><PencilSquare /></Button>
+    </ToolbarTrailing>
+  </Toolbar>
+</Page>`
+
+export const note = [
+  "Pack the tent, two sleeping bags and the small stove.",
+  "Check the forecast on Friday morning before leaving.",
+  "Fill both water bottles and the spare canister.",
+  "Leave the route and the return time with a neighbour.",
+]
+
+{/* Phone: the kit's vertical Button Group floating over a dotted canvas, as map controls do. */}
+export const orientationPhone = `<ButtonGroup orientation="vertical" mobile-material="glass" aria-label="Zoom controls" class="absolute top-[calc(var(--safe-area-inset-top,0px)+8px)] right-4">
+  <Button color="secondary" variant="soft" uniform pill aria-label="Zoom in"><Plus /></Button>
+  <Button color="secondary" variant="soft" uniform pill aria-label="Zoom out"><Minus /></Button>
+</ButtonGroup>`
+
+export const canvas = (body) => `<div class="relative h-full" style="background-color: var(--color-surface); background-image: radial-gradient(var(--color-border-strong) 1.5px, transparent 1.5px); background-size: 24px 24px">
+${body}
+</div>`
 
 export const sizeControl = [{ name: "size", type: "select", options: ["sm", "md", "lg"], default: "sm" }]
 
-{/* A phone group beside a text field, or of icon-only buttons alone, takes 44px at every size. */}
+{/* Hidden on a phone: a group beside a text field, or of icon-only buttons alone, takes 44px at every size, and a phone view of its own has no size. */}
 export const phoneFixedSizeControl = [{ name: "size", desktopOnly: true, type: "select", options: ["sm", "md", "lg"], default: "sm" }]
 
 export const overview = `<ButtonGroup>
@@ -188,26 +247,28 @@ export const popover = `<ButtonGroup>
 
 Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and removes the shared border so they read as one unit. Nest `ButtonGroup` inside itself to create visually separated sub-groups (the outer group automatically spaces them).
 
+On a phone with `touch.css` a group of buttons in a [`Toolbar`](/vue/components/toolbar) is the Button Group of iOS: one glass capsule holding its buttons, the same as `ToolbarGroup`. `mobile-material="glass"` asks for the capsule outside a toolbar, for controls that float over the content. iOS has no joined buttons in the content, so a group there keeps its joined look at the touch sizes, and the examples that only join buttons show the desktop view.
+
 ## Examples
 
 ### Overview
 
-<ComponentPreview language="vue" code={overview}>
-  <VueDemo template={overview} controls={sizeControl} />
+<ComponentPreview language="vue" phonePresentation="screen" details={<>On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A <code>ButtonGroup</code> in a <code>Toolbar</code> is that capsule, the Button Group of the iOS 27 kit: 44px buttons 12px apart in a 160px capsule on top, 48px ones 6px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do.</>} code={withPhone(overview, overviewPhone.replace(`<p v-for="line in note" :key="line">{{ line }}</p>`, "…"), "the bars of a note")}>
+  <VuePhoneRowsDemo template={overview} controls={phoneFixedSizeControl} phoneTemplate={frame(overviewPhone)} phoneStageClassName={STAGE} state={{ note }} />
 </ComponentPreview>
 
 ### Orientation
 
-<ComponentPreview language="vue" details={<>
+<ComponentPreview language="vue" phonePresentation="screen" details={<>
   <p>Pass <code>orientation="vertical"</code> to stack the buttons, useful for <code>+</code> / <code>−</code> steppers, zoom controls, or any vertical toolbar.</p>
-  <p>On a phone with <code>touch.css</code> a group of icon-only buttons keeps their 44px at each size shown, so the phone view leaves out the size control.</p>
-</>} code={orientation}>
-  <VueDemo template={orientation} controls={phoneFixedSizeControl} />
+  <p>On a phone the example is zoom controls floating over a canvas, as map controls do: with <code>mobile-material="glass"</code> the group is the vertical Button Group of the iOS 27 kit, a 48px wide capsule of 48px buttons 6px apart. In the content a group of icon-only buttons keeps their 44px at each size, so the phone view leaves out the size control.</p>
+</>} code={withPhone(orientation, orientationPhone.replace("top-[calc(var(--safe-area-inset-top,0px)+8px)]", "top-2"), "zoom controls over a canvas")}>
+  <VuePhoneRowsDemo template={orientation} controls={phoneFixedSizeControl} phoneTemplate={frame(canvas(orientationPhone))} phoneStageClassName={STAGE} />
 </ComponentPreview>
 
 ### Size
 
-<ComponentPreview language="vue" details={<>
+<ComponentPreview language="vue" phonePresentation="none" details={<>
   <p>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match. Mix icon-only (<code>uniform</code>) with text buttons; each child keeps its own padding.</p>
   <p>On a phone with <code>touch.css</code> a group keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, <code>sm</code>) and medium (34px, <code>md</code> and <code>lg</code>) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own.</p>
 </>} code={sizes}>
@@ -216,25 +277,25 @@ Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and remove
 
 ### Nested
 
-<ComponentPreview language="vue" details={<>Place <code>ButtonGroup</code> inside <code>ButtonGroup</code> to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern.</>} code={nested}>
+<ComponentPreview language="vue" phonePresentation="none" details={<>Place <code>ButtonGroup</code> inside <code>ButtonGroup</code> to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern.</>} code={nested}>
   <VueDemo template={nested} controls={sizeControl} />
 </ComponentPreview>
 
 ### Separator
 
-<ComponentPreview language="vue" details={<>Drop a <code>ButtonGroupSeparator</code> between items to add a visible divider, commonly used for Undo / Redo pairs or any "two related actions" toolbar.</>} code={separator}>
+<ComponentPreview language="vue" phonePresentation="none" details={<>Drop a <code>ButtonGroupSeparator</code> between items to add a visible divider, commonly used for Undo / Redo pairs or any "two related actions" toolbar. A glass group on a phone draws no line, as the capsule of iOS has none.</>} code={separator}>
   <VueDemo template={separator} controls={sizeControl} />
 </ComponentPreview>
 
 ### Split
 
-<ComponentPreview language="vue" details={<>The classic split button: an action joined to a secondary affordance via <code>ButtonGroupSeparator</code>. Useful for Save / Save-As, Filter / Add-filter, Delete / Undo.</>} code={split}>
+<ComponentPreview language="vue" phonePresentation="none" details={<>The classic split button: an action joined to a secondary affordance via <code>ButtonGroupSeparator</code>. Useful for Save / Save-As, Filter / Add-filter, Delete / Undo.</>} code={split}>
   <VueDemo template={split} controls={sizeControl} />
 </ComponentPreview>
 
 ### Input
 
-<ComponentPreview language="vue" details={<>
+<ComponentPreview language="vue" phonePresentation="none" details={<>
   <p>Join an <code>Input</code> to a trailing <code>Button</code> for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content.</p>
   <p>On a phone with <code>touch.css</code> the button takes the field's 44px at each size shown, so the phone view leaves out the size control.</p>
 </>} code={input}>
@@ -252,13 +313,13 @@ Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and remove
 
 ### Dropdown menu
 
-<ComponentPreview language="vue" details={<>Compose a primary action with a <a href="/vue/components/menu"><code>Menu</code></a> trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….</>} code={dropdownMenu}>
+<ComponentPreview language="vue" phonePresentation="none" details={<>Compose a primary action with a <a href="/vue/components/menu"><code>Menu</code></a> trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….</>} code={dropdownMenu}>
   <VueDemo template={dropdownMenu} controls={sizeControl} />
 </ComponentPreview>
 
 ### Select
 
-<ComponentPreview language="vue" details={<>
+<ComponentPreview language="vue" phonePresentation="none" details={<>
   <p>Mix a <a href="/vue/components/select"><code>Select</code></a> and an <code>Input</code> inside one <code>ButtonGroup</code> for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested <code>ButtonGroup</code> to get a gap between the compound field and the send affordance.</p>
   <p>On a phone with <code>touch.css</code> the button takes the height of the 44px fields at each size shown, so the phone view leaves out the size control.</p>
 </>} code={select}>
@@ -278,7 +339,7 @@ Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and remove
 
 ### Popover
 
-<ComponentPreview language="vue" details={<>Same split-button shape, but the trailing trigger opens a <a href="/vue/components/popover"><code>Popover</code></a> instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).</>} code={popover}>
+<ComponentPreview language="vue" phonePresentation="none" details={<>Same split-button shape, but the trailing trigger opens a <a href="/vue/components/popover"><code>Popover</code></a> instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).</>} code={popover}>
   <VueDemo template={popover} controls={sizeControl} />
 </ComponentPreview>
 
@@ -289,6 +350,7 @@ Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and remove
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Direction of the joined items |
+| `mobile-material` | `"glass" \| "flat"` | | Phone surface with `touch.css`: `"glass"` makes the group one glass capsule outside a `Toolbar`, `"flat"` keeps the joined buttons in one |
 | `class` | `string` | | Applied to the root `<div>` |
 
 Renders a `<div role="group">`. All other attributes and listeners fall through to it.
@@ -314,5 +376,8 @@ Nesting `ButtonGroup` inside a parent `ButtonGroup` automatically introduces a g
 - `--button-group-separator-color`: color of the `ButtonGroupSeparator` line
 - `--button-group-text-background` / `--button-group-text-color` / `--button-group-text-border-color`: surface, text, and 1px inset border of `ButtonGroupText`
 - `--button-group-text-font-size` / `--button-group-text-font-weight`: typography of `ButtonGroupText`
+- `--button-group-glass-item-size`, `--button-group-glass-gap`, `--button-group-glass-padding`: a glass group on a phone, its buttons, the space between them and at the ends (default `44px`, `12px`, `2px`; in a `Toolbar` the bar's own)
+- `--button-group-glass-vertical-item-size`, `--button-group-glass-vertical-gap`, `--button-group-glass-vertical-padding`: a vertical glass group (default `48px`, `6px`, `4px`)
+- `--button-group-glass-nested-gap`, `--button-group-glass-label-gutter`: between glass groups side by side, and the gutter of a label in one (default `10px`, `14px`)
 
 Radius, border, and focus styles of joined buttons come from each child control's own tokens (`--button-radius`, `--input-radius`, etc.); the group only strips the shared edge radii so joined items align.

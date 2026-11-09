@@ -275,7 +275,8 @@
     }
   }
 
-  .Toolbar[data-placement="bottom"] .Group {
+  /* Set on the bar, so a ButtonGroup in it takes the same capsule as a Group (ButtonGroup.module.css). */
+  .Toolbar[data-placement="bottom"] {
     --toolbar-group-gap: var(--toolbar-bottom-group-gap);
     --toolbar-group-padding: var(--toolbar-bottom-group-padding);
   }

@@ -2,6 +2,7 @@ export {
   ButtonGroup,
   ButtonGroupSeparator,
   ButtonGroupText,
+  type ButtonGroupMobileMaterial,
   type ButtonGroupOrientation,
   type ButtonGroupProps,
   type ButtonGroupSeparatorProps,

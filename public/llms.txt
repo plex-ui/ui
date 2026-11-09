@@ -130,6 +130,7 @@ Import: import { ButtonGroup } from "@plexui/ui/components/ButtonGroup"
 Docs: https://plexui.com/components/button-group
 Props:
   - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the joined items
+  - mobileMaterial ("glass" | "flat") default: — — Phone surface with touch.css: "glass" makes the group one glass capsule outside a Toolbar, "flat" keeps the joined buttons in one
   - className (string) default: — — Applied to the root <div>
   ButtonGroup.Text:
     - asChild (boolean) default: false — Render as the passed child (e.g. a <label> tied to an input)

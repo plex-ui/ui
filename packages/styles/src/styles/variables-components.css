@@ -157,6 +157,20 @@
     --button-group-text-border-color: var(--color-border-secondary-outline, var(--color-border));
     --button-group-text-font-size: var(--font-text-sm-size);
     --button-group-text-font-weight: var(--font-weight-medium);
+    /* A glass group on a phone (`mobileMaterial="glass"`, or any group in a Toolbar): the Button Group of the iOS 27
+       kit (Toolbars 507:25993, _Buttons - 44pt and 48pt, Type=Button Group). A row is the 44pt top bar's capsule,
+       160 wide with three symbols: 2 + 44 + 12 + 44 + 12 + 44 + 2, the centers of the kit's 36pt symbols 56 apart
+       (padding 6, gap 20). A column is the kit's only vertical one, the 48pt capsule, 48 x 164 with three symbols:
+       4 + 48 + 6 + 48 + 6 + 48 + 4 (the kit's padding 10, gap 18 around 36pt symbols). Groups side by side keep the
+       10px of the top bar's items. In a Toolbar a group takes the bar's own sizes instead. */
+    --button-group-glass-item-size: var(--toolbar-top-item-size);
+    --button-group-glass-gap: var(--toolbar-group-gap);
+    --button-group-glass-padding: var(--toolbar-group-padding);
+    --button-group-glass-vertical-item-size: var(--toolbar-bottom-item-size);
+    --button-group-glass-vertical-gap: var(--toolbar-bottom-group-gap);
+    --button-group-glass-vertical-padding: var(--toolbar-bottom-group-padding);
+    --button-group-glass-nested-gap: var(--toolbar-top-item-gap);
+    --button-group-glass-label-gutter: var(--toolbar-label-gutter);
 
     /* =============================================
       Accordion

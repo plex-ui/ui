@@ -630,6 +630,12 @@
           "description": "Direction of the joined items"
         },
         {
+          "name": "mobileMaterial",
+          "type": "\"glass\" | \"flat\"",
+          "default": "—",
+          "description": "Phone surface with touch.css: \"glass\" makes the group one glass capsule outside a Toolbar, \"flat\" keeps the joined buttons in one"
+        },
+        {
           "name": "className",
           "type": "string",
           "default": "—",
@@ -639,12 +645,13 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<ButtonGroup>\n<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"Go back\">\n    <ArrowLeftSm />\n  </Button>\n</ButtonGroup>\n<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\">Pin</Button>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\">Tag</Button>\n</ButtonGroup>\n<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\">Bookmark</Button>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"More options\">\n    <DotsHorizontal />\n  </Button>\n</ButtonGroup>\n</ButtonGroup>"
+          "code": "// Desktop\n<ButtonGroup>\n<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"Go back\">\n    <ArrowLeftSm />\n  </Button>\n</ButtonGroup>\n<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\">Pin</Button>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\">Tag</Button>\n</ButtonGroup>\n<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\">Bookmark</Button>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"More options\">\n    <DotsHorizontal />\n  </Button>\n</ButtonGroup>\n</ButtonGroup>\n\n// Phone: the bars of a note\n<Page>\n<Toolbar>\n  <Toolbar.Leading>\n    <NavigationButton action=\"back\" />\n  </Toolbar.Leading>\n  <Toolbar.Trailing>\n    <ButtonGroup aria-label=\"Note actions\">\n      <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Pin\"><Pin /></Button>\n      <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Tag\"><Tag /></Button>\n      <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n    </ButtonGroup>\n  </Toolbar.Trailing>\n</Toolbar>\n<Page.Content>…</Page.Content>\n<Toolbar placement=\"bottom\">\n  <Toolbar.Leading>\n    <ButtonGroup aria-label=\"Editing tools\">\n      <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Checklist\"><NotebookCheck /></Button>\n      <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Attach\"><Clip /></Button>\n      <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Markup\"><Pens /></Button>\n    </ButtonGroup>\n  </Toolbar.Leading>\n  <Toolbar.Trailing>\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"New note\"><PencilSquare /></Button>\n  </Toolbar.Trailing>\n</Toolbar>\n</Page>",
+          "details": "On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule, the Button Group of the iOS 27 kit: 44px buttons 12px apart in a 160px capsule on top, 48px ones 6px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do."
         },
         {
           "name": "Orientation",
-          "code": "<ButtonGroup orientation=\"vertical\" aria-label=\"Zoom controls\">\n<Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"Zoom in\">\n  <PlusSm />\n</Button>\n<Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"Zoom out\">\n  <Minus />\n</Button>\n</ButtonGroup>",
-          "details": "Pass orientation=\"vertical\" to stack the buttons, useful for + / − steppers, zoom controls, or any vertical toolbar. On a phone with touch.css a group of icon-only buttons keeps their 44px at each size shown, so the phone view leaves out the size control."
+          "code": "// Desktop\n<ButtonGroup orientation=\"vertical\" aria-label=\"Zoom controls\">\n<Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"Zoom in\">\n  <PlusSm />\n</Button>\n<Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"Zoom out\">\n  <Minus />\n</Button>\n</ButtonGroup>\n\n// Phone: zoom controls over a canvas\n<ButtonGroup orientation=\"vertical\" mobileMaterial=\"glass\" aria-label=\"Zoom controls\" className=\"absolute top-2 right-4\">\n<Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Zoom in\"><Plus /></Button>\n<Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Zoom out\"><Minus /></Button>\n</ButtonGroup>",
+          "details": "Pass orientation=\"vertical\" to stack the buttons, useful for + / − steppers, zoom controls, or any vertical toolbar. On a phone the example is zoom controls floating over a canvas, as map controls do: with mobileMaterial=\"glass\" the group is the vertical Button Group of the iOS 27 kit, a 48px wide capsule of 48px buttons 6px apart. In the content a group of icon-only buttons keeps their 44px at each size, so the phone view leaves out the size control."
         },
         {
           "name": "Size",
@@ -659,7 +666,7 @@
         {
           "name": "Separator",
           "code": "<ButtonGroup>\n<Button variant=\"soft\" color=\"secondary\" size=\"sm\"><Undo /> Undo</Button>\n<ButtonGroup.Separator />\n<Button variant=\"soft\" color=\"secondary\" size=\"sm\">Redo <Redo /></Button>\n</ButtonGroup>",
-          "details": "Drop a ButtonGroup.Separator between items to add a visible divider, commonly used for Undo / Redo pairs or any \"two related actions\" toolbar."
+          "details": "Drop a ButtonGroup.Separator between items to add a visible divider, commonly used for Undo / Redo pairs or any \"two related actions\" toolbar. A glass group on a phone draws no line, as the capsule of iOS has none."
         },
         {
           "name": "Split",
@@ -7737,7 +7744,7 @@
         {
           "name": "Group",
           "code": "<Toolbar>\n<Toolbar.Leading>\n  <NavigationButton action=\"close\" />\n</Toolbar.Leading>\n<Toolbar.Trailing>\n  <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Details\"><InfoCircle /></Button>\n  <Toolbar.Group aria-label=\"Order actions\">\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Translate\"><Translate /></Button>\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n  </Toolbar.Group>\n</Toolbar.Trailing>\n</Toolbar>",
-          "details": "Toolbar.Group puts related actions in one capsule. A single action keeps a capsule of its own. Name each icon button with aria-label."
+          "details": "Toolbar.Group puts related actions in one capsule. A single action keeps a capsule of its own. A ButtonGroup in a toolbar is the same capsule. Name each icon button with aria-label."
         },
         {
           "name": "Search",
@@ -7899,5 +7906,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T00:22:55.282Z"
+  "generatedAt": "2026-11-09T04:49:37.053Z"
 }

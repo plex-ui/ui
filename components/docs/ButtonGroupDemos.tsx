@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button } from '@plexui/ui/components/Button';
+import { Button, NavigationButton } from '@plexui/ui/components/Button';
 import { ButtonGroup } from '@plexui/ui/components/ButtonGroup';
 import { Card } from '@plexui/ui/components/Card';
 import {
@@ -9,6 +9,7 @@ import {
   ArrowRight,
   ArrowRightSm,
   ChevronDownMd,
+  Clip,
   Copy,
   DotsHorizontal,
   FileCode,
@@ -18,20 +19,29 @@ import {
   Link,
   Mic,
   Minus,
+  NotebookCheck,
+  PencilSquare,
+  Pens,
+  Pin,
   Plus,
   PlusSm,
   Redo,
   SearchSm,
   Sparkles,
+  Tag,
   Undo,
 } from '@plexui/ui/components/Icon';
 import { Input } from '@plexui/ui/components/Input';
 import { Menu } from '@plexui/ui/components/Menu';
+import { Page } from '@plexui/ui/components/Page';
 import { Popover } from '@plexui/ui/components/Popover';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Select } from '@plexui/ui/components/Select';
 import { Textarea } from '@plexui/ui/components/Textarea';
+import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { usePhoneRows } from './PhoneRows';
+import pageStyles from './PageDemos.module.css';
 
 /* ------------------------------------------------------------------
  * Shared demo-control primitives (same shape ButtonDemos / InputDemos use)
@@ -62,12 +72,64 @@ function DemoStage({ children }: { children: React.ReactNode }) {
 }
 
 
+/** A phone screen in the frame of the Toolbar examples. */
+function PhoneFrame({ children }: { children: React.ReactNode }) {
+  return <div data-demo-stage className={pageStyles.Stage}><div className={pageStyles.Frame}>{children}</div></div>;
+}
+
+const NOTE = [
+  'Pack the tent, two sleeping bags and the small stove.',
+  'Check the forecast on Friday morning before leaving.',
+  'Fill both water bottles and the spare canister.',
+  'Leave the route and the return time with a neighbour.',
+];
+
 /* ============================================================
    Overview — toolbar with nested groups + gap between subgroups
    ============================================================ */
 
 export function ButtonGroupOverviewDemo() {
   const [size, setSize] = useState<DemoSize>('sm');
+  // Phone: the bars of a note, as in Notes (IMG_5734, 5736): Back alone, the note's actions in one glass capsule
+  // on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule.
+  if (usePhoneRows()) {
+    return (
+      <PhoneFrame>
+        <Page>
+          <Toolbar>
+            <Toolbar.Leading>
+              <NavigationButton action="back" />
+            </Toolbar.Leading>
+            <Toolbar.Trailing>
+              <ButtonGroup aria-label="Note actions">
+                <Button color="secondary" variant="soft" uniform pill aria-label="Pin"><Pin /></Button>
+                <Button color="secondary" variant="soft" uniform pill aria-label="Tag"><Tag /></Button>
+                <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+              </ButtonGroup>
+            </Toolbar.Trailing>
+          </Toolbar>
+          <Page.Content>
+            <div className="flex flex-col gap-3 text-[17px] leading-[22px]">
+              <p className="text-[28px] leading-[34px] font-semibold">Weekend trip</p>
+              {NOTE.map((line) => <p key={line}>{line}</p>)}
+            </div>
+          </Page.Content>
+          <Toolbar placement="bottom">
+            <Toolbar.Leading>
+              <ButtonGroup aria-label="Editing tools">
+                <Button color="secondary" variant="soft" uniform pill aria-label="Checklist"><NotebookCheck /></Button>
+                <Button color="secondary" variant="soft" uniform pill aria-label="Attach"><Clip /></Button>
+                <Button color="secondary" variant="soft" uniform pill aria-label="Markup"><Pens /></Button>
+              </ButtonGroup>
+            </Toolbar.Leading>
+            <Toolbar.Trailing>
+              <Button color="secondary" variant="soft" uniform pill aria-label="New note"><PencilSquare /></Button>
+            </Toolbar.Trailing>
+          </Toolbar>
+        </Page>
+      </PhoneFrame>
+    );
+  }
   return (
     <>
       <SizeToggle value={size} onChange={setSize} />
@@ -114,12 +176,38 @@ export function ButtonGroupOverviewDemo() {
   );
 }
 
+/** A dotted canvas under the floating controls. */
+const CANVAS: React.CSSProperties = {
+  backgroundColor: 'var(--color-surface)',
+  backgroundImage: 'radial-gradient(var(--color-border-strong) 1.5px, transparent 1.5px)',
+  backgroundSize: '24px 24px',
+};
+
 /* ============================================================
    Orientation — vertical stack for +/- stepper
    ============================================================ */
 
 export function ButtonGroupOrientationDemo() {
   const [size, setSize] = useState<DemoSize>('sm');
+  // Phone: the iOS 27 kit's vertical Button Group (Toolbars, _Buttons - 48pt, Preferred Axis=Vertical) floating
+  // over a canvas, as map controls do; `mobileMaterial="glass"` asks for the capsule outside a Toolbar.
+  if (usePhoneRows()) {
+    return (
+      <PhoneFrame>
+        <div className="relative h-full" style={CANVAS}>
+          <ButtonGroup
+            orientation="vertical"
+            mobileMaterial="glass"
+            aria-label="Zoom controls"
+            className="absolute top-[calc(var(--safe-area-inset-top,0px)+8px)] right-4"
+          >
+            <Button color="secondary" variant="soft" uniform pill aria-label="Zoom in"><Plus /></Button>
+            <Button color="secondary" variant="soft" uniform pill aria-label="Zoom out"><Minus /></Button>
+          </ButtonGroup>
+        </div>
+      </PhoneFrame>
+    );
+  }
   return (
     <>
       <SizeToggle value={size} onChange={setSize} desktopOnly />

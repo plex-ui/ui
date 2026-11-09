@@ -154,6 +154,7 @@ Import: import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@ple
 Docs: https://plexui.com/vue/components/button-group
 Props:
   - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the joined items
+  - mobile-material ("glass" | "flat") — Phone surface with touch.css: "glass" makes the group one glass capsule outside a Toolbar, "flat" keeps the joined buttons in one
   - class (string) — Applied to the root <div>
   ButtonGroupText:
     - as-child (boolean) default: false — Render the slotted child (e.g. a <label> tied to an input) instead of a <div>

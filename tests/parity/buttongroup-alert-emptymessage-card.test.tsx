@@ -71,6 +71,8 @@ describe("ButtonGroup parity", () => {
     ["vertical", { orientation: "vertical", "aria-label": "Zoom controls" }],
     ["class and attributes", { className: "w-full", id: "pager", style: { maxWidth: "280px" } }],
     ["caller role and data attributes win", { role: "toolbar", "data-slot": "custom", "data-orientation": "x" }],
+    ["glass on a phone", { mobileMaterial: "glass", orientation: "vertical", "aria-label": "Zoom controls" }],
+    ["flat in a toolbar", { mobileMaterial: "flat" }],
   ]
 
   test.each(groupCases)("root: %s", async (_name, props) => {

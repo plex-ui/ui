@@ -12,6 +12,12 @@
     z-index: 1;
   }
 
+  /* The joined edges below read these, unset here so a group never takes them from a glass group around it
+     (see the phone rules at the end). */
+  --button-group-joined-radius: initial;
+  --button-group-joined-overlap: initial;
+  --button-group-joined-clip: initial;
+
   /* Gap only appears between nested groups — joined buttons stay touching */
   &:has(> [data-slot="button-group"]) {
     gap: var(--button-group-nested-gap);
@@ -30,36 +36,36 @@
      not be overlapped into oblivion. Adjacent items to a separator keep
      their edge radii stripped, but skip the -1px/-clip trickery. */
   &[data-orientation="horizontal"] > *:not(:first-child):not([data-slot="button-group-separator"]) {
-    border-start-start-radius: 0;
-    border-end-start-radius: 0;
+    border-start-start-radius: var(--button-group-joined-radius, 0);
+    border-end-start-radius: var(--button-group-joined-radius, 0);
   }
   &[data-orientation="horizontal"]
     > *:not(:first-child):not([data-slot="button-group-separator"]):not(
       [data-slot="button-group-separator"] + *
     ) {
-    margin-inline-start: -1px;
+    margin-inline-start: var(--button-group-joined-overlap, -1px);
   }
   &[data-orientation="horizontal"]
     > *:not(:first-child):not([data-slot="button-group-separator"]):not(
       [data-slot="button-group-separator"] + *
     )::before {
-    clip-path: inset(0 0 0 1px);
+    clip-path: var(--button-group-joined-clip, inset(0 0 0 1px));
   }
   &[data-orientation="horizontal"]
     > *:not(:last-child):not([data-slot="button-group-separator"]):not(
       :has(+ [data-slot="button-group-separator"])
     ) {
-    border-start-end-radius: 0;
-    border-end-end-radius: 0;
+    border-start-end-radius: var(--button-group-joined-radius, 0);
+    border-end-end-radius: var(--button-group-joined-radius, 0);
   }
   /* Strip the edge radius on items sitting directly next to a separator */
   &[data-orientation="horizontal"] > [data-slot="button-group-separator"] + * {
-    border-start-start-radius: 0;
-    border-end-start-radius: 0;
+    border-start-start-radius: var(--button-group-joined-radius, 0);
+    border-end-start-radius: var(--button-group-joined-radius, 0);
   }
   &[data-orientation="horizontal"] > *:has(+ [data-slot="button-group-separator"]) {
-    border-start-end-radius: 0;
-    border-end-end-radius: 0;
+    border-start-end-radius: var(--button-group-joined-radius, 0);
+    border-end-end-radius: var(--button-group-joined-radius, 0);
   }
 
   /* Vertical — same approach, clip the top 1px of ::before on non-first */
@@ -67,35 +73,35 @@
     flex-direction: column;
   }
   &[data-orientation="vertical"] > *:not(:first-child):not([data-slot="button-group-separator"]) {
-    border-start-start-radius: 0;
-    border-start-end-radius: 0;
+    border-start-start-radius: var(--button-group-joined-radius, 0);
+    border-start-end-radius: var(--button-group-joined-radius, 0);
   }
   &[data-orientation="vertical"]
     > *:not(:first-child):not([data-slot="button-group-separator"]):not(
       [data-slot="button-group-separator"] + *
     ) {
-    margin-block-start: -1px;
+    margin-block-start: var(--button-group-joined-overlap, -1px);
   }
   &[data-orientation="vertical"]
     > *:not(:first-child):not([data-slot="button-group-separator"]):not(
       [data-slot="button-group-separator"] + *
     )::before {
-    clip-path: inset(1px 0 0 0);
+    clip-path: var(--button-group-joined-clip, inset(1px 0 0 0));
   }
   &[data-orientation="vertical"]
     > *:not(:last-child):not([data-slot="button-group-separator"]):not(
       :has(+ [data-slot="button-group-separator"])
     ) {
-    border-end-start-radius: 0;
-    border-end-end-radius: 0;
+    border-end-start-radius: var(--button-group-joined-radius, 0);
+    border-end-end-radius: var(--button-group-joined-radius, 0);
   }
   &[data-orientation="vertical"] > [data-slot="button-group-separator"] + * {
-    border-start-start-radius: 0;
-    border-start-end-radius: 0;
+    border-start-start-radius: var(--button-group-joined-radius, 0);
+    border-start-end-radius: var(--button-group-joined-radius, 0);
   }
   &[data-orientation="vertical"] > *:has(+ [data-slot="button-group-separator"]) {
-    border-end-start-radius: 0;
-    border-end-end-radius: 0;
+    border-end-start-radius: var(--button-group-joined-radius, 0);
+    border-end-end-radius: var(--button-group-joined-radius, 0);
   }
 
   /* Inputs inside a ButtonGroup share the row and flex to fill space —
@@ -158,5 +164,107 @@
 
   &[data-orientation="vertical"] {
     height: auto;
+  }
+}
+
+/* A glass group on a phone: the Button Group of the iOS 27 kit (Toolbars 507:25993, _Buttons - 44pt and 48pt,
+   Type=Button Group), as the top and bottom bars of Notes hold their symbols (IMG_5734, 5736: Back alone, then
+   one capsule of three symbols). A group in a Toolbar is one by itself, the same capsule as Toolbar.Group;
+   elsewhere `mobileMaterial="glass"` asks for it, for controls that float over the content, as the column of map
+   controls. Liquid Glass belongs to the controls over the content, so a group in the content keeps its joined
+   look, and `mobileMaterial="flat"` keeps it in a Toolbar. A group of a field and buttons stays joined anywhere.
+   Without touch.css the glass tokens are unset and the capsule has no fill. */
+@media (max-width: 767.98px) {
+  /* Every group in a glass context, the row of capsules around nested groups included: no joined edges. */
+  .Root:is([data-mobile-material="glass"], [data-mobile-material="glass"] *, [data-toolbar] *):not([data-mobile-material="flat"], [data-mobile-material="flat"] *):not(:has(> :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"]), > [data-slot="button-group"] > :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"]))) {
+    --button-group-joined-radius: var(--radius-full);
+    --button-group-joined-overlap: 0px;
+    --button-group-joined-clip: none;
+    --button-group-nested-gap: var(--button-group-glass-nested-gap);
+  }
+
+  /* In a bar a group takes the bar's sizes: 44 on top, 48 at the bottom (Toolbar.module.css). */
+  [data-toolbar] .Root {
+    --button-group-glass-item-size: var(--toolbar-item-size);
+    --button-group-glass-gap: var(--toolbar-group-gap);
+    --button-group-glass-padding: var(--toolbar-group-padding);
+    --button-group-glass-nested-gap: var(--toolbar-item-gap);
+  }
+
+  /* The capsule: a group of buttons alone. */
+  .Root:is([data-mobile-material="glass"], [data-mobile-material="glass"] *, [data-toolbar] *):not([data-mobile-material="flat"], [data-mobile-material="flat"] *):not(:has(> [data-slot="button-group"], > :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"]))) {
+    gap: var(--button-group-glass-gap);
+    padding: 0 var(--button-group-glass-padding);
+    border-radius: var(--radius-full);
+    background-color: var(--mobile-glass-background);
+    background-image: var(--mobile-glass-sheen);
+    box-shadow: var(--mobile-glass-shadow);
+    -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    backdrop-filter: var(--mobile-glass-backdrop-filter);
+
+    /* One button is a capsule of its own, as Back beside a group. */
+    &:not(:has(> * + *)) {
+      padding: 0;
+    }
+
+    &[data-orientation="vertical"] {
+      --button-group-glass-item-size: var(--button-group-glass-vertical-item-size);
+      gap: var(--button-group-glass-vertical-gap);
+      padding: var(--button-group-glass-vertical-padding) 0;
+    }
+
+    &[data-orientation="vertical"]:not(:has(> * + *)) {
+      padding: 0;
+    }
+
+    /* The kit's capsule draws no line between its buttons. */
+    & > [data-slot="button-group-separator"] {
+      display: none;
+    }
+
+    /* Each button is a bar button with no surface of its own: the capsule is its glass, and a press tints it. A
+       disabled ButtonLink renders a span with the link role. */
+    & > :where(button, a, [role="link"]) {
+      --button-size: var(--button-group-glass-item-size);
+      --button-uniform-size: var(--button-group-glass-item-size);
+      --button-radius: var(--radius-full);
+      --button-font-size: var(--toolbar-label-font-size);
+      --button-line-height: var(--toolbar-label-line-height);
+      --button-font-weight: var(--toolbar-label-font-weight);
+    }
+
+    & > :where(button, a, [role="link"]):where(:not([data-navigation-action])) {
+      --button-icon-size: var(--toolbar-icon-size);
+    }
+
+    & > :where(button, a, [role="link"]):where(:not([data-navigation-action], [data-uniform])) {
+      --button-gutter: var(--button-group-glass-label-gutter);
+    }
+
+    & > :where(button, a, [role="link"]):where(:not([data-variant="solid"])) {
+      --button-mobile-material-background: transparent;
+      --button-mobile-material-sheen: none;
+      --button-mobile-material-shadow: 0 0 #00000000;
+      --button-mobile-material-backdrop-filter: none;
+      --button-mobile-material-opacity: 1;
+      --button-mobile-material-scale: 1;
+      --button-mobile-material-hover: var(--toolbar-group-item-hover);
+      --button-mobile-material-active: var(--toolbar-group-item-active);
+      --button-outline-context-background: transparent;
+      --button-border-color: transparent;
+      --button-border-color-hover: transparent;
+      --button-background-color-hover: var(--toolbar-group-item-hover);
+      --button-background-color-active: var(--toolbar-group-item-active);
+    }
+
+    /* A neutral symbol or label is the primary label, as the kit draws it; a disabled one keeps the tertiary. */
+    & > :where(button, a, [role="link"])[data-color="secondary"]:where(:not([data-disabled], [data-variant="solid"])) {
+      --button-text-color: var(--color-text);
+      --button-text-color-hover: var(--color-text);
+    }
+  }
+
+  [data-toolbar][data-placement="bottom"] .Root {
+    --button-group-glass-label-gutter: var(--toolbar-bottom-label-gutter);
   }
 }

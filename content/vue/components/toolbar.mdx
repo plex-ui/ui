@@ -212,7 +212,7 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
 
 ### Group
 
-<ComponentPreview phoneOnly language="vue" details={<><code>ToolbarGroup</code> puts related actions in one capsule. A single action keeps a capsule of its own. Name each icon button with <code>aria-label</code>.</>} code={group}>
+<ComponentPreview phoneOnly language="vue" details={<><code>ToolbarGroup</code> puts related actions in one capsule. A single action keeps a capsule of its own. A <a href="/vue/components/button-group"><code>ButtonGroup</code></a> in a toolbar is the same capsule. Name each icon button with <code>aria-label</code>.</>} code={group}>
   <VueDemo stageClassName={STAGE} state={{ rows }} template={frame(`  <Page surface="grouped">
     <Toolbar>
       <ToolbarLeading>

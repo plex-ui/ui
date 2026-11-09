@@ -568,13 +568,16 @@ Import: import { ButtonGroup } from "@plexui/ui/components/ButtonGroup"
 Docs: https://plexui.com/components/button-group
 Props:
   - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the joined items
+  - mobileMaterial ("glass" | "flat") default: — — Phone surface with touch.css: "glass" makes the group one glass capsule outside a Toolbar, "flat" keeps the joined buttons in one
   - className (string) default: — — Applied to the root <div>
   ButtonGroup.Text:
     - asChild (boolean) default: false — Render as the passed child (e.g. a <label> tied to an input)
     - className (string) default: — — Applied to the wrapper
 
 ### Overview
+On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule, the Button Group of the iOS 27 kit: 44px buttons 12px apart in a 160px capsule on top, 48px ones 6px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do.
 ```tsx
+// Desktop
 <ButtonGroup>
 <ButtonGroup>
   <Button variant="outline" color="secondary" size="sm" uniform aria-label="Go back">
@@ -592,11 +595,41 @@ Props:
   </Button>
 </ButtonGroup>
 </ButtonGroup>
+
+// Phone: the bars of a note
+<Page>
+<Toolbar>
+  <Toolbar.Leading>
+    <NavigationButton action="back" />
+  </Toolbar.Leading>
+  <Toolbar.Trailing>
+    <ButtonGroup aria-label="Note actions">
+      <Button color="secondary" variant="soft" uniform pill aria-label="Pin"><Pin /></Button>
+      <Button color="secondary" variant="soft" uniform pill aria-label="Tag"><Tag /></Button>
+      <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+    </ButtonGroup>
+  </Toolbar.Trailing>
+</Toolbar>
+<Page.Content>…</Page.Content>
+<Toolbar placement="bottom">
+  <Toolbar.Leading>
+    <ButtonGroup aria-label="Editing tools">
+      <Button color="secondary" variant="soft" uniform pill aria-label="Checklist"><NotebookCheck /></Button>
+      <Button color="secondary" variant="soft" uniform pill aria-label="Attach"><Clip /></Button>
+      <Button color="secondary" variant="soft" uniform pill aria-label="Markup"><Pens /></Button>
+    </ButtonGroup>
+  </Toolbar.Leading>
+  <Toolbar.Trailing>
+    <Button color="secondary" variant="soft" uniform pill aria-label="New note"><PencilSquare /></Button>
+  </Toolbar.Trailing>
+</Toolbar>
+</Page>
 ```
 
 ### Orientation
-Pass orientation="vertical" to stack the buttons, useful for + / − steppers, zoom controls, or any vertical toolbar. On a phone with touch.css a group of icon-only buttons keeps their 44px at each size shown, so the phone view leaves out the size control.
+Pass orientation="vertical" to stack the buttons, useful for + / − steppers, zoom controls, or any vertical toolbar. On a phone the example is zoom controls floating over a canvas, as map controls do: with mobileMaterial="glass" the group is the vertical Button Group of the iOS 27 kit, a 48px wide capsule of 48px buttons 6px apart. In the content a group of icon-only buttons keeps their 44px at each size, so the phone view leaves out the size control.
 ```tsx
+// Desktop
 <ButtonGroup orientation="vertical" aria-label="Zoom controls">
 <Button variant="outline" color="secondary" size="sm" uniform aria-label="Zoom in">
   <PlusSm />
@@ -604,6 +637,12 @@ Pass orientation="vertical" to stack the buttons, useful for + / − steppers, z
 <Button variant="outline" color="secondary" size="sm" uniform aria-label="Zoom out">
   <Minus />
 </Button>
+</ButtonGroup>
+
+// Phone: zoom controls over a canvas
+<ButtonGroup orientation="vertical" mobileMaterial="glass" aria-label="Zoom controls" className="absolute top-2 right-4">
+<Button color="secondary" variant="soft" uniform pill aria-label="Zoom in"><Plus /></Button>
+<Button color="secondary" variant="soft" uniform pill aria-label="Zoom out"><Minus /></Button>
 </ButtonGroup>
 ```
 
@@ -653,7 +692,7 @@ Place ButtonGroup inside ButtonGroup to create visually separated sub-groups. Th
 ```
 
 ### Separator
-Drop a ButtonGroup.Separator between items to add a visible divider, commonly used for Undo / Redo pairs or any "two related actions" toolbar.
+Drop a ButtonGroup.Separator between items to add a visible divider, commonly used for Undo / Redo pairs or any "two related actions" toolbar. A glass group on a phone draws no line, as the capsule of iOS has none.
 ```tsx
 <ButtonGroup>
 <Button variant="soft" color="secondary" size="sm"><Undo /> Undo</Button>
@@ -9750,7 +9789,7 @@ titleStyle sets the size and place of the title: inline in the row of controls, 
 ```
 
 ### Group
-Toolbar.Group puts related actions in one capsule. A single action keeps a capsule of its own. Name each icon button with aria-label.
+Toolbar.Group puts related actions in one capsule. A single action keeps a capsule of its own. A ButtonGroup in a toolbar is the same capsule. Name each icon button with aria-label.
 ```tsx
 <Toolbar>
 <Toolbar.Leading>

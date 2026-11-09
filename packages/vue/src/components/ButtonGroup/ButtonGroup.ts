@@ -13,11 +13,19 @@ import s from "@plexui/styles/components/ButtonGroup/ButtonGroup.module.css"
 
 export type ButtonGroupOrientation = "horizontal" | "vertical"
 
+export type ButtonGroupMobileMaterial = "glass" | "flat"
+
 const ButtonGroupComponent = defineComponent({
   name: "ButtonGroup",
   props: {
     /** Direction of the joined buttons. @default "horizontal" */
     orientation: { type: String as PropType<ButtonGroupOrientation>, default: "horizontal" },
+    /**
+     * Phone surface (below 768px, with touch.css). `"glass"` makes the group one glass capsule, the Button Group
+     * of the iOS 27 kit, for controls over the content; a group in a Toolbar is one already. `"flat"` keeps the
+     * joined buttons in a Toolbar.
+     */
+    mobileMaterial: String as PropType<ButtonGroupMobileMaterial>,
   },
   setup(props, { slots }) {
     return () =>
@@ -27,6 +35,7 @@ const ButtonGroupComponent = defineComponent({
           "role": "group",
           "data-slot": "button-group",
           "data-orientation": props.orientation,
+          "data-mobile-material": props.mobileMaterial,
           "class": s.Root,
         },
         slots.default?.(),
