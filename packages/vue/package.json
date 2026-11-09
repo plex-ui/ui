@@ -1,6 +1,6 @@
 {
   "name": "@plexui/vue",
-  "version": "0.14.1",
+  "version": "0.15.0",
   "description": "Plex UI components for Vue 3, built on Reka UI and the shared @plexui/styles CSS",
   "type": "module",
   "license": "MIT",
@@ -77,7 +77,7 @@
     "@maskito/core": "5.2.2",
     "@maskito/kit": "5.2.2",
     "@maskito/vue": "5.2.2",
-    "@plexui/styles": "^0.1.39",
+    "@plexui/styles": "^0.1.40",
     "@tanstack/table-core": "8.21.3",
     "@tanstack/vue-table": "8.21.3",
     "@tiptap/core": "3.21.0",
