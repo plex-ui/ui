@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 60
+Components: 61
 
 ## Setup
 
@@ -1071,6 +1071,25 @@ Props:
   - onBlur (FocusEventHandler<HTMLDivElement>) — Called when the stepper loses focus
   - className (string) — CSS classes applied to the stepper
 Examples: Overview, In rows, Range, step and wrap, States
+
+## Swipe Actions
+"Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys."
+Import: import { SwipeActions } from "@plexui/ui/components/SwipeActions"
+Docs: https://plexui.com/components/swipe-actions
+Props:
+  - leading (SwipeAction[]) default: [] — Actions revealed by a swipe toward the trailing edge, the first one at the leading edge
+  - trailing (SwipeAction[]) default: [] — Actions revealed by a swipe toward the leading edge, the first one at the trailing edge
+  - labelPlacement ("hidden" | "inside" | "below") default: "hidden" — Where the actions show their labels: symbols only, inside the capsule, or below it (for rows of 68px and taller)
+  - fullSwipe (boolean) default: true — A swipe past the middle between the open actions and the far edge runs the first action of that side
+  - className (string) — CSS classes applied to the row
+  - children (ReactNode) — The content of the row
+  SwipeAction:
+    - id (string) — Unique ID of the action within its side
+    - label (string) — Name of the action: shown inside or below the capsule (and on an action without an icon), and its accessible name always
+    - Icon (ComponentType<SVGProps<SVGSVGElement>>) — Icon of the action
+    - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "secondary" — Solid color of the action
+    - onSelect (() => void) — Called when the action is pressed, or by a full swipe when it is the first action of its side
+Examples: Overview, Labels inside, Labels below
 
 ## Switch
 Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.

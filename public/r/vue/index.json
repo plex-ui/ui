@@ -399,6 +399,14 @@
       ]
     },
     {
+      "name": "swipe-actions",
+      "type": "registry:ui",
+      "description": "\"Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys.\"",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "switch",
       "type": "registry:ui",
       "description": "Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.",

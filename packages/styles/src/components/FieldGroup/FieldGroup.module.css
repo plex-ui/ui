@@ -53,6 +53,19 @@
   background: var(--field-group-background);
 }
 
+/* A swipe row (SwipeActions) clips what it moves to the corners of the card. */
+.Body > [data-swipe-actions]:first-child,
+.Body > [data-sortable]:first-child > [data-swipe-actions]:first-child {
+  border-start-start-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
+  border-start-end-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
+}
+
+.Body > [data-swipe-actions]:last-child,
+.Body > [data-sortable]:last-child > [data-swipe-actions]:last-child {
+  border-end-start-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
+  border-end-end-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
+}
+
 /* Desktop separators remain part of the row border. */
 .Body > [data-row] + [data-row],
 .Body > [data-sortable] > [data-row] + [data-row] {
@@ -122,7 +135,9 @@
   /* Full-row actions share the cell's bounds. Only their text and accessories
      sit inside the row padding; the pressed surface must not shrink inward. */
   .Body > [data-row] > button[data-block][data-variant="ghost"],
-  .Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"] {
+  .Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"],
+  .Body > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"],
+  .Body > [data-sortable] > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"] {
     --button-mobile-material-scale: 1;
   }
 
@@ -141,7 +156,9 @@
   /* An open popup is not a held press. Keep selection and explicit glass
      surfaces independent; the trigger remains focusable and expanded. */
   .Body > [data-row] > button[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before,
-  .Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before {
+  .Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before,
+  .Body > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before,
+  .Body > [data-sortable] > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before {
     opacity: 0;
   }
 
@@ -156,6 +173,14 @@
     height: 1px;
     background: var(--color-border);
     pointer-events: none;
+  }
+
+  /* A revealed swipe row stands apart from the card as a capsule: no line above it or under it. */
+  .Body > [data-swipe-actions][data-revealed]::after,
+  .Body > [data-swipe-actions][data-revealed] + [data-row]::after,
+  .Body > [data-sortable] > [data-swipe-actions][data-revealed]::after,
+  .Body > [data-sortable] > [data-swipe-actions][data-revealed] + [data-row]::after {
+    opacity: 0;
   }
 }
 

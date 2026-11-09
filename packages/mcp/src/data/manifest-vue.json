@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 60,
+  "componentCount": 61,
   "components": [
     {
       "slug": "accordion",
@@ -6271,6 +6271,92 @@
       "docsUrl": "https://plexui.com/vue/components/stepper"
     },
     {
+      "slug": "swipe-actions",
+      "name": "Swipe Actions",
+      "description": "\"Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys.\"",
+      "importPath": "@plexui/vue/components/SwipeActions",
+      "exports": [
+        "SwipeActions"
+      ],
+      "props": [
+        {
+          "name": "leading",
+          "type": "SwipeAction[]",
+          "default": "[]",
+          "description": "Actions revealed by a swipe toward the trailing edge, the first one at the leading edge"
+        },
+        {
+          "name": "trailing",
+          "type": "SwipeAction[]",
+          "default": "[]",
+          "description": "Actions revealed by a swipe toward the leading edge, the first one at the trailing edge"
+        },
+        {
+          "name": "label-placement",
+          "type": "\"hidden\" | \"inside\" | \"below\"",
+          "default": "\"hidden\"",
+          "description": "Where the actions show their labels: symbols only, inside the capsule, or below it (for rows of 68px and taller)"
+        },
+        {
+          "name": "full-swipe",
+          "type": "boolean",
+          "default": "true",
+          "description": "A swipe past the middle between the open actions and the far edge runs the first action of that side"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<FieldGroup>\n  <SwipeActions\n    v-for=\"list in lists\"\n    :key=\"list.name\"\n    :leading=\"[{ id: 'pin', label: 'Pin', Icon: Pin, color: 'warning', onSelect: () => pin(list) }]\"\n    :trailing=\"[\n      { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', onSelect: () => remove(list) },\n      { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', onSelect: () => archive(list) },\n    ]\"\n  >\n    <div class=\"row\">{{ list.name }}</div>\n  </SwipeActions>\n</FieldGroup>",
+          "details": "Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart and 16px from the edge, as in the iOS 27 kit; the first action of a side stands at its edge. Swiped aside, the content becomes a capsule of the row&apos;s color on the background of the list. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it."
+        },
+        {
+          "name": "Labels inside",
+          "code": "<SwipeActions\n  label-placement=\"inside\"\n  :leading=\"[{ id: 'pin', label: 'Pin', Icon: Pin, color: 'warning', onSelect: () => pin(list) }]\"\n  :trailing=\"[\n    { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', onSelect: () => remove(list) },\n    { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', onSelect: () => archive(list) },\n  ]\"\n>\n  <div class=\"row\">{{ list.name }}</div>\n</SwipeActions>",
+          "details": "With label-placement=&quot;inside&quot; each capsule holds a smaller symbol and its label, as the kit&apos;s Symbol and Label row. An action without an icon always shows its label inside."
+        },
+        {
+          "name": "Labels below",
+          "code": "<SwipeActions\n  label-placement=\"below\"\n  :leading=\"[{ id: 'flag', label: 'Flag', Icon: Flag, color: 'warning', onSelect: () => flag(message) }]\"\n  :trailing=\"[\n    { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', onSelect: () => remove(message) },\n    { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', onSelect: () => archive(message) },\n  ]\"\n>\n  <div class=\"row\">\n    <div>{{ message.from }}</div>\n    <div>{{ message.subject }}</div>\n  </div>\n</SwipeActions>",
+          "details": "With label-placement=&quot;below&quot; a lower capsule stands over its label, as the kit&apos;s Symbol and Label Tall row. It takes a row of 68px or taller, such as a row of two lines."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "SwipeAction",
+          "props": [
+            {
+              "name": "id",
+              "type": "string",
+              "description": "Unique ID of the action within its side"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "description": "Name of the action: shown inside or below the capsule (and on an action without an icon), and its accessible name always"
+            },
+            {
+              "name": "Icon",
+              "type": "Component",
+              "description": "Icon of the action, a component (mark it raw in reactive state)"
+            },
+            {
+              "name": "color",
+              "type": "\"primary\" | \"secondary\" | \"danger\" | \"success\" | \"info\" | \"discovery\" | \"caution\" | \"warning\"",
+              "default": "\"secondary\"",
+              "description": "Solid color of the action"
+            },
+            {
+              "name": "onSelect",
+              "type": "() => void",
+              "description": "Called when the action is pressed, or by a full swipe when it is the first action of its side"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/swipe-actions"
+    },
+    {
       "slug": "switch",
       "name": "Switch",
       "description": "Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.",
@@ -7768,5 +7854,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-08T22:59:45.545Z"
+  "generatedAt": "2026-11-09T00:05:08.455Z"
 }

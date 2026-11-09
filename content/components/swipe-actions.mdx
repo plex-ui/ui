@@ -1,0 +1,105 @@
+---
+title: Swipe Actions
+description: "Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys."
+metaDescription: "React swipe actions for list rows in the iOS style: leading and trailing actions behind a FieldGroup row, revealed by a swipe, a full swipe for the first action, labels hidden, inside or below, and keyboard reach."
+---
+
+import { SwipeActionsLabelsBelowDemo, SwipeActionsLabelsInsideDemo, SwipeActionsOverviewDemo } from "@/components/docs/SwipeActionsDemos"
+
+<UsageBlock>{`import { SwipeActions } from "@plexui/ui/components/SwipeActions";`}</UsageBlock>
+
+Swipe actions keep the actions of a row out of sight until they are wanted, as the swipe actions of an iOS list do: a swipe toward the leading edge reveals the trailing actions, a swipe toward the trailing edge the leading ones, and a full swipe runs the first action of that side. Give a row the actions people take on it often, such as Delete or Archive, and keep the same actions in reach elsewhere too, as in a menu, for people who never swipe.
+
+## Examples
+
+The examples show the phone view.
+
+### Overview
+
+<ComponentPreview phoneOnly details={<>Wrap the content of a row of a <code>FieldGroup</code>: the swipe row is the <code>data-row</code> of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart and 16px from the edge, as in the iOS 27 kit; the first action of a side stands at its edge. Swiped aside, the content becomes a capsule of the row&apos;s color on the background of the list. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it.</>} code={`<FieldGroup>
+  {lists.map((name) => (
+    <SwipeActions
+      key={name}
+      leading={[{ id: "pin", label: "Pin", Icon: Pin, color: "warning", onSelect: () => pin(name) }]}
+      trailing={[
+        { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", onSelect: () => remove(name) },
+        { id: "archive", label: "Archive", Icon: Archive, color: "info", onSelect: () => archive(name) },
+      ]}
+    >
+      <div className="row">{name}</div>
+    </SwipeActions>
+  ))}
+</FieldGroup>`}>
+  <SwipeActionsOverviewDemo />
+</ComponentPreview>
+
+### Labels inside
+
+<ComponentPreview phoneOnly details={<>With <code>labelPlacement=&quot;inside&quot;</code> each capsule holds a smaller symbol and its label, as the kit&apos;s Symbol and Label row. An action without an icon always shows its label inside.</>} code={`<SwipeActions
+  labelPlacement="inside"
+  leading={[{ id: "pin", label: "Pin", Icon: Pin, color: "warning", onSelect: () => pin(name) }]}
+  trailing={[
+    { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", onSelect: () => remove(name) },
+    { id: "archive", label: "Archive", Icon: Archive, color: "info", onSelect: () => archive(name) },
+  ]}
+>
+  <div className="row">{name}</div>
+</SwipeActions>`}>
+  <SwipeActionsLabelsInsideDemo />
+</ComponentPreview>
+
+### Labels below
+
+<ComponentPreview phoneOnly details={<>With <code>labelPlacement=&quot;below&quot;</code> a lower capsule stands over its label, as the kit&apos;s Symbol and Label Tall row. It takes a row of 68px or taller, such as a row of two lines.</>} code={`<SwipeActions
+  labelPlacement="below"
+  leading={[{ id: "flag", label: "Flag", Icon: Flag, color: "warning", onSelect: () => flag(message) }]}
+  trailing={[
+    { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", onSelect: () => remove(message) },
+    { id: "archive", label: "Archive", Icon: Archive, color: "info", onSelect: () => archive(message) },
+  ]}
+>
+  <div className="row">
+    <div>{message.from}</div>
+    <div>{message.subject}</div>
+  </div>
+</SwipeActions>`}>
+  <SwipeActionsLabelsBelowDemo />
+</ComponentPreview>
+
+## API
+
+### SwipeActions
+
+<PropsTable data={[
+  { prop: "leading", type: "SwipeAction[]", default: "[]", description: "Actions revealed by a swipe toward the trailing edge, the first one at the leading edge" },
+  { prop: "trailing", type: "SwipeAction[]", default: "[]", description: "Actions revealed by a swipe toward the leading edge, the first one at the trailing edge" },
+  { prop: "labelPlacement", type: '"hidden" | "inside" | "below"', default: '"hidden"', description: "Where the actions show their labels: symbols only, inside the capsule, or below it (for rows of 68px and taller)" },
+  { prop: "fullSwipe", type: "boolean", default: "true", description: "A swipe past the middle between the open actions and the far edge runs the first action of that side" },
+  { prop: "className", type: "string", description: "CSS classes applied to the row" },
+  { prop: "children", type: "ReactNode", description: "The content of the row" },
+]} />
+
+### SwipeAction
+
+<PropsTable data={[
+  { prop: "id", type: "string", description: "Unique ID of the action within its side" },
+  { prop: "label", type: "string", description: "Name of the action: shown inside or below the capsule (and on an action without an icon), and its accessible name always" },
+  { prop: "Icon", type: "ComponentType<SVGProps<SVGSVGElement>>", description: "Icon of the action" },
+  { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"secondary"', description: "Solid color of the action" },
+  { prop: "onSelect", type: "() => void", description: "Called when the action is pressed, or by a full swipe when it is the first action of its side" },
+]} />
+
+A swipe starts once the finger has gone 10px across the row and farther across than down; a drag down scrolls the list, and a drag in a text field or along a slider stays with that control. A click that ends a swipe, or that closes an open row, does not reach the content. Each action is also a button, in the order of the screen: the leading actions before the content, the trailing ones after it. The focus on an action reveals its side, and the row closes when the focus leaves it; an action chosen from the keys keeps the focus, so its side stays open. The row has `data-revealed` with the side it shows, and `data-swiping` while a finger moves it.
+
+## Styling
+
+SwipeActions reads these component tokens. Override them at any scope to restyle it:
+
+- `--swipe-actions-gap`, `--swipe-actions-edge-inset`, `--swipe-actions-content-gap`: the space between the actions, from the edge, and from the content (default `10px`, `16px`, `10px`)
+- `--swipe-actions-action-height`, `--swipe-actions-action-min-width`, `--swipe-actions-action-padding-inline`, `--swipe-actions-icon-size`: a capsule with its symbol only (default `44px`, `60px`, `8px`, `20px`)
+- `--swipe-actions-labeled-min-width`, `--swipe-actions-labeled-padding-inline`, `--swipe-actions-labeled-icon-size`, `--swipe-actions-label-gap`: a capsule with its label inside (default `84px`, `4px`, `18px`, `8px`)
+- `--swipe-actions-label-font-size`, `--swipe-actions-label-line-height`, `--swipe-actions-label-font-weight`: the labels (default `13px`, `15px`, normal)
+- `--swipe-actions-tall-action-height`, `--swipe-actions-tall-padding-top`, `--swipe-actions-tall-padding-bottom`, `--swipe-actions-caption-gap`, `--swipe-actions-caption-font-weight`, `--swipe-actions-caption-color`: a capsule with its label below (default `38px`, `6px`, `4px`, `5px`, medium, the secondary text color)
+- `--swipe-actions-background`, `--swipe-actions-content-background`: behind a revealed row and its content, unset by default (on a phone the canvas of the Page or Dialog and the fill of its FieldGroups, on a desktop the secondary surface and the surface)
+- `--swipe-actions-content-radius`: the round side of the content (default `9999px`)
+- `--swipe-actions-duration`: how long the row takes to open or close (default `250ms`)

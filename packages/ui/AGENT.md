@@ -268,6 +268,12 @@ Props: `count` (required), `value` / `defaultValue` (page index from 0), `onChan
 
 Props: `items` (required, the section titles in order, such as `"A"` to `"Z"`), `onSelect(item, index)` (on a press, on each new letter while dragging, from the keys), `aria-label` (default "Section index"), `aria-controls`, `className`. The iOS section index of a long sorted list: phone only (under 768px), at the trailing edge of the nearest positioned container (a `Page`); scroll the list to the section in `onSelect`. Collapses to letters and dots when they do not fit. One vertical slider for assistive technology.
 
+### SwipeActions
+
+**Import:** `@plexui/ui/components/SwipeActions` -- also exports the types `SwipeAction`, `SwipeActionColor`, `SwipeActionsSide`
+
+Props: `leading`, `trailing` (`SwipeAction[]`: `{ id, label, Icon?, color?, onSelect? }`, the first at the outer edge; `color` is a solid PlexUI color, default `"secondary"`), `labelPlacement` (`"hidden"` | `"inside"` | `"below"`, default `"hidden"`; `"below"` needs a row of 68px or taller), `fullSwipe` (default `true`: a full swipe runs the first action of the side), `className`, `children` (the row content). Wraps the content of a `FieldGroup` row and is its `data-row`. The iOS list swipe actions after the iOS 27 kit; actions are buttons in screen order, and the focus on one reveals its side. One row is open at a time.
+
 ### TabBar
 
 **Import:** `@plexui/ui/components/TabBar` -- also exports the types `TabBarItemProps`, `TabBarSearch`, `TabBarProminent`

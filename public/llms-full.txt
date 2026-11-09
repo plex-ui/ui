@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 60
+Components: 61
 
 ## Setup
 
@@ -8278,6 +8278,76 @@ At the lowest value the minus segment is tertiary. A disabled stepper takes no f
 <Stepper aria-label="At the lowest value" defaultValue={0} />
 <Stepper aria-label="Disabled" defaultValue={3} disabled />
 <Stepper aria-label="Square ends" defaultValue={3} pill={false} />
+```
+
+## Swipe Actions
+"Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys."
+Import: import { SwipeActions } from "@plexui/ui/components/SwipeActions"
+Docs: https://plexui.com/components/swipe-actions
+Props:
+  - leading (SwipeAction[]) default: [] — Actions revealed by a swipe toward the trailing edge, the first one at the leading edge
+  - trailing (SwipeAction[]) default: [] — Actions revealed by a swipe toward the leading edge, the first one at the trailing edge
+  - labelPlacement ("hidden" | "inside" | "below") default: "hidden" — Where the actions show their labels: symbols only, inside the capsule, or below it (for rows of 68px and taller)
+  - fullSwipe (boolean) default: true — A swipe past the middle between the open actions and the far edge runs the first action of that side
+  - className (string) — CSS classes applied to the row
+  - children (ReactNode) — The content of the row
+  SwipeAction:
+    - id (string) — Unique ID of the action within its side
+    - label (string) — Name of the action: shown inside or below the capsule (and on an action without an icon), and its accessible name always
+    - Icon (ComponentType<SVGProps<SVGSVGElement>>) — Icon of the action
+    - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "secondary" — Solid color of the action
+    - onSelect (() => void) — Called when the action is pressed, or by a full swipe when it is the first action of its side
+
+### Overview
+Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart and 16px from the edge, as in the iOS 27 kit; the first action of a side stands at its edge. Swiped aside, the content becomes a capsule of the row&apos;s color on the background of the list. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it.
+```tsx
+<FieldGroup>
+{lists.map((name) => (
+  <SwipeActions
+    key={name}
+    leading={[{ id: "pin", label: "Pin", Icon: Pin, color: "warning", onSelect: () => pin(name) }]}
+    trailing={[
+      { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", onSelect: () => remove(name) },
+      { id: "archive", label: "Archive", Icon: Archive, color: "info", onSelect: () => archive(name) },
+    ]}
+  >
+    <div className="row">{name}</div>
+  </SwipeActions>
+))}
+</FieldGroup>
+```
+
+### Labels inside
+With labelPlacement=&quot;inside&quot; each capsule holds a smaller symbol and its label, as the kit&apos;s Symbol and Label row. An action without an icon always shows its label inside.
+```tsx
+<SwipeActions
+labelPlacement="inside"
+leading={[{ id: "pin", label: "Pin", Icon: Pin, color: "warning", onSelect: () => pin(name) }]}
+trailing={[
+  { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", onSelect: () => remove(name) },
+  { id: "archive", label: "Archive", Icon: Archive, color: "info", onSelect: () => archive(name) },
+]}
+>
+<div className="row">{name}</div>
+</SwipeActions>
+```
+
+### Labels below
+With labelPlacement=&quot;below&quot; a lower capsule stands over its label, as the kit&apos;s Symbol and Label Tall row. It takes a row of 68px or taller, such as a row of two lines.
+```tsx
+<SwipeActions
+labelPlacement="below"
+leading={[{ id: "flag", label: "Flag", Icon: Flag, color: "warning", onSelect: () => flag(message) }]}
+trailing={[
+  { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", onSelect: () => remove(message) },
+  { id: "archive", label: "Archive", Icon: Archive, color: "info", onSelect: () => archive(message) },
+]}
+>
+<div className="row">
+  <div>{message.from}</div>
+  <div>{message.subject}</div>
+</div>
+</SwipeActions>
 ```
 
 ## Switch

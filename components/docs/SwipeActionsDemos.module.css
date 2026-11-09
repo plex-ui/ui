@@ -1,0 +1,40 @@
+/* Rows of the swipe action examples, drawn with the row tokens of a FieldGroup. */
+.Row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--field-row-min-height);
+  padding: var(--field-row-text-padding-block) var(--field-row-padding-inline);
+  font-size: var(--field-row-label-font-size);
+  font-weight: var(--field-row-label-font-weight);
+  line-height: var(--field-row-label-line-height);
+}
+
+.Title {
+  flex: 1;
+  min-width: 0;
+}
+
+.Mark {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-warning);
+}
+
+/* Two lines, the kit's row of 68 under labels below the actions. */
+.Tall {
+  min-height: var(--field-row-description-min-height, 68px);
+}
+
+.From {
+  font-size: var(--field-row-label-font-size);
+  font-weight: var(--field-row-label-font-weight);
+  line-height: var(--field-row-label-line-height);
+}
+
+.Subject {
+  color: var(--mobile-label-secondary, var(--color-text-secondary));
+  font-size: var(--field-row-description-font-size, var(--font-text-sm-size));
+  line-height: var(--field-row-description-line-height, var(--font-text-sm-line-height));
+}

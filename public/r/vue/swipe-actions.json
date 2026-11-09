@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "swipe-actions",
+  "type": "registry:ui",
+  "title": "Swipe Actions",
+  "description": "\"Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys.\"",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/swipe-actions/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/SwipeActions\"\n"
+    }
+  ],
+  "docs": "Import as `import { SwipeActions } from '@/components/ui/swipe-actions'`. See https://plexui.com/vue/components/swipe-actions for props and examples."
+}

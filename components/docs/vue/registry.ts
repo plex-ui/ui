@@ -167,6 +167,7 @@ import { Slider } from '@plexui/vue/components/Slider';
 import { Sortable, SortableHandle } from '@plexui/vue/components/Sortable';
 import { StatCard } from '@plexui/vue/components/StatCard';
 import { Stepper } from '@plexui/vue/components/Stepper';
+import { SwipeActions } from '@plexui/vue/components/SwipeActions';
 import { Switch } from '@plexui/vue/components/Switch';
 import {
   Table,
@@ -413,6 +414,7 @@ const components: Record<string, Component> = {
   SortableHandle,
   StatCard,
   Stepper,
+  SwipeActions,
   Switch,
   Table,
   TableBody,

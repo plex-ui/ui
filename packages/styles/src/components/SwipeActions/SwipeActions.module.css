@@ -1,0 +1,228 @@
+/* Actions behind a row of a list, after the iOS 27 kit Row with Swipe Actions (Lists 550:49969): the content slides
+   aside and the actions stand behind it as solid capsules, 10px apart, 16px from the edge and 10px from the content,
+   which turns into a capsule of the row's color on the background of the list. The colors are PlexUI's solid ones. */
+.SwipeActions {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* A revealed row shows the background of the list behind its content and actions: on a desktop the secondary surface
+   under the surface. The two backgrounds have no default of their own, so a nested theme does not reset them; set
+   `--swipe-actions-background` and `--swipe-actions-content-background` to override them. */
+.SwipeActions[data-revealed] {
+  background: var(--swipe-actions-background, var(--color-surface-secondary));
+}
+
+.Content {
+  position: relative;
+  z-index: 1;
+  /* Where a swipe has moved it, set by the row (physical px). */
+  translate: var(--swipe-actions-offset, 0px);
+  /* A swipe across the row moves it; a swipe down scrolls the list. */
+  touch-action: pan-y;
+  transition: translate var(--swipe-actions-duration) var(--ease-cubic-move, ease);
+}
+
+/* Moved aside, the content is a capsule of the row's color, round on the side of the actions. */
+.SwipeActions[data-revealed] > .Content {
+  background: var(--swipe-actions-content-background, var(--color-surface));
+}
+
+/* On a phone the canvas of the Page (or Dialog) and the fill of its FieldGroups, as the kit's row (550:49969) on the
+   background of the list; outside them the plain surfaces. */
+@media (max-width: 767.98px) {
+  .SwipeActions[data-revealed] {
+    background: var(--swipe-actions-background, var(--mobile-surface-primary, var(--mobile-surface-plain-primary, var(--color-surface-secondary))));
+  }
+
+  .SwipeActions[data-revealed] > .Content {
+    background: var(--swipe-actions-content-background, var(--mobile-surface-secondary, var(--mobile-surface-plain-secondary, var(--color-surface))));
+  }
+}
+
+.SwipeActions[data-revealed="leading"] > .Content {
+  border-start-start-radius: var(--swipe-actions-content-radius);
+  border-end-start-radius: var(--swipe-actions-content-radius);
+}
+
+.SwipeActions[data-revealed="trailing"] > .Content {
+  border-start-end-radius: var(--swipe-actions-content-radius);
+  border-end-end-radius: var(--swipe-actions-content-radius);
+}
+
+.SwipeActions[data-swiping] > .Content {
+  transition: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.Actions {
+  position: absolute;
+  inset-block: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--swipe-actions-gap);
+}
+
+.Actions[data-side="leading"] {
+  inset-inline-start: 0;
+  padding-inline: var(--swipe-actions-edge-inset) var(--swipe-actions-content-gap);
+}
+
+.Actions[data-side="trailing"] {
+  inset-inline-end: 0;
+  padding-inline: var(--swipe-actions-content-gap) var(--swipe-actions-edge-inset);
+}
+
+/* The side that is not revealed stays out of sight, its actions still reachable by the keys: the focus on one
+   reveals its side. */
+.SwipeActions:not([data-revealed="leading"]) > .Actions[data-side="leading"],
+.SwipeActions:not([data-revealed="trailing"]) > .Actions[data-side="trailing"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.Action {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: stretch;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible > .Capsule {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+.Capsule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--swipe-actions-label-gap);
+  min-width: var(--swipe-actions-action-min-width);
+  height: var(--swipe-actions-action-height);
+  padding-inline: var(--swipe-actions-action-padding-inline);
+  border-radius: 9999px;
+  background: var(--swipe-action-background);
+  color: var(--swipe-action-color);
+  transition: background-color var(--duration-basic, 120ms) var(--ease-basic, ease);
+}
+
+.Action:active > .Capsule {
+  background: var(--swipe-action-background-active);
+}
+
+.Icon {
+  flex-shrink: 0;
+  width: var(--swipe-actions-icon-size);
+  height: var(--swipe-actions-icon-size);
+}
+
+.Label {
+  font-size: var(--swipe-actions-label-font-size);
+  line-height: var(--swipe-actions-label-line-height);
+  font-weight: var(--swipe-actions-label-font-weight);
+  white-space: nowrap;
+}
+
+/* Symbol and Label: the label inside the capsule, after a smaller symbol. */
+.SwipeActions[data-label-placement="inside"] .Capsule {
+  --swipe-actions-action-min-width: var(--swipe-actions-labeled-min-width);
+  --swipe-actions-action-padding-inline: var(--swipe-actions-labeled-padding-inline);
+  --swipe-actions-icon-size: var(--swipe-actions-labeled-icon-size);
+}
+
+/* Symbol and Label Tall: a lower capsule with the label under it, for a row of two lines. */
+.SwipeActions[data-label-placement="below"] .Action {
+  gap: var(--swipe-actions-caption-gap);
+  padding-block: var(--swipe-actions-tall-padding-top) var(--swipe-actions-tall-padding-bottom);
+}
+
+.SwipeActions[data-label-placement="below"] .Capsule {
+  --swipe-actions-action-height: var(--swipe-actions-tall-action-height);
+}
+
+/* The secondary label of the row (touch.css gives a row the native label roles). */
+.Caption {
+  color: var(--swipe-actions-caption-color, var(--color-text-secondary));
+  font-size: var(--swipe-actions-label-font-size);
+  line-height: var(--swipe-actions-label-line-height);
+  font-weight: var(--swipe-actions-caption-font-weight);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* A full swipe: the first action takes the whole of the open side and the others give way to it. */
+.Actions[data-full] > .Action:not([data-first]) {
+  display: none;
+}
+
+.Actions[data-full] > .Action[data-first] {
+  flex-grow: 1;
+}
+
+.Action[data-color="primary"] {
+  --swipe-action-background: var(--color-background-primary-solid);
+  --swipe-action-background-active: var(--color-background-primary-solid-active);
+  --swipe-action-color: var(--color-text-primary-solid);
+}
+
+.Action[data-color="secondary"] {
+  --swipe-action-background: var(--color-background-secondary-solid);
+  --swipe-action-background-active: var(--color-background-secondary-solid-active);
+  --swipe-action-color: var(--color-text-secondary-solid);
+}
+
+.Action[data-color="danger"] {
+  --swipe-action-background: var(--color-background-danger-solid);
+  --swipe-action-background-active: var(--color-background-danger-solid-active);
+  --swipe-action-color: var(--color-text-danger-solid);
+}
+
+.Action[data-color="success"] {
+  --swipe-action-background: var(--color-background-success-solid);
+  --swipe-action-background-active: var(--color-background-success-solid-active);
+  --swipe-action-color: var(--color-text-success-solid);
+}
+
+.Action[data-color="info"] {
+  --swipe-action-background: var(--color-background-info-solid);
+  --swipe-action-background-active: var(--color-background-info-solid-active);
+  --swipe-action-color: var(--color-text-info-solid);
+}
+
+.Action[data-color="discovery"] {
+  --swipe-action-background: var(--color-background-discovery-solid);
+  --swipe-action-background-active: var(--color-background-discovery-solid-active);
+  --swipe-action-color: var(--color-text-discovery-solid);
+}
+
+.Action[data-color="caution"] {
+  --swipe-action-background: var(--color-background-caution-solid);
+  --swipe-action-background-active: var(--color-background-caution-solid-active);
+  --swipe-action-color: var(--color-text-caution-solid);
+}
+
+.Action[data-color="warning"] {
+  --swipe-action-background: var(--color-background-warning-solid);
+  --swipe-action-background-active: var(--color-background-warning-solid-active);
+  --swipe-action-color: var(--color-text-warning-solid);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .Content {
+    transition: none;
+  }
+}
