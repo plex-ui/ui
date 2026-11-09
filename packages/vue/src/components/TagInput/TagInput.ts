@@ -20,10 +20,6 @@ export type Tag = {
   valid: boolean
 }
 
-// How many pixels to reserve on the right of the input as a buffer before wrapping to the next line
-const INPUT_CURSOR_TOLERANCE_PX = 10
-// The total space reserved on either side of the input for padding
-const CONTAINER_PADDING_PX = 24
 const SHAKE_ANIMATION_DURATION_MS = 500
 
 /**
@@ -79,11 +75,9 @@ export const TagInput = defineComponent({
     const focused = ref(props.autoFocus)
     const selectedTag = ref<string | null>(null)
     const duplicateTags = ref(new Set<string>())
-    const inputWidth = ref(0)
 
     const inputRef = ref<HTMLInputElement | null>(null)
     const containerRef = ref<HTMLDivElement | null>(null)
-    const measureRef = ref<HTMLSpanElement | null>(null)
     let pendingRemovalFocus: { tag: string; source: HTMLElement } | null = null
 
     const showInput = computed(() => !props.maxTags || tags.value.size < props.maxTags)
@@ -142,48 +136,7 @@ export const TagInput = defineComponent({
     })
     onBeforeUnmount(() => stopTrackingRemovalPointer?.())
 
-    // Position the real input inside the container (see the React source for the reasoning)
-    let observer: ResizeObserver | undefined
-    const measure = () => {
-      observer?.disconnect()
-      const container = containerRef.value
-      const measureEl = measureRef.value
-      if (!container || !measureEl) {
-        return
-      }
-
-      const recompute = () => {
-        const containerRect = container.getBoundingClientRect()
-        const tagElements = Array.from(container.querySelectorAll("[data-tag]")) as HTMLDivElement[]
-
-        // Grab the right edge of the last tag if it exists, otherwise the left edge of the container
-        const leftBound =
-          tagElements.length > 0
-            ? tagElements[tagElements.length - 1]!.getBoundingClientRect().right
-            : containerRect.left
-
-        measureEl.textContent = currentInput.value || placeholderText.value || ""
-
-        // By padding the text width, we ensure the input wraps to the next line
-        // before we get to the point where we start to overflow
-        const textWidth = measureEl.getBoundingClientRect().width + INPUT_CURSOR_TOLERANCE_PX
-        const remainingSpace = containerRect.right - leftBound - CONTAINER_PADDING_PX
-
-        if (textWidth <= remainingSpace) {
-          inputWidth.value = remainingSpace
-        } else {
-          // We are going to flow to a new line, so recalculate remaining space based on the container size
-          inputWidth.value = containerRect.right - containerRect.left - CONTAINER_PADDING_PX
-        }
-      }
-
-      recompute()
-      observer = new ResizeObserver(recompute)
-      observer.observe(container)
-      container.querySelectorAll("[data-tag]").forEach((chip) => observer!.observe(chip))
-    }
-    onMounted(measure)
-    watch([currentInput, placeholderText, tags], measure, { flush: "post" })
+    // The field takes the width of its text (or hint) from the hidden copy beside it, in CSS (see the React source)
 
     const setTags = (newTags: Tag[]) => {
       emit("update:value", newTags)
@@ -415,7 +368,6 @@ export const TagInput = defineComponent({
     onMounted(() => document.addEventListener("mousedown", handleDocumentMouseDown))
     onBeforeUnmount(() => {
       document.removeEventListener("mousedown", handleDocumentMouseDown)
-      observer?.disconnect()
     })
 
     // Focus on mount when requested, like React's initial `focused` state
@@ -476,8 +428,8 @@ export const TagInput = defineComponent({
             ),
             showInput.value
               ? h("div", { class: s.InputContainer }, [
-                  // Hidden element to measure input width
-                  h("span", { ref: measureRef, class: s.InputMeasure }),
+                  // A hidden copy of the text gives the field its width
+                  h("span", { class: s.InputMeasure, "aria-hidden": "true" }, currentInput.value || placeholderText.value || ""),
                   h("div", { class: s.InputWrapper }, [
                     h("input", {
                       id: props.id,
@@ -488,7 +440,6 @@ export const TagInput = defineComponent({
                       onPaste: handlePaste,
                       onKeydown: handleInputKeyDown,
                       placeholder: placeholderText.value,
-                      style: { width: `${inputWidth.value}px` },
                       disabled: props.disabled,
                     }),
                   ]),

@@ -1,15 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { Progress } from '@plexui/ui/components/Progress';
 import { Label } from '@plexui/ui/components/Label';
+import { Slider } from '@plexui/ui/components/Slider';
 import { usePhoneRows } from './PhoneRows';
-
-const Slider = dynamic(
-  () => import('@plexui/ui/components/Slider').then((mod) => mod.Slider),
-  { ssr: false }
-);
 
 /* ============================================================
    Overview — animates from initial to target on mount

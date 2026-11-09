@@ -1,12 +1,7 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { Slider } from '@plexui/ui/components/Slider';
 import s from './SliderValueControl.module.css';
-
-const Slider = dynamic(
-  () => import('@plexui/ui/components/Slider').then((mod) => mod.Slider),
-  { ssr: false }
-);
 
 export function SliderValueControl({
   value,

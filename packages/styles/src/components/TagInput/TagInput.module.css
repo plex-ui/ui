@@ -284,28 +284,41 @@
   white-space: nowrap;
 }
 
+/* The field is as wide as its text (or hint) and a cursor gutter: a hidden copy of that text sizes the box and
+   the input lies over it. The box wraps under the tags when it does not fit after the last one and stretches
+   over the rest of the row, in CSS alone, so the server draws the rows the browser does (plan 175.3). */
 .InputContainer {
-  display: flex;
-  align-items: center;
+  position: relative;
   flex-grow: 1;
+  min-width: 0;
   max-width: 100%;
 }
 
+/* The row is as tall as its tallest chip (44px on a phone): the field sits in its middle, as the chips' text does */
 .InputWrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
   overflow: hidden;
-  width: 100%;
+  align-items: center;
 }
 
 .InputMeasure {
-  position: absolute;
+  display: block;
+  overflow: hidden;
+  min-width: 20px;
+  height: var(--tag-input-height);
+  /* Room for the cursor, so the field wraps before its text reaches the edge */
+  padding-inline-end: 10px;
   font-size: var(--tag-input-font-size);
+  line-height: 1.4;
   visibility: hidden;
-  white-space: nowrap;
+  white-space: pre;
 }
 
 .Input {
   display: block;
-  min-width: 20px;
+  width: 100%;
   height: var(--tag-input-height);
   padding: 0;
   border: 0;

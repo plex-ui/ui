@@ -155,6 +155,7 @@ export const Textarea = (props: TextareaProps) => {
       data-disabled={disabled ? "" : undefined}
       data-readonly={readOnly ? "" : undefined}
       data-invalid={invalid ? "" : undefined}
+      data-auto-resize={autoResize ? "" : undefined}
       style={toCssVariables({
         "textarea-min-rows": `${rows}`,
         "textarea-max-rows": `${computedMaxRows}`,

@@ -1,7 +1,7 @@
 'use client';
 
 import type { SVGProps } from 'react';
-import { Fragment, useState, useSyncExternalStore } from 'react';
+import { Fragment, useState } from 'react';
 import { Avatar } from '@plexui/ui/components/Avatar';
 import { Robot } from '@plexui/ui/components/Icon';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
@@ -20,21 +20,9 @@ const ROUNDNESS_OPTIONS = [
   'rounded-none',
 ] as const;
 
-const subscribeMounted = () => () => {};
-const getMountedSnapshot = () => true;
-const getServerMountedSnapshot = () => false;
-
-function useMounted() {
-  return useSyncExternalStore(subscribeMounted, getMountedSnapshot, getServerMountedSnapshot);
-}
-
 export function AvatarSizingDemo() {
-  const mounted = useMounted();
   const [size, setSize] = useState(48);
 
-  if (!mounted) {
-    return <div style={{ width: 280, height: 140 }} />;
-  }
 
   return (
     <>
@@ -66,13 +54,9 @@ export function AvatarIconDemo() {
 }
 
 export function AvatarOverflowCountDemo() {
-  const mounted = useMounted();
   const [size, setSize] = useState(48);
   const [count, setCount] = useState(9);
 
-  if (!mounted) {
-    return <div style={{ width: 280, height: 140 }} />;
-  }
 
   return (
     <>
@@ -142,12 +126,8 @@ export function AvatarInteractiveDemo() {
 }
 
 export function AvatarColorsDemo() {
-  const mounted = useMounted();
   const [size, setSize] = useState(48);
 
-  if (!mounted) {
-    return <div style={{ width: '100%', height: 240 }} />;
-  }
 
   return (
     <>

@@ -127,6 +127,12 @@
 
 .EditorContent {
   outline: none;
+  /* ProseMirror's text layout, which TipTap injects for the editor, here for its first frame too: spaces kept,
+     long words broken, no ligatures */
+  word-wrap: break-word;
+  white-space: break-spaces;
+  font-feature-settings: "liga" 0;
+  font-variant-ligatures: none;
 
   > * + * {
     margin-top: 8px;

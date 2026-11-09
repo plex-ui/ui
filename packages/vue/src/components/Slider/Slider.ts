@@ -229,6 +229,8 @@ const SliderMarks = defineComponent({
       // Give our container a height so that we allocate space on the page
       // for the marks and push down other content when we have to wrap
       container.style.height = tallestHeight > 0 ? `${tallestHeight}px` : ""
+      // Placed against the slider's width: the marks show, at their own height (Slider.module.css)
+      if (width) container.dataset.measured = ""
     }
 
     onMounted(() => {

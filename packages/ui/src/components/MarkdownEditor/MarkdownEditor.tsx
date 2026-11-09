@@ -2,6 +2,7 @@
 
 import clsx from "clsx"
 import { useCallback, useEffect, useRef, useState } from "react"
+import ReactMarkdown from "react-markdown"
 import { type Variants } from "../../types"
 import { keepMovedFocus } from "../../lib/helpers"
 import { Bold as BoldIcon, Italic as ItalicIcon, Link as LinkIcon, List as ListIcon, ListNumbers as ListNumbersIcon } from "../Icon"
@@ -161,6 +162,166 @@ function ToolbarButton({
         {children}
       </Button>
     </Tooltip>
+  )
+}
+
+// Nodes of the HTML (hast) tree the first frame rewrites
+type HtmlNode = {
+  type: string
+  tagName?: string
+  value?: string
+  properties?: Record<string, unknown>
+  children?: HtmlNode[]
+}
+
+// The editor reads markdown with `html: false` (markdown-it): HTML is not parsed, its characters are text, and the
+// markdown around and inside it still is
+function remarkWithoutHtml(this: { data(): object }) {
+  const data = this.data() as { micromarkExtensions?: unknown[] }
+  ;(data.micromarkExtensions ??= []).push({ disable: { null: ["htmlFlow", "htmlText"] } })
+}
+
+// The editor's schema keeps paragraphs, lists, bold, italic, links and line breaks. ProseMirror parses anything else
+// into them: a heading is a paragraph of its text, a code block a paragraph of its lines, a quote its paragraphs,
+// inline code its text, an image or a rule nothing, and the text of a list item sits in a paragraph. Outside a code
+// block it collapses white space, as the page does; the editor's text keeps its spaces (white-space: break-spaces)
+const SCHEMA_AS_PARAGRAPH = new Set(["h1", "h2", "h3", "h4", "h5", "h6"])
+const SCHEMA_BLOCKS = new Set(["p", "ul", "ol"])
+const textOf = (node: HtmlNode): string => node.value ?? (node.children ?? []).map(textOf).join("")
+const isBlank = (node: HtmlNode) => node.type === "text" && !node.value?.trim()
+const lineBreak = (): HtmlNode => ({ type: "element", tagName: "br", properties: {}, children: [] })
+
+// White space of a paragraph's text as ProseMirror parses it: runs collapse to one space, none at the start of the
+// paragraph, after a line break or after another space, none at its end
+function collapseWhiteSpace(children: HtmlNode[]) {
+  let previous: HtmlNode | null = null
+  let lineStart = true
+  const walk = (nodes: HtmlNode[]) => {
+    for (const node of nodes) {
+      if (node.type === "text") {
+        let value = (node.value ?? "").replace(/[ \t\r\n\f]+/g, " ")
+        if (value.startsWith(" ") && (lineStart || previous?.value?.endsWith(" "))) value = value.slice(1)
+        node.value = value
+        if (value) {
+          previous = node
+          lineStart = false
+        }
+      } else if (node.tagName === "br") {
+        lineStart = true
+      } else {
+        walk(node.children ?? [])
+      }
+    }
+  }
+  walk(children)
+  if (previous) (previous as HtmlNode).value = (previous as HtmlNode).value!.replace(/ $/, "")
+}
+
+const paragraph = (children: HtmlNode[], { preserveWhiteSpace = false } = {}): HtmlNode => {
+  if (!preserveWhiteSpace) collapseWhiteSpace(children)
+  return {
+    type: "element",
+    tagName: "p",
+    properties: {},
+    // An empty paragraph keeps its line, as ProseMirror's trailing break does
+    children: children.every((child) => child.type === "text" && !child.value) ? [lineBreak()] : children,
+  }
+}
+
+// tiptap-markdown drops the newline markdown-it writes after an element, outside a code block: a line that follows
+// bold, a link or code joins it without a space
+const dropNewlineAfterElements = (nodes: HtmlNode[]) =>
+  nodes.map((node, index) =>
+    index && node.type === "text" && nodes[index - 1]!.type === "element" && node.value?.startsWith("\n")
+      ? { ...node, value: node.value.slice(1) }
+      : node,
+  )
+
+function toEditorSchema(nodes: HtmlNode[]): HtmlNode[] {
+  return dropNewlineAfterElements(nodes).flatMap((node): HtmlNode[] => {
+    if (node.type !== "element") return [node]
+    const children = node.children ?? []
+    switch (node.tagName) {
+      case "img":
+      case "hr":
+        return []
+      case "code":
+        return [{ type: "text", value: textOf(node) }]
+      case "pre": {
+        // ProseMirror keeps a code block's spaces and its newlines as line breaks, the last one followed by the
+        // trailing break of a paragraph that ends in a break
+        const lines = textOf(node).split("\n")
+        if (lines.every((line) => !line)) return []
+        const content: HtmlNode[] = []
+        lines.forEach((line, index) => {
+          if (index) content.push(lineBreak())
+          if (line) content.push({ type: "text", value: line })
+        })
+        if (content[content.length - 1]!.tagName === "br") content.push(lineBreak())
+        return [paragraph(content, { preserveWhiteSpace: true })]
+      }
+      case "blockquote":
+        return toEditorSchema(children)
+      case "p":
+        return [paragraph(toEditorSchema(children))]
+      case "li": {
+        const content: HtmlNode[] = []
+        let run: HtmlNode[] = []
+        const flush = () => {
+          if (!run.every(isBlank)) content.push(paragraph(run))
+          run = []
+        }
+        for (const child of toEditorSchema(children)) {
+          if (child.type === "element" && SCHEMA_BLOCKS.has(child.tagName!)) {
+            flush()
+            content.push(child)
+          } else {
+            run.push(child)
+          }
+        }
+        flush()
+        // A list item starts with a paragraph, an empty one if it has no text (an empty item, an image)
+        if (content[0]?.tagName !== "p") content.unshift(paragraph([]))
+        return [{ ...node, children: content }]
+      }
+      case "ul":
+      case "ol":
+        return [{ ...node, children: toEditorSchema(children).filter((child) => !isBlank(child)) }]
+      default:
+        return SCHEMA_AS_PARAGRAPH.has(node.tagName!)
+          ? [paragraph(toEditorSchema(children))]
+          : [{ ...node, children: toEditorSchema(children) }]
+    }
+  })
+}
+function rehypeEditorSchema() {
+  return (tree: HtmlNode) => {
+    tree.children = toEditorSchema(tree.children ?? []).filter((child) => !isBlank(child))
+  }
+}
+
+/**
+ * The content before the editor exists, on the server and in the first render (`immediatelyRender: false`): the
+ * markdown as the editor will show it, in its schema and its own boxes (EditorContent's, then ProseMirror's), so the
+ * page does not move when ProseMirror takes over. An empty editor shows its placeholder while it can be edited, as the
+ * Placeholder extension does (`showOnlyWhenEditable`).
+ */
+function EditorFirstFrame({ markdown, placeholder, disabled }: { markdown: string; placeholder?: string; disabled: boolean }) {
+  const hint = placeholder && !disabled
+  return (
+    <div>
+      <div className={clsx("tiptap", s.EditorContent)}>
+        {markdown.trim() ? (
+          <ReactMarkdown remarkPlugins={[remarkWithoutHtml]} rehypePlugins={[rehypeEditorSchema]}>
+            {markdown}
+          </ReactMarkdown>
+        ) : (
+          <p className={hint ? "is-editor-empty" : undefined} data-placeholder={hint ? placeholder : undefined}>
+            <br />
+          </p>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -396,7 +557,7 @@ export function MarkdownEditor({
       </div>
 
       <div className={s.Editor} style={{ minHeight }}>
-        <EditorContent editor={editor} />
+        {editor ? <EditorContent editor={editor} /> : <EditorFirstFrame markdown={value ?? defaultValue ?? ""} placeholder={placeholder} disabled={disabled} />}
       </div>
 
       <LinkDialog

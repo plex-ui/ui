@@ -209,6 +209,7 @@ const TextareaComponent = defineComponent({
           "data-disabled": disabled ? "" : undefined,
           "data-readonly": readOnly ? "" : undefined,
           "data-invalid": invalid ? "" : undefined,
+          "data-auto-resize": props.autoResize ? "" : undefined,
           "style": toCssVariables({
             "textarea-min-rows": `${rows}`,
             "textarea-max-rows": `${computedMaxRows.value}`,

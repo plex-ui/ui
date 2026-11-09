@@ -230,6 +230,15 @@
   position: relative;
   width: 100%;
   margin-top: 4px;
+  /* The marks' size, so the line held for them below is one of their lines */
+  font-size: 12px;
+}
+
+/* Until the slider knows its width (Slider sets data-measured) the marks hold one line and stay hidden: the server
+   cannot place them, and the page does not move when they appear. */
+.MarksContainer:not([data-measured]) {
+  min-height: 1lh;
+  visibility: hidden;
 }
 
 .Mark {

@@ -219,6 +219,12 @@
   line-height: var(--textarea-line-height);
   resize: none;
 
+  /* An auto-resizing textarea is as tall as its text from the first frame, between its rows and its maximum rows, as
+     the script then keeps it: the server markup already has the height, so the page does not move as it hydrates. */
+  [data-auto-resize] > & {
+    field-sizing: content;
+  }
+
   &:focus {
     outline: 0;
   }

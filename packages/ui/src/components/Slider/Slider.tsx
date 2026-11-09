@@ -636,6 +636,8 @@ const SliderMarks = memo(({ marks, thumbRef, min, max }: MarksProps) => {
     // Give our container a height so that we allocate space on the page
     // for the marks and push down other content when we have to wrap
     marksContainerRef.current.style.height = tallestHeight > 0 ? `${tallestHeight}px` : ""
+    // Placed against the slider's width: the marks show, at their own height (Slider.module.css)
+    if (sliderWidth) marksContainerRef.current.dataset.measured = ""
   }, [marks, thumbRef, marksContainerRef, min, max, sliderWidth])
 
   return (
