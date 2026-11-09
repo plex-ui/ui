@@ -25,10 +25,11 @@ export const SettingsSliderFields = defineComponent({
             disabled: !props.value.sound, class: s.Slider, 'onUpdate:value': (volume: number | number[]) => { if (typeof volume === 'number') update({ volume }); } }),
           h('output', { class: s.Value, 'aria-hidden': 'true' }, `${props.value.volume}%`),
         ]),
-        footer: () => [
-          h('p', null, 'Choose the volume used for playback. Turning sound off keeps your last setting.'),
+        // The link ends the footer's paragraph, as iOS writes "Learn more…" (Add Payment, IMG_5483 and 5489)
+        footer: () => h('p', null, [
+          'Choose the volume used for playback. Turning sound off keeps your last setting. ',
           h(Dialog, { open: helpOpen.value, 'onUpdate:open': (open: boolean) => { helpOpen.value = open; } }, () => [
-            h(DialogTrigger, null, () => h(TextLink, { primary: true, class: s.Help }, () => 'Learn more')),
+            h(DialogTrigger, null, () => h(TextLink, { primary: true }, () => 'Learn more…')),
             h(DialogContent, { mobileVariant: 'sheet', width: 400 }, () => [
               h(DialogHeader, null, () => [
                 h(DialogTitle, null, () => 'Playback volume'),
@@ -37,7 +38,7 @@ export const SettingsSliderFields = defineComponent({
               h(DialogFooter, null, () => h(DialogClose, null, () => h(Button, { color: 'primary', pill: true }, () => 'Done'))),
             ]),
           ]),
-        ],
+        ]),
       }),
       h(FieldGroup, null, {
         default: () => h(Field, { row: true, label: 'Consistent volume' }, () =>

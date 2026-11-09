@@ -16,6 +16,7 @@ const COPIES = [
   "copyToClipboard",
   "environment",
   "sortable",
+  "contextMenuHold",
   "phoneLayout",
   "menuSubmenuPlacement",
   "menuInitialFocus",

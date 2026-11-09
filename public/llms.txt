@@ -277,10 +277,13 @@ Docs: https://plexui.com/components/context-menu
 Props:
   - onOpen (() => void) — Called when the menu opens
   - onClose (() => void) — Called when the menu closes
+  - forceOpen (boolean) — Controls the menu: true keeps it open under the element, or beside its lifted preview on a phone, and false keeps it closed
   ContextMenu.Trigger:
     - children (ReactElement) — The element the menu is for; it receives the handlers
     - disabled (boolean) default: false — The element keeps the browser's own context menu
-Examples: Overview, Rounded elements
+  ContextMenu.Content:
+    - aria-label (string) — Names the menu for assistive technology, in place of the name of its element
+Examples: Overview, Rounded elements, In a sortable list
 
 ## Copy Tooltip
 A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
@@ -1158,7 +1161,7 @@ Props:
     - disabled (boolean) default: false — The tab cannot be selected
     - onClick ((event: MouseEvent) => void) — Called when the tab is pressed, before it is selected
     - className (string) — CSS classes applied to the tab
-Examples: Overview, Search tab, Prominent tab, Minimize on scroll, Background
+Examples: Overview
 
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.

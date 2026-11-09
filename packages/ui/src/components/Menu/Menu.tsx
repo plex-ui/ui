@@ -38,7 +38,7 @@ import s from "@plexui/styles/components/Menu/Menu.module.css"
 // Inside a PhoneLayout a menu opens in its box, laid out as on a phone and kept within it; in a Dialog laid out as on a
 // phone outside one it opens over the window, in a phone scope of its own (plan 176)
 const COLLISION_PADDING = { bottom: 30, top: 30, left: 12, right: 12 }
-const useMenuPhoneLayout = (open: boolean) => {
+export const useMenuPhoneLayout = (open: boolean) => {
   const floatingBoundary = useFloatingBoundary(open, COLLISION_PADDING)
   const phoneLayout = useContext(PhoneLayoutContext)
   const container = phoneLayout?.container ?? null
@@ -593,7 +593,8 @@ const Content = ({
               "menu-max-height": maxHeight,
             })}
           >
-            {children}
+            {/* The items of a vertical menu lie in the panel itself; a phone menu scrolls them and fades them at its edges */}
+            {isHorizontal ? children : <div className={s.Items}>{children}</div>}
           </RootMenuContent>
         )}
       </TransitionGroup>

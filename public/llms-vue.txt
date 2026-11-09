@@ -272,6 +272,8 @@ Examples: Color well, Sizes and states, Picker, Without opacity
 Import: import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "@plexui/vue/components/ContextMenu"
 Import: import { MenuItem, MenuSeparator } from "@plexui/vue/components/Menu"
 Docs: https://plexui.com/vue/components/context-menu
+Props:
+  - force-open (boolean) — Controls the menu: true keeps it open under the element, or beside its lifted preview on a phone, and false keeps it closed
   ContextMenuTrigger:
     - disabled (boolean) default: false — The element keeps the browser's own context menu
   ContextMenuContent:
@@ -279,7 +281,8 @@ Docs: https://plexui.com/vue/components/context-menu
     - min-width (number | string) — Defines the min-width of the menu, in pixels
     - max-height (number) — Defines the max-height of the menu, in pixels
     - pill (boolean) default: false — Rounder list with fully rounded rows
-Examples: Overview, Rounded elements
+    - aria-label (string) — Names the menu for assistive technology, in place of the name of its element
+Examples: Overview, Rounded elements, In a sortable list
 
 ## Copy Tooltip
 A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
@@ -1140,7 +1143,7 @@ Props:
     - label (string) — Label under the symbol and the name of the tab
     - href (string) — Makes the tab a link
     - disabled (boolean) default: false — The tab cannot be selected
-Examples: Overview, Search tab, Prominent tab, Minimize on scroll, Background
+Examples: Overview
 
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.

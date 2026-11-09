@@ -1943,12 +1943,15 @@ Docs: https://plexui.com/components/context-menu
 Props:
   - onOpen (() => void) — Called when the menu opens
   - onClose (() => void) — Called when the menu closes
+  - forceOpen (boolean) — Controls the menu: true keeps it open under the element, or beside its lifted preview on a phone, and false keeps it closed
   ContextMenu.Trigger:
     - children (ReactElement) — The element the menu is for; it receives the handlers
     - disabled (boolean) default: false — The element keeps the browser's own context menu
+  ContextMenu.Content:
+    - aria-label (string) — Names the menu for assistive technology, in place of the name of its element
 
 ### Overview
-Wrap the element in ContextMenu.Trigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. On a phone the rows sit on the grouped background of an iOS list.
+Wrap the element in ContextMenu.Trigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. When the menu would not fit below the element, the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list.
 ```tsx
 <ContextMenu>
 <ContextMenu.Trigger>
@@ -1975,6 +1978,28 @@ The element is cut out of the dimming with its own corners. An element without c
 </ContextMenu.Trigger>
 <ContextMenu.Content>...</ContextMenu.Content>
 </ContextMenu>
+```
+
+### In a sortable list
+A row that has a context menu and drags in a Sortable list takes one touch and hold for both, as a lifted preview of iOS does: the hold opens the menu, and moving the finger on from there closes it and drags the row. A grip shown by handles drags at once and opens no menu. With a mouse, a secondary click opens the menu and a drag moves the row.
+```tsx
+const [notes, setNotes] = useState(["Groceries", "Trip to Lisbon", "Book club"]);
+
+<FieldGroup>
+<Sortable value={notes} onChange={setNotes}>
+  {notes.map((note) => (
+    <ContextMenu key={note}>
+      <ContextMenu.Trigger>
+        <div data-row tabIndex={0}>
+          {note}
+          <Sortable.Handle aria-label={`Reorder ${note}`} />
+        </div>
+      </ContextMenu.Trigger>
+      <ContextMenu.Content>...</ContextMenu.Content>
+    </ContextMenu>
+  ))}
+</Sortable>
+</FieldGroup>
 ```
 
 ## Copy Tooltip
@@ -8661,7 +8686,7 @@ Props:
     - className (string) — CSS classes applied to the tab
 
 ### Overview
-Put the bar last in a Page: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are.
+Put the bar last in a Page: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are. With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does, and the capsule keeps to the leading end at the width of its tabs; show the search screen when its value is selected. With prominent one key destination, such as a cart or a library, takes that circle instead, as the prominent tab of iOS 27: it is still a tab, the circle shows its symbol only and label names it, and with both the search tab joins the capsule as its last tab. With minimizeBehavior="onScrollDown" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up; tap the minimized tab to bring the others back. background sets how the bar meets the content scrolled under it, as on a Toolbar: soft (the default) leaves the content clear around the capsule, as native iOS 26 does, glass lays a translucent, blurred band with a hairline under it, hard an opaque band with a line on top and solid an opaque band with no line.
 ```tsx
 const [tab, setTab] = useState('home')
 
@@ -8670,55 +8695,18 @@ const [tab, setTab] = useState('home')
   <Toolbar.Title>Home</Toolbar.Title>
 </Toolbar>
 <Page.Content>...</Page.Content>
-<TabBar value={tab} onValueChange={setTab}>
+<TabBar
+  value={tab}
+  onValueChange={setTab}
+  search={{ value: 'search' }}
+  prominent={{ value: 'bag', label: 'Bag', icon: <ShoppingBag /> }}
+  minimizeBehavior="onScrollDown"
+  background="soft"
+>
   <TabBar.Item value="home" label="Home" icon={<Home />} />
   <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
   <TabBar.Item value="photos" label="Photos" icon={<Images />} />
   <TabBar.Item value="settings" label="Settings" icon={<SettingsCog />} />
-</TabBar>
-</Page>
-```
-
-### Search tab
-With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. The capsule of the other tabs keeps to the leading end at their width, as in the kit and in Photos: with two tabs it ends well before the circle, with three it reaches 8px from it. It is a tab like the others: show the search screen when its value is selected.
-```tsx
-<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }}>
-<TabBar.Item value="home" label="Home" icon={<Home />} />
-<TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
-<TabBar.Item value="photos" label="Photos" icon={<Images />} />
-</TabBar>
-```
-
-### Prominent tab
-With prominent one destination leaves the capsule for a glass circle of its own at the trailing end, as the prominent tab of iOS 27 and its kit: one key destination, such as a cart or a library. It is still a tab, not an action: it shows a screen of its own when selected. A bar has one such circle, so prominent takes the place of the search circle; with both, search becomes the last tab of the capsule. The circle shows the symbol only, and label names the tab.
-```tsx
-<TabBar
-value={tab}
-onValueChange={setTab}
-prominent={{ value: 'bag', label: 'Bag', icon: <ShoppingBag /> }}
->
-<TabBar.Item value="home" label="Home" icon={<Home />} />
-<TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
-<TabBar.Item value="photos" label="Photos" icon={<Images />} />
-</TabBar>
-```
-
-### Minimize on scroll
-With minimizeBehavior="onScrollDown" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Minimized, the circles keep 28px from the sides and at least 28px from the bottom, as in the iOS 27 kit. Tap the minimized tab to bring the others back.
-```tsx
-<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }} minimizeBehavior="onScrollDown">
-...
-</TabBar>
-```
-
-### Background
-background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) leaves the content clear under and around the capsule, as native iOS 26 does, glass is a translucent, blurred band with a hairline, hard is an opaque band with a line on top, and solid an opaque band with no line. Glass and hard show themselves while the content continues under the bar.
-```tsx
-<Page surface="grouped">
-<Toolbar background="hard">...</Toolbar>
-<Page.Content>...</Page.Content>
-<TabBar value={tab} onValueChange={setTab} background="hard">
-  ...
 </TabBar>
 </Page>
 ```

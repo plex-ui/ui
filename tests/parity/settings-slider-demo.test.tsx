@@ -67,7 +67,7 @@ for (const framework of ['React', 'Vue'] as const) describe(`${framework} groupe
   test('help opens and closes without changing either preference', async () => {
     const ui = await mount(framework);
     await interact(() => fireEvent.click(ui.getByRole('switch', { name: 'Consistent volume' })));
-    await interact(() => fireEvent.click(ui.getByRole('button', { name: 'Learn more' })));
+    await interact(() => fireEvent.click(ui.getByRole('button', { name: 'Learn more…' })));
     const help = await ui.findByRole('dialog', { name: 'Playback volume' });
     expect(within(help).getByText(/Volume applies while sound is enabled/)).toBeTruthy();
     await interact(() => fireEvent.click(within(help).getByRole('button', { name: 'Done' })));

@@ -12,6 +12,7 @@ import {
   provide,
   ref,
   shallowRef,
+  Teleport,
   watch,
   type ComputedRef,
   type CSSProperties,
@@ -22,6 +23,7 @@ import {
   type VNode,
   type VNodeArrayChildren,
   isVNode,
+  mergeProps,
 } from "vue"
 import {
   DialogContent as RekaDialogContent,
@@ -63,6 +65,8 @@ type DialogSheet = { showClose: boolean }
 const DIALOG_SHEET: InjectionKey<ComputedRef<DialogSheet | null>> = Symbol("DialogSheet")
 // Inside that bar: the title, the description and the header actions take the Toolbar's parts
 const DIALOG_BAR: InjectionKey<ComputedRef<boolean>> = Symbol("DialogBar")
+// Where DialogBody takes a phone Sheet's description: the first text of the content, under the bar
+const DIALOG_DESCRIPTION_SLOT: InjectionKey<Ref<HTMLElement | null>> = Symbol("DialogDescriptionSlot")
 
 // The phone layout of the Dialog style sheet (its rules for the Sheet's bar use the same query). A dialog's content
 // mounts on the client only (its portal waits for the document), so it reads the layout as it mounts, with nothing to
@@ -284,6 +288,7 @@ export const DialogContent = defineComponent({
     provide(DIALOG_SHEET, computed(() => (props.mobileVariant === "sheet" ? { showClose: props.showClose } : null)))
     // A dialog opened from a header action is not inside that header's bar
     provide(DIALOG_BAR, computed(() => false))
+    provide(DIALOG_DESCRIPTION_SLOT, shallowRef<HTMLElement | null>(null))
     const mobilePlacement = computed(() =>
       props.mobileVariant === "alert"
         ? "center"
@@ -547,34 +552,55 @@ const headerParts = (children: VNodeArrayChildren | undefined): VNodeArrayChildr
   (children ?? []).flatMap((part) =>
     isVNode(part) && part.type === FragmentVNode ? headerParts(part.children as VNodeArrayChildren) : Array.isArray(part) ? headerParts(part) : [part])
 const isHeaderAction = (part: unknown) => isVNode(part) && part.type === DialogHeaderAction
+const isDescription = (part: unknown) => isVNode(part) && part.type === DialogDescription
+
+// The parts it holds stand outside the header's bar, as React's descriptions stand outside the bar's provider
+const OutsideBar = defineComponent({
+  name: "DialogOutsideBar",
+  setup(_props, { slots }) {
+    provide(DIALOG_BAR, computed(() => false))
+    return () => slots.default?.()
+  },
+})
 
 export const DialogHeader = defineComponent({
   name: "DialogHeader",
+  // A phone Sheet's header is the bar and the description under it: its attributes go to the bar
+  inheritAttrs: false,
   props: {
     /** How the bar meets the content scrolled under it in a phone Sheet. @default "glass" */
     background: { type: String as PropType<DialogBarBackground>, default: "glass" },
   },
-  setup(props, { slots }) {
+  setup(props, { slots, attrs }) {
     const scroll = inject(DIALOG_SCROLL, null)
     const sheet = inject(DIALOG_SHEET, null)
+    const descriptionSlot = inject(DIALOG_DESCRIPTION_SLOT, null)
     const phone = usePhoneLayout()
     const bar = computed(() => !!sheet?.value && phone.value)
     provide(DIALOG_BAR, bar)
     return () => {
-      if (!bar.value) return h("div", { class: s.Header, "data-background": props.background, "data-scrolled": scroll?.scrolled.value ? "" : undefined }, slots.default?.())
+      if (!bar.value) return h("div", mergeProps({ "class": s.Header, "data-background": props.background, "data-scrolled": scroll?.scrolled.value ? "" : undefined }, attrs), slots.default?.())
       const parts = headerParts(slots.default?.())
+      const descriptions = parts.filter(isDescription)
+      const slot = descriptionSlot?.value ?? null
       // On a phone the header of a Sheet is its Toolbar (iOS 27 kit Sheets 507-24684, Toolbar - Top - iPhone
-      // 1-54520): Close at the leading edge, the title centered on the row of controls, the header actions at the
-      // trailing edge, all on one 44px row under the grabber.
-      return h(Toolbar, { "background": props.background, "data-dialog-bar": "" }, () => [
-        sheet?.value?.showClose
-          ? h(ToolbarLeading, { class: s.BarClose }, () => [
-              h(DialogClose, null, { default: () => [h(NavigationButton, { "action": "close", "variant": "ghost", "aria-label": "Close dialog" })] }),
-            ])
+      // 1-54520): Close at the leading edge, the title alone centered on the row of controls, the header actions
+      // at the trailing edge, all on one 44px row under the grabber.
+      return [
+        h(Toolbar, mergeProps({ "background": props.background, "data-dialog-bar": "" }, attrs), () => [
+          sheet?.value?.showClose
+            ? h(ToolbarLeading, { class: s.BarClose }, () => [
+                h(DialogClose, null, { default: () => [h(NavigationButton, { "action": "close", "variant": "ghost", "aria-label": "Close dialog" })] }),
+              ])
+            : null,
+          h("div", { class: [t.Heading, s.BarHeading] }, parts.filter((part) => !isHeaderAction(part) && !isDescription(part))),
+          ...parts.filter(isHeaderAction),
+        ]),
+        // The description reads as the first text of the content, at the top of DialogBody when there is one
+        descriptions.length > 0
+          ? h(Teleport, { to: slot, disabled: !slot }, [h("div", { class: s.SheetDescription }, [h(OutsideBar, null, () => descriptions)])])
           : null,
-        h("div", { class: [t.Heading, s.BarHeading] }, parts.filter((part) => !isHeaderAction(part))),
-        ...parts.filter(isHeaderAction),
-      ])
+      ]
     }
   },
 })
@@ -593,6 +619,12 @@ export const DialogBody = defineComponent({
   inheritAttrs: false,
   setup(_props, { slots, attrs }) {
     const scroll = inject(DIALOG_SCROLL, null)
+    const sheet = inject(DIALOG_SHEET, null)
+    const descriptionSlot = inject(DIALOG_DESCRIPTION_SLOT, null)
+    const phone = usePhoneLayout()
+    const setDescriptionSlot = (slot: unknown) => {
+      if (descriptionSlot) descriptionSlot.value = slot instanceof HTMLElement ? slot : null
+    }
     const element = ref<HTMLElement | null>(null)
     let stop: (() => void) | undefined
     onMounted(() => {
@@ -606,7 +638,10 @@ export const DialogBody = defineComponent({
       stop?.()
       if (scroll) { scroll.scrolled.value = false; scroll.contentBelow.value = false }
     })
-    return () => h("div", { ref: element, class: [s.Body, attrs.class] }, slots.default?.())
+    return () => h("div", { ref: element, class: [s.Body, attrs.class] }, [
+      sheet?.value && phone.value ? h("div", { ref: setDescriptionSlot, class: s.SheetDescriptionSlot }) : null,
+      slots.default?.(),
+    ])
   },
 })
 
@@ -657,7 +692,8 @@ export const DialogDescription = defineComponent({
     const bar = inject(DIALOG_BAR, null)
     const element = ref<{ $el?: Element } | Element | null>(null)
     const shown = ref(false)
-    // In the bar a description the reader sees is the title's second line (Toolbar's subtitle); one that is only
+    // The header leaves its own descriptions out of the bar. One the bar still holds, inside a part of the
+    // header's own, is the title's second line (Toolbar's subtitle) when the reader sees it; one that is only
     // read out, visually hidden, leaves the title on its one line.
     const measure = () => {
       const node = element.value instanceof Element ? element.value : element.value?.$el

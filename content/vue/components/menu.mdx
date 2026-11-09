@@ -463,6 +463,8 @@ export const danger = `<Menu>
 
 With the optional `touch.css` stylesheet, phone menus use 34px corners (the iOS 27 kit Menu), 17px labels with 20px line height, and 13/18px subtitles. Rows are 42px, as in native iOS 26 menus, and long labels wrap and make a row taller. A pressed row is the capsule iOS draws under the finger: the whole row, 10px from the panel's edges, round at its ends, in one even gray (`--menu-press-background`). A submenu grows out of the row that opened it while the menu behind it steps back. A checked item keeps its checkmark without a persistent background, centered 28px from the panel's edge with labels at 43.5px, as native menus draw it; in a menu with checkmarks, plain rows and section titles start where the labels do. A menu and a submenu are 250px wide, as native iOS menus are, so a long label wraps under itself; an explicit width or minimum width still takes precedence, and a submenu of `auto` width fits its content.
 
+On a phone, a menu taller than the room it has scrolls its items inside the panel, and they fade out over 32px at an edge they scroll past, as the soft scroll edge of the iOS 27 kit; in a browser without scroll-driven animations they scroll without the fade.
+
 On a phone a menu without `side-offset` grows out of its trigger and covers it, as iOS menus do: its top is the trigger's top, or its bottom when it opens upward, and its aligned edge is the trigger's edge. Without `side` it opens toward the larger part of the screen, upward from a trigger in the lower half even when it would fit below. A desktop keeps the 5px gap below the trigger.
 
 On phones, menus and submenus inside a Page or Dialog keep clear of its visible footer. Their available space updates when the footer or viewport changes.
@@ -489,6 +491,7 @@ Menu reads these component tokens. Override them at any scope to restyle it:
 - `--menu-radio-indicator-hole-size`: radio indicator hole size (default `var(--font-text-3xs-size)`)
 - `--menu-radio-indicator-size`: radio indicator size (default `var(--font-text-lg-size)`)
 - `--menu-radius`: radius (default `var(--radius-xl)`; `34px` on a phone with `touch.css`, the iOS 27 kit Menu)
+- `--menu-scroll-fade`: how far the items of a phone menu fade at an edge they scroll past (default `32px`)
 - `--menu-separator-background-color`: separator background color (default `var(--color-border)`)
 - `--menu-separator-gutter`: separator gutter (default `var(--menu-gutter) calc(-1 * var(--menu-gutter))`)
 - `--radio-group-indicator-background-color`: indicator background color (default `var(--color-background-primary-solid)`)

@@ -8,6 +8,7 @@ import { Textarea as RTextarea } from "../../packages/ui/src/components/Textarea
 import { moveItem, sortableKeyDown, sortablePointerDown } from "../../packages/ui/src/lib/sortable"
 import { Sortable, SortableHandle, SortableTarget } from "../../packages/vue/src/components/Sortable"
 import { sortablePointerDown as vueSortablePointerDown, sortableKeyDown as vueSortableKeyDown } from "../../packages/vue/src/lib/sortable"
+import { CONTEXT_MENU_HOLD } from "../../packages/ui/src/lib/contextMenuHold"
 import { TagInput } from "../../packages/vue/src/components/TagInput"
 import { Textarea } from "../../packages/vue/src/components/Textarea"
 import { flushVue, mountVue } from "./harness"
@@ -881,5 +882,108 @@ describe.each(["react", "vue"] as const)("%s Sortable lifecycle", (port) => {
     expect(pointer).toHaveBeenCalledTimes(1)
     expect(key).toHaveBeenCalledTimes(1)
     expect(app.change).not.toHaveBeenCalled()
+  })
+})
+
+// Plan 176 item 5: an item with a context menu (a ContextMenu.Trigger on it or in it) shares one touch and hold with
+// the menu, as an iOS preview: the drag waits for the menu, and once it stands the finger moving on closes it and drags.
+describe.each([
+  ["React", sortablePointerDown],
+  ["Vue", vueSortablePointerDown],
+] as const)("%s Sortable shares the hold of a context menu", (_, pointerDown) => {
+  const menuList = (html = "<div data-context-menu-trigger>a</div><div>b</div><div>c</div>") => {
+    document.body.innerHTML = `<div data-sortable>${html}</div>`
+    const list = document.body.firstElementChild as HTMLElement
+    const commit = vi.fn()
+    list.addEventListener("pointerdown", (event) => pointerDown(event, list, "list", commit))
+    return { list, commit }
+  }
+  const hold = (element: Element, pointerId = 0) => {
+    const close = vi.fn()
+    element.dispatchEvent(new CustomEvent(CONTEXT_MENU_HOLD, { bubbles: true, detail: { pointerId, close } }))
+    return close
+  }
+  const scrolls = () => {
+    const touch = new Event("touchmove", { cancelable: true })
+    window.dispatchEvent(touch)
+    return !touch.defaultPrevented
+  }
+
+  test("the drag waits for the menu, then the finger moving on closes the menu and drags", async () => {
+    vi.useFakeTimers()
+    const { list, commit } = menuList()
+    press(list.children[0], 20, "touch")
+    vi.advanceTimersByTime(300)
+    // A Sortable alone lifts at 200ms: here the menu's hold decides
+    expect(document.querySelector("[data-sortable-source]")).toBeNull()
+    const close = hold(list.children[0])
+    // The finger holds the preview: the page under it does not scroll
+    expect(scrolls()).toBe(false)
+    moveTo(22)
+    expect(close).not.toHaveBeenCalled()
+    expect(document.querySelector("[data-sortable-source]")).toBeNull()
+    moveTo(30)
+    expect(close).toHaveBeenCalledTimes(1)
+    expect(list.children[0].hasAttribute("data-sortable-source")).toBe(true)
+    moveTo(80)
+    vi.advanceTimersByTime(20)
+    lift()
+    vi.useRealTimers()
+    await frame()
+    expect(commit).toHaveBeenCalledWith(0, 1)
+  })
+
+  test("a trigger inside the item shares the hold too; one around the list does not", () => {
+    vi.useFakeTimers()
+    const { list } = menuList("<div><span data-context-menu-trigger>a</span></div><div>b</div>")
+    press(list.querySelector("span") as Element, 20, "touch")
+    vi.advanceTimersByTime(300)
+    expect(document.querySelector("[data-sortable-source]")).toBeNull()
+    lift()
+
+    document.body.innerHTML = "<div data-context-menu-trigger><div data-sortable><div>a</div><div>b</div></div></div>"
+    const outer = document.querySelector<HTMLElement>("[data-sortable]") as HTMLElement
+    outer.addEventListener("pointerdown", (event) => pointerDown(event, outer, "list", vi.fn()))
+    press(outer.children[0], 20, "touch")
+    vi.advanceTimersByTime(300)
+    expect(outer.children[0].hasAttribute("data-sortable-source")).toBe(true)
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }))
+  })
+
+  test("before the menu opens a touch that moves past the menu's 10px scrolls, and the hold then drags nothing", () => {
+    vi.useFakeTimers()
+    const { list } = menuList()
+    press(list.children[0], 20, "touch")
+    moveTo(27)
+    vi.advanceTimersByTime(300)
+    moveTo(32)
+    const close = hold(list.children[0])
+    expect(scrolls()).toBe(true)
+    moveTo(80)
+    expect(close).not.toHaveBeenCalled()
+    expect(document.querySelector("[data-sortable-source]")).toBeNull()
+  })
+
+  test("a release with the menu open drags nothing and lets the page scroll", () => {
+    vi.useFakeTimers()
+    const { list, commit } = menuList()
+    press(list.children[0], 20, "touch")
+    const close = hold(list.children[0])
+    lift()
+    expect(scrolls()).toBe(true)
+    moveTo(80)
+    expect(close).not.toHaveBeenCalled()
+    expect(commit).not.toHaveBeenCalled()
+  })
+
+  test("the hold of another touch is not this one's", () => {
+    vi.useFakeTimers()
+    const { list } = menuList()
+    press(list.children[0], 20, "touch")
+    const close = hold(list.children[0], 3)
+    moveTo(80)
+    expect(close).not.toHaveBeenCalled()
+    expect(document.querySelector("[data-sortable-source]")).toBeNull()
+    lift()
   })
 })

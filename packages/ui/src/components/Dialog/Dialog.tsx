@@ -19,6 +19,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react"
+import { createPortal } from "react-dom"
 import { FloatingBoundaryProvider, useFloatingBoundaryRegistration, useFloatingBoundaryScope } from "../../hooks/useFloatingBoundary"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { inToastRegion } from "../../lib/toastRegion"
@@ -207,7 +208,12 @@ const Content = ({
   const setEdges = useCallback((next: ScrollEdges) => setEdgesState((current) => sameScrollEdges(current, next) ? current : next), [])
   const scroll = useMemo(() => ({ edges, setEdges }), [edges, setEdges])
   const toolbarHost = useMemo<ToolbarHost>(() => ({ kind: "dialog", scrolled: edges.scrolled, contentBelow: edges.contentBelow }), [edges])
-  const sheet = useMemo<DialogSheetValue | null>(() => (mobileVariant === "sheet" ? { showClose } : null), [mobileVariant, showClose])
+  // Where Dialog.Body takes a phone Sheet's description: the first text of the content, under the bar
+  const [descriptionSlot, setDescriptionSlot] = useState<HTMLElement | null>(null)
+  const sheet = useMemo<DialogSheetValue | null>(
+    () => (mobileVariant === "sheet" ? { showClose, descriptionSlot, setDescriptionSlot } : null),
+    [mobileVariant, showClose, descriptionSlot],
+  )
   const boundary = useFloatingBoundaryScope()
   const setRoot = boundary.setRoot
   const setPanelRef = useCallback((node: HTMLDivElement | null) => { setPanel(node); setRoot(node) }, [setRoot])
@@ -347,7 +353,11 @@ const Content = ({
 type DialogScrollValue = { edges: ScrollEdges; setEdges: (edges: ScrollEdges) => void }
 const DialogScrollContext = createContext<DialogScrollValue | null>(null)
 // What the header of a Sheet needs from its Content to become the Sheet's bar on a phone
-type DialogSheetValue = { showClose: boolean }
+type DialogSheetValue = {
+  showClose: boolean
+  descriptionSlot: HTMLElement | null
+  setDescriptionSlot: (slot: HTMLElement | null) => void
+}
 const DialogSheetContext = createContext<DialogSheetValue | null>(null)
 // Inside that bar: the title, the description and the header actions take the Toolbar's parts
 const DialogBarContext = createContext(false)
@@ -382,6 +392,7 @@ const headerParts = (children: ReactNode, prefix = ""): ReactNode[] =>
     return [prefix ? cloneElement(part, { key: `${prefix}${String(part.key)}` }) : part]
   })
 const isHeaderAction = (part: ReactNode): part is ReactElement => isValidElement(part) && part.type === HeaderAction
+const isDescription = (part: ReactNode): part is ReactElement => isValidElement(part) && part.type === Description
 
 const Header = ({ children, className, background = "glass" }: DialogHeaderProps) => {
   const sheet = useContext(DialogSheetContext)
@@ -389,23 +400,29 @@ const Header = ({ children, className, background = "glass" }: DialogHeaderProps
   const scrolled = useContext(DialogScrollContext)?.edges.scrolled
   if (sheet && phone) {
     const parts = headerParts(children)
+    const descriptions = parts.filter(isDescription)
+    // The description reads as the first text of the content, at the top of Dialog.Body when there is one
+    const description = descriptions.length > 0 && <div className={s.SheetDescription}>{descriptions}</div>
     // On a phone the header of a Sheet is its Toolbar (iOS 27 kit Sheets 507-24684, Toolbar - Top - iPhone
-    // 1-54520): Close at the leading edge, the title centered on the row of controls, the header actions at the
-    // trailing edge, all on one 44px row under the grabber.
+    // 1-54520): Close at the leading edge, the title alone centered on the row of controls, the header actions
+    // at the trailing edge, all on one 44px row under the grabber.
     return (
-      <Toolbar background={background} className={className} data-dialog-bar="">
-        <DialogBarContext.Provider value={true}>
-          {sheet.showClose && (
-            <Toolbar.Leading className={s.BarClose}>
-              <RadixDialog.Close asChild>
-                <NavigationButton action="close" variant="ghost" aria-label="Close dialog" />
-              </RadixDialog.Close>
-            </Toolbar.Leading>
-          )}
-          <div className={clsx(t.Heading, s.BarHeading)}>{parts.filter((part) => !isHeaderAction(part))}</div>
-          {parts.filter(isHeaderAction)}
-        </DialogBarContext.Provider>
-      </Toolbar>
+      <>
+        <Toolbar background={background} className={className} data-dialog-bar="">
+          <DialogBarContext.Provider value={true}>
+            {sheet.showClose && (
+              <Toolbar.Leading className={s.BarClose}>
+                <RadixDialog.Close asChild>
+                  <NavigationButton action="close" variant="ghost" aria-label="Close dialog" />
+                </RadixDialog.Close>
+              </Toolbar.Leading>
+            )}
+            <div className={clsx(t.Heading, s.BarHeading)}>{parts.filter((part) => !isHeaderAction(part) && !isDescription(part))}</div>
+            {parts.filter(isHeaderAction)}
+          </DialogBarContext.Provider>
+        </Toolbar>
+        {description && (sheet.descriptionSlot ? createPortal(description, sheet.descriptionSlot) : description)}
+      </>
     )
   }
   return <div className={clsx(s.Header, className)} data-background={background} data-scrolled={scrolled ? "" : undefined}>{children}</div>
@@ -420,6 +437,10 @@ const HeaderAction = ({ children, className }: DialogSlotProps) => {
 /** The scrolling part between Header and Footer: with it, only the body scrolls */
 const Body = ({ children, className }: DialogSlotProps) => {
   const setEdges = useContext(DialogScrollContext)?.setEdges
+  const sheet = useContext(DialogSheetContext)
+  const phone = usePhoneLayout()
+  // A phone Sheet's description starts the body (Dialog.Header portals it here)
+  const setDescriptionSlot = sheet && phone ? sheet.setDescriptionSlot : null
   const element = useRef<HTMLDivElement | null>(null)
   useLayoutEffect(() => {
     const body = element.current
@@ -427,7 +448,12 @@ const Body = ({ children, className }: DialogSlotProps) => {
     const stop = observeScrollEdges(body, setEdges)
     return () => { stop(); setEdges(NO_SCROLL_EDGES) }
   }, [setEdges])
-  return <div ref={element} className={clsx(s.Body, className)}>{children}</div>
+  return (
+    <div ref={element} className={clsx(s.Body, className)}>
+      {setDescriptionSlot && <div ref={setDescriptionSlot} className={s.SheetDescriptionSlot} />}
+      {children}
+    </div>
+  )
 }
 
 export type DialogFooterProps = DialogSlotProps & {
@@ -463,7 +489,8 @@ const Description = ({ children, className }: DialogSlotProps) => {
   const element = useRef<HTMLParagraphElement | null>(null)
   const [shown, setShown] = useState(false)
   useLayoutEffect(() => {
-    // In the bar a description the reader sees is the title's second line (Toolbar's subtitle); one that is only
+    // The header leaves its own descriptions out of the bar. One the bar still holds, inside a part of the
+    // header's own, is the title's second line (Toolbar's subtitle) when the reader sees it; one that is only
     // read out, visually hidden, leaves the title on its one line.
     const node = element.current
     // A measurement of the laid-out description, which only an effect after layout can read

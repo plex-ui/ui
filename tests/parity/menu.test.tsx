@@ -1878,6 +1878,24 @@ describe("phone submenus (owner, plan 176)", () => {
   test("the rows of a parent behind a submenu take no press", () => {
     expect(rule(".MenuList[data-submenu-over]")).toMatch(/& > \* \{[^}]*pointer-events: none;/)
   })
+
+  // Plan 176 item 5: a phone menu taller than its room scrolls its items inside the panel, which keeps its glass and
+  // shadow, and the items fade at an edge they scroll past (the soft scroll edge of iOS 26)
+  test("the items of a phone menu scroll inside the panel and fade at the edge they scroll past", () => {
+    expect(css).toMatch(/\.Items \{\s*display: contents;/)
+    expect(css).toMatch(/\.MenuList:has\(> \.Items\) \{\s*display: flex;\s*flex-direction: column;\s*overflow: hidden;/)
+    expect(rule(".MenuList > .Items")).toMatch(/min-height: 0;[^}]*overflow: hidden auto;/)
+    // Only where scroll timelines are: without one the animations would end at once and fade the first row for good
+    const supports = css.slice(css.indexOf("@supports (animation-timeline: scroll()) {"))
+    expect(supports).toMatch(/^@supports \(animation-timeline: scroll\(\)\) \{\s*\.MenuList > \.Items,\s*\.MenuList\[data-submenu-phone\] > \.SubmenuItems \{/)
+    const fade = supports.slice(0, supports.indexOf("}"))
+    expect(fade).toContain("mask-image: linear-gradient(to bottom, transparent, #000 var(--menu-fade-start), #000 calc(100% - var(--menu-fade-end)), transparent);")
+    expect(fade).toContain("animation-timeline: scroll(self block), scroll(self block);")
+    expect(fade).toContain("animation-range: 0 var(--menu-scroll-fade, 32px), calc(100% - var(--menu-scroll-fade, 32px)) 100%;")
+    for (const name of ["--menu-fade-start", "--menu-fade-end"]) expect(css).toContain(`@property ${name} {\n  syntax: "<length>";\n  inherits: false;\n  initial-value: 0px;`)
+    const tokens = readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")
+    expect(tokens).toContain("--menu-scroll-fade: 32px;")
+  })
 })
 
 describe("dark phone menus are glass (iOS2 IMG_5524, 5525, 5528)", () => {

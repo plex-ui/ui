@@ -7,6 +7,27 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- One touch and hold for `ContextMenu` and `Sortable`: on an element that has a context menu and drags in a Sortable list, the hold opens the menu, and the finger moving on from there closes the menu and drags the element, as a lifted iOS preview does. A grip drags at once and opens no menu, and a hold on an item a drag already moves opens none either. React and Vue.
+- `ContextMenu` `forceOpen` (`force-open` in Vue): true keeps the menu open under its element, or beside its lifted preview on a phone and in a `PhoneLayout`, and follows the element as the page scrolls or resizes; false keeps it closed.
+- A context menu is named after its element for screen readers: the text it is labelled by, its label, its text, or the text of a picture it is or shows. `ContextMenu.Content` `aria-label` names it otherwise. React and Vue.
+- Phone menus scroll their items inside the panel, and the items fade out over 32px at an edge they scroll past, as the soft scroll edge of the iOS 27 kit (new token `--menu-scroll-fade`). A browser without scroll-driven animations scrolls them without the fade. React and Vue.
+
+### Changed
+
+- `ContextMenu` touch and hold: when the menu would not stand whole below its element, the element moves up (on top of a `translate` of its own), gliding as the dimming comes in and back as it goes (at once with reduced motion), as far as the room above and a box that clips the element allow, as iOS moves a lifted preview. A menu that cannot stand whole below but fits above the element opens there with the element in place.
+- A tap on the element of an open context menu does what a tap on it always does and closes the menu, as a tap on an iOS preview: the cut in the dimming lets it through (it reached nothing before). React and Vue.
+- `ContextMenu` in a `PhoneLayout`: the dimming and the menu's anchor lie in its box, so a phone frame on a desktop page dims as the phone does.
+- The items of a vertical `Menu` lie in a wrapper of their own, which takes no box outside a phone menu (`display: contents`).
+- The bar of a phone `Dialog` Sheet holds its title alone, centered on the row, as in the iOS 27 kit: `Dialog.Description` stands under the bar as the first text of the content, at the top of `Dialog.Body` when there is one, in the label color, instead of a second line in the bar that pushed the title aside. React and Vue.
+
+### Fixed
+
+- The dimming of a context menu that is closing takes no presses, so a press right after the menu closes reaches the page.
+
 ## 0.32.0 (2026-11-09)
 
 ### Added

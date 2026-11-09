@@ -1562,18 +1562,28 @@
           "name": "onClose",
           "type": "() => void",
           "description": "Called when the menu closes"
+        },
+        {
+          "name": "forceOpen",
+          "type": "boolean",
+          "description": "Controls the menu: true keeps it open under the element, or beside its lifted preview on a phone, and false keeps it closed"
         }
       ],
       "examples": [
         {
           "name": "Overview",
           "code": "<ContextMenu>\n<ContextMenu.Trigger>\n  <div tabIndex={0}>Groceries</div>\n</ContextMenu.Trigger>\n<ContextMenu.Content>\n  <ContextMenu.Item onSelect={copy}><Copy /> Copy</ContextMenu.Item>\n  <ContextMenu.Item onSelect={share}><Share /> Share</ContextMenu.Item>\n  <ContextMenu.Item onSelect={pin}><Pin /> Pin</ContextMenu.Item>\n  <ContextMenu.Separator />\n  <ContextMenu.Item danger onSelect={remove}><RemoveTrash /> Delete</ContextMenu.Item>\n</ContextMenu.Content>\n</ContextMenu>",
-          "details": "Wrap the element in ContextMenu.Trigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. On a phone the rows sit on the grouped background of an iOS list."
+          "details": "Wrap the element in ContextMenu.Trigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. When the menu would not fit below the element, the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list."
         },
         {
           "name": "Rounded elements",
           "code": "<ContextMenu>\n<ContextMenu.Trigger>\n  <div tabIndex={0} role=\"img\" aria-label=\"Photos\" className=\"rounded-2xl\">\n    <Images />\n  </div>\n</ContextMenu.Trigger>\n<ContextMenu.Content>...</ContextMenu.Content>\n</ContextMenu>",
           "details": "The element is cut out of the dimming with its own corners. An element without corners of its own gets the 30px corner of the kit's preview, at most half its height."
+        },
+        {
+          "name": "In a sortable list",
+          "code": "const [notes, setNotes] = useState([\"Groceries\", \"Trip to Lisbon\", \"Book club\"]);\n\n<FieldGroup>\n<Sortable value={notes} onChange={setNotes}>\n  {notes.map((note) => (\n    <ContextMenu key={note}>\n      <ContextMenu.Trigger>\n        <div data-row tabIndex={0}>\n          {note}\n          <Sortable.Handle aria-label={`Reorder ${note}`} />\n        </div>\n      </ContextMenu.Trigger>\n      <ContextMenu.Content>...</ContextMenu.Content>\n    </ContextMenu>\n  ))}\n</Sortable>\n</FieldGroup>",
+          "details": "A row that has a context menu and drags in a Sortable list takes one touch and hold for both, as a lifted preview of iOS does: the hold opens the menu, and moving the finger on from there closes it and drags the row. A grip shown by handles drags at once and opens no menu. With a mouse, a secondary click opens the menu and a drag moves the row."
         }
       ],
       "subComponents": [
@@ -1590,6 +1600,17 @@
               "type": "boolean",
               "default": "false",
               "description": "The element keeps the browser's own context menu"
+            }
+          ]
+        },
+        {
+          "name": "ContextMenu.Content",
+          "description": "The props of Menu.Content but its placement, which follows how the menu opened: width, minWidth, maxHeight and pill.",
+          "props": [
+            {
+              "name": "aria-label",
+              "type": "string",
+              "description": "Names the menu for assistive technology, in place of the name of its element"
             }
           ]
         }
@@ -6678,28 +6699,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "const [tab, setTab] = useState('home')\n\n<Page surface=\"grouped\">\n<Toolbar>\n  <Toolbar.Title>Home</Toolbar.Title>\n</Toolbar>\n<Page.Content>...</Page.Content>\n<TabBar value={tab} onValueChange={setTab}>\n  <TabBar.Item value=\"home\" label=\"Home\" icon={<Home />} />\n  <TabBar.Item value=\"calendar\" label=\"Calendar\" icon={<Calendar />} />\n  <TabBar.Item value=\"photos\" label=\"Photos\" icon={<Images />} />\n  <TabBar.Item value=\"settings\" label=\"Settings\" icon={<SettingsCog />} />\n</TabBar>\n</Page>",
-          "details": "Put the bar last in a Page: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are."
-        },
-        {
-          "name": "Search tab",
-          "code": "<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }}>\n<TabBar.Item value=\"home\" label=\"Home\" icon={<Home />} />\n<TabBar.Item value=\"calendar\" label=\"Calendar\" icon={<Calendar />} />\n<TabBar.Item value=\"photos\" label=\"Photos\" icon={<Images />} />\n</TabBar>",
-          "details": "With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. The capsule of the other tabs keeps to the leading end at their width, as in the kit and in Photos: with two tabs it ends well before the circle, with three it reaches 8px from it. It is a tab like the others: show the search screen when its value is selected."
-        },
-        {
-          "name": "Prominent tab",
-          "code": "<TabBar\nvalue={tab}\nonValueChange={setTab}\nprominent={{ value: 'bag', label: 'Bag', icon: <ShoppingBag /> }}\n>\n<TabBar.Item value=\"home\" label=\"Home\" icon={<Home />} />\n<TabBar.Item value=\"calendar\" label=\"Calendar\" icon={<Calendar />} />\n<TabBar.Item value=\"photos\" label=\"Photos\" icon={<Images />} />\n</TabBar>",
-          "details": "With prominent one destination leaves the capsule for a glass circle of its own at the trailing end, as the prominent tab of iOS 27 and its kit: one key destination, such as a cart or a library. It is still a tab, not an action: it shows a screen of its own when selected. A bar has one such circle, so prominent takes the place of the search circle; with both, search becomes the last tab of the capsule. The circle shows the symbol only, and label names the tab."
-        },
-        {
-          "name": "Minimize on scroll",
-          "code": "<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }} minimizeBehavior=\"onScrollDown\">\n...\n</TabBar>",
-          "details": "With minimizeBehavior=\"onScrollDown\" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Minimized, the circles keep 28px from the sides and at least 28px from the bottom, as in the iOS 27 kit. Tap the minimized tab to bring the others back."
-        },
-        {
-          "name": "Background",
-          "code": "<Page surface=\"grouped\">\n<Toolbar background=\"hard\">...</Toolbar>\n<Page.Content>...</Page.Content>\n<TabBar value={tab} onValueChange={setTab} background=\"hard\">\n  ...\n</TabBar>\n</Page>",
-          "details": "background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) leaves the content clear under and around the capsule, as native iOS 26 does, glass is a translucent, blurred band with a hairline, hard is an opaque band with a line on top, and solid an opaque band with no line. Glass and hard show themselves while the content continues under the bar."
+          "code": "const [tab, setTab] = useState('home')\n\n<Page surface=\"grouped\">\n<Toolbar>\n  <Toolbar.Title>Home</Toolbar.Title>\n</Toolbar>\n<Page.Content>...</Page.Content>\n<TabBar\n  value={tab}\n  onValueChange={setTab}\n  search={{ value: 'search' }}\n  prominent={{ value: 'bag', label: 'Bag', icon: <ShoppingBag /> }}\n  minimizeBehavior=\"onScrollDown\"\n  background=\"soft\"\n>\n  <TabBar.Item value=\"home\" label=\"Home\" icon={<Home />} />\n  <TabBar.Item value=\"calendar\" label=\"Calendar\" icon={<Calendar />} />\n  <TabBar.Item value=\"photos\" label=\"Photos\" icon={<Images />} />\n  <TabBar.Item value=\"settings\" label=\"Settings\" icon={<SettingsCog />} />\n</TabBar>\n</Page>",
+          "details": "Put the bar last in a Page: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are. With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does, and the capsule keeps to the leading end at the width of its tabs; show the search screen when its value is selected. With prominent one key destination, such as a cart or a library, takes that circle instead, as the prominent tab of iOS 27: it is still a tab, the circle shows its symbol only and label names it, and with both the search tab joins the capsule as its last tab. With minimizeBehavior=\"onScrollDown\" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up; tap the minimized tab to bring the others back. background sets how the bar meets the content scrolled under it, as on a Toolbar: soft (the default) leaves the content clear around the capsule, as native iOS 26 does, glass lays a translucent, blurred band with a hairline under it, hard an opaque band with a line on top and solid an opaque band with no line."
         }
       ],
       "subComponents": [
@@ -8022,5 +8023,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T10:47:16.556Z"
+  "generatedAt": "2026-11-09T13:30:19.892Z"
 }

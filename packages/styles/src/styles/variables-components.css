@@ -479,6 +479,9 @@
     --menu-radio-indicator-size: var(--font-text-lg-size);
     --menu-radio-indicator-hole-size: var(--font-text-3xs-size);
     --menu-checkbox-indicator-size: var(--font-text-lg-size);
+    /* How far the items of a phone menu fade at an edge they scroll past: the soft scroll edge of the bars
+       (--page-bar-soft-tail), so a menu and a page fade alike. */
+    --menu-scroll-fade: 32px;
 
     /* =============================================
       Modal

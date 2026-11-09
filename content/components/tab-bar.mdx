@@ -4,13 +4,7 @@ description: "The tab bar of a phone screen: two to five sections at the bottom 
 metaDescription: "React phone tab bar in the iOS 26 style: a floating Liquid Glass capsule of tabs with symbols and labels, a selection pill, a separate search tab and minimize on scroll, inside a Page."
 ---
 
-import {
-  TabBarOverviewDemo,
-  TabBarSearchDemo,
-  TabBarProminentDemo,
-  TabBarMinimizeDemo,
-  TabBarBackgroundDemo,
-} from "@/components/docs/TabBarDemos"
+import { TabBarDemo } from "@/components/docs/TabBarDemos"
 
 <UsageBlock>{`import { TabBar } from "@plexui/ui/components/TabBar";`}</UsageBlock>
 
@@ -18,69 +12,32 @@ A tab bar moves between the top-level sections of an app on a phone, as the iOS 
 
 ## Examples
 
-Each example shows the phone view.
+The example shows the phone view. Its settings change the bar in place.
 
 ### Overview
 
-<ComponentPreview phoneOnly details={<>Put the bar last in a <code>Page</code>: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are.</>} code={`const [tab, setTab] = useState('home')
+<ComponentPreview phoneOnly details={<>Put the bar last in a <code>Page</code>: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are. With <code>search</code> the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does, and the capsule keeps to the leading end at the width of its tabs; show the search screen when its value is selected. With <code>prominent</code> one key destination, such as a cart or a library, takes that circle instead, as the prominent tab of iOS 27: it is still a tab, the circle shows its symbol only and <code>label</code> names it, and with both the search tab joins the capsule as its last tab. With <code>minimizeBehavior="onScrollDown"</code> the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up; tap the minimized tab to bring the others back. <code>background</code> sets how the bar meets the content scrolled under it, as on a <a href="/components/toolbar#background">Toolbar</a>: <code>soft</code> (the default) leaves the content clear around the capsule, as native iOS 26 does, <code>glass</code> lays a translucent, blurred band with a hairline under it, <code>hard</code> an opaque band with a line on top and <code>solid</code> an opaque band with no line.</>} code={`const [tab, setTab] = useState('home')
 
 <Page surface="grouped">
   <Toolbar>
     <Toolbar.Title>Home</Toolbar.Title>
   </Toolbar>
   <Page.Content>...</Page.Content>
-  <TabBar value={tab} onValueChange={setTab}>
+  <TabBar
+    value={tab}
+    onValueChange={setTab}
+    search={{ value: 'search' }}
+    prominent={{ value: 'bag', label: 'Bag', icon: <ShoppingBag /> }}
+    minimizeBehavior="onScrollDown"
+    background="soft"
+  >
     <TabBar.Item value="home" label="Home" icon={<Home />} />
     <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
     <TabBar.Item value="photos" label="Photos" icon={<Images />} />
     <TabBar.Item value="settings" label="Settings" icon={<SettingsCog />} />
   </TabBar>
 </Page>`}>
-  <TabBarOverviewDemo />
-</ComponentPreview>
-
-### Search tab
-
-<ComponentPreview phoneOnly details={<>With <code>search</code> the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. The capsule of the other tabs keeps to the leading end at their width, as in the kit and in Photos: with two tabs it ends well before the circle, with three it reaches 8px from it. It is a tab like the others: show the search screen when its value is selected.</>} code={`<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }}>
-  <TabBar.Item value="home" label="Home" icon={<Home />} />
-  <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
-  <TabBar.Item value="photos" label="Photos" icon={<Images />} />
-</TabBar>`}>
-  <TabBarSearchDemo />
-</ComponentPreview>
-
-### Prominent tab
-
-<ComponentPreview phoneOnly details={<>With <code>prominent</code> one destination leaves the capsule for a glass circle of its own at the trailing end, as the prominent tab of iOS 27 and its kit: one key destination, such as a cart or a library. It is still a tab, not an action: it shows a screen of its own when selected. A bar has one such circle, so <code>prominent</code> takes the place of the search circle; with both, search becomes the last tab of the capsule. The circle shows the symbol only, and <code>label</code> names the tab.</>} code={`<TabBar
-  value={tab}
-  onValueChange={setTab}
-  prominent={{ value: 'bag', label: 'Bag', icon: <ShoppingBag /> }}
->
-  <TabBar.Item value="home" label="Home" icon={<Home />} />
-  <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
-  <TabBar.Item value="photos" label="Photos" icon={<Images />} />
-</TabBar>`}>
-  <TabBarProminentDemo />
-</ComponentPreview>
-
-### Minimize on scroll
-
-<ComponentPreview phoneOnly details={<>With <code>minimizeBehavior="onScrollDown"</code> the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Minimized, the circles keep 28px from the sides and at least 28px from the bottom, as in the iOS 27 kit. Tap the minimized tab to bring the others back.</>} code={`<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }} minimizeBehavior="onScrollDown">
-  ...
-</TabBar>`}>
-  <TabBarMinimizeDemo />
-</ComponentPreview>
-
-### Background
-
-<ComponentPreview phoneOnly details={<><code>background</code> sets how the bar meets the content scrolled under it, as a <a href="/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) leaves the content clear under and around the capsule, as native iOS 26 does, <code>glass</code> is a translucent, blurred band with a hairline, <code>hard</code> is an opaque band with a line on top, and <code>solid</code> an opaque band with no line. Glass and hard show themselves while the content continues under the bar.</>} code={`<Page surface="grouped">
-  <Toolbar background="hard">...</Toolbar>
-  <Page.Content>...</Page.Content>
-  <TabBar value={tab} onValueChange={setTab} background="hard">
-    ...
-  </TabBar>
-</Page>`}>
-  <TabBarBackgroundDemo />
+  <TabBarDemo />
 </ComponentPreview>
 
 ## API

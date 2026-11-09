@@ -19,9 +19,11 @@
 }
 
 /* Context Menu - Dimming Overlay: black at 23% over a 30px background blur, with the element cut out so it stays
-   clear, as iOS lifts its preview. A press on the dimming closes the menu and reaches nothing under it. It shares
+   clear, as iOS lifts its preview. A press on the dimming closes the menu and reaches nothing under it; a press on
+   the element, through the cut, closes it and reaches the element, whose action runs, as a tap on an iOS preview
+   commits it (the clip path takes the cut out of the dimming's hit area too, which the mask does not). It shares
    the overlay layer (50): it comes after a Dialog or Popover the element sits in, so it dims that too, as iOS dims a
-   sheet, and before its own menu, which stays above it. */
+   sheet, and before its own menu, which stays above it. Inside a PhoneLayout it covers the box. */
 .Overlay {
   position: fixed;
   z-index: 50;
@@ -37,6 +39,7 @@
   mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
+  clip-path: var(--context-menu-hole-clip, none);
   touch-action: none;
 
   .Dimming[data-entering] & {
@@ -53,6 +56,11 @@
   .Dimming[data-exiting][data-interrupted] & {
     opacity: 0;
     transition: opacity var(--motion-exit) var(--cubic-exit);
+  }
+
+  /* A dimming on its way out takes no press: the next tap, or a drag the hold went on to, reaches the page */
+  .Dimming[data-exiting] & {
+    pointer-events: none;
   }
 }
 

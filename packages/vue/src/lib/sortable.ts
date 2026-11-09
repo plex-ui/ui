@@ -1,4 +1,5 @@
 import s from "@plexui/styles/components/Sortable/Sortable.module.css"
+import { CONTEXT_MENU_HOLD, CONTEXT_MENU_LONG_PRESS_SLOP, heldContextMenu, type ContextMenuHold } from "./contextMenuHold.js"
 
 // Drag to reorder, for any list of elements. Nothing moves until the drop: the
 // item leaves a flat slot and shrinks to a chip at the cursor, a line marks the
@@ -295,7 +296,11 @@ function startDrag(
   const touch = event.pointerType === "touch" && !immediate
   const origin = { x: event.clientX, y: event.clientY }
   const pointer = { ...origin }
-  const holdTimer = touch ? setTimeout(begin, TOUCH_HOLD) : undefined
+  // An item with a context menu shares one hold with it, as an iOS preview: the drag waits for the menu, and once
+  // the menu stands the finger moving on closes it and drags the item
+  const menu = touch ? heldContextMenu(event.target, source) : undefined
+  let lifted: { x: number; y: number; close: () => void } | undefined
+  const holdTimer = touch && !menu ? setTimeout(begin, TOUCH_HOLD) : undefined
   const style = getComputedStyle(list)
   const part = parseFloat(layout === "grid" ? style.columnGap : style.rowGap) ? PART : 0
   const scroller = scrollParent(list)
@@ -320,6 +325,15 @@ function startDrag(
   window.addEventListener("pointerup", onUp)
   window.addEventListener("pointercancel", onCancel)
   window.addEventListener("blur", cancel)
+  menu?.addEventListener(CONTEXT_MENU_HOLD, onMenuHold)
+
+  function onMenuHold(holdEvent: Event) {
+    const hold = (holdEvent as CustomEvent<ContextMenuHold>).detail
+    if (hold.pointerId !== pointerId || lifted || drag) return
+    lifted = { x: pointer.x, y: pointer.y, close: hold.close }
+    // The finger now holds the preview: moving it drags, the page under it stays
+    window.addEventListener("touchmove", blockScroll, { passive: false })
+  }
 
   function onMove(event: PointerEvent) {
     if (event.pointerId !== pointerId) return
@@ -328,7 +342,19 @@ function startDrag(
     pointer.x = clientX
     pointer.y = clientY
     if (drag) return
-    const moved = Math.hypot(clientX - origin.x, clientY - origin.y) >= START_DISTANCE
+    if (lifted) {
+      if (Math.hypot(clientX - lifted.x, clientY - lifted.y) < START_DISTANCE) return
+      lifted.close()
+      begin()
+      return
+    }
+    const travel = Math.hypot(clientX - origin.x, clientY - origin.y)
+    // Before the menu opens, a touch that moves as far as the menu lets it scrolls
+    if (menu) {
+      if (travel > CONTEXT_MENU_LONG_PRESS_SLOP) stopListening()
+      return
+    }
+    const moved = travel >= START_DISTANCE
     if (moved && touch) stopListening()
     else if (moved) begin()
   }
@@ -353,6 +379,7 @@ function startDrag(
 
   function stopListening() {
     clearTimeout(holdTimer)
+    menu?.removeEventListener(CONTEXT_MENU_HOLD, onMenuHold)
     window.removeEventListener("pointermove", onMove)
     window.removeEventListener("pointerup", onUp)
     window.removeEventListener("pointercancel", onCancel)

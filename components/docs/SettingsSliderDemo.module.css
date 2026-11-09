@@ -23,7 +23,3 @@
 }
 
 .Row[data-disabled] .Value { color: var(--color-text-disabled); }
-
-.Help {
-  min-height: 44px;
-}

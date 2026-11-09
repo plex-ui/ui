@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { ContextMenu } from '@plexui/ui/components/ContextMenu';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Calendar, Copy, Home, Images, Pin, RemoveTrash, Share } from '@plexui/ui/components/Icon';
+import { Sortable } from '@plexui/ui/components/Sortable';
 import c from './ContextMenuDemos.module.css';
 import t from './ToolbarDemos.module.css';
 import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
@@ -57,4 +59,27 @@ export function ContextMenuTilesDemo() {
       ))}
     </div>
   );
+}
+
+export function ContextMenuSortableDemo() {
+  const phone = usePhoneRows();
+  const [notes, setNotes] = useState(NOTES);
+  const group = (
+    <FieldGroup className={c.List}>
+      <Sortable value={notes} onChange={setNotes}>
+        {notes.map((note) => (
+          <ContextMenu key={note}>
+            <ContextMenu.Trigger>
+              <div data-row tabIndex={0} className={`${t.Row} ${c.Row}`}>
+                {note}
+                <Sortable.Handle aria-label={`Reorder ${note}`} />
+              </div>
+            </ContextMenu.Trigger>
+            <Actions />
+          </ContextMenu>
+        ))}
+      </Sortable>
+    </FieldGroup>
+  );
+  return phone ? <PhoneRowsStage>{group}</PhoneRowsStage> : group;
 }

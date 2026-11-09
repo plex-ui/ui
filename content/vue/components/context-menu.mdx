@@ -41,6 +41,36 @@ export const tiles = `<div class="${demoStyles.Tiles}">
   ${tile('Photos', 'Images')}
 </div>`
 
+export const sortable = `<FieldGroup class="${demoStyles.List}">
+  <Sortable v-model:value="notes">
+    <ContextMenu v-for="note in notes" :key="note">
+      <ContextMenuTrigger>
+        <div data-row tabindex="0" class="${toolbarStyles.Row} ${demoStyles.Row}">
+          {{ note }}
+          <SortableHandle :aria-label="'Reorder ' + note" />
+        </div>
+      </ContextMenuTrigger>
+  ${actions}
+    </ContextMenu>
+  </Sortable>
+</FieldGroup>`
+
+export const sortableCode = `<FieldGroup>
+  <Sortable v-model:value="notes">
+    <ContextMenu v-for="note in notes" :key="note">
+      <ContextMenuTrigger>
+        <div data-row tabindex="0">
+          {{ note }}
+          <SortableHandle :aria-label="'Reorder ' + note" />
+        </div>
+      </ContextMenuTrigger>
+      <ContextMenuContent>...</ContextMenuContent>
+    </ContextMenu>
+  </Sortable>
+</FieldGroup>`
+
+export const notes = ["Groceries", "Trip to Lisbon", "Book club"]
+
 export const overviewCode = `<ContextMenu>
   <ContextMenuTrigger>
     <div tabindex="0">Groceries</div>
@@ -72,7 +102,7 @@ A context menu gathers the actions for one element, such as a row, a file or a p
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Wrap the element in <code>ContextMenuTrigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. On a phone the rows sit on the grouped background of an iOS list.</>} code={overviewCode} previewMinHeight={240}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Wrap the element in <code>ContextMenuTrigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. When the menu would not fit below the element, the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list.</>} code={overviewCode} previewMinHeight={240}>
   <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" />
 </ComponentPreview>
 
@@ -82,9 +112,19 @@ A context menu gathers the actions for one element, such as a row, a file or a p
   <VueDemo template={tiles} />
 </ComponentPreview>
 
+### In a sortable list
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A row that has a context menu and drags in a <a href="/vue/components/sortable">Sortable</a> list takes one touch and hold for both, as a lifted preview of iOS does: the hold opens the menu, and moving the finger on from there closes it and drags the row. A grip shown by <code>handles</code> drags at once and opens no menu. With a mouse, a secondary click opens the menu and a drag moves the row.</>} code={sortableCode} previewMinHeight={240}>
+  <VuePhoneRowsDemo template={sortable} phoneTemplate={phoneRows(sortable)} phoneStageClassName="w-full" state={{ notes }} />
+</ComponentPreview>
+
 ## API
 
 ### ContextMenu
+
+<PropsTable data={[
+  { prop: "force-open", type: "boolean", description: "Controls the menu: true keeps it open under the element, or beside its lifted preview on a phone, and false keeps it closed" },
+]} />
 
 **Events**: `open` when the menu opens, `close` when it closes.
 
@@ -103,11 +143,12 @@ Its default slot is the element the menu is for; it receives the handlers.
   { prop: "min-width", type: "number | string", description: "Defines the min-width of the menu, in pixels" },
   { prop: "max-height", type: "number", description: "Defines the max-height of the menu, in pixels" },
   { prop: "pill", type: "boolean", default: "false", description: "Rounder list with fully rounded rows" },
+  { prop: "aria-label", type: "string", description: "Names the menu for assistive technology, in place of the name of its element" },
 ]} />
 
 Its placement follows how the menu opened. The items are the Menu ones: `MenuItem`, `MenuLink`, `MenuSeparator`, `MenuLabel`, `MenuGroup`, `MenuSub`, `MenuSubTrigger`, `MenuSubContent`, `MenuCheckboxItem`, `MenuRadioGroup` and `MenuRadioItem`.
 
-The menu is a `menu` with `menuitem` rows, as Menu is. With a focused element, the Context Menu key or Shift F10 opens it under the element, and closing it returns focus to the element; a pointer or a touch leaves focus where it was. A press on the dimming closes the menu and reaches nothing under it.
+The menu is a `menu` with `menuitem` rows, as Menu is, named after its element: the text it is labelled by, its label, its text, or the text of a picture it is or shows. With a focused element, the Context Menu key or Shift F10 opens it under the element, and closing it returns focus to the element; a pointer or a touch leaves focus where it was. A press on the dimming closes the menu and reaches nothing under it.
 
 ## Styling
 

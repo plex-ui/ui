@@ -14,36 +14,56 @@ export const frame = (body) => `<div class="${pageStyles.Frame}">
 ${body}
 </div>`
 
-export const rows = `<FieldGroup>
-        <div v-for="index in 24" :key="index" data-row class="${toolbarStyles.Row}">
-          <span>{{ title }} {{ index }}</span>
-        </div>
-      </FieldGroup>`
+export const current = "(['home', 'calendar', 'photos', 'settings', 'files'].slice(0, Number(tabs)).concat(search ? ['search'] : [], prominent ? ['bag'] : []).includes(tab) ? tab : 'home')"
 
-export const item = (value, label, icon) => `<TabBarItem value="${value}" label="${label}">
-        <template #icon><${icon} /></template>
-      </TabBarItem>`
+export const names = { home: 'Home', calendar: 'Calendar', photos: 'Photos', settings: 'Settings', files: 'Files', search: 'Search', bag: 'Bag' }
 
-export const screen = (props, tabs) => frame(`  <Page surface="grouped">
-    <Toolbar>
-      <ToolbarTitle>{{ title }}</ToolbarTitle>
-    </Toolbar>
-    <PageContent>
-      ${rows}
-    </PageContent>
-    <TabBar v-model:value="tab" ${props}@update:value="(value) => title = value === 'search' ? 'Search' : value[0].toUpperCase() + value.slice(1)">
-      ${tabs.join('\n      ')}
-    </TabBar>
-  </Page>`)
+export const item = (value, label, icon, count) => `<TabBarItem ${count ? `v-if="Number(tabs) >= ${count}" ` : ''}value="${value}" label="${label}">
+          <template #icon><${icon} /></template>
+        </TabBarItem>`
 
-export const four = [item('home', 'Home', 'Home'), item('calendar', 'Calendar', 'Calendar'), item('photos', 'Photos', 'Images'), item('settings', 'Settings', 'SettingsCog')]
+export const screen = frame(`  <template v-for="shown in [${current}]" :key="0">
+    <Page surface="grouped">
+      <Toolbar :background="background">
+        <ToolbarTitle>{{ names[shown] }}</ToolbarTitle>
+      </Toolbar>
+      <PageContent>
+        <FieldGroup>
+          <div v-for="index in 24" :key="index" data-row class="${toolbarStyles.Row}">
+            <span>{{ names[shown] }} {{ index }}</span>
+          </div>
+        </FieldGroup>
+      </PageContent>
+      <TabBar
+        :value="shown"
+        :search="search ? { value: 'search' } : undefined"
+        :prominent="prominent ? { value: 'bag', label: 'Bag' } : undefined"
+        :minimize-behavior="minimizeBehavior"
+        :background="background"
+        @update:value="(value) => tab = value"
+      >
+        ${item('home', 'Home', 'Home')}
+        ${item('calendar', 'Calendar', 'Calendar')}
+        ${item('photos', 'Photos', 'Images', 3)}
+        ${item('settings', 'Settings', 'SettingsCog', 4)}
+        ${item('files', 'Files', 'Folder', 5)}
+        <template #prominent-icon><ShoppingBag /></template>
+      </TabBar>
+    </Page>
+  </template>`)
 
 export const overview = `<Page surface="grouped">
   <Toolbar>
     <ToolbarTitle>Home</ToolbarTitle>
   </Toolbar>
   <PageContent>...</PageContent>
-  <TabBar v-model:value="tab">
+  <TabBar
+    v-model:value="tab"
+    :search="{ value: 'search' }"
+    :prominent="{ value: 'bag', label: 'Bag' }"
+    minimize-behavior="onScrollDown"
+    background="soft"
+  >
     <TabBarItem value="home" label="Home">
       <template #icon><Home /></template>
     </TabBarItem>
@@ -56,45 +76,7 @@ export const overview = `<Page surface="grouped">
     <TabBarItem value="settings" label="Settings">
       <template #icon><SettingsCog /></template>
     </TabBarItem>
-  </TabBar>
-</Page>`
-
-export const searchCode = `<TabBar v-model:value="tab" :search="{ value: 'search' }">
-  <TabBarItem value="home" label="Home">
-    <template #icon><Home /></template>
-  </TabBarItem>
-  <TabBarItem value="calendar" label="Calendar">
-    <template #icon><Calendar /></template>
-  </TabBarItem>
-  <TabBarItem value="photos" label="Photos">
-    <template #icon><Images /></template>
-  </TabBarItem>
-</TabBar>`
-
-export const prominent = `<template #prominent-icon><ShoppingBag /></template>`
-
-export const prominentCode = `<TabBar v-model:value="tab" :prominent="{ value: 'bag', label: 'Bag' }">
-  <TabBarItem value="home" label="Home">
-    <template #icon><Home /></template>
-  </TabBarItem>
-  <TabBarItem value="calendar" label="Calendar">
-    <template #icon><Calendar /></template>
-  </TabBarItem>
-  <TabBarItem value="photos" label="Photos">
-    <template #icon><Images /></template>
-  </TabBarItem>
-  <template #prominent-icon><ShoppingBag /></template>
-</TabBar>`
-
-export const minimizeCode = `<TabBar v-model:value="tab" :search="{ value: 'search' }" minimize-behavior="onScrollDown">
-  ...
-</TabBar>`
-
-export const backgroundCode = `<Page surface="grouped">
-  <Toolbar background="hard">...</Toolbar>
-  <PageContent>...</PageContent>
-  <TabBar v-model:value="tab" background="hard">
-    ...
+    <template #prominent-icon><ShoppingBag /></template>
   </TabBar>
 </Page>`
 
@@ -104,38 +86,18 @@ A tab bar moves between the top-level sections of an app on a phone, as the iOS 
 
 ## Examples
 
-Each example shows the phone view.
+The example shows the phone view. Its settings change the bar in place.
 
 ### Overview
 
-<ComponentPreview phoneOnly language="vue" details={<>Put the bar last in a <code>Page</code>: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are.</>} code={overview}>
-  <VueDemo stageClassName={STAGE} state={{ tab: 'home', title: 'Home' }} template={screen('', four)} />
-</ComponentPreview>
-
-### Search tab
-
-<ComponentPreview phoneOnly language="vue" details={<>With <code>search</code> the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. The capsule of the other tabs keeps to the leading end at their width, as in the kit and in Photos: with two tabs it ends well before the circle, with three it reaches 8px from it. It is a tab like the others: show the search screen when its value is selected.</>} code={searchCode}>
-  <VueDemo stageClassName={STAGE} state={{ tab: 'home', title: 'Home' }} template={screen(`:search="{ value: 'search' }" `, four.slice(0, 3))} />
-</ComponentPreview>
-
-### Prominent tab
-
-<ComponentPreview phoneOnly language="vue" details={<>With <code>prominent</code> one destination leaves the capsule for a glass circle of its own at the trailing end, as the prominent tab of iOS 27 and its kit: one key destination, such as a cart or a library. It is still a tab, not an action: it shows a screen of its own when selected. A bar has one such circle, so <code>prominent</code> takes the place of the search circle; with both, search becomes the last tab of the capsule. The circle shows the symbol from the <code>prominent-icon</code> slot only, and <code>label</code> names the tab.</>} code={prominentCode}>
-  <VueDemo stageClassName={STAGE} state={{ tab: 'home', title: 'Home' }} template={screen(`:prominent="{ value: 'bag', label: 'Bag' }" `, [...four.slice(0, 3), prominent])} />
-</ComponentPreview>
-
-### Minimize on scroll
-
-<ComponentPreview phoneOnly language="vue" details={<>With <code>minimize-behavior="onScrollDown"</code> the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Minimized, the circles keep 28px from the sides and at least 28px from the bottom, as in the iOS 27 kit. Tap the minimized tab to bring the others back.</>} code={minimizeCode}>
-  <VueDemo stageClassName={STAGE} state={{ tab: 'home', title: 'Home' }} template={screen(`:search="{ value: 'search' }" minimize-behavior="onScrollDown" `, four.slice(0, 3))} />
-</ComponentPreview>
-
-### Background
-
-<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how the bar meets the content scrolled under it, as a <a href="/vue/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) leaves the content clear under and around the capsule, as native iOS 26 does, <code>glass</code> is a translucent, blurred band with a hairline, <code>hard</code> is an opaque band with a line on top, and <code>solid</code> an opaque band with no line. Glass and hard show themselves while the content continues under the bar.</>} code={backgroundCode}>
-  <VueDemo stageClassName={STAGE} state={{ tab: 'home', title: 'Home' }} controls={[
+<ComponentPreview phoneOnly language="vue" details={<>Put the bar last in a <code>Page</code>: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are. With <code>search</code> the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does, and the capsule keeps to the leading end at the width of its tabs; show the search screen when its value is selected. With <code>prominent</code> one key destination, such as a cart or a library, takes that circle instead, as the prominent tab of iOS 27: it is still a tab, the circle shows the symbol from the <code>prominent-icon</code> slot only and <code>label</code> names it, and with both the search tab joins the capsule as its last tab. With <code>minimize-behavior="onScrollDown"</code> the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up; tap the minimized tab to bring the others back. <code>background</code> sets how the bar meets the content scrolled under it, as on a <a href="/vue/components/toolbar#background">Toolbar</a>: <code>soft</code> (the default) leaves the content clear around the capsule, as native iOS 26 does, <code>glass</code> lays a translucent, blurred band with a hairline under it, <code>hard</code> an opaque band with a line on top and <code>solid</code> an opaque band with no line.</>} code={overview}>
+  <VueDemo stageClassName={STAGE} state={{ tab: 'home', names }} controls={[
+    { name: "tabs", type: "select", options: ["2", "3", "4", "5"], default: "4" },
+    { name: "search", type: "boolean", default: false },
+    { name: "prominent", type: "boolean", default: false },
+    { name: "minimizeBehavior", type: "select", options: ["never", "onScrollDown"], default: "never" },
     { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft" },
-  ]} template={screen(`:background="background" `, four).replace('<Toolbar>', '<Toolbar :background="background">')} />
+  ]} template={screen} />
 </ComponentPreview>
 
 ## API

@@ -24,11 +24,12 @@ export function SettingsSliderFields({ value, onChange }: {
         <Switch color="accent" checked={value.sound} onCheckedChange={(sound) => onChange({ ...value, sound })} />
       </Field>
     </FieldGroup>
-    <FieldGroup title="Volume" footer={<>
-      <p>Choose the volume used for playback. Turning sound off keeps your last setting.</p>
+    {/* The link ends the footer's paragraph, as iOS writes "Learn more…" (Add Payment, IMG_5483 and 5489) */}
+    <FieldGroup title="Volume" footer={<p>
+      Choose the volume used for playback. Turning sound off keeps your last setting.{' '}
       <Dialog open={helpOpen} onOpenChange={setHelpOpen}>
         <Dialog.Trigger>
-          <TextLink primary className={s.Help}>Learn more</TextLink>
+          <TextLink primary>Learn more…</TextLink>
         </Dialog.Trigger>
         <Dialog.Content mobileVariant="sheet" width={400}>
           <Dialog.Header>
@@ -38,7 +39,7 @@ export function SettingsSliderFields({ value, onChange }: {
           <Dialog.Footer><Dialog.Close><Button color="primary" pill>Done</Button></Dialog.Close></Dialog.Footer>
         </Dialog.Content>
       </Dialog>
-    </>}>
+    </p>}>
       <div className={s.Row} data-row data-slider-setting data-disabled={!value.sound || undefined}>
         <Slider aria-label="Volume" min={0} max={100} step={1} value={value.volume}
           disabled={!value.sound} className={s.Slider}

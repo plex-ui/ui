@@ -404,7 +404,7 @@ const COLLISION_PADDING = { bottom: 30, top: 30, left: 12, right: 12 }
 
 // Inside a PhoneLayout a menu opens in its box, laid out as on a phone and kept within it; in a Dialog laid out as on a
 // phone outside one it opens over the window, in a phone scope of its own (plan 176)
-const useMenuPhoneLayout = () => {
+export const useMenuPhoneLayout = () => {
   const phoneLayout = inject(PHONE_LAYOUT, null)
   const container = computed(() => phoneLayout?.container.value ?? null)
   return {
@@ -413,7 +413,7 @@ const useMenuPhoneLayout = () => {
   }
 }
 
-const useMenuBoundary = (active: () => boolean) => {
+export const useMenuBoundary = (active: () => boolean) => {
   const footerBoundary = useFloatingBoundary(active, COLLISION_PADDING)
   const { container } = useMenuPhoneLayout()
   return computed(() => {
@@ -597,7 +597,8 @@ const MenuRootContentImpl = defineComponent({
           onInteractOutside,
           ...handlers,
         },
-        { default: () => slots.default?.() },
+        // The items of a vertical menu lie in the panel itself; a phone menu scrolls them and fades them at its edges
+        { default: () => (isHorizontal ? slots.default?.() : h("div", { class: s.Items }, slots.default?.())) },
       )
     }
   },

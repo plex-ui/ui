@@ -6,6 +6,7 @@ import { Dialog as ReactDialog } from "../../packages/ui/src/components/Dialog"
 import { Button } from "../../packages/vue/src/components/Button"
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -16,7 +17,8 @@ import { flushVue, mountVue } from "./harness"
 
 // Plan 170: on a phone the header of a Sheet is its Toolbar (Close leading, the heading, the header actions
 // trailing), the same DOM in React and Vue. A dialog opened from a header action is not inside that bar: its
-// header stays a dialog header.
+// header stays a dialog header. Plan 176 (owner 09.11): the bar holds the title alone; the description stands
+// under it, at the top of the body when there is one.
 type Framework = "React" | "Vue"
 
 const ReactSheet = () => (
@@ -55,9 +57,29 @@ const vueSheet = () => h(Dialog, { open: true }, () => h(DialogContent, { mobile
   ]),
 ])))
 
-const mount = async (framework: Framework) => {
-  if (framework === "React") await act(async () => { render(<ReactSheet />) })
-  else mountVue(vueSheet)
+const ReactSheetWithBody = () => (
+  <ReactDialog open>
+    <ReactDialog.Content mobileVariant="sheet">
+      <ReactDialog.Header className="own-header">
+        <ReactDialog.Title>Terms</ReactDialog.Title>
+        <ReactDialog.Description>Read them first.</ReactDialog.Description>
+      </ReactDialog.Header>
+      <ReactDialog.Body><p>Body text</p></ReactDialog.Body>
+    </ReactDialog.Content>
+  </ReactDialog>
+)
+
+const vueSheetWithBody = () => h(Dialog, { open: true }, () => h(DialogContent, { mobileVariant: "sheet" }, () => [
+  h(DialogHeader, { class: "own-header" }, () => [
+    h(DialogTitle, null, () => "Terms"),
+    h(DialogDescription, null, () => "Read them first."),
+  ]),
+  h(DialogBody, null, () => h("p", null, "Body text")),
+]))
+
+const mount = async (framework: Framework, body = false) => {
+  if (framework === "React") await act(async () => { render(body ? <ReactSheetWithBody /> : <ReactSheet />) })
+  else mountVue(body ? vueSheetWithBody : vueSheet)
   await flushVue()
 }
 
@@ -77,18 +99,43 @@ beforeEach(() => {
 afterEach(() => { vi.unstubAllGlobals() })
 
 describe.each<Framework>(["React", "Vue"])("%s phone Sheet header", (framework) => {
-  test("is the Sheet's Toolbar: Close, the heading with the description as its subtitle, then the actions", async () => {
+  test("is the Sheet's Toolbar: Close, the title alone, then the actions; the description stands under it", async () => {
     await mount(framework)
-    const bar = dialogNamed("Outer").querySelector<HTMLElement>("[data-dialog-bar]")!
+    const dialog = dialogNamed("Outer")
+    const bar = dialog.querySelector<HTMLElement>("[data-dialog-bar]")!
     expect(bar).toBeTruthy()
     expect(bar.getAttribute("data-placement")).toBe("top")
     const parts = [...bar.children].map((part) => part.textContent)
     expect(parts[0]).toBe("")
     expect(bar.children[0].querySelector("button")?.getAttribute("aria-label")).toBe("Close dialog")
-    expect(parts[1]).toBe("OuterOuter note")
-    expect(bar.children[1].querySelector("p")?.className).toContain("Subtitle")
+    expect(parts[1]).toBe("Outer")
     expect(bar.children[2].className).toContain("Trailing")
     expect(bar.children[2].querySelector("button")?.textContent).toBe("Done")
+    // Without a body the description follows the bar, as the dialog's description
+    const under = bar.nextElementSibling as HTMLElement
+    expect(under.className).toContain("SheetDescription")
+    const description = under.querySelector("p")!
+    expect(description.textContent).toBe("Outer note")
+    expect(description.className).toContain("Description")
+    expect(description.className).not.toContain("Subtitle")
+    expect(dialog.getAttribute("aria-describedby")).toBe(description.id)
+  })
+
+  test("starts the body with the description when there is one", async () => {
+    await mount(framework, true)
+    const dialog = dialogNamed("Terms")
+    const bar = dialog.querySelector<HTMLElement>("[data-dialog-bar]")!
+    expect(bar.textContent).toBe("Terms")
+    expect(bar.classList.contains("own-header")).toBe(true)
+    const body = dialog.querySelector<HTMLElement>('[class*="Body"]')!
+    const slot = body.firstElementChild as HTMLElement
+    expect(slot.className).toContain("SheetDescriptionSlot")
+    const description = slot.querySelector("p")!
+    expect(description.textContent).toBe("Read them first.")
+    expect(description.className).not.toContain("Subtitle")
+    expect(body.lastElementChild?.textContent).toBe("Body text")
+    expect(dialog.querySelectorAll("p").length).toBe(2)
+    expect(dialog.getAttribute("aria-describedby")).toBe(description.id)
   })
 
   test("leaves a dialog opened from a header action out of the bar", async () => {

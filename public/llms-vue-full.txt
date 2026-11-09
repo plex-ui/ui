@@ -1959,6 +1959,8 @@ With :supports-alpha="false" there is no Opacity slider, and every color is opaq
 Import: import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "@plexui/vue/components/ContextMenu"
 Import: import { MenuItem, MenuSeparator } from "@plexui/vue/components/Menu"
 Docs: https://plexui.com/vue/components/context-menu
+Props:
+  - force-open (boolean) — Controls the menu: true keeps it open under the element, or beside its lifted preview on a phone, and false keeps it closed
   ContextMenuTrigger:
     - disabled (boolean) default: false — The element keeps the browser's own context menu
   ContextMenuContent:
@@ -1966,9 +1968,10 @@ Docs: https://plexui.com/vue/components/context-menu
     - min-width (number | string) — Defines the min-width of the menu, in pixels
     - max-height (number) — Defines the max-height of the menu, in pixels
     - pill (boolean) default: false — Rounder list with fully rounded rows
+    - aria-label (string) — Names the menu for assistive technology, in place of the name of its element
 
 ### Overview
-Wrap the element in ContextMenuTrigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. On a phone the rows sit on the grouped background of an iOS list.
+Wrap the element in ContextMenuTrigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. When the menu would not fit below the element, the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list.
 ```vue
 <ContextMenu>
   <ContextMenuTrigger>
@@ -1995,6 +1998,24 @@ The element is cut out of the dimming with its own corners. An element without c
   </ContextMenuTrigger>
   <ContextMenuContent>...</ContextMenuContent>
 </ContextMenu>
+```
+
+### In a sortable list
+A row that has a context menu and drags in a Sortable list takes one touch and hold for both, as a lifted preview of iOS does: the hold opens the menu, and moving the finger on from there closes it and drags the row. A grip shown by handles drags at once and opens no menu. With a mouse, a secondary click opens the menu and a drag moves the row.
+```vue
+<FieldGroup>
+  <Sortable v-model:value="notes">
+    <ContextMenu v-for="note in notes" :key="note">
+      <ContextMenuTrigger>
+        <div data-row tabindex="0">
+          {{ note }}
+          <SortableHandle :aria-label="'Reorder ' + note" />
+        </div>
+      </ContextMenuTrigger>
+      <ContextMenuContent>...</ContextMenuContent>
+    </ContextMenu>
+  </Sortable>
+</FieldGroup>
 ```
 
 ## Copy Tooltip
@@ -9906,14 +9927,20 @@ Props:
     - disabled (boolean) default: false — The tab cannot be selected
 
 ### Overview
-Put the bar last in a Page: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are.
+Put the bar last in a Page: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are. With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does, and the capsule keeps to the leading end at the width of its tabs; show the search screen when its value is selected. With prominent one key destination, such as a cart or a library, takes that circle instead, as the prominent tab of iOS 27: it is still a tab, the circle shows the symbol from the prominent-icon slot only and label names it, and with both the search tab joins the capsule as its last tab. With minimize-behavior="onScrollDown" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up; tap the minimized tab to bring the others back. background sets how the bar meets the content scrolled under it, as on a Toolbar: soft (the default) leaves the content clear around the capsule, as native iOS 26 does, glass lays a translucent, blurred band with a hairline under it, hard an opaque band with a line on top and solid an opaque band with no line.
 ```vue
 <Page surface="grouped">
   <Toolbar>
     <ToolbarTitle>Home</ToolbarTitle>
   </Toolbar>
   <PageContent>...</PageContent>
-  <TabBar v-model:value="tab">
+  <TabBar
+    v-model:value="tab"
+    :search="{ value: 'search' }"
+    :prominent="{ value: 'bag', label: 'Bag' }"
+    minimize-behavior="onScrollDown"
+    background="soft"
+  >
     <TabBarItem value="home" label="Home">
       <template #icon><Home /></template>
     </TabBarItem>
@@ -9926,59 +9953,7 @@ Put the bar last in a Page: it reserves its height there. Up to three tabs sit i
     <TabBarItem value="settings" label="Settings">
       <template #icon><SettingsCog /></template>
     </TabBarItem>
-  </TabBar>
-</Page>
-```
-
-### Search tab
-With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. The capsule of the other tabs keeps to the leading end at their width, as in the kit and in Photos: with two tabs it ends well before the circle, with three it reaches 8px from it. It is a tab like the others: show the search screen when its value is selected.
-```vue
-<TabBar v-model:value="tab" :search="{ value: 'search' }">
-  <TabBarItem value="home" label="Home">
-    <template #icon><Home /></template>
-  </TabBarItem>
-  <TabBarItem value="calendar" label="Calendar">
-    <template #icon><Calendar /></template>
-  </TabBarItem>
-  <TabBarItem value="photos" label="Photos">
-    <template #icon><Images /></template>
-  </TabBarItem>
-</TabBar>
-```
-
-### Prominent tab
-With prominent one destination leaves the capsule for a glass circle of its own at the trailing end, as the prominent tab of iOS 27 and its kit: one key destination, such as a cart or a library. It is still a tab, not an action: it shows a screen of its own when selected. A bar has one such circle, so prominent takes the place of the search circle; with both, search becomes the last tab of the capsule. The circle shows the symbol from the prominent-icon slot only, and label names the tab.
-```vue
-<TabBar v-model:value="tab" :prominent="{ value: 'bag', label: 'Bag' }">
-  <TabBarItem value="home" label="Home">
-    <template #icon><Home /></template>
-  </TabBarItem>
-  <TabBarItem value="calendar" label="Calendar">
-    <template #icon><Calendar /></template>
-  </TabBarItem>
-  <TabBarItem value="photos" label="Photos">
-    <template #icon><Images /></template>
-  </TabBarItem>
-  <template #prominent-icon><ShoppingBag /></template>
-</TabBar>
-```
-
-### Minimize on scroll
-With minimize-behavior="onScrollDown" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Minimized, the circles keep 28px from the sides and at least 28px from the bottom, as in the iOS 27 kit. Tap the minimized tab to bring the others back.
-```vue
-<TabBar v-model:value="tab" :search="{ value: 'search' }" minimize-behavior="onScrollDown">
-  ...
-</TabBar>
-```
-
-### Background
-background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) leaves the content clear under and around the capsule, as native iOS 26 does, glass is a translucent, blurred band with a hairline, hard is an opaque band with a line on top, and solid an opaque band with no line. Glass and hard show themselves while the content continues under the bar.
-```vue
-<Page surface="grouped">
-  <Toolbar background="hard">...</Toolbar>
-  <PageContent>...</PageContent>
-  <TabBar v-model:value="tab" background="hard">
-    ...
+    <template #prominent-icon><ShoppingBag /></template>
   </TabBar>
 </Page>
 ```

@@ -4,7 +4,7 @@ description: "A menu of actions for an element: a secondary click opens it at th
 metaDescription: "React context menu in the iOS 26 style: right click at the pointer, touch and hold with the element lifted over a dimmed, blurred page and the menu beside it, keyboard access, Menu items."
 ---
 
-import { ContextMenuOverviewDemo, ContextMenuTilesDemo } from "@/components/docs/ContextMenuDemos"
+import { ContextMenuOverviewDemo, ContextMenuSortableDemo, ContextMenuTilesDemo } from "@/components/docs/ContextMenuDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { ContextMenu } from "@plexui/ui/components/ContextMenu";`}</UsageBlock>
@@ -15,7 +15,7 @@ A context menu gathers the actions for one element, such as a row, a file or a p
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Wrap the element in <code>ContextMenu.Trigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. On a phone the rows sit on the grouped background of an iOS list.</>} code={`<ContextMenu>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Wrap the element in <code>ContextMenu.Trigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. When the menu would not fit below the element, the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list.</>} code={`<ContextMenu>
   <ContextMenu.Trigger>
     <div tabIndex={0}>Groceries</div>
   </ContextMenu.Trigger>
@@ -43,6 +43,28 @@ A context menu gathers the actions for one element, such as a row, a file or a p
   <ContextMenuTilesDemo />
 </ComponentPreview>
 
+### In a sortable list
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A row that has a context menu and drags in a <a href="/components/sortable">Sortable</a> list takes one touch and hold for both, as a lifted preview of iOS does: the hold opens the menu, and moving the finger on from there closes it and drags the row. A grip shown by <code>handles</code> drags at once and opens no menu. With a mouse, a secondary click opens the menu and a drag moves the row.</>} code={`const [notes, setNotes] = useState(["Groceries", "Trip to Lisbon", "Book club"]);
+
+<FieldGroup>
+  <Sortable value={notes} onChange={setNotes}>
+    {notes.map((note) => (
+      <ContextMenu key={note}>
+        <ContextMenu.Trigger>
+          <div data-row tabIndex={0}>
+            {note}
+            <Sortable.Handle aria-label={\`Reorder \${note}\`} />
+          </div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>...</ContextMenu.Content>
+      </ContextMenu>
+    ))}
+  </Sortable>
+</FieldGroup>`} previewMinHeight={240}>
+  <ContextMenuSortableDemo />
+</ComponentPreview>
+
 ## API
 
 ### ContextMenu
@@ -50,6 +72,7 @@ A context menu gathers the actions for one element, such as a row, a file or a p
 <PropsTable data={[
   { prop: "onOpen", type: "() => void", description: "Called when the menu opens" },
   { prop: "onClose", type: "() => void", description: "Called when the menu closes" },
+  { prop: "forceOpen", type: "boolean", description: "Controls the menu: true keeps it open under the element, or beside its lifted preview on a phone, and false keeps it closed" },
 ]} />
 
 ### ContextMenu.Trigger
@@ -63,9 +86,13 @@ A context menu gathers the actions for one element, such as a row, a file or a p
 
 The props of `Menu.Content` but its placement, which follows how the menu opened: `width`, `minWidth`, `maxHeight` and `pill`.
 
+<PropsTable data={[
+  { prop: "aria-label", type: "string", description: "Names the menu for assistive technology, in place of the name of its element" },
+]} />
+
 The items are the ones of Menu, also under `ContextMenu`: `ContextMenu.Item`, `ContextMenu.Link`, `ContextMenu.Separator`, `ContextMenu.Label`, `ContextMenu.Group`, `ContextMenu.Sub`, `ContextMenu.SubTrigger`, `ContextMenu.SubContent`, `ContextMenu.CheckboxItem`, `ContextMenu.RadioGroup` and `ContextMenu.RadioItem`.
 
-The menu is a `menu` with `menuitem` rows, as Menu is. With a focused element, the Context Menu key or Shift F10 opens it under the element, and closing it returns focus to the element; a pointer or a touch leaves focus where it was. A press on the dimming closes the menu and reaches nothing under it.
+The menu is a `menu` with `menuitem` rows, as Menu is, named after its element: the text it is labelled by, its label, its text, or the text of a picture it is or shows. With a focused element, the Context Menu key or Shift F10 opens it under the element, and closing it returns focus to the element; a pointer or a touch leaves focus where it was. A press on the dimming closes the menu and reaches nothing under it.
 
 ## Styling
 

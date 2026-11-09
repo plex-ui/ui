@@ -199,6 +199,8 @@ import {
 
 The chip takes its text from `data-sortable-label` on the item, then from an element with that attribute or a `label` inside it, then from its first text. It shows the first `img` of the item, or an element with `data-sortable-image`, such as a hidden `span` with a cropped background.
 
+An item with a [ContextMenu](/components/context-menu) takes one touch and hold for both: the hold opens the menu, and moving the finger on from there closes it and drags the item. A grip drags at once and opens no menu.
+
 A control inside an item stops a drag. `data-sortable-grab` on a control that acts on a click lets a pull start one: the click still works when the pointer stays.
 
 ## Styling

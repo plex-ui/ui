@@ -819,6 +819,45 @@
   display: contents;
 }
 
+/* The items of a vertical menu (Menu.tsx Content). They lie in the panel itself, which scrolls on a desktop; a phone
+   menu scrolls them inside the panel and fades them at its edges (below). */
+.Items {
+  display: contents;
+}
+
+/* The fade of a phone menu's edge, grown as the items scroll away from it (below) */
+@property --menu-fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --menu-fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@keyframes menu-fade-start {
+  from {
+    --menu-fade-start: 0px;
+  }
+
+  to {
+    --menu-fade-start: var(--menu-scroll-fade, 32px);
+  }
+}
+
+@keyframes menu-fade-end {
+  from {
+    --menu-fade-end: var(--menu-scroll-fade, 32px);
+  }
+
+  to {
+    --menu-fade-end: 0px;
+  }
+}
+
 /* Phone submenu geometry is solved against the whole viewport/footer boundary.
    Retain the primitive's collection and focus behavior, not its side-space width. */
 @media (max-width: 767px) {
@@ -873,6 +912,46 @@
       overflow: hidden auto;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  /* A phone menu taller than its room scrolls its items inside the panel, which stays whole with its glass and
+     shadow, and the items fade at an edge they scroll past, as the soft scroll edge of iOS 26 ("a subtle blurred
+     boundary"; kit Materials, Scroll Edge Effect - Soft 5661:26943, a gradient mask) over --menu-scroll-fade. Each
+     fade grows as the items leave that edge, by the scroll position (scroll-driven animations); where a browser has
+     none, the items do not fade. Across the panel's padding, so they scroll to its edges as the panel did. */
+  .MenuList:has(> .Items) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .MenuList > .Items {
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+    margin: calc(-1 * var(--menu-gutter)) calc(-1 * var(--menu-padding-inline, var(--menu-gutter)));
+    padding: var(--menu-gutter) var(--menu-padding-inline, var(--menu-gutter));
+    overflow: hidden auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .MenuList[data-submenu-phone] > .SubmenuItems {
+    margin-bottom: calc(-1 * var(--menu-gutter));
+    padding-bottom: var(--menu-gutter);
+  }
+
+  /* Only with scroll timelines: without one the animations would run at once on the page's clock and keep their end,
+     a lasting fade over the first row */
+  @supports (animation-timeline: scroll()) {
+    .MenuList > .Items,
+    .MenuList[data-submenu-phone] > .SubmenuItems {
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--menu-fade-start), #000 calc(100% - var(--menu-fade-end)), transparent);
+      mask-image: linear-gradient(to bottom, transparent, #000 var(--menu-fade-start), #000 calc(100% - var(--menu-fade-end)), transparent);
+      animation: menu-fade-start auto linear both, menu-fade-end auto linear both;
+      animation-timeline: scroll(self block), scroll(self block);
+      animation-range: 0 var(--menu-scroll-fade, 32px), calc(100% - var(--menu-scroll-fade, 32px)) 100%;
     }
   }
 
