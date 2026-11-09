@@ -5552,7 +5552,7 @@ Use MenuGroup and MenuLabel to organize related items into labeled sections. The
 ```
 
 ### Submenus
-A list's menu, as Reminders opens it on iOS: Manage Sections and Sort By open submenus, and Sort By shows the order it has chosen under its label (description on MenuSubTrigger). Use MenuSub, MenuSubTrigger, and MenuSubContent for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.
+A list's menu, as Reminders opens it on iOS: Manage Sections and Sort By open submenus, and Sort By shows the order it has chosen under its label (description on MenuSubTrigger). Use MenuSub, MenuSubTrigger, and MenuSubContent for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again. The menu behind is out of reach while the submenu stands over it: a press on it closes the submenu and chooses nothing, and screen readers skip it, with focus in the submenu. The heading row stays in place and only the items under it scroll in a submenu taller than the screen, so the row that closes it is always in reach.
 ```vue
 <!-- Desktop -->
 <Menu>
@@ -6036,6 +6036,39 @@ The box is the screen of the phone: a Dialog opened inside it portals into the b
       </DialogContent>
     </Dialog>
   </div>
+</PhoneLayout>
+```
+
+### Menu
+A menu opened inside the box is a phone menu at any window width: it covers the button that opens it and opens in the box. A submenu opens over its menu, which steps back: a press on the menu behind closes the submenu and chooses nothing, and screen readers skip its rows until then.
+```vue
+<PhoneLayout style="width: 375px; height: 600px; border-radius: 40px; border: 1px solid var(--color-border); background: var(--color-background)">
+  <Page>
+    <Toolbar title-style="large">
+      <ToolbarTitle>Groceries</ToolbarTitle>
+      <ToolbarTrailing>
+        <Menu>
+          <MenuTrigger>
+            <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+          </MenuTrigger>
+          <MenuContent align="end">
+            <MenuItem @select="() => {}"><CheckCircle /> Select Items</MenuItem>
+            <MenuSub>
+              <MenuSubTrigger :description="sort"><Sort /> Sort By</MenuSubTrigger>
+              <MenuSubContent>
+                <MenuRadioGroup v-model:value="sort">
+                  <MenuRadioItem value="Manual">Manual</MenuRadioItem>
+                  <MenuRadioItem value="Due Date">Due Date</MenuRadioItem>
+                  <MenuRadioItem value="Title">Title</MenuRadioItem>
+                </MenuRadioGroup>
+              </MenuSubContent>
+            </MenuSub>
+            <MenuItem danger @select="() => {}"><Trash /> Delete List</MenuItem>
+          </MenuContent>
+        </Menu>
+      </ToolbarTrailing>
+    </Toolbar>
+  </Page>
 </PhoneLayout>
 ```
 

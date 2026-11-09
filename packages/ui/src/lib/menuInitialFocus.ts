@@ -1,9 +1,11 @@
 import { focusPhoneSubmenuEntry } from "./menuSubmenuPlacement"
+import { isPhoneLayout } from "./phoneLayout"
 
 // A root and controlled child can mount together. Keep the root's initial
 // autofocus from visiting outside the portalled child before it is ready.
 const pending = new WeakMap<HTMLElement, Element | null>()
-const EXITING = '[aria-hidden="true"], [inert], [data-exiting], [data-exiting-active]'
+// A parent hidden behind its phone submenu (menuSubmenuPlacement.ts) is still open
+const EXITING = '[aria-hidden="true"]:not([data-submenu-hidden]), [inert], [data-exiting], [data-exiting-active]'
 
 function isOpen(element: HTMLElement): boolean {
   return element.isConnected && element.getAttribute("data-state") !== "closed" && !element.closest(EXITING)
@@ -58,7 +60,7 @@ export function completeInitialPhoneSubmenuFocus(trigger: HTMLElement, content: 
 export function delegateInitialPhoneSubmenuFocus(event: Event, content: HTMLElement | null): void {
   if (event.defaultPrevented || !content || !isOpen(content)) return
   const view = content.ownerDocument.defaultView
-  if (!view || !(view.matchMedia?.("(max-width: 767px)").matches ?? view.innerWidth <= 767)) return
+  if (!view || !isPhoneLayout(content)) return
   const trigger = expandedChild(content)
   if (!trigger) return
   event.preventDefault()
@@ -70,7 +72,7 @@ export function deferInitialPhoneSubmenuFocus(event: Event, content: HTMLElement
   delegateInitialPhoneSubmenuFocus(event, content)
   if (event.defaultPrevented || !content || !isOpen(content) || !content.hasAttribute("data-submenu") || content.hasAttribute("data-submenu-positioned")) return
   const view = content.ownerDocument.defaultView
-  if (!view || !(view.matchMedia?.("(max-width: 767px)").matches ?? view.innerWidth <= 767)) return
+  if (!view || !isPhoneLayout(content)) return
   const trigger = content.ownerDocument.getElementById(content.getAttribute("aria-labelledby") ?? "")
   if (!trigger || childContent(trigger) !== content || (!usingKeyboard && !pending.has(trigger))) return
   event.preventDefault()

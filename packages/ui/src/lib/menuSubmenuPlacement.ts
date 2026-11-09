@@ -1,3 +1,5 @@
+import { isPhoneLayout } from "./phoneLayout"
+
 /** Phone submenu geometry; desktop continues to use the primitive's cascade. */
 export type MenuRect = { left: number; top: number; right: number; bottom: number }
 export type MenuCollisionPadding = Partial<Record<"top" | "right" | "bottom" | "left", number>>
@@ -138,12 +140,62 @@ export function samePhoneSubmenuState(a: PhoneSubmenuState, b: PhoneSubmenuState
     (a.ready === b.ready && a.unavailable === b.unavailable && a.label === b.label && a.sideOffset === b.sideOffset && a.alignOffset === b.alignOffset))
 }
 
-/** Own only these Phone attributes/variables. Primitive focus and dismissal stay intact. */
+/**
+ * Cancels the release of a press that a phone submenu's parent took to collapse the submenu. The parent's rows take
+ * presses again a frame after it collapses, and a release over one of them would choose it, as a touch dragged through
+ * a menu does (Radix and Reka items click on a release that did not start on them). Only that press's release and the
+ * click right after it: a press whose release never comes ends with the next press or when the window loses focus.
+ */
+function swallowRelease(view: Window, pointerId: number): void {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const stop = (event: Event) => {
+    event.preventDefault()
+    event.stopPropagation()
+  }
+  const click = (event: Event) => {
+    stop(event)
+    done()
+  }
+  const end = (event: PointerEvent) => {
+    if (event.pointerId !== pointerId) return
+    view.removeEventListener("pointerup", end, true)
+    view.removeEventListener("pointercancel", end, true)
+    // None comes after a cancelled press
+    if (event.type !== "pointerup") return done()
+    stop(event)
+    // The click of that release comes right after it
+    view.addEventListener("click", click, true)
+    timer = setTimeout(done, 400)
+  }
+  const done = () => {
+    if (timer !== undefined) clearTimeout(timer)
+    view.removeEventListener("pointerup", end, true)
+    view.removeEventListener("pointercancel", end, true)
+    view.removeEventListener("click", click, true)
+    view.removeEventListener("pointerdown", done, true)
+    view.removeEventListener("blur", done)
+  }
+  view.addEventListener("pointerup", end, true)
+  view.addEventListener("pointercancel", end, true)
+  // Added while that press's own pointerdown is past the window, so only a later press ends it
+  view.addEventListener("pointerdown", done, true)
+  view.addEventListener("blur", done)
+}
+
+/**
+ * Own only these Phone attributes/variables. Primitive focus and dismissal stay intact.
+ *
+ * While a phone submenu stands over its parent the parent is behind it, as in iOS 26 (owner, plan 176): a press on it
+ * collapses the submenu (`onParentPress`) and chooses none of its rows, which take no presses (Menu.module.css), and
+ * it is hidden from a screen reader. Focus left in it by the press that opened the submenu moves into the submenu, as
+ * VoiceOver's moves into an iOS submenu, and a focus that returns to it (the submenu collapsing) shows it again.
+ */
 export function observePhoneSubmenu(
   trigger: HTMLElement,
   content: HTMLElement,
   boundary: MenuFloatingBoundary,
   update: (state: PhoneSubmenuState) => void,
+  onParentPress?: () => void,
 ): { refresh: () => void; dispose: () => void } {
   const view = content.ownerDocument.defaultView
   if (!view || trigger.ownerDocument !== content.ownerDocument) return { refresh: () => {}, dispose: () => {} }
@@ -152,7 +204,54 @@ export function observePhoneSubmenu(
   const media = typeof view.matchMedia === "function" ? view.matchMedia("(max-width: 767px)") : null
   let disposed = false
   let frame: number | undefined
+  let focusFrame: number | undefined
+  // Whether the submenu has found its place or found there is none, and the focus it found then
+  let settled = false
+  let focusAtOpen: Element | null = null
   let references: Element[] = []
+  const covered = () => parent.hasAttribute("data-submenu-over")
+  const showParent = () => {
+    if (parent.getAttribute("data-submenu-hidden") === null) return
+    parent.removeAttribute("data-submenu-hidden")
+    parent.removeAttribute("aria-hidden")
+  }
+  // A frame after the submenu stands over the parent, once the primitive's focus scopes have taken it as a branch of a
+  // modal menu: focus the press left on the row that opened it moves into the submenu, then the parent is hidden
+  const hideParent = () => {
+    if (focusFrame !== undefined) return
+    focusFrame = view.requestAnimationFrame(() => {
+      focusFrame = undefined
+      if (disposed || !covered()) return
+      const focused = content.ownerDocument.activeElement
+      // Only the focus the submenu found as it first stood over the parent, untouched since: a keyboard entry, a
+      // collapse or a later return to the parent own focus, and a submenu that first had no room does not take it
+      if (focusAtOpen && focused === focusAtOpen && parent.contains(focused)) content.focus({ preventScroll: true })
+      focusAtOpen = null
+      // A hidden element must not hold focus; a parent focused again stays shown
+      if (parent.contains(content.ownerDocument.activeElement)) return
+      parent.setAttribute("data-submenu-hidden", "")
+      parent.setAttribute("aria-hidden", "true")
+    })
+  }
+  const pressParent = (event: PointerEvent) => {
+    // A primary press, a touch or a pen: a secondary button chooses nothing behind the submenu anyway
+    if (event.button !== 0 || !covered() || content.contains(event.target as Node)) return
+    // It goes on to the primitives' layers, which mark a press inside a menu until it reaches the document; its rows
+    // take no pointer, and the release and click that would choose one are cancelled
+    event.preventDefault()
+    swallowRelease(view, event.pointerId)
+    onParentPress?.()
+  }
+  const focusParent = () => showParent()
+  // Its rows take no pointer (Menu.module.css), so the pointer leaves the row that opened the submenu once the submenu
+  // covers it: that leave must not move focus back to the parent, which would close the submenu
+  const leaveParent = (event: PointerEvent) => {
+    if (covered() && !content.contains(event.target as Node)) event.stopPropagation()
+  }
+  parent.addEventListener("pointerdown", pressParent, true)
+  parent.addEventListener("focusin", focusParent, true)
+  parent.addEventListener("pointerout", leaveParent, true)
+  parent.addEventListener("pointerleave", leaveParent, true)
   const setVariable = (name: string, value: number) => {
     const next = `${round(Math.max(0, value))}px`
     if (content.style.getPropertyValue(name) !== next) content.style.setProperty(name, next)
@@ -178,9 +277,11 @@ export function observePhoneSubmenu(
   }
   const refresh = () => {
     if (disposed) return
-    if (!(media?.matches ?? view.innerWidth <= 767)) {
+    // A narrow window, or a PhoneLayout or phone Dialog at any width
+    if (!isPhoneLayout(content)) {
       clearPhone()
       parent.removeAttribute("data-submenu-over")
+      showParent()
       update({ mobile: false })
       return
     }
@@ -217,8 +318,17 @@ export function observePhoneSubmenu(
     if (unavailable) content.setAttribute("data-submenu-unavailable", "")
     else content.removeAttribute("data-submenu-unavailable")
     // The parent steps back while the submenu stands over it (Menu.module.css), not while it has nowhere to stand
-    if (ready) parent.setAttribute("data-submenu-over", "")
-    else parent.removeAttribute("data-submenu-over")
+    if ((ready || unavailable) && !settled) {
+      settled = true
+      if (ready) focusAtOpen = content.ownerDocument.activeElement
+    }
+    if (ready) {
+      parent.setAttribute("data-submenu-over", "")
+      hideParent()
+    } else {
+      parent.removeAttribute("data-submenu-over")
+      showParent()
+    }
     update({ mobile: true, ready, unavailable, label, ...(placement ?? { sideOffset: 0, alignOffset: 0 }) })
     // A parent's enter transform moves its child trigger without resizing it.
     // Follow only that running transition, not an idle menu forever.
@@ -244,6 +354,12 @@ export function observePhoneSubmenu(
     dispose: () => {
       disposed = true
       if (frame !== undefined) view.cancelAnimationFrame(frame)
+      if (focusFrame !== undefined) view.cancelAnimationFrame(focusFrame)
+      parent.removeEventListener("pointerdown", pressParent, true)
+      parent.removeEventListener("focusin", focusParent, true)
+      parent.removeEventListener("pointerout", leaveParent, true)
+      parent.removeEventListener("pointerleave", leaveParent, true)
+      showParent()
       resize?.disconnect()
       mutations.disconnect()
       labelObserver.disconnect()

@@ -5,6 +5,12 @@ import { ConfigProvider } from "reka-ui"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { h, reactive } from "vue"
 import { Menu as RMenu } from "../../packages/ui/src/components/Menu"
+import { Dialog as RDialog } from "../../packages/ui/src/components/Dialog"
+import { PhoneLayout as RPhoneLayout } from "../../packages/ui/src/components/PhoneLayout"
+import { Page as RPage } from "../../packages/ui/src/components/Page"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../packages/vue/src/components/Dialog"
+import { PhoneLayout } from "../../packages/vue/src/components/PhoneLayout"
+import { Page, PageFooter } from "../../packages/vue/src/components/Page"
 import { Menu, MenuContent, MenuItem, MenuTrigger, MenuSub, MenuSubTrigger, MenuSubContent, MenuCheckboxItem, MenuRadioGroup, MenuRadioItem } from "../../packages/vue/src/components/Menu"
 import { animation, flushVue, mountVue } from "./harness"
 
@@ -22,6 +28,8 @@ const viewport = { offsetLeft: 0, offsetTop: 0, width: 375, height: 812, addEven
 // adapter initialize; CSS widths, clipping, touch targets and footer geometry
 // still require the accompanying browser scenarios.
 function rect(element: HTMLElement) {
+  // A PhoneLayout box: the screen of a phone
+  if (element.getAttribute("data-plex-layout") === "phone") return new DOMRect(0, 0, 375, 812)
   if (element.getAttribute("role") === "menu") {
     const submenu = element.hasAttribute("data-submenu")
     const label = element.ownerDocument.getElementById(element.getAttribute("aria-labelledby") ?? "")?.textContent
@@ -175,14 +183,14 @@ for (const framework of ["React", "Vue"] as const) describe(`${framework} Phone 
     { rootEntry: "forced", acceptClose: true },
   ] as const)("initial child owns $rootEntry autofocus without a spurious close; owner accepts=$acceptClose", async ({ rootEntry, acceptClose }) => {
     const f = await fixture(framework, { forceSub: true, initialChild: true, rootEntry, acceptClose })
-    expect(body().getAllByRole("menu")).toHaveLength(2)
+    expect(body().getAllByRole("menu", { hidden: true })).toHaveLength(2)
     expect(f.closed).not.toHaveBeenCalled()
     expect(f.rootClosed).not.toHaveBeenCalled()
     expect(document.activeElement).toBe(body().getByRole("menuitem", { name: "Rename" }))
     // Real subsequent focus outside the child still closes it normally.
-    await settle(() => body().getByRole("menuitem", { name: "Parent action" }).focus())
+    await settle(() => body().getByRole("menuitem", { name: "Parent action", hidden: true }).focus())
     expect(f.closed).toHaveBeenCalledTimes(1)
-    expect(body().getAllByRole("menu")).toHaveLength(acceptClose ? 1 : 2)
+    expect(body().getAllByRole("menu", { hidden: true })).toHaveLength(acceptClose ? 1 : 2)
     expect(f.rootClosed).not.toHaveBeenCalled()
   })
 
@@ -203,7 +211,7 @@ for (const framework of ["React", "Vue"] as const) describe(`${framework} Phone 
       const f = await fixture(framework, { forceSub: true, initialChild: true, initialGrandchild: true, acceptClose: true, rootEntry, rtl })
       const leaf = body().getByRole("menuitem", { name: "Nested action" })
       const leafContent = leaf.closest('[role="menu"]')
-      expect(body().getAllByRole("menu")).toHaveLength(3)
+      expect(body().getAllByRole("menu", { hidden: true })).toHaveLength(3)
       expect(f.closed).not.toHaveBeenCalled()
       expect(f.grandchildClosed).not.toHaveBeenCalled()
       expect(f.rootClosed).not.toHaveBeenCalled()
@@ -268,7 +276,7 @@ for (const framework of ["React", "Vue"] as const) describe(`${framework} Phone 
     expect(element("[data-submenu-collapse]").textContent).toBe("Trier par")
     expect(element("#rich-label")).toBe(original)
     await settle(() => fireEvent.click(element("[data-submenu-collapse]")))
-    expect(body().getAllByRole("menu")).toHaveLength(1)
+    expect(body().getAllByRole("menu", { hidden: true })).toHaveLength(1)
     expect(document.activeElement).toBe(f.trigger)
     expect(f.closed).toHaveBeenCalledTimes(1)
     expect(f.rootClosed).not.toHaveBeenCalled()
@@ -278,14 +286,14 @@ for (const framework of ["React", "Vue"] as const) describe(`${framework} Phone 
     const f = await fixture(framework, { rtl })
     await f.open(true)
     expect(document.activeElement).toBe(body().getByRole("menuitem", { name: "Rename" }))
-    const tags = body().getByRole("menuitem", { name: "Tags" })
+    const tags = body().getByRole("menuitem", { name: "Tags", hidden: true })
     await settle(() => { tags.focus(); fireEvent.keyDown(tags, { key: rtl ? "ArrowLeft" : "ArrowRight" }) })
     expect(document.activeElement).toBe(body().getByRole("menuitem", { name: "Nested action" }))
     await settle(() => fireEvent.keyDown(document.activeElement ?? document.body, { key: rtl ? "ArrowRight" : "ArrowLeft" }))
-    expect(body().getAllByRole("menu")).toHaveLength(2)
+    expect(body().getAllByRole("menu", { hidden: true })).toHaveLength(2)
     expect(document.activeElement).toBe(tags)
     await settle(() => fireEvent.keyDown(tags, { key: "Escape" }))
-    expect(body().getAllByRole("menu")).toHaveLength(1)
+    expect(body().getAllByRole("menu", { hidden: true })).toHaveLength(1)
     expect(document.activeElement).toBe(f.trigger)
     expect(f.rootClosed).not.toHaveBeenCalled()
   })
@@ -297,9 +305,9 @@ for (const framework of ["React", "Vue"] as const) describe(`${framework} Phone 
     expect(body().getByRole("menuitemcheckbox", { name: "Grid" }).getAttribute("aria-checked")).toBe("true")
     await settle(() => fireEvent.click(body().getByRole("menuitemradio", { name: "Date" })))
     expect(body().getByRole("menuitemradio", { name: "Date" }).getAttribute("aria-checked")).toBe("true")
-    expect(body().getAllByRole("menu")).toHaveLength(2)
+    expect(body().getAllByRole("menu", { hidden: true })).toHaveLength(2)
     await settle(() => fireEvent.click(body().getByRole("menuitem", { name: "Rename" })))
-    expect(body().queryByRole("menu")).toBeNull()
+    expect(body().queryByRole("menu", { hidden: true })).toBeNull()
     expect(f.selected).toHaveBeenCalledTimes(1)
     expect(f.rootClosed).toHaveBeenCalledTimes(1)
   })
@@ -308,7 +316,7 @@ for (const framework of ["React", "Vue"] as const) describe(`${framework} Phone 
     const f = await fixture(framework, { forceSub: true, acceptClose })
     await settle(() => fireEvent.click(element("[data-submenu-collapse]")))
     expect(f.closed).toHaveBeenCalledTimes(1)
-    expect(body().getAllByRole("menu")).toHaveLength(acceptClose ? 1 : 2)
+    expect(body().getAllByRole("menu", { hidden: true })).toHaveLength(acceptClose ? 1 : 2)
     expect(f.rootClosed).not.toHaveBeenCalled()
     expect(document.activeElement).toBe(f.trigger)
   })
@@ -319,7 +327,7 @@ for (const framework of ["React", "Vue"] as const) describe(`${framework} Phone 
     await settle(() => fireEvent.keyDown(document.activeElement ?? document.body, { key: "Home" }))
     expect(document.activeElement).toBe(element("[data-submenu-collapse]"))
     await settle(() => fireEvent.keyDown(document.activeElement ?? document.body, { key: "Enter" }))
-    expect(body().getAllByRole("menu")).toHaveLength(1)
+    expect(body().getAllByRole("menu", { hidden: true })).toHaveLength(1)
     expect(document.activeElement).toBe(f.trigger)
     expect(f.rootClosed).not.toHaveBeenCalled()
   })
@@ -328,7 +336,7 @@ for (const framework of ["React", "Vue"] as const) describe(`${framework} Phone 
     const f = await fixture(framework, { modal })
     await f.open()
     await settle(() => fireEvent.pointerDown(body().getByText("Outside"), { button: 0, pointerType: "mouse" }))
-    expect(body().queryByRole("menu")).toBeNull()
+    expect(body().queryByRole("menu", { hidden: true })).toBeNull()
     expect(f.rootClosed).toHaveBeenCalledTimes(1)
   })
 
@@ -344,7 +352,7 @@ for (const framework of ["React", "Vue"] as const) describe(`${framework} Phone 
       target.focus()
       fireEvent.keyDown(target, { key: "Escape" })
     })
-    expect(body().getAllByRole("menu")).toHaveLength(acceptClose ? 1 : 2)
+    expect(body().getAllByRole("menu", { hidden: true })).toHaveLength(acceptClose ? 1 : 2)
     expect(f.closed).toHaveBeenCalledTimes(1)
     expect(f.rootClosed).not.toHaveBeenCalled()
     expect(document.activeElement).toBe(f.trigger)
@@ -357,9 +365,110 @@ for (const framework of ["React", "Vue"] as const) describe(`${framework} Phone 
     await settle(() => fireEvent.click(element("[data-submenu-collapse]")), 1)
     await f.open()
     await settle(() => {}, 180)
-    expect(body().getAllByRole("menu")).toHaveLength(2)
+    expect(body().getAllByRole("menu", { hidden: true })).toHaveLength(2)
     expect(element("[data-submenu-collapse]").getAttribute("aria-disabled")).not.toBe("true")
     expect(f.rootClosed).not.toHaveBeenCalled()
+  })
+
+  test("the parent behind a submenu is hidden from a screen reader, and the press's focus moves into the submenu", async () => {
+    const f = await fixture(framework)
+    await f.open()
+    await settle()
+    const parent = f.trigger.closest('[role="menu"]') as HTMLElement
+    const submenu = element("[data-submenu]")
+    expect(parent.hasAttribute("data-submenu-over")).toBe(true)
+    expect(parent.getAttribute("aria-hidden")).toBe("true")
+    expect(body().getAllByRole("menu")).toEqual([submenu])
+    expect(body().queryByRole("menuitem", { name: "Parent action" })).toBeNull()
+    expect(document.activeElement).toBe(submenu)
+    // Collapsing shows the parent again before focus returns to its row
+    await settle(() => fireEvent.click(element("[data-submenu-collapse]")))
+    expect(parent.hasAttribute("aria-hidden")).toBe(false)
+    expect(document.activeElement).toBe(f.trigger)
+    expect(body().getAllByRole("menu")).toEqual([parent])
+  })
+
+  test("a press on the parent collapses the submenu and chooses nothing, its release neither", async () => {
+    const f = await fixture(framework)
+    await f.open()
+    await settle()
+    const parent = f.trigger.closest('[role="menu"]') as HTMLElement
+    const row = within(parent).getByRole("menuitem", { name: "Parent action", hidden: true })
+    await settle(() => fireEvent.pointerDown(row, { button: 0, pointerId: 7, pointerType: "touch" }))
+    expect(f.closed).toHaveBeenCalledTimes(1)
+    expect(body().getAllByRole("menu")).toEqual([parent])
+    expect(document.activeElement).toBe(f.trigger)
+    // The parent's rows take presses again by the time the finger lifts: its release and click are the collapse's
+    await settle(() => {
+      fireEvent.pointerUp(row, { button: 0, pointerId: 7, pointerType: "touch" })
+      fireEvent.click(row)
+    })
+    expect(f.rootClosed).not.toHaveBeenCalled()
+    expect(body().getAllByRole("menu")).toEqual([parent])
+    // A later press is an ordinary one
+    await settle(() => fireEvent.click(row))
+    expect(f.rootClosed).toHaveBeenCalledTimes(1)
+  })
+
+  test("the pointer leaving the row that the submenu now covers leaves the submenu open", async () => {
+    const f = await fixture(framework)
+    await f.open()
+    await settle()
+    const submenu = element("[data-submenu]")
+    // The submenu stands over the row under the mouse that opened it, which leaves the row without moving
+    await settle(() => fireEvent.pointerLeave(f.trigger, { pointerType: "mouse", clientX: 1, clientY: 1, relatedTarget: submenu }))
+    expect(f.closed).not.toHaveBeenCalled()
+    expect(body().getAllByRole("menu", { hidden: true })).toHaveLength(2)
+    expect(document.activeElement).toBe(submenu)
+  })
+
+  test("after a press on the parent collapses the submenu, the first press outside closes the menu", async () => {
+    const f = await fixture(framework)
+    await f.open()
+    await settle()
+    const parent = f.trigger.closest('[role="menu"]') as HTMLElement
+    const row = within(parent).getByRole("menuitem", { name: "Parent action", hidden: true })
+    await settle(() => {
+      fireEvent.pointerDown(row, { button: 0, pointerId: 1, pointerType: "mouse" })
+      fireEvent.pointerUp(row, { button: 0, pointerId: 1, pointerType: "mouse" })
+      fireEvent.click(row)
+    })
+    expect(f.closed).toHaveBeenCalledTimes(1)
+    expect(f.rootClosed).not.toHaveBeenCalled()
+    // The press reached the document, so the primitives no longer take the next one for a press inside the menu
+    await settle(() => fireEvent.pointerDown(document.body, { button: 0, pointerId: 1, pointerType: "mouse" }))
+    expect(f.rootClosed).toHaveBeenCalledTimes(1)
+  })
+
+  test("only the release and click of the press that collapsed the submenu are cancelled", async () => {
+    const f = await fixture(framework)
+    await f.open()
+    await settle()
+    const parent = f.trigger.closest('[role="menu"]') as HTMLElement
+    const row = within(parent).getByRole("menuitem", { name: "Parent action", hidden: true })
+    // A secondary button chooses nothing behind the submenu, and leaves it open
+    await settle(() => fireEvent.pointerDown(row, { button: 2, pointerId: 1, pointerType: "mouse" }))
+    expect(f.closed).not.toHaveBeenCalled()
+    // A press whose release never comes: the next press is an ordinary one, and so is its click
+    await settle(() => fireEvent.pointerDown(row, { button: 0, pointerId: 1, pointerType: "mouse" }))
+    expect(f.closed).toHaveBeenCalledTimes(1)
+    await settle(() => {
+      fireEvent.pointerDown(row, { button: 0, pointerId: 1, pointerType: "mouse" })
+      fireEvent.click(row)
+    })
+    expect(f.rootClosed).toHaveBeenCalledTimes(1)
+  })
+
+  test("the heading row and its separator stay out of the scrolling items", async () => {
+    const f = await fixture(framework)
+    await f.open()
+    const submenu = element("[data-submenu]")
+    const [heading, separator, items] = Array.from(submenu.children) as HTMLElement[]
+    expect(submenu.children).toHaveLength(3)
+    expect(heading.hasAttribute("data-submenu-collapse")).toBe(true)
+    expect(separator.getAttribute("role")).toBe("separator")
+    expect(items.className).toBe("SubmenuItems")
+    expect(within(items).getByRole("menuitem", { name: "Rename" })).toBeTruthy()
   })
 
   test("desktop keeps its existing child collection without a collapse header", async () => {
@@ -369,5 +478,132 @@ for (const framework of ["React", "Vue"] as const) describe(`${framework} Phone 
     expect(document.querySelector("[data-submenu-collapse]")).toBeNull()
     expect(document.querySelector("[data-submenu-phone]")).toBeNull()
     expect(document.activeElement).toBe(body().getByRole("menuitem", { name: "Rename" }))
+  })
+})
+
+// A menu laid out as on a phone by where it is, at any window width (owner, plan 176): inside a PhoneLayout it opens in
+// the box, inside a Dialog laid out as on a phone in a phone scope of its own
+for (const framework of ["React", "Vue"] as const) describe(`${framework} menu laid out as on a phone by its context`, () => {
+  const mount = async (where: "layout" | "dialog") => {
+    mobile = false
+    if (framework === "React") {
+      const menu = (
+        <RMenu>
+          <RMenu.Trigger><button>Actions</button></RMenu.Trigger>
+          <RMenu.Content>
+            <RMenu.Item onSelect={() => {}}>Parent action</RMenu.Item>
+            <RMenu.Sub>
+              <RMenu.SubTrigger>Sort by</RMenu.SubTrigger>
+              <RMenu.SubContent><RMenu.Item onSelect={() => {}}>Rename</RMenu.Item></RMenu.SubContent>
+            </RMenu.Sub>
+          </RMenu.Content>
+        </RMenu>
+      )
+      await settle(() => {
+        render(where === "layout"
+          ? <RPhoneLayout data-testid="frame">{menu}</RPhoneLayout>
+          : <RDialog open><RDialog.Content layout="phone"><RDialog.Header><RDialog.Title>Edit</RDialog.Title></RDialog.Header>{menu}</RDialog.Content></RDialog>)
+      })
+    } else {
+      const menu = () => h(Menu, null, { default: () => [
+        h(MenuTrigger, null, { default: () => h("button", "Actions") }),
+        h(MenuContent, null, { default: () => [
+          h(MenuItem, { onSelect: () => {} }, { default: () => "Parent action" }),
+          h(MenuSub, null, { default: () => [
+            h(MenuSubTrigger, null, { default: () => "Sort by" }),
+            h(MenuSubContent, null, { default: () => h(MenuItem, { onSelect: () => {} }, { default: () => "Rename" }) }),
+          ] }),
+        ] }),
+      ] })
+      await settle(() => {
+        mountVue(() => where === "layout"
+          ? h(PhoneLayout, { "data-testid": "frame" }, { default: menu })
+          : h(Dialog, { open: true }, { default: () => h(DialogContent, { layout: "phone" }, { default: () => [
+            h(DialogHeader, null, { default: () => h(DialogTitle, null, { default: () => "Edit" }) }),
+            menu(),
+          ] }) }))
+      })
+    }
+    await settle(() => fireEvent.click(body().getByRole("button", { name: "Actions", hidden: true })))
+    await settle(() => fireEvent.click(body().getByRole("menuitem", { name: "Sort by", hidden: true })))
+    await settle()
+  }
+
+  test("inside a PhoneLayout the menu and its submenu open in the box, as on a phone", async () => {
+    await mount("layout")
+    const frame = document.querySelector<HTMLElement>('[data-testid="frame"]')!
+    const [root, submenu] = Array.from(document.querySelectorAll<HTMLElement>('[role="menu"]'))
+    expect(frame.contains(root)).toBe(true)
+    expect(frame.contains(submenu)).toBe(true)
+    expect(submenu.hasAttribute("data-submenu-phone")).toBe(true)
+    expect(submenu.querySelector("[data-submenu-collapse]")?.textContent).toContain("Sort by")
+    expect(root.hasAttribute("data-submenu-over")).toBe(true)
+  })
+
+  test("inside a Dialog laid out as on a phone the menu opens over the window in a phone scope of its own", async () => {
+    await mount("dialog")
+    const dialog = document.querySelector<HTMLElement>('[role="dialog"]')!
+    const [root, submenu] = Array.from(document.querySelectorAll<HTMLElement>('[role="menu"]'))
+    for (const menu of [root, submenu]) {
+      expect(dialog.contains(menu)).toBe(false)
+      expect(menu.closest('[data-plex-layout="phone"]')).not.toBeNull()
+    }
+    expect(submenu.hasAttribute("data-submenu-phone")).toBe(true)
+    expect(submenu.querySelector("[data-submenu-collapse]")).not.toBeNull()
+  })
+
+  test("in a PhoneLayout inside a Page with a footer the box, not the Page, bounds the submenu", async () => {
+    // A narrow window, where the Page's footer would hold menus of its own above it; the box clips past its edges
+    mobile = true
+    if (framework === "React") {
+      await settle(() => {
+        render(
+          <RPage>
+            <RPhoneLayout data-testid="frame">
+              <RMenu>
+                <RMenu.Trigger><button>Actions</button></RMenu.Trigger>
+                <RMenu.Content>
+                  <RMenu.Sub>
+                    <RMenu.SubTrigger>Sort by</RMenu.SubTrigger>
+                    <RMenu.SubContent><RMenu.Item onSelect={() => {}}>Rename</RMenu.Item></RMenu.SubContent>
+                  </RMenu.Sub>
+                </RMenu.Content>
+              </RMenu>
+            </RPhoneLayout>
+            <RPage.Footer><button>Done</button></RPage.Footer>
+          </RPage>,
+        )
+      })
+    } else {
+      await settle(() => {
+        mountVue(() => h(Page, null, { default: () => [
+          h(PhoneLayout, { "data-testid": "frame" }, { default: () => h(Menu, null, { default: () => [
+            h(MenuTrigger, null, { default: () => h("button", "Actions") }),
+            h(MenuContent, null, { default: () => h(MenuSub, null, { default: () => [
+              h(MenuSubTrigger, null, { default: () => "Sort by" }),
+              h(MenuSubContent, null, { default: () => h(MenuItem, { onSelect: () => {} }, { default: () => "Rename" }) }),
+            ] }) }),
+          ] }) }),
+          h(PageFooter, null, { default: () => h("button", "Done") }),
+        ] }))
+      })
+    }
+    await settle(() => fireEvent.click(body().getByRole("button", { name: "Actions", hidden: true })))
+    await settle(() => fireEvent.click(body().getByRole("menuitem", { name: "Sort by", hidden: true })))
+    await settle()
+    const submenu = element("[data-submenu]")
+    // The box is 812 tall (rect): less the 30px collision padding at the top and the bottom
+    expect(submenu.style.getPropertyValue("--menu-phone-max-height")).toBe("752px")
+  })
+
+  test("outside them a wide window keeps the desktop menu", async () => {
+    mobile = false
+    if (framework === "React") {
+      await settle(() => { render(<RMenu><RMenu.Trigger><button>Actions</button></RMenu.Trigger><RMenu.Content><RMenu.Item onSelect={() => {}}>Rename</RMenu.Item></RMenu.Content></RMenu>) })
+    } else {
+      await settle(() => { mountVue(() => h(Menu, null, { default: () => [h(MenuTrigger, null, { default: () => h("button", "Actions") }), h(MenuContent, null, { default: () => h(MenuItem, { onSelect: () => {} }, { default: () => "Rename" }) })] })) })
+    }
+    await settle(() => fireEvent.click(body().getByRole("button", { name: "Actions" })))
+    expect(element('[role="menu"]').closest('[data-plex-layout="phone"]')).toBeNull()
   })
 })

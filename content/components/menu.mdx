@@ -212,6 +212,7 @@ const [filter, setFilter] = useState("all")
 <ComponentPreview details={<>
   <p>A list's menu, as Reminders opens it on iOS: Manage Sections and Sort By open submenus, and Sort By shows the order it has chosen under its label (<code>description</code> on <code>Menu.SubTrigger</code>). Use <code>Menu.Sub</code>, <code>Menu.SubTrigger</code>, and <code>Menu.SubContent</code> for nested menus.</p>
   <p>On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.</p>
+  <p>The menu behind is out of reach while the submenu stands over it: a press on it closes the submenu and chooses nothing, and screen readers skip it, with focus in the submenu. The heading row stays in place and only the items under it scroll in a submenu taller than the screen, so the row that closes it is always in reach.</p>
 </>} code={withMenuPhoneReact(`const [sort, setSort] = useState("Manual")
 
 <Menu>
@@ -482,12 +483,18 @@ On a phone a menu without `sideOffset` grows out of its trigger and covers it, a
 
 On phones, menus and submenus inside a Page or Dialog keep clear of its visible footer. Their available space updates when the footer or viewport changes.
 
+A phone here is a window 767px wide or narrower, or the inside of a [PhoneLayout](/components/phone-layout) or a [Dialog](/components/dialog#api) with `layout="phone"`, at any window width. A menu opened in a PhoneLayout opens in its box and keeps inside it; one opened in a phone Dialog opens over the window, as on a phone.
+
+In the dark theme a phone menu is glass over the page, as native iOS 26 menus are: white at 12% over an 18px blur of what is under it, which leaves the page's text unreadable through the panel (a 37 by 24pt switch knob behind a native menu spreads to 55 by 37pt). The light theme keeps the elevated surface.
+
 Menu reads these component tokens. Override them at any scope to restyle it:
 
 - `--menu-checkbox-indicator-size`: checkbox indicator size (default `var(--font-text-lg-size)`)
 - `--menu-font-size`: font size (default `var(--font-text-sm-size)`)
 - `--menu-gutter`: gutter (default `spacing(1.5)`)
 - `--menu-item-background-color`: item background color (default `light-dark(var(--alpha-08), var(--alpha-10))`)
+- `--menu-mobile-background`: panel surface on a phone (default the elevated surface in light, `var(--alpha-12)` glass in dark)
+- `--menu-mobile-backdrop-filter`: blur behind the panel on a phone in the dark theme (default `blur(18px)`)
 - `--menu-default-width`: default width before a content-level override (none on desktop, 250px with touch styles)
 - `--menu-default-min-width`: default minimum width before a content-level override (300px on desktop, 250px with touch styles)
 - `--menu-horizontal-min-width`: minimum width of a horizontal menu (none on desktop, 250px with touch styles)

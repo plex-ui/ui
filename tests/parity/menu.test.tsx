@@ -1860,13 +1860,35 @@ describe("Menu.Item disabled click ownership", () => {
   })
 })
 
+describe("phone submenus (owner, plan 176)", () => {
+  const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Menu/Menu.module.css`, "utf8")
+  const rule = (selector: string) => {
+    const start = css.indexOf(`${selector} {`)
+    expect(start).toBeGreaterThan(-1)
+    return css.slice(start, css.indexOf("\n  }\n", start))
+  }
+
+  test("the heading row stays in place and only the items under it scroll", () => {
+    expect(css).toMatch(/\.SubmenuItems \{\s*display: contents;/)
+    expect(css).toMatch(/\.MenuList\[data-submenu-phone\] \{\s*display: flex;\s*flex-direction: column;\s*overflow: hidden;/)
+    expect(css).toMatch(/& > \.SubmenuItems \{[^}]*min-height: 0;[^}]*overflow: hidden auto;/)
+    expect(css).toContain(".MenuList[data-submenu-phone] > .SubmenuItems > .Separator:first-child {")
+  })
+
+  test("the rows of a parent behind a submenu take no press", () => {
+    expect(rule(".MenuList[data-submenu-over]")).toMatch(/& > \* \{[^}]*pointer-events: none;/)
+  })
+})
+
 describe("dark phone menus are glass (iOS2 IMG_5524, 5525, 5528)", () => {
   const read = (path: string) => readFileSync(`${process.cwd()}/packages/styles/src/${path}`, "utf8")
 
   test("the pair lives on the root tokens: elevated surface in light, the button glass alpha-12 in dark", () => {
     const materials = read("styles/mobile-materials.css")
     expect(materials).toContain("--menu-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));")
-    expect(materials).toContain("--menu-mobile-backdrop-filter: blur(10px);")
+    // The page under a dark menu does not read through: a blur of 18, as a switch under a native one spreads
+    // (IMG_5524 to IMG_5525); 10 left its text at 1.5 to 3:1 (plan 176)
+    expect(materials).toContain("--menu-mobile-backdrop-filter: blur(18px);")
     expect(read("styles/touch.css")).not.toContain("--menu-mobile-background")
   })
 

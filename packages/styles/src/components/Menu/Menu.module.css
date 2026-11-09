@@ -2,6 +2,11 @@
   /* Top-level selector needs to exist */
 }
 
+/* A menu opened from a Dialog laid out as on a phone takes its phone rules here (Menu.tsx) */
+.PhoneScope {
+  display: contents;
+}
+
 .MenuList[data-pill] {
   --menu-radius: var(--menu-radius-pill, 22px);
   --menu-gutter: var(--menu-pill-gutter);
@@ -808,6 +813,12 @@
   }
 }
 
+/* The items of a submenu (Menu.tsx SubContent). They lie in the panel itself; a phone submenu scrolls them under its
+   heading row (below). */
+.SubmenuItems {
+  display: contents;
+}
+
 /* Phone submenu geometry is solved against the whole viewport/footer boundary.
    Retain the primitive's collection and focus behavior, not its side-space width. */
 @media (max-width: 767px) {
@@ -841,8 +852,32 @@
     font-weight: var(--font-weight-semibold);
   }
 
+  /* The heading row stays in place and only the items under it scroll, in a submenu taller than the room it has
+     (owner, plan 176: the row that closes the submenu is always in reach). */
+  .MenuList[data-submenu-phone] {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    & > :is([data-submenu-collapse], .Separator) {
+      flex: none;
+    }
+
+    /* Across the panel's inline padding, into which a pressed row's capsule reaches: it scrolls only down */
+    & > .SubmenuItems {
+      display: block;
+      flex: 1 1 auto;
+      min-height: 0;
+      margin-inline: calc(-1 * var(--menu-padding-inline, var(--menu-gutter)));
+      padding-inline: var(--menu-padding-inline, var(--menu-gutter));
+      overflow: hidden auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
   /* A submenu that starts with its own separator keeps only the one under its heading row */
-  [data-submenu-collapse] + .Separator + .Separator {
+  .MenuList[data-submenu-phone] > .SubmenuItems > .Separator:first-child {
     display: none;
   }
 
@@ -863,8 +898,10 @@
     transform-origin: 50% 0;
     transition: scale var(--motion-enter) var(--cubic-enter), transform-origin 0s;
 
+    /* Its rows take no press: one on the parent collapses the submenu and chooses nothing (owner, plan 176) */
     & > * {
       opacity: 0.5;
+      pointer-events: none;
     }
   }
 

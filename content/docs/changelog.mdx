@@ -7,7 +7,23 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
-## 0.31.0 (2026-11-09)
+## Unreleased
+
+### Added
+
+- Phone `Menu` by its context in React and Vue: inside a `PhoneLayout` or a `Dialog` with `layout="phone"` a menu and its submenus are phone menus at any window width, as in a window 767px wide or narrower. A menu opened in a PhoneLayout portals into its box and keeps inside it, so a phone frame on a desktop page shows the menu as on the phone; one opened in a phone Dialog opens over the window in a phone scope of its own. The PhoneLayout docs show it with a menu and a submenu.
+
+### Changed
+
+- Phone submenus are modal, as in iOS 26: while a submenu stands over its menu, a press on the menu behind closes the submenu and chooses nothing (its release and click neither), its rows take no presses, and it is hidden from screen readers (`aria-hidden`), with the focus of the press that opened the submenu moved into it. Collapsing shows the menu again and returns focus to its row. React and Vue.
+- The heading row of a phone submenu and the separator under it stay in place, and only the items under them scroll in a submenu taller than the room it has, so the row that closes it is always in reach. A submenu that starts with its own separator keeps only the one under its heading.
+- Dark phone menus, Select lists and popovers blur what is under them at 18px (`--menu-mobile-backdrop-filter`, was 10px), after the spread of a switch knob behind a native iOS 26 menu: text under the panel is no longer readable through it (at 10px it kept 1.5 to 3:1 against its background).
+
+### Fixed
+
+- Phone rules of one theme (the `dark` and `light` mixins) apply inside a `PhoneLayout` too: they asked for the theme inside its box, where the page sets it on its root, outside the box. In the dark theme a menu in a PhoneLayout had no blur, the bar buttons of a Dialog sheet kept the shadow of the light theme, and the days of a `DateRangePicker` range their light fill.
+- A phone submenu opened with a mouse stays open: once the submenu covers the row that opened it, the pointer leaving that row moved focus back to the menu behind, which closed the submenu. React and Vue.
+
 
 ### Added
 

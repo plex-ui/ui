@@ -5295,7 +5295,7 @@ const [filter, setFilter] = useState("messages")
 ```
 
 ### Submenus
-A list's menu, as Reminders opens it on iOS: Manage Sections and Sort By open submenus, and Sort By shows the order it has chosen under its label (description on Menu.SubTrigger). Use Menu.Sub, Menu.SubTrigger, and Menu.SubContent for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.
+A list's menu, as Reminders opens it on iOS: Manage Sections and Sort By open submenus, and Sort By shows the order it has chosen under its label (description on Menu.SubTrigger). Use Menu.Sub, Menu.SubTrigger, and Menu.SubContent for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again. The menu behind is out of reach while the submenu stands over it: a press on it closes the submenu and chooses nothing, and screen readers skip it, with focus in the submenu. The heading row stays in place and only the items under it scroll in a submenu taller than the screen, so the row that closes it is always in reach.
 ```tsx
 // Desktop
 const [sort, setSort] = useState("Manual")
@@ -5805,6 +5805,41 @@ const [open, setOpen] = useState(false)
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog>
+</PhoneLayout>
+```
+
+### Menu
+A menu opened inside the box is a phone menu at any window width: it covers the button that opens it and opens in the box. A submenu opens over its menu, which steps back: a press on the menu behind closes the submenu and chooses nothing, and screen readers skip its rows until then.
+```tsx
+const [sort, setSort] = useState("Manual")
+
+<PhoneLayout style={{ width: 375, height: 600, borderRadius: 40, border: '1px solid var(--color-border)' }}>
+<Page>
+  <Toolbar titleStyle="large">
+    <Toolbar.Title>Groceries</Toolbar.Title>
+    <Toolbar.Trailing>
+      <Menu>
+        <Menu.Trigger>
+          <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+        </Menu.Trigger>
+        <Menu.Content align="end">
+          <Menu.Item onSelect={() => {}}><CheckCircle /> Select Items</Menu.Item>
+          <Menu.Sub>
+            <Menu.SubTrigger description={sort}><Sort /> Sort By</Menu.SubTrigger>
+            <Menu.SubContent>
+              <Menu.RadioGroup value={sort} onChange={setSort}>
+                <Menu.RadioItem value="Manual">Manual</Menu.RadioItem>
+                <Menu.RadioItem value="Due Date">Due Date</Menu.RadioItem>
+                <Menu.RadioItem value="Title">Title</Menu.RadioItem>
+              </Menu.RadioGroup>
+            </Menu.SubContent>
+          </Menu.Sub>
+          <Menu.Item onSelect={() => {}} danger><Trash /> Delete List</Menu.Item>
+        </Menu.Content>
+      </Menu>
+    </Toolbar.Trailing>
+  </Toolbar>
+</Page>
 </PhoneLayout>
 ```
 

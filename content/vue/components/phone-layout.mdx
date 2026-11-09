@@ -29,9 +29,38 @@ export const overview = `<PhoneLayout style="width: 375px; height: 600px; border
   </div>
 </PhoneLayout>`
 
+export const menu = `<PhoneLayout style="width: 375px; height: 600px; border-radius: 40px; border: 1px solid var(--color-border); background: var(--color-background)">
+  <Page>
+    <Toolbar title-style="large">
+      <ToolbarTitle>Groceries</ToolbarTitle>
+      <ToolbarTrailing>
+        <Menu>
+          <MenuTrigger>
+            <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+          </MenuTrigger>
+          <MenuContent align="end">
+            <MenuItem @select="() => {}"><CheckCircle /> Select Items</MenuItem>
+            <MenuSub>
+              <MenuSubTrigger :description="sort"><Sort /> Sort By</MenuSubTrigger>
+              <MenuSubContent>
+                <MenuRadioGroup v-model:value="sort">
+                  <MenuRadioItem value="Manual">Manual</MenuRadioItem>
+                  <MenuRadioItem value="Due Date">Due Date</MenuRadioItem>
+                  <MenuRadioItem value="Title">Title</MenuRadioItem>
+                </MenuRadioGroup>
+              </MenuSubContent>
+            </MenuSub>
+            <MenuItem danger @select="() => {}"><Trash /> Delete List</MenuItem>
+          </MenuContent>
+        </Menu>
+      </ToolbarTrailing>
+    </Toolbar>
+  </Page>
+</PhoneLayout>`
+
 <UsageBlock>{`import { PhoneLayout } from "@plexui/vue/components/PhoneLayout";`}</UsageBlock>
 
-Components take their phone presentation in a window 767px wide or narrower. Inside a PhoneLayout they take it at any width: a Dialog becomes a phone sheet, a Button takes its phone size. For one dialog only, use `layout="phone"` on [DialogContent](/vue/components/dialog#api). Menus, popovers, selects and tooltips still open at the end of the page and take the window's presentation; they follow a PhoneLayout in a later release.
+Components take their phone presentation in a window 767px wide or narrower. Inside a PhoneLayout they take it at any width: a Dialog becomes a phone sheet, a Button takes its phone size. For one dialog only, use `layout="phone"` on [DialogContent](/vue/components/dialog#api). A Menu opened inside a PhoneLayout is a phone menu that opens in its box, and one opened in a phone dialog is a phone menu too. Popovers, selects and tooltips still open at the end of the page and take the window's presentation; they follow a PhoneLayout in a later release.
 
 ## Examples
 
@@ -39,6 +68,12 @@ Components take their phone presentation in a window 767px wide or narrower. Ins
 
 <ComponentPreview phonePresentation="none" language="vue" details={<>The box is the screen of the phone: a Dialog opened inside it portals into the box and covers it instead of the window. Give the box a size; let a child of it scroll rather than the box, so a dialog stays in place.</>} code={overview}>
   <VueDemo template={overview} state={{ open: false }} stageClassName="py-10 flex justify-center" />
+</ComponentPreview>
+
+### Menu
+
+<ComponentPreview phonePresentation="none" language="vue" details={<>A menu opened inside the box is a phone menu at any window width: it covers the button that opens it and opens in the box. A submenu opens over its menu, which steps back: a press on the menu behind closes the submenu and chooses nothing, and screen readers skip its rows until then.</>} code={menu}>
+  <VueDemo template={menu} state={{ sort: "Manual" }} stageClassName="py-10 flex justify-center" />
 </ComponentPreview>
 
 ## API

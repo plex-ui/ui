@@ -145,7 +145,9 @@ describe("a phone menu covers its trigger", () => {
   })
 
   test("React and Vue share one observer", () => {
-    expect(readFileSync("packages/vue/src/lib/menuTriggerCover.ts", "utf8")).toBe(readFileSync("packages/ui/src/lib/menuTriggerCover.ts", "utf8"))
+    // Vue's copy names its imports with .js
+    const vue = readFileSync("packages/vue/src/lib/menuTriggerCover.ts", "utf8").replace(/(from )"(\.{1,2}\/[^"]+)\.js"/g, '$1"$2"')
+    expect(vue).toBe(readFileSync("packages/ui/src/lib/menuTriggerCover.ts", "utf8"))
   })
 
   for (const framework of ["React", "Vue"] as const) {

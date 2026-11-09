@@ -28,11 +28,29 @@ import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib
 import { ignoreReleaseOverTrigger, observeMenuTriggerCover, type MenuTriggerCover } from "../../lib/menuTriggerCover"
 import { Button } from "../Button"
 import { Check, ChevronDown, ChevronRight } from "../Icon"
+import { PhoneLayoutContext } from "../PhoneLayout/PhoneLayout"
 import { useLinkComponent } from "../PlexUIProvider/internal"
 import { TransitionGroup } from "../Transition"
 import { createExitGuard, overlayTiming, overlayTimingQuick } from "../Transition/shared"
 import { isHoverPointer } from "../../lib/inputMode"
 import s from "@plexui/styles/components/Menu/Menu.module.css"
+
+// Inside a PhoneLayout a menu opens in its box, laid out as on a phone and kept within it; in a Dialog laid out as on a
+// phone outside one it opens over the window, in a phone scope of its own (plan 176)
+const COLLISION_PADDING = { bottom: 30, top: 30, left: 12, right: 12 }
+const useMenuPhoneLayout = (open: boolean) => {
+  const floatingBoundary = useFloatingBoundary(open, COLLISION_PADDING)
+  const phoneLayout = useContext(PhoneLayoutContext)
+  const container = phoneLayout?.container ?? null
+  // The footer of a Page or Dialog in the box keeps the menu clear of it; one around the box does not hold it, and the
+  // box clips what passes its edges
+  const footerInBox = !!container && !!floatingBoundary.collisionBoundary && container.contains(floatingBoundary.collisionBoundary)
+  const boundary = container && !footerInBox ? { collisionBoundary: container, collisionPadding: COLLISION_PADDING } : floatingBoundary
+  return { container: container ?? undefined, scoped: phoneLayout !== null && !container, boundary }
+}
+
+const PhoneScope = ({ enabled, children }: { enabled: boolean; children: ReactNode }) =>
+  enabled ? <div className={s.PhoneScope} data-plex-layout="phone">{children}</div> : children
 
 // A delayed programmatic restore may inherit focus-visible from the menu.
 // Keep the focus, but suppress the Button ring only for this pointer restore.
@@ -496,7 +514,8 @@ const Content = ({
   const { open, prepareFocusRestore, triggerElement, modal } = useMenuContext()
   const contentRef = useRef<HTMLDivElement>(null)
   const interactedOutside = useRef(false)
-  const floatingBoundary = useFloatingBoundary(open, { bottom: 30, top: 30, left: 12, right: 12 })
+  const phoneLayout = useMenuPhoneLayout(open)
+  const floatingBoundary = phoneLayout.boundary
   // On a phone a menu without its own offset grows out of its trigger, covers it and opens toward the larger part of
   // the screen (menuTriggerCover.ts); one that opens to a side keeps its gap
   const coversTrigger = open && sideOffset === undefined && side !== "left" && side !== "right"
@@ -543,7 +562,8 @@ const Content = ({
   }
 
   return (
-    <DropdownMenu.Portal forceMount>
+    <DropdownMenu.Portal forceMount container={phoneLayout.container}>
+      <PhoneScope enabled={phoneLayout.scoped}>
       <TransitionGroup className={s.Menu} {...overlayTiming} {...exitGuard.transition} overlay>
         {open && (
           <RootMenuContent
@@ -577,6 +597,7 @@ const Content = ({
           </RootMenuContent>
         )}
       </TransitionGroup>
+      </PhoneScope>
     </DropdownMenu.Portal>
   )
 }
@@ -804,8 +825,15 @@ const SubContent = ({
     setContent(element)
   }, [isUsingKeyboard])
   const [exitGuard] = useState(createExitGuard)
-  const floatingBoundary = useFloatingBoundary(open, { bottom: 30, top: 30, left: 12, right: 12 })
-  const phone = usePhoneSubmenu(open, triggerRef, content, floatingBoundary)
+  const phoneLayout = useMenuPhoneLayout(open)
+  const floatingBoundary = phoneLayout.boundary
+  const requestCollapse = () => {
+    if (!latestOpen.current) return
+    setOpen(false)
+    triggerRef.current?.focus({ preventScroll: true })
+  }
+  // A press on the parent it stands over collapses a phone submenu
+  const phone = usePhoneSubmenu(open, triggerRef, content, floatingBoundary, requestCollapse)
   // Resize recovery is not a new keyboard entry after returning to the trigger.
   const phoneWasUnavailable = useRef(false)
   useLayoutEffect(() => {
@@ -818,13 +846,12 @@ const SubContent = ({
   }, [open, phone, content, isUsingKeyboard, triggerRef])
   const collapse = (event: Event) => {
     event.preventDefault()
-    if (!latestOpen.current) return
-    setOpen(false)
-    triggerRef.current?.focus({ preventScroll: true })
+    requestCollapse()
   }
 
   return (
-    <DropdownMenu.Portal forceMount>
+    <DropdownMenu.Portal forceMount container={phoneLayout.container}>
+      <PhoneScope enabled={phoneLayout.scoped}>
       <TransitionGroup className={s.Menu} {...overlayTimingQuick} {...exitGuard.transition} overlay>
         {open && (
           <DropdownMenu.SubContent
@@ -873,10 +900,12 @@ const SubContent = ({
             )}
             {/* A separator under the row that heads it, as iOS 26 submenus (iOS-menu IMG_5677, IMG_5682) */}
             {phone.mobile && <DropdownMenu.Separator className={s.Separator} role="separator" />}
-            {children}
+            {/* The items, which scroll under that heading on a phone; on a desktop they lie in the panel itself */}
+            <div className={s.SubmenuItems}>{children}</div>
           </DropdownMenu.SubContent>
         )}
       </TransitionGroup>
+      </PhoneScope>
     </DropdownMenu.Portal>
   )
 }

@@ -15,6 +15,8 @@ const PHONE_FEATURE = /^\(\s*(?:max-width\s*:\s*767(?:\.98)?px|width\s*<=?\s*767
 const DESKTOP_FEATURE = /^\(\s*(?:min-width\s*:\s*768px|width\s*>=\s*768px)\s*\)$/i
 const MEDIA_TYPE = /^(?:only\s+)?(?:screen|all)$/i
 const ROOT_COMPOUND = /^(?::root|html|body)(?=$|[\s>+~.[:#])((?:\[[^\]]*\]|:[\w-]+(?:\([^)]*\))?|\.[\w-]+)*)/
+// The theme of the light and dark mixins (mixins.mjs), set on the root or on a part of the page
+const THEME_COMPOUND = /^:where\(\[data-theme=(?:"(?:light|dark)"|'(?:light|dark)'|light|dark)\]\)(?=\s)/
 
 /** Splits on commas outside parentheses and brackets. */
 const splitList = (value) => {
@@ -59,7 +61,8 @@ export const isDesktopMedia = (params) =>
 
 /**
  * The selector for elements inside the scope: after a leading `:root`, `html` or `body` (and what it carries), so
- * tokens set on the root are set on the scope instead, or before the selector.
+ * tokens set on the root are set on the scope instead, or before the selector. A rule of one theme (the dark and
+ * light mixins) applies in the scope whether the theme is set outside it, as on the root, or inside it.
  * @param {string} selector
  */
 export const scopeSelector = (selector) => {
@@ -68,6 +71,8 @@ export const scopeSelector = (selector) => {
     const rest = selector.slice(root[0].length).trim()
     return `${root[0]} :where(${PHONE_SCOPE})${rest ? ` ${rest}` : ""}`
   }
+  const theme = THEME_COMPOUND.exec(selector)
+  if (theme) return `${theme[0]} :where(${PHONE_SCOPE}) ${selector.slice(theme[0].length).trim()}, :where(${PHONE_SCOPE}) ${selector}`
   return `:where(${PHONE_SCOPE}) ${selector}`
 }
 

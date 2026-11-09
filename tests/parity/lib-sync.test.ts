@@ -16,6 +16,10 @@ const COPIES = [
   "copyToClipboard",
   "environment",
   "sortable",
+  "phoneLayout",
+  "menuSubmenuPlacement",
+  "menuInitialFocus",
+  "menuTriggerCover",
 ]
 
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8")

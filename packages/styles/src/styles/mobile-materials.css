@@ -44,10 +44,13 @@
     --mobile-grabber-color: light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 20%));
     /* Dark menus and Select lists are glass, as native iOS 26 pop-up menus and popovers are: the glass
        of the buttons, alpha-12, over a blurred backdrop (iOS2 IMG_5524, 5525, 5528: a sheet of 28 shows at
-       56, a card of 44 at 69, a switch behind spreads over about 10pt). Light menus keep the elevated
-       surface; the blur applies in dark only. */
+       56, a card of 44 at 69). The page under it does not read through: the white knob of a switch behind
+       the menu (37 by 24pt, IMG_5524) spreads to 55 by 37pt at half its height and keeps a third of its
+       strength (IMG_5525), a blur of 18 (14 to 20 by the width, the height and the peak); text under it is
+       gone. A blur of 10 left the page's text at 1.5 to 3:1 against its background, readable (plan 176).
+       Light menus keep the elevated surface; the blur applies in dark only. */
     --menu-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));
-    --menu-mobile-backdrop-filter: blur(10px);
+    --menu-mobile-backdrop-filter: blur(18px);
     /* A popover takes the material of the menus: iOS 26 presents an action sheet from its source in the same
        dark glass (iOS2 IMG_5528: a card of 44 under it at 65 to 69, the sheet of 28 at 55). */
     --popover-mobile-background: var(--menu-mobile-background);

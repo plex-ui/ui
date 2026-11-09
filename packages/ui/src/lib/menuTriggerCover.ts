@@ -1,3 +1,5 @@
+import { isPhoneLayout, PHONE_LAYOUT_SCOPE } from "./phoneLayout"
+
 /** Where a phone menu stands over its trigger: the side offset that covers it, and the side it opens to. */
 export type MenuTriggerCover = { sideOffset: number; side: "top" | "bottom" }
 
@@ -21,11 +23,16 @@ export function observeMenuTriggerCover(trigger: HTMLElement, onChange: (cover: 
   let last: string | undefined
   const measure = () => {
     let cover: MenuTriggerCover | null = null
-    if (media.matches) {
+    // A narrow window, or a PhoneLayout or phone Dialog at any width
+    if (isPhoneLayout(trigger)) {
       const rect = trigger.getBoundingClientRect()
-      // The visible part of the screen: the layout viewport less a keyboard or a pinch zoom
+      // The visible part of the screen: the layout viewport less a keyboard or a pinch zoom, or the box of a
+      // PhoneLayout, which is the phone's screen (a phone Dialog's own scope has no box: the window is its screen)
       const viewport = view.visualViewport
-      const middle = (viewport?.offsetTop ?? 0) + (viewport?.height ?? view.innerHeight) / 2
+      const screen = trigger.closest(PHONE_LAYOUT_SCOPE)?.getBoundingClientRect()
+      const middle = screen && screen.height > 0
+        ? Math.max(screen.top, viewport?.offsetTop ?? 0) / 2 + Math.min(screen.bottom, (viewport?.offsetTop ?? 0) + (viewport?.height ?? view.innerHeight)) / 2
+        : (viewport?.offsetTop ?? 0) + (viewport?.height ?? view.innerHeight) / 2
       // The layout height: a pressed control may be scaled, and the panel covers its resting box
       cover = { sideOffset: -trigger.offsetHeight, side: rect.top + rect.height / 2 > middle ? "top" : "bottom" }
     }
@@ -53,7 +60,7 @@ export function observeMenuTriggerCover(trigger: HTMLElement, onChange: (cover: 
 export function ignoreReleaseOverTrigger(trigger: HTMLElement, pointerId: number): void {
   const view = trigger.ownerDocument.defaultView
   // Only a phone menu covers its trigger; elsewhere the gap keeps the items clear of the pointer
-  if (!view || typeof view.matchMedia !== "function" || !view.matchMedia("(max-width: 767px)").matches) return
+  if (!view || !isPhoneLayout(trigger)) return
   const release = (event: PointerEvent) => {
     if (event.pointerId !== pointerId) return
     view.removeEventListener("pointerup", release, true)

@@ -631,6 +631,10 @@ describe("phone layout scope (postcss)", () => {
   test("selectors keep their specificity", () => {
     expect(scopeSelector(".A > .B")).toBe(':where([data-plex-layout="phone"]) .A > .B')
     expect(scopeSelector("html[data-theme=dark] .A")).toBe('html[data-theme=dark] :where([data-plex-layout="phone"]) .A')
+    // A dark rule applies in a PhoneLayout of a dark page, where the theme is on the root, outside the box (plan 176)
+    expect(scopeSelector(':where([data-theme="dark"]) .A')).toBe(
+      ':where([data-theme="dark"]) :where([data-plex-layout="phone"]) .A, :where([data-plex-layout="phone"]) :where([data-theme="dark"]) .A',
+    )
     expect(unscopeSelector(".A .B")).toBe('.A .B:not(:where([data-plex-layout="phone"], [data-plex-layout="phone"] *))')
     expect(phoneCondition("(max-width: 767px)")).toBe(true)
     expect(phoneCondition("screen and (width <= 767px) and (prefers-reduced-motion: reduce)")).toBe("(prefers-reduced-motion: reduce)")

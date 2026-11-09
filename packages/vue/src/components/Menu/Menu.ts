@@ -73,6 +73,7 @@ import {
   type MenuSubInternals,
 } from "./internal.js"
 import { useFloatingBoundary } from "../../composables/useFloatingBoundary.js"
+import { PHONE_LAYOUT } from "../PhoneLayout/PhoneLayout.js"
 import { usePhoneSubmenu } from "../../composables/usePhoneSubmenu.js"
 import { focusPhoneSubmenuEntry } from "../../lib/menuSubmenuPlacement.js"
 import { ignoreReleaseOverTrigger, observeMenuTriggerCover, type MenuTriggerCover } from "../../lib/menuTriggerCover.js"
@@ -400,6 +401,35 @@ export const MenuTrigger = defineComponent({
 // Content
 
 const COLLISION_PADDING = { bottom: 30, top: 30, left: 12, right: 12 }
+
+// Inside a PhoneLayout a menu opens in its box, laid out as on a phone and kept within it; in a Dialog laid out as on a
+// phone outside one it opens over the window, in a phone scope of its own (plan 176)
+const useMenuPhoneLayout = () => {
+  const phoneLayout = inject(PHONE_LAYOUT, null)
+  const container = computed(() => phoneLayout?.container.value ?? null)
+  return {
+    container,
+    scoped: computed(() => !!phoneLayout?.phone.value && !container.value),
+  }
+}
+
+const useMenuBoundary = (active: () => boolean) => {
+  const footerBoundary = useFloatingBoundary(active, COLLISION_PADDING)
+  const { container } = useMenuPhoneLayout()
+  return computed(() => {
+    const box = container.value
+    const footer = footerBoundary.value.collisionBoundary
+    // The footer of a Page or Dialog in the box keeps the menu clear of it; one around the box does not hold it, and
+    // the box clips what passes its edges
+    return box && !(footer && box.contains(footer)) ? { collisionBoundary: box, collisionPadding: COLLISION_PADDING } : footerBoundary.value
+  })
+}
+
+// The portal of a menu panel: into the PhoneLayout box, or a phone scope of its own around the transition
+const menuPortal = (phoneLayout: ReturnType<typeof useMenuPhoneLayout>, group: () => VNode) =>
+  h(RekaDropdownMenuPortal, { to: phoneLayout.container.value ?? undefined }, {
+    default: () => [phoneLayout.scoped.value ? h("div", { "class": s.PhoneScope, "data-plex-layout": "phone" }, [group()]) : group()],
+  })
 const AUTOFOCUS_ON_UNMOUNT = "focusScope.autoFocusOnUnmount"
 
 // Radix's names for the content custom properties (read by the shared CSS),
@@ -463,7 +493,7 @@ const MenuRootContentImpl = defineComponent({
     const rootContext = injectDropdownMenuRootContext()
     const internals = useMenuRootInternals()
     const level = useMenuLevel()
-    const floatingBoundary = useFloatingBoundary(level.open, COLLISION_PADDING)
+    const floatingBoundary = useMenuBoundary(level.open)
     const { prepareFocusRestore } = useMenuContext()
     rootContext.contentId ||= useId(undefined, "reka-dropdown-menu-content")
 
@@ -647,30 +677,25 @@ export const MenuContent = defineComponent({
     const onCloseAutoFocus = (event: Event) => emit("closeAutoFocus", event)
     const onOpenAutoFocus = (event: Event) => emit("openAutoFocus", event)
     const exitGuard = createExitGuard()
+    const phoneLayout = useMenuPhoneLayout()
 
     return () =>
-      h(
-        RekaDropdownMenuPortal,
-        null,
-        {
-          default: () => [
-            h(
-              TransitionGroup,
-              { class: s.Menu, ...overlayTiming, ...exitGuard.transition, overlay: true },
-              {
-                default: () => [
-                  open.value
-                    ? h(
-                        MenuRootContentImpl,
-                        { key: "dropdown", ...props, onCloseAutoFocus, onOpenAutoFocus, exitGuard },
-                        { default: () => slots.default?.() },
-                      )
-                    : createCommentVNode(),
-                ],
-              },
-            ),
-          ],
-        },
+      menuPortal(phoneLayout, () =>
+        h(
+          TransitionGroup,
+          { class: s.Menu, ...overlayTiming, ...exitGuard.transition, overlay: true },
+          {
+            default: () => [
+              open.value
+                ? h(
+                    MenuRootContentImpl,
+                    { key: "dropdown", ...props, onCloseAutoFocus, onOpenAutoFocus, exitGuard },
+                    { default: () => slots.default?.() },
+                  )
+                : createCommentVNode(),
+            ],
+          },
+        ),
       )
   },
 })
@@ -1288,8 +1313,9 @@ const MenuSubContentImpl = defineComponent({
     const subRoot = injectDropdownMenuRootContext()
     const subInternals = useMenuSubInternals()
     const subLevel = useMenuLevel()
-    const floatingBoundary = useFloatingBoundary(subLevel.open, COLLISION_PADDING)
-    const phone = usePhoneSubmenu(subLevel.open, subInternals.trigger, subLevel.content, floatingBoundary)
+    const floatingBoundary = useMenuBoundary(subLevel.open)
+    // A press on the parent it stands over collapses a phone submenu
+    const phone = usePhoneSubmenu(subLevel.open, subInternals.trigger, subLevel.content, floatingBoundary, () => requestCollapse())
     const internals = useMenuRootInternals()
     const parentContent = inject(ParentContentKey, null)
     subRoot.triggerId = subInternals.triggerId
@@ -1428,7 +1454,8 @@ const MenuSubContentImpl = defineComponent({
           ] }) : null,
           // A separator under the row that heads it, as iOS 26 submenus (iOS-menu IMG_5677, IMG_5682)
           phone.value.mobile ? h("div", { "role": "separator", "aria-orientation": "horizontal", "class": s.Separator }) : null,
-          slots.default?.(),
+          // The items, which scroll under that heading on a phone; on a desktop they lie in the panel itself
+          h("div", { class: s.SubmenuItems }, slots.default?.()),
         ] },
       )
   },
@@ -1461,26 +1488,21 @@ export const MenuSubContent = defineComponent({
   setup(props, { slots }) {
     const { open } = useSubmenuContext()
     const exitGuard = createExitGuard()
+    const phoneLayout = useMenuPhoneLayout()
 
     return () =>
-      h(
-        RekaDropdownMenuPortal,
-        null,
-        {
-          default: () => [
-            h(
-              TransitionGroup,
-              { class: s.Menu, ...overlayTimingQuick, ...exitGuard.transition, overlay: true },
-              {
-                default: () => [
-                  open.value
-                    ? h(MenuSubContentImpl, { key: "submenu", ...props, exitGuard }, { default: () => slots.default?.() })
-                    : createCommentVNode(),
-                ],
-              },
-            ),
-          ],
-        },
+      menuPortal(phoneLayout, () =>
+        h(
+          TransitionGroup,
+          { class: s.Menu, ...overlayTimingQuick, ...exitGuard.transition, overlay: true },
+          {
+            default: () => [
+              open.value
+                ? h(MenuSubContentImpl, { key: "submenu", ...props, exitGuard }, { default: () => slots.default?.() })
+                : createCommentVNode(),
+            ],
+          },
+        ),
       )
   },
 })

@@ -766,7 +766,7 @@ Docs: https://plexui.com/vue/components/phone-layout
 Props:
   - class (string) — Class on the box, such as its size and corners
   - style (string | CSSProperties) — Style on the box
-Examples: Overview
+Examples: Overview, Menu
 
 ## Popover
 A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.
