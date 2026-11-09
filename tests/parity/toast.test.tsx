@@ -233,7 +233,8 @@ describe("Toast parity", () => {
       const list = document.querySelector<HTMLElement>("[data-sonner-toaster]")!
       const expectedOverrides: Partial<Record<"top" | "right" | "bottom" | "left", string>> = overrides
       for (const edge of ["top", "right", "bottom", "left"] as const) {
-        const expected = expectedOverrides[edge] ?? `calc(16px + var(--safe-area-inset-${edge}, env(safe-area-inset-${edge}, 0px)))`
+        const safe = `calc(${edge === "left" || edge === "right" ? 14 : 16}px + var(--safe-area-inset-${edge}, env(safe-area-inset-${edge}, 0px)))`
+        const expected = expectedOverrides[edge] ?? (edge === "top" || edge === "bottom" ? `var(--toast-mobile-offset-${edge}, ${safe})` : safe)
         expect(list.style.getPropertyValue(`--mobile-offset-${edge}`)).toBe(expected)
         expect(list.style.getPropertyValue(`--offset-${edge}`)).toBe("40px")
       }
@@ -429,9 +430,10 @@ describe("Toast store and renderer contracts", () => {
     })
     // sonner restarts the timer with the new duration; vue-sonner keeps the old one (Infinity)
     expect(result.react[0]).toContain('data-removed="true"')
-    expect(result.react[1]).not.toContain('"Uploaded"')
+    // The polite announcer still holds the words it read; the toast itself is gone
+    expect(result.react[1]).not.toContain("<li")
     expect(result.vue[0]).toContain('data-removed="true"')
-    expect(result.vue[1]).not.toContain('"Uploaded"')
+    expect(result.vue[1]).not.toContain("<li")
   })
 
   test("component action and cancel labels render their content", async () => {
@@ -916,4 +918,106 @@ test("dir auto resolves the document's computed direction instead of guessing fr
     if (previousDir === null) root.removeAttribute("dir"); else root.setAttribute("dir", previousDir)
     root.style.direction = previousStyle
   }
+})
+
+// Plan 176 item 3: the region is not live itself. A polite announcer reads each toast once, and again only when
+// its words change; an error that waits to be closed is an alert, read by its own role and not by the announcer.
+describe("Toast speaks once, by its kind", () => {
+  test("the announcer reads each toast once, the oldest first; a waiting error is an alert instead", async () => {
+    const result = await walkToasts({}, async ({ toast, advance, snapshot, run }) => {
+      const saved = toast("Saved", { description: "Your changes are live" })
+      toast.error("Upload failed", { description: "The file is too big", duration: Infinity })
+      toast.error("Try again later!")
+      await settle(advance)
+      snapshot()
+      const section = document.querySelector("section")!
+      const announcer = section.querySelector('[data-toast-announcer="polite"]')!
+      const lines = () => [...announcer.children].map((line) => line.textContent)
+      expect(section.getAttribute("aria-live")).toBe("off")
+      expect(section.hasAttribute("aria-relevant")).toBe(false)
+      expect(announcer.getAttribute("aria-live")).toBe("polite")
+      expect(lines()).toEqual(["Saved. Your changes are live", "Try again later!"])
+      const alerts = [...section.querySelectorAll('[data-content][role="alert"]')]
+      expect(alerts.map((alert) => alert.textContent)).toEqual(["Upload failedThe file is too big"])
+      expect(alerts[0]!.matches("[data-content]")).toBe(true)
+      // A render that changes nothing it says (the stack expands) reads nothing again
+      await run(() => fireEvent.mouseEnter(document.querySelector("[data-sonner-toaster]")!))
+      expect(lines()).toHaveLength(2)
+      // New words in the same toast are read
+      await run(() => { toast.success("Saved twice", { id: saved }) })
+      await settle(advance)
+      expect(lines().at(-1)).toBe("Saved twice. Your changes are live")
+      snapshot()
+      await run(() => fireEvent.mouseLeave(document.querySelector("[data-sonner-toaster]")!))
+      await advance(7000)
+      expect(lines()).toEqual([])
+    })
+    expectParity(result)
+  })
+
+  test("a waiting error from the Toaster's own duration is an alert; a finite one is read politely", async () => {
+    const result = await walkToasts({ duration: Infinity }, async ({ toast, advance, snapshot }) => {
+      toast.error("Card declined")
+      toast.error("Retrying", { duration: 4000 })
+      await settle(advance)
+      const section = document.querySelector("section")!
+      expect([...section.querySelectorAll('[data-content][role="alert"]')].map((alert) => alert.textContent)).toEqual(["Card declined"])
+      expect([...section.querySelector('[data-toast-announcer="polite"]')!.children].map((line) => line.textContent)).toEqual(["Retrying"])
+      snapshot()
+    })
+    expectParity(result)
+  })
+
+  test("an update to a waiting error with the same words is read once, as the alert", async () => {
+    const result = await walkToasts({}, async ({ toast, advance, snapshot }) => {
+      toast("Connection lost", { id: "network" })
+      toast.error("Connection lost", { id: "network", duration: Infinity })
+      await settle(advance)
+      const section = document.querySelector("section")!
+      expect(section.querySelector('[data-toast-announcer="polite"]')!.children).toHaveLength(0)
+      expect(section.querySelector('[data-toast-announcer="assertive"]')!.children).toHaveLength(0)
+      expect([...section.querySelectorAll('[data-content][role="alert"]')].map((alert) => alert.textContent)).toEqual(["Connection lost"])
+      snapshot()
+    })
+    expectParity(result)
+  })
+
+  test("a toast behind the stack that turns into a waiting error is read by the assertive announcer, not by a hidden role", async () => {
+    const result = await walkToasts({ duration: 60000 }, async ({ toast, advance, snapshot }) => {
+      const first = toast("Syncing")
+      toast("One")
+      toast("Two")
+      toast("Three")
+      await settle(advance)
+      toast.error("Sync stopped", { id: first, duration: Infinity })
+      await settle(advance)
+      const section = document.querySelector("section")!
+      const read = (kind: string) => [...section.querySelector(`[data-toast-announcer="${kind}"]`)!.children].map((line) => line.textContent)
+      expect(read("assertive")).toEqual(["Sync stopped"])
+      expect(read("polite")).toEqual(["Syncing", "One", "Two", "Three"])
+      expect(section.querySelectorAll('[data-content][role="alert"]')).toHaveLength(0)
+      const behind = [...section.querySelectorAll("[data-sonner-toast]")].find((item) => item.textContent?.includes("Sync stopped"))!
+      expect(behind.getAttribute("aria-hidden")).toBe("true")
+      snapshot()
+    })
+    expectParity(result)
+  })
+})
+
+test("words still waiting to be read politely, once the toast turns into a waiting error behind the stack, are read once", async () => {
+  const result = await walkToasts({}, async ({ toast, advance }) => {
+    toast("Connection lost", { id: "network" })
+    toast("One")
+    toast("Two")
+    toast("Three")
+    toast.error("Connection lost", { id: "network", duration: Infinity })
+    await settle(advance)
+    await settle(advance)
+    const section = document.querySelector("section")!
+    const lines = [...section.querySelectorAll("[data-toast-announcer] > div")].map((line) => line.textContent)
+    const alerts = [...section.querySelectorAll('[data-content][role="alert"]')].filter((alert) => !alert.closest('[aria-hidden="true"]'))
+    // Read once: by an announcer, or by the alert's own role while it is shown
+    expect(lines.filter((line) => line === "Connection lost").length + alerts.filter((alert) => alert.textContent === "Connection lost").length).toBe(1)
+  })
+  expect(result.react).toEqual(result.vue)
 })

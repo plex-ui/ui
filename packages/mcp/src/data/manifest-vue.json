@@ -7674,7 +7674,7 @@
         {
           "name": "Overview",
           "code": "<Button color=\"secondary\" variant=\"outline\" @click=\"toast('Inquiry ID copied')\">\n  Show toast\n</Button>",
-          "details": "On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. It stays a message of the page, with its own width and opaque surface."
+          "details": "On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface."
         },
         {
           "name": "Variants",
@@ -7701,12 +7701,12 @@
         {
           "name": "Compact",
           "code": "<Button color=\"secondary\" variant=\"outline\" @click=\"toast.success('Inquiry ID copied', compact)\">\n  Compact toast\n</Button>",
-          "details": "Spread compact ({`import { toast, compact } from \"@plexui/vue/components/Toast\"`}) into any toast(...) options for a centered-text layout. Toast width shrinks to content by default regardless; the compact helper only adds center alignment for short status messages."
+          "details": "Spread compact ({`import { toast, compact } from \"@plexui/vue/components/Toast\"`}) into any toast(...) options for a centered-text layout. On a desktop a toast shrinks to its content anyway; on a phone, where a toast fills the width, a compact one keeps the width of its content. Both center its text."
         },
         {
           "name": "Persistent",
           "code": "<Button\n  color=\"secondary\"\n  variant=\"outline\"\n  @click=\"() => {\n    const id = toast('Backup scheduled for 2:00 AM UTC', {\n      description: 'This stays open until you dismiss it.',\n      duration: Infinity,\n      action: { label: 'Dismiss', onClick: () => toast.dismiss(id) },\n    })\n  }\"\n>\n  Persistent toast\n</Button>",
-          "details": "Pass duration: Infinity for toasts that stay open until the user acts on them. There are no close (×) affordances: put a labelled action on the toast so dismissal is intentional and keyboard-accessible."
+          "details": "Pass duration: Infinity for toasts that stay open until the user acts on them. There are no close (×) affordances: put a labelled action on the toast so dismissal is intentional and keyboard-accessible. An error that waits like this is an alert (see Screen readers)."
         }
       ],
       "subComponents": [
@@ -7728,13 +7728,14 @@
             {
               "name": "offset",
               "type": "string | number | { top?; right?; bottom?; left? }",
-              "description": "Distance from the viewport edge"
+              "default": "32px",
+              "description": "Distance from the viewport edge. Without a top or bottom edge here, the page's --toast-offset-top or --toast-offset-bottom sets it."
             },
             {
               "name": "mobile-offset",
               "type": "string | number | { top?; right?; bottom?; left? }",
-              "default": "16px + safe area per edge",
-              "description": "Mobile viewport gutter. Explicit edges override their safe defaults; omitted edges keep them."
+              "default": "16px top and bottom, 14px at the sides, past the safe area",
+              "description": "Gutter under 600px, where a toast fills the width between the side gutters. Explicit edges override their defaults; omitted edges keep them, and the page's --toast-mobile-offset-top or --toast-mobile-offset-bottom sets the top or bottom one."
             },
             {
               "name": "gap",
@@ -7970,5 +7971,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T08:21:55.470Z"
+  "generatedAt": "2026-11-09T09:25:09.132Z"
 }

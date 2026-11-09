@@ -28,7 +28,7 @@ Render `<Toaster />` once near the root of your app, then call `toast(...)` from
 <div id="first-component-page">
 ### Overview
 
-<ComponentPreview details={<>On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. It stays a message of the page, with its own width and opaque surface.</>} code={`toast("Inquiry ID copied")`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview details={<>On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.</>} code={`toast("Inquiry ID copied")`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <ToastOverviewDemo />
 </ComponentPreview>
 
@@ -80,7 +80,7 @@ toast.info("New version available")`} previewMinHeight={PREVIEW_MIN_HEIGHT.contr
 
 ### Compact
 
-<ComponentPreview details={<>Spread <code>compact</code> into any <code>toast(...)</code> options for a centered-text layout. Toast width shrinks to content by default regardless; the <code>compact</code> helper only adds center alignment for short status messages.</>} code={`import { toast, compact } from "@plexui/ui/components/Toast"
+<ComponentPreview details={<>Spread <code>compact</code> into any <code>toast(...)</code> options for a centered-text layout. On a desktop a toast shrinks to its content anyway; on a phone, where a toast fills the width, a <code>compact</code> one keeps the width of its content. Both center its text.</>} code={`import { toast, compact } from "@plexui/ui/components/Toast"
 
 toast.success("Inquiry ID copied", compact)`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <ToastCompactDemo />
@@ -88,7 +88,7 @@ toast.success("Inquiry ID copied", compact)`} previewMinHeight={PREVIEW_MIN_HEIG
 
 ### Persistent
 
-<ComponentPreview details={<>Pass <code>duration: Infinity</code> for toasts that stay open until the user acts on them. There are no close (×) affordances, so put a labelled action on the toast so dismissal is intentional and keyboard-accessible.</>} code={`const id = toast("Backup scheduled for 2:00 AM UTC", {
+<ComponentPreview details={<>Pass <code>duration: Infinity</code> for toasts that stay open until the user acts on them. There are no close (×) affordances, so put a labelled action on the toast so dismissal is intentional and keyboard-accessible. An error that waits like this is an alert (see Screen readers).</>} code={`const id = toast("Backup scheduled for 2:00 AM UTC", {
   description: "This stays open until you dismiss it.",
   duration: Infinity,
   action: { label: "Dismiss", onClick: () => toast.dismiss(id) },
@@ -103,8 +103,8 @@ toast.success("Inquiry ID copied", compact)`} previewMinHeight={PREVIEW_MIN_HEIG
 <PropsTable data={[
   { prop: "position", type: '"top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right"', default: '"top-center"', description: "Where toasts anchor on the viewport" },
   { prop: "duration", type: "number", default: "3000", description: "Default auto-dismiss duration in ms" },
-  { prop: "offset", type: "string | number | { top?; right?; bottom?; left? }", description: "Distance from the viewport edge" },
-  { prop: "mobileOffset", type: "string | number | { top?; right?; bottom?; left? }", default: "16px + safe area per edge", description: "Mobile viewport gutter. Explicit edges override their safe defaults; omitted edges keep them." },
+  { prop: "offset", type: "string | number | { top?; right?; bottom?; left? }", default: "32px", description: "Distance from the viewport edge. Without a top or bottom edge here, the page's --toast-offset-top or --toast-offset-bottom sets it." },
+  { prop: "mobileOffset", type: "string | number | { top?; right?; bottom?; left? }", default: "16px top and bottom, 14px at the sides, past the safe area", description: "Gutter under 600px, where a toast fills the width between the side gutters. Explicit edges override their defaults; omitted edges keep them, and the page's --toast-mobile-offset-top or --toast-mobile-offset-bottom sets the top or bottom one." },
   { prop: "gap", type: "number", description: "Gap between stacked toasts in px" },
 ]} />
 
@@ -118,12 +118,24 @@ Re-exported from sonner. The full surface (`toast()`, `.success`, `.error`, `.wa
 
 `Action`, `ExternalToast`, and `ToastT` are re-exported so you can type helpers without importing from `sonner` directly.
 
+### Screen readers
+
+The toast region is not a live region itself, so a toast is never read twice. A hidden polite announcer reads each toast once, its title and then its description, and again only when its words change, as a promise that settles or a custom toast that updates itself. An error that waits to be closed, `toast.error(...)` with `duration: Infinity` (its own or the Toaster's), is `role="alert"` instead: read at once, and only by its role. One that turns up behind the stack, where its role cannot speak, is read by a hidden assertive announcer instead.
+
+### Over a modal Dialog
+
+The region stays a layer of its own above a modal [Dialog](/components/dialog). The Dialog hides the rest of the page from a screen reader, but not the region, so its toasts are still read. Focus can move into a toast (Alt+T, or a press on its button) without the Dialog's focus trap pulling it back, Escape there returns focus to the Dialog without closing it, and a press on a toast's close or action button is not a press outside: the Dialog stays open. While a modal layer is open, the region keeps its presses and focus from the document listeners added after the Toaster mounted, so render `<Toaster />` once at the root, as above. A Toaster mounted later still keeps a PlexUI Dialog open on a press, but the Dialog's focus trap can then pull focus back.
+
 ### Theme sync
 
 `<Toaster />` reads `data-theme` on `<html>` on mount and observes changes via `MutationObserver`. Toggling light ↔ dark rethemes toasts that are already on screen, with no `next-themes` dependency.
 
 ## Styling
 
-Toast has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.
+Toast reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there. The close button (`closeButton` on a toast) draws a 20px face in the text color with the ring of an outline Button, visible in both themes, inside a 26px target; on a touch screen its target is 44px. These variables move the toaster per page, set on `:root` or any ancestor of the Toaster (a page with its own top bar, say):
+
+- `--toast-offset-top`, `--toast-offset-bottom`: distance from the top and bottom of the window above 600px (default `32px`)
+- `--toast-mobile-offset-top`, `--toast-mobile-offset-bottom`: the same under 600px (default `16px` past the safe area)
+- `--z-toast`: stack order of the toaster (default `100000`)
 
 </div>

@@ -2,7 +2,7 @@ import clsx from "clsx"
 import { defineComponent, h, isVNode, mergeProps, onBeforeUnmount, onMounted, onUpdated, ref, toRaw, watch, type Component, type CSSProperties, type PropType } from "vue"
 import { toast, useVueSonner, type Action, type ToastT, type ToasterProps } from "vue-sonner"
 import { CheckCircle, InfoCircle, Warning, XCircle } from "../Icon/index.js"
-import { documentDirection, offsetStyles, ToastLifecycle, type Position, type ToastEntry } from "./toastLifecycle.js"
+import { announcerStyle, documentDirection, offsetStyles, ToastLifecycle, type Position, type ToastEntry } from "./toastLifecycle.js"
 
 type Classes = NonNullable<NonNullable<ToasterProps["toastOptions"]>["classes"]>
 const fallbackIcons = { success: CheckCircle, error: XCircle, warning: Warning, info: InfoCircle }
@@ -35,14 +35,23 @@ const ToastItem = defineComponent({
       props.lifecycle.measure(props.entry.toast.id, element.offsetHeight || element.getBoundingClientRect().height)
       element.style.height = height
     }
+    const custom = () => Boolean(props.entry.toast.component)
+    const alert = () => props.lifecycle.alertRole(props.entry, custom())
+    // After every render: a new toast, or new words in one (a promise that settles), is read once
+    const announce = () => { if (node.value) props.lifecycle.speak(props.entry.toast.id, node.value, custom()) }
+    // A custom toast that changes its own words, without a new render here, is read again too
+    let words: MutationObserver | null = null
     onMounted(() => {
       props.lifecycle.setNode(props.entry.toast.id, node.value)
+      announce()
       measure()
       observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null
       if (node.value) { observer?.observe(node.value); for (const child of node.value.children) observer?.observe(child) }
+      words = typeof MutationObserver !== "undefined" ? new MutationObserver(announce) : null
+      if (node.value) words?.observe(node.value, { childList: true, characterData: true, subtree: true })
     })
-    onUpdated(measure)
-    onBeforeUnmount(() => { observer?.disconnect(); props.lifecycle.setNode(props.entry.toast.id, null) })
+    onUpdated(() => { announce(); measure() })
+    onBeforeUnmount(() => { observer?.disconnect(); words?.disconnect(); props.lifecycle.setNode(props.entry.toast.id, null) })
     return () => {
       const { entry, lifecycle, options, index, count } = props
       const item = entry.toast
@@ -85,7 +94,7 @@ const ToastItem = defineComponent({
             item.promise || item.type === "loading" ? item.icon ? content(item.icon) : loader() : null,
             item.type !== "loading" ? type && slots[`${type}-icon`] && !item.icon ? slots[`${type}-icon`]?.() : content(icon) : null,
           ]) : null,
-          h("div", { "data-content": "", class: slot("content") }, [h("div", { "data-title": "", class: slot("title") }, content(item.title, item.componentProps)), item.description ? h("div", { "data-description": "", class: clsx(options.toastOptions?.descriptionClass, slot("description")) }, content(item.description, item.componentProps)) : null]),
+          h("div", { "data-content": "", role: alert() ? "alert" : undefined, class: slot("content") }, [h("div", { "data-title": "", class: slot("title") }, content(item.title, item.componentProps)), item.description ? h("div", { "data-description": "", class: clsx(options.toastOptions?.descriptionClass, slot("description")) }, content(item.description, item.componentProps)) : null]),
           actionButton("cancel"), actionButton("action"),
         ],
       ])
@@ -120,7 +129,12 @@ export const ToastRenderer = defineComponent({
       const hotkeyLabel = (props.hotkey ?? ["altKey", "KeyT"]).join("+").replace(/Key|Digit/g, "")
       const positions = [...new Set(lifecycle.entries.map((entry) => lifecycle.position(entry)))]
       const dir = props.dir === "auto" || !props.dir ? documentDirection(typeof document === "undefined" ? undefined : document) : props.dir
-      return h("section", { "aria-label": `${props.containerAriaLabel ?? "Notifications"} ${hotkeyLabel}`, tabindex: -1, "aria-live": "polite", "aria-relevant": "additions text", "aria-atomic": "false" }, positions.map((position: Position) => {
+      // aria-live="off": not a live region itself (an announcer or an alert's role speaks, once), but a modal's
+      // aria-hidden on everything else (Radix and Reka call aria-hidden's hideOthers) keeps any [aria-live]
+      return h("section", { ref: (node) => lifecycle.setRegion(node instanceof HTMLElement ? node : null), "aria-label": `${props.containerAriaLabel ?? "Notifications"} ${hotkeyLabel}`, tabindex: -1, "aria-live": "off" }, [
+        h("div", { key: "polite", ref: (node) => lifecycle.setAnnouncer("polite", node instanceof HTMLElement ? node : null), role: "status", "aria-live": "polite", "aria-atomic": "false", "data-toast-announcer": "polite", style: announcerStyle }),
+        h("div", { key: "assertive", ref: (node) => lifecycle.setAnnouncer("assertive", node instanceof HTMLElement ? node : null), role: "alert", "aria-live": "assertive", "aria-atomic": "false", "data-toast-announcer": "assertive", style: announcerStyle }),
+        ...positions.map((position: Position) => {
         const entries = lifecycle.at(position)
         const [y, x] = position.split("-")
         return h("ol", mergeProps({ key: position, ref: (node) => lifecycle.setList(position, node instanceof HTMLElement ? node : null), dir, tabindex: -1, class: props.class,
@@ -129,7 +143,8 @@ export const ToastRenderer = defineComponent({
           onFocusin: (event: FocusEvent) => lifecycle.focusIn(event), onFocusout: (event: FocusEvent) => lifecycle.focusOut(event),
           onPointerenter: (event: PointerEvent) => lifecycle.pointerEnter(event), onMouseenter: () => lifecycle.hover(true), onMousemove: () => lifecycle.hover(true), onMouseleave: () => lifecycle.hover(false),
         }, attrs), entries.map((entry, index) => h(ToastItem, { key: entry.toast.id, entry, lifecycle, options: props, index, count: entries.length, revision: version }, slots)))
-      }))
+        }),
+      ])
     }
   },
 })

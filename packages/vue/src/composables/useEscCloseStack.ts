@@ -1,8 +1,11 @@
 import { onBeforeUnmount, onMounted, toValue, watch, type MaybeRefOrGetter } from "vue"
+import { inToastRegion } from "../lib/toastRegion.js"
 
 type Handler = {
   id: symbol
   callback: (event: KeyboardEvent) => void
+  /** Opened from a toast (a Popover in a custom toast): Escape in the toast closes it */
+  fromToast: boolean
 }
 
 let handlers: Handler[] = []
@@ -13,7 +16,9 @@ const handleKeyDown = (evt: KeyboardEvent) => {
     // Attempt to call the first handler in the stack, if it exists
     const [firstHandler] = handlers
 
-    if (firstHandler) {
+    // Escape in a toast returns focus to where it came from (the toast's own handler); it closes nothing under
+    // the toast, only what the toast itself opened
+    if (firstHandler && (firstHandler.fromToast || !inToastRegion(evt.target))) {
       evt.preventDefault()
       firstHandler.callback(evt)
     }
@@ -36,7 +41,7 @@ const managerListener = () => {
  */
 export const useEscCloseStack = (listening: MaybeRefOrGetter<boolean>, cb: (event: KeyboardEvent) => void) => {
   const id = Symbol("esc-close")
-  const handler: Handler = { id, callback: cb }
+  const handler: Handler = { id, callback: cb, fromToast: false }
   const unregister = () => {
     handlers = handlers.filter((h) => h.id !== id)
     managerListener()
@@ -49,6 +54,7 @@ export const useEscCloseStack = (listening: MaybeRefOrGetter<boolean>, cb: (even
       (isListening) => {
         unregister()
         if (!isListening) return
+        handler.fromToast = inToastRegion(document.activeElement)
         handlers.unshift(handler)
         managerListener()
       },

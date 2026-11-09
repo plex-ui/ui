@@ -28,13 +28,27 @@ const readTheme = (): PlexTheme =>
 
 // Keep a gutter outside the safe area; explicit offsets override each supplied
 // edge, while omitted edges retain the safe default. Sonner applies these only
-// at its mobile breakpoint, so desktop positioning is unchanged.
+// at its mobile breakpoint (600px), where a toast fills the width between the
+// side gutters: 14, as the iOS 27 kit's notifications on a phone (Notification -
+// Collapsed - List 135:73247, 374 of 402). A page moves the top and bottom edges
+// with --toast-mobile-offset-top / -bottom (below its own top bar, say), and
+// --toast-offset-top / -bottom above the breakpoint.
 const safeMobileOffset = {
-  top: "calc(16px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))",
-  right: "calc(16px + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)))",
-  bottom: "calc(16px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)))",
-  left: "calc(16px + var(--safe-area-inset-left, env(safe-area-inset-left, 0px)))",
+  top: "var(--toast-mobile-offset-top, calc(16px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px))))",
+  right: "calc(14px + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)))",
+  bottom: "var(--toast-mobile-offset-bottom, calc(16px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))))",
+  left: "calc(14px + var(--safe-area-inset-left, env(safe-area-inset-left, 0px)))",
 }
+
+const pageOffset = {
+  top: "var(--toast-offset-top, 32px)",
+  bottom: "var(--toast-offset-bottom, 32px)",
+}
+
+const resolveOffset = (offset: SonnerToasterProps["offset"]) =>
+  typeof offset === "number" || typeof offset === "string"
+    ? offset
+    : { ...offset, top: offset?.top ?? pageOffset.top, bottom: offset?.bottom ?? pageOffset.bottom }
 
 const resolveMobileOffset = (offset: SonnerToasterProps["mobileOffset"]) =>
   typeof offset === "number" || typeof offset === "string"
@@ -170,7 +184,7 @@ const ToasterComponent = defineComponent({
           "theme": theme.value,
           "position": props.position,
           "duration": props.duration,
-          "offset": props.offset,
+          "offset": resolveOffset(props.offset),
           "mobileOffset": resolveMobileOffset(props.mobileOffset),
           "gap": props.gap,
           "class": s.Toaster,

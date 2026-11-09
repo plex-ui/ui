@@ -1,10 +1,10 @@
 "use client"
 
 import clsx from "clsx"
-import { isValidElement, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react"
+import { isValidElement, useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react"
 import { toast, useSonner, type Action, type ToastT, type ToasterProps } from "sonner"
 import { CheckCircle, InfoCircle, Warning, XCircle } from "../Icon"
-import { documentDirection, offsetStyles, ToastLifecycle, type Position, type ToastEntry } from "./toastLifecycle"
+import { announcerStyle, documentDirection, offsetStyles, ToastLifecycle, type Position, type ToastEntry } from "./toastLifecycle"
 
 const CloseIcon = () => <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
 const fallbackIcons = { success: <CheckCircle aria-hidden="true" />, error: <XCircle aria-hidden="true" />, warning: <Warning aria-hidden="true" />, info: <InfoCircle aria-hidden="true" /> }
@@ -23,6 +23,10 @@ function ToastItem({ entry, lifecycle, props, index, count }: { entry: ToastEntr
   const type = item.type === "normal" || item.type === "default" ? undefined : item.type
   const iconKey = type && type in fallbackIcons ? type as keyof typeof fallbackIcons : undefined
   const icon = item.icon !== undefined ? item.icon : iconKey ? props.icons?.[iconKey] !== undefined ? props.icons[iconKey] : fallbackIcons[iconKey] : undefined
+  const custom = Boolean(item.jsx)
+  const alert = lifecycle.alertRole(entry, custom)
+  // After every render: a new toast, or new words in one (a promise that settles), is read once
+  useLayoutEffect(() => { if (node.current) lifecycle.speak(item.id, node.current, custom) })
   useLayoutEffect(() => {
     const element = node.current
     if (!element) return
@@ -37,7 +41,10 @@ function ToastItem({ entry, lifecycle, props, index, count }: { entry: ToastEntr
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null
     observer?.observe(element)
     for (const child of element.children) observer?.observe(child)
-    return () => { observer?.disconnect(); lifecycle.setNode(item.id, null) }
+    // A custom toast that changes its own words, without a new render here, is read again too
+    const words = typeof MutationObserver !== "undefined" ? new MutationObserver(() => lifecycle.speak(item.id, element, Boolean(item.jsx))) : null
+    words?.observe(element, { childList: true, characterData: true, subtree: true })
+    return () => { observer?.disconnect(); words?.disconnect(); lifecycle.setNode(item.id, null) }
   }, [item, lifecycle])
   const actionButton = (kind: "action" | "cancel") => {
     const action = item[kind]
@@ -72,7 +79,7 @@ function ToastItem({ entry, lifecycle, props, index, count }: { entry: ToastEntr
       </div> : null}
       {item.type !== "loading" ? icon : null}
     </div>}
-    <div data-content="" className={slot("content")}><div data-title="" className={slot("title")}>{item.jsx ?? content(item.title)}</div>
+    <div data-content="" role={alert ? "alert" : undefined} className={slot("content")}><div data-title="" className={slot("title")}>{item.jsx ?? content(item.title)}</div>
       {item.description ? <div data-description="" className={clsx(props.toastOptions?.descriptionClassName, item.descriptionClassName, slot("description"))}>{content(item.description)}</div> : null}</div>
     {actionButton("cancel")}{actionButton("action")}
   </li>
@@ -97,9 +104,16 @@ export function ToastRenderer(props: ToasterProps) {
   useEffect(() => {
     lifecycle.sync(toasts, { id: props.id, position: props.position ?? "bottom-right", duration: props.toastOptions?.duration ?? props.duration ?? 4000, gap: props.gap ?? 14, visibleToasts: props.visibleToasts ?? 3, expand: props.expand, swipeDirections: props.swipeDirections })
   }, [lifecycle, toasts, props.id, props.position, props.duration, props.toastOptions?.duration, props.gap, props.visibleToasts, props.expand, props.swipeDirections])
+  const region = useCallback((node: HTMLElement | null) => lifecycle.setRegion(node), [lifecycle])
+  const polite = useCallback((node: HTMLElement | null) => lifecycle.setAnnouncer("polite", node), [lifecycle])
+  const assertive = useCallback((node: HTMLElement | null) => lifecycle.setAnnouncer("assertive", node), [lifecycle])
   const positions = [...new Set(lifecycle.entries.map((entry) => lifecycle.position(entry)))]
   const dir = props.dir === "auto" || !props.dir ? documentDirection(typeof document === "undefined" ? undefined : document) : props.dir
-  return <section aria-label={`${props.containerAriaLabel ?? "Notifications"} ${hotkeyKey.replace(/Key|Digit/g, "")}`} tabIndex={-1} aria-live="polite" aria-relevant="additions text" aria-atomic={false}>
+  // aria-live="off": not a live region itself (an announcer or an alert's role speaks, once), but a modal's
+  // aria-hidden on everything else (Radix and Reka call aria-hidden's hideOthers) keeps any [aria-live]
+  return <section ref={region} aria-label={`${props.containerAriaLabel ?? "Notifications"} ${hotkeyKey.replace(/Key|Digit/g, "")}`} tabIndex={-1} aria-live="off">
+    <div ref={polite} role="status" aria-live="polite" aria-atomic="false" data-toast-announcer="polite" style={announcerStyle} />
+    <div ref={assertive} role="alert" aria-live="assertive" aria-atomic="false" data-toast-announcer="assertive" style={announcerStyle} />
     {positions.map((position: Position) => {
       const entries = lifecycle.at(position)
       const [y, x] = position.split("-")

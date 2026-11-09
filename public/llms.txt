@@ -1325,8 +1325,8 @@ Docs: https://plexui.com/components/toast
   Toaster:
     - position ("top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right") default: "top-center" — Where toasts anchor on the viewport
     - duration (number) default: 3000 — Default auto-dismiss duration in ms
-    - offset (string | number | { top?; right?; bottom?; left? }) — Distance from the viewport edge
-    - mobileOffset (string | number | { top?; right?; bottom?; left? }) default: 16px + safe area per edge — Mobile viewport gutter. Explicit edges override their safe defaults; omitted edges keep them.
+    - offset (string | number | { top?; right?; bottom?; left? }) default: 32px — Distance from the viewport edge. Without a top or bottom edge here, the page's --toast-offset-top or --toast-offset-bottom sets it.
+    - mobileOffset (string | number | { top?; right?; bottom?; left? }) default: 16px top and bottom, 14px at the sides, past the safe area — Gutter under 600px, where a toast fills the width between the side gutters. Explicit edges override their defaults; omitted edges keep them, and the page's --toast-mobile-offset-top or --toast-mobile-offset-bottom sets the top or bottom one.
     - gap (number) — Gap between stacked toasts in px
 Examples: Overview, Variants, Description, Action, Promise, Long content, Compact, Persistent
 

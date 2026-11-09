@@ -21,6 +21,7 @@ import {
 } from "react"
 import { FloatingBoundaryProvider, useFloatingBoundaryRegistration, useFloatingBoundaryScope } from "../../hooks/useFloatingBoundary"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
+import { inToastRegion } from "../../lib/toastRegion"
 import { cancelableKeyCopy, dataAttributes, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { useStableCallback } from "../../hooks/useStableCallback"
 import { NavigationButton } from "../Button/NavigationButton"
@@ -305,6 +306,9 @@ const Content = ({
               data-pill={pill ? "" : undefined}
               onEscapeKeyDown={preventDefaultHandler}
               onInteractOutside={(event) => {
+                // A press or focus in a toast is not outside: the toast region is a layer above the dialog. The
+                // Toaster stops these before Radix sees them; this holds when the Toaster mounted after the dialog.
+                if (inToastRegion(event.detail.originalEvent.target)) return event.preventDefault()
                 onInteractOutside?.(event)
                 if (event.defaultPrevented) return
                 // The second click of a double click lands on the overlay: it must not undo the first

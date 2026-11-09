@@ -3,6 +3,10 @@
    legitimately higher (rare — toasts should sit above modals and headers). */
 .Toaster:where([data-sonner-toaster]) {
   z-index: var(--z-toast, 100000) !important;
+  /* A modal Dialog turns pointer events off on the body; the region stays a
+     layer of its own above it, so its toasts take presses (the renderer also
+     keeps the Dialog from reading them as presses outside) */
+  pointer-events: auto;
 }
 
 /* Sonner reads --normal-bg / --normal-text / --normal-border / --border-radius
@@ -38,14 +42,24 @@
 }
 
 /* On a phone Sonner makes the toaster as wide as the screen and shifts it by
-   the inset, so part of it is off screen: center the toast in the rest */
+   the inset, so part of it is off screen: the toast fills the rest, between the
+   side gutters, as a notification banner fills a phone's width (iOS 27 kit,
+   Notification - Collapsed - List 135:73247: 374 of 402, 14 each side, the
+   Toaster's default mobile gutters). A compact toast keeps its own width. */
 @media (width <= 600px) {
   .Toast {
-    right: calc(var(--mobile-offset-left, 16px) + var(--mobile-offset-right, 16px)) !important;
+    width: auto !important;
+    max-width: none !important;
+    right: calc(var(--mobile-offset-left, 14px) + var(--mobile-offset-right, 14px)) !important;
+  }
+
+  .Toast.Compact {
+    width: max-content !important;
+    max-width: calc(100vw - var(--mobile-offset-left, 14px) - var(--mobile-offset-right, 14px)) !important;
   }
 
   .Toaster[dir="rtl"] .Toast {
-    left: calc(var(--mobile-offset-left, 16px) + var(--mobile-offset-right, 16px)) !important;
+    left: calc(var(--mobile-offset-left, 14px) + var(--mobile-offset-right, 14px)) !important;
     right: 0 !important;
   }
 }
@@ -108,6 +122,29 @@
 .CancelButton {
   color: var(--color-text-secondary) !important;
   font-weight: var(--font-weight-medium);
+}
+
+/* The close face: 20 across at the toast's corner, its X in the text color and a
+   ring an outline Button draws, which shows on the dark surface too (Sonner's
+   dark ring takes --normal-border, transparent here). An invisible 4px rim
+   around its 18px inner box makes the target 26, past the 24 of WCAG 2.5.8.
+   A toast with rich colors keeps Sonner's tinted face. */
+.Toast[data-styled="true"]:not([data-rich-colors="true"]) > [data-close-button] {
+  border-color: var(--color-border-secondary-outline) !important;
+  color: var(--color-text) !important;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:where(:not(:root[data-input="touch"] *)) {
+      border-color: var(--color-border-secondary-outline-hover) !important;
+    }
+  }
+}
+
+.Toast[data-styled="true"] > [data-close-button]::after {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  content: "";
 }
 
 .Toast :is([data-button], [data-close-button]):disabled {
@@ -207,11 +244,21 @@
         z-index: -1;
         inset: 12px;
         box-sizing: border-box;
-        border: 1px solid var(--gray4);
+        border: 1px solid var(--color-border-secondary-outline);
         border-radius: 50%;
         background: var(--normal-bg);
         content: "";
         pointer-events: none;
+      }
+
+      /* The 44 target is the button itself */
+      &::after {
+        content: none;
+      }
+
+      /* Only the face answers a hover: the whole target stays clear */
+      &:hover::before {
+        border-color: var(--color-border-secondary-outline-hover);
       }
     }
   }

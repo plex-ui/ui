@@ -36,6 +36,7 @@ import {
   useId,
 } from "reka-ui"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
+import { inToastRegion } from "../../lib/toastRegion.js"
 import { cancelableKeyCopy, dataAttributes, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
 import { dismissableSurfaces, useDeferredPointerDownOutside } from "../Popover/deferredPointerDownOutside.js"
 import { firstElementChild } from "../Tooltip/slot.js"
@@ -357,6 +358,9 @@ export const DialogContent = defineComponent({
       // The native modal owner outlives logical open. An exiting layer must not
       // start a deferred dismissal that closes a trigger-driven reopen.
       if (!open.value) return event.preventDefault()
+      // A press in a toast is not outside: the toast region is a layer above the dialog. The Toaster stops it
+      // before Reka sees it; this holds when the Toaster mounted after the dialog.
+      if (inToastRegion(event.detail.originalEvent.target)) return event.preventDefault()
       // A primary mouse or pen press waits for its click; a touch or another button dismisses now, as Reka does
       const { originalEvent } = event.detail
       if (originalEvent.button === 0 && originalEvent.pointerType !== "touch") return outsidePress.onPointerDownOutside(event)
@@ -364,6 +368,7 @@ export const DialogContent = defineComponent({
     }
     // Focus moving out while a press waits for its click is that press, as on Radix: the owner hears of it once
     const handleFocusOutside = (event: Parameters<typeof outsidePress.onFocusOutside>[0]) => {
+      if (inToastRegion((event as DialogInteractOutsideEvent).detail?.originalEvent.target)) return event.preventDefault()
       outsidePress.onFocusOutside(event)
       if (!event.defaultPrevented) props.onInteractOutside?.(event as DialogInteractOutsideEvent)
     }

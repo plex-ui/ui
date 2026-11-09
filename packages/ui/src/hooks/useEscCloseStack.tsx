@@ -1,9 +1,12 @@
 import { useEffect, useId } from "react"
+import { inToastRegion } from "../lib/toastRegion"
 import { useLatestValue } from "./useLatestValue"
 
 type Handler = {
   id: string
   callback: React.MutableRefObject<(event: KeyboardEvent) => void>
+  /** Opened from a toast (a Popover in a custom toast): Escape in the toast closes it */
+  fromToast: boolean
 }
 
 let handlers: Handler[] = []
@@ -14,7 +17,9 @@ const handleKeyDown = (evt: KeyboardEvent) => {
     // Attempt to call the first handler in the stack, if it exists
     const [firstHandler] = handlers
 
-    if (firstHandler) {
+    // Escape in a toast returns focus to where it came from (the toast's own handler); it closes nothing under
+    // the toast, only what the toast itself opened
+    if (firstHandler && (firstHandler.fromToast || !inToastRegion(evt.target))) {
       evt.preventDefault()
       firstHandler.callback.current?.(evt)
     }
@@ -54,7 +59,7 @@ export const useEscCloseStack = (listening: boolean, cb: (event: KeyboardEvent) 
       return
     }
 
-    const handler = { id, callback: latestCallback }
+    const handler = { id, callback: latestCallback, fromToast: inToastRegion(document.activeElement) }
     registerHandler(handler)
 
     return () => unregisterHandler(handler)

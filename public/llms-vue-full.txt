@@ -11102,12 +11102,12 @@ Docs: https://plexui.com/vue/components/toast
   Toaster:
     - position ("top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right") default: "top-center" — Where toasts anchor on the viewport
     - duration (number) default: 3000 — Default auto-dismiss duration in ms
-    - offset (string | number | { top?; right?; bottom?; left? }) — Distance from the viewport edge
-    - mobile-offset (string | number | { top?; right?; bottom?; left? }) default: 16px + safe area per edge — Mobile viewport gutter. Explicit edges override their safe defaults; omitted edges keep them.
+    - offset (string | number | { top?; right?; bottom?; left? }) default: 32px — Distance from the viewport edge. Without a top or bottom edge here, the page's --toast-offset-top or --toast-offset-bottom sets it.
+    - mobile-offset (string | number | { top?; right?; bottom?; left? }) default: 16px top and bottom, 14px at the sides, past the safe area — Gutter under 600px, where a toast fills the width between the side gutters. Explicit edges override their defaults; omitted edges keep them, and the page's --toast-mobile-offset-top or --toast-mobile-offset-bottom sets the top or bottom one.
     - gap (number) — Gap between stacked toasts in px
 
 ### Overview
-On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. It stays a message of the page, with its own width and opaque surface.
+On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.
 ```vue
 <Button color="secondary" variant="outline" @click="toast('Inquiry ID copied')">
   Show toast
@@ -11181,7 +11181,7 @@ Use toast.promise to tie a single toast to an async operation. The toast shows a
 ```
 
 ### Compact
-Spread compact ({`import { toast, compact } from "@plexui/vue/components/Toast"`}) into any toast(...) options for a centered-text layout. Toast width shrinks to content by default regardless; the compact helper only adds center alignment for short status messages.
+Spread compact ({`import { toast, compact } from "@plexui/vue/components/Toast"`}) into any toast(...) options for a centered-text layout. On a desktop a toast shrinks to its content anyway; on a phone, where a toast fills the width, a compact one keeps the width of its content. Both center its text.
 ```vue
 <Button color="secondary" variant="outline" @click="toast.success('Inquiry ID copied', compact)">
   Compact toast
@@ -11189,7 +11189,7 @@ Spread compact ({`import { toast, compact } from "@plexui/vue/components/Toast"`
 ```
 
 ### Persistent
-Pass duration: Infinity for toasts that stay open until the user acts on them. There are no close (×) affordances: put a labelled action on the toast so dismissal is intentional and keyboard-accessible.
+Pass duration: Infinity for toasts that stay open until the user acts on them. There are no close (×) affordances: put a labelled action on the toast so dismissal is intentional and keyboard-accessible. An error that waits like this is an alert (see Screen readers).
 ```vue
 <Button
   color="secondary"

@@ -7728,7 +7728,7 @@
         {
           "name": "Overview",
           "code": "toast(\"Inquiry ID copied\")",
-          "details": "On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. It stays a message of the page, with its own width and opaque surface."
+          "details": "On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface."
         },
         {
           "name": "Variants",
@@ -7755,12 +7755,12 @@
         {
           "name": "Compact",
           "code": "import { toast, compact } from \"@plexui/ui/components/Toast\"\n\ntoast.success(\"Inquiry ID copied\", compact)",
-          "details": "Spread compact into any toast(...) options for a centered-text layout. Toast width shrinks to content by default regardless; the compact helper only adds center alignment for short status messages."
+          "details": "Spread compact into any toast(...) options for a centered-text layout. On a desktop a toast shrinks to its content anyway; on a phone, where a toast fills the width, a compact one keeps the width of its content. Both center its text."
         },
         {
           "name": "Persistent",
           "code": "const id = toast(\"Backup scheduled for 2:00 AM UTC\", {\ndescription: \"This stays open until you dismiss it.\",\nduration: Infinity,\naction: { label: \"Dismiss\", onClick: () => toast.dismiss(id) },\n})",
-          "details": "Pass duration: Infinity for toasts that stay open until the user acts on them. There are no close (×) affordances, so put a labelled action on the toast so dismissal is intentional and keyboard-accessible."
+          "details": "Pass duration: Infinity for toasts that stay open until the user acts on them. There are no close (×) affordances, so put a labelled action on the toast so dismissal is intentional and keyboard-accessible. An error that waits like this is an alert (see Screen readers)."
         }
       ],
       "subComponents": [
@@ -7782,13 +7782,14 @@
             {
               "name": "offset",
               "type": "string | number | { top?; right?; bottom?; left? }",
-              "description": "Distance from the viewport edge"
+              "default": "32px",
+              "description": "Distance from the viewport edge. Without a top or bottom edge here, the page's --toast-offset-top or --toast-offset-bottom sets it."
             },
             {
               "name": "mobileOffset",
               "type": "string | number | { top?; right?; bottom?; left? }",
-              "default": "16px + safe area per edge",
-              "description": "Mobile viewport gutter. Explicit edges override their safe defaults; omitted edges keep them."
+              "default": "16px top and bottom, 14px at the sides, past the safe area",
+              "description": "Gutter under 600px, where a toast fills the width between the side gutters. Explicit edges override their defaults; omitted edges keep them, and the page's --toast-mobile-offset-top or --toast-mobile-offset-bottom sets the top or bottom one."
             },
             {
               "name": "gap",
@@ -8016,5 +8017,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T08:21:53.172Z"
+  "generatedAt": "2026-11-09T09:25:06.202Z"
 }
