@@ -47,6 +47,29 @@ export const allFormatting = `<div class="w-full min-w-0 max-w-[500px]">
   <MarkdownEditor :default-value="allFormattingMd" />
 </div>`
 
+export const formatsMd = `Some **bold**, *italic* and a [link](https://example.com).
+
+- A list item
+
+Line one
+Line two`
+
+export const formats = `<div class="w-full min-w-0 max-w-[500px]">
+  <MarkdownEditor aria-label="Message" :formats="['bold', 'link']" breaks v-model:value="value" />
+  <p class="text-secondary text-sm mt-2 break-all">Markdown: <code>{{ JSON.stringify(value) }}</code></p>
+</div>`
+
+export const formatsCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
+
+const value = ref(initialMd);
+</script>
+
+<template>
+  <MarkdownEditor aria-label="Message" :formats="['bold', 'link']" breaks v-model:value="value" />
+</template>`
+
 export const withFieldControls = [
   { name: "errorMessage", type: "boolean", default: false },
 ]
@@ -119,6 +142,12 @@ export const variants = `<div class="flex flex-col gap-4 w-full min-w-0 max-w-[5
   <VueDemo template={allFormatting} state={{ allFormattingMd }} />
 </ComponentPreview>
 
+### Formats and line breaks
+
+<ComponentPreview language="vue" details={<>Use <code>formats</code> to choose what the editor offers: <code>bold</code>, <code>italic</code>, <code>orderedList</code>, <code>bulletList</code> and <code>link</code>, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. Pasted and incoming markdown keeps its text without it, and the markdown the editor writes leaves it out: here the italic and the list of the initial value become plain text. With <code>breaks</code>, a single newline is a line break, read and written as one newline. Both are read when the editor is created.</>} code={formatsCode} previewMinHeight={220}>
+  <VueDemo template={formats} state={{ value: formatsMd }} />
+</ComponentPreview>
+
 ### With Field
 
 <ComponentPreview language="vue" details={<>Wrap with <code>Field</code> to add a description and a linked error message. The editor receives <code>id</code>, <code>aria-describedby</code> and <code>aria-invalid</code> automatically. Set an accessible name with <code>aria-label</code>. The <code>errorMessage</code> control demonstrates the error state without validating or replacing the content.</>} code={withFieldCode} previewMinHeight={200}>
@@ -147,6 +176,8 @@ export const variants = `<div class="flex flex-col gap-4 w-full min-w-0 max-w-[5
   { prop: "value / v-model:value", type: "string", description: "Controlled markdown value; `update:value` fires on every change" },
   { prop: "default-value", type: "string", description: "Initial markdown for uncontrolled mode" },
   { prop: "@change", type: "(markdown: string) => void", description: "Called on content change" },
+  { prop: "formats", type: 'Array<"bold" | "italic" | "orderedList" | "bulletList" | "link">', default: "all five", description: "Formats the editor offers, read when it is created. One left out has no button, shortcut or input rule, and markdown with it keeps only its text" },
+  { prop: "breaks", type: "boolean", default: "false", description: "A single newline is a line break, read and written as one newline (read when the editor is created). Without it a line break is written as a backslash and a newline" },
   { prop: "toolbarEnd slot", type: "VNode[]", description: "Content rendered at the end of the toolbar" },
   { prop: "rows", type: "number", default: "1", description: "Minimum visible rows" },
   { prop: "id", type: "string", description: "id of the editable element (Field sets it)" },

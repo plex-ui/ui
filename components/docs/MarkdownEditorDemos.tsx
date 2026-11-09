@@ -54,6 +54,26 @@ export function MarkdownEditorAllFormattingDemo() {
   );
 }
 
+const FORMATS_MD = `Some **bold**, *italic* and a [link](https://example.com).
+
+- A list item
+
+Line one
+Line two`;
+
+export function MarkdownEditorFormatsDemo() {
+  const [value, setValue] = useState(FORMATS_MD);
+
+  return (
+    <div className="w-full min-w-0 max-w-[500px]">
+      <MarkdownEditor aria-label="Message" formats={['bold', 'link']} breaks value={value} onChange={setValue} />
+      <p className="text-secondary text-sm mt-2 break-all">
+        Markdown: <code>{JSON.stringify(value)}</code>
+      </p>
+    </div>
+  );
+}
+
 export function MarkdownEditorWithFieldDemo() {
   const [value, setValue] = useState('');
   const [errorMessage, setErrorMessage] = useState(false);

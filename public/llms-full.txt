@@ -4906,6 +4906,8 @@ Props:
   - value (string) — Controlled markdown value
   - defaultValue (string) — Initial markdown for uncontrolled mode
   - onChange ((markdown: string) => void) — Called on content change
+  - formats (Array<"bold" | "italic" | "orderedList" | "bulletList" | "link">) default: all five — Formats the editor offers, read when it is created. One left out has no button, shortcut or input rule, and markdown with it keeps only its text
+  - breaks (boolean) default: false — A single newline is a line break, read and written as one newline (read when the editor is created). Without it a line break is written as a backslash and a newline
   - toolbarEnd (ReactNode) — Content rendered at the end of the toolbar
   - rows (number) default: 1 — Minimum visible rows
   - id (string) — id of the editable element (Field sets it)
@@ -4932,6 +4934,19 @@ return (
 Example with all supported formatting: bold, italic, links, ordered lists, and unordered lists. Click inside formatted text to see toolbar buttons toggle.
 ```tsx
 <MarkdownEditor defaultValue={allFormattingMd} />
+```
+
+### Formats and line breaks
+Use formats to choose what the editor offers: bold, italic, orderedList, bulletList and link, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. Pasted and incoming markdown keeps its text without it, and the markdown the editor writes leaves it out: here the italic and the list of the initial value become plain text. With breaks, a single newline is a line break, read and written as one newline. Both are read when the editor is created.
+```tsx
+function Example() {
+const [value, setValue] = useState(initialMd);
+
+return (
+  <MarkdownEditor aria-label="Message" formats={["bold", "link"]} breaks
+    value={value} onChange={setValue} />
+);
+}
 ```
 
 ### With Field

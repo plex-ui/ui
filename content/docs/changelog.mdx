@@ -7,6 +7,20 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `MarkdownEditor` `formats` (React and Vue): choose which of bold, italic, numbered list, bullet list and link the editor offers, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. Pasted and incoming markdown keeps its text without it, with no markers, and the markdown the editor writes leaves it out; an item of a list left out is its paragraphs, also when the other list is offered. With no format and no `toolbarEnd` there is no toolbar.
+- `MarkdownEditor` `breaks`: a single newline is a line break, read and written as one newline, the first frame on the server included. A break that would leave a blank line (at the start of a paragraph, or one after another) is written as a backslash and a newline, so the line reads back. Without `breaks` every line break is still a backslash and a newline.
+
+### Fixed
+
+- `MarkdownEditor` escapes what would open a block at the start of a line after a line break (`- `, `+ `, `# `, `1. `, `1) `, a row of `=`, after any white space), and a marker after up to three spaces or a `1)` item at the start of a paragraph, so the line keeps its text when its markdown is read again instead of turning into a list or a heading.
+- `MarkdownEditor`'s first frame shows the empty paragraph, with its placeholder, when the markdown leaves no block, such as an image alone, as the editor does.
+
+---
+
 ## 0.37.0 (2026-11-09)
 
 ### Added

@@ -171,17 +171,23 @@ describe("a Markdown Editor shows its markdown before the editor exists", () => 
     ["a line after bold or code joins it, as tiptap-markdown drops that newline", "a *b*\nc and `code`\nnext, a [link](https://example.com)\nend"],
     ["empty list items and an image item keep a paragraph", "-\n-\n- ![x](https://example.com/x.png)\n- text"],
     ["raw HTML is text, a block of it a paragraph", "<div>first paragraph</div>\n\n<div>second paragraph</div>\n\nInline <b>raw</b> html"],
+    ["an image alone leaves the empty paragraph", "![alt](https://example.com/a.png)"],
+    ["lists in lists of the other kind, empty items", "1. one\n2. two\n   - nested **b**\n   - *i*\n\n- three\n  1. deep\n\n-\n-"],
+    ["line breaks of every kind", "one\ntwo  \nthree\\\nfour \n five\n\n**b**\n*i*\n[l](https://example.com)\n`c`"],
+    ["line endings CRLF and CR, tabs around them, a link over two lines", "a\r\nb\rc\t\nd \t\n\te\n\n[one\ntwo](https://example.com) *x\ny*"],
+    ["newlines from character references are text", "a&#10;b &#xA; c&#13;&#10;d &NewLine;e\\&#10;f\na&#13;\r\nb"],
+    ["references too long to be references, white space from references at the end of a line", "a&#00000010;\nb&#x000000A;\nc&#9;\nd&#32;\ne&Tab; \nf&#32;&#32;\ng"],
   ]
 
-  test.each(samples)("%s: the server frame is what the mounted editor shows, in React and Vue", async (_, markdown) => {
-    const reactFrame = contentOf(reactServer(createElement(RMarkdownEditor, { defaultValue: markdown })), ".Editor > div > .tiptap.EditorContent")
-    const vueFrame = contentOf(await vueServer(() => h(MarkdownEditor, { defaultValue: markdown })), ".Editor > div > .tiptap.EditorContent")
+  const frames = async (props: Record<string, unknown>) => {
+    const reactFrame = contentOf(reactServer(createElement(RMarkdownEditor, props)), ".Editor > div > .tiptap.EditorContent")
+    const vueFrame = contentOf(await vueServer(() => h(MarkdownEditor, props)), ".Editor > div > .tiptap.EditorContent")
 
-    const react = render(createElement(RMarkdownEditor, { defaultValue: markdown }))
+    const react = render(createElement(RMarkdownEditor, props))
     await act(async () => {})
     const reactEditor = contentOf(react.container, ".Editor > div > .ProseMirror")
     react.unmount()
-    const vue = mountVue(() => h(MarkdownEditor, { defaultValue: markdown }))
+    const vue = mountVue(() => h(MarkdownEditor, props))
     await flushVue()
     const vueEditor = contentOf(vue.container, ".Editor > div > .ProseMirror")
     vue.unmount()
@@ -189,6 +195,41 @@ describe("a Markdown Editor shows its markdown before the editor exists", () => 
     expect(reactEditor).toBe(vueEditor)
     expect(reactFrame).toBe(reactEditor)
     expect(vueFrame).toBe(reactEditor)
+  }
+
+  test.each(samples)("%s: the server frame is what the mounted editor shows, in React and Vue", async (_, markdown) => {
+    await frames({ defaultValue: markdown })
+  })
+
+  // Formats left out and single newlines as line breaks, on every sample
+  const options: Array<Record<string, unknown>> = [
+    { formats: ["bold", "link"] },
+    { formats: ["bulletList"] },
+    { formats: ["orderedList", "italic"] },
+    { formats: [] },
+    { breaks: true },
+    { formats: ["bold", "link"], breaks: true },
+  ]
+  test.each(options.flatMap((option) => samples.map(([name, markdown]) => [JSON.stringify(option), name, markdown, option] as const)))(
+    "%s, %s: the server frame is what the mounted editor shows",
+    async (_, __, markdown, option) => {
+      await frames({ defaultValue: markdown, ...option })
+    },
+  )
+
+  test("breaks: a line that ends in a tab and spaces keeps the tab, as markdown-it does", async () => {
+    await frames({ defaultValue: "c\t  \nd \t \ne\t\t\nf", breaks: true })
+  })
+
+  test("an editor whose markdown leaves no block shows its placeholder paragraph, as the editor does", async () => {
+    for (const root of [
+      reactServer(createElement(RMarkdownEditor, { placeholder: "Write a note", defaultValue: "-\n-", formats: ["bold"] })),
+      await vueServer(() => h(MarkdownEditor, { placeholder: "Write a note", defaultValue: "-\n-", formats: ["bold"] })),
+    ]) {
+      const empty = root.querySelector(".tiptap p.is-editor-empty")!
+      expect(empty.getAttribute("data-placeholder")).toBe("Write a note")
+      expect(empty.querySelector("br")).not.toBeNull()
+    }
   })
 
   test("the frame holds the content in the editor's boxes; raw HTML shows as text", async () => {

@@ -7,6 +7,7 @@ metaDescription: Compact React rich text editor powered by Tiptap, embedded in a
 import {
   MarkdownEditorBaseDemo,
   MarkdownEditorAllFormattingDemo,
+  MarkdownEditorFormatsDemo,
   MarkdownEditorWithFieldDemo,
   MarkdownEditorToolbarEndDemo,
   MarkdownEditorVariantsDemo,
@@ -36,6 +37,19 @@ import {
 
 <ComponentPreview details={<>Example with all supported formatting: <strong>bold</strong>, <em>italic</em>, links, ordered lists, and unordered lists. Click inside formatted text to see toolbar buttons toggle.</>} code={`<MarkdownEditor defaultValue={allFormattingMd} />`} previewMinHeight={300}>
   <MarkdownEditorAllFormattingDemo />
+</ComponentPreview>
+
+### Formats and line breaks
+
+<ComponentPreview details={<>Use <code>formats</code> to choose what the editor offers: <code>bold</code>, <code>italic</code>, <code>orderedList</code>, <code>bulletList</code> and <code>link</code>, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. Pasted and incoming markdown keeps its text without it, and the markdown the editor writes leaves it out: here the italic and the list of the initial value become plain text. With <code>breaks</code>, a single newline is a line break, read and written as one newline. Both are read when the editor is created.</>} code={`function Example() {
+  const [value, setValue] = useState(initialMd);
+
+  return (
+    <MarkdownEditor aria-label="Message" formats={["bold", "link"]} breaks
+      value={value} onChange={setValue} />
+  );
+}`} previewMinHeight={220}>
+  <MarkdownEditorFormatsDemo />
 </ComponentPreview>
 
 ### With Field
@@ -98,6 +112,8 @@ import { Translate } from "@plexui/ui/components/Icon"
   { prop: "value", type: "string", description: "Controlled markdown value" },
   { prop: "defaultValue", type: "string", description: "Initial markdown for uncontrolled mode" },
   { prop: "onChange", type: "(markdown: string) => void", description: "Called on content change" },
+  { prop: "formats", type: 'Array<"bold" | "italic" | "orderedList" | "bulletList" | "link">', default: "all five", description: "Formats the editor offers, read when it is created. One left out has no button, shortcut or input rule, and markdown with it keeps only its text" },
+  { prop: "breaks", type: "boolean", default: "false", description: "A single newline is a line break, read and written as one newline (read when the editor is created). Without it a line break is written as a backslash and a newline" },
   { prop: "toolbarEnd", type: "ReactNode", description: "Content rendered at the end of the toolbar" },
   { prop: "rows", type: "number", default: "1", description: "Minimum visible rows" },
   { prop: "id", type: "string", description: "id of the editable element (Field sets it)" },

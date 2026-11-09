@@ -658,6 +658,8 @@ Props:
   - value / v-model:value (string) — Controlled markdown value; `update:value` fires on every change
   - default-value (string) — Initial markdown for uncontrolled mode
   - @change ((markdown: string) => void) — Called on content change
+  - formats (Array<"bold" | "italic" | "orderedList" | "bulletList" | "link">) default: all five — Formats the editor offers, read when it is created. One left out has no button, shortcut or input rule, and markdown with it keeps only its text
+  - breaks (boolean) default: false — A single newline is a line break, read and written as one newline (read when the editor is created). Without it a line break is written as a backslash and a newline
   - toolbarEnd slot (VNode[]) — Content rendered at the end of the toolbar
   - rows (number) default: 1 — Minimum visible rows
   - id (string) — id of the editable element (Field sets it)
@@ -666,7 +668,7 @@ Props:
   - aria-describedby (string) — aria-describedby of the editable element (Field sets it)
   - aria-invalid (boolean) — Sets aria-invalid on the editable element and the invalid style (Field sets it with error-message)
   - class (string) — Applied to the container
-Examples: Placeholder, All formatting, With Field, Toolbar end slot, Variants
+Examples: Placeholder, All formatting, Formats and line breaks, With Field, Toolbar end slot, Variants
 
 ## Menu
 Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.

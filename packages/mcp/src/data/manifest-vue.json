@@ -3824,6 +3824,18 @@
           "description": "Called on content change"
         },
         {
+          "name": "formats",
+          "type": "Array<\"bold\" | \"italic\" | \"orderedList\" | \"bulletList\" | \"link\">",
+          "default": "all five",
+          "description": "Formats the editor offers, read when it is created. One left out has no button, shortcut or input rule, and markdown with it keeps only its text"
+        },
+        {
+          "name": "breaks",
+          "type": "boolean",
+          "default": "false",
+          "description": "A single newline is a line break, read and written as one newline (read when the editor is created). Without it a line break is written as a backslash and a newline"
+        },
+        {
           "name": "toolbarEnd slot",
           "type": "VNode[]",
           "description": "Content rendered at the end of the toolbar"
@@ -3875,6 +3887,11 @@
           "name": "All formatting",
           "code": "<div class=\"w-full min-w-0 max-w-[500px]\">\n  <MarkdownEditor :default-value=\"allFormattingMd\" />\n</div>",
           "details": "Example with all supported formatting: bold, italic, links, ordered lists, and unordered lists. Click inside formatted text to see toolbar buttons toggle."
+        },
+        {
+          "name": "Formats and line breaks",
+          "code": "<script setup lang=\"ts\">\nimport { ref } from 'vue';\nimport { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';\n\nconst value = ref(initialMd);\n</script>\n\n<template>\n  <MarkdownEditor aria-label=\"Message\" :formats=\"['bold', 'link']\" breaks v-model:value=\"value\" />\n</template>",
+          "details": "Use formats to choose what the editor offers: bold, italic, orderedList, bulletList and link, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. Pasted and incoming markdown keeps its text without it, and the markdown the editor writes leaves it out: here the italic and the list of the initial value become plain text. With breaks, a single newline is a line break, read and written as one newline. Both are read when the editor is created."
         },
         {
           "name": "With Field",
@@ -8013,5 +8030,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-09T16:55:45.672Z"
+  "generatedAt": "2026-11-09T18:01:19.127Z"
 }

@@ -1,1 +1,1 @@
-export { MarkdownEditor, markdownEditorStyles, type MarkdownEditorProps } from "./MarkdownEditor"
+export { MarkdownEditor, markdownEditorStyles, type MarkdownEditorFormat, type MarkdownEditorProps } from "./MarkdownEditor"

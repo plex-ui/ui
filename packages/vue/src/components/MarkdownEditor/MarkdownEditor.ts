@@ -9,21 +9,17 @@ import {
 } from "vue"
 import { EditorContent, useEditor } from "@tiptap/vue-3"
 import { getMarkRange, type Editor as CoreEditor } from "@tiptap/core"
-import Document from "@tiptap/extension-document"
-import Paragraph from "@tiptap/extension-paragraph"
-import Text from "@tiptap/extension-text"
-import BoldExtension from "@tiptap/extension-bold"
-import ItalicExtension from "@tiptap/extension-italic"
-import LinkExtension from "@tiptap/extension-link"
-import BulletList from "@tiptap/extension-bullet-list"
-import OrderedList from "@tiptap/extension-ordered-list"
-import ListItem from "@tiptap/extension-list-item"
-import History from "@tiptap/extension-history"
-import Placeholder from "@tiptap/extension-placeholder"
-import HardBreak from "@tiptap/extension-hard-break"
-import { Markdown as MarkdownExtension } from "tiptap-markdown"
 import type { Variants } from "@plexui/styles/types"
 import { keepMovedFocus } from "../../lib/helpers.js"
+import {
+  markdownEditorExtensions,
+  markdownEditorSchema,
+  rehypeEditorSchema,
+  remarkLineBreaks,
+  remarkWithoutHtml,
+  type MarkdownEditorFormat,
+  type MarkdownEditorSchema,
+} from "../../lib/markdownEditorSchema.js"
 import {
   Bold as BoldIcon,
   Italic as ItalicIcon,
@@ -52,8 +48,8 @@ import s from "@plexui/styles/components/MarkdownEditor/MarkdownEditor.module.cs
 //   changes and differs from the editor's markdown.
 // - As in React, `update:value` / `change` also fire once when the editor is
 //   created and whenever `disabled` changes (`setEditable` emits an update).
-// - Options React reads only when it creates the editor (`placeholder`, the
-//   initial content) are read once here too; `id`, `aria-label`,
+// - Options React reads only when it creates the editor (`placeholder`,
+//   `formats`, `breaks`, the initial content) are read once here too; `id`, `aria-label`,
 //   `aria-labelledby`, `aria-describedby` and `aria-invalid` follow the
 //   props, as React re-applies them on render.
 // - `toolbarEnd` is the `#toolbarEnd` slot. Like React, only `class` is
@@ -77,6 +73,8 @@ const linkText = (text: string, href: string) => ({
 export const markdownEditorStyles = {
   toolbarButton: s.ToolbarButton,
 }
+
+export type { MarkdownEditorFormat }
 
 type LinkSelection = { from: number; to: number; doc: CoreEditor["state"]["doc"] }
 
@@ -191,6 +189,17 @@ const MarkdownEditorComponent = defineComponent({
     value: { type: String, default: undefined },
     /** Default value as a markdown string for uncontrolled mode */
     defaultValue: { type: String, default: undefined },
+    /**
+     * The formats the editor offers, read when the editor is created. A format left out has no toolbar button,
+     * shortcut or input rule; pasted and incoming content keeps its text without it, and the markdown does not write it.
+     * @default ["bold", "italic", "orderedList", "bulletList", "link"]
+     */
+    formats: { type: Array as PropType<MarkdownEditorFormat[]>, default: undefined },
+    /**
+     * A single newline is a line break, read and written as one "\n", read when the editor is created. Without it a
+     * line break is written as a backslash and a newline, and a single newline joins the lines. @default false
+     */
+    breaks: { type: Boolean, default: false },
     /** Minimum visible rows. @default 1 */
     rows: { type: Number, default: 1 },
     /** `id` of the editable element */
@@ -211,6 +220,8 @@ const MarkdownEditorComponent = defineComponent({
     "change": (markdown: string) => typeof markdown === "string",
   },
   setup(props, { slots, attrs, emit }) {
+    // The schema is the editor's, made once with it, as the toolbar offers what the schema has
+    const schema = markdownEditorSchema(props.formats, props.breaks)
     const focused = ref(false)
     const linkDialogOpen = ref(false)
     const linkDialogInitial = ref({ url: "", title: "" })
@@ -250,28 +261,7 @@ const MarkdownEditorComponent = defineComponent({
     })
 
     const editor = useEditor({
-      extensions: [
-        Document,
-        Paragraph,
-        Text,
-        HardBreak,
-        BoldExtension,
-        ItalicExtension,
-        LinkExtension.configure({
-          openOnClick: false,
-          HTMLAttributes: { rel: "noopener noreferrer nofollow" },
-        }),
-        BulletList,
-        OrderedList,
-        ListItem,
-        History,
-        MarkdownExtension.configure({
-          html: false,
-          transformPastedText: true,
-          transformCopiedText: true,
-        }),
-        ...(props.placeholder ? [Placeholder.configure({ placeholder: props.placeholder })] : []),
-      ],
+      extensions: markdownEditorExtensions(schema, props.placeholder),
       content: props.value ?? props.defaultValue ?? "",
       editable: !props.disabled,
       editorProps: {
@@ -409,6 +399,51 @@ const MarkdownEditorComponent = defineComponent({
       // React renders the slot only for a truthy `toolbarEnd`
       const toolbarEnd = slots.toolbarEnd?.()
       const hasToolbarEnd = flattenSlot(toolbarEnd).length > 0
+      const offered = schema.formats
+      // Groups of the offered formats, a separator between two of them
+      const groups = [
+        [
+          offered.has("bold") && h(ToolbarButton, {
+            tooltip: "Bold",
+            active: activeMarks.bold,
+            disabled,
+            icon: BoldIcon,
+            onClick: () => editor.value?.chain().focus().toggleBold().run(),
+          }),
+          offered.has("italic") && h(ToolbarButton, {
+            tooltip: "Italic",
+            active: activeMarks.italic,
+            disabled,
+            icon: ItalicIcon,
+            onClick: () => editor.value?.chain().focus().toggleItalic().run(),
+          }),
+        ],
+        [
+          offered.has("orderedList") && h(ToolbarButton, {
+            tooltip: "Numbered list",
+            active: activeMarks.orderedList,
+            disabled,
+            icon: ListNumbersIcon,
+            onClick: () => editor.value?.chain().focus().toggleOrderedList().run(),
+          }),
+          offered.has("bulletList") && h(ToolbarButton, {
+            tooltip: "Bullet list",
+            active: activeMarks.bulletList,
+            disabled,
+            icon: ListIcon,
+            onClick: () => editor.value?.chain().focus().toggleBulletList().run(),
+          }),
+        ],
+        [
+          offered.has("link") && h(ToolbarButton, {
+            tooltip: "Link",
+            active: activeMarks.link,
+            disabled: disabled || !linkCanEnable.value,
+            icon: LinkIcon,
+            onClick: openLinkDialog,
+          }),
+        ],
+      ].map((group) => group.filter((button) => button !== false)).filter((group) => group.length > 0)
 
       return h(
         "div",
@@ -421,63 +456,27 @@ const MarkdownEditorComponent = defineComponent({
           "onMousedown": handleContainerMouseDown,
         },
         [
-          h("div", { class: s.Toolbar, onMousedown: (e: MouseEvent) => e.preventDefault() }, [
-            h("div", { class: s.ToolbarGroup }, [
-              h(ToolbarButton, {
-                tooltip: "Bold",
-                active: activeMarks.bold,
-                disabled,
-                icon: BoldIcon,
-                onClick: () => editor.value?.chain().focus().toggleBold().run(),
-              }),
-              h(ToolbarButton, {
-                tooltip: "Italic",
-                active: activeMarks.italic,
-                disabled,
-                icon: ItalicIcon,
-                onClick: () => editor.value?.chain().focus().toggleItalic().run(),
-              }),
-
-              h("div", { "class": s.ToolbarSeparator, "aria-hidden": "true" }),
-
-              h(ToolbarButton, {
-                tooltip: "Numbered list",
-                active: activeMarks.orderedList,
-                disabled,
-                icon: ListNumbersIcon,
-                onClick: () => editor.value?.chain().focus().toggleOrderedList().run(),
-              }),
-              h(ToolbarButton, {
-                tooltip: "Bullet list",
-                active: activeMarks.bulletList,
-                disabled,
-                icon: ListIcon,
-                onClick: () => editor.value?.chain().focus().toggleBulletList().run(),
-              }),
-
-              h("div", { "class": s.ToolbarSeparator, "aria-hidden": "true" }),
-
-              h(ToolbarButton, {
-                tooltip: "Link",
-                active: activeMarks.link,
-                disabled: disabled || !linkCanEnable.value,
-                icon: LinkIcon,
-                onClick: openLinkDialog,
-              }),
-
-              ...(hasToolbarEnd
-                ? [
-                    h("div", { "class": s.ToolbarSeparator, "aria-hidden": "true" }),
-                    h("div", { class: s.ToolbarEnd }, toolbarEnd),
-                  ]
-                : []),
-            ]),
-          ]),
+          groups.length || hasToolbarEnd
+            ? h("div", { class: s.Toolbar, onMousedown: (e: MouseEvent) => e.preventDefault() }, [
+                h("div", { class: s.ToolbarGroup }, [
+                  ...groups.flatMap((group, index) => [
+                    ...(index ? [h("div", { "class": s.ToolbarSeparator, "aria-hidden": "true" })] : []),
+                    ...group,
+                  ]),
+                  ...(hasToolbarEnd
+                    ? [
+                        ...(groups.length ? [h("div", { "class": s.ToolbarSeparator, "aria-hidden": "true" })] : []),
+                        h("div", { class: s.ToolbarEnd }, toolbarEnd),
+                      ]
+                    : []),
+                ]),
+              ])
+            : null,
 
           h("div", { class: s.Editor, style: { minHeight: `${minHeight}px` } }, [
             editor.value
               ? h(EditorContent, { editor: editor.value })
-              : editorFirstFrame(props.value ?? props.defaultValue ?? "", props.placeholder, props.disabled),
+              : editorFirstFrame(props.value ?? props.defaultValue ?? "", props.placeholder, props.disabled, schema),
           ]),
 
           h(LinkDialog, {
@@ -497,152 +496,21 @@ const MarkdownEditorComponent = defineComponent({
   },
 })
 
-// Nodes of the HTML (hast) tree the first frame rewrites
-type HtmlNode = {
-  type: string
-  tagName?: string
-  value?: string
-  properties?: Record<string, unknown>
-  children?: HtmlNode[]
-}
-
-// The editor reads markdown with `html: false` (markdown-it): HTML is not parsed, its characters are text, and the
-// markdown around and inside it still is
-function remarkWithoutHtml(this: { data(): object }) {
-  const data = this.data() as { micromarkExtensions?: unknown[] }
-  ;(data.micromarkExtensions ??= []).push({ disable: { null: ["htmlFlow", "htmlText"] } })
-}
-
-// The editor's schema keeps paragraphs, lists, bold, italic, links and line breaks. ProseMirror parses anything else
-// into them: a heading is a paragraph of its text, a code block a paragraph of its lines, a quote its paragraphs,
-// inline code its text, an image or a rule nothing, and the text of a list item sits in a paragraph. Outside a code
-// block it collapses white space, as the page does; the editor's text keeps its spaces (white-space: break-spaces)
-const SCHEMA_AS_PARAGRAPH = new Set(["h1", "h2", "h3", "h4", "h5", "h6"])
-const SCHEMA_BLOCKS = new Set(["p", "ul", "ol"])
-const textOf = (node: HtmlNode): string => node.value ?? (node.children ?? []).map(textOf).join("")
-const isBlank = (node: HtmlNode) => node.type === "text" && !node.value?.trim()
-const lineBreak = (): HtmlNode => ({ type: "element", tagName: "br", properties: {}, children: [] })
-
-// White space of a paragraph's text as ProseMirror parses it: runs collapse to one space, none at the start of the
-// paragraph, after a line break or after another space, none at its end
-function collapseWhiteSpace(children: HtmlNode[]) {
-  let previous: HtmlNode | null = null
-  let lineStart = true
-  const walk = (nodes: HtmlNode[]) => {
-    for (const node of nodes) {
-      if (node.type === "text") {
-        let value = (node.value ?? "").replace(/[ \t\r\n\f]+/g, " ")
-        if (value.startsWith(" ") && (lineStart || previous?.value?.endsWith(" "))) value = value.slice(1)
-        node.value = value
-        if (value) {
-          previous = node
-          lineStart = false
-        }
-      } else if (node.tagName === "br") {
-        lineStart = true
-      } else {
-        walk(node.children ?? [])
-      }
-    }
-  }
-  walk(children)
-  if (previous) (previous as HtmlNode).value = (previous as HtmlNode).value!.replace(/ $/, "")
-}
-
-const paragraph = (children: HtmlNode[], { preserveWhiteSpace = false } = {}): HtmlNode => {
-  if (!preserveWhiteSpace) collapseWhiteSpace(children)
-  return {
-    type: "element",
-    tagName: "p",
-    properties: {},
-    // An empty paragraph keeps its line, as ProseMirror's trailing break does
-    children: children.every((child) => child.type === "text" && !child.value) ? [lineBreak()] : children,
-  }
-}
-
-// tiptap-markdown drops the newline markdown-it writes after an element, outside a code block: a line that follows
-// bold, a link or code joins it without a space
-const dropNewlineAfterElements = (nodes: HtmlNode[]) =>
-  nodes.map((node, index) =>
-    index && node.type === "text" && nodes[index - 1]!.type === "element" && node.value?.startsWith("\n")
-      ? { ...node, value: node.value.slice(1) }
-      : node,
-  )
-
-function toEditorSchema(nodes: HtmlNode[]): HtmlNode[] {
-  return dropNewlineAfterElements(nodes).flatMap((node): HtmlNode[] => {
-    if (node.type !== "element") return [node]
-    const children = node.children ?? []
-    switch (node.tagName) {
-      case "img":
-      case "hr":
-        return []
-      case "code":
-        return [{ type: "text", value: textOf(node) }]
-      case "pre": {
-        // ProseMirror keeps a code block's spaces and its newlines as line breaks, the last one followed by the
-        // trailing break of a paragraph that ends in a break
-        const lines = textOf(node).split("\n")
-        if (lines.every((line) => !line)) return []
-        const content: HtmlNode[] = []
-        lines.forEach((line, index) => {
-          if (index) content.push(lineBreak())
-          if (line) content.push({ type: "text", value: line })
-        })
-        if (content[content.length - 1]!.tagName === "br") content.push(lineBreak())
-        return [paragraph(content, { preserveWhiteSpace: true })]
-      }
-      case "blockquote":
-        return toEditorSchema(children)
-      case "p":
-        return [paragraph(toEditorSchema(children))]
-      case "li": {
-        const content: HtmlNode[] = []
-        let run: HtmlNode[] = []
-        const flush = () => {
-          if (!run.every(isBlank)) content.push(paragraph(run))
-          run = []
-        }
-        for (const child of toEditorSchema(children)) {
-          if (child.type === "element" && SCHEMA_BLOCKS.has(child.tagName!)) {
-            flush()
-            content.push(child)
-          } else {
-            run.push(child)
-          }
-        }
-        flush()
-        // A list item starts with a paragraph, an empty one if it has no text (an empty item, an image)
-        if (content[0]?.tagName !== "p") content.unshift(paragraph([]))
-        return [{ ...node, children: content }]
-      }
-      case "ul":
-      case "ol":
-        return [{ ...node, children: toEditorSchema(children).filter((child) => !isBlank(child)) }]
-      default:
-        return SCHEMA_AS_PARAGRAPH.has(node.tagName!)
-          ? [paragraph(toEditorSchema(children))]
-          : [{ ...node, children: toEditorSchema(children) }]
-    }
-  })
-}
-function rehypeEditorSchema() {
-  return (tree: HtmlNode) => {
-    tree.children = toEditorSchema(tree.children ?? []).filter((child) => !isBlank(child))
-  }
-}
-
 /**
  * The content before the editor exists, on the server and until it mounts: the markdown as the editor will show it,
  * in its schema and its own boxes (EditorContent's, then ProseMirror's), so the page does not move when ProseMirror
  * takes over, as in React. An empty editor shows its placeholder while it can be edited (`showOnlyWhenEditable`).
  */
-const editorFirstFrame = (markdown: string, placeholder: string | undefined, disabled: boolean) => {
-  const hint = placeholder && !disabled
+const editorFirstFrame = (markdown: string, placeholder: string | undefined, disabled: boolean, schema: MarkdownEditorSchema) => {
+  const hint = placeholder && !disabled ? placeholder : undefined
   return h("div", null, [
     h("div", { class: ["tiptap", s.EditorContent] }, [
       markdown.trim()
-        ? renderMarkdown({ children: markdown, remarkPlugins: [remarkWithoutHtml], rehypePlugins: [rehypeEditorSchema] })
+        ? renderMarkdown({
+            children: markdown,
+            remarkPlugins: schema.breaks ? [remarkWithoutHtml, remarkLineBreaks] : [remarkWithoutHtml],
+            rehypePlugins: [rehypeEditorSchema(schema, hint)],
+          })
         : h("p", { class: hint ? "is-editor-empty" : undefined, "data-placeholder": hint ? placeholder : undefined }, [h("br")]),
     ]),
   ])

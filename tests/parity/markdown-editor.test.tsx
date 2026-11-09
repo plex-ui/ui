@@ -7,6 +7,7 @@ import { Translate as ReactTranslate } from "../../packages/ui/src/components/Ic
 import {
   MarkdownEditor as ReactMarkdownEditor,
   markdownEditorStyles as reactMarkdownEditorStyles,
+  type MarkdownEditorFormat,
 } from "../../packages/ui/src/components/MarkdownEditor"
 import { Translate } from "../../packages/vue/src/components/Icon"
 import { MarkdownEditor, markdownEditorStyles } from "../../packages/vue/src/components/MarkdownEditor"
@@ -74,6 +75,8 @@ type Case = {
   ariaLabelledby?: string
   ariaDescribedby?: string
   ariaInvalid?: boolean
+  formats?: MarkdownEditorFormat[]
+  breaks?: boolean
   /** Renders the docs' "Edit translations" toolbarEnd button */
   toolbarEnd?: boolean
 }
@@ -1018,6 +1021,312 @@ describe("MarkdownEditor parity: value", () => {
         snapshot()
         await set({ toolbarEnd: false, invalid: false })
         snapshot()
+      }),
+    )
+  })
+})
+
+/* ------------------------------------------------------------------ */
+/*  Formats and line breaks                                            */
+/* ------------------------------------------------------------------ */
+
+// Text typed into the editor as the browser does: each character through
+// ProseMirror's handleTextInput, where input rules run, then inserted
+const typeText = (text: string) => (e: CoreEditor) => {
+  for (const char of text) {
+    const { view } = e
+    const { from, to } = view.state.selection
+    const insert = () => view.state.tr.insertText(char, from, to)
+    if (!view.someProp("handleTextInput", (handle) => handle(view, from, to, char, insert))) view.dispatch(insert())
+  }
+}
+
+const toolbarLabels = () =>
+  Array.from(document.querySelectorAll(".Toolbar button, .Toolbar .ToolbarSeparator")).map((element) =>
+    element.tagName === "BUTTON" ? element.getAttribute("aria-label") : "|",
+  )
+
+const BOLD_AND_LINK: MarkdownEditorFormat[] = ["bold", "link"]
+
+// A paste event's init with what the clipboard holds (jsdom has no DataTransfer)
+const clipboard = (data: Record<string, string>) => ({ clipboardData: { getData: (type: string) => data[type] ?? "" } })
+
+describe("MarkdownEditor parity: formats", () => {
+  const formatCases: Array<[string, Case]> = [
+    ["bold and link", { formats: BOLD_AND_LINK }],
+    ["lists only, in either order", { formats: ["bulletList", "orderedList"] }],
+    ["one list", { formats: ["bulletList"] }],
+    ["none: no toolbar", { formats: [] }],
+    ["none with toolbarEnd: the end slot without a separator", { formats: [], toolbarEnd: true }],
+    ["bold and link with toolbarEnd", { formats: BOLD_AND_LINK, toolbarEnd: true }],
+    ["incoming markdown keeps the text of formats left out", { formats: BOLD_AND_LINK, defaultValue: ALL_FORMATTING_MD }],
+  ]
+
+  test.each(formatCases)("renders the same: %s", async (_name, props) => {
+    const pair = await renderPair(reactEditor(props), () => vueEditor(props))
+    expect(pair.vue).toBe(pair.react)
+  })
+
+  test("the toolbar offers the formats in their groups, a separator between two groups", async () => {
+    const expected: Array<[MarkdownEditorFormat[] | undefined, Array<string | null>]> = [
+      [undefined, ["Bold", "Italic", "|", "Numbered list", "Bullet list", "|", "Link"]],
+      [BOLD_AND_LINK, ["Bold", "|", "Link"]],
+      [["link", "orderedList", "italic"], ["Italic", "|", "Numbered list", "|", "Link"]],
+      [["bulletList"], ["Bullet list"]],
+      [[], []],
+    ]
+    for (const [formats, labels] of expected) {
+      for (const mount of [
+        () => render(reactEditor({ formats })).unmount,
+        () => mountVue(() => vueEditor({ formats })).unmount,
+      ]) {
+        const unmount = mount()
+        await flushVue()
+        expect(toolbarLabels()).toEqual(labels)
+        expect(document.querySelector(".Toolbar") !== null).toBe(labels.length > 0)
+        unmount()
+        cleanup()
+      }
+    }
+  })
+
+  test("markdown with formats left out keeps their text, with no markers, and does not write them", async () => {
+    expectSame(
+      await walkEditor({ formats: BOLD_AND_LINK, defaultValue: ALL_FORMATTING_MD }, async ({ snapshot }) => {
+        snapshot()
+        expect(document.querySelector(`${PM} em, ${PM} ul, ${PM} ol, ${PM} li`)).toBeNull()
+        expect(document.querySelectorAll(`${PM} strong, ${PM} a`)).toHaveLength(3)
+        expect(markdown()).toBe(
+          "This is regular text with **bold** and italic formatting.\n\n" +
+            "Read our [Privacy Policy](https://example.com/privacy) and [Terms of Service](https://example.com/terms) for details.\n\n" +
+            "First ordered item\n\nSecond ordered item\n\nThird ordered item\n\n" +
+            "Unordered item one\n\nUnordered item two\n\nUnordered item three",
+        )
+      }),
+    )
+  })
+
+  test("an item of a list left out is its paragraphs, not an item of the list offered", async () => {
+    expectSame(
+      await walkEditor({ formats: ["bulletList"], defaultValue: "1. one\n2. two\n   - nested\n\n- three" }, async ({ snapshot }) => {
+        snapshot()
+        // Two bullet lists side by side stay two lists
+        expect(markdown()).toBe("one\n\ntwo\n\n- nested\n\n\n- three")
+      }),
+    )
+  })
+
+  test("a format left out has no shortcut", async () => {
+    expectSame(
+      await walkEditor({ formats: BOLD_AND_LINK, defaultValue: "Shortcut text here" }, async ({ snapshot, command, key, focus }) => {
+        await focus(PM)
+        await command((e) => e.commands.setTextSelection({ from: 1, to: 9 }))
+        await key({ key: "i", ctrlKey: true })
+        await key({ key: "7", ctrlKey: true, shiftKey: true })
+        await key({ key: "8", ctrlKey: true, shiftKey: true })
+        expect(markdown()).toBe("Shortcut text here")
+        await key({ key: "b", ctrlKey: true })
+        expect(markdown()).toBe("**Shortcut** text here")
+        snapshot()
+      }),
+    )
+  })
+
+  test("a format left out has no input rule; one offered still has", async () => {
+    const typed = "*soft* and **strong**"
+    expectSame(
+      await walkEditor({ formats: BOLD_AND_LINK }, async ({ snapshot, command, key, focus }) => {
+        await focus(PM)
+        await command(typeText("- "))
+        await command(typeText("one"))
+        await key({ key: "Enter" })
+        await command(typeText("1. two"))
+        await key({ key: "Enter" })
+        await command(typeText(typed))
+        snapshot()
+        expect(document.querySelector(`${PM} ul, ${PM} ol, ${PM} em`)).toBeNull()
+        expect(markdown()).toBe("\\- one\n\n1\\. two\n\n\\*soft\\* and **strong**")
+      }),
+    )
+    // The same typing with every format makes a list
+    expectSame(
+      await walkEditor({}, async ({ snapshot, command, focus }) => {
+        await focus(PM)
+        await command(typeText("- one *soft*"))
+        snapshot()
+        expect(markdown()).toBe("- one *soft*")
+      }),
+    )
+  })
+
+  test("pasted text and HTML keep their text without the formats left out", async () => {
+    expectSame(
+      await walkEditor({ formats: ["bold"] }, async ({ snapshot, command, fire, focus }) => {
+        await focus(PM)
+        await fire(PM, "paste", clipboard({ "text/plain": "**b** *i* [l](https://example.com)\n\n- one\n1. two" }))
+        expect(markdown()).toBe("**b** i l\n\none\n\ntwo")
+        await command((e) => e.commands.clearContent(true))
+        await fire(PM, "paste", clipboard({
+          "text/html": '<p><strong>b</strong> <em>i</em> <a href="https://example.com">l</a></p><ul><li>one</li></ul><ol><li>two</li></ol>',
+        }))
+        expect(markdown()).toBe("**b** i l\n\none\n\ntwo")
+        snapshot()
+      }),
+    )
+  })
+
+  test("formats and breaks are read when the editor is created", async () => {
+    expectSame(
+      await walkEditor({ formats: BOLD_AND_LINK, defaultValue: "a\nb" } as Case, async ({ snapshot, set }) => {
+        await set({ formats: ["italic"], breaks: true })
+        snapshot()
+        expect(toolbarLabels()).toEqual(["Bold", "|", "Link"])
+        expect(markdown()).toBe("a b")
+      }),
+    )
+  })
+})
+
+describe("MarkdownEditor parity: line breaks", () => {
+  test("breaks: a single newline is a line break, written as one newline", async () => {
+    expectSame(
+      await walkEditor({ breaks: true, defaultValue: "line one\nline two\\\nthree  \nfour\n\nnext" }, async ({ snapshot, command, key, focus }) => {
+        snapshot()
+        expect(document.querySelectorAll(`${PM} p:first-child br`)).toHaveLength(3)
+        expect(markdown()).toBe("line one\nline two\nthree\nfour\n\nnext")
+        await focus(PM)
+        await command((e) => e.commands.focus("end"))
+        await key({ key: "Enter", shiftKey: true })
+        await command(typeText("after"))
+        expect(markdown()).toBe("line one\nline two\nthree\nfour\n\nnext\nafter")
+        snapshot()
+      }),
+    )
+  })
+
+  test("without breaks a single newline joins the lines and a line break is a backslash and a newline", async () => {
+    expectSame(
+      await walkEditor({ defaultValue: "line one\nline two\\\nthree" }, async ({ snapshot }) => {
+        snapshot()
+        expect(markdown()).toBe("line one line two\\\nthree")
+      }),
+    )
+  })
+
+  // A line after a line break starts a line of the markdown: what would open a list, a heading or a rule there is
+  // escaped, so the text reads back as it was, without the white space markdown drops at the start of a line
+  test.each([false, true])("a line after a break keeps its text when read again (breaks: %s)", async (breaks) => {
+    const lines = ["- b", "+ b", "# b", "1. b", "1) b", "===", "  - b", "    - b", "\t- b", "-5 degrees", "3.14 is pi", "2024 was"]
+    expectSame(
+      await walkEditor({ breaks }, async ({ snapshot, command }) => {
+        for (const line of lines) {
+          // Four columns of white space start code at the start of a paragraph: only the line after a break
+          const code = /^( {4}|\t)/.test(line)
+          const doc = {
+            type: "doc",
+            content: [
+              { type: "paragraph", content: [{ type: "text", text: "a" }, { type: "hardBreak" }, { type: "text", text: line }] },
+              ...(code ? [] : [{ type: "paragraph", content: [{ type: "text", text: line }] }]),
+            ],
+          }
+          const read = JSON.parse(JSON.stringify(doc).replaceAll(JSON.stringify(line), JSON.stringify(line.trimStart())))
+          await command((e) => e.commands.setContent(doc))
+          const written = markdown()
+          await command((e) => e.commands.setContent(written))
+          expect(editorOf().getJSON(), `${line} as ${JSON.stringify(written)}`).toEqual(read)
+        }
+        snapshot()
+      }),
+    )
+  })
+
+  // With breaks, "\n" ends a line of text; a break that would leave a blank line is a backslash and a newline
+  test.each([false, true])("line breaks at the start and in a row keep their lines when read again (breaks: %s)", async (breaks) => {
+    const text = (value: string): { type: string; text?: string } => ({ type: "text", text: value })
+    const hardBreak: { type: string; text?: string } = { type: "hardBreak" }
+    const paragraphs = [
+      [hardBreak, text("b")],
+      [text("a"), hardBreak, hardBreak, text("b")],
+      [text("a"), hardBreak, hardBreak, hardBreak, text("b")],
+      [text("a"), hardBreak, text("  "), hardBreak, text("b")],
+      [text("a"), hardBreak],
+    ]
+    const written: string[] = []
+    expectSame(
+      await walkEditor({ breaks }, async ({ command }) => {
+        for (const content of paragraphs) {
+          const doc = { type: "doc", content: [{ type: "paragraph", content }] }
+          await command((e) => e.commands.setContent(doc))
+          const markdownText = markdown()
+          written.push(markdownText)
+          await command((e) => e.commands.setContent(markdownText))
+          // A break at the end of a paragraph is not written, as before, and markdown drops the spaces at the start
+          // of a line
+          const read = content.filter((node, index) => !(node === hardBreak && index === content.length - 1) && !(node.text?.trim() === ""))
+          const expected = { type: "doc", content: [{ type: "paragraph", content: read }] }
+          expect(editorOf().getJSON(), JSON.stringify(markdownText)).toEqual(expected)
+        }
+      }),
+    )
+    expect(written.slice(0, paragraphs.length)).toEqual(
+      breaks
+        ? ["\\\nb", "a\n\\\nb", "a\n\\\n\\\nb", "a\n  \\\nb", "a"]
+        : ["\\\nb", "a\\\n\\\nb", "a\\\n\\\n\\\nb", "a\\\n  \\\nb", "a"],
+    )
+  })
+
+  test.each([false, true])("white space before an opener after a break: a tab in a list item, marked spaces (breaks: %s)", async (breaks) => {
+    const text = (value: string, marks?: object[]) => ({ type: "text", text: value, ...(marks && { marks }) })
+    const docs = [
+      [
+        { type: "bulletList", content: [{ type: "listItem", content: [{ type: "paragraph", content: [text("a"), { type: "hardBreak" }, text("\t===")] }] }] },
+        { type: "bulletList", content: [{ type: "listItem", content: [{ type: "paragraph", content: [text("a"), { type: "hardBreak" }, text("===")] }] }] },
+      ],
+      [
+        { type: "paragraph", content: [text("a"), { type: "hardBreak" }, text("  ", [{ type: "bold" }]), text("===")] },
+        { type: "paragraph", content: [text("a"), { type: "hardBreak" }, text("===")] },
+      ],
+      [
+        { type: "paragraph", content: [text("a"), { type: "hardBreak" }, text("  ", [{ type: "bold" }]), text("- b")] },
+        { type: "paragraph", content: [text("a"), { type: "hardBreak" }, text("- b")] },
+      ],
+    ]
+    // A break ends with its paragraph: the next one starts as a paragraph does, where four spaces are code
+    const nextParagraph = {
+      type: "doc",
+      content: [
+        { type: "paragraph", content: [text("a"), { type: "hardBreak" }, text(" ")] },
+        { type: "paragraph", content: [text("    - b")] },
+      ],
+    }
+    expectSame(
+      await walkEditor({ breaks }, async ({ command }) => {
+        for (const [written, read] of docs) {
+          await command((e) => e.commands.setContent({ type: "doc", content: [written] }))
+          const markdownText = markdown()
+          await command((e) => e.commands.setContent(markdownText))
+          expect(editorOf().getJSON(), JSON.stringify(markdownText)).toEqual(editorOf().schema.nodeFromJSON({ type: "doc", content: [read] }).toJSON())
+        }
+        await command((e) => e.commands.setContent(nextParagraph))
+        expect(markdown()).not.toContain("\\-")
+      }),
+    )
+  })
+
+  test("what the lines are written as", async () => {
+    expectSame(
+      await walkEditor({ breaks: true }, async ({ command }) => {
+        const written: string[] = []
+        for (const line of ["- b", "1) b", "===", "  - b", "    - b", "3.14 is pi"]) {
+          await command((e) =>
+            e.commands.setContent({
+              type: "doc",
+              content: [{ type: "paragraph", content: [{ type: "text", text: "a" }, { type: "hardBreak" }, { type: "text", text: line }] }],
+            }),
+          )
+          written.push(markdown())
+        }
+        expect(written).toEqual(["a\n\\- b", "a\n1\\) b", "a\n\\===", "a\n  \\- b", "a\n    \\- b", "a\n3.14 is pi"])
       }),
     )
   })
