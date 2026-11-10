@@ -4582,7 +4582,7 @@ Sizing of the input is controlled with size and gutterSize props. size sets the 
 ```
 
 ### Adornments
-Add arbitrary content to the beginning of an input with startAdornment, like a search icon, or to its end with endAdornment, like a character counter or custom icon; position switches between the two. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutterSize determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutterSize, use a negative margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes. On Phone, search is the Toolbar search field; in a row a start adornment is a prefix of the value, such as a currency, and trailing text-secondary text takes the row's accessory color.
+Add arbitrary content to the beginning of an input with startAdornment, like a search icon, or to its end with endAdornment, like a character counter or custom icon; position switches between the two. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutterSize determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutterSize, use a negative margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes. On Phone an Input in a Toolbar takes the bar's search field, and one with type="search" at the top of the content is the flat search field under a large title; in a row a start adornment is a prefix of the value, such as a currency, and trailing text-secondary text takes the row's accessory color.
 ```tsx
 // Desktop
 <Input
@@ -10128,6 +10128,34 @@ Toolbar.Content fill stretches a search field between the leading and trailing i
   <NavigationButton action="close" aria-label="Close search" />
 </Toolbar.Trailing>
 </Toolbar>
+```
+
+### Search in the content
+A search field in the content, under a large title or at the top of a sheet, is an Input with type="search": on Phone its magnifier stands where it does in the bar's field and its text 1px nearer, and variant="soft" pill gives it the flat fill of iOS 27, as in Files and a search tab. It stands at the top of Page.Content and scrolls up with the title; the content starts 16px under the title's baseline, and a list 10px under the field. With onClear it shows the filled clear circle of iOS while it holds text, in place of the browser's own clear button.
+```tsx
+<Page surface="grouped">
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Orders</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+  </Toolbar.Trailing>
+</Toolbar>
+<Page.Content>
+  <Input
+    type="search"
+    variant="soft"
+    pill
+    placeholder="Search"
+    aria-label="Search orders"
+    startAdornment={<SearchSm />}
+    value={query}
+    onChange={(evt) => setQuery(evt.target.value)}
+    onClear={() => setQuery("")}
+    className="mb-2.5"
+  />
+  ...
+</Page.Content>
+</Page>
 ```
 
 ### Bottom

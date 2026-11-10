@@ -145,6 +145,38 @@ export function ToolbarSearchDemo() {
   );
 }
 
+/** A search field under a large title, at the top of the content, as Files and a search tab draw it. */
+export function ToolbarSearchLargeTitleDemo() {
+  const [query, setQuery] = useState('');
+  return (
+    <Frame>
+      <Page surface="grouped">
+        <Toolbar titleStyle="large">
+          <Toolbar.Title>Orders</Toolbar.Title>
+          <Toolbar.Trailing>
+            <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+          </Toolbar.Trailing>
+        </Toolbar>
+        <Page.Content>
+          <Input
+            type="search"
+            variant="soft"
+            pill
+            placeholder="Search"
+            aria-label="Search orders"
+            startAdornment={<SearchSm />}
+            value={query}
+            onChange={(evt) => setQuery(evt.target.value)}
+            onClear={() => setQuery('')}
+            className="mb-2.5"
+          />
+          <Rows />
+        </Page.Content>
+      </Page>
+    </Frame>
+  );
+}
+
 const BOTTOM_CONTENT = ['buttons', 'search', 'action'] as const;
 type BottomContent = (typeof BOTTOM_CONTENT)[number];
 

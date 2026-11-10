@@ -9,6 +9,7 @@ import {
   ToolbarTitlesDemo,
   ToolbarGroupDemo,
   ToolbarSearchDemo,
+  ToolbarSearchLargeTitleDemo,
   ToolbarBottomDemo,
   ToolbarBackgroundDemo,
   ToolbarDisabledDemo,
@@ -80,6 +81,34 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
   </Toolbar.Trailing>
 </Toolbar>`}>
   <ToolbarSearchDemo />
+</ComponentPreview>
+
+### Search in the content
+
+<ComponentPreview phoneOnly details={<>A search field in the content, under a large title or at the top of a sheet, is an <a href="/components/input"><code>Input</code></a> with <code>type="search"</code>: on Phone its magnifier stands where it does in the bar's field and its text 1px nearer, and <code>variant="soft" pill</code> gives it the flat fill of iOS 27, as in Files and a search tab. It stands at the top of <code>Page.Content</code> and scrolls up with the title; the content starts 16px under the title's baseline, and a list 10px under the field. With <code>onClear</code> it shows the filled clear circle of iOS while it holds text, in place of the browser's own clear button.</>} code={`<Page surface="grouped">
+  <Toolbar titleStyle="large">
+    <Toolbar.Title>Orders</Toolbar.Title>
+    <Toolbar.Trailing>
+      <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+    </Toolbar.Trailing>
+  </Toolbar>
+  <Page.Content>
+    <Input
+      type="search"
+      variant="soft"
+      pill
+      placeholder="Search"
+      aria-label="Search orders"
+      startAdornment={<SearchSm />}
+      value={query}
+      onChange={(evt) => setQuery(evt.target.value)}
+      onClear={() => setQuery("")}
+      className="mb-2.5"
+    />
+    ...
+  </Page.Content>
+</Page>`}>
+  <ToolbarSearchLargeTitleDemo />
 </ComponentPreview>
 
 ### Bottom
@@ -243,7 +272,8 @@ Toolbar reads these component tokens. Override them at any scope to restyle it:
 - `--toolbar-bottom-padding-top`, `--toolbar-bottom-padding-bottom`: padding of the bottom bar (default `4px`, and the bottom safe area less `6px`, at least `16px`: the 48px items stand 28px above the screen's edge over the 34px home indicator inset, as in iOS 26 Mail and Contacts)
 - `--mobile-glass-background`, `--mobile-glass-sheen`, `--mobile-glass-shadow`, `--mobile-glass-shadow-raised`, `--mobile-glass-backdrop-filter`: glass of the buttons, capsules and search field, at rest and with content under the bar
 - `--toolbar-title-font-size`, `--toolbar-large-title-font-size`, `--toolbar-medium-title-font-size`: title sizes (default `17px`, `34px` and `22px`)
-- `--toolbar-large-title-gap`: space between the row of controls and a large title (default `21px`)
+- `--toolbar-large-title-gap`: space between the row of controls and a large title (default `13.3px`: the capitals start 22px under the row, as on iOS 27.2); with a subtitle the title stands 3px lower
+- `--toolbar-large-title-descent`, `--toolbar-large-subtitle-descent`: the part of the title's and the subtitle's line below the baseline (default `8.3px` and `4.6px`). On a page the bar ends at the last baseline, so the content starts 16px under it; `--page-top` ends there too, so anything placed by it alone, without the content's top padding, starts at the baseline
 - `--toolbar-icon-size`, `--toolbar-icon-size-sm`, `--toolbar-search-icon-size`: icon boxes of the buttons, of a button with `iconSize="sm"` and of the search field (default `26px`, `23.56px` and `23.75px`). A symbol with less ink, as `PlusLg`, takes `iconSize="sm"`, and a search field takes `SearchSm`, so they draw the 17.67px plus and the 16.33px magnifier of iOS 26
 - `--toolbar-search-gutter`, `--toolbar-search-icon-gap`: space before the magnifier and between it and the text (default `10.54px` and `6.43px`: the magnifier's ink starts 14px into the field and the text's ink at 41.67px)
 - `--toolbar-search-font-weight`, `--toolbar-search-placeholder-color`: the search text in Regular (`400`) and its placeholder in the secondary label color (default `light-dark(var(--alpha-40), var(--alpha-60))`)

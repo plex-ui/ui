@@ -129,6 +129,67 @@ describe("the clear button of a phone text field (kit iOS 27 Text Fields 5433:15
   })
 })
 
+describe("a search field in the content and the large title above it (iOS 27.2 Files, Settings, a search tab, UIKit stacked)", () => {
+  // The phone rule reads the field's own input, a direct child of the container, in both frameworks
+  test("Input passes type=\"search\" to its input, a child of the container, the same in React and Vue", async () => {
+    const out = await renderPair(
+      createElement(RInput as ComponentType<Props>, { type: "search", variant: "soft", pill: true, placeholder: "Search", startAdornment: createElement("span", null, "Q") }),
+      () => h(Input as never, { type: "search", variant: "soft", pill: true, placeholder: "Search" }, { startAdornment: () => h("span", null, "Q") }),
+    )
+    expect(out.vue).toBe(out.react)
+    // The pair's tree indents each child two spaces under its parent
+    const lines = out.react.split("\n")
+    const indent = (line: string) => line.length - line.trimStart().length
+    const container = lines.findIndex((line) => line.includes('data-slot="input"'))
+    const input = lines.findIndex((line) => line.includes("<input") && line.includes('type="search"'))
+    expect(container).toBeGreaterThan(-1)
+    expect(input).toBeGreaterThan(container)
+    expect(indent(lines[input])).toBe(indent(lines[container]) + 2)
+  })
+
+  test("on a phone it takes the magnifier, gaps, weight and placeholder of the bar's search field", () => {
+    const root = postcss.parse(read("packages/styles/src/components/Input/Input.module.css"))
+    let rule: postcss.Rule | undefined
+    root.walkAtRules("media", (media) => {
+      if (media.params === "(max-width: 767px)") media.walkRules('.Container:has(> .Input[type="search"]):not(:where([data-row] *))', (found) => { rule = found })
+    })
+    expect(decls(rule)).toEqual({
+      "--input-gutter": "var(--toolbar-search-gutter)",
+      "--input-gap": "calc(var(--toolbar-search-icon-gap) - 1px)",
+      "--input-adornment-offset": "0px",
+      "--control-gutter-pill-scaling": "1",
+      "--input-placeholder-text-color": "var(--toolbar-search-placeholder-color)",
+      "font-weight": "var(--toolbar-search-font-weight)",
+    })
+    const svg = rule?.nodes?.find((node): node is postcss.Rule => node.type === "rule" && node.selector === "& > svg")
+    expect(decls(svg)).toEqual({ flex: "none", width: "var(--toolbar-search-icon-size)", height: "var(--toolbar-search-icon-size)" })
+  })
+
+  test("a row keeps its value column for a search Input, and a drawer's search field keeps the kit's 11px inset", () => {
+    expect(read("packages/styles/src/components/Input/Input.module.css")).not.toMatch(/\.Container:has\(> \.Input\[type="search"\]\) \{/)
+    const sidebar = read("packages/styles/src/components/Sidebar/Sidebar.module.css")
+    expect(sidebar).toMatch(/\.MobileSidebar \.Input > \[data-slot="input"\]\[data-variant\] \{\s*--input-size: 44px;\s*--input-gutter: 11px;/)
+  })
+
+  test("no browser decoration; the browser's cancel button gives way only to the Input's own clear button", () => {
+    const css = read("packages/styles/src/components/Input/Input.module.css")
+    expect(css).toMatch(/&\[type="search"\]::-webkit-search-decoration \{\s*appearance: none;\s*\}/)
+    expect(css).toMatch(/:where\(\.Container:has\(> \.Clear\)\) > &\[type="search"\]::-webkit-search-cancel-button \{\s*appearance: none;\s*\}/)
+    expect(css).not.toMatch(/-webkit-search-decoration,/)
+  })
+
+  test("the large title: capitals 22pt under the row, 3pt lower with a subtitle, the content 16pt under the last baseline", () => {
+    const tokens = read("packages/styles/src/styles/variables-components.css")
+    for (const token of ["--toolbar-large-title-gap: 13.3px;", "--toolbar-large-title-descent: 8.3px;", "--toolbar-large-subtitle-descent: 4.6px;"]) expect(tokens).toContain(token)
+    const toolbar = read("packages/styles/src/components/Toolbar/Toolbar.module.css")
+    expect(toolbar).toMatch(/\.Toolbar\[data-title-style="large"\]:has\(> \.Heading > \.Subtitle\) \{\s*--toolbar-large-title-row-gap: calc\(var\(--toolbar-large-title-gap\) \+ 3px\);\s*\}/)
+    expect(toolbar).toContain("row-gap: var(--toolbar-large-title-row-gap);")
+    expect(toolbar).not.toMatch(/^\s*row-gap: var\(--toolbar-large-title-gap\)/m)
+    // The row of controls keeps its height with none in it (Settings has no bar buttons).
+    expect(toolbar).toContain("grid-template-rows: minmax(var(--toolbar-item-size), auto) auto;")
+  })
+})
+
 describe("EmptyMessage on a phone (kit iOS 27 Empty States 5583:24408)", () => {
   test("22/26 semibold message and 22/26 medium description with no gap, 36px insets and 16px more for the text", () => {
     for (const token of [

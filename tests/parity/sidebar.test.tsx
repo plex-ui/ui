@@ -1737,7 +1737,7 @@ describe("Sidebar drawer on a phone is an iOS 26 grouped list", () => {
     expect(block).toContain("> :is(.MenuButton, .MenuSubButton):has(~ :not(.MenuSub)) .MenuDisclosure")
     expect(block).toContain("> * > :is(.MenuButton, .MenuSubButton):has(~ *) .MenuDisclosure")
     const tokens = readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")
-    expect(tokens).toContain("--toolbar-large-title-gap: 21px;")
+    expect(tokens).toContain("--toolbar-large-title-gap: 13.3px;")
   })
 
   test("the mobile menu button fills hover, press and the open menu like its neighbours in both themes", () => {

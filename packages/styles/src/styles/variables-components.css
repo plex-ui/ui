@@ -523,9 +523,14 @@
     --toolbar-search-placeholder-color: light-dark(var(--alpha-40), var(--alpha-60));
     --toolbar-flat-opacity: 80%;
     --toolbar-flat-blur: 60px;
-    /* The large title starts 21pt under the row of controls in iOS 26 Mail and Freeform (iOS2 IMG_5530, 5531,
-       5534: controls 59 to 103, title baseline 157 at 430pt); the kit's 10 sets it 11pt too high. */
-    --toolbar-large-title-gap: 21px;
+    /* The large title of iOS 27.2 (Files, Settings, UIKit and SwiftUI on an iPhone 17, plan 178 block 10): the top
+       of its capitals 22pt under the row of controls (row 62 to 106, «H» from 128, baseline 152). The 41px line
+       box puts them 8.7px below its top. iOS 26 Mail and Freeform, with a subtitle, set it 8pt lower (IMG_5530). */
+    --toolbar-large-title-gap: 13.3px;
+    /* On a page the bar ends at the title's baseline, so the content starts 16pt (--page-content-padding-top)
+       under it, as at 168 on iOS 27.2: the part of the 41px line below the baseline, and of a subtitle's 20px. */
+    --toolbar-large-title-descent: 8.3px;
+    --toolbar-large-subtitle-descent: 4.6px;
     /* A bar symbol, sized by its drawn glyph (plan 162): the kit's 44pt bar button holds a 29pt symbol box
        that draws about 22pt (Apps 2.4, Toolbar button top 39972:316665: a check of 21.75 × 15.7, a heart of
        22 × 20), and native Freeform draws its ellipsis 19.7pt wide with 4pt dots (IMG_5684). A PlexUI icon

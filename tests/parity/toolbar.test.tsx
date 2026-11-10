@@ -511,7 +511,10 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
       "pointer-events: none;",
       "height: calc(var(--toolbar-padding-top, 0px) + var(--toolbar-item-size) + var(--toolbar-padding-bottom) + 16px);",
       "transform: translateY(calc(-1 * var(--toolbar-large-title-scroll)));",
-      "mask-image: linear-gradient(to bottom, transparent calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-gap)), #000 calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-gap) + 8px));",
+      "mask-image: linear-gradient(to bottom, transparent calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-row-gap)), #000 calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-row-gap) + 8px));",
+      // The bar ends at the title's last baseline, so the content starts 16pt under it (iOS 27.2: baseline 152, content 168)
+      "margin-bottom: calc(-1 * (var(--toolbar-padding-bottom) + var(--toolbar-large-title-descent)));",
+      "margin-bottom: calc(-1 * (var(--toolbar-padding-bottom) + var(--toolbar-large-subtitle-descent)));",
       "grid-area: collapsed;",
       "opacity: clamp(0, (var(--page-scroll-y, 0) - var(--toolbar-large-title-travel, 0) + 8) / 8, 1);",
     ]) expect(block).toContain(declaration)

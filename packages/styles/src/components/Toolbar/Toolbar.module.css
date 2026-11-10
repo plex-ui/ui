@@ -204,14 +204,23 @@
     grid-template-areas: "leading content";
   }
 
-  /* Large title: the controls stay in their own row and the title sits below it. */
+  /* Large title: the controls stay in their own row and the title sits below it. The row keeps the controls'
+     height with none in it, as Settings' title stands where Files' does under its buttons. With a subtitle the
+     title stands 3pt lower, as UIKit sets one with navigationItem.subtitle on iOS 27.2 (title-uikit-subtitle:
+     «F» from 130). */
   .Toolbar[data-title-style="large"] {
     --toolbar-edge-blur: var(--toolbar-edge-blur-large);
+    --toolbar-large-title-row-gap: var(--toolbar-large-title-gap);
     grid-template-areas:
       "leading . trailing"
       "heading heading heading";
     grid-template-columns: max-content minmax(0, 1fr) max-content;
-    row-gap: var(--toolbar-large-title-gap);
+    grid-template-rows: minmax(var(--toolbar-item-size), auto) auto;
+    row-gap: var(--toolbar-large-title-row-gap);
+  }
+
+  .Toolbar[data-title-style="large"]:has(> .Heading > .Subtitle) {
+    --toolbar-large-title-row-gap: calc(var(--toolbar-large-title-gap) + 3px);
   }
 
   .Toolbar:is([data-title-style="compact-large"], [data-title-style="compact-medium"]),
@@ -548,10 +557,17 @@
       pointer-events: auto;
     }
 
+    /* The bar ends at the title's last baseline: the content starts 16pt under it (iOS 27.2: baseline 152,
+       content 168, in Files, Settings, UIKit and SwiftUI; with a subtitle, 16.6 under the subtitle's). */
     & > .Heading {
+      margin-bottom: calc(-1 * (var(--toolbar-padding-bottom) + var(--toolbar-large-title-descent)));
       transform: translateY(calc(-1 * var(--toolbar-large-title-scroll)));
-      -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-gap)), #000 calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-gap) + 8px));
-      mask-image: linear-gradient(to bottom, transparent calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-gap)), #000 calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-gap) + 8px));
+      -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-row-gap)), #000 calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-row-gap) + 8px));
+      mask-image: linear-gradient(to bottom, transparent calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-row-gap)), #000 calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-row-gap) + 8px));
+    }
+
+    & > .Heading:has(> .Subtitle) {
+      margin-bottom: calc(-1 * (var(--toolbar-padding-bottom) + var(--toolbar-large-subtitle-descent)));
     }
 
     /* The inline title fades in over the last 8px of the large title's way. */

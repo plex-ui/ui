@@ -377,6 +377,16 @@
     }
   }
 
+  /* A search field draws no decoration of the browser's: its magnifier is an adornment. Its cancel button gives way
+     to the Input's own clear button (onClear); without one the browser's still clears the field. */
+  &[type="search"]::-webkit-search-decoration {
+    appearance: none;
+  }
+
+  :where(.Container:has(> .Clear)) > &[type="search"]::-webkit-search-cancel-button {
+    appearance: none;
+  }
+
   /* Dynamic pill spacing */
   :where(.Container[data-pill]) & {
     padding: 0 calc(var(--input-gutter) * var(--control-gutter-pill-scaling));
@@ -548,6 +558,27 @@
 }
 
 @media (max-width: 767px) {
+  /* A search field (type="search") is the search field of iOS 27.2 that stands in the content: under a large title
+     (Files, a search tab, UIKit's stacked placement) or at the top of a sheet (Settings, IMG_5834). It takes the
+     magnifier of a Toolbar's search field (from 14px, as native) and sets its text 1px nearer (from 40.67px:
+     native 40.7 here, 42.3 in the bar's glass field), Regular, with the placeholder in the secondary label;
+     `variant="soft" pill` gives it the fill and the capsule. A Toolbar gives its own field the glass of its buttons,
+     and a row keeps its own value column and placeholder for a search Input in it. */
+  .Container:has(> .Input[type="search"]):not(:where([data-row] *)) {
+    --input-gutter: var(--toolbar-search-gutter);
+    --input-gap: calc(var(--toolbar-search-icon-gap) - 1px);
+    --input-adornment-offset: 0px;
+    --control-gutter-pill-scaling: 1;
+    --input-placeholder-text-color: var(--toolbar-search-placeholder-color);
+    font-weight: var(--toolbar-search-font-weight);
+
+    & > svg {
+      flex: none;
+      width: var(--toolbar-search-icon-size);
+      height: var(--toolbar-search-icon-size);
+    }
+  }
+
   /* The clear button of a phone text field is the filled circle with a cross of iOS (xmark.circle.fill, a 17px
      circle in the tertiary label: kit iOS 27 Text Fields 5433:15635, IMG_5514), drawn with the PlexUI
      XCircleFilled icon, whose circle is 20 of its 24px box. The circle alone shows the button, without the

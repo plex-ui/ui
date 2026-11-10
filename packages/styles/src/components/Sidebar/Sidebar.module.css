@@ -1052,6 +1052,7 @@
 @media (max-width: 767px) {
   .MobileSidebar .Input > [data-slot="input"][data-variant] {
     --input-size: 44px;
+    --input-gutter: 11px;
     --input-gap: 4px;
     --input-adornment-offset: 0px;
     --control-gutter-pill-scaling: 1;
