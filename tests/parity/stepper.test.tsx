@@ -11,7 +11,7 @@ import { flushVue, mountVue } from "./harness"
 import { interact, renderPair } from "./pair"
 
 // React-vs-Vue parity for Stepper: the same spin button and segments for every prop, the same steps from a
-// pointer (with hold to repeat), assistive technology clicks and keys, and the kit tokens on a phone.
+// pointer (with hold to repeat), assistive technology clicks and keys, and native iOS 27.2 tokens on a phone.
 
 const read = (path: string) => readFileSync(`${process.cwd()}/${path}`, "utf8")
 
@@ -250,24 +250,26 @@ describe("stepValue", () => {
   })
 })
 
-describe("Stepper tokens follow the iOS 27 kit Stepper (Steppers: _Decrement, _Increment) on a phone", () => {
+describe("Stepper tokens follow a native iOS 27.2 UIStepper on a phone", () => {
   test("desktop: the PlexUI control size and the segmented track colors", () => {
     const tokens = read("packages/styles/src/styles/variables-components.css")
     expect(tokens).toContain("--stepper-height: var(--control-size-md);")
     expect(tokens).toContain("--stepper-background: light-dark(var(--gray-100), var(--alpha-08));")
     expect(tokens).toContain("--segmented-control-background: light-dark(var(--gray-100), var(--alpha-08));")
-    expect(tokens).toContain("--stepper-mobile-segment-background: light-dark(var(--alpha-06), var(--alpha-12));")
-    expect(tokens).toContain("--stepper-mobile-segment-background-active: light-dark(var(--alpha-05), var(--alpha-08));")
-    expect(tokens).toContain("--stepper-mobile-segment-background-disabled: light-dark(var(--alpha-05), var(--alpha-08));")
+    expect(tokens).toContain("--stepper-mobile-segment-background: light-dark(var(--alpha-06), var(--alpha-08));")
+    // Held down, iOS 27.2 darkens a segment to black at 15% in both themes; at an end it keeps its fill.
+    expect(tokens).toContain("--stepper-mobile-segment-background-active: light-dark(var(--alpha-15), rgb(0 0 0 / 15%));")
+    expect(tokens).toContain("--stepper-mobile-segment-background-disabled: var(--stepper-mobile-segment-background);")
     expect(tokens).toContain("--stepper-mobile-separator-color: var(--alpha-25);")
   })
 
-  test("phone: 92 x 32, 46px segments with their own fill, a 44px target, 22px icons, no hover, the lighter fill when pressed and at an end", () => {
+  test("phone: 93 x 32, 46.5px segments with their own fill, a 44px target, 22px icons with the minus as long as the plus, no hover", () => {
     const touch = read("packages/styles/src/styles/touch.css")
     const phone = touch.slice(touch.indexOf("@media (max-width: 767px) {"), touch.indexOf("@media (min-width: 414px)"))
     for (const line of [
       "--stepper-height: 32px;",
-      "--stepper-segment-width: 46px;",
+      "--stepper-segment-width: 46.5px;",
+      "--stepper-decrement-icon-scale: calc(14 / 12) 1;",
       "--stepper-target-size: 44px;",
       "--stepper-icon-size: 22px;",
       "--stepper-background: transparent;",
@@ -291,6 +293,8 @@ describe("Stepper tokens follow the iOS 27 kit Stepper (Steppers: _Decrement, _I
     expect(separator).toContain("transform: translateX(-50%);")
     expect(css).toContain("inset: min(0px, calc((var(--stepper-height) - var(--stepper-target-size, 0px)) / 2)) 0;")
     expect(css).toContain("border-radius: calc(var(--stepper-height) / 2);")
+    // The PlexUI minus (12 of 24) is drawn as long as the plus (14 of 24) only where touch.css asks for it.
+    expect(css).toMatch(/\.Segment\[data-segment="decrement"\] > \.Icon \{\s*scale: var\(--stepper-decrement-icon-scale, none\);\s*\}/)
   })
 
   test("a segment carries its own fill; the end of the range wins over pressed, both over hover", () => {

@@ -6449,23 +6449,18 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "const label = useId()\nconst [guests, setGuests] = useState(2)\n\n<div className=\"flex items-center gap-4\">\n<span id={label}>Guests</span>\n<span className=\"min-w-5 text-end font-medium tabular-nums\" aria-hidden=\"true\">{guests}</span>\n<Stepper aria-labelledby={label} value={guests} onChange={setGuests} min={1} max={8} />\n</div>",
-          "details": "Name the stepper with aria-labelledby, the visible label of its value. A segment at the end of the range turns tertiary and stops stepping. Holding a segment keeps stepping, as a native stepper does."
-        },
-        {
-          "name": "In rows",
-          "code": "const [copies, setCopies] = useState(1)\nconst [nights, setNights] = useState(3)\n\n<FieldGroup footer=\"Up to 20 copies and 14 nights.\">\n<Field row label={copies === 1 ? '1 copy' : `${copies} copies`}>\n  <Stepper value={copies} onChange={setCopies} min={1} max={20} />\n</Field>\n<Field row label={nights === 1 ? '1 night' : `${nights} nights`}>\n  <Stepper value={nights} onChange={setNights} min={1} max={14} />\n</Field>\n</FieldGroup>",
-          "details": "In a Field row the label names the stepper. Put the value in the label, such as 3 copies. On a phone the rows sit on the grouped background of an iOS settings screen."
+          "code": "const [copies, setCopies] = useState(1)\nconst [nights, setNights] = useState(3)\n\n<FieldGroup footer=\"Up to 20 copies and 14 nights.\">\n<Field row label={copies === 1 ? '1 copy' : `${copies} copies`}>\n  <Stepper value={copies} onChange={setCopies} min={1} max={20} disabled={disabled} pill={pill} />\n</Field>\n<Field row label={nights === 1 ? '1 night' : `${nights} nights`}>\n  <Stepper value={nights} onChange={setNights} min={1} max={14} disabled={disabled} pill={pill} />\n</Field>\n</FieldGroup>",
+          "details": "Put a stepper in a Field row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. A segment at the end of the range turns tertiary and stops stepping. Holding a segment keeps stepping, as a native stepper does. On a phone the rows sit on the grouped background of an iOS settings screen."
         },
         {
           "name": "Range, step and wrap",
-          "code": "<Stepper aria-labelledby={opacityLabel} value={opacity} onChange={setOpacity} min={0} max={1} step={0.1} />\n<Stepper aria-labelledby={hourLabel} value={hour} onChange={setHour} min={0} max={23} wrap />",
-          "details": "Decimal steps add without rounding drift. With wrap a step past max continues from min, so the hour goes from 23 to 0, and neither segment stops."
+          "code": "<FieldGroup footer=\"Steps of 10% from 0% to 100%.\">\n<Field row label={`Opacity: ${Math.round(opacity * 100)}%`}>\n  <Stepper value={opacity} onChange={setOpacity} min={0} max={1} step={0.1} />\n</Field>\n</FieldGroup>\n<FieldGroup footer={wrap ? 'Past 23:00 the hour goes on from 00:00, and neither segment stops.' : 'The hour stops at 00:00 and 23:00, where a segment turns tertiary.'}>\n<Field row label={`Hour: ${String(hour).padStart(2, '0')}:00`}>\n  <Stepper value={hour} onChange={setHour} min={0} max={23} wrap={wrap} />\n</Field>\n</FieldGroup>",
+          "details": "Decimal steps add without rounding drift. With wrap a step past max continues from min, so the hour goes from 23 to 0, and neither segment stops; turn it off and the plus stops at 23."
         },
         {
           "name": "States",
-          "code": "<Stepper aria-label=\"At the lowest value\" defaultValue={0} />\n<Stepper aria-label=\"Disabled\" defaultValue={3} disabled />\n<Stepper aria-label=\"Square ends\" defaultValue={3} pill={false} />",
-          "details": "At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. On a desktop set pill to false for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS."
+          "code": "<FieldGroup>\n<Field row label=\"At the lowest value\">\n  <Stepper defaultValue={0} min={0} max={10} disabled={disabled} pill={pill} />\n</Field>\n<Field row label=\"In the range\">\n  <Stepper defaultValue={5} min={0} max={10} disabled={disabled} pill={pill} />\n</Field>\n<Field row label=\"At the highest value\">\n  <Stepper defaultValue={10} min={0} max={10} disabled={disabled} pill={pill} />\n</Field>\n</FieldGroup>",
+          "details": "At the lowest value the minus is tertiary, at the highest the plus; the segment keeps its fill, as in iOS. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set pill to false for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS."
         }
       ],
       "docsUrl": "https://plexui.com/components/stepper"
@@ -8230,5 +8225,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-10T11:05:05.094Z"
+  "generatedAt": "2026-11-10T11:53:01.909Z"
 }

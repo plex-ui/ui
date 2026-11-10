@@ -830,14 +830,16 @@
     --stepper-icon-size: var(--control-icon-size-md);
     --stepper-icon-color: var(--color-text);
     --stepper-icon-disabled-color: var(--color-text-disabled);
-    /* Phone (touch.css), the iOS 27 kit Stepper (Steppers: _Decrement, _Increment) in PlexUI alpha colors: each
-       segment has its own fill, Fills/Tertiary (118/118/128 at 12% and 24%: 239 on white, 28 on black), alpha-06
-       and alpha-12; a pressed segment and one at the end of the range turn to Fills/Quaternary (116/116/128 at 8%,
-       118/118/128 at 18%: 244 and 21), alpha-05 and alpha-08; the separator under them (60/60/67 and 235/235/245
-       at 30%) is alpha-25. */
-    --stepper-mobile-segment-background: light-dark(var(--alpha-06), var(--alpha-12));
-    --stepper-mobile-segment-background-active: light-dark(var(--alpha-05), var(--alpha-08));
-    --stepper-mobile-segment-background-disabled: light-dark(var(--alpha-05), var(--alpha-08));
+    /* Phone (touch.css), a native iOS 27.2 UIStepper in PlexUI alpha colors: each segment has its own fill, the
+       tertiary fill (eeeeef on white, 2c2c2f on a #1c1c1e card, 121213 on black), alpha-06 and alpha-08 (f0f0f0
+       and 2e2e2e; the kit's 24% in dark, alpha-12, showed at 373737). Held down, a segment darkens in both themes,
+       to black at 15% over what lies under it (dadadb on white, 18181b on #1c1c1e, black on black; the kit's
+       lighter Fills/Quaternary is not what iOS draws). A segment at the end of the range keeps its fill and only
+       its symbol turns tertiary, held or not. The separator (60/60/67 and 235/235/245 at 30%: b9b9bc, 65656a) is
+       alpha-25. */
+    --stepper-mobile-segment-background: light-dark(var(--alpha-06), var(--alpha-08));
+    --stepper-mobile-segment-background-active: light-dark(var(--alpha-15), rgb(0 0 0 / 15%));
+    --stepper-mobile-segment-background-disabled: var(--stepper-mobile-segment-background);
     --stepper-mobile-separator-color: var(--alpha-25);
 
     /* =============================================

@@ -1,8 +1,8 @@
 /* Two segments that decrease and increase a value: a minus and a plus, a short separator between them, a
    segment at the end of the range in the tertiary label. On a desktop one fill lies under both segments and a
-   pressed one darkens; on a phone (touch.css) each segment has its own fill, as in the iOS 27 kit Stepper, and a
-   pressed one or one at the end of the range takes the lighter fill. Sizes and colors are tokens: the PlexUI
-   control size on a desktop, the kit's 92 x 32 capsule on a phone. */
+   pressed one darkens; on a phone (touch.css) each segment has its own fill, as a native iOS 27.2 stepper's, a
+   pressed one darkens and one at the end of the range keeps its fill. Sizes and colors are tokens: the PlexUI
+   control size on a desktop, the native 93 x 32 capsule on a phone. */
 .Stepper {
   position: relative;
   display: inline-flex;
@@ -85,7 +85,8 @@
   }
 }
 
-/* As in the kit, the separator sits under the two segments at the center and adds no width: 46 + 46 = 92. */
+/* The separator sits under the two segments at the center and adds no width: on a phone two 46.5px segments put it
+   on 46 to 47 of the native 93. */
 .Separator {
   position: absolute;
   top: var(--stepper-separator-inset);
@@ -101,4 +102,9 @@
 .Icon {
   width: var(--stepper-icon-size);
   height: var(--stepper-icon-size);
+}
+
+/* The PlexUI minus is shorter than the plus (12 and 14 of 24); a phone draws it as long, as iOS does (touch.css). */
+.Segment[data-segment="decrement"] > .Icon {
+  scale: var(--stepper-decrement-icon-scale, none);
 }

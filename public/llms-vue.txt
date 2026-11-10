@@ -1090,7 +1090,7 @@ Props:
   - aria-labelledby (string) — The id of the visible label of the value
   - aria-describedby (string) — The id of an element that describes the stepper
   - id (string) — The id of the stepper
-Examples: Overview, In rows, Range, step and wrap, States
+Examples: Overview, Range, step and wrap, States
 
 ## Swipe Actions
 "Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys."

@@ -4,70 +4,72 @@ description: Two segments that decrease and increase a number in steps, within a
 metaDescription: Vue 3 stepper component with minus and plus segments for small number changes, v-model:value, a min, max and step, wrapping, hold to repeat, and spin button keyboard support.
 ---
 
-import { VueDemo } from "@/components/docs/vue/VueDemo"
 import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import { phoneRows } from "@/components/docs/phoneRowsTemplate"
 
-export const overview = `<div class="flex items-center gap-4">
-  <span id="stepper-guests-label">Guests</span>
-  <span class="min-w-5 text-end font-medium tabular-nums" aria-hidden="true">{{ guests }}</span>
-  <Stepper aria-labelledby="stepper-guests-label" v-model:value="guests" :min="1" :max="8" />
-</div>`
-
-export const rows = `<FieldGroup class="w-full max-w-[400px]">
+export const overview = `<FieldGroup class="w-full max-w-[400px]">
   <template #footer>Up to 20 copies and 14 nights.</template>
   <Field row :label="copies === 1 ? '1 copy' : copies + ' copies'">
-    <Stepper v-model:value="copies" :min="1" :max="20" />
+    <Stepper v-model:value="copies" :min="1" :max="20" :disabled="disabled" :pill="pill" />
   </Field>
   <Field row :label="nights === 1 ? '1 night' : nights + ' nights'">
-    <Stepper v-model:value="nights" :min="1" :max="14" />
+    <Stepper v-model:value="nights" :min="1" :max="14" :disabled="disabled" :pill="pill" />
   </Field>
 </FieldGroup>`
 
-export const range = `<div class="grid grid-cols-[auto_auto_auto] items-center gap-x-4 gap-y-3">
-  <span id="stepper-opacity-label">Opacity</span>
-  <span class="text-end font-medium tabular-nums" aria-hidden="true">{{ Math.round(opacity * 100) }}%</span>
-  <Stepper aria-labelledby="stepper-opacity-label" v-model:value="opacity" :min="0" :max="1" :step="0.1" />
-  <span id="stepper-hour-label">Hour</span>
-  <span class="text-end font-medium tabular-nums" aria-hidden="true">{{ String(hour).padStart(2, '0') }}:00</span>
-  <Stepper aria-labelledby="stepper-hour-label" v-model:value="hour" :min="0" :max="23" wrap />
+export const range = `<div class="flex w-full flex-col items-center gap-6">
+  <FieldGroup class="w-full max-w-[400px]">
+    <template #footer>Steps of 10% from 0% to 100%.</template>
+    <Field row :label="'Opacity: ' + Math.round(opacity * 100) + '%'">
+      <Stepper v-model:value="opacity" :min="0" :max="1" :step="0.1" />
+    </Field>
+  </FieldGroup>
+  <FieldGroup class="w-full max-w-[400px]">
+    <template #footer>{{ wrap ? 'Past 23:00 the hour goes on from 00:00, and neither segment stops.' : 'The hour stops at 00:00 and 23:00, where a segment turns tertiary.' }}</template>
+    <Field row :label="'Hour: ' + String(hour).padStart(2, '0') + ':00'">
+      <Stepper v-model:value="hour" :min="0" :max="23" :wrap="wrap" />
+    </Field>
+  </FieldGroup>
 </div>`
 
-export const states = `<div class="flex flex-wrap items-center gap-4">
-  <Stepper aria-label="At the lowest value" :default-value="0" />
-  <Stepper aria-label="Disabled" :default-value="3" disabled />
-  <Stepper aria-label="Square ends" :default-value="3" :pill="false" />
-</div>`
+export const states = `<FieldGroup class="w-full max-w-[400px]">
+  <Field row label="At the lowest value">
+    <Stepper :default-value="0" :min="0" :max="10" :disabled="disabled" :pill="pill" />
+  </Field>
+  <Field row label="In the range">
+    <Stepper :default-value="5" :min="0" :max="10" :disabled="disabled" :pill="pill" />
+  </Field>
+  <Field row label="At the highest value">
+    <Stepper :default-value="10" :min="0" :max="10" :disabled="disabled" :pill="pill" />
+  </Field>
+</FieldGroup>`
+
+export const disabledControl = [{ name: "disabled", type: "boolean", default: false }]
+export const pillControl = [{ name: "pill", type: "boolean", default: true, desktopOnly: true }]
 
 <UsageBlock>{`import { Stepper } from "@plexui/vue/components/Stepper";`}</UsageBlock>
 
-A stepper changes a value by small amounts and shows no value of its own. Show the value beside it and name the stepper with the label of that value. For values that vary widely, pair it with an input. On a phone it is the 92 × 32 capsule of the iOS 26 kit with a 44px target; on a desktop it follows the PlexUI control size.
+A stepper changes a value by small amounts and shows no value of its own. Show the value beside it and name the stepper with the label of that value. For values that vary widely, pair it with an input. On a phone it is the 93 × 32 capsule of a native iOS 27.2 stepper with a 44px target; on a desktop it follows the PlexUI control size.
 
 ## Examples
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Name the stepper with <code>aria-labelledby</code>, the visible label of its value. A segment at the end of the range turns tertiary and stops stepping. Holding a segment keeps stepping, as a native stepper does.</>} code={overview} previewMinHeight={168}>
-  <VueDemo template={overview} state={{ guests: 2 }} />
-</ComponentPreview>
-
-### In rows
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>In a <code>Field</code> row the label names the stepper. Put the value in the label, such as 3 copies. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={rows} previewMinHeight={200}>
-  <VuePhoneRowsDemo template={rows} phoneTemplate={phoneRows(rows)} phoneStageClassName="w-full" state={{ copies: 1, nights: 3 }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Put a stepper in a <code>Field</code> row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. A segment at the end of the range turns tertiary and stops stepping. Holding a segment keeps stepping, as a native stepper does. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={overview} previewMinHeight={240}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" controls={disabledControl} desktopControls={pillControl} state={{ copies: 1, nights: 3 }} />
 </ComponentPreview>
 
 ### Range, step and wrap
 
-<ComponentPreview language="vue" details={<>Decimal steps add without rounding drift. With <code>wrap</code> a step past <code>max</code> continues from <code>min</code>, so the hour goes from 23 to 0, and neither segment stops.</>} code={range} previewMinHeight={168}>
-  <VueDemo template={range} state={{ opacity: 0.5, hour: 23 }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Decimal steps add without rounding drift. With <code>wrap</code> a step past <code>max</code> continues from <code>min</code>, so the hour goes from 23 to 0, and neither segment stops; turn it off and the plus stops at 23.</>} code={range} previewMinHeight={280}>
+  <VuePhoneRowsDemo template={range} phoneTemplate={phoneRows(range)} phoneStageClassName="w-full" controls={[{ name: "wrap", type: "boolean", default: true }]} state={{ opacity: 0.5, hour: 23 }} />
 </ComponentPreview>
 
 ### States
 
-<ComponentPreview language="vue" details={<>At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. On a desktop set <code>:pill="false"</code> for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS.</>} code={states} previewMinHeight={140}>
-  <VueDemo template={states} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>At the lowest value the minus is tertiary, at the highest the plus; the segment keeps its fill, as in iOS. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set <code>:pill="false"</code> for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS.</>} code={states} previewMinHeight={240}>
+  <VuePhoneRowsDemo template={states} phoneTemplate={phoneRows(states)} phoneStageClassName="w-full" controls={disabledControl} desktopControls={pillControl} />
 </ComponentPreview>
 
 ## API
@@ -100,11 +102,11 @@ The stepper is a spin button with the current value, range and name. Its two seg
 Stepper reads these component tokens. Override them at any scope to restyle it:
 
 - `--stepper-height`: height (default `var(--control-size-md)`, `32px` at 767px and below)
-- `--stepper-segment-width`: width of each segment (default `40px`, `46px` at 767px and below)
+- `--stepper-segment-width`: width of each segment (default `40px`, `46.5px` at 767px and below: the native 93px capsule)
 - `--stepper-radius`: corner radius with `:pill="false"` on a desktop (default `var(--control-radius-md)`; 16px, the capsule, on a phone)
 - `--stepper-background`: fill under both segments (default `light-dark(var(--gray-100), var(--alpha-08))`; none at 767px and below, where each segment has its own)
-- `--stepper-segment-background`, `--stepper-segment-background-disabled`: fill of a segment and of one at the end of the range (none on a desktop; at 767px and below `--stepper-mobile-segment-background`, the kit's Fills/Tertiary, `--alpha-06` and `--alpha-12`, and `--stepper-mobile-segment-background-disabled`, Fills/Quaternary, `--alpha-05` and `--alpha-08`)
-- `--stepper-segment-background-hover`, `--stepper-segment-background-active`: fill of a segment on hover and while pressed (`--alpha-05`, `--alpha-10` over the fill; on a phone no hover and the lighter Fills/Quaternary while pressed, `--stepper-mobile-segment-background-active`)
+- `--stepper-segment-background`, `--stepper-segment-background-disabled`: fill of a segment and of one at the end of the range (none on a desktop; at 767px and below `--stepper-mobile-segment-background`, the tertiary fill of iOS, `--alpha-06` and `--alpha-08`, which a segment at the end of the range keeps, as iOS does, through `--stepper-mobile-segment-background-disabled`)
+- `--stepper-segment-background-hover`, `--stepper-segment-background-active`: fill of a segment on hover and while pressed (`--alpha-05`, `--alpha-10` over the fill; on a phone no hover, and while pressed black at 15% in both themes, as iOS darkens a held segment, `--stepper-mobile-segment-background-active`)
 - `--stepper-separator-color`, `--stepper-separator-inset`: separator color and its inset from the top and bottom (default `var(--color-border)`, `4px`; `--alpha-25` at 767px and below)
 - `--stepper-icon-size`, `--stepper-icon-color`, `--stepper-icon-disabled-color`: the minus and plus (default `var(--control-icon-size-md)`, `var(--color-text)`, `var(--color-text-disabled)`; `22px` and the tertiary label at 767px and below)
 - `--stepper-target-size`: height of the touch target (`44px` at 767px and below)
