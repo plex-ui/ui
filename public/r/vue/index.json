@@ -345,7 +345,7 @@
     {
       "name": "select",
       "type": "registry:ui",
-      "description": "Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.",
+      "description": "Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -353,7 +353,7 @@
     {
       "name": "select-control",
       "type": "registry:ui",
-      "description": "Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.",
+      "description": "The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.",
       "dependencies": [
         "@plexui/vue"
       ]

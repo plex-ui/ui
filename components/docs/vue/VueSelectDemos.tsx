@@ -30,7 +30,8 @@ import { VueFormScreenDemo } from './VueFormScreenDemo';
 
 // A Vue template reads values from its setup scope, and MDX cannot pass
 // functions or VNodes to a client component. The Select and SelectControl
-// examples use these the way a real app defines them in <script setup>:
+// examples, and Popover's Column configuration (`allColumns`), use these the
+// way a real app defines them in <script setup>:
 // icons passed as props (`:StartIcon="CalendarAlt"`), option lists, the
 // role descriptions (an option's `description` takes a string, a VNode or a
 // render function) and the country helpers of the React demos

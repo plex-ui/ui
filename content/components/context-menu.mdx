@@ -4,10 +4,13 @@ description: "A menu of actions for an element: a secondary click opens it at th
 metaDescription: "React context menu in the iOS 26 style: right click at the pointer, touch and hold with the element lifted over a dimmed, blurred page and the menu beside it, keyboard access, Menu items."
 ---
 
+import { MenuFamilyNote } from "@/components/docs/MenuFamilyNote"
 import { ContextMenuOverviewDemo, ContextMenuSortableDemo, ContextMenuTilesDemo } from "@/components/docs/ContextMenuDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { ContextMenu } from "@plexui/ui/components/ContextMenu";`}</UsageBlock>
+
+<MenuFamilyNote current="context-menu" />
 
 A context menu gathers the actions for one element, such as a row, a file or a photo, without a button of its own: a secondary click (a right click or a Control click) opens it at the pointer, and on a touch screen a touch and hold opens it beside the element, as in iOS 26. Keep the actions an element already shows elsewhere too, because a context menu is easy to miss, and put the most used ones first.
 

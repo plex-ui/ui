@@ -270,7 +270,7 @@ test("a phone list is 250px, its subtitles wrapped, and its rows 42px, as an iOS
   const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Select/Select.module.css`, "utf8")
   // The 250pt floor leaves a list its own width, and a smaller maximum caps it
   expect(css).toMatch(/\.MenuList:not\(\[data-list-sized\]\) \{\s*min-width: var\(\s*--select-list-min-width,\s*max\(min\(var\(--menu-default-min-width, 0px\), var\(--select-list-max-width, 100vw\)\), var\(--radix-popover-trigger-width\)\)\s*\);/)
-  expect(css).toMatch(/\.Option:has\(> \.PressableInner > \.OptionLeading\) \{[^}]*min-height: 42px;/)
+  expect(css).toMatch(/\.Option:has\(> \.PressableInner > \.OptionLeading\) \{[^}]*min-height: var\(--menu-row-min-height, 42px\);/)
   // 250 whatever the options, a long description wrapping, as UIKit's pop-up menu (ref-app pickers-desc-uikit)
   expect(css).toMatch(/\.MenuList\[data-list-width="auto"\] \{\s*width: var\(--menu-default-width, auto\);/)
   expect(css).not.toContain(".OptionDescription:not(:has(*))")
@@ -298,7 +298,7 @@ test("a phone list draws as a menu: its actions, checkmark, height and row value
   // As tall as its rows up to the screen's edge; a tooltip is a subtitle
   expect(phone).toMatch(/\.MenuInner \{\s*max-height: min\(var\(--select-list-max-height, 1200px\), var\(--radix-popover-content-available-height\)\);/)
   expect(phone).toMatch(/\.OptionTooltipIcon \{\s*display: none;/)
-  expect(phone).toMatch(/\.OptionTooltipText \{\s*display: block;\s*font-size: 13px;/)
+  expect(phone).toMatch(/\.OptionTooltipText \{\s*display: block;\s*font-size: var\(--menu-description-font-size, 13px\);/)
   // A clear button's 44px target reaches past a 34px row value instead of growing it
   expect(read("components/SelectControl/SelectControl.module.css")).toContain("margin-block: min(0px, calc((var(--select-control-size, 44px) - 44px) / 2));")
 })

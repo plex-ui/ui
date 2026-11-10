@@ -1,9 +1,10 @@
 ---
 title: Select Control
-description: Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
-metaDescription: React select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
+description: The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.
+metaDescription: React select control, the button of a Select on its own for custom dropdowns, with variants, sizes, icons, clearable, loading and invalid states.
 ---
 
+import { MenuFamilyNote } from "@/components/docs/MenuFamilyNote"
 import {
   SelectControlBaseDemo,
   SelectControlVariantsDemo,
@@ -27,6 +28,8 @@ import {
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { SelectControl } from "@plexui/ui/components/SelectControl";`}</UsageBlock>
+
+<MenuFamilyNote current="select-control" />
 
 On Phone, a select control is the value of a row in a `FieldGroup`, as the [Settings Forms](/components/settings-forms) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button. The row sets the control's height, insets, type and colors, so the Phone previews show rows without the `size`, `pill`, `variant`, `StartIcon`, `dropdownIconType`, `block` and `opticallyAlign` controls.
 

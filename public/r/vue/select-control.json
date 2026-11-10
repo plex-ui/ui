@@ -3,7 +3,7 @@
   "name": "select-control",
   "type": "registry:ui",
   "title": "Select Control",
-  "description": "Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.",
+  "description": "The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.",
   "dependencies": [
     "@plexui/vue"
   ],

@@ -250,6 +250,15 @@
     --popover-radius: 34px;
     --menu-font-size: 17px;
     --menu-line-height: 20px;
+    /* The phone menu row, once for every menu: Menu's items (and so Context Menu's), Select's options and actions read
+       these (Menu.module.css, Select.module.css, whose fallbacks repeat them for a page without touch.css). A row is
+       42pt, its text 10pt from its top and bottom, a subtitle 13pt on 18pt lines, the checkmark's slot 22pt tall
+       (ref-app menus-full, pickers-desc-uikit; Files, the owner's shots of 08.11). */
+    --menu-row-min-height: 42px;
+    --menu-row-padding-block: 10px;
+    --menu-description-font-size: 13px;
+    --menu-description-line-height: 18px;
+    --menu-check-slot-height: 22px;
     --menu-description-color: var(--mobile-label-secondary);
     --menu-disabled-label-color: var(--mobile-label-tertiary);
     --menu-disabled-description-color: var(--mobile-label-quaternary);

@@ -798,7 +798,7 @@ Props:
     - data-* (string) — Data attributes land on the panel
     - class (string) — Applied to the panel
     - default slot ({ close, shake }) — Panel content; receives the controller functions
-Examples: Overview, Sizing the popover, Open on hover, Using the controller, Confirmation
+Examples: Overview, Sizing the popover, Open on hover, Using the controller, Confirmation, Column configuration
 
 ## Progress
 A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
@@ -890,7 +890,7 @@ Props:
 Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Sizing, Scrollable, Overflow menu
 
 ## Select
-Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.
+Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.
 Import: import { Select } from "@plexui/vue/components/Select"
 Docs: https://plexui.com/vue/components/select
 Props:
@@ -929,10 +929,10 @@ Props:
   - search-size (ControlSize) default: "md" — Size of the search input in the menu. A phone list has no search: it is an iOS menu, and a long one scrolls
   - search-predicate ((option, term) => boolean) — Filters options while searching
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
-Examples: Overview, With descriptions, Actions, Grouped options, Multiple selection, Column configuration
+Examples: Overview, With descriptions, Actions, Grouped options, Multiple selection
 
 ## Select Control
-Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
+The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.
 Import: import { SelectControl } from "@plexui/vue/components/SelectControl"
 Docs: https://plexui.com/vue/components/select-control
 Props:

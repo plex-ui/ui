@@ -809,7 +809,7 @@ Props:
     - autoFocus (boolean) default: true — Move focus into the panel when it opens (hover popovers never take focus)
     - data-* (string) — Data attributes land on the panel
     - className (string) — Applied to the panel
-Examples: Overview, Sizing the popover, Open on hover, Using the controller, Confirmation
+Examples: Overview, Sizing the popover, Open on hover, Using the controller, Confirmation, Column configuration
 
 ## Progress Steps
 Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
@@ -895,7 +895,7 @@ Props:
 Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Sizing, Scrollable, Overflow menu
 
 ## Select Control
-Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
+The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.
 Import: import { SelectControl } from "@plexui/ui/components/SelectControl"
 Docs: https://plexui.com/components/select-control
 Props:
@@ -917,7 +917,7 @@ Props:
 Examples: Overview, Variants, Sizing & roundness, Selected, Start icon, Dropdown icon, Clearable, Loading, Invalid, Disabled, Block, Country selector, Country code selector, Phone form, Optical alignment
 
 ## Select
-Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.
+Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.
 Import: import { Select } from "@plexui/ui/components/Select"
 Docs: https://plexui.com/components/select
 Props:
@@ -956,7 +956,7 @@ Props:
   - searchSize (ControlSize) default: "md" — Size of the search input in the menu. A phone list has no search: it is an iOS menu, and a long one scrolls
   - searchPredicate ((option, term) => boolean) — Filters options while searching
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
-Examples: Overview, With descriptions, Actions, Grouped options, Multiple selection, Column configuration
+Examples: Overview, With descriptions, Actions, Grouped options, Multiple selection
 
 ## Separator
 A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.

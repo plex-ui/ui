@@ -676,7 +676,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     align-content: center;
-    min-height: 42px;
+    min-height: var(--menu-row-min-height, 42px);
     padding-block: 0;
   }
 
@@ -708,7 +708,7 @@
   .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *)) > .PressableInner {
     grid-area: 1 / 1;
     min-width: 0;
-    padding-block: 10px;
+    padding-block: var(--menu-row-padding-block, 10px);
   }
 
   .MenuList:not([data-layout="horizontal"]) .MenuItem:has(.ItemDescription),
@@ -723,8 +723,8 @@
   /* A subtitle wraps, as a UIAction's does in an iOS 27.2 menu (ref-app pickers-desc-uikit: 13pt on 18pt lines,
      Owner's on three); the kit's one truncated line gives way to the simulator. */
   .MenuList:not([data-layout="horizontal"]) .ItemDescription {
-    font-size: 13px;
-    line-height: 18px;
+    font-size: var(--menu-description-font-size, 13px);
+    line-height: var(--menu-description-line-height, 18px);
     letter-spacing: normal;
     color: var(--menu-description-color, var(--color-text-secondary));
   }
@@ -752,7 +752,7 @@
 
   .MenuList:not([data-layout="horizontal"]) :is(.RadioIndicator, .CheckboxIndicator) {
     width: var(--menu-check-column, 13px);
-    height: 22px;
+    height: var(--menu-check-slot-height, 22px);
     /* A 22px selection slot beside the 20px label line. */
     border-radius: 0;
     box-shadow: none;
@@ -775,7 +775,7 @@
 
   .MenuList:not([data-layout="horizontal"]) .CheckboxCircle {
     width: var(--menu-check-column, 13px);
-    height: 22px;
+    height: var(--menu-check-slot-height, 22px);
     border-radius: 0;
     background: none;
     color: inherit;

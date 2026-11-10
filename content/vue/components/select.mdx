@@ -1,12 +1,12 @@
 ---
 title: Select
-description: Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.
-metaDescription: Vue 3 select dropdown component with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.
+description: Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.
+metaDescription: Vue 3 select dropdown component with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.
 ---
 
+import { MenuFamilyNote } from "@/components/docs/MenuFamilyNote"
 import { VueSelectDemo } from "@/components/docs/vue/VueSelectDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
-import pageStyles from "@/components/docs/PageDemos.module.css"
 import { phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const STAGE = "flex-1 w-full py-12 flex items-center justify-center"
@@ -102,63 +102,6 @@ export const multiple = `<div style="width: 200px">
   </Select>
 </div>`
 
-export const columnConfig = `<Popover>
-  <PopoverTrigger>
-    <Button color="secondary" variant="outline" size="sm"><SettingsSlider :width="15" :height="15" /> Columns</Button>
-  </PopoverTrigger>
-  <PopoverContent :min-width="240" side="bottom" align="start">
-    <div class="py-1.5">
-      <div v-if="shown.length > 0">
-        <div
-          v-for="col in allColumns.filter((c) => shown.includes(c.id))"
-          :key="col.id"
-          class="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
-          @click="shown = shown.filter((c) => c !== col.id)"
-        >
-          <span class="text-sm">{{ col.label }}</span>
-          <Switch :checked="true" :aria-label="col.label" />
-        </div>
-      </div>
-      <div v-if="shown.length < allColumns.length">
-        <div
-          v-for="col in allColumns.filter((c) => !shown.includes(c.id))"
-          :key="col.id"
-          class="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
-          @click="shown = [...shown, col.id]"
-        >
-          <span class="text-sm text-tertiary">{{ col.label }}</span>
-          <Switch :checked="false" :aria-label="col.label" />
-        </div>
-      </div>
-    </div>
-  </PopoverContent>
-</Popover>`
-
-export const columnConfigPhone = `<Page>
-  <Toolbar>
-    <ToolbarTitle>Members</ToolbarTitle>
-    <ToolbarTrailing>
-      <Dialog>
-        <DialogTrigger>
-          <Button color="secondary" variant="soft" uniform pill aria-label="Columns"><DotsHorizontal /></Button>
-        </DialogTrigger>
-        <DialogContent mobile-variant="sheet" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
-          <DialogHeader>
-            <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Columns</DialogTitle></div>
-          </DialogHeader>
-          <DialogBody>
-            <FieldGroup>
-              <Field v-for="col in allColumns" :key="col.id" row :label="col.label">
-                <Switch color="accent" :checked="shown.includes(col.id)" @update:checked="(on) => (shown = on ? [...shown, col.id] : shown.filter((c) => c !== col.id))" />
-              </Field>
-            </FieldGroup>
-          </DialogBody>
-        </DialogContent>
-      </Dialog>
-    </ToolbarTrailing>
-  </Toolbar>
-</Page>`
-
 export const overviewPhone = `<FieldGroup>
   <Field row :label="multiple ? 'Fruits' : 'Fruit'">
     <Select
@@ -248,7 +191,9 @@ export const multiplePhone = `<FieldGroup>
 
 <UsageBlock>{`import { Select } from "@plexui/vue/components/Select";`}</UsageBlock>
 
-On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Settings Forms](/vue/components/settings-forms) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, with 42px rows, and toward the larger part of the screen. A long label or description wraps rather than widening the list; a plain-text description is set as an iOS menu subtitle (13px on 18px lines, secondary). The list has no search there, as an iOS menu has none: a long list scrolls, and a tooltip is the row's subtitle. The value is hidden under the list while it is open. The checkmark leads every row there, as in iOS menus, whatever `checkPosition` says (`"none"` still leaves it out), so the Phone previews leave out that control. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
+<MenuFamilyNote current="select" framework="vue" />
+
+On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Settings Forms](/vue/components/settings-forms) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, and toward the larger part of the screen. The value is hidden under the list while it is open. The list is an iOS menu, so its rows are the rows of [Menu › On a phone](/vue/components/menu#on-a-phone): a description is the row's subtitle, and so is a tooltip; the checkmark leads every row whatever `checkPosition` says (`"none"` still leaves it out), so the Phone previews leave out that control. It has no search, as an iOS menu has none: a long list scrolls. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
 
 ## Examples
 
@@ -280,15 +225,6 @@ On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Settings Form
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Multiple selection is supported through the <code>multiple</code> property. This changes how <code>v-model:value</code>, <code>@change</code>, and the <code>#triggerView</code> slot are typed, accepting and returning arrays of values.</>} code={withPhone(multiple, multiplePhone)} previewMinHeight={168}>
   <VueSelectDemo template={multiple} phoneTemplate={phoneRows(multiplePhone)} phoneStageClassName="w-full" state={{ fruits: [] }} />
-</ComponentPreview>
-
-### Column configuration
-
-<ComponentPreview language="vue" details={<>
-  <p>A column-visibility panel built with <code>Popover</code> and <code>Switch</code>. Toggling a switch moves the column between shown and hidden groups.</p>
-  <p>On a phone the panel is a sheet (<code>Dialog</code> with <code>mobile-variant="sheet"</code>) of <code>Field</code> rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More bar button of the screen's <code>Toolbar</code>, three dots on glass, as iOS apps open their view options.</p>
-</>} code={withPhone(columnConfig, columnConfigPhone, "a bar button of the top bar opens a sheet of switch rows in a fixed order.")} previewMinHeight={168} phonePresentation="screen">
-  <VueSelectDemo template={columnConfig} phoneTemplate={`<div class="${pageStyles.Frame}">${columnConfigPhone}</div>`} phoneStageClassName={pageStyles.Stage} state={{ shown: ["name", "email", "role", "status"] }} />
 </ComponentPreview>
 
 ## API

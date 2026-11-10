@@ -1,9 +1,10 @@
 ---
 title: Select
-description: Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.
-metaDescription: React select dropdown component with grouped options, per-item descriptions, multi-select, action items, and column-based layouts
+description: Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.
+metaDescription: React select dropdown component with grouped options, per-item descriptions, multi-select and action items; on a phone, an iOS pop-up menu
 ---
 
+import { MenuFamilyNote } from "@/components/docs/MenuFamilyNote"
 import { Select } from "@plexui/ui/components/Select"
 import {
   SelectBaseDemo,
@@ -11,13 +12,14 @@ import {
   SelectActionsDemo,
   SelectGroupedOptionsDemo,
   SelectMultiSelectDemo,
-  SelectColumnConfigDemo,
 } from "@/components/docs/SelectDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { Select } from "@plexui/ui/components/Select";`}</UsageBlock>
 
-On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Settings Forms](/components/settings-forms) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, with 42px rows, and toward the larger part of the screen. A long label or description wraps rather than widening the list; a plain-text description is set as an iOS menu subtitle (13px on 18px lines, secondary). The list has no search there, as an iOS menu has none: a long list scrolls, and a tooltip is the row's subtitle. The value is hidden under the list while it is open. The checkmark leads every row there, as in iOS menus, whatever `checkPosition` says (`"none"` still leaves it out), so the Phone previews leave out that control. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
+<MenuFamilyNote current="select" />
+
+On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Settings Forms](/components/settings-forms) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, and toward the larger part of the screen. The value is hidden under the list while it is open. The list is an iOS menu, so its rows are the rows of [Menu › On a phone](/components/menu#on-a-phone): a description is the row's subtitle, and so is a tooltip; the checkmark leads every row whatever `checkPosition` says (`"none"` still leaves it out), so the Phone previews leave out that control. It has no search, as an iOS menu has none: a long list scrolls. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
 
 ## Examples
 
@@ -211,96 +213,6 @@ const phoneRoles = [
   </Field>
 </FieldGroup>`} previewMinHeight={168}>
   <SelectMultiSelectDemo />
-</ComponentPreview>
-
-### Column configuration
-
-<ComponentPreview details={<>
-  <p>A column-visibility panel built with <code>Popover</code> and <code>Switch</code>. Toggling a switch moves the column between shown and hidden groups.</p>
-  <p>On a phone the panel is a sheet (<code>Dialog</code> with <code>mobileVariant="sheet"</code>) of <code>Field</code> rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More bar button of the screen's <code>Toolbar</code>, three dots on glass, as iOS apps open their view options.</p>
-</>} code={`const allColumns = [
-  { id: "name", label: "Name" },
-  { id: "email", label: "Email" },
-  { id: "role", label: "Role" },
-  { id: "status", label: "Status" },
-  { id: "created", label: "Created at" },
-  { id: "lastLogin", label: "Last login" },
-  { id: "avatar", label: "Avatar" },
-  { id: "phone", label: "Phone" },
-]
-const [shown, setShown] = useState(["name", "email", "role", "status"])
-const heading = useRef<HTMLDivElement>(null)
-const toggle = (id: string) => {
-  setShown((prev) =>
-    prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-  )
-}
-const shownColumns = allColumns.filter((c) => shown.includes(c.id))
-const hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))
-
-// Desktop: a popover; a switch moves its column between the shown and hidden lists
-<Popover>
-  <Popover.Trigger>
-    <Button color="secondary" variant="outline" size="sm">
-      <SettingsSlider width={15} height={15} /> Columns
-    </Button>
-  </Popover.Trigger>
-  <Popover.Content minWidth={240} side="bottom" align="start">
-    <div className="py-1.5">
-      {shownColumns.map((col) => (
-        <div
-          key={col.id}
-          className="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
-          onClick={() => toggle(col.id)}
-        >
-          <span className="text-sm">{col.label}</span>
-          <Switch checked aria-label={col.label} />
-        </div>
-      ))}
-      {hiddenColumns.map((col) => (
-        <div
-          key={col.id}
-          className="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
-          onClick={() => toggle(col.id)}
-        >
-          <span className="text-sm text-tertiary">{col.label}</span>
-          <Switch checked={false} aria-label={col.label} />
-        </div>
-      ))}
-    </div>
-  </Popover.Content>
-</Popover>
-
-// Phone: a bar button of the top bar opens a sheet of switch rows in a fixed order
-<Page>
-  <Toolbar>
-    <Toolbar.Title>Members</Toolbar.Title>
-    <Toolbar.Trailing>
-      <Dialog>
-        <Dialog.Trigger>
-          <Button color="secondary" variant="soft" uniform pill aria-label="Columns">
-            <DotsHorizontal />
-          </Button>
-        </Dialog.Trigger>
-        <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
-          <Dialog.Header>
-            <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Columns</Dialog.Title></div>
-          </Dialog.Header>
-          <Dialog.Body>
-            <FieldGroup>
-              {allColumns.map((col) => (
-                <Field row key={col.id} label={col.label}>
-                  <Switch color="accent" checked={shown.includes(col.id)} onCheckedChange={() => toggle(col.id)} />
-                </Field>
-              ))}
-            </FieldGroup>
-          </Dialog.Body>
-        </Dialog.Content>
-      </Dialog>
-    </Toolbar.Trailing>
-  </Toolbar>
-</Page>`} previewMinHeight={168} phonePresentation="screen">
-  <SelectColumnConfigDemo />
 </ComponentPreview>
 
 ## API

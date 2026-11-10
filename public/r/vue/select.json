@@ -3,7 +3,7 @@
   "name": "select",
   "type": "registry:ui",
   "title": "Select",
-  "description": "Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.",
+  "description": "Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.",
   "dependencies": [
     "@plexui/vue"
   ],

@@ -484,7 +484,7 @@
   .Action {
     display: flex;
     align-items: center;
-    min-height: 42px;
+    min-height: var(--menu-row-min-height, 42px);
     padding-block: 0;
   }
 
@@ -502,7 +502,7 @@
   .ActionInner {
     flex: 1;
     gap: var(--menu-leading-icon-gap, 8px);
-    padding-block: 10px;
+    padding-block: var(--menu-row-padding-block, 10px);
     line-height: var(--menu-line-height);
   }
 
@@ -531,7 +531,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     align-content: center;
-    min-height: 42px;
+    min-height: var(--menu-row-min-height, 42px);
     padding-block: 0;
   }
 
@@ -557,7 +557,7 @@
 
   .OptionLeading {
     gap: 2px;
-    padding-block: 10px;
+    padding-block: var(--menu-row-padding-block, 10px);
   }
 
   .OptionLeading > .OptionInner {
@@ -573,7 +573,7 @@
   .OptionIndicatorSlot {
     justify-content: center;
     width: var(--menu-check-column, 13px);
-    height: 22px;
+    height: var(--menu-check-slot-height, 22px);
   }
 
   :is(.PressableInner, .OptionHardLimitHeading):has(> .OptionIndicatorSlot) {
@@ -612,8 +612,8 @@
   /* A subtitle wraps, as a UIAction's does in an iOS 27.2 menu (ref-app pickers-desc-uikit: 13pt on 18pt lines,
      Owner's on three); the kit's one truncated line gives way to the simulator. */
   .OptionDescription {
-    font-size: 13px;
-    line-height: 18px;
+    font-size: var(--menu-description-font-size, 13px);
+    line-height: var(--menu-description-line-height, 18px);
     letter-spacing: normal;
     color: var(--menu-description-color, var(--color-text-secondary));
   }
@@ -626,9 +626,9 @@
 
   .OptionTooltipText {
     display: block;
-    font-size: 13px;
+    font-size: var(--menu-description-font-size, 13px);
     font-weight: var(--font-weight-normal);
-    line-height: 18px;
+    line-height: var(--menu-description-line-height, 18px);
     letter-spacing: normal;
     color: var(--menu-description-color, var(--color-text-secondary));
   }
