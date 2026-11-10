@@ -659,11 +659,8 @@
 @media (max-width: 767px) {
   .MenuList {
     background: var(--menu-mobile-background, var(--color-surface-elevated));
-
-    @mixin dark {
-      -webkit-backdrop-filter: var(--menu-mobile-backdrop-filter, none);
-      backdrop-filter: var(--menu-mobile-backdrop-filter, none);
-    }
+    -webkit-backdrop-filter: var(--menu-mobile-backdrop-filter, none);
+    backdrop-filter: var(--menu-mobile-backdrop-filter, none);
   }
 
   /* No tracking of its own: the system font tracks the labels. Nine labels of native iOS 26 menus
@@ -723,18 +720,13 @@
     gap: 2px;
   }
 
+  /* A subtitle wraps, as a UIAction's does in an iOS 27.2 menu (ref-app pickers-desc-uikit: 13pt on 18pt lines,
+     Owner's on three); the kit's one truncated line gives way to the simulator. */
   .MenuList:not([data-layout="horizontal"]) .ItemDescription {
     font-size: 13px;
     line-height: 18px;
     letter-spacing: normal;
     color: var(--menu-description-color, var(--color-text-secondary));
-  }
-
-  /* The native text subtitle is one line; rich description slots retain their layout. */
-  .MenuList:not([data-layout="horizontal"]) .ItemDescription:not(:has(*)) {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .MenuList:not([data-layout="horizontal"]) .MenuItem[data-disabled] {
@@ -810,6 +802,12 @@
     width: var(--menu-check-size, 18px);
     height: var(--menu-check-size, 18px);
     color: inherit;
+  }
+
+  .MenuList:not([data-layout="horizontal"]) .SelectionCheck path {
+    stroke: currentColor;
+    stroke-width: var(--menu-check-stroke, 0);
+    stroke-linejoin: round;
   }
 }
 

@@ -51,6 +51,15 @@ export const PhoneLayout = defineComponent({
  */
 export const usePhoneLayout = (): ComputedRef<boolean> => {
   const scope = inject(PHONE_LAYOUT, null)
+  const narrow = usePhoneWindow()
+  return computed(() => !!scope?.phone.value || narrow.value)
+}
+
+/**
+ * Whether the window is 767px wide or narrower, whatever PhoneLayout is around: for a part portaled out of one, which
+ * its phone rules do not reach (a Select's list). The server answers false.
+ */
+export const usePhoneWindow = (): Ref<boolean> => {
   const narrow = ref(false)
   let query: MediaQueryList | null = null
   const update = () => { narrow.value = query?.matches ?? false }
@@ -67,5 +76,5 @@ export const usePhoneLayout = (): ComputedRef<boolean> => {
     if (typeof query.removeEventListener === "function") query.removeEventListener("change", update)
     else query.removeListener(update)
   })
-  return computed(() => !!scope?.phone.value || narrow.value)
+  return narrow
 }

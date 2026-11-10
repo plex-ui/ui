@@ -119,6 +119,12 @@ const roles = [
   },
 ];
 
+// A phone row passes its descriptions as text: the list sets them as an iOS menu does its subtitles (13pt, wrapped)
+const phoneRoles = [
+  { value: 'owner', label: 'Owner', description: 'Can modify project information and manage project members' },
+  { value: 'reader', label: 'Reader', description: 'Can make API requests that read or modify data' },
+];
+
 const allColumns = [
   { id: 'name', label: 'Name' },
   { id: 'email', label: 'Email' },
@@ -169,6 +175,7 @@ const scope = {
   items,
   groupedItems,
   roles,
+  phoneRoles,
   allColumns,
   // Country and phone examples
   FlagIcon,

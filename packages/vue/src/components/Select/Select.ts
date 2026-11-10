@@ -17,6 +17,7 @@ import {
   toRaw,
   useId,
   watch,
+  watchEffect,
   type Component,
   type ComponentPublicInstance,
   type ComputedRef,
@@ -38,6 +39,7 @@ import {
 } from "reka-ui"
 import type { ControlSize } from "@plexui/styles/types"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
+import { usePhoneWindow } from "../PhoneLayout/PhoneLayout.js"
 import { useFieldColumns, useFieldRow, useFieldRowPill } from "../../lib/fieldRow.js"
 import { preventDefaultHandler, toCssVariables, waitForAnimationFrame } from "../../lib/helpers.js"
 import { Check, Info, Search } from "../Icon/index.js"
@@ -53,6 +55,7 @@ import { overlayTiming } from "../Transition/shared.js"
 import { isHoverPointer } from "../../lib/inputMode.js"
 import { createSelectPress } from "../../lib/selectPress.js"
 import { createFocusRestore } from "../../lib/focusRestore.js"
+import { ignoreReleaseOverTrigger, markCoveredMenuTrigger, observeMenuTriggerCover, type MenuTriggerCover } from "../../lib/menuTriggerCover.js"
 import { useFloatingBoundary } from "../../composables/useFloatingBoundary.js"
 import s from "@plexui/styles/components/Select/Select.module.css"
 
@@ -192,8 +195,8 @@ const selectProps = {
   clearable: { type: Boolean, default: false },
   /** Extends select to 100% of available width. @default true, except for the ghost variant */
   block: { type: Boolean, default: undefined },
-  /** Preferred side of the trigger to render against when open. @default "bottom" */
-  side: { type: String as PropType<PopoverSide>, default: "bottom" },
+  /** Preferred side of the trigger to render against when open. Without one the list opens below its trigger, and on a phone over it, toward the larger part of the screen. @default "bottom" */
+  side: { type: String as PropType<PopoverSide>, default: undefined },
   /** Preferred alignment against the trigger. @default "end" at the end of a `Field row` ("start" in a `FieldGroup columns`), "center" when block, otherwise "start" */
   align: String as PropType<PopoverAlign>,
   /** Offset in pixels from the "start" or "end" alignment. @default 0 */
@@ -212,7 +215,7 @@ const selectProps = {
   searchPlaceholder: { type: String, default: "" },
   /** Accessible name of the search input, independent of the trigger label. @default "Search options" */
   searchAriaLabel: { type: String, default: "Search options" },
-  /** Size of the search input in the menu, such as `2xl` for 44px touch targets on phones. @default "md" */
+  /** Size of the search input in the menu. A phone list has no search: it is an iOS menu, and a long one scrolls. @default "md" */
   searchSize: String as PropType<ControlSize>,
   /** Message displayed when search results are empty (or the `#searchEmptyMessage` slot) */
   searchEmptyMessage: { type: [String, Number, Object] as PropType<string | number | VNode>, default: "No results found." },
@@ -253,7 +256,7 @@ type SelectPropsValue = {
   opticallyAlign?: "start" | "end"
   clearable: boolean
   block?: boolean
-  side: PopoverSide
+  side?: PopoverSide
   align?: PopoverAlign
   alignOffset?: number
   avoidCollisions: boolean
@@ -463,8 +466,11 @@ const SelectComponent = defineComponent({
         : options.length
     })
 
-    // Locking down searchable count to a single value
-    const searchable = computed(() => optionsCount.value > 15)
+    // Locking down searchable count to a single value. A phone's list is an iOS menu, and a menu has no search: a long
+    // list scrolls (iOS-menu IMG_5490, Add Payment's Province, 52 options), so it opens with no keyboard either. The
+    // window decides, as for the list's place: the list is portaled out of any PhoneLayout.
+    const phone = usePhoneWindow()
+    const searchable = computed(() => optionsCount.value > 15 && !phone.value)
 
     // A block menu matches its field. An inline one, or one at the end of a Field row, fits its
     // options: no narrower than its trigger (the CSS fallback reads the trigger width), no wider than 300px.
@@ -700,6 +706,17 @@ const CustomSelect = defineComponent({
     const open = ref(false)
     const selectContentRef = shallowRef<HTMLElement | null>(null)
     const popoverTriggerEl = shallowRef<HTMLElement | null>(null)
+    // A mouse opens the list as its button goes down, so on a phone the list is under it when the button comes up
+    // (SelectPopoverContent): that release chooses nothing while it is over the trigger, as in Menu
+    watchEffect((onCleanup) => {
+      const trigger = popoverTriggerEl.value
+      if (!trigger) return
+      const press = (event: PointerEvent) => {
+        if (event.button === 0 && isHoverPointer(event)) ignoreReleaseOverTrigger(trigger, event.pointerId)
+      }
+      trigger.addEventListener("pointerdown", press)
+      onCleanup(() => trigger.removeEventListener("pointerdown", press))
+    })
     // Not before mount: server rendering and hydration render no teleport,
     // as Radix's Portal renders nothing before mount
     const mounted = ref(false)
@@ -866,6 +883,23 @@ const SelectPopoverContent = defineComponent({
     const { props, align, alignOffset, listWidth, listMaxWidth, pill } = useSelectContext()
     const { handleRootOpenChange, popoverTriggerEl, open, selectContentRef } = inject(CustomSelectContextKey)!
     const floatingBoundary = useFloatingBoundary(() => open.value && props.avoidCollisions, { bottom: 30, top: 30 })
+    // On a phone the list opens over its trigger, as the pop-up menu of an iOS picker does (ref-app pickers, block 8:
+    // the 250pt menu stands over the row's value, its end at the chevron's end, the value hidden under it), and toward
+    // the larger part of the screen, as Menu does (menuTriggerCover.ts)
+    // Only in a phone-wide window, where the list is laid out as on a phone (Select.module.css)
+    const cover = shallowRef<MenuTriggerCover | null>(null)
+    watchEffect((onCleanup) => {
+      const trigger = popoverTriggerEl.value
+      if (!open.value || !trigger) return
+      onCleanup(observeMenuTriggerCover(trigger, (value) => { cover.value = value }, { windowOnly: true }))
+    })
+    // The covered trigger is hidden while the list is open, and shown again as it closes, before focus returns to it
+    watchEffect((onCleanup) => {
+      const trigger = popoverTriggerEl.value
+      const content = selectContentRef.value
+      if (!open.value || !cover.value || !trigger || !content) return
+      onCleanup(markCoveredMenuTrigger(trigger, content))
+    })
     // Radix (1.8.1) dismisses on the click that follows a primary pointer down outside
     const { onPointerDownOutside, onFocusOutside } = useDeferredPointerDownOutside((originalEvent) => {
       // The trigger is not outside: Radix's non-modal content keeps the popover open
@@ -881,8 +915,12 @@ const SelectPopoverContent = defineComponent({
           as: SelectContentElement,
           class: s.MenuList,
           "data-pill": pill.value ? "" : undefined,
-          side: props.side,
-          sideOffset: 5,
+          // A list that fits its options is the 250pt of an iOS menu on a phone (Select.module.css)
+          "data-list-width": listWidth.value === "auto" ? "auto" : undefined,
+          // A list given its own width keeps it on a phone too, below the 250pt
+          "data-list-sized": typeof listWidth.value === "number" ? "" : undefined,
+          side: props.side ?? cover.value?.side ?? "bottom",
+          sideOffset: cover.value ? cover.value.sideOffset : 5,
           align: align.value,
           alignOffset: alignOffset.value,
           avoidCollisions: props.avoidCollisions,
@@ -896,7 +934,8 @@ const SelectPopoverContent = defineComponent({
           style: toCssVariables({
             "select-list-width": listWidth.value,
             "select-list-min-width": props.listMinWidth,
-            "select-list-max-width": listMaxWidth.value,
+            // "auto" is no maximum: the variable is left out, so a phone's 250pt floor can read the cap
+            "select-list-max-width": listMaxWidth.value === "auto" ? undefined : listMaxWidth.value,
           }),
         },
         { default: () => h(CustomSelectMenu) },
@@ -961,7 +1000,9 @@ const CustomSelectMenu = defineComponent({
     const openingValue = multiple ? "" : (value as string)
 
     // Trim and lowercase search value
-    const literalSearchTerm = computed(() => searchTerm.value.trim().toLocaleLowerCase())
+    // A term counts only while the list has its search: one typed on a desktop is dropped when the window narrows to
+    // a phone, whose list has none
+    const literalSearchTerm = computed(() => (searchable.value ? searchTerm.value.trim().toLocaleLowerCase() : ""))
     const filteredOptions = computed(() => filterOptions(props.options, literalSearchTerm.value, searchPredicate()))
     const firstOption = computed(() => getFirstValidOption(filteredOptions.value))
 
@@ -1129,6 +1170,8 @@ const CustomSelectMenu = defineComponent({
         return
       }
 
+      // A list that gave the keys to a search that came with a wider window points at nothing itself
+      if (target !== listRef.value) listRef.value?.removeAttribute("aria-activedescendant")
       const highlightedOption = highlightedValue.value ? findOptionByValue(highlightedValue.value, menuRef.value) : null
       if (highlightedOption?.id) {
         target.setAttribute("aria-activedescendant", highlightedOption.id)
@@ -1136,9 +1179,28 @@ const CustomSelectMenu = defineComponent({
         target.removeAttribute("aria-activedescendant")
       }
     }
-    watch([highlightedValue, filteredOptions], syncActiveDescendant, { flush: "post" })
+    // The search coming or going moves the keys, so the pointer follows them
+    watch([highlightedValue, filteredOptions, searchable], syncActiveDescendant, { flush: "post" })
 
     // On mount behavior
+    // The window crossed the phone's width while the list was open: the search came or went (a phone's list has none),
+    // so its term is cleared and focus moves to what holds the keys now, the search or the list
+    watch(searchable, (next) => {
+      if (!next) searchTerm.value = ""
+      void nextTick(() => {
+        // The width a desktop list locked for its search would overflow a phone's 250px panel; a desktop locks it again
+        if (menuRef.value) {
+          menuRef.value.style.minWidth = ""
+          if (next && listWidth.value === "auto") menuRef.value.style.minWidth = `${menuRef.value.offsetWidth}px`
+        }
+        // The post-flush watch above ran before a new search mounted and pointed the list; the search is here now
+        syncActiveDescendant()
+        const active = document.activeElement
+        if (menuRef.value?.contains(active) && active !== listRef.value) return
+        ;(next ? searchInputRef.value : listRef.value)?.focus({ preventScroll: true })
+      })
+    })
+
     onMounted(() => {
       syncActiveDescendant()
 
@@ -1323,14 +1385,16 @@ const CustomSelectList = defineComponent({
           : h("div", { class: s.SearchEmpty }, [searchEmptyMessage as VNodeChild])
       }
 
-      // We hard limit within groups, so at this level we will only limit flat arrays
+      // We hard limit within groups, so at this level we will only limit flat arrays. The limit asks to search for the
+      // rest, so a list with no search (a phone's) shows every option, as a long iOS menu scrolls (IMG_5490).
       const isGrouped = isOptionGroupArray(filteredOptions)
-      const hasHardLimit = !isGrouped && filteredOptions.length > HARD_OPTIONS_LIMIT
+      const hardLimit = searchable.value ? HARD_OPTIONS_LIMIT : Infinity
+      const hasHardLimit = !isGrouped && filteredOptions.length > hardLimit
 
       const options = isGrouped
         ? filteredOptions.map((group) => h(CustomSelectGroup, { key: group.label, group }))
         : (filteredOptions as Option[])
-            .slice(0, HARD_OPTIONS_LIMIT)
+            .slice(0, hardLimit)
             .map((option) => h(CustomSelectOption, { key: option.value, option }))
 
       const { ariaLabel, ariaLabelledby } = selectProps
@@ -1374,12 +1438,14 @@ const CustomSelectGroup = defineComponent({
     const groupId = useId()
     const headingId = useId()
     const { searchTerm, highlightedValue } = useCustomSelectMenuContext()
+    const { searchable } = useSelectContext()
     const limitExpanded = ref(false)
 
     return () => {
       const { label, options, optionsLimit = DEFAULT_OPTIONS_LIMIT } = props.group
       const hasExpandableLimit = optionsLimit.limit < options.length && !searchTerm.value && !limitExpanded.value
-      const hasHardLimit = HARD_OPTIONS_LIMIT < options.length && !hasExpandableLimit
+      // The hard limit asks to search for the rest: a list with no search (a phone's) shows the whole group once expanded
+      const hasHardLimit = searchable.value && HARD_OPTIONS_LIMIT < options.length && !hasExpandableLimit
 
       let maybeLimitedOptions = options
       if (hasExpandableLimit) {
@@ -1562,9 +1628,10 @@ const CustomSelectOption = defineComponent({
 
     const renderTooltip = (tooltip: NonNullable<Option["tooltip"]>) => {
       const content = tooltip.content
+      const icon = () => h(Info, { class: s.OptionTooltipIcon })
       return typeof content === "function"
-        ? h(Tooltip, { maxWidth: tooltip.maxWidth, side: "right" }, { default: () => h(Info), content })
-        : h(Tooltip, { content, maxWidth: tooltip.maxWidth, side: "right" }, { default: () => h(Info) })
+        ? h(Tooltip, { maxWidth: tooltip.maxWidth, side: "right" }, { default: icon, content })
+        : h(Tooltip, { content, maxWidth: tooltip.maxWidth, side: "right" }, { default: icon })
     }
 
     return () => {
@@ -1607,6 +1674,11 @@ const CustomSelectOption = defineComponent({
               // React's `description && ...`: a 0 (or NaN) renders as text
               option.description &&
                 h("div", { class: clsx(s.OptionInner, s.OptionDescription) }, [renderContent(option.description)]),
+              // An iOS menu has no tooltips: on a phone the tooltip is the row's subtitle, after the description if
+              // there is one (Select.module.css)
+              tooltip
+                ? h("div", { class: clsx(s.OptionInner, s.OptionTooltipText) }, [renderContent(tooltip.content)])
+                : null,
             ]),
             checkPosition === "end"
               ? h("div", { "class": s.OptionIndicatorSlot, "data-position": "end" }, [

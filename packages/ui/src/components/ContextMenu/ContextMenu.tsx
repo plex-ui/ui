@@ -36,7 +36,7 @@ import {
   contextMenuNaturalHeight,
   contextMenuPlacement,
   contextMenuPreview,
-  contextMenuPreviewShift,
+  contextMenuPreviewLayout,
   liftContextMenuPreview,
   type ContextMenuFrame,
   type ContextMenuPresentation,
@@ -51,7 +51,7 @@ type ContextMenuContextValue = Shown & {
    */
   present: (element: HTMLElement, measure: () => ContextMenuPresentation, held?: boolean) => void
   /** Moves the preview up by `shift`, so that the menu stands whole below it */
-  lift: (shift: number) => void
+  lift: (shift: number, side?: "top" | "bottom") => void
   /** Puts a raised preview back in its place, gliding or at once */
   drop: (glide: boolean) => void
   /** Puts a raised preview back at once and forgets its move, for content that goes away while the element stays */
@@ -108,7 +108,7 @@ function ContextMenuRoot({ children, forceOpen, onOpen, onClose }: ContextMenuPr
     setShown((current) => {
       const preview = current.presentation
       if (preview?.kind !== "preview" || preview.shift === undefined) return current
-      return { ...current, presentation: { ...preview, rect: { ...preview.rect, y: preview.rect.y + preview.shift }, shift: undefined } }
+      return { ...current, presentation: { ...preview, rect: { ...preview.rect, y: preview.rect.y + preview.shift }, side: undefined, shift: undefined } }
     })
   }, [drop])
   const present = useCallback((element: HTMLElement, measure: () => ContextMenuPresentation, still = false) => {
@@ -117,14 +117,14 @@ function ContextMenuRoot({ children, forceOpen, onOpen, onClose }: ContextMenuPr
     regionRef.current = element
     setShown({ presentation: measure(), frame: contextMenuFrame(container), name: contextMenuName(element) })
   }, [container, drop])
-  const lift = useCallback((shift: number) => {
+  const lift = useCallback((shift: number, side: "top" | "bottom" = "bottom") => {
     const element = regionRef.current
     drop(false)
     if (element && shift > 0) restore.current = liftContextMenuPreview(element, shift, !held.current)
     setShown((current) => {
       const preview = current.presentation
       if (preview?.kind !== "preview") return current
-      return { ...current, presentation: { ...preview, rect: { ...preview.rect, y: preview.rect.y - shift }, shift } }
+      return { ...current, presentation: { ...preview, rect: { ...preview.rect, y: preview.rect.y - shift }, side, shift } }
     })
   }, [drop])
   useEffect(() => () => drop(false), [drop])
@@ -180,8 +180,7 @@ const suppressNextClick = (doc: Document) => {
 /** A menu held open without a press: the touch-and-hold preview on a phone, under the element elsewhere. */
 const forcedPresentation = (element: HTMLElement): ContextMenuPresentation => {
   if (!isPhoneLayout(element)) return { kind: "keyboard", rect: element.getBoundingClientRect() }
-  const box = element.getBoundingClientRect()
-  return contextMenuPreview(element, box.left + box.width / 2)
+  return contextMenuPreview(element)
 }
 
 function ContextMenuTrigger({ children, disabled = false }: ContextMenuTriggerProps) {
@@ -225,14 +224,14 @@ function ContextMenuTrigger({ children, disabled = false }: ContextMenuTriggerPr
     present(element, measure)
     menu.setOpen(true)
   }
-  const openPreview = (element: HTMLElement, x: number) => open(element, () => contextMenuPreview(element, x))
+  const openPreview = (element: HTMLElement) => open(element, () => contextMenuPreview(element))
   // A touch and hold opens the preview once, by the timer or by the browser's own context menu (Android)
   const openHeld = (element: HTMLElement, current: Press) => {
     // A Sortable list around the element already turned this hold into a drag
     if (element.ownerDocument.querySelector(SORTABLE_SOURCE)) return cancel()
     window.clearTimeout(current.timer)
     current.opened = true
-    openPreview(element, current.x)
+    openPreview(element)
     // The same hold drags the element where it is a Sortable item: moving on, the finger closes the menu
     sendContextMenuHold(element, {
       pointerId: current.id,
@@ -333,7 +332,8 @@ function ContextMenuContent({ "aria-label": ariaLabel, ...props }: ContextMenuCo
       const height = Math.min(contextMenuNaturalHeight(content), limit ?? Infinity) * (box?.scaleY ?? 1)
       // A room not known yet (no layout) moves nothing
       const known = bounds && bounds.bottom > bounds.top
-      lift(known ? contextMenuPreviewShift(current.rect, height, bounds, contextMenuClipTop(element), box?.scaleY ?? 1) : 0)
+      const layout = known ? contextMenuPreviewLayout(current.rect, height, bounds, contextMenuClipTop(element), box?.scaleY ?? 1) : null
+      lift(layout?.shift ?? 0, layout?.side)
     }
     measure()
     return () => cancelAnimationFrame(frame)

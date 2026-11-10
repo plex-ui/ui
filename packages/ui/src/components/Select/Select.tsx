@@ -29,6 +29,8 @@ import { overlayTiming } from "../Transition/shared"
 import { isHoverPointer } from "../../lib/inputMode"
 import { createSelectPress } from "../../lib/selectPress"
 import { createFocusRestore } from "../../lib/focusRestore"
+import { ignoreReleaseOverTrigger, markCoveredMenuTrigger, observeMenuTriggerCover, type MenuTriggerCover } from "../../lib/menuTriggerCover"
+import { usePhoneWindow } from "../PhoneLayout/PhoneLayout"
 import s from "@plexui/styles/components/Select/Select.module.css"
 
 export type Option<T extends string = string> = {
@@ -212,6 +214,7 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
   block?: boolean
   /**
    * The preferred side of the trigger to render against when open. Will be reversed when collisions occur.
+   * Without one the list opens below its trigger, and on a phone over it, toward the larger part of the screen.
    * @default bottom
    */
   side?: PopoverSide
@@ -252,8 +255,8 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
   /** Accessible name of the search input, independent of the trigger label. */
   searchAriaLabel?: string
   /**
-   * Size of the search input in the menu, such as `2xl` for 44px touch
-   * targets on phones.
+   * Size of the search input in the menu. A phone list has no search: it is
+   * an iOS menu, and a long one scrolls.
    * @default md
    */
   searchSize?: ControlSize
@@ -323,7 +326,8 @@ type SelectContextValue<T extends Option> = (
   actions: Actions
   onActionSelect: CallbackWithActionId
   block: boolean
-  side: PopoverSide
+  /** The side asked for; without one a list opens below, or on a phone toward the larger part of the screen. */
+  side: PopoverSide | undefined
   align: PopoverAlign
   alignOffset: number
   avoidCollisions: boolean
@@ -395,7 +399,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     listMinWidth,
     options,
     actions: propActions = [],
-    side = "bottom",
+    side,
     avoidCollisions = true,
     onChange,
     optionClassName,
@@ -480,7 +484,11 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
   const triggerId = `select-trigger-${internalTriggerId}`
 
   // Locking down searchable count to a single value. Could make this customizable in the future, but would want guardrails.
-  const searchable = optionsCount > 15
+  // A phone's list is an iOS menu, and a menu has no search: a long list scrolls (iOS-menu IMG_5490, Add Payment's
+  // Province, 52 options; the owner 10.11 on a search row in the list), so it opens with no keyboard either. The window
+  // decides, as for the list's place: the list is portaled out of any PhoneLayout.
+  const phone = usePhoneWindow()
+  const searchable = optionsCount > 15 && !phone
 
   // A block menu matches its field. An inline one, or one at the end of a Field row, fits its
   // options: no narrower than its trigger (the CSS fallback reads the trigger width), no wider than 300px.
@@ -805,6 +813,41 @@ const CustomSelect = () => {
   const selectContentRef = useRef<HTMLDivElement>(null)
   // The trigger element, the default one or a custom `trigger` (which has no `triggerId`)
   const popoverTriggerRef = useRef<HTMLButtonElement>(null)
+  // Both as state too, for the effects below: the list mounts after the trigger's cover is known
+  const [triggerElement, setTriggerElement] = useState<HTMLButtonElement | null>(null)
+  const setTrigger = useCallback((node: HTMLButtonElement | null) => {
+    popoverTriggerRef.current = node
+    setTriggerElement(node)
+  }, [])
+  const [contentElement, setContentElement] = useState<HTMLDivElement | null>(null)
+  const setContent = useCallback((node: HTMLDivElement | null) => {
+    selectContentRef.current = node
+    setContentElement(node)
+  }, [])
+  // On a phone the list opens over its trigger, as the pop-up menu of an iOS picker does (ref-app pickers, block 8:
+  // the 250pt menu stands over the row's value, its end at the chevron's end, the value hidden under it), and toward
+  // the larger part of the screen, as Menu does (menuTriggerCover.ts)
+  // Only in a phone-wide window, where the list is laid out as on a phone (Select.module.css)
+  const [cover, setCover] = useState<MenuTriggerCover | null>(null)
+  useLayoutEffect(() => {
+    if (!open || !triggerElement) return
+    return observeMenuTriggerCover(triggerElement, setCover, { windowOnly: true })
+  }, [open, triggerElement])
+  // The covered trigger is hidden while the list is open, and shown again as it closes, before focus returns to it
+  useLayoutEffect(() => {
+    if (!open || !cover || !triggerElement || !contentElement) return
+    return markCoveredMenuTrigger(triggerElement, contentElement)
+  }, [open, cover, triggerElement, contentElement])
+  // A mouse opens the list as its button goes down, so on a phone the list is under it when the button comes up: that
+  // release chooses nothing while it is over the trigger, as in Menu
+  useEffect(() => {
+    if (!triggerElement) return
+    const press = (event: PointerEvent) => {
+      if (event.button === 0 && isHoverPointer(event)) ignoreReleaseOverTrigger(triggerElement, event.pointerId)
+    }
+    triggerElement.addEventListener("pointerdown", press)
+    return () => triggerElement.removeEventListener("pointerdown", press)
+  }, [triggerElement])
   const focusRestoreRef = useRef<ReturnType<typeof createFocusRestore> | null>(null)
   const focusRestoreTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
@@ -869,7 +912,7 @@ const CustomSelect = () => {
       }}
       modal={false}
     >
-      <Popover.Trigger asChild ref={popoverTriggerRef}>
+      <Popover.Trigger asChild ref={setTrigger}>
         {trigger ? trigger({ open, onToggle: () => { if (!disabled && !loading) setOpen((current) => !current) } }) : <SelectTrigger onOpenChange={handleOpenChange} />}
       </Popover.Trigger>
       <Popover.Portal forceMount>
@@ -877,12 +920,16 @@ const CustomSelect = () => {
           {open && (
             <Popover.Content
               key="dropdown"
-              ref={selectContentRef}
+              ref={setContent}
               forceMount
               className={s.MenuList}
               data-pill={pill ? "" : undefined}
-              side={side}
-              sideOffset={5}
+              // A list that fits its options is the 250pt of an iOS menu on a phone (Select.module.css)
+              data-list-width={listWidth === "auto" ? "auto" : undefined}
+              // A list given its own width keeps it on a phone too, below the 250pt
+              data-list-sized={typeof listWidth === "number" ? "" : undefined}
+              side={side ?? cover?.side ?? "bottom"}
+              sideOffset={cover ? cover.sideOffset : 5}
               align={align}
               alignOffset={alignOffset}
               avoidCollisions={avoidCollisions}
@@ -902,7 +949,8 @@ const CustomSelect = () => {
               style={toCssVariables({
                 "select-list-width": listWidth,
                 "select-list-min-width": listMinWidth,
-                "select-list-max-width": listMaxWidth,
+                // "auto" is no maximum: the variable is left out, so a phone's 250pt floor can read the cap
+                "select-list-max-width": listMaxWidth === "auto" ? undefined : listMaxWidth,
               })}
             >
               <CustomSelectMenu onOpenChange={handleOpenChange} />
@@ -964,7 +1012,9 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
   const [openingValue] = useState<string>(() => multiple ? "" : value)
 
   // Trim and lowercase search value
-  const literalSearchTerm = useMemo(() => searchTerm.trim().toLocaleLowerCase(), [searchTerm])
+  // A term counts only while the list has its search: one typed on a desktop is dropped when the window narrows to a
+  // phone, whose list has none
+  const literalSearchTerm = useMemo(() => (searchable ? searchTerm.trim().toLocaleLowerCase() : ""), [searchable, searchTerm])
   const filteredOptions = useMemo(
     () => filterOptions(options, literalSearchTerm, searchPredicateRef.current),
     [options, literalSearchTerm, searchPredicateRef],
@@ -1170,6 +1220,22 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally an onMount effect
   }, [])
 
+  // The window crossed the phone's width while the list was open: the search came or went (a phone's list has none),
+  // so its term is cleared and focus moves to what holds the keys now, the search or the list
+  const wasSearchableRef = useRef(searchable)
+  useLayoutEffect(() => {
+    if (wasSearchableRef.current === searchable) return
+    wasSearchableRef.current = searchable
+    if (!searchable) setSearchTerm("")
+    // The width a desktop list locked for its search would overflow a phone's 250px panel; a desktop locks it again
+    if (menuRef.current) {
+      menuRef.current.style.minWidth = ""
+      if (searchable && listWidth === "auto") menuRef.current.style.minWidth = `${menuRef.current.offsetWidth}px`
+    }
+    if (menuRef.current?.contains(document.activeElement) && document.activeElement !== listRef.current) return
+    ;(searchable ? searchInputRef.current : listRef.current)?.focus({ preventScroll: true })
+  }, [searchable])
+
   // A long list has a search field: the menu keeps the width of all its options as the results narrow.
   useLayoutEffect(() => {
     if (searchable && listWidth === "auto" && menuRef.current) {
@@ -1216,13 +1282,16 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
       return
     }
 
+    // A list that gave the keys to a search that came with a wider window points at nothing itself
+    if (target !== listRef.current) listRef.current?.removeAttribute("aria-activedescendant")
     const highlightedOption = highlightedValue ? findOptionByValue(highlightedValue, menuRef.current) : null
     if (highlightedOption?.id) {
       target.setAttribute("aria-activedescendant", highlightedOption.id)
     } else {
       target.removeAttribute("aria-activedescendant")
     }
-  }, [highlightedValue, filteredOptions])
+    // The search coming or going moves the keys, so the pointer follows them
+  }, [highlightedValue, filteredOptions, searchable])
 
   return (
     <CustomSelectMenuContext value={store}>
@@ -1334,14 +1403,16 @@ const CustomSelectList = <T extends Option>({
     )
   }
 
-  // We hard limit within groups, so at this level we will only limit flat arrays
+  // We hard limit within groups, so at this level we will only limit flat arrays. The limit asks to search for the
+  // rest, so a list with no search (a phone's) shows every option, as a long iOS menu scrolls (IMG_5490).
   const isGrouped = isOptionGroupArray(filteredOptions)
-  const hasHardLimit = !isGrouped && filteredOptions.length > HARD_OPTIONS_LIMIT
+  const hardLimit = searchable ? HARD_OPTIONS_LIMIT : Infinity
+  const hasHardLimit = !isGrouped && filteredOptions.length > hardLimit
 
   const options = isGrouped
     ? filteredOptions.map((group) => <CustomSelectGroup key={group.label} {...group} />)
     : filteredOptions
-        .slice(0, HARD_OPTIONS_LIMIT)
+        .slice(0, hardLimit)
         .map((option) => <CustomSelectOption key={option.value} {...option} />)
 
   return (
@@ -1378,10 +1449,12 @@ const CustomSelectGroup = <T extends Option>({
   const groupId = useId()
   const headingId = useId()
   const { searchTerm, setHighlightedValue } = useCustomSelectMenuContext()
+  const { searchable } = useSelectContext()
   const [limitExpanded, setLimitExpanded] = useState<boolean>(false)
 
   const hasExpandableLimit = optionsLimit.limit < options.length && !searchTerm && !limitExpanded
-  const hasHardLimit = HARD_OPTIONS_LIMIT < options.length && !hasExpandableLimit
+  // The hard limit asks to search for the rest: a list with no search (a phone's) shows the whole group once expanded
+  const hasHardLimit = searchable && HARD_OPTIONS_LIMIT < options.length && !hasExpandableLimit
 
   let maybeLimitedOptions = options
   if (hasExpandableLimit) {
@@ -1595,7 +1668,7 @@ const CustomSelectOption = (option: Option) => {
             <OptionView {...option} />
             {tooltip && (
               <Tooltip content={tooltip.content} maxWidth={tooltip.maxWidth} side="right">
-                <Info />
+                <Info className={s.OptionTooltipIcon} />
               </Tooltip>
             )}
           </div>
@@ -1603,6 +1676,11 @@ const CustomSelectOption = (option: Option) => {
             <div className={clsx(s.OptionInner, s.OptionDescription)}>
               {option.description}
             </div>
+          )}
+          {/* An iOS menu has no tooltips: on a phone the tooltip is the row's subtitle, after the description if there
+              is one (Select.module.css) */}
+          {tooltip && (
+            <div className={clsx(s.OptionInner, s.OptionTooltipText)}>{tooltip.content}</div>
           )}
         </div>
         {checkPosition === 'end' && (

@@ -1898,22 +1898,29 @@ describe("phone submenus (owner, plan 176)", () => {
   })
 })
 
-describe("dark phone menus are glass (iOS2 IMG_5524, 5525, 5528)", () => {
+describe("phone menus are glass (dark: iOS2 IMG_5524, 5525, 5528; light: iOS 27.2 ref-app, block 8)", () => {
   const read = (path: string) => readFileSync(`${process.cwd()}/packages/styles/src/${path}`, "utf8")
 
-  test("the pair lives on the root tokens: elevated surface in light, the button glass alpha-12 in dark", () => {
+  test("the pair lives on the root tokens: white at 65% in light, the button glass alpha-12 in dark", () => {
     const materials = read("styles/mobile-materials.css")
-    expect(materials).toContain("--menu-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));")
-    // The page under a dark menu does not read through: a blur of 18, as a switch under a native one spreads
+    expect(materials).toContain("--menu-mobile-background: light-dark(rgb(255 255 255 / 65%), var(--alpha-12));")
+    // The page under a menu does not read through: a blur of 18, as a switch under a native one spreads
     // (IMG_5524 to IMG_5525); 10 left its text at 1.5 to 3:1 (plan 176)
     expect(materials).toContain("--menu-mobile-backdrop-filter: blur(18px);")
+    // A popover keeps the elevated surface in light until it is measured (block 14)
+    expect(materials).toContain("--popover-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));")
     expect(read("styles/touch.css")).not.toContain("--menu-mobile-background")
   })
 
-  test.each(["components/Menu/Menu.module.css", "components/Select/Select.module.css"])("%s: phone lists take it, with the blur in dark only", (path) => {
+  test.each(["components/Menu/Menu.module.css", "components/Select/Select.module.css"])("%s: phone lists take it, with the blur in both themes", (path) => {
     const css = read(path)
-    const start = css.indexOf("@media (max-width: 767px) {\n  ", css.indexOf("@media (max-width: 767px)") - 1)
-    const block = css.slice(start, css.indexOf("\n  }\n", css.indexOf("@mixin dark", start)) + 4)
-    expect(block).toMatch(/\.MenuList \{\s*background: var\(--menu-mobile-background, var\(--color-surface-elevated\)\);\s*@mixin dark \{\s*-webkit-backdrop-filter: var\(--menu-mobile-backdrop-filter, none\);\s*backdrop-filter: var\(--menu-mobile-backdrop-filter, none\);\s*\}\s*\}/)
+    expect(css).toMatch(/@media \(max-width: 767px\) \{[^@]*?\.MenuList \{\s*background: var\(--menu-mobile-background, var\(--color-surface-elevated\)\);\s*-webkit-backdrop-filter: var\(--menu-mobile-backdrop-filter, none\);\s*backdrop-filter: var\(--menu-mobile-backdrop-filter, none\);\s*\}/)
+  })
+
+  test("a phone menu has the edge of iOS 27.2 glass: a dark line, darker sides, the light rim", () => {
+    const touch = read("styles/touch.css")
+    expect(touch).toContain("0 0 0 0.5px light-dark(rgb(0 0 0 / 12%), transparent),")
+    expect(touch).toContain("1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 16%), transparent),")
+    expect(touch).toContain("inset 0 0.67px 0 var(--mobile-glass-rim, transparent),")
   })
 })

@@ -677,9 +677,16 @@
   }
 
   /* The Field already delegates its non-interactive area to this linked popup.
-     Keep one row surface; the trigger remains its only keyboard stop. */
+     Keep one row surface; the trigger remains its only keyboard stop. Its box is 34px, centred in the row without
+     moving it, as the pop-up button of an iOS picker is: a phone list opens over it, 9pt below the 52pt row's top
+     (ref-app pickers, block 8: 26px at @3x; Select.tsx). */
   .Field:where([data-row]) > .Content > .Control > :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"]) {
-    --select-control-size: var(--field-row-label-line-height);
+    --select-control-size: 34px;
+
+    /* A clear button does not grow it: its 44px target reaches past the box (SelectControl.module.css), so a list
+       that stays open after a pick stands where it opened (owner 10.11: the list jumped after the first choice) */
+    min-height: 0;
+    margin-block: calc((var(--field-row-label-line-height) - 34px) / 2);
     border-radius: 0;
   }
 

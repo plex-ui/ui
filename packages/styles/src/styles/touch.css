@@ -13,6 +13,13 @@
  * `3xl` is the 50px main action of a sign-in or checkout screen.
  */
 @media (max-width: 767px) {
+  /* A phone menu that covers its trigger whole hides it while it is open, as iOS 27.2 turns a bar button into its menu
+     (ref-app menus-bar, block 8; menuTriggerCover.ts, markCoveredMenuTrigger): the round button showed past the
+     panel's 34px corner and through its glass. */
+  [data-menu-covered] {
+    visibility: hidden;
+  }
+
   /* Secondary row values and accessories share the native label role, including
      explicit text-secondary currency and unit labels. */
   :where([data-row]) {
@@ -223,7 +230,18 @@
     --menu-default-width: 250px;
     --menu-default-min-width: 250px;
     --menu-padding-inline: 16px;
-    --menu-shadow: 0 8px 40px rgb(0 0 0 / 12%);
+    /* A menu is glass with an edge, as iOS 27.2 draws one (ref-app menus-full, block 8, @3x): in light a dark line
+       all round, 21% at the top and the bottom and 22 to 38% along the sides, the bottom lit white inside; in dark
+       no line but a light rim along the top and the bottom (93 to 62 on a 35 panel) and none on the sides. That is
+       the raised glass of the bar buttons (mobile-materials.css) with the darker outline of the glass Alert
+       (Dialog.module.css): their 9% all round left the panel's edge invisible on a white page, and 18% drew the
+       top and the bottom at 192, darker than native's 202. */
+    --menu-shadow: 0 8px 40px light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 8%)),
+      1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 16%), transparent),
+      -1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 16%), transparent),
+      0 0 0 0.5px light-dark(rgb(0 0 0 / 12%), transparent),
+      inset 0 0.67px 0 var(--mobile-glass-rim, transparent),
+      inset 0 -0.67px 0 var(--mobile-glass-rim, transparent);
     /* A menu has the corner of the iOS 27 kit Menu (Menus: r34), as a popover on a phone does. */
     --menu-radius: 34px;
     --menu-radius-pill: 34px;
@@ -277,6 +295,10 @@
     --menu-check-column: 13px;
     --menu-check-gap: 8.5px;
     --menu-check-size: 18px;
+    /* The checkmark has the weight of the symbol a menu draws (ref-app pickers-menu and pickers-desc-uikit, block 8,
+       @3x): its stroke 5.1 to 5.4px against the 18px Check's 4.2, the box the same 31 by 30. The Check's path is
+       stroked 0.45 of its 24 units more, which comes to 5.2. */
+    --menu-check-stroke: 0.45px;
     --menu-check-icon-offset: 2px;
     --menu-check-icon-gap: 14px;
     --menu-check-label-inset: calc(6px + var(--menu-check-column) + var(--menu-check-gap));

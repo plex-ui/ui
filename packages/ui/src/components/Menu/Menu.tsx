@@ -25,7 +25,7 @@ import { captureInitialPhoneSubmenuFocus, completeInitialPhoneSubmenuFocus, dele
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
-import { ignoreReleaseOverTrigger, observeMenuTriggerCover, type MenuTriggerCover } from "../../lib/menuTriggerCover"
+import { ignoreReleaseOverTrigger, markCoveredMenuTrigger, observeMenuTriggerCover, type MenuTriggerCover } from "../../lib/menuTriggerCover"
 import { Button } from "../Button"
 import { Check, ChevronDown, ChevronRight } from "../Icon"
 import { PhoneLayoutContext } from "../PhoneLayout/PhoneLayout"
@@ -513,6 +513,13 @@ const Content = ({
 }: MenuContentProps) => {
   const { open, prepareFocusRestore, triggerElement, modal } = useMenuContext()
   const contentRef = useRef<HTMLDivElement>(null)
+  // The panel's node as state too: it mounts after the trigger's cover is known, and again when the phone layout moves
+  // the portal, so the effect that hides the covered trigger reruns with the node that is on screen
+  const [contentElement, setContentElement] = useState<HTMLDivElement | null>(null)
+  const setContent = useCallback((node: HTMLDivElement | null) => {
+    contentRef.current = node
+    setContentElement(node)
+  }, [])
   const interactedOutside = useRef(false)
   const phoneLayout = useMenuPhoneLayout(open)
   const floatingBoundary = phoneLayout.boundary
@@ -525,6 +532,11 @@ const Content = ({
     return observeMenuTriggerCover(triggerElement, setTriggerCover)
   }, [coversTrigger, triggerElement])
   const cover = coversTrigger ? triggerCover : null
+  // A trigger the panel covers whole is hidden while it is open, as iOS turns a bar button into its menu
+  useLayoutEffect(() => {
+    if (!cover || !triggerElement || !contentElement) return
+    return markCoveredMenuTrigger(triggerElement, contentElement)
+  }, [cover, triggerElement, contentElement])
   const [exitGuard] = useState(createExitGuard)
   const isHorizontal = layout === "horizontal"
   // The content of a closing menu is frozen for its exit, so this reads the owner's latest handler.
@@ -568,7 +580,7 @@ const Content = ({
         {open && (
           <RootMenuContent
             key="dropdown"
-            ref={contentRef}
+            ref={setContent}
             onOpenAutoFocus={(event) => {
               onOpenAutoFocus?.(event)
               delegateInitialPhoneSubmenuFocus(event, contentRef.current)

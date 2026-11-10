@@ -1,8 +1,11 @@
 /* Mobile glass shared by Back, Close, More and the phone toolbar: the Liquid Glass of the iOS 27 kit's bar
    buttons (Toolbars 507:25993, Buttons - 44pt 5432:23133). A translucent fill that lifts a dark backdrop and
    dims a white one a little, a hairline outline with darker sides that keeps the capsule visible on any
-   background, a faint shadow, a sheen darker at the top and lighter at the bottom, and a thin rim of light
-   along the top and the bottom edges that fades out at the sides. The kit draws that rim on the top-left and
+   background, a faint shadow, and a thin rim of light along the top and the bottom edges that fades out at the
+   sides. No gradient across it (owner 10.11, again: «раз и навсегда»): native glass is flat from top to bottom
+   (ref-app glass-bands, iOS 27.2, @3x: bar and content buttons on white, the grouped background, gray, black,
+   blue and orange; light f9 on white and f3f3f8 on f2f2f7 all the way down, dark 1f on black), so the old
+   sheen, black 3% at the top and white 45% at the bottom, is gone. The kit draws that rim on the top-left and
    bottom-right corners; native glass lights the top and bottom alike and none of the sides (Photos Close,
    IMG_5453; Calendar checkmark, IMG_5433; 08.11), and a rim on one diagonal made a round button read as an
    oval. A deeper shadow comes once content is under the control. */
@@ -16,15 +19,20 @@
     --mobile-glass-background: light-dark(alpha(var(--gray-75), 55%), var(--alpha-12));
     --mobile-glass-background-hover: light-dark(alpha(var(--gray-75), 65%), var(--alpha-16));
     --mobile-glass-background-active: light-dark(alpha(var(--gray-75), 75%), var(--alpha-20));
-    --mobile-glass-rim: light-dark(rgb(255 255 255 / 100%), rgb(255 255 255 / 30%));
-    --mobile-glass-sheen: linear-gradient(light-dark(rgb(0 0 0 / 3%), rgb(0 0 0 / 6%)), transparent 50%, light-dark(rgb(255 255 255 / 45%), rgb(255 255 255 / 3%)));
+    /* The rim (glass-bands, @3x): light, white along the top and the bottom, 2px of ff over an f9 fill; dark, 59 and
+       49 over a 1f fill, white at about 24%, then a fall of a few levels within 2pt that is not drawn. */
+    --mobile-glass-rim: light-dark(rgb(255 255 255 / 100%), rgb(255 255 255 / 24%));
+    --mobile-glass-sheen: none;
     /* The kit's edge in light: a 0.5px outline all round and the sides 0.5px darker, with a 2% shadow 8px
        down. The kit burns the outline in (#e8e8e8 and #d0d0d0, linear burn), so it darkens whatever lies
        under it by 23 and 47 levels: native glass on a page dimmed to 194 shows its edge at 170 to 177
        (IMG_5533; plan 172). Black at 9% all round does the same on any background, where a fixed gray-100
        vanished on a gray page and read lighter than a darker one; the sides lie over it, so 10% more
        comes to 18% there. Dark glass has neither in native frames, only its rim. */
-    --mobile-glass-outline: 1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 10%), transparent), -1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 10%), transparent), 0 0 0 0.5px light-dark(rgb(0 0 0 / 9%), transparent);
+    /* Measured again on iOS 27.2 (glass-bands, @3x): a bar button over white has its top and bottom at e7 and e3
+       (black 9 to 11%) and its sides at b6 between e7 and ea, a darker core of about 29%; content glass d0 (18%).
+       The bar's buttons take the bar's: the sides 20% over the 9% ring, 27% together. */
+    --mobile-glass-outline: 1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 20%), transparent), -1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 20%), transparent), 0 0 0 0.5px light-dark(rgb(0 0 0 / 9%), transparent);
     --mobile-glass-shadow: 0 8px 15px light-dark(rgb(0 0 0 / 2%), transparent), var(--mobile-glass-outline), inset 0 0.67px 0 var(--mobile-glass-rim), inset 0 -0.67px 0 var(--mobile-glass-rim);
     --mobile-glass-shadow-raised: 0 8px 40px light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 8%)), var(--mobile-glass-outline), inset 0 0.67px 0 var(--mobile-glass-rim), inset 0 -0.67px 0 var(--mobile-glass-rim);
     /* The kit's Glass Effect frosts at a radius of 6 (iOS 27 Buttons - 44pt, 5720:29596; refraction 0.7,
@@ -52,12 +60,15 @@
        the menu (37 by 24pt, IMG_5524) spreads to 55 by 37pt at half its height and keeps a third of its
        strength (IMG_5525), a blur of 18 (14 to 20 by the width, the height and the peak); text under it is
        gone. A blur of 10 left the page's text at 1.5 to 3:1 against its background, readable (plan 176).
-       Light menus keep the elevated surface; the blur applies in dark only. */
-    --menu-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));
+       Light menus are glass too in iOS 27.2 (ref-app menus, block 8, @3x): 254 over a white page, 249 to 252 over
+       the grouped 242, 227 to 236 over the 194 of a context menu's dimming; white at 65% comes to 255, 250 and 234,
+       as the glass Alert does. The page under them is blurred the same. */
+    --menu-mobile-background: light-dark(rgb(255 255 255 / 65%), var(--alpha-12));
     --menu-mobile-backdrop-filter: blur(18px);
-    /* A popover takes the material of the menus: iOS 26 presents an action sheet from its source in the same
-       dark glass (iOS2 IMG_5528: a card of 44 under it at 65 to 69, the sheet of 28 at 55). */
-    --popover-mobile-background: var(--menu-mobile-background);
+    /* A popover takes the dark material of the menus: iOS 26 presents an action sheet from its source in the same
+       dark glass (iOS2 IMG_5528: a card of 44 under it at 65 to 69, the sheet of 28 at 55). In light it keeps the
+       elevated surface until the popover is measured in iOS 27.2 (block 14). */
+    --popover-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));
     --popover-mobile-backdrop-filter: var(--menu-mobile-backdrop-filter);
     /* An Alert is glass in both themes, as native iOS alerts are. Light: Files (iOS-menu, Screenshot 18.22.08,
        08.11) shows 237 over a page dimmed to 204, as white at 65% does; kit iOS 27 (Alerts 65:57149) comes to

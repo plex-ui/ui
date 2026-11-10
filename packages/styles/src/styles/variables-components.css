@@ -780,10 +780,12 @@
     /* =============================================
       Context menu
     ============================================= */
-    /* The iOS 26 kit Context Menu - Dimming Overlay (507:25994): black at 23% over a 30px background blur; the
-       kit shows light only, so dark takes the Dialog's dark scrim. The preview keeps the element's own corner, or
-       the kit's Content Area radius 30, and its drop shadow 32 at 20%. */
-    --context-menu-dimming-background: light-dark(rgb(0 0 0 / 23%), rgb(0 0 0 / 50%));
+    /* The iOS 26 kit Context Menu - Dimming Overlay (507:25994): black over a 30px background blur; the kit shows
+       light only, so dark takes the Dialog's dark scrim. Light is black at 20%, as iOS 27.2 dims a list for a
+       context menu (ref-app menus-context, block 8: the grouped 242 to 194, a white row to 200 to 202); the kit's
+       23% came darker. The preview keeps the element's own corner, or the kit's Content Area radius 30, and its
+       drop shadow 32 at 20%. */
+    --context-menu-dimming-background: light-dark(rgb(0 0 0 / 20%), rgb(0 0 0 / 50%));
     --context-menu-dimming-backdrop-filter: blur(30px);
     --context-menu-preview-radius: 30px;
     --context-menu-preview-shadow: 0 0 32px rgb(0 0 0 / 20%);

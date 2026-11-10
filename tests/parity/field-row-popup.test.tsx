@@ -124,7 +124,8 @@ describe.each(["React", "Vue"])("%s Field popup row", (framework) => {
     const menu = page.getByRole("dialog", { hidden: true })
     expect(menu.getAttribute("data-align")).toBe("center")
     expect(menu.style.getPropertyValue("--select-list-width")).toBe("")
-    expect(menu.style.getPropertyValue("--select-list-max-width")).toBe("auto")
+    // No maximum: an "auto" one leaves the variable out (Select.module.css reads it as a cap of a phone's 250pt)
+    expect(menu.style.getPropertyValue("--select-list-max-width")).toBe("")
   })
 
   // A FieldGroup with columns starts every value at one column (iOS typed details): the menu opens from there
@@ -182,14 +183,14 @@ describe.each(["React", "Vue"])("%s Field popup row", (framework) => {
       await flushVue()
     }
     const page = within(document.body)
-    const menuOf = () => page.getAllByRole("dialog", { hidden: true }).find((dialog) => dialog.style.getPropertyValue("--select-list-max-width"))
+    const menuOf = () => page.queryAllByRole("dialog", { hidden: true }).find((dialog) => dialog.className.includes("MenuList"))
     const control = await page.findByRole("button", { name: /^Home/ })
     expect(control.hasAttribute("data-pill")).toBe(false)
     await press(control)
     await waitFor(() => expect(menuOf()).toBeTruthy())
     expect(menuOf()!.getAttribute("data-align")).toBe("center")
     expect(menuOf()!.style.getPropertyValue("--select-list-width")).toBe("")
-    expect(menuOf()!.style.getPropertyValue("--select-list-max-width")).toBe("auto")
+    expect(menuOf()!.style.getPropertyValue("--select-list-max-width")).toBe("")
     await press(control)
     await waitFor(() => expect(menuOf()).toBeFalsy())
     // A row of the popup's own is a row with no columns: the columns of the group outside do not reach it

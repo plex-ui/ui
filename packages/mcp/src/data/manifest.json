@@ -1579,7 +1579,7 @@
         {
           "name": "Overview",
           "code": "<ContextMenu>\n<ContextMenu.Trigger>\n  <div tabIndex={0}>Groceries</div>\n</ContextMenu.Trigger>\n<ContextMenu.Content>\n  <ContextMenu.Item onSelect={copy}><Copy /> Copy</ContextMenu.Item>\n  <ContextMenu.Item onSelect={share}><Share /> Share</ContextMenu.Item>\n  <ContextMenu.Item onSelect={pin}><Pin /> Pin</ContextMenu.Item>\n  <ContextMenu.Separator />\n  <ContextMenu.Item danger onSelect={remove}><RemoveTrash /> Delete</ContextMenu.Item>\n</ContextMenu.Content>\n</ContextMenu>",
-          "details": "Wrap the element in ContextMenu.Trigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. When the menu would not fit below the element, the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list."
+          "details": "Wrap the element in ContextMenu.Trigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, on the side where the element stands, as iOS 27.2 places it: at the element's start edge in the first third of the screen, at its end edge in the last third, and centred under it in the middle. The press that opened the menu does not activate the element. An element in the lower half of the screen opens its menu 16px above it where it fits, and stays where it is. When the menu fits on neither side, it opens below and the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list."
         },
         {
           "name": "Rounded elements",
@@ -5506,7 +5506,7 @@
           "name": "checkPosition",
           "type": "\"start\" | \"end\" | \"none\"",
           "default": "\"start\"",
-          "description": "Where the check indicator sits in the list. \"none\" removes the indicator column for lists that never carry a selection"
+          "description": "Where the check indicator sits in the list. \"none\" removes the indicator column for lists that never carry a selection. On a phone the checkmark leads the row, as in iOS menus, so \"end\" stands at the start there"
         },
         {
           "name": "OptionView",
@@ -5538,7 +5538,7 @@
           "name": "side",
           "type": "\"top\" | \"bottom\"",
           "default": "\"bottom\"",
-          "description": "Preferred side of the list"
+          "description": "Preferred side of the list. Without one, on a phone the list opens over its trigger toward the larger part of the screen"
         },
         {
           "name": "align",
@@ -5549,13 +5549,13 @@
         {
           "name": "listWidth",
           "type": "number | \"auto\"",
-          "default": "trigger width (fits the options when not block or at the end of a Field row)",
+          "default": "trigger width (fits the options when not block or at the end of a Field row; 250px on a phone)",
           "description": "Width of the list in px"
         },
         {
           "name": "listMinWidth",
           "type": "number | \"auto\"",
-          "default": "trigger width",
+          "default": "trigger width (at least 250px on a phone, unless the list has its own width or a smaller maximum)",
           "description": "Minimum width of the list in px"
         },
         {
@@ -5585,7 +5585,7 @@
           "name": "searchSize",
           "type": "ControlSize",
           "default": "\"md\"",
-          "description": "Size of the search input in the menu, such as 2xl for 44px touch targets on phones"
+          "description": "Size of the search input in the menu. A phone list has no search: it is an iOS menu, and a long one scrolls"
         },
         {
           "name": "searchPredicate",
@@ -5606,18 +5606,18 @@
         },
         {
           "name": "With descriptions",
-          "code": "const RoleOptionDescription = ({ children }: { children: ReactNode }) => (\n<div className=\"font-normal text-secondary text-[0.935em] leading-[1.45]\">\n  {children}\n</div>\n);\n\nconst roles = [\n{\n  value: \"owner\",\n  label: \"Owner\",\n  description: (\n    <RoleOptionDescription>\n      Can modify project information and manage project members\n    </RoleOptionDescription>\n  ),\n},\n{\n  value: \"reader\",\n  label: \"Reader\",\n  description: (\n    <RoleOptionDescription>\n      Can make API requests that read or modify data\n    </RoleOptionDescription>\n  ),\n},\n];\n\n<Select\nvalue={role}\noptions={roles}\nplaceholder=\"Select role...\"\nalign=\"start\"\nlistMinWidth={260}\nvariant=\"outline\"\nsize=\"md\"\nonChange={({ value }) => setRole(value)}\nTriggerStartIcon={role === \"owner\" ? UserLock : User}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Role\">\n  <Select\n    value={role}\n    options={roles}\n    block={false}\n    align=\"end\"\n    listMinWidth={260}\n    onChange={({ value }) => setRole(value)}\n  />\n</Field>\n</FieldGroup>",
+          "code": "const RoleOptionDescription = ({ children }: { children: ReactNode }) => (\n<div className=\"font-normal text-secondary text-[0.935em] leading-[1.45]\">\n  {children}\n</div>\n);\n\nconst roles = [\n{\n  value: \"owner\",\n  label: \"Owner\",\n  description: (\n    <RoleOptionDescription>\n      Can modify project information and manage project members\n    </RoleOptionDescription>\n  ),\n},\n{\n  value: \"reader\",\n  label: \"Reader\",\n  description: (\n    <RoleOptionDescription>\n      Can make API requests that read or modify data\n    </RoleOptionDescription>\n  ),\n},\n];\n\n<Select\nvalue={role}\noptions={roles}\nplaceholder=\"Select role...\"\nalign=\"start\"\nlistMinWidth={260}\nvariant=\"outline\"\nsize=\"md\"\nonChange={({ value }) => setRole(value)}\nTriggerStartIcon={role === \"owner\" ? UserLock : User}\n/>\n\n// Phone: plain descriptions, which the list sets as iOS menu subtitles\nconst phoneRoles = [\n{ value: \"owner\", label: \"Owner\", description: \"Can modify project information and manage project members\" },\n{ value: \"reader\", label: \"Reader\", description: \"Can make API requests that read or modify data\" },\n];\n\n<FieldGroup>\n<Field row label=\"Role\">\n  <Select\n    value={role}\n    options={phoneRoles}\n    block={false}\n    align=\"end\"\n    onChange={({ value }) => setRole(value)}\n  />\n</Field>\n</FieldGroup>",
           "details": "Options carrying a description field render a secondary line under each label. The title stays semibold in every state (idle, highlighted, selected). The component handles that automatically, no optionClassName needed. Use TriggerStartIcon to reflect the selected option's identity in the trigger. In a phone row the value stands alone at the row's end, so the row has no trigger icon."
         },
         {
           "name": "Actions",
-          "code": "// Desktop\n<Select\nvalue={value}\nonChange={handleChange}\noptions={items}\nplaceholder=\"Select...\"\nalign=\"start\"\nlistMinWidth={240}\nactions={[\n  { id: \"create\", label: \"Create project\", Icon: Plus, onSelect: () => {} },\n  { id: \"overview\", label: \"Organization overview\", Icon: Workspace, onSelect: () => {} },\n]}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Project\">\n  <Select\n    value={value}\n    onChange={handleChange}\n    options={items}\n    placeholder=\"None\"\n    block={false}\n    align=\"end\"\n    listMinWidth={240}\n    actions={actions}\n  />\n</Field>\n</FieldGroup>",
+          "code": "// Desktop\n<Select\nvalue={value}\nonChange={handleChange}\noptions={items}\nplaceholder=\"Select...\"\nalign=\"start\"\nlistMinWidth={240}\nactions={[\n  { id: \"create\", label: \"Create project\", Icon: Plus, onSelect: () => {} },\n  { id: \"overview\", label: \"Organization overview\", Icon: Workspace, onSelect: () => {} },\n]}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Project\">\n  <Select\n    value={value}\n    onChange={handleChange}\n    options={items}\n    placeholder=\"None\"\n    block={false}\n    align=\"end\"\n    actions={actions}\n  />\n</Field>\n</FieldGroup>",
           "details": "Custom, arbitrary actions can be displayed below the options list via the actions prop."
         },
         {
           "name": "Grouped options",
-          "code": "// Desktop\n<Select\nvalue={value}\noptions={groupedItems}\nonChange={(v) => setValue(v.value)}\nvariant=\"outline\"\nsize=\"lg\"\nside=\"bottom\"\nlistMinWidth={300}\nsearchPlaceholder=\"Select an option...\"\nclearable\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Plan\">\n  <Select\n    value={value}\n    options={groupedItems}\n    onChange={(v) => setValue(v.value)}\n    block={false}\n    align=\"end\"\n    listMinWidth={300}\n    searchPlaceholder=\"Select an option...\"\n  />\n</Field>\n</FieldGroup>",
-          "details": "Select supports option groups, similar to the native &lt;optgroup&gt; element. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options."
+          "code": "// Desktop\n<Select\nvalue={value}\noptions={groupedItems}\nonChange={(v) => setValue(v.value)}\nvariant=\"outline\"\nsize=\"lg\"\nside=\"bottom\"\nlistMinWidth={300}\nsearchPlaceholder=\"Select an option...\"\nclearable\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Plan\">\n  <Select\n    value={value}\n    options={groupedItems}\n    onChange={(v) => setValue(v.value)}\n    block={false}\n    align=\"end\"\n    searchPlaceholder=\"Select an option...\"\n  />\n</Field>\n</FieldGroup>",
+          "details": "Select supports option groups, similar to the native &lt;optgroup&gt; element. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options. On a phone the list is an iOS menu, which has no search: a long list scrolls."
         },
         {
           "name": "Multiple selection",
@@ -5626,8 +5626,8 @@
         },
         {
           "name": "Column configuration",
-          "code": "const allColumns = [\n{ id: \"name\", label: \"Name\" },\n{ id: \"email\", label: \"Email\" },\n{ id: \"role\", label: \"Role\" },\n{ id: \"status\", label: \"Status\" },\n{ id: \"created\", label: \"Created at\" },\n{ id: \"lastLogin\", label: \"Last login\" },\n{ id: \"avatar\", label: \"Avatar\" },\n{ id: \"phone\", label: \"Phone\" },\n]\nconst [shown, setShown] = useState([\"name\", \"email\", \"role\", \"status\"])\nconst heading = useRef<HTMLDivElement>(null)\nconst toggle = (id: string) => {\nsetShown((prev) =>\n  prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]\n)\n}\nconst shownColumns = allColumns.filter((c) => shown.includes(c.id))\nconst hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))\n\n// Desktop: a popover; a switch moves its column between the shown and hidden lists\n<Popover>\n<Popover.Trigger>\n  <Button color=\"secondary\" variant=\"outline\" size=\"sm\">\n    <SettingsSlider width={15} height={15} /> Columns\n  </Button>\n</Popover.Trigger>\n<Popover.Content minWidth={240} side=\"bottom\" align=\"start\">\n  <div className=\"py-1.5\">\n    {shownColumns.map((col) => (\n      <div\n        key={col.id}\n        className=\"flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5\"\n        onClick={() => toggle(col.id)}\n      >\n        <span className=\"text-sm\">{col.label}</span>\n        <Switch checked aria-label={col.label} />\n      </div>\n    ))}\n    {hiddenColumns.map((col) => (\n      <div\n        key={col.id}\n        className=\"flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5\"\n        onClick={() => toggle(col.id)}\n      >\n        <span className=\"text-sm text-tertiary\">{col.label}</span>\n        <Switch checked={false} aria-label={col.label} />\n      </div>\n    ))}\n  </div>\n</Popover.Content>\n</Popover>\n\n// Phone: a sheet of switch rows in a fixed order\n<Dialog>\n<Dialog.Trigger>\n  <Button color=\"secondary\" variant=\"outline\" size=\"sm\">\n    <SettingsSlider width={15} height={15} /> Columns\n  </Button>\n</Dialog.Trigger>\n<Dialog.Content mobileVariant=\"sheet\" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>\n  <Dialog.Header>\n    <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Columns</Dialog.Title></div>\n  </Dialog.Header>\n  <Dialog.Body>\n    <FieldGroup>\n      {allColumns.map((col) => (\n        <Field row key={col.id} label={col.label}>\n          <Switch color=\"accent\" checked={shown.includes(col.id)} onCheckedChange={() => toggle(col.id)} />\n        </Field>\n      ))}\n    </FieldGroup>\n  </Dialog.Body>\n</Dialog.Content>\n</Dialog>",
-          "details": "A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups. On a phone the panel is a sheet (Dialog with mobileVariant=\"sheet\") of Field rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes."
+          "code": "const allColumns = [\n{ id: \"name\", label: \"Name\" },\n{ id: \"email\", label: \"Email\" },\n{ id: \"role\", label: \"Role\" },\n{ id: \"status\", label: \"Status\" },\n{ id: \"created\", label: \"Created at\" },\n{ id: \"lastLogin\", label: \"Last login\" },\n{ id: \"avatar\", label: \"Avatar\" },\n{ id: \"phone\", label: \"Phone\" },\n]\nconst [shown, setShown] = useState([\"name\", \"email\", \"role\", \"status\"])\nconst heading = useRef<HTMLDivElement>(null)\nconst toggle = (id: string) => {\nsetShown((prev) =>\n  prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]\n)\n}\nconst shownColumns = allColumns.filter((c) => shown.includes(c.id))\nconst hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))\n\n// Desktop: a popover; a switch moves its column between the shown and hidden lists\n<Popover>\n<Popover.Trigger>\n  <Button color=\"secondary\" variant=\"outline\" size=\"sm\">\n    <SettingsSlider width={15} height={15} /> Columns\n  </Button>\n</Popover.Trigger>\n<Popover.Content minWidth={240} side=\"bottom\" align=\"start\">\n  <div className=\"py-1.5\">\n    {shownColumns.map((col) => (\n      <div\n        key={col.id}\n        className=\"flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5\"\n        onClick={() => toggle(col.id)}\n      >\n        <span className=\"text-sm\">{col.label}</span>\n        <Switch checked aria-label={col.label} />\n      </div>\n    ))}\n    {hiddenColumns.map((col) => (\n      <div\n        key={col.id}\n        className=\"flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5\"\n        onClick={() => toggle(col.id)}\n      >\n        <span className=\"text-sm text-tertiary\">{col.label}</span>\n        <Switch checked={false} aria-label={col.label} />\n      </div>\n    ))}\n  </div>\n</Popover.Content>\n</Popover>\n\n// Phone: a bar button of the top bar opens a sheet of switch rows in a fixed order\n<Page>\n<Toolbar>\n  <Toolbar.Title>Members</Toolbar.Title>\n  <Toolbar.Trailing>\n    <Dialog>\n      <Dialog.Trigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Columns\">\n          <DotsHorizontal />\n        </Button>\n      </Dialog.Trigger>\n      <Dialog.Content mobileVariant=\"sheet\" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>\n        <Dialog.Header>\n          <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Columns</Dialog.Title></div>\n        </Dialog.Header>\n        <Dialog.Body>\n          <FieldGroup>\n            {allColumns.map((col) => (\n              <Field row key={col.id} label={col.label}>\n                <Switch color=\"accent\" checked={shown.includes(col.id)} onCheckedChange={() => toggle(col.id)} />\n              </Field>\n            ))}\n          </FieldGroup>\n        </Dialog.Body>\n      </Dialog.Content>\n    </Dialog>\n  </Toolbar.Trailing>\n</Toolbar>\n</Page>",
+          "details": "A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups. On a phone the panel is a sheet (Dialog with mobileVariant=\"sheet\") of Field rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More bar button of the screen's Toolbar, three dots on glass, as iOS apps open their view options."
         }
       ],
       "docsUrl": "https://plexui.com/components/select"
@@ -8236,5 +8236,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-10T16:17:19.547Z"
+  "generatedAt": "2026-11-10T19:44:46.889Z"
 }

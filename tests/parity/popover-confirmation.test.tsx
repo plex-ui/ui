@@ -139,12 +139,13 @@ describe.each<Example>(["React", "React copied example", "Vue preview", "Vue cop
 })
 
 describe("a phone popover takes the iOS 26 popover material (kit Action Sheet 5446:10266, iOS2 IMG_5528)", () => {
-  test("the phone tokens: the 34px corner and the menu material", () => {
+  test("the phone tokens: the 34px corner, the menu's dark glass and the elevated surface in light", () => {
     const touch = read("packages/styles/src/styles/touch.css")
     const phone = touch.slice(touch.indexOf("@media (max-width: 767px) {"), touch.indexOf("@media (min-width: 414px)"))
     expect(phone).toContain("--popover-radius: 34px;")
     const materials = read("packages/styles/src/styles/mobile-materials.css")
-    expect(materials).toContain("--popover-mobile-background: var(--menu-mobile-background);")
+    // Light menus became glass in iOS 27.2 (block 8); a popover keeps the elevated surface until it is measured
+    expect(materials).toContain("--popover-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));")
     expect(materials).toContain("--popover-mobile-backdrop-filter: var(--menu-mobile-backdrop-filter);")
     expect(read("packages/styles/src/styles/variables-components.css")).toContain("--popover-radius: var(--radius-xl);")
   })

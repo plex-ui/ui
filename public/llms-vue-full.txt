@@ -1972,7 +1972,7 @@ Props:
     - aria-label (string) — Names the menu for assistive technology, in place of the name of its element
 
 ### Overview
-Wrap the element in ContextMenuTrigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. When the menu would not fit below the element, the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list.
+Wrap the element in ContextMenuTrigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, on the side where the element stands, as iOS 27.2 places it: at the element's start edge in the first third of the screen, at its end edge in the last third, and centred under it in the middle. The press that opened the menu does not activate the element. An element in the lower half of the screen opens its menu 16px above it where it fits, and stays where it is. When the menu fits on neither side, it opens below and the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list.
 ```vue
 <ContextMenu>
   <ContextMenuTrigger>
@@ -7185,21 +7185,21 @@ Props:
   - required (boolean) — Required for native form validation
   - id (string) — Id of the hidden form input
   - actions (array) — Actions below options list
-  - check-position ("start" | "end" | "none") default: "start" — Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection
+  - check-position ("start" | "end" | "none") default: "start" — Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection. On a phone the checkmark leads the row, as in iOS menus, so "end" stands at the start there
   - #optionView / OptionView (slot (option) | Component) — Custom option render
   - #triggerView / TriggerView (slot | Component) — Custom trigger render: the selected option, or { values, selectedAll } with multiple
   - TriggerStartIcon (Component) — Icon at the start of the trigger
   - #trigger / trigger (slot ({ open, onToggle }) | function) — Custom trigger element, wrapped as the popover trigger
   - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Indicator at the end of the trigger
-  - side ("top" | "bottom") default: "bottom" — Preferred side of the list
+  - side ("top" | "bottom") default: "bottom" — Preferred side of the list. Without one, on a phone the list opens over its trigger toward the larger part of the screen
   - align ("start" | "center" | "end") default: "end" at the end of a Field row ("start" in a FieldGroup with columns), "center" when block, otherwise "start" — Alignment of the list against the trigger
-  - list-width (number | "auto") default: trigger width (fits the options when not block or at the end of a Field row) — Width of the list in px
-  - list-min-width (number | "auto") default: trigger width — Minimum width of the list in px
+  - list-width (number | "auto") default: trigger width (fits the options when not block or at the end of a Field row; 250px on a phone) — Width of the list in px
+  - list-min-width (number | "auto") default: trigger width (at least 250px on a phone, unless the list has its own width or a smaller maximum) — Minimum width of the list in px
   - list-max-width (number | "auto") default: "auto" (300 when it fits the options) — Maximum width of the list in px
   - search-placeholder (string) — Search input placeholder
   - search-aria-label (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
   - #searchEmptyMessage / search-empty-message (slot | string) default: "No results found." — Shown when the search matches nothing
-  - search-size (ControlSize) default: "md" — Size of the search input in the menu, such as 2xl for 44px touch targets on phones
+  - search-size (ControlSize) default: "md" — Size of the search input in the menu. A phone list has no search: it is an iOS menu, and a long one scrolls
   - search-predicate ((option, term) => boolean) — Filters options while searching
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
 
@@ -7251,7 +7251,6 @@ Bind the selection with v-model:value: a string, or an array of strings with mul
       :block="false"
       align="end"
       :clearable="clearable"
-      :check-position="checkPosition"
       v-model:value="multiFruits"
     >
       <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
@@ -7266,7 +7265,6 @@ Bind the selection with v-model:value: a string, or an array of strings with mul
       :block="false"
       align="end"
       :clearable="clearable"
-      :check-position="checkPosition"
       v-model:value="fruit"
     />
   </Field>
@@ -7296,11 +7294,9 @@ Options carrying a description field render a secondary line under each label. A
   <Field row label="Role">
     <Select
       v-model:value="role"
-      :options="roles"
+      :options="phoneRoles"
       :block="false"
       align="end"
-      :list-min-width="260"
-      :check-position="checkPosition"
     />
   </Field>
 </FieldGroup>
@@ -7335,7 +7331,6 @@ Custom, arbitrary actions can be displayed below the options list via the action
       :options="items"
       placeholder="None"
       align="end"
-      :list-min-width="240"
       :actions="[
         { id: 'create', label: 'Create project', Icon: Plus, onSelect: () => {} },
         { id: 'overview', label: 'Organization overview', Icon: Workspace, onSelect: () => {} },
@@ -7346,7 +7341,7 @@ Custom, arbitrary actions can be displayed below the options list via the action
 ```
 
 ### Grouped options
-Select supports option groups, similar to the native &lt;optgroup&gt; element, and per-option tooltips. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.
+Select supports option groups, similar to the native &lt;optgroup&gt; element, and per-option tooltips. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options. On a phone the list is an iOS menu, which has no search: a long list scrolls.
 ```vue
 <!-- Desktop -->
 <div style="width: 200px">
@@ -7370,7 +7365,6 @@ Select supports option groups, similar to the native &lt;optgroup&gt; element, a
       :block="false"
       align="end"
       :options="groupedItems"
-      :list-min-width="300"
       search-placeholder="Select an option..."
     />
   </Field>
@@ -7415,7 +7409,7 @@ Multiple selection is supported through the multiple property. This changes how 
 ```
 
 ### Column configuration
-A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups. On a phone the panel is a sheet (Dialog with mobile-variant="sheet") of Field rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes.
+A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups. On a phone the panel is a sheet (Dialog with mobile-variant="sheet") of Field rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More bar button of the screen's Toolbar, three dots on glass, as iOS apps open their view options.
 ```vue
 <!-- Desktop -->
 <Popover>
@@ -7450,24 +7444,31 @@ A column-visibility panel built with Popover and Switch. Toggling a switch moves
   </PopoverContent>
 </Popover>
 
-<!-- Phone: a sheet of switch rows in a fixed order. -->
-<Dialog>
-  <DialogTrigger>
-    <Button color="secondary" variant="outline" size="sm"><SettingsSlider :width="15" :height="15" /> Columns</Button>
-  </DialogTrigger>
-  <DialogContent mobile-variant="sheet" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
-    <DialogHeader>
-      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Columns</DialogTitle></div>
-    </DialogHeader>
-    <DialogBody>
-      <FieldGroup>
-        <Field v-for="col in allColumns" :key="col.id" row :label="col.label">
-          <Switch color="accent" :checked="shown.includes(col.id)" @update:checked="(on) => (shown = on ? [...shown, col.id] : shown.filter((c) => c !== col.id))" />
-        </Field>
-      </FieldGroup>
-    </DialogBody>
-  </DialogContent>
-</Dialog>
+<!-- Phone: a bar button of the top bar opens a sheet of switch rows in a fixed order. -->
+<Page>
+  <Toolbar>
+    <ToolbarTitle>Members</ToolbarTitle>
+    <ToolbarTrailing>
+      <Dialog>
+        <DialogTrigger>
+          <Button color="secondary" variant="soft" uniform pill aria-label="Columns"><DotsHorizontal /></Button>
+        </DialogTrigger>
+        <DialogContent mobile-variant="sheet" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
+          <DialogHeader>
+            <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Columns</DialogTitle></div>
+          </DialogHeader>
+          <DialogBody>
+            <FieldGroup>
+              <Field v-for="col in allColumns" :key="col.id" row :label="col.label">
+                <Switch color="accent" :checked="shown.includes(col.id)" @update:checked="(on) => (shown = on ? [...shown, col.id] : shown.filter((c) => c !== col.id))" />
+              </Field>
+            </FieldGroup>
+          </DialogBody>
+        </DialogContent>
+      </Dialog>
+    </ToolbarTrailing>
+  </Toolbar>
+</Page>
 ```
 
 ## Select Control

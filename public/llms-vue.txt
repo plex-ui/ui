@@ -912,21 +912,21 @@ Props:
   - required (boolean) — Required for native form validation
   - id (string) — Id of the hidden form input
   - actions (array) — Actions below options list
-  - check-position ("start" | "end" | "none") default: "start" — Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection
+  - check-position ("start" | "end" | "none") default: "start" — Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection. On a phone the checkmark leads the row, as in iOS menus, so "end" stands at the start there
   - #optionView / OptionView (slot (option) | Component) — Custom option render
   - #triggerView / TriggerView (slot | Component) — Custom trigger render: the selected option, or { values, selectedAll } with multiple
   - TriggerStartIcon (Component) — Icon at the start of the trigger
   - #trigger / trigger (slot ({ open, onToggle }) | function) — Custom trigger element, wrapped as the popover trigger
   - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Indicator at the end of the trigger
-  - side ("top" | "bottom") default: "bottom" — Preferred side of the list
+  - side ("top" | "bottom") default: "bottom" — Preferred side of the list. Without one, on a phone the list opens over its trigger toward the larger part of the screen
   - align ("start" | "center" | "end") default: "end" at the end of a Field row ("start" in a FieldGroup with columns), "center" when block, otherwise "start" — Alignment of the list against the trigger
-  - list-width (number | "auto") default: trigger width (fits the options when not block or at the end of a Field row) — Width of the list in px
-  - list-min-width (number | "auto") default: trigger width — Minimum width of the list in px
+  - list-width (number | "auto") default: trigger width (fits the options when not block or at the end of a Field row; 250px on a phone) — Width of the list in px
+  - list-min-width (number | "auto") default: trigger width (at least 250px on a phone, unless the list has its own width or a smaller maximum) — Minimum width of the list in px
   - list-max-width (number | "auto") default: "auto" (300 when it fits the options) — Maximum width of the list in px
   - search-placeholder (string) — Search input placeholder
   - search-aria-label (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
   - #searchEmptyMessage / search-empty-message (slot | string) default: "No results found." — Shown when the search matches nothing
-  - search-size (ControlSize) default: "md" — Size of the search input in the menu, such as 2xl for 44px touch targets on phones
+  - search-size (ControlSize) default: "md" — Size of the search input in the menu. A phone list has no search: it is an iOS menu, and a long one scrolls
   - search-predicate ((option, term) => boolean) — Filters options while searching
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
 Examples: Overview, With descriptions, Actions, Grouped options, Multiple selection, Column configuration

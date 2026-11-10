@@ -51,6 +51,13 @@ const subscribePhoneWindow = (onChange: () => void) => {
  */
 export const usePhoneLayout = (): boolean => {
   const scoped = useContext(PhoneLayoutContext) !== null
-  const narrow = useSyncExternalStore(subscribePhoneWindow, () => phoneWindow()?.matches ?? false, () => false)
+  const narrow = usePhoneWindow()
   return scoped || narrow
 }
+
+/**
+ * Whether the window is 767px wide or narrower, whatever PhoneLayout is around: for a part portaled out of one, which
+ * its phone rules do not reach (a Select's list). The server answers false.
+ */
+export const usePhoneWindow = (): boolean =>
+  useSyncExternalStore(subscribePhoneWindow, () => phoneWindow()?.matches ?? false, () => false)

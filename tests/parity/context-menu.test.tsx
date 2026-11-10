@@ -165,8 +165,9 @@ describe.each([
     expect(menu()).toBeNull()
     await settle(150)
     expect(menu()).not.toBeNull()
-    // The touch was on the trailing half, so the menu keeps to the trailing edge, 16px below the element.
-    expect(menu()?.getAttribute("data-align")).toBe("end")
+    // The element stands in the leading third of the screen, so the menu keeps to its leading edge, wherever the
+    // touch, 16px below it.
+    expect(menu()?.getAttribute("data-align")).toBe("start")
     expect(anchor()?.style.cssText).toBe("left: 16px; top: 100px; width: 370px; height: 52px;")
     const dimming = overlay()
     expect(dimming).not.toBeNull()
@@ -188,7 +189,7 @@ describe.each([
     expect(spies.clicks).toBe(1)
   })
 
-  test("a touch on the leading half keeps the menu to the leading edge", async () => {
+  test("a touch on the leading half keeps the menu to the element's leading edge too", async () => {
     await setup()
     await touch("pointerDown", 100, 120)
     await settle(550)
@@ -335,6 +336,33 @@ describe.each([
   })
 
   test("the preview moves up so that the menu stands whole below it, and back as the menu closes", async () => {
+    region$ = { x: 16, y: 150, width: 370, height: 52 }
+    Object.defineProperty(document.documentElement, "clientHeight", { configurable: true, value: 400 })
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(function height(this: HTMLElement) {
+      return this.getAttribute("role") === "menu" ? 200 : 0
+    })
+    try {
+      await setup()
+      await touch("pointerDown", 300, 170)
+      await settle(550)
+      // The element stands in the upper half, so the menu opens below it. 200 tall and 16 below the element, it ends
+      // 30 above the 400px window's bottom: 48 higher
+      expect(anchor()?.style.cssText).toBe("left: 16px; top: 102px; width: 370px; height: 52px;")
+      expect(region().style.getPropertyValue("translate")).toBe("0 -48px")
+      const hole = decodeURIComponent(overlay()?.style.getPropertyValue("--context-menu-hole") ?? "")
+      expect(hole).toContain("M42 102H360")
+      expect(overlay()?.style.getPropertyValue("--context-menu-hole-clip")).toContain("M42 102H360")
+      await touch("pointerUp", 300, 170)
+      await act(async () => { fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" }) })
+      await settle(300)
+      expect(menu()).toBeNull()
+      expect(region().style.getPropertyValue("translate")).toBe("")
+    } finally {
+      Reflect.deleteProperty(document.documentElement, "clientHeight")
+    }
+  })
+
+  test("a preview in the lower half opens its menu above it, unmoved, where the menu stands whole", async () => {
     region$ = { x: 16, y: 300, width: 370, height: 52 }
     Object.defineProperty(document.documentElement, "clientHeight", { configurable: true, value: 400 })
     vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(function height(this: HTMLElement) {
@@ -344,17 +372,12 @@ describe.each([
       await setup()
       await touch("pointerDown", 300, 320)
       await settle(550)
-      // The menu, 120 tall and 16 below the element, ends 30 above the 400px window's bottom: 118 higher
-      expect(anchor()?.style.cssText).toBe("left: 16px; top: 182px; width: 370px; height: 52px;")
-      expect(region().style.getPropertyValue("translate")).toBe("0 -118px")
-      const hole = decodeURIComponent(overlay()?.style.getPropertyValue("--context-menu-hole") ?? "")
-      expect(hole).toContain("M42 182H360")
-      expect(overlay()?.style.getPropertyValue("--context-menu-hole-clip")).toContain("M42 182H360")
-      await touch("pointerUp", 300, 320)
-      await act(async () => { fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" }) })
-      await settle(300)
-      expect(menu()).toBeNull()
+      // iOS 27.2 opens the menu toward the larger room: above, 120 tall and 16 over the element, which stays in
+      // place (below, it would move 118 up). jsdom places no popper, so the side itself is checked in
+      // contextMenuPreviewLayout and contextMenuPlacement above.
+      expect(anchor()?.style.cssText).toBe("left: 16px; top: 300px; width: 370px; height: 52px;")
       expect(region().style.getPropertyValue("translate")).toBe("")
+      await touch("pointerUp", 300, 320)
     } finally {
       Reflect.deleteProperty(document.documentElement, "clientHeight")
     }
@@ -399,22 +422,22 @@ describe.each([
   }],
 ] as const)("%s ContextMenu as its parts change", (_, mount) => {
   test("the content going away while the element stays puts the element back", async () => {
-    region$ = { x: 16, y: 300, width: 370, height: 52 }
+    region$ = { x: 16, y: 150, width: 370, height: 52 }
     Object.defineProperty(document.documentElement, "clientHeight", { configurable: true, value: 400 })
     vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(function height(this: HTMLElement) {
-      return this.getAttribute("role") === "menu" ? 120 : 0
+      return this.getAttribute("role") === "menu" ? 200 : 0
     })
     try {
       let parts: Parts = { hide: () => {}, show: () => {}, swap: () => {} }
       await act(async () => { parts = mount() })
       await settle()
-      await touch("pointerDown", 300, 320)
+      await touch("pointerDown", 300, 170)
       await settle(550)
-      expect(region().style.getPropertyValue("translate")).toBe("0 -118px")
+      expect(region().style.getPropertyValue("translate")).toBe("0 -48px")
       await act(async () => { parts.hide() })
       await settle(50)
       expect(region().style.getPropertyValue("translate")).toBe("")
-      await touch("pointerUp", 300, 320)
+      await touch("pointerUp", 300, 170)
     } finally {
       Reflect.deleteProperty(document.documentElement, "clientHeight")
     }
@@ -422,22 +445,22 @@ describe.each([
 
   test("content that comes back to a menu held open measures its move anew", async () => {
     vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("max-width"), media: query, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} }))
-    region$ = { x: 16, y: 300, width: 370, height: 52 }
+    region$ = { x: 16, y: 150, width: 370, height: 52 }
     Object.defineProperty(document.documentElement, "clientHeight", { configurable: true, value: 400 })
     vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(function height(this: HTMLElement) {
-      return this.getAttribute("role") === "menu" ? 120 : 0
+      return this.getAttribute("role") === "menu" ? 200 : 0
     })
     try {
       let parts: Parts = { hide: () => {}, show: () => {}, swap: () => {} }
       await act(async () => { parts = mount(true) })
-      await waitFor(() => expect(region().style.getPropertyValue("translate")).toBe("0 -118px"))
-      expect(anchor()?.style.top).toBe("182px")
+      await waitFor(() => expect(region().style.getPropertyValue("translate")).toBe("0 -48px"))
+      expect(anchor()?.style.top).toBe("102px")
       await act(async () => { parts.hide() })
       await settle(50)
       expect(region().style.getPropertyValue("translate")).toBe("")
       await act(async () => { parts.show() })
-      await waitFor(() => expect(region().style.getPropertyValue("translate")).toBe("0 -118px"))
-      expect(anchor()?.style.top).toBe("182px")
+      await waitFor(() => expect(region().style.getPropertyValue("translate")).toBe("0 -48px"))
+      expect(anchor()?.style.top).toBe("102px")
     } finally {
       Reflect.deleteProperty(document.documentElement, "clientHeight")
     }
@@ -541,12 +564,48 @@ describe("ContextMenu placement and dimming helpers are the same in React and Vu
     expect(shared.contextMenuPlacement(null)).toEqual({ side: "bottom", align: "start", sideOffset: 2, alignOffset: 0 })
     expect(shared.contextMenuPlacement({ kind: "keyboard", rect: REGION })).toEqual({ side: "bottom", align: "start", sideOffset: 5, alignOffset: 0 })
     expect(shared.contextMenuPlacement({ kind: "preview", rect: REGION, radius: 12, align: "end" })).toEqual({ side: "bottom", align: "end", sideOffset: 16, alignOffset: 0 })
+    expect(shared.contextMenuPlacement({ kind: "preview", rect: REGION, radius: 12, align: "center", side: "top" })).toEqual({ side: "top", align: "center", sideOffset: 16, alignOffset: 0 })
     expect(shared.CONTEXT_MENU_LONG_PRESS).toBe(500)
     expect(shared.CONTEXT_MENU_LONG_PRESS_SLOP).toBe(10)
     const mask = shared.contextMenuHoleMask({ kind: "preview", rect: { x: 10.004, y: 20, width: 100, height: 40 }, radius: 12, align: "start" }, { width: 402, height: 874 })
     expect(decodeURIComponent(mask["--context-menu-hole"])).toBe(
       "url(\"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='402' height='874' viewBox='0 0 402 874'><path fill-rule='evenodd' d='M0 0H402V874H0ZM22 20H98A12 12 0 0 1 110 32V48A12 12 0 0 1 98 60H22A12 12 0 0 1 10 48V32A12 12 0 0 1 22 20Z'/></svg>\")",
     )
+  })
+
+  test.each([reactShared, vueShared])("the menu keeps to where the preview stands, and opens toward the larger room", (shared) => {
+    const at = (x: number, width: number) => {
+      const element = document.createElement("div")
+      element.getBoundingClientRect = () => ({ x, y: 100, left: x, top: 100, width, height: 52, right: x + width, bottom: 152, toJSON: () => ({}) }) as DOMRect
+      return shared.contextMenuPreview(element)
+    }
+    const width = window.innerWidth
+    // iOS 27.2 (ref-app, block 8): a tile in the leading third, the middle or the trailing third, and a full-width row
+    expect(at(16, 96)).toMatchObject({ align: "start", radius: 26 })
+    expect(at(width / 2 - 48, 96)).toMatchObject({ align: "center" })
+    expect(at(width - 112, 96)).toMatchObject({ align: "end" })
+    expect(at(16, width - 32)).toMatchObject({ align: "center" })
+    // In a PhoneLayout the thirds are the box's: a 402px box at 400 in a 1200px window
+    const box = document.createElement("div")
+    box.setAttribute("data-plex-layout", "phone")
+    box.getBoundingClientRect = () => ({ x: 400, y: 0, left: 400, top: 0, width: 402, height: 874, right: 802, bottom: 874, toJSON: () => ({}) }) as DOMRect
+    document.body.append(box)
+    const inBox = (x: number) => {
+      const element = document.createElement("div")
+      box.append(element)
+      element.getBoundingClientRect = () => ({ x, y: 100, left: x, top: 100, width: 96, height: 96, right: x + 96, bottom: 196, toJSON: () => ({}) }) as DOMRect
+      return shared.contextMenuPreview(element).align
+    }
+    vi.stubGlobal("innerWidth", 1200)
+    expect([inBox(416), inBox(553), inBox(690)]).toEqual(["start", "center", "end"])
+    vi.unstubAllGlobals()
+    box.remove()
+    const room = { top: 30, bottom: 830 }
+    // In the upper half: below. In the lower half: above, unmoved, where the menu stands whole; else below, the
+    // preview moved up as far as the menu needs.
+    expect(shared.contextMenuPreviewLayout({ x: 16, y: 200, width: 96, height: 64 }, 100, room)).toEqual({ side: "bottom", shift: 0 })
+    expect(shared.contextMenuPreviewLayout({ x: 16, y: 500, width: 96, height: 64 }, 100, room)).toEqual({ side: "top", shift: 0 })
+    expect(shared.contextMenuPreviewLayout({ x: 16, y: 500, width: 96, height: 64 }, 480, room)).toEqual({ side: "bottom", shift: 230 })
   })
 
   test.each([reactShared, vueShared])("the preview shift, the menu's name and the frame of a PhoneLayout", (shared) => {
@@ -653,7 +712,7 @@ describe("ContextMenu tokens follow the iOS 26 kit Context Menu (507:25994)", ()
   test("the dimming, the preview corner and shadow", () => {
     const tokens = read("packages/styles/src/styles/variables-components.css")
     for (const line of [
-      "--context-menu-dimming-background: light-dark(rgb(0 0 0 / 23%), rgb(0 0 0 / 50%));",
+      "--context-menu-dimming-background: light-dark(rgb(0 0 0 / 20%), rgb(0 0 0 / 50%));",
       "--context-menu-dimming-backdrop-filter: blur(30px);",
       "--context-menu-preview-radius: 30px;",
       "--context-menu-preview-shadow: 0 0 32px rgb(0 0 0 / 20%);",

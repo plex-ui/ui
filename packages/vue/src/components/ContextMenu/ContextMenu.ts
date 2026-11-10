@@ -36,7 +36,7 @@ import {
   contextMenuNaturalHeight,
   contextMenuPlacement,
   contextMenuPreview,
-  contextMenuPreviewShift,
+  contextMenuPreviewLayout,
   liftContextMenuPreview,
   type ContextMenuFrame,
   type ContextMenuPresentation,
@@ -58,7 +58,7 @@ type ContextMenuContext = {
    */
   present: (element: HTMLElement, measure: () => ContextMenuPresentation, held?: boolean) => void
   /** Moves the preview up by `shift`, so that the menu stands whole below it */
-  lift: (shift: number) => void
+  lift: (shift: number, side?: "top" | "bottom") => void
   /** Puts a raised preview back in its place, gliding or at once */
   drop: (glide: boolean) => void
   /** Puts a raised preview back at once and forgets its move, for content that goes away while the element stays */
@@ -110,7 +110,7 @@ const ContextMenuComponent = defineComponent({
       drop(false)
       const preview = presentation.value
       if (preview?.kind !== "preview" || preview.shift === undefined) return
-      presentation.value = { ...preview, rect: { ...preview.rect, y: preview.rect.y + preview.shift }, shift: undefined }
+      presentation.value = { ...preview, rect: { ...preview.rect, y: preview.rect.y + preview.shift }, side: undefined, shift: undefined }
     }
     const present = (element: HTMLElement, measure: () => ContextMenuPresentation, still = false) => {
       drop(false)
@@ -120,13 +120,13 @@ const ContextMenuComponent = defineComponent({
       frame.value = contextMenuFrame(container.value)
       name.value = contextMenuName(element)
     }
-    const lift = (shift: number) => {
+    const lift = (shift: number, side: "top" | "bottom" = "bottom") => {
       const element = region.value
       drop(false)
       if (element && shift > 0) restore = liftContextMenuPreview(element, shift, !held)
       const preview = presentation.value
       if (preview?.kind !== "preview") return
-      presentation.value = { ...preview, rect: { ...preview.rect, y: preview.rect.y - shift }, shift }
+      presentation.value = { ...preview, rect: { ...preview.rect, y: preview.rect.y - shift }, side, shift }
     }
     onBeforeUnmount(() => drop(false))
 
@@ -186,8 +186,7 @@ const suppressNextClick = (doc: Document) => {
 /** A menu held open without a press: the touch-and-hold preview on a phone, under the element elsewhere. */
 const forcedPresentation = (element: HTMLElement): ContextMenuPresentation => {
   if (!isPhoneLayout(element)) return { kind: "keyboard", rect: element.getBoundingClientRect() }
-  const box = element.getBoundingClientRect()
-  return contextMenuPreview(element, box.left + box.width / 2)
+  return contextMenuPreview(element)
 }
 
 type Press = { id: number; x: number; y: number; timer: number; opened: boolean }
@@ -238,14 +237,14 @@ const ContextMenuTriggerComponent = defineComponent({
       present(node, measure)
       menu.setOpen(true)
     }
-    const openPreview = (node: HTMLElement, x: number) => open(node, () => contextMenuPreview(node, x))
+    const openPreview = (node: HTMLElement) => open(node, () => contextMenuPreview(node))
     // A touch and hold opens the preview once, by the timer or by the browser's own context menu (Android)
     const openHeld = (node: HTMLElement, current: Press) => {
       // A Sortable list around the element already turned this hold into a drag
       if (node.ownerDocument.querySelector(SORTABLE_SOURCE)) return cancel()
       window.clearTimeout(current.timer)
       current.opened = true
-      openPreview(node, current.x)
+      openPreview(node)
       // The same hold drags the element where it is a Sortable item: moving on, the finger closes the menu
       sendContextMenuHold(node, {
         pointerId: current.id,
@@ -391,7 +390,8 @@ const ContextMenuContentComponent = defineComponent({
       const height = Math.min(contextMenuNaturalHeight(content), props.maxHeight ?? Infinity) * (frame.value?.scaleY ?? 1)
       // A room not known yet (no layout) moves nothing
       const known = bounds && bounds.bottom > bounds.top
-      lift(known ? contextMenuPreviewShift(current.rect, height, bounds, contextMenuClipTop(element), frame.value?.scaleY ?? 1) : 0)
+      const layout = known ? contextMenuPreviewLayout(current.rect, height, bounds, contextMenuClipTop(element), frame.value?.scaleY ?? 1) : null
+      lift(layout?.shift ?? 0, layout?.side)
     }
     watch(pending, (now) => {
       cancelAnimationFrame(frameId)

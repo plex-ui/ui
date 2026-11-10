@@ -64,7 +64,7 @@
   }
 }
 
-/* iPhone: the panel takes the phone popover material, the menus' elevated surface in light and their glass
+/* iPhone: the panel takes the phone popover material, the elevated surface in light and the menus' glass
    in dark, and the phone radius. A translucent panel and the DatePicker calendar keep their own surface. */
 @media (max-width: 767px) {
   .Popover {

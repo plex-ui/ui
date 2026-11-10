@@ -613,6 +613,8 @@
   .Clear {
     min-width: 44px;
     min-height: 44px;
+    /* In a smaller box (a Field row's 34px value) the target reaches past it instead of growing it */
+    margin-block: min(0px, calc((var(--select-control-size, 44px) - 44px) / 2));
 
     /* Button's size token remains the face size, including the solid-only
        variant. The background and ring stay compact inside the touch slot. */

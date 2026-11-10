@@ -76,7 +76,7 @@ import { useFloatingBoundary } from "../../composables/useFloatingBoundary.js"
 import { PHONE_LAYOUT } from "../PhoneLayout/PhoneLayout.js"
 import { usePhoneSubmenu } from "../../composables/usePhoneSubmenu.js"
 import { focusPhoneSubmenuEntry } from "../../lib/menuSubmenuPlacement.js"
-import { ignoreReleaseOverTrigger, observeMenuTriggerCover, type MenuTriggerCover } from "../../lib/menuTriggerCover.js"
+import { ignoreReleaseOverTrigger, markCoveredMenuTrigger, observeMenuTriggerCover, type MenuTriggerCover } from "../../lib/menuTriggerCover.js"
 import { completeInitialPhoneSubmenuFocus, deferInitialPhoneSubmenuFocus, delegateInitialPhoneSubmenuFocus } from "../../lib/menuInitialFocus.js"
 import s from "@plexui/styles/components/Menu/Menu.module.css"
 
@@ -507,6 +507,14 @@ const MenuRootContentImpl = defineComponent({
       const trigger = internals.trigger.value
       if (!coversTrigger() || !trigger) return
       onCleanup(observeMenuTriggerCover(trigger, (value) => { triggerCover.value = value }))
+    })
+    // A trigger the panel covers whole is hidden while it is open, as iOS turns a bar button into its menu
+    watchEffect((onCleanup) => {
+      const trigger = internals.trigger.value
+      const content = level.content.value
+      const cover = level.open() && coversTrigger() ? triggerCover.value : null
+      if (!cover || !trigger || !content) return
+      onCleanup(markCoveredMenuTrigger(trigger, content))
     })
     onMounted(() => {
       level.content.value = document.getElementById(rootContext.contentId)

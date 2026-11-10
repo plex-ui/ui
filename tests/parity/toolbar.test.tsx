@@ -494,8 +494,8 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     // The outline darkens what lies under it, as the kit's linear burn does, and the frost turns content into a smudge.
     const materials = read("styles/mobile-materials.css")
     expect(materials).toContain("0 0 0 0.5px light-dark(rgb(0 0 0 / 9%), transparent)")
-    // The sides lie over the 9% ring: 10% more comes to the kit's 18% there, not 25%.
-    expect(materials).toContain("1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 10%), transparent)")
+    // The sides lie over the 9% ring: 20% more comes to 27%, a bar button's darker sides on iOS 27.2 (ref-app glass-bands: b6).
+    expect(materials).toContain("1.25px 0 0 -0.75px light-dark(rgb(0 0 0 / 20%), transparent)")
     expect(materials).toContain("--mobile-glass-backdrop-filter: blur(12px);")
     expect(materials).not.toContain("light-dark(var(--gray-100), transparent)")
   })

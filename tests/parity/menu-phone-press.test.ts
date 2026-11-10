@@ -89,7 +89,9 @@ describe("the checkmark column on a phone", () => {
     expect(phone(menuCss)).toMatch(/& \.MenuItem:not\(\.RadioItem, \.CheckboxItem, \[data-submenu-collapse\]\)[^{]*& \.MenuItemContent,\s*& \.MenuLabel \{\s*padding-inline-start/)
     expect(phone(menuCss)).toContain(inset)
     // Select: only a list with checkmarks moves its titles, note, more-options row and actions to the label line
-    expect(phone(selectCss)).toMatch(/\.MenuList:has\(\.OptionIndicatorSlot\[data-position\]\) :is\(\s*\.OptionGroupHeading,\s*\.OptionHardLimitHeading:not\(:has\(> \.OptionIndicatorSlot\)\),\s*\.OptionsLimit > \.PressableInner:not\(:has\(> \.OptionIndicatorSlot\)\),\s*\.ActionInner\s*\) \{\s*padding-inline-start/)
+    expect(phone(selectCss)).toMatch(/\.MenuList:has\(\.OptionIndicatorSlot\[data-position\]\) :is\(\s*\.OptionGroupHeading,\s*\.OptionHardLimitHeading:not\(:has\(> \.OptionIndicatorSlot\)\),\s*\.OptionsLimit > \.PressableInner:not\(:has\(> \.OptionIndicatorSlot\)\)\s*\) \{\s*padding-inline-start/)
+    // An action's symbol stands after the checkmarks' column and its label from 79.5, as a menu's (Select.module.css)
+    expect(phone(selectCss)).toMatch(/\.MenuList:has\(\.OptionIndicatorSlot\[data-position\]\) \.ActionInner \{\s*gap: var\(--menu-check-icon-gap, 14px\);/)
     expect(phone(selectCss)).toContain(inset)
     expect(desktop(menuCss) + desktop(selectCss)).not.toContain("--menu-check-label-inset")
     expect(phone(selectCss)).toContain(":is(.PressableInner, .OptionHardLimitHeading):has(> .OptionIndicatorSlot) {\n    gap: var(--menu-check-gap, 8.5px);")

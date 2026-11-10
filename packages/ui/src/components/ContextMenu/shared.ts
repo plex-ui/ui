@@ -1,3 +1,4 @@
+import { PHONE_LAYOUT_SCOPE } from "../../lib/phoneLayout"
 export { CONTEXT_MENU_LONG_PRESS, CONTEXT_MENU_LONG_PRESS_SLOP } from "../../lib/contextMenuHold"
 
 /** The kit's gap between the preview and the menu: iOS 27 Context Menu 125:58750, Alignment=Vertical, the menu at
@@ -10,12 +11,13 @@ type Rect = { x: number; y: number; width: number; height: number }
 
 /**
  * Where the menu opens: at the pointer, under the element for the keyboard, or beside a touch-and-hold preview. A
- * preview's `rect` is where it stands, `shift` how far it moved up so that the menu stands whole below it, once known.
+ * preview's `rect` is where it stands; once the menu is measured, `side` is the side of the preview it opens on and
+ * `shift` how far the preview moved up so that the menu stands whole below it.
  */
 export type ContextMenuPresentation =
   | { kind: "pointer"; rect: Rect }
   | { kind: "keyboard"; rect: Rect }
-  | { kind: "preview"; rect: Rect; radius: number; align: "start" | "end"; shift?: number }
+  | { kind: "preview"; rect: Rect; radius: number; align: "start" | "center" | "end"; side?: "top" | "bottom"; shift?: number }
 
 const px = (value: string, base: number) => {
   const number = Number.parseFloat(value)
@@ -25,9 +27,13 @@ const px = (value: string, base: number) => {
 
 /**
  * The preview of a touch and hold: the element's box and corner (its own, or `--context-menu-preview-radius`), and
- * the edge the menu keeps to, the one on the side of the touch, as the kit's Side=Leading and Side=Trailing.
+ * where the menu keeps to across it, as iOS 27.2 places it by where the element stands on the screen, wherever the
+ * touch (ref-app menus-context, block 8): in the leading third its leading edge, in the trailing third its trailing
+ * edge, else its centre (a full-width row, a tile in the middle). The kit draws only Side=Leading and Side=Trailing.
+ * The screen is a PhoneLayout's box when the element is in one (a phone Dialog's scope has no box: the window is its
+ * screen), as for a menu that covers its trigger (menuTriggerCover.ts).
  */
-export function contextMenuPreview(element: HTMLElement, touchX: number): ContextMenuPresentation {
+export function contextMenuPreview(element: HTMLElement): ContextMenuPresentation {
   const box = element.getBoundingClientRect()
   const rect = { x: box.left, y: box.top, width: box.width, height: box.height }
   const style = getComputedStyle(element)
@@ -35,14 +41,17 @@ export function contextMenuPreview(element: HTMLElement, touchX: number): Contex
   const own = px(style.borderTopLeftRadius, short)
   const fallback = px(style.getPropertyValue("--context-menu-preview-radius"), short) || PREVIEW_RADIUS
   const radius = Math.min(own > 0 ? own : fallback, short / 2)
-  const width = element.ownerDocument.defaultView?.innerWidth ?? rect.x + rect.width
-  return { kind: "preview", rect, radius, align: touchX < width / 2 ? "start" : "end" }
+  const frame = element.closest(PHONE_LAYOUT_SCOPE)?.getBoundingClientRect()
+  const start = frame && frame.width > 0 ? frame.left : 0
+  const width = frame && frame.width > 0 ? frame.width : element.ownerDocument.defaultView?.innerWidth ?? rect.x + rect.width
+  const centre = rect.x + rect.width / 2 - start
+  return { kind: "preview", rect, radius, align: centre < width / 3 ? "start" : centre > (width * 2) / 3 ? "end" : "center" }
 }
 
 /** The menu's side, alignment and offsets for a presentation. */
 export function contextMenuPlacement(presentation: ContextMenuPresentation | null) {
   if (presentation?.kind === "preview")
-    return { side: "bottom" as const, align: presentation.align, sideOffset: CONTEXT_MENU_PREVIEW_GAP, alignOffset: 0 }
+    return { side: presentation.side ?? ("bottom" as const), align: presentation.align, sideOffset: CONTEXT_MENU_PREVIEW_GAP, alignOffset: 0 }
   if (presentation?.kind === "keyboard") return { side: "bottom" as const, align: "start" as const, sideOffset: 5, alignOffset: 0 }
   // As a desktop context menu, its corner at the pointer.
   return { side: "bottom" as const, align: "start" as const, sideOffset: 2, alignOffset: 0 }
@@ -87,6 +96,19 @@ export function contextMenuPreviewShift(rect: Rect, height: number, room: { top:
   const allowed = Math.max(0, rect.y - Math.max(room.top, ceiling))
   if (missing <= allowed) return round(missing)
   return rect.y - gap - height >= room.top ? 0 : round(allowed)
+}
+
+/**
+ * The side a preview's menu opens on, and how far the preview moves up for it: above, unmoved, when the preview stands
+ * in the lower half of the room and the menu stands whole above it, as iOS 27.2 opens a menu toward the larger room
+ * (ref-app menus-context-small, block 8: a tile low on the screen opens its menu above, with room below too); else
+ * below, the preview moved up as `contextMenuPreviewShift` says.
+ */
+export function contextMenuPreviewLayout(rect: Rect, height: number, room: { top: number; bottom: number }, ceiling = -Infinity, scale = 1) {
+  const gap = CONTEXT_MENU_PREVIEW_GAP * scale
+  if (rect.y + rect.height / 2 > (room.top + room.bottom) / 2 && rect.y - gap - height >= room.top)
+    return { side: "top" as const, shift: 0 }
+  return { side: "bottom" as const, shift: contextMenuPreviewShift(rect, height, room, ceiling, scale) }
 }
 
 /** The top of the nearest box that clips the element: moved above it, the element would not be seen. */

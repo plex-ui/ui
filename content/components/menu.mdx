@@ -487,7 +487,7 @@ On phones, menus and submenus inside a Page or Dialog keep clear of its visible 
 
 A phone here is a window 767px wide or narrower, or the inside of a [PhoneLayout](/components/phone-layout) or a [Dialog](/components/dialog#api) with `layout="phone"`, at any window width. A menu opened in a PhoneLayout opens in its box and keeps inside it; one opened in a phone Dialog opens over the window, as on a phone.
 
-In the dark theme a phone menu is glass over the page, as native iOS 26 menus are: white at 12% over an 18px blur of what is under it, which leaves the page's text unreadable through the panel (a 37 by 24pt switch knob behind a native menu spreads to 55 by 37pt). The light theme keeps the elevated surface.
+A phone menu is glass over the page, as native iOS 27.2 menus are: white at 65% in the light theme and at 12% in the dark one, over an 18px blur of what is under it, which leaves the page's text unreadable through the panel (a 37 by 24pt switch knob behind a native menu spreads to 55 by 37pt). A thin edge draws the panel's outline on a white page, as native menus have. A trigger the panel covers whole, as a More button of a top bar, is hidden while the menu is open, as iOS turns a bar button into its menu; a wider trigger, as a form row, stays.
 
 Menu reads these component tokens. Override them at any scope to restyle it:
 
@@ -495,8 +495,8 @@ Menu reads these component tokens. Override them at any scope to restyle it:
 - `--menu-font-size`: font size (default `var(--font-text-sm-size)`)
 - `--menu-gutter`: gutter (default `spacing(1.5)`)
 - `--menu-item-background-color`: item background color (default `light-dark(var(--alpha-08), var(--alpha-10))`)
-- `--menu-mobile-background`: panel surface on a phone (default the elevated surface in light, `var(--alpha-12)` glass in dark)
-- `--menu-mobile-backdrop-filter`: blur behind the panel on a phone in the dark theme (default `blur(18px)`)
+- `--menu-mobile-background`: panel surface on a phone (default `light-dark(rgb(255 255 255 / 65%), var(--alpha-12))` glass)
+- `--menu-mobile-backdrop-filter`: blur behind the panel on a phone (default `blur(18px)`)
 - `--menu-default-width`: default width before a content-level override (none on desktop, 250px with touch styles)
 - `--menu-default-min-width`: default minimum width before a content-level override (300px on desktop, 250px with touch styles)
 - `--menu-horizontal-min-width`: minimum width of a horizontal menu (none on desktop, 250px with touch styles)

@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useRef, useState, type ReactNode } from 'react';
-import { Plus, SettingsSlider, User, UserLock, Workspace } from '@plexui/ui/components/Icon';
+import { DotsHorizontal, Plus, SettingsSlider, User, UserLock, Workspace } from '@plexui/ui/components/Icon';
 import { Select } from '@plexui/ui/components/Select';
 import { Popover } from '@plexui/ui/components/Popover';
 import { Dialog } from '@plexui/ui/components/Dialog';
@@ -11,6 +11,9 @@ import { Switch } from '@plexui/ui/components/Switch';
 import { Button } from '@plexui/ui/components/Button';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { Page } from '@plexui/ui/components/Page';
+import { Toolbar } from '@plexui/ui/components/Toolbar';
+import pageStyles from './PageDemos.module.css';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 
@@ -136,6 +139,12 @@ const roles: Role[] = [
   },
 ];
 
+// A phone row passes its descriptions as text: the list sets them as an iOS menu does its subtitles (13pt, wrapped)
+const phoneRoles = [
+  { value: 'owner', label: 'Owner', description: 'Can modify project information and manage project members' },
+  { value: 'reader', label: 'Reader', description: 'Can make API requests that read or modify data' },
+];
+
 const SELECT_VARIANT_OPTIONS = ['outline', 'soft', 'ghost'] as const;
 const SELECT_SIZE_OPTIONS = ['sm', 'md', 'lg'] as const;
 const CHECK_POSITION_OPTIONS = ['start', 'end'] as const;
@@ -184,6 +193,8 @@ export function SelectBaseDemo() {
           </SegmentedControl>
         </DemoControlRow>
         </>)}
+        {/* On a phone the checkmark leads every row, as in iOS menus, whatever checkPosition says */}
+        {!phone && (
         <DemoControlRow name="checkPosition">
           <SegmentedControl<(typeof CHECK_POSITION_OPTIONS)[number]>
             value={checkPosition}
@@ -198,6 +209,7 @@ export function SelectBaseDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
+        )}
         <DemoControlBoolean name="clearable" value={clearable} onChange={setClearable} />
         <DemoControlBoolean name="multiple" value={multiple} onChange={setMultiple} />
       </div>
@@ -318,6 +330,8 @@ export function SelectCustomViewsDemo() {
           </SegmentedControl>
         </DemoControlRow>
         </>)}
+        {/* On a phone the checkmark leads every row, as in iOS menus, whatever checkPosition says */}
+        {!phone && (
         <DemoControlRow name="checkPosition">
           <SegmentedControl<(typeof CHECK_POSITION_OPTIONS)[number]>
             value={checkPosition}
@@ -332,17 +346,16 @@ export function SelectCustomViewsDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
+        )}
         {!phone && <DemoControlBoolean name="triggerIcon" value={showIcon} onChange={setShowIcon} />}
       </div>
       {phone ? (
         <PhoneSelectRow label="Role">
           <Select
             value={role}
-            options={roles}
+            options={phoneRoles}
             block={false}
             align="end"
-            listMinWidth={260}
-            checkPosition={checkPosition}
             onChange={({ value }) => setRole(value)}
           />
         </PhoneSelectRow>
@@ -380,7 +393,7 @@ export function SelectActionsDemo() {
   if (phone) {
     return (
       <PhoneSelectRow label="Project">
-        <Select value={value} block={false} options={items} placeholder="None" align="end" listMinWidth={240} onChange={(v) => setValue(v.value)} actions={ACTIONS} />
+        <Select value={value} block={false} options={items} placeholder="None" align="end" onChange={(v) => setValue(v.value)} actions={ACTIONS} />
       </PhoneSelectRow>
     );
   }
@@ -408,7 +421,7 @@ export function SelectGroupedOptionsDemo() {
   if (phone) {
     return (
       <PhoneSelectRow label="Plan">
-        <Select value={value} block={false} align="end" options={groupedItems} listMinWidth={300} searchPlaceholder="Select an option..." onChange={(v) => setValue(v.value)} />
+        <Select value={value} block={false} align="end" options={groupedItems} searchPlaceholder="Select an option..." onChange={(v) => setValue(v.value)} />
       </PhoneSelectRow>
     );
   }
@@ -521,25 +534,40 @@ export function SelectColumnConfigDemo() {
   );
 
   // A phone presents the panel as a sheet of switch rows in a fixed order: as in iOS settings,
-  // a row stays in place when its switch changes
+  // a row stays in place when its switch changes. It opens from the More bar button of the screen's top bar, three
+  // dots on glass, as the view options of Photos and Files do (iOS-menu IMG_5657, IMG_5704; MenuDemos.tsx); a
+  // sliders symbol is not one iOS puts in a bar (owner 10.11).
   if (phone) return (
-    <Dialog>
-      <Dialog.Trigger>{trigger}</Dialog.Trigger>
-      <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
-        <Dialog.Header>
-          <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Columns</Dialog.Title></div>
-        </Dialog.Header>
-        <Dialog.Body>
-          <FieldGroup>
-            {ALL_COLUMNS.map((col) => (
-              <Field row key={col.id} label={col.label}>
-                <Switch color="accent" checked={shown.includes(col.id)} onCheckedChange={() => toggle(col.id)} />
-              </Field>
-            ))}
-          </FieldGroup>
-        </Dialog.Body>
-      </Dialog.Content>
-    </Dialog>
+    <div data-demo-stage className={pageStyles.Stage}>
+      <div className={pageStyles.Frame}>
+        <Page>
+          <Toolbar>
+            <Toolbar.Title>Members</Toolbar.Title>
+            <Toolbar.Trailing>
+              <Dialog>
+                <Dialog.Trigger>
+                  <Button color="secondary" variant="soft" uniform pill aria-label="Columns"><DotsHorizontal /></Button>
+                </Dialog.Trigger>
+                <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
+                  <Dialog.Header>
+                    <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Columns</Dialog.Title></div>
+                  </Dialog.Header>
+                  <Dialog.Body>
+                    <FieldGroup>
+                      {ALL_COLUMNS.map((col) => (
+                        <Field row key={col.id} label={col.label}>
+                          <Switch color="accent" checked={shown.includes(col.id)} onCheckedChange={() => toggle(col.id)} />
+                        </Field>
+                      ))}
+                    </FieldGroup>
+                  </Dialog.Body>
+                </Dialog.Content>
+              </Dialog>
+            </Toolbar.Trailing>
+          </Toolbar>
+        </Page>
+      </div>
+    </div>
   );
 
   return (

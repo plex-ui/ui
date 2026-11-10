@@ -102,7 +102,7 @@ A context menu gathers the actions for one element, such as a row, a file or a p
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Wrap the element in <code>ContextMenuTrigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, at the edge on the side of the touch. The press that opened the menu does not activate the element. When the menu would not fit below the element, the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list.</>} code={overviewCode} previewMinHeight={240}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Wrap the element in <code>ContextMenuTrigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, on the side where the element stands, as iOS 27.2 places it: at the element's start edge in the first third of the screen, at its end edge in the last third, and centred under it in the middle. The press that opened the menu does not activate the element. An element in the lower half of the screen opens its menu 16px above it where it fits, and stays where it is. When the menu fits on neither side, it opens below and the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list.</>} code={overviewCode} previewMinHeight={240}>
   <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" />
 </ComponentPreview>
 
@@ -154,7 +154,7 @@ The menu is a `menu` with `menuitem` rows, as Menu is, named after its element: 
 
 ContextMenu reads these component tokens, and the menu the Menu ones. Override them at any scope to restyle it:
 
-- `--context-menu-dimming-background`: the dimming (default `light-dark(rgb(0 0 0 / 23%), rgb(0 0 0 / 50%))`)
+- `--context-menu-dimming-background`: the dimming (default `light-dark(rgb(0 0 0 / 20%), rgb(0 0 0 / 50%))`)
 - `--context-menu-dimming-backdrop-filter`: the blur under the dimming (default `blur(30px)`)
 - `--context-menu-preview-radius`: the corner of an element without its own (default `30px`)
 - `--context-menu-preview-shadow`: the shadow around the element (default `0 0 32px rgb(0 0 0 / 20%)`)

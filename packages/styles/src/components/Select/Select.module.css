@@ -198,6 +198,11 @@
   color: var(--color-text-secondary);
 }
 
+/* A tooltip's text under the label is the phone's form of it (below); a desktop shows the info symbol */
+.OptionTooltipText {
+  display: none;
+}
+
 /* Option group: the `group` around a heading and its rows. No box of its own:
    a plain block in the list's block flow, with no padding or border, so the
    rows sit exactly where they would as the list's own children and the
@@ -406,14 +411,33 @@
 
 /* iPhone menu selection geometry. Search and multiple selection keep their behavior. */
 @media (max-width: 767px) {
-  /* Dark lists are glass, as the Menu is (see --menu-mobile-background). */
+  /* Lists are glass, as the Menu is (see --menu-mobile-background). */
   .MenuList {
     background: var(--menu-mobile-background, var(--color-surface-elevated));
+    -webkit-backdrop-filter: var(--menu-mobile-backdrop-filter, none);
+    backdrop-filter: var(--menu-mobile-backdrop-filter, none);
+  }
 
-    @mixin dark {
-      -webkit-backdrop-filter: var(--menu-mobile-backdrop-filter, none);
-      backdrop-filter: var(--menu-mobile-backdrop-filter, none);
-    }
+  /* A list is the 250pt of an iOS menu, as the pop-up menu of a picker is (ref-app pickers, block 8: 250pt over a
+     value of 76pt, which it covers, Select.tsx), whatever its options: a long label or description wraps
+     (pickers-desc-uikit: Owner's description on three lines, the panel still 250pt). A wider trigger keeps its width,
+     and a list's own minimum width wins. A list given its own width (data-list-sized) keeps it, as on a larger
+     screen, and a maximum below the 250pt caps it. */
+  .MenuList:not([data-list-sized]) {
+    min-width: var(
+      --select-list-min-width,
+      max(min(var(--menu-default-min-width, 0px), var(--select-list-max-width, 100vw)), var(--radix-popover-trigger-width))
+    );
+  }
+
+  .MenuList[data-list-width="auto"] {
+    width: var(--menu-default-width, auto);
+  }
+
+  /* A list is as tall as its rows, up to the screen's edge, as a menu is (Menu.module.css; iOS-menu IMG_5704, 5706: a
+     native menu scrolls only past the screen), not the desktop's 400px; a list's own maximum still wins. */
+  .MenuInner {
+    max-height: min(var(--select-list-max-height, 1200px), var(--radix-popover-content-available-height));
   }
 
   .Option,
@@ -432,21 +456,82 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .Search,
+  /* A phone's list has no search (Select.tsx: an iOS menu has none, a long list scrolls, IMG_5490) */
   .ActionsContainer {
     flex-shrink: 0;
+  }
+
+  /* Actions follow the options as a section of a menu does (ref-app pickers-actions-uikit: a pop-up menu with a
+     selection, then Create project and Organization overview): an inset line 24pt from the panel's edges, 10pt
+     above and below it, as Menu's separator (--menu-separator-gutter), and no fade over the list. A row is 42pt with
+     a 20px symbol centred 40pt in and its label from 66; in a list with checkmarks the symbol stands after their
+     column, centred at 55.7pt, and the label starts at 79.7 (native 54.3 and 79.3), as Menu's rows (touch.css). A
+     long label wraps, as Organization overview does. */
+  .ActionsContainer {
+    border-top: 0;
+    padding-top: calc(var(--menu-gutter) + 1px);
+  }
+
+  .ActionsContainer::before {
+    inset: 0 calc(var(--menu-padding-inline, var(--menu-gutter)) + 8px) auto;
+    width: auto;
+    height: 1px;
+    margin: 0;
+    background: var(--menu-separator-background-color);
+    mask-image: none;
+  }
+
+  .Action {
+    display: flex;
+    align-items: center;
+    min-height: 42px;
+    padding-block: 0;
+  }
+
+  .Action::before {
+    inset-block: 0;
+    inset-inline: calc(var(--menu-gutter) - var(--menu-padding-inline, var(--menu-gutter)));
+    background: var(--menu-press-background, var(--menu-item-background-color));
+  }
+
+  .Action:active::before {
+    opacity: 1;
+    transition-duration: 0s;
+  }
+
+  .ActionInner {
+    flex: 1;
+    gap: var(--menu-leading-icon-gap, 8px);
+    padding-block: 10px;
+    line-height: var(--menu-line-height);
+  }
+
+  .Action svg {
+    width: var(--menu-leading-icon-size, 20px);
+    height: var(--menu-leading-icon-size, 20px);
+    margin-inline: calc((var(--menu-leading-icon-slot, 36px) - var(--menu-leading-icon-size, 20px)) / 2);
+  }
+
+  .MenuList:has(.OptionIndicatorSlot[data-position]) .ActionInner {
+    gap: var(--menu-check-icon-gap, 14px);
+    padding-inline-start: calc(var(--menu-check-column, 13px) + var(--menu-check-gap, 8.5px));
+  }
+
+  .MenuList:has(.OptionIndicatorSlot[data-position]) .Action svg {
+    margin-inline: var(--menu-check-icon-offset, 2px) 0;
   }
 
   .OptionsList {
     min-height: 0;
   }
 
-  /* Text grows naturally; the pressed surface covers the complete 44px target. */
+  /* A row is 42pt, as a menu row is (Menu.module.css) and the rows of a picker's pop-up menu are (ref-app pickers,
+     block 8: labels 126px apart at @3x); text grows naturally, and the pressed surface covers the whole row. */
   .Option:has(> .PressableInner > .OptionLeading) {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     align-content: center;
-    min-height: 44px;
+    min-height: 42px;
     padding-block: 0;
   }
 
@@ -501,8 +586,7 @@
   .MenuList:has(.OptionIndicatorSlot[data-position]) :is(
     .OptionGroupHeading,
     .OptionHardLimitHeading:not(:has(> .OptionIndicatorSlot)),
-    .OptionsLimit > .PressableInner:not(:has(> .OptionIndicatorSlot)),
-    .ActionInner
+    .OptionsLimit > .PressableInner:not(:has(> .OptionIndicatorSlot))
   ) {
     padding-inline-start: var(--menu-check-label-inset, calc(8px + 13px + 8.5px));
   }
@@ -518,6 +602,15 @@
     height: var(--menu-check-size, 18px);
   }
 
+  /* With the weight of a menu's checkmark (--menu-check-stroke, touch.css) */
+  .OptionCheck path {
+    stroke: currentColor;
+    stroke-width: var(--menu-check-stroke, 0);
+    stroke-linejoin: round;
+  }
+
+  /* A subtitle wraps, as a UIAction's does in an iOS 27.2 menu (ref-app pickers-desc-uikit: 13pt on 18pt lines,
+     Owner's on three); the kit's one truncated line gives way to the simulator. */
   .OptionDescription {
     font-size: 13px;
     line-height: 18px;
@@ -525,12 +618,19 @@
     color: var(--menu-description-color, var(--color-text-secondary));
   }
 
-  /* Rich descriptions may contain their own controls; only plain subtitles truncate. */
-  .OptionDescription:not(:has(*)) {
+  /* An iOS menu has no tooltips (owner 10.11): on a phone an option's tooltip is its subtitle, as a UIAction's
+     (ref-app pickers-desc-uikit; Files' Date, Newest to Oldest, iOS-menu IMG_5704), and the info symbol is gone. */
+  .OptionTooltipIcon {
+    display: none;
+  }
+
+  .OptionTooltipText {
     display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 13px;
+    font-weight: var(--font-weight-normal);
+    line-height: 18px;
+    letter-spacing: normal;
+    color: var(--menu-description-color, var(--color-text-secondary));
   }
 
   .Option[data-disabled] {
@@ -538,7 +638,7 @@
     opacity: 1;
   }
 
-  .Option[data-disabled] .OptionDescription {
+  .Option[data-disabled] :is(.OptionDescription, .OptionTooltipText) {
     color: var(--menu-disabled-description-color, var(--color-text-tertiary));
   }
 

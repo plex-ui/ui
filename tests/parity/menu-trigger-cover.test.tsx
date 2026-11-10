@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { h } from "vue"
 import { Menu as RMenu } from "../../packages/ui/src/components/Menu"
-import { observeMenuTriggerCover } from "../../packages/ui/src/lib/menuTriggerCover"
+import { markCoveredMenuTrigger, observeMenuTriggerCover } from "../../packages/ui/src/lib/menuTriggerCover"
+import { markCoveredMenuTrigger as markCoveredMenuTriggerVue } from "../../packages/vue/src/lib/menuTriggerCover"
 import { Menu, MenuContent, MenuItem, MenuTrigger } from "../../packages/vue/src/components/Menu"
 import { flushVue, mountVue } from "./harness"
 
@@ -21,15 +22,21 @@ let triggerTop = 62
 const media = new Map<string, Media>()
 // jsdom has no layout: a 44px More button on a 402px screen, clear of the edge so the 12px collision padding never
 // shifts the panel, and a 238px panel
+let triggerBox: DOMRect | null = null
 function rect(element: HTMLElement) {
-  // The panel, and the wrapper the primitive positions around it
-  if (element.getAttribute("role") === "menu" || element.querySelector(':scope > [role="menu"]')) return new DOMRect(0, 0, 238, 160)
-  if (element.getAttribute("aria-haspopup") === "menu") return new DOMRect(300, triggerTop, 44, 44)
+  // The wrapper the primitive positions around the panel stands where its transform puts it; the panel is 238px
+  if (element.querySelector(':scope > [role="menu"]')) {
+    const at = element.style.transform.match(/translate\((-?[\d.]+)px, (-?[\d.]+)px\)/)
+    return new DOMRect(at ? Number(at[1]) : 0, at ? Number(at[2]) : -2000, 238, 160)
+  }
+  if (element.getAttribute("role") === "menu") return new DOMRect(0, 0, 238, 160)
+  if (element.getAttribute("aria-haspopup") === "menu") return triggerBox ?? new DOMRect(300, triggerTop, 44, 44)
   return new DOMRect(0, 0, 402, 874)
 }
 beforeEach(() => {
   phone = true
   triggerTop = 62
+  triggerBox = null
   media.clear()
   vi.stubGlobal("matchMedia", (query: string) => {
     let result = media.get(query)
@@ -62,7 +69,7 @@ const panelPosition = () => {
   return match ? { x: Number(match[1]), y: Number(match[2]) } : null
 }
 
-async function openMenu(framework: "React" | "Vue", content: { sideOffset?: number; side?: "top" | "bottom" } = {}) {
+async function openMenu(framework: "React" | "Vue", content: { sideOffset?: number; side?: "top" | "bottom"; alignOffset?: number } = {}) {
   if (framework === "React") {
     await settle(() => {
       render(
@@ -114,6 +121,99 @@ async function pressAndRelease(trigger: HTMLElement, at: { clientX: number; clie
   const item = document.querySelector<HTMLElement>('[role="menuitem"]')!
   await settle(() => { fireEvent.pointerUp(item, { button: 0, pointerType: "mouse", pointerId: 1, ...at }) })
 }
+
+describe.each(["React", "Vue"] as const)("%s: a phone menu hides a trigger it covers whole (iOS 27.2, ref-app menus-bar)", (framework) => {
+  const trigger = () => document.querySelector<HTMLElement>('[aria-haspopup="menu"]')!
+
+  test("the 44px More button under the 238px panel is hidden while the menu is open", async () => {
+    await openMenu(framework)
+    expect(trigger().hasAttribute("data-menu-covered")).toBe(true)
+  })
+
+  test("a trigger wider than the panel, as a form row, stays", async () => {
+    triggerBox = new DOMRect(16, 62, 370, 44)
+    await openMenu(framework)
+    expect(trigger().hasAttribute("data-menu-covered")).toBe(false)
+  })
+
+  test("a panel set off its trigger by an align offset hides nothing: it may stand beside the trigger", async () => {
+    await openMenu(framework, { alignOffset: 60 })
+    expect(trigger().hasAttribute("data-menu-covered")).toBe(false)
+  })
+
+  test("nothing is hidden on a larger screen, where the menu keeps its gap", async () => {
+    phone = false
+    await openMenu(framework)
+    expect(trigger().hasAttribute("data-menu-covered")).toBe(false)
+  })
+
+  test("closing the menu shows the trigger again, before focus returns to it", async () => {
+    const button = await mountMenu(framework, () => {})
+    await settle(() => { fireEvent.pointerDown(button, { button: 0, pointerType: "mouse", pointerId: 1 }) })
+    await settle()
+    expect(button.hasAttribute("data-menu-covered")).toBe(true)
+    // A hidden element takes no focus in a browser: the mark must be gone when the menu hands focus back
+    const coveredOnFocus: boolean[] = []
+    button.addEventListener("focus", () => coveredOnFocus.push(button.hasAttribute("data-menu-covered")))
+    await settle(() => { fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" }) })
+    await settle()
+    expect(button.hasAttribute("data-menu-covered")).toBe(false)
+    expect(document.activeElement).toBe(button)
+    expect(coveredOnFocus).toEqual([false])
+  })
+
+  test("the mark hides the trigger", () => {
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/styles/touch.css`, "utf8")
+    expect(css).toMatch(/\[data-menu-covered\] \{\s*visibility: hidden;\s*\}/)
+  })
+})
+
+describe.each([["React", markCoveredMenuTrigger], ["Vue", markCoveredMenuTriggerVue]] as const)("%s: the covered mark follows the placed panel", (_, mark) => {
+  test("the trigger is marked once the wrapper places the panel over it whole, and not at the screen's edge past it", async () => {
+    const boxes = new Map<Element, DOMRect>()
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function () {
+      return boxes.get(this) ?? new DOMRect(0, 0, 0, 0)
+    })
+    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(function () {
+      return boxes.get(this)?.width ?? 0
+    })
+    const resized: Array<() => void> = []
+    vi.stubGlobal("ResizeObserver", class {
+      constructor(callback: () => void) { resized.push(callback) }
+      observe() {}
+      disconnect() {}
+    })
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { callback(0); return 1 })
+    const trigger = document.createElement("button")
+    const wrapper = document.createElement("div")
+    const content = document.createElement("div")
+    wrapper.append(content)
+    document.body.append(trigger, wrapper)
+    boxes.set(trigger, new DOMRect(300, 62, 44, 44))
+    boxes.set(content, new DOMRect(0, 0, 238, 160))
+    // The primitive first holds the wrapper off screen, until it has measured
+    boxes.set(wrapper, new DOMRect(0, -2000, 238, 160))
+    const clear = mark(trigger, content)
+    expect(trigger.hasAttribute("data-menu-covered")).toBe(false)
+    // Placed over the trigger, its end at the trigger's end
+    boxes.set(wrapper, new DOMRect(106, 62, 238, 160))
+    wrapper.style.transform = "translate(106px, 62px)"
+    await Promise.resolve()
+    expect(trigger.hasAttribute("data-menu-covered")).toBe(true)
+    // A trigger at the screen's edge, the panel kept 12px off it: 12px of the trigger stays uncovered
+    boxes.set(trigger, new DOMRect(358, 62, 44, 44))
+    boxes.set(wrapper, new DOMRect(152, 62, 238, 160))
+    resized.forEach((callback) => callback())
+    expect(trigger.hasAttribute("data-menu-covered")).toBe(false)
+    boxes.set(trigger, new DOMRect(300, 62, 44, 44))
+    boxes.set(wrapper, new DOMRect(106, 62, 238, 160))
+    resized.forEach((callback) => callback())
+    expect(trigger.hasAttribute("data-menu-covered")).toBe(true)
+    clear()
+    expect(trigger.hasAttribute("data-menu-covered")).toBe(false)
+    vi.unstubAllGlobals()
+  })
+})
 
 describe("a phone menu covers its trigger", () => {
   test("the observer reports minus the trigger's height and the larger side on a phone, and nothing on a larger screen", () => {
