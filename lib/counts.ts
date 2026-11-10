@@ -20,13 +20,14 @@ const ICON_INDEX = path.join(
 /**
  * Files that live inside `content/components/` but aren't actual
  * component pages (the section index, the meta config, and the
- * cross-component "Form Examples" page). Skipping them gives us
+ * cross-component Auth Forms and Settings Forms pages). Skipping them gives us
  * the canonical "how many components ship today" number.
  */
 const NON_COMPONENT_FILES = new Set([
   'index.mdx',
   'meta.json',
-  'form-examples.mdx',
+  'auth-forms.mdx',
+  'settings-forms.mdx',
 ]);
 
 function countComponents(): number {

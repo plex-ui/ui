@@ -30,7 +30,7 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
     <li><strong>end</strong>: <code>row</code>, one line of a <code>FieldGroup</code> with the value at its end. A framed field is a pill there and takes <code>--field-row-control-width</code>, as its width cannot follow what is typed; <code>pill={'{false}'}</code> on the control keeps the rounded box.</li>
     <li><strong>hidden</strong>: <code>hideLabel</code>. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field.</li>
   </ul>
-  <p>On Phone a field is always a cell of a <code>FieldGroup</code> on the grouped background, as in an iOS form, in the same four places: the label above its value (<code>row orientation="vertical"</code>), values in one column (<code>FieldGroup columns</code>), the value at the end of the row, or the placeholder alone (<code>row hideLabel</code>), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's <code>footer</code>, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: <code>OTPInput</code> keeps its own digit cells on the screen, outside a group, as in <a href="/components/form-examples#verify-email">Verify email</a>.</p>
+  <p>On Phone a field is always a cell of a <code>FieldGroup</code> on the grouped background, as in an iOS form, in the same four places: the label above its value (<code>row orientation="vertical"</code>), values in one column (<code>FieldGroup columns</code>), the value at the end of the row, or the placeholder alone (<code>row hideLabel</code>), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's <code>footer</code>, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: <code>OTPInput</code> keeps its own digit cells on the screen, outside a group, as in <a href="/components/auth-forms#verify-email">Verify email</a>.</p>
 </>} code={`// Desktop
 <Field label="Name" required>
   <Input placeholder="Jane Appleseed" />
@@ -202,7 +202,7 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
   <FieldOpticalAlignDemo />
 </ComponentPreview>
 
-For whole forms, on the web and on a phone, see [Form Examples](/components/form-examples).
+For whole forms, on the web and on a phone, see [Settings Forms](/components/settings-forms).
 
 ## API
 

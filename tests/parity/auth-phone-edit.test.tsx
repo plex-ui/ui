@@ -14,7 +14,7 @@ vi.mock("@plexui/ui/hooks/useBreakpoints", () => ({ useBreakpoint: () => viewpor
 vi.mock("@plexui/ui/components/Dialog", async () => await import("../../packages/ui/src/components/Dialog"))
 vi.mock("@plexui/vue/components/Dialog", async () => await import("../../packages/vue/src/components/Dialog"))
 
-const mdx = readFileSync("content/vue/components/form-examples.mdx", "utf8")
+const mdx = readFileSync("content/vue/components/auth-forms.mdx", "utf8")
 const expression = (name: string, next: string, bindings: Record<string, unknown> = {}) => {
   const start = mdx.indexOf(`export const ${name} = `) + `export const ${name} = `.length
   const source = mdx.slice(start, mdx.indexOf(`export const ${next} = `, start)).trim()

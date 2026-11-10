@@ -1,0 +1,817 @@
+---
+title: Auth Forms
+description: "Sign-up, log-in, OAuth, password entry, and email and phone verification forms built with Plex UI."
+metaDescription: "Vue 3 auth forms: sign-up, log-in, OAuth, password entry, and email and phone verification built with Plex UI for Vue."
+---
+
+import { HashForward } from "@/components/docs/HashForward"
+import { VueCreatePasswordDemo, VueStorageLocationDemo } from "@/components/docs/OnboardingFlowDemos"
+import { VueFormExampleDemo } from "@/components/docs/vue/VueFormExamplesDemos"
+
+export const withAuthHelpers = (code) => `<script setup lang="ts">\nimport { ref } from 'vue';\nimport { AuthFormStage } from './AuthFormStage';\n${code.includes('FormScreen') ? "import { FormScreen } from './FormScreen';\n" : ''}${code.includes('AuthLegalNotice') ? "import { AuthLegalNotice } from './AuthLegalNotice';\n" : ''}${code.includes('AuthInput') ? "import { AuthInput } from './AuthInput';\n" : ''}${code.includes('AuthFields') ? "import { AuthFields } from './AuthFields';\n" : ''}${code.includes('authFieldsStyles') ? "import authFieldsStyles from './AuthFields.module.css';\n" : ''}\nconst surface = ref<'plain' | 'grouped'>('grouped');\nconst dialog = ref(false);\n${code.includes(':invalid="error"') ? 'const error = ref(false);\n' : ''}</script>\n\n<template>\n${code.replaceAll(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')}\n</template>`
+
+export const STAGE = "py-10 flex justify-center"
+
+export const dialogControl = { name: "dialog", type: "boolean", default: false }
+
+export const withVerificationHelpers = (code) => `<script setup lang="ts">
+import { ref } from 'vue';
+import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
+import { Button } from '@plexui/vue/components/Button';
+import { OTPInput } from '@plexui/vue/components/OTPInput';
+import { LoadingIndicator } from '@plexui/vue/components/Indicator';
+import { AuthFormStage } from './AuthFormStage';
+import { AuthInput } from './AuthInput';
+import { VerificationFlow } from './VerificationFlow';
+import { isVerificationCodeReady } from './verificationCountdown';
+import authFieldsStyles from './AuthFields.module.css';
+
+const wide = useBreakpoint('md');
+const surface = ref<'plain' | 'grouped'>('grouped');
+const dialog = ref(false);
+const input = ref<'per-digit' | 'text-field'>('per-digit');
+const otpValue = ref('');
+const code = ref('');
+const error = ref(false);
+const cooldown = ref(false);
+const verifying = ref(false);
+</script>
+
+<template>
+${code.replaceAll(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')}
+</template>`
+
+export const errorControl = { name: "error", type: "boolean", default: false }
+
+export const cooldownControl = { name: "cooldown", type: "boolean", default: false }
+
+export const verifyingControl = { name: "verifying", type: "boolean", default: false }
+
+export const inputControl = { name: "input", type: "select", options: [{ value: "per-digit", label: "Per-digit" }, { value: "text-field", label: "Text field" }], default: "per-digit" }
+
+export const emailLogin = `<component :is="AuthFormStage" title="Welcome back" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
+  <template #default="{ formId }">
+    <div class="w-[360px]">
+      <div class="mb-6 text-center">
+        <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Welcome back</h3>
+        <p data-auth-description class="text-secondary text-sm mt-1">Log in to your account.</p>
+      </div>
+      <form :id="formId" class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+        <template v-if="wide">
+        <component :is="AuthInput"
+          label="Email address"
+          type="email"
+          :value="email"
+          @update:value="(value) => { email = value; submitted = false }"
+          :invalid="submitted && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)"
+          :error-message="submitted && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) ? 'Enter a valid email address.' : undefined"
+        />
+        <div>
+          <component :is="AuthInput"
+            label="Password"
+            type="password"
+            :value="password"
+            @update:value="(value) => { password = value; submitted = false }"
+            :invalid="submitted && !password"
+            :error-message="submitted && !password ? 'Password is required.' : undefined"
+          />
+          <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction, authFieldsStyles.ForgotAction]">
+            Forgot password?
+          </Button>
+        </div>
+        </template>
+        <template v-else>
+        <component :is="AuthFields">
+        <component :is="AuthInput"
+          label="Email address"
+          type="email"
+          :value="email"
+          @update:value="(value) => { email = value; submitted = false }"
+          :invalid="submitted && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)"
+          :error-message="submitted && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) ? 'Enter a valid email address.' : undefined"
+        />
+          <component :is="AuthInput"
+            label="Password"
+            type="password"
+            :value="password"
+            @update:value="(value) => { password = value; submitted = false }"
+            :invalid="submitted && !password"
+            :error-message="submitted && !password ? 'Password is required.' : undefined"
+          />
+        </component>
+        <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction, authFieldsStyles.ForgotAction]">
+            Forgot password?
+          </Button>
+        </template>
+        <Button v-if="wide" color="primary" size="3xl" type="submit" pill class="w-full h-[3.25rem] mt-2">Log in</Button>
+        <p class="text-base text-center mt-4" :class="authFieldsStyles.CrossActionRow">
+          Don't have an account?
+          <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction]">
+            Sign up
+          </Button>
+        </p>
+      </form>
+    </div>
+  </template>
+  <template #footer="{ formId }">
+    <Button color="primary" size="3xl" type="submit" :form="formId" pill block>Log in</Button>
+  </template>
+</component>`
+
+export const oauthLogin = `<component :is="AuthFormStage" title="Welcome back" :mobile="!wide" v-model:dialog="dialog" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
+<div class="w-[360px]">
+  <div class="mb-8 text-center">
+    <h3 data-auth-title class="text-3xl font-semibold tracking-tight leading-[1.1]">Welcome back</h3>
+  </div>
+
+  <form class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+    <component :is="AuthInput"
+      label="Email address"
+      type="email"
+      :value="email"
+      @update:value="(value) => { email = value; submitted = false }"
+      :invalid="submitted && !/.+@.+\\..+/.test(email)"
+      :error-message="submitted && !/.+@.+\\..+/.test(email) ? 'Email is not valid.' : undefined"
+    />
+    <Button color="primary" size="3xl" type="submit" pill block class="h-[3.25rem]">
+      Continue
+    </Button>
+  </form>
+
+  <p class="text-base text-center mt-6" :class="[authFieldsStyles.CrossActionRow, authFieldsStyles.StandaloneCrossActionRow]">
+    Don't have an account?
+    <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction, authFieldsStyles.OAuthTextAction]">
+      Sign up
+    </Button>
+  </p>
+
+  <div class="my-7 flex items-center gap-3" role="separator" aria-orientation="horizontal">
+    <span aria-hidden="true" class="h-px flex-1 bg-[var(--color-fd-border)]" />
+    <span class="text-xs font-semibold uppercase tracking-wider text-fd-foreground select-none">OR</span>
+    <span aria-hidden="true" class="h-px flex-1 bg-[var(--color-fd-border)]" />
+  </div>
+
+  <div class="flex flex-col gap-3">
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="GoogleLogo" />Continue with Google</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="AppleLogo" />Continue with Apple</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="MicrosoftLogo" />Continue with Microsoft</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="PhoneLogo" />Continue with phone</Button>
+  </div>
+
+  <div class="mt-8"><component :is="AuthLegalNotice" /></div>
+</div>
+</component>`
+
+export const oauthSignup = `<component :is="AuthFormStage" title="Create an account" :mobile="!wide" v-model:dialog="dialog" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
+<div class="w-[360px]">
+  <div class="mb-8 text-center">
+    <h3 data-auth-title class="text-3xl font-semibold tracking-tight leading-[1.1]">Create an account</h3>
+  </div>
+
+  <form class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+    <component :is="AuthInput"
+      label="Email address"
+      type="email"
+      :value="email"
+      @update:value="(value) => { email = value; submitted = false }"
+      :invalid="submitted && !/.+@.+\\..+/.test(email)"
+      :error-message="submitted && !/.+@.+\\..+/.test(email) ? 'Email is not valid.' : undefined"
+    />
+    <Button color="primary" size="3xl" type="submit" pill block class="h-[3.25rem]">
+      Continue
+    </Button>
+  </form>
+
+  <p class="text-base text-center mt-6" :class="[authFieldsStyles.CrossActionRow, authFieldsStyles.StandaloneCrossActionRow]">
+    Already have an account?
+    <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction, authFieldsStyles.OAuthTextAction]">
+      Log in
+    </Button>
+  </p>
+
+  <div class="my-7 flex items-center gap-3" role="separator" aria-orientation="horizontal">
+    <span aria-hidden="true" class="h-px flex-1 bg-[var(--color-fd-border)]" />
+    <span class="text-xs font-semibold uppercase tracking-wider text-fd-foreground select-none">OR</span>
+    <span aria-hidden="true" class="h-px flex-1 bg-[var(--color-fd-border)]" />
+  </div>
+
+  <div class="flex flex-col gap-3">
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="GoogleLogo" />Continue with Google</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="AppleLogo" />Continue with Apple</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="MicrosoftLogo" />Continue with Microsoft</Button>
+  </div>
+
+  <div class="mt-8"><component :is="AuthLegalNotice" /></div>
+</div>
+</component>`
+
+export const countrySelect = `<component :is="AuthFields">
+<Select
+        v-model:value="country"
+        :options="phoneCountryOptions"
+        search-placeholder="Search countries..."
+        :search-predicate="phoneCountrySearchPredicate"
+        :list-min-width="wide ? 360 : undefined"
+        block
+        :variant="wide ? 'outline' : 'ghost'"
+        :trigger-class-name="wide ? undefined : authFieldsStyles.Country"
+        aria-label="Country"
+        size="3xl"
+        check-position="end"
+        @change="() => { submitted = false; focusLater($refs.phoneInput) }"
+      >
+        <template #optionView="{ value, label }">
+          <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
+        </template>
+        <template #triggerView="{ value, label }">
+          <component :is="PhoneCountryLabel" :label="countryOf(value)?.label ?? label" :dial-code="countryOf(value)?.dialCode" />
+        </template>
+        <template v-if="wide" #trigger="{ open, onToggle }">
+          <component :is="PhoneCountryTrigger" :country="country" :open="open" @click="onToggle" />
+        </template>
+      </Select>
+      <component :is="AuthInput"
+        ref="phoneInput"
+        label="Phone number"
+        :value="phone"
+        @update:value="(raw) => { phone = formatPhoneNumber(raw.replace(/\\D/g, ''), country); submitted = false }"
+        type="tel"
+        inputmode="tel"
+        :invalid="submitted && !isPhoneValid(phone)"
+        :error-message="submitted && !isPhoneValid(phone) ? 'Phone number is not valid.' : undefined"
+      >
+        <template v-if="wide" #startAdornment>
+          <span class="text-tertiary whitespace-nowrap select-none mr-2">{{ dialCodeOf(country) }}</span>
+        </template>
+      </component>
+</component>`
+
+export const phoneSignup = `<component :is="AuthFormStage" title="Create an account" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
+  <template #default="{ formId }">
+    <div class="w-[360px]">
+      <div class="mb-6 text-center">
+        <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Create your account</h3>
+        <p data-auth-description class="text-secondary text-sm mt-1">Enter your details to get started.</p>
+      </div>
+      <form :id="formId" class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+        <component :is="AuthInput" label="Full name" v-model:value="fullName" />
+        <component :is="AuthInput"
+          label="Email address"
+          type="email"
+          :value="email"
+          @update:value="(value) => { email = value; submitted = false }"
+          :invalid="submitted && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)"
+          :error-message="submitted && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) ? 'Enter a valid email address.' : undefined"
+        />
+        ${countrySelect}
+        <component v-if="wide" :is="AuthLegalNotice" />
+        <Button v-if="wide" color="primary" size="3xl" type="submit" pill class="w-full h-[3.25rem]">Continue</Button>
+        <p class="text-base text-center mt-4" :class="authFieldsStyles.CrossActionRow">
+          Already have an account?
+          <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction]">
+            Log in
+          </Button>
+        </p>
+      </form>
+    </div>
+  </template>
+  <template #footer="{ formId }">
+    <div :class="authFieldsStyles.ConsentActions">
+      <component :is="AuthLegalNotice" />
+      <Button color="primary" size="3xl" type="submit" :form="formId" pill block>Continue</Button>
+    </div>
+  </template>
+</component>`
+
+export const phoneLogin = `<component :is="AuthFormStage" title="Log in with phone" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
+  <template #default="{ formId }">
+    <div class="w-[360px]">
+      <div class="mb-6 text-center">
+        <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Welcome back</h3>
+        <p data-auth-description class="text-secondary text-sm mt-1">Enter your phone number to continue.</p>
+      </div>
+      <form :id="formId" class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+        ${countrySelect}
+        <Button v-if="wide" color="primary" size="3xl" type="submit" pill class="w-full h-[3.25rem] mt-3">Continue</Button>
+        <p class="text-base text-center mt-4" :class="authFieldsStyles.CrossActionRow">
+          Don't have an account?
+          <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction]">
+            Sign up
+          </Button>
+        </p>
+      </form>
+    </div>
+  </template>
+  <template #footer="{ formId }">
+    <Button color="primary" size="3xl" type="submit" :form="formId" pill block>Continue</Button>
+  </template>
+</component>`
+
+export const passwordState = { password: "", submitted: false, editingPhone: false, navigationStep: 0, focusPhoneEditor: false, phoneCountry: "us", phone: "555 123 4567", draftCountry: "us", draftPhone: "555 123 4567", returnToEdit: false }
+
+export const password = `<component :is="AuthFormStage" :navigation="wide ? undefined : { step: navigationStep, direction: editingPhone ? 'forward' : 'back' }" :title="editingPhone ? 'Edit phone number' : 'Enter your password'" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface" :on-back="editingPhone ? () => { returnToEdit = true; editingPhone = false; navigationStep++; focusPhoneEditor = false; submitted = false } : undefined" :back-label="editingPhone ? 'Back to password' : undefined">
+  <template #default="{ formId }">
+    <div class="w-[360px]">
+      <div class="mb-6 text-center">
+        <h3 data-auth-title tabindex="-1" :ref="(node) => { if (node && focusPhoneEditor && editingPhone) $nextTick(() => { if (focusPhoneEditor && node.isConnected && !node.closest('[inert]')) { focusPhoneEditor = false; node.focus({ preventScroll: true }) } }) }" class="text-2xl font-semibold tracking-tight">{{ editingPhone ? 'Edit phone number' : 'Enter your password' }}</h3>
+      </div>
+      <form :id="formId" class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true; if (editingPhone && isPhoneValid(draftPhone)) { phoneCountry = draftCountry; phone = draftPhone; returnToEdit = true; editingPhone = false; navigationStep++; focusPhoneEditor = false; submitted = false }">
+        <component :is="AuthFields" v-if="editingPhone" class="flex flex-col gap-3">
+          <Select v-model:value="draftCountry" :options="phoneCountryOptions" aria-label="Country"
+            search-placeholder="Search countries..." :search-predicate="phoneCountrySearchPredicate" :list-min-width="wide ? 360 : undefined"
+            size="3xl" block check-position="end"
+            :variant="wide ? 'outline' : 'ghost'" :trigger-class-name="wide ? undefined : authFieldsStyles.Country"
+            @change="submitted = false; focusLater($refs.phoneEditInput)">
+            <template #optionView="{ value, label }">
+              <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
+            </template>
+            <template #triggerView="{ value, label }">
+              <component :is="PhoneCountryLabel" :label="countryOf(value)?.label ?? label" :dial-code="countryOf(value)?.dialCode" />
+            </template>
+            <template v-if="wide" #trigger="{ open, onToggle }">
+              <component :is="PhoneCountryTrigger" :country="draftCountry" :open="open" @click="onToggle" />
+            </template>
+          </Select>
+          <component :is="AuthInput" ref="phoneEditInput" label="Phone number" type="tel" inputmode="tel" autocomplete="tel-national"
+            :value="draftPhone" @update:value="(value) => { draftPhone = formatPhoneNumber(value, draftCountry); submitted = false }"
+            :invalid="submitted && !isPhoneValid(draftPhone)" :error-message="submitted && !isPhoneValid(draftPhone) ? 'Phone number is not valid.' : undefined">
+            <template v-if="wide" #startAdornment>
+              <span class="text-tertiary whitespace-nowrap select-none mr-2">{{ dialCodeOf(draftCountry) }}</span>
+            </template>
+          </component>
+        </component>
+        <template v-else-if="wide">
+        <component :is="AuthInput" label="Phone number" read-only :value="dialCodeOf(phoneCountry) + ' ' + phone">
+          <template #endAdornment>
+            <Button type="button" color="info" variant="ghost" :class="authFieldsStyles.TextAction"
+              :ref="(button) => { if (button && returnToEdit) $nextTick(() => { const el = button.$el; if (returnToEdit && el.isConnected && !el.closest('[inert]')) { returnToEdit = false; el.focus({ preventScroll: true }) } }) }"
+              @click="draftCountry = phoneCountry; draftPhone = phone; submitted = false; navigationStep++; focusPhoneEditor = true; editingPhone = true">Edit</Button>
+          </template>
+        </component>
+        <div>
+          <component :is="AuthInput"
+            label="Password"
+            type="password"
+            :value="password"
+            @update:value="(value) => { password = value; submitted = false }"
+            :invalid="submitted && !password"
+            :error-message="submitted && !password ? 'Password is required.' : undefined"
+          />
+          <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction, authFieldsStyles.ForgotAction]">
+            Forgot password?
+          </Button>
+        </div>
+        </template>
+        <template v-else>
+        <component :is="AuthFields">
+        <component :is="AuthInput" label="Phone number" read-only :value="dialCodeOf(phoneCountry) + ' ' + phone">
+          <template #endAdornment>
+            <Button type="button" color="info" variant="ghost" :class="authFieldsStyles.TextAction"
+              :ref="(button) => { if (button && returnToEdit) $nextTick(() => { const el = button.$el; if (returnToEdit && el.isConnected && !el.closest('[inert]')) { returnToEdit = false; el.focus({ preventScroll: true }) } }) }"
+              @click="draftCountry = phoneCountry; draftPhone = phone; submitted = false; navigationStep++; focusPhoneEditor = true; editingPhone = true">Edit</Button>
+          </template>
+        </component>
+          <component :is="AuthInput"
+            label="Password"
+            type="password"
+            :value="password"
+            @update:value="(value) => { password = value; submitted = false }"
+            :invalid="submitted && !password"
+            :error-message="submitted && !password ? 'Password is required.' : undefined"
+          />
+        </component>
+        <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction, authFieldsStyles.ForgotAction]">
+            Forgot password?
+          </Button>
+        </template>
+        <div v-if="wide" class="flex gap-3 mt-2">
+          <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>
+        </div>
+        <p v-if="!editingPhone" class="text-base text-center mt-4" :class="authFieldsStyles.CrossActionRow">
+          Don't have an account?
+          <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction]">
+            Sign up
+          </Button>
+        </p>
+      </form>
+    </div>
+  </template>
+  <template #footer="{ formId }">
+    <Button color="primary" size="3xl" type="submit" :form="formId" pill block>Continue</Button>
+  </template>
+</component>`
+
+export const passwordCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+import { Select } from '@plexui/vue/components/Select';
+import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
+import { AuthFormStage } from './AuthFormStage';
+import { AuthFields } from './AuthFields';
+import { AuthInput } from './AuthInput';
+import authFieldsStyles from './AuthFields.module.css';
+import { COUNTRY_LOOKUP, COUNTRY_OPTIONS as phoneCountryOptions, formatPhoneNumber, stripFormatting } from './PhoneInputDemos';
+// FlagIcon, countryLabelStyles, countryOf, PhoneCountryLabel, PhoneCountryTrigger, phoneCountrySearchPredicate
+// and focusLater are the setup-scope helpers of the Log in (phone) form.
+
+const wide = useBreakpoint('md');
+const dialog = ref(false);
+const surface = ref<'plain' | 'grouped'>('grouped');
+const password = ref('');
+const submitted = ref(false);
+const editingPhone = ref(false);
+const navigationStep = ref(0);
+const focusPhoneEditor = ref(false);
+const phoneCountry = ref('us');
+const phone = ref('555 123 4567');
+const draftCountry = ref('us');
+const draftPhone = ref('555 123 4567');
+const returnToEdit = ref(false);
+const dialCodeOf = (country: string) => COUNTRY_LOOKUP.get(country)?.dialCode || '+1';
+const isPhoneValid = (phone: string) => { const digits = stripFormatting(phone); return digits.length >= 7 && digits.length <= 15; };
+</script>
+
+<template>
+${password.replaceAll(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')}
+</template>`
+
+export const aboutYouDesktop = `<component :is="AuthFormStage" title="Tell us about you" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
+  <div class="w-[360px]">
+    <div class="mb-6 text-center">
+      <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Tell us about you</h3>
+      <p data-auth-description class="text-secondary text-sm mt-1">This helps us customize your experience.</p>
+    </div>
+    <form
+      class="flex flex-col gap-3"
+      @submit.prevent="() => {
+        birthdayError = !birthday ? 'Birthday is required.' : !isValidBirthday(birthday) ? 'Please enter a valid date.' : null
+        countryError = !country ? 'Please select a country.' : null
+      }"
+    >
+      <FloatingLabelInput label="Full name" v-model:value="fullName" />
+      <div class="flex flex-col gap-1.5">
+        <component
+          :is="BirthdayMaskedInput"
+          :value="birthday"
+          @update:value="(value) => { birthday = value; birthdayError = null }"
+          :invalid="!!birthdayError"
+          :aria-describedby="birthdayError ? 'about-you-birthday-error' : undefined"
+        />
+        <FieldError v-if="birthdayError" id="about-you-birthday-error">{{ birthdayError }}</FieldError>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <Select
+          v-model:value="country"
+          :options="countries"
+          search-placeholder="Search countries..."
+          :list-min-width="320"
+          block
+          check-position="end"
+          @change="countryError = null"
+        >
+          <template #optionView="{ value, label }">
+            <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
+          </template>
+          <template #trigger="{ open }">
+            <FloatingLabelSelect
+              label="Country"
+              :selected="!!country"
+              :open="open"
+              :on-clear-click="country ? () => { country = ''; countryError = null } : undefined"
+              :invalid="!!countryError"
+              :aria-describedby="countryError ? 'about-you-country-error' : undefined"
+            >
+              <span
+                v-if="countryOf(country)"
+                :class="countryLabelStyles.Root"
+              ><component :is="FlagIcon" :code="country" /><span :class="countryLabelStyles.Text">{{ countryOf(country).label }}</span></span>
+            </FloatingLabelSelect>
+          </template>
+        </Select>
+        <FieldError v-if="countryError" id="about-you-country-error">{{ countryError }}</FieldError>
+      </div>
+      <component :is="AuthLegalNotice" />
+      <Button color="primary" size="3xl" type="submit" pill class="h-[3.25rem]">Continue</Button>
+    </form>
+  </div>
+</component>`
+
+export const verifyEmail = `<component :is="VerificationFlow" v-model:cooldown="cooldown" v-model:verifying="verifying" v-model:error="error" v-slot="{ seconds, complete, edit, submit, resend }">
+  <component :is="AuthFormStage" title="Verify your email address" keyboard="numeric" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
+    <template #default="{ formId }">
+      <div class="w-[360px]">
+        <div class="mb-6 text-center">
+          <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Verify your email address</h3>
+          <p data-auth-description class="text-secondary text-sm mt-1">Enter the code sent to alex.johnson@example.com</p>
+        </div>
+        <form :id="formId" class="flex flex-col gap-6" novalidate :aria-busy="verifying"
+          @submit.prevent="submit(input, code)">
+          <div class="flex flex-col gap-2" data-verification-code>
+            <div v-if="input === 'per-digit'" class="flex justify-center">
+              <OTPInput v-model:value="otpValue" @change="edit" @complete="complete" :invalid="error" :disabled="verifying" :error-message="error ? 'Incorrect code' : undefined" :class="authFieldsStyles.Otp" />
+            </div>
+            <component :is="AuthInput" v-else label="Code" :value="code" @update:value="(value) => { edit(value); code = value }" inputmode="numeric" :invalid="error" :disabled="verifying" :error-message="error ? 'Incorrect code' : undefined" />
+            <div data-verification-resend class="flex h-11 items-center justify-center">
+            <LoadingIndicator v-if="input === 'per-digit' && verifying" role="status" aria-label="Checking code" />
+            <Button v-else type="button" color="secondary" variant="ghost" size="xl" class="h-11 w-full font-normal"
+              :disabled="cooldown || verifying" @click="resend">
+              Resend email{{ cooldown ? ' (' + seconds + 's)' : '' }}
+            </Button>
+            </div>
+          </div>
+          <template v-if="wide && input === 'text-field'">
+            <div class="w-full" data-verification-actions>
+              <Button color="primary" size="3xl" type="submit" :form="formId" pill block class="md:h-[3.25rem]"
+                :loading="verifying" :disabled="!isVerificationCodeReady('text-field', code)" :aria-busy="verifying">Continue</Button>
+            </div>
+          </template>
+        </form>
+      </div>
+    </template>
+    <template v-if="input === 'text-field'" #footer="{ formId }">
+      <div class="w-full" data-verification-actions>
+        <Button color="primary" size="3xl" type="submit" :form="formId" pill block class="md:h-[3.25rem]"
+          :loading="verifying" :disabled="!isVerificationCodeReady('text-field', code)" :aria-busy="verifying">Continue</Button>
+      </div>
+    </template>
+  </component>
+</component>`
+
+export const confirmPhone = `<component :is="VerificationFlow" v-model:cooldown="cooldown" v-model:verifying="verifying" v-model:error="error" v-slot="{ seconds, complete, edit, submit, resend }">
+  <component :is="AuthFormStage" title="Confirm phone" keyboard="numeric" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
+    <template #default="{ formId }">
+      <div class="w-[360px]">
+        <div class="mb-6 text-center">
+          <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Confirm phone</h3>
+          <p data-auth-description class="text-secondary text-sm mt-1">Enter the code sent to +1 555 123 4567</p>
+        </div>
+        <form :id="formId" class="flex flex-col gap-6" novalidate :aria-busy="verifying"
+          @submit.prevent="submit(input, code)">
+          <div class="flex flex-col gap-2" data-verification-code>
+            <div v-if="input === 'per-digit'" class="flex justify-center">
+              <OTPInput v-model:value="otpValue" @change="edit" @complete="complete" :invalid="error" :disabled="verifying" :error-message="error ? 'Incorrect code' : undefined" :class="authFieldsStyles.Otp" />
+            </div>
+            <component :is="AuthInput" v-else label="Code" :value="code" @update:value="(value) => { edit(value); code = value }" inputmode="numeric" :invalid="error" :disabled="verifying" :error-message="error ? 'Incorrect code' : undefined" />
+            <div data-verification-resend class="flex h-11 items-center justify-center">
+            <LoadingIndicator v-if="input === 'per-digit' && verifying" role="status" aria-label="Checking code" />
+            <Button v-else type="button" color="secondary" variant="ghost" size="xl" class="h-11 w-full font-normal"
+              :disabled="cooldown || verifying" @click="resend">
+              Resend code{{ cooldown ? ' (' + seconds + 's)' : '' }}
+            </Button>
+            </div>
+          </div>
+          <template v-if="wide && input === 'text-field'">
+            <div class="w-full" data-verification-actions>
+              <Button color="primary" size="3xl" type="submit" :form="formId" pill block class="md:h-[3.25rem]"
+                :loading="verifying" :disabled="!isVerificationCodeReady('text-field', code)" :aria-busy="verifying">Continue</Button>
+            </div>
+          </template>
+        </form>
+      </div>
+    </template>
+    <template v-if="input === 'text-field'" #footer="{ formId }">
+      <div class="w-full" data-verification-actions>
+        <Button color="primary" size="3xl" type="submit" :form="formId" pill block class="md:h-[3.25rem]"
+          :loading="verifying" :disabled="!isVerificationCodeReady('text-field', code)" :aria-busy="verifying">Continue</Button>
+      </div>
+    </template>
+  </component>
+</component>`
+
+export const aboutYouFields = `<component :is="AuthFields">
+  <component :is="AuthInput" label="Full name" v-model:value="fullName" autocomplete="name" />
+  <component :is="AuthInput" label="Birthday" :error-message="birthdayError || undefined"
+    :value="birthday" placeholder="MM / DD / YYYY" inputmode="numeric" :maxlength="14" autocomplete="bday"
+    @update:value="(raw) => { birthday = nextBirthday(raw, birthday); birthdayError = null }" />
+  <div :class="authFieldsStyles.Row">
+    <span :id="formId + '-country-label'" class="sr-only">Country</span>
+    <Select v-model:value="country" :options="countries" :aria-labelledby="formId + '-country-label'"
+      :aria-invalid="!!countryError || undefined" :aria-describedby="countryError ? formId + '-country-error' : undefined"
+      search-placeholder="Search countries..." placeholder="Select country" clearable
+      variant="ghost" size="3xl" :trigger-class-name="authFieldsStyles.Country" block align="start" check-position="end"
+      @change="countryError = null" />
+    <FieldError v-if="countryError" :id="formId + '-country-error'" :class="authFieldsStyles.Note">{{ countryError }}</FieldError>
+  </div>
+</component>`
+
+export const aboutYouSubmit = `birthdayError = !birthday ? 'Birthday is required.' : !isValidBirthday(birthday) ? 'Please enter a valid date.' : null; countryError = !country ? 'Please select a country.' : null`
+
+export const aboutYouMobile = `<component :is="AuthFormStage" title="Tell us about you" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
+  <template #default="{ formId }">
+    <div class="w-[360px]">
+      <div class="mb-6 text-center">
+        <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Tell us about you</h3>
+        <p data-auth-description class="text-secondary text-sm mt-1">This helps us customize your experience.</p>
+      </div>
+      <form :id="formId" novalidate @submit.prevent="${aboutYouSubmit}">${aboutYouFields}</form>
+    </div>
+  </template>
+  <template #footer="{ formId }">
+    <div :class="authFieldsStyles.ConsentActions">
+      <component :is="AuthLegalNotice" />
+      <Button color="primary" size="3xl" type="submit" :form="formId" pill block>Continue</Button>
+    </div>
+  </template>
+</component>`
+
+export const aboutYou = `<template v-if="wide">${aboutYouDesktop}</template>
+<template v-else>${aboutYouMobile}</template>`
+
+Sign-up, log-in, password and verification screens composed from [Float Input](/vue/components/floating-label-input), [OTP Input](/vue/components/otp-input), [Select](/vue/components/select), and [Button](/vue/components/button). Settings and editing forms are on [Settings Forms](/vue/components/settings-forms). The examples render small helpers from their setup scope with <code>{'<component :is>'}</code>: <code>AuthFormStage</code> (the shared Page or Sheet shell), the brand logos, <code>FlagIcon</code>, <code>PhoneCountryTrigger</code> and <code>BirthdayMaskedInput</code>.
+
+Auth examples share [AuthInput](https://github.com/plex-ui/ui/blob/master/components/docs/vue/AuthInput.ts), [AuthFields](https://github.com/plex-ui/ui/blob/master/components/docs/vue/AuthFields.ts), and their [styles](https://github.com/plex-ui/ui/blob/master/components/docs/AuthFields.module.css). The [AuthFormStage helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/AuthFormStage.ts) supplies the common Page or Sheet shell and mobile context. Copy these files together. Phones use a single filled pill or linked rows without floating labels; desktop keeps FloatingLabelInput. The form owns values, validation and submission.
+
+Screens default to Grouped. The `surface` control switches to Plain without changing fields or values. Page uses base colors; Dialog uses elevated colors. Auth screens use a shared `Page` shell in Phone view: a 54px toolbar area, a 10px gap before the form, and 16px side gutters. The `dialog` control switches to a tall mobile Sheet with its own toolbar. Changes to presentation preserve entered values. Individual input examples keep their component-only layout.
+
+<HashForward to="/vue/components/settings-forms" ids={["form-in-a-dialog", "errors-in-rows", "several-groups", "group-of-inputs", "group-of-mixed-controls", "choice-in-rows", "long-form-in-one-group", "tags-in-rows", "rows-with-actions", "payout-details", "billing-details", "upload-file", "settings-with-selection-pages", "image-and-title", "settings-with-a-slider"]} />
+
+## Log in (email)
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>The classic email + password log-in: a linked pair of filled inputs on phones and two <code>FloatingLabelInput</code> fields on desktop, a visibility toggle on the password, a <code>Forgot password?</code> link, and a <code>Sign up</code> cross-link. On phones, Log in stays in the Page or Sheet footer; desktop keeps it inside the form.</>} code={withAuthHelpers(emailLogin)} previewMinHeight={480}>
+  <VueFormExampleDemo auth template={emailLogin} stageClassName={STAGE} state={{ email: "", password: "", submitted: false }} controls={[dialogControl]} />
+</ComponentPreview>
+
+## Log in (OAuth)
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>OpenAI-style log-in: <code>Welcome back</code> heading, email + <code>Continue</code>, a <code>Don&apos;t have an account? Sign up</code> cross-link, an <code>OR</code> divider, then Google, Apple, Microsoft, and phone, all with 20×20 brand glyphs. <code>Terms of Use</code> / <code>Privacy Policy</code> footer.</>} code={withAuthHelpers(oauthLogin)} previewMinHeight={760}>
+  <VueFormExampleDemo auth template={oauthLogin} stageClassName={STAGE} state={{ email: "", submitted: false }} />
+</ComponentPreview>
+
+## Sign up (OAuth)
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>OpenAI-style sign-up: <code>Create an account</code> heading, email + <code>Continue</code>, an <code>Already have an account? Log in</code> cross-link, an <code>OR</code> divider, then Google, Apple, and Microsoft (no phone). Same 20×20 brand-glyph alignment as the log-in variant.</>} code={withAuthHelpers(oauthSignup)} previewMinHeight={680}>
+  <VueFormExampleDemo auth template={oauthSignup} stageClassName={STAGE} state={{ email: "", submitted: false }} />
+</ComponentPreview>
+
+## Sign up (phone)
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>A signup form with single filled name and email fields and a linked country/phone group on phones. Desktop keeps floating-label text inputs. Validates email and phone number and includes terms text. On phones, Continue stays in the footer; desktop keeps it inside the form.</>} code={withAuthHelpers(phoneSignup)} previewMinHeight={580}>
+  <VueFormExampleDemo auth template={phoneSignup} stageClassName={STAGE} state={{ fullName: "", email: "", country: "es", phone: "", submitted: false }} controls={[dialogControl]} />
+</ComponentPreview>
+
+## Log in (phone)
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>A phone login form with a country code selector and phone input. Minimal layout matching the OpenAI login pattern. On phones, the footer slot pins Continue in a bottom <code>Toolbar</code> of the Page or Sheet. Both slots receive the same unique formId, so the action submits its own form. Desktop keeps Continue inside the form.</>} code={withAuthHelpers(phoneLogin)} previewMinHeight={420}>
+  <VueFormExampleDemo auth template={phoneLogin} stageClassName={STAGE} state={{ country: "es", phone: "", submitted: false }} controls={[dialogControl]} />
+</ComponentPreview>
+
+## Enter password
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>A password entry step with a read-only phone field (with "Edit" button, which opens the country and phone controls of the <a href="#log-in-phone">Log in (phone)</a> form), a password input with a visibility toggle, and a "Forgot password?" link. On phones, the footer slot pins Continue in a bottom <code>Toolbar</code> of the Page or Sheet. Both slots receive the same unique formId, so the action submits its own form. Desktop keeps Continue inside the form.</>} code={passwordCode} previewMinHeight={420}>
+  <VueFormExampleDemo auth template={password} stageClassName={STAGE} state={passwordState} controls={[dialogControl]} />
+</ComponentPreview>
+
+<span id="verify-email-error" />
+
+## Verify email
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Toggle between a per-digit <code>OTPInput</code> and a text field for alphanumeric or variable-length codes. Both use filled fields on phones; desktop keeps the standard OTP cells and floating-label text field. The error control keeps entered values. Resend starts a 30-second countdown; verifying shows a pending check without a server result. Per-digit starts one pending check when all six digits are entered, without a Continue action. Editing after an error or resending allows a new attempt. Resend stays below the code; Text field keeps Continue after Resend on desktop and in the Phone footer.</>} code={withVerificationHelpers(verifyEmail)} previewMinHeight={380}>
+  <VueFormExampleDemo auth template={verifyEmail} stageClassName={STAGE} state={{ otpValue: "", code: "" }} controls={[inputControl, errorControl, cooldownControl, verifyingControl, dialogControl]} />
+</ComponentPreview>
+
+## Confirm phone
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Toggle between a per-digit <code>OTPInput</code> and a text field for phone verification. Both use filled fields on phones; desktop keeps the standard OTP cells and floating-label text field. The error control keeps entered values. Resend starts a 30-second countdown; verifying shows a pending check without a server result. Per-digit starts one pending check when all six digits are entered, without a Continue action. Editing after an error or resending allows a new attempt. Resend stays below the code; Text field keeps Continue after Resend on desktop and in the Phone footer.</>} code={withVerificationHelpers(confirmPhone)} previewMinHeight={380}>
+  <VueFormExampleDemo auth template={confirmPhone} stageClassName={STAGE} state={{ otpValue: "", code: "" }} controls={[inputControl, errorControl, cooldownControl, verifyingControl, dialogControl]} />
+</ComponentPreview>
+
+<span id="about-you" />
+
+## About you (without labels)
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>On phones, the onboarding heading stays above a filled group on a grouped Page or Sheet, with a pinned Continue action. Desktop keeps the floating-label form.</>} code={withAuthHelpers(aboutYouMobile)} previewMinHeight={280}>
+  <VueFormExampleDemo auth template={aboutYou} stageClassName={STAGE} state={{ fullName: "", birthday: "", country: "", birthdayError: null, countryError: null }} controls={[dialogControl]} />
+</ComponentPreview>
+
+export const createPassword = `<component :is="AuthFormStage" title="Create Password" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" v-model:dialog="dialog" :surface="surface">
+  <template #default="{ formId }">
+    <div class="w-full min-w-0">
+      <div class="mb-6 text-center">
+        <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Create Password</h3>
+      </div>
+      <form :id="formId" class="flex flex-col gap-6" novalidate @submit.prevent="() => {
+        if (completed) return;
+        submitted = true;
+        const invalid = passwordErrors(password, confirmation);
+        if (invalid.password || invalid.confirmation) return;
+        completed = true; submitted = false; password = ''; confirmation = '';
+      }">
+        <component :is="AuthFields" class="flex flex-col gap-2">
+          <template #footer><span :id="formId + '-password-hint'">{{ passwordHint }}</span></template>
+          <component :is="AuthInput" label="Password" type="password" :value="password" autocomplete="off" :allow-autofill-extensions="false" :disabled="completed"
+            :aria-describedby="!wide ? formId + '-password-hint' : undefined"
+            @update:value="(value) => { password = value; submitted = false }"
+            :invalid="submitted && !!passwordErrors(password, confirmation).password" :error-message="submitted ? passwordErrors(password, confirmation).password : undefined" />
+          <component :is="AuthInput" label="Confirm Password" type="password" :value="confirmation" autocomplete="off" :allow-autofill-extensions="false" :disabled="completed"
+            @update:value="(value) => { confirmation = value; submitted = false }"
+            :invalid="submitted && !!passwordErrors(password, confirmation).confirmation" :error-message="submitted ? passwordErrors(password, confirmation).confirmation : undefined" :description="wide ? passwordHint : undefined" :aria-describedby="!wide ? formId + '-password-hint' : undefined" />
+        </component>
+        <div v-if="completed" role="status"><Alert color="success" variant="soft" title="Preview complete" description="Password validated. No account was created." /></div>
+        <template v-if="wide">
+          <Button v-if="completed" color="primary" size="3xl" pill block @click="completed = false">Start over</Button>
+          <Button v-else color="primary" size="3xl" type="submit" :form="formId" pill block>Continue</Button>
+        </template>
+      </form>
+    </div>
+  </template>
+  <template #footer="{ formId }">
+    <Button v-if="completed" color="primary" size="3xl" pill block @click="completed = false">Start over</Button>
+    <Button v-else color="primary" size="3xl" type="submit" :form="formId" pill block>Continue</Button>
+  </template>
+</component>`
+
+<span id="password-and-storage" />
+
+## Create password
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>A standalone password form with matching-value validation and a pinned mobile Continue action. A valid submission completes this preview and clears the sample password. No account is created and no request is sent. Surface and dialog controls preserve unfinished values.</>} code={`<script setup lang="ts">
+import { ref } from 'vue';
+import { Alert } from '@plexui/vue/components/Alert';
+import { Button } from '@plexui/vue/components/Button';
+import { AuthFormStage } from './AuthFormStage';
+import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
+import { AuthInput } from './AuthInput';
+import { AuthFields } from './AuthFields';
+
+const wide = useBreakpoint('md');
+const surface = ref<'plain' | 'grouped'>('grouped');
+const dialog = ref(false);
+const completed = ref(false);
+const password = ref('');
+const confirmation = ref('');
+const submitted = ref(false);
+const passwordHint = 'Your password must be at least 8 characters, include a number, an uppercase letter and a lowercase letter.';
+
+type PasswordValidationErrors = { password?: string; confirmation?: string };
+
+function passwordErrors(password: string, confirmation: string): PasswordValidationErrors {
+  return {
+    password: !password ? 'Enter a password.' : !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$/.test(password) ? 'Password does not meet the requirements.' : undefined,
+    confirmation: !confirmation ? 'Confirm your password.' : confirmation !== password ? 'Passwords do not match.' : undefined,
+  };
+}
+</script>
+
+<template>
+${createPassword.replace(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')}
+</template>`} previewMinHeight={620}>
+  <VueCreatePasswordDemo template={createPassword} />
+</ComponentPreview>
+
+export const storageLocation = `<component :is="AuthFormStage" title="Choose Storage Location" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" v-model:dialog="dialog" :surface="surface">
+  <template #default="{ formId }">
+    <div class="w-full min-w-0">
+      <div class="mb-6 text-center">
+        <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Choose Storage Location</h3>
+        <p data-auth-description class="text-secondary text-sm mt-2">Select where your documents will be stored. This cannot be changed later.</p>
+      </div>
+      <form :id="formId" class="flex flex-col gap-6" novalidate @submit.prevent="() => { if (region && !completed) completed = true }">
+        <RadioGroup :name="formId + '-storage-region'" aria-label="Storage location" v-model:value="region" :disabled="completed" direction="col" class="w-full">
+          <FieldGroup class="w-full">
+            <Field v-for="option in storageRegions" :key="option.value" row :label="option.label"><RadioGroupItem :value="option.value" /></Field>
+          </FieldGroup>
+        </RadioGroup>
+        <div v-if="completed" role="status"><Alert color="success" variant="soft" title="Preview complete"
+          :description="'Selected storage location: ' + storageRegions.find((option) => option.value === region)?.label + '. No account was created.'" /></div>
+        <template v-if="wide">
+          <Button v-if="completed" color="primary" size="3xl" pill block @click="region = ''; completed = false">Start over</Button>
+          <Button v-else color="primary" size="3xl" type="submit" :form="formId" pill block :disabled="!region">Continue</Button>
+        </template>
+      </form>
+    </div>
+  </template>
+  <template #footer="{ formId }">
+    <Button v-if="completed" color="primary" size="3xl" pill block @click="region = ''; completed = false">Start over</Button>
+    <Button v-else color="primary" size="3xl" type="submit" :form="formId" pill block :disabled="!region">Continue</Button>
+  </template>
+</component>`
+
+## Storage location
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>A standalone storage-location form with whole-row choices and a pinned mobile Continue action. Selecting a region enables Continue without completing the preview. Start over clears the selection; surface and dialog controls preserve it. No account is created and no request is sent.</>} code={`<script setup lang="ts">
+import { ref } from 'vue';
+import { Alert } from '@plexui/vue/components/Alert';
+import { Button } from '@plexui/vue/components/Button';
+import { AuthFormStage } from './AuthFormStage';
+import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
+import { Field } from '@plexui/vue/components/Field';
+import { FieldGroup } from '@plexui/vue/components/FieldGroup';
+import { Storage } from '@plexui/vue/components/Icon';
+import { RadioGroup, RadioGroupItem } from '@plexui/vue/components/RadioGroup';
+
+const wide = useBreakpoint('md');
+const surface = ref<'plain' | 'grouped'>('grouped');
+const dialog = ref(false);
+const completed = ref(false);
+const region = ref<'' | 'eu' | 'us'>('');
+const storageRegions = [
+  { value: 'eu', label: 'European Union (EU)' },
+  { value: 'us', label: 'United States (US)' },
+] as const;
+</script>
+
+<template>
+${storageLocation.replace(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')}
+</template>`} previewMinHeight={620}>
+  <VueStorageLocationDemo template={storageLocation} />
+</ComponentPreview>

@@ -15,7 +15,7 @@ const PHONE_FOOTER = '[data-toolbar][data-placement="bottom"]'
 const viewport = vi.hoisted(() => ({ wide: false }))
 vi.mock("@plexui/ui/hooks/useBreakpoints", () => ({ useBreakpoint: () => viewport.wide }))
 
-const mdx = readFileSync("content/vue/components/form-examples.mdx", "utf8")
+const mdx = readFileSync("content/vue/components/auth-forms.mdx", "utf8")
 function resolveTemplate(name: string, nextName: string, bindings: Record<string, string> = {}): string {
   const start = mdx.indexOf(`export const ${name} = `) + `export const ${name} = `.length
   const expression = mdx.slice(start, mdx.indexOf(`export const ${nextName} = `, start)).trim()

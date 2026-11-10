@@ -18,7 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../pac
 import { flushVue, mountVue } from "./harness"
 
 vi.mock("../../components/docs/VuePreview", () => ({ VuePreview: () => <section aria-label="Vue notifications" /> }))
-vi.mock("next/navigation", () => ({ usePathname: () => "/components/form-examples" }))
+vi.mock("next/navigation", () => ({ usePathname: () => "/components/auth-forms" }))
 vi.mock("@plexui/ui/hooks/useBreakpoints", () => ({ useBreakpoint: () => true }))
 vi.mock("fumadocs-ui/components/dynamic-codeblock", () => ({ DynamicCodeBlock: () => null }))
 
@@ -60,7 +60,7 @@ describe("Phone preview identity", () => {
     expect(compiledIds('<ComponentPreview code="identical example" />')).toEqual(["preview-1"])
   })
 
-  test.each(["content/components/form-examples.mdx", "content/vue/components/form-examples.mdx"])(
+  test.each(["content/components/auth-forms.mdx", "content/components/settings-forms.mdx", "content/vue/components/auth-forms.mdx", "content/vue/components/settings-forms.mdx"])(
     "%s assigns a unique identity to every preview",
     (path) => {
       const source = readFileSync(path, "utf8")

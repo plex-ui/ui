@@ -20,7 +20,7 @@ vi.mock('../../components/docs/VuePreview', async () => ({
     VuePreview: (await import('../../components/docs/VuePreviewRuntime')).default,
 }));
 
-const mdx = readFileSync('content/vue/components/form-examples.mdx', 'utf8');
+const mdx = readFileSync('content/vue/components/auth-forms.mdx', 'utf8');
 function resolveTemplate(name: string): string {
     const declaration = `export const ${name} = `;
     const declarationStart = mdx.indexOf(declaration);

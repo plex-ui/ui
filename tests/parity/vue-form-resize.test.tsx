@@ -17,7 +17,7 @@ vi.mock("../../components/docs/VuePreview", async () => ({
   VuePreview: (await import("../../components/docs/VuePreviewRuntime")).default,
 }))
 
-const mdx = readFileSync("content/vue/components/form-examples.mdx", "utf8")
+const mdx = readFileSync("content/vue/components/settings-forms.mdx", "utf8")
 const expression = mdx.slice(mdx.indexOf("export const rowChoice = ") + "export const rowChoice = ".length, mdx.indexOf("export const rowProduct = ")).trim()
 const choiceTemplate: unknown = new Function("formScreen", `return ${expression}`)((_title: string, fields: string) => `<section>${fields}</section>`)
 if (typeof choiceTemplate !== "string") throw new Error("Choice in rows template was not resolved")
@@ -29,7 +29,7 @@ function resolveBillingExample() {
     return mdx.slice(mdx.indexOf(marker) + marker.length, mdx.indexOf(`export const ${next} = `)).trim()
   }
   const formScreen: unknown = new Function(`return ${read("formScreen", "formScreenCode")}`)()
-  const desktop: unknown = new Function(`return ${read("billingDesktop", "aboutYouDesktop")}`)()
+  const desktop: unknown = new Function(`return ${read("billingDesktop", "formScreen")}`)()
   const declarations = mdx.slice(mdx.indexOf("export const billingMobile = "), mdx.indexOf("export const rowInputs = ")).replaceAll("export const ", "const ")
   const result: unknown = new Function("formScreen", "billingDesktop", `${declarations}; return { template: billing, control: billingTypeControl };`)(formScreen, desktop)
   if (!result || typeof result !== "object" || !("template" in result) || typeof result.template !== "string" || !("control" in result)) {

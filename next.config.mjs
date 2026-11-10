@@ -83,6 +83,19 @@ const config = {
         destination: '/blog',
         permanent: true,
       })),
+      // Form Examples split into Auth Forms and Settings Forms (plan 177).
+      // The hash never reaches the server: Auth Forms forwards the anchors
+      // of settings sections to Settings Forms (components/docs/HashForward).
+      {
+        source: '/components/form-examples',
+        destination: '/components/auth-forms',
+        permanent: true,
+      },
+      {
+        source: '/vue/components/form-examples',
+        destination: '/vue/components/auth-forms',
+        permanent: true,
+      },
       // /docs/components/* and /docs/icons/* moved out of /docs to be
       // top-level peers of /docs and /blog (matches the top-nav
       // structure where Components / Icons are siblings of Docs).

@@ -14,7 +14,7 @@ const viewport = vi.hoisted(() => ({ wide: true }))
 vi.mock("@plexui/ui/hooks/useBreakpoints", () => ({ useBreakpoint: () => viewport.wide }))
 vi.mock("@plexui/ui/components/Badge", async () => import("../../packages/ui/src/components/Badge"))
 
-const mdx = readFileSync("content/vue/components/form-examples.mdx", "utf8")
+const mdx = readFileSync("content/vue/components/settings-forms.mdx", "utf8")
 const expression = mdx.slice(mdx.indexOf("export const rowTags = ") + "export const rowTags = ".length, mdx.indexOf("export const withTagRemoval = ")).trim()
 const template = new Function("formScreen", `return ${expression}`)((_title: string, fields: string) => `<div>${fields}</div>`)
 if (typeof template !== "string") throw new Error("Tags template was not resolved")

@@ -1,0 +1,925 @@
+---
+title: Auth Forms
+description: "Sign-up, log-in, OAuth, password entry, and email and phone verification forms built with Plex UI."
+metaDescription: "Production-ready React auth forms: sign-up, log-in, OAuth, password entry, and email and phone verification built with Plex UI."
+---
+
+import { HashForward } from "@/components/docs/HashForward"
+import { FloatingLabelInputEmailLoginFormDemo, FloatingLabelInputPhoneSignupFormDemo, FloatingLabelInputPhoneLoginFormDemo, FloatingLabelInputPasswordFormDemo, FloatingLabelSelectAboutYouFormDemo } from "@/components/docs/FloatingLabelInputDemos"
+import {
+  OTPInputVerifyEmailDemo,
+  OTPInputConfirmPhoneDemo,
+} from "@/components/docs/OTPInputDemos"
+import {
+  OAuthLoginFormDemo,
+  OAuthSignupFormDemo,
+} from "@/components/docs/OAuthFormDemos"
+import { CreatePasswordDemo, StorageLocationDemo } from "@/components/docs/OnboardingFlowDemos"
+
+export const authFormStyles = `.auth-form-screen {
+  width: 360px;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .auth-form-screen { height: auto; overflow: visible; background: transparent; }
+  .auth-form-content { flex: none; padding: 0; overflow: visible; scrollbar-gutter: auto; }
+}
+
+@media (max-width: 767px) {
+  .auth-form-screen {
+    --page-content-padding-top: 10px;
+    --page-content-padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    width: 100%;
+    height: 100dvh;
+  }
+}`
+
+Sign-up, log-in, password and verification screens composed from [Float Input](/components/floating-label-input), [OTP Input](/components/otp-input), [Select](/components/select), and [Button](/components/button). Settings and editing forms are on [Settings Forms](/components/settings-forms).
+
+Auth examples share [AuthInput](https://github.com/plex-ui/ui/blob/master/components/docs/AuthInput.tsx), [AuthFields](https://github.com/plex-ui/ui/blob/master/components/docs/AuthFields.tsx), and their [styles](https://github.com/plex-ui/ui/blob/master/components/docs/AuthFields.module.css). Copy the helpers and CSS together. Phones use a single filled pill or linked rows without floating labels; desktop keeps FloatingLabelInput. The form owns values, validation and submission.
+
+The screens share [AuthFormStage](https://github.com/plex-ui/ui/blob/master/components/docs/AuthFormStage.tsx) and [presentation controls](https://github.com/plex-ui/ui/blob/master/components/docs/ScreenPresentationControls.tsx). Copy their styles and helpers with the example. Grouped is the default mobile surface; Plain is optional. Page uses base colors and Dialog uses elevated colors. Keep field values in the owner above the presentation wrapper so switching Page/Dialog preserves them. The error control demonstrates a visual state; it does not validate a code.
+
+About you, login and verification default to `surface="grouped"`. Choose one surface for the steps of a flow; the palette adapts to light and dark mode on phones without changing the screen layout.
+
+Auth screens use a shared `Page` shell in Phone view: a 54px toolbar area, a 10px gap before the form, and 16px side gutters. The `dialog` control switches to a mobile Sheet with its own toolbar. Individual input examples keep their component-only layout.
+
+<HashForward to="/components/settings-forms" ids={["form-in-a-dialog", "errors-in-rows", "several-groups", "group-of-inputs", "group-of-mixed-controls", "choice-in-rows", "long-form-in-one-group", "tags-in-rows", "rows-with-actions", "payout-details", "billing-details", "upload-file", "settings-with-selection-pages", "image-and-title", "settings-with-a-slider"]} />
+
+## Log in (email)
+
+<ComponentPreview phonePresentation="screen" details={<>The classic email + password log-in: a linked pair of filled inputs on phones and two <code>FloatingLabelInput</code> fields on desktop, a visibility toggle on the password, a <code>Forgot password?</code> link, and a <code>Sign up</code> cross-link. On phones, Log in stays in the Page or Sheet footer; desktop keeps it inside the form.</>} code={`import { AuthFormStage } from './AuthFormStage';
+import authFieldsStyles from './AuthFields.module.css';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
+import { controlsTableStyle } from './ButtonDemos';
+import { AuthInput } from './AuthInput';
+import { AuthFields } from './AuthFields';
+
+const wide = useBreakpoint("md");
+const formId = useId();
+const presentation = useScreenPresentation();
+const [email, setEmail] = useState("");
+const [submitted, setSubmitted] = useState(false);
+const emailError = submitted && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+const handleSubmit = (event) => { event.preventDefault(); setSubmitted(true); };
+const [password, setPassword] = useState("");
+const passwordError = submitted && !password;
+
+<>
+<div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+<AuthFormStage title="Welcome back" dialog={presentation.dialog} surface={presentation.surface} onDialogChange={presentation.setDialog} footer={<Button color="primary" size="3xl" type="submit" form={formId} pill block>Log in</Button>}>
+    <div className="mb-6 text-center">
+      <h3 className="text-2xl font-semibold tracking-tight max-md:text-[28px] max-md:font-bold max-md:leading-[34px] max-md:tracking-normal">Welcome back</h3>
+      <p className="text-secondary text-sm mt-1 max-md:text-[17px] max-md:leading-[22px]">Log in to your account.</p>
+    </div>
+    <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+      {wide ? (<>
+      <AuthInput
+          label="Email address"
+          type="email"
+          value={email}
+          onChange={(event) => { setEmail(event.target.value); setSubmitted(false); }}
+          invalid={emailError}
+          errorMessage={emailError ? "Enter a valid email address." : undefined}
+        />
+      <div>
+        <AuthInput
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(event) => { setPassword(event.target.value); setSubmitted(false); }}
+          invalid={passwordError}
+          errorMessage={passwordError ? "Password is required." : undefined}
+        />
+        <Button type="button" color="info" variant="ghost" className={[authFieldsStyles.TextAction, authFieldsStyles.ForgotAction].join(" ")} onClick={onForgotPassword}>Forgot password?</Button>
+      </div>
+      </>) : (<>
+        <AuthFields>
+      <AuthInput
+          label="Email address"
+          type="email"
+          value={email}
+          onChange={(event) => { setEmail(event.target.value); setSubmitted(false); }}
+          invalid={emailError}
+          errorMessage={emailError ? "Enter a valid email address." : undefined}
+        />
+          <AuthInput
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(event) => { setPassword(event.target.value); setSubmitted(false); }}
+          invalid={passwordError}
+          errorMessage={passwordError ? "Password is required." : undefined}
+        />
+        </AuthFields>
+        <Button type="button" color="info" variant="ghost" className={[authFieldsStyles.TextAction, authFieldsStyles.ForgotAction].join(" ")} onClick={onForgotPassword}>Forgot password?</Button>
+      </>)}
+      {wide && <Button color="primary" size="3xl" type="submit" pill block>Log in</Button>}
+      <p className={["text-base text-center mt-4", authFieldsStyles.CrossActionRow].join(" ")}>Don't have an account? <Button type="button" color="info" variant="ghost" className={authFieldsStyles.TextAction} onClick={onSignUp}>Sign up</Button></p>
+    </form>
+  </AuthFormStage>
+<style>{\`${authFormStyles}\`}</style>
+</>`} previewMinHeight={480}>
+  <FloatingLabelInputEmailLoginFormDemo />
+</ComponentPreview>
+
+## Log in (OAuth)
+
+<ComponentPreview phonePresentation="screen" details={<>OpenAI-style log-in: <code>Welcome back</code> heading, email + <code>Continue</code>, a <code>Don&apos;t have an account? Sign up</code> cross-link, an <code>OR</code> divider, then Google, Apple, Microsoft, and phone, all with 20×20 brand glyphs. <code>Terms of Use</code> / <code>Privacy Policy</code> footer. <code>OrDivider</code> and the brand logos are small helpers of the example.</>} code={`import { AuthFormStage } from './AuthFormStage';
+import authFieldsStyles from './AuthFields.module.css';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
+import { controlsTableStyle } from './ButtonDemos';
+import { AuthInput } from './AuthInput';
+import { AuthLegalNotice } from './AuthLegalNotice';
+
+const presentation = useScreenPresentation();
+const [email, setEmail] = useState('');
+
+<>
+  <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+  <AuthFormStage title="Welcome back" dialog={presentation.dialog} surface={presentation.surface} onDialogChange={presentation.setDialog}>
+<div className="w-[360px]">
+  <h3 data-auth-title>Welcome back</h3>
+
+  <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+    <AuthInput label="Email address" type="email" value={email} onChange={(evt) => setEmail(evt.target.value)} />
+    <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>
+  </form>
+
+  <p className={["text-base text-center mt-6", authFieldsStyles.CrossActionRow, authFieldsStyles.StandaloneCrossActionRow].join(" ")}>Don't have an account? <Button type="button" color="info" variant="ghost" className={[authFieldsStyles.TextAction, authFieldsStyles.OAuthTextAction].join(" ")}>Sign up</Button></p>
+
+  <OrDivider />
+
+  <div className="flex flex-col gap-3">
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><GoogleLogo />Continue with Google</Button>
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><AppleLogo />Continue with Apple</Button>
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><MicrosoftLogo />Continue with Microsoft</Button>
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><PhoneLogo />Continue with phone</Button>
+  </div>
+
+  <div className="mt-8"><AuthLegalNotice /></div>
+</div>
+  </AuthFormStage>
+</>`} previewMinHeight={760}>
+  <OAuthLoginFormDemo />
+</ComponentPreview>
+
+## Sign up (OAuth)
+
+<ComponentPreview phonePresentation="screen" details={<>OpenAI-style sign-up: <code>Create an account</code> heading, email + <code>Continue</code>, an <code>Already have an account? Log in</code> cross-link, an <code>OR</code> divider, then Google, Apple, and Microsoft (no phone). Same 20×20 brand-glyph alignment as the log-in variant.</>} code={`import { AuthFormStage } from './AuthFormStage';
+import authFieldsStyles from './AuthFields.module.css';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
+import { controlsTableStyle } from './ButtonDemos';
+import { AuthInput } from './AuthInput';
+import { AuthLegalNotice } from './AuthLegalNotice';
+
+const presentation = useScreenPresentation();
+const [email, setEmail] = useState('');
+
+<>
+  <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+  <AuthFormStage title="Create an account" dialog={presentation.dialog} surface={presentation.surface} onDialogChange={presentation.setDialog}>
+<div className="w-[360px]">
+  <h3 data-auth-title>Create an account</h3>
+
+  <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+    <AuthInput label="Email address" type="email" value={email} onChange={(evt) => setEmail(evt.target.value)} />
+    <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>
+  </form>
+
+  <p className={["text-base text-center mt-6", authFieldsStyles.CrossActionRow, authFieldsStyles.StandaloneCrossActionRow].join(" ")}>Already have an account? <Button type="button" color="info" variant="ghost" className={[authFieldsStyles.TextAction, authFieldsStyles.OAuthTextAction].join(" ")}>Log in</Button></p>
+
+  <OrDivider />
+
+  <div className="flex flex-col gap-3">
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><GoogleLogo />Continue with Google</Button>
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><AppleLogo />Continue with Apple</Button>
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><MicrosoftLogo />Continue with Microsoft</Button>
+  </div>
+
+  <div className="mt-8"><AuthLegalNotice /></div>
+</div>
+  </AuthFormStage>
+</>`} previewMinHeight={680}>
+  <OAuthSignupFormDemo />
+</ComponentPreview>
+
+## Sign up (phone)
+
+<ComponentPreview phonePresentation="screen" details={<>A signup form with single filled name and email fields and a linked country/phone group on phones. Desktop keeps floating-label text inputs. Validates email and phone number and includes terms text. On phones, Continue stays in the Page or Sheet footer; desktop keeps it inside the form. The country options and trigger and <code>dialCodeOf</code> are the helpers of the <a href="/components/floating-label-input#phone-input">Float Input phone example</a>.</>} code={`import { AuthFormStage } from './AuthFormStage';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
+import { controlsTableStyle } from './ButtonDemos';
+import { AuthInput } from './AuthInput';
+import { AuthFields } from './AuthFields';
+import { AuthLegalNotice } from './AuthLegalNotice';
+import authFieldsStyles from './AuthFields.module.css';
+
+const wide = useBreakpoint("md");
+const formId = useId();
+const presentation = useScreenPresentation();
+const [email, setEmail] = useState("");
+const [submitted, setSubmitted] = useState(false);
+const emailError = submitted && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+const handleSubmit = (event) => { event.preventDefault(); setSubmitted(true); };
+const [fullName, setFullName] = useState("");
+const [country, setCountry] = useState("es");
+const [phone, setPhone] = useState("");
+const digits = phone.replace(/\\D/g, "");
+const phoneError = submitted && (digits.length < 7 || digits.length > 15);
+
+<>
+<div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+<AuthFormStage title="Create an account" dialog={presentation.dialog} surface={presentation.surface} onDialogChange={presentation.setDialog} footer={<div className={authFieldsStyles.ConsentActions}><AuthLegalNotice /><Button color="primary" size="3xl" type="submit" form={formId} pill block>Continue</Button></div>}>
+    <div className="mb-6 text-center">
+      <h3 className="text-2xl font-semibold tracking-tight max-md:text-[28px] max-md:font-bold max-md:leading-[34px] max-md:tracking-normal">Create your account</h3>
+      <p className="text-secondary text-sm mt-1 max-md:text-[17px] max-md:leading-[22px]">Enter your details to get started.</p>
+    </div>
+    <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+      <AuthInput label="Full name" value={fullName} onChange={(event) => setFullName(event.target.value)} />
+      <AuthInput
+          label="Email address"
+          type="email"
+          value={email}
+          onChange={(event) => { setEmail(event.target.value); setSubmitted(false); }}
+          invalid={emailError}
+          errorMessage={emailError ? "Enter a valid email address." : undefined}
+        />
+      <AuthFields>
+      <Select
+        value={country}
+        options={phoneCountryOptions}
+        onChange={(option) => { setCountry(option.value); setSubmitted(false); }}
+        block size="3xl" trigger={wide ? phoneCountryTrigger : undefined} TriggerView={PhoneCountryTriggerView} variant={wide ? "outline" : "ghost"} triggerClassName={wide ? undefined : authFieldsStyles.Country} aria-label="Country" checkPosition="end"
+      />
+      <AuthInput
+        label="Phone number" type="tel" inputMode="tel"
+        value={phone}
+        onChange={(event) => { setPhone(formatPhoneNumber(event.target.value.replace(/\\D/g, ""), country)); setSubmitted(false); }}
+        startAdornment={wide ? <span className="text-tertiary">{dialCodeOf(country)}</span> : undefined}
+        invalid={phoneError}
+        errorMessage={phoneError ? "Phone number is not valid." : undefined}
+      />
+      </AuthFields>
+      {wide && <AuthLegalNotice />}
+      {wide && <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>}
+      <p className={["text-base text-center mt-4", authFieldsStyles.CrossActionRow].join(" ")}>Already have an account? <Button type="button" color="info" variant="ghost" className={authFieldsStyles.TextAction} onClick={onLogIn}>Log in</Button></p>
+    </form>
+  </AuthFormStage>
+<style>{\`${authFormStyles}\`}</style>
+</>`} previewMinHeight={580}>
+  <FloatingLabelInputPhoneSignupFormDemo />
+</ComponentPreview>
+
+## Log in (phone)
+
+<ComponentPreview phonePresentation="screen" details={<>A phone login form with a country code selector and phone input. Minimal layout matching the OpenAI login pattern. The country helpers are the ones of the <a href="/components/floating-label-input#phone-input">Float Input phone example</a>. On phones, Continue stays in a bottom <code>Toolbar</code> and submits the form through its id. The Sheet option uses Dialog.Footer; desktop keeps Continue inside the form.</>} code={`import { AuthFormStage } from './AuthFormStage';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
+import { controlsTableStyle } from './ButtonDemos';
+import { AuthInput } from './AuthInput';
+import { AuthFields } from './AuthFields';
+import authFieldsStyles from './AuthFields.module.css';
+
+const wide = useBreakpoint("md");
+const formId = useId();
+const presentation = useScreenPresentation();
+
+<>
+  <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+<AuthFormStage title="Welcome back" dialog={presentation.dialog} surface={presentation.surface} onDialogChange={presentation.setDialog} footer={<Button color="primary" size="3xl" type="submit" form={formId} pill block>Continue</Button>}>
+      <div className="mb-6 text-center">
+        <h3 className="text-2xl font-semibold tracking-tight max-md:text-[28px] max-md:font-bold max-md:leading-[34px] max-md:tracking-normal">Welcome back</h3>
+        <p className="text-secondary text-sm mt-1 max-md:text-[17px] max-md:leading-[22px]">Enter your phone number to continue.</p>
+      </div>
+      <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+        <AuthFields>
+      <Select
+          value={country}
+          options={phoneCountryOptions}
+          onChange={(option) => setCountry(option.value)}
+          block
+          size="3xl"
+          trigger={wide ? phoneCountryTrigger : undefined} TriggerView={PhoneCountryTriggerView} variant={wide ? "outline" : "ghost"} triggerClassName={wide ? undefined : authFieldsStyles.Country} aria-label="Country"
+          checkPosition="end"
+        />
+        <AuthInput
+          label="Phone number"
+          type="tel"
+          inputMode="tel"
+          value={phone}
+          onChange={(evt) => setPhone(evt.target.value)}
+          startAdornment={wide ? <span className="text-tertiary">{dialCodeOf(country)}</span> : undefined}
+        />
+      </AuthFields>
+        {wide && <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem] mt-3">Continue</Button>}
+        <p className={["text-base text-center mt-4", authFieldsStyles.CrossActionRow].join(" ")}>Don't have an account? <Button type="button" color="info" variant="ghost" className={authFieldsStyles.TextAction} onClick={onSignUp}>Sign up</Button></p>
+      </form>
+    </AuthFormStage>
+  <style>{\`${authFormStyles}\`}</style>
+</>`} previewMinHeight={420}>
+  <FloatingLabelInputPhoneLoginFormDemo />
+</ComponentPreview>
+
+## Enter password
+
+<ComponentPreview phonePresentation="screen" details={<>Edit opens the country and phone controls of the <a href="#log-in-phone">Log in (phone)</a> form in the same Page or Sheet. Continue validates and applies the number. On phones, Back in the top bar keeps the previous number and unfinished password, and Continue remains in the footer; a desktop has no Back buttons, so Continue returns to the password.</>} code={`'use client';
+import { useId, useRef, useState } from 'react';
+import { Button } from '@plexui/ui/components/Button';
+import { Select } from '@plexui/ui/components/Select';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { AuthFormStage } from './AuthFormStage';
+import { AuthInput } from './AuthInput';
+import { AuthFields } from './AuthFields';
+import authFieldsStyles from './AuthFields.module.css';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
+import { controlsTableStyle } from './ButtonDemos';
+import { COUNTRY_LOOKUP, formatPhoneNumber, stripFormatting } from './PhoneInputDemos';
+// phoneCountryOptions, phoneCountrySearchPredicate, CountryOptionView, PhoneCountryTriggerView,
+// usePhoneCountryTrigger and dialCodeOf are the helpers of the Float Input phone example.
+
+type FormSubmitEvent = { preventDefault: () => void };
+
+export function FloatingLabelInputPasswordFormDemo() {
+  const presentation = useScreenPresentation();
+  const wide = useBreakpoint('md');
+  const formId = useId();
+  const [password, setPassword] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [editingPhone, setEditingPhone] = useState(false);
+  const [navigationStep, setNavigationStep] = useState(0);
+  const focusPhoneEditor = useRef(false);
+  const [phoneCountry, setPhoneCountry] = useState('us');
+  const [phone, setPhone] = useState('555 123 4567');
+  const [draftCountry, setDraftCountry] = useState(phoneCountry);
+  const [draftPhone, setDraftPhone] = useState(phone);
+  const phoneInput = useRef<HTMLInputElement>(null);
+  const countryTrigger = usePhoneCountryTrigger(draftCountry);
+  const returnToEdit = useRef(false);
+  const showError = submitted && !password;
+  const digits = stripFormatting(draftPhone);
+  const phoneValid = digits.length >= 7 && digits.length <= 15;
+  const phoneError = submitted && !phoneValid;
+  const title = editingPhone ? 'Edit phone number' : 'Enter your password';
+  const displayPhone = \`\${COUNTRY_LOOKUP.get(phoneCountry)?.dialCode || '+1'} \${phone}\`;
+  const closePhoneEditor = () => {
+    setNavigationStep((step) => step + 1);
+    focusPhoneEditor.current = false;
+    returnToEdit.current = true;
+    setEditingPhone(false);
+    setSubmitted(false);
+  };
+  const openPhoneEditor = () => {
+    setNavigationStep((step) => step + 1);
+    focusPhoneEditor.current = true;
+    setDraftCountry(phoneCountry);
+    setDraftPhone(phone);
+    setSubmitted(false);
+    setEditingPhone(true);
+  };
+  const handleSubmit = (event: FormSubmitEvent) => {
+    event.preventDefault();
+    setSubmitted(true);
+    if (editingPhone && phoneValid) {
+      setPhoneCountry(draftCountry);
+      setPhone(draftPhone);
+      closePhoneEditor();
+    }
+  };
+  const phoneSummary = (
+    <AuthInput label="Phone number" readOnly value={displayPhone}
+      endAdornment={<Button ref={(button) => {
+        if (button && returnToEdit.current) {
+          returnToEdit.current = false;
+          button.focus({ preventScroll: true });
+        }
+      }} type="button" color="info" variant="ghost" className={authFieldsStyles.TextAction} onClick={openPhoneEditor}>Edit</Button>} />
+  );
+  const passwordInput = (
+    <AuthInput label="Password" type="password" value={password}
+      onChange={(event) => { setPassword(event.target.value); setSubmitted(false); }}
+      invalid={showError} errorMessage={showError ? 'Password is required.' : undefined} />
+  );
+  const forgotPassword = <Button type="button" color="info" variant="ghost" className={[authFieldsStyles.TextAction, authFieldsStyles.ForgotAction].join(' ')}>Forgot password?</Button>;
+
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+      <AuthFormStage navigation={wide ? undefined : { step: navigationStep, direction: editingPhone ? 'forward' : 'back' }} title={title} surface={presentation.surface} dialog={presentation.dialog}
+        onDialogChange={presentation.setDialog} onBack={editingPhone ? closePhoneEditor : undefined}
+        backLabel={editingPhone ? 'Back to password' : undefined}
+        footer={<Button color="primary" size="3xl" type="submit" form={formId} pill block>Continue</Button>}>
+        <div className="w-[360px]">
+          <div className="mb-6 text-center"><h3 data-auth-title tabIndex={-1} ref={(node) => {
+            if (node && focusPhoneEditor.current && editingPhone) {
+              focusPhoneEditor.current = false;
+              node.focus({ preventScroll: true });
+            }
+          }} className="text-2xl font-semibold tracking-tight">{title}</h3></div>
+          <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+            {editingPhone ? (
+              <AuthFields className="flex flex-col gap-3">
+                <Select value={draftCountry} options={phoneCountryOptions} aria-label="Country"
+                  onChange={(option) => { setDraftCountry(option.value); setSubmitted(false); setTimeout(() => phoneInput.current?.focus(), 0); }}
+                  searchPlaceholder="Search countries..." OptionView={CountryOptionView} searchPredicate={phoneCountrySearchPredicate}
+                  listMinWidth={wide ? 360 : undefined} size="3xl" block checkPosition="end" trigger={wide ? countryTrigger : undefined} TriggerView={PhoneCountryTriggerView}
+                  variant={wide ? 'outline' : 'ghost'} triggerClassName={wide ? undefined : authFieldsStyles.Country} />
+                <AuthInput ref={phoneInput} label="Phone number" type="tel" inputMode="tel" autoComplete="tel-national"
+                  value={draftPhone} onChange={(event) => { setDraftPhone(formatPhoneNumber(event.target.value, draftCountry)); setSubmitted(false); }}
+                  startAdornment={wide ? <span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCodeOf(draftCountry)}</span> : undefined}
+                  invalid={phoneError} errorMessage={phoneError ? 'Phone number is not valid.' : undefined} />
+              </AuthFields>
+            ) : wide ? <>{phoneSummary}<div>{passwordInput}{forgotPassword}</div></> : <>
+              <AuthFields>{phoneSummary}{passwordInput}</AuthFields>{forgotPassword}
+            </>}
+            {wide && <div className="flex gap-3 mt-2">
+              <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>
+            </div>}
+            {!editingPhone && <p className={['text-base text-center mt-4', authFieldsStyles.CrossActionRow].join(' ')}>
+              Don&apos;t have an account? <Button type="button" color="info" variant="ghost" className={authFieldsStyles.TextAction}>Sign up</Button>
+            </p>}
+          </form>
+        </div>
+      </AuthFormStage>
+    </>
+  );
+}
+`} previewMinHeight={420}>
+  <FloatingLabelInputPasswordFormDemo />
+</ComponentPreview>
+
+<span id="verify-email-error" />
+
+## Verify email
+
+<ComponentPreview phonePresentation="screen" details={<>Toggle between a per-digit <code>OTPInput</code> and a text field for alphanumeric or variable-length codes. Both use filled fields on phones; desktop keeps the standard OTP cells and floating-label text field. Resend starts a 30-second countdown; verifying shows a pending check without a server result. Per-digit starts one pending check when all six digits are entered, without a Continue action. Editing after an error or resending allows a new attempt. Resend stays below the code; Text field keeps Continue after Resend on desktop and in the Phone footer.</>} code={`import { useEffect, useId, useState } from 'react';
+import { Button } from '@plexui/ui/components/Button';
+import { LoadingIndicator } from '@plexui/ui/components/Indicator';
+import { OTPInput } from '@plexui/ui/components/OTPInput';
+import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { AuthInput } from './AuthInput';
+import { AuthFormStage } from './AuthFormStage';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { RESEND_WAIT_SECONDS, createVerificationAttempt, isVerificationCodeReady, startResendCountdown } from './verificationCountdown';
+import { useDemoControlSync } from './PreviewEmbed';
+import authFieldsStyles from './AuthFields.module.css';
+
+type InputMode = 'per-digit' | 'text-field';
+
+function VerificationExample() {
+  const title = "Verify your email address";
+  const description = "Enter the code sent to alex.johnson@example.com";
+  const resendLabel = "Resend email";
+  const presentation = useScreenPresentation();
+  const wide = useBreakpoint('md');
+  const formId = useId();
+  const [attempt] = useState(createVerificationAttempt);
+  const [error, setError] = useState(false);
+  const [cooldown, setCooldown] = useState(false);
+  const [seconds, setSeconds] = useState(RESEND_WAIT_SECONDS);
+  const [verifying, setVerifying] = useState(false);
+  const [mode, setMode] = useState<InputMode>('per-digit');
+  useDemoControlSync('input', mode, setMode);
+  const [otpValue, setOtpValue] = useState('');
+  const [code, setCode] = useState('');
+  const ready = isVerificationCodeReady(mode, mode === 'per-digit' ? otpValue : code);
+  const updateVerifying = (value: boolean) => {
+    attempt.setPending(value);
+    setVerifying(value);
+  };
+  const updateError = (value: boolean) => {
+    setError(value);
+    if (value) updateVerifying(false);
+  };
+  const editCode = (value: string) => {
+    attempt.edit(value);
+    setError(false);
+  };
+  const completeCode = (value: string) => {
+    if (!attempt.start('per-digit', value)) return;
+    setError(false);
+    setVerifying(true);
+  };
+
+  useEffect(() => {
+    if (!cooldown) return;
+    return startResendCountdown(setSeconds, () => setCooldown(false));
+  }, [cooldown]);
+
+  const actions = mode === 'text-field' ? (
+    <div className="w-full" data-verification-actions>
+      <Button color="primary" size="3xl" type="submit" form={formId} pill block className="md:h-[3.25rem]"
+        loading={verifying} disabled={!ready} aria-busy={verifying}>Continue</Button>
+    </div>
+  ) : undefined;
+
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="input">
+          <SegmentedControl<InputMode> value={mode} onChange={setMode} aria-label="input type" size="xs">
+            <SegmentedControl.Option value="per-digit">Per-digit</SegmentedControl.Option>
+            <SegmentedControl.Option value="text-field">Text field</SegmentedControl.Option>
+          </SegmentedControl>
+        </DemoControlRow>
+        <DemoControlBoolean name="error" value={error} onChange={updateError} />
+        <DemoControlBoolean name="cooldown" value={cooldown} onChange={setCooldown} />
+        <DemoControlBoolean name="verifying" value={verifying} onChange={updateVerifying} />
+        <ScreenPresentationControls {...presentation} />
+      </div>
+      <AuthFormStage keyboard="numeric" title={title} dialog={presentation.dialog}
+        surface={presentation.surface} onDialogChange={presentation.setDialog} footer={actions}>
+        <div className="w-[360px]">
+          <div className="mb-6 text-center">
+            <h3 data-auth-title className="text-2xl font-semibold tracking-tight">{title}</h3>
+            <p data-auth-description className="text-secondary text-sm mt-1">{description}</p>
+          </div>
+          <form id={formId} className="flex flex-col gap-6" noValidate aria-busy={verifying}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (mode === 'text-field' && attempt.start(mode, code)) {
+                setError(false);
+                setVerifying(true);
+              }
+            }}>
+            <div className="flex flex-col gap-2" data-verification-code>
+              {mode === 'per-digit' ? (
+                <div className="flex justify-center">
+                  <OTPInput value={otpValue} onChange={(value) => { editCode(value); setOtpValue(value); }}
+                    onComplete={completeCode} invalid={error}
+                    errorMessage={error ? 'Incorrect code' : undefined} disabled={verifying}
+                    className={authFieldsStyles.Otp} />
+                </div>
+              ) : (
+                <AuthInput label="Code" value={code} invalid={error}
+                  errorMessage={error ? 'Incorrect code' : undefined} disabled={verifying}
+                  onChange={(event) => { editCode(event.target.value); setCode(event.target.value); }} inputMode="numeric" />
+              )}
+              <div data-verification-resend className="flex h-11 items-center justify-center">
+              {mode === 'per-digit' && verifying ? (
+                <LoadingIndicator role="status" aria-label="Checking code" />
+              ) : (
+              <Button type="button" color="secondary" variant="ghost" size="xl"
+                className="h-11 w-full font-normal" disabled={cooldown || verifying}
+                onClick={() => {
+                  if (cooldown || verifying || attempt.isPending()) return;
+                  attempt.reset();
+                  setError(false);
+                  setCooldown(true);
+                }}>
+                {cooldown ? \`\${resendLabel} (\${seconds}s)\` : resendLabel}
+              </Button>
+              )}
+              </div>
+            </div>
+            {wide && actions}
+          </form>
+        </div>
+      </AuthFormStage>
+    </>
+  );
+}
+
+<VerificationExample />`} previewMinHeight={380}>
+  <OTPInputVerifyEmailDemo />
+</ComponentPreview>
+
+## Confirm phone
+
+<ComponentPreview phonePresentation="screen" details={<>Toggle between a per-digit <code>OTPInput</code> and a text field for phone verification. Both use filled fields on phones; desktop keeps the standard OTP cells and floating-label text field. Resend starts a 30-second countdown; verifying shows a pending check without a server result. Per-digit starts one pending check when all six digits are entered, without a Continue action. Editing after an error or resending allows a new attempt. Resend stays below the code; Text field keeps Continue after Resend on desktop and in the Phone footer.</>} code={`import { useEffect, useId, useState } from 'react';
+import { Button } from '@plexui/ui/components/Button';
+import { LoadingIndicator } from '@plexui/ui/components/Indicator';
+import { OTPInput } from '@plexui/ui/components/OTPInput';
+import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { AuthInput } from './AuthInput';
+import { AuthFormStage } from './AuthFormStage';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { RESEND_WAIT_SECONDS, createVerificationAttempt, isVerificationCodeReady, startResendCountdown } from './verificationCountdown';
+import { useDemoControlSync } from './PreviewEmbed';
+import authFieldsStyles from './AuthFields.module.css';
+
+type InputMode = 'per-digit' | 'text-field';
+
+function VerificationExample() {
+  const title = "Confirm phone";
+  const description = "Enter the code sent to +1 555 123 4567";
+  const resendLabel = "Resend code";
+  const presentation = useScreenPresentation();
+  const wide = useBreakpoint('md');
+  const formId = useId();
+  const [attempt] = useState(createVerificationAttempt);
+  const [error, setError] = useState(false);
+  const [cooldown, setCooldown] = useState(false);
+  const [seconds, setSeconds] = useState(RESEND_WAIT_SECONDS);
+  const [verifying, setVerifying] = useState(false);
+  const [mode, setMode] = useState<InputMode>('per-digit');
+  useDemoControlSync('input', mode, setMode);
+  const [otpValue, setOtpValue] = useState('');
+  const [code, setCode] = useState('');
+  const ready = isVerificationCodeReady(mode, mode === 'per-digit' ? otpValue : code);
+  const updateVerifying = (value: boolean) => {
+    attempt.setPending(value);
+    setVerifying(value);
+  };
+  const updateError = (value: boolean) => {
+    setError(value);
+    if (value) updateVerifying(false);
+  };
+  const editCode = (value: string) => {
+    attempt.edit(value);
+    setError(false);
+  };
+  const completeCode = (value: string) => {
+    if (!attempt.start('per-digit', value)) return;
+    setError(false);
+    setVerifying(true);
+  };
+
+  useEffect(() => {
+    if (!cooldown) return;
+    return startResendCountdown(setSeconds, () => setCooldown(false));
+  }, [cooldown]);
+
+  const actions = mode === 'text-field' ? (
+    <div className="w-full" data-verification-actions>
+      <Button color="primary" size="3xl" type="submit" form={formId} pill block className="md:h-[3.25rem]"
+        loading={verifying} disabled={!ready} aria-busy={verifying}>Continue</Button>
+    </div>
+  ) : undefined;
+
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="input">
+          <SegmentedControl<InputMode> value={mode} onChange={setMode} aria-label="input type" size="xs">
+            <SegmentedControl.Option value="per-digit">Per-digit</SegmentedControl.Option>
+            <SegmentedControl.Option value="text-field">Text field</SegmentedControl.Option>
+          </SegmentedControl>
+        </DemoControlRow>
+        <DemoControlBoolean name="error" value={error} onChange={updateError} />
+        <DemoControlBoolean name="cooldown" value={cooldown} onChange={setCooldown} />
+        <DemoControlBoolean name="verifying" value={verifying} onChange={updateVerifying} />
+        <ScreenPresentationControls {...presentation} />
+      </div>
+      <AuthFormStage keyboard="numeric" title={title} dialog={presentation.dialog}
+        surface={presentation.surface} onDialogChange={presentation.setDialog} footer={actions}>
+        <div className="w-[360px]">
+          <div className="mb-6 text-center">
+            <h3 data-auth-title className="text-2xl font-semibold tracking-tight">{title}</h3>
+            <p data-auth-description className="text-secondary text-sm mt-1">{description}</p>
+          </div>
+          <form id={formId} className="flex flex-col gap-6" noValidate aria-busy={verifying}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (mode === 'text-field' && attempt.start(mode, code)) {
+                setError(false);
+                setVerifying(true);
+              }
+            }}>
+            <div className="flex flex-col gap-2" data-verification-code>
+              {mode === 'per-digit' ? (
+                <div className="flex justify-center">
+                  <OTPInput value={otpValue} onChange={(value) => { editCode(value); setOtpValue(value); }}
+                    onComplete={completeCode} invalid={error}
+                    errorMessage={error ? 'Incorrect code' : undefined} disabled={verifying}
+                    className={authFieldsStyles.Otp} />
+                </div>
+              ) : (
+                <AuthInput label="Code" value={code} invalid={error}
+                  errorMessage={error ? 'Incorrect code' : undefined} disabled={verifying}
+                  onChange={(event) => { editCode(event.target.value); setCode(event.target.value); }} inputMode="numeric" />
+              )}
+              <div data-verification-resend className="flex h-11 items-center justify-center">
+              {mode === 'per-digit' && verifying ? (
+                <LoadingIndicator role="status" aria-label="Checking code" />
+              ) : (
+              <Button type="button" color="secondary" variant="ghost" size="xl"
+                className="h-11 w-full font-normal" disabled={cooldown || verifying}
+                onClick={() => {
+                  if (cooldown || verifying || attempt.isPending()) return;
+                  attempt.reset();
+                  setError(false);
+                  setCooldown(true);
+                }}>
+                {cooldown ? \`\${resendLabel} (\${seconds}s)\` : resendLabel}
+              </Button>
+              )}
+              </div>
+            </div>
+            {wide && actions}
+          </form>
+        </div>
+      </AuthFormStage>
+    </>
+  );
+}
+
+<VerificationExample />`} previewMinHeight={380}>
+  <OTPInputConfirmPhoneDemo />
+</ComponentPreview>
+
+<span id="about-you" />
+
+## About you (without labels)
+
+<ComponentPreview phonePresentation="screen" details={<>On phones, the onboarding heading stays above a filled group on a Grouped Page or Sheet, with a pinned Continue action. Desktop keeps the floating-label form. The code shows the mobile composition; birthday formatting follows the <a href="/components/input#birthday-input">birthday example</a>.</>} code={`import { AuthFormStage } from './AuthFormStage';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
+import { controlsTableStyle } from './ButtonDemos';
+import { AuthInput } from './AuthInput';
+import { AuthFields } from './AuthFields';
+import { AuthLegalNotice } from './AuthLegalNotice';
+import authFieldsStyles from './AuthFields.module.css';
+
+const formId = useId();
+const presentation = useScreenPresentation();
+
+<>
+<div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+<AuthFormStage title="About you" dialog={presentation.dialog} surface={presentation.surface} onDialogChange={presentation.setDialog} footer={<div className={authFieldsStyles.ConsentActions}><AuthLegalNotice /><Button color="primary" size="3xl" pill block type="submit" form={formId}>Continue</Button></div>}>
+    <div className="mb-6 text-center">
+      <h3 className="text-[28px] leading-[34px] font-bold">Tell us about you</h3>
+      <p className="text-secondary text-[17px] leading-[22px] mt-1">This helps us customize your experience.</p>
+    </div>
+    <form id={formId} onSubmit={handleSubmit} noValidate>
+      <AuthFields>
+      <AuthInput label="Full name" value={fullName} onChange={(event) => setFullName(event.target.value)} autoComplete="name" />
+      <AuthInput label="Birthday" errorMessage={birthdayError ?? undefined}
+        value={birthday} placeholder="MM / DD / YYYY" inputMode="numeric" maxLength={14} autoComplete="bday" onChange={(event) => {
+          const raw = event.target.value;
+          const digits = getDigits(raw);
+          setBirthday(formatBirthdayValue(raw.length < birthday.length && digits.length === getDigits(birthday).length ? digits.slice(0, -1) : raw));
+          setBirthdayError(null);
+        }} />
+      <div className={authFieldsStyles.Row}>
+        {/* The row has no visible label: a hidden one names the trigger together with its value. */}
+        <span id={countryFieldId + "-label"} className="sr-only">Country</span>
+        <Select value={country} options={COUNTRIES} onChange={(option) => { setCountry(option.value); setCountryError(null); }}
+          aria-labelledby={countryFieldId + "-label"} aria-invalid={!!countryError || undefined} aria-describedby={countryError ? countryFieldId : undefined}
+          searchPlaceholder="Search countries..." placeholder="Select country" clearable
+          variant="ghost" size="3xl" triggerClassName={authFieldsStyles.Country} block align="start" checkPosition="end" />
+        {countryError && <FieldError id={countryFieldId} className={authFieldsStyles.Note}>{countryError}</FieldError>}
+      </div>
+    </AuthFields>
+    </form>
+  </AuthFormStage>
+<style>{\`${authFormStyles}\`}</style>
+</>`} previewMinHeight={280}>
+  <FloatingLabelSelectAboutYouFormDemo />
+</ComponentPreview>
+
+<span id="password-and-storage" />
+
+## Create password
+
+<ComponentPreview phonePresentation="screen" details={<>A standalone password form with matching-value validation and a pinned mobile Continue action. A valid submission completes this preview and clears the sample password. No account is created and no request is sent. Surface and dialog controls preserve unfinished values.</>} code={`import { useId, useState } from 'react';
+import { Alert } from '@plexui/ui/components/Alert';
+import { Button } from '@plexui/ui/components/Button';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { AuthFormStage } from './AuthFormStage';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
+import { controlsTableStyle } from './ButtonDemos';
+import { AuthInput } from './AuthInput';
+import { AuthFields } from './AuthFields';
+
+export const PASSWORD_HINT = 'Your password must be at least 8 characters, include a number, an uppercase letter and a lowercase letter.';
+
+type PasswordValidationErrors = { password?: string; confirmation?: string };
+
+export function passwordErrors(password: string, confirmation: string): PasswordValidationErrors {
+  return {
+    password: !password ? 'Enter a password.' : !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$/.test(password) ? 'Password does not meet the requirements.' : undefined,
+    confirmation: !confirmation ? 'Confirm your password.' : confirmation !== password ? 'Passwords do not match.' : undefined,
+  };
+}
+
+export function CreatePasswordDemo() {
+  const presentation = useScreenPresentation();
+  const wide = useBreakpoint('md');
+  const formId = useId();
+  const [password, setPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const errors: PasswordValidationErrors = submitted ? passwordErrors(password, confirmation) : {};
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (completed) return;
+    setSubmitted(true);
+    const invalid = passwordErrors(password, confirmation);
+    if (invalid.password || invalid.confirmation) return;
+    setCompleted(true);
+    setSubmitted(false);
+    setPassword('');
+    setConfirmation('');
+  };
+  const action = completed ? (
+    <Button color="primary" size="3xl" pill block onClick={() => setCompleted(false)}>Start over</Button>
+  ) : (
+    <Button color="primary" size="3xl" type="submit" form={formId} pill block>Continue</Button>
+  );
+
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <ScreenPresentationControls {...presentation} />
+      </div>
+      <AuthFormStage title="Create Password" surface={presentation.surface} dialog={presentation.dialog} onDialogChange={presentation.setDialog} footer={action}>
+        <div className="w-full min-w-0">
+          <div className="mb-6 text-center">
+            <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Create Password</h3>
+          </div>
+          <form id={formId} className="flex flex-col gap-6" noValidate onSubmit={submit}>
+            <AuthFields className="flex flex-col gap-2" footer={<span id={\`\${formId}-password-hint\`}>{PASSWORD_HINT}</span>}>
+              <AuthInput label="Password" type="password"
+                value={password} autoComplete="off" allowAutofillExtensions={false} disabled={completed}
+                aria-describedby={!wide ? \`\${formId}-password-hint\` : undefined}
+                onChange={(event) => { setPassword(event.target.value); setSubmitted(false); }}
+                invalid={!!errors.password} errorMessage={errors.password} />
+              <AuthInput label="Confirm Password" type="password"
+                value={confirmation} autoComplete="off" allowAutofillExtensions={false} disabled={completed}
+                onChange={(event) => { setConfirmation(event.target.value); setSubmitted(false); }}
+                invalid={!!errors.confirmation} errorMessage={errors.confirmation} description={wide ? PASSWORD_HINT : undefined}
+                aria-describedby={!wide ? \`\${formId}-password-hint\` : undefined} />
+            </AuthFields>
+            {completed && <div role="status"><Alert color="success" variant="soft" title="Preview complete"
+              description="Password validated. No account was created." /></div>}
+            {wide && action}
+          </form>
+        </div>
+      </AuthFormStage>
+    </>
+  );
+}`} previewMinHeight={620}>
+  <CreatePasswordDemo />
+</ComponentPreview>
+
+## Storage location
+
+<ComponentPreview phonePresentation="screen" details={<>A standalone storage-location form with whole-row choices and a pinned mobile Continue action. Selecting a region enables Continue without completing the preview. Start over clears the selection; surface and dialog controls preserve it. No account is created and no request is sent.</>} code={`import { useId, useState } from 'react';
+import { Alert } from '@plexui/ui/components/Alert';
+import { Button } from '@plexui/ui/components/Button';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { AuthFormStage } from './AuthFormStage';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
+import { controlsTableStyle } from './ButtonDemos';
+import { Field } from '@plexui/ui/components/Field';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { RadioGroup } from '@plexui/ui/components/RadioGroup';
+
+type StorageRegion = '' | 'eu' | 'us';
+
+export const STORAGE_REGIONS = [
+  { value: 'eu', label: 'European Union (EU)' },
+  { value: 'us', label: 'United States (US)' },
+] as const;
+
+export function StorageLocationDemo() {
+  const presentation = useScreenPresentation();
+  const wide = useBreakpoint('md');
+  const formId = useId();
+  const [region, setRegion] = useState<StorageRegion>('');
+  const [completed, setCompleted] = useState(false);
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (region && !completed) setCompleted(true);
+  };
+  const action = completed ? (
+    <Button color="primary" size="3xl" pill block onClick={() => { setRegion(''); setCompleted(false); }}>Start over</Button>
+  ) : (
+    <Button color="primary" size="3xl" type="submit" form={formId} pill block disabled={!region}>Continue</Button>
+  );
+
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <ScreenPresentationControls {...presentation} />
+      </div>
+      <AuthFormStage title="Choose Storage Location" surface={presentation.surface} dialog={presentation.dialog} onDialogChange={presentation.setDialog} footer={action}>
+        <div className="w-full min-w-0">
+          <div className="mb-6 text-center">
+            <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Choose Storage Location</h3>
+            <p data-auth-description className="text-secondary text-sm mt-2">Select where your documents will be stored. This cannot be changed later.</p>
+          </div>
+          <form id={formId} className="flex flex-col gap-6" noValidate onSubmit={submit}>
+            <RadioGroup name={\`\${formId}-storage-region\`} aria-label="Storage location" value={region} disabled={completed} direction="col"
+              onChange={(value: StorageRegion) => setRegion(value)} className="w-full">
+              <FieldGroup className="w-full">
+                {STORAGE_REGIONS.map((option) => <Field key={option.value} row label={option.label}>
+                  <RadioGroup.Item value={option.value} />
+                </Field>)}
+              </FieldGroup>
+            </RadioGroup>
+            {completed && <div role="status"><Alert color="success" variant="soft" title="Preview complete"
+              description={\`Selected storage location: \${STORAGE_REGIONS.find((option) => option.value === region)?.label}. No account was created.\`} /></div>}
+            {wide && action}
+          </form>
+        </div>
+      </AuthFormStage>
+    </>
+  );
+}`} previewMinHeight={620}>
+  <StorageLocationDemo />
+</ComponentPreview>

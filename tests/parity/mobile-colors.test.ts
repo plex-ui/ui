@@ -85,7 +85,7 @@ describe("phone colors use PlexUI tokens", () => {
     const columns = ':where([data-field-columns] [data-row][data-orientation="horizontal"])'
     expect(rule(popup, `${columns} .SelectControl[data-disabled] .DropdownIcon:not(.DropdownIconChevron) {`)).toContain("color: var(--mobile-label-tertiary, var(--color-text-tertiary));")
     expect(popup).toContain(`${columns} .DropdownIcon:not(.DropdownIconChevron),\n`)
-    for (const page of ["content/components/form-examples.mdx", "content/vue/components/form-examples.mdx"]) {
+    for (const page of ["content/components/settings-forms.mdx", "content/vue/components/settings-forms.mdx"]) {
       const mdx = readFileSync(`${process.cwd()}/${page}`, "utf8")
       expect(rule(mdx, ".grouped-form-screen [data-row-disclosure] {")).toContain("color: var(--mobile-label-tertiary, var(--color-text-tertiary));")
     }

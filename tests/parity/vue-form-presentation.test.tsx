@@ -14,11 +14,12 @@ vi.mock('../../components/docs/VuePreview', async () => ({
   VuePreview: (await import('../../components/docs/VuePreviewRuntime')).default,
 }));
 
-const mdx = readFileSync('content/vue/components/form-examples.mdx', 'utf8');
-function expression(name: string, next: string) {
+const authMdx = readFileSync('content/vue/components/auth-forms.mdx', 'utf8');
+const settingsMdx = readFileSync('content/vue/components/settings-forms.mdx', 'utf8');
+function expression(name: string, next: string, mdx = settingsMdx) {
   return mdx.slice(mdx.indexOf(`export const ${name} = `) + `export const ${name} = `.length, mdx.indexOf(`export const ${next} = `)).trim();
 }
-const verifyEmail: unknown = new Function(`return ${expression('verifyEmail', 'confirmPhone')}`)();
+const verifyEmail: unknown = new Function(`return ${expression('verifyEmail', 'confirmPhone', authMdx)}`)();
 if (typeof verifyEmail !== 'string') throw new Error('Verification template is missing');
 const formScreen: unknown = new Function(`return ${expression('formScreen', 'formScreenCode')}`)();
 const payout: unknown = new Function('formScreen', `return ${expression('rowErrors', 'rowState')}`)(formScreen);

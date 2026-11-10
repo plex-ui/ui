@@ -468,7 +468,7 @@ function processFile(filePath, framework) {
   const content = readFileSync(filePath, "utf-8");
   const slug = basename(filePath, ".mdx");
 
-  if (slug === "index" || slug === "form-examples") return null;
+  if (slug === "index" || slug === "auth-forms" || slug === "settings-forms") return null;
 
   const frontmatter = parseFrontmatter(content);
   // Every import of the page's UsageBlock (Table also imports DataTable)

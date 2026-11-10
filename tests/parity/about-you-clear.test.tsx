@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs"
 import { act, fireEvent, render, waitFor, within } from "@testing-library/react"
 import { useState } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
@@ -11,6 +10,7 @@ import { FloatingLabelSelectAboutYouFormDemo } from "../../components/docs/Float
 import { formExamplesScope } from "../../components/docs/vue/VueFormExamplesDemos"
 import { vueComponents } from "../../components/docs/vue/registry"
 import { flushVue, mountVue } from "./harness"
+import { mdxDeclarations } from "./mdxExports"
 
 // Docs imports resolve package exports to dist; exercise the same current source
 // SelectControl as the primitive cases, before the next root-owned package build.
@@ -20,11 +20,8 @@ vi.mock("@plexui/vue/components/Select", async () => import("../../packages/vue/
 // These demos mount directly, so the embed-only child filter must not run.
 vi.mock("../../components/docs/PreviewEmbed.module.css", () => ({ default: { Root: "PreviewEmbedRoot" } }))
 vi.mock("@plexui/ui/hooks/useBreakpoints", () => ({ useBreakpoint: () => false }))
-const mdx = readFileSync("content/vue/components/form-examples.mdx", "utf8")
-const screenExpression = mdx.slice(mdx.indexOf("export const formScreen = ") + "export const formScreen = ".length, mdx.indexOf("export const formScreenCode =")).trim()
-const formScreen: unknown = new Function(`return ${screenExpression}`)()
-const definitions = mdx.slice(mdx.indexOf("export const aboutYouFields ="), mdx.indexOf("export const billingMobile =")).replaceAll("export const ", "const ")
-const template: unknown = new Function("formScreen", "aboutYouDesktop", `${definitions}; return aboutYou`)(formScreen, "")
+const definitions = mdxDeclarations("content/vue/components/auth-forms.mdx", ["aboutYouFields", "aboutYouSubmit", "aboutYouMobile", "aboutYou"])
+const template: unknown = new Function("aboutYouDesktop", `${definitions}; return aboutYou`)("")
 if (typeof template !== "string") throw new Error("About you template was not resolved")
 const countries = [{ value: "af", label: "Afghanistan" }, { value: "es", label: "Spain" }]
 type Country = typeof countries[number]

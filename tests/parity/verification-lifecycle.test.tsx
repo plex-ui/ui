@@ -15,7 +15,7 @@ vi.mock('../../components/docs/VuePreview', async () => ({
     VuePreview: (await import('../../components/docs/VuePreviewRuntime')).default,
 }));
 
-const mdx = readFileSync('content/vue/components/form-examples.mdx', 'utf8');
+const mdx = readFileSync('content/vue/components/auth-forms.mdx', 'utf8');
 function template(name: string, next: string): string {
     const prefix = `export const ${name} = `;
     const start = mdx.indexOf(prefix) + prefix.length;
@@ -23,7 +23,7 @@ function template(name: string, next: string): string {
     if (typeof result !== 'string') throw new Error(`Missing ${name} template`);
     return result;
 }
-const templates = { email: template('verifyEmail', 'confirmPhone'), phone: template('confirmPhone', 'formScreen') };
+const templates = { email: template('verifyEmail', 'confirmPhone'), phone: template('confirmPhone', 'aboutYouFields') };
 const interact = async (action: () => void) => act(async () => { action(); await flushVue(); });
 const tick = async (milliseconds: number) => act(async () => { await vi.advanceTimersByTimeAsync(milliseconds); await flushVue(); });
 const enter = async (input: HTMLElement, value: string) => interact(() => {

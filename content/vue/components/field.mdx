@@ -230,7 +230,7 @@ import { FieldGroup } from "@plexui/vue/components/FieldGroup";`}</UsageBlock>
     <li><strong>end</strong>: <code>row</code>, one line of a <code>FieldGroup</code> with the value at its end. A framed field is a pill there and takes <code>--field-row-control-width</code>, as its width cannot follow what is typed; <code>:pill="false"</code> on the control keeps the rounded box.</li>
     <li><strong>hidden</strong>: <code>hide-label</code>. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field.</li>
   </ul>
-  <p>On Phone a field is always a cell of a <code>FieldGroup</code> on the grouped background, as in an iOS form, in the same four places: the label above its value (<code>row orientation="vertical"</code>), values in one column (<code>FieldGroup columns</code>), the value at the end of the row, or the placeholder alone (<code>row hide-label</code>), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's <code>footer</code> slot, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: <code>OTPInput</code> keeps its own digit cells on the screen, outside a group, as in <a href="/vue/components/form-examples#verify-email">Verify email</a>.</p>
+  <p>On Phone a field is always a cell of a <code>FieldGroup</code> on the grouped background, as in an iOS form, in the same four places: the label above its value (<code>row orientation="vertical"</code>), values in one column (<code>FieldGroup columns</code>), the value at the end of the row, or the placeholder alone (<code>row hide-label</code>), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's <code>footer</code> slot, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: <code>OTPInput</code> keeps its own digit cells on the screen, outside a group, as in <a href="/vue/components/auth-forms#verify-email">Verify email</a>.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" stageClassName="py-10" controls={overviewControls} />
 </ComponentPreview>
@@ -280,7 +280,7 @@ import { FieldGroup } from "@plexui/vue/components/FieldGroup";`}</UsageBlock>
   <VueDemo template={opticalAlign} stageClassName="py-10" controls={[{ name: "opticallyAlign", type: "boolean", default: true }, { name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 
-For whole forms, on the web and on a phone, see [Form Examples](/vue/components/form-examples).
+For whole forms, on the web and on a phone, see [Settings Forms](/vue/components/settings-forms).
 
 ## API
 

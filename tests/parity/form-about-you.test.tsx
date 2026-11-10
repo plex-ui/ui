@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render, waitFor, within } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { defineComponent, h, reactive } from "vue"
@@ -6,15 +5,13 @@ import { FloatingLabelSelectAboutYouFormDemo } from "../../components/docs/Float
 import { formExamplesScope } from "../../components/docs/vue/VueFormExamplesDemos"
 import { vueComponents } from "../../components/docs/vue/registry"
 import { flushVue, mountVue } from "./harness"
+import { mdxDeclarations } from "./mdxExports"
 
 vi.mock("@plexui/ui/hooks/useBreakpoints", () => ({ useBreakpoint: () => false }))
-const mdx = readFileSync("content/vue/components/form-examples.mdx", "utf8")
-const screenExpression = mdx.slice(mdx.indexOf("export const formScreen = ") + "export const formScreen = ".length, mdx.indexOf("export const formScreenCode =")).trim()
-const formScreen: unknown = new Function(`return ${screenExpression}`)()
-const aboutDefinitions = mdx.slice(mdx.indexOf("export const aboutYouFields ="), mdx.indexOf("export const billingMobile =")).replaceAll("export const ", "const ")
+const aboutDefinitions = mdxDeclarations("content/vue/components/auth-forms.mdx", ["aboutYouFields", "aboutYouSubmit", "aboutYouMobile", "aboutYou"])
 // A phone screen's action sits in a bottom Toolbar, which takes the place of the footer.
 const PHONE_FOOTER = '[data-toolbar][data-placement="bottom"]'
-const template: unknown = new Function("formScreen", "aboutYouDesktop", `${aboutDefinitions}; return aboutYou`)(formScreen, "")
+const template: unknown = new Function("aboutYouDesktop", `${aboutDefinitions}; return aboutYou`)("")
 if (typeof template !== "string") throw new Error("About you template was not resolved")
 
 beforeEach(() => { vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} }) })

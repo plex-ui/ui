@@ -1,0 +1,774 @@
+---
+title: Settings Forms
+description: "Settings and editing forms: grouped rows, choices, tags, account actions, payout and billing details, file upload, and sliders built with Plex UI."
+metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account actions, payout and billing details, file upload, and sliders built with Plex UI for Vue."
+---
+
+import { VueSettingsSliderDemo } from "@/components/docs/vue/VueSettingsSliderDemo"
+import { settingsSliderVueCode } from "@/components/docs/settingsSliderCode"
+import { VueImageAlbumDemo } from "@/components/docs/vue/VueImageAlbumDemo"
+import { imageAlbumVueCode } from "@/components/docs/imageAlbumCode"
+import { VueFileUploadDemo } from "@/components/docs/vue/VueFileUploadDemos"
+import { VueFormExampleDemo } from "@/components/docs/vue/VueFormExamplesDemos"
+import { tagRemovalFocusCode } from "@/components/docs/tagRemovalFocus"
+import formStyles from "@/components/docs/FormRowsDemos.module.css"
+
+export const groupedFormStyles = `.grouped-form-screen[data-width] {
+  height: 100dvh;
+}
+
+@media (max-width: 767px) {
+  .grouped-form-screen[data-width] {
+    --field-group-radius: 26px;
+    --page-content-padding-top: 10px;
+    --page-content-padding-bottom: 16px;
+  }
+
+  .grouped-form-screen [data-row-disclosure] {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-inline: -5px;
+    color: var(--mobile-label-tertiary, var(--color-text-tertiary));
+  }
+
+  .grouped-form-screen :is([disabled], [data-disabled], [aria-disabled="true"]) [data-row-disclosure] {
+    color: var(--mobile-label-tertiary, var(--color-text-disabled));
+  }
+}`
+
+export const formExampleHelpers = (code) => [
+  code.includes('FormScreen') ? "import { FormScreen } from './FormScreen';" : '',
+  code.includes('ProductVariants') ? "import { ProductVariants } from './ProductVariants';\nconst variants = ref([]);" : '',
+  code.includes('MobileTagRow') ? "import { MobileTagRow } from './MobileTagRow';" : '',
+  code.includes('removeTagWithFocus(') ? tagRemovalFocusCode : '',
+  code.includes('FormScreen') ? "import { ref } from 'vue';\nconst surface = ref('grouped');\nconst dialog = ref(false);" : '',
+  code.includes('product.') ? "const product = ref({ name: 'Oak side table', description: 'Solid oak with a matte finish. Ships flat, assembles in ten minutes without tools.', price: '129', weight: '12', inStock: true });" : '',
+  code.includes('contact.') ? "const contact = ref({ firstName: 'Jane', lastName: 'Doe', email: '', phone: '', address: '', note: '' });" : '',
+  code.includes('payout.') ? "const payout = ref({ accountHolder: 'Jane Doe', iban: 'ES00 0000 0000 0000 0000 0000', reference: 'Monthly payout for the spring collection, including the two orders that were moved from last month.' });\nconst error = ref(false);" : '',
+  code.includes('weeklySummary') ? "const weeklySummary = ref(true);" : '',
+].filter(Boolean).join('\n\n')
+
+export const withAuthHelpers = (code) => `<script setup lang="ts">\nimport { ref } from 'vue';\nimport { AuthFormStage } from './AuthFormStage';\n${code.includes('FormScreen') ? "import { FormScreen } from './FormScreen';\n" : ''}${code.includes('AuthLegalNotice') ? "import { AuthLegalNotice } from './AuthLegalNotice';\n" : ''}${code.includes('AuthInput') ? "import { AuthInput } from './AuthInput';\n" : ''}${code.includes('AuthFields') ? "import { AuthFields } from './AuthFields';\n" : ''}${code.includes('authFieldsStyles') ? "import authFieldsStyles from './AuthFields.module.css';\n" : ''}\nconst surface = ref<'plain' | 'grouped'>('grouped');\nconst dialog = ref(false);\n${code.includes(':invalid="error"') ? 'const error = ref(false);\n' : ''}</script>\n\n<template>\n${code.replaceAll(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')}\n</template>`
+
+export const withFormScreenStyles = (code) => (formExampleHelpers(code) ? `<script setup>\n${formExampleHelpers(code)}\n</script>\n\n` : "") + `<template>\n${code}\n</template>\n\n<style>\n${groupedFormStyles}\n</style>`
+
+export const STAGE = "py-10 flex justify-center"
+
+export const errorControl = { name: "error", type: "boolean", default: false }
+
+export const billingDesktop = `<component :is="AuthFormStage" title="Billing details" :mobile="!wide" v-model:dialog="dialog" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
+<form class="flex w-[360px] flex-col gap-3" @submit.prevent>
+  <FloatingLabelInput label="Billing email" :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'" type="email" v-model:value="billingValues.email" autocomplete="email" />
+  <FloatingLabelInput label="Full name" :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'" v-model:value="billingValues.name" autocomplete="name" />
+  <Select
+    v-model:value="country"
+    :options="countries"
+    search-placeholder="Search countries..."
+    :list-min-width="360"
+    block
+    check-position="end"
+  >
+    <template #trigger="{ open }">
+      <FloatingLabelSelect
+        label="Country or region"
+        :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'"
+        :selected="!!country"
+        :open="open"
+      >
+        {{ countries.find((option) => option.value === country)?.label }}
+      </FloatingLabelSelect>
+    </template>
+  </Select>
+  <FloatingLabelInput label="Address line 1" :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'" v-model:value="billingValues.address1" autocomplete="address-line1" />
+  <FloatingLabelInput label="Address line 2" :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'" v-model:value="billingValues.address2" autocomplete="address-line2" />
+  <div class="flex gap-3">
+    <FloatingLabelInput class="flex-1" label="Postal code" :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'" v-model:value="billingValues.postalCode" autocomplete="postal-code" />
+    <FloatingLabelInput class="flex-1" label="City" :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'" v-model:value="billingValues.city" autocomplete="address-level2" />
+  </div>
+  <Button color="primary" size="3xl" type="submit" :pill="inputType === 'border-pill'" class="mt-3">Save</Button>
+</form>
+</component>`
+
+export const formScreen = (title, fields, action, id, wide = false) => `<component :is="FormScreen" title="${title}" v-model:dialog="dialog" :surface="surface" :phone-preview="phonePreview" :phone-host="phoneHost"${wide ? ' wide' : ''}${action ? ` submit-label="${action}"` : ''}>
+${fields}
+</component>`
+
+export const formScreenCode = (template) => template
+  .replaceAll(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')
+  .replace('class="h-dvh" data-form-screen', 'class="grouped-form-screen"')
+  .replace(' data-form-width="wide"', '')
+  .replace(' data-form-content', '')
+  .replace(' data-form-footer', '')
+
+export const billingMobile = formScreen("Billing details", `<FieldGroup columns>
+  <Field row label="Billing email">
+    <Input type="email" v-model:value="billingValues.email" autocomplete="email" />
+  </Field>
+  <Field row label="Full name">
+    <Input v-model:value="billingValues.name" autocomplete="name" />
+  </Field>
+</FieldGroup>
+<FieldGroup title="Billing address" columns>
+  <Field row label="Country">
+    <Select v-model:value="country" :options="countries" search-placeholder="Search countries..." :block="false" align="end" check-position="end" />
+  </Field>
+  <Field row label="Address line 1">
+    <Input v-model:value="billingValues.address1" autocomplete="address-line1" />
+  </Field>
+  <Field row label="Address line 2">
+    <Input v-model:value="billingValues.address2" placeholder="Optional" autocomplete="address-line2" />
+  </Field>
+  <Field row label="Postal code">
+    <Input v-model:value="billingValues.postalCode" autocomplete="postal-code" />
+  </Field>
+  <Field row label="City">
+    <Input v-model:value="billingValues.city" autocomplete="address-level2" />
+  </Field>
+</FieldGroup>`, "Save", "billing-form")
+
+export const billing = `<template v-if="!wide">${billingMobile}</template><template v-else>${billingDesktop}</template>`
+
+export const billingTypeControl = { name: "inputType", label: "type", type: "select", options: [{ value: "border-pill", label: "Border pill" }, { value: "border-rounded", label: "Border rounded" }, { value: "inside-rounded", label: "Inside rounded" }], default: "inside-rounded" }
+
+export const billingCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+import { Field } from '@plexui/vue/components/Field';
+import { FieldGroup } from '@plexui/vue/components/FieldGroup';
+import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
+import { FloatingLabelSelect } from '@plexui/vue/components/FloatingLabelSelect';
+import { Input } from '@plexui/vue/components/Input';
+import { SegmentedControl, SegmentedControlOption } from '@plexui/vue/components/SegmentedControl';
+import { Select } from '@plexui/vue/components/Select';
+import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
+import { AuthFormStage } from './AuthFormStage';
+import { FormScreen } from './FormScreen';
+import { COUNTRIES as COUNTRY_DATA } from '../PhoneInputDemos';
+
+const wide = useBreakpoint('md');
+const dialog = ref(false);
+const surface = ref<'plain' | 'grouped'>('grouped');
+const inputType = ref<'border-pill' | 'border-rounded' | 'inside-rounded'>('inside-rounded');
+const country = ref('es');
+const countries = COUNTRY_DATA.map(({ value, label }) => ({ value, label }));
+const billingValues = ref({ email: 'jane.doe@example.com', name: 'Jane Doe', address1: '', address2: '', postalCode: '', city: '' });
+</script>
+
+<template>
+  <div v-if="wide" class="mb-4">
+    <SegmentedControl v-model:value="inputType" aria-label="type" size="xs">
+      <SegmentedControlOption value="border-pill">Border pill</SegmentedControlOption>
+      <SegmentedControlOption value="border-rounded">Border rounded</SegmentedControlOption>
+      <SegmentedControlOption value="inside-rounded">Inside rounded</SegmentedControlOption>
+    </SegmentedControl>
+  </div>
+${billing.replaceAll(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')}
+</template>`
+
+export const rowInputs = formScreen("Edit contact", `<FieldGroup title="Contact details" columns>
+  <Field row label="First name">
+    <Input v-model:value="contact.firstName" autocomplete="given-name" />
+  </Field>
+  <Field row label="Last name">
+    <Input v-model:value="contact.lastName" autocomplete="family-name" />
+  </Field>
+  <Field row label="Email">
+    <Input v-model:value="contact.email" type="email" placeholder="name@example.com" autocomplete="email" />
+  </Field>
+  <Field row label="Phone">
+    <Input v-model:value="contact.phone" type="tel" placeholder="Optional" autocomplete="tel" />
+  </Field>
+</FieldGroup>
+<FieldGroup title="Delivery">
+  <Field row orientation="vertical" label="Address">
+    <Input v-model:value="contact.address" variant="ghost" placeholder="Street and building" autocomplete="street-address" />
+  </Field>
+  <Field row orientation="vertical" label="Note for the courier">
+    <Textarea v-model:value="contact.note" variant="ghost" :rows="2" auto-resize :max-rows="6" placeholder="Gate code, floor, a safe place to leave it" />
+  </Field>
+</FieldGroup>`, "Save", "inputs-form")
+
+export const rowMixed = formScreen("Settings", `<FieldGroup title="Preferences">
+  <Field row label="Language">
+    <Select v-model:value="language" :options="languages" :block="false" align="end" />
+  </Field>
+  <Field row label="Currency">
+    <Select v-model:value="currency" :options="currencies" :block="false" align="end" />
+  </Field>
+  <Field row label="Theme">
+    <Select v-if="!wide" v-model:value="theme" :options="themes" :block="false" align="end" />
+    <SegmentedControl v-else v-model:value="theme" aria-label="Theme">
+      <SegmentedControlOption value="system">System</SegmentedControlOption>
+      <SegmentedControlOption value="light">Light</SegmentedControlOption>
+      <SegmentedControlOption value="dark">Dark</SegmentedControlOption>
+    </SegmentedControl>
+  </Field>
+  <Field row label="Start date">
+    <DatePicker v-model:value="start" trigger-date-format="MMM d, yyyy" :trigger-show-icon="wide" placeholder="Select date" />
+  </Field>
+  <Field row label="Weekly summary" description="Sent on Mondays.">
+    <Switch color="accent" v-model:checked="weeklySummary" />
+  </Field>
+  <template #footer>
+    Saved for every device you sign in on.
+  </template>
+</FieldGroup>`, "", "mixed-form")
+
+export const rowChoice = formScreen("Preferences", `<RadioGroup v-model:value="plan" direction="col" aria-label="Plan" class="w-full">
+  <FieldGroup title="Plan" class="w-full">
+    <Field row label="Starter" description="For one person.">
+      <RadioGroupItem value="starter" />
+    </Field>
+    <Field row label="Team" description="Up to 10 people.">
+      <RadioGroupItem value="team" />
+    </Field>
+    <Field row label="Business" description="No limit on people.">
+      <RadioGroupItem value="business" />
+    </Field>
+  </FieldGroup>
+</RadioGroup>
+<FieldGroup title="Email me about">
+  <Field row label="New sign-ins">
+    <Checkbox v-if="wide" v-model:checked="signIns" />
+    <Switch color="accent" v-else v-model:checked="signIns" />
+  </Field>
+  <Field row label="Invoices">
+    <Checkbox v-if="wide" v-model:checked="invoices" />
+    <Switch color="accent" v-else v-model:checked="invoices" />
+  </Field>
+  <Field row label="Product news">
+    <Checkbox v-if="wide" v-model:checked="news" />
+    <Switch color="accent" v-else v-model:checked="news" />
+  </Field>
+</FieldGroup>`, "", "choice-form")
+
+export const rowProduct = formScreen("Edit product", `<FieldGroup title="Product" :columns="!wide">
+  <Field row orientation="vertical" label="Name">
+    <Input variant="ghost" v-model:value="product.name" />
+  </Field>
+  <Field row orientation="vertical" label="Description">
+    <Textarea
+      variant="ghost"
+      :rows="2"
+      auto-resize
+      v-model:value="product.description"
+    />
+  </Field>
+  <Field row label="Price">
+    <Input v-model:value="product.price" inputmode="decimal">
+      <template #endAdornment><span class="text-secondary">€</span></template>
+    </Input>
+  </Field>
+  <Field row label="Category">
+    <Select v-model:value="category" :options="categories" :block="false" :align="wide ? 'end' : 'start'" />
+  </Field>
+  <component v-if="!wide" :is="MobileTagRow" label="Tags" one="tag" v-model:options="labelOptions" v-model="tags" />
+  <Field v-else row fill data-tag-row class="max-md:[--field-row-action-size:44px] max-md:[--button-size-md:44px]" label="Tags">
+    <div data-tag-list class="flex flex-wrap gap-2">
+      <Badge
+        v-for="option in labelOptions.filter((item) => tags.includes(item.value))"
+        :key="option.value"
+        size="xl"
+        pill
+        :color="option.color"
+        variant="solid"
+        :remove-label="'Remove ' + option.label"
+        @remove="removeTagWithFocus($event, () => { tags = tags.filter((item) => item !== option.value) })"
+      >
+        {{ option.label }}
+      </Badge>
+    </div>
+    <template #action>
+      <Select v-model:value="tags" multiple :block="false" align="end" aria-label="Add tag" :options="labelOptions">
+        <template #trigger="{ onToggle }">
+          <Tooltip :content="wide ? 'Add tag' : null">
+            <Button data-tag-add :uniform="wide" pill :color="wide ? 'secondary' : 'info'" :variant="wide ? 'soft' : 'ghost'" aria-label="Add tag" @click="onToggle">
+              <Plus v-if="wide" />
+              <template v-else>Add</template>
+            </Button>
+          </Tooltip>
+        </template>
+      </Select>
+    </template>
+  </Field>
+  <Field row label="In stock"><Switch color="accent" v-model:checked="product.inStock" /></Field>
+</FieldGroup>`, "Save", "product-form")
+
+export const rowGroups = formScreen("Edit product", `      <img src="/demo/picture-3.svg" alt="Product" class="mx-auto block size-28 rounded-3xl object-cover" />
+      <FieldGroup :columns="columns">
+        <Field row orientation="vertical" label="Name">
+          <Input variant="ghost" v-model:value="product.name" />
+        </Field>
+        <Field row orientation="vertical" label="Description">
+          <Textarea
+            variant="ghost"
+            :rows="2"
+            auto-resize
+            v-model:value="product.description"
+          />
+        </Field>
+      </FieldGroup>
+      <FieldGroup :columns="columns">
+        <Field row label="Category" :description="columns ? undefined : 'Also shown under Sale.'">
+          <Select v-model:value="category" :options="categories" :block="false" :align="columns ? 'start' : 'end'" />
+        </Field>
+        <Field row label="Price">
+          <Input v-model:value="product.price" inputmode="decimal">
+            <template #endAdornment><span class="text-secondary">€</span></template>
+          </Input>
+        </Field>
+        <Field row label="Weight">
+          <template #default="control">
+            <InputGroup>
+              <InputGroupInput v-bind="control" v-model:value="product.weight" inputmode="decimal" />
+              <InputGroupAddon align="inline-end">
+                <Menu>
+                  <MenuTrigger>
+                    <InputGroupButton :aria-label="'Unit: ' + unit" class="text-secondary md:text-sm font-normal">
+                      {{ unit }}<span class="ms-1"><DropdownIcon icon-type="dropdown" /></span>
+                    </InputGroupButton>
+                  </MenuTrigger>
+                  <MenuContent align="end" min-width="auto">
+                    <MenuCheckboxItem
+                      v-for="item in units"
+                      :key="item.value"
+                      :checked="unit === item.value"
+                      indicator-position="start"
+                      indicator-variant="ghost"
+                      @update:checked="unit = item.value"
+                    >
+                      {{ item.label }}
+                    </MenuCheckboxItem>
+                  </MenuContent>
+                </Menu>
+              </InputGroupAddon>
+            </InputGroup>
+          </template>
+        </Field>
+      </FieldGroup>
+      <FieldGroup :columns="columns">
+        <template v-if="!wide" #footer>Sizes and finishes a buyer can choose.</template>
+        <component :is="ProductVariants" v-model="variants" :wide="wide" />
+      </FieldGroup>
+      <FieldGroup :columns="columns">
+        <component v-if="!wide" :is="MobileTagRow" label="Materials" one="material" v-model:options="materialOptions" v-model="materials" />
+        <Field v-else row fill data-tag-row class="max-md:[--field-row-action-size:44px] max-md:[--button-size-md:44px]" label="Materials">
+          <div data-tag-list class="flex flex-wrap gap-2">
+            <Badge
+              v-for="option in materialOptions.filter((item) => materials.includes(item.value))"
+              :key="option.value"
+              size="xl"
+              pill
+              variant="outline"
+              :remove-label="'Remove ' + option.label"
+              @remove="removeTagWithFocus($event, () => { materials = materials.filter((item) => item !== option.value) })"
+            >
+              {{ option.label }}
+            </Badge>
+          </div>
+          <template #action>
+            <Select v-model:value="materials" multiple :block="false" align="end" aria-label="Add material" :options="materialOptions">
+              <template #trigger="{ onToggle }">
+                <Tooltip :content="wide ? 'Add material' : null">
+                  <Button data-tag-add :uniform="wide" pill :color="wide ? 'secondary' : 'info'" :variant="wide ? 'soft' : 'ghost'" aria-label="Add material" @click="onToggle">
+                    <Plus v-if="wide" />
+                    <template v-else>Add</template>
+                  </Button>
+                </Tooltip>
+              </template>
+            </Select>
+          </template>
+        </Field>
+        <component v-if="!wide" :is="MobileTagRow" label="Labels" one="label" v-model:options="labelOptions" v-model="labels" />
+        <Field v-else row fill data-tag-row class="max-md:[--field-row-action-size:44px] max-md:[--button-size-md:44px]" label="Labels">
+          <div data-tag-list class="flex flex-wrap gap-2">
+            <Badge
+              v-for="option in labelOptions.filter((item) => labels.includes(item.value))"
+              :key="option.value"
+              size="xl"
+              pill
+              :color="option.color"
+              variant="solid"
+              :remove-label="'Remove ' + option.label"
+              @remove="removeTagWithFocus($event, () => { labels = labels.filter((item) => item !== option.value) })"
+            >
+              {{ option.label }}
+            </Badge>
+          </div>
+          <template #action>
+            <Select v-model:value="labels" multiple :block="false" align="end" aria-label="Add label" :options="labelOptions">
+              <template #trigger="{ onToggle }">
+                <Tooltip :content="wide ? 'Add label' : null">
+                  <Button data-tag-add :uniform="wide" pill :color="wide ? 'secondary' : 'info'" :variant="wide ? 'soft' : 'ghost'" aria-label="Add label" @click="onToggle">
+                    <Plus v-if="wide" />
+                    <template v-else>Add</template>
+                  </Button>
+                </Tooltip>
+              </template>
+            </Select>
+          </template>
+        </Field>
+      </FieldGroup>`, "Save changes", "product-groups-form", true)
+
+export const rowGroupsCode = withFormScreenStyles(formScreenCode(rowGroups))
+
+export const rowTags = formScreen("Product tags", `<FieldGroup>
+  <component v-if="!wide" :is="MobileTagRow" label="Materials" one="material" v-model:options="materialOptions" v-model="materials" />
+  <Field v-else row fill data-tag-row class="max-md:[--field-row-action-size:44px] max-md:[--button-size-md:44px]" label="Materials">
+    <div data-tag-list class="flex flex-wrap gap-2">
+      <Badge
+        v-for="option in materialOptions.filter((item) => materials.includes(item.value))"
+        :key="option.value"
+        size="xl"
+        pill
+        variant="outline"
+        :remove-label="'Remove ' + option.label"
+        @remove="removeTagWithFocus($event, () => { materials = materials.filter((item) => item !== option.value) })"
+      >
+        {{ option.label }}
+      </Badge>
+    </div>
+    <template #action>
+      <Select v-model:value="materials" multiple :block="false" align="end" aria-label="Add material" :options="materialOptions">
+        <template #trigger="{ onToggle }">
+          <Tooltip :content="wide ? 'Add material' : null">
+            <Button data-tag-add :uniform="wide" pill :color="wide ? 'secondary' : 'info'" :variant="wide ? 'soft' : 'ghost'" aria-label="Add material" @click="onToggle">
+              <Plus v-if="wide" />
+              <template v-else>Add</template>
+            </Button>
+          </Tooltip>
+        </template>
+      </Select>
+    </template>
+  </Field>
+  <component v-if="!wide" :is="MobileTagRow" label="Labels" one="label" v-model:options="labelOptions" v-model="labels" />
+  <Field v-else row fill data-tag-row class="max-md:[--field-row-action-size:44px] max-md:[--button-size-md:44px]" label="Labels">
+    <div data-tag-list class="flex flex-wrap gap-2">
+      <Badge
+        v-for="option in labelOptions.filter((item) => labels.includes(item.value))"
+        :key="option.value"
+        size="xl"
+        pill
+        :color="option.color"
+        variant="solid"
+        :remove-label="'Remove ' + option.label"
+        @remove="removeTagWithFocus($event, () => { labels = labels.filter((item) => item !== option.value) })"
+      >
+        {{ option.label }}
+      </Badge>
+    </div>
+    <template #action>
+      <Select v-model:value="labels" multiple :block="false" align="end" aria-label="Add label" :options="labelOptions">
+        <template #trigger="{ onToggle }">
+          <Tooltip :content="wide ? 'Add label' : null">
+            <Button data-tag-add :uniform="wide" pill :color="wide ? 'secondary' : 'info'" :variant="wide ? 'soft' : 'ghost'" aria-label="Add label" @click="onToggle">
+              <Plus v-if="wide" />
+              <template v-else>Add</template>
+            </Button>
+          </Tooltip>
+        </template>
+      </Select>
+    </template>
+  </Field>
+</FieldGroup>`, "", "tags-form", true)
+
+export const withTagRemoval = (code) => `<script setup>\n${formExampleHelpers(code)}\n</script>\n\n<template>\n${code}\n</template>`
+
+export const rowActions = formScreen("Account settings", `<template v-if="accountDeleted">
+  <EmptyMessage>
+    <EmptyMessageTitle>No sample account</EmptyMessageTitle>
+    <EmptyMessageDescription>The account was removed from this preview.</EmptyMessageDescription>
+    <EmptyMessageActionRow><Button ref="restoreAccount" color="primary" size="xl" @click="accountEmail = 'jane@example.com'; accountPasswordDescription = 'Last changed in March.'; accountDeleted = false; $nextTick(() => $refs.accountFirstAction?.$el?.focus())">Restore sample account</Button></EmptyMessageActionRow>
+  </EmptyMessage>
+</template>
+<FieldGroup v-else-if="wide" title="Account">
+  <Field row label="Email" :description="accountEmail">
+    <div><Button ref="accountFirstAction" pill color="secondary" variant="soft" @click="accountTrigger = $event.currentTarget; accountEmailDraft = accountEmail; accountPanel = 'email'">Change</Button></div>
+  </Field>
+  <Field row label="Password" :description="accountPasswordDescription">
+    <div><Button pill color="secondary" variant="soft" @click="accountTrigger = $event.currentTarget; accountPasswordDraft = ''; accountPanel = 'password'">Reset</Button></div>
+  </Field>
+  <Field row label="Delete account" description="This removes your data for good.">
+    <div><Button pill color="danger" variant="soft" @click="accountTrigger = $event.currentTarget; accountPanel = 'delete'">Delete</Button></div>
+  </Field>
+</FieldGroup>
+<template v-else>
+  <FieldGroup title="Account" body-class-name="overflow-hidden">
+    <div data-row>
+      <Button ref="accountFirstAction" data-account-row block color="primary" variant="ghost" :aria-label="'Email ' + accountEmail" aria-haspopup="dialog" @click="accountTrigger = $event.currentTarget; accountEmailDraft = accountEmail; accountPanel = 'email'">
+        <span class="flex w-full min-w-0 items-center justify-between gap-4">
+          <span class="min-w-0"><span class="block">Email</span><span data-account-detail>{{ accountEmail }}</span></span>
+          <Disclosure data-no-autosize="" data-row-disclosure="" />
+        </span>
+      </Button>
+    </div>
+    <div data-row>
+      <Button data-account-row block color="primary" variant="ghost" :aria-label="'Password ' + accountPasswordDescription" aria-haspopup="dialog" @click="accountTrigger = $event.currentTarget; accountPasswordDraft = ''; accountPanel = 'password'">
+        <span class="flex w-full min-w-0 items-center justify-between gap-4">
+          <span class="min-w-0"><span class="block">Password</span><span data-account-detail>{{ accountPasswordDescription }}</span></span>
+          <Disclosure data-no-autosize="" data-row-disclosure="" />
+        </span>
+      </Button>
+    </div>
+  </FieldGroup>
+  <FieldGroup body-class-name="overflow-hidden">
+    <template #footer>Deleting your account removes its data permanently.</template>
+    <div data-row>
+      <Button data-account-row block color="danger" variant="ghost" aria-haspopup="dialog" @click="accountTrigger = $event.currentTarget; accountPanel = 'delete'"><span class="w-full">Delete account</span></Button>
+    </div>
+  </FieldGroup>
+</template>
+<Dialog :open="!!accountPanel" @update:open="(open) => { if (!open) accountPanel = '' }">
+  <DialogContent :mobile-variant="accountPanel === 'delete' ? 'alert' : 'sheet'" :surface="accountPanel === 'delete' ? 'plain' : 'grouped'" @close-auto-focus="$event.preventDefault(); (accountDeleted ? $refs.restoreAccount?.$el : accountTrigger)?.focus()">
+    <DialogHeader>
+      <DialogTitle>{{ accountPanel === 'delete' ? 'Delete sample account?' : accountPanel === 'email' ? 'Email' : 'Password' }}</DialogTitle>
+      <DialogDescription v-if="accountPanel === 'delete'">This removes the sample account from this preview. You can restore it to try again.</DialogDescription>
+    </DialogHeader>
+    <DialogBody v-if="accountPanel !== 'delete'">
+      <form ref="accountEditForm" @submit.stop.prevent="accountPanel === 'email' ? accountEmail = accountEmailDraft : accountPasswordDescription = 'Updated in this preview.'; accountPasswordDraft = ''; accountPanel = ''">
+        <FieldGroup v-if="wide" columns>
+          <Field v-if="accountPanel === 'email'" row label="Email"><Input type="email" autocomplete="email" required v-model:value="accountEmailDraft" /></Field>
+          <Field v-else row label="New password"><Input type="password" autocomplete="new-password" required :minlength="8" v-model:value="accountPasswordDraft" /></Field>
+        </FieldGroup>
+        <component :is="AuthFields" v-else mobile>
+          <component :is="AuthInput" v-if="accountPanel === 'email'" label="Email" type="email" placeholder="Email address" autocomplete="email" required v-model:value="accountEmailDraft" />
+          <component :is="AuthInput" v-else label="New password" type="password" placeholder="New password" autocomplete="new-password" required :minlength="8" v-model:value="accountPasswordDraft" />
+        </component>
+      </form>
+    </DialogBody>
+    <DialogFooter>
+      <DialogClose><Button color="secondary" variant="soft">Cancel</Button></DialogClose>
+      <Button v-if="accountPanel === 'delete'" color="danger" @click="accountDeleted = true; accountPanel = ''">Delete account</Button>
+      <Button v-else color="primary" @click="$refs.accountEditForm.requestSubmit()">Save</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>`, "", "actions-form").replace(' title="Account settings"', ' title="Account settings" :fill="accountDeleted"')
+
+export const rowErrors = formScreen("Edit payout details", `<FieldGroup title="Payout details">
+  <Field row :orientation="wide ? undefined : 'vertical'" label="Account holder">
+    <Input :variant="wide ? undefined : 'ghost'" v-model:value="payout.accountHolder" />
+  </Field>
+  <Field row :orientation="wide ? undefined : 'vertical'" label="IBAN" :error-message="error ? 'Enter a valid IBAN.' : undefined">
+    <Input :variant="wide ? undefined : 'ghost'" v-model:value="payout.iban" :invalid="error" auto-capitalize="characters" :spellcheck="false" />
+  </Field>
+  <Field row orientation="vertical" label="Reference" :error-message="error ? 'Keep it under 140 characters.' : undefined">
+    <Textarea
+      variant="ghost"
+      :rows="2"
+      auto-resize
+      v-model:value="payout.reference"
+      :invalid="error"
+    />
+  </Field>
+</FieldGroup>`, "", "errors-form")
+
+export const rowState = {
+  variants: [],
+  product: { name: "Oak side table", description: "Solid oak with a matte finish. Ships flat, assembles in ten minutes without tools.", price: "129", weight: "12", inStock: true },
+  contact: { firstName: "Jane", lastName: "Doe", email: "", phone: "", address: "", note: "" },
+  payout: { accountHolder: "Jane Doe", iban: "ES00 0000 0000 0000 0000 0000", reference: "Monthly payout for the spring collection, including the two orders that were moved from last month." },
+  weeklySummary: true,
+  language: "en",
+  languages: [{ value: "en", label: "English" }, { value: "es", label: "Spanish" }, { value: "pl", label: "Polish" }],
+  currency: "eur",
+  currencies: [{ value: "eur", label: "Euro" }, { value: "usd", label: "US dollar" }, { value: "gbp", label: "Pound sterling" }],
+  theme: "system",
+  themes: [{ value: "system", label: "System" }, { value: "light", label: "Light" }, { value: "dark", label: "Dark" }],
+  start: null,
+  plan: "team",
+  signIns: true,
+  invoices: true,
+  news: false,
+  category: "home",
+  categories: [{ value: "home", label: "Home" }, { value: "garden", label: "Garden" }, { value: "office", label: "Office" }],
+  tags: ["new", "sale"],
+  unit: "kg",
+  units: [{ value: "kg", label: "kg" }, { value: "lb", label: "lb" }],
+  materials: ["oak", "steel"],
+  materialOptions: [
+    { value: "oak", label: "Oak" },
+    { value: "steel", label: "Steel" },
+    { value: "linen", label: "Linen" },
+    { value: "glass", label: "Glass" },
+    { value: "wool", label: "Wool" },
+  ],
+  labels: ["new"],
+  labelOptions: [{ value: "new", label: "New", color: "discovery" }, { value: "sale", label: "Sale", color: "danger" }, { value: "limited", label: "Limited", color: "warning" }],
+  open: false,
+}
+
+export const uploadFile = `<div class="w-full">
+  <div class="mb-6 text-center">
+    <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Upload documents</h3>
+    <p data-auth-description class="text-secondary text-sm mt-1">Please provide the required files to continue.</p>
+  </div>
+  <div class="flex flex-col gap-3">
+    <FileUpload accept=".pdf,.png" multiple :max-files="5" v-model:value="files" />
+    <Button color="primary" size="3xl" pill block class="h-[3.25rem] mt-3">
+      Continue
+    </Button>
+  </div>
+</div>`
+
+Settings and editing forms composed from [Field](/vue/components/field), [Input](/vue/components/input), [Select](/vue/components/select), [File Upload](/vue/components/file-upload), and [Button](/vue/components/button). Sign-up, log-in and verification screens are on [Auth Forms](/vue/components/auth-forms). The examples render small helpers from their setup scope with <code>{'<component :is>'}</code>, such as <code>FormScreen</code> and <code>AuthFormStage</code>.
+
+Row forms use the [FormScreen helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/FormScreen.ts) and [shared form styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css) for Page and Dialog. The form owner holds every value above that presentation boundary.
+
+Phone tag rows use the [MobileTagRow helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/MobileTagRow.ts) and its [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css). Copy both files with the examples. The row opens a draft editor with a list of options and trailing checkmarks. Tap anywhere on a row to select it, or use the separate field to add an option. Apply saves the draft; Close discards it. Desktop keeps removable badges.
+
+Keep both the options and selected values in the form's state, bound with `v-model:options` and `v-model`. The desktop fields use the same options, so newly added labels survive switching between Phone and Desktop.
+
+Screens default to Grouped. The `surface` control switches to Plain without changing fields or values. Page uses base colors; Dialog uses elevated colors. Changes to presentation preserve entered values and selections.
+
+<span id="form-in-a-dialog" />
+
+## Several groups
+
+Variants uses the [ProductVariants helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/ProductVariants.ts), [shared name validation](https://github.com/plex-ui/ui/blob/master/components/docs/productVariantData.ts), and the linked FormRowsDemos styles. Add opens a name draft; Edit changes a saved variant. Save applies the draft, Cancel discards it, and Remove variant deletes the edited choice. The parent form owns the saved values.
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>One form in several blocks, each with one kind of row. On a phone, a <code>Toolbar</code> provides the top bar and a bottom <code>Toolbar</code> keeps Save changes over the bottom safe area, with 28px side insets. Only PageContent scrolls, with 16px side gutters. From 768px up, PageFooter keeps the action under the form. Text stands under its label, short editable values start at a shared column by default on phones, a tag row opens a draft editor on phones and keeps its round Add action on desktop. A unit is a <code>Menu</code> on an <code>InputGroupButton</code>, as in <a href="/vue/components/input-group#dropdown">Input Group</a>, the Variants explanation stays visible in the group footer on phones. With <code>columns</code> on a <code>FieldGroup</code> every value starts at one column, <code>--field-row-column-width</code> into the row, as in an iOS form of typed details; without it every value ends at the row's edge, as in iOS Settings. On the web a field keeps its frame and width, on a phone the value takes the rest of the row and its unit or mark ends at the edge; a switch and an action stay at the end. Pick one way for a whole form, and keep descriptions out of a group in columns: under the label they narrow the column.</>} code={rowGroupsCode} previewMinHeight={760}>
+  <VueFormExampleDemo template={rowGroups} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={rowState} controls={[{ name: "columns", type: "boolean", default: false }]} phoneControls={[{ name: "columns", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+## Group of inputs
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>One block of rows instead of separate boxes. Use <code>columns</code> so every short value starts at the same column. The phone screen has a top bar and a fixed Save action; only its content scrolls. A long value goes under its label with <code>orientation="vertical"</code> and <code>variant="ghost"</code>, so its row is the frame at every width.</>} code={withFormScreenStyles(formScreenCode(rowInputs))} previewMinHeight={620}>
+  <VueFormExampleDemo template={rowInputs} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={rowState} />
+</ComponentPreview>
+
+## Group of mixed controls
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Menus keep settings compact on phones: Theme uses a Select trigger and the date omits its leading calendar icon. Desktop retains the segmented Theme control. Every preference still uses its own accessible control.</>} code={withFormScreenStyles(formScreenCode(rowMixed))} previewMinHeight={420}>
+  <VueFormExampleDemo template={rowMixed} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={rowState} />
+</ComponentPreview>
+
+## Choice in rows
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Use <code>RadioGroup</code> for one plan. Independent email preferences use <code>Switch</code> on phones and <code>Checkbox</code> on desktop. The whole row operates its control, and values survive a viewport change.</>} code={withFormScreenStyles(formScreenCode(rowChoice))} previewMinHeight={520}>
+  <VueFormExampleDemo template={rowChoice} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={rowState} />
+</ComponentPreview>
+
+## Long form in one group
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Short and long values in one block: the name and the description under their labels, editable values start at a shared column on phones, while the switch stays at the end of the row.</>} code={withFormScreenStyles(formScreenCode(rowProduct))} previewMinHeight={620}>
+  <VueFormExampleDemo template={rowProduct} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={rowState} />
+</ComponentPreview>
+
+## Tags in rows
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>On phones, the summary shows the selected names: short values stay at the trailing edge, and long values wrap below the label outside column layouts. Column layouts keep the summary in their value column. The row opens a grouped Sheet with a list of options. Each whole row toggles its selection, shown by a trailing checkmark; multiple options can be selected. A separate field adds a new option. Apply saves the draft, while Close discards every change, including new options. Desktop retains removable Badge tags and the Select Add action. <code>wide</code> comes from <code>useBreakpoint("md")</code>; import the linked MobileTagRow helper for the mobile composition.</>} code={withFormScreenStyles(formScreenCode(rowTags))} previewMinHeight={200}>
+  <VueFormExampleDemo template={rowTags} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={{ ...rowState, materials: ["oak", "steel", "linen", "glass", "wool"] }} />
+</ComponentPreview>
+
+export const accountActionStyles = `/* Full-row actions use FieldGroup geometry and native button semantics. */
+@media (max-width: 767px) {
+  [data-account-row] {
+    height: auto;
+    min-height: var(--field-row-min-height);
+    padding: var(--field-row-text-padding-block) var(--field-row-padding-inline);
+    border-radius: 0;
+    font-size: var(--field-row-label-font-size);
+    font-weight: var(--field-row-label-font-weight);
+    line-height: var(--field-row-label-line-height);
+    text-align: start;
+    white-space: normal;
+  }
+
+  [data-account-row]:has([data-account-detail]) {
+    min-height: var(--field-row-description-min-height);
+  }
+
+  [data-account-detail] {
+    display: block;
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+    font-size: var(--field-row-description-font-size);
+    line-height: var(--field-row-description-line-height);
+    overflow-wrap: anywhere;
+  }
+}`
+
+export const rowActionsCode = `<script setup lang="ts">
+import { ref } from "vue";
+import { Disclosure } from "@plexui/vue/components/Icon";
+import { useBreakpoint } from "@plexui/vue/composables/useBreakpoints";
+import { FormScreen } from './FormScreen';
+
+const wide = useBreakpoint("md");
+const surface = ref<'plain' | 'grouped'>('grouped');
+const dialog = ref(false);
+const accountEmail = ref("jane@example.com");
+const accountEmailDraft = ref("");
+const accountPasswordDraft = ref("");
+const accountPasswordDescription = ref("Last changed in March.");
+const accountPanel = ref<"email" | "password" | "delete" | "">("");
+const accountDeleted = ref(false);
+const accountTrigger = ref<HTMLElement | null>(null);
+</script>
+
+` + withFormScreenStyles(formScreenCode(rowActions)).replace(/^<script setup>[\s\S]*?<\/script>\n\n/, '').replace("</style>", accountActionStyles + "\n</style>")
+
+## Rows with actions
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>On phones, Email and Password are full-row buttons that open an editor. Delete account lives in its own group and asks for confirmation. Changes affect this sample account only. Desktop keeps the actions beside each field.</>} code={rowActionsCode} previewMinHeight={340}>
+  <VueFormExampleDemo template={rowActions} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={{ accountEmail: "jane@example.com", accountEmailDraft: "", accountPasswordDraft: "", accountPasswordDescription: "Last changed in March.", accountPanel: "", accountDeleted: false, accountTrigger: null }} />
+</ComponentPreview>
+
+<span id="errors-in-rows" />
+
+## Payout details
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>On phones, all three labels sit above full-width values on one shared group surface. The account holder and IBAN remain single-line inputs; Reference can wrap. The error control shows demonstration errors without validating or replacing entered values.</>} code={withFormScreenStyles(formScreenCode(rowErrors))} previewMinHeight={380}>
+  <VueFormExampleDemo template={rowErrors} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={rowState} controls={[errorControl]} />
+</ComponentPreview>
+
+## Billing details
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>On phones, related details share FieldGroup rows and a pinned Save action. Desktop offers three floating-label types; the fields, country select and Save use the same shape. Changing type or presentation preserves entered values. The code includes both layouts and imports their shared source helpers.</>} code={billingCode} previewMinHeight={560}>
+  <VueFormExampleDemo template={billing} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={{ inputType: "inside-rounded", country: "es", billingValues: { email: "jane.doe@example.com", name: "Jane Doe", address1: "", address2: "", postalCode: "", city: "" } }} controls={[billingTypeControl]} phoneControls={[]} />
+</ComponentPreview>
+
+## Upload file
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>A document upload form with <code>FileUpload</code>. The file list grows dynamically as files are added. Button and file list share the same 52px pill shape.</>} code={withAuthHelpers(`<component :is="AuthFormStage" title="Upload documents" :mobile="!wide" :surface="surface" v-model:dialog="dialog">${uploadFile}</component>`).replace("</script>", "const files = ref<File[]>([]);\n</script>")}>
+  <VueFileUploadDemo auth template={uploadFile} files="all" />
+</ComponentPreview>
+
+## Settings with selection pages
+
+Short values sit beside the label. Longer values wrap below it, and the disclosure stays centered. The entire row opens a selection page; Back returns to the updated summary. The disabled row shows an unavailable setting.
+
+This example uses the [SettingsChecklistDemo helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsChecklistDemo.ts), [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsChecklistData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsChecklistDemo.module.css), alongside the existing DemoBackButton helper.
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Selection takes effect immediately. On a phone a row opens its own screen in a <code>Toolbar</code> with Back and the setting's title. From 768px up the same row opens a menu of checkboxes, so the desktop layout needs no top bar. The form examples above use a Sheet with Apply and Close for draft editing.</>} code={`<script setup lang="ts">
+import { ref } from 'vue';
+import { SettingsChecklistDemo } from './SettingsChecklistDemo';
+const surface = ref<'plain' | 'grouped'>('grouped');
+const dialog = ref(false);
+</script>
+
+<template>
+  <SettingsChecklistDemo :surface="surface" v-model:dialog="dialog" />
+</template>`}>
+  <VueFormExampleDemo template={`<component :is="SettingsChecklistDemo" :surface="surface" v-model:dialog="dialog" :phone-preview="phonePreview" :phone-host="phoneHost" />`} />
+</ComponentPreview>
+
+## Image and title
+
+Choose a local cover photo, then name the album. Add Photos opens the native file picker; after selection it becomes Change photo. Canceling the picker keeps the current photo. Save keeps this sample in memory, and Cancel restores the last saved draft. On Phone these actions appear as the checkmark and close buttons.
+
+Copy the [ImageAlbumEditor helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/ImageAlbumEditor.ts) with its [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/ImageAlbumDemo.module.css). It uses the public FileUpload, Image, Field, FieldGroup, Input, Button, Page, and Dialog components. Desktop uses a labeled input and text actions; Phone keeps the compact image editor. The photo stays in this browser tab. Phone toolbar actions use `NavigationButton`; confirmation follows the [shared application accent](/docs/foundations/colors#shared-application-accent).
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>A labeled desktop form with Cancel and Save actions, and a 52px Album Name row on Phone. Use the controls to switch between Page and Dialog, or grouped and plain surfaces, while keeping the draft.</>} code={imageAlbumVueCode} previewMinHeight={560}>
+  <VueImageAlbumDemo />
+</ComponentPreview>
+
+## Settings with a slider
+
+Adjust playback volume with the slider or arrow keys. Turning Sound off disables the slider and keeps its value. Learn more opens a separate explanation. These settings affect this example only.
+
+Copy the [SettingsSliderFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsSliderFields.ts) with its [shared types](https://github.com/plex-ui/ui/blob/master/components/docs/settingsSliderData.ts), [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsSliderDemo.module.css) and the [FormScreen helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/FormScreen.ts). State belongs to the screen, so switching Page, Dialog, or surface keeps the settings.
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsSliderVueCode} previewMinHeight={380}>
+  <VueSettingsSliderDemo />
+</ComponentPreview>

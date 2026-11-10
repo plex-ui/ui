@@ -26,7 +26,7 @@ import {
 
 <UsageBlock>{`import { Input } from "@plexui/ui/components/Input";`}</UsageBlock>
 
-On Phone, put an input in a row of a `FieldGroup`, as the [Form Examples](/components/form-examples) do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the `size`, `gutterSize`, `pill` and `variant` controls.
+On Phone, put an input in a row of a `FieldGroup`, as the [Settings Forms](/components/settings-forms) do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the `size`, `gutterSize`, `pill` and `variant` controls.
 
 ## Examples
 
@@ -232,7 +232,7 @@ Plex UI also provides a `FieldError` component (`@plexui/ui/components/FieldErro
 
 ### Birthday input
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A date-of-birth input with inline formatting that inserts separators as you type (<code>MM / DD / YYYY</code>). An inline mask suffix highlights the next expected segment. Works across all sizes, variants, and with <code>pill</code>. On Phone the field formats as you type and the pattern is its placeholder, as in the <a href="/components/form-examples#about-you-without-labels">About you</a> form.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A date-of-birth input with inline formatting that inserts separators as you type (<code>MM / DD / YYYY</code>). An inline mask suffix highlights the next expected segment. Works across all sizes, variants, and with <code>pill</code>. On Phone the field formats as you type and the pattern is its placeholder, as in the <a href="/components/auth-forms#about-you-without-labels">About you</a> form.</>} code={`// Desktop
 <Input
   placeholder="Birthday (MM / DD / YYYY)"
   value={birthday}

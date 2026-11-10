@@ -9,7 +9,7 @@ import type { VuePreviewProps } from "../../components/docs/VuePreviewRuntime"
 
 // The parent remains physically desktop-sized while its example is set to Phone.
 vi.mock("@plexui/ui/hooks/useBreakpoints", () => ({ useBreakpoint: () => true }))
-vi.mock("next/navigation", () => ({ usePathname: () => "/components/form-examples" }))
+vi.mock("next/navigation", () => ({ usePathname: () => "/components/auth-forms" }))
 vi.mock("fumadocs-ui/components/dynamic-codeblock", () => ({ DynamicCodeBlock: () => null }))
 // Keep this test on the React host/control bridge. An uncontrolled field detects
 // accidental remounts; VuePreviewRuntime's rendering is covered by its own tests.

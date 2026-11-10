@@ -492,7 +492,7 @@ export const opticalAlignPhone = `<FieldGroup>
 
 <UsageBlock>{`import { Input, InputAdornmentButton } from "@plexui/vue/components/Input";`}</UsageBlock>
 
-On Phone, put an input in a row of a `FieldGroup`, as the [Form Examples](/vue/components/form-examples) do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the `size`, `gutter-size`, `pill` and `variant` controls.
+On Phone, put an input in a row of a `FieldGroup`, as the [Settings Forms](/vue/components/settings-forms) do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the `size`, `gutter-size`, `pill` and `variant` controls.
 
 ## Examples
 
@@ -563,7 +563,7 @@ Plex UI also provides a `FieldError` component (`@plexui/vue/components/FieldErr
 
 ### Birthday input
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A date-of-birth input with inline formatting that inserts separators as you type (<code>MM / DD / YYYY</code>). An inline mask suffix highlights the next expected segment. Works across all sizes, variants, and with <code>pill</code>. <code>nextBirthday</code>, <code>birthdayMask</code> and <code>measureInput</code> are plain helper functions of the example. On Phone the field formats as you type and the pattern is its placeholder, as in the <a href="/vue/components/form-examples#about-you-without-labels">About you</a> form.</>} code={withPhone(birthday, birthdayPhone)} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A date-of-birth input with inline formatting that inserts separators as you type (<code>MM / DD / YYYY</code>). An inline mask suffix highlights the next expected segment. Works across all sizes, variants, and with <code>pill</code>. <code>nextBirthday</code>, <code>birthdayMask</code> and <code>measureInput</code> are plain helper functions of the example. On Phone the field formats as you type and the pattern is its placeholder, as in the <a href="/vue/components/auth-forms#about-you-without-labels">About you</a> form.</>} code={withPhone(birthday, birthdayPhone)} previewMinHeight={168}>
   <VueInputDemo template={birthday} phoneTemplate={phoneRows(birthdayPhone)} phoneStageClassName="w-full" stageClassName="py-10" state={{ birthday: "" }} desktopControls={maskControls} />
 </ComponentPreview>
 

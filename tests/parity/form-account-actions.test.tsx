@@ -12,7 +12,7 @@ vi.mock("@plexui/ui/components/Dialog", async () => await import("../../packages
 vi.mock("@plexui/vue/components/Dialog", async () => await import("../../packages/vue/src/components/Dialog"))
 
 // Compile the very template the Vue docs render, rather than a test-only copy.
-const mdx = readFileSync("content/vue/components/form-examples.mdx", "utf8")
+const mdx = readFileSync("content/vue/components/settings-forms.mdx", "utf8")
 const actionExpression = mdx.slice(mdx.indexOf("export const rowActions = ") + "export const rowActions = ".length, mdx.indexOf("export const rowErrors = ")).trim()
 const template = new Function("formScreen", `return ${actionExpression}`)((_title: string, fields: string) => `<component :is="FormScreen" title="Account settings" v-model:dialog="dialog">${fields}</component>`)
 if (typeof template !== "string") throw new Error("Account actions template was not resolved")

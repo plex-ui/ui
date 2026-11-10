@@ -46,7 +46,7 @@ export const statesCode = `const [value, setValue] = useState("")
 
 <UsageBlock>{`import { FloatingLabelInput } from "@plexui/ui/components/FloatingLabelInput";`}</UsageBlock>
 
-On Phone a label does not float: iOS has no floating label. Each field is a cell of a `FieldGroup` on the grouped background, and its placeholder names it: an [Input](/components/input), a [Textarea](/components/textarea) or a [Select](/components/select) in a `Field row hideLabel`, as the [Form Examples](/components/form-examples) do. The label stays for screen readers, a description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; the examples about the floating label itself (where it rests, the shape of the field) have no Phone view.
+On Phone a label does not float: iOS has no floating label. Each field is a cell of a `FieldGroup` on the grouped background, and its placeholder names it: an [Input](/components/input), a [Textarea](/components/textarea) or a [Select](/components/select) in a `Field row hideLabel`, as the [Settings Forms](/components/settings-forms) do. The label stays for screen readers, a description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; the examples about the floating label itself (where it rests, the shape of the field) have no Phone view.
 
 ## Examples
 
@@ -195,7 +195,7 @@ const [visible, setVisible] = useState(false)
 
 #### Phone input
 
-<ComponentPreview phonePresentation="none" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses <code>startAdornment</code> to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. The country list, its search predicate and trigger, <code>CountryOptionView</code>, <code>formatPhoneNumber</code> and <code>dialCodeOf</code> are helpers of the example. On Phone the country and the number are two linked rows of one group, as in the <a href="/components/form-examples#sign-up-phone">Sign up (phone)</a> form, so this example has no Phone view.</>} code={`const [country, setCountry] = useState("es")
+<ComponentPreview phonePresentation="none" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses <code>startAdornment</code> to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. The country list, its search predicate and trigger, <code>CountryOptionView</code>, <code>formatPhoneNumber</code> and <code>dialCodeOf</code> are helpers of the example. On Phone the country and the number are two linked rows of one group, as in the <a href="/components/auth-forms#sign-up-phone">Sign up (phone)</a> form, so this example has no Phone view.</>} code={`const [country, setCountry] = useState("es")
 const [phone, setPhone] = useState("")
 const phoneInputRef = useRef<HTMLInputElement>(null)
 

@@ -267,7 +267,7 @@ export const phone = `<div class="w-[360px] flex flex-col gap-3">
 
 <UsageBlock>{`import { FloatingLabelInput } from "@plexui/vue/components/FloatingLabelInput";`}</UsageBlock>
 
-On Phone a label does not float: iOS has no floating label. Each field is a cell of a `FieldGroup` on the grouped background, and its placeholder names it: an [Input](/vue/components/input), a [Textarea](/vue/components/textarea) or a [Select](/vue/components/select) in a `Field row hide-label`, as the [Form Examples](/vue/components/form-examples) do. The label stays for screen readers, a description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; the examples about the floating label itself (where it rests, the shape of the field) have no Phone view.
+On Phone a label does not float: iOS has no floating label. Each field is a cell of a `FieldGroup` on the grouped background, and its placeholder names it: an [Input](/vue/components/input), a [Textarea](/vue/components/textarea) or a [Select](/vue/components/select) in a `Field row hide-label`, as the [Settings Forms](/vue/components/settings-forms) do. The label stays for screen readers, a description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; the examples about the floating label itself (where it rests, the shape of the field) have no Phone view.
 
 ## Examples
 
@@ -313,7 +313,7 @@ Everything that is typed: more than one line, a password, or a phone number. Val
 
 #### Phone input
 
-<ComponentPreview phonePresentation="none" language="vue" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses the <code>startAdornment</code> slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. On Phone the country and the number are two linked rows of one group, as in the <a href="/vue/components/form-examples#sign-up-phone">Sign up (phone)</a> form, so this example has no Phone view.</>} code={phone} previewMinHeight={200}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses the <code>startAdornment</code> slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. On Phone the country and the number are two linked rows of one group, as in the <a href="/vue/components/auth-forms#sign-up-phone">Sign up (phone)</a> form, so this example has no Phone view.</>} code={phone} previewMinHeight={200}>
   <VueFloatingLabelInputDemo template={phone} stageClassName="py-10" state={{ country: "es", phone: "" }} />
 </ComponentPreview>
 
