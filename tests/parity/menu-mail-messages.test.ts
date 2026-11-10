@@ -50,7 +50,8 @@ describe('Menu on a phone is the 250pt panel of iOS', () => {
     test('the docs name the width and its token', () => {
         for (const docs of [reactDocs, vueDocs]) {
             expect(docs).toContain('is the 250px panel of iOS menus');
-            expect(docs).toContain('A menu and a submenu are 250px wide, as native iOS menus are');
+            expect(docs).toContain('A menu is 250px wide, as native iOS menus are');
+            expect(docs).toContain('It is 250px wide too, and one of `auto` width fits its content.');
             expect(docs).toContain('- `--menu-default-width`: default width before a content-level override (none on desktop, 250px with touch styles)');
             expect(docs).not.toMatch(/238px/);
         }

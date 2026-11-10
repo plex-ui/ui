@@ -588,8 +588,15 @@
 }
 
 @media (max-width: 767px) {
-  .SelectControl:has(> .IndicatorWrapper > .Clear) {
+  .SelectControl:has(> .IndicatorWrapper > .Clear):not([data-select-none-row]) {
     min-height: 44px;
+  }
+
+  /* A clearable Select unsets its value with its list's None row on a phone, as an iOS pop-up button does
+     (Select.tsx). Its clear button leaves when the page knows the window; until a server-rendered page hydrates it is
+     hidden here, so the value does not move. */
+  .SelectControl[data-select-none-row] > .IndicatorWrapper > .Clear {
+    display: none;
   }
 
   /* Disabled, the value and its chevrons are the tertiary label, as the iOS 27 kit's Pop-up Button (410:50387,

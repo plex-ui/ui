@@ -11,15 +11,15 @@ const names = { menu: "Menu", "context-menu": "Context Menu", select: "Select", 
 const components = { name: "Components", children: Object.entries(names).map(([slug, name]) => ({ ...page(slug), name })) }
 const empty = { name: "", children: [] }
 
-test("the sidebar keeps the four in one open group, in the order of the note, among the components by name", () => {
+// Owner 10.11 on the one open «Menus» group: «это хорошая идея делать вложенные контролы???? только в этом одном
+// месте? кажется не очень / посмотри как делает Apple и другие». No big kit nests one group in a flat list: shadcn,
+// Radix, Carbon and Fluent are flat by name, Apple, Ant, Polaris, Atlassian and Mantine group every page, Material 3
+// nests five families. The list stays flat by name, as before; the note and Related components tie the four together.
+test("the sidebar lists the four by name among the other components, with no group of their own", () => {
   const { tree } = buildDocsTreeNavigation({ docs: empty, components, icons: empty })
-  const list = tree.children.slice(1, 4)
-  expect(list.map((node) => node.name)).toEqual(["Input", "Menus", "Popover"])
-  const group = list[1]
-  expect(group.type).toBe("folder")
-  if (group.type !== "folder") return
-  expect(group.defaultOpen).toBe(true)
-  expect(group.children.map((node) => node.name)).toEqual(["Menu", "Context Menu", "Select", "Select Control"])
+  const list = tree.children.slice(1, 7)
+  expect(list.map((node) => node.name)).toEqual(["Context Menu", "Input", "Menu", "Popover", "Select", "Select Control"])
+  expect(list.every((node) => node.type === "page")).toBe(true)
 })
 
 test.each(["components", "vue/components"])("%s: each of the four pages says which to use, right after its usage", (dir) => {
@@ -42,13 +42,6 @@ test("each of the four links the other three first among its related components"
   }
 })
 
-test("the group's name reads as an item and its pages stand in, in the sidebar and the phone drawer", () => {
-  const css = readFileSync(`${process.cwd()}/app/globals.css`, "utf8")
-  for (const root of ["#nd-docs-layout.plex-docs-shell #nd-sidebar", "#nd-sidebar-mobile"]) {
-    expect(css).toContain(`${root} div:has(+ div > a[href$="/components/menu"])`)
-    expect(css).toContain(`${root} div:has(> a[href$="/components/menu"]) > a[data-active]`)
-  }
-  // The docs' CSS compiler drops a rule whose :is() holds a complex selector, so the group's rules spell each root out
-  expect(css).not.toMatch(/:is\([^)]*#nd-sidebar[^)]*\) div:has/)
-  expect(css).toMatch(/div:has\(> a\[href\$="\/components\/menu"\]\) > a\[data-active\] \{\s*padding-inline-start: 32px !important;/)
+test("the sidebar has no rules for a Menus group", () => {
+  expect(readFileSync(`${process.cwd()}/app/globals.css`, "utf8")).not.toContain('a[href$="/components/menu"]')
 })

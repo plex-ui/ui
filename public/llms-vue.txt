@@ -902,7 +902,8 @@ Props:
   - variant ("soft" | "outline" | "ghost") default: "outline" — Trigger variant
   - size (ControlSize) default: "md" — Trigger size (3xs to 3xl)
   - pill (boolean) default: false — Rounded trigger
-  - clearable (boolean) default: false — Show clear button
+  - clearable (boolean) default: false — Show clear button. On a phone, with the default trigger, a None row first in the list instead
+  - none-label (string) default: "None" — Label of the row that unsets a clearable select on a phone
   - block (boolean) default: variant !== "ghost" — Full width trigger
   - disabled (boolean) default: false — Disable select. A disabled select is not submitted or validated with its form
   - loading (boolean) default: false — Loading state; shows loading-placeholder and keeps the menu closed

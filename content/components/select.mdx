@@ -19,7 +19,7 @@ import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <MenuFamilyNote current="select" />
 
-On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Settings Forms](/components/settings-forms) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, and toward the larger part of the screen. The value is hidden under the list while it is open. The list is an iOS menu, so its rows are the rows of [Menu › On a phone](/components/menu#on-a-phone): a description is the row's subtitle, and so is a tooltip; the checkmark leads every row whatever `checkPosition` says (`"none"` still leaves it out), so the Phone previews leave out that control. It has no search, as an iOS menu has none: a long list scrolls. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
+On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Settings Forms](/components/settings-forms) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, and toward the larger part of the screen. The value is hidden under the list while it is open. The list is an iOS menu, so its rows are the rows of [Menu › On a phone](/components/menu#on-a-phone): a description is the row's subtitle, and so is a tooltip; the checkmark leads every row whatever `checkPosition` says (`"none"` still leaves it out), so the Phone previews leave out that control. It has no search, as an iOS menu has none: a long list scrolls. A `clearable` select with its default trigger has no clear button there, as an iOS pop-up button has none (a custom `trigger` owns its clearing): its list leads with a None row in a section of its own, checked while nothing is chosen, and choosing it unsets the value and closes the list, a multiple one too, as Reminders does. `noneLabel` names the row. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
 
 ## Examples
 
@@ -232,7 +232,8 @@ Searchable menus name their input `Search options` by default. Set `searchAriaLa
   { prop: "variant", type: '"soft" | "outline" | "ghost"', default: '"outline"', description: "Trigger variant" },
   { prop: "size", type: "ControlSize", default: '"md"', description: "Trigger size (3xs to 3xl)" },
   { prop: "pill", type: "boolean", default: "false", description: "Rounded trigger" },
-  { prop: "clearable", type: "boolean", default: "false", description: "Show clear button" },
+  { prop: "clearable", type: "boolean", default: "false", description: "Show clear button. On a phone, with the default trigger, a None row first in the list instead" },
+  { prop: "noneLabel", type: "string", default: '"None"', description: "Label of the row that unsets a clearable select on a phone" },
   { prop: "block", type: "boolean", default: 'variant !== "ghost"', description: "Full width trigger" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable select. A disabled select is not submitted or validated with its form" },
   { prop: "loading", type: "boolean", default: "false", description: "Loading state; shows loadingPlaceholder and keeps the menu closed" },

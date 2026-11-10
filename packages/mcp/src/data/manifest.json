@@ -5455,7 +5455,13 @@
           "name": "clearable",
           "type": "boolean",
           "default": "false",
-          "description": "Show clear button"
+          "description": "Show clear button. On a phone, with the default trigger, a None row first in the list instead"
+        },
+        {
+          "name": "noneLabel",
+          "type": "string",
+          "default": "\"None\"",
+          "description": "Label of the row that unsets a clearable select on a phone"
         },
         {
           "name": "block",
@@ -8236,5 +8242,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-10T20:53:09.560Z"
+  "generatedAt": "2026-11-10T21:25:25.529Z"
 }

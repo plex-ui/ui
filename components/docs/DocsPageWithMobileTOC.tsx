@@ -57,9 +57,6 @@ export function DocsPageWithMobileTOC({
       }}
       full={full}
       className={className}
-      // A page's place shows in the sidebar: the Menus group of Menu, Context Menu, Select and Select Control would
-      // otherwise head their React pages only (a Vue page's URL is not in the tree)
-      breadcrumb={{ enabled: false }}
       footer={footer ?? { enabled: false }}
     >
       {children}

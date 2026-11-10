@@ -203,10 +203,17 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
    */
   opticallyAlign?: "start" | "end"
   /**
-   * Display a clear action that allows the select to be unset.
+   * Display a clear action that allows the select to be unset. On a phone it is the first row of the list, `noneLabel`,
+   * as an iOS pop-up button unsets its value with a None row instead of a clear button; a custom `trigger` keeps its
+   * own clearing and gets no None row.
    * @default false
    */
   clearable?: boolean
+  /**
+   * Label of the row that unsets a `clearable` select on a phone
+   * @default None
+   */
+  noneLabel?: string
   /**
    * Extends select to 100% of available width.
    * @default true
@@ -314,6 +321,9 @@ type SelectContextValue<T extends Option> = (
   placeholder: string
   loadingPlaceholder: string
   allSelectedLabel: string
+  /** A phone's list leads with a row that unsets the value, in place of the trigger's clear button */
+  noneRow: boolean
+  noneLabel: string
   searchEmptyMessage: ReactNode
   searchPlaceholder: string
   searchAriaLabel: string
@@ -395,6 +405,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     placeholder = "Select...",
     loadingPlaceholder = "Loading...",
     allSelectedLabel = "All selected",
+    noneLabel = "None",
     pill: pillProp,
     listMinWidth,
     options,
@@ -489,6 +500,11 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
   // decides, as for the list's place: the list is portaled out of any PhoneLayout.
   const phone = usePhoneWindow()
   const searchable = optionsCount > 15 && !phone
+  // An iOS pop-up button has no clear button: its value is unset by a None row, first in the list and in a section of
+  // its own, checked while nothing is chosen (Reminders' Early Reminder, iOS-menu IMG_5821). The window decides, as for
+  // the search.
+  // A custom trigger owns its clearing, so only the default one gives its clear button to the row.
+  const noneRow = clearable && phone && !trigger
 
   // A block menu matches its field. An inline one, or one at the end of a Field row, fits its
   // options: no narrower than its trigger (the CSS fallback reads the trigger width), no wider than 300px.
@@ -533,6 +549,8 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       allSelectedLabel,
       loading,
       clearable,
+      noneRow,
+      noneLabel,
       variant,
       pill,
       size,
@@ -580,6 +598,8 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       allSelectedLabel,
       loading,
       clearable,
+      noneRow,
+      noneLabel,
       variant,
       pill,
       size,
@@ -646,6 +666,7 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
     loading,
     disabled,
     clearable,
+    noneRow,
     name,
     variant,
     pill,
@@ -747,7 +768,10 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
       StartIcon={TriggerStartIcon}
       opticallyAlign={opticallyAlign}
       dropdownIconType={dropdownIconType}
-      onClearClick={clearable ? handleClearClick : undefined}
+      // On a phone the list's None row unsets the value: an iOS pop-up button has no clear button. The mark lets CSS
+      // hide it from the first paint, before a server-rendered page knows the window (SelectControl.module.css)
+      onClearClick={clearable && !noneRow ? handleClearClick : undefined}
+      data-select-none-row={clearable ? "" : undefined}
       onInteract={onOpenChange}
       interactOnEnter
       onKeyDown={handleKeyDown}
@@ -993,13 +1017,15 @@ type CustomSelectMenuProps = {
 }
 
 const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
-  const { multiple, value, options, searchable, searchPredicateRef, listWidth } = useSelectContext()
+  const { multiple, value, options, searchable, searchPredicateRef, listWidth, noneRow } = useSelectContext()
   const requestCloseRef = useRef<() => void>(() => onOpenChange(false))
   const menuRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [highlightedValue, setHighlightedValue] = useState<string>(() => {
+    // With nothing chosen, the None row is the checked one
+    if (noneRow && !hasChosenOption(options, value)) return NONE_OPTION_VALUE
     const selectedValue = multiple ? value[0] : value
     return (selectedValue || getFirstValidOption(options)?.value) ?? ""
   })
@@ -1061,6 +1087,13 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
           highlightOption(maybeFirstValue, selectedElement)
           return
         }
+      }
+
+      // Without a value the None row is the checked one
+      const noneElement = noneRow && !hasChosenOption(options, value) ? findOptionByValue(NONE_OPTION_VALUE, menuElement) : null
+      if (noneElement) {
+        highlightOption(NONE_OPTION_VALUE, noneElement)
+        return
       }
 
       // If value isn't set, or the selected node wasn't found in the DOM,
@@ -1269,10 +1302,29 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
     // Reset scroll position to the top
     listRef.current.scrollTop = 0
 
-    // Highlight first item in the list
+    // Highlight first item in the list, or the None row while nothing is chosen
     const maybeFirstOption = getFirstValidOption(filteredOptions)
-    if (maybeFirstOption) setHighlightedValue(maybeFirstOption.value)
+    if (noneRow && !hasChosenOption(options, value)) setHighlightedValue(NONE_OPTION_VALUE)
+    else if (maybeFirstOption) setHighlightedValue(maybeFirstOption.value)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally a reaction to the shown options
   }, [filteredOptions])
+
+  // The window crossed the phone's width while the list was open: the None row came or went. With nothing chosen the
+  // highlight moves to it; when it goes, a highlight on it moves to the chosen option or the first one.
+  const hadNoneRowRef = useRef(noneRow)
+  useLayoutEffect(() => {
+    if (hadNoneRowRef.current === noneRow) return
+    hadNoneRowRef.current = noneRow
+    if (noneRow) {
+      if (!hasChosenOption(options, value)) setHighlightedValue(NONE_OPTION_VALUE)
+      return
+    }
+    const selectedValue = multiple ? value[0] : value
+    setHighlightedValue((current) =>
+      current === NONE_OPTION_VALUE ? ((selectedValue || getFirstValidOption(filteredOptions)?.value) ?? "") : current,
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally a reaction to the row coming or going
+  }, [noneRow])
 
   // The focused element (the search input, or the list without one) points
   // assistive tech at the highlighted option, when that option is rendered
@@ -1290,8 +1342,8 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
     } else {
       target.removeAttribute("aria-activedescendant")
     }
-    // The search coming or going moves the keys, so the pointer follows them
-  }, [highlightedValue, filteredOptions, searchable])
+    // The search coming or going moves the keys, so the pointer follows them, and the None row coming or going
+  }, [highlightedValue, filteredOptions, searchable, noneRow])
 
   return (
     <CustomSelectMenuContext value={store}>
@@ -1301,7 +1353,7 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
         ref={menuRef}
         // Without search, the list takes focus (and the tab stop); the container
         // stays focusable so a click on it keeps the keys here
-        tabIndex={!searchable && filteredOptions.length ? -1 : 0}
+        tabIndex={!searchable && (filteredOptions.length || noneRow) ? -1 : 0}
       >
         {searchable && (
           <CustomSelectSearch value={searchTerm} onChange={setSearchTerm} hasResults={!!filteredOptions.length} />
@@ -1386,6 +1438,8 @@ const CustomSelectList = <T extends Option>({
     searchEmptyMessage,
     multiple,
     searchable,
+    noneRow,
+    noneLabel,
     triggerId,
     trigger,
     "aria-label": ariaLabel,
@@ -1393,7 +1447,8 @@ const CustomSelectList = <T extends Option>({
   } = useSelectContext()
   const { listId, listRef } = useCustomSelectMenuContext()
 
-  if (!filteredOptions.length) {
+  // A phone's None row still unsets a value when there are no options to show
+  if (!filteredOptions.length && !noneRow) {
     return typeof searchEmptyMessage === "string" ? (
       <p className={s.SearchEmpty} data-text-only>
         {searchEmptyMessage}
@@ -1428,6 +1483,13 @@ const CustomSelectList = <T extends Option>({
       // Without search, the list is the focused element
       tabIndex={searchable ? undefined : 0}
     >
+      {/* A phone's None row, in a section of its own as in Reminders (IMG_5821); the section is no group to assistive
+          tech, so the row is an option of the list */}
+      {noneRow && (
+        <div className={s.NoneSection} role="none">
+          <CustomSelectOption value={NONE_OPTION_VALUE} label={noneLabel} none />
+        </div>
+      )}
       {options}
       {hasHardLimit && (
         <CustomSelectHardLimit numHidden={filteredOptions.length - HARD_OPTIONS_LIMIT} />
@@ -1585,11 +1647,15 @@ const CustomSelectExpandableLimit = ({
 
 const INTERNAL_DOM_SELECTION_DATA_ATTR = "data-option-id"
 
-const CustomSelectOption = (option: Option) => {
+// The None row's id among the options: it never reaches `onChange`, which gets an empty value instead
+const NONE_OPTION_VALUE = "plexui-select-none"
+
+const CustomSelectOption = ({ none = false, ...option }: Option & { /** The phone's None row */ none?: boolean }) => {
   const {
     optionClassName,
     OptionView,
     value: propsValue,
+    options,
     multiple,
     onSelectRef,
     checkPosition,
@@ -1602,11 +1668,20 @@ const CustomSelectOption = (option: Option) => {
 
   // NOTE: SingleSelect mode keeps the opening value instead of the live `propsValue`
   // to avoid selecting the item as the select closes.
-  const isSelected = multiple ? propsValue.includes(value) : value === openingValue
+  // The None row is checked while nothing is chosen: no value, or none that an option has (the trigger shows the
+  // placeholder then)
+  const isSelected = none
+    ? !hasChosenOption(options, multiple ? propsValue : openingValue)
+    : multiple ? propsValue.includes(value) : value === openingValue
   const isHighlighted = value === highlightedValue
 
   const handlePointerUp = () => {
-    if (multiple) {
+    if (none) {
+      // Unsets the value, as the clear button does, and closes the list, a multiple one too: an iOS menu closes on a
+      // choice, and None leaves nothing more to choose (owner 10.11)
+      onSelectRef.current({ value: "", label: "" })
+      requestCloseRef.current?.()
+    } else if (multiple) {
       // Trigger the change ref, optionally as a remove
       onSelectRef.current(option, isSelected)
     } else {
@@ -1665,7 +1740,7 @@ const CustomSelectOption = (option: Option) => {
         )}
         <div className={s.OptionLeading}>
           <div className={s.OptionInner}>
-            <OptionView {...option} />
+            {none ? option.label : <OptionView {...option} />}
             {tooltip && (
               <Tooltip content={tooltip.content} maxWidth={tooltip.maxWidth} side="right">
                 <Info className={s.OptionTooltipIcon} />
@@ -1842,6 +1917,10 @@ const getOptionByValue = <T extends Option>(options: Options<T>, value: string):
 
   return found
 }
+
+// Whether a value names an option: a value no option has shows the placeholder, as no value does
+const hasChosenOption = <T extends Option>(options: Options<T>, value: string | string[]): boolean =>
+  Array.isArray(value) ? getOptionsByValues(options, value).length > 0 : !!getOptionByValue(options, value)
 
 const getOptionsByValues = <T extends Option>(options: Options<T>, values: string[]): T[] => {
   let found: T[] = []

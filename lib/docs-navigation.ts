@@ -270,35 +270,13 @@ function toSidebarItems(entries: SidebarEntry[]): PageTree.Item[] {
 const COMPONENTS_INDEX_URL = '/components';
 const ICONS_INDEX_URL = '/icons';
 
-/**
- * One iOS menu (UIMenu) opened three ways, plus the look of one of them: Menu opens it from a button of actions,
- * Select from a button that shows a value (a pop-up button), Context Menu from a touch and hold, and Select
- * Control is that value button alone. Apple files them together too (HIG: Menus and actions), so the sidebar keeps
- * them in one open group, Select Control next to Select (owner 10.11: «чтобы было понятно что и где искать»).
- */
-export const MENU_FAMILY_SLUGS = ['menu', 'context-menu', 'select', 'select-control'] as const;
-const MENU_FAMILY_LABEL = 'Menus';
-
-function buildComponentsList(componentsTree: PageTree.Root): PageTree.Node[] {
+function buildComponentsList(componentsTree: PageTree.Root): PageTree.Item[] {
   const all = flattenRootPages(componentsTree).filter(
     (page) => page.url !== COMPONENTS_INDEX_URL
   );
-  const family = MENU_FAMILY_SLUGS.map((slug) =>
-    all.find((page) => page.url === `${COMPONENTS_INDEX_URL}/${slug}`)
-  ).filter((page): page is PageTree.Item => page !== undefined);
-  const nodes: PageTree.Node[] = all.filter((page) => !family.includes(page));
-  if (family.length > 0) {
-    nodes.push({
-      $id: 'components-menus',
-      type: 'folder',
-      name: MENU_FAMILY_LABEL,
-      defaultOpen: true,
-      collapsible: false,
-      children: family,
-    });
-  }
-  const label = (node: PageTree.Node) => toLabel(node.name, '');
-  return nodes.sort((a, b) => label(a).localeCompare(label(b)));
+  return all.sort((a, b) =>
+    toLabel(a.name, '').localeCompare(toLabel(b.name, ''))
+  );
 }
 
 function buildIconsList(iconsTree: PageTree.Root): PageTree.Item[] {
@@ -315,8 +293,7 @@ function buildIconsList(iconsTree: PageTree.Root): PageTree.Item[] {
  * icons) into a single shadcn/ui-style sidebar with five labeled
  * groups. Each source contributes its own slice:
  *
- *   ─ Components ─        flattened from componentsTree (/components/*), by name, with
- *                         the Menus group (MENU_FAMILY_SLUGS) as one open folder
+ *   ─ Components ─        flattened from componentsTree (/components/*)
  *   ─ Get Started ─       hardcoded URLs in DOCS_GROUPS (under /docs)
  *   ─ Foundations ─       hardcoded URLs in DOCS_GROUPS (under /docs)
  *   ─ AI & Distribution ─ hardcoded URLs in DOCS_GROUPS (under /docs)

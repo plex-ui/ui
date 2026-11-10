@@ -8,8 +8,9 @@ type Slug = 'menu' | 'context-menu' | 'select' | 'select-control';
  * The "which to use" paragraph of the four pages of the iOS menu (owner 10.11: «чтобы было понятно что и где
  * искать»). iOS has one menu (UIMenu) and opens it three ways: from a button of actions (Menu), from a button that
  * shows a value, a pop-up button (Select), and from a touch and hold on an element (Context Menu); Select Control is
- * that value button alone. The sidebar keeps the four in one group (lib/docs-navigation.ts), and the phone row they
- * share is described once, on Menu.
+ * that value button alone. The sidebar lists them by name with the other components, as flat kits do (owner 10.11:
+ * one nested group there looked out of place), so this line and Related components tie them together, and the phone
+ * row they share is described once, on Menu.
  */
 export function MenuFamilyNote({ current, framework = 'react' }: { current: Slug; framework?: 'react' | 'vue' }) {
   const base = framework === 'vue' ? '/vue/components' : '/components';

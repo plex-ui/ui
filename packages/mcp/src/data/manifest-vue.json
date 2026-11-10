@@ -5303,7 +5303,13 @@
           "name": "clearable",
           "type": "boolean",
           "default": "false",
-          "description": "Show clear button"
+          "description": "Show clear button. On a phone, with the default trigger, a None row first in the list instead"
+        },
+        {
+          "name": "none-label",
+          "type": "string",
+          "default": "\"None\"",
+          "description": "Label of the row that unsets a clearable select on a phone"
         },
         {
           "name": "block",
@@ -8162,5 +8168,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-10T20:53:10.822Z"
+  "generatedAt": "2026-11-10T21:25:27.913Z"
 }

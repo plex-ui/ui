@@ -655,4 +655,38 @@
     top: -11px;
     inset-inline: 8px;
   }
+
+  /* A clearable list's None row (Select.tsx) is a section of its own, as a pop-up button's None is (Reminders' Early
+     Reminder, iOS-menu IMG_5821: None, a line, the times). Its line is a menu section's, as the actions' is: 24pt
+     from the panel's edges, 10pt above and below it. Before groups it leaves the line to the first group's heading,
+     which draws one. */
+  .NoneSection {
+    position: relative;
+    padding-bottom: 21px;
+  }
+
+  .NoneSection::after {
+    position: absolute;
+    inset: auto 8px 10px;
+    height: 1px;
+    background: var(--menu-separator-background-color);
+    content: "";
+  }
+
+  .NoneSection:has(+ .OptionGroup) {
+    padding-bottom: 0;
+  }
+
+  .NoneSection:has(+ .OptionGroup)::after {
+    content: none;
+  }
+
+  /* With no options the row stands alone */
+  .NoneSection:last-child {
+    padding-bottom: 0;
+  }
+
+  .NoneSection:last-child::after {
+    content: none;
+  }
 }

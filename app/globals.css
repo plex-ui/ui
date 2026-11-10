@@ -571,37 +571,6 @@ html.dark #nd-docs-layout.plex-docs-shell #nd-sidebar a[data-active]:visited {
   padding-inline-end: 12px !important;
 }
 
-/* The Menus group (lib/docs-navigation.ts): Menu, Context Menu, Select and Select Control under one name, in the
-   desktop sidebar and the phone drawer alike. The name reads as an item, in the items' type and color; the four
-   pages stand 12px further in, along the group's guide line under the name's first letter. */
-#nd-docs-layout.plex-docs-shell #nd-sidebar div:has(+ div > a[href$="/components/menu"]),
-#nd-sidebar-mobile div:has(+ div > a[href$="/components/menu"]) {
-  min-height: 0;
-  padding: 6px 12px 6px 20px !important;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-  letter-spacing: -0.14px;
-  color: #282828;
-}
-
-[data-theme='dark'] #nd-docs-layout.plex-docs-shell #nd-sidebar div:has(+ div > a[href$="/components/menu"]),
-[data-theme='dark'] #nd-sidebar-mobile div:has(+ div > a[href$="/components/menu"]),
-html.dark #nd-docs-layout.plex-docs-shell #nd-sidebar div:has(+ div > a[href$="/components/menu"]),
-html.dark #nd-sidebar-mobile div:has(+ div > a[href$="/components/menu"]) {
-  color: #c0c0c0;
-}
-
-#nd-docs-layout.plex-docs-shell #nd-sidebar div:has(> a[href$="/components/menu"]) > a[data-active],
-#nd-sidebar-mobile div:has(> a[href$="/components/menu"]) > a[data-active] {
-  padding-inline-start: 32px !important;
-}
-
-#nd-docs-layout.plex-docs-shell #nd-sidebar div:has(> a[href$="/components/menu"])::before,
-#nd-sidebar-mobile div:has(> a[href$="/components/menu"])::before {
-  inset-inline-start: 20px;
-}
-
 /* Sidebar hover — subtle background only, NO color change */
 #nd-docs-layout.plex-docs-shell #nd-sidebar a[data-active]:hover {
   background: rgba(40, 40, 40, 0.05) !important;
