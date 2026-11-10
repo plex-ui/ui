@@ -90,6 +90,14 @@ describe.each(["React", "Vue"])("%s phone edit flow", (framework) => {
       // The phone's top bar stays in the DOM, hidden by CSS from 768px (jsdom applies none of it).
       const form = page.getByRole<HTMLButtonElement>("button", { name: "Continue", exact: true }).form!
       expect(within(form).queryByRole("button", { name: /back/i })).toBeNull()
+      // Plan 177, owner 10.11 ("поле страны сломано"): the desktop country field is the Log in (phone) trigger, a
+      // 52px floating-input pill with the flag, not the default 48px Select control; the number shows its dial code.
+      const country = within(form).getByRole("button", { name: "United States (+1)", exact: true })
+      expect(country.getAttribute("aria-expanded")).toBe("false")
+      expect(country.style.height).toBe("3.25rem")
+      expect(country.style.borderRadius).toBe("var(--floating-input-border-radius)")
+      expect(form.querySelector("[data-slot='select-control']")).toBeNull()
+      expect(within(form).getByText("+1", { exact: true })).toBeTruthy()
       await submit()
       await waitFor(() => expect(phone().readOnly).toBe(true))
       expect(phone().value).toBe("+1 555 111 2222")
@@ -99,6 +107,34 @@ describe.each(["React", "Vue"])("%s phone edit flow", (framework) => {
     expect(direction()).toBe("back")
     await waitFor(() => expect(phone().readOnly).toBe(true))
     expect(phone().value).toBe("+1 555 987 6543")
+  })
+
+  test.each([false, true])("the Edit country list keeps its 360px minimum only on a desktop (wide %s)", async (wide) => {
+    // Plan 177, Codex 10.11: on a 320px phone a 360px list ran past the screen; the phone list follows its row.
+    viewport.wide = wide
+    if (framework === "React") render(<FloatingLabelInputPasswordFormDemo />)
+    else {
+      const initial = expression("passwordState", "password")
+      if (!initial || typeof initial !== "object") throw new Error("Expected password state")
+      const state = reactive({ ...formExamplesScope, ...initial, wide, dialog: false, phonePreview: false, phoneHost: false, surface: "grouped" })
+      mountVue(() => h(defineComponent({ components: vueComponents, setup: () => state, template: passwordTemplate })))
+      await flushVue()
+    }
+    const page = within(document.body)
+    await interact(() => fireEvent.click(page.getByRole("button", { name: "Edit", exact: true })))
+    const country = wide
+      ? page.getByRole("button", { name: "United States (+1)", exact: true })
+      : document.querySelector<HTMLElement>("[aria-label='Country']")!
+    await interact(() => {
+      fireEvent.pointerDown(country, { button: 0, pointerType: "mouse" })
+      fireEvent.click(country, { button: 0, detail: 1 })
+    })
+    const list = await waitFor(() => {
+      const element = document.querySelector<HTMLElement>("[style*='--select-list-min-width'], [role='listbox']")
+      if (!element) throw new Error("The country list did not open")
+      return element.closest<HTMLElement>("[style*='--select-list']") ?? element
+    })
+    expect(list.style.getPropertyValue("--select-list-min-width")).toBe(wide ? "360px" : "")
   })
 
   test("Country keeps a permanent accessible name and connected error without a visible label", async () => {

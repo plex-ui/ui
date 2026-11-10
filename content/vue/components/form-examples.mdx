@@ -252,7 +252,7 @@ export const countrySelect = `<component :is="AuthFields">
         :options="phoneCountryOptions"
         search-placeholder="Search countries..."
         :search-predicate="phoneCountrySearchPredicate"
-        :list-min-width="360"
+        :list-min-width="wide ? 360 : undefined"
         block
         :variant="wide ? 'outline' : 'ghost'"
         :trigger-class-name="wide ? undefined : authFieldsStyles.Country"
@@ -359,16 +359,27 @@ export const password = `<component :is="AuthFormStage" :navigation="wide ? unde
       <form :id="formId" class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true; if (editingPhone && isPhoneValid(draftPhone)) { phoneCountry = draftCountry; phone = draftPhone; returnToEdit = true; editingPhone = false; navigationStep++; focusPhoneEditor = false; submitted = false }">
         <component :is="AuthFields" v-if="editingPhone" class="flex flex-col gap-3">
           <Select v-model:value="draftCountry" :options="phoneCountryOptions" aria-label="Country"
-            search-placeholder="Search countries..." size="3xl" block check-position="end"
+            search-placeholder="Search countries..." :search-predicate="phoneCountrySearchPredicate" :list-min-width="wide ? 360 : undefined"
+            size="3xl" block check-position="end"
             :variant="wide ? 'outline' : 'ghost'" :trigger-class-name="wide ? undefined : authFieldsStyles.Country"
-            @change="submitted = false; $refs.phoneEditInput?.focus()">
+            @change="submitted = false; focusLater($refs.phoneEditInput)">
+            <template #optionView="{ value, label }">
+              <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
+            </template>
             <template #triggerView="{ value, label }">
               <component :is="PhoneCountryLabel" :label="countryOf(value)?.label ?? label" :dial-code="countryOf(value)?.dialCode" />
+            </template>
+            <template v-if="wide" #trigger="{ open, onToggle }">
+              <component :is="PhoneCountryTrigger" :country="draftCountry" :open="open" @click="onToggle" />
             </template>
           </Select>
           <component :is="AuthInput" ref="phoneEditInput" label="Phone number" type="tel" inputmode="tel" autocomplete="tel-national"
             :value="draftPhone" @update:value="(value) => { draftPhone = formatPhoneNumber(value, draftCountry); submitted = false }"
-            :invalid="submitted && !isPhoneValid(draftPhone)" :error-message="submitted && !isPhoneValid(draftPhone) ? 'Phone number is not valid.' : undefined" />
+            :invalid="submitted && !isPhoneValid(draftPhone)" :error-message="submitted && !isPhoneValid(draftPhone) ? 'Phone number is not valid.' : undefined">
+            <template v-if="wide" #startAdornment>
+              <span class="text-tertiary whitespace-nowrap select-none mr-2">{{ dialCodeOf(draftCountry) }}</span>
+            </template>
+          </component>
         </component>
         <template v-else-if="wide">
         <component :is="AuthInput" label="Phone number" read-only :value="dialCodeOf(phoneCountry) + ' ' + phone">
@@ -441,6 +452,8 @@ import { AuthFields } from './AuthFields';
 import { AuthInput } from './AuthInput';
 import authFieldsStyles from './AuthFields.module.css';
 import { COUNTRY_LOOKUP, COUNTRY_OPTIONS as phoneCountryOptions, formatPhoneNumber, stripFormatting } from './PhoneInputDemos';
+// FlagIcon, countryLabelStyles, countryOf, PhoneCountryLabel, PhoneCountryTrigger, phoneCountrySearchPredicate
+// and focusLater are the setup-scope helpers of the Log in (phone) form.
 
 const wide = useBreakpoint('md');
 const dialog = ref(false);
@@ -1253,7 +1266,7 @@ Variants uses the [ProductVariants helper](https://github.com/plex-ui/ui/blob/ma
 
 ## Enter password
 
-<ComponentPreview phonePresentation="screen" language="vue" details={<>A password entry step with a read-only phone field (with "Edit" button), a password input with a visibility toggle, and a "Forgot password?" link. On phones, the footer slot pins Continue in a bottom <code>Toolbar</code> of the Page or Sheet. Both slots receive the same unique formId, so the action submits its own form. Desktop keeps Continue inside the form.</>} code={passwordCode} previewMinHeight={420}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<>A password entry step with a read-only phone field (with "Edit" button, which opens the country and phone controls of the <a href="#log-in-phone">Log in (phone)</a> form), a password input with a visibility toggle, and a "Forgot password?" link. On phones, the footer slot pins Continue in a bottom <code>Toolbar</code> of the Page or Sheet. Both slots receive the same unique formId, so the action submits its own form. Desktop keeps Continue inside the form.</>} code={passwordCode} previewMinHeight={420}>
   <VueFormExampleDemo auth template={password} stageClassName={STAGE} state={passwordState} controls={[dialogControl]} />
 </ComponentPreview>
 

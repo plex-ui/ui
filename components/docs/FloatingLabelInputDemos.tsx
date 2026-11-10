@@ -22,7 +22,7 @@ import { AuthFields } from './AuthFields';
 import { AuthLegalNotice } from './AuthLegalNotice';
 import authFieldsStyles from './AuthFields.module.css';
 import { FormScreen } from './FormRowsDemos';
-import { COUNTRY_LOOKUP, COUNTRY_OPTIONS } from './PhoneInputDemos';
+import { COUNTRY_LOOKUP } from './PhoneInputDemos';
 import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 import { usePhoneViewport } from './PreviewEmbed';
 import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
@@ -1443,7 +1443,7 @@ export function FloatingLabelInputPhoneLoginFormDemo() {
           searchPlaceholder="Search countries..."
           OptionView={PhoneCountryOptionView}
           searchPredicate={phoneCountrySearchPredicate}
-          listMinWidth={360}
+          listMinWidth={wide ? 360 : undefined}
           block
           size="3xl"
           trigger={wide ? trigger : undefined}
@@ -1564,7 +1564,7 @@ export function FloatingLabelInputPhoneSignupFormDemo() {
           searchPlaceholder="Search countries..."
           OptionView={PhoneCountryOptionView}
           searchPredicate={phoneCountrySearchPredicate}
-          listMinWidth={360}
+          listMinWidth={wide ? 360 : undefined}
           block
           size="3xl"
           trigger={wide ? trigger : undefined}
@@ -1620,6 +1620,7 @@ export function FloatingLabelInputPasswordFormDemo() {
   const [draftCountry, setDraftCountry] = useState(phoneCountry);
   const [draftPhone, setDraftPhone] = useState(phone);
   const phoneInput = useRef<HTMLInputElement>(null);
+  const countryTrigger = usePhoneCountryTrigger(draftCountry);
   const returnToEdit = useRef(false);
   const showError = submitted && !password;
   const digits = stripFormatting(draftPhone);
@@ -1684,12 +1685,14 @@ export function FloatingLabelInputPasswordFormDemo() {
           <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
             {editingPhone ? (
               <AuthFields className="flex flex-col gap-3">
-                <Select value={draftCountry} options={COUNTRY_OPTIONS} aria-label="Country" TriggerView={PhoneCountryTriggerView}
-                  onChange={(option) => { setDraftCountry(option.value); setSubmitted(false); phoneInput.current?.focus(); }}
-                  searchPlaceholder="Search countries..." size="3xl" block checkPosition="end"
+                <Select value={draftCountry} options={PHONE_COUNTRY_OPTIONS} aria-label="Country"
+                  onChange={(option) => { setDraftCountry(option.value); setSubmitted(false); setTimeout(() => phoneInput.current?.focus(), 0); }}
+                  searchPlaceholder="Search countries..." OptionView={PhoneCountryOptionView} searchPredicate={phoneCountrySearchPredicate}
+                  listMinWidth={wide ? 360 : undefined} size="3xl" block checkPosition="end" trigger={wide ? countryTrigger : undefined} TriggerView={PhoneCountryTriggerView}
                   variant={wide ? 'outline' : 'ghost'} triggerClassName={wide ? undefined : authFieldsStyles.Country} />
                 <AuthInput ref={phoneInput} label="Phone number" type="tel" inputMode="tel" autoComplete="tel-national"
                   value={draftPhone} onChange={(event) => { setDraftPhone(formatPhoneNumber(event.target.value, draftCountry)); setSubmitted(false); }}
+                  startAdornment={wide ? <span className="text-tertiary whitespace-nowrap select-none mr-2">{DIAL_CODES[draftCountry] || '+1'}</span> : undefined}
                   invalid={phoneError} errorMessage={phoneError ? 'Phone number is not valid.' : undefined} />
               </AuthFields>
             ) : wide ? <>{phoneSummary}<div>{passwordInput}{forgotPassword}</div></> : <>

@@ -534,7 +534,7 @@ const presentation = useScreenPresentation();
 
 ## Enter password
 
-<ComponentPreview phonePresentation="screen" details={<>Edit opens the existing country and phone controls in the same Page or Sheet. Continue validates and applies the number. On phones, Back in the top bar keeps the previous number and unfinished password, and Continue remains in the footer; a desktop has no Back buttons, so Continue returns to the password.</>} code={`'use client';
+<ComponentPreview phonePresentation="screen" details={<>Edit opens the country and phone controls of the <a href="#log-in-phone">Log in (phone)</a> form in the same Page or Sheet. Continue validates and applies the number. On phones, Back in the top bar keeps the previous number and unfinished password, and Continue remains in the footer; a desktop has no Back buttons, so Continue returns to the password.</>} code={`'use client';
 import { useId, useRef, useState } from 'react';
 import { Button } from '@plexui/ui/components/Button';
 import { Select } from '@plexui/ui/components/Select';
@@ -545,7 +545,9 @@ import { AuthFields } from './AuthFields';
 import authFieldsStyles from './AuthFields.module.css';
 import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
 import { controlsTableStyle } from './ButtonDemos';
-import { COUNTRY_LOOKUP, COUNTRY_OPTIONS, formatPhoneNumber, stripFormatting } from './PhoneInputDemos';
+import { COUNTRY_LOOKUP, formatPhoneNumber, stripFormatting } from './PhoneInputDemos';
+// phoneCountryOptions, phoneCountrySearchPredicate, CountryOptionView, PhoneCountryTriggerView,
+// usePhoneCountryTrigger and dialCodeOf are the helpers of the Float Input phone example.
 
 type FormSubmitEvent = { preventDefault: () => void };
 
@@ -563,6 +565,7 @@ export function FloatingLabelInputPasswordFormDemo() {
   const [draftCountry, setDraftCountry] = useState(phoneCountry);
   const [draftPhone, setDraftPhone] = useState(phone);
   const phoneInput = useRef<HTMLInputElement>(null);
+  const countryTrigger = usePhoneCountryTrigger(draftCountry);
   const returnToEdit = useRef(false);
   const showError = submitted && !password;
   const digits = stripFormatting(draftPhone);
@@ -627,12 +630,14 @@ export function FloatingLabelInputPasswordFormDemo() {
           <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
             {editingPhone ? (
               <AuthFields className="flex flex-col gap-3">
-                <Select value={draftCountry} options={COUNTRY_OPTIONS} aria-label="Country" TriggerView={PhoneCountryTriggerView}
-                  onChange={(option) => { setDraftCountry(option.value); setSubmitted(false); phoneInput.current?.focus(); }}
-                  searchPlaceholder="Search countries..." size="3xl" block checkPosition="end"
+                <Select value={draftCountry} options={phoneCountryOptions} aria-label="Country"
+                  onChange={(option) => { setDraftCountry(option.value); setSubmitted(false); setTimeout(() => phoneInput.current?.focus(), 0); }}
+                  searchPlaceholder="Search countries..." OptionView={CountryOptionView} searchPredicate={phoneCountrySearchPredicate}
+                  listMinWidth={wide ? 360 : undefined} size="3xl" block checkPosition="end" trigger={wide ? countryTrigger : undefined} TriggerView={PhoneCountryTriggerView}
                   variant={wide ? 'outline' : 'ghost'} triggerClassName={wide ? undefined : authFieldsStyles.Country} />
                 <AuthInput ref={phoneInput} label="Phone number" type="tel" inputMode="tel" autoComplete="tel-national"
                   value={draftPhone} onChange={(event) => { setDraftPhone(formatPhoneNumber(event.target.value, draftCountry)); setSubmitted(false); }}
+                  startAdornment={wide ? <span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCodeOf(draftCountry)}</span> : undefined}
                   invalid={phoneError} errorMessage={phoneError ? 'Phone number is not valid.' : undefined} />
               </AuthFields>
             ) : wide ? <>{phoneSummary}<div>{passwordInput}{forgotPassword}</div></> : <>
