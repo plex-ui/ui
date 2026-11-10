@@ -746,7 +746,7 @@
 
 /* =============================================
   Phone (iOS 27). iOS switches the views of a screen with one control, the segmented control: plain
-  in content (SwiftUI Picker .segmented, iOS 27.2) and on glass in a bar (kit Toolbars 5815:55167);
+  in content (SwiftUI Picker .segmented, iOS 27.2) and on glass in a bar (iOS 27.2, Calendar IMG_5433);
   it has no underline tabs and no vertical segments.
 ============================================= */
 @media (max-width: 767px) {
@@ -765,8 +765,9 @@
     grid-auto-columns: minmax(0, 1fr);
   }
 
-  /* Disabled as a whole, the control shows at half opacity, its capsule, selection and labels alike (kit iOS 27
-     Segmented Controls 10460:145, where the disabled control is the enabled one at 50%), not its labels alone. */
+  /* Disabled as a whole, the control shows at half opacity, its capsule, selection and labels alike, as native
+     iOS 27.2 draws it (a disabled SwiftUI Picker: track 246 and labels 127 over white, 14 and 128 over black) and
+     kit iOS 27 does (Segmented Controls 10460:145), not its labels alone. */
   .Tabs[data-disabled][data-orientation="horizontal"] {
     opacity: 0.5;
 
@@ -795,7 +796,7 @@
   }
 
   /* The capsule's material and ends (touch.css): none in content; in a bar the sheen, rim and blur of the shared
-     mobile glass, segments 8px from the ends and the selection 4px past its segment toward them, as in the kit.
+     mobile glass, segments 8px from the ends and the selection 4px past its segment toward them, as in Calendar.
      Without touch.css the track keeps its fill and the selection its segment. */
   .Tabs:where([data-orientation="horizontal"]) {
     padding-inline: calc(var(--segmented-control-gutter) + var(--segmented-control-thumb-outset, 0px));
@@ -813,14 +814,19 @@
   }
 
   /* The native segment already includes its final gutter; pill scaling is desktop-only. */
-  /* The label keeps the base colors, the selected one primary and the others secondary, and touch.css sets the
-     secondary role: primary in content, where iOS 27.2 draws every label of the plain control in the label color,
-     and the phone's secondary role in a bar, as the kit's glass control draws them (26 and 114) and Safari's tab
-     groups show (0 and 109, iOS3 IMG_5562/5566). No tracking: the system font applies its own, as native text widths show
+  /* The label keeps the base colors, the selected one primary and the others secondary, and touch.css makes the
+     secondary role primary: iOS 27.2 draws every label of the control in the label color, in content and in a bar,
+     as Calendar does in its sheet header (IMG_5433). No tracking: the system font applies its own, as native text widths show
      (17pt "All Inboxes" 241 at @3x in Mail, 242 in Chromium without it). */
   .Tabs[data-orientation="horizontal"] .Tab {
     padding-inline: var(--segmented-control-option-gutter);
     border-radius: var(--segmented-control-option-radius);
+  }
+
+  /* A symbol alone in its segment takes the symbol size of iOS 27.2 (touch.css); without it, the icon size. */
+  .Tabs[data-orientation="horizontal"] .TabContent > svg:where(:only-child:not([data-no-autosize])) {
+    width: var(--segmented-control-symbol-size, var(--segmented-control-icon-size));
+    height: var(--segmented-control-symbol-size, var(--segmented-control-icon-size));
   }
 
   /* Vertical tabs of either variant are an inset grouped list (kit Lists, Row 550:50430): rows of

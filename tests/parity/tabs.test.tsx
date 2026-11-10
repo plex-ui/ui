@@ -1185,11 +1185,11 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     expect(tokens).toContain("--segmented-control-mobile-plain-thumb-background: light-dark(var(--gray-0), var(--alpha-25));")
   })
 
-  test("in a bar the track is the glass toolbar control of the kit (5815:55167): 44px of the shared glass, a 36px thumb outset 4px", () => {
+  test("in a bar the track is the glass control of iOS 27.2 and Calendar (IMG_5433): 48px of the shared glass, a 40px thumb outset 4px", () => {
     const touch = read("styles/touch.css")
     const block = touch.match(/html \[data-toolbar\] :is\(\[data-variant="segmented"\], \[data-variant="underline"\]\)\[data-orientation="horizontal"\] \{([^}]*)\}/)?.[1] ?? ""
     for (const declaration of [
-      "--segmented-control-size: 44px;",
+      "--segmented-control-size: 48px;",
       "--segmented-control-gutter: 4px;",
       "--segmented-control-gap: 0px;",
       "--segmented-control-thumb-outset: 4px;",
@@ -1208,8 +1208,9 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     ]) {
       expect(block).toContain(declaration)
     }
-    // Unselected labels take the phone's secondary label role.
-    expect(block).toContain("--color-text-secondary: var(--mobile-label-secondary);")
+    // Every label is primary, as iOS 27.2 and Calendar draw both segments.
+    expect(block).toContain("--color-text-secondary: var(--color-text);")
+    expect(block).not.toContain("mobile-label-secondary")
     expect(block).not.toMatch(/:\s*light-dark\(/)
     const tokens = read("styles/variables-components.css")
     expect(tokens).toContain("--segmented-control-mobile-thumb-background: light-dark(var(--alpha-08), var(--gray-200));")
@@ -1228,7 +1229,7 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     expect(thumb).toContain("padding-inline: var(--segmented-control-thumb-outset, 0px);")
   })
 
-  test("the selected label is the primary color and the others the secondary role (primary in content, kit 5815:55167 in a bar), untracked: the system font tracks it", () => {
+  test("the selected label is the primary color and the others the secondary role, which a phone makes primary in content and in a bar, untracked: the system font tracks it", () => {
     const css = read("components/Tabs/Tabs.module.css")
     const phone = css.slice(css.indexOf("@media (max-width: 767px)")).match(/\.Tabs\[data-orientation="horizontal"\] \.Tab \{([^}]*)\}/)?.[1] ?? ""
     expect(phone).toContain("padding-inline: var(--segmented-control-option-gutter);")
@@ -1238,6 +1239,20 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     expect(css).toMatch(/&\[data-state="on"\] \{[^}]*color: var\(--color-text\);/)
     expect(phone).not.toContain("letter-spacing")
     expect(read("styles/touch.css")).not.toContain("--segmented-control-letter-spacing")
+  })
+
+  test("a symbol alone in its segment is 20px, the 17pt symbol of iOS 27.2; beside a label it keeps the icon size", () => {
+    const touch = read("styles/touch.css")
+    const plainSelector = 'html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {'
+    const plain = touch.slice(touch.indexOf(plainSelector), touch.indexOf("}", touch.indexOf(plainSelector)))
+    expect(plain).toContain("--segmented-control-symbol-size: 20px;")
+    const css = read("components/Tabs/Tabs.module.css")
+    const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
+    const symbol = phone.match(/\.Tabs\[data-orientation="horizontal"\] \.TabContent > svg:where\(:only-child:not\(\[data-no-autosize\]\)\) \{([^}]*)\}/)?.[1] ?? ""
+    expect(symbol).toContain("width: var(--segmented-control-symbol-size, var(--segmented-control-icon-size));")
+    expect(symbol).toContain("height: var(--segmented-control-symbol-size, var(--segmented-control-icon-size));")
+    // Only on a phone: the desktop rule sizes every icon by the control's size.
+    expect(css.slice(0, css.indexOf("@media (max-width: 767px)"))).not.toContain("--segmented-control-symbol-size")
   })
 
   // iOS switches the views of a screen with the segmented control only; it has no underline tabs.

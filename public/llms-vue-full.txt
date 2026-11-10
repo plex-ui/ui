@@ -10490,7 +10490,7 @@ Props:
     - badge slot (VNode[]) — Badge content; styling still comes from the badge object
 
 ### Overview
-Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with v-model:value; the examples keep it in a tab variable. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they take the 44px glass of toolbar buttons instead. Vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls.
+Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with v-model:value; the examples keep it in a tab variable. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they are the 48px glass control of iOS 27 bars instead, a 40px selection and 15px labels, all primary. Vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls.
 ```vue
 <Tabs
   v-model:value="tab"
@@ -10521,7 +10521,7 @@ Icons work with the segmented variant: put the icon in the icon slot of individu
 ```
 
 ### Icon only
-Leave out the label and fill only the icon slot for compact icon-only tabs. Always provide an aria-label on each tab for accessibility.
+Leave out the label and fill only the icon slot for compact icon-only tabs. Always provide an aria-label on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at; beside a label it keeps the icon size, since iOS shows only the symbol of a segment that has both.
 ```vue
 <Tabs v-model:value="tab" :variant="variant" :size="size" :pill="pill" aria-label="Navigation">
   <TabsTab value="home" aria-label="Home"><template #icon><Home /></template></TabsTab>
@@ -10625,7 +10625,7 @@ Vertical underline tabs with icons provide a rich navigation experience commonly
 ```
 
 ### Sizing
-Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS (the 44px glass one in a Toolbar), and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls.
+Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS (the 48px glass one in a Toolbar), and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls.
 ```vue
 <Tabs v-model:value="tab" :variant="variant" :size="size" aria-label="Demo tabs">
   <TabsTab value="overview">Overview</TabsTab>

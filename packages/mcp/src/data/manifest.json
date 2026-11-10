@@ -7184,7 +7184,7 @@
         {
           "name": "Overview",
           "code": "const [tab, setTab] = useState(\"overview\")\nconst [disabled, setDisabled] = useState(false)\nconst [reportsDisabled, setReportsDisabled] = useState(false)\n\nreturn (\n<Tabs value={tab} onChange={setTab} disabled={disabled} aria-label=\"Demo tabs\">\n  <Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n  <Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n  <Tabs.Tab value=\"reports\" disabled={reportsDisabled}>Reports</Tabs.Tab>\n  <Tabs.Tab value=\"settings\">Settings</Tabs.Tab>\n</Tabs>\n)",
-          "details": "Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they take the 44px glass of toolbar buttons instead. Vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls."
+          "details": "Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they are the 48px glass control of iOS 27 bars instead, a 40px selection and 15px labels, all primary. Vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls."
         },
         {
           "name": "Segmented with icons",
@@ -7194,7 +7194,7 @@
         {
           "name": "Icon only",
           "code": "<Tabs value={tab} onChange={setTab} aria-label=\"Navigation\">\n<Tabs.Tab value=\"home\" icon={<Home />} aria-label=\"Home\" />\n<Tabs.Tab value=\"settings\" icon={<SettingsCog />} aria-label=\"Settings\" />\n<Tabs.Tab value=\"notifications\" icon={<Bell />} aria-label=\"Notifications\" />\n</Tabs>",
-          "details": "Omit the text children and pass only the icon prop for compact icon-only tabs. Always provide an aria-label on each tab for accessibility."
+          "details": "Omit the text children and pass only the icon prop for compact icon-only tabs. Always provide an aria-label on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at; beside a label it keeps the icon size, since iOS shows only the symbol of a segment that has both."
         },
         {
           "name": "Segmented with badge",
@@ -7244,7 +7244,7 @@
         {
           "name": "Sizing",
           "code": "<Tabs variant=\"underline\" size=\"md\" value={tab} onChange={setTab} aria-label=\"Demo tabs\">\n<Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n<Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n<Tabs.Tab value=\"reports\">Reports</Tabs.Tab>\n</Tabs>",
-          "details": "Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS (the 44px glass one in a Toolbar), and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls."
+          "details": "Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS (the 48px glass one in a Toolbar), and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls."
         },
         {
           "name": "Scrollable",
@@ -8225,5 +8225,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-10T11:53:01.909Z"
+  "generatedAt": "2026-11-10T12:23:52.418Z"
 }

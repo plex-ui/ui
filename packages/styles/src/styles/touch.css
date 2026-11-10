@@ -674,14 +674,21 @@
       --segmented-control-thumb-shadow: none;
       /* Every label of the plain control is primary; the weight marks the selection. */
       --color-text-secondary: var(--color-text);
+      /* A segment of a symbol alone draws it as iOS 27.2 does, at the 17pt symbol size: house 19.7 x 17.3pt,
+         gearshape 17.7, bell 17 tall, sun.max 18, moon 16.7, a 20px PlexUI icon (Tabs.module.css). A symbol beside
+         a label keeps the control's icon size: iOS shows the symbol alone when a segment has both. */
+      --segmented-control-symbol-size: 20px;
     }
 
-    /* In a bar (a phone Toolbar, which is also the header of a sheet) it is the glass control of iOS 26 toolbars
-       (kit Toolbars 5815:55167): a 44px capsule of the shared mobile glass, as toolbar buttons are, with its segments
-       8px from the ends and the 36px selection reaching 4px past its segment. Every label is 15px Medium and sits
-       14px inside the selection, as the label of a toolbar text button does (the kit's segments are fixed boxes). */
+    /* In a bar (a phone Toolbar, which is also the header of a sheet) it is the glass control of iOS 27 bars: a 48px
+       capsule of the shared mobile glass, taller than the 44px buttons beside it, as native iOS 27.2 draws one in a
+       navigation bar (UISegmentedControl as the title view and SwiftUI's Picker in the principal item, both 112 x 48)
+       and Calendar in its sheet header (IMG_5433: 48pt beside a 44pt Close); the kit's is 44px. Its segments stand
+       8px from the ends and the 40px selection reaches 4px past its segment, 4px inside the capsule all round, as
+       Calendar's does (UIKit's own selection is 31pt). Every label is 15px Medium and primary, as both draw them,
+       and sits 14px inside the selection, as the label of a toolbar text button does. */
     html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
-      --segmented-control-size: 44px;
+      --segmented-control-size: 48px;
       --segmented-control-gutter: 4px;
       --segmented-control-gap: 0px;
       --segmented-control-thumb-outset: 4px;
@@ -696,8 +703,9 @@
       --segmented-control-shadow: var(--mobile-glass-shadow);
       --segmented-control-backdrop-filter: var(--mobile-glass-backdrop-filter);
       --segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);
-      /* Unselected labels are the secondary label role of a phone (alpha 50%: 105 on Safari's 211 track, 109 there). */
-      --color-text-secondary: var(--mobile-label-secondary);
+      /* Every label is primary: black on both segments in iOS 27.2 and in Calendar. Safari's tab groups dim the
+         unselected one, but that is its own larger control (20pt labels, a white selection). */
+      --color-text-secondary: var(--color-text);
     }
   }
 

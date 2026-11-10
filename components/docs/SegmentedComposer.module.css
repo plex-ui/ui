@@ -177,25 +177,17 @@
     }
   }
 
-  /* A sheet header's control is larger than a toolbar's (Calendar IMG_5433/5434): 48px with a 40px thumb and 17px
-     regular labels. Its glass and thumb are those of every phone segmented control in a bar (touch.css): the
-     sheet's header is its Toolbar. */
+  /* The header's control is the phone segmented control of every bar (touch.css), as Calendar's is (IMG_5433:
+     48pt, a 40pt selection, both labels black at 15pt): the sheet's header is its Toolbar. Its segments fill the
+     row, so they need no padding of their own. */
   .Composer .Mode[data-variant="segmented"][data-orientation="horizontal"] {
-    --segmented-control-size: 48px;
-    --segmented-control-gutter: 4px;
     --segmented-control-option-gutter: 0px;
-    --segmented-control-font-size: 17px;
-    --segmented-control-line-height: 22px;
-    --segmented-control-font-weight: var(--font-weight-normal);
-    --segmented-control-active-font-weight: var(--font-weight-normal);
   }
 
   /* Keep the visible thumb 40px while each real radio has a 44px touch box. */
   .Composer .Mode [role="radio"] {
     min-height: 44px;
     margin-block: -2px;
-    /* Calendar draws both labels of its header control in the primary color. */
-    color: var(--color-text);
   }
 
   .Body {
