@@ -299,9 +299,10 @@
    Stack=1 0:11292): corners 24, padding 12 above and below and 14 at the sides, a 10px gap, the
    title at 15/17 semibold and the description at 15/18. The kit's -0.23 tracking of 15pt text is
    left to the system font, which tracks it itself. It keeps its own width and opaque surface, not
-   the banner's glass and width. Its buttons are drawn as a medium phone Button (touch.css): a 34px
-   capsule, 15/20 regular, gutter 14, its 44px target reaching 5px past it into the padding, so a
-   one-line toast with a button is 58 high. */
+   the banner's glass and width. Its buttons are the 34px capsule of a medium phone Button (touch.css) with
+   the banner's 15/20 regular label and a 14px gutter (a medium Button's 17pt label would outsize the
+   banner's text), its 44px target reaching 5px past it into the padding, so a one-line toast with a
+   button is 58 high. */
 @media (max-width: 767px) {
   .Toast[data-styled="true"] {
     gap: 10px !important;

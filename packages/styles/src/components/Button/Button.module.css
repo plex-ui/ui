@@ -113,7 +113,7 @@
     --button-gutter: var(--button-gutter-3xs, var(--control-gutter-2xs));
     --button-font-size: var(--button-font-size-3xs, var(--control-font-size-sm));
     --button-icon-size: var(--button-icon-size-3xs, var(--control-icon-size-xs));
-    --button-gap: var(--button-gap-sm);
+    --button-gap: var(--button-touch-gap-sm, var(--button-gap-sm));
     --button-radius: var(--button-touch-radius, var(--control-radius-sm));
     --button-icon-offset: -1px;
     --indicator-size: var(--button-indicator-size-3xs, 11px);
@@ -158,8 +158,8 @@
     --button-gap: var(--button-touch-gap-sm, var(--button-gap-md));
     --button-radius: var(--button-touch-radius, var(--control-radius-sm));
     --button-icon-offset: -1px;
-    --indicator-size: 15px;
-    --circular-progress-size: 15px;
+    --indicator-size: var(--button-indicator-size-sm, 15px);
+    --circular-progress-size: var(--button-indicator-size-sm, 15px);
   }
 
   &:where([data-size="md"]) {
@@ -168,12 +168,12 @@
     --button-line-height: var(--button-line-height-md, 1);
     --button-gutter: var(--button-gutter-md, var(--control-gutter-md));
     --button-font-size: var(--button-font-size-md, var(--control-font-size-md));
-    --button-icon-size: var(--control-icon-size-md);
-    --button-gap: var(--button-gap-lg);
+    --button-icon-size: var(--button-icon-size-md, var(--control-icon-size-md));
+    --button-gap: var(--button-touch-gap, var(--button-gap-lg));
     --button-radius: var(--button-touch-radius, var(--control-radius-md));
     --button-icon-offset: -1px;
-    --indicator-size: 16px;
-    --circular-progress-size: 16px;
+    --indicator-size: var(--button-indicator-size-md, 16px);
+    --circular-progress-size: var(--button-indicator-size-md, 16px);
   }
 
   &:where([data-size="lg"]) {
@@ -182,12 +182,12 @@
     --button-line-height: var(--button-line-height-lg, 1);
     --button-gutter: var(--button-gutter-lg, var(--control-gutter-md));
     --button-font-size: var(--button-font-size-lg, var(--control-font-size-md));
-    --button-icon-size: var(--control-icon-size-md);
-    --button-gap: var(--button-gap-lg);
+    --button-icon-size: var(--button-icon-size-lg, var(--control-icon-size-md));
+    --button-gap: var(--button-touch-gap, var(--button-gap-lg));
     --button-radius: var(--button-touch-radius, var(--control-radius-lg));
     --button-icon-offset: -1px;
-    --indicator-size: 16px;
-    --circular-progress-size: 16px;
+    --indicator-size: var(--button-indicator-size-lg, 16px);
+    --circular-progress-size: var(--button-indicator-size-lg, 16px);
   }
 
   &:where([data-size="xl"]) {
@@ -197,11 +197,11 @@
     --button-gutter: var(--button-gutter-xl, var(--control-gutter-lg));
     --button-font-size: var(--button-font-size-xl, var(--control-font-size-md));
     --button-icon-size: var(--button-icon-size-xl, var(--control-icon-size-md));
-    --button-gap: var(--button-gap-lg);
+    --button-gap: var(--button-touch-gap, var(--button-gap-lg));
     --button-radius: var(--button-touch-radius, var(--control-radius-xl));
     --button-icon-offset: -1px;
-    --indicator-size: 18px;
-    --circular-progress-size: 18px;
+    --indicator-size: var(--button-indicator-size-xl, 18px);
+    --circular-progress-size: var(--button-indicator-size-xl, 18px);
   }
 
   &:where([data-size="2xl"]) {
@@ -211,11 +211,11 @@
     --button-gutter: var(--button-gutter-2xl, var(--control-gutter-lg));
     --button-font-size: var(--button-font-size-2xl, var(--control-font-size-lg));
     --button-icon-size: var(--control-icon-size-lg);
-    --button-gap: var(--button-gap-lg);
+    --button-gap: var(--button-touch-gap, var(--button-gap-lg));
     --button-radius: var(--button-touch-radius, var(--control-radius-xl));
     --button-icon-offset: -2px;
-    --indicator-size: 18px;
-    --circular-progress-size: 18px;
+    --indicator-size: var(--button-indicator-size-2xl, 18px);
+    --circular-progress-size: var(--button-indicator-size-2xl, 18px);
   }
 
   &:where([data-size="3xl"]) {
@@ -225,11 +225,11 @@
     --button-gutter: var(--button-gutter-3xl, var(--control-gutter-xl));
     --button-font-size: var(--button-font-size-3xl, var(--control-font-size-lg));
     --button-icon-size: var(--control-icon-size-lg);
-    --button-gap: var(--button-gap-lg);
+    --button-gap: var(--button-touch-gap, var(--button-gap-lg));
     --button-radius: var(--button-touch-radius, var(--control-radius-xl));
     --button-icon-offset: -2px;
-    --indicator-size: 20px;
-    --circular-progress-size: 20px;
+    --indicator-size: var(--button-indicator-size-3xl, 20px);
+    --circular-progress-size: var(--button-indicator-size-3xl, 20px);
   }
 
   /* =============================================
@@ -984,8 +984,8 @@
   }
 
   /* A glass text button is the Liquid Glass text button of the iOS 27 kit (Button - Liquid Glass - Text 5473:21667):
-     its label is Medium, and 17px from the medium (34px) size up, where a content-area button keeps Regular 15px
-     at 28 and 34 (Button - Content Area 40:58696). With touch.css, as the glass itself; disabled ones keep it. */
+     its label is Medium, 17px from the medium (34px) size up, as a content-area button's is there (iOS 27.2);
+     the small one keeps 15px. With touch.css, as the glass itself; disabled ones keep it. */
   .Button[data-mobile-material="glass"]:where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
     font-weight: var(--button-glass-font-weight, var(--button-font-weight));
 
@@ -997,9 +997,13 @@
 
   /* A disabled button labels in the tertiary label, as the iOS 27 kit's content-area button (Button - Content Area
      40:58696, Is Enabled=False: 60,60,67 at 30%, 196 on white, in every style, destructive too), where the desktop
-     gray-400 read 143. Its fill stays the disabled fill (the kit's 118,118,128 at 12% is 239 on white, alpha-05
-     242) and a borderless one has none. Toolbar actions keep the colors of their bar (Toolbar.module.css). */
+     gray-400 read 143. With touch.css its fill is the gray of an enabled gray button, as iOS 27.2 draws a disabled
+     bordered or prominent button (233 on white and 38 on black, the fill of a bordered one; our gray is 236 and
+     42), not the paler desktop disabled fill (243). A ghost button has none, as a borderless one, and an outline
+     one keeps its border with no fill (Plex UI's own style, with no iOS counterpart). Toolbar actions keep the
+     colors of their bar (Toolbar.module.css). */
   .Button[data-disabled][data-variant] {
+    --button-background-color: var(--button-mobile-disabled-background, var(--color-background-disabled));
     --button-text-color: var(--mobile-label-tertiary, var(--color-text-disabled));
   }
 

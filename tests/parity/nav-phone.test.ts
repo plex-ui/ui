@@ -172,9 +172,9 @@ describe("a toast on a phone", () => {
     expect(decls('.Toast:not([data-rich-colors="true"]) .Description')).toEqual({ color: "var(--color-text-secondary) !important" })
   })
 
-  test("draws its buttons as a medium phone Button, a 34px capsule in a 44px target", () => {
+  test("draws its buttons as the 34px capsule of a medium phone Button with the banner's 15px label, in a 44px target", () => {
     const touch = read("packages/styles/src/styles/touch.css")
-    for (const token of ["--button-size-md: 34px;", "--button-gutter-md: 14px;", "--button-font-size-md: 15px;", "--button-line-height-md: 20px;", "--button-font-weight: var(--font-weight-normal);"]) expect(touch).toContain(token)
+    for (const token of ["--button-size-md: 34px;", "--button-touch-radius: var(--radius-full);"]) expect(touch).toContain(token)
     expect(phoneRule(css, "& > :is(.ActionButton, .CancelButton)")).toEqual({
       position: "relative",
       "min-height": "34px",

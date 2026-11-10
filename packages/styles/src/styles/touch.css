@@ -106,11 +106,19 @@
     --control-font-size-md: 17px;
     --control-font-size-lg: 17px;
     --button-gap-lg: 4px;
-    /* Kit 27 Button - Content Area: 3px between symbol and label in the small button (3xs to sm), 4px in the
-       medium and large ones. A separate token, as the 4px --button-gap-md also spaces segmented Tabs. */
-    --button-touch-gap-sm: var(--button-gap-sm);
+    /* Between a button's symbol and its label iOS 27.2 leaves 8pt at every size (a SwiftUI Label in a
+       button: 11pt from the plus's ink to the label's, 33px at @3x in the small, medium and large ones; an
+       Apple app's Learn more shows 9.7pt, IMG_5497). The kit's 3 and 4px and UIKit's imagePadding of 0
+       set the symbol against the label (owner 10.11: «явно не хватает отступа»). Separate tokens, as
+       --button-gap-md and --button-gap-lg also space the segments of Tabs. */
+    --button-touch-gap-sm: 8px;
+    --button-touch-gap: 8px;
+    /* A disabled button keeps the gray of a gray button, as iOS 27.2 draws one (Button.module.css) */
+    --button-mobile-disabled-background: var(--color-background-secondary-soft-alpha);
 
-    /* Native text buttons: small 28px, medium 34px, large 50px. */
+    /* Native text buttons: small 28px, medium 34px, large 50px. iOS 27.2 (SwiftUI controlSize and UIKit
+       buttonSize on an iPhone 17) sets the small one's label at 15pt with 10pt each side, the medium and the
+       large ones' at 17pt with 12 and 20pt: "Bordered" stands 83.7, 94.7 and 110.7pt wide. */
     --button-touch-radius: var(--radius-full);
     --button-font-weight: var(--font-weight-normal);
     /* An icon-only button that is not `uniform` is the kit's symbol button, with no gutters (Button.module.css) */
@@ -132,13 +140,13 @@
     --button-font-size-sm: 15px;
     --button-line-height-sm: 20px;
     --button-size-md: 34px;
-    --button-gutter-md: 14px;
-    --button-font-size-md: 15px;
-    --button-line-height-md: 20px;
+    --button-gutter-md: 12px;
+    --button-font-size-md: 17px;
+    --button-line-height-md: 22px;
     --button-size-lg: 34px;
-    --button-gutter-lg: 14px;
-    --button-font-size-lg: 15px;
-    --button-line-height-lg: 20px;
+    --button-gutter-lg: 12px;
+    --button-font-size-lg: 17px;
+    --button-line-height-lg: 22px;
     --button-size-xl: 50px;
     --button-gutter-xl: 20px;
     --button-font-size-xl: 17px;
@@ -156,17 +164,27 @@
     --button-glass-font-weight: var(--toolbar-label-font-weight);
     --button-glass-font-size: 17px;
     --button-glass-line-height: 22px;
-    /* The kit (Buttons 507:24673) sets a button's symbol at the size of its label: 15pt in the small and
-       medium buttons, 17pt in the large one. So 3xs to lg show the 18px icon and xl to 3xl the 20px one;
-       3xs, 2xs and xs, the kit's small button as sm is, also take sm's loading indicator, and an icon-only
+    /* A button's symbol is set at the size of its label (kit Buttons 507:24673): the plus of iOS 27.2 draws 12pt
+       in the small button and 13.7pt in the medium and the large ones, which take the same 17pt label. So 3xs to
+       sm show the 18px icon and md to 3xl the 20px one. The spinner of a loading button is UIKit's: 18pt in
+       the small button and 20pt in the medium and large ones (showsActivityIndicator; a SwiftUI ProgressView in
+       a regular button is 20 too). 3xs, 2xs and xs are the kit's small button as sm is, and an icon-only
        one is its 28px circle. A component that sizes its own accessory keeps it (CodeBlock, FloatingLabelSelect, Menu, Sidebar). */
     --button-icon-size-3xs: var(--control-icon-size-md);
     --button-icon-size-2xs: var(--control-icon-size-md);
     --button-icon-size-xs: var(--control-icon-size-md);
+    --button-icon-size-md: var(--control-icon-size-lg);
+    --button-icon-size-lg: var(--control-icon-size-lg);
     --button-icon-size-xl: var(--control-icon-size-lg);
-    --button-indicator-size-3xs: 15px;
-    --button-indicator-size-2xs: 15px;
-    --button-indicator-size-xs: 15px;
+    --button-indicator-size-3xs: 18px;
+    --button-indicator-size-2xs: 18px;
+    --button-indicator-size-xs: 18px;
+    --button-indicator-size-sm: 18px;
+    --button-indicator-size-md: 20px;
+    --button-indicator-size-lg: 20px;
+    --button-indicator-size-xl: 20px;
+    --button-indicator-size-2xl: 20px;
+    --button-indicator-size-3xl: 20px;
     /* A uniform button takes no size of its own here: it falls back to the size of a text button of its step
        (Button.module.css), so it is the kit's symbol button too, a circle of 28, 34 or 50px (Button - Content
        Area 40:58696, Label Type=Symbol), the same with or without uniform (owner 08.11: uniform made every size

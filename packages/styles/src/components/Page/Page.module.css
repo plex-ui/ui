@@ -333,6 +333,13 @@
     --button-icon-size: 17px;
   }
 
+  /* A bar's text button keeps the gutters of a Toolbar's (Toolbar.module.css), not those of a content button of
+     its step (12px at md since iOS 27.2's 17pt medium button); a disabled ButtonLink renders a span with the
+     link role. */
+  :is(.Leading, .Actions) > :is(button, a, [role="link"]):not([data-navigation-action], [data-uniform]) {
+    --button-gutter: var(--toolbar-label-gutter);
+  }
+
   /* An icon alone in the circle is a bar symbol, as in a Toolbar: Files' More (IMG_5686) and Freeform's
      ellipsis (IMG_5684) draw it 19.7pt wide, not at the size of a label beside text (owner 08.11). */
   :is(.Leading, .Actions) > :is(button, a)[data-uniform]:not([data-navigation-action]) {

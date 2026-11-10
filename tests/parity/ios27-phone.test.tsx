@@ -192,18 +192,20 @@ describe("other kit iOS 27 values on a phone", () => {
 })
 
 describe("content-area buttons on a phone (kit iOS 27 Button - Content Area 40:58696)", () => {
-  test("the small button (3xs to sm) leaves 3px between icon and label, the medium and large ones 4px, with touch.css only", () => {
+  // Plan 178 block 3 (owner 10.11: «между иконкой и текстом внутри кнопки явно не хватает отступа»): iOS 27.2 leaves 8pt
+  // between a button's symbol and its label at every size, not the kit's 3 and 4px.
+  test("every button leaves 8px between icon and label with touch.css only; desktop keeps 3, 4 and 6px", () => {
     const button = baseRules("packages/styles/src/components/Button/Button.module.css")
     const gap = (size: string) => decls(button.get(`&:where([data-size="${size}"])`))["--button-gap"]
-    expect(gap("3xs")).toBe("var(--button-gap-sm)")
+    expect(gap("3xs")).toBe("var(--button-touch-gap-sm, var(--button-gap-sm))")
     for (const size of ["2xs", "xs", "sm"]) expect(gap(size)).toBe("var(--button-touch-gap-sm, var(--button-gap-md))")
-    for (const size of ["md", "lg", "xl", "2xl", "3xl"]) expect(gap(size)).toBe("var(--button-gap-lg)")
-    // The phone root block of touch.css (the one that also sets the medium and large gap) sets the small one.
+    for (const size of ["md", "lg", "xl", "2xl", "3xl"]) expect(gap(size)).toBe("var(--button-touch-gap, var(--button-gap-lg))")
+    // The phone root block of touch.css sets both button gaps; its --button-gap-lg spaces segmented Tabs only.
     const roots: Record<string, string>[] = []
     postcss.parse(touch).walkAtRules("media", (media) => {
       if (media.params === "(max-width: 767px)") media.walkRules("html:root", (rule) => { roots.push(decls(rule)) })
     })
-    expect(roots.find((d) => "--button-gap-lg" in d)).toMatchObject({ "--button-gap-lg": "4px", "--button-touch-gap-sm": "var(--button-gap-sm)" })
+    expect(roots.find((d) => "--button-gap-lg" in d)).toMatchObject({ "--button-gap-lg": "4px", "--button-touch-gap-sm": "8px", "--button-touch-gap": "8px" })
     // The shared tier tokens stay as they are: segmented Tabs space their content with --button-gap-sm and --button-gap-md.
     expect(touch).not.toMatch(/--button-gap-(sm|md):/)
     const tokens = read("packages/styles/src/styles/variables-components.css")
@@ -330,6 +332,8 @@ describe("a disabled Slider on a desktop (macOS 27 kit, Slider, State=Disabled 8
 describe("a disabled Button and pop-up on a phone (kit iOS 27 Button - Content Area 40:58696, Pop-up Button 410:50387)", () => {
   test("label in the tertiary label, where the desktop gray-400 read 143 on white", () => {
     expect(decls(phoneRules("packages/styles/src/components/Button/Button.module.css").get(".Button[data-disabled][data-variant]"))).toEqual({
+      // iOS 27.2 keeps the gray of an enabled gray button under a disabled one (plan 178 block 3)
+      "--button-background-color": "var(--button-mobile-disabled-background, var(--color-background-disabled))",
       "--button-text-color": "var(--mobile-label-tertiary, var(--color-text-disabled))",
     })
     const select = phoneRules("packages/styles/src/components/SelectControl/SelectControl.module.css").get(".SelectControl[data-disabled][data-variant]")

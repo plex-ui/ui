@@ -317,11 +317,12 @@
     --button-icon-size: var(--toolbar-icon-size-sm);
   }
 
-  .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a):not([data-navigation-action], [data-uniform]) {
+  /* A bar's text buttons keep the bar's gutters, a disabled ButtonLink too (a span with the link role). */
+  .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a, [role="link"]):not([data-navigation-action], [data-uniform]) {
     --button-gutter: var(--toolbar-label-gutter);
   }
 
-  .Toolbar[data-placement="bottom"] :is(.Leading, .Trailing, .Content, .Group) > :where(button, a):not([data-navigation-action], [data-uniform]) {
+  .Toolbar[data-placement="bottom"] :is(.Leading, .Trailing, .Content, .Group) > :where(button, a, [role="link"]):not([data-navigation-action], [data-uniform]) {
     --button-gutter: var(--toolbar-bottom-label-gutter);
   }
 

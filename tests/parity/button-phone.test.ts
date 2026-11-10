@@ -20,7 +20,7 @@ const declsOf = (path: string, selector: string, phone: boolean) => {
     let inPhone = false
     while (parent) {
       if (parent.type === "atrule" && (parent as unknown as { name: string; params: string }).name === "media"
-        && (parent as unknown as { params: string }).params === "(max-width: 767px)") inPhone = true
+        && ["(max-width: 767px)", "(max-width: 767.98px)"].includes((parent as unknown as { params: string }).params)) inPhone = true
       parent = parent.parent as typeof parent
     }
     if (inPhone !== phone) return
@@ -127,6 +127,49 @@ describe("Button on a phone", () => {
     }
   })
 
+  // Block 3 of plan 178, measured in iOS 27.2 on an iPhone 17 (SwiftUI controlSize, UIKit buttonSize): small 28 with a
+  // 15pt label and 10pt gutters, medium 34 and large 50 with a 17pt label and 12 and 20pt gutters; the plus of a
+  // symbol is 12pt in the small button and 13.7 in the others; the spinner of a loading button 18 and 20pt; 11pt
+  // between the symbol's ink and the label's at every size (owner 10.11: the kit's 3 and 4px were too tight).
+  test("takes the label, gutters, symbol, spinner and symbol gap of the iOS 27.2 buttons", () => {
+    const root = declsOf(touch, "html:root", true)
+    for (const step of ["3xs", "2xs", "xs", "sm"]) {
+      expect([root[`--button-size-${step}`], root[`--button-gutter-${step}`], root[`--button-font-size-${step}`]]).toEqual(["28px", "10px", "15px"])
+      expect(root[`--button-indicator-size-${step}`]).toBe("18px")
+    }
+    for (const step of ["md", "lg"]) {
+      expect([root[`--button-size-${step}`], root[`--button-gutter-${step}`], root[`--button-font-size-${step}`], root[`--button-line-height-${step}`]]).toEqual(["34px", "12px", "17px", "22px"])
+      expect(root[`--button-icon-size-${step}`]).toBe("var(--control-icon-size-lg)")
+    }
+    for (const step of ["md", "lg", "xl", "2xl", "3xl"]) expect(root[`--button-indicator-size-${step}`]).toBe("20px")
+    for (const step of ["xl", "2xl", "3xl"]) expect([root[`--button-size-${step}`], root[`--button-gutter-${step}`], root[`--button-font-size-${step}`]]).toEqual(["50px", "20px", "17px"])
+    expect([root["--button-touch-gap-sm"], root["--button-touch-gap"]]).toEqual(["8px", "8px"])
+    // A disabled button keeps the gray of a gray button, with touch.css only; without it the phone query falls back
+    // to the desktop disabled fill. Outline reads its own outline fill, so a disabled one keeps its border and no fill.
+    expect(root["--button-mobile-disabled-background"]).toBe("var(--color-background-secondary-soft-alpha)")
+    expect(read("packages/styles/src/styles/variables-components.css")).not.toContain("--button-mobile-disabled-background")
+    // Tabs keep their own segment gaps
+    expect(root["--button-gap-lg"]).toBe("4px")
+
+    const button = read("packages/styles/src/components/Button/Button.module.css")
+    for (const step of ["sm", "md", "lg", "xl", "2xl", "3xl"]) {
+      expect(button).toMatch(new RegExp(`--indicator-size: var\\(--button-indicator-size-${step}, \\d+px\\);`))
+      expect(button).toMatch(new RegExp(`--circular-progress-size: var\\(--button-indicator-size-${step}, \\d+px\\);`))
+    }
+    for (const step of ["md", "lg"]) expect(button).toContain(`--button-icon-size: var(--button-icon-size-${step}, var(--control-icon-size-md));`)
+    expect(button.match(/--button-gap: var\(--button-touch-gap, var\(--button-gap-lg\)\);/g)).toHaveLength(5)
+    expect(button.match(/--button-gap: var\(--button-touch-gap-sm, var\(--button-gap-(sm|md)\)\);/g)).toHaveLength(4)
+  })
+
+  test("a Page bar's text button keeps the Toolbar's label gutter, not the 12px of a medium content button", () => {
+    expect(declsOf("packages/styles/src/components/Page/Page.module.css", ':is(.Leading, .Actions) > :is(button, a, [role="link"]):not([data-navigation-action], [data-uniform])', true))
+      .toEqual({ "--button-gutter": "var(--toolbar-label-gutter)" })
+    expect(declsOf("packages/styles/src/components/Toolbar/Toolbar.module.css", '.Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a, [role="link"]):not([data-navigation-action], [data-uniform])', true))
+      .toEqual({ "--button-gutter": "var(--toolbar-label-gutter)" })
+    expect(declsOf("packages/styles/src/components/Toolbar/Toolbar.module.css", '.Toolbar[data-placement="bottom"] :is(.Leading, .Trailing, .Content, .Group) > :where(button, a, [role="link"]):not([data-navigation-action], [data-uniform])', true))
+      .toEqual({ "--button-gutter": "var(--toolbar-bottom-label-gutter)" })
+  })
+
   test("a Field row action sets its weight on its buttons, so the filled weight does not replace it", () => {
     expect(declsOf("packages/styles/src/components/Field/Field.module.css", '.Action :where(button, a, [role="link"])', false))
       .toEqual({ "--button-font-weight": "var(--field-row-action-font-weight)" })
@@ -190,7 +233,10 @@ describe("A glass or uniform Button on a phone", () => {
       .toMatchObject({ "--button-mobile-material-background": "var(--mobile-glass-background)", "--button-mobile-material-opacity": "1" })
     expect(declsOf(css, '.Button:is([data-mobile-material="flat"], [data-disabled]:where(:not([data-mobile-material="glass"])))', true))
       .toMatchObject({ "--button-mobile-material-background": "initial" })
-    expect(declsOf(css, '.Button[data-disabled][data-variant]', true)).toEqual({ "--button-text-color": "var(--mobile-label-tertiary, var(--color-text-disabled))" })
+    expect(declsOf(css, '.Button[data-disabled][data-variant]', true)).toEqual({
+      "--button-background-color": "var(--button-mobile-disabled-background, var(--color-background-disabled))",
+      "--button-text-color": "var(--mobile-label-tertiary, var(--color-text-disabled))",
+    })
   })
 
   test("a uniform button takes touches 44px around its center and keeps its drawn size, but not beside a neighbor", () => {
