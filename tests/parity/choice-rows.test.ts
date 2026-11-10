@@ -117,13 +117,25 @@ test("Switch shows the row with a description once", () => {
   }
 })
 
-test("Slider: the label tooltip is desktop only, and phone sliders span the screen", () => {
-  expect(desktopOnly("content/components/slider.mdx")).toEqual(["Adding a tooltip"])
-  expect(desktopOnly("content/vue/components/slider.mdx")).toEqual(["Adding a tooltip"])
+test("Slider: on a phone each slider stands in a cell of a grouped list; the tooltip and the vertical slider are desktop only", () => {
+  for (const page of ["content/components/slider.mdx", "content/vue/components/slider.mdx"]) {
+    expect(desktopOnly(page), page).toEqual(["Adding a tooltip", "Vertical"])
+  }
+  // The group's title names the slider; a short value ends its cell, and a range, several values or marks go under
+  // the track in a cell whose track stands in its first 44px (iOS Settings, Siri, Speaking Rate)
+  const cells = read("components/docs/phoneRowsTemplate.ts")
+  expect(cells).toContain("export const sliderCellClassName = 'flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]';")
+  expect(cells).toContain("export const sliderCellStackedClassName = 'flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]';")
+  expect(cells).toContain("text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)]")
   const demos = read("components/docs/SliderDemos.tsx")
-  expect(demos).toContain("return usePhoneRows() ? '100%' : 300;")
-  expect(demos.match(/const width = useSliderWidth\(\);[\s\S]*?<div style=\{\{ width \}\}>/g)).toHaveLength(4)
+  expect(demos.match(/<FieldGroup title="[^"]+">\s*<div data-row className=\{sliderCell(Stacked)?ClassName\}>/g)).toHaveLength(4)
+  expect(demos.match(/className=\{sliderCellStackedClassName\}/g)).toHaveLength(3)
+  expect(demos.match(/className=\{sliderCellValueBelowClassName\}/g)).toHaveLength(2)
+  const react = read("content/components/slider.mdx")
+  expect(react.match(/<div data-row className="\$\{sliderCellClassName\}">/g)).toHaveLength(1)
+  expect(react.match(/<div data-row className="\$\{sliderCellStackedClassName\}">/g)).toHaveLength(3)
   const vue = read("content/vue/components/slider.mdx")
-  expect(vue).toContain(`export const fill = (template) => template.replace('<div style="width: 300px">', '<div class="w-full">')`)
-  expect(vue.match(/phoneTemplate=\{fill\(\w+\)\}/g)).toHaveLength(4)
+  expect(vue.match(/phoneTemplate=\{phoneRows\(\w+Phone\)\}/g)).toHaveLength(4)
+  expect(vue.match(/<div data-row class="\$\{sliderCellClassName\}">/g)).toHaveLength(1)
+  expect(vue.match(/<div data-row class="\$\{sliderCellStackedClassName\}">/g)).toHaveLength(3)
 })

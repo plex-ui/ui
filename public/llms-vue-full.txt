@@ -9248,6 +9248,7 @@ Props:
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
+import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { Slider } from '@plexui/vue/components/Slider';
 
 const value = ref(1000);
@@ -9255,6 +9256,7 @@ const disabled = ref(false);
 </script>
 
 <template>
+<!-- Desktop -->
 <div style="width: 300px">
   <Slider
     label="Example field"
@@ -9267,6 +9269,14 @@ const disabled = ref(false);
     :disabled="disabled"
   />
 </div>
+
+<!-- Phone: the group's title names the slider and its value ends the cell -->
+<FieldGroup title="Example field">
+  <div data-row class="flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]">
+    <Slider aria-label="Example field" :min="0" :max="2000" :step="10" v-model:value="value" :disabled="disabled" class="min-w-0 flex-1" />
+    <span :class="['min-w-[7ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums', disabled ? 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]' : 'text-secondary']">{{ value }} ms</span>
+  </div>
+</FieldGroup>
 </template>
 ```
 
@@ -9285,8 +9295,9 @@ A tooltip can easily be added to the Slider label by passing rich content throug
 ```
 
 ### Marks
-Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically.
+Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own.
 ```vue
+<!-- Desktop -->
 <div style="width: 300px">
   <Slider
     v-model:value="value"
@@ -9305,11 +9316,34 @@ Slider marks can be easily added by passing an array of values to the marks prop
     range-color="#EF4146"
   />
 </div>
+
+<!-- Phone -->
+<FieldGroup title="Passing grade">
+  <div data-row class="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
+    <Slider
+      aria-label="Passing grade"
+      v-model:value="value"
+      :min="1"
+      :max="5"
+      :step="1"
+      :marks="[
+        { value: 1, label: '1' },
+        { value: 2, label: '2' },
+        { value: 3, label: '3' },
+        { value: 4, label: '4' },
+        { value: 5, label: '5' },
+      ]"
+      track-color="#61C454"
+      range-color="#EF4146"
+    />
+  </div>
+</FieldGroup>
 ```
 
 ### Range
 Set range to enable a dual-thumb slider for selecting a value range. v-model:value then binds an array instead of a single number.
 ```vue
+<!-- Desktop -->
 <div style="width: 300px">
   <Slider
     range
@@ -9321,11 +9355,20 @@ Set range to enable a dual-thumb slider for selecting a value range. v-model:val
     prefix-unit="$"
   />
 </div>
+
+<!-- Phone: the range is too long to stand beside the track, so it goes under it -->
+<FieldGroup title="Price range">
+  <div data-row class="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
+    <Slider range aria-label="Price range" :min="0" :max="100" :step="1" v-model:value="value" />
+    <span class="text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums">{{ value.map((v) => '$' + v).join(' – ') }}</span>
+  </div>
+</FieldGroup>
 ```
 
 ### Multiple thumbs
 Pass three or more values to create a multi-thumb slider. Use min-steps-between-thumbs to enforce minimum spacing between thumbs.
 ```vue
+<!-- Desktop -->
 <div style="width: 300px">
   <Slider
     range
@@ -9337,10 +9380,18 @@ Pass three or more values to create a multi-thumb slider. Use min-steps-between-
     :min-steps-between-thumbs="5"
   />
 </div>
+
+<!-- Phone: the values go under the track -->
+<FieldGroup title="Breakpoints">
+  <div data-row class="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
+    <Slider range aria-label="Breakpoints" :min="0" :max="100" :step="1" v-model:value="value" :min-steps-between-thumbs="5" />
+    <span class="text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums">{{ value.join(' – ') }}</span>
+  </div>
+</FieldGroup>
 ```
 
 ### Vertical
-Set orientation="vertical" to render a vertical slider. Marks are not supported in vertical orientation.
+Set orientation="vertical" to render a vertical slider. Marks are not supported in vertical orientation. A list of iOS settings has no vertical slider, so this example is desktop only.
 ```vue
 <Slider
   label="Volume"

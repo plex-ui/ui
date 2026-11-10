@@ -6,12 +6,11 @@ metaDescription: Vue 3 slider component for fine-tuning numeric values with sing
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const stage = "flex-1 flex flex-col items-center justify-center py-12 w-full"
 export const marksStage = "flex-1 flex flex-col items-center justify-center py-20 w-full"
-export const phoneStage = "flex-1 flex flex-col items-center justify-center py-12 px-4 w-full"
-export const phoneMarksStage = "flex-1 flex flex-col items-center justify-center py-20 px-4 w-full"
-export const fill = (template) => template.replace('<div style="width: 300px">', '<div class="w-full">')
 
 export const overview = `<div style="width: 300px">
   <Slider
@@ -25,6 +24,13 @@ export const overview = `<div style="width: 300px">
     :disabled="disabled"
   />
 </div>`
+
+export const overviewPhone = `<FieldGroup title="Example field">
+  <div data-row class="${sliderCellClassName}">
+    <Slider aria-label="Example field" :min="0" :max="2000" :step="10" v-model:value="value" :disabled="disabled" class="min-w-0 flex-1" />
+    <span :class="['min-w-[7ch] ${sliderCellValueClassName}', disabled ? '${sliderCellValueDisabledClassName}' : 'text-secondary']">{{ value }} ms</span>
+  </div>
+</FieldGroup>`
 
 export const tooltip = `<div style="width: 300px">
   <Slider :min="0" :max="2000" :reset-value="1000" :step="10" unit="ms" v-model:value="value">
@@ -55,6 +61,27 @@ export const marks = `<div style="width: 300px">
   />
 </div>`
 
+export const marksPhone = `<FieldGroup title="Passing grade">
+  <div data-row class="${sliderCellStackedClassName}">
+    <Slider
+      aria-label="Passing grade"
+      v-model:value="value"
+      :min="1"
+      :max="5"
+      :step="1"
+      :marks="[
+        { value: 1, label: '1' },
+        { value: 2, label: '2' },
+        { value: 3, label: '3' },
+        { value: 4, label: '4' },
+        { value: 5, label: '5' },
+      ]"
+      track-color="#61C454"
+      range-color="#EF4146"
+    />
+  </div>
+</FieldGroup>`
+
 export const range = `<div style="width: 300px">
   <Slider
     range
@@ -66,6 +93,13 @@ export const range = `<div style="width: 300px">
     prefix-unit="$"
   />
 </div>`
+
+export const rangePhone = `<FieldGroup title="Price range">
+  <div data-row class="${sliderCellStackedClassName}">
+    <Slider range aria-label="Price range" :min="0" :max="100" :step="1" v-model:value="value" />
+    <span class="${sliderCellValueBelowClassName}">{{ value.map((v) => '$' + v).join(' – ') }}</span>
+  </div>
+</FieldGroup>`
 
 export const multipleThumbs = `<div style="width: 300px">
   <Slider
@@ -79,6 +113,13 @@ export const multipleThumbs = `<div style="width: 300px">
   />
 </div>`
 
+export const multipleThumbsPhone = `<FieldGroup title="Breakpoints">
+  <div data-row class="${sliderCellStackedClassName}">
+    <Slider range aria-label="Breakpoints" :min="0" :max="100" :step="1" v-model:value="value" :min-steps-between-thumbs="5" />
+    <span class="${sliderCellValueBelowClassName}">{{ value.join(' – ') }}</span>
+  </div>
+</FieldGroup>`
+
 export const vertical = `<Slider
   label="Volume"
   :min="0"
@@ -90,6 +131,7 @@ export const vertical = `<Slider
 
 export const overviewCode = `<script setup lang="ts">
 import { ref } from 'vue';
+import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { Slider } from '@plexui/vue/components/Slider';
 
 const value = ref(1000);
@@ -97,23 +139,12 @@ const disabled = ref(false);
 </script>
 
 <template>
-<div style="width: 300px">
-  <Slider
-    label="Example field"
-    :min="0"
-    :max="2000"
-    :reset-value="1000"
-    :step="10"
-    unit="ms"
-    v-model:value="value"
-    :disabled="disabled"
-  />
-</div>
+${withPhone(overview, overviewPhone, "the group's title names the slider and its value ends the cell")}
 </template>`
 
 <UsageBlock>{`import { Slider } from "@plexui/vue/components/Slider";`}</UsageBlock>
 
-On Phone, the examples below stretch the slider across the screen between 16px margins, as an iOS slider spans its row, instead of the 300px of the desktop code. For a slider in a list of settings, see [Settings with a slider](/vue/components/settings-forms#settings-with-a-slider).
+On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider, the slider fills the cell, a short value ends it, and a longer value goes under the track. For a slider among other settings, see [Settings with a slider](/vue/components/settings-forms#settings-with-a-slider).
 
 ## Examples
 
@@ -121,8 +152,8 @@ On Phone, the examples below stretch the slider across the screen between 16px m
 
 ### Overview
 
-<ComponentPreview language="vue" code={overviewCode} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={overview} phoneTemplate={fill(overview)} phoneStageClassName={phoneStage} state={{ value: 1000 }} controls={[{ name: "disabled", type: "boolean", default: false }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={overviewCode} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} stageClassName={stage} state={{ value: 1000 }} controls={[{ name: "disabled", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Adding a tooltip
@@ -133,25 +164,25 @@ On Phone, the examples below stretch the slider across the screen between 16px m
 
 ### Marks
 
-<ComponentPreview language="vue" details={<>Slider marks can be easily added by passing an array of values to the <code>marks</code> prop. Responsive behaviors are handled automatically.</>} code={marks} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={marks} phoneTemplate={fill(marks)} stageClassName={marksStage} phoneStageClassName={phoneMarksStage} state={{ value: 3 }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Slider marks can be easily added by passing an array of values to the <code>marks</code> prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own.</>} code={withPhone(marks, marksPhone)} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={marks} phoneTemplate={phoneRows(marksPhone)} stageClassName={marksStage} state={{ value: 3 }} />
 </ComponentPreview>
 
 ### Range
 
-<ComponentPreview language="vue" details={<>Set <code>range</code> to enable a dual-thumb slider for selecting a value range. <code>v-model:value</code> then binds an array instead of a single number.</>} code={range} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={range} phoneTemplate={fill(range)} stageClassName={stage} phoneStageClassName={phoneStage} state={{ value: [25, 75] }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Set <code>range</code> to enable a dual-thumb slider for selecting a value range. <code>v-model:value</code> then binds an array instead of a single number.</>} code={withPhone(range, rangePhone, "the range is too long to stand beside the track, so it goes under it")} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={range} phoneTemplate={phoneRows(rangePhone)} stageClassName={stage} state={{ value: [25, 75] }} />
 </ComponentPreview>
 
 ### Multiple thumbs
 
-<ComponentPreview language="vue" details={<>Pass three or more values to create a multi-thumb slider. Use <code>min-steps-between-thumbs</code> to enforce minimum spacing between thumbs.</>} code={multipleThumbs} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={multipleThumbs} phoneTemplate={fill(multipleThumbs)} stageClassName={stage} phoneStageClassName={phoneStage} state={{ value: [10, 40, 70] }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Pass three or more values to create a multi-thumb slider. Use <code>min-steps-between-thumbs</code> to enforce minimum spacing between thumbs.</>} code={withPhone(multipleThumbs, multipleThumbsPhone, "the values go under the track")} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={multipleThumbs} phoneTemplate={phoneRows(multipleThumbsPhone)} stageClassName={stage} state={{ value: [10, 40, 70] }} />
 </ComponentPreview>
 
 ### Vertical
 
-<ComponentPreview language="vue" details={<>Set <code>orientation="vertical"</code> to render a vertical slider. Marks are not supported in vertical orientation.</>} code={vertical} previewMinHeight={280}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Set <code>orientation="vertical"</code> to render a vertical slider. Marks are not supported in vertical orientation. A list of iOS settings has no vertical slider, so this example is desktop only.</>} code={vertical} previewMinHeight={280}>
   <VueDemo template={vertical} stageClassName={stage} state={{ value: 50 }} />
 </ComponentPreview>
 

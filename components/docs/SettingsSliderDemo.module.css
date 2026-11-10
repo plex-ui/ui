@@ -1,7 +1,9 @@
+/* The slider's cell of the Slider page (phoneRowsTemplate, sliderCellClassName): the value 12px after the track, as
+   iOS Settings writes "52%" after Smoothing's track. */
 .Row {
   display: flex;
   align-items: center;
-  gap: var(--field-row-gap, 16px);
+  gap: 12px;
   min-width: 0;
   min-height: var(--field-row-min-height, 52px);
   padding-inline: var(--field-row-padding-inline, 16px);

@@ -6050,7 +6050,7 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<script setup lang=\"ts\">\nimport { ref } from 'vue';\nimport { Slider } from '@plexui/vue/components/Slider';\n\nconst value = ref(1000);\nconst disabled = ref(false);\n</script>\n\n<template>\n<div style=\"width: 300px\">\n  <Slider\n    label=\"Example field\"\n    :min=\"0\"\n    :max=\"2000\"\n    :reset-value=\"1000\"\n    :step=\"10\"\n    unit=\"ms\"\n    v-model:value=\"value\"\n    :disabled=\"disabled\"\n  />\n</div>\n</template>"
+          "code": "<script setup lang=\"ts\">\nimport { ref } from 'vue';\nimport { FieldGroup } from '@plexui/vue/components/FieldGroup';\nimport { Slider } from '@plexui/vue/components/Slider';\n\nconst value = ref(1000);\nconst disabled = ref(false);\n</script>\n\n<template>\n<!-- Desktop -->\n<div style=\"width: 300px\">\n  <Slider\n    label=\"Example field\"\n    :min=\"0\"\n    :max=\"2000\"\n    :reset-value=\"1000\"\n    :step=\"10\"\n    unit=\"ms\"\n    v-model:value=\"value\"\n    :disabled=\"disabled\"\n  />\n</div>\n\n<!-- Phone: the group's title names the slider and its value ends the cell -->\n<FieldGroup title=\"Example field\">\n  <div data-row class=\"flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]\">\n    <Slider aria-label=\"Example field\" :min=\"0\" :max=\"2000\" :step=\"10\" v-model:value=\"value\" :disabled=\"disabled\" class=\"min-w-0 flex-1\" />\n    <span :class=\"['min-w-[7ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums', disabled ? 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]' : 'text-secondary']\">{{ value }} ms</span>\n  </div>\n</FieldGroup>\n</template>"
         },
         {
           "name": "Adding a tooltip",
@@ -6059,23 +6059,23 @@
         },
         {
           "name": "Marks",
-          "code": "<div style=\"width: 300px\">\n  <Slider\n    v-model:value=\"value\"\n    label=\"Passing grade\"\n    :min=\"1\"\n    :max=\"5\"\n    :step=\"1\"\n    :marks=\"[\n      { value: 1, label: '1' },\n      { value: 2, label: '2' },\n      { value: 3, label: '3' },\n      { value: 4, label: '4' },\n      { value: 5, label: '5' },\n    ]\"\n    track-color=\"#61C454\"\n    range-color=\"#EF4146\"\n  />\n</div>",
-          "details": "Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically."
+          "code": "<!-- Desktop -->\n<div style=\"width: 300px\">\n  <Slider\n    v-model:value=\"value\"\n    label=\"Passing grade\"\n    :min=\"1\"\n    :max=\"5\"\n    :step=\"1\"\n    :marks=\"[\n      { value: 1, label: '1' },\n      { value: 2, label: '2' },\n      { value: 3, label: '3' },\n      { value: 4, label: '4' },\n      { value: 5, label: '5' },\n    ]\"\n    track-color=\"#61C454\"\n    range-color=\"#EF4146\"\n  />\n</div>\n\n<!-- Phone -->\n<FieldGroup title=\"Passing grade\">\n  <div data-row class=\"flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]\">\n    <Slider\n      aria-label=\"Passing grade\"\n      v-model:value=\"value\"\n      :min=\"1\"\n      :max=\"5\"\n      :step=\"1\"\n      :marks=\"[\n        { value: 1, label: '1' },\n        { value: 2, label: '2' },\n        { value: 3, label: '3' },\n        { value: 4, label: '4' },\n        { value: 5, label: '5' },\n      ]\"\n      track-color=\"#61C454\"\n      range-color=\"#EF4146\"\n    />\n  </div>\n</FieldGroup>",
+          "details": "Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own."
         },
         {
           "name": "Range",
-          "code": "<div style=\"width: 300px\">\n  <Slider\n    range\n    label=\"Price range\"\n    :min=\"0\"\n    :max=\"100\"\n    :step=\"1\"\n    v-model:value=\"value\"\n    prefix-unit=\"$\"\n  />\n</div>",
+          "code": "<!-- Desktop -->\n<div style=\"width: 300px\">\n  <Slider\n    range\n    label=\"Price range\"\n    :min=\"0\"\n    :max=\"100\"\n    :step=\"1\"\n    v-model:value=\"value\"\n    prefix-unit=\"$\"\n  />\n</div>\n\n<!-- Phone: the range is too long to stand beside the track, so it goes under it -->\n<FieldGroup title=\"Price range\">\n  <div data-row class=\"flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]\">\n    <Slider range aria-label=\"Price range\" :min=\"0\" :max=\"100\" :step=\"1\" v-model:value=\"value\" />\n    <span class=\"text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums\">{{ value.map((v) => '$' + v).join(' – ') }}</span>\n  </div>\n</FieldGroup>",
           "details": "Set range to enable a dual-thumb slider for selecting a value range. v-model:value then binds an array instead of a single number."
         },
         {
           "name": "Multiple thumbs",
-          "code": "<div style=\"width: 300px\">\n  <Slider\n    range\n    label=\"Breakpoints\"\n    :min=\"0\"\n    :max=\"100\"\n    :step=\"1\"\n    v-model:value=\"value\"\n    :min-steps-between-thumbs=\"5\"\n  />\n</div>",
+          "code": "<!-- Desktop -->\n<div style=\"width: 300px\">\n  <Slider\n    range\n    label=\"Breakpoints\"\n    :min=\"0\"\n    :max=\"100\"\n    :step=\"1\"\n    v-model:value=\"value\"\n    :min-steps-between-thumbs=\"5\"\n  />\n</div>\n\n<!-- Phone: the values go under the track -->\n<FieldGroup title=\"Breakpoints\">\n  <div data-row class=\"flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]\">\n    <Slider range aria-label=\"Breakpoints\" :min=\"0\" :max=\"100\" :step=\"1\" v-model:value=\"value\" :min-steps-between-thumbs=\"5\" />\n    <span class=\"text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums\">{{ value.join(' – ') }}</span>\n  </div>\n</FieldGroup>",
           "details": "Pass three or more values to create a multi-thumb slider. Use min-steps-between-thumbs to enforce minimum spacing between thumbs."
         },
         {
           "name": "Vertical",
           "code": "<Slider\n  label=\"Volume\"\n  :min=\"0\"\n  :max=\"100\"\n  :step=\"1\"\n  v-model:value=\"value\"\n  orientation=\"vertical\"\n/>",
-          "details": "Set orientation=\"vertical\" to render a vertical slider. Marks are not supported in vertical orientation."
+          "details": "Set orientation=\"vertical\" to render a vertical slider. Marks are not supported in vertical orientation. A list of iOS settings has no vertical slider, so this example is desktop only."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/slider"
@@ -8156,5 +8156,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-10T00:50:22.630Z"
+  "generatedAt": "2026-11-10T07:20:58.968Z"
 }

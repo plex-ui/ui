@@ -12,6 +12,22 @@ export const phoneCalendarTimeStageClassName = 'flex w-full min-h-[540px] flex-c
 /** The same room for a DateRangePicker in the second row, one 52px row lower: 517px and 16px under it. */
 export const phoneCalendarSecondRowStageClassName = 'flex w-full min-h-[533px] flex-col';
 
+/** A slider's cell in an inset grouped list on a phone, as iOS Settings draws a named slider (Accessibility: Eye
+ * Tracking, Smoothing; Zoom, Maximum Zoom Level): the group's title names the slider, the slider fills the cell
+ * between the row insets, and a short value ends the cell 12px after it, in the secondary label at the row's type
+ * (Smoothing on the owner's 430pt iPhone: a 51pt row, 12.7pt from the track to "52%"). Where it is used the value
+ * takes the width of its widest text (`min-w-[…ch]`), so the track keeps its length while the value changes. */
+export const sliderCellClassName = 'flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]';
+export const sliderCellValueClassName = 'shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums';
+/** A disabled value takes the tertiary label, as the label of a disabled row does (Field.module.css). */
+export const sliderCellValueDisabledClassName = 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]';
+/** A value too long to stand beside the track (a range, several thumbs), or marks, go under it in the same cell, as
+ * iOS Settings writes "100%" under Siri's Speaking Rate (IMG_5779, 430pt iPhone: a 68pt cell, the track's centre
+ * 22pt from its top, the value in Subheadline 15/20 of the primary label centred on a line from 44pt, 4pt under it).
+ * The track then stands in the cell's first 44px instead of the slider's 52px row. */
+export const sliderCellStackedClassName = 'flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]';
+export const sliderCellValueBelowClassName = 'text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums';
+
 /** A section of an iOS inset grouped list on a phone screen, the shape and fill of a FieldGroup, with row insets. */
 export const phoneSectionClassName = 'rounded-[var(--field-group-radius)] bg-[var(--field-group-background)] px-4';
 

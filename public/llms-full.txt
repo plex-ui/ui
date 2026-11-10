@@ -8038,27 +8038,29 @@ Props:
 
 ### Overview
 ```tsx
-import { useState } from 'react';
-import { Slider } from '@plexui/ui/components/Slider';
+const [value, setValue] = useState(1000)
+const [disabled] = useState(false)
 
-export default function SliderExample() {
-  const [value, setValue] = useState(1000);
-  const [disabled] = useState(false);
+// Desktop
+<Slider
+  label="Example field"
+  min={0}
+  max={2000}
+  resetValue={1000}
+  step={10}
+  unit="ms"
+  value={value}
+  onChange={setValue}
+  disabled={disabled}
+/>
 
-  return (
-    <Slider
-      label="Example field"
-      min={0}
-      max={2000}
-      resetValue={1000}
-      step={10}
-      unit="ms"
-      value={value}
-      onChange={setValue}
-      disabled={disabled}
-    />
-  );
-}
+// Phone: the group's title names the slider and its value ends the cell.
+<FieldGroup title="Example field">
+  <div data-row className="flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]">
+    <Slider aria-label="Example field" min={0} max={2000} step={10} value={value} onChange={setValue} disabled={disabled} className="min-w-0 flex-1" />
+    <span className={`min-w-[7ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums ${disabled ? "text-[var(--mobile-label-tertiary,var(--color-text-disabled))]" : "text-secondary"}`}>{value} ms</span>
+  </div>
+</FieldGroup>
 ```
 
 ### Adding a tooltip
@@ -8085,8 +8087,17 @@ return (
 ```
 
 ### Marks
-Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically.
+Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own.
 ```tsx
+const marks = [
+{ value: 1, label: "1" },
+{ value: 2, label: "2" },
+{ value: 3, label: "3" },
+{ value: 4, label: "4" },
+{ value: 5, label: "5" },
+]
+
+// Desktop
 <Slider
 value={value}
 onChange={setValue}
@@ -8094,22 +8105,25 @@ label="Passing grade"
 min={1}
 max={5}
 step={1}
-marks={[
-  { value: 1, label: "1" },
-  { value: 2, label: "2" },
-  { value: 3, label: "3" },
-  { value: 4, label: "4" },
-  { value: 5, label: "5" },
-]}
+marks={marks}
 trackColor="#61C454"
 rangeColor="#EF4146"
 />
+
+// Phone
+<FieldGroup title="Passing grade">
+<div data-row className="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
+  <Slider aria-label="Passing grade" min={1} max={5} step={1} value={value} onChange={setValue} marks={marks} trackColor="#61C454" rangeColor="#EF4146" />
+</div>
+</FieldGroup>
 ```
 
 ### Range
 Set range to enable a dual-thumb slider for selecting a value range. The value and onChange props accept arrays instead of single numbers.
 ```tsx
 const [value, setValue] = useState([25, 75])
+
+// Desktop
 <Slider
 range
 label="Price range"
@@ -8120,12 +8134,22 @@ value={value}
 onChange={setValue}
 prefixUnit="$"
 />
+
+// Phone: the range is too long to stand beside the track, so it goes under it.
+<FieldGroup title="Price range">
+<div data-row className="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
+  <Slider range aria-label="Price range" min={0} max={100} step={1} value={value} onChange={setValue} />
+  <span className="text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums">{value.map((v) => "$" + v).join(" – ")}</span>
+</div>
+</FieldGroup>
 ```
 
 ### Multiple thumbs
 Pass three or more values to create a multi-thumb slider. Use minStepsBetweenThumbs to enforce minimum spacing between thumbs.
 ```tsx
 const [value, setValue] = useState([10, 40, 70])
+
+// Desktop
 <Slider
 range
 label="Breakpoints"
@@ -8136,10 +8160,18 @@ value={value}
 onChange={setValue}
 minStepsBetweenThumbs={5}
 />
+
+// Phone: the values go under the track.
+<FieldGroup title="Breakpoints">
+<div data-row className="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
+  <Slider range aria-label="Breakpoints" min={0} max={100} step={1} value={value} onChange={setValue} minStepsBetweenThumbs={5} />
+  <span className="text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums">{value.join(" – ")}</span>
+</div>
+</FieldGroup>
 ```
 
 ### Vertical
-Set orientation="vertical" to render a vertical slider. Marks are not supported in vertical orientation.
+Set orientation="vertical" to render a vertical slider. Marks are not supported in vertical orientation. A list of iOS settings has no vertical slider, so this example is desktop only.
 ```tsx
 <Slider
 label="Volume"

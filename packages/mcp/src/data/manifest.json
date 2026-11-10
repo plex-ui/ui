@@ -6031,7 +6031,7 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "import { useState } from 'react';\nimport { Slider } from '@plexui/ui/components/Slider';\n\nexport default function SliderExample() {\n  const [value, setValue] = useState(1000);\n  const [disabled] = useState(false);\n\n  return (\n    <Slider\n      label=\"Example field\"\n      min={0}\n      max={2000}\n      resetValue={1000}\n      step={10}\n      unit=\"ms\"\n      value={value}\n      onChange={setValue}\n      disabled={disabled}\n    />\n  );\n}"
+          "code": "const [value, setValue] = useState(1000)\nconst [disabled] = useState(false)\n\n// Desktop\n<Slider\n  label=\"Example field\"\n  min={0}\n  max={2000}\n  resetValue={1000}\n  step={10}\n  unit=\"ms\"\n  value={value}\n  onChange={setValue}\n  disabled={disabled}\n/>\n\n// Phone: the group's title names the slider and its value ends the cell.\n<FieldGroup title=\"Example field\">\n  <div data-row className=\"flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]\">\n    <Slider aria-label=\"Example field\" min={0} max={2000} step={10} value={value} onChange={setValue} disabled={disabled} className=\"min-w-0 flex-1\" />\n    <span className={`min-w-[7ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums ${disabled ? \"text-[var(--mobile-label-tertiary,var(--color-text-disabled))]\" : \"text-secondary\"}`}>{value} ms</span>\n  </div>\n</FieldGroup>"
         },
         {
           "name": "Adding a tooltip",
@@ -6040,23 +6040,23 @@
         },
         {
           "name": "Marks",
-          "code": "<Slider\nvalue={value}\nonChange={setValue}\nlabel=\"Passing grade\"\nmin={1}\nmax={5}\nstep={1}\nmarks={[\n  { value: 1, label: \"1\" },\n  { value: 2, label: \"2\" },\n  { value: 3, label: \"3\" },\n  { value: 4, label: \"4\" },\n  { value: 5, label: \"5\" },\n]}\ntrackColor=\"#61C454\"\nrangeColor=\"#EF4146\"\n/>",
-          "details": "Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically."
+          "code": "const marks = [\n{ value: 1, label: \"1\" },\n{ value: 2, label: \"2\" },\n{ value: 3, label: \"3\" },\n{ value: 4, label: \"4\" },\n{ value: 5, label: \"5\" },\n]\n\n// Desktop\n<Slider\nvalue={value}\nonChange={setValue}\nlabel=\"Passing grade\"\nmin={1}\nmax={5}\nstep={1}\nmarks={marks}\ntrackColor=\"#61C454\"\nrangeColor=\"#EF4146\"\n/>\n\n// Phone\n<FieldGroup title=\"Passing grade\">\n<div data-row className=\"flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]\">\n  <Slider aria-label=\"Passing grade\" min={1} max={5} step={1} value={value} onChange={setValue} marks={marks} trackColor=\"#61C454\" rangeColor=\"#EF4146\" />\n</div>\n</FieldGroup>",
+          "details": "Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own."
         },
         {
           "name": "Range",
-          "code": "const [value, setValue] = useState([25, 75])\n<Slider\nrange\nlabel=\"Price range\"\nmin={0}\nmax={100}\nstep={1}\nvalue={value}\nonChange={setValue}\nprefixUnit=\"$\"\n/>",
+          "code": "const [value, setValue] = useState([25, 75])\n\n// Desktop\n<Slider\nrange\nlabel=\"Price range\"\nmin={0}\nmax={100}\nstep={1}\nvalue={value}\nonChange={setValue}\nprefixUnit=\"$\"\n/>\n\n// Phone: the range is too long to stand beside the track, so it goes under it.\n<FieldGroup title=\"Price range\">\n<div data-row className=\"flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]\">\n  <Slider range aria-label=\"Price range\" min={0} max={100} step={1} value={value} onChange={setValue} />\n  <span className=\"text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums\">{value.map((v) => \"$\" + v).join(\" – \")}</span>\n</div>\n</FieldGroup>",
           "details": "Set range to enable a dual-thumb slider for selecting a value range. The value and onChange props accept arrays instead of single numbers."
         },
         {
           "name": "Multiple thumbs",
-          "code": "const [value, setValue] = useState([10, 40, 70])\n<Slider\nrange\nlabel=\"Breakpoints\"\nmin={0}\nmax={100}\nstep={1}\nvalue={value}\nonChange={setValue}\nminStepsBetweenThumbs={5}\n/>",
+          "code": "const [value, setValue] = useState([10, 40, 70])\n\n// Desktop\n<Slider\nrange\nlabel=\"Breakpoints\"\nmin={0}\nmax={100}\nstep={1}\nvalue={value}\nonChange={setValue}\nminStepsBetweenThumbs={5}\n/>\n\n// Phone: the values go under the track.\n<FieldGroup title=\"Breakpoints\">\n<div data-row className=\"flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]\">\n  <Slider range aria-label=\"Breakpoints\" min={0} max={100} step={1} value={value} onChange={setValue} minStepsBetweenThumbs={5} />\n  <span className=\"text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums\">{value.join(\" – \")}</span>\n</div>\n</FieldGroup>",
           "details": "Pass three or more values to create a multi-thumb slider. Use minStepsBetweenThumbs to enforce minimum spacing between thumbs."
         },
         {
           "name": "Vertical",
           "code": "<Slider\nlabel=\"Volume\"\nmin={0}\nmax={100}\nstep={1}\nvalue={value}\nonChange={setValue}\norientation=\"vertical\"\n/>",
-          "details": "Set orientation=\"vertical\" to render a vertical slider. Marks are not supported in vertical orientation."
+          "details": "Set orientation=\"vertical\" to render a vertical slider. Marks are not supported in vertical orientation. A list of iOS settings has no vertical slider, so this example is desktop only."
         }
       ],
       "docsUrl": "https://plexui.com/components/slider"
@@ -8230,5 +8230,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-10T00:50:21.495Z"
+  "generatedAt": "2026-11-10T07:20:55.956Z"
 }

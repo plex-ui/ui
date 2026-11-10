@@ -13,32 +13,36 @@ import {
   SliderMultipleThumbsDemo,
   SliderVerticalDemo,
 } from '@/components/docs/SliderDemos'
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName } from "@/components/docs/phoneRowsTemplate"
 
-export const overviewCode = `import { useState } from 'react';
-import { Slider } from '@plexui/ui/components/Slider';
+export const overviewCode = `const [value, setValue] = useState(1000)
+const [disabled] = useState(false)
 
-export default function SliderExample() {
-  const [value, setValue] = useState(1000);
-  const [disabled] = useState(false);
+// Desktop
+<Slider
+  label="Example field"
+  min={0}
+  max={2000}
+  resetValue={1000}
+  step={10}
+  unit="ms"
+  value={value}
+  onChange={setValue}
+  disabled={disabled}
+/>
 
-  return (
-    <Slider
-      label="Example field"
-      min={0}
-      max={2000}
-      resetValue={1000}
-      step={10}
-      unit="ms"
-      value={value}
-      onChange={setValue}
-      disabled={disabled}
-    />
-  );
-}`
+// Phone: the group's title names the slider and its value ends the cell.
+<FieldGroup title="Example field">
+  <div data-row className="${sliderCellClassName}">
+    <Slider aria-label="Example field" min={0} max={2000} step={10} value={value} onChange={setValue} disabled={disabled} className="min-w-0 flex-1" />
+    <span className={\`min-w-[7ch] ${sliderCellValueClassName} \${disabled ? "${sliderCellValueDisabledClassName}" : "text-secondary"}\`}>{value} ms</span>
+  </div>
+</FieldGroup>`
 
 <UsageBlock>{`import { Slider } from "@plexui/ui/components/Slider";`}</UsageBlock>
 
-On Phone, the examples below stretch the slider across the screen between 16px margins, as an iOS slider spans its row, instead of the 300px of the desktop code. For a slider in a list of settings, see [Settings with a slider](/components/settings-forms#settings-with-a-slider).
+On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider, the slider fills the cell, a short value ends it, and a longer value goes under the track. For a slider among other settings, see [Settings with a slider](/components/settings-forms#settings-with-a-slider).
 
 ## Examples
 
@@ -46,7 +50,7 @@ On Phone, the examples below stretch the slider across the screen between 16px m
 
 ### Overview
 
-<ComponentPreview code={overviewCode} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={overviewCode} previewMinHeight={168}>
   <SliderBaseDemoWithControls />
 </ComponentPreview>
 
@@ -75,29 +79,41 @@ return (
 
 ### Marks
 
-<ComponentPreview details={<>Slider marks can be easily added by passing an array of values to the <code>marks</code> prop. Responsive behaviors are handled automatically.</>} code={`<Slider
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Slider marks can be easily added by passing an array of values to the <code>marks</code> prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own.</>} code={`const marks = [
+  { value: 1, label: "1" },
+  { value: 2, label: "2" },
+  { value: 3, label: "3" },
+  { value: 4, label: "4" },
+  { value: 5, label: "5" },
+]
+
+// Desktop
+<Slider
   value={value}
   onChange={setValue}
   label="Passing grade"
   min={1}
   max={5}
   step={1}
-  marks={[
-    { value: 1, label: "1" },
-    { value: 2, label: "2" },
-    { value: 3, label: "3" },
-    { value: 4, label: "4" },
-    { value: 5, label: "5" },
-  ]}
+  marks={marks}
   trackColor="#61C454"
   rangeColor="#EF4146"
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup title="Passing grade">
+  <div data-row className="${sliderCellStackedClassName}">
+    <Slider aria-label="Passing grade" min={1} max={5} step={1} value={value} onChange={setValue} marks={marks} trackColor="#61C454" rangeColor="#EF4146" />
+  </div>
+</FieldGroup>`} previewMinHeight={168}>
   <SliderMarksDemo />
 </ComponentPreview>
 
 ### Range
 
-<ComponentPreview details={<>Set <code>range</code> to enable a dual-thumb slider for selecting a value range. The <code>value</code> and <code>onChange</code> props accept arrays instead of single numbers.</>} code={`const [value, setValue] = useState([25, 75])
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Set <code>range</code> to enable a dual-thumb slider for selecting a value range. The <code>value</code> and <code>onChange</code> props accept arrays instead of single numbers.</>} code={`const [value, setValue] = useState([25, 75])
+
+// Desktop
 <Slider
   range
   label="Price range"
@@ -107,13 +123,23 @@ return (
   value={value}
   onChange={setValue}
   prefixUnit="$"
-/>`} previewMinHeight={168}>
+/>
+
+// Phone: the range is too long to stand beside the track, so it goes under it.
+<FieldGroup title="Price range">
+  <div data-row className="${sliderCellStackedClassName}">
+    <Slider range aria-label="Price range" min={0} max={100} step={1} value={value} onChange={setValue} />
+    <span className="${sliderCellValueBelowClassName}">{value.map((v) => "$" + v).join(" – ")}</span>
+  </div>
+</FieldGroup>`} previewMinHeight={168}>
   <SliderRangeDemo />
 </ComponentPreview>
 
 ### Multiple thumbs
 
-<ComponentPreview details={<>Pass three or more values to create a multi-thumb slider. Use <code>minStepsBetweenThumbs</code> to enforce minimum spacing between thumbs.</>} code={`const [value, setValue] = useState([10, 40, 70])
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass three or more values to create a multi-thumb slider. Use <code>minStepsBetweenThumbs</code> to enforce minimum spacing between thumbs.</>} code={`const [value, setValue] = useState([10, 40, 70])
+
+// Desktop
 <Slider
   range
   label="Breakpoints"
@@ -123,13 +149,21 @@ return (
   value={value}
   onChange={setValue}
   minStepsBetweenThumbs={5}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone: the values go under the track.
+<FieldGroup title="Breakpoints">
+  <div data-row className="${sliderCellStackedClassName}">
+    <Slider range aria-label="Breakpoints" min={0} max={100} step={1} value={value} onChange={setValue} minStepsBetweenThumbs={5} />
+    <span className="${sliderCellValueBelowClassName}">{value.join(" – ")}</span>
+  </div>
+</FieldGroup>`} previewMinHeight={168}>
   <SliderMultipleThumbsDemo />
 </ComponentPreview>
 
 ### Vertical
 
-<ComponentPreview details={<>Set <code>orientation="vertical"</code> to render a vertical slider. Marks are not supported in vertical orientation.</>} code={`<Slider
+<ComponentPreview phonePresentation="none" details={<>Set <code>orientation="vertical"</code> to render a vertical slider. Marks are not supported in vertical orientation. A list of iOS settings has no vertical slider, so this example is desktop only.</>} code={`<Slider
   label="Volume"
   min={0}
   max={100}
