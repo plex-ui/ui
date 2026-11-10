@@ -360,12 +360,14 @@
     --data-table-pagination-wrap: wrap;
     --data-table-pagination-gap: 12px;
 
-    --switch-track-width: 64px;
+    /* A native iOS 27.2 switch is 63 x 28 with a 37 x 24 knob 2pt in from the track's end: a SwiftUI Toggle in
+       the simulator, Calendar (iOS2 IMG_5526) and Reminders (iOS IMG_5442) measure the same at 3x. The kit's
+       64 and 38 (Toggles 29:56814) give way to them. The knob casts no shadow: native goes straight from the
+       white knob to the track (IMG_5442), and the kit's Knob has no effect. Its pressed lens is in
+       mobile-materials.css. */
+    --switch-track-width: 63px;
     --switch-track-height: 28px;
-    /* The knob is 38 x 24, as the iOS 27 kit's (Toggles 29:56814), between native knobs of 37.7 (IMG_5526) and
-       40 (IMG_5442); the pressed lens is then 58 x 38, as the kit's. It casts no shadow: native iOS 26 goes
-       straight from the white knob to the track (Reminders, IMG_5442), and the kit's Knob has no effect. */
-    --switch-thumb-width: 38px;
+    --switch-thumb-width: 37px;
     --switch-thumb-offset: 2px;
     --switch-thumb-shadow: none;
     --switch-label-font-size: 17px;
@@ -375,11 +377,12 @@
     --switch-description-line-height: 20px;
     --switch-track-top-offset: 0px;
     --switch-label-padding-top: 3px;
-    /* An off track is the tertiary label, as the native one is: 197 on a white card (iOS IMG_5442), 101 on a
-       #2c2c2e sheet card (iOS2 IMG_5526), 30% of the label color in both themes. alpha-25 shows at 194 on
-       white and 100 on gray-300. Checked and accent tracks keep theirs. A disabled switch keeps these colors at
-       half opacity (Switch.module.css), so the desktop disabled colors do not apply. */
-    --switch-track-color: var(--alpha-25);
+    /* An off track is the tertiary label, as the native one is: 197 on a white card (iOS IMG_5442, the
+       simulator's c5c5c7), 101 on a #2c2c2e sheet card (iOS2 IMG_5526), 90 on #1c1c1e (the simulator), 30% of
+       the label color in both themes. The role's alpha-25 (mobile-surfaces.css) shows at 195, 100 and 85.
+       Checked and accent tracks keep theirs. A disabled switch keeps these colors at half opacity
+       (Switch.module.css), so the desktop disabled colors do not apply. */
+    --switch-track-color: var(--mobile-label-tertiary, var(--alpha-25));
     --switch-track-color-hover: var(--alpha-30);
 
     /* iOS 26 kit Stepper (507:24687): a 92 x 32 capsule of two 46px segments, minus and plus at 17pt semibold

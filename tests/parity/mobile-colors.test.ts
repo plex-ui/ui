@@ -56,7 +56,7 @@ describe("phone colors use PlexUI tokens", () => {
 
   test("an off switch track is the tertiary label (iOS IMG_5442, iOS2 IMG_5526)", () => {
     const touch = readFileSync(`${styles}/touch.css`, "utf8")
-    expect(touch).toContain("--switch-track-color: var(--alpha-25);")
+    expect(touch).toContain("--switch-track-color: var(--mobile-label-tertiary, var(--alpha-25));")
     expect(touch).toContain("--switch-track-color-hover: var(--alpha-30);")
     // A disabled phone switch keeps these colors at half opacity (kit iOS 27 Toggles, plan 173): no disabled track of its own.
     expect(touch).not.toContain("--switch-track-color-disabled:")

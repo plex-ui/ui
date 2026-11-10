@@ -165,7 +165,7 @@ The Overview includes all four states:
 | Disabled, off | Neutral disabled track; thumb at the start without a shadow | Cannot toggle |
 | Disabled, on | Muted accent track; thumb at the end without a shadow | Cannot toggle |
 
-On a phone the switch follows the iOS 27 kit: the thumb casts no shadow, as the native one, a disabled switch keeps its enabled colors at half opacity, and while it is held the thumb turns into a clear lens of glass over the track.
+On a phone the switch takes the measures of a native iOS 27.2 switch: a 63 × 28px track with a 37 × 24px thumb 2px in from its end, and an off track in the tertiary label color. The thumb casts no shadow, as the native one, a disabled switch keeps its enabled colors at half opacity, and while it is held the thumb turns into a clear lens of glass over the track.
 
 Switch reads these component tokens. Override them at any scope to restyle it:
 
@@ -177,7 +177,7 @@ Switch reads these component tokens. Override them at any scope to restyle it:
 - `--switch-thumb-shadow`: thumb shadow (default `0 1px 2px rgb(0 0 0 / 20%)`; on a phone `none`)
 - `--switch-thumb-size`: thumb size
 - `--switch-accent-color`: checked track color when `color="accent"` (default `light-dark(#34c759, #30d158)`)
-- `--switch-track-color`: track color (default `light-dark(var(--gray-150), var(--gray-400))`; on a phone with `touch.css` `--alpha-25`, the native off track)
+- `--switch-track-color`: track color (default `light-dark(var(--gray-150), var(--gray-400))`; on a phone with `touch.css` the tertiary label `--mobile-label-tertiary`, falling back to `--alpha-25`: the native off track)
 - `--switch-track-color-checked`: track color checked (default `light-dark(var(--gray-900), var(--blue-400))`)
 - `--switch-track-color-checked-disabled`: track color checked disabled (default `light-dark(var(--gray-300), var(--blue-700))`; a phone dims the enabled colors instead)
 - `--switch-track-color-disabled`: track color disabled (default `light-dark(var(--gray-100), var(--gray-300))`; a phone dims the enabled colors instead)

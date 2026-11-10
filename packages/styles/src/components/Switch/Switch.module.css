@@ -141,9 +141,10 @@
   }
 }
 
-/* A phone switch after the iOS 27 kit (Toggles 29:56814). Held down, the knob turns into the lens of glass
-   (mobile-materials.css) over the track, on the knob's centre; without touch.css the knob stays as it is.
-   Disabled, the switch keeps its colors and shows at half opacity (Is Enabled=False). */
+/* A phone switch after native iOS 27.2 (its 63 x 28 track and 37 x 24 knob are in touch.css) and the iOS 27 kit
+   (Toggles 29:56814). Held down, the knob turns into the lens of glass (mobile-materials.css) over the track, on
+   the knob's centre; without touch.css the knob stays as it is. Disabled, the switch keeps its colors and shows
+   at half opacity (Is Enabled=False). */
 @media (max-width: 767px) {
   .Thumb {
     transition:
@@ -154,7 +155,7 @@
   }
 
   .Track:active:not([data-disabled]) > .Thumb {
-    scale: var(--mobile-knob-lens-scale, none);
+    scale: var(--mobile-switch-knob-lens-scale, none);
     background-color: var(--mobile-knob-lens-background, var(--switch-thumb-color));
     box-shadow: var(--mobile-knob-lens-shadow, var(--switch-thumb-shadow));
   }

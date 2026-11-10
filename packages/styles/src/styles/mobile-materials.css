@@ -39,6 +39,10 @@
        The knob grows by scale, so the lengths below are the kit's divided by it. The lens's refraction (0.8,
        depth 7) has no CSS equivalent. */
     --mobile-knob-lens-scale: calc(58 / 38) calc(38 / 24);
+    /* A switch's 37 x 24 knob (touch.css) held down: native iOS 27.2 draws the lens 59 x 39.5 at its outer
+       ring, on the knob's centre (a SwiftUI Toggle held in the simulator), the kit 58 x 38. The lens keeps the
+       kit's 58 x 38 over the narrower knob. */
+    --mobile-switch-knob-lens-scale: calc(58 / 37) calc(38 / 24);
     --mobile-knob-lens-background: rgb(255 255 255 / 9%);
     --mobile-knob-lens-shadow: 0 4.5px 8px rgb(0 0 0 / 12%), 0 0 0 0.33px rgb(0 0 0 / 20%), inset 0 0.5px 0 rgb(255 255 255 / 16%), inset 0 -0.5px 0 rgb(255 255 255 / 16%);
     --mobile-grabber-color: light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 20%));

@@ -253,13 +253,15 @@ describe("lists on a phone (kit iOS 27 Lists 507:24675)", () => {
 describe("phone Switch and Slider states (kit iOS 27 Toggles 29:56814, Sliders 7:53847)", () => {
   const materials = read("packages/styles/src/styles/mobile-materials.css")
 
-  test("a knob held down is a clear lens of glass 58 x 38 on the 38 x 24 knob's centre; without touch.css it stays", () => {
+  test("a knob held down is a clear lens of glass 58 x 38 on the knob's centre; without touch.css it stays", () => {
     expect(materials).toContain("--mobile-knob-lens-scale: calc(58 / 38) calc(38 / 24);")
     expect(materials).toContain("--mobile-knob-lens-background: rgb(255 255 255 / 9%);")
     expect(materials).toMatch(/--mobile-knob-lens-shadow: 0 4\.5px 8px rgb\(0 0 0 \/ 12%\), 0 0 0 0\.33px rgb\(0 0 0 \/ 20%\), inset 0 0\.5px 0 rgb\(255 255 255 \/ 16%\), inset 0 -0\.5px 0 rgb\(255 255 255 \/ 16%\);/)
+    // A switch's knob is the native 37 wide (touch.css), so its lens keeps 58 x 38 by its own scale.
+    expect(materials).toContain("--mobile-switch-knob-lens-scale: calc(58 / 37) calc(38 / 24);")
     const sw = phoneRules("packages/styles/src/components/Switch/Switch.module.css")
     expect(decls(sw.get(".Track:active:not([data-disabled]) > .Thumb"))).toEqual({
-      scale: "var(--mobile-knob-lens-scale, none)",
+      scale: "var(--mobile-switch-knob-lens-scale, none)",
       "background-color": "var(--mobile-knob-lens-background, var(--switch-thumb-color))",
       "box-shadow": "var(--mobile-knob-lens-shadow, var(--switch-thumb-shadow))",
     })
@@ -294,8 +296,13 @@ describe("phone Switch and Slider states (kit iOS 27 Toggles 29:56814, Sliders 7
     expect(decls(track?.nodes.find((n): n is postcss.Rule => n.type === "rule" && n.selector === '&[data-state="checked"]'))).toEqual({ background: "var(--switch-track-color-checked)" })
     expect(decls(sw.get(".Thumb[data-disabled]"))).toEqual({ background: "var(--switch-thumb-color)" })
     expect(touch).toContain("--switch-thumb-shadow: none;")
-    // A 38 x 24 knob, as the kit's, so the lens comes to its 58 x 38.
-    expect(touch).toContain("--switch-thumb-width: 38px;")
+    // The native 63 x 28 track and 37 x 24 knob of iOS 27.2 (simulator, Calendar IMG_5526, Reminders IMG_5442),
+    // and an off track in the tertiary label role.
+    expect(touch).toContain("--switch-track-width: 63px;")
+    expect(touch).toContain("--switch-track-height: 28px;")
+    expect(touch).toContain("--switch-thumb-width: 37px;")
+    expect(touch).toContain("--switch-thumb-offset: 2px;")
+    expect(touch).toContain("--switch-track-color: var(--mobile-label-tertiary, var(--alpha-25));")
     expect(decls(phoneRules("packages/styles/src/components/Slider/Slider.module.css").get(".Slider[data-disabled]"))).toEqual({ opacity: "0.5" })
     // The phone rules use the query of touch.css, where the lens tokens live; desktop keeps its own look.
     expect(read("packages/styles/src/components/Switch/Switch.module.css")).not.toContain("767.98px")
