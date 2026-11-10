@@ -29,7 +29,7 @@ export const sliderCellStackedClassName = 'flex flex-col px-[var(--field-row-pad
 export const sliderCellValueBelowClassName = 'text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums';
 
 /** A section of an iOS inset grouped list on a phone screen, the shape and fill of a FieldGroup, with row insets. */
-export const phoneSectionClassName = 'rounded-[var(--field-group-radius)] bg-[var(--field-group-background)] px-4';
+export const phoneSectionClassName = 'rounded-[var(--field-group-radius)] bg-[var(--field-group-background)] px-[var(--mobile-list-inset,20px)]';
 
 /** A Vue template as a phone screen, the same wrapper as the React `PhoneScreen`: a grouped Page, and with
  * `section` a section of an inset grouped list around the example. */

@@ -19,7 +19,7 @@
   }
 
   .Control[data-slot="input"] {
-    --input-gutter: var(--mobile-layout-margin, 16px);
+    --input-gutter: var(--mobile-list-inset, 20px);
     width: 100%;
     border-radius: 0;
   }
@@ -83,7 +83,7 @@
 
   .Note {
     margin: 0;
-    padding: 0 var(--mobile-layout-margin, 16px) 12px;
+    padding: 0 var(--mobile-list-inset, 20px) 12px;
   }
 
   .Note[role="alert"] {
@@ -128,7 +128,7 @@
   .Country {
     width: 100%;
     min-height: var(--field-row-min-height, 52px);
-    padding: 0 var(--mobile-layout-margin, 16px);
+    padding: 0 var(--mobile-list-inset, 20px);
     border: 0;
     border-radius: 0;
     background: transparent;

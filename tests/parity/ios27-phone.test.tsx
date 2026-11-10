@@ -230,9 +230,9 @@ describe("lists on a phone (kit iOS 27 Lists 507:24675)", () => {
     })
     expect(roots.find((d) => "--sortable-handle-inset" in d)).toMatchObject({
       "--sortable-handle-order": "1",
-      "--sortable-handle-margin-end": "calc(var(--mobile-layout-margin) - 11px)",
+      "--sortable-handle-margin-end": "calc(var(--mobile-list-inset) - 11px)",
       "--sortable-handle-margin-start": "0px",
-      "--sortable-handle-field-margin-start": "calc(1px - var(--mobile-layout-margin))",
+      "--sortable-handle-field-margin-start": "calc(1px - var(--mobile-list-inset))",
       "--sortable-handle-color": "var(--mobile-label-tertiary)",
       "--sortable-handle-color-hover": "var(--mobile-label-tertiary)",
     })

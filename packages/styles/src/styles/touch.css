@@ -79,13 +79,20 @@
   }
 
   html:root {
-    /* iOS layout margin: 16pt up to 402pt wide (the iOS 26 kit's toolbar and row insets at 402), 20pt from
-       414pt (IMG_5470/5508/5512/5514/5515 at 430pt put bar buttons, list groups and row text at 20). Page
-       and Toolbar gutters, sheet bodies and actions, rows, separators and group titles share it. */
+    /* iOS layout margin: 16pt up to 402pt wide (the iOS 26 kit's toolbar insets at 402; an inset grouped list
+       stands 16pt from the screen's edges on an iPhone 17), 20pt from 414pt (IMG_5470/5508/5512/5514/5515 at
+       430pt put bar buttons and list groups at 20). Page and Toolbar gutters and sheet bodies and actions
+       share it. */
     --mobile-layout-margin: 16px;
+    /* Inside a cell of an inset grouped list the text, the line between rows, and the group's title and footer
+       start 20pt from the cell's edge at every width: iOS 27.2 on an iPhone 17 (402pt; SwiftUI Form and UIKit
+       insetGrouped) and Settings at 430pt (IMG_5512) both measure 20, while the cell moves from 16 to 20pt off
+       the screen's edge. Rows, separators, group titles and footers, vertical tabs and the phone Sidebar list
+       share it. */
+    --mobile-list-inset: 20px;
     --page-gutter: var(--mobile-layout-margin);
     --toolbar-gutter: var(--mobile-layout-margin);
-    --field-row-padding-inline: var(--mobile-layout-margin);
+    --field-row-padding-inline: var(--mobile-list-inset);
     --control-size-sm: 44px;
     --control-size-md: 44px;
     --control-size-lg: 44px;
@@ -175,12 +182,12 @@
     /* Kit iOS 27 Lists (Row, _Grabber 5533:12351): the reorder control ends the row, after its value, in the
        tertiary label color. Its 22px symbol frame stands on the row margin, 12px after the value; the 44px target
        centers the 17px symbol, so it reaches 11px past that frame on each side. After a Field row, whose own
-       inline padding is the layout margin, it reaches into that padding; after other content it starts where the
+       inline padding is the list inset, it reaches into that padding; after other content it starts where the
        content ends, so it never covers it. */
     --sortable-handle-order: 1;
-    --sortable-handle-margin-end: calc(var(--mobile-layout-margin) - 11px);
+    --sortable-handle-margin-end: calc(var(--mobile-list-inset) - 11px);
     --sortable-handle-margin-start: 0px;
-    --sortable-handle-field-margin-start: calc(1px - var(--mobile-layout-margin));
+    --sortable-handle-field-margin-start: calc(1px - var(--mobile-list-inset));
     --sortable-handle-color: var(--mobile-label-tertiary);
     --sortable-handle-color-hover: var(--mobile-label-tertiary);
 
@@ -579,7 +586,7 @@
     --badge-size-xl: 36px;
 
     --field-group-radius: 26px;
-    --field-group-separator-inset: var(--mobile-layout-margin);
+    --field-group-separator-inset: var(--mobile-list-inset);
     --field-group-border-width: 0px;
     --field-group-background: var(--mobile-surface-plain-secondary, var(--color-background-secondary-soft-alpha));
     --field-group-title-color: var(--color-text-secondary);
@@ -596,8 +603,8 @@
        measures (5514: lines 16pt apart, paragraphs one empty line apart). */
     --field-group-footer-line-height: 16px;
     --field-group-footer-paragraph-gap: 16px;
-    --field-group-footer-padding: 8px var(--mobile-layout-margin) 6px;
-    --field-group-title-padding-inline: var(--mobile-layout-margin);
+    --field-group-footer-padding: 8px var(--mobile-list-inset) 6px;
+    --field-group-title-padding-inline: var(--mobile-list-inset);
     /* Kit iOS 27 Lists, Header 517:38042: the Subtitle under a header is Subheadline 15/20, secondary. */
     --field-group-description-font-size: 15px;
     --field-group-description-line-height: 20px;

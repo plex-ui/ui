@@ -822,7 +822,7 @@
   }
 
   /* Vertical tabs of either variant are an inset grouped list (kit Lists, Row 550:50430): rows of
-     52px with 17px text from the 16px margin, a symbol in a 28px column 8px before the text, a
+     52px with 17px text 20px inside the list (--mobile-list-inset), a symbol in a 28px column 8px before the text, a
      separator from the text and the 17pt checkmark (22px) at the end of the selected row, as iOS
      marks the one choice of a list. The selection keeps the regular weight. */
   .Tabs:where([data-orientation="vertical"]) {
@@ -855,7 +855,7 @@
     gap: 16px;
     height: auto;
     min-height: var(--field-row-min-height, 52px);
-    padding: 0 var(--mobile-layout-margin, 16px);
+    padding: 0 var(--mobile-list-inset, 20px);
     border-radius: 0;
     color: var(--color-text);
     font-weight: inherit;
@@ -881,7 +881,8 @@
   .Tabs[data-orientation="vertical"] .Tab + .Tab::after {
     position: absolute;
     top: 0;
-    inset-inline: var(--mobile-layout-margin, 16px) 0;
+    /* The line stops at the list inset on both ends, as between iOS 27 list rows (FieldGroup). */
+    inset-inline: var(--mobile-list-inset, 20px);
     height: 1px;
     background: var(--color-border);
     content: "";
@@ -890,7 +891,7 @@
 
   .Tabs[data-orientation="vertical"] .Tab:has(> .TabContent > svg:first-child:not(:only-child)) + .Tab::after,
   .Tabs[data-orientation="vertical"] .Tab + .Tab:has(> .TabContent > svg:first-child:not(:only-child))::after {
-    inset-inline-start: calc(var(--mobile-layout-margin, 16px) + 36px);
+    inset-inline-start: calc(var(--mobile-list-inset, 20px) + 36px);
   }
 
   .Tabs[data-orientation="vertical"] .Tab > .TabCheckmark {

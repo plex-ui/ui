@@ -1715,7 +1715,7 @@ describe("Sidebar drawer on a phone is an iOS 26 grouped list", () => {
     expect(css.slice(start, css.indexOf("@media", start))).toMatch(/\.MenuDisclosure \{\s*display: none;\s*\}/)
     expect(block).toContain(".MobileSidebar:not(:where(.App *)) {")
     for (const declaration of [
-      "--sidebar-list-inset: var(--sidebar-mobile-list-inset, var(--mobile-layout-margin, 16px));",
+      "--sidebar-list-inset: var(--sidebar-mobile-list-inset, var(--mobile-list-inset, 20px));",
       "--sidebar-menu-item-height: var(--sidebar-mobile-list-row-height, 52px);",
       "--sidebar-menu-text: var(--color-text);",
       "background: var(--sidebar-mobile-background, var(--mobile-surface-grouped-primary, var(--color-surface-secondary)));",

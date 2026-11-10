@@ -1232,7 +1232,9 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="vertical"\]\) > \.TabsThumb \{\s*display: none;\s*\}/)
     const row = phone.match(/\.Tabs\[data-orientation="vertical"\] \.Tab \{([^}]*)/)?.[1] ?? ""
     expect(row).toContain("min-height: var(--field-row-min-height, 52px);")
-    expect(row).toContain("padding: 0 var(--mobile-layout-margin, 16px);")
+    expect(row).toContain("padding: 0 var(--mobile-list-inset, 20px);")
+    // The line between rows stops at the list inset on both ends, as between iOS 27 list rows.
+    expect(phone).toMatch(/\.Tab \+ \.Tab::after \{[^}]*inset-inline: var\(--mobile-list-inset, 20px\);/)
     expect(row).toContain("font-weight: inherit;")
     expect(phone).toMatch(/\.Tab > \.TabCheckmark \{\s*display: block;[^}]*visibility: hidden;/)
     expect(phone).toMatch(/\.Tab\[data-state="on"\] > \.TabCheckmark \{\s*visibility: visible;\s*\}/)

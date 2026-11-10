@@ -1315,7 +1315,7 @@
 
 @media (max-width: 767px) {
   .MobileSidebar:not(:where(.App *)) {
-    --sidebar-list-inset: var(--sidebar-mobile-list-inset, var(--mobile-layout-margin, 16px));
+    --sidebar-list-inset: var(--sidebar-mobile-list-inset, var(--mobile-list-inset, 20px));
     --sidebar-list-icon-column: var(--sidebar-mobile-list-icon-column, 40px);
     --sidebar-list-indent: var(--sidebar-mobile-list-indent, 20px);
     --sidebar-row-inset: var(--sidebar-list-inset);

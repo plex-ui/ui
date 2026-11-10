@@ -271,7 +271,13 @@ describe("FieldGroup separators on a phone", () => {
       "inset-inline: var(--field-group-separator-inset-start, var(--field-group-separator-inset, 0px))\n      var(--field-group-separator-inset-end, var(--field-group-separator-inset, 0px));",
     )
     const touch = readFileSync(`${process.cwd()}/packages/styles/src/styles/touch.css`, "utf8")
-    expect(touch).toContain("--field-group-separator-inset: var(--mobile-layout-margin);")
+    expect(touch).toContain("--field-group-separator-inset: var(--mobile-list-inset);")
+    // Inside an inset grouped cell the text, the line, the title and the footer stand 20pt from its edge at every
+    // width (iOS 27.2 at 402pt, Settings at 430pt); only the cell's margin from the screen changes.
+    expect(touch).toContain("--mobile-list-inset: 20px;")
+    expect(touch).toContain("--field-row-padding-inline: var(--mobile-list-inset);")
+    expect(touch).toContain("--field-group-title-padding-inline: var(--mobile-list-inset);")
+    expect(touch).toContain("--field-group-footer-padding: 8px var(--mobile-list-inset) 6px;")
     // The composer's icon rows start the line under their titles through the token, not a rule of their own
     const composer = readFileSync(`${process.cwd()}/components/docs/SegmentedComposer.module.css`, "utf8")
     expect(composer).toContain("--field-group-separator-inset-start: var(--composer-row-text-start);")
