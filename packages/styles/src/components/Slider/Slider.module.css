@@ -316,13 +316,35 @@
     padding-right: 0;
   }
 
+  /* An iOS knob stands on the value, where the fill ends, and stops half its width from each end of the track:
+     within that half width of an end the knob stands and the fill runs on under it (iPhone, Settings, Display
+     & Brightness, the owner's screenshots of 10.11: the fill ends on the lens's centre at 9% and 91%; with the
+     lens against an end it ends 8pt from the start, or 8pt short of the end). Radix eases the knob over the
+     whole track instead, its centre at p·W + h·(1 − 2p), so the fill ends on the centre only at the middle; each
+     knob (its value p from 0 to 1 in --slider-thumb-percent) is moved from there to the iOS place, at once, as
+     Radix moves it. The container gives the track's width (cqw); the marks read --slider-thumb-travel to stand
+     under the knob. A vertical slider keeps Radix's travel. */
+  .SliderWrap[data-orientation="horizontal"] .SliderContainer {
+    container-type: inline-size;
+  }
+
+  .Slider[data-orientation="horizontal"] {
+    --slider-thumb-travel: clamped;
+  }
+
   /* The knob being dragged turns into the lens of glass (mobile-materials.css), on its centre (kit iOS 27
      Sliders 7:53847, State=Pressed); without touch.css it stays as it is. The slider is pressed from the first
      touch, wherever on the track it lands; of a range, the nearest knob, which the press focuses. A vertical
      slider is a web layout with no iOS knob, so it keeps its own. */
   .Slider[data-orientation="horizontal"] .Thumb {
+    --slider-thumb-half: calc(var(--slider-thumb-width, 14px) / 2);
+    --slider-thumb-at: calc(var(--slider-thumb-percent, 0.5) * 100cqw);
+
+    inset-inline-start: calc(
+      clamp(var(--slider-thumb-half), var(--slider-thumb-at), 100cqw - var(--slider-thumb-half)) -
+        var(--slider-thumb-at) - var(--slider-thumb-half) * (1 - 2 * var(--slider-thumb-percent, 0.5))
+    );
     transition:
-      left var(--slider-duration) var(--cubic-move),
       scale 200ms var(--cubic-enter),
       background-color 200ms var(--cubic-enter),
       box-shadow 200ms var(--cubic-enter);

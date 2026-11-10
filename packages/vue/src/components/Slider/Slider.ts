@@ -13,6 +13,7 @@ import {
   type VNode,
   type VNodeArrayChildren,
 } from "vue"
+import { useBreakpoint } from "../../composables/useBreakpoints.js"
 import { toCssVariables } from "../../lib/helpers.js"
 import { Button } from "../Button/index.js"
 import { Reload } from "../Icon/index.js"
@@ -123,6 +124,19 @@ const focusThumbToMove = (event: PointerEvent, root: HTMLElement, values: number
   if (thumb && thumb !== document.activeElement) thumb.focus({ preventScroll: true, focusVisible: false } as FocusOptions)
 }
 
+/** A knob's value from 0 to 1, by which a phone stands the knob on its value as iOS does (Slider.module.css). */
+const thumbPercentStyle = (value: number, min: number, max: number) => ({
+  "--slider-thumb-percent": String(max > min ? clamp((value - min) / (max - min), 0, 1) : 0),
+})
+
+/**
+ * Where a knob's centre stands at a value (0 to 1), from the start of a track `width` wide. The primitive (Radix)
+ * eases the knob over the whole track to keep it inside; on a phone it stands on the value and stops half its
+ * width from each end, as iOS (`clamped`, Slider.module.css).
+ */
+const thumbCentre = (percent: number, width: number, thumbHalf: number, clamped: boolean) =>
+  clamped ? clamp(percent * width, thumbHalf, width - thumbHalf) : percent * width + thumbHalf * (1 - 2 * percent)
+
 const SliderMarks = defineComponent({
   name: "SliderMarks",
   props: {
@@ -140,6 +154,8 @@ const SliderMarks = defineComponent({
     // We measure the width of the slider within this component so that sliders
     // without marks do not pay a performance penalty.
     const sliderWidth = ref<number | undefined>(undefined)
+    // The knob's travel changes at the phone breakpoint (Slider.module.css), also where the width stays
+    const tabletAndUp = useBreakpoint("md")
     let observer: ResizeObserver | undefined
 
     // React's useLayoutEffect on [marks, thumbRef, min, max, sliderWidth]
@@ -154,7 +170,9 @@ const SliderMarks = defineComponent({
 
       const markElements = Array.from(container.querySelectorAll<HTMLDivElement>("[data-mark]"))
 
-      const thumbHalfWidth = thumb.getBoundingClientRect().width / 2
+      // Its layout width: a pressed knob is scaled into the lens
+      const thumbHalfWidth = thumb.offsetWidth / 2
+      const clamped = getComputedStyle(thumb).getPropertyValue("--slider-thumb-travel").trim() === "clamped"
 
       // Wipe all styles so we can accurately determine the positions of the marks
       markElements.forEach((markEl) => {
@@ -176,16 +194,8 @@ const SliderMarks = defineComponent({
           const markWidth = markEl.getBoundingClientRect().width
           const markHalfWidth = markWidth / 2
 
-          // Radix smoothes the width of the thumb over the entire track so
-          // that the thumb is always within bounds. We need to duplicate
-          // this smoothing so that the marks match the observed breakpoints.
-          const smoothedThumb = thumbHalfWidth - valuePercent * (thumbHalfWidth / 0.5)
-
-          // Calculate where we would naively put the mark based on the value
-          const naiveLeftOffset = valuePercent * width
-
-          // Add the thumb smoothing, and account for the width of the mark itself
-          let left = naiveLeftOffset + smoothedThumb - markHalfWidth
+          // Under the knob's centre at the mark's value, accounting for the width of the mark itself
+          let left = thumbCentre(valuePercent, width, thumbHalfWidth, clamped) - markHalfWidth
 
           // Clamp to the left and right bounds of the container
           left = Math.max(0, Math.min(left, width - markWidth))
@@ -259,7 +269,7 @@ const SliderMarks = defineComponent({
       observer?.disconnect()
     })
 
-    watch([() => props.marks, () => props.min, () => props.max, sliderWidth], layoutMarks, { flush: "post" })
+    watch([() => props.marks, () => props.min, () => props.max, sliderWidth, tabletAndUp], layoutMarks, { flush: "post" })
 
     return () =>
       h("div", { class: s.MarksContainer, ref: marksContainerRef }, [
@@ -702,6 +712,7 @@ const SliderComponent = defineComponent({
                         "key": i,
                         "id": `${id}-thumb-${i}`,
                         "class": s.Thumb,
+                        "style": thumbPercentStyle((value as number[])[i]!, props.min, props.max),
                         // The marks measure the first thumb (all thumbs are the same size)
                         "elementRef": i === 0 ? setThumb : undefined,
                         // Name plus the thumb's own Radix name ("Minimum" / "Maximum"),
@@ -716,6 +727,7 @@ const SliderComponent = defineComponent({
                   : [
                       h(SliderThumb, {
                         "class": s.Thumb,
+                        "style": thumbPercentStyle(value as number, props.min, props.max),
                         "elementRef": setThumb,
                         "aria-labelledby": nameId,
                         ...(!nameId && ariaLabel ? { "aria-label": ariaLabel } : {}),

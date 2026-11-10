@@ -275,8 +275,14 @@ describe("phone Switch and Slider states (kit iOS 27 Toggles 29:56814, Sliders 7
       "box-shadow": "var(--mobile-knob-lens-shadow, var(--slider-thumb-shadow, inset 0 0 0 2px var(--slider-range-color)))",
     }
     expect(decls(slider.get('.Slider[data-orientation="horizontal"][data-pressed]:not([data-range], [data-disabled]) .Thumb,\n  .Slider[data-orientation="horizontal"][data-pressed][data-range]:not([data-disabled]) .Thumb:focus'))).toEqual(lens)
-    // The thumb still slides to a value set in code; a vertical slider keeps its own knob.
-    expect(decls(slider.get('.Slider[data-orientation="horizontal"] .Thumb')).transition).toMatch(/^left var\(--slider-duration\) var\(--cubic-move\),/)
+    // Radix moves the knob's wrapper at once (a `left` on the knob itself never moved it), and a phone moves the
+    // knob on from there to the iOS place at once too: the knob's own transitions are the lens's. A vertical
+    // slider keeps its own knob.
+    const knob = decls(slider.get('.Slider[data-orientation="horizontal"] .Thumb'))
+    expect(knob.transition.replace(/\s+/g, " ")).toBe("scale 200ms var(--cubic-enter), background-color 200ms var(--cubic-enter), box-shadow 200ms var(--cubic-enter)")
+    // The iOS place (IMG_5770–5774): on the value, half the knob from each end; the track's width from the container
+    expect(knob["inset-inline-start"].replace(/\s+/g, " ")).toContain("clamp(var(--slider-thumb-half), var(--slider-thumb-at), 100cqw - var(--slider-thumb-half))")
+    expect(decls(slider.get('.SliderWrap[data-orientation="horizontal"] .SliderContainer'))).toEqual({ "container-type": "inline-size" })
   })
 
   test("disabled, both keep their colors at half opacity; the switch knob casts no shadow (IMG_5442)", () => {

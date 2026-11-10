@@ -16,8 +16,8 @@ import { renderPair } from "./pair"
 //
 // jsdom lacks what the slider measures with, so both frameworks get the
 // same stand-ins: a recording ResizeObserver, matchMedia (the `md`
-// breakpoint), pointer capture, and getBoundingClientRect when a test sets
-// `rects`.
+// breakpoint), pointer capture, and getBoundingClientRect and the layout
+// width (offsetWidth) when a test sets `rects`.
 
 type Rect = { left: number; top: number; width: number; height: number }
 
@@ -38,6 +38,8 @@ class FakeResizeObserver {
 }
 
 let tabletAndUp = true
+// The media query listeners, so a test can cross the breakpoint
+const mediaListeners = new Set<() => void>()
 let rects: ((element: Element) => Rect | undefined) | undefined
 const captures = new WeakMap<Element, Set<number>>()
 
@@ -47,20 +49,27 @@ const toDomRect = ({ left, top, width, height }: Rect) =>
 beforeEach(() => {
   observers.length = 0
   tabletAndUp = true
+  mediaListeners.clear()
   rects = undefined
   vi.stubGlobal("ResizeObserver", FakeResizeObserver)
   vi.stubGlobal("matchMedia", (query: string) => ({
-    matches: tabletAndUp,
+    get matches() {
+      return tabletAndUp
+    },
     media: query,
-    addListener() {},
-    removeListener() {},
-    addEventListener() {},
-    removeEventListener() {},
+    addListener: (listener: () => void) => mediaListeners.add(listener),
+    removeListener: (listener: () => void) => mediaListeners.delete(listener),
+    addEventListener: (_type: string, listener: () => void) => mediaListeners.add(listener),
+    removeEventListener: (_type: string, listener: () => void) => mediaListeners.delete(listener),
   }))
   const original = Element.prototype.getBoundingClientRect
   vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
     const rect = rects?.(this)
     return rect ? toDomRect(rect) : original.call(this)
+  })
+  const offsetWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth")!.get!
+  vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(function (this: HTMLElement) {
+    return rects?.(this)?.width ?? offsetWidth.call(this)
   })
   Object.assign(Element.prototype, {
     setPointerCapture(this: Element, id: number) {
@@ -942,6 +951,60 @@ describe("Slider form, focus and tooltip parity", () => {
     expect(result.react[1]).toContain('class="Mark" data-mark="true" style="left: 69px"')
     expect(result.react[2]).toContain("width: min-content")
     expect(result.react[3]).toContain("display: none")
+  })
+
+  test("crossing to a phone, the marks follow the knob, which stops half its width from each end", async () => {
+    // Slider.module.css sets --slider-thumb-travel on a phone, where the knob stands on its value as iOS (from
+    // the --slider-thumb-percent each thumb carries) instead of Radix's easing over the track
+    const computed = window.getComputedStyle.bind(window)
+    const travel = vi.spyOn(window, "getComputedStyle").mockImplementation((element, pseudo) => {
+      const style = computed(element, pseudo)
+      if (tabletAndUp || element.getAttribute("role") !== "slider") return style
+      return new Proxy(style, {
+        get: (target, key) =>
+          key === "getPropertyValue"
+            ? (name: string) => (name === "--slider-thumb-travel" ? "clamped" : target.getPropertyValue(name))
+            : Reflect.get(target, key),
+      })
+    })
+    rects = (element) => {
+      const el = element as HTMLElement
+      if (el.getAttribute("role") === "slider") return { left: 0, top: 0, width: 16, height: 16 }
+      if (el.hasAttribute("data-mark")) return { left: parseFloat(el.style.left) || 0, top: 0, width: 20, height: 15 }
+      return undefined
+    }
+    try {
+      const crossTo = (wide: boolean) => {
+        tabletAndUp = wide
+        for (const listener of [...mediaListeners]) listener()
+      }
+      const result = await sliderWalk({ label: "Grade", min: 1, max: 5, step: 1, value: 3, marks: MARKS }, "controlled", async (t) => {
+        // Each framework's walk starts on a desktop
+        await t.run(() => crossTo(true))
+        await t.run(() => {
+          const observer = observers
+            .filter((o) => o.targets.some((target) => target.isConnected && target.parentElement?.classList.contains("MarksContainer")))
+            .at(-1)!
+          observer.callback(
+            [{ contentBoxSize: [{ inlineSize: 300, blockSize: 15 }] } as unknown as ResizeObserverEntry],
+            observer as unknown as ResizeObserver,
+          )
+        })
+        t.snapshot()
+        // The same 300px: only the breakpoint changes
+        await t.run(() => crossTo(false))
+        t.snapshot()
+      })
+      expect(result.vue).toEqual(result.react)
+      expect(result.react[0]).toContain('role="slider" style="--slider-thumb-percent: 0.5"')
+      // A 300px track, a 16px knob and 20px marks, each mark centred under the knob's centre and kept inside the
+      // track: Radix's centres 8, 79, 150, 221 and 292, a phone's 8, 75, 150, 225 and 292
+      const lefts = (markup: string) => [...markup.matchAll(/data-mark="true" style="left: (\d+)px"/g)].map((match) => Number(match[1]))
+      expect(lefts(result.react[0]!)).toEqual([0, 69, 140, 211, 280])
+      expect(lefts(result.react[1]!)).toEqual([0, 65, 140, 215, 280])
+    } finally {
+      travel.mockRestore()
+    }
   })
 
   test("switching orientation remounts the slider", async () => {

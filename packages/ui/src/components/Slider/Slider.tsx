@@ -20,6 +20,7 @@ import {
   useState,
 } from "react"
 import { useDebounceCallback, useResizeObserver } from "usehooks-ts"
+import { useBreakpoint } from "../../hooks/useBreakpoints"
 import { useIsMounted } from "../../hooks/useIsMounted"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { usePrevious } from "../../hooks/usePrevious"
@@ -155,6 +156,18 @@ const focusThumbToMove = (event: PointerEvent, root: HTMLElement, values: number
   const thumb = thumbs[distances.indexOf(Math.min(...distances))]
   if (thumb && thumb !== document.activeElement) thumb.focus({ preventScroll: true, focusVisible: false } as FocusOptions)
 }
+
+/** A knob's value from 0 to 1, by which a phone stands the knob on its value as iOS does (Slider.module.css). */
+const thumbPercentStyle = (value: number, min: number, max: number) =>
+  ({ "--slider-thumb-percent": String(max > min ? clamp((value - min) / (max - min), 0, 1) : 0) }) as React.CSSProperties
+
+/**
+ * Where a knob's centre stands at a value (0 to 1), from the start of a track `width` wide. Radix eases the knob
+ * over the whole track to keep it inside; on a phone it stands on the value and stops half its width from each
+ * end, as iOS (`clamped`, Slider.module.css).
+ */
+const thumbCentre = (percent: number, width: number, thumbHalf: number, clamped: boolean) =>
+  clamped ? clamp(percent * width, thumbHalf, width - thumbHalf) : percent * width + thumbHalf * (1 - 2 * percent)
 
 export const Slider = memo((props: SliderProps) => {
   const {
@@ -496,6 +509,7 @@ export const Slider = memo((props: SliderProps) => {
                 key={i}
                 id={`${id}-thumb-${i}`}
                 className={s.Thumb}
+                style={thumbPercentStyle((value as number[])[i], min, max)}
                 // The marks measure the first thumb (all thumbs are the same size)
                 ref={i === 0 ? thumbRef : undefined}
                 // Name plus the thumb's own Radix name ("Minimum" / "Maximum"),
@@ -514,6 +528,7 @@ export const Slider = memo((props: SliderProps) => {
           ) : (
             <RadixSlider.Thumb
               className={s.Thumb}
+              style={thumbPercentStyle(value as number, min, max)}
               ref={thumbRef}
               aria-labelledby={nameId}
               {...(!nameId && ariaLabel ? { "aria-label": ariaLabel } : {})}
@@ -551,6 +566,8 @@ const SliderMarks = memo(({ marks, thumbRef, min, max }: MarksProps) => {
   // without marks do not pay a performance penalty.
   // @ts-expect-error(2322) -- bug in types: https://github.com/juliencrn/usehooks-ts/issues/663
   const { width: sliderWidth } = useResizeObserver({ ref: measureRef })
+  // The knob's travel changes at the phone breakpoint (Slider.module.css), also where the width stays
+  const tabletAndUp = useBreakpoint("md")
 
   useLayoutEffect(() => {
     // Impossible
@@ -562,7 +579,9 @@ const SliderMarks = memo(({ marks, thumbRef, min, max }: MarksProps) => {
       marksContainerRef.current.querySelectorAll("[data-mark]"),
     ) as HTMLDivElement[]
 
-    const thumbHalfWidth = thumbRef.current.getBoundingClientRect().width / 2
+    // Its layout width: a pressed knob is scaled into the lens
+    const thumbHalfWidth = thumbRef.current.offsetWidth / 2
+    const clamped = getComputedStyle(thumbRef.current).getPropertyValue("--slider-thumb-travel").trim() === "clamped"
 
     // Wipe all styles so we can accurately determine the positions of the marks
     markElements.forEach((markEl) => {
@@ -581,16 +600,8 @@ const SliderMarks = memo(({ marks, thumbRef, min, max }: MarksProps) => {
         const markWidth = markEl.getBoundingClientRect().width
         const markHalfWidth = markWidth / 2
 
-        // Radix smoothes the width of the thumb over the entire track so
-        // that the thumb is always within bounds. We need to duplicate
-        // this smoothing so that the marks match the observed breakpoints.
-        const smoothedThumb = thumbHalfWidth - valuePercent * (thumbHalfWidth / 0.5)
-
-        // Calculate where we would naively put the mark based on the value
-        const naiveLeftOffset = valuePercent * sliderWidth
-
-        // Add the thumb smoothing, and account for the width of the mark itself
-        let left = naiveLeftOffset + smoothedThumb - markHalfWidth
+        // Under the knob's centre at the mark's value, accounting for the width of the mark itself
+        let left = thumbCentre(valuePercent, sliderWidth, thumbHalfWidth, clamped) - markHalfWidth
 
         // Clamp to the left and right bounds of the container
         left = Math.max(0, Math.min(left, sliderWidth - markWidth))
@@ -638,7 +649,7 @@ const SliderMarks = memo(({ marks, thumbRef, min, max }: MarksProps) => {
     marksContainerRef.current.style.height = tallestHeight > 0 ? `${tallestHeight}px` : ""
     // Placed against the slider's width: the marks show, at their own height (Slider.module.css)
     if (sliderWidth) marksContainerRef.current.dataset.measured = ""
-  }, [marks, thumbRef, marksContainerRef, min, max, sliderWidth])
+  }, [marks, thumbRef, marksContainerRef, min, max, sliderWidth, tabletAndUp])
 
   return (
     <div className={s.MarksContainer} ref={marksContainerRef}>
