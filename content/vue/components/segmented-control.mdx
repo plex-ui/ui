@@ -7,6 +7,8 @@ aliases: Tabs, TabsTab, TabsOption
 
 import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import pageStyles from "@/components/docs/PageDemos.module.css"
+import toolbarStyles from "@/components/docs/ToolbarDemos.module.css"
 import { phoneRows } from "@/components/docs/phoneRowsTemplate"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
@@ -17,13 +19,16 @@ export const STAGE = "flex-1 flex items-center justify-center py-12 w-full"
 
 export const overviewControls = [
   { name: "variant", desktopOnly: true, type: "select", options: VARIANTS, default: "segmented" },
-  { name: "orientation", type: "select", options: ORIENTATIONS, default: "horizontal" },
+  { name: "placement", phoneOnly: true, type: "select", options: ["top", "bottom", "content"], default: "top" },
+  { name: "orientation", desktopOnly: true, type: "select", options: ORIENTATIONS, default: "horizontal" },
   { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" },
+  { name: "phoneSize", label: "size", phoneOnly: true, type: "select", options: ["sm", "md"], default: "md" },
   { name: "pill", desktopOnly: true, type: "boolean", default: true },
   { name: "flush", desktopOnly: true, type: "boolean", default: false },
   { name: "block", desktopOnly: true, type: "boolean", default: false },
+  { name: "mobileMaterial", phoneOnly: true, type: "select", options: ["flat", "glass"], default: "glass" },
   { name: "disabled", type: "boolean", default: false },
-  { name: "reportsDisabled", type: "boolean", default: false },
+  { name: "monthDisabled", type: "boolean", default: false },
 ]
 
 export const overview = `<SegmentedControl
@@ -35,24 +40,60 @@ export const overview = `<SegmentedControl
   :flush="flush"
   :block="block"
   :disabled="disabled"
-  aria-label="Demo tabs"
+  :mobile-material="mobileMaterial"
+  aria-label="Calendar view"
 >
-  <SegmentedControlOption value="overview">Overview</SegmentedControlOption>
-  <SegmentedControlOption value="analytics">Analytics</SegmentedControlOption>
-  <SegmentedControlOption value="reports" :disabled="reportsDisabled">Reports</SegmentedControlOption>
-  <SegmentedControlOption value="settings">Settings</SegmentedControlOption>
+  <SegmentedControlOption value="day">Day</SegmentedControlOption>
+  <SegmentedControlOption value="week">Week</SegmentedControlOption>
+  <SegmentedControlOption value="month" :disabled="monthDisabled">Month</SegmentedControlOption>
+  <SegmentedControlOption value="year">Year</SegmentedControlOption>
 </SegmentedControl>`
 
-export const segmentedIcons = `<SegmentedControl v-model:value="tab" :size="size" :pill="pill" aria-label="Navigation">
-  <SegmentedControlOption value="home"><template #icon><Home /></template>Home</SegmentedControlOption>
-  <SegmentedControlOption value="settings"><template #icon><SettingsCog /></template>Settings</SegmentedControlOption>
-  <SegmentedControlOption value="notifications"><template #icon><Bell /></template>Notifications</SegmentedControlOption>
+export const agenda = [["Standup", "07:00"], ["Design review", "08:00"], ["Focus time", "09:00"], ["Lunch", "10:00"], ["Interviews", "11:00"], ["Planning", "12:00"], ["Gym", "13:00"], ["Dinner", "14:00"], ["Standup", "15:00"], ["Design review", "16:00"], ["Focus time", "17:00"], ["Lunch", "18:00"], ["Interviews", "19:00"], ["Planning", "20:00"], ["Gym", "21:00"], ["Dinner", "22:00"]]
+
+export const overviewPhone = (control) => /* the control in a top bar, a bottom bar or above a day that scrolls under the glass of the bars */ `<div class="${pageStyles.Frame}">
+  <Page surface="grouped">
+    <Toolbar v-if="placement === 'top'">
+      <ToolbarLeading>
+        <NavigationButton action="close" />
+      </ToolbarLeading>
+      <ToolbarContent>
+${control}
+      </ToolbarContent>
+      <ToolbarTrailing>
+        <NavigationButton action="confirm" />
+      </ToolbarTrailing>
+    </Toolbar>
+    <PageContent>
+      <div class="flex flex-col gap-6">
+        <template v-if="placement === 'content'">
+${control}
+        </template>
+        <FieldGroup>
+          <div v-for="[title, time] in agenda" :key="time" data-row class="${toolbarStyles.Row}">
+            <span>{{ title }}</span>
+            <span class="${toolbarStyles.Value}">{{ time }}</span>
+          </div>
+        </FieldGroup>
+      </div>
+    </PageContent>
+    <Toolbar v-if="placement === 'bottom'" placement="bottom">
+      <ToolbarContent>
+${control}
+      </ToolbarContent>
+    </Toolbar>
+  </Page>
+</div>`
+
+export const segmentedIcons = `<SegmentedControl v-model:value="tab" :size="size" :pill="pill" aria-label="View">
+  <SegmentedControlOption value="list"><template #icon><List /></template>List</SegmentedControlOption>
+  <SegmentedControlOption value="grid"><template #icon><Grid /></template>Grid</SegmentedControlOption>
 </SegmentedControl>`
 
-export const iconOnly = `<SegmentedControl v-model:value="tab" :variant="variant" :size="size" :pill="pill" aria-label="Navigation">
-  <SegmentedControlOption value="home" aria-label="Home"><template #icon><Home /></template></SegmentedControlOption>
-  <SegmentedControlOption value="settings" aria-label="Settings"><template #icon><SettingsCog /></template></SegmentedControlOption>
-  <SegmentedControlOption value="notifications" aria-label="Notifications"><template #icon><Bell /></template></SegmentedControlOption>
+export const iconOnly = `<SegmentedControl v-model:value="tab" :variant="variant" :size="size" :pill="pill" aria-label="Alignment">
+  <SegmentedControlOption value="start" aria-label="Align left"><template #icon><TextAlignStart /></template></SegmentedControlOption>
+  <SegmentedControlOption value="center" aria-label="Center"><template #icon><TextAlignCenter /></template></SegmentedControlOption>
+  <SegmentedControlOption value="end" aria-label="Align right"><template #icon><TextAlignEnd /></template></SegmentedControlOption>
 </SegmentedControl>`
 
 export const segmentedBadge = `<SegmentedControl v-model:value="tab" :size="size" :pill="pill" aria-label="Filter">
@@ -152,25 +193,25 @@ export const overflowMenu = `<div class="flex min-w-0 max-w-full" :style="{ widt
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>SegmentedControl provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with <code>v-model:value</code>; the examples keep it in a <code>tab</code> variable. <code>disabled</code> affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; <code>reportsDisabled</code> disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they are the 48px glass control of iOS 27 bars instead, a 40px selection and 15px labels, all primary. Vertical tabs are an inset grouped list. So the phone view has no <code>variant</code>, <code>flush</code>, <code>block</code>, <code>size</code> and <code>pill</code> controls.</>} code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.controlWithPanel}>
-  <VuePhoneRowsDemo stageClassName={STAGE} template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" state={{ tab: "overview" }} controls={overviewControls} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>SegmentedControl provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with <code>v-model:value</code>; the examples keep it in a <code>tab</code> variable. <code>disabled</code> affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; <code>monthDisabled</code> disables only Month, whose label on a phone takes the disabled label of iOS, 20% of the label color. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS 27 segmented control, filling the row of a phone screen, in its two sizes. The default <code>md</code> and larger are the large control of iOS 27 apps, as Calendar and Reminders draw it and SwiftUI draws a segmented Picker in a toolbar: a 48px glass capsule, a 40px gray selection 4px inside it, 8px between segments, every label 15px Medium and primary. <code>sm</code> and smaller are the small one, the plain control of SwiftUI's Picker in content and of Safari's bookmarks: a 32px capsule of the tertiary fill, a white selection 2px inside it, labels 13px, Semibold when selected. <code>mobileMaterial</code> switches the look, as for Button: <code>flat</code> makes the large one plain, 49px as SwiftUI's <code>.controlSize(.large)</code>, and <code>glass</code> puts the small one under the Liquid Glass of <code>.glassEffect()</code>. Inside a phone Toolbar every control is the large glass one. The phone example puts the control in a top bar between Close and Confirm, as a sheet's toolbar holds a segmented Picker in iOS 27.2 and Calendar its new event, in a bottom bar, or above the content, as Safari's bookmarks do, over a day that scrolls under the glass of the bars; <code>placement</code> picks one. Vertical tabs are an inset grouped list, shown below. Underline tabs draw the same segmented control on a phone and every control there is a capsule filling its row, so the phone view has no <code>variant</code>, <code>orientation</code>, <code>flush</code>, <code>block</code> and <code>pill</code> controls, and its <code>size</code> offers <code>sm</code> and <code>md</code>.</>} code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.controlWithPanel}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={overview} phoneTemplate={overviewPhone(overview.replace(':size="size"', ':size="phoneSize"'))} phoneStageClassName={pageStyles.Stage} state={{ tab: "day", agenda }} controls={overviewControls} />
 </ComponentPreview>
 
 ### Segmented with icons
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Icons work with the segmented variant: put the icon in the <code>icon</code> slot of individual tabs, or pass a component to the <code>icon</code> prop. Icons are automatically sized to match the current <code>size</code>.</>} code={segmentedIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VuePhoneRowsDemo stageClassName={STAGE} template={segmentedIcons} phoneTemplate={phoneRows(segmentedIcons)} phoneStageClassName="w-full" state={{ tab: "home" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Icons work with the segmented variant: put the icon in the <code>icon</code> slot of individual tabs, or pass a component to the <code>icon</code> prop. Icons are automatically sized to match the current <code>size</code>. On a phone a segment with an icon and a label shows the icon alone, at the 20px symbol size, as UISegmentedControl draws an action with a title and an image; the label stays the segment&apos;s accessible name. iOS segments carry a title or a symbol, not both.</>} code={segmentedIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={segmentedIcons} phoneTemplate={phoneRows(segmentedIcons)} phoneStageClassName="w-full" state={{ tab: "list" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Icon only
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Leave out the label and fill only the <code>icon</code> slot for compact icon-only tabs. Always provide an <code>aria-label</code> on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at; beside a label it keeps the icon size, since iOS shows only the symbol of a segment that has both.</>} code={iconOnly} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VuePhoneRowsDemo stageClassName={STAGE} template={iconOnly} phoneTemplate={phoneRows(iconOnly)} phoneStageClassName="w-full" state={{ tab: "home" }} controls={[{ name: "variant", desktopOnly: true, type: "select", options: VARIANTS, default: "segmented" }, { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Leave out the label and fill only the <code>icon</code> slot for compact icon-only tabs. Always provide an <code>aria-label</code> on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at.</>} code={iconOnly} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={iconOnly} phoneTemplate={phoneRows(iconOnly)} phoneStageClassName="w-full" state={{ tab: "start" }} controls={[{ name: "variant", desktopOnly: true, type: "select", options: VARIANTS, default: "segmented" }, { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Segmented with badge
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Pass a number or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code> to the <code>badge</code> prop. Badges render inline after the tab label inside the segmented container.</>} code={segmentedBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>Pass a number or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code> to the <code>badge</code> prop. Badges render inline after the tab label inside the segmented container. An iOS segmented control carries no badges, so this example has no Phone preview: on a phone write a count into the label instead, or leave it out.</>} code={segmentedBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VuePhoneRowsDemo stageClassName={STAGE} template={segmentedBadge} phoneTemplate={phoneRows(segmentedBadge)} phoneStageClassName="w-full" state={{ tab: "all" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }, { name: "badgePill", type: "boolean", default: true }]} />
 </ComponentPreview>
 
@@ -276,11 +317,12 @@ const mode = ref("a")
   { prop: "value", type: "string", description: "Selected tab value. Bind with v-model:value; leave unset for an uncontrolled group" },
   { prop: "variant", type: '"segmented" | "underline"', default: '"segmented"', description: "Visual style: segmented (background highlight) or underline (line indicator)" },
   { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout direction of the tab group" },
-  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height (3xs through 3xl)" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height (3xs through 3xl). On a phone sm and smaller are the small 32px iOS control and md through 3xl the large 48px one (49px when flat); in a phone Toolbar it is the large one" },
   { prop: "gutter-size", type: '"2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding of tabs" },
   { prop: "pill", type: "boolean", default: "true", description: "Fully rounded control (segmented variant only)" },
   { prop: "flush", type: "boolean", default: "false", description: "Text-width indicator, no border, gap spacing (underline variant only)" },
   { prop: "block", type: "boolean", default: "false", description: "Full-width control with equal-width tabs" },
+  { prop: "mobileMaterial", type: '"glass" | "flat"', default: '"glass" at md and larger, "flat" at sm and smaller', description: "Phone surface of horizontal tabs, as for Button: flat makes the large control plain (49px), glass puts the small one under Liquid Glass" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable all tabs" },
   { prop: "aria-label", type: "string", description: "Accessible name (required)" },
   { prop: "overflow", type: '"scroll" | "menu"', default: '"scroll"', description: "Options that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)" },

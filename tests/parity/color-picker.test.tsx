@@ -455,6 +455,22 @@ describe("ColorPicker tokens follow the iOS 26 kit (Color Picker - iPhone 0:5275
     expect(value(tokens, "--segmented-control-mobile-plain-background")).toBe("light-dark(var(--alpha-06), var(--alpha-12))")
     expect(value(tokens, "--segmented-control-mobile-plain-thumb-background")).toBe("light-dark(var(--gray-0), var(--alpha-25))")
     expect(tokens).not.toContain("--color-picker-mobile-mode")
+    // md and larger are the large phone control; the Mode control asks for the small one in both frameworks.
+    const large = touch.match(/html :is\(\[data-variant="segmented"\], \[data-variant="underline"\]\)\[data-orientation="horizontal"\]:where\(:not\(([^)]*)\)\)/)?.[1] ?? ""
+    const flat = touch.match(/html \[data-mobile-material="flat"\]:is\([^)]*\)\[data-orientation="horizontal"\]:where\(:not\(([^)]*)\)\)/)?.[1] ?? ""
+    expect(large).toContain('[data-mobile-size="small"]')
+    expect(flat).toContain('[data-mobile-size="small"]')
+  })
+
+  test("the Mode control asks for the small phone control in React and Vue", async () => {
+    render(<RColorPicker defaultValue="#ff0000" />)
+    const react = one('[aria-label="Mode"]')
+    expect([react.getAttribute("data-mobile-size"), react.getAttribute("data-variant")]).toEqual(["small", "segmented"])
+    cleanup()
+    mountVue(() => h(ColorPicker, { defaultValue: "#ff0000" }))
+    await settle()
+    const vue = one('[aria-label="Mode"]')
+    expect([vue.getAttribute("data-mobile-size"), vue.getAttribute("data-variant")]).toEqual(["small", "segmented"])
   })
 })
 

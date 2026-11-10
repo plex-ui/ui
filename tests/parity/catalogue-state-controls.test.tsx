@@ -108,37 +108,37 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(returns.getAttribute('aria-expanded')).toBe('false');
   });
 
-  test('tabs keep selected Reports while disabling it, separate group disablement and skip it in both orientations', async () => {
-    const view = render(framework === 'React' ? <TabsOverviewDemo /> : <VueDemo {...tabs} state={{ tab: 'overview' }} />);
+  test('tabs keep selected Month while disabling it, separate group disablement and skip it in both orientations', async () => {
+    const view = render(framework === 'React' ? <TabsOverviewDemo /> : <VueDemo {...tabs} state={{ tab: 'day' }} />);
     await interact(() => {});
     const page = within(view.container);
-    const reports = page.getByRole<HTMLButtonElement>('radio', { name: 'Reports', exact: true });
-    const analytics = page.getByRole<HTMLButtonElement>('radio', { name: 'Analytics', exact: true });
-    const settings = page.getByRole<HTMLButtonElement>('radio', { name: 'Settings', exact: true });
-    await interact(() => fireEvent.click(reports));
-    const itemToggle = page.getByRole('switch', { name: 'reportsDisabled' });
+    const month = page.getByRole<HTMLButtonElement>('radio', { name: 'Month', exact: true });
+    const week = page.getByRole<HTMLButtonElement>('radio', { name: 'Week', exact: true });
+    const year = page.getByRole<HTMLButtonElement>('radio', { name: 'Year', exact: true });
+    await interact(() => fireEvent.click(month));
+    const itemToggle = page.getByRole('switch', { name: 'monthDisabled' });
     await interact(() => fireEvent.click(itemToggle));
-    expect(reports.disabled).toBe(true);
-    expect(reports.getAttribute('aria-checked')).toBe('true');
-    expect(analytics.disabled).toBe(false);
+    expect(month.disabled).toBe(true);
+    expect(month.getAttribute('aria-checked')).toBe('true');
+    expect(week.disabled).toBe(false);
     for (const [orientation, key] of [['horizontal', 'ArrowRight'], ['vertical', 'ArrowDown']]) {
       await interact(() => fireEvent.click(page.getByRole('radio', { name: orientation, exact: true })));
-      await interact(() => { analytics.focus(); fireEvent.keyDown(analytics, { key }); });
-      await waitFor(() => expect(document.activeElement).toBe(settings));
-      expect(reports.getAttribute('aria-checked')).toBe('true');
+      await interact(() => { week.focus(); fireEvent.keyDown(week, { key }); });
+      await waitFor(() => expect(document.activeElement).toBe(year));
+      expect(month.getAttribute('aria-checked')).toBe('true');
     }
     const groupToggle = page.getByRole('switch', { name: 'disabled', exact: true });
     await interact(() => fireEvent.click(groupToggle));
-    expect(analytics.disabled).toBe(true);
+    expect(week.disabled).toBe(true);
     await interact(() => fireEvent.click(groupToggle));
-    expect(analytics.disabled).toBe(false);
-    expect(reports.disabled).toBe(true);
+    expect(week.disabled).toBe(false);
+    expect(month.disabled).toBe(true);
     await interact(() => fireEvent.click(itemToggle));
-    expect(page.getByRole('radio', { name: 'Reports', exact: true })).toBe(reports);
-    expect(reports.disabled).toBe(false);
-    expect(reports.getAttribute('aria-checked')).toBe('true');
-    await interact(() => fireEvent.click(analytics));
-    expect(analytics.getAttribute('aria-checked')).toBe('true');
+    expect(page.getByRole('radio', { name: 'Month', exact: true })).toBe(month);
+    expect(month.disabled).toBe(false);
+    expect(month.getAttribute('aria-checked')).toBe('true');
+    await interact(() => fireEvent.click(week));
+    expect(week.getAttribute('aria-checked')).toBe('true');
   });
 
   test('DataTable restores the sorted rows after empty, with default, text and rich message modes', async () => {

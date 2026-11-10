@@ -5038,7 +5038,7 @@
           "name": "size",
           "type": "ControlSize",
           "default": "\"md\"",
-          "description": "Control height (3xs through 3xl)"
+          "description": "Control height (3xs through 3xl). On a phone sm and smaller are the small 32px iOS control and md through 3xl the large 48px one (49px when flat); in a phone Toolbar it is the large one"
         },
         {
           "name": "gutterSize",
@@ -5062,6 +5062,12 @@
           "type": "boolean",
           "default": "false",
           "description": "Full-width control with equal-width tabs"
+        },
+        {
+          "name": "mobileMaterial",
+          "type": "\"glass\" | \"flat\"",
+          "default": "\"glass\" at md and larger, \"flat\" at sm and smaller",
+          "description": "Phone surface of horizontal tabs, as for Button: flat makes the large control plain (49px), glass puts the small one under Liquid Glass"
         },
         {
           "name": "disabled",
@@ -5100,23 +5106,23 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "const [tab, setTab] = useState(\"overview\")\nconst [disabled, setDisabled] = useState(false)\nconst [reportsDisabled, setReportsDisabled] = useState(false)\n\nreturn (\n<SegmentedControl value={tab} onChange={setTab} disabled={disabled} aria-label=\"Demo tabs\">\n  <SegmentedControl.Option value=\"overview\">Overview</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"analytics\">Analytics</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"reports\" disabled={reportsDisabled}>Reports</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"settings\">Settings</SegmentedControl.Option>\n</SegmentedControl>\n)",
-          "details": "SegmentedControl provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they are the 48px glass control of iOS 27 bars instead, a 40px selection and 15px labels, all primary. Vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls."
+          "code": "const [tab, setTab] = useState(\"day\")\nconst [disabled, setDisabled] = useState(false)\nconst [monthDisabled, setMonthDisabled] = useState(false)\n\nreturn (\n<SegmentedControl value={tab} onChange={setTab} disabled={disabled} aria-label=\"Calendar view\">\n  <SegmentedControl.Option value=\"day\">Day</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"week\">Week</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"month\" disabled={monthDisabled}>Month</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"year\">Year</SegmentedControl.Option>\n</SegmentedControl>\n)",
+          "details": "SegmentedControl provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; monthDisabled disables only Month, whose label on a phone takes the disabled label of iOS, 20% of the label color. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS 27 segmented control, filling the row of a phone screen, in its two sizes. The default md and larger are the large control of iOS 27 apps, as Calendar and Reminders draw it and SwiftUI draws a segmented Picker in a toolbar: a 48px glass capsule, a 40px gray selection 4px inside it, 8px between segments, every label 15px Medium and primary. sm and smaller are the small one, the plain control of SwiftUI's Picker in content and of Safari's bookmarks: a 32px capsule of the tertiary fill, a white selection 2px inside it, labels 13px, Semibold when selected. mobileMaterial switches the look, as for Button: flat makes the large one plain, 49px as SwiftUI's .controlSize(.large), and glass puts the small one under the Liquid Glass of .glassEffect(). Inside a phone Toolbar every control is the large glass one. The phone example puts the control in a top bar between Close and Confirm, as a sheet's toolbar holds a segmented Picker in iOS 27.2 and Calendar its new event, in a bottom bar, or above the content, as Safari's bookmarks do, over a day that scrolls under the glass of the bars; placement picks one. Vertical tabs are an inset grouped list, shown below. Underline tabs draw the same segmented control on a phone and every control there is a capsule filling its row, so the phone view has no variant, orientation, flush, block and pill controls, and its size offers sm and md."
         },
         {
           "name": "Segmented with icons",
-          "code": "<SegmentedControl size=\"lg\" value={tab} onChange={setTab} aria-label=\"Navigation\">\n<SegmentedControl.Option value=\"home\" icon={<Home />}>Home</SegmentedControl.Option>\n<SegmentedControl.Option value=\"settings\" icon={<SettingsCog />}>Settings</SegmentedControl.Option>\n<SegmentedControl.Option value=\"notifications\" icon={<Bell />}>Notifications</SegmentedControl.Option>\n</SegmentedControl>",
-          "details": "Icons work with the segmented variant. Use the icon prop on individual tabs. Icons are automatically sized to match the current size."
+          "code": "<SegmentedControl size=\"lg\" value={tab} onChange={setTab} aria-label=\"View\">\n<SegmentedControl.Option value=\"list\" icon={<List />}>List</SegmentedControl.Option>\n<SegmentedControl.Option value=\"grid\" icon={<Grid />}>Grid</SegmentedControl.Option>\n</SegmentedControl>",
+          "details": "Icons work with the segmented variant. Use the icon prop on individual tabs. Icons are automatically sized to match the current size. On a phone a segment with an icon and a label shows the icon alone, at the 20px symbol size, as UISegmentedControl draws an action with a title and an image; the label stays the segment&apos;s accessible name. iOS segments carry a title or a symbol, not both."
         },
         {
           "name": "Icon only",
-          "code": "<SegmentedControl value={tab} onChange={setTab} aria-label=\"Navigation\">\n<SegmentedControl.Option value=\"home\" icon={<Home />} aria-label=\"Home\" />\n<SegmentedControl.Option value=\"settings\" icon={<SettingsCog />} aria-label=\"Settings\" />\n<SegmentedControl.Option value=\"notifications\" icon={<Bell />} aria-label=\"Notifications\" />\n</SegmentedControl>",
-          "details": "Omit the text children and pass only the icon prop for compact icon-only tabs. Always provide an aria-label on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at; beside a label it keeps the icon size, since iOS shows only the symbol of a segment that has both."
+          "code": "<SegmentedControl value={tab} onChange={setTab} aria-label=\"Alignment\">\n<SegmentedControl.Option value=\"start\" icon={<TextAlignStart />} aria-label=\"Align left\" />\n<SegmentedControl.Option value=\"center\" icon={<TextAlignCenter />} aria-label=\"Center\" />\n<SegmentedControl.Option value=\"end\" icon={<TextAlignEnd />} aria-label=\"Align right\" />\n</SegmentedControl>",
+          "details": "Omit the text children and pass only the icon prop for compact icon-only tabs. Always provide an aria-label on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at."
         },
         {
           "name": "Segmented with badge",
           "code": "<SegmentedControl size=\"lg\" value={tab} onChange={setTab} aria-label=\"Filter\">\n<SegmentedControl.Option value=\"all\" badge={{ content: 128, pill: true }}>All</SegmentedControl.Option>\n<SegmentedControl.Option value=\"unread\" badge={{ content: 12, color: \"info\", pill: true }}>Unread</SegmentedControl.Option>\n<SegmentedControl.Option value=\"flagged\" badge={{ content: 3, color: \"danger\", pill: true }}>Flagged</SegmentedControl.Option>\n</SegmentedControl>",
-          "details": "Pass a number or an object with content, color, variant, and pill to the badge prop. Badges render inline after the tab label inside the segmented container."
+          "details": "Pass a number or an object with content, color, variant, and pill to the badge prop. Badges render inline after the tab label inside the segmented container. An iOS segmented control carries no badges, so this example has no Phone preview: on a phone write a count into the label instead, or leave it out."
         },
         {
           "name": "Underline",
@@ -8230,5 +8236,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-10T12:50:15.631Z"
+  "generatedAt": "2026-11-10T15:27:00.015Z"
 }

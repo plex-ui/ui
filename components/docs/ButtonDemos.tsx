@@ -69,13 +69,15 @@ function syncedControl(children: React.ReactNode): { value: unknown; onChange: (
   return null;
 }
 
-export function DemoControlRow({ name, children, phoneOnly = false, desktopOnly = false }: { name: string; children: React.ReactNode; phoneOnly?: boolean; desktopOnly?: boolean }) {
+/** `name` keys the control between the page and its Phone view; `label`, when set, is what the row shows (a phone-only
+ * row for a prop that also has a desktop row, such as a size with the phone's own options). */
+export function DemoControlRow({ name, label, children, phoneOnly = false, desktopOnly = false }: { name: string; label?: string; children: React.ReactNode; phoneOnly?: boolean; desktopOnly?: boolean }) {
   const control = syncedControl(children);
   useDemoControlSync(name, control?.value, control?.onChange);
 
   return (
     <div style={controlRowStyle} data-demo-phone-only={phoneOnly || undefined} data-demo-desktop-only={desktopOnly || undefined}>
-      <span style={controlLabelStyle}>{name}</span>
+      <span style={controlLabelStyle}>{label ?? name}</span>
       <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
     </div>
   );

@@ -521,7 +521,7 @@ const ColorPickerComponent = defineComponent({
         [
           h(
             SegmentedControl,
-            { "aria-label": "Mode", "value": mode.value, "block": true, "class": s.Modes, "onChange": changeMode },
+            { "aria-label": "Mode", "value": mode.value, "block": true, "class": s.Modes, "data-mobile-size": "small", "onChange": changeMode },
             { default: () => COLOR_PICKER_MODES.map((option) => h(SegmentedControlOption, { key: option.value, value: option.value }, () => option.label)) },
           ),
           h("div", { class: s.Body }, [

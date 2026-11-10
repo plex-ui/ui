@@ -111,7 +111,11 @@ const tabsProps = {
   variant: { type: String as PropType<TabsVariant>, default: "segmented" },
   /** Orientation of the tab layout. @default "horizontal" */
   orientation: { type: String as PropType<TabsOrientation>, default: "horizontal" },
-  /** Controls the size of the tabs, `3xs` (22px) to `3xl` (48px). @default "md" */
+  /**
+   * Controls the size of the tabs, `3xs` (22px) to `3xl` (48px). On a phone horizontal tabs take the two sizes of
+   * the iOS 27 segmented control: `sm` and smaller the small 32px one, `md` and larger the large 48px one (49px with
+   * `mobileMaterial="flat"`). @default "md"
+   */
   size: { type: String as PropType<ControlSize>, default: "md" },
   /** Controls gutter on the edges of the tabs, defaults to value from `size`. */
   gutterSize: String as PropType<Sizes<"2xs" | "xs" | "sm" | "md" | "lg" | "xl">>,
@@ -127,6 +131,14 @@ const tabsProps = {
    * @default false
    */
   flush: { type: Boolean, default: false },
+  /**
+   * Phone surface of horizontal tabs. On a phone the large control (`md` and larger) is the glass capsule of iOS 27
+   * apps and the small one (`sm` and smaller) the plain capsule of SwiftUI's segmented Picker; `flat` gives the large
+   * one the plain look of SwiftUI's `.controlSize(.large)`, and `glass` gives the small one `.glassEffect()`, like the
+   * Button prop of the same name. Inside a phone Toolbar the control is the large glass one anyway. Desktop keeps the
+   * chosen variant. @default "glass" at md and larger, "flat" at sm and smaller
+   */
+  mobileMaterial: { type: String as PropType<"glass" | "flat">, default: undefined },
 }
 
 const tabsEmits = {
@@ -140,6 +152,54 @@ const tabsEmits = {
 
 // The group itself. `Tabs` renders it as it is, or measures and splits it
 // for `overflow="menu"`
+/** On a phone the large control's selection travels as a lens of glass, as iOS 27.2 draws it (Xcode segmented-sheet and
+ * segmented-bottom, recorded 10.11): released, the selection lifts into a clear lens the track's height and about a
+ * third wider (147 x 48pt around a 110 x 40pt selection), slides to the new segment, lands a little wide and settles
+ * back into the gray selection (298, 262, then 272px at @3x within 0.4s). touch.css names the lens's scale on the
+ * large control only, so everywhere else the selection just slides. The lens is the knob lens of a switch (white
+ * at 9%, its edge and rim): CSS has no refraction. */
+const playThumbLens = (thumb: HTMLElement) => {
+  if (typeof thumb.animate !== "function") return
+  // A lens still on its way ends first, so the thumb's own fill and edge are read below (and none outlives a switch
+  // to reduced motion)
+  thumb.getAnimations().forEach((animation) => {
+    if (animation.id === "segmented-control-lens") animation.cancel()
+  })
+  if (prefersReducedMotion()) return
+  const style = getComputedStyle(thumb)
+  const scale = style.getPropertyValue("--segmented-control-thumb-lens-scale").trim()
+  if (!scale) return
+  const lens = {
+    backgroundColor: style.getPropertyValue("--segmented-control-thumb-lens-background").trim(),
+    boxShadow: style.getPropertyValue("--segmented-control-thumb-lens-shadow").trim(),
+  }
+  const rest = { backgroundColor: style.backgroundColor, boxShadow: style.boxShadow }
+  const timing = { id: "segmented-control-lens", duration: 550 }
+  // The scale is added to the thumb's own translateX, so it grows about its centre and not the distance it travels;
+  // the fill and the edge replace the thumb's (added, the two fills would mix).
+  thumb.animate(
+    [
+      { offset: 0, transform: "scale(1)", easing: "ease-out" },
+      { offset: 0.16, transform: `scale(${scale})` },
+      { offset: 0.6, transform: `scale(${scale})`, easing: "ease-out" },
+      { offset: 0.76, transform: "scale(1.09, 1)", easing: "ease-in-out" },
+      { offset: 0.88, transform: "scale(0.96, 1)", easing: "ease-in-out" },
+      { offset: 1, transform: "scale(1)" },
+    ],
+    { ...timing, composite: "add" },
+  )
+  thumb.animate(
+    [
+      { offset: 0, ...rest, easing: "ease-out" },
+      { offset: 0.16, ...lens },
+      { offset: 0.6, ...lens, easing: "ease-out" },
+      { offset: 0.76, ...rest },
+      { offset: 1, ...rest },
+    ],
+    timing,
+  )
+}
+
 const TabsComponent = defineComponent({
   name: "TabsRoot",
   inheritAttrs: false,
@@ -150,6 +210,7 @@ const TabsComponent = defineComponent({
     const thumbRef = ref<HTMLDivElement | null>(null)
     const groupRef = ref<ExposedRovingFocusGroup | null>(null)
     let prevSize = props.size
+    let prevValue = props.value
 
     // Radix useControllableState: `value` undefined means uncontrolled, starting empty
     const uncontrolledValue = ref("")
@@ -279,6 +340,8 @@ const TabsComponent = defineComponent({
 
       const sizeChanged = prevSize !== props.size
       prevSize = props.size
+      const valueChanged = prevValue !== props.value
+      prevValue = props.value
 
       if (sizeChanged) {
         // Size changed - disable transition, wait for CSS, then apply sizing
@@ -294,6 +357,7 @@ const TabsComponent = defineComponent({
       } else if (thumb.style.transition) {
         // Normal update (value change, etc.): the thumb leaves with the label's colour
         applyThumbSizing(isVertical, true)
+        if (valueChanged) playThumbLens(thumb)
       } else {
         // First measure: apply transition after initial calculation is set
         waitForAnimationFrame(() => {
@@ -423,6 +487,7 @@ const TabsComponent = defineComponent({
                 "data-flush": isFlush ? "" : undefined,
                 "data-size": props.size,
                 "data-gutter-size": props.gutterSize,
+                "data-mobile-material": props.mobileMaterial,
                 "data-disabled": props.disabled ? "" : undefined,
                 ...restAttrs,
               },
@@ -457,10 +522,38 @@ const hasContent = (nodes: VNode[] | undefined): nodes is VNode[] =>
 const isBadgeObject = (badge: TabsBadgeProp | undefined): badge is Extract<TabsBadgeProp, { content: unknown }> =>
   badge != null && typeof badge === "object" && "content" in badge
 
+// A text icon ("☀") stands in an element, as an icon component does, so a phone can hide it beside a label
 const renderIcon = (icon: TabsIconProp | undefined) => {
-  if (icon == null || typeof icon === "string" || isVNode(icon)) return icon
+  if (icon == null) return icon
+  if (isVNode(icon)) return wrapTextIcon([icon])
+  if (typeof icon === "string") return icon === "" ? null : h("span", icon)
   return h(icon)
 }
+
+/** True when the slot draws text of its own, also inside a fragment (`<template v-if>`) */
+const hasTextIcon = (nodes: VNodeArrayChildren): boolean =>
+  nodes.some((node) => {
+    if (typeof node === "string") return node.trim() !== ""
+    if (typeof node === "number") return true
+    if (Array.isArray(node)) return hasTextIcon(node)
+    if (!isVNode(node)) return false
+    if (node.type === Text) return String(node.children).trim() !== ""
+    return node.type === Fragment && Array.isArray(node.children) && hasTextIcon(node.children)
+  })
+
+/** The slot's text stands in a span, as the React icon's does; a fragment holding text keeps its key, and every
+ * other node, a fragment of icons too, stays as it is. */
+const wrapTextIcon = (nodes: VNodeArrayChildren): VNodeArrayChildren =>
+  nodes.map((node) => {
+    if (typeof node === "string" || typeof node === "number") return hasTextIcon([node]) ? h("span", String(node)) : node
+    if (Array.isArray(node)) return hasTextIcon(node) ? wrapTextIcon(node) : node
+    if (!isVNode(node)) return node
+    if (node.type === Text) return hasTextIcon([node]) ? h("span", String(node.children)) : node
+    if (node.type === Fragment && Array.isArray(node.children) && hasTextIcon(node.children)) {
+      return h(Fragment, { key: node.key ?? undefined }, wrapTextIcon(node.children))
+    }
+    return node
+  })
 
 const TabComponent = defineComponent({
   name: "TabsTab",
@@ -546,7 +639,7 @@ const TabComponent = defineComponent({
               {
                 default: () => [
                   h("span", { class: s.TabContent }, [
-                    hasContent(iconSlot) ? iconSlot : renderIcon(props.icon),
+                    hasContent(iconSlot) ? wrapTextIcon(iconSlot) : renderIcon(props.icon),
                     hasContent(children) ? h("span", { class: s.TabLabel }, children) : null,
                     badgeProps
                       ? h(
@@ -792,7 +885,7 @@ const TabsPublic = defineComponent({
 
       const items = tabVNodes(slots.default?.() as VNodeArrayChildren | undefined)
       // The strip's own props size the tabs and the menu button too
-      const signature = [overflowLabel, props.size, props.variant, props.gutterSize, props.pill, props.flush, tabsSignature(items)].join(
+      const signature = [overflowLabel, props.size, props.variant, props.gutterSize, props.pill, props.flush, props.mobileMaterial, tabsSignature(items)].join(
         "\u0002",
       )
       const activeIndex = items.findIndex((item) => tabProps(item).value === current.value)

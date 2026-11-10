@@ -795,15 +795,36 @@
     box-shadow: var(--segmented-control-thumb-shadow);
   }
 
-  /* The capsule's material and ends (touch.css): none in content; in a bar the sheen, rim and blur of the shared
-     mobile glass, segments 8px from the ends and the selection 4px past its segment toward them, as in Calendar.
-     Without touch.css the track keeps its fill and the selection its segment. */
+  /* The capsule's material (touch.css): the plain fill of the small control, or the rim, outline and blur of the
+     shared mobile glass without its sheen on the large one and in a bar. A selection can reach past its segment by
+     the outset, which iOS 27.2 leaves at 0 (Calendar's selection is its segment). Without touch.css the track keeps
+     its fill and the selection its segment. */
   .Tabs:where([data-orientation="horizontal"]) {
     padding-inline: calc(var(--segmented-control-gutter) + var(--segmented-control-thumb-outset, 0px));
     background-image: var(--segmented-control-sheen, none);
     box-shadow: var(--segmented-control-shadow, none);
     -webkit-backdrop-filter: var(--segmented-control-backdrop-filter, none);
     backdrop-filter: var(--segmented-control-backdrop-filter, none);
+  }
+
+  /* Held, a control grows, its glass lightens and the held segment's label fades, by the values touch.css gives the
+     large control (iOS 27.2); without them a press changes none of these. */
+  .Tabs:where([data-orientation="horizontal"]) {
+    transition: scale 150ms var(--cubic-enter), background-color 150ms var(--cubic-enter);
+  }
+
+  .Tabs:where([data-orientation="horizontal"]):has(> .Tab:where(:not([disabled])):active) {
+    background-color: var(--segmented-control-pressed-background, var(--segmented-control-background));
+    scale: var(--segmented-control-pressed-scale, 1);
+  }
+
+  /* Kept as light as the reduced-motion reset at the end of the file, which must win */
+  :where(.Tabs[data-orientation="horizontal"]) .TabContent {
+    transition: opacity 150ms var(--cubic-enter);
+  }
+
+  .Tabs[data-orientation="horizontal"] .Tab[data-state="off"]:where(:not([disabled])):active > .TabContent {
+    opacity: var(--segmented-control-option-pressed-opacity, 1);
   }
 
   /* The script sets the thumb to its segment's box from the left edge, so the outset is physical. */
@@ -823,10 +844,33 @@
     border-radius: var(--segmented-control-option-radius);
   }
 
-  /* A symbol alone in its segment takes the symbol size of iOS 27.2 (touch.css); without it, the icon size. */
-  .Tabs[data-orientation="horizontal"] .TabContent > svg:where(:only-child:not([data-no-autosize])) {
+  /* A symbol in its segment takes the symbol size of iOS 27.2 (touch.css); without it, the icon size. */
+  .Tabs[data-orientation="horizontal"] .TabContent > svg:where(:not([data-no-autosize])) {
     width: var(--segmented-control-symbol-size, var(--segmented-control-icon-size));
     height: var(--segmented-control-symbol-size, var(--segmented-control-icon-size));
+  }
+
+  /* iOS segments carry a title or a symbol, never both (owner 10.11: «на мобиле либо тексты либо иконки в
+     сегментах»). Given both, the segment shows the symbol, as UISegmentedControl draws an action with a title and an
+     image in iOS 27.2 (the ref-app's UIKit screens, measures/segmented-variants.md), and the label stays its name for assistive technology. SwiftUI's
+     Picker draws the title of a Label instead; the docs' Segmented with icons showed no icons that way (owner 10.11:
+     «это icons???»). */
+  .Tabs[data-orientation="horizontal"] .TabContent:has(> :not(.TabLabel, .TabBadge)) > .TabLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* One disabled segment of an enabled control keeps the control's opacity and takes the disabled label of iOS 27.2
+     (touch.css), where half opacity left it far darker (119 on the 238 track for native 191). */
+  .Tabs:not([data-disabled])[data-orientation="horizontal"] > .Tab[data-disabled] {
+    opacity: 1;
+    color: var(--segmented-control-option-disabled-color, var(--color-text-disabled));
   }
 
   /* Vertical tabs of either variant are an inset grouped list (kit Lists, Row 550:50430): rows of
@@ -926,8 +970,10 @@
     --tabs-thumb-transition-duration: 0ms;
   }
 
+  .Tabs,
   .Tab,
-  .Tab::before {
+  .Tab::before,
+  .TabContent {
     transition-duration: 0ms;
   }
 }

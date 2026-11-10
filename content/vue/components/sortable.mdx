@@ -217,7 +217,7 @@ export const groupDemo = `<div class="grid w-[640px] max-w-full gap-4 sm:grid-co
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>The kind of control does not matter: each row keeps its state when it moves.</>} code={controlsDemo} previewMinHeight={400}>
   <VuePhoneRowsDemo
-    template={controlsDemo} phoneTemplate={phoneRows(controlsDemo)} phoneStageClassName="w-full"
+    template={controlsDemo} phoneTemplate={phoneRows(controlsDemo.replace('v-model:value="theme" aria-label="Theme"', 'v-model:value="theme" size="sm" aria-label="Theme"'))} phoneStageClassName="w-full"
     stageClassName={STAGE}
     state={{
       rows: controlRows,

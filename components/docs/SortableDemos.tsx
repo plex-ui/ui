@@ -157,11 +157,13 @@ export function SortableControlsDemo() {
   const [language, setLanguage] = useState('en');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [start, setStart] = useState<DateTime | null>(null);
+  // In a row a phone takes the small 32px control; the default md is the large 48px one of iOS 27 bars
+  const phone = usePhoneRows();
 
   const controls: Record<string, React.ReactElement> = {
     language: <Select value={language} options={LANGUAGES} onChange={(option) => setLanguage(option.value)} variant="soft" block={false} align="end" />,
     theme: (
-      <SegmentedControl value={theme} onChange={setTheme} aria-label="Theme">
+      <SegmentedControl value={theme} onChange={setTheme} size={phone ? 'sm' : undefined} aria-label="Theme">
         <SegmentedControl.Option value="light">Light</SegmentedControl.Option>
         <SegmentedControl.Option value="dark">Dark</SegmentedControl.Option>
       </SegmentedControl>

@@ -3,16 +3,54 @@
 import { useState, type ReactNode } from 'react';
 import {
   Bell,
+  Grid,
   Home,
+  List,
   SettingsCog,
+  TextAlignCenter,
+  TextAlignEnd,
+  TextAlignStart,
 } from '@plexui/ui/components/Icon';
+import { NavigationButton } from '@plexui/ui/components/Button';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { Page } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { PhoneRowsStage, useDesktopOnlyState, usePhoneRows } from './PhoneRows';
+import pageStyles from './PageDemos.module.css';
+import toolbarStyles from './ToolbarDemos.module.css';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 const VARIANT_OPTIONS = ['segmented', 'underline'] as const;
 const ORIENTATION_OPTIONS = ['horizontal', 'vertical'] as const;
+const MATERIAL_OPTIONS = ['flat', 'glass'] as const;
+// On a phone the control has the two sizes of iOS 27.2: sm and smaller the small 32px one, md and larger the large
+// 48px one
+const PHONE_SIZE_OPTIONS = ['sm', 'md'] as const;
+// Where the phone example puts the control: in a top bar (Calendar's invitations, IMG_5522; Contacts, IMG_5618), in a
+// bottom bar (SwiftUI's Picker in the bottom toolbar, ref-app segmented-bottom) or above the content (Safari's
+// bookmarks, IMG_5561). A day of a calendar scrolls under it, so the glass of the bars shows (owner 10.11: «плохой
+// пример тк нет контента для скролла»).
+const PLACEMENT_OPTIONS = ['top', 'bottom', 'content'] as const;
+const AGENDA = ['Standup', 'Design review', 'Focus time', 'Lunch', 'Interviews', 'Planning', 'Gym', 'Dinner'];
+const AGENDA_ROWS = Array.from({ length: 16 }, (_, index) => ({
+  time: `${String(7 + index).padStart(2, '0')}:00`,
+  title: AGENDA[index % AGENDA.length],
+}));
+
+function Agenda() {
+  return (
+    <FieldGroup>
+      {AGENDA_ROWS.map(({ time, title }) => (
+        <div key={time} data-row className={toolbarStyles.Row}>
+          <span>{title}</span>
+          <span className={toolbarStyles.Value}>{time}</span>
+        </div>
+      ))}
+    </FieldGroup>
+  );
+}
 
 // On a phone the tabs stand on a grouped screen 16px from its edges, where horizontal tabs fill the row as
 // every iOS 26 kit example does (370 of 402) and vertical tabs are a list card.
@@ -28,15 +66,42 @@ function TabsStage({ children }: { children: ReactNode }) {
 
 // ─── Overview demo with all controls ───
 export function TabsOverviewDemo() {
-  const [tab, setTab] = useState('overview');
+  const [tab, setTab] = useState('day');
   const [variant, setVariant, shownVariant] = useDesktopOnlyState<(typeof VARIANT_OPTIONS)[number]>('segmented');
-  const [orientation, setOrientation] = useState<(typeof ORIENTATION_OPTIONS)[number]>('horizontal');
-  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [orientation, setOrientation, shownOrientation] = useDesktopOnlyState<(typeof ORIENTATION_OPTIONS)[number]>('horizontal');
+  const [placement, setPlacement] = useState<(typeof PLACEMENT_OPTIONS)[number]>('top');
+  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
+  // The phone opens on the default, the large control (owner 10.11: «почему не дефолтный большой размер?»)
+  const [phoneSize, setPhoneSize] = useState<(typeof PHONE_SIZE_OPTIONS)[number]>('md');
+  const phone = usePhoneRows();
   const [pill, setPill, shownPill] = useDesktopOnlyState(true);
   const [flush, setFlush, shownFlush] = useDesktopOnlyState(false);
   const [block, setBlock, shownBlock] = useDesktopOnlyState(false);
   const [disabled, setDisabled] = useState(false);
-  const [reportsDisabled, setReportsDisabled] = useState(false);
+  const [monthDisabled, setMonthDisabled] = useState(false);
+  // The docs open on glass, the default of the large control (owner 10.11: «Нужно стекло», «Как и для кнопок»)
+  const [material, setMaterial] = useState<(typeof MATERIAL_OPTIONS)[number]>('glass');
+
+  const control = (
+    <SegmentedControl
+      value={tab}
+      onChange={setTab}
+      variant={shownVariant}
+      orientation={shownOrientation}
+      size={phone ? phoneSize : size}
+      pill={shownPill}
+      flush={shownFlush}
+      block={shownBlock}
+      disabled={disabled}
+      mobileMaterial={material}
+      aria-label="Calendar view"
+    >
+      <SegmentedControl.Option value="day">Day</SegmentedControl.Option>
+      <SegmentedControl.Option value="week">Week</SegmentedControl.Option>
+      <SegmentedControl.Option value="month" disabled={monthDisabled}>Month</SegmentedControl.Option>
+      <SegmentedControl.Option value="year">Year</SegmentedControl.Option>
+    </SegmentedControl>
+  );
 
   return (
     <>
@@ -48,7 +113,14 @@ export function TabsOverviewDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlRow name="orientation">
+        <DemoControlRow name="placement" phoneOnly>
+          <SegmentedControl value={placement} onChange={setPlacement} size="xs" aria-label="placement">
+            {PLACEMENT_OPTIONS.map((p) => (
+              <SegmentedControl.Option key={p} value={p}>{p}</SegmentedControl.Option>
+            ))}
+          </SegmentedControl>
+        </DemoControlRow>
+        <DemoControlRow name="orientation" desktopOnly>
           <SegmentedControl value={orientation} onChange={setOrientation} size="xs" aria-label="orientation">
             {ORIENTATION_OPTIONS.map((o) => (
               <SegmentedControl.Option key={o} value={o}>{o}</SegmentedControl.Option>
@@ -62,31 +134,58 @@ export function TabsOverviewDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
+        <DemoControlRow name="phoneSize" label="size" phoneOnly>
+          <SegmentedControl value={phoneSize} onChange={setPhoneSize} size="xs" aria-label="size">
+            {PHONE_SIZE_OPTIONS.map((s) => (
+              <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
+            ))}
+          </SegmentedControl>
+        </DemoControlRow>
         <DemoControlBoolean name="pill" desktopOnly value={pill} onChange={setPill} />
         <DemoControlBoolean name="flush" desktopOnly value={flush} onChange={setFlush} />
         <DemoControlBoolean name="block" desktopOnly value={block} onChange={setBlock} />
+        <DemoControlRow name="mobileMaterial" phoneOnly>
+          <SegmentedControl value={material} onChange={setMaterial} size="xs" aria-label="mobileMaterial">
+            {MATERIAL_OPTIONS.map((m) => (
+              <SegmentedControl.Option key={m} value={m}>{m}</SegmentedControl.Option>
+            ))}
+          </SegmentedControl>
+        </DemoControlRow>
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
-        <DemoControlBoolean name="reportsDisabled" value={reportsDisabled} onChange={setReportsDisabled} />
+        <DemoControlBoolean name="monthDisabled" value={monthDisabled} onChange={setMonthDisabled} />
       </div>
-      <TabsStage>
-        <SegmentedControl
-          value={tab}
-          onChange={setTab}
-          variant={shownVariant}
-          orientation={orientation}
-          size={shownSize}
-          pill={shownPill}
-          flush={shownFlush}
-          block={shownBlock}
-          disabled={disabled}
-          aria-label="Demo tabs"
-        >
-          <SegmentedControl.Option value="overview">Overview</SegmentedControl.Option>
-          <SegmentedControl.Option value="analytics">Analytics</SegmentedControl.Option>
-          <SegmentedControl.Option value="reports" disabled={reportsDisabled}>Reports</SegmentedControl.Option>
-          <SegmentedControl.Option value="settings">Settings</SegmentedControl.Option>
-        </SegmentedControl>
-      </TabsStage>
+      {phone ? (
+        <div data-demo-stage className={pageStyles.Stage}>
+          <div className={pageStyles.Frame}>
+            <Page surface="grouped">
+              {placement === 'top' && (
+                <Toolbar>
+                  <Toolbar.Leading>
+                    <NavigationButton action="close" />
+                  </Toolbar.Leading>
+                  <Toolbar.Content>{control}</Toolbar.Content>
+                  <Toolbar.Trailing>
+                    <NavigationButton action="confirm" />
+                  </Toolbar.Trailing>
+                </Toolbar>
+              )}
+              <Page.Content>
+                <div className="flex flex-col gap-6">
+                  {placement === 'content' && control}
+                  <Agenda />
+                </div>
+              </Page.Content>
+              {placement === 'bottom' && (
+                <Toolbar placement="bottom">
+                  <Toolbar.Content>{control}</Toolbar.Content>
+                </Toolbar>
+              )}
+            </Page>
+          </div>
+        </div>
+      ) : (
+        <TabsStage>{control}</TabsStage>
+      )}
     </>
   );
 }
@@ -229,7 +328,7 @@ export function TabsUnderlineIconsDemo() {
 
 // ─── Segmented with icons ───
 export function TabsSegmentedIconsDemo() {
-  const [tab, setTab] = useState('home');
+  const [tab, setTab] = useState('list');
   const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('lg');
   const [pill, setPill, shownPill] = useDesktopOnlyState(true);
 
@@ -251,11 +350,10 @@ export function TabsSegmentedIconsDemo() {
           onChange={setTab}
           size={shownSize}
           pill={shownPill}
-          aria-label="Navigation"
+          aria-label="View"
         >
-          <SegmentedControl.Option value="home" icon={<Home />}>Home</SegmentedControl.Option>
-          <SegmentedControl.Option value="settings" icon={<SettingsCog />}>Settings</SegmentedControl.Option>
-          <SegmentedControl.Option value="notifications" icon={<Bell />}>Notifications</SegmentedControl.Option>
+          <SegmentedControl.Option value="list" icon={<List />}>List</SegmentedControl.Option>
+          <SegmentedControl.Option value="grid" icon={<Grid />}>Grid</SegmentedControl.Option>
         </SegmentedControl>
       </TabsStage>
     </>
@@ -264,7 +362,7 @@ export function TabsSegmentedIconsDemo() {
 
 // ─── Icon only ───
 export function TabsIconOnlyDemo() {
-  const [tab, setTab] = useState('home');
+  const [tab, setTab] = useState('start');
   const [variant, setVariant, shownVariant] = useDesktopOnlyState<(typeof VARIANT_OPTIONS)[number]>('segmented');
   const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
   const [pill, setPill, shownPill] = useDesktopOnlyState(true);
@@ -297,11 +395,11 @@ export function TabsIconOnlyDemo() {
           variant={shownVariant}
           size={shownSize}
           pill={shownPill}
-          aria-label="Navigation"
+          aria-label="Alignment"
         >
-          <SegmentedControl.Option value="home" icon={<Home />} aria-label="Home" />
-          <SegmentedControl.Option value="settings" icon={<SettingsCog />} aria-label="Settings" />
-          <SegmentedControl.Option value="notifications" icon={<Bell />} aria-label="Notifications" />
+          <SegmentedControl.Option value="start" icon={<TextAlignStart />} aria-label="Align left" />
+          <SegmentedControl.Option value="center" icon={<TextAlignCenter />} aria-label="Center" />
+          <SegmentedControl.Option value="end" icon={<TextAlignEnd />} aria-label="Align right" />
         </SegmentedControl>
       </TabsStage>
     </>

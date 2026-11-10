@@ -192,7 +192,7 @@ export function ColorPicker({
 
   return (
     <div id={id} role="group" aria-label={ariaLabel} className={clsx(s.ColorPicker, className)} data-mode={mode}>
-      <SegmentedControl<ColorPickerMode> aria-label="Mode" value={mode} onChange={changeMode} block className={s.Modes}>
+      <SegmentedControl<ColorPickerMode> aria-label="Mode" value={mode} onChange={changeMode} block className={s.Modes} data-mobile-size="small">
         {COLOR_PICKER_MODES.map((option) => (
           <SegmentedControl.Option key={option.value} value={option.value}>{option.label}</SegmentedControl.Option>
         ))}

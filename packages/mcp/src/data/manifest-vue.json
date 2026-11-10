@@ -5034,7 +5034,7 @@
           "name": "size",
           "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
           "default": "\"md\"",
-          "description": "Control height (3xs through 3xl)"
+          "description": "Control height (3xs through 3xl). On a phone sm and smaller are the small 32px iOS control and md through 3xl the large 48px one (49px when flat); in a phone Toolbar it is the large one"
         },
         {
           "name": "gutter-size",
@@ -5058,6 +5058,12 @@
           "type": "boolean",
           "default": "false",
           "description": "Full-width control with equal-width tabs"
+        },
+        {
+          "name": "mobileMaterial",
+          "type": "\"glass\" | \"flat\"",
+          "default": "\"glass\" at md and larger, \"flat\" at sm and smaller",
+          "description": "Phone surface of horizontal tabs, as for Button: flat makes the large control plain (49px), glass puts the small one under Liquid Glass"
         },
         {
           "name": "disabled",
@@ -5111,23 +5117,23 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<SegmentedControl\n  v-model:value=\"tab\"\n  :variant=\"variant\"\n  :orientation=\"orientation\"\n  :size=\"size\"\n  :pill=\"pill\"\n  :flush=\"flush\"\n  :block=\"block\"\n  :disabled=\"disabled\"\n  aria-label=\"Demo tabs\"\n>\n  <SegmentedControlOption value=\"overview\">Overview</SegmentedControlOption>\n  <SegmentedControlOption value=\"analytics\">Analytics</SegmentedControlOption>\n  <SegmentedControlOption value=\"reports\" :disabled=\"reportsDisabled\">Reports</SegmentedControlOption>\n  <SegmentedControlOption value=\"settings\">Settings</SegmentedControlOption>\n</SegmentedControl>",
-          "details": "SegmentedControl provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with v-model:value; the examples keep it in a tab variable. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they are the 48px glass control of iOS 27 bars instead, a 40px selection and 15px labels, all primary. Vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls."
+          "code": "<SegmentedControl\n  v-model:value=\"tab\"\n  :variant=\"variant\"\n  :orientation=\"orientation\"\n  :size=\"size\"\n  :pill=\"pill\"\n  :flush=\"flush\"\n  :block=\"block\"\n  :disabled=\"disabled\"\n  :mobile-material=\"mobileMaterial\"\n  aria-label=\"Calendar view\"\n>\n  <SegmentedControlOption value=\"day\">Day</SegmentedControlOption>\n  <SegmentedControlOption value=\"week\">Week</SegmentedControlOption>\n  <SegmentedControlOption value=\"month\" :disabled=\"monthDisabled\">Month</SegmentedControlOption>\n  <SegmentedControlOption value=\"year\">Year</SegmentedControlOption>\n</SegmentedControl>",
+          "details": "SegmentedControl provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with v-model:value; the examples keep it in a tab variable. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; monthDisabled disables only Month, whose label on a phone takes the disabled label of iOS, 20% of the label color. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS 27 segmented control, filling the row of a phone screen, in its two sizes. The default md and larger are the large control of iOS 27 apps, as Calendar and Reminders draw it and SwiftUI draws a segmented Picker in a toolbar: a 48px glass capsule, a 40px gray selection 4px inside it, 8px between segments, every label 15px Medium and primary. sm and smaller are the small one, the plain control of SwiftUI's Picker in content and of Safari's bookmarks: a 32px capsule of the tertiary fill, a white selection 2px inside it, labels 13px, Semibold when selected. mobileMaterial switches the look, as for Button: flat makes the large one plain, 49px as SwiftUI's .controlSize(.large), and glass puts the small one under the Liquid Glass of .glassEffect(). Inside a phone Toolbar every control is the large glass one. The phone example puts the control in a top bar between Close and Confirm, as a sheet's toolbar holds a segmented Picker in iOS 27.2 and Calendar its new event, in a bottom bar, or above the content, as Safari's bookmarks do, over a day that scrolls under the glass of the bars; placement picks one. Vertical tabs are an inset grouped list, shown below. Underline tabs draw the same segmented control on a phone and every control there is a capsule filling its row, so the phone view has no variant, orientation, flush, block and pill controls, and its size offers sm and md."
         },
         {
           "name": "Segmented with icons",
-          "code": "<SegmentedControl v-model:value=\"tab\" :size=\"size\" :pill=\"pill\" aria-label=\"Navigation\">\n  <SegmentedControlOption value=\"home\"><template #icon><Home /></template>Home</SegmentedControlOption>\n  <SegmentedControlOption value=\"settings\"><template #icon><SettingsCog /></template>Settings</SegmentedControlOption>\n  <SegmentedControlOption value=\"notifications\"><template #icon><Bell /></template>Notifications</SegmentedControlOption>\n</SegmentedControl>",
-          "details": "Icons work with the segmented variant: put the icon in the icon slot of individual tabs, or pass a component to the icon prop. Icons are automatically sized to match the current size."
+          "code": "<SegmentedControl v-model:value=\"tab\" :size=\"size\" :pill=\"pill\" aria-label=\"View\">\n  <SegmentedControlOption value=\"list\"><template #icon><List /></template>List</SegmentedControlOption>\n  <SegmentedControlOption value=\"grid\"><template #icon><Grid /></template>Grid</SegmentedControlOption>\n</SegmentedControl>",
+          "details": "Icons work with the segmented variant: put the icon in the icon slot of individual tabs, or pass a component to the icon prop. Icons are automatically sized to match the current size. On a phone a segment with an icon and a label shows the icon alone, at the 20px symbol size, as UISegmentedControl draws an action with a title and an image; the label stays the segment&apos;s accessible name. iOS segments carry a title or a symbol, not both."
         },
         {
           "name": "Icon only",
-          "code": "<SegmentedControl v-model:value=\"tab\" :variant=\"variant\" :size=\"size\" :pill=\"pill\" aria-label=\"Navigation\">\n  <SegmentedControlOption value=\"home\" aria-label=\"Home\"><template #icon><Home /></template></SegmentedControlOption>\n  <SegmentedControlOption value=\"settings\" aria-label=\"Settings\"><template #icon><SettingsCog /></template></SegmentedControlOption>\n  <SegmentedControlOption value=\"notifications\" aria-label=\"Notifications\"><template #icon><Bell /></template></SegmentedControlOption>\n</SegmentedControl>",
-          "details": "Leave out the label and fill only the icon slot for compact icon-only tabs. Always provide an aria-label on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at; beside a label it keeps the icon size, since iOS shows only the symbol of a segment that has both."
+          "code": "<SegmentedControl v-model:value=\"tab\" :variant=\"variant\" :size=\"size\" :pill=\"pill\" aria-label=\"Alignment\">\n  <SegmentedControlOption value=\"start\" aria-label=\"Align left\"><template #icon><TextAlignStart /></template></SegmentedControlOption>\n  <SegmentedControlOption value=\"center\" aria-label=\"Center\"><template #icon><TextAlignCenter /></template></SegmentedControlOption>\n  <SegmentedControlOption value=\"end\" aria-label=\"Align right\"><template #icon><TextAlignEnd /></template></SegmentedControlOption>\n</SegmentedControl>",
+          "details": "Leave out the label and fill only the icon slot for compact icon-only tabs. Always provide an aria-label on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at."
         },
         {
           "name": "Segmented with badge",
           "code": "<SegmentedControl v-model:value=\"tab\" :size=\"size\" :pill=\"pill\" aria-label=\"Filter\">\n  <SegmentedControlOption value=\"all\" :badge=\"{ content: 128, pill: badgePill }\">All</SegmentedControlOption>\n  <SegmentedControlOption value=\"unread\" :badge=\"{ content: 12, color: 'info', pill: badgePill }\">Unread</SegmentedControlOption>\n  <SegmentedControlOption value=\"flagged\" :badge=\"{ content: 3, color: 'danger', pill: badgePill }\">Flagged</SegmentedControlOption>\n</SegmentedControl>",
-          "details": "Pass a number or an object with content, color, variant, and pill to the badge prop. Badges render inline after the tab label inside the segmented container."
+          "details": "Pass a number or an object with content, color, variant, and pill to the badge prop. Badges render inline after the tab label inside the segmented container. An iOS segmented control carries no badges, so this example has no Phone preview: on a phone write a count into the label instead, or leave it out."
         },
         {
           "name": "Underline",
@@ -8156,5 +8162,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-10T12:50:19.794Z"
+  "generatedAt": "2026-11-10T15:27:01.153Z"
 }

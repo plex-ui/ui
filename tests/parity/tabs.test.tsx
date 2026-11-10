@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
-import { useState } from "react"
+import { Fragment as ReactFragment, useEffect, useState } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
-import { defineComponent, h, onErrorCaptured, ref } from "vue"
+import { createTextVNode, defineComponent, Fragment, h, onErrorCaptured, ref } from "vue"
 import { Bell as ReactBell, Home as ReactHome } from "../../packages/ui/src/components/Icon"
 import { SegmentedControl as ReactSegmentedControl } from "../../packages/ui/src/components/SegmentedControl"
 import { Tabs as ReactTabs } from "../../packages/ui/src/components/Tabs"
@@ -309,6 +309,311 @@ describe("Tabs renders the same DOM as React", () => {
     expect(pair.vue).toBe(pair.react)
     expect(pair.vue).toContain('data-color="danger"')
     expect(pair.vue).not.toContain("ignored")
+  })
+
+  test("mobileMaterial marks the group in both frameworks, the overflow menu one too; left out it adds nothing", async () => {
+    for (const material of ["glass", "flat", undefined] as const) {
+      for (const overflow of ["scroll", "menu"] as const) {
+        const pair = await renderPair(
+          <ReactSegmentedControl value="a" mobileMaterial={material} overflow={overflow} aria-label="View">
+            <ReactSegmentedControl.Option value="a">A</ReactSegmentedControl.Option>
+            <ReactSegmentedControl.Option value="b">B</ReactSegmentedControl.Option>
+          </ReactSegmentedControl>,
+          () =>
+            h(SegmentedControl, { "value": "a", "mobileMaterial": material, "overflow": overflow, "aria-label": "View" }, {
+              default: () => [
+                h(SegmentedControlOption, { value: "a" }, { default: () => "A" }),
+                h(SegmentedControlOption, { value: "b" }, { default: () => "B" }),
+              ],
+            }),
+        )
+        expect(pair.vue).toBe(pair.react)
+        if (material) expect(pair.react).toContain(`data-mobile-material="${material}"`)
+        else expect(pair.react).not.toContain("data-mobile-material")
+      }
+    }
+  })
+
+  test("a text icon stands in an element, from the prop and from the Vue slot, so a phone can hide it beside a label", async () => {
+    const react = (
+      <ReactSegmentedControl value="day" aria-label="Time">
+        <ReactSegmentedControl.Option value="day" icon="☀">Day</ReactSegmentedControl.Option>
+        <ReactSegmentedControl.Option value="night" icon="☾">Night</ReactSegmentedControl.Option>
+      </ReactSegmentedControl>
+    )
+    const prop = await renderPair(react, () =>
+      h(SegmentedControl, { "value": "day", "aria-label": "Time" }, {
+        default: () => [
+          h(SegmentedControlOption, { value: "day", icon: "☀" }, { default: () => "Day" }),
+          h(SegmentedControlOption, { value: "night", icon: "☾" }, { default: () => "Night" }),
+        ],
+      }),
+    )
+    expect(prop.vue).toBe(prop.react)
+    expect(prop.react).toMatch(/<span>\s+"☀"/)
+    const slot = await renderPair(react, () =>
+      h(SegmentedControl, { "value": "day", "aria-label": "Time" }, {
+        default: () => [
+          h(SegmentedControlOption, { value: "day" }, { icon: () => "☀", default: () => "Day" }),
+          h(SegmentedControlOption, { value: "night" }, { icon: () => "☾", default: () => "Night" }),
+        ],
+      }),
+    )
+    expect(slot.vue).toBe(slot.react)
+    // A conditional slot (`<template v-if>`) gives a fragment of text
+    const fragment = await renderPair(react, () =>
+      h(SegmentedControl, { "value": "day", "aria-label": "Time" }, {
+        default: () => [
+          h(SegmentedControlOption, { value: "day" }, { icon: () => [h(Fragment, ["☀"])], default: () => "Day" }),
+          h(SegmentedControlOption, { value: "night" }, { icon: () => [h(Fragment, ["☾"])], default: () => "Night" }),
+        ],
+      }),
+    )
+    expect(fragment.vue).toBe(fragment.react)
+    // An empty text icon adds no element, so the label does not move
+    const empty = await renderPair(
+      <ReactSegmentedControl value="day" aria-label="Time">
+        <ReactSegmentedControl.Option value="day" icon="">Day</ReactSegmentedControl.Option>
+      </ReactSegmentedControl>,
+      () =>
+        h(SegmentedControl, { "value": "day", "aria-label": "Time" }, {
+          default: () => [h(SegmentedControlOption, { value: "day", icon: "" }, { default: () => "Day" })],
+        }),
+    )
+    expect(empty.vue).toBe(empty.react)
+    expect(empty.react).not.toMatch(/<span>\s+<span class="TabLabel"/)
+    expect(empty.react).not.toMatch(/<span class="TabContent">\s+<span>\s+<\/span>/)
+    // A React fragment or array of text stands in a span too, as the Vue fragment slot does
+    for (const icon of [<>☀</>, ["☀"]]) {
+      const wrapped = await renderPair(
+        <ReactSegmentedControl value="day" aria-label="Time">
+          <ReactSegmentedControl.Option value="day" icon={icon}>Day</ReactSegmentedControl.Option>
+        </ReactSegmentedControl>,
+        () =>
+          h(SegmentedControl, { "value": "day", "aria-label": "Time" }, {
+            default: () => [h(SegmentedControlOption, { value: "day" }, { icon: () => [h(Fragment, ["☀"])], default: () => "Day" })],
+          }),
+      )
+      expect(wrapped.vue).toBe(wrapped.react)
+      expect(wrapped.react).toMatch(/<span>\s+"☀"/)
+    }
+    // Beside an icon element only the text gets a span; the element stays a direct child of the content
+    const mixed = await renderPair(
+      <ReactSegmentedControl value="day" aria-label="Time">
+        <ReactSegmentedControl.Option value="day" icon={<><ReactHome />☀</>}>Day</ReactSegmentedControl.Option>
+      </ReactSegmentedControl>,
+      () =>
+        h(SegmentedControl, { "value": "day", "aria-label": "Time" }, {
+          default: () => [h(SegmentedControlOption, { value: "day" }, { icon: () => [h(Home), "☀"], default: () => "Day" })],
+        }),
+    )
+    expect(mixed.vue).toBe(mixed.react)
+    expect(mixed.react).toMatch(/<span class="TabContent">\s+<svg/)
+    // A Vue VNode icon prop of text, plain or in a fragment
+    for (const icon of [createTextVNode("☀"), h(Fragment, ["☀"])]) {
+      const vnode = await renderPair(
+        <ReactSegmentedControl value="day" aria-label="Time">
+          <ReactSegmentedControl.Option value="day" icon="☀">Day</ReactSegmentedControl.Option>
+        </ReactSegmentedControl>,
+        () =>
+          h(SegmentedControl, { "value": "day", "aria-label": "Time" }, {
+            default: () => [h(SegmentedControlOption, { value: "day", icon }, { default: () => "Day" })],
+          }),
+      )
+      expect(vnode.vue).toBe(vnode.react)
+    }
+  })
+
+  test("a keyed fragment of icons in the Vue slot keeps its identity: a new key remounts its icon", async () => {
+    let mounts = 0
+    const Stateful = defineComponent({
+      setup() {
+        mounts++
+        return () => h("svg")
+      },
+    })
+    const key = ref("a")
+    mountVue(() =>
+      h(SegmentedControl, { "value": "day", "aria-label": "Time" }, {
+        default: () => [
+          h(SegmentedControlOption, { value: "day" }, {
+            icon: () => [h(Fragment, { key: key.value }, [h(Stateful)])],
+            default: () => "Day",
+          }),
+        ],
+      }),
+    )
+    await flushVue()
+    expect(mounts).toBe(1)
+    key.value = "b"
+    await flushVue()
+    expect(mounts).toBe(2)
+  })
+
+  test("a keyed React fragment of text and an icon keeps its identity: a new key remounts its icon", () => {
+    let mounts = 0
+    const Stateful = () => {
+      useEffect(() => {
+        mounts++
+      }, [])
+      return <svg />
+    }
+    const view = (key: string) => (
+      <ReactSegmentedControl value="day" aria-label="Time">
+        <ReactSegmentedControl.Option value="day" icon={<ReactFragment key={key}>☀<Stateful /></ReactFragment>}>Day</ReactSegmentedControl.Option>
+      </ReactSegmentedControl>
+    )
+    const { container, rerender } = render(view("a"))
+    expect(mounts).toBe(1)
+    // The text still stands in its own span, beside the icon
+    expect(container.querySelector(".TabContent > span:not(.TabLabel)")?.textContent).toBe("☀")
+    rerender(view("a"))
+    expect(mounts).toBe(1)
+    rerender(view("b"))
+    expect(mounts).toBe(2)
+  })
+
+  test("text that comes and goes beside an icon leaves the icon mounted, in an array and in a fragment", () => {
+    let mounts = 0
+    const Stateful = () => {
+      useEffect(() => {
+        mounts++
+      }, [])
+      return <svg />
+    }
+    const icons = [
+      (text: boolean) => [text ? "☀" : "", <Stateful key="icon" />],
+      (text: boolean) => <>{text && "☀"}<Stateful /></>,
+    ]
+    for (const icon of icons) {
+      mounts = 0
+      const view = (text: boolean) => (
+        <ReactSegmentedControl value="day" aria-label="Time">
+          <ReactSegmentedControl.Option value="day" icon={icon(text)}>Day</ReactSegmentedControl.Option>
+        </ReactSegmentedControl>
+      )
+      const { container, rerender, unmount } = render(view(true))
+      expect(container.querySelector(".TabContent > span:not(.TabLabel)")?.textContent).toBe("☀")
+      rerender(view(false))
+      expect(container.querySelector(".TabContent > span:not(.TabLabel)")).toBeNull()
+      rerender(view(true))
+      expect(mounts).toBe(1)
+      unmount()
+    }
+  })
+
+  test("a new selection travels as a lens where the control names one (the phone's large control), in React and Vue", async () => {
+    const calls: { keyframes: Keyframe[]; options: KeyframeAnimationOptions }[] = []
+    Object.defineProperty(HTMLElement.prototype, "animate", {
+      configurable: true,
+      value(keyframes: Keyframe[], options: KeyframeAnimationOptions) {
+        calls.push({ keyframes, options })
+        return { id: options.id, cancel() {} }
+      },
+    })
+    Object.defineProperty(HTMLElement.prototype, "getAnimations", { configurable: true, value: () => [] })
+    const wait = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 60)) })
+    const lens = (thumb: HTMLElement | null) => thumb?.style.setProperty("--segmented-control-thumb-lens-scale", "1.3, 1.2")
+    const running: { id: string; cancel: () => void; cancelled: boolean }[] = []
+    try {
+      const view = (value: string) => (
+        <ReactSegmentedControl value={value} aria-label="Time">
+          <ReactSegmentedControl.Option value="day">Day</ReactSegmentedControl.Option>
+          <ReactSegmentedControl.Option value="week">Week</ReactSegmentedControl.Option>
+        </ReactSegmentedControl>
+      )
+      const { container, rerender, unmount } = render(view("day"))
+      await wait()
+      // Without the lens's scale (desktop, the small control) the selection only slides
+      rerender(view("week"))
+      expect(calls).toHaveLength(0)
+      lens(container.querySelector<HTMLElement>(".TabsThumb"))
+      rerender(view("day"))
+      expect(calls).toHaveLength(2)
+      expect(calls[0]?.keyframes[1]).toMatchObject({ transform: "scale(1.3, 1.2)" })
+      expect(calls[0]?.keyframes.at(-1)).toMatchObject({ transform: "scale(1)" })
+      // The scale is added to the thumb's translateX (its own would scale the distance it travels too); the fill and
+      // the edge replace the thumb's, as two added fills would mix
+      expect(calls[0]?.options).toMatchObject({ id: "segmented-control-lens", duration: 550, composite: "add" })
+      expect(calls[1]?.options).toEqual({ id: "segmented-control-lens", duration: 550 })
+      expect(Object.keys(calls[1]?.keyframes[1] ?? {})).toEqual(["offset", "backgroundColor", "boxShadow"])
+      unmount()
+
+      const value = ref("day")
+      const { container: vue } = mountVue(() =>
+        h(SegmentedControl, { "value": value.value, "aria-label": "Time" }, {
+          default: () => [
+            h(SegmentedControlOption, { value: "day" }, { default: () => "Day" }),
+            h(SegmentedControlOption, { value: "week" }, { default: () => "Week" }),
+          ],
+        }),
+      )
+      await wait()
+      await flushVue()
+      value.value = "week"
+      await flushVue()
+      await wait()
+      expect(calls).toHaveLength(2)
+      lens(vue.querySelector<HTMLElement>(".TabsThumb"))
+      value.value = "day"
+      await flushVue()
+      expect(calls).toHaveLength(4)
+      expect(calls.slice(2)).toEqual(calls.slice(0, 2))
+
+      // A lens still running ends when the next change comes, also when that change comes with reduced motion
+      Object.defineProperty(HTMLElement.prototype, "getAnimations", {
+        configurable: true,
+        value: () => running.filter((animation) => !animation.cancelled),
+      })
+      for (const id of ["segmented-control-lens", "other"]) {
+        const animation = { id, cancelled: false, cancel() { this.cancelled = true } }
+        running.push(animation)
+      }
+      vi.stubGlobal("matchMedia", (query: string) => ({ matches: query === "(prefers-reduced-motion: reduce)", media: query, addEventListener() {}, removeEventListener() {} }))
+      value.value = "week"
+      await flushVue()
+      expect(running.map((animation) => animation.cancelled)).toEqual([true, false])
+      expect(calls).toHaveLength(4)
+    } finally {
+      delete (HTMLElement.prototype as { animate?: unknown }).animate
+      delete (HTMLElement.prototype as { getAnimations?: unknown }).getAnimations
+      vi.unstubAllGlobals()
+    }
+  })
+
+  test("held on a phone, the large control grows, whitens and fades the held label, as iOS 27.2 does", () => {
+    const read = (path: string) => readFileSync(`${process.cwd()}/packages/styles/src/${path}`, "utf8")
+    const touch = read("styles/touch.css")
+    const tokens = read("styles/variables-components.css")
+    const css = read("components/Tabs/Tabs.module.css")
+    const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
+    // Xcode segmented-sheet held: 709 to 757px wide, the glass 253 on the 242 sheet, the held label 203 on 253
+    expect(tokens).toContain("--segmented-control-mobile-pressed-scale: 1.07;")
+    expect(tokens).toContain("--segmented-control-mobile-glass-background-pressed: light-dark(alpha(var(--gray-0), 85%), var(--alpha-20));")
+    expect(tokens).toContain("--segmented-control-mobile-pressed-label-opacity: 0.2;")
+    expect(tokens).toContain("--segmented-control-mobile-thumb-lens-scale: calc(147 / 110), calc(48 / 40);")
+    for (const declaration of [
+      "--segmented-control-pressed-scale: var(--segmented-control-mobile-pressed-scale);",
+      "--segmented-control-pressed-background: var(--segmented-control-mobile-glass-background-pressed);",
+      "--segmented-control-option-pressed-opacity: var(--segmented-control-mobile-pressed-label-opacity);",
+      "--segmented-control-option-highlight-background-color: transparent;",
+      "--segmented-control-thumb-lens-scale: var(--segmented-control-mobile-thumb-lens-scale);",
+      "--segmented-control-thumb-lens-background: var(--mobile-knob-lens-background);",
+      "--segmented-control-thumb-lens-shadow: var(--mobile-knob-lens-shadow);",
+    ]) {
+      expect(touch).toContain(declaration)
+    }
+    // Only the large control slides slower; reduced motion keeps the instant move
+    expect(touch).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{[^}]*--tabs-thumb-transition-duration: 330ms;/)
+    expect(phone).toContain(".Tabs:where([data-orientation=\"horizontal\"]):has(> .Tab:where(:not([disabled])):active) {")
+    expect(phone).toContain("scale: var(--segmented-control-pressed-scale, 1);")
+    expect(phone).toContain("opacity: var(--segmented-control-option-pressed-opacity, 1);")
+    // The press transitions stay as light as the reduced-motion reset after them (one class each), so it wins
+    expect(phone).toContain(":where(.Tabs[data-orientation=\"horizontal\"]) .TabContent {\n    transition: opacity 150ms var(--cubic-enter);")
+    expect(phone).toContain(".Tabs:where([data-orientation=\"horizontal\"]) {\n    transition: scale 150ms var(--cubic-enter), background-color 150ms var(--cubic-enter);")
+    const reduced = css.slice(css.lastIndexOf("@media (prefers-reduced-motion: reduce)"))
+    expect(reduced).toMatch(/\.Tabs,\n  \.Tab,\n  \.Tab::before,\n  \.TabContent \{\n    transition-duration: 0ms;/)
+    expect(css.slice(0, css.indexOf("@media (max-width: 767px)"))).not.toContain("--segmented-control-pressed-scale")
   })
 
   test("SegmentedControl and Tabs.Option aliases", async () => {
@@ -1185,35 +1490,36 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     expect(tokens).toContain("--segmented-control-mobile-plain-thumb-background: light-dark(var(--gray-0), var(--alpha-25));")
   })
 
-  test("in a bar the track is the glass control of iOS 27.2 and Calendar (IMG_5433): 48px of the shared glass, a 40px thumb outset 4px", () => {
+  test("the large control and every control in a bar are the glass one of iOS 27.2, Calendar and the sheet's Picker: 48px, a 40px thumb 4px in, 8px apart", () => {
     const touch = read("styles/touch.css")
     const block = touch.match(/html \[data-toolbar\] :is\(\[data-variant="segmented"\], \[data-variant="underline"\]\)\[data-orientation="horizontal"\] \{([^}]*)\}/)?.[1] ?? ""
+    // One block for the default large control (md and larger, unless flat) and for every control in a bar
+    expect(touch).toContain('html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"])),\n    html [data-toolbar] :is(')
     for (const declaration of [
       "--segmented-control-size: 48px;",
       "--segmented-control-gutter: 4px;",
-      "--segmented-control-gap: 0px;",
-      "--segmented-control-thumb-outset: 4px;",
-      // 14px from the label to the selection's edge, the label inset of a toolbar text button.
-      "--segmented-control-option-gutter: 10px;",
+      // 8px between segments, the selection is its segment, the label 4px inside it (Напоминание 102 in 110)
+      "--segmented-control-gap: 8px;",
+      "--segmented-control-thumb-outset: 0px;",
+      "--segmented-control-option-gutter: 4px;",
       "--segmented-control-font-size: 15px;",
       "--segmented-control-line-height: 20px;",
       "--segmented-control-font-weight: 510;",
       "--segmented-control-active-font-weight: 510;",
-      // The same glass as toolbar buttons, resolved on the control so a bar or sheet can tune it.
-      "--segmented-control-background: var(--mobile-glass-background);",
-      "--segmented-control-sheen: var(--mobile-glass-sheen);",
+      // Glass lighter than the screen under it (native 247 on a 242 sheet); the shadow and blur are the buttons'.
+      "--segmented-control-background: var(--segmented-control-mobile-glass-background);",
+      "--segmented-control-sheen: none;",
       "--segmented-control-shadow: var(--mobile-glass-shadow);",
       "--segmented-control-backdrop-filter: var(--mobile-glass-backdrop-filter);",
       "--segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);",
     ]) {
       expect(block).toContain(declaration)
     }
-    // Every label is primary, as iOS 27.2 and Calendar draw both segments.
-    expect(block).toContain("--color-text-secondary: var(--color-text);")
     expect(block).not.toContain("mobile-label-secondary")
     expect(block).not.toMatch(/:\s*light-dark\(/)
     const tokens = read("styles/variables-components.css")
     expect(tokens).toContain("--segmented-control-mobile-thumb-background: light-dark(var(--alpha-08), var(--gray-200));")
+    expect(tokens).toContain("--segmented-control-mobile-glass-background: light-dark(alpha(var(--gray-0), 40%), var(--alpha-12));")
     const css = read("components/Tabs/Tabs.module.css")
     const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
     const material = [...phone.matchAll(/\.Tabs:where\(\[data-orientation="horizontal"\]\) \{([^}]*)\}/g)].map((match) => match[1]).join("")
@@ -1241,14 +1547,75 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     expect(read("styles/touch.css")).not.toContain("--segmented-control-letter-spacing")
   })
 
-  test("a symbol alone in its segment is 20px, the 17pt symbol of iOS 27.2; beside a label it keeps the icon size", () => {
+  test("on a phone a segment with a symbol and a label shows the symbol, the label kept as its name, and one disabled segment takes the disabled label", () => {
+    const touch = read("styles/touch.css")
+    const plainSelector = 'html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {'
+    const plain = touch.slice(touch.indexOf(plainSelector), touch.indexOf("}", touch.indexOf(plainSelector)))
+    // Native UISegmentedControl with one segment disabled: 191 on the 238 track, black at 20%.
+    expect(plain).toContain("--segmented-control-option-disabled-color: var(--alpha-20);")
+    const css = read("components/Tabs/Tabs.module.css")
+    const desktop = css.slice(0, css.indexOf("@media (max-width: 767px)"))
+    const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
+    // UISegmentedControl draws an action with a title and an image as the image (owner 10.11: «это icons???»)
+    const label = phone.match(/\.Tabs\[data-orientation="horizontal"\] \.TabContent:has\(> :not\(\.TabLabel, \.TabBadge\)\) > \.TabLabel \{([^}]*)\}/)?.[1] ?? ""
+    expect(label).toContain("clip-path: inset(50%);")
+    expect(label).toContain("position: absolute;")
+    expect(label).not.toContain("display: none")
+    const symbol = phone.match(/\.Tabs\[data-orientation="horizontal"\] \.TabContent > svg:where\(:not\(\[data-no-autosize\]\)\) \{([^}]*)\}/)?.[1] ?? ""
+    expect(symbol).toContain("width: var(--segmented-control-symbol-size, var(--segmented-control-icon-size));")
+    const segment = phone.match(/\.Tabs:not\(\[data-disabled\]\)\[data-orientation="horizontal"\] > \.Tab\[data-disabled\] \{([^}]*)\}/)?.[1] ?? ""
+    expect(segment).toContain("opacity: 1;")
+    expect(segment).toContain("color: var(--segmented-control-option-disabled-color, var(--color-text-disabled));")
+    // A desktop segment keeps its icon beside the label and a disabled segment its half opacity.
+    expect(desktop).not.toContain(":has(> :not(.TabLabel, .TabBadge))")
+    expect(desktop).not.toContain("--segmented-control-option-disabled-color")
+  })
+
+  test("a small glass control keeps its size and fill under the shared mobile glass, a large flat one is 49px; the large glass block and the bar come last", () => {
+    const touch = read("styles/touch.css")
+    const small = '[data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"]'
+    const tabs = ':is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]'
+    const plainStart = touch.indexOf(`html ${tabs} {`)
+    const glassSelector = `html [data-mobile-material="glass"]${tabs}:where([data-mobile-size="small"], ${small}) {`
+    const flatSelector = `html [data-mobile-material="flat"]${tabs}:where(:not([data-mobile-size="small"], ${small})) {`
+    // A control a component asks to keep small (ColorPicker's Mode) stays out of both large blocks
+    const largeStart = touch.indexOf(`html ${tabs}:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], ${small})),`)
+    const barSelector = `html [data-toolbar] ${tabs} {`
+    const start = touch.indexOf(glassSelector)
+    expect(start).toBeGreaterThan(plainStart)
+    const glass = touch.slice(start, touch.indexOf("}", start))
+    expect(glass).toContain("--segmented-control-background: var(--mobile-glass-background);")
+    // One flat layer of the plain fill over the glass, no sheen: the owner wants no vertical gradient on the control
+    expect(glass).toContain("--segmented-control-sheen: linear-gradient(var(--segmented-control-mobile-plain-background), var(--segmented-control-mobile-plain-background));")
+    expect(glass).not.toContain("--mobile-glass-sheen")
+    expect(glass).toContain("--segmented-control-shadow: var(--mobile-glass-shadow);")
+    expect(glass).toContain("--segmented-control-backdrop-filter: var(--mobile-glass-backdrop-filter);")
+    // Size, labels and selection stay those of the plain control.
+    expect(glass).not.toContain("--segmented-control-size")
+    expect(glass).not.toContain("--segmented-control-thumb-background")
+    // SwiftUI's .controlSize(.large): 49pt, the thumb 2pt in and the 13pt labels of the small control
+    const flatStart = touch.indexOf(flatSelector)
+    expect(flatStart).toBeGreaterThan(plainStart)
+    const flat = touch.slice(flatStart, touch.indexOf("}", flatStart))
+    expect(flat).toContain("--segmented-control-size: 49px;")
+    expect(flat).not.toContain("--segmented-control-gutter")
+    expect(flat).not.toContain("--segmented-control-font-size")
+    // The large glass block shares the bar's selector list and comes after the others, so a bar wins at equal specificity
+    expect(largeStart).toBeGreaterThan(start)
+    expect(largeStart).toBeGreaterThan(flatStart)
+    expect(touch.indexOf(barSelector)).toBeGreaterThan(largeStart)
+    const plain = touch.slice(plainStart, touch.indexOf("}", plainStart))
+    expect(plain).toContain("--segmented-control-size: 32px;")
+  })
+
+  test("a symbol in its segment is 20px, the 17pt symbol of iOS 27.2", () => {
     const touch = read("styles/touch.css")
     const plainSelector = 'html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {'
     const plain = touch.slice(touch.indexOf(plainSelector), touch.indexOf("}", touch.indexOf(plainSelector)))
     expect(plain).toContain("--segmented-control-symbol-size: 20px;")
     const css = read("components/Tabs/Tabs.module.css")
     const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
-    const symbol = phone.match(/\.Tabs\[data-orientation="horizontal"\] \.TabContent > svg:where\(:only-child:not\(\[data-no-autosize\]\)\) \{([^}]*)\}/)?.[1] ?? ""
+    const symbol = phone.match(/\.Tabs\[data-orientation="horizontal"\] \.TabContent > svg:where\(:not\(\[data-no-autosize\]\)\) \{([^}]*)\}/)?.[1] ?? ""
     expect(symbol).toContain("width: var(--segmented-control-symbol-size, var(--segmented-control-icon-size));")
     expect(symbol).toContain("height: var(--segmented-control-symbol-size, var(--segmented-control-icon-size));")
     // Only on a phone: the desktop rule sizes every icon by the control's size.

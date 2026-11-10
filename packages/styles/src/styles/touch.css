@@ -649,10 +649,15 @@
   /* In the kit's layer, so a component can give its own segmented control another look (the composer's sheet header). */
   @layer components {
     /* Horizontal tabs of either variant are the segmented control of iOS 27 (underline tabs have no iOS control of
-       their own, Tabs.module.css gives them the track). In content it is plain, as SwiftUI's Picker .segmented draws
-       it in iOS 27.2 on an iPhone 17 (402pt): a 32pt capsule of the tertiary fill, the thumb 2pt inside it and its
-       segments 4pt apart, no sheen, rim, shadow or blur; every label is 13pt and primary, Semibold when selected and
-       Medium otherwise. Vertical tabs are list rows there. */
+       their own, Tabs.module.css gives them the track). iOS 27.2 draws it at two sizes and `size` picks one, as it
+       picks a button's height: sm and smaller are the small control, md and larger the large one, the default
+       (owner 10.11: «почему не дефолтный большой размер?», «это дефолтные»). A control a component keeps at its
+       desktop size but draws small on a phone carries data-mobile-size="small" (ColorPicker's Mode, the kit's
+       Size=Small). Vertical tabs are list rows there.
+       The small control is plain, as SwiftUI's Picker .segmented draws it in content in iOS 27.2 on an iPhone 17
+       (402pt) and Safari its bookmarks switch (IMG_5561 at 430pt, «примеры мелких»): a 32pt capsule of the tertiary
+       fill, the thumb 2pt inside it and its segments 4pt apart, no sheen, rim, shadow or blur; every label is 13pt
+       and primary, Semibold when selected and Medium otherwise. */
     html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
       --segmented-control-size: 32px;
       --segmented-control-gutter: 2px;
@@ -675,37 +680,76 @@
       /* Every label of the plain control is primary; the weight marks the selection. */
       --color-text-secondary: var(--color-text);
       /* A segment of a symbol alone draws it as iOS 27.2 does, at the 17pt symbol size: house 19.7 x 17.3pt,
-         gearshape 17.7, bell 17 tall, sun.max 18, moon 16.7, a 20px PlexUI icon (Tabs.module.css). A symbol beside
-         a label keeps the control's icon size: iOS shows the symbol alone when a segment has both. */
+         gearshape 17.7, bell 17 tall, sun.max 18, moon 16.7, a 20px PlexUI icon (Tabs.module.css). A segment with
+         both a symbol and a label shows the symbol, as UISegmentedControl does (Tabs.module.css). */
       --segmented-control-symbol-size: 20px;
+      /* One disabled segment of an enabled control: its label at 191 on the 238 track in light and 67 on 28 in dark
+         (UISegmentedControl, setEnabled(false, forSegmentAt:), in iOS 27.2), black at 20% and white at about 17%. */
+      --segmented-control-option-disabled-color: var(--alpha-20);
     }
 
-    /* In a bar (a phone Toolbar, which is also the header of a sheet) it is the glass control of iOS 27 bars: a 48px
-       capsule of the shared mobile glass, taller than the 44px buttons beside it, as native iOS 27.2 draws one in a
-       navigation bar (UISegmentedControl as the title view and SwiftUI's Picker in the principal item, both 112 x 48)
-       and Calendar in its sheet header (IMG_5433: 48pt beside a 44pt Close); the kit's is 44px. Its segments stand
-       8px from the ends and the 40px selection reaches 4px past its segment, 4px inside the capsule all round, as
-       Calendar's does (UIKit's own selection is 31pt). Every label is 15px Medium and primary, as both draw them,
-       and sits 14px inside the selection, as the label of a toolbar text button does. */
+    /* The small control with mobileMaterial="glass" takes the Liquid Glass of iOS 27 at its own size, as SwiftUI's
+       .glassEffect() draws a segmented Picker in iOS 27.2: the 32pt capsule keeps its fill under the glass, 233 to
+       239 over white and 52 over black against the plain 238 and 28, with the rim along its top, a darker outline at
+       its sides and a faint shadow, and the selection and the labels of the plain control (white; 107 over the glass
+       in dark, 90 plain). The shared mobile glass under the plain fill comes to 233 and 58; the fill is one flat layer
+       over it. No sheen: the glass of a segmented control is even from top to bottom (owner 10.11: «Откуда градиент
+       вертикальный на фоне сегментед»). */
+    html [data-mobile-material="glass"]:is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where([data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"]) {
+      --segmented-control-background: var(--mobile-glass-background);
+      --segmented-control-sheen: linear-gradient(var(--segmented-control-mobile-plain-background), var(--segmented-control-mobile-plain-background));
+      --segmented-control-shadow: var(--mobile-glass-shadow);
+      --segmented-control-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    }
+
+    /* The large control with mobileMaterial="flat" is SwiftUI's .controlSize(.large) and .extraLarge in content: a
+       49pt capsule (a 147px track on an iPhone 17), the thumb 2pt inside it and the 13pt labels of the small one. */
+    html [data-mobile-material="flat"]:is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"])) {
+      --segmented-control-size: 49px;
+    }
+
+    /* The large control is the glass one of iOS 27 apps, and in a bar (a phone Toolbar, which is also the header of a
+       sheet) every control is: Calendar's new event and invitations (IMG_5641, IMG_5522), Reminders' New List
+       (IMG_5579) and SwiftUI's Picker .segmented in a sheet's toolbar in iOS 27.2 (ref-app segmented-sheet) all draw a
+       48pt capsule of glass, a 40pt gray selection 4pt inside it, 8pt between segments, each segment 4pt wider than
+       its label at both ends (Напоминание, a 102pt label in a 110pt selection; С ответом, 74.4 in 82.7), and every
+       label 15pt Medium and primary, selected or not. The glass is even and lighter than the screen under it (247 on a
+       242 sheet), without the sheen of the buttons (owner
+       10.11: no vertical gradient on the control); it resolves on the control, under the bar or sheet that may tune
+       it (Page, Dialog). Last, so the bar's control wins over a small or flat one. */
+    html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"])),
     html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
       --segmented-control-size: 48px;
       --segmented-control-gutter: 4px;
-      --segmented-control-gap: 0px;
-      --segmented-control-thumb-outset: 4px;
-      --segmented-control-option-gutter: 10px;
+      --segmented-control-gap: 8px;
+      --segmented-control-thumb-outset: 0px;
+      --segmented-control-option-gutter: 4px;
       --segmented-control-font-size: 15px;
       --segmented-control-line-height: 20px;
       --segmented-control-font-weight: 510;
       --segmented-control-active-font-weight: 510;
-      /* The glass resolves on the control, under the bar or sheet that may tune it (Page, Dialog). */
-      --segmented-control-background: var(--mobile-glass-background);
-      --segmented-control-sheen: var(--mobile-glass-sheen);
+      --segmented-control-background: var(--segmented-control-mobile-glass-background);
+      --segmented-control-sheen: none;
       --segmented-control-shadow: var(--mobile-glass-shadow);
       --segmented-control-backdrop-filter: var(--mobile-glass-backdrop-filter);
       --segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);
-      /* Every label is primary: black on both segments in iOS 27.2 and in Calendar. Safari's tab groups dim the
-         unselected one, but that is its own larger control (20pt labels, a white selection). */
-      --color-text-secondary: var(--color-text);
+      /* Held and released as native (variables-components): it grows and whitens, the held label fades, no capsule
+         of its own under the finger, and the selection travels as the lens of a switch's knob. */
+      --segmented-control-pressed-scale: var(--segmented-control-mobile-pressed-scale);
+      --segmented-control-pressed-background: var(--segmented-control-mobile-glass-background-pressed);
+      --segmented-control-option-pressed-opacity: var(--segmented-control-mobile-pressed-label-opacity);
+      --segmented-control-option-highlight-background-color: transparent;
+      --segmented-control-thumb-lens-scale: var(--segmented-control-mobile-thumb-lens-scale);
+      --segmented-control-thumb-lens-background: var(--mobile-knob-lens-background);
+      --segmented-control-thumb-lens-shadow: var(--mobile-knob-lens-shadow);
+    }
+
+    /* The lens slides about 0.3s in iOS 27.2 (release to landing, 7.37 to 7.66s in the recording). */
+    @media (prefers-reduced-motion: no-preference) {
+      html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"])),
+      html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
+        --tabs-thumb-transition-duration: 330ms;
+      }
     }
   }
 

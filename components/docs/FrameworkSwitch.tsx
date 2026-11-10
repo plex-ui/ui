@@ -35,6 +35,7 @@ export function FrameworkSwitch({ framework, slug }: { framework: Framework; slu
         variant="underline"
         flush
         className={styles.Switch}
+        data-mobile-size="small"
       >
         {FRAMEWORKS.map(({ id, label }) => (
           <Tabs.Tab key={id} value={id}>

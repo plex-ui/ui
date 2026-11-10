@@ -63,6 +63,9 @@ export type TabsProps<T extends string> = {
    * | ------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- |
    * | `22px`  | `24px`  | `26px`  | `28px`  | `32px`  | `36px`  | `40px`  | `44px`  | `48px`  |
    *
+   * On a phone horizontal tabs take the two sizes of the iOS 27 segmented control: `sm` and smaller the small 32px
+   * one, `md` and larger the large 48px one (49px with `mobileMaterial="flat"`).
+   *
    * @default md
    */
   "size"?: ControlSize
@@ -108,6 +111,15 @@ export type TabsProps<T extends string> = {
    * @default "More"
    */
   "overflowLabel"?: string
+  /**
+   * Phone surface of horizontal tabs. On a phone the large control (`md` and larger) is the glass capsule of iOS 27
+   * apps and the small one (`sm` and smaller) the plain capsule of SwiftUI's segmented Picker; `flat` gives the large
+   * one the plain look of SwiftUI's `.controlSize(.large)`, and `glass` gives the small one `.glassEffect()`, as the
+   * Button prop of the same name does for a button. Inside a phone Toolbar the control is the large glass one
+   * anyway. Desktop keeps the chosen variant.
+   * @default "glass" at md and larger, "flat" at sm and smaller
+   */
+  "mobileMaterial"?: "glass" | "flat"
   "className"?: string
   "children": React.ReactNode
 }
@@ -133,6 +145,7 @@ const TabsRoot = <T extends string>({
   flush,
   size = "md",
   gutterSize,
+  mobileMaterial,
   className,
   onClick,
   ...restProps
@@ -140,6 +153,7 @@ const TabsRoot = <T extends string>({
   const rootRef = useRef<HTMLDivElement>(null)
   const thumbRef = useRef<HTMLDivElement>(null)
   const prevSizeRef = useRef(size)
+  const prevValueRef = useRef(value)
   const isVertical = orientation === "vertical"
 
   const applyThumbSizing = useCallback(
@@ -272,6 +286,8 @@ const TabsRoot = <T extends string>({
 
     const sizeChanged = prevSizeRef.current !== size
     prevSizeRef.current = size
+    const valueChanged = prevValueRef.current !== value
+    prevValueRef.current = value
 
     if (sizeChanged) {
       // Size changed - disable transition, wait for CSS, then apply sizing
@@ -287,6 +303,7 @@ const TabsRoot = <T extends string>({
     } else if (thumb.style.transition) {
       // Normal update (value change, etc.): the thumb leaves with the label's colour
       applyThumbSizing(true)
+      if (valueChanged) playThumbLens(thumb)
     } else {
       // First measure: apply transition after initial calculation is set
       waitForAnimationFrame(() => {
@@ -325,6 +342,7 @@ const TabsRoot = <T extends string>({
       data-flush={isFlush ? "" : undefined}
       data-size={size}
       data-gutter-size={gutterSize}
+      data-mobile-material={mobileMaterial}
       data-disabled={restProps.disabled ? "" : undefined}
       {...restProps}
     >
@@ -386,6 +404,71 @@ const isBadgeObject = (
   return badge != null && typeof badge === "object" && "content" in badge
 }
 
+/** True when an icon draws text of its own: a string, a number, or a fragment or array holding one */
+
+/** A text icon ("☀") stands in an element, as an icon component does, so a phone can hide it beside a label: each
+ * text in a fragment or array gets its own span and the elements beside it stay in place. An empty one draws
+ * nothing. */
+// Arrays and fragments always go through Children.map, with or without text, so their children keep the same keys
+// when a text child comes or goes; a fragment keeps its element and key, so a new key still remounts its icons.
+/** On a phone the large control's selection travels as a lens of glass, as iOS 27.2 draws it (Xcode segmented-sheet and
+ * segmented-bottom, recorded 10.11): released, the selection lifts into a clear lens the track's height and about a
+ * third wider (147 x 48pt around a 110 x 40pt selection), slides to the new segment, lands a little wide and settles
+ * back into the gray selection (298, 262, then 272px at @3x within 0.4s). touch.css names the lens's scale on the
+ * large control only, so everywhere else the selection just slides. The lens is the knob lens of a switch (white
+ * at 9%, its edge and rim): CSS has no refraction. */
+const playThumbLens = (thumb: HTMLElement) => {
+  if (typeof thumb.animate !== "function") return
+  // A lens still on its way ends first, so the thumb's own fill and edge are read below (and none outlives a switch
+  // to reduced motion)
+  thumb.getAnimations().forEach((animation) => {
+    if (animation.id === "segmented-control-lens") animation.cancel()
+  })
+  if (prefersReducedMotion()) return
+  const style = getComputedStyle(thumb)
+  const scale = style.getPropertyValue("--segmented-control-thumb-lens-scale").trim()
+  if (!scale) return
+  const lens = {
+    backgroundColor: style.getPropertyValue("--segmented-control-thumb-lens-background").trim(),
+    boxShadow: style.getPropertyValue("--segmented-control-thumb-lens-shadow").trim(),
+  }
+  const rest = { backgroundColor: style.backgroundColor, boxShadow: style.boxShadow }
+  const timing = { id: "segmented-control-lens", duration: 550 }
+  // The scale is added to the thumb's own translateX, so it grows about its centre and not the distance it travels;
+  // the fill and the edge replace the thumb's (added, the two fills would mix).
+  thumb.animate(
+    [
+      { offset: 0, transform: "scale(1)", easing: "ease-out" },
+      { offset: 0.16, transform: `scale(${scale})` },
+      { offset: 0.6, transform: `scale(${scale})`, easing: "ease-out" },
+      { offset: 0.76, transform: "scale(1.09, 1)", easing: "ease-in-out" },
+      { offset: 0.88, transform: "scale(0.96, 1)", easing: "ease-in-out" },
+      { offset: 1, transform: "scale(1)" },
+    ],
+    { ...timing, composite: "add" },
+  )
+  thumb.animate(
+    [
+      { offset: 0, ...rest, easing: "ease-out" },
+      { offset: 0.16, ...lens },
+      { offset: 0.6, ...lens, easing: "ease-out" },
+      { offset: 0.76, ...rest },
+      { offset: 1, ...rest },
+    ],
+    timing,
+  )
+}
+
+const renderTabIcon = (icon: React.ReactNode): React.ReactNode => {
+  if (icon === "") return null
+  if (typeof icon === "string" || typeof icon === "number") return <span>{icon}</span>
+  if (Array.isArray(icon)) return Children.map(icon, renderTabIcon)
+  if (isValidElement<{ children?: React.ReactNode }>(icon) && icon.type === Fragment) {
+    return cloneElement(icon, undefined, Children.map(icon.props.children, renderTabIcon))
+  }
+  return icon
+}
+
 const Tab = ({ children, icon, badge, ...restProps }: TabProps) => {
   // Normalize badge prop
   const badgeProps = badge != null ? (isBadgeObject(badge) ? badge : { content: badge }) : null
@@ -398,7 +481,7 @@ const Tab = ({ children, icon, badge, ...restProps }: TabProps) => {
       onPointerEnter={handlePressableMouseEnter}
     >
       <span className={s.TabContent}>
-        {icon}
+        {renderTabIcon(icon)}
         {children && <span className={s.TabLabel}>{children}</span>}
         {badgeProps && (
           <span
@@ -474,8 +557,8 @@ const OverflowTabs = <T extends string>({
 }: Omit<TabsProps<T>, "overflow"> & { overflowLabel: string }) => {
   const items = tabElements(children)
   // The strip's own props size the tabs and the menu button too
-  const { size, variant, gutterSize, pill, flush } = restProps
-  const signature = [overflowLabel, size, variant, gutterSize, pill, flush, tabsSignature(items)].join("\u0002")
+  const { size, variant, gutterSize, pill, flush, mobileMaterial } = restProps
+  const signature = [overflowLabel, size, variant, gutterSize, pill, flush, mobileMaterial, tabsSignature(items)].join("\u0002")
   const activeIndex = items.findIndex((item) => item.props.value === value)
 
   // null while the measuring pass renders every tab and the menu button

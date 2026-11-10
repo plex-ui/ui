@@ -873,11 +873,12 @@ Props:
   - onClick (() => void) — Called on any click in the group, even when the selection does not change
   - variant ("segmented" | "underline") default: "segmented" — Visual style: segmented (background highlight) or underline (line indicator)
   - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the tab group
-  - size (ControlSize) default: "md" — Control height (3xs through 3xl)
+  - size (ControlSize) default: "md" — Control height (3xs through 3xl). On a phone sm and smaller are the small 32px iOS control and md through 3xl the large 48px one (49px when flat); in a phone Toolbar it is the large one
   - gutterSize ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding of tabs
   - pill (boolean) default: true — Fully rounded control (segmented variant only)
   - flush (boolean) default: false — Text-width indicator, no border, gap spacing (underline variant only)
   - block (boolean) default: false — Full-width control with equal-width tabs
+  - mobileMaterial ("glass" | "flat") default: "glass" at md and larger, "flat" at sm and smaller — Phone surface of horizontal tabs, as for Button: flat makes the large control plain (49px), glass puts the small one under Liquid Glass
   - disabled (boolean) default: false — Disable all tabs
   - aria-label (string) — Accessible name (required)
   - overflow ("scroll" | "menu") default: "scroll" — Options that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)

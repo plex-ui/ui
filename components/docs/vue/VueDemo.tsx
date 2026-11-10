@@ -200,7 +200,7 @@ function VueDemoView({
         desktopOnly={control.desktopOnly}
       />
     ) : control.type === 'range' ? (
-      <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
+      <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
         <SliderValueControl
           ariaLabel={control.label ?? control.name}
           min={control.min}
@@ -212,7 +212,7 @@ function VueDemoView({
         />
       </DemoControlRow>
     ) : (
-      <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
+      <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
         <SegmentedControl<string>
           value={optionsFor(control).find((option) => option.value === props[control.name])?.label ?? ''}
           onChange={(label) => {

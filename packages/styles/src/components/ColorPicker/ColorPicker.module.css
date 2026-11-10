@@ -13,8 +13,9 @@
   margin-bottom: var(--color-picker-modes-gap);
 }
 
-/* On a phone the Mode control is the plain segmented control every phone tab group takes in content (touch.css):
-   the iOS 27 kit Color Picker - iPhone (0:5275) draws it as Segmented Control Size=Small, 32px. */
+/* On a phone the Mode control is the small plain segmented control (touch.css): the iOS 27 kit Color Picker - iPhone
+   (0:5275) draws it as Segmented Control Size=Small, 32px. The control keeps its desktop size and asks for the small
+   one there with data-mobile-size="small", since md and larger are the large phone control. */
 
 .Body {
   position: relative;

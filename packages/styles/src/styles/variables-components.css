@@ -684,6 +684,22 @@
     /* Phone, in a bar: the thumb on the glass track, as native frames show it: about 8% black in light (228 on a
        247 track, Calendar IMG_5433/5434) and darker than the track in dark (32-34 on 54-58, IMG_5522/5523). */
     --segmented-control-mobile-thumb-background: light-dark(var(--alpha-08), var(--gray-200));
+    /* Phone, the large control's glass (touch.css): lighter than the screen under it. Native iOS 27.2 draws the track
+       247/247/252 on the 242/242/247 sheet (Xcode segmented-sheet, Calendar IMG_5433), +5, where the shared button
+       glass (gray-75 at 55%) comes to the page's own 243 and the control was lost on it (owner 10.11: «цвет фона
+       верный? как-то теряется»). White at 40% gives 248 on the 243 grouped page and white on white; dark keeps the
+       shared glass, 42 on the 13 canvas as native 58 on 28. */
+    --segmented-control-mobile-glass-background: light-dark(alpha(var(--gray-0), 40%), var(--alpha-12));
+    /* Phone, the large control held (Xcode segmented-sheet, recorded 10.11, owner: «анимация переключения не верная»):
+       the capsule grows by 7% (709 to 757px wide and 145 to 155px tall at @3x), its glass turns white (253 on the 242
+       sheet) and the held segment's label fades to about a fifth (black to 203 on 253); the selected label keeps its
+       color. Dark was not recorded and takes the shared glass's pressed step, alpha-20. Released, the selection
+       travels as a lens the track's height and a third wider (147 x 48pt around 110 x 40pt; Tabs playThumbLens). */
+    --segmented-control-mobile-pressed-scale: 1.07;
+    --segmented-control-mobile-glass-background-pressed: light-dark(alpha(var(--gray-0), 85%), var(--alpha-20));
+    --segmented-control-mobile-pressed-label-opacity: 0.2;
+    /* The arguments of the lens's scale() (Tabs playThumbLens). */
+    --segmented-control-mobile-thumb-lens-scale: calc(147 / 110), calc(48 / 40);
     --segmented-control-option-highlight-gutter: 1px;
     --segmented-control-option-highlight-background-color: light-dark(
       var(--gray-200),
