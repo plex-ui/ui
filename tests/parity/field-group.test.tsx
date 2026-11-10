@@ -278,6 +278,8 @@ describe("FieldGroup separators on a phone", () => {
     expect(touch).toContain("--field-row-padding-inline: var(--mobile-list-inset);")
     expect(touch).toContain("--field-group-title-padding-inline: var(--mobile-list-inset);")
     expect(touch).toContain("--field-group-footer-padding: 8px var(--mobile-list-inset) 6px;")
+    // A row with a line under its label is 70pt, as a subtitle row of iOS 27.2 (SwiftUI 70.7, UIKit 70.3).
+    expect(touch).toContain("--field-row-description-min-height: 70px;")
     // The composer's icon rows start the line under their titles through the token, not a rule of their own
     const composer = readFileSync(`${process.cwd()}/components/docs/SegmentedComposer.module.css`, "utf8")
     expect(composer).toContain("--field-group-separator-inset-start: var(--composer-row-text-start);")

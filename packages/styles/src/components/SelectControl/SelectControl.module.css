@@ -678,12 +678,15 @@
 
 /* Standalone native pop-up trigger. Field rows own their control geometry. */
 @media (max-width: 767px) {
+  /* The chevrons of a pop-up in a row are the menu picker's of iOS 27.2: 8.7 x 12.7pt, ending 2pt inside the
+     row's content edge, 7.3pt after the value (SwiftUI Picker .menu in a Form on an iPhone 17 and Reminders'
+     Priority, IMG_5442, alike). The box is the glyph's, the 17px symbol overflowing it to both sides. */
   :where([data-row]) .DropdownIcon:not(.DropdownIconChevron) {
     align-items: center;
     justify-content: center;
-    width: 10px;
+    width: 8.5px;
     height: 22px;
-    margin-inline: 0;
+    margin-inline: -2px 2px;
     color: var(--mobile-accessory-secondary, var(--color-text-secondary));
     opacity: 1;
   }
@@ -707,8 +710,8 @@
   :where([data-row]) .DropdownIcon > .MobileDropdownGlyph {
     display: block;
     flex-shrink: 0;
-    width: 20px;
-    height: 20px;
+    width: 17px;
+    height: 17px;
   }
 
   :where([data-row]) :is([disabled], [data-disabled], [aria-disabled="true"]) .DropdownIcon:not(.DropdownIconChevron) {

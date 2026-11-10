@@ -37,6 +37,19 @@
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* The document takes the screen's surface, as a native screen runs its background up under the status bar: Safari
+   paints its status bar band with it when the preview is opened on its own. From the first paint, without waiting
+   for the script that marks a standalone preview, since Safari picks the band's color as the page loads. */
+:global(:root:has([data-preview-presentation="screen"])),
+:global(:root:has([data-preview-presentation="screen"]) body) {
+  background: var(--mobile-surface-plain-primary, var(--color-fd-background));
+}
+
+:global(:root:has([data-preview-presentation="screen"] [data-surface="grouped"])),
+:global(:root:has([data-preview-presentation="screen"] [data-surface="grouped"]) body) {
+  background: var(--mobile-surface-grouped-primary, var(--color-fd-background));
+}
+
 /* Complete screens use native base surfaces inside the iframe only. Page and
    Dialog panels keep their own plain/grouped and elevated surface roles. */
 .Root:has([data-preview-presentation="screen"]) {

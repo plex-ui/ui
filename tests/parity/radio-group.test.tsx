@@ -846,3 +846,17 @@ describe("RadioGroup form parity", () => {
     expect(outside.reactLog).toEqual(["click button"])
   })
 })
+
+// Block 2 of plan 178: the checkmark of an iOS 27.2 list row (UITableViewCell .checkmark and SwiftUI's inline Picker on
+// an iPhone 17) is 15 x 14.3pt of ink ending 24.3pt from the cell's edge: the 24-unit symbol at 26px over a 22px column.
+describe("RadioGroup phone checkmark (iOS 27.2 list row)", () => {
+  test("the symbol is drawn at 26px over its 22px column", async () => {
+    const { readFileSync } = await import("node:fs")
+    const css = readFileSync("packages/styles/src/components/RadioGroup/RadioGroup.module.css", "utf8")
+    const mark = css.match(/\.Checkmark \{([^}]*)\}/)?.[1] ?? ""
+    expect(mark).toContain("width: 26px;")
+    expect(mark).toContain("height: 26px;")
+    expect(mark).toContain("margin: -2px;")
+    expect(mark).toContain("display: var(--radio-group-checkmark-display, none);")
+  })
+})

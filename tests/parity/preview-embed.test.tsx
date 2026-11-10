@@ -841,3 +841,15 @@ describe("Compact Phone viewport", () => {
     document.documentElement.removeAttribute("data-input")
   })
 })
+
+// Plan 178 (owner, 10.11): opened on its own in a phone's Safari, a screen preview runs its surface up under the
+// status bar, as a native screen does; Safari paints that band with the document's background as the page loads.
+describe("Screen preview document surface", () => {
+  test("the document and body take the screen's surface from the first paint, grouped when the page is", () => {
+    const css = readFileSync("components/docs/PreviewEmbed.module.css", "utf8")
+    expect(css).toContain(':global(:root:has([data-preview-presentation="screen"])),\n:global(:root:has([data-preview-presentation="screen"]) body) {\n  background: var(--mobile-surface-plain-primary, var(--color-fd-background));')
+    expect(css).toContain(':global(:root:has([data-preview-presentation="screen"] [data-surface="grouped"])),\n:global(:root:has([data-preview-presentation="screen"] [data-surface="grouped"]) body) {\n  background: var(--mobile-surface-grouped-primary, var(--color-fd-background));')
+    // Not behind the standalone mark, which a script sets after Safari has picked the band's color.
+    expect(css).not.toMatch(/data-preview-standalone[^{]*\{[^}]*background:/)
+  })
+})

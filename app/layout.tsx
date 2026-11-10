@@ -2,7 +2,6 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
-import { PlexThemeSync } from '@/components/PlexThemeSync';
 import { DocsRootProvider } from '@/components/layout/DocsRootProvider';
 import { COMPONENTS_COUNT } from '@/lib/counts';
 import packageJson from '../packages/ui/package.json';
@@ -141,9 +140,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       </head>
       <body className="flex min-h-screen flex-col">
         <DocsRootProvider>
-          <PlexThemeSync>
-            <div className="flex min-h-screen flex-1 flex-col">{children}</div>
-          </PlexThemeSync>
+          <div className="flex min-h-screen flex-1 flex-col">{children}</div>
         </DocsRootProvider>
         {process.env.VERCEL === '1' ? (
           <>

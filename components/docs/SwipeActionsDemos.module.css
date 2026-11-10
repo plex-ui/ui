@@ -22,9 +22,9 @@
   color: var(--color-text-warning);
 }
 
-/* Two lines, the kit's row of 68 under labels below the actions. */
+/* Two lines, the subtitle row of a list (touch.css) under labels below the actions. */
 .Tall {
-  min-height: var(--field-row-description-min-height, 68px);
+  min-height: var(--field-row-description-min-height, 70px);
 }
 
 .From {

@@ -253,8 +253,9 @@
     padding-block: 12px 16px;
   }
 
+  /* Calendar's own row with a value under its title, measured on IMG_5434: 68, not the 70 of a subtitle row. */
   .RowTrigger {
-    min-height: var(--field-row-description-min-height, 68px);
+    min-height: 68px;
     padding-bottom: 16px;
   }
 

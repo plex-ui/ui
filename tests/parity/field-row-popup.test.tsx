@@ -372,4 +372,24 @@ describe("Phone date capsule in a row (iOS 26 kit Date and time - Collapsed)", (
     expect(wrapper.selector).toBe(":where([data-row][data-orientation=\"horizontal\"]) .SelectControl[data-date-picker] .IndicatorWrapper:not(:has(> :not(.DropdownIcon)))")
     expect(decls(wrapper)).toEqual({ display: "none" })
   })
+
+})
+
+// Block 2 of plan 178: SwiftUI Picker .menu in a Form (iPhone 17, iOS 27.2) and Reminders' Priority (IMG_5442) draw
+// 8.7 x 12.7pt chevrons, ending 22pt from the cell's edge and 7.3pt after the value.
+describe("Pop-up chevrons in a row (iOS 27.2 menu picker)", () => {
+  const rule = (selector: string) => {
+    const found: postcss.Rule[] = []
+    postcss.parse(readFileSync("packages/styles/src/components/SelectControl/SelectControl.module.css", "utf8")).walkAtRules("media", (media) => {
+      if (media.params === "(max-width: 767px)") media.walkRules((r) => { if (r.selector === selector) found.push(r) })
+    })
+    expect(found, selector).toHaveLength(1)
+    return Object.fromEntries(found[0].nodes.filter((n): n is postcss.Declaration => n.type === "decl").map((d) => [d.prop, d.value]))
+  }
+
+  test("an 8.5px glyph 2px inside the row's edge, 6px after the value", () => {
+    expect(rule(":where([data-row]) .DropdownIcon:not(.DropdownIconChevron)")).toMatchObject({ width: "8.5px", height: "22px", "margin-inline": "-2px 2px" })
+    // The 20-unit symbol draws its chevrons 10 x 15 units: at 17px, 8.5 x 12.75.
+    expect(rule(":where([data-row]) .DropdownIcon > .MobileDropdownGlyph")).toMatchObject({ width: "17px", height: "17px" })
+  })
 })

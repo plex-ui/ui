@@ -1271,6 +1271,18 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     expect(phone).toMatch(/\.Tab\[data-state="on"\] > \.TabCheckmark \{\s*visibility: visible;\s*\}/)
     // Off a phone the checkmark never shows.
     expect(css.slice(0, css.indexOf("@media (max-width: 767px)"))).toMatch(/\.Tab > \.TabCheckmark \{\s*display: none;\s*\}/)
+    // iOS 27.2 list rows (UIKit and SwiftUI, iPhone 17): the checkmark's ink 15 x 14.3pt ending 24.3pt from the cell's
+    // edge, a symbol in a 24px column and the text and the separator 60pt in.
+    const mark = phone.match(/\.Tabs\[data-orientation="vertical"\] \.Tab > \.TabCheckmark \{([^}]*)\}/)?.[1] ?? ""
+    expect(mark).toContain("width: 26px;")
+    expect(mark).toContain("height: 26px;")
+    expect(mark).toContain("margin-block: -2px;")
+    expect(mark).toContain("margin-inline: auto -2px;")
+    const list = phone.match(/\.Tabs:where\(\[data-orientation="vertical"\]\) \{([^}]*)\}/)?.[1] ?? ""
+    expect(list).toContain("--segmented-control-icon-size: 24px;")
+    expect(list).toContain("--segmented-control-icon-offset: 0px;")
+    expect(list).toContain("--segmented-control-content-gap: 16px;")
+    expect(phone).toContain("inset-inline-start: calc(var(--mobile-list-inset, 20px) + 40px);")
   })
 
   test("only vertical tabs carry the checkmark, one per tab, hidden from screen readers (React = Vue)", async () => {

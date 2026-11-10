@@ -824,13 +824,15 @@
   }
 
   /* Vertical tabs of either variant are an inset grouped list (kit Lists, Row 550:50430): rows of
-     52px with 17px text 20px inside the list (--mobile-list-inset), a symbol in a 28px column 8px before the text, a
-     separator from the text and the 17pt checkmark (22px) at the end of the selected row, as iOS
-     marks the one choice of a list. The selection keeps the regular weight. */
+     52px with 17px text 20px inside the list (--mobile-list-inset), a separator from the text and the checkmark at
+     the end of the selected row, as iOS marks the one choice of a list. A symbol stands in a 24px column and the
+     text 16px after it, 60pt from the cell's edge, as UIListContentConfiguration and SwiftUI's Label place them in
+     iOS 27.2 (the symbol centred 31.7pt in, the text and the separator at 60) and as the phone Sidebar list does.
+     The selection keeps the regular weight. */
   .Tabs:where([data-orientation="vertical"]) {
-    --segmented-control-icon-size: 22px;
-    --segmented-control-icon-offset: 3px;
-    --segmented-control-content-gap: 11px;
+    --segmented-control-icon-size: 24px;
+    --segmented-control-icon-offset: 0px;
+    --segmented-control-content-gap: 16px;
     --option-badge-size: var(--badge-size-sm);
     --option-badge-gutter: var(--badge-gutter-sm);
     --option-badge-font-size: var(--badge-font-size-sm);
@@ -893,15 +895,18 @@
 
   .Tabs[data-orientation="vertical"] .Tab:has(> .TabContent > svg:first-child:not(:only-child)) + .Tab::after,
   .Tabs[data-orientation="vertical"] .Tab + .Tab:has(> .TabContent > svg:first-child:not(:only-child))::after {
-    inset-inline-start: calc(var(--mobile-list-inset, 20px) + 36px);
+    inset-inline-start: calc(var(--mobile-list-inset, 20px) + 40px);
   }
 
+  /* The checkmark of an iOS 27.2 list row (RadioGroup.module.css): the symbol at 26px, its ink ending 24.3pt from
+     the cell's edge, in the row's 22px line. */
   .Tabs[data-orientation="vertical"] .Tab > .TabCheckmark {
     display: block;
     flex: none;
-    width: 22px;
-    height: 22px;
-    margin-inline-start: auto;
+    width: 26px;
+    height: 26px;
+    margin-block: -2px;
+    margin-inline: auto -2px;
     visibility: hidden;
   }
 

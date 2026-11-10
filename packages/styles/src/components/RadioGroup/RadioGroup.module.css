@@ -180,11 +180,15 @@
   }
 }
 
-/* The touch stylesheet uses the same single-selection mark inside and outside Field rows. */
+/* The touch stylesheet uses the same single-selection mark inside and outside Field rows. It is the checkmark of
+   an iOS 27.2 list row: 15 x 14.3pt of ink ending 24.3pt from the cell's edge (UITableViewCell .checkmark and
+   SwiftUI's inline Picker on an iPhone 17 alike), so the 24-unit symbol is drawn at 26px over its 22px column,
+   as Checkbox draws its ghost mark (--checkbox-ghost-icon-size). */
 .Checkmark {
   display: var(--radio-group-checkmark-display, none);
   grid-area: 1 / 1;
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
+  margin: -2px;
   color: var(--radio-group-checkmark-color, var(--color-text));
 }
