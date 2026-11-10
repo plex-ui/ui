@@ -1317,3 +1317,49 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     expect(marks).toHaveLength(2)
   })
 })
+
+// The docs name the component by its iOS name, Segmented Control (owner 10.11), and Tabs stays findable.
+describe("docs name", () => {
+  const file = (path: string) => readFileSync(`${process.cwd()}/${path}`, "utf8")
+
+  test("both manifests list the page as Segmented Control with the Tabs names as aliases, and the MCP lookup matches them", () => {
+    for (const [manifest, aliases] of [
+      ["packages/mcp/src/data/manifest.json", ["Tabs", "Tabs.Tab", "Tabs.Option"]],
+      ["packages/mcp/src/data/manifest-vue.json", ["Tabs", "TabsTab", "TabsOption"]],
+    ] as const) {
+      const components: { slug: string; name: string; aliases?: string[] }[] = JSON.parse(file(manifest)).components
+      const page = components.find((component) => component.slug === "segmented-control")
+      expect(page?.name).toBe("Segmented Control")
+      expect(page?.aliases).toEqual(aliases)
+      expect(components.some((component) => component.slug === "tabs")).toBe(false)
+    }
+  })
+
+  test("the MCP lookups find it by its Tabs names in both frameworks", async () => {
+    const { findComponent, searchComponents } = await import("../../packages/mcp/src/lookup")
+    for (const [manifest, names] of [
+      ["packages/mcp/src/data/manifest.json", ["Tabs", "Tabs.Tab", "Tabs.Option", "SegmentedControl", "SegmentedControl.Option", "segmented-control"]],
+      ["packages/mcp/src/data/manifest-vue.json", ["Tabs", "TabsTab", "TabsOption", "SegmentedControl", "SegmentedControlOption"]],
+    ] as const) {
+      const components = JSON.parse(file(manifest)).components
+      for (const name of names) {
+        expect(findComponent(components, name)?.slug).toBe("segmented-control")
+        expect(searchComponents(components, name).map((component: { slug: string }) => component.slug)).toContain("segmented-control")
+      }
+    }
+  })
+
+  test("the old pages, their anchor and the old Vue registry item redirect to the renamed ones", () => {
+    const config = file("next.config.mjs")
+    for (const [from, to] of [
+      ["/components/tabs", "/components/segmented-control"],
+      ["/vue/components/tabs", "/vue/components/segmented-control"],
+      ["/r/vue/tabs.json", "/r/vue/segmented-control.json"],
+    ]) {
+      expect(config).toContain(`source: '${from}',\n        destination: '${to}',\n        permanent: true,`)
+    }
+    for (const page of ["content/components/segmented-control.mdx", "content/vue/components/segmented-control.mdx"]) {
+      expect(file(page)).toContain('<span id="migration-from-segmentedcontrol" />\n\n### Also exported as Tabs')
+    }
+  })
+})

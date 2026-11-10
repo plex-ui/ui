@@ -96,6 +96,25 @@ const config = {
         destination: '/vue/components/auth-forms',
         permanent: true,
       },
+      // Tabs is documented under its iOS name, Segmented Control (plan 178);
+      // the component keeps both exports.
+      {
+        source: '/components/tabs',
+        destination: '/components/segmented-control',
+        permanent: true,
+      },
+      {
+        source: '/vue/components/tabs',
+        destination: '/vue/components/segmented-control',
+        permanent: true,
+      },
+      // The Vue registry names its items by page, so the old install URL
+      // takes the renamed item.
+      {
+        source: '/r/vue/tabs.json',
+        destination: '/r/vue/segmented-control.json',
+        permanent: true,
+      },
       // /docs/components/* and /docs/icons/* moved out of /docs to be
       // top-level peers of /docs and /blog (matches the top-nav
       // structure where Components / Icons are siblings of Docs).

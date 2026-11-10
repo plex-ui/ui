@@ -1,7 +1,8 @@
 ---
-title: Tabs
-description: Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.
-metaDescription: Vue 3 tabs component for switching between grouped views, with segmented and underline styles, icon-only triggers, and badge counts on each tab.
+title: Segmented Control
+description: Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.
+metaDescription: Vue 3 segmented control for switching between grouped views, drawn as a segmented track or underline tabs, with icon-only segments and badge counts on each option.
+aliases: Tabs, TabsTab, TabsOption
 ---
 
 import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
@@ -25,7 +26,7 @@ export const overviewControls = [
   { name: "reportsDisabled", type: "boolean", default: false },
 ]
 
-export const overview = `<Tabs
+export const overview = `<SegmentedControl
   v-model:value="tab"
   :variant="variant"
   :orientation="orientation"
@@ -36,114 +37,114 @@ export const overview = `<Tabs
   :disabled="disabled"
   aria-label="Demo tabs"
 >
-  <TabsTab value="overview">Overview</TabsTab>
-  <TabsTab value="analytics">Analytics</TabsTab>
-  <TabsTab value="reports" :disabled="reportsDisabled">Reports</TabsTab>
-  <TabsTab value="settings">Settings</TabsTab>
-</Tabs>`
+  <SegmentedControlOption value="overview">Overview</SegmentedControlOption>
+  <SegmentedControlOption value="analytics">Analytics</SegmentedControlOption>
+  <SegmentedControlOption value="reports" :disabled="reportsDisabled">Reports</SegmentedControlOption>
+  <SegmentedControlOption value="settings">Settings</SegmentedControlOption>
+</SegmentedControl>`
 
-export const segmentedIcons = `<Tabs v-model:value="tab" :size="size" :pill="pill" aria-label="Navigation">
-  <TabsTab value="home"><template #icon><Home /></template>Home</TabsTab>
-  <TabsTab value="settings"><template #icon><SettingsCog /></template>Settings</TabsTab>
-  <TabsTab value="notifications"><template #icon><Bell /></template>Notifications</TabsTab>
-</Tabs>`
+export const segmentedIcons = `<SegmentedControl v-model:value="tab" :size="size" :pill="pill" aria-label="Navigation">
+  <SegmentedControlOption value="home"><template #icon><Home /></template>Home</SegmentedControlOption>
+  <SegmentedControlOption value="settings"><template #icon><SettingsCog /></template>Settings</SegmentedControlOption>
+  <SegmentedControlOption value="notifications"><template #icon><Bell /></template>Notifications</SegmentedControlOption>
+</SegmentedControl>`
 
-export const iconOnly = `<Tabs v-model:value="tab" :variant="variant" :size="size" :pill="pill" aria-label="Navigation">
-  <TabsTab value="home" aria-label="Home"><template #icon><Home /></template></TabsTab>
-  <TabsTab value="settings" aria-label="Settings"><template #icon><SettingsCog /></template></TabsTab>
-  <TabsTab value="notifications" aria-label="Notifications"><template #icon><Bell /></template></TabsTab>
-</Tabs>`
+export const iconOnly = `<SegmentedControl v-model:value="tab" :variant="variant" :size="size" :pill="pill" aria-label="Navigation">
+  <SegmentedControlOption value="home" aria-label="Home"><template #icon><Home /></template></SegmentedControlOption>
+  <SegmentedControlOption value="settings" aria-label="Settings"><template #icon><SettingsCog /></template></SegmentedControlOption>
+  <SegmentedControlOption value="notifications" aria-label="Notifications"><template #icon><Bell /></template></SegmentedControlOption>
+</SegmentedControl>`
 
-export const segmentedBadge = `<Tabs v-model:value="tab" :size="size" :pill="pill" aria-label="Filter">
-  <TabsTab value="all" :badge="{ content: 128, pill: badgePill }">All</TabsTab>
-  <TabsTab value="unread" :badge="{ content: 12, color: 'info', pill: badgePill }">Unread</TabsTab>
-  <TabsTab value="flagged" :badge="{ content: 3, color: 'danger', pill: badgePill }">Flagged</TabsTab>
-</Tabs>`
+export const segmentedBadge = `<SegmentedControl v-model:value="tab" :size="size" :pill="pill" aria-label="Filter">
+  <SegmentedControlOption value="all" :badge="{ content: 128, pill: badgePill }">All</SegmentedControlOption>
+  <SegmentedControlOption value="unread" :badge="{ content: 12, color: 'info', pill: badgePill }">Unread</SegmentedControlOption>
+  <SegmentedControlOption value="flagged" :badge="{ content: 3, color: 'danger', pill: badgePill }">Flagged</SegmentedControlOption>
+</SegmentedControl>`
 
-export const underline = `<Tabs v-model:value="tab" variant="underline" :size="size" aria-label="Sections">
-  <TabsTab value="overview">Overview</TabsTab>
-  <TabsTab value="analytics">Analytics</TabsTab>
-  <TabsTab value="reports">Reports</TabsTab>
-  <TabsTab value="settings">Settings</TabsTab>
-</Tabs>`
+export const underline = `<SegmentedControl v-model:value="tab" variant="underline" :size="size" aria-label="Sections">
+  <SegmentedControlOption value="overview">Overview</SegmentedControlOption>
+  <SegmentedControlOption value="analytics">Analytics</SegmentedControlOption>
+  <SegmentedControlOption value="reports">Reports</SegmentedControlOption>
+  <SegmentedControlOption value="settings">Settings</SegmentedControlOption>
+</SegmentedControl>`
 
-export const underlineFlush = `<Tabs v-model:value="tab" variant="underline" flush :size="size" aria-label="Sections">
-  <TabsTab value="overview">Overview</TabsTab>
-  <TabsTab value="analytics">Analytics</TabsTab>
-  <TabsTab value="reports">Reports</TabsTab>
-  <TabsTab value="settings">Settings</TabsTab>
-</Tabs>`
+export const underlineFlush = `<SegmentedControl v-model:value="tab" variant="underline" flush :size="size" aria-label="Sections">
+  <SegmentedControlOption value="overview">Overview</SegmentedControlOption>
+  <SegmentedControlOption value="analytics">Analytics</SegmentedControlOption>
+  <SegmentedControlOption value="reports">Reports</SegmentedControlOption>
+  <SegmentedControlOption value="settings">Settings</SegmentedControlOption>
+</SegmentedControl>`
 
-export const underlineBlock = `<Tabs v-model:value="tab" variant="underline" block :size="size" aria-label="Sections">
-  <TabsTab value="overview">Overview</TabsTab>
-  <TabsTab value="analytics">Analytics</TabsTab>
-  <TabsTab value="reports">Reports</TabsTab>
-</Tabs>`
+export const underlineBlock = `<SegmentedControl v-model:value="tab" variant="underline" block :size="size" aria-label="Sections">
+  <SegmentedControlOption value="overview">Overview</SegmentedControlOption>
+  <SegmentedControlOption value="analytics">Analytics</SegmentedControlOption>
+  <SegmentedControlOption value="reports">Reports</SegmentedControlOption>
+</SegmentedControl>`
 
-export const underlineIcons = `<Tabs v-model:value="tab" variant="underline" :size="size" aria-label="Navigation">
-  <TabsTab value="home"><template #icon><Home /></template>Home</TabsTab>
-  <TabsTab value="settings"><template #icon><SettingsCog /></template>Settings</TabsTab>
-  <TabsTab value="notifications"><template #icon><Bell /></template>Notifications</TabsTab>
-</Tabs>`
+export const underlineIcons = `<SegmentedControl v-model:value="tab" variant="underline" :size="size" aria-label="Navigation">
+  <SegmentedControlOption value="home"><template #icon><Home /></template>Home</SegmentedControlOption>
+  <SegmentedControlOption value="settings"><template #icon><SettingsCog /></template>Settings</SegmentedControlOption>
+  <SegmentedControlOption value="notifications"><template #icon><Bell /></template>Notifications</SegmentedControlOption>
+</SegmentedControl>`
 
-export const underlineBadge = `<Tabs v-model:value="tab" variant="underline" :size="size" aria-label="Filter">
-  <TabsTab value="all" :badge="{ content: 128, pill: badgePill }">All</TabsTab>
-  <TabsTab value="unread" :badge="{ content: 12, color: 'info', pill: badgePill }">Unread</TabsTab>
-  <TabsTab value="flagged" :badge="{ content: 3, color: 'danger', pill: badgePill }">Flagged</TabsTab>
-</Tabs>`
+export const underlineBadge = `<SegmentedControl v-model:value="tab" variant="underline" :size="size" aria-label="Filter">
+  <SegmentedControlOption value="all" :badge="{ content: 128, pill: badgePill }">All</SegmentedControlOption>
+  <SegmentedControlOption value="unread" :badge="{ content: 12, color: 'info', pill: badgePill }">Unread</SegmentedControlOption>
+  <SegmentedControlOption value="flagged" :badge="{ content: 3, color: 'danger', pill: badgePill }">Flagged</SegmentedControlOption>
+</SegmentedControl>`
 
-export const verticalSegmented = `<Tabs v-model:value="tab" orientation="vertical" :size="size" aria-label="Settings">
-  <TabsTab value="account">Account</TabsTab>
-  <TabsTab value="password">Password</TabsTab>
-  <TabsTab value="notifications">Notifications</TabsTab>
-  <TabsTab value="display">Display</TabsTab>
-</Tabs>`
+export const verticalSegmented = `<SegmentedControl v-model:value="tab" orientation="vertical" :size="size" aria-label="Settings">
+  <SegmentedControlOption value="account">Account</SegmentedControlOption>
+  <SegmentedControlOption value="password">Password</SegmentedControlOption>
+  <SegmentedControlOption value="notifications">Notifications</SegmentedControlOption>
+  <SegmentedControlOption value="display">Display</SegmentedControlOption>
+</SegmentedControl>`
 
-export const verticalUnderline = `<Tabs v-model:value="tab" variant="underline" orientation="vertical" :size="size" aria-label="Settings">
-  <TabsTab value="account">Account</TabsTab>
-  <TabsTab value="password">Password</TabsTab>
-  <TabsTab value="notifications">Notifications</TabsTab>
-  <TabsTab value="display">Display</TabsTab>
-</Tabs>`
+export const verticalUnderline = `<SegmentedControl v-model:value="tab" variant="underline" orientation="vertical" :size="size" aria-label="Settings">
+  <SegmentedControlOption value="account">Account</SegmentedControlOption>
+  <SegmentedControlOption value="password">Password</SegmentedControlOption>
+  <SegmentedControlOption value="notifications">Notifications</SegmentedControlOption>
+  <SegmentedControlOption value="display">Display</SegmentedControlOption>
+</SegmentedControl>`
 
-export const verticalUnderlineIcons = `<Tabs v-model:value="tab" variant="underline" orientation="vertical" :size="size" aria-label="Navigation">
-  <TabsTab value="home"><template #icon><Home /></template>Home</TabsTab>
-  <TabsTab value="settings"><template #icon><SettingsCog /></template>Settings</TabsTab>
-  <TabsTab value="notifications"><template #icon><Bell /></template>Notifications</TabsTab>
-</Tabs>`
+export const verticalUnderlineIcons = `<SegmentedControl v-model:value="tab" variant="underline" orientation="vertical" :size="size" aria-label="Navigation">
+  <SegmentedControlOption value="home"><template #icon><Home /></template>Home</SegmentedControlOption>
+  <SegmentedControlOption value="settings"><template #icon><SettingsCog /></template>Settings</SegmentedControlOption>
+  <SegmentedControlOption value="notifications"><template #icon><Bell /></template>Notifications</SegmentedControlOption>
+</SegmentedControl>`
 
-export const sizing = `<Tabs v-model:value="tab" :variant="variant" :size="size" aria-label="Demo tabs">
-  <TabsTab value="overview">Overview</TabsTab>
-  <TabsTab value="analytics">Analytics</TabsTab>
-  <TabsTab value="reports">Reports</TabsTab>
-</Tabs>`
+export const sizing = `<SegmentedControl v-model:value="tab" :variant="variant" :size="size" aria-label="Demo tabs">
+  <SegmentedControlOption value="overview">Overview</SegmentedControlOption>
+  <SegmentedControlOption value="analytics">Analytics</SegmentedControlOption>
+  <SegmentedControlOption value="reports">Reports</SegmentedControlOption>
+</SegmentedControl>`
 
 export const scrollable = `<div class="flex w-full min-w-0 max-w-[400px]">
-  <Tabs v-model:value="tab" :variant="variant" :size="size" aria-label="Scrollable tabs">
-    <TabsTab value="1">Overview</TabsTab>
-    <TabsTab value="2">Analytics</TabsTab>
-    <TabsTab value="3">Reports</TabsTab>
-    <TabsTab value="4">Settings</TabsTab>
-    <TabsTab value="5">Members</TabsTab>
-    <TabsTab value="6">Billing</TabsTab>
-    <TabsTab value="7">Security</TabsTab>
-    <TabsTab value="8">Integrations</TabsTab>
-  </Tabs>
+  <SegmentedControl v-model:value="tab" :variant="variant" :size="size" aria-label="Scrollable tabs">
+    <SegmentedControlOption value="1">Overview</SegmentedControlOption>
+    <SegmentedControlOption value="2">Analytics</SegmentedControlOption>
+    <SegmentedControlOption value="3">Reports</SegmentedControlOption>
+    <SegmentedControlOption value="4">Settings</SegmentedControlOption>
+    <SegmentedControlOption value="5">Members</SegmentedControlOption>
+    <SegmentedControlOption value="6">Billing</SegmentedControlOption>
+    <SegmentedControlOption value="7">Security</SegmentedControlOption>
+    <SegmentedControlOption value="8">Integrations</SegmentedControlOption>
+  </SegmentedControl>
 </div>`
 
 export const overflowMenu = `<div class="flex min-w-0 max-w-full" :style="{ width: width + 'px' }">
-  <Tabs v-model:value="tab" variant="underline" overflow="menu" aria-label="Repository">
-    <TabsTab value="code">Code</TabsTab>
-    <TabsTab value="issues" :badge="12">Issues</TabsTab>
-    <TabsTab value="pulls" :badge="3">Pull requests</TabsTab>
-    <TabsTab value="actions">Actions</TabsTab>
-    <TabsTab value="projects">Projects</TabsTab>
-    <TabsTab value="insights">Insights</TabsTab>
-    <TabsTab value="settings">Settings</TabsTab>
-  </Tabs>
+  <SegmentedControl v-model:value="tab" variant="underline" overflow="menu" aria-label="Repository">
+    <SegmentedControlOption value="code">Code</SegmentedControlOption>
+    <SegmentedControlOption value="issues" :badge="12">Issues</SegmentedControlOption>
+    <SegmentedControlOption value="pulls" :badge="3">Pull requests</SegmentedControlOption>
+    <SegmentedControlOption value="actions">Actions</SegmentedControlOption>
+    <SegmentedControlOption value="projects">Projects</SegmentedControlOption>
+    <SegmentedControlOption value="insights">Insights</SegmentedControlOption>
+    <SegmentedControlOption value="settings">Settings</SegmentedControlOption>
+  </SegmentedControl>
 </div>`
 
-<UsageBlock>{`import { Tabs, TabsTab } from "@plexui/vue/components/Tabs";`}</UsageBlock>
+<UsageBlock>{`import { SegmentedControl, SegmentedControlOption } from "@plexui/vue/components/SegmentedControl";`}</UsageBlock>
 
 ## Examples
 
@@ -151,7 +152,7 @@ export const overflowMenu = `<div class="flex min-w-0 max-w-full" :style="{ widt
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Tabs provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with <code>v-model:value</code>; the examples keep it in a <code>tab</code> variable. <code>disabled</code> affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; <code>reportsDisabled</code> disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they are the 48px glass control of iOS 27 bars instead, a 40px selection and 15px labels, all primary. Vertical tabs are an inset grouped list. So the phone view has no <code>variant</code>, <code>flush</code>, <code>block</code>, <code>size</code> and <code>pill</code> controls.</>} code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.controlWithPanel}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>SegmentedControl provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with <code>v-model:value</code>; the examples keep it in a <code>tab</code> variable. <code>disabled</code> affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; <code>reportsDisabled</code> disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they are the 48px glass control of iOS 27 bars instead, a 40px selection and 15px labels, all primary. Vertical tabs are an inset grouped list. So the phone view has no <code>variant</code>, <code>flush</code>, <code>block</code>, <code>size</code> and <code>pill</code> controls.</>} code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.controlWithPanel}>
   <VuePhoneRowsDemo stageClassName={STAGE} template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" state={{ tab: "overview" }} controls={overviewControls} />
 </ComponentPreview>
 
@@ -242,39 +243,34 @@ export const overflowMenu = `<div class="flex min-w-0 max-w-full" :style="{ widt
   <VuePhoneRowsDemo stageClassName={STAGE} template={overflowMenu} phoneTemplate={phoneRows(overflowMenu)} phoneStageClassName="w-full" state={{ tab: "code" }} controls={[{ name: "width", label: "container width", type: "select", options: [{ value: "240", label: "240px" }, { value: "360", label: "360px" }, { value: "560", label: "560px" }], phoneOptions: [{ value: "240", label: "240px" }, { value: "360", label: "360px" }], default: "360" }]} />
 </ComponentPreview>
 
-Tabs shares the unified 9-step size scale with Button, Input, Select, and SelectControl.
+SegmentedControl shares the unified 9-step size scale with Button, Input, Select, and SelectControl.
 
-### Migration from SegmentedControl
+<span id="migration-from-segmentedcontrol" />
 
-`Tabs` replaces and extends `SegmentedControl`. As in the React package, the old import still works as an alias:
+### Also exported as Tabs
+
+The same component is exported as `Tabs`, with `TabsTab` for an option, for code that names it so:
 
 ```vue
 <script setup lang="ts">
 import { ref } from "vue"
-// Old (still works)
-import { SegmentedControl, SegmentedControlOption } from "@plexui/vue/components/SegmentedControl"
-// New (recommended)
 import { Tabs, TabsTab } from "@plexui/vue/components/Tabs"
 
 const mode = ref("a")
 </script>
 
 <template>
-  <SegmentedControl v-model:value="mode" aria-label="Mode">
-    <SegmentedControlOption value="a">A</SegmentedControlOption>
-  </SegmentedControl>
-
   <Tabs v-model:value="mode" aria-label="Mode">
     <TabsTab value="a">A</TabsTab>
   </Tabs>
 </template>
 ```
 
-`TabsTab` and `TabsOption` are the same component, and so are `SegmentedControlOption` and `SegmentedControlTab`. The `SegmentedControl` alias defaults to `variant="segmented"`.
+`SegmentedControlOption`, `SegmentedControlTab`, `TabsOption` and `TabsTab` are one component.
 
 ## API
 
-**Tabs** (root)
+**SegmentedControl** (root)
 
 <PropsTable data={[
   { prop: "value", type: "string", description: "Selected tab value. Bind with v-model:value; leave unset for an uncontrolled group" },
@@ -287,16 +283,16 @@ const mode = ref("a")
   { prop: "block", type: "boolean", default: "false", description: "Full-width control with equal-width tabs" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable all tabs" },
   { prop: "aria-label", type: "string", description: "Accessible name (required)" },
-  { prop: "overflow", type: '"scroll" | "menu"', default: '"scroll"', description: "Tabs that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)" },
+  { prop: "overflow", type: '"scroll" | "menu"', default: '"scroll"', description: "Options that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)" },
   { prop: "overflow-label", type: "string", default: '"More"', description: "Text of the menu button with overflow=\"menu\"" },
   { prop: "class", type: "string", description: "Extra classes on the group element" },
-  { prop: "default slot", type: "VNode[]", description: "TabsTab children" },
+  { prop: "default slot", type: "VNode[]", description: "SegmentedControlOption children" },
   { prop: "@update:value", type: "(value: string) => void", description: "Emitted when a tab is selected; powers v-model:value" },
   { prop: "@change", type: "(value: string) => void", description: "Emitted with update:value, named after the React onChange prop" },
   { prop: "@click", type: "(event: MouseEvent) => void", description: "Emitted on any click in the group, even when the selection does not change" },
 ]} />
 
-**TabsTab**
+**SegmentedControlOption**
 
 <PropsTable data={[
   { prop: "value", type: "string", description: "Tab value (required)" },
@@ -311,7 +307,7 @@ const mode = ref("a")
 
 ## Styling
 
-Tabs reads these component tokens. Override them at any scope to restyle it:
+SegmentedControl reads these component tokens. Override them at any scope to restyle it:
 
 - `--badge-font-size-2xs`: font size 2xs (default `var(--font-text-xs-size)`)
 - `--badge-font-size-lg`: font size lg (default `var(--font-text-sm-size)`)

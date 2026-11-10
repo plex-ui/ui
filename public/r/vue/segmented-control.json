@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "segmented-control",
+  "type": "registry:ui",
+  "title": "Segmented Control",
+  "description": "Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/segmented-control/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/SegmentedControl\"\n"
+    }
+  ],
+  "docs": "Import as `import { SegmentedControl, SegmentedControlOption } from '@/components/ui/segmented-control'`. See https://plexui.com/vue/components/segmented-control for props and examples."
+}

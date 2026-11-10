@@ -20,6 +20,9 @@ const componentPageSchema = frontmatterSchema.extend({
   /** The phone view of this page is not adapted yet: a desktop page hides its Phone switches, so no example
    *  opens a broken or slow phone (owner 08.11). The page itself stays responsive on a phone. */
   phoneDraft: z.boolean().optional(),
+  /** Other names the component is exported under, comma-separated (Segmented Control is also `Tabs`): the MCP
+   *  manifest lists them, so a lookup by the other name finds this page. */
+  aliases: z.string().optional(),
 });
 
 /** Components live at top-level URLs (/components/*) instead of

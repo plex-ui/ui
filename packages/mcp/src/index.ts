@@ -3,6 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import manifest from "./data/manifest.json" with { type: "json" };
 import vueManifest from "./data/manifest-vue.json" with { type: "json" };
+import { findComponent, fuzzyMatch, searchComponents } from "./lookup.js";
 
 
 interface Prop {
@@ -36,6 +37,8 @@ interface Component {
   description: string;
   importPath?: string;
   exports?: string[];
+  /** Other names the component is exported under (Segmented Control is also `Tabs`, `Tabs.Tab`) */
+  aliases?: string[];
   /** Set when the page imports from more than one module */
   imports?: { path: string; names: string[] }[];
   props?: Prop[];
@@ -165,11 +168,6 @@ function formatComponent(comp: Component, framework: Framework, options?: { brie
   return lines.join("\n");
 }
 
-function fuzzyMatch(query: string, text: string): boolean {
-  const q = query.toLowerCase();
-  const t = text.toLowerCase();
-  return t.includes(q);
-}
 
 
 // Replaced with the package version at build time (tsup.config.ts)
@@ -222,21 +220,7 @@ server.tool(
   },
   async ({ name, framework }: { name: string; framework: Framework }) => {
     const components = componentsFor(framework);
-    const normalize = (value: string) => value.toLowerCase().replace(/[-_ .]/g, "");
-    const query = normalize(name);
-    // A page's title or slug first, then any component it exports or documents
-    // (`DataTable` lives on Table, `DialogTrigger` / `Dialog.Trigger` on Dialog)
-    const byName = (value: string) =>
-      components.find((c) => normalize(c.name) === value || c.slug.replace(/-/g, "") === value);
-    const comp =
-      byName(query) ??
-      components.find(
-        (c) =>
-          c.exports?.some((e) => normalize(e) === query) ||
-          c.subComponents?.some((s) => normalize(s.name) === query)
-      ) ??
-      // A compound part (`Dialog.Trigger`) belongs to its root's page
-      (name.includes(".") ? byName(normalize(name.split(".")[0])) : undefined);
+    const comp = findComponent(components, name);
 
     if (!comp) {
       const suggestions = components
@@ -263,14 +247,7 @@ server.tool(
     framework: frameworkParam,
   },
   async ({ query, limit, framework }: { query: string; limit: number; framework: Framework }) => {
-    const matches = componentsFor(framework).filter(
-      (c) =>
-        fuzzyMatch(query, c.name) ||
-        fuzzyMatch(query, c.description) ||
-        fuzzyMatch(query, c.slug) ||
-        (c.exports && c.exports.some((e) => fuzzyMatch(query, e))) ||
-        (c.props && c.props.some((p) => fuzzyMatch(query, p.name)))
-    );
+    const matches = searchComponents(componentsFor(framework), query);
 
     if (matches.length === 0) {
       return {

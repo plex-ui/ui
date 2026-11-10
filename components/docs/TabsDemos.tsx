@@ -6,7 +6,6 @@ import {
   Home,
   SettingsCog,
 } from '@plexui/ui/components/Icon';
-import { Tabs } from '@plexui/ui/components/Tabs';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { PhoneRowsStage, useDesktopOnlyState, usePhoneRows } from './PhoneRows';
@@ -70,7 +69,7 @@ export function TabsOverviewDemo() {
         <DemoControlBoolean name="reportsDisabled" value={reportsDisabled} onChange={setReportsDisabled} />
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           variant={shownVariant}
@@ -82,11 +81,11 @@ export function TabsOverviewDemo() {
           disabled={disabled}
           aria-label="Demo tabs"
         >
-          <Tabs.Tab value="overview">Overview</Tabs.Tab>
-          <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-          <Tabs.Tab value="reports" disabled={reportsDisabled}>Reports</Tabs.Tab>
-          <Tabs.Tab value="settings">Settings</Tabs.Tab>
-        </Tabs>
+          <SegmentedControl.Option value="overview">Overview</SegmentedControl.Option>
+          <SegmentedControl.Option value="analytics">Analytics</SegmentedControl.Option>
+          <SegmentedControl.Option value="reports" disabled={reportsDisabled}>Reports</SegmentedControl.Option>
+          <SegmentedControl.Option value="settings">Settings</SegmentedControl.Option>
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -109,18 +108,18 @@ export function TabsUnderlineDemo() {
         </DemoControlRow>
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           variant="underline"
           size={shownSize}
           aria-label="Sections"
         >
-          <Tabs.Tab value="overview">Overview</Tabs.Tab>
-          <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-          <Tabs.Tab value="reports">Reports</Tabs.Tab>
-          <Tabs.Tab value="settings">Settings</Tabs.Tab>
-        </Tabs>
+          <SegmentedControl.Option value="overview">Overview</SegmentedControl.Option>
+          <SegmentedControl.Option value="analytics">Analytics</SegmentedControl.Option>
+          <SegmentedControl.Option value="reports">Reports</SegmentedControl.Option>
+          <SegmentedControl.Option value="settings">Settings</SegmentedControl.Option>
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -143,7 +142,7 @@ export function TabsUnderlineFlushDemo() {
         </DemoControlRow>
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           variant="underline"
@@ -151,11 +150,11 @@ export function TabsUnderlineFlushDemo() {
           size={shownSize}
           aria-label="Sections"
         >
-          <Tabs.Tab value="overview">Overview</Tabs.Tab>
-          <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-          <Tabs.Tab value="reports">Reports</Tabs.Tab>
-          <Tabs.Tab value="settings">Settings</Tabs.Tab>
-        </Tabs>
+          <SegmentedControl.Option value="overview">Overview</SegmentedControl.Option>
+          <SegmentedControl.Option value="analytics">Analytics</SegmentedControl.Option>
+          <SegmentedControl.Option value="reports">Reports</SegmentedControl.Option>
+          <SegmentedControl.Option value="settings">Settings</SegmentedControl.Option>
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -178,7 +177,7 @@ export function TabsUnderlineBlockDemo() {
         </DemoControlRow>
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           variant="underline"
@@ -186,10 +185,10 @@ export function TabsUnderlineBlockDemo() {
           size={shownSize}
           aria-label="Sections"
         >
-          <Tabs.Tab value="overview">Overview</Tabs.Tab>
-          <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-          <Tabs.Tab value="reports">Reports</Tabs.Tab>
-        </Tabs>
+          <SegmentedControl.Option value="overview">Overview</SegmentedControl.Option>
+          <SegmentedControl.Option value="analytics">Analytics</SegmentedControl.Option>
+          <SegmentedControl.Option value="reports">Reports</SegmentedControl.Option>
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -212,17 +211,17 @@ export function TabsUnderlineIconsDemo() {
         </DemoControlRow>
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           variant="underline"
           size={shownSize}
           aria-label="Navigation"
         >
-          <Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
-          <Tabs.Tab value="settings" icon={<SettingsCog />}>Settings</Tabs.Tab>
-          <Tabs.Tab value="notifications" icon={<Bell />}>Notifications</Tabs.Tab>
-        </Tabs>
+          <SegmentedControl.Option value="home" icon={<Home />}>Home</SegmentedControl.Option>
+          <SegmentedControl.Option value="settings" icon={<SettingsCog />}>Settings</SegmentedControl.Option>
+          <SegmentedControl.Option value="notifications" icon={<Bell />}>Notifications</SegmentedControl.Option>
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -247,17 +246,17 @@ export function TabsSegmentedIconsDemo() {
         <DemoControlBoolean name="pill" desktopOnly value={pill} onChange={setPill} />
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           size={shownSize}
           pill={shownPill}
           aria-label="Navigation"
         >
-          <Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
-          <Tabs.Tab value="settings" icon={<SettingsCog />}>Settings</Tabs.Tab>
-          <Tabs.Tab value="notifications" icon={<Bell />}>Notifications</Tabs.Tab>
-        </Tabs>
+          <SegmentedControl.Option value="home" icon={<Home />}>Home</SegmentedControl.Option>
+          <SegmentedControl.Option value="settings" icon={<SettingsCog />}>Settings</SegmentedControl.Option>
+          <SegmentedControl.Option value="notifications" icon={<Bell />}>Notifications</SegmentedControl.Option>
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -292,7 +291,7 @@ export function TabsIconOnlyDemo() {
         )}
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           variant={shownVariant}
@@ -300,10 +299,10 @@ export function TabsIconOnlyDemo() {
           pill={shownPill}
           aria-label="Navigation"
         >
-          <Tabs.Tab value="home" icon={<Home />} aria-label="Home" />
-          <Tabs.Tab value="settings" icon={<SettingsCog />} aria-label="Settings" />
-          <Tabs.Tab value="notifications" icon={<Bell />} aria-label="Notifications" />
-        </Tabs>
+          <SegmentedControl.Option value="home" icon={<Home />} aria-label="Home" />
+          <SegmentedControl.Option value="settings" icon={<SettingsCog />} aria-label="Settings" />
+          <SegmentedControl.Option value="notifications" icon={<Bell />} aria-label="Notifications" />
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -330,17 +329,17 @@ export function TabsSegmentedBadgeDemo() {
         <DemoControlBoolean name="badgePill" value={badgePill} onChange={setBadgePill} />
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           size={shownSize}
           pill={shownPill}
           aria-label="Filter"
         >
-          <Tabs.Tab value="all" badge={{ content: 128, pill: badgePill }}>All</Tabs.Tab>
-          <Tabs.Tab value="unread" badge={{ content: 12, color: "info", pill: badgePill }}>Unread</Tabs.Tab>
-          <Tabs.Tab value="flagged" badge={{ content: 3, color: "danger", pill: badgePill }}>Flagged</Tabs.Tab>
-        </Tabs>
+          <SegmentedControl.Option value="all" badge={{ content: 128, pill: badgePill }}>All</SegmentedControl.Option>
+          <SegmentedControl.Option value="unread" badge={{ content: 12, color: "info", pill: badgePill }}>Unread</SegmentedControl.Option>
+          <SegmentedControl.Option value="flagged" badge={{ content: 3, color: "danger", pill: badgePill }}>Flagged</SegmentedControl.Option>
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -365,17 +364,17 @@ export function TabsUnderlineBadgeDemo() {
         <DemoControlBoolean name="badgePill" value={badgePill} onChange={setBadgePill} />
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           variant="underline"
           size={shownSize}
           aria-label="Filter"
         >
-          <Tabs.Tab value="all" badge={{ content: 128, pill: badgePill }}>All</Tabs.Tab>
-          <Tabs.Tab value="unread" badge={{ content: 12, color: "info", pill: badgePill }}>Unread</Tabs.Tab>
-          <Tabs.Tab value="flagged" badge={{ content: 3, color: "danger", pill: badgePill }}>Flagged</Tabs.Tab>
-        </Tabs>
+          <SegmentedControl.Option value="all" badge={{ content: 128, pill: badgePill }}>All</SegmentedControl.Option>
+          <SegmentedControl.Option value="unread" badge={{ content: 12, color: "info", pill: badgePill }}>Unread</SegmentedControl.Option>
+          <SegmentedControl.Option value="flagged" badge={{ content: 3, color: "danger", pill: badgePill }}>Flagged</SegmentedControl.Option>
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -398,18 +397,18 @@ export function TabsVerticalSegmentedDemo() {
         </DemoControlRow>
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           orientation="vertical"
           size={shownSize}
           aria-label="Settings"
         >
-          <Tabs.Tab value="account">Account</Tabs.Tab>
-          <Tabs.Tab value="password">Password</Tabs.Tab>
-          <Tabs.Tab value="notifications">Notifications</Tabs.Tab>
-          <Tabs.Tab value="display">Display</Tabs.Tab>
-        </Tabs>
+          <SegmentedControl.Option value="account">Account</SegmentedControl.Option>
+          <SegmentedControl.Option value="password">Password</SegmentedControl.Option>
+          <SegmentedControl.Option value="notifications">Notifications</SegmentedControl.Option>
+          <SegmentedControl.Option value="display">Display</SegmentedControl.Option>
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -432,7 +431,7 @@ export function TabsVerticalUnderlineDemo() {
         </DemoControlRow>
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           variant="underline"
@@ -440,11 +439,11 @@ export function TabsVerticalUnderlineDemo() {
           size={shownSize}
           aria-label="Settings"
         >
-          <Tabs.Tab value="account">Account</Tabs.Tab>
-          <Tabs.Tab value="password">Password</Tabs.Tab>
-          <Tabs.Tab value="notifications">Notifications</Tabs.Tab>
-          <Tabs.Tab value="display">Display</Tabs.Tab>
-        </Tabs>
+          <SegmentedControl.Option value="account">Account</SegmentedControl.Option>
+          <SegmentedControl.Option value="password">Password</SegmentedControl.Option>
+          <SegmentedControl.Option value="notifications">Notifications</SegmentedControl.Option>
+          <SegmentedControl.Option value="display">Display</SegmentedControl.Option>
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -467,7 +466,7 @@ export function TabsVerticalUnderlineIconsDemo() {
         </DemoControlRow>
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           variant="underline"
@@ -475,10 +474,10 @@ export function TabsVerticalUnderlineIconsDemo() {
           size={shownSize}
           aria-label="Navigation"
         >
-          <Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
-          <Tabs.Tab value="settings" icon={<SettingsCog />}>Settings</Tabs.Tab>
-          <Tabs.Tab value="notifications" icon={<Bell />}>Notifications</Tabs.Tab>
-        </Tabs>
+          <SegmentedControl.Option value="home" icon={<Home />}>Home</SegmentedControl.Option>
+          <SegmentedControl.Option value="settings" icon={<SettingsCog />}>Settings</SegmentedControl.Option>
+          <SegmentedControl.Option value="notifications" icon={<Bell />}>Notifications</SegmentedControl.Option>
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -509,17 +508,17 @@ export function TabsSizingDemo() {
         </DemoControlRow>
       </div>
       <TabsStage>
-        <Tabs
+        <SegmentedControl
           value={tab}
           onChange={setTab}
           variant={shownVariant}
           size={shownSize}
           aria-label="Demo tabs"
         >
-          <Tabs.Tab value="overview">Overview</Tabs.Tab>
-          <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-          <Tabs.Tab value="reports">Reports</Tabs.Tab>
-        </Tabs>
+          <SegmentedControl.Option value="overview">Overview</SegmentedControl.Option>
+          <SegmentedControl.Option value="analytics">Analytics</SegmentedControl.Option>
+          <SegmentedControl.Option value="reports">Reports</SegmentedControl.Option>
+        </SegmentedControl>
       </TabsStage>
     </>
   );
@@ -551,22 +550,22 @@ export function TabsScrollableDemo() {
       </div>
       <TabsStage>
         <div className="flex w-full min-w-0 max-w-[400px]">
-          <Tabs
+          <SegmentedControl
             value={tab}
             onChange={setTab}
             variant={shownVariant}
             size={shownSize}
             aria-label="Scrollable tabs"
           >
-            <Tabs.Tab value="1">Overview</Tabs.Tab>
-            <Tabs.Tab value="2">Analytics</Tabs.Tab>
-            <Tabs.Tab value="3">Reports</Tabs.Tab>
-            <Tabs.Tab value="4">Settings</Tabs.Tab>
-            <Tabs.Tab value="5">Members</Tabs.Tab>
-            <Tabs.Tab value="6">Billing</Tabs.Tab>
-            <Tabs.Tab value="7">Security</Tabs.Tab>
-            <Tabs.Tab value="8">Integrations</Tabs.Tab>
-          </Tabs>
+            <SegmentedControl.Option value="1">Overview</SegmentedControl.Option>
+            <SegmentedControl.Option value="2">Analytics</SegmentedControl.Option>
+            <SegmentedControl.Option value="3">Reports</SegmentedControl.Option>
+            <SegmentedControl.Option value="4">Settings</SegmentedControl.Option>
+            <SegmentedControl.Option value="5">Members</SegmentedControl.Option>
+            <SegmentedControl.Option value="6">Billing</SegmentedControl.Option>
+            <SegmentedControl.Option value="7">Security</SegmentedControl.Option>
+            <SegmentedControl.Option value="8">Integrations</SegmentedControl.Option>
+          </SegmentedControl>
         </div>
       </TabsStage>
     </>
@@ -596,15 +595,15 @@ export function TabsOverflowMenuDemo() {
       </div>
       <TabsStage>
         <div className="flex min-w-0 max-w-full" style={{ width: Number(width) }}>
-          <Tabs value={tab} onChange={setTab} variant="underline" overflow="menu" aria-label="Repository">
-            <Tabs.Tab value="code">Code</Tabs.Tab>
-            <Tabs.Tab value="issues" badge={12}>Issues</Tabs.Tab>
-            <Tabs.Tab value="pulls" badge={3}>Pull requests</Tabs.Tab>
-            <Tabs.Tab value="actions">Actions</Tabs.Tab>
-            <Tabs.Tab value="projects">Projects</Tabs.Tab>
-            <Tabs.Tab value="insights">Insights</Tabs.Tab>
-            <Tabs.Tab value="settings">Settings</Tabs.Tab>
-          </Tabs>
+          <SegmentedControl value={tab} onChange={setTab} variant="underline" overflow="menu" aria-label="Repository">
+            <SegmentedControl.Option value="code">Code</SegmentedControl.Option>
+            <SegmentedControl.Option value="issues" badge={12}>Issues</SegmentedControl.Option>
+            <SegmentedControl.Option value="pulls" badge={3}>Pull requests</SegmentedControl.Option>
+            <SegmentedControl.Option value="actions">Actions</SegmentedControl.Option>
+            <SegmentedControl.Option value="projects">Projects</SegmentedControl.Option>
+            <SegmentedControl.Option value="insights">Insights</SegmentedControl.Option>
+            <SegmentedControl.Option value="settings">Settings</SegmentedControl.Option>
+          </SegmentedControl>
         </div>
       </TabsStage>
     </>

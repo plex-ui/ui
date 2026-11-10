@@ -863,6 +863,36 @@ Props:
     - className (string) — Extra classes on the label element
 Examples: Overview, With Checkbox, Descriptions, Direction, Orientation, Group disabled, Item disabled, With description, With Field, With Field error, Choice card, Card selection, Grouped sections
 
+## Segmented Control
+Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.
+Import: import { SegmentedControl } from "@plexui/ui/components/SegmentedControl"
+Docs: https://plexui.com/components/segmented-control
+Props:
+  - value (string) — Selected tab value (controlled, required)
+  - onChange ((value: string) => void) — Called when selection changes
+  - onClick (() => void) — Called on any click in the group, even when the selection does not change
+  - variant ("segmented" | "underline") default: "segmented" — Visual style: segmented (background highlight) or underline (line indicator)
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the tab group
+  - size (ControlSize) default: "md" — Control height (3xs through 3xl)
+  - gutterSize ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding of tabs
+  - pill (boolean) default: true — Fully rounded control (segmented variant only)
+  - flush (boolean) default: false — Text-width indicator, no border, gap spacing (underline variant only)
+  - block (boolean) default: false — Full-width control with equal-width tabs
+  - disabled (boolean) default: false — Disable all tabs
+  - aria-label (string) — Accessible name (required)
+  - overflow ("scroll" | "menu") default: "scroll" — Options that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)
+  - overflowLabel (string) default: "More" — Text of the menu button with overflow="menu"
+  - className (string) — Extra classes on the group element
+  - children (ReactNode) — SegmentedControl.Option children
+  SegmentedControl.Option:
+    - value (string) — Tab value (required)
+    - disabled (boolean) — Disable this tab
+    - icon (ReactNode) — Icon element (sized automatically)
+    - badge (ReactNode | { content: ReactNode; color?: "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"; variant?: "soft" | "solid"; pill?: boolean; loading?: boolean }) — Badge content (for example a count) or a badge config
+    - aria-label (string) — Accessible name (required for icon-only tabs)
+    - children (ReactNode) — Tab label
+Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Sizing, Scrollable, Overflow menu
+
 ## Select Control
 Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
 Import: import { SelectControl } from "@plexui/ui/components/SelectControl"
@@ -1214,36 +1244,6 @@ Docs: https://plexui.com/components/table
     - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
     - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
 Examples: Overview, With footer, Minimal, Variant, Sorting, Pagination, Row click, Row selection, Cell variants, Filtering, Column visibility
-
-## Tabs
-Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.
-Import: import { Tabs } from "@plexui/ui/components/Tabs"
-Docs: https://plexui.com/components/tabs
-Props:
-  - value (string) — Selected tab value (controlled, required)
-  - onChange ((value: string) => void) — Called when selection changes
-  - onClick (() => void) — Called on any click in the group, even when the selection does not change
-  - variant ("segmented" | "underline") default: "segmented" — Visual style: segmented (background highlight) or underline (line indicator)
-  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the tab group
-  - size (ControlSize) default: "md" — Control height (3xs through 3xl)
-  - gutterSize ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding of tabs
-  - pill (boolean) default: true — Fully rounded control (segmented variant only)
-  - flush (boolean) default: false — Text-width indicator, no border, gap spacing (underline variant only)
-  - block (boolean) default: false — Full-width control with equal-width tabs
-  - disabled (boolean) default: false — Disable all tabs
-  - aria-label (string) — Accessible name (required)
-  - overflow ("scroll" | "menu") default: "scroll" — Tabs that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)
-  - overflowLabel (string) default: "More" — Text of the menu button with overflow="menu"
-  - className (string) — Extra classes on the group element
-  - children (ReactNode) — Tabs.Tab children
-  Tabs.Tab:
-    - value (string) — Tab value (required)
-    - disabled (boolean) — Disable this tab
-    - icon (ReactNode) — Icon element (sized automatically)
-    - badge (ReactNode | { content: ReactNode; color?: "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"; variant?: "soft" | "solid"; pill?: boolean; loading?: boolean }) — Badge content (for example a count) or a badge config
-    - aria-label (string) — Accessible name (required for icon-only tabs)
-    - children (ReactNode) — Tab label
-Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Sizing, Scrollable, Overflow menu
 
 ## Tag Input
 Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.

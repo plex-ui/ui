@@ -335,6 +335,14 @@
       ]
     },
     {
+      "name": "segmented-control",
+      "type": "registry:ui",
+      "description": "Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "select",
       "type": "registry:ui",
       "description": "Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.",
@@ -434,14 +442,6 @@
       "name": "table",
       "type": "registry:ui",
       "description": "Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.",
-      "dependencies": [
-        "@plexui/vue"
-      ]
-    },
-    {
-      "name": "tabs",
-      "type": "registry:ui",
-      "description": "Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.",
       "dependencies": [
         "@plexui/vue"
       ]

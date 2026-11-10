@@ -6599,6 +6599,209 @@ Use dividers to separate radio groups into logical sections. Each section can be
 </Page>
 ```
 
+## Segmented Control
+Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.
+Import: import { SegmentedControl } from "@plexui/ui/components/SegmentedControl"
+Docs: https://plexui.com/components/segmented-control
+Props:
+  - value (string) — Selected tab value (controlled, required)
+  - onChange ((value: string) => void) — Called when selection changes
+  - onClick (() => void) — Called on any click in the group, even when the selection does not change
+  - variant ("segmented" | "underline") default: "segmented" — Visual style: segmented (background highlight) or underline (line indicator)
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the tab group
+  - size (ControlSize) default: "md" — Control height (3xs through 3xl)
+  - gutterSize ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding of tabs
+  - pill (boolean) default: true — Fully rounded control (segmented variant only)
+  - flush (boolean) default: false — Text-width indicator, no border, gap spacing (underline variant only)
+  - block (boolean) default: false — Full-width control with equal-width tabs
+  - disabled (boolean) default: false — Disable all tabs
+  - aria-label (string) — Accessible name (required)
+  - overflow ("scroll" | "menu") default: "scroll" — Options that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)
+  - overflowLabel (string) default: "More" — Text of the menu button with overflow="menu"
+  - className (string) — Extra classes on the group element
+  - children (ReactNode) — SegmentedControl.Option children
+  SegmentedControl.Option:
+    - value (string) — Tab value (required)
+    - disabled (boolean) — Disable this tab
+    - icon (ReactNode) — Icon element (sized automatically)
+    - badge (ReactNode | { content: ReactNode; color?: "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"; variant?: "soft" | "solid"; pill?: boolean; loading?: boolean }) — Badge content (for example a count) or a badge config
+    - aria-label (string) — Accessible name (required for icon-only tabs)
+    - children (ReactNode) — Tab label
+
+### Overview
+SegmentedControl provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they are the 48px glass control of iOS 27 bars instead, a 40px selection and 15px labels, all primary. Vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls.
+```tsx
+const [tab, setTab] = useState("overview")
+const [disabled, setDisabled] = useState(false)
+const [reportsDisabled, setReportsDisabled] = useState(false)
+
+return (
+<SegmentedControl value={tab} onChange={setTab} disabled={disabled} aria-label="Demo tabs">
+  <SegmentedControl.Option value="overview">Overview</SegmentedControl.Option>
+  <SegmentedControl.Option value="analytics">Analytics</SegmentedControl.Option>
+  <SegmentedControl.Option value="reports" disabled={reportsDisabled}>Reports</SegmentedControl.Option>
+  <SegmentedControl.Option value="settings">Settings</SegmentedControl.Option>
+</SegmentedControl>
+)
+```
+
+### Segmented with icons
+Icons work with the segmented variant. Use the icon prop on individual tabs. Icons are automatically sized to match the current size.
+```tsx
+<SegmentedControl size="lg" value={tab} onChange={setTab} aria-label="Navigation">
+<SegmentedControl.Option value="home" icon={<Home />}>Home</SegmentedControl.Option>
+<SegmentedControl.Option value="settings" icon={<SettingsCog />}>Settings</SegmentedControl.Option>
+<SegmentedControl.Option value="notifications" icon={<Bell />}>Notifications</SegmentedControl.Option>
+</SegmentedControl>
+```
+
+### Icon only
+Omit the text children and pass only the icon prop for compact icon-only tabs. Always provide an aria-label on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at; beside a label it keeps the icon size, since iOS shows only the symbol of a segment that has both.
+```tsx
+<SegmentedControl value={tab} onChange={setTab} aria-label="Navigation">
+<SegmentedControl.Option value="home" icon={<Home />} aria-label="Home" />
+<SegmentedControl.Option value="settings" icon={<SettingsCog />} aria-label="Settings" />
+<SegmentedControl.Option value="notifications" icon={<Bell />} aria-label="Notifications" />
+</SegmentedControl>
+```
+
+### Segmented with badge
+Pass a number or an object with content, color, variant, and pill to the badge prop. Badges render inline after the tab label inside the segmented container.
+```tsx
+<SegmentedControl size="lg" value={tab} onChange={setTab} aria-label="Filter">
+<SegmentedControl.Option value="all" badge={{ content: 128, pill: true }}>All</SegmentedControl.Option>
+<SegmentedControl.Option value="unread" badge={{ content: 12, color: "info", pill: true }}>Unread</SegmentedControl.Option>
+<SegmentedControl.Option value="flagged" badge={{ content: 3, color: "danger", pill: true }}>Flagged</SegmentedControl.Option>
+</SegmentedControl>
+```
+
+### Underline
+Set variant="underline" for a minimal tab style with an animated line indicator under the active tab. No background container is rendered. iOS has no underline tabs: on a phone they are the segmented control of Overview, so this example has no Phone preview.
+```tsx
+<SegmentedControl variant="underline" value={tab} onChange={setTab} aria-label="Sections">
+<SegmentedControl.Option value="overview">Overview</SegmentedControl.Option>
+<SegmentedControl.Option value="analytics">Analytics</SegmentedControl.Option>
+<SegmentedControl.Option value="reports">Reports</SegmentedControl.Option>
+<SegmentedControl.Option value="settings">Settings</SegmentedControl.Option>
+</SegmentedControl>
+```
+
+### Underline flush
+Add flush with variant="underline" for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview.
+```tsx
+<SegmentedControl variant="underline" flush value={tab} onChange={setTab} aria-label="Sections">
+<SegmentedControl.Option value="overview">Overview</SegmentedControl.Option>
+<SegmentedControl.Option value="analytics">Analytics</SegmentedControl.Option>
+<SegmentedControl.Option value="reports">Reports</SegmentedControl.Option>
+<SegmentedControl.Option value="settings">Settings</SegmentedControl.Option>
+</SegmentedControl>
+```
+
+### Underline block
+Use block with the underline variant for full-width tabs that stretch evenly across the container. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview.
+```tsx
+<SegmentedControl variant="underline" block value={tab} onChange={setTab} aria-label="Sections">
+<SegmentedControl.Option value="overview">Overview</SegmentedControl.Option>
+<SegmentedControl.Option value="analytics">Analytics</SegmentedControl.Option>
+<SegmentedControl.Option value="reports">Reports</SegmentedControl.Option>
+</SegmentedControl>
+```
+
+### Underline with icons
+Icons work with the underline variant the same way as with segmented. Use the icon prop on individual tabs. On a phone these tabs are the segmented control of Segmented with icons, so this example has no Phone preview.
+```tsx
+<SegmentedControl variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Navigation">
+<SegmentedControl.Option value="home" icon={<Home />}>Home</SegmentedControl.Option>
+<SegmentedControl.Option value="settings" icon={<SettingsCog />}>Settings</SegmentedControl.Option>
+<SegmentedControl.Option value="notifications" icon={<Bell />}>Notifications</SegmentedControl.Option>
+</SegmentedControl>
+```
+
+### Underline with badge
+Badges are supported with the underline variant. Pass a simple value or an object with content, color, variant, and pill. On a phone these tabs are the segmented control of Segmented with badge, so this example has no Phone preview.
+```tsx
+<SegmentedControl variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Filter">
+<SegmentedControl.Option value="all" badge={{ content: 128, pill: true }}>All</SegmentedControl.Option>
+<SegmentedControl.Option value="unread" badge={{ content: 12, color: "info", pill: true }}>Unread</SegmentedControl.Option>
+<SegmentedControl.Option value="flagged" badge={{ content: 3, color: "danger", pill: true }}>Flagged</SegmentedControl.Option>
+</SegmentedControl>
+```
+
+### Vertical segmented
+Set orientation="vertical" to stack tabs vertically. The sliding thumb animates up and down. On a phone vertical tabs are an inset grouped list, as iOS lists a choice: 52px rows with the 17px label and a checkmark on the selected row instead of the thumb.
+```tsx
+<SegmentedControl orientation="vertical" value={tab} onChange={setTab} aria-label="Settings">
+<SegmentedControl.Option value="account">Account</SegmentedControl.Option>
+<SegmentedControl.Option value="password">Password</SegmentedControl.Option>
+<SegmentedControl.Option value="notifications">Notifications</SegmentedControl.Option>
+<SegmentedControl.Option value="display">Display</SegmentedControl.Option>
+</SegmentedControl>
+```
+
+### Vertical underline
+Combine variant="underline" with orientation="vertical" for a sidebar-style navigation pattern. The line indicator appears on the left side. On a phone both vertical variants are the list of Vertical segmented, so this example has no Phone preview.
+```tsx
+<SegmentedControl variant="underline" orientation="vertical" value={tab} onChange={setTab} aria-label="Settings">
+<SegmentedControl.Option value="account">Account</SegmentedControl.Option>
+<SegmentedControl.Option value="password">Password</SegmentedControl.Option>
+<SegmentedControl.Option value="notifications">Notifications</SegmentedControl.Option>
+<SegmentedControl.Option value="display">Display</SegmentedControl.Option>
+</SegmentedControl>
+```
+
+### Vertical underline with icons
+Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels.
+```tsx
+<SegmentedControl variant="underline" orientation="vertical" size="lg" value={tab} onChange={setTab} aria-label="Navigation">
+<SegmentedControl.Option value="home" icon={<Home />}>Home</SegmentedControl.Option>
+<SegmentedControl.Option value="settings" icon={<SettingsCog />}>Settings</SegmentedControl.Option>
+<SegmentedControl.Option value="notifications" icon={<Bell />}>Notifications</SegmentedControl.Option>
+</SegmentedControl>
+```
+
+### Sizing
+Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS (the 48px glass one in a Toolbar), and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls.
+```tsx
+<SegmentedControl variant="underline" size="md" value={tab} onChange={setTab} aria-label="Demo tabs">
+<SegmentedControl.Option value="overview">Overview</SegmentedControl.Option>
+<SegmentedControl.Option value="analytics">Analytics</SegmentedControl.Option>
+<SegmentedControl.Option value="reports">Reports</SegmentedControl.Option>
+</SegmentedControl>
+```
+
+### Scrollable
+When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width. A phone scrolls them the same way inside the capsule, as Safari's tab groups and Telegram's chat folders do, and each segment then takes the width of its label.
+```tsx
+<div className="flex w-full min-w-0 max-w-[400px]">
+<SegmentedControl value={tab} onChange={setTab} aria-label="Scrollable tabs">
+  <SegmentedControl.Option value="1">Overview</SegmentedControl.Option>
+  <SegmentedControl.Option value="2">Analytics</SegmentedControl.Option>
+  <SegmentedControl.Option value="3">Reports</SegmentedControl.Option>
+  <SegmentedControl.Option value="4">Settings</SegmentedControl.Option>
+  <SegmentedControl.Option value="5">Members</SegmentedControl.Option>
+  <SegmentedControl.Option value="6">Billing</SegmentedControl.Option>
+  <SegmentedControl.Option value="7">Security</SegmentedControl.Option>
+  <SegmentedControl.Option value="8">Integrations</SegmentedControl.Option>
+</SegmentedControl>
+</div>
+```
+
+### Overflow menu
+With overflow="menu", the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflowLabel sets the button's text (default "More"). Works for horizontal tabs without block.
+```tsx
+<div className="flex min-w-0 max-w-full w-[360px]">
+<SegmentedControl value={tab} onChange={setTab} variant="underline" overflow="menu" aria-label="Repository">
+  <SegmentedControl.Option value="code">Code</SegmentedControl.Option>
+  <SegmentedControl.Option value="issues" badge={12}>Issues</SegmentedControl.Option>
+  <SegmentedControl.Option value="pulls" badge={3}>Pull requests</SegmentedControl.Option>
+  <SegmentedControl.Option value="actions">Actions</SegmentedControl.Option>
+  <SegmentedControl.Option value="projects">Projects</SegmentedControl.Option>
+  <SegmentedControl.Option value="insights">Insights</SegmentedControl.Option>
+  <SegmentedControl.Option value="settings">Settings</SegmentedControl.Option>
+</SegmentedControl>
+</div>
+```
+
 ## Select Control
 Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
 Import: import { SelectControl } from "@plexui/ui/components/SelectControl"
@@ -9193,209 +9396,6 @@ return (
   />
 )
 }
-```
-
-## Tabs
-Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.
-Import: import { Tabs } from "@plexui/ui/components/Tabs"
-Docs: https://plexui.com/components/tabs
-Props:
-  - value (string) — Selected tab value (controlled, required)
-  - onChange ((value: string) => void) — Called when selection changes
-  - onClick (() => void) — Called on any click in the group, even when the selection does not change
-  - variant ("segmented" | "underline") default: "segmented" — Visual style: segmented (background highlight) or underline (line indicator)
-  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the tab group
-  - size (ControlSize) default: "md" — Control height (3xs through 3xl)
-  - gutterSize ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding of tabs
-  - pill (boolean) default: true — Fully rounded control (segmented variant only)
-  - flush (boolean) default: false — Text-width indicator, no border, gap spacing (underline variant only)
-  - block (boolean) default: false — Full-width control with equal-width tabs
-  - disabled (boolean) default: false — Disable all tabs
-  - aria-label (string) — Accessible name (required)
-  - overflow ("scroll" | "menu") default: "scroll" — Tabs that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)
-  - overflowLabel (string) default: "More" — Text of the menu button with overflow="menu"
-  - className (string) — Extra classes on the group element
-  - children (ReactNode) — Tabs.Tab children
-  Tabs.Tab:
-    - value (string) — Tab value (required)
-    - disabled (boolean) — Disable this tab
-    - icon (ReactNode) — Icon element (sized automatically)
-    - badge (ReactNode | { content: ReactNode; color?: "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"; variant?: "soft" | "solid"; pill?: boolean; loading?: boolean }) — Badge content (for example a count) or a badge config
-    - aria-label (string) — Accessible name (required for icon-only tabs)
-    - children (ReactNode) — Tab label
-
-### Overview
-Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they are the 48px glass control of iOS 27 bars instead, a 40px selection and 15px labels, all primary. Vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls.
-```tsx
-const [tab, setTab] = useState("overview")
-const [disabled, setDisabled] = useState(false)
-const [reportsDisabled, setReportsDisabled] = useState(false)
-
-return (
-<Tabs value={tab} onChange={setTab} disabled={disabled} aria-label="Demo tabs">
-  <Tabs.Tab value="overview">Overview</Tabs.Tab>
-  <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-  <Tabs.Tab value="reports" disabled={reportsDisabled}>Reports</Tabs.Tab>
-  <Tabs.Tab value="settings">Settings</Tabs.Tab>
-</Tabs>
-)
-```
-
-### Segmented with icons
-Icons work with the segmented variant. Use the icon prop on individual tabs. Icons are automatically sized to match the current size.
-```tsx
-<Tabs size="lg" value={tab} onChange={setTab} aria-label="Navigation">
-<Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
-<Tabs.Tab value="settings" icon={<SettingsCog />}>Settings</Tabs.Tab>
-<Tabs.Tab value="notifications" icon={<Bell />}>Notifications</Tabs.Tab>
-</Tabs>
-```
-
-### Icon only
-Omit the text children and pass only the icon prop for compact icon-only tabs. Always provide an aria-label on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at; beside a label it keeps the icon size, since iOS shows only the symbol of a segment that has both.
-```tsx
-<Tabs value={tab} onChange={setTab} aria-label="Navigation">
-<Tabs.Tab value="home" icon={<Home />} aria-label="Home" />
-<Tabs.Tab value="settings" icon={<SettingsCog />} aria-label="Settings" />
-<Tabs.Tab value="notifications" icon={<Bell />} aria-label="Notifications" />
-</Tabs>
-```
-
-### Segmented with badge
-Pass a number or an object with content, color, variant, and pill to the badge prop. Badges render inline after the tab label inside the segmented container.
-```tsx
-<Tabs size="lg" value={tab} onChange={setTab} aria-label="Filter">
-<Tabs.Tab value="all" badge={{ content: 128, pill: true }}>All</Tabs.Tab>
-<Tabs.Tab value="unread" badge={{ content: 12, color: "info", pill: true }}>Unread</Tabs.Tab>
-<Tabs.Tab value="flagged" badge={{ content: 3, color: "danger", pill: true }}>Flagged</Tabs.Tab>
-</Tabs>
-```
-
-### Underline
-Set variant="underline" for a minimal tab style with an animated line indicator under the active tab. No background container is rendered. iOS has no underline tabs: on a phone they are the segmented control of Overview, so this example has no Phone preview.
-```tsx
-<Tabs variant="underline" value={tab} onChange={setTab} aria-label="Sections">
-<Tabs.Tab value="overview">Overview</Tabs.Tab>
-<Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-<Tabs.Tab value="reports">Reports</Tabs.Tab>
-<Tabs.Tab value="settings">Settings</Tabs.Tab>
-</Tabs>
-```
-
-### Underline flush
-Add flush with variant="underline" for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview.
-```tsx
-<Tabs variant="underline" flush value={tab} onChange={setTab} aria-label="Sections">
-<Tabs.Tab value="overview">Overview</Tabs.Tab>
-<Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-<Tabs.Tab value="reports">Reports</Tabs.Tab>
-<Tabs.Tab value="settings">Settings</Tabs.Tab>
-</Tabs>
-```
-
-### Underline block
-Use block with the underline variant for full-width tabs that stretch evenly across the container. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview.
-```tsx
-<Tabs variant="underline" block value={tab} onChange={setTab} aria-label="Sections">
-<Tabs.Tab value="overview">Overview</Tabs.Tab>
-<Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-<Tabs.Tab value="reports">Reports</Tabs.Tab>
-</Tabs>
-```
-
-### Underline with icons
-Icons work with the underline variant the same way as with segmented. Use the icon prop on individual tabs. On a phone these tabs are the segmented control of Segmented with icons, so this example has no Phone preview.
-```tsx
-<Tabs variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Navigation">
-<Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
-<Tabs.Tab value="settings" icon={<SettingsCog />}>Settings</Tabs.Tab>
-<Tabs.Tab value="notifications" icon={<Bell />}>Notifications</Tabs.Tab>
-</Tabs>
-```
-
-### Underline with badge
-Badges are supported with the underline variant. Pass a simple value or an object with content, color, variant, and pill. On a phone these tabs are the segmented control of Segmented with badge, so this example has no Phone preview.
-```tsx
-<Tabs variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Filter">
-<Tabs.Tab value="all" badge={{ content: 128, pill: true }}>All</Tabs.Tab>
-<Tabs.Tab value="unread" badge={{ content: 12, color: "info", pill: true }}>Unread</Tabs.Tab>
-<Tabs.Tab value="flagged" badge={{ content: 3, color: "danger", pill: true }}>Flagged</Tabs.Tab>
-</Tabs>
-```
-
-### Vertical segmented
-Set orientation="vertical" to stack tabs vertically. The sliding thumb animates up and down. On a phone vertical tabs are an inset grouped list, as iOS lists a choice: 52px rows with the 17px label and a checkmark on the selected row instead of the thumb.
-```tsx
-<Tabs orientation="vertical" value={tab} onChange={setTab} aria-label="Settings">
-<Tabs.Tab value="account">Account</Tabs.Tab>
-<Tabs.Tab value="password">Password</Tabs.Tab>
-<Tabs.Tab value="notifications">Notifications</Tabs.Tab>
-<Tabs.Tab value="display">Display</Tabs.Tab>
-</Tabs>
-```
-
-### Vertical underline
-Combine variant="underline" with orientation="vertical" for a sidebar-style navigation pattern. The line indicator appears on the left side. On a phone both vertical variants are the list of Vertical segmented, so this example has no Phone preview.
-```tsx
-<Tabs variant="underline" orientation="vertical" value={tab} onChange={setTab} aria-label="Settings">
-<Tabs.Tab value="account">Account</Tabs.Tab>
-<Tabs.Tab value="password">Password</Tabs.Tab>
-<Tabs.Tab value="notifications">Notifications</Tabs.Tab>
-<Tabs.Tab value="display">Display</Tabs.Tab>
-</Tabs>
-```
-
-### Vertical underline with icons
-Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels.
-```tsx
-<Tabs variant="underline" orientation="vertical" size="lg" value={tab} onChange={setTab} aria-label="Navigation">
-<Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
-<Tabs.Tab value="settings" icon={<SettingsCog />}>Settings</Tabs.Tab>
-<Tabs.Tab value="notifications" icon={<Bell />}>Notifications</Tabs.Tab>
-</Tabs>
-```
-
-### Sizing
-Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS (the 48px glass one in a Toolbar), and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls.
-```tsx
-<Tabs variant="underline" size="md" value={tab} onChange={setTab} aria-label="Demo tabs">
-<Tabs.Tab value="overview">Overview</Tabs.Tab>
-<Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-<Tabs.Tab value="reports">Reports</Tabs.Tab>
-</Tabs>
-```
-
-### Scrollable
-When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width. A phone scrolls them the same way inside the capsule, as Safari's tab groups and Telegram's chat folders do, and each segment then takes the width of its label.
-```tsx
-<div className="flex w-full min-w-0 max-w-[400px]">
-<Tabs value={tab} onChange={setTab} aria-label="Scrollable tabs">
-  <Tabs.Tab value="1">Overview</Tabs.Tab>
-  <Tabs.Tab value="2">Analytics</Tabs.Tab>
-  <Tabs.Tab value="3">Reports</Tabs.Tab>
-  <Tabs.Tab value="4">Settings</Tabs.Tab>
-  <Tabs.Tab value="5">Members</Tabs.Tab>
-  <Tabs.Tab value="6">Billing</Tabs.Tab>
-  <Tabs.Tab value="7">Security</Tabs.Tab>
-  <Tabs.Tab value="8">Integrations</Tabs.Tab>
-</Tabs>
-</div>
-```
-
-### Overflow menu
-With overflow="menu", the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflowLabel sets the button's text (default "More"). Works for horizontal tabs without block.
-```tsx
-<div className="flex min-w-0 max-w-full w-[360px]">
-<Tabs value={tab} onChange={setTab} variant="underline" overflow="menu" aria-label="Repository">
-  <Tabs.Tab value="code">Code</Tabs.Tab>
-  <Tabs.Tab value="issues" badge={12}>Issues</Tabs.Tab>
-  <Tabs.Tab value="pulls" badge={3}>Pull requests</Tabs.Tab>
-  <Tabs.Tab value="actions">Actions</Tabs.Tab>
-  <Tabs.Tab value="projects">Projects</Tabs.Tab>
-  <Tabs.Tab value="insights">Insights</Tabs.Tab>
-  <Tabs.Tab value="settings">Settings</Tabs.Tab>
-</Tabs>
-</div>
 ```
 
 ## Tag Input

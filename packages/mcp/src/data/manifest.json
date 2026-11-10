@@ -4994,6 +4994,226 @@
       "docsUrl": "https://plexui.com/components/radio-group"
     },
     {
+      "slug": "segmented-control",
+      "name": "Segmented Control",
+      "description": "Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.",
+      "importPath": "@plexui/ui/components/SegmentedControl",
+      "exports": [
+        "SegmentedControl"
+      ],
+      "aliases": [
+        "Tabs",
+        "Tabs.Tab",
+        "Tabs.Option"
+      ],
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "description": "Selected tab value (controlled, required)"
+        },
+        {
+          "name": "onChange",
+          "type": "(value: string) => void",
+          "description": "Called when selection changes"
+        },
+        {
+          "name": "onClick",
+          "type": "() => void",
+          "description": "Called on any click in the group, even when the selection does not change"
+        },
+        {
+          "name": "variant",
+          "type": "\"segmented\" | \"underline\"",
+          "default": "\"segmented\"",
+          "description": "Visual style: segmented (background highlight) or underline (line indicator)"
+        },
+        {
+          "name": "orientation",
+          "type": "\"horizontal\" | \"vertical\"",
+          "default": "\"horizontal\"",
+          "description": "Layout direction of the tab group"
+        },
+        {
+          "name": "size",
+          "type": "ControlSize",
+          "default": "\"md\"",
+          "description": "Control height (3xs through 3xl)"
+        },
+        {
+          "name": "gutterSize",
+          "type": "\"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+          "description": "Horizontal padding of tabs"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "true",
+          "description": "Fully rounded control (segmented variant only)"
+        },
+        {
+          "name": "flush",
+          "type": "boolean",
+          "default": "false",
+          "description": "Text-width indicator, no border, gap spacing (underline variant only)"
+        },
+        {
+          "name": "block",
+          "type": "boolean",
+          "default": "false",
+          "description": "Full-width control with equal-width tabs"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable all tabs"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "description": "Accessible name (required)"
+        },
+        {
+          "name": "overflow",
+          "type": "\"scroll\" | \"menu\"",
+          "default": "\"scroll\"",
+          "description": "Options that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)"
+        },
+        {
+          "name": "overflowLabel",
+          "type": "string",
+          "default": "\"More\"",
+          "description": "Text of the menu button with overflow=\"menu\""
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "description": "Extra classes on the group element"
+        },
+        {
+          "name": "children",
+          "type": "ReactNode",
+          "description": "SegmentedControl.Option children"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "const [tab, setTab] = useState(\"overview\")\nconst [disabled, setDisabled] = useState(false)\nconst [reportsDisabled, setReportsDisabled] = useState(false)\n\nreturn (\n<SegmentedControl value={tab} onChange={setTab} disabled={disabled} aria-label=\"Demo tabs\">\n  <SegmentedControl.Option value=\"overview\">Overview</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"analytics\">Analytics</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"reports\" disabled={reportsDisabled}>Reports</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"settings\">Settings</SegmentedControl.Option>\n</SegmentedControl>\n)",
+          "details": "SegmentedControl provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they are the 48px glass control of iOS 27 bars instead, a 40px selection and 15px labels, all primary. Vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls."
+        },
+        {
+          "name": "Segmented with icons",
+          "code": "<SegmentedControl size=\"lg\" value={tab} onChange={setTab} aria-label=\"Navigation\">\n<SegmentedControl.Option value=\"home\" icon={<Home />}>Home</SegmentedControl.Option>\n<SegmentedControl.Option value=\"settings\" icon={<SettingsCog />}>Settings</SegmentedControl.Option>\n<SegmentedControl.Option value=\"notifications\" icon={<Bell />}>Notifications</SegmentedControl.Option>\n</SegmentedControl>",
+          "details": "Icons work with the segmented variant. Use the icon prop on individual tabs. Icons are automatically sized to match the current size."
+        },
+        {
+          "name": "Icon only",
+          "code": "<SegmentedControl value={tab} onChange={setTab} aria-label=\"Navigation\">\n<SegmentedControl.Option value=\"home\" icon={<Home />} aria-label=\"Home\" />\n<SegmentedControl.Option value=\"settings\" icon={<SettingsCog />} aria-label=\"Settings\" />\n<SegmentedControl.Option value=\"notifications\" icon={<Bell />} aria-label=\"Notifications\" />\n</SegmentedControl>",
+          "details": "Omit the text children and pass only the icon prop for compact icon-only tabs. Always provide an aria-label on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at; beside a label it keeps the icon size, since iOS shows only the symbol of a segment that has both."
+        },
+        {
+          "name": "Segmented with badge",
+          "code": "<SegmentedControl size=\"lg\" value={tab} onChange={setTab} aria-label=\"Filter\">\n<SegmentedControl.Option value=\"all\" badge={{ content: 128, pill: true }}>All</SegmentedControl.Option>\n<SegmentedControl.Option value=\"unread\" badge={{ content: 12, color: \"info\", pill: true }}>Unread</SegmentedControl.Option>\n<SegmentedControl.Option value=\"flagged\" badge={{ content: 3, color: \"danger\", pill: true }}>Flagged</SegmentedControl.Option>\n</SegmentedControl>",
+          "details": "Pass a number or an object with content, color, variant, and pill to the badge prop. Badges render inline after the tab label inside the segmented container."
+        },
+        {
+          "name": "Underline",
+          "code": "<SegmentedControl variant=\"underline\" value={tab} onChange={setTab} aria-label=\"Sections\">\n<SegmentedControl.Option value=\"overview\">Overview</SegmentedControl.Option>\n<SegmentedControl.Option value=\"analytics\">Analytics</SegmentedControl.Option>\n<SegmentedControl.Option value=\"reports\">Reports</SegmentedControl.Option>\n<SegmentedControl.Option value=\"settings\">Settings</SegmentedControl.Option>\n</SegmentedControl>",
+          "details": "Set variant=\"underline\" for a minimal tab style with an animated line indicator under the active tab. No background container is rendered. iOS has no underline tabs: on a phone they are the segmented control of Overview, so this example has no Phone preview."
+        },
+        {
+          "name": "Underline flush",
+          "code": "<SegmentedControl variant=\"underline\" flush value={tab} onChange={setTab} aria-label=\"Sections\">\n<SegmentedControl.Option value=\"overview\">Overview</SegmentedControl.Option>\n<SegmentedControl.Option value=\"analytics\">Analytics</SegmentedControl.Option>\n<SegmentedControl.Option value=\"reports\">Reports</SegmentedControl.Option>\n<SegmentedControl.Option value=\"settings\">Settings</SegmentedControl.Option>\n</SegmentedControl>",
+          "details": "Add flush with variant=\"underline\" for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview."
+        },
+        {
+          "name": "Underline block",
+          "code": "<SegmentedControl variant=\"underline\" block value={tab} onChange={setTab} aria-label=\"Sections\">\n<SegmentedControl.Option value=\"overview\">Overview</SegmentedControl.Option>\n<SegmentedControl.Option value=\"analytics\">Analytics</SegmentedControl.Option>\n<SegmentedControl.Option value=\"reports\">Reports</SegmentedControl.Option>\n</SegmentedControl>",
+          "details": "Use block with the underline variant for full-width tabs that stretch evenly across the container. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview."
+        },
+        {
+          "name": "Underline with icons",
+          "code": "<SegmentedControl variant=\"underline\" size=\"lg\" value={tab} onChange={setTab} aria-label=\"Navigation\">\n<SegmentedControl.Option value=\"home\" icon={<Home />}>Home</SegmentedControl.Option>\n<SegmentedControl.Option value=\"settings\" icon={<SettingsCog />}>Settings</SegmentedControl.Option>\n<SegmentedControl.Option value=\"notifications\" icon={<Bell />}>Notifications</SegmentedControl.Option>\n</SegmentedControl>",
+          "details": "Icons work with the underline variant the same way as with segmented. Use the icon prop on individual tabs. On a phone these tabs are the segmented control of Segmented with icons, so this example has no Phone preview."
+        },
+        {
+          "name": "Underline with badge",
+          "code": "<SegmentedControl variant=\"underline\" size=\"lg\" value={tab} onChange={setTab} aria-label=\"Filter\">\n<SegmentedControl.Option value=\"all\" badge={{ content: 128, pill: true }}>All</SegmentedControl.Option>\n<SegmentedControl.Option value=\"unread\" badge={{ content: 12, color: \"info\", pill: true }}>Unread</SegmentedControl.Option>\n<SegmentedControl.Option value=\"flagged\" badge={{ content: 3, color: \"danger\", pill: true }}>Flagged</SegmentedControl.Option>\n</SegmentedControl>",
+          "details": "Badges are supported with the underline variant. Pass a simple value or an object with content, color, variant, and pill. On a phone these tabs are the segmented control of Segmented with badge, so this example has no Phone preview."
+        },
+        {
+          "name": "Vertical segmented",
+          "code": "<SegmentedControl orientation=\"vertical\" value={tab} onChange={setTab} aria-label=\"Settings\">\n<SegmentedControl.Option value=\"account\">Account</SegmentedControl.Option>\n<SegmentedControl.Option value=\"password\">Password</SegmentedControl.Option>\n<SegmentedControl.Option value=\"notifications\">Notifications</SegmentedControl.Option>\n<SegmentedControl.Option value=\"display\">Display</SegmentedControl.Option>\n</SegmentedControl>",
+          "details": "Set orientation=\"vertical\" to stack tabs vertically. The sliding thumb animates up and down. On a phone vertical tabs are an inset grouped list, as iOS lists a choice: 52px rows with the 17px label and a checkmark on the selected row instead of the thumb."
+        },
+        {
+          "name": "Vertical underline",
+          "code": "<SegmentedControl variant=\"underline\" orientation=\"vertical\" value={tab} onChange={setTab} aria-label=\"Settings\">\n<SegmentedControl.Option value=\"account\">Account</SegmentedControl.Option>\n<SegmentedControl.Option value=\"password\">Password</SegmentedControl.Option>\n<SegmentedControl.Option value=\"notifications\">Notifications</SegmentedControl.Option>\n<SegmentedControl.Option value=\"display\">Display</SegmentedControl.Option>\n</SegmentedControl>",
+          "details": "Combine variant=\"underline\" with orientation=\"vertical\" for a sidebar-style navigation pattern. The line indicator appears on the left side. On a phone both vertical variants are the list of Vertical segmented, so this example has no Phone preview."
+        },
+        {
+          "name": "Vertical underline with icons",
+          "code": "<SegmentedControl variant=\"underline\" orientation=\"vertical\" size=\"lg\" value={tab} onChange={setTab} aria-label=\"Navigation\">\n<SegmentedControl.Option value=\"home\" icon={<Home />}>Home</SegmentedControl.Option>\n<SegmentedControl.Option value=\"settings\" icon={<SettingsCog />}>Settings</SegmentedControl.Option>\n<SegmentedControl.Option value=\"notifications\" icon={<Bell />}>Notifications</SegmentedControl.Option>\n</SegmentedControl>",
+          "details": "Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels."
+        },
+        {
+          "name": "Sizing",
+          "code": "<SegmentedControl variant=\"underline\" size=\"md\" value={tab} onChange={setTab} aria-label=\"Demo tabs\">\n<SegmentedControl.Option value=\"overview\">Overview</SegmentedControl.Option>\n<SegmentedControl.Option value=\"analytics\">Analytics</SegmentedControl.Option>\n<SegmentedControl.Option value=\"reports\">Reports</SegmentedControl.Option>\n</SegmentedControl>",
+          "details": "Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS (the 48px glass one in a Toolbar), and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls."
+        },
+        {
+          "name": "Scrollable",
+          "code": "<div className=\"flex w-full min-w-0 max-w-[400px]\">\n<SegmentedControl value={tab} onChange={setTab} aria-label=\"Scrollable tabs\">\n  <SegmentedControl.Option value=\"1\">Overview</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"2\">Analytics</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"3\">Reports</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"4\">Settings</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"5\">Members</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"6\">Billing</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"7\">Security</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"8\">Integrations</SegmentedControl.Option>\n</SegmentedControl>\n</div>",
+          "details": "When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width. A phone scrolls them the same way inside the capsule, as Safari's tab groups and Telegram's chat folders do, and each segment then takes the width of its label."
+        },
+        {
+          "name": "Overflow menu",
+          "code": "<div className=\"flex min-w-0 max-w-full w-[360px]\">\n<SegmentedControl value={tab} onChange={setTab} variant=\"underline\" overflow=\"menu\" aria-label=\"Repository\">\n  <SegmentedControl.Option value=\"code\">Code</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"issues\" badge={12}>Issues</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"pulls\" badge={3}>Pull requests</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"actions\">Actions</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"projects\">Projects</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"insights\">Insights</SegmentedControl.Option>\n  <SegmentedControl.Option value=\"settings\">Settings</SegmentedControl.Option>\n</SegmentedControl>\n</div>",
+          "details": "With overflow=\"menu\", the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflowLabel sets the button's text (default \"More\"). Works for horizontal tabs without block."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "SegmentedControl.Option",
+          "props": [
+            {
+              "name": "value",
+              "type": "string",
+              "description": "Tab value (required)"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "description": "Disable this tab"
+            },
+            {
+              "name": "icon",
+              "type": "ReactNode",
+              "description": "Icon element (sized automatically)"
+            },
+            {
+              "name": "badge",
+              "type": "ReactNode | { content: ReactNode; color?: \"secondary\" | \"success\" | \"danger\" | \"warning\" | \"info\" | \"discovery\" | \"caution\"; variant?: \"soft\" | \"solid\"; pill?: boolean; loading?: boolean }",
+              "description": "Badge content (for example a count) or a badge config"
+            },
+            {
+              "name": "aria-label",
+              "type": "string",
+              "description": "Accessible name (required for icon-only tabs)"
+            },
+            {
+              "name": "children",
+              "type": "ReactNode",
+              "description": "Tab label"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/segmented-control"
+    },
+    {
       "slug": "select-control",
       "name": "Select Control",
       "description": "Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.",
@@ -7082,221 +7302,6 @@
       "docsUrl": "https://plexui.com/components/table"
     },
     {
-      "slug": "tabs",
-      "name": "Tabs",
-      "description": "Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.",
-      "importPath": "@plexui/ui/components/Tabs",
-      "exports": [
-        "Tabs"
-      ],
-      "props": [
-        {
-          "name": "value",
-          "type": "string",
-          "description": "Selected tab value (controlled, required)"
-        },
-        {
-          "name": "onChange",
-          "type": "(value: string) => void",
-          "description": "Called when selection changes"
-        },
-        {
-          "name": "onClick",
-          "type": "() => void",
-          "description": "Called on any click in the group, even when the selection does not change"
-        },
-        {
-          "name": "variant",
-          "type": "\"segmented\" | \"underline\"",
-          "default": "\"segmented\"",
-          "description": "Visual style: segmented (background highlight) or underline (line indicator)"
-        },
-        {
-          "name": "orientation",
-          "type": "\"horizontal\" | \"vertical\"",
-          "default": "\"horizontal\"",
-          "description": "Layout direction of the tab group"
-        },
-        {
-          "name": "size",
-          "type": "ControlSize",
-          "default": "\"md\"",
-          "description": "Control height (3xs through 3xl)"
-        },
-        {
-          "name": "gutterSize",
-          "type": "\"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
-          "description": "Horizontal padding of tabs"
-        },
-        {
-          "name": "pill",
-          "type": "boolean",
-          "default": "true",
-          "description": "Fully rounded control (segmented variant only)"
-        },
-        {
-          "name": "flush",
-          "type": "boolean",
-          "default": "false",
-          "description": "Text-width indicator, no border, gap spacing (underline variant only)"
-        },
-        {
-          "name": "block",
-          "type": "boolean",
-          "default": "false",
-          "description": "Full-width control with equal-width tabs"
-        },
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false",
-          "description": "Disable all tabs"
-        },
-        {
-          "name": "aria-label",
-          "type": "string",
-          "description": "Accessible name (required)"
-        },
-        {
-          "name": "overflow",
-          "type": "\"scroll\" | \"menu\"",
-          "default": "\"scroll\"",
-          "description": "Tabs that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)"
-        },
-        {
-          "name": "overflowLabel",
-          "type": "string",
-          "default": "\"More\"",
-          "description": "Text of the menu button with overflow=\"menu\""
-        },
-        {
-          "name": "className",
-          "type": "string",
-          "description": "Extra classes on the group element"
-        },
-        {
-          "name": "children",
-          "type": "ReactNode",
-          "description": "Tabs.Tab children"
-        }
-      ],
-      "examples": [
-        {
-          "name": "Overview",
-          "code": "const [tab, setTab] = useState(\"overview\")\nconst [disabled, setDisabled] = useState(false)\nconst [reportsDisabled, setReportsDisabled] = useState(false)\n\nreturn (\n<Tabs value={tab} onChange={setTab} disabled={disabled} aria-label=\"Demo tabs\">\n  <Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n  <Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n  <Tabs.Tab value=\"reports\" disabled={reportsDisabled}>Reports</Tabs.Tab>\n  <Tabs.Tab value=\"settings\">Settings</Tabs.Tab>\n</Tabs>\n)",
-          "details": "Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the plain iOS 27 segmented control: segments of one width in a 32px capsule of the tertiary fill, the selection a white pill inside it (lighter than the track in dark), every label 13px and primary, Semibold when selected, filling the row of a phone screen; inside a phone Toolbar they are the 48px glass control of iOS 27 bars instead, a 40px selection and 15px labels, all primary. Vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls."
-        },
-        {
-          "name": "Segmented with icons",
-          "code": "<Tabs size=\"lg\" value={tab} onChange={setTab} aria-label=\"Navigation\">\n<Tabs.Tab value=\"home\" icon={<Home />}>Home</Tabs.Tab>\n<Tabs.Tab value=\"settings\" icon={<SettingsCog />}>Settings</Tabs.Tab>\n<Tabs.Tab value=\"notifications\" icon={<Bell />}>Notifications</Tabs.Tab>\n</Tabs>",
-          "details": "Icons work with the segmented variant. Use the icon prop on individual tabs. Icons are automatically sized to match the current size."
-        },
-        {
-          "name": "Icon only",
-          "code": "<Tabs value={tab} onChange={setTab} aria-label=\"Navigation\">\n<Tabs.Tab value=\"home\" icon={<Home />} aria-label=\"Home\" />\n<Tabs.Tab value=\"settings\" icon={<SettingsCog />} aria-label=\"Settings\" />\n<Tabs.Tab value=\"notifications\" icon={<Bell />} aria-label=\"Notifications\" />\n</Tabs>",
-          "details": "Omit the text children and pass only the icon prop for compact icon-only tabs. Always provide an aria-label on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at; beside a label it keeps the icon size, since iOS shows only the symbol of a segment that has both."
-        },
-        {
-          "name": "Segmented with badge",
-          "code": "<Tabs size=\"lg\" value={tab} onChange={setTab} aria-label=\"Filter\">\n<Tabs.Tab value=\"all\" badge={{ content: 128, pill: true }}>All</Tabs.Tab>\n<Tabs.Tab value=\"unread\" badge={{ content: 12, color: \"info\", pill: true }}>Unread</Tabs.Tab>\n<Tabs.Tab value=\"flagged\" badge={{ content: 3, color: \"danger\", pill: true }}>Flagged</Tabs.Tab>\n</Tabs>",
-          "details": "Pass a number or an object with content, color, variant, and pill to the badge prop. Badges render inline after the tab label inside the segmented container."
-        },
-        {
-          "name": "Underline",
-          "code": "<Tabs variant=\"underline\" value={tab} onChange={setTab} aria-label=\"Sections\">\n<Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n<Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n<Tabs.Tab value=\"reports\">Reports</Tabs.Tab>\n<Tabs.Tab value=\"settings\">Settings</Tabs.Tab>\n</Tabs>",
-          "details": "Set variant=\"underline\" for a minimal tab style with an animated line indicator under the active tab. No background container is rendered. iOS has no underline tabs: on a phone they are the segmented control of Overview, so this example has no Phone preview."
-        },
-        {
-          "name": "Underline flush",
-          "code": "<Tabs variant=\"underline\" flush value={tab} onChange={setTab} aria-label=\"Sections\">\n<Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n<Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n<Tabs.Tab value=\"reports\">Reports</Tabs.Tab>\n<Tabs.Tab value=\"settings\">Settings</Tabs.Tab>\n</Tabs>",
-          "details": "Add flush with variant=\"underline\" for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview."
-        },
-        {
-          "name": "Underline block",
-          "code": "<Tabs variant=\"underline\" block value={tab} onChange={setTab} aria-label=\"Sections\">\n<Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n<Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n<Tabs.Tab value=\"reports\">Reports</Tabs.Tab>\n</Tabs>",
-          "details": "Use block with the underline variant for full-width tabs that stretch evenly across the container. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview."
-        },
-        {
-          "name": "Underline with icons",
-          "code": "<Tabs variant=\"underline\" size=\"lg\" value={tab} onChange={setTab} aria-label=\"Navigation\">\n<Tabs.Tab value=\"home\" icon={<Home />}>Home</Tabs.Tab>\n<Tabs.Tab value=\"settings\" icon={<SettingsCog />}>Settings</Tabs.Tab>\n<Tabs.Tab value=\"notifications\" icon={<Bell />}>Notifications</Tabs.Tab>\n</Tabs>",
-          "details": "Icons work with the underline variant the same way as with segmented. Use the icon prop on individual tabs. On a phone these tabs are the segmented control of Segmented with icons, so this example has no Phone preview."
-        },
-        {
-          "name": "Underline with badge",
-          "code": "<Tabs variant=\"underline\" size=\"lg\" value={tab} onChange={setTab} aria-label=\"Filter\">\n<Tabs.Tab value=\"all\" badge={{ content: 128, pill: true }}>All</Tabs.Tab>\n<Tabs.Tab value=\"unread\" badge={{ content: 12, color: \"info\", pill: true }}>Unread</Tabs.Tab>\n<Tabs.Tab value=\"flagged\" badge={{ content: 3, color: \"danger\", pill: true }}>Flagged</Tabs.Tab>\n</Tabs>",
-          "details": "Badges are supported with the underline variant. Pass a simple value or an object with content, color, variant, and pill. On a phone these tabs are the segmented control of Segmented with badge, so this example has no Phone preview."
-        },
-        {
-          "name": "Vertical segmented",
-          "code": "<Tabs orientation=\"vertical\" value={tab} onChange={setTab} aria-label=\"Settings\">\n<Tabs.Tab value=\"account\">Account</Tabs.Tab>\n<Tabs.Tab value=\"password\">Password</Tabs.Tab>\n<Tabs.Tab value=\"notifications\">Notifications</Tabs.Tab>\n<Tabs.Tab value=\"display\">Display</Tabs.Tab>\n</Tabs>",
-          "details": "Set orientation=\"vertical\" to stack tabs vertically. The sliding thumb animates up and down. On a phone vertical tabs are an inset grouped list, as iOS lists a choice: 52px rows with the 17px label and a checkmark on the selected row instead of the thumb."
-        },
-        {
-          "name": "Vertical underline",
-          "code": "<Tabs variant=\"underline\" orientation=\"vertical\" value={tab} onChange={setTab} aria-label=\"Settings\">\n<Tabs.Tab value=\"account\">Account</Tabs.Tab>\n<Tabs.Tab value=\"password\">Password</Tabs.Tab>\n<Tabs.Tab value=\"notifications\">Notifications</Tabs.Tab>\n<Tabs.Tab value=\"display\">Display</Tabs.Tab>\n</Tabs>",
-          "details": "Combine variant=\"underline\" with orientation=\"vertical\" for a sidebar-style navigation pattern. The line indicator appears on the left side. On a phone both vertical variants are the list of Vertical segmented, so this example has no Phone preview."
-        },
-        {
-          "name": "Vertical underline with icons",
-          "code": "<Tabs variant=\"underline\" orientation=\"vertical\" size=\"lg\" value={tab} onChange={setTab} aria-label=\"Navigation\">\n<Tabs.Tab value=\"home\" icon={<Home />}>Home</Tabs.Tab>\n<Tabs.Tab value=\"settings\" icon={<SettingsCog />}>Settings</Tabs.Tab>\n<Tabs.Tab value=\"notifications\" icon={<Bell />}>Notifications</Tabs.Tab>\n</Tabs>",
-          "details": "Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels."
-        },
-        {
-          "name": "Sizing",
-          "code": "<Tabs variant=\"underline\" size=\"md\" value={tab} onChange={setTab} aria-label=\"Demo tabs\">\n<Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n<Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n<Tabs.Tab value=\"reports\">Reports</Tabs.Tab>\n</Tabs>",
-          "details": "Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS (the 48px glass one in a Toolbar), and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls."
-        },
-        {
-          "name": "Scrollable",
-          "code": "<div className=\"flex w-full min-w-0 max-w-[400px]\">\n<Tabs value={tab} onChange={setTab} aria-label=\"Scrollable tabs\">\n  <Tabs.Tab value=\"1\">Overview</Tabs.Tab>\n  <Tabs.Tab value=\"2\">Analytics</Tabs.Tab>\n  <Tabs.Tab value=\"3\">Reports</Tabs.Tab>\n  <Tabs.Tab value=\"4\">Settings</Tabs.Tab>\n  <Tabs.Tab value=\"5\">Members</Tabs.Tab>\n  <Tabs.Tab value=\"6\">Billing</Tabs.Tab>\n  <Tabs.Tab value=\"7\">Security</Tabs.Tab>\n  <Tabs.Tab value=\"8\">Integrations</Tabs.Tab>\n</Tabs>\n</div>",
-          "details": "When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width. A phone scrolls them the same way inside the capsule, as Safari's tab groups and Telegram's chat folders do, and each segment then takes the width of its label."
-        },
-        {
-          "name": "Overflow menu",
-          "code": "<div className=\"flex min-w-0 max-w-full w-[360px]\">\n<Tabs value={tab} onChange={setTab} variant=\"underline\" overflow=\"menu\" aria-label=\"Repository\">\n  <Tabs.Tab value=\"code\">Code</Tabs.Tab>\n  <Tabs.Tab value=\"issues\" badge={12}>Issues</Tabs.Tab>\n  <Tabs.Tab value=\"pulls\" badge={3}>Pull requests</Tabs.Tab>\n  <Tabs.Tab value=\"actions\">Actions</Tabs.Tab>\n  <Tabs.Tab value=\"projects\">Projects</Tabs.Tab>\n  <Tabs.Tab value=\"insights\">Insights</Tabs.Tab>\n  <Tabs.Tab value=\"settings\">Settings</Tabs.Tab>\n</Tabs>\n</div>",
-          "details": "With overflow=\"menu\", the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflowLabel sets the button's text (default \"More\"). Works for horizontal tabs without block."
-        }
-      ],
-      "subComponents": [
-        {
-          "name": "Tabs.Tab",
-          "props": [
-            {
-              "name": "value",
-              "type": "string",
-              "description": "Tab value (required)"
-            },
-            {
-              "name": "disabled",
-              "type": "boolean",
-              "description": "Disable this tab"
-            },
-            {
-              "name": "icon",
-              "type": "ReactNode",
-              "description": "Icon element (sized automatically)"
-            },
-            {
-              "name": "badge",
-              "type": "ReactNode | { content: ReactNode; color?: \"secondary\" | \"success\" | \"danger\" | \"warning\" | \"info\" | \"discovery\" | \"caution\"; variant?: \"soft\" | \"solid\"; pill?: boolean; loading?: boolean }",
-              "description": "Badge content (for example a count) or a badge config"
-            },
-            {
-              "name": "aria-label",
-              "type": "string",
-              "description": "Accessible name (required for icon-only tabs)"
-            },
-            {
-              "name": "children",
-              "type": "ReactNode",
-              "description": "Tab label"
-            }
-          ]
-        }
-      ],
-      "docsUrl": "https://plexui.com/components/tabs"
-    },
-    {
       "slug": "tag-input",
       "name": "Tag Input",
       "description": "Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.",
@@ -8225,5 +8230,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-10T12:23:52.418Z"
+  "generatedAt": "2026-11-10T12:50:15.631Z"
 }

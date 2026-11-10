@@ -45,7 +45,7 @@ function example(page: string, name: string, references: string[] = []) {
 }
 const checkbox = example('checkbox', 'variants');
 const accordion = example('accordion', 'overview');
-const tabs = example('tabs', 'overview', ['SIZES', 'VARIANTS', 'ORIENTATIONS']);
+const tabs = example('segmented-control', 'overview', ['SIZES', 'VARIANTS', 'ORIENTATIONS']);
 const table = example('table', 'variant');
 const interact = async (action: () => void) => { await act(async () => { action(); await flushVue(); }); };
 

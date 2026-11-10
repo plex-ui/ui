@@ -484,12 +484,16 @@ function processFile(filePath, framework) {
 
   if (!importPath && props.length === 0 && examples.length === 0) return null;
 
+  // Other names the component is exported under (frontmatter `aliases: Tabs, Tabs.Tab`)
+  const aliases = (frontmatter.aliases ?? "").split(",").map((name) => name.trim()).filter(Boolean)
+
   const component = {
     slug,
     name: frontmatter.title || slug,
     description: frontmatter.description || "",
     ...(importPath && { importPath }),
     ...(exportedNames.length > 0 && { exports: exportedNames }),
+    ...(aliases.length > 0 && { aliases }),
     ...(imports.length > 1 && { imports }),
     ...(props.length > 0 && { props }),
     ...(examples.length > 0 && { examples }),
