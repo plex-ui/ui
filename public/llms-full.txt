@@ -4615,7 +4615,7 @@ endAdornment={
 ```
 
 ### Clear button
-Use the onClear prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input.
+Use the onClear prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input. On Phone it is the filled circle of an iOS text field: in a row it shows only while the value is being edited, at the row's end, and a long value stops 6px before it.
 ```tsx
 // Desktop
 <Input

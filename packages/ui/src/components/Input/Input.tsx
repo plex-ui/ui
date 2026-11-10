@@ -211,6 +211,9 @@ const InputRoot = (props: InputProps) => {
       data-optically-align={opticallyAlign}
       data-has-start-adornment={StartAdornment ? "" : undefined}
       data-has-end-adornment={EndAdornment || showClearButton ? "" : undefined}
+      // Only an end adornment, not the clear button: the phone rules place the clear button at the field's end
+      // when nothing follows it, a text adornment too (`:last-child` does not see text)
+      data-end-adornment={EndAdornment ? "" : undefined}
       onMouseDown={handleMouseDown}
     >
       {StartAdornment}

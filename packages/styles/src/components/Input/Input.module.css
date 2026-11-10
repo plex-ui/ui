@@ -565,22 +565,36 @@
   }
 
   /* The circle is concentric with the field's rounded end, half the field's height from its end (22px on the
-     44px field). In a horizontal grouped row it is centred 26px from the row's edge, 10px inside the row's
-     16px inset, as in the kit. The margins move the 44px target; the circle keeps its size. Physical sides,
-     as the container's own end gutter (padding-right) and the button's desktop margin. */
-  .Container > .Clear:last-child {
+     44px field). The margins move the 44px target; the circle keeps its size. Physical sides, as the
+     container's own end gutter (padding-right) and the button's desktop margin. Nothing may follow it, a text
+     adornment either: `:last-child` does not see text, so Input sets data-end-adornment when an end adornment
+     is given (it follows the prop, not what is drawn: one that renders nothing still takes the base place). */
+  .Container:not([data-end-adornment]) > .Clear {
     margin-right: calc(var(--input-size) / 2 - var(--input-clear-target-size, var(--input-clear-size)) / 2 - var(--input-gutter));
   }
 
-  .Container[data-pill] > .Clear:last-child {
+  .Container[data-pill]:not([data-end-adornment]) > .Clear {
     margin-right: calc(var(--input-size) / 2 - var(--input-clear-target-size, var(--input-clear-size)) / 2 - var(--input-gutter) * var(--control-gutter-pill-scaling));
   }
 
-  /* Every row is frameless on a phone (a value under its label or alone too), so the circle keeps the row's
-     place in each; its target stands around the value's line and does not grow the row. */
-  :where([data-row]) .Container > .Clear.Clear:last-child {
-    margin-right: calc(10px - var(--input-clear-target-size, var(--input-clear-size)) / 2);
+  /* In a row the target stands around the value's line and does not grow the row, before an end adornment too
+     (a password eye). */
+  :where([data-row]) .Container > .Clear {
     margin-block: calc((var(--input-size) - var(--input-clear-target-size, var(--input-clear-size))) / 2);
+  }
+
+  /* Every row is frameless on a phone (a value under its label or alone too), so the circle keeps the row's
+     place in each. iOS 27.2 centres it 15pt inside the row's 20pt inset, 35pt from the cell's edge, and ends the
+     value 6pt before it: a UITextField in an inset grouped cell (simulator, iPhone 17) and Settings' Wi-Fi
+     Password (IMG_5514) both measure 35.3 and 6. The 44px target starts at the value's end and reaches into the
+     inset, so a tap at the end of the value still places the caret; the circle sits 6px into it (its 20.4px box
+     draws the 17px circle 1.7px in). Logical sides, so a right-to-left row mirrors it; this rule follows the
+     physical ones above with their weight, so it wins in either direction. */
+  :where([data-row]) .Container:not([data-end-adornment]) > .Clear.Clear {
+    justify-content: flex-start;
+    padding-inline-start: calc(6px - var(--input-clear-glyph-size, 17px) * 0.1);
+    margin-inline-start: calc(var(--input-gap) * -1);
+    margin-inline-end: calc(15px + var(--input-clear-glyph-size, 17px) / 2 + 6px - var(--input-clear-target-size, var(--input-clear-size)));
   }
 
   /* In a grouped row the clear button shows only while the value is being edited, as

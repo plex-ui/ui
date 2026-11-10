@@ -144,7 +144,7 @@ Plex UI also provides a `FieldError` component (`@plexui/ui/components/FieldErro
 
 ### Clear button
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>onClear</code> prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>onClear</code> prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input. On Phone it is the filled circle of an iOS text field: in a row it shows only while the value is being edited, at the row's end, and a long value stops 6px before it.</>} code={`// Desktop
 <Input
   placeholder="Enter text..."
   value={value}

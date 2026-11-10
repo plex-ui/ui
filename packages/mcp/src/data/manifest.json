@@ -3524,7 +3524,7 @@
         {
           "name": "Clear button",
           "code": "// Desktop\n<Input\nplaceholder=\"Enter text...\"\nvalue={value}\nonChange={(evt) => setValue(evt.target.value)}\nonClear={() => setValue(\"\")}\npill\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Name\">\n  <Input placeholder=\"Enter text...\" value={value} onChange={(evt) => setValue(evt.target.value)} onClear={() => setValue(\"\")} />\n</Field>\n</FieldGroup>",
-          "details": "Use the onClear prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input."
+          "details": "Use the onClear prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input. On Phone it is the filled circle of an iOS text field: in a row it shows only while the value is being edited, at the row's end, and a long value stops 6px before it."
         },
         {
           "name": "Password with visibility toggle",
@@ -8242,5 +8242,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-10T21:25:25.529Z"
+  "generatedAt": "2026-11-10T21:59:53.551Z"
 }

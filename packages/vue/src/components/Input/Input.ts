@@ -203,6 +203,9 @@ const InputComponent = defineComponent({
           "data-optically-align": props.opticallyAlign,
           "data-has-start-adornment": hasStartAdornment ? "" : undefined,
           "data-has-end-adornment": hasEndAdornment || showClearButton ? "" : undefined,
+          // Only an end adornment, not the clear button: the phone rules place the clear button at the field's end
+          // when nothing follows it, a text adornment too (`:last-child` does not see text)
+          "data-end-adornment": hasEndAdornment ? "" : undefined,
           "onMousedown": handleMouseDown,
         },
         [

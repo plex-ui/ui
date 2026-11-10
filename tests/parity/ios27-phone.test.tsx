@@ -54,6 +54,23 @@ describe("the clear button of a phone text field (kit iOS 27 Text Fields 5433:15
     }
   })
 
+  // `:last-child` does not see a text adornment ("kg"), so only an end adornment marks the field, in both frameworks
+  test("Input marks an end adornment apart from the clear button, a text one too", async () => {
+    const withUnit = await renderPair(
+      createElement(RInput as ComponentType<Props>, { value: "12", onChange: noop, onClear: noop, endAdornment: "kg" }),
+      () => h(Input as never, { value: "12", onClear: noop }, { endAdornment: () => "kg" }),
+    )
+    expect(withUnit.vue).toBe(withUnit.react)
+    expect(withUnit.react).toContain('data-end-adornment=""')
+    const clearOnly = await renderPair(
+      createElement(RInput as ComponentType<Props>, { value: "12", onChange: noop, onClear: noop }),
+      () => h(Input as never, { value: "12", onClear: noop }),
+    )
+    expect(clearOnly.react).toContain('data-has-end-adornment=""')
+    expect(clearOnly.react).not.toContain("data-end-adornment")
+    expect(clearOnly.vue).not.toContain("data-end-adornment")
+  })
+
   test("Input: the circle replaces the cross and the soft face on a phone, concentric with the field's end", () => {
     expect(decls(baseRules("packages/styles/src/components/Input/Input.module.css").get("> .ClearPhoneIcon"))).toEqual({ display: "none" })
     const rules = phoneRules("packages/styles/src/components/Input/Input.module.css")
@@ -64,15 +81,31 @@ describe("the clear button of a phone text field (kit iOS 27 Text Fields 5433:15
       height: "calc(var(--input-clear-glyph-size, 17px) * 1.2)",
       color: "var(--input-clear-glyph-color, var(--mobile-label-tertiary, var(--color-text-tertiary)))",
     })
-    expect(decls(rules.get(".Container > .Clear:last-child"))).toEqual({
+    expect(decls(rules.get(".Container:not([data-end-adornment]) > .Clear"))).toEqual({
       "margin-right": "calc(var(--input-size) / 2 - var(--input-clear-target-size, var(--input-clear-size)) / 2 - var(--input-gutter))",
     })
-    // A row puts it 10px inside the row's 16px inset: 26px from the row's edge, as the kit does, with the label
-    // beside, above or hidden (plan 169c: a placeholder cell is a vertical row). Its 44px target does not grow the row.
-    expect(decls(rules.get(':where([data-row]) .Container > .Clear.Clear:last-child'))).toEqual({
-      "margin-right": "calc(10px - var(--input-clear-target-size, var(--input-clear-size)) / 2)",
+    // In a row its 44px target does not grow the row, before an end adornment too (a password eye)
+    expect(decls(rules.get(":where([data-row]) .Container > .Clear"))).toEqual({
       "margin-block": "calc((var(--input-size) - var(--input-clear-target-size, var(--input-clear-size))) / 2)",
     })
+    // A row centres it 15px inside the row's 20px inset, 35px from the row's edge, and ends the value 6px before
+    // it, as a UITextField in an inset grouped cell of iOS 27.2 and Settings' Wi-Fi Password (IMG_5514) do (plan 178
+    // block 9), with the label beside, above or hidden (plan 169c: a placeholder cell is a vertical row). Its target
+    // starts at the value's end, so a tap there still places the caret. Logical sides: a right-to-left row mirrors it.
+    expect(decls(rules.get(":where([data-row]) .Container:not([data-end-adornment]) > .Clear.Clear"))).toEqual({
+      "justify-content": "flex-start",
+      "padding-inline-start": "calc(6px - var(--input-clear-glyph-size, 17px) * 0.1)",
+      "margin-inline-start": "calc(var(--input-gap) * -1)",
+      "margin-inline-end": "calc(15px + var(--input-clear-glyph-size, 17px) / 2 + 6px - var(--input-clear-target-size, var(--input-clear-size)))",
+    })
+    // A row field is a pill: the row rule has the pill rule's weight and wins only by coming after it (and the plain one)
+    const order = [...rules.keys()]
+    const rowRule = order.indexOf(":where([data-row]) .Container:not([data-end-adornment]) > .Clear.Clear")
+    const pillRule = order.indexOf(".Container[data-pill]:not([data-end-adornment]) > .Clear")
+    const plainRule = order.indexOf(".Container:not([data-end-adornment]) > .Clear")
+    expect(Math.min(pillRule, plainRule)).toBeGreaterThan(-1)
+    expect(rowRule).toBeGreaterThan(pillRule)
+    expect(rowRule).toBeGreaterThan(plainRule)
     expect(touch).toContain("--input-clear-target-size: 44px;")
   })
 

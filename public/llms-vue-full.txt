@@ -4145,7 +4145,7 @@ Add arbitrary content to the beginning of an input with the startAdornment slot,
 ```
 
 ### Clear button
-Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input.
+Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input. On Phone it is the filled circle of an iOS text field: in a row it shows only while the value is being edited, at the row's end, and a long value stops 6px before it.
 ```vue
 <!-- Desktop -->
 <div class="w-[320px]">
