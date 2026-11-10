@@ -170,6 +170,16 @@ export function PreviewEmbed({ target, children }: { target: string; children: R
     });
   }, [target]);
 
+  // Opened on its own in a phone's browser (to set it beside the native control), not in the docs' phone frame: the
+  // browser keeps its status bar out of the page, so the page takes the device's real safe areas
+  // (PreviewEmbed.module.css) instead of the frame's 62px status bar and 34px home indicator.
+  useEffect(() => {
+    if (window.parent !== window) return;
+    const root = document.documentElement;
+    root.setAttribute('data-preview-standalone', '');
+    return () => root.removeAttribute('data-preview-standalone');
+  }, []);
+
   useEffect(() => {
     const root = document.documentElement;
     const previous = root.getAttribute('data-input');

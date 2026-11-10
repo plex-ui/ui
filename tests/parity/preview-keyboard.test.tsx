@@ -159,6 +159,24 @@ describe('Phone keyboard scope and commands', () => {
     } finally { controller.destroy() }
   })
 
+  test('a preview opened on its own takes the device safe areas; in the docs phone frame it keeps the frame insets', async () => {
+    vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} })
+    const own = render(<PreviewEmbed target="otp"><div data-preview-embed data-preview-presentation="screen" /></PreviewEmbed>)
+    expect(document.documentElement.hasAttribute('data-preview-standalone')).toBe(true)
+    own.unmount()
+    expect(document.documentElement.hasAttribute('data-preview-standalone')).toBe(false)
+    const parent = Object.getOwnPropertyDescriptor(window, 'parent')
+    Object.defineProperty(window, 'parent', { configurable: true, value: { postMessage: vi.fn() } })
+    try {
+      const framed = render(<PreviewEmbed target="otp"><div data-preview-embed data-preview-presentation="screen" /></PreviewEmbed>)
+      expect(document.documentElement.hasAttribute('data-preview-standalone')).toBe(false)
+      framed.unmount()
+    } finally { if (parent) Object.defineProperty(window, 'parent', parent) }
+    const { readFileSync } = await import('node:fs')
+    const css = readFileSync(`${process.cwd()}/components/docs/PreviewEmbed.module.css`, 'utf8')
+    expect(css).toMatch(/:global\(:root\[data-preview-standalone\]:has\(\[data-preview-presentation="screen"\]\)\) \{\s*--safe-area-inset-top: env\(safe-area-inset-top, 0px\);\s*--safe-area-inset-bottom: env\(safe-area-inset-bottom, 0px\);/)
+  })
+
   test('embed rejects keyboard messages with a foreign origin, source, key or unsupported command', () => {
     const parent = Object.getOwnPropertyDescriptor(window, 'parent')
     const postMessage = vi.fn()
