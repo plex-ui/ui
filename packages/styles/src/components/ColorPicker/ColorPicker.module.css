@@ -13,31 +13,8 @@
   margin-bottom: var(--color-picker-modes-gap);
 }
 
-/* On a phone the Mode control stays the plain segmented control of the kit's picker (iOS 27 kit Color Picker -
-   iPhone 0:5275: Segmented Control Size=Small), not the glass one of other phone tabs (touch.css): a 32px
-   Fills/Tertiary track, a white thumb 2px inside it, options 4px apart and 13.333px labels, Semibold when
-   selected and Medium otherwise. The class with both attributes outranks the touch.css tokens on the same
-   element (both in the kit's layer). */
-@media (max-width: 767px) {
-  .Modes[data-variant="segmented"][data-orientation="horizontal"] {
-    --segmented-control-size: 32px;
-    --segmented-control-gutter: 2px;
-    --segmented-control-gap: 4px;
-    --segmented-control-thumb-outset: 0px;
-    --segmented-control-option-gutter: 6px;
-    --segmented-control-font-size: 13.333px;
-    --segmented-control-line-height: 18px;
-    --segmented-control-font-weight: 510;
-    --segmented-control-active-font-weight: 590;
-    --segmented-control-background: var(--color-picker-mobile-mode-background);
-    --segmented-control-sheen: none;
-    --segmented-control-shadow: none;
-    --segmented-control-backdrop-filter: none;
-    --segmented-control-thumb-background: var(--color-picker-mobile-mode-thumb-background);
-    /* Every label of the plain control is primary; the weight marks the selection. */
-    --color-text-secondary: var(--color-text);
-  }
-}
+/* On a phone the Mode control is the plain segmented control every phone tab group takes in content (touch.css):
+   the iOS 27 kit Color Picker - iPhone (0:5275) draws it as Segmented Control Size=Small, 32px. */
 
 .Body {
   position: relative;

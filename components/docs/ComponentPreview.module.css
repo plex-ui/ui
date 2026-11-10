@@ -71,8 +71,8 @@ html.dark :is(.PreviewInner, .PhoneControls) {
   }
 
   /* The view switch is docs chrome, not a phone screen: on a phone it takes the phone size of a segmented control
-     but keeps the desktop look. touch.css sets the glass of phone tabs on the control itself; inheriting gives back
-     the root tokens: the gray track, the raised white thumb, the Semibold labels and their colors. */
+     but keeps the desktop look. touch.css sets the plain fill of phone tabs on the control itself; inheriting gives
+     back the root tokens: the gray track, the raised white thumb, the Semibold labels and their colors. */
   .TabBar > [data-variant="segmented"] {
     --segmented-control-background: inherit;
     --segmented-control-sheen: inherit;

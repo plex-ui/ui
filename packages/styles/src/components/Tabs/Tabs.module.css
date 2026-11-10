@@ -745,8 +745,9 @@
 }
 
 /* =============================================
-  Phone (iOS 26). iOS switches the views of a screen with one control, the segmented control
-  (on glass, kit Toolbars 5815:55167); it has no underline tabs and no vertical segments.
+  Phone (iOS 27). iOS switches the views of a screen with one control, the segmented control: plain
+  in content (SwiftUI Picker .segmented, iOS 27.2) and on glass in a bar (kit Toolbars 5815:55167);
+  it has no underline tabs and no vertical segments.
 ============================================= */
 @media (max-width: 767px) {
   /* Horizontal tabs of either variant are the segmented control. Its segments share one width, as
@@ -793,9 +794,9 @@
     box-shadow: var(--segmented-control-thumb-shadow);
   }
 
-  /* The capsule's glass and ends (touch.css): the sheen, rim and blur of the shared mobile glass, segments 8px
-     from the ends and the selection 4px past its segment toward them, as in the kit. Without touch.css the track
-     keeps its fill and the selection its segment. */
+  /* The capsule's material and ends (touch.css): none in content; in a bar the sheen, rim and blur of the shared
+     mobile glass, segments 8px from the ends and the selection 4px past its segment toward them, as in the kit.
+     Without touch.css the track keeps its fill and the selection its segment. */
   .Tabs:where([data-orientation="horizontal"]) {
     padding-inline: calc(var(--segmented-control-gutter) + var(--segmented-control-thumb-outset, 0px));
     background-image: var(--segmented-control-sheen, none);
@@ -812,9 +813,10 @@
   }
 
   /* The native segment already includes its final gutter; pill scaling is desktop-only. */
-  /* The selected label is primary and the others secondary, as the kit's glass control draws them (26 and 114)
-     and Safari's tab groups show (0 and 109, iOS3 IMG_5562/5566), so the label keeps the base colors (touch.css
-     gives secondary the phone role). No tracking: the system font applies its own, as native text widths show
+  /* The label keeps the base colors, the selected one primary and the others secondary, and touch.css sets the
+     secondary role: primary in content, where iOS 27.2 draws every label of the plain control in the label color,
+     and the phone's secondary role in a bar, as the kit's glass control draws them (26 and 114) and Safari's tab
+     groups show (0 and 109, iOS3 IMG_5562/5566). No tracking: the system font applies its own, as native text widths show
      (17pt "All Inboxes" 241 at @3x in Mail, 242 in Chromium without it). */
   .Tabs[data-orientation="horizontal"] .Tab {
     padding-inline: var(--segmented-control-option-gutter);

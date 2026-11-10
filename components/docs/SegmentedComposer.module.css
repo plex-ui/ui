@@ -178,7 +178,8 @@
   }
 
   /* A sheet header's control is larger than a toolbar's (Calendar IMG_5433/5434): 48px with a 40px thumb and 17px
-     regular labels. Its glass and thumb are those of every phone segmented control (touch.css). */
+     regular labels. Its glass and thumb are those of every phone segmented control in a bar (touch.css): the
+     sheet's header is its Toolbar. */
   .Composer .Mode[data-variant="segmented"][data-orientation="horizontal"] {
     --segmented-control-size: 48px;
     --segmented-control-gutter: 4px;

@@ -613,6 +613,9 @@ describe("Compact Phone viewport", () => {
     const portal = document.createElement("div")
     portal.setAttribute("data-plex-dialog", "")
     document.body.append(portal)
+    // In the docs frame: the preview page is the iframe of a phone frame, not a page of its own in a phone's browser.
+    const parent = Object.getOwnPropertyDescriptor(window, "parent")
+    Object.defineProperty(window, "parent", { configurable: true, value: { postMessage: vi.fn() } })
     try {
       const example = (presentation: "component" | "screen") => <PreviewEmbed target="safe-area">
         <div data-preview-embed data-preview-presentation={presentation} />
@@ -631,6 +634,7 @@ describe("Compact Phone viewport", () => {
       view.unmount()
       expect(inset()).toBe("")
     } finally {
+      if (parent) Object.defineProperty(window, "parent", parent)
       portal.remove()
       stylesheet.remove()
     }

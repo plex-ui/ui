@@ -1,5 +1,5 @@
-/* The framework switch is docs chrome, not a phone screen: on a phone it takes the phone size of tabs (the 44px row
-   and 15px labels of touch.css) but keeps the desktop look, flush underline tabs, instead of the glass capsule that
+/* The framework switch is docs chrome, not a phone screen: on a phone it takes the phone size of tabs (the 32px row
+   and 13px labels of touch.css) but keeps the desktop look, flush underline tabs, instead of the capsule that
    Tabs.module.css and touch.css make of horizontal tabs there. Inheriting gives back the root tokens: the label
    weights and colors, and no outset of the selection. */
 @media (max-width: 767px) {

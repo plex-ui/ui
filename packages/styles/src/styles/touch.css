@@ -620,33 +620,56 @@
     --dialog-panel-radius: 34px;
   }
 
-  /* In the kit's layer, so a component can give its own segmented control another look (the Color Picker). */
+  /* In the kit's layer, so a component can give its own segmented control another look (the composer's sheet header). */
   @layer components {
-    /* Horizontal tabs of either variant are the glass segmented control of iOS 26 toolbars (kit Toolbars 5815:55167;
-       underline tabs have no iOS control of their own, Tabs.module.css gives them the track): a 44px capsule of the
-       shared mobile glass, as toolbar buttons are, with its segments 8px from the ends and the 36px selection reaching
-       4px past its segment. Every label is 15px Medium and sits 14px inside the selection, as the label of a toolbar
-       text button does (the kit's segments are fixed boxes). Vertical tabs are list rows there. */
+    /* Horizontal tabs of either variant are the segmented control of iOS 27 (underline tabs have no iOS control of
+       their own, Tabs.module.css gives them the track). In content it is plain, as SwiftUI's Picker .segmented draws
+       it in iOS 27.2 on an iPhone 17 (402pt): a 32pt capsule of the tertiary fill, the thumb 2pt inside it and its
+       segments 4pt apart, no sheen, rim, shadow or blur; every label is 13pt and primary, Semibold when selected and
+       Medium otherwise. Vertical tabs are list rows there. */
     html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
+      --segmented-control-size: 32px;
+      --segmented-control-gutter: 2px;
+      --segmented-control-gap: 4px;
+      --segmented-control-thumb-outset: 0px;
+      --segmented-control-radius: 100px;
+      --segmented-control-option-radius: calc(var(--segmented-control-size) / 2 - var(--segmented-control-gutter));
+      --segmented-control-option-gutter: 6px;
+      --segmented-control-font-size: 13px;
+      --segmented-control-line-height: 18px;
+      --segmented-control-font-weight: 510;
+      --segmented-control-active-font-weight: 590;
+      /* The theme pairs are root tokens, where light-dark() resolves per theme. */
+      --segmented-control-background: var(--segmented-control-mobile-plain-background);
+      --segmented-control-sheen: none;
+      --segmented-control-shadow: none;
+      --segmented-control-backdrop-filter: none;
+      --segmented-control-thumb-background: var(--segmented-control-mobile-plain-thumb-background);
+      --segmented-control-thumb-shadow: none;
+      /* Every label of the plain control is primary; the weight marks the selection. */
+      --color-text-secondary: var(--color-text);
+    }
+
+    /* In a bar (a phone Toolbar, which is also the header of a sheet) it is the glass control of iOS 26 toolbars
+       (kit Toolbars 5815:55167): a 44px capsule of the shared mobile glass, as toolbar buttons are, with its segments
+       8px from the ends and the 36px selection reaching 4px past its segment. Every label is 15px Medium and sits
+       14px inside the selection, as the label of a toolbar text button does (the kit's segments are fixed boxes). */
+    html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
       --segmented-control-size: 44px;
       --segmented-control-gutter: 4px;
       --segmented-control-gap: 0px;
       --segmented-control-thumb-outset: 4px;
-      --segmented-control-radius: 100px;
-      --segmented-control-option-radius: calc(var(--segmented-control-size) / 2 - var(--segmented-control-gutter));
       --segmented-control-option-gutter: 10px;
       --segmented-control-font-size: 15px;
       --segmented-control-line-height: 20px;
       --segmented-control-font-weight: 510;
       --segmented-control-active-font-weight: 510;
-      /* The glass resolves on the control, under the bar or sheet that may tune it (Page, Dialog); the thumb's theme
-         pair is a root token, where light-dark() resolves per theme. */
+      /* The glass resolves on the control, under the bar or sheet that may tune it (Page, Dialog). */
       --segmented-control-background: var(--mobile-glass-background);
       --segmented-control-sheen: var(--mobile-glass-sheen);
       --segmented-control-shadow: var(--mobile-glass-shadow);
       --segmented-control-backdrop-filter: var(--mobile-glass-backdrop-filter);
       --segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);
-      --segmented-control-thumb-shadow: none;
       /* Unselected labels are the secondary label role of a phone (alpha 50%: 105 on Safari's 211 track, 109 there). */
       --color-text-secondary: var(--mobile-label-secondary);
     }

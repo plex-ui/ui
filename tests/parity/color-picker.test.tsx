@@ -441,19 +441,20 @@ describe("ColorPicker tokens follow the iOS 26 kit (Color Picker - iPhone 0:5275
   test("the well, the sheet and the Mode control", () => {
     expect([value(tokens, "--color-well-size-sm"), value(tokens, "--color-well-size-lg"), value(tokens, "--color-well-ring-width")]).toEqual(["28px", "36px", "3px"])
     expect(value(tokens, "--color-picker-sheet-radius")).toBe("34px 34px 58px 58px")
-    // The Mode control stays the kit picker's plain segmented control on a phone, not the glass of other tabs.
-    const modes = styles.match(/\.Modes\[data-variant="segmented"\]\[data-orientation="horizontal"\] \{([^}]*)\}/)?.[1] ?? ""
-    expect(styles.indexOf(".Modes[data-variant")).toBeGreaterThan(styles.indexOf("@media (max-width: 767px)"))
-    expect(value(modes, "--segmented-control-size")).toBe("32px")
-    expect(value(modes, "--segmented-control-thumb-outset")).toBe("0px")
-    expect([value(modes, "--segmented-control-font-weight"), value(modes, "--segmented-control-active-font-weight")]).toEqual(["510", "590"])
-    expect(value(modes, "--segmented-control-background")).toBe("var(--color-picker-mobile-mode-background)")
-    expect(value(modes, "--segmented-control-thumb-background")).toBe("var(--color-picker-mobile-mode-thumb-background)")
-    expect([value(modes, "--segmented-control-sheen"), value(modes, "--segmented-control-shadow"), value(modes, "--segmented-control-backdrop-filter")]).toEqual(["none", "none", "none"])
-    expect(value(modes, "--color-text-secondary")).toBe("var(--color-text)")
-    expect(value(tokens, "--color-picker-mobile-mode-background")).toBe("light-dark(var(--alpha-06), var(--alpha-12))")
-    expect(value(tokens, "--color-picker-mobile-mode-thumb-background")).toBe("light-dark(var(--gray-0), var(--alpha-25))")
-    expect(touch).toContain("--segmented-control-size: 44px;")
+    // The Mode control is the plain segmented control every phone tab group takes in content (touch.css), as the
+    // kit picker draws it; the picker keeps no override of its own.
+    expect(styles).not.toContain(".Modes[data-variant")
+    const plain = touch.match(/html :is\(\[data-variant="segmented"\], \[data-variant="underline"\]\)\[data-orientation="horizontal"\] \{([^}]*)\}/)?.[1] ?? ""
+    expect(value(plain, "--segmented-control-size")).toBe("32px")
+    expect(value(plain, "--segmented-control-thumb-outset")).toBe("0px")
+    expect([value(plain, "--segmented-control-font-weight"), value(plain, "--segmented-control-active-font-weight")]).toEqual(["510", "590"])
+    expect(value(plain, "--segmented-control-background")).toBe("var(--segmented-control-mobile-plain-background)")
+    expect(value(plain, "--segmented-control-thumb-background")).toBe("var(--segmented-control-mobile-plain-thumb-background)")
+    expect([value(plain, "--segmented-control-sheen"), value(plain, "--segmented-control-shadow"), value(plain, "--segmented-control-backdrop-filter")]).toEqual(["none", "none", "none"])
+    expect(value(plain, "--color-text-secondary")).toBe("var(--color-text)")
+    expect(value(tokens, "--segmented-control-mobile-plain-background")).toBe("light-dark(var(--alpha-06), var(--alpha-12))")
+    expect(value(tokens, "--segmented-control-mobile-plain-thumb-background")).toBe("light-dark(var(--gray-0), var(--alpha-25))")
+    expect(tokens).not.toContain("--color-picker-mobile-mode")
   })
 })
 
