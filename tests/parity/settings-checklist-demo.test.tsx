@@ -20,6 +20,8 @@ vi.mock("@plexui/ui/components/Transition", async () => import("../../packages/u
 vi.mock("@plexui/vue/components/Transition", async () => import("../../packages/vue/src/components/Transition"))
 vi.mock("@plexui/ui/components/Menu", async () => import("../../packages/ui/src/components/Menu"))
 vi.mock("@plexui/vue/components/Menu", async () => import("../../packages/vue/src/components/Menu"))
+vi.mock("@plexui/ui/components/RadioGroup", async () => import("../../packages/ui/src/components/RadioGroup"))
+vi.mock("@plexui/vue/components/RadioGroup", async () => import("../../packages/vue/src/components/RadioGroup"))
 vi.mock("@plexui/ui/components/Toolbar", async () => import("../../packages/ui/src/components/Toolbar"))
 vi.mock("@plexui/vue/components/Toolbar", async () => import("../../packages/vue/src/components/Toolbar"))
 
@@ -269,6 +271,31 @@ describe.each<Framework>(["React", "Vue"])("%s Settings checklist pages", (frame
     expect(page.getByRole("button", { name: "Delivery: Email, Push notifications" })).toBeTruthy()
     expect(page.queryByRole("button", { name: "Back to notifications" })).toBeNull()
     assertPageOnly()
+  })
+
+  test("one choice: its page checks one row and stays open, as Settings does; from 768px up a radio Menu", async () => {
+    usePhone()
+    const page = await mountDemo(framework)
+    await click(page.getByRole("button", { name: "Show previews: Always" }))
+    const group = await waitFor(() => page.getByRole("radiogroup", { name: "Show previews" }))
+    expect(within(group).getAllByRole("radio").map((radio) => radio.getAttribute("aria-checked"))).toEqual(["true", "false", "false"])
+    await click(within(group).getByRole("radio", { name: "When Unlocked" }))
+    // The checkmark moves and the page stays (Settings › Camera › Record Sound).
+    expect(page.getByRole("radiogroup", { name: "Show previews" })).toBeTruthy()
+    expect(within(page.getByRole("radiogroup", { name: "Show previews" })).getByRole("radio", { name: "When Unlocked" }).getAttribute("aria-checked")).toBe("true")
+    await click(page.getByRole("button", { name: "Back to notifications" }))
+    await waitFor(() => expect(page.getByRole("button", { name: "Show previews: When Unlocked" })).toBeTruthy())
+  })
+
+  test("from 768px up the one-choice row opens a radio Menu and the row shows the pick", async () => {
+    const page = await mountDemo(framework)
+    await press(page.getByRole("button", { name: "Show previews: Always" }))
+    const menu = await waitFor(() => page.getByRole("menu"))
+    expect(within(menu).getAllByRole("menuitemradio").map((item) => [item.textContent?.trim(), item.getAttribute("aria-checked")])).toEqual([
+      ["Always", "true"], ["When Unlocked", "false"], ["Never", "false"],
+    ])
+    await press(within(menu).getByRole("menuitemradio", { name: "Never" }))
+    await waitFor(() => expect(page.getByRole("button", { name: "Show previews: Never" })).toBeTruthy())
   })
 
   test("rapid push and pop keeps only the destination accessible while departing screens finish", async () => {

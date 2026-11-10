@@ -4,7 +4,8 @@ import { Checkbox } from '@plexui/vue/components/Checkbox';
 import { Field } from '@plexui/vue/components/Field';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { Disclosure } from '@plexui/vue/components/Icon';
-import { Menu, MenuCheckboxItem, MenuContent, MenuTrigger } from '@plexui/vue/components/Menu';
+import { Menu, MenuCheckboxItem, MenuContent, MenuRadioGroup, MenuRadioItem, MenuTrigger } from '@plexui/vue/components/Menu';
+import { RadioGroup, RadioGroupItem } from '@plexui/vue/components/RadioGroup';
 import { DropdownIcon } from '@plexui/vue/components/SelectControl';
 import { Toolbar, ToolbarLeading, ToolbarTitle } from '@plexui/vue/components/Toolbar';
 import { TransitionGroup } from '@plexui/vue/components/Transition';
@@ -62,6 +63,10 @@ export const SettingsChecklistDemo = defineComponent({
       active.value = null;
     };
 
+    // One choice replaces the selection; the page stays, as Settings keeps its list open after a pick.
+    const choose = (id: SettingId, value: string | null) => {
+      if (value !== null) selection.value = { ...selection.value, [id]: [value] };
+    };
     const toggle = (id: SettingId, value: string, checked: boolean) => {
       const values = selection.value[id];
       selection.value = { ...selection.value, [id]: checked ? [...values, value] : values.filter((item) => item !== value) };
@@ -69,7 +74,7 @@ export const SettingsChecklistDemo = defineComponent({
 
     return () => {
       const phone = props.phonePreview || props.phoneHost || !wide.value;
-      // Only a phone navigates into a setting; on desktop a row opens a menu of checkboxes.
+      // Only a phone navigates into a setting; on desktop a row opens a menu of checkboxes, or of radio items for one choice.
       const setting = phone ? checklistSettings.find((item) => item.id === active.value) : undefined;
       const desktopRoot = !phone && !props.dialog;
       const row = (id: SettingId, label: string, summary: string, disabled: boolean | undefined, trailing: () => VNode, onClick?: () => void) => h(Button, {
@@ -83,7 +88,14 @@ export const SettingsChecklistDemo = defineComponent({
         ]),
         trailing(),
       ]));
-      const fields = () => setting
+      const fields = () => setting?.single
+            ? h(RadioGroup, {
+                key: setting.id, direction: 'col', class: 'w-full', value: selection.value[setting.id][0] ?? '',
+                'onUpdate:value': (value: string | null) => choose(setting.id, value), 'aria-label': setting.label,
+              }, () => h(FieldGroup, null, () => setting.options.map((option) => h(Field, { key: option.value, row: true, label: option.label }, () =>
+                h(RadioGroupItem, { value: option.value }),
+              ))))
+            : setting
             ? h(FieldGroup, { key: setting.id, 'aria-label': setting.label }, {
                 footer: () => 'Choose the updates you want to receive.',
                 default: () => setting.options.map((option) => h(Field, { key: option.value, row: true, label: option.label }, () =>
@@ -100,11 +112,15 @@ export const SettingsChecklistDemo = defineComponent({
                     ? row(item.id, item.label, summary, item.disabled, () => h(Disclosure, { class: s.Disclosure, 'data-no-autosize': '' }), () => open(item.id))
                     : h(Menu, null, () => [
                       h(MenuTrigger, null, () => row(item.id, item.label, summary, item.disabled, () => h(DropdownIcon, { iconType: 'dropdown' }))),
-                      h(MenuContent, { align: 'end' }, () => item.options.map((option) => h(MenuCheckboxItem, {
-                        key: option.value, checked: selection.value[item.id].includes(option.value),
-                        'onUpdate:checked': (checked: boolean) => toggle(item.id, option.value, checked),
-                        onSelect: (event: Event) => event.preventDefault(),
-                      }, () => option.label))),
+                      h(MenuContent, { align: 'end' }, () => item.single
+                        ? h(MenuRadioGroup, {
+                            value: selection.value[item.id][0] ?? '', 'onUpdate:value': (value: string) => choose(item.id, value),
+                          }, () => item.options.map((option) => h(MenuRadioItem, { key: option.value, value: option.value }, () => option.label)))
+                        : item.options.map((option) => h(MenuCheckboxItem, {
+                            key: option.value, checked: selection.value[item.id].includes(option.value),
+                            'onUpdate:checked': (checked: boolean) => toggle(item.id, option.value, checked),
+                            onSelect: (event: Event) => event.preventDefault(),
+                          }, () => option.label))),
                     ]),
                   ]);
                 }),

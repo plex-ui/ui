@@ -9,6 +9,7 @@ import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Disclosure } from '@plexui/ui/components/Icon';
 import { Menu } from '@plexui/ui/components/Menu';
 import { Page } from '@plexui/ui/components/Page';
+import { RadioGroup } from '@plexui/ui/components/RadioGroup';
 import { DropdownIcon } from '@plexui/ui/components/SelectControl';
 import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { TransitionGroup } from '@plexui/ui/components/Transition';
@@ -43,7 +44,7 @@ function SettingRow({ id, label, summary, trailing, ...props }: { id: SettingId;
 }
 
 /** A picker saved immediately: on a phone a row opens its own screen and Back returns to settings;
- * on desktop the row opens a menu of checkboxes, so no screen needs a top bar. */
+ * on desktop the row opens a menu of checkboxes, or of radio items for one choice, so no screen needs a top bar. */
 export function SettingsChecklistDemo() {
   const presentation = useScreenPresentation();
   const phonePreview = usePreviewEmbed() !== null;
@@ -98,6 +99,8 @@ export function SettingsChecklistDemo() {
     ...current,
     [id]: checked ? [...current[id], value] : current[id].filter((item) => item !== value),
   }));
+  // One choice replaces the selection; the page stays, as Settings keeps its list open after a pick.
+  const choose = (id: SettingId, value: string) => setSelection((current) => ({ ...current, [id]: [value] }));
   const transition = { ...settingsNavigationTiming, overlay: true, onExit: hideExitingSettingsScreen, onEnter: showEnteringSettingsScreen };
   // Both screens of a Page show Back, so it stays in place; in a Dialog the root's Close and Back change places.
   const back = <span className={s.BackViewport} data-demo-navigation-direction={navigation.direction} data-settings-direction={navigation.direction} data-demo-navigation-same=""><TransitionGroup {...transition} className={motionStyles.Bar}>
@@ -120,7 +123,16 @@ export function SettingsChecklistDemo() {
     <TransitionGroup {...transition} className={`${s.ContentTransition} ${motionStyles.Content}`} transitionId="settings-content"
       style={{ '--settings-exit-scroll-offset': `${navigation.scrollOffset}px` } as React.CSSProperties}>
       <div key={navigation.step} ref={bindContentRoot} data-settings-screen={active ?? 'root'} data-settings-step={navigation.step}>
-          {setting ? (
+          {setting?.single ? (
+            <RadioGroup key={setting.id} direction="col" className="w-full" value={selection[setting.id][0] ?? ''}
+              onChange={(value) => choose(setting.id, value)} aria-label={setting.label}>
+              <FieldGroup>
+                {setting.options.map((option) => (
+                  <Field key={option.value} row label={option.label}><RadioGroup.Item value={option.value} /></Field>
+                ))}
+              </FieldGroup>
+            </RadioGroup>
+          ) : setting ? (
             <FieldGroup key={setting.id} aria-label={setting.label} footer="Choose the updates you want to receive.">
               {setting.options.map((option) => (
                 <Field key={option.value} row label={option.label}>
@@ -145,7 +157,13 @@ export function SettingsChecklistDemo() {
                             trailing={<DropdownIcon iconType="dropdown" />} />
                         </Menu.Trigger>
                         <Menu.Content align="end">
-                          {item.options.map((option) => (
+                          {item.single ? (
+                            <Menu.RadioGroup value={selection[item.id][0] ?? ''} onChange={(value) => choose(item.id, value)}>
+                              {item.options.map((option) => (
+                                <Menu.RadioItem key={option.value} value={option.value}>{option.label}</Menu.RadioItem>
+                              ))}
+                            </Menu.RadioGroup>
+                          ) : item.options.map((option) => (
                             <Menu.CheckboxItem key={option.value} checked={selection[item.id].includes(option.value)}
                               onCheckedChange={(checked) => toggle(item.id, option.value, checked === true)}
                               onSelect={(event) => event.preventDefault()}>

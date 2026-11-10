@@ -788,11 +788,11 @@ const [files, setFiles] = useState<File[]>([]);
 
 ## Settings with selection pages
 
-Short values sit beside the label. Longer values wrap below it, and the disclosure stays centered. The entire row opens a selection page; Back returns to the updated summary. The disabled row shows an unavailable setting.
+Short values sit beside the label. Longer values wrap below it, and the disclosure stays centered. The entire row opens a selection page; Back returns to the updated summary. A page with several choices has a checkbox in each row; a page with one choice checks one row, and a tap moves the checkmark while the page stays open, as iOS Settings does. The disabled row shows an unavailable setting.
 
 This example uses the [SettingsChecklistDemo helper](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsChecklistDemo.tsx), [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsChecklistData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsChecklistDemo.module.css), alongside the existing DemoBackButton helper.
 
-<ComponentPreview phonePresentation="screen" details={<>Selection takes effect immediately. On a phone a row opens its own screen in a <code>Toolbar</code> with Back and the setting's title. From 768px up the same row opens a menu of checkboxes, so the desktop layout needs no top bar. The form examples above use a Sheet with Apply and Close for draft editing.</>} code={`import { SettingsChecklistDemo } from './SettingsChecklistDemo';
+<ComponentPreview phonePresentation="screen" details={<>Selection takes effect immediately. On a phone a row opens its own screen in a <code>Toolbar</code> with Back and the setting's title. From 768px up the same row opens a menu of checkboxes, or of radio items for one choice, so the desktop layout needs no top bar. The form examples above use a Sheet with Apply and Close for draft editing.</>} code={`import { SettingsChecklistDemo } from './SettingsChecklistDemo';
 
 export default function NotificationSettings() {
   return <SettingsChecklistDemo />;
