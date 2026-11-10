@@ -1,6 +1,6 @@
 import { act, cleanup, fireEvent, render, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { OAuthLoginFormDemo, OAuthSignupFormDemo } from '../../components/docs/OAuthFormDemos';
+import { OAuthFormDemo } from '../../components/docs/OAuthFormDemos';
 import { FloatingLabelInsideBillingFormDemo, FloatingLabelInputEmailLoginFormDemo, FloatingLabelInputPhoneLoginFormDemo, FloatingLabelInputPhoneSignupFormDemo, FloatingLabelInputPasswordFormDemo, FloatingLabelSelectAboutYouFormDemo } from '../../components/docs/FloatingLabelInputDemos';
 import { FileUploadFormDemo } from '../../components/docs/FileUploadDemos';
 import { CreatePasswordDemo } from '../../components/docs/OnboardingFlowDemos';
@@ -17,8 +17,8 @@ const input = (name: string) => within(document.body).getByLabelText<HTMLInputEl
 
 describe('Screen presentation keeps owner-held form data', () => {
   test.each([
-    { name: 'OAuth login', Demo: OAuthLoginFormDemo, label: 'Email address', value: 'edited@plexui.com' },
-    { name: 'OAuth signup', Demo: OAuthSignupFormDemo, label: 'Email address', value: 'edited@plexui.com' },
+    { name: 'OAuth login', Demo: () => <OAuthFormDemo />, label: 'Email address', value: 'edited@plexui.com' },
+    { name: 'OAuth signup', Demo: () => <OAuthFormDemo initialMode="sign-up" />, label: 'Email address', value: 'edited@plexui.com' },
     { name: 'Billing', Demo: FloatingLabelInsideBillingFormDemo, label: 'Full name', value: 'Edited Name' },
     { name: 'Email login', Demo: FloatingLabelInputEmailLoginFormDemo, label: 'Email address', value: 'edited@plexui.com' },
     { name: 'Phone login', Demo: FloatingLabelInputPhoneLoginFormDemo, label: 'Phone number', value: '612345678' },

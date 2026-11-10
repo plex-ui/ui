@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { act, cleanup, fireEvent, render, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { OTPInputConfirmPhoneDemo, OTPInputVerifyEmailDemo } from '../../components/docs/OTPInputDemos';
+import { OTPInputVerificationDemo } from '../../components/docs/OTPInputDemos';
 import { VueFormExampleDemo } from '../../components/docs/vue/VueFormExamplesDemos';
 import { createVerificationAttempt, isVerificationCodeReady, startResendCountdown } from '../../components/docs/verificationCountdown';
 import { flushVue } from './harness';
@@ -23,7 +23,7 @@ function template(name: string, next: string): string {
     if (typeof result !== 'string') throw new Error(`Missing ${name} template`);
     return result;
 }
-const templates = { email: template('verifyEmail', 'confirmPhone'), phone: template('confirmPhone', 'aboutYouFields') };
+const verificationTemplate = template('verification', 'aboutYouFields');
 const interact = async (action: () => void) => act(async () => { action(); await flushVue(); });
 const tick = async (milliseconds: number) => act(async () => { await vi.advanceTimersByTimeAsync(milliseconds); await flushVue(); });
 const enter = async (input: HTMLElement, value: string) => interact(() => {
@@ -33,8 +33,9 @@ const enter = async (input: HTMLElement, value: string) => interact(() => {
 
 async function mountVerification(framework: string, recipient: 'email' | 'phone') {
     const view = render(framework === 'React'
-        ? recipient === 'email' ? <OTPInputVerifyEmailDemo /> : <OTPInputConfirmPhoneDemo />
-        : <VueFormExampleDemo auth template={templates[recipient]} state={{ otpValue: '', code: '' }} controls={[
+        ? <OTPInputVerificationDemo initialChannel={recipient} />
+        : <VueFormExampleDemo auth template={verificationTemplate} state={{ otpValue: '', code: '' }} controls={[
+            { name: 'channel', type: 'select', options: [{ value: 'email', label: 'Email' }, { value: 'phone', label: 'Phone' }], default: recipient },
             { name: 'input', type: 'select', options: [{ value: 'per-digit', label: 'Per-digit' }, { value: 'text-field', label: 'Text field' }], default: 'per-digit' },
             { name: 'error', type: 'boolean', default: false },
             { name: 'cooldown', type: 'boolean', default: false },
@@ -109,6 +110,22 @@ describe('verification attempt guard', () => {
 });
 
 describe.each(['React', 'Vue'])('%s verification actions', (framework) => {
+    test('the channel control switches between email and phone copy and keeps the entered code', async () => {
+        // Plan 177: Verify email and Confirm phone are one example; the channel only changes the copy.
+        const view = await mountVerification(framework, 'email');
+        const title = () => view.container.querySelector('[data-auth-title]')?.textContent;
+        expect(title()).toBe('Verify your email address');
+        expect(view.page.getByText('Enter the code sent to alex.johnson@example.com')).toBeTruthy();
+        await interact(() => fireEvent.click(view.page.getByRole('radio', { name: 'Text field' })));
+        const code = view.page.getByLabelText<HTMLInputElement>('Code', { selector: 'input', exact: true });
+        await enter(code, 'A48B');
+        await interact(() => fireEvent.click(view.page.getByRole('radio', { name: 'Phone' })));
+        expect(title()).toBe('Confirm phone');
+        expect(view.page.getByText('Enter the code sent to +1 555 123 4567')).toBeTruthy();
+        expect(view.page.getByRole('button', { name: 'Resend code', exact: true })).toBeTruthy();
+        expect(view.page.getByLabelText<HTMLInputElement>('Code', { selector: 'input', exact: true }).value).toBe('A48B');
+    });
+
     test.each(['email', 'phone'] as const)('%s countdown restarts, expires, preserves values and cleans up on unmount', async (recipient) => {
         vi.useFakeTimers();
         const view = await mountVerification(framework, recipient);

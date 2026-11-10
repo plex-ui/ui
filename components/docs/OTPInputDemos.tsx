@@ -105,15 +105,18 @@ export function OTPInputGroupedDemo() {
   );
 }
 
-function VerificationDemo({
-  title,
-  description,
-  resendLabel,
-}: {
-  title: string;
-  description: string;
-  resendLabel: string;
-}) {
+type Channel = 'email' | 'phone';
+
+// One verification screen for both channels: the channel only changes the copy.
+const CHANNEL_COPY: Record<Channel, { title: string; description: string; resendLabel: string }> = {
+  email: { title: 'Verify your email address', description: 'Enter the code sent to alex.johnson@example.com', resendLabel: 'Resend email' },
+  phone: { title: 'Confirm phone', description: 'Enter the code sent to +1 555 123 4567', resendLabel: 'Resend code' },
+};
+
+export function OTPInputVerificationDemo({ initialChannel = 'email' }: { initialChannel?: Channel }) {
+  const [channel, setChannel] = useState<Channel>(initialChannel);
+  useDemoControlSync('channel', channel, setChannel);
+  const { title, description, resendLabel } = CHANNEL_COPY[channel];
   const presentation = useScreenPresentation();
   const wide = useBreakpoint('md');
   const formId = useId();
@@ -160,6 +163,12 @@ function VerificationDemo({
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="channel">
+          <SegmentedControl<Channel> value={channel} onChange={setChannel} aria-label="channel" size="xs">
+            <SegmentedControl.Option value="email">Email</SegmentedControl.Option>
+            <SegmentedControl.Option value="phone">Phone</SegmentedControl.Option>
+          </SegmentedControl>
+        </DemoControlRow>
         <DemoControlRow name="input">
           <SegmentedControl<InputMode> value={mode} onChange={setMode} aria-label="input type" size="xs">
             <SegmentedControl.Option value="per-digit">Per-digit</SegmentedControl.Option>
@@ -222,14 +231,4 @@ function VerificationDemo({
       </AuthFormStage>
     </>
   );
-}
-
-export function OTPInputVerifyEmailDemo() {
-  return <VerificationDemo title="Verify your email address"
-    description="Enter the code sent to alex.johnson@example.com" resendLabel="Resend email" />;
-}
-
-export function OTPInputConfirmPhoneDemo() {
-  return <VerificationDemo title="Confirm phone"
-    description="Enter the code sent to +1 555 123 4567" resendLabel="Resend code" />;
 }

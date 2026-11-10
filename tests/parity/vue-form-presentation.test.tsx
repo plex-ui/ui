@@ -19,7 +19,7 @@ const settingsMdx = readFileSync('content/vue/components/settings-forms.mdx', 'u
 function expression(name: string, next: string, mdx = settingsMdx) {
   return mdx.slice(mdx.indexOf(`export const ${name} = `) + `export const ${name} = `.length, mdx.indexOf(`export const ${next} = `)).trim();
 }
-const verifyEmail: unknown = new Function(`return ${expression('verifyEmail', 'confirmPhone', authMdx)}`)();
+const verifyEmail: unknown = new Function(`return ${expression('verification', 'aboutYouFields', authMdx)}`)();
 if (typeof verifyEmail !== 'string') throw new Error('Verification template is missing');
 const formScreen: unknown = new Function(`return ${expression('formScreen', 'formScreenCode')}`)();
 const payout: unknown = new Function('formScreen', `return ${expression('rowErrors', 'rowState')}`)(formScreen);
@@ -35,7 +35,7 @@ afterEach(() => { cleanup(); preview.phoneHost = false; vi.unstubAllGlobals(); }
 
 describe('Vue form presentation controls', () => {
   test('verification error preserves the input, value and caret, and Page/Sheet retains both mode values', async () => {
-    const view = render(<VueFormExampleDemo auth template={verifyEmail} state={{ code: '', otpValue: '' }} controls={[
+    const view = render(<VueFormExampleDemo auth template={verifyEmail} state={{ code: '', otpValue: '', channel: 'email' }} controls={[
       { name: 'input', type: 'select', options: ['per-digit', 'text-field'], default: 'text-field' },
       { name: 'error', type: 'boolean', default: false },
       { name: 'cooldown', type: 'boolean', default: false },

@@ -5,7 +5,9 @@ import { AuthLegalNotice } from './AuthLegalNotice';
 import { Button } from '@plexui/ui/components/Button';
 import { AuthFormStage } from './AuthFormStage';
 import authFieldsStyles from './AuthFields.module.css';
-import { controlsTableStyle } from './ButtonDemos';
+import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { useDemoControlSync } from './PreviewEmbed';
 import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
 
 // ---------------------------------------------------------------------------
@@ -112,16 +114,18 @@ function FooterLinks() {
 function CrossLink({
   prompt,
   label,
+  onClick,
 }: {
   prompt: string;
   label: string;
+  onClick: () => void;
 }) {
   // The "Don't have an account? Sign up" / "Already have an account? Log in"
   // link that sits between the Continue button and the OR divider.
   return (
     <p className={["text-base text-center mt-6", authFieldsStyles.CrossActionRow, authFieldsStyles.StandaloneCrossActionRow].join(" ")}>
       {prompt}{' '}
-      <Button type="button" color="info" variant="ghost"
+      <Button type="button" color="info" variant="ghost" onClick={onClick}
         className={[authFieldsStyles.TextAction, authFieldsStyles.OAuthTextAction].join(" ")}>
         {label}
       </Button>
@@ -130,18 +134,25 @@ function CrossLink({
 }
 
 // ---------------------------------------------------------------------------
-// 1. Log in — "Welcome back"
-// Email + Continue → "Don't have an account? Sign up" → OR →
-// Google / Apple / Microsoft / Phone → Terms / Privacy footer.
-// Matches OpenAI Platform's /login page exactly.
+// Log in or sign up — "Welcome back" / "Create an account"
+// Email + Continue → cross-link to the other mode → OR → Google / Apple /
+// Microsoft (and phone when logging in) → Terms / Privacy footer.
+// Matches OpenAI Platform's /login and /signup pages; the mode control and
+// the cross-link switch between them.
 // ---------------------------------------------------------------------------
 
-export function OAuthLoginFormDemo() {
+type AuthMode = 'log-in' | 'sign-up';
+
+export function OAuthFormDemo({ initialMode = 'log-in' }: { initialMode?: AuthMode }) {
   const presentation = useScreenPresentation();
+  const [mode, setMode] = useState<AuthMode>(initialMode);
+  useDemoControlSync('mode', mode, setMode);
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const isEmailValid = /.+@.+\..+/.test(email);
   const showError = submitted && !isEmailValid;
+  const logIn = mode === 'log-in';
+  const title = logIn ? 'Welcome back' : 'Create an account';
 
   const handleSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
@@ -150,11 +161,19 @@ export function OAuthLoginFormDemo() {
 
   return (
     <>
-    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
-    <AuthFormStage title="Welcome back" surface={presentation.surface} dialog={presentation.dialog} onDialogChange={presentation.setDialog}>
+    <div data-demo-controls style={controlsTableStyle}>
+      <DemoControlRow name="mode">
+        <SegmentedControl<AuthMode> value={mode} onChange={setMode} aria-label="mode" size="xs">
+          <SegmentedControl.Option value="log-in">Log in</SegmentedControl.Option>
+          <SegmentedControl.Option value="sign-up">Sign up</SegmentedControl.Option>
+        </SegmentedControl>
+      </DemoControlRow>
+      <ScreenPresentationControls {...presentation} />
+    </div>
+    <AuthFormStage title={title} surface={presentation.surface} dialog={presentation.dialog} onDialogChange={presentation.setDialog}>
       <div className="w-[360px]">
         <div className="mb-8 text-center">
-          <h3 data-auth-title className="text-3xl font-semibold tracking-tight leading-[1.1]">Welcome back</h3>
+          <h3 data-auth-title className="text-3xl font-semibold tracking-tight leading-[1.1]">{title}</h3>
         </div>
 
         <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
@@ -174,7 +193,8 @@ export function OAuthLoginFormDemo() {
           </Button>
         </form>
 
-        <CrossLink prompt="Don't have an account?" label="Sign up" />
+        <CrossLink prompt={logIn ? "Don't have an account?" : 'Already have an account?'} label={logIn ? 'Sign up' : 'Log in'}
+          onClick={() => setMode(logIn ? 'sign-up' : 'log-in')} />
 
         <OrDivider />
 
@@ -182,69 +202,7 @@ export function OAuthLoginFormDemo() {
           <OAuthButton icon={<GoogleLogo />}>Continue with Google</OAuthButton>
           <OAuthButton icon={<AppleLogo />}>Continue with Apple</OAuthButton>
           <OAuthButton icon={<MicrosoftLogo />}>Continue with Microsoft</OAuthButton>
-          <OAuthButton icon={<PhoneLogo />}>Continue with phone</OAuthButton>
-        </div>
-
-        <FooterLinks />
-      </div>
-    </AuthFormStage>
-    </>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// 2. Sign up — "Create an account"
-// Email + Continue → "Already have an account? Log in" → OR →
-// Google / Apple / Microsoft → Terms / Privacy footer.
-// Same structure as Log in, minus the phone provider.
-// ---------------------------------------------------------------------------
-
-export function OAuthSignupFormDemo() {
-  const presentation = useScreenPresentation();
-  const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const isEmailValid = /.+@.+\..+/.test(email);
-  const showError = submitted && !isEmailValid;
-
-  const handleSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
-    evt.preventDefault();
-    setSubmitted(true);
-  };
-
-  return (
-    <>
-    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
-    <AuthFormStage title="Create an account" surface={presentation.surface} dialog={presentation.dialog} onDialogChange={presentation.setDialog}>
-      <div className="w-[360px]">
-        <div className="mb-8 text-center">
-          <h3 data-auth-title className="text-3xl font-semibold tracking-tight leading-[1.1]">Create an account</h3>
-        </div>
-
-        <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
-          <AuthInput
-            label="Email address"
-            type="email"
-            value={email}
-            onChange={(evt) => {
-              setEmail(evt.target.value);
-              setSubmitted(false);
-            }}
-            invalid={showError}
-            errorMessage={showError ? 'Email is not valid.' : undefined}
-          />
-          <Button color="primary" size="3xl" type="submit" pill block className="h-[3.25rem]">
-            Continue
-          </Button>
-        </form>
-
-        <CrossLink prompt="Already have an account?" label="Log in" />
-
-        <OrDivider />
-
-        <div className="flex flex-col gap-3">
-          <OAuthButton icon={<GoogleLogo />}>Continue with Google</OAuthButton>
-          <OAuthButton icon={<AppleLogo />}>Continue with Apple</OAuthButton>
-          <OAuthButton icon={<MicrosoftLogo />}>Continue with Microsoft</OAuthButton>
+          {logIn && <OAuthButton icon={<PhoneLogo />}>Continue with phone</OAuthButton>}
         </div>
 
         <FooterLinks />

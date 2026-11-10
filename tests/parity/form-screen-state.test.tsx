@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { FormRowsGroupsDemo, FormRowsInputsDemo, FormRowsPayoutDemo, FormScreen } from '../../components/docs/FormRowsDemos';
-import { OTPInputConfirmPhoneDemo, OTPInputVerifyEmailDemo } from '../../components/docs/OTPInputDemos';
+import { OTPInputVerificationDemo } from '../../components/docs/OTPInputDemos';
 import { createDemoControlChannel, DemoControlHostContext } from '../../components/docs/PreviewEmbed';
 
 vi.mock('@plexui/ui/hooks/useBreakpoints', () => ({ useBreakpoint: () => false }));
@@ -94,12 +94,9 @@ describe('form presentation state', () => {
   });
 });
 
-describe.each([
-  ['email', OTPInputVerifyEmailDemo],
-  ['phone', OTPInputConfirmPhoneDemo],
-] as const)('%s verification state', (_name, Demo) => {
+describe.each(['email', 'phone'] as const)('%s verification state', (channel) => {
   test('error changes both input modes without replacing their values', async () => {
-    render(<Demo />);
+    render(<OTPInputVerificationDemo initialChannel={channel} />);
     const page = within(document.body);
     const error = page.getByRole('switch', { name: 'error' });
     await click(page.getByRole('radio', { name: 'Text field' }));

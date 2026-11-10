@@ -8,7 +8,7 @@ import { HashForward } from "@/components/docs/HashForward"
 import { VueCreatePasswordDemo, VueStorageLocationDemo } from "@/components/docs/OnboardingFlowDemos"
 import { VueFormExampleDemo } from "@/components/docs/vue/VueFormExamplesDemos"
 
-export const withAuthHelpers = (code) => `<script setup lang="ts">\nimport { ref } from 'vue';\nimport { AuthFormStage } from './AuthFormStage';\n${code.includes('FormScreen') ? "import { FormScreen } from './FormScreen';\n" : ''}${code.includes('AuthLegalNotice') ? "import { AuthLegalNotice } from './AuthLegalNotice';\n" : ''}${code.includes('AuthInput') ? "import { AuthInput } from './AuthInput';\n" : ''}${code.includes('AuthFields') ? "import { AuthFields } from './AuthFields';\n" : ''}${code.includes('authFieldsStyles') ? "import authFieldsStyles from './AuthFields.module.css';\n" : ''}\nconst surface = ref<'plain' | 'grouped'>('grouped');\nconst dialog = ref(false);\n${code.includes(':invalid="error"') ? 'const error = ref(false);\n' : ''}</script>\n\n<template>\n${code.replaceAll(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')}\n</template>`
+export const withAuthHelpers = (code) => `<script setup lang="ts">\nimport { ref } from 'vue';\nimport { AuthFormStage } from './AuthFormStage';\n${code.includes('FormScreen') ? "import { FormScreen } from './FormScreen';\n" : ''}${code.includes('AuthLegalNotice') ? "import { AuthLegalNotice } from './AuthLegalNotice';\n" : ''}${code.includes('AuthInput') ? "import { AuthInput } from './AuthInput';\n" : ''}${code.includes('AuthFields') ? "import { AuthFields } from './AuthFields';\n" : ''}${code.includes('authFieldsStyles') ? "import authFieldsStyles from './AuthFields.module.css';\n" : ''}\nconst surface = ref<'plain' | 'grouped'>('grouped');\nconst dialog = ref(false);\n${code.includes("mode === 'log-in'") ? "const mode = ref<'log-in' | 'sign-up'>('log-in');\n" : ''}${code.includes(':invalid="error"') ? 'const error = ref(false);\n' : ''}</script>\n\n<template>\n${code.replaceAll(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')}\n</template>`
 
 export const STAGE = "py-10 flex justify-center"
 
@@ -29,6 +29,7 @@ import authFieldsStyles from './AuthFields.module.css';
 const wide = useBreakpoint('md');
 const surface = ref<'plain' | 'grouped'>('grouped');
 const dialog = ref(false);
+const channel = ref<'email' | 'phone'>('email');
 const input = ref<'per-digit' | 'text-field'>('per-digit');
 const otpValue = ref('');
 const code = ref('');
@@ -47,6 +48,7 @@ export const cooldownControl = { name: "cooldown", type: "boolean", default: fal
 
 export const verifyingControl = { name: "verifying", type: "boolean", default: false }
 
+export const channelControl = { name: "channel", type: "select", options: [{ value: "email", label: "Email" }, { value: "phone", label: "Phone" }], default: "email" }
 export const inputControl = { name: "input", type: "select", options: [{ value: "per-digit", label: "Per-digit" }, { value: "text-field", label: "Text field" }], default: "per-digit" }
 
 export const emailLogin = `<component :is="AuthFormStage" title="Welcome back" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
@@ -118,10 +120,10 @@ export const emailLogin = `<component :is="AuthFormStage" title="Welcome back" v
   </template>
 </component>`
 
-export const oauthLogin = `<component :is="AuthFormStage" title="Welcome back" :mobile="!wide" v-model:dialog="dialog" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
+export const oauth = `<component :is="AuthFormStage" :title="mode === 'log-in' ? 'Welcome back' : 'Create an account'" :mobile="!wide" v-model:dialog="dialog" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
 <div class="w-[360px]">
   <div class="mb-8 text-center">
-    <h3 data-auth-title class="text-3xl font-semibold tracking-tight leading-[1.1]">Welcome back</h3>
+    <h3 data-auth-title class="text-3xl font-semibold tracking-tight leading-[1.1]">{{ mode === 'log-in' ? 'Welcome back' : 'Create an account' }}</h3>
   </div>
 
   <form class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
@@ -139,9 +141,10 @@ export const oauthLogin = `<component :is="AuthFormStage" title="Welcome back" :
   </form>
 
   <p class="text-base text-center mt-6" :class="[authFieldsStyles.CrossActionRow, authFieldsStyles.StandaloneCrossActionRow]">
-    Don't have an account?
-    <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction, authFieldsStyles.OAuthTextAction]">
-      Sign up
+    {{ mode === 'log-in' ? "Don't have an account?" : 'Already have an account?' }}
+    <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction, authFieldsStyles.OAuthTextAction]"
+      @click="mode = mode === 'log-in' ? 'sign-up' : 'log-in'">
+      {{ mode === 'log-in' ? 'Sign up' : 'Log in' }}
     </Button>
   </p>
 
@@ -155,55 +158,14 @@ export const oauthLogin = `<component :is="AuthFormStage" title="Welcome back" :
     <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="GoogleLogo" />Continue with Google</Button>
     <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="AppleLogo" />Continue with Apple</Button>
     <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="MicrosoftLogo" />Continue with Microsoft</Button>
-    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="PhoneLogo" />Continue with phone</Button>
+    <Button v-if="mode === 'log-in'" color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="PhoneLogo" />Continue with phone</Button>
   </div>
 
   <div class="mt-8"><component :is="AuthLegalNotice" /></div>
 </div>
 </component>`
 
-export const oauthSignup = `<component :is="AuthFormStage" title="Create an account" :mobile="!wide" v-model:dialog="dialog" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
-<div class="w-[360px]">
-  <div class="mb-8 text-center">
-    <h3 data-auth-title class="text-3xl font-semibold tracking-tight leading-[1.1]">Create an account</h3>
-  </div>
-
-  <form class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
-    <component :is="AuthInput"
-      label="Email address"
-      type="email"
-      :value="email"
-      @update:value="(value) => { email = value; submitted = false }"
-      :invalid="submitted && !/.+@.+\\..+/.test(email)"
-      :error-message="submitted && !/.+@.+\\..+/.test(email) ? 'Email is not valid.' : undefined"
-    />
-    <Button color="primary" size="3xl" type="submit" pill block class="h-[3.25rem]">
-      Continue
-    </Button>
-  </form>
-
-  <p class="text-base text-center mt-6" :class="[authFieldsStyles.CrossActionRow, authFieldsStyles.StandaloneCrossActionRow]">
-    Already have an account?
-    <Button type="button" color="info" variant="ghost" :class="[authFieldsStyles.TextAction, authFieldsStyles.OAuthTextAction]">
-      Log in
-    </Button>
-  </p>
-
-  <div class="my-7 flex items-center gap-3" role="separator" aria-orientation="horizontal">
-    <span aria-hidden="true" class="h-px flex-1 bg-[var(--color-fd-border)]" />
-    <span class="text-xs font-semibold uppercase tracking-wider text-fd-foreground select-none">OR</span>
-    <span aria-hidden="true" class="h-px flex-1 bg-[var(--color-fd-border)]" />
-  </div>
-
-  <div class="flex flex-col gap-3">
-    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="GoogleLogo" />Continue with Google</Button>
-    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="AppleLogo" />Continue with Apple</Button>
-    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="MicrosoftLogo" />Continue with Microsoft</Button>
-  </div>
-
-  <div class="mt-8"><component :is="AuthLegalNotice" /></div>
-</div>
-</component>`
+export const modeControl = { name: "mode", type: "select", options: [{ value: "log-in", label: "Log in" }, { value: "sign-up", label: "Sign up" }], default: "log-in" }
 
 export const countrySelect = `<component :is="AuthFields">
 <Select
@@ -496,13 +458,13 @@ export const aboutYouDesktop = `<component :is="AuthFormStage" title="Tell us ab
   </div>
 </component>`
 
-export const verifyEmail = `<component :is="VerificationFlow" v-model:cooldown="cooldown" v-model:verifying="verifying" v-model:error="error" v-slot="{ seconds, complete, edit, submit, resend }">
-  <component :is="AuthFormStage" title="Verify your email address" keyboard="numeric" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
+export const verification = `<component :is="VerificationFlow" v-model:cooldown="cooldown" v-model:verifying="verifying" v-model:error="error" v-slot="{ seconds, complete, edit, submit, resend }">
+  <component :is="AuthFormStage" :title="channel === 'email' ? 'Verify your email address' : 'Confirm phone'" keyboard="numeric" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
     <template #default="{ formId }">
       <div class="w-[360px]">
         <div class="mb-6 text-center">
-          <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Verify your email address</h3>
-          <p data-auth-description class="text-secondary text-sm mt-1">Enter the code sent to alex.johnson@example.com</p>
+          <h3 data-auth-title class="text-2xl font-semibold tracking-tight">{{ channel === 'email' ? 'Verify your email address' : 'Confirm phone' }}</h3>
+          <p data-auth-description class="text-secondary text-sm mt-1">Enter the code sent to {{ channel === 'email' ? 'alex.johnson@example.com' : '+1 555 123 4567' }}</p>
         </div>
         <form :id="formId" class="flex flex-col gap-6" novalidate :aria-busy="verifying"
           @submit.prevent="submit(input, code)">
@@ -515,48 +477,7 @@ export const verifyEmail = `<component :is="VerificationFlow" v-model:cooldown="
             <LoadingIndicator v-if="input === 'per-digit' && verifying" role="status" aria-label="Checking code" />
             <Button v-else type="button" color="secondary" variant="ghost" size="xl" class="h-11 w-full font-normal"
               :disabled="cooldown || verifying" @click="resend">
-              Resend email{{ cooldown ? ' (' + seconds + 's)' : '' }}
-            </Button>
-            </div>
-          </div>
-          <template v-if="wide && input === 'text-field'">
-            <div class="w-full" data-verification-actions>
-              <Button color="primary" size="3xl" type="submit" :form="formId" pill block class="md:h-[3.25rem]"
-                :loading="verifying" :disabled="!isVerificationCodeReady('text-field', code)" :aria-busy="verifying">Continue</Button>
-            </div>
-          </template>
-        </form>
-      </div>
-    </template>
-    <template v-if="input === 'text-field'" #footer="{ formId }">
-      <div class="w-full" data-verification-actions>
-        <Button color="primary" size="3xl" type="submit" :form="formId" pill block class="md:h-[3.25rem]"
-          :loading="verifying" :disabled="!isVerificationCodeReady('text-field', code)" :aria-busy="verifying">Continue</Button>
-      </div>
-    </template>
-  </component>
-</component>`
-
-export const confirmPhone = `<component :is="VerificationFlow" v-model:cooldown="cooldown" v-model:verifying="verifying" v-model:error="error" v-slot="{ seconds, complete, edit, submit, resend }">
-  <component :is="AuthFormStage" title="Confirm phone" keyboard="numeric" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
-    <template #default="{ formId }">
-      <div class="w-[360px]">
-        <div class="mb-6 text-center">
-          <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Confirm phone</h3>
-          <p data-auth-description class="text-secondary text-sm mt-1">Enter the code sent to +1 555 123 4567</p>
-        </div>
-        <form :id="formId" class="flex flex-col gap-6" novalidate :aria-busy="verifying"
-          @submit.prevent="submit(input, code)">
-          <div class="flex flex-col gap-2" data-verification-code>
-            <div v-if="input === 'per-digit'" class="flex justify-center">
-              <OTPInput v-model:value="otpValue" @change="edit" @complete="complete" :invalid="error" :disabled="verifying" :error-message="error ? 'Incorrect code' : undefined" :class="authFieldsStyles.Otp" />
-            </div>
-            <component :is="AuthInput" v-else label="Code" :value="code" @update:value="(value) => { edit(value); code = value }" inputmode="numeric" :invalid="error" :disabled="verifying" :error-message="error ? 'Incorrect code' : undefined" />
-            <div data-verification-resend class="flex h-11 items-center justify-center">
-            <LoadingIndicator v-if="input === 'per-digit' && verifying" role="status" aria-label="Checking code" />
-            <Button v-else type="button" color="secondary" variant="ghost" size="xl" class="h-11 w-full font-normal"
-              :disabled="cooldown || verifying" @click="resend">
-              Resend code{{ cooldown ? ' (' + seconds + 's)' : '' }}
+              {{ channel === 'email' ? 'Resend email' : 'Resend code' }}{{ cooldown ? ' (' + seconds + 's)' : '' }}
             </Button>
             </div>
           </div>
@@ -631,16 +552,14 @@ Screens default to Grouped. The `surface` control switches to Plain without chan
   <VueFormExampleDemo auth template={emailLogin} stageClassName={STAGE} state={{ email: "", password: "", submitted: false }} controls={[dialogControl]} />
 </ComponentPreview>
 
-## Log in (OAuth)
+<span id="log-in-oauth" />
 
-<ComponentPreview phonePresentation="screen" language="vue" details={<>OpenAI-style log-in: <code>Welcome back</code> heading, email + <code>Continue</code>, a <code>Don&apos;t have an account? Sign up</code> cross-link, an <code>OR</code> divider, then Google, Apple, Microsoft, and phone, all with 20×20 brand glyphs. <code>Terms of Use</code> / <code>Privacy Policy</code> footer.</>} code={withAuthHelpers(oauthLogin)} previewMinHeight={760}>
-  <VueFormExampleDemo auth template={oauthLogin} stageClassName={STAGE} state={{ email: "", submitted: false }} />
-</ComponentPreview>
+<span id="sign-up-oauth" />
 
-## Sign up (OAuth)
+## Log in or sign up (OAuth)
 
-<ComponentPreview phonePresentation="screen" language="vue" details={<>OpenAI-style sign-up: <code>Create an account</code> heading, email + <code>Continue</code>, an <code>Already have an account? Log in</code> cross-link, an <code>OR</code> divider, then Google, Apple, and Microsoft (no phone). Same 20×20 brand-glyph alignment as the log-in variant.</>} code={withAuthHelpers(oauthSignup)} previewMinHeight={680}>
-  <VueFormExampleDemo auth template={oauthSignup} stageClassName={STAGE} state={{ email: "", submitted: false }} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>OpenAI-style log-in and sign-up on one screen: the <code>mode</code> control or the cross-link switches between <code>Welcome back</code> with a <code>Don&apos;t have an account? Sign up</code> link and <code>Create an account</code> with <code>Already have an account? Log in</code>. Email + <code>Continue</code>, an <code>OR</code> divider, then Google, Apple, Microsoft and, when logging in, phone, all with 20×20 brand glyphs. The entered email stays when the mode changes. <code>Terms of Use</code> / <code>Privacy Policy</code> footer.</>} code={withAuthHelpers(oauth)} previewMinHeight={760}>
+  <VueFormExampleDemo auth template={oauth} stageClassName={STAGE} state={{ email: "", submitted: false }} controls={[modeControl]} />
 </ComponentPreview>
 
 ## Sign up (phone)
@@ -661,18 +580,16 @@ Screens default to Grouped. The `surface` control switches to Plain without chan
   <VueFormExampleDemo auth template={password} stageClassName={STAGE} state={passwordState} controls={[dialogControl]} />
 </ComponentPreview>
 
+<span id="verify-email" />
+
+<span id="confirm-phone" />
+
 <span id="verify-email-error" />
 
-## Verify email
+## Verify email or phone
 
-<ComponentPreview phonePresentation="screen" language="vue" details={<>Toggle between a per-digit <code>OTPInput</code> and a text field for alphanumeric or variable-length codes. Both use filled fields on phones; desktop keeps the standard OTP cells and floating-label text field. The error control keeps entered values. Resend starts a 30-second countdown; verifying shows a pending check without a server result. Per-digit starts one pending check when all six digits are entered, without a Continue action. Editing after an error or resending allows a new attempt. Resend stays below the code; Text field keeps Continue after Resend on desktop and in the Phone footer.</>} code={withVerificationHelpers(verifyEmail)} previewMinHeight={380}>
-  <VueFormExampleDemo auth template={verifyEmail} stageClassName={STAGE} state={{ otpValue: "", code: "" }} controls={[inputControl, errorControl, cooldownControl, verifyingControl, dialogControl]} />
-</ComponentPreview>
-
-## Confirm phone
-
-<ComponentPreview phonePresentation="screen" language="vue" details={<>Toggle between a per-digit <code>OTPInput</code> and a text field for phone verification. Both use filled fields on phones; desktop keeps the standard OTP cells and floating-label text field. The error control keeps entered values. Resend starts a 30-second countdown; verifying shows a pending check without a server result. Per-digit starts one pending check when all six digits are entered, without a Continue action. Editing after an error or resending allows a new attempt. Resend stays below the code; Text field keeps Continue after Resend on desktop and in the Phone footer.</>} code={withVerificationHelpers(confirmPhone)} previewMinHeight={380}>
-  <VueFormExampleDemo auth template={confirmPhone} stageClassName={STAGE} state={{ otpValue: "", code: "" }} controls={[inputControl, errorControl, cooldownControl, verifyingControl, dialogControl]} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>One verification screen for an email address or a phone number: the <code>channel</code> control changes the title, the recipient and the Resend label. Toggle between a per-digit <code>OTPInput</code> and a text field for alphanumeric or variable-length codes. Both use filled fields on phones; desktop keeps the standard OTP cells and floating-label text field. The error control keeps entered values. Resend starts a 30-second countdown; verifying shows a pending check without a server result. Per-digit starts one pending check when all six digits are entered, without a Continue action. Editing after an error or resending allows a new attempt. Resend stays below the code; Text field keeps Continue after Resend on desktop and in the Phone footer.</>} code={withVerificationHelpers(verification)} previewMinHeight={380}>
+  <VueFormExampleDemo auth template={verification} stageClassName={STAGE} state={{ otpValue: "", code: "" }} controls={[channelControl, inputControl, errorControl, cooldownControl, verifyingControl, dialogControl]} />
 </ComponentPreview>
 
 <span id="about-you" />

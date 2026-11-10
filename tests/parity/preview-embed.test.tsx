@@ -65,7 +65,8 @@ describe("Phone preview identity", () => {
     (path) => {
       const source = readFileSync(path, "utf8")
       const ids = compiledIds(source)
-      expect(ids.length).toBeGreaterThan(10)
+      // Several previews per page, so uniqueness is meaningful (Auth Forms has 9 since plan 177).
+      expect(ids.length).toBeGreaterThan(1)
       expect(ids).toHaveLength(source.match(/<ComponentPreview(?:\s|>)/g)?.length ?? 0)
       expect(new Set(ids).size).toBe(ids.length)
     },

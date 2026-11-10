@@ -26,7 +26,7 @@ function resolveTemplate(name: string, nextName: string, bindings: Record<string
 const countrySelect = resolveTemplate("countrySelect", "phoneSignup")
 const examples = {
   signup: { Component: FloatingLabelInputPhoneSignupFormDemo, template: resolveTemplate("phoneSignup", "phoneLogin", { countrySelect }), action: "Continue" },
-  login: { Component: FloatingLabelInputEmailLoginFormDemo, template: resolveTemplate("emailLogin", "oauthLogin"), action: "Log in" },
+  login: { Component: FloatingLabelInputEmailLoginFormDemo, template: resolveTemplate("emailLogin", "oauth"), action: "Log in" },
 }
 type Example = keyof typeof examples
 const initialState = () => ({ ...formExamplesScope, wide: viewport.wide, phonePreview: false, phoneHost: false, dialog: false, surface: 'grouped', fullName: "", email: "", password: "", country: "es", phone: "", submitted: false })

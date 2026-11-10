@@ -7,12 +7,10 @@ metaDescription: "Production-ready React auth forms: sign-up, log-in, OAuth, pas
 import { HashForward } from "@/components/docs/HashForward"
 import { FloatingLabelInputEmailLoginFormDemo, FloatingLabelInputPhoneSignupFormDemo, FloatingLabelInputPhoneLoginFormDemo, FloatingLabelInputPasswordFormDemo, FloatingLabelSelectAboutYouFormDemo } from "@/components/docs/FloatingLabelInputDemos"
 import {
-  OTPInputVerifyEmailDemo,
-  OTPInputConfirmPhoneDemo,
+  OTPInputVerificationDemo,
 } from "@/components/docs/OTPInputDemos"
 import {
-  OAuthLoginFormDemo,
-  OAuthSignupFormDemo,
+  OAuthFormDemo,
 } from "@/components/docs/OAuthFormDemos"
 import { CreatePasswordDemo, StorageLocationDemo } from "@/components/docs/OnboardingFlowDemos"
 
@@ -124,30 +122,48 @@ const passwordError = submitted && !password;
   <FloatingLabelInputEmailLoginFormDemo />
 </ComponentPreview>
 
-## Log in (OAuth)
+<span id="log-in-oauth" />
 
-<ComponentPreview phonePresentation="screen" details={<>OpenAI-style log-in: <code>Welcome back</code> heading, email + <code>Continue</code>, a <code>Don&apos;t have an account? Sign up</code> cross-link, an <code>OR</code> divider, then Google, Apple, Microsoft, and phone, all with 20×20 brand glyphs. <code>Terms of Use</code> / <code>Privacy Policy</code> footer. <code>OrDivider</code> and the brand logos are small helpers of the example.</>} code={`import { AuthFormStage } from './AuthFormStage';
+<span id="sign-up-oauth" />
+
+## Log in or sign up (OAuth)
+
+<ComponentPreview phonePresentation="screen" details={<>OpenAI-style log-in and sign-up on one screen: the <code>mode</code> control or the cross-link switches between <code>Welcome back</code> with a <code>Don&apos;t have an account? Sign up</code> link and <code>Create an account</code> with <code>Already have an account? Log in</code>. Email + <code>Continue</code>, an <code>OR</code> divider, then Google, Apple, Microsoft and, when logging in, phone, all with 20×20 brand glyphs. The entered email stays when the mode changes. <code>Terms of Use</code> / <code>Privacy Policy</code> footer. <code>OrDivider</code> and the brand logos are small helpers of the example.</>} code={`import { AuthFormStage } from './AuthFormStage';
 import authFieldsStyles from './AuthFields.module.css';
 import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
-import { controlsTableStyle } from './ButtonDemos';
+import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { useDemoControlSync } from './PreviewEmbed';
 import { AuthInput } from './AuthInput';
 import { AuthLegalNotice } from './AuthLegalNotice';
 
 const presentation = useScreenPresentation();
+const [mode, setMode] = useState<'log-in' | 'sign-up'>('log-in');
+useDemoControlSync('mode', mode, setMode);
 const [email, setEmail] = useState('');
+const logIn = mode === 'log-in';
+const title = logIn ? 'Welcome back' : 'Create an account';
 
 <>
-  <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
-  <AuthFormStage title="Welcome back" dialog={presentation.dialog} surface={presentation.surface} onDialogChange={presentation.setDialog}>
+  <div data-demo-controls style={controlsTableStyle}>
+    <DemoControlRow name="mode">
+      <SegmentedControl value={mode} onChange={setMode} aria-label="mode" size="xs">
+        <SegmentedControl.Option value="log-in">Log in</SegmentedControl.Option>
+        <SegmentedControl.Option value="sign-up">Sign up</SegmentedControl.Option>
+      </SegmentedControl>
+    </DemoControlRow>
+    <ScreenPresentationControls {...presentation} />
+  </div>
+  <AuthFormStage title={title} dialog={presentation.dialog} surface={presentation.surface} onDialogChange={presentation.setDialog}>
 <div className="w-[360px]">
-  <h3 data-auth-title>Welcome back</h3>
+  <h3 data-auth-title>{title}</h3>
 
   <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
     <AuthInput label="Email address" type="email" value={email} onChange={(evt) => setEmail(evt.target.value)} />
     <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>
   </form>
 
-  <p className={["text-base text-center mt-6", authFieldsStyles.CrossActionRow, authFieldsStyles.StandaloneCrossActionRow].join(" ")}>Don't have an account? <Button type="button" color="info" variant="ghost" className={[authFieldsStyles.TextAction, authFieldsStyles.OAuthTextAction].join(" ")}>Sign up</Button></p>
+  <p className={["text-base text-center mt-6", authFieldsStyles.CrossActionRow, authFieldsStyles.StandaloneCrossActionRow].join(" ")}>{logIn ? "Don't have an account?" : 'Already have an account?'} <Button type="button" color="info" variant="ghost" onClick={() => setMode(logIn ? 'sign-up' : 'log-in')} className={[authFieldsStyles.TextAction, authFieldsStyles.OAuthTextAction].join(" ")}>{logIn ? 'Sign up' : 'Log in'}</Button></p>
 
   <OrDivider />
 
@@ -155,54 +171,14 @@ const [email, setEmail] = useState('');
     <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><GoogleLogo />Continue with Google</Button>
     <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><AppleLogo />Continue with Apple</Button>
     <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><MicrosoftLogo />Continue with Microsoft</Button>
-    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><PhoneLogo />Continue with phone</Button>
+    {logIn && <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><PhoneLogo />Continue with phone</Button>}
   </div>
 
   <div className="mt-8"><AuthLegalNotice /></div>
 </div>
   </AuthFormStage>
 </>`} previewMinHeight={760}>
-  <OAuthLoginFormDemo />
-</ComponentPreview>
-
-## Sign up (OAuth)
-
-<ComponentPreview phonePresentation="screen" details={<>OpenAI-style sign-up: <code>Create an account</code> heading, email + <code>Continue</code>, an <code>Already have an account? Log in</code> cross-link, an <code>OR</code> divider, then Google, Apple, and Microsoft (no phone). Same 20×20 brand-glyph alignment as the log-in variant.</>} code={`import { AuthFormStage } from './AuthFormStage';
-import authFieldsStyles from './AuthFields.module.css';
-import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
-import { controlsTableStyle } from './ButtonDemos';
-import { AuthInput } from './AuthInput';
-import { AuthLegalNotice } from './AuthLegalNotice';
-
-const presentation = useScreenPresentation();
-const [email, setEmail] = useState('');
-
-<>
-  <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
-  <AuthFormStage title="Create an account" dialog={presentation.dialog} surface={presentation.surface} onDialogChange={presentation.setDialog}>
-<div className="w-[360px]">
-  <h3 data-auth-title>Create an account</h3>
-
-  <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
-    <AuthInput label="Email address" type="email" value={email} onChange={(evt) => setEmail(evt.target.value)} />
-    <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>
-  </form>
-
-  <p className={["text-base text-center mt-6", authFieldsStyles.CrossActionRow, authFieldsStyles.StandaloneCrossActionRow].join(" ")}>Already have an account? <Button type="button" color="info" variant="ghost" className={[authFieldsStyles.TextAction, authFieldsStyles.OAuthTextAction].join(" ")}>Log in</Button></p>
-
-  <OrDivider />
-
-  <div className="flex flex-col gap-3">
-    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><GoogleLogo />Continue with Google</Button>
-    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><AppleLogo />Continue with Apple</Button>
-    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><MicrosoftLogo />Continue with Microsoft</Button>
-  </div>
-
-  <div className="mt-8"><AuthLegalNotice /></div>
-</div>
-  </AuthFormStage>
-</>`} previewMinHeight={680}>
-  <OAuthSignupFormDemo />
+  <OAuthFormDemo />
 </ComponentPreview>
 
 ## Sign up (phone)
@@ -447,11 +423,15 @@ export function FloatingLabelInputPasswordFormDemo() {
   <FloatingLabelInputPasswordFormDemo />
 </ComponentPreview>
 
+<span id="verify-email" />
+
+<span id="confirm-phone" />
+
 <span id="verify-email-error" />
 
-## Verify email
+## Verify email or phone
 
-<ComponentPreview phonePresentation="screen" details={<>Toggle between a per-digit <code>OTPInput</code> and a text field for alphanumeric or variable-length codes. Both use filled fields on phones; desktop keeps the standard OTP cells and floating-label text field. Resend starts a 30-second countdown; verifying shows a pending check without a server result. Per-digit starts one pending check when all six digits are entered, without a Continue action. Editing after an error or resending allows a new attempt. Resend stays below the code; Text field keeps Continue after Resend on desktop and in the Phone footer.</>} code={`import { useEffect, useId, useState } from 'react';
+<ComponentPreview phonePresentation="screen" details={<>One verification screen for an email address or a phone number: the <code>channel</code> control changes the title, the recipient and the Resend label. Toggle between a per-digit <code>OTPInput</code> and a text field for alphanumeric or variable-length codes. Both use filled fields on phones; desktop keeps the standard OTP cells and floating-label text field. Resend starts a 30-second countdown; verifying shows a pending check without a server result. Per-digit starts one pending check when all six digits are entered, without a Continue action. Editing after an error or resending allows a new attempt. Resend stays below the code; Text field keeps Continue after Resend on desktop and in the Phone footer.</>} code={`import { useEffect, useId, useState } from 'react';
 import { Button } from '@plexui/ui/components/Button';
 import { LoadingIndicator } from '@plexui/ui/components/Indicator';
 import { OTPInput } from '@plexui/ui/components/OTPInput';
@@ -466,11 +446,17 @@ import { useDemoControlSync } from './PreviewEmbed';
 import authFieldsStyles from './AuthFields.module.css';
 
 type InputMode = 'per-digit' | 'text-field';
+type Channel = 'email' | 'phone';
+
+const copy: Record<Channel, { title: string; description: string; resendLabel: string }> = {
+  email: { title: 'Verify your email address', description: 'Enter the code sent to alex.johnson@example.com', resendLabel: 'Resend email' },
+  phone: { title: 'Confirm phone', description: 'Enter the code sent to +1 555 123 4567', resendLabel: 'Resend code' },
+};
 
 function VerificationExample() {
-  const title = "Verify your email address";
-  const description = "Enter the code sent to alex.johnson@example.com";
-  const resendLabel = "Resend email";
+  const [channel, setChannel] = useState<Channel>('email');
+  useDemoControlSync('channel', channel, setChannel);
+  const { title, description, resendLabel } = copy[channel];
   const presentation = useScreenPresentation();
   const wide = useBreakpoint('md');
   const formId = useId();
@@ -517,6 +503,12 @@ function VerificationExample() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="channel">
+          <SegmentedControl<Channel> value={channel} onChange={setChannel} aria-label="channel" size="xs">
+            <SegmentedControl.Option value="email">Email</SegmentedControl.Option>
+            <SegmentedControl.Option value="phone">Phone</SegmentedControl.Option>
+          </SegmentedControl>
+        </DemoControlRow>
         <DemoControlRow name="input">
           <SegmentedControl<InputMode> value={mode} onChange={setMode} aria-label="input type" size="xs">
             <SegmentedControl.Option value="per-digit">Per-digit</SegmentedControl.Option>
@@ -582,143 +574,7 @@ function VerificationExample() {
 }
 
 <VerificationExample />`} previewMinHeight={380}>
-  <OTPInputVerifyEmailDemo />
-</ComponentPreview>
-
-## Confirm phone
-
-<ComponentPreview phonePresentation="screen" details={<>Toggle between a per-digit <code>OTPInput</code> and a text field for phone verification. Both use filled fields on phones; desktop keeps the standard OTP cells and floating-label text field. Resend starts a 30-second countdown; verifying shows a pending check without a server result. Per-digit starts one pending check when all six digits are entered, without a Continue action. Editing after an error or resending allows a new attempt. Resend stays below the code; Text field keeps Continue after Resend on desktop and in the Phone footer.</>} code={`import { useEffect, useId, useState } from 'react';
-import { Button } from '@plexui/ui/components/Button';
-import { LoadingIndicator } from '@plexui/ui/components/Indicator';
-import { OTPInput } from '@plexui/ui/components/OTPInput';
-import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import { AuthInput } from './AuthInput';
-import { AuthFormStage } from './AuthFormStage';
-import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
-import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
-import { RESEND_WAIT_SECONDS, createVerificationAttempt, isVerificationCodeReady, startResendCountdown } from './verificationCountdown';
-import { useDemoControlSync } from './PreviewEmbed';
-import authFieldsStyles from './AuthFields.module.css';
-
-type InputMode = 'per-digit' | 'text-field';
-
-function VerificationExample() {
-  const title = "Confirm phone";
-  const description = "Enter the code sent to +1 555 123 4567";
-  const resendLabel = "Resend code";
-  const presentation = useScreenPresentation();
-  const wide = useBreakpoint('md');
-  const formId = useId();
-  const [attempt] = useState(createVerificationAttempt);
-  const [error, setError] = useState(false);
-  const [cooldown, setCooldown] = useState(false);
-  const [seconds, setSeconds] = useState(RESEND_WAIT_SECONDS);
-  const [verifying, setVerifying] = useState(false);
-  const [mode, setMode] = useState<InputMode>('per-digit');
-  useDemoControlSync('input', mode, setMode);
-  const [otpValue, setOtpValue] = useState('');
-  const [code, setCode] = useState('');
-  const ready = isVerificationCodeReady(mode, mode === 'per-digit' ? otpValue : code);
-  const updateVerifying = (value: boolean) => {
-    attempt.setPending(value);
-    setVerifying(value);
-  };
-  const updateError = (value: boolean) => {
-    setError(value);
-    if (value) updateVerifying(false);
-  };
-  const editCode = (value: string) => {
-    attempt.edit(value);
-    setError(false);
-  };
-  const completeCode = (value: string) => {
-    if (!attempt.start('per-digit', value)) return;
-    setError(false);
-    setVerifying(true);
-  };
-
-  useEffect(() => {
-    if (!cooldown) return;
-    return startResendCountdown(setSeconds, () => setCooldown(false));
-  }, [cooldown]);
-
-  const actions = mode === 'text-field' ? (
-    <div className="w-full" data-verification-actions>
-      <Button color="primary" size="3xl" type="submit" form={formId} pill block className="md:h-[3.25rem]"
-        loading={verifying} disabled={!ready} aria-busy={verifying}>Continue</Button>
-    </div>
-  ) : undefined;
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="input">
-          <SegmentedControl<InputMode> value={mode} onChange={setMode} aria-label="input type" size="xs">
-            <SegmentedControl.Option value="per-digit">Per-digit</SegmentedControl.Option>
-            <SegmentedControl.Option value="text-field">Text field</SegmentedControl.Option>
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlBoolean name="error" value={error} onChange={updateError} />
-        <DemoControlBoolean name="cooldown" value={cooldown} onChange={setCooldown} />
-        <DemoControlBoolean name="verifying" value={verifying} onChange={updateVerifying} />
-        <ScreenPresentationControls {...presentation} />
-      </div>
-      <AuthFormStage keyboard="numeric" title={title} dialog={presentation.dialog}
-        surface={presentation.surface} onDialogChange={presentation.setDialog} footer={actions}>
-        <div className="w-[360px]">
-          <div className="mb-6 text-center">
-            <h3 data-auth-title className="text-2xl font-semibold tracking-tight">{title}</h3>
-            <p data-auth-description className="text-secondary text-sm mt-1">{description}</p>
-          </div>
-          <form id={formId} className="flex flex-col gap-6" noValidate aria-busy={verifying}
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (mode === 'text-field' && attempt.start(mode, code)) {
-                setError(false);
-                setVerifying(true);
-              }
-            }}>
-            <div className="flex flex-col gap-2" data-verification-code>
-              {mode === 'per-digit' ? (
-                <div className="flex justify-center">
-                  <OTPInput value={otpValue} onChange={(value) => { editCode(value); setOtpValue(value); }}
-                    onComplete={completeCode} invalid={error}
-                    errorMessage={error ? 'Incorrect code' : undefined} disabled={verifying}
-                    className={authFieldsStyles.Otp} />
-                </div>
-              ) : (
-                <AuthInput label="Code" value={code} invalid={error}
-                  errorMessage={error ? 'Incorrect code' : undefined} disabled={verifying}
-                  onChange={(event) => { editCode(event.target.value); setCode(event.target.value); }} inputMode="numeric" />
-              )}
-              <div data-verification-resend className="flex h-11 items-center justify-center">
-              {mode === 'per-digit' && verifying ? (
-                <LoadingIndicator role="status" aria-label="Checking code" />
-              ) : (
-              <Button type="button" color="secondary" variant="ghost" size="xl"
-                className="h-11 w-full font-normal" disabled={cooldown || verifying}
-                onClick={() => {
-                  if (cooldown || verifying || attempt.isPending()) return;
-                  attempt.reset();
-                  setError(false);
-                  setCooldown(true);
-                }}>
-                {cooldown ? \`\${resendLabel} (\${seconds}s)\` : resendLabel}
-              </Button>
-              )}
-              </div>
-            </div>
-            {wide && actions}
-          </form>
-        </div>
-      </AuthFormStage>
-    </>
-  );
-}
-
-<VerificationExample />`} previewMinHeight={380}>
-  <OTPInputConfirmPhoneDemo />
+  <OTPInputVerificationDemo />
 </ComponentPreview>
 
 <span id="about-you" />
