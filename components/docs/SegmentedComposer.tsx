@@ -1,20 +1,26 @@
 'use client';
 
-import { useId, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { DateTime } from 'luxon';
 import { Button, NavigationButton } from '@plexui/ui/components/Button';
 import { DatePicker } from '@plexui/ui/components/DatePicker';
 import { Dialog } from '@plexui/ui/components/Dialog';
+import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Bell, Calendar, Clock, PlusCircle } from '@plexui/ui/components/Icon';
 import { Input } from '@plexui/ui/components/Input';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { Select } from '@plexui/ui/components/Select';
 import { Switch } from '@plexui/ui/components/Switch';
 import { Textarea } from '@plexui/ui/components/Textarea';
-import { cloneComposerDrafts, composerModeLabel, createComposerDrafts, type ComposerDraft, type ComposerMode } from './segmentedComposerData';
+import {
+  COMPOSER_REPEATS, cloneComposerDrafts, composerEndBeforeStart, composerModeLabel, composerSummaryHours, createComposerDrafts,
+  moveComposerEnd, moveComposerStart, type ComposerDraft, type ComposerMode,
+} from './segmentedComposerData';
 import s from './SegmentedComposer.module.css';
 
 const DAY_FORMAT = 'EEE, MMM d, yyyy';
+const ROW_DAY_FORMAT = 'MMM d, yyyy';
 const TIME_FORMAT = 'HH:mm';
 
 /** Independent mode drafts; Confirm saves only the selected local sample. */
@@ -31,11 +37,25 @@ export function SegmentedComposer({ surface = 'grouped', pinnedOpen = false }: {
   const heading = useRef<HTMLDivElement>(null);
   const formId = `composer-${useId()}`;
   const rowId = useId();
+  const startId = `${rowId}-starts`;
+  // Calendar shows a new event's time as one summary; a tap opens it into the rows that set it (IMG_5433, IMG_5641).
+  const [timeOpen, setTimeOpen] = useState(false);
+  const focusStart = useRef(false);
   const draft = drafts[mode];
   const start = draft.date ? DateTime.fromISO(draft.date) : null;
+  const end = draft.end ? DateTime.fromISO(draft.end) : null;
+  const endBeforeStart = mode === 'event' && composerEndBeforeStart(draft);
   const label = composerModeLabel(mode);
   const update = <Key extends keyof ComposerDraft>(key: Key, value: ComposerDraft[Key]) =>
     setDrafts((current) => ({ ...current, [mode]: { ...current[mode], [key]: value } }));
+  const changeStart = (next: DateTime | null) =>
+    setDrafts((current) => ({ ...current, [mode]: { ...current[mode], ...moveComposerStart(current[mode], next) } }));
+  const openTime = () => { focusStart.current = true; setTimeOpen(true); };
+  useEffect(() => {
+    if (!timeOpen || !focusStart.current) return;
+    focusStart.current = false;
+    document.getElementById(startId)?.focus();
+  }, [timeOpen, startId]);
   const cancel = () => {
     setDrafts(cloneComposerDrafts(saved.current));
     setStatus('Changes canceled.');
@@ -45,13 +65,14 @@ export function SegmentedComposer({ surface = 'grouped', pinnedOpen = false }: {
     if (!next) { cancel(); return; }
     setDrafts(cloneComposerDrafts(saved.current));
     setStatus('');
+    setTimeOpen(false);
     setOpen(true);
   };
   const changeMode = (next: ComposerMode) => { setMode(next); setStatus(''); };
   const confirm = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    if (!draft.title.trim()) return;
+    if (!draft.title.trim() || endBeforeStart) return;
     const committed = { ...draft, title: draft.title.trim() };
     saved.current = { ...saved.current, [mode]: committed };
     setDrafts((current) => ({ ...current, [mode]: committed }));
@@ -79,7 +100,7 @@ export function SegmentedComposer({ surface = 'grouped', pinnedOpen = false }: {
             <Dialog.Description className="sr-only">Choose a type, edit its draft, then save the local sample. Cancel discards unsaved changes.</Dialog.Description>
             <Dialog.HeaderAction className={s.Confirm}>
               <NavigationButton action="confirm" type="submit" form={formId}
-                disabled={!draft.title.trim()} aria-label={`Save ${mode}`} />
+                disabled={!draft.title.trim() || endBeforeStart} aria-label={`Save ${mode}`} />
             </Dialog.HeaderAction>
           </Dialog.Header>
           <Dialog.Body className={s.Body}>
@@ -93,17 +114,43 @@ export function SegmentedComposer({ surface = 'grouped', pinnedOpen = false }: {
                       placeholder="Title" onChange={(event) => update('title', event.target.value)} />
                   </div>
                 </FieldGroup>
-                {mode === 'event' ? (
+                {mode === 'event' ? (timeOpen ? (<>
+                  {/* Starts and Ends: a date and a time, each its own capsule. Native's time capsule opens a wheel; until
+                      PlexUI has one, either capsule opens the calendar with its time fields. All-day leaves the dates. */}
+                  <FieldGroup aria-label="Date and time">
+                    <Field row label="Starts" id={startId}>
+                      <DatePicker value={start} onChange={changeStart} showTime={!draft.allDay} triggerDateFormat={ROW_DAY_FORMAT}
+                        triggerTimeFormat={draft.allDay ? undefined : TIME_FORMAT} triggerShowIcon={false} />
+                    </Field>
+                    {/* An end before the start is struck through, as Calendar shows it, and Save waits for a later end. */}
+                    <Field row label="Ends">
+                      <DatePicker value={end} onChange={(next) => update('end', moveComposerEnd(draft, next))} showTime={!draft.allDay}
+                        triggerDateFormat={ROW_DAY_FORMAT} triggerTimeFormat={draft.allDay ? undefined : TIME_FORMAT} triggerShowIcon={false}
+                        triggerClassName={endBeforeStart ? s.Struck : undefined} aria-describedby={endBeforeStart ? `${rowId}-ends-early` : undefined} />
+                    </Field>
+                    <Field row label="All-day">
+                      <Switch color="accent" checked={draft.allDay} onCheckedChange={(next) => update('allDay', next)} />
+                    </Field>
+                    <Field row label="Repeat">
+                      <Select value={draft.repeat} options={COMPOSER_REPEATS} onChange={(option) => update('repeat', option.value)}
+                        block={false} align="end" />
+                    </Field>
+                  </FieldGroup>
+                  {endBeforeStart && <span id={`${rowId}-ends-early`} className="sr-only">The event ends before it starts.</span>}
+                </>) : (
                   <FieldGroup aria-label="Date and time" bodyClassName={s.RowsBody}>
                     <div data-row>
-                      {/* The summary: the day at the start, the hours at the end. It opens the calendar, whose time
-                          fields set the start; the sample event lasts an hour. */}
-                      <DatePicker value={start} onChange={(next) => update('date', next?.toISO() ?? null)} showTime
-                        triggerDateFormat={DAY_FORMAT} triggerTimeFormat={start ? `${TIME_FORMAT} '– ${start.plus({ hours: 1 }).toFormat(TIME_FORMAT)}'` : TIME_FORMAT}
-                        variant="ghost" size="3xl" pill={false} block triggerShowIcon={false} dropdownIconType="none"
-                        triggerClassName={s.Summary} aria-label="Event date and time" />
+                      {/* The summary: the day at the start, the hours at the end (IMG_5433). */}
+                      <Button block color="primary" variant="ghost" size="3xl" pill={false} className={s.Summary}
+                        aria-expanded={false} onClick={openTime}>
+                        <span className={s.SummaryDay}>{start?.toFormat(DAY_FORMAT) ?? 'Date'}</span>
+                        {/* Read as one phrase; out of the flow, so the day and the hours keep the row's two ends. */}
+                        <span className="sr-only">, </span>
+                        <span className={s.SummaryHours}>{composerSummaryHours(draft)}</span>
+                      </Button>
                     </div>
                   </FieldGroup>
+                )
                 ) : (
                   <FieldGroup aria-label="Notes">
                     <div data-row>

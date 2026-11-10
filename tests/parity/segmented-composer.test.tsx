@@ -3,6 +3,9 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { h, reactive } from "vue"
 import { SegmentedComposer as ReactComposer } from "../../components/docs/SegmentedComposer"
 import { SegmentedComposer as VueComposer } from "../../components/docs/vue/SegmentedComposer"
+import { DateTime } from "luxon"
+import { DateTime as LuxonDateTime, Settings } from "luxon"
+import { composerEndBeforeStart, composerSummaryHours, createComposerDrafts, moveComposerEnd, moveComposerStart } from "../../components/docs/segmentedComposerData"
 import { flushVue, mountVue } from "./harness"
 import { interact } from "./pair"
 
@@ -18,6 +21,8 @@ vi.mock("@plexui/ui/components/FieldGroup", async () => import("../../packages/u
 vi.mock("@plexui/vue/components/FieldGroup", async () => import("../../packages/vue/src/components/FieldGroup"))
 vi.mock("@plexui/ui/components/Input", async () => import("../../packages/ui/src/components/Input"))
 vi.mock("@plexui/vue/components/Input", async () => import("../../packages/vue/src/components/Input"))
+vi.mock("@plexui/ui/components/Select", async () => import("../../packages/ui/src/components/Select"))
+vi.mock("@plexui/vue/components/Select", async () => import("../../packages/vue/src/components/Select"))
 vi.mock("@plexui/ui/components/SegmentedControl", async () => import("../../packages/ui/src/components/SegmentedControl"))
 vi.mock("@plexui/vue/components/SegmentedControl", async () => import("../../packages/vue/src/components/SegmentedControl"))
 vi.mock("@plexui/ui/components/Switch", async () => import("../../packages/ui/src/components/Switch"))
@@ -112,9 +117,8 @@ describe.each<Framework>(["React", "Vue"])("%s segmented composer", (framework) 
   test("plan 19h: the event shows its day and hours in one row; a reminder's values sit under their titles", async () => {
     await act(async () => { await mount(framework) })
     await open()
-    const summary = within(dialog()).getByRole("button", { name: "Event date and time" })
-    expect(summary.querySelector('[data-date-part="date"]')?.textContent).toBe("Thu, Nov 12, 2026")
-    expect(summary.querySelector('[data-date-part="time"]')?.textContent).toBe("09:00 – 10:00")
+    const summary = within(dialog()).getByRole("button", { name: /^Thu, Nov 12, 2026,\s*09:00 – 10:00$/ })
+    expect(summary.getAttribute("aria-expanded")).toBe("false")
     expect(within(dialog()).getByRole("textbox", { name: "Event title" }).getAttribute("placeholder")).toBe("Title")
     await select("Reminder")
     // The whole Date row is the calendar's trigger, named by its title and its value.
@@ -124,6 +128,41 @@ describe.each<Framework>(["React", "Vue"])("%s segmented composer", (framework) 
     await click(time)
     expect(time.hasAttribute("aria-describedby")).toBe(false)
     expect(within(dialog()).queryByText("09:00")).toBeNull()
+  })
+
+  test("Calendar's summary opens into Starts, Ends, All-day and Repeat; an end before the start blocks Save", async () => {
+    await act(async () => { await mount(framework) })
+    await open()
+    await type("Event title", "Planning")
+    await click(within(dialog()).getByRole("button", { name: /^Thu, Nov 12, 2026,\s*09:00 – 10:00$/ }))
+    const group = within(dialog()).getByRole("group", { name: "Date and time" })
+    const starts = within(group).getByRole("button", { name: /^Starts/ })
+    // The row's date and time are two capsules, and the start takes the focus the summary had.
+    await waitFor(() => expect(document.activeElement).toBe(starts))
+    expect(starts.querySelector('[data-date-part="date"]')?.textContent).toBe("Nov 12, 2026")
+    expect(starts.querySelector('[data-date-part="time"]')?.textContent).toBe("09:00")
+    const ends = () => within(group).getByRole("button", { name: /^Ends/ })
+    expect(ends().querySelector('[data-date-part="time"]')?.textContent).toBe("10:00")
+    expect(within(group).getByRole("button", { name: /^Repeat/ }).textContent).toContain("Never")
+    // All-day leaves the dates alone.
+    const allDay = within(group).getByRole("switch", { name: "All-day" })
+    await click(allDay)
+    expect(allDay.getAttribute("aria-checked")).toBe("true")
+    expect(group.querySelector("[data-date-part]")).toBeNull()
+    expect(starts.textContent).toContain("Nov 12, 2026")
+    await click(allDay)
+    // An end on the day before: struck through, described, and Save waits.
+    await click(ends())
+    const eleven = await waitFor(() => {
+      const button = Array.from(document.querySelectorAll<HTMLElement>(".InteractiveDay")).find((node) => node.firstChild?.textContent === "11")
+      if (!button) throw new Error("The Ends calendar did not open")
+      return button
+    })
+    await click(eleven)
+    await waitFor(() => expect(ends().querySelector('[data-date-part="date"]')?.textContent).toBe("Nov 11, 2026"))
+    expect(ends().className).toMatch(/Struck/)
+    expect(document.getElementById(ends().getAttribute("aria-describedby")?.split(" ")[0] ?? "")?.textContent).toBe("The event ends before it starts.")
+    expect(within(dialog()).getByRole("button", { name: "Save event" }).hasAttribute("disabled")).toBe(true)
   })
 
   test("header Save submits its form once, commits only the selected mode and restores trigger focus", async () => {
@@ -203,5 +242,46 @@ describe.each<Framework>(["React", "Vue"])("%s segmented composer", (framework) 
     await click(barClose())
     expect(titleValue("Event title")).toBe("Phone draft")
     expect(within(dialog()).getByRole("status").textContent).toBe("Changes canceled.")
+  })
+})
+
+describe("composer time rules", () => {
+  const event = createComposerDrafts().event
+  test("moving the start keeps the event's length, as Calendar does", () => {
+    const moved = moveComposerStart(event, DateTime.fromISO("2026-11-13T14:30"))
+    expect(DateTime.fromISO(moved.date ?? "").toFormat("yyyy-MM-dd HH:mm")).toBe("2026-11-13 14:30")
+    expect(DateTime.fromISO(moved.end ?? "").toFormat("yyyy-MM-dd HH:mm")).toBe("2026-11-13 15:30")
+    expect(moveComposerStart(event, null)).toEqual({ date: null, end: event.end })
+  })
+  test("all day, a picked date keeps the times and the end moves by whole days, across a DST change too", () => {
+    const zone = Settings.defaultZone
+    Settings.defaultZone = "America/New_York"
+    try {
+      // US clocks go back on Nov 1, 2026; date-only picks come back at midnight.
+      const allDay = { ...event, allDay: true, date: "2026-10-30T09:00", end: "2026-10-31T10:00" }
+      const moved = moveComposerStart(allDay, LuxonDateTime.fromISO("2026-11-01T00:00"))
+      expect(LuxonDateTime.fromISO(moved.date ?? "").toFormat("yyyy-MM-dd HH:mm")).toBe("2026-11-01 09:00")
+      expect(LuxonDateTime.fromISO(moved.end ?? "").toFormat("yyyy-MM-dd HH:mm")).toBe("2026-11-02 10:00")
+      const longer = moveComposerStart({ ...allDay, end: "2026-11-01T10:00" }, LuxonDateTime.fromISO("2026-11-02T00:00"))
+      expect(LuxonDateTime.fromISO(longer.end ?? "").toFormat("yyyy-MM-dd HH:mm")).toBe("2026-11-04 10:00")
+      const end = moveComposerEnd(allDay, LuxonDateTime.fromISO("2026-11-03T00:00"))
+      expect(LuxonDateTime.fromISO(end ?? "").toFormat("yyyy-MM-dd HH:mm")).toBe("2026-11-03 10:00")
+      // Timed events keep their elapsed length.
+      const timed = moveComposerStart({ ...event, date: "2026-10-31T23:30", end: "2026-11-01T00:30" }, LuxonDateTime.fromISO("2026-11-01T00:30"))
+      expect(LuxonDateTime.fromISO(timed.end ?? "").diff(LuxonDateTime.fromISO(timed.date ?? ""), "minutes").minutes).toBe(60)
+    } finally {
+      Settings.defaultZone = zone
+    }
+  })
+  test("an end before the start; all-day events compare days", () => {
+    expect(composerEndBeforeStart(event)).toBe(false)
+    expect(composerEndBeforeStart({ ...event, end: "2026-11-12T08:59" })).toBe(true)
+    expect(composerEndBeforeStart({ ...event, end: "2026-11-12T08:00", allDay: true })).toBe(false)
+    expect(composerEndBeforeStart({ ...event, end: "2026-11-11T23:00", allDay: true })).toBe(true)
+  })
+  test("the summary's hours: one day, another day, all-day", () => {
+    expect(composerSummaryHours(event)).toBe("09:00 – 10:00")
+    expect(composerSummaryHours({ ...event, end: "2026-11-13T10:00" })).toBe("09:00 – Nov 13, 10:00")
+    expect(composerSummaryHours({ ...event, allDay: true })).toBe("All-day")
   })
 })

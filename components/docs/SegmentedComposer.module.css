@@ -52,27 +52,35 @@
   color: var(--color-text-tertiary);
 }
 
-/* The event's day at the start, its hours at the end. */
-.Summary {
+/* The event's day at the start, its hours at the end, in the primary label: a row that opens into the time rows. */
+.Composer .Summary {
+  --button-font-weight: var(--font-weight-normal);
   width: 100%;
   border-radius: 0;
+  text-align: start;
 }
 
-.Summary [data-date-parts] {
-  display: flex;
+.Summary > span:last-child {
+  flex: 1;
   justify-content: space-between;
   gap: 12px;
-  width: 100%;
+  min-width: 0;
 }
 
-.Summary [data-date-part="date"] {
+.SummaryDay {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.Summary [data-date-part="time"] {
+.SummaryHours {
   flex-shrink: 0;
+}
+
+/* Calendar strikes an end that comes before the start through. */
+.Struck {
+  text-decoration: line-through;
 }
 
 /* A row with a leading icon, a title and, when set, its value under it in the accent; a switch may end it. */
@@ -210,10 +218,10 @@
     --textarea-gutter-y: 15px;
   }
 
-  .Summary {
-    padding-inline: var(--field-row-padding-inline, 16px);
-    font-size: var(--field-row-label-font-size, 17px);
-    line-height: var(--field-row-label-line-height, 22px);
+  .Composer .Summary {
+    --button-gutter: var(--field-row-padding-inline, 16px);
+    --button-font-size: var(--field-row-label-font-size, 17px);
+    --button-line-height: var(--field-row-label-line-height, 22px);
   }
 
   /* IMG_5434 at 430pt: the glyph centered 34.4 from the cell edge in a 30 box at the 20 margin, the title at 64,

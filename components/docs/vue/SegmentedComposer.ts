@@ -1,18 +1,24 @@
-import { defineComponent, h, ref, shallowRef, useId, type PropType } from 'vue';
+import { defineComponent, h, nextTick, ref, shallowRef, useId, type PropType } from 'vue';
 import { DateTime } from 'luxon';
 import { Button, NavigationButton } from '@plexui/vue/components/Button';
 import { DatePicker } from '@plexui/vue/components/DatePicker';
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogHeaderAction, DialogTitle, DialogTrigger } from '@plexui/vue/components/Dialog';
+import { Field } from '@plexui/vue/components/Field';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { Bell, Calendar, Clock, PlusCircle } from '@plexui/vue/components/Icon';
 import { Input } from '@plexui/vue/components/Input';
 import { SegmentedControl, SegmentedControlOption } from '@plexui/vue/components/SegmentedControl';
+import { Select } from '@plexui/vue/components/Select';
 import { Switch } from '@plexui/vue/components/Switch';
 import { Textarea } from '@plexui/vue/components/Textarea';
-import { cloneComposerDrafts, composerModeLabel, createComposerDrafts, type ComposerDraft, type ComposerMode } from '../segmentedComposerData';
+import {
+  COMPOSER_REPEATS, cloneComposerDrafts, composerEndBeforeStart, composerModeLabel, composerSummaryHours, createComposerDrafts,
+  moveComposerEnd, moveComposerStart, type ComposerDraft, type ComposerMode,
+} from '../segmentedComposerData';
 import s from '../SegmentedComposer.module.css';
 
 const DAY_FORMAT = 'EEE, MMM d, yyyy';
+const ROW_DAY_FORMAT = 'MMM d, yyyy';
 const TIME_FORMAT = 'HH:mm';
 
 export const SegmentedComposer = defineComponent({
@@ -30,8 +36,19 @@ export const SegmentedComposer = defineComponent({
     const heading = ref<HTMLDivElement | null>(null);
     const formId = `composer-${useId()}`;
     const rowId = useId();
+    const startId = `${rowId}-starts`;
+    // Calendar shows a new event's time as one summary; a tap opens it into the rows that set it (IMG_5433, IMG_5641).
+    const timeOpen = ref(false);
     const update = <Key extends keyof ComposerDraft>(key: Key, value: ComposerDraft[Key]) => {
       drafts.value = { ...drafts.value, [mode.value]: { ...drafts.value[mode.value], [key]: value } };
+    };
+    const changeStart = (next: DateTime | null) => {
+      const current = drafts.value[mode.value];
+      drafts.value = { ...drafts.value, [mode.value]: { ...current, ...moveComposerStart(current, next) } };
+    };
+    const openTime = () => {
+      timeOpen.value = true;
+      void nextTick(() => document.getElementById(startId)?.focus());
     };
     const cancel = () => {
       drafts.value = cloneComposerDrafts(saved);
@@ -42,13 +59,14 @@ export const SegmentedComposer = defineComponent({
       if (!next) { cancel(); return; }
       drafts.value = cloneComposerDrafts(saved);
       status.value = '';
+      timeOpen.value = false;
       open.value = true;
     };
     const confirm = (event: Event) => {
       event.preventDefault();
       event.stopPropagation();
       const draft = drafts.value[mode.value];
-      if (!draft.title.trim()) return;
+      if (!draft.title.trim() || (mode.value === 'event' && composerEndBeforeStart(draft))) return;
       const committed = { ...draft, title: draft.title.trim() };
       saved = { ...saved, [mode.value]: committed };
       drafts.value = { ...drafts.value, [mode.value]: committed };
@@ -71,6 +89,8 @@ export const SegmentedComposer = defineComponent({
     return () => {
       const draft = drafts.value[mode.value];
       const start = draft.date ? DateTime.fromISO(draft.date) : null;
+      const end = draft.end ? DateTime.fromISO(draft.end) : null;
+      const endBeforeStart = mode.value === 'event' && composerEndBeforeStart(draft);
       const label = composerModeLabel(mode.value);
       return h('div', { 'data-demo-stage': '', class: s.Stage }, [
         h(Dialog, { open: open.value || props.pinnedOpen, 'onUpdate:open': changeOpen }, () => [
@@ -95,7 +115,7 @@ export const SegmentedComposer = defineComponent({
               h(DialogDescription, { class: 'sr-only' }, () => 'Choose a type, edit its draft, then save the local sample. Cancel discards unsaved changes.'),
               h(DialogHeaderAction, { class: s.Confirm }, () => h(NavigationButton, {
                 action: 'confirm', type: 'submit', form: formId,
-                disabled: !draft.title.trim(), 'aria-label': `Save ${mode.value}`,
+                disabled: !draft.title.trim() || endBeforeStart, 'aria-label': `Save ${mode.value}`,
               })),
             ]),
             h(DialogBody, { class: s.Body }, () => h('form', { id: formId, class: s.Form, onSubmit: confirm }, [
@@ -106,17 +126,43 @@ export const SegmentedComposer = defineComponent({
                   variant: 'ghost', size: '3xl', class: s.Text, 'aria-label': `${label} title`, value: draft.title, placeholder: 'Title',
                   'onUpdate:value': (next: string) => update('title', next),
                 })])),
-                mode.value === 'event'
-                  // The summary: the day at the start, the hours at the end. It opens the calendar, whose time
-                  // fields set the start; the sample event lasts an hour.
-                  ? h(FieldGroup, { 'aria-label': 'Date and time', bodyClass: s.RowsBody }, () => h('div', { 'data-row': '' }, [datePicker({
-                      showTime: true, triggerClassName: s.Summary, ariaLabel: 'Event date and time',
-                      triggerTimeFormat: start ? `${TIME_FORMAT} '– ${start.plus({ hours: 1 }).toFormat(TIME_FORMAT)}'` : TIME_FORMAT,
-                    })]))
-                  : h(FieldGroup, { 'aria-label': 'Notes' }, () => h('div', { 'data-row': '' }, [h(Textarea, {
+                ...(mode.value === 'event' ? (timeOpen.value ? [
+                  // Starts and Ends: a date and a time, each its own capsule. Native's time capsule opens a wheel; until
+                  // PlexUI has one, either capsule opens the calendar with its time fields. All-day leaves the dates.
+                  h(FieldGroup, { 'aria-label': 'Date and time' }, () => [
+                    h(Field, { row: true, label: 'Starts', id: startId }, () => h(DatePicker, {
+                      value: start, 'onUpdate:value': changeStart, showTime: !draft.allDay, triggerDateFormat: ROW_DAY_FORMAT,
+                      triggerTimeFormat: draft.allDay ? undefined : TIME_FORMAT, triggerShowIcon: false,
+                    })),
+                    // An end before the start is struck through, as Calendar shows it, and Save waits for a later end.
+                    h(Field, { row: true, label: 'Ends' }, () => h(DatePicker, {
+                      value: end, 'onUpdate:value': (next: DateTime | null) => update('end', moveComposerEnd(drafts.value[mode.value], next)), showTime: !draft.allDay,
+                      triggerDateFormat: ROW_DAY_FORMAT, triggerTimeFormat: draft.allDay ? undefined : TIME_FORMAT, triggerShowIcon: false,
+                      triggerClassName: endBeforeStart ? s.Struck : undefined, 'aria-describedby': endBeforeStart ? `${rowId}-ends-early` : undefined,
+                    })),
+                    h(Field, { row: true, label: 'All-day' }, () => h(Switch, {
+                      color: 'accent', checked: draft.allDay, 'onUpdate:checked': (next: boolean) => update('allDay', next),
+                    })),
+                    h(Field, { row: true, label: 'Repeat' }, () => h(Select, {
+                      value: draft.repeat, options: COMPOSER_REPEATS, block: false, align: 'end',
+                      'onUpdate:value': (next: unknown) => { if (typeof next === 'string') update('repeat', next); },
+                    })),
+                  ]),
+                  endBeforeStart && h('span', { id: `${rowId}-ends-early`, class: 'sr-only' }, 'The event ends before it starts.'),
+                ] : [
+                  // The summary: the day at the start, the hours at the end (IMG_5433).
+                  h(FieldGroup, { 'aria-label': 'Date and time', bodyClass: s.RowsBody }, () => h('div', { 'data-row': '' }, [h(Button, {
+                    block: true, color: 'primary', variant: 'ghost', size: '3xl', pill: false, class: s.Summary, 'aria-expanded': 'false', onClick: openTime,
+                  }, () => [
+                    h('span', { class: s.SummaryDay }, start?.toFormat(DAY_FORMAT) ?? 'Date'),
+                    // Read as one phrase; out of the flow, so the day and the hours keep the row's two ends.
+                    h('span', { class: 'sr-only' }, ', '),
+                    h('span', { class: s.SummaryHours }, composerSummaryHours(draft)),
+                  ])])),
+                ]) : [h(FieldGroup, { 'aria-label': 'Notes' }, () => h('div', { 'data-row': '' }, [h(Textarea, {
                       variant: 'ghost', rows: 1, autoResize: true, class: s.Text, 'aria-label': 'Notes', value: draft.notes, placeholder: 'Notes',
                       'onUpdate:value': (next: string) => update('notes', next),
-                    })])),
+                    })]))]),
               ]),
               ...(mode.value === 'event'
                 ? [
