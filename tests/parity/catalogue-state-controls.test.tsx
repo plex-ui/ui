@@ -23,6 +23,7 @@ import { BadgeOverviewDemo } from '../../components/docs/BadgeDemos';
 import { SkeletonOverviewDemo } from '../../components/docs/SkeletonDemos';
 import { PageOverviewDemo } from '../../components/docs/PageDemos';
 import { SliderOverviewDemo } from '../../components/docs/SliderDemos';
+import { TipOverviewDemo } from '../../components/docs/TipDemos';
 import { ToastDemosHost, ToastOverviewDemo } from '../../components/docs/ToastDemos';
 import { VueToastDemo, VueToastDemosHost } from '../../components/docs/vue/VueToastDemos';
 import { TOAST_LONG_DESCRIPTION, TOAST_MESSAGES } from '../../components/docs/toastMessages';
@@ -197,6 +198,16 @@ const sliderOverview = (() => {
     controls: read('overviewControls') as VueDemoControl[],
     state: read('overviewState') as Record<string, unknown>,
   };
+})();
+/** The Tip Overview as its page mounts it: one template for both views (a phone sets it in grouped rows) */
+const tipOverview = (() => {
+  const mdx = readFileSync('content/vue/components/tip.mdx', 'utf8');
+  const read = (key: string): unknown => {
+    const rest = mdx.slice(mdx.indexOf(`export const ${key} = `) + `export const ${key} = `.length);
+    return new Function(`return ${rest.slice(0, rest.search(/\nexport const |\n<UsageBlock>/)).trim()}`)();
+  };
+  const template = read('overview') as string;
+  return { template, phoneTemplate: phoneRows(template), stageClassName: read('stage') as string, phoneStageClassName: 'w-full', controls: read('overviewControls') as VueDemoControl[], state: { shown: true } };
 })();
 /** A viewport a test can narrow to a phone and widen again, telling the demos' media queries */
 function viewport() {
@@ -1495,6 +1506,70 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await show('desktop');
     expect(view.container.querySelector('[data-demo-stage] [data-orientation]')?.getAttribute('data-orientation')).toBe('vertical');
     expect(page.getByRole('radiogroup', { name: 'orientation' })).toBeTruthy();
+  });
+
+  test('tip: one Overview carries every setting of an inline tip, the phone actions only on a phone (owner 11.11)', async () => {
+    const show = viewport();
+    const view = render(framework === 'React' ? <TipOverviewDemo /> : <VuePhoneRowsDemo {...tipOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+    const tip = () => stage().querySelector<HTMLElement>('.Tip');
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name })));
+    const press = (name: string) => interact(() => fireEvent.click(within(stage()).getByRole('button', { name })));
+    const actions = () => Array.from(tip()!.querySelectorAll<HTMLElement>('button[data-variant]'), (button) => `${button.textContent} ${button.dataset.variant}`).filter((label) => !label.startsWith(' '));
+    const bell = () => within(stage()).queryByRole('button', { name: 'Notifications' });
+    for (const name of ['icon', 'onClose']) expect(page.getByRole('switch', { name })).toBeTruthy();
+    for (const name of ['actions', 'arrowEdge']) expect(page.getByRole('radiogroup', { name })).toBeTruthy();
+    // The kit's notifications tip: a symbol, the message and Close, no actions and no arrow
+    expect(within(tip()!).getByText('Turn on notifications')).toBeTruthy();
+    const symbols = tip()!.querySelectorAll('svg').length;
+    await toggle('icon');
+    expect(tip()!.querySelectorAll('svg')).toHaveLength(symbols - 1);
+    await toggle('icon');
+    expect([tip()!.hasAttribute('data-arrow-edge'), bell(), page.queryByRole('radiogroup', { name: 'mobileActions' })]).toEqual([false, null, null]);
+    await press('Close tip');
+    expect(tip()).toBeNull();
+    await press('Show the tip again');
+    expect(tip()).toBeTruthy();
+    await toggle('onClose');
+    expect(within(tip()!).queryByRole('button', { name: 'Close tip' })).toBeNull();
+    // One soft action, as a card that asks for a permission; two, the second one solid
+    await choose('actions', 'one');
+    expect(actions()).toEqual(['Turn on soft']);
+    await choose('actions', 'two');
+    expect(actions()).toEqual(['Not now soft', 'Turn on solid']);
+    // How a phone draws them is offered only there, and only with actions
+    expect(page.getByRole('radiogroup', { name: 'mobileActions' }).closest('[data-demo-phone-only]')).toBeTruthy();
+    // The arrow points at the control the tip explains, on that side
+    await choose('arrowEdge', 'top');
+    expect(tip()!.dataset.arrowEdge).toBe('top');
+    expect(bell()!.compareDocumentPosition(tip()!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const order = () => [bell()!.compareDocumentPosition(tip()!) & Node.DOCUMENT_POSITION_FOLLOWING ? 'control first' : 'tip first', tip()!.parentElement!.className.includes('flex-row') ? 'row' : 'column'];
+    await choose('arrowEdge', 'left');
+    expect([tip()!.dataset.arrowEdge, ...order()]).toEqual(['left', 'control first', 'row']);
+    await choose('arrowEdge', 'bottom');
+    expect([tip()!.dataset.arrowEdge, ...order()]).toEqual(['bottom', 'tip first', 'column']);
+    await choose('arrowEdge', 'right');
+    expect([tip()!.dataset.arrowEdge, ...order()]).toEqual(['right', 'tip first', 'row']);
+    // On a phone the tip is the card of a grouped list, over or under its control (no sideways arrow, so the one
+    // chosen on desktop shows as none), its actions rows of text or, chosen, its buttons
+    await show('phone');
+    expect(tip()!.closest('[data-phone-rows]')).toBeTruthy();
+    expect(within(page.getByRole('radiogroup', { name: 'arrowEdge' })).getAllByRole('radio').map((radio) => radio.textContent)).toEqual(['none', 'top', 'bottom']);
+    expect([tip()!.hasAttribute('data-arrow-edge'), bell()]).toEqual([false, null]);
+    await choose('arrowEdge', 'top');
+    expect([tip()!.dataset.arrowEdge, ...order()]).toEqual(['top', 'control first', 'column']);
+    expect(tip()!.hasAttribute('data-mobile-actions')).toBe(false);
+    await choose('mobileActions', 'buttons');
+    expect(tip()!.dataset.mobileActions).toBe('buttons');
+    await choose('actions', 'none');
+    expect([tip()!.hasAttribute('data-mobile-actions'), page.queryByRole('radiogroup', { name: 'mobileActions' })]).toEqual([false, null]);
+    await show('desktop');
+    // The code sample lays the tip out as the demo does
+    const code = readFileSync(framework === 'React' ? 'content/components/tip.mdx' : 'content/vue/components/tip.mdx', 'utf8');
+    for (const part of ['md:max-w-[360px]', 'min-w-0 flex-1', 'shrink-0', 'Show the tip again', '"none"']) expect(code, part).toContain(part);
   });
 
   test('DataTable restores the sorted rows after empty, with default, text and rich message modes', async () => {

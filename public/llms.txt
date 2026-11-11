@@ -1334,7 +1334,7 @@ Props:
     - sideOffset (number) default: 4 — The distance from the control to the arrow's point, in pixels
     - closeButton (boolean) default: true — Shows the Close button
     - className (string) — CSS classes applied to the popover around the tip and its arrow
-Examples: Overview, Actions, Buttons on a phone, Arrow, Popover
+Examples: Overview, Popover
 
 ## Toast
 Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.

@@ -1312,7 +1312,7 @@ Props:
     - align ("start" | "center" | "end") default: "center" — The alignment against the control
     - side-offset (number) default: 4 — The distance from the control to the arrow's point, in pixels
     - close-button (boolean) default: true — Shows the Close button
-Examples: Overview, Actions, Buttons on a phone, Arrow, Popover
+Examples: Overview, Popover
 
 ## Toast
 Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.

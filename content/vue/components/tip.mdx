@@ -9,56 +9,58 @@ import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import { phoneRows } from "@/components/docs/phoneRowsTemplate"
 
-export const overview = `<div class="flex w-full max-w-[360px] flex-col items-center gap-3">
-  <Tip
-    v-if="shown"
-    title="Save it for later"
-    description="Bookmarked articles wait in your reading list, ready offline on every device."
-    class="w-full"
-    :on-close="() => (shown = false)"
-  >
-    <template #icon><Bookmark /></template>
-  </Tip>
-  <Button v-else color="secondary" variant="soft" @click="shown = true">Show the tip again</Button>
-</div>`
+export const stage = "flex-1 flex flex-col items-center justify-center py-12 w-full"
 
-export const actions = `<div class="w-full max-w-[360px]">
-  <Tip
-    title="Turn on notifications"
-    description="Get a message when someone replies to your post or mentions you."
-  >
-    <template #icon><Bell /></template>
-    <template #actions>
-      <Button color="primary" variant="soft" size="sm" pill>Not now</Button>
-      <Button color="primary" size="sm" pill>Turn on</Button>
-    </template>
-  </Tip>
-</div>`
-
-export const permission = `<div class="w-full max-w-[360px]">
-  <Tip
-    title="Get alerts"
-    description="Hear about severe weather where you are, even when the app is closed."
-    mobile-actions="buttons"
-  >
-    <template #icon><Bell /></template>
-    <template #actions>
-      <Button color="primary" variant="soft" size="sm" pill>Turn on</Button>
-    </template>
-  </Tip>
-</div>`
-
-export const arrow = `<div class="flex w-full max-w-[360px] flex-col items-center gap-1">
-  <Button color="secondary" variant="soft" uniform pill aria-label="Filter">
-    <Filter />
+export const overview = `<div :class="['flex w-full md:max-w-[360px] items-center gap-1', arrowEdge === 'left' || arrowEdge === 'right' ? 'flex-row' : 'flex-col']">
+  <Button v-if="arrowEdge === 'top' || arrowEdge === 'left'" color="secondary" variant="soft" uniform pill aria-label="Notifications" class="shrink-0">
+    <Bell />
   </Button>
   <Tip
-    arrow-edge="top"
-    title="Filter the list"
-    description="Show only the items from the last week, month or year."
-    class="w-full"
-  />
+    v-if="shown"
+    title="Turn on notifications"
+    description="Get a message when someone replies to your post or mentions you."
+    :on-close="onClose ? () => (shown = false) : undefined"
+    :mobile-actions="actions === 'none' ? undefined : mobileActions"
+    :arrow-edge="arrowEdge === 'none' ? undefined : arrowEdge"
+    :class="arrowEdge === 'left' || arrowEdge === 'right' ? 'min-w-0 flex-1' : 'w-full'"
+  >
+    <template v-if="icon" #icon><Bell /></template>
+    <template v-if="actions !== 'none'" #actions>
+      <Button v-if="actions === 'two'" color="primary" variant="soft" size="sm" pill>Not now</Button>
+      <Button color="primary" :variant="actions === 'two' ? 'solid' : 'soft'" size="sm" pill>Turn on</Button>
+    </template>
+  </Tip>
+  <Button v-else color="secondary" variant="soft" @click="shown = true">Show the tip again</Button>
+  <Button v-if="arrowEdge === 'bottom' || arrowEdge === 'right'" color="secondary" variant="soft" uniform pill aria-label="Notifications" class="shrink-0">
+    <Bell />
+  </Button>
 </div>`
+
+export const overviewControls = [
+  { name: "icon", type: "boolean", default: true },
+  { name: "onClose", type: "boolean", default: true },
+  { name: "actions", type: "select", options: ["none", "one", "two"], default: "none" },
+  { name: "mobileActions", type: "select", options: ["rows", "buttons"], default: "rows", when: { actions: ["one", "two"] }, phoneOnly: true },
+  { name: "arrowEdge", type: "select", options: ["none", "top", "bottom", "left", "right"], phoneOptions: ["none", "top", "bottom"], default: "none" },
+]
+
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+import { Bell } from '@plexui/vue/components/Icon';
+import { Tip } from '@plexui/vue/components/Tip';
+
+const shown = ref(true);
+const icon = ref(true);
+const onClose = ref(true);
+const actions = ref<"none" | "one" | "two">("none");
+const mobileActions = ref<"rows" | "buttons">("rows"); // a phone only: rows of text, or the buttons
+const arrowEdge = ref<"none" | "top" | "bottom" | "left" | "right">("none"); // a phone: none, top or bottom
+</script>
+
+<template>
+${overview}
+</template>`
 
 export const popover = `<TipPopover
   v-model:open="open"
@@ -77,28 +79,18 @@ A tip teaches a feature people might not find on their own: a title that names i
 
 ## Examples
 
+<span id="actions" />
+<span id="buttons-on-a-phone" />
+<span id="arrow" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>An inline tip takes its place in the layout. A symbol in the <code>icon</code> slot leads the message in the secondary color; <code>on-close</code> shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background.</>} code={overview} previewMinHeight={220}>
-  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" state={{ shown: true }} />
-</ComponentPreview>
-
-### Actions
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Actions in the <code>actions</code> slot sit side by side below the message, each as wide as the others. Use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them.</>} code={actions} previewMinHeight={220}>
-  <VuePhoneRowsDemo template={actions} phoneTemplate={phoneRows(actions)} phoneStageClassName="w-full" />
-</ComponentPreview>
-
-### Buttons on a phone
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>With <code>mobile-actions="buttons"</code> the actions keep their buttons on a phone: each is a capsule as wide as the tip under the message, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button.</>} code={permission} previewMinHeight={200}>
-  <VuePhoneRowsDemo template={permission} phoneTemplate={phoneRows(permission)} phoneStageClassName="w-full" />
-</ComponentPreview>
-
-### Arrow
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>With <code>arrow-edge</code> an inline tip points at what it explains with the kit's arrow, centered on that edge. The tip leaves room for the arrow on that side.</>} code={arrow} previewMinHeight={240}>
-  <VuePhoneRowsDemo template={arrow} phoneTemplate={phoneRows(arrow)} phoneStageClassName="w-full" />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>An inline tip takes its place in the layout. A symbol in the <code>icon</code> slot leads the message in the secondary color; <code>on-close</code> shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background.</p>
+  <p>Actions in the <code>actions</code> slot sit side by side below the message, each as wide as the others; use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them. With <code>mobile-actions="buttons"</code> they keep their buttons there: each is a capsule as wide as the tip, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button. It changes nothing on a desktop, so only the Phone preview offers it, and only with actions.</p>
+  <p>With <code>arrow-edge</code> the tip points at what it explains with the kit's arrow, centered on that edge, and leaves room for the arrow on that side. On a phone the tip stands over or under its control, as TipKit's inline tip does: no iOS screen sets a control beside a card of a grouped list, so the Phone preview offers no sideways arrow.</p>
+</>} code={overviewCode} previewMinHeight={240}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overview)} stageClassName={stage} phoneStageClassName="w-full" state={{ shown: true }} controls={overviewControls} />
 </ComponentPreview>
 
 ### Popover

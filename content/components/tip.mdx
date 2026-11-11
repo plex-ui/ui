@@ -4,14 +4,46 @@ description: A short message that points out a feature people might miss, inside
 metaDescription: React tip component after Apple TipKit with inline tips, an arrow pointing at a control, popover tips anchored to a control, a symbol, actions and a close button, and iPhone styles after native iOS tips, with the iOS alert's glass for a popover tip.
 ---
 
-import {
-  TipOverviewDemo,
-  TipActionsDemo,
-  TipPermissionDemo,
-  TipArrowDemo,
-  TipPopoverDemo,
-} from "@/components/docs/TipDemos"
+import { TipOverviewDemo, TipPopoverDemo } from "@/components/docs/TipDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+
+export const overviewCode = `const [shown, setShown] = useState(true)
+const [icon, setIcon] = useState(true)
+const [onClose, setOnClose] = useState(true)
+const [actions, setActions] = useState("none") // or "one", "two"
+const [mobileActions, setMobileActions] = useState("rows") // or "buttons"; acts on a phone only
+const [arrowEdge, setArrowEdge] = useState("none") // or "top", "bottom", "left", "right"; a phone: none, top or bottom
+const sideways = arrowEdge === "left" || arrowEdge === "right"
+// With an arrow, the control the tip explains stands on that side
+const control = arrowEdge !== "none" && (
+  <Button color="secondary" variant="soft" uniform pill aria-label="Notifications" className="shrink-0">
+    <Bell />
+  </Button>
+)
+
+<div className={\`flex w-full md:max-w-[360px] items-center gap-1 \${sideways ? "flex-row" : "flex-col"}\`}>
+  {(arrowEdge === "top" || arrowEdge === "left") && control}
+  {shown ? (
+    <Tip
+      icon={icon ? <Bell /> : undefined}
+      title="Turn on notifications"
+      description="Get a message when someone replies to your post or mentions you."
+      onClose={onClose ? () => setShown(false) : undefined}
+      actions={actions === "none" ? undefined : (
+        <>
+          {actions === "two" && <Button color="primary" variant="soft" size="sm" pill>Not now</Button>}
+          <Button color="primary" variant={actions === "two" ? "solid" : "soft"} size="sm" pill>Turn on</Button>
+        </>
+      )}
+      mobileActions={actions === "none" ? undefined : mobileActions}
+      arrowEdge={arrowEdge === "none" ? undefined : arrowEdge}
+      className={sideways ? "min-w-0 flex-1" : "w-full"}
+    />
+  ) : (
+    <Button color="secondary" variant="soft" onClick={() => setShown(true)}>Show the tip again</Button>
+  )}
+  {(arrowEdge === "bottom" || arrowEdge === "right") && control}
+</div>`
 
 <UsageBlock>{`import { Tip } from "@plexui/ui/components/Tip";`}</UsageBlock>
 
@@ -19,60 +51,18 @@ A tip teaches a feature people might not find on their own: a title that names i
 
 ## Examples
 
+<span id="actions" />
+<span id="buttons-on-a-phone" />
+<span id="arrow" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>An inline tip takes its place in the layout. A symbol leads the message in the secondary color; <code>onClose</code> shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background.</>} code={`const [shown, setShown] = useState(true)
-
-{shown && (
-  <Tip
-    icon={<Bookmark />}
-    title="Save it for later"
-    description="Bookmarked articles wait in your reading list, ready offline on every device."
-    onClose={() => setShown(false)}
-  />
-)}`} previewMinHeight={220}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>An inline tip takes its place in the layout. A symbol in <code>icon</code> leads the message in the secondary color; <code>onClose</code> shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background.</p>
+  <p><code>actions</code> sit side by side below the message, each as wide as the others; use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them. With <code>mobileActions="buttons"</code> they keep their buttons there: each is a capsule as wide as the tip, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button. It changes nothing on a desktop, so only the Phone preview offers it, and only with actions.</p>
+  <p>With <code>arrowEdge</code> the tip points at what it explains with the kit's arrow, centered on that edge, and leaves room for the arrow on that side. On a phone the tip stands over or under its control, as TipKit's inline tip does: no iOS screen sets a control beside a card of a grouped list, so the Phone preview offers no sideways arrow.</p>
+</>} code={overviewCode} previewMinHeight={240}>
   <TipOverviewDemo />
-</ComponentPreview>
-
-### Actions
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Actions sit side by side below the message, each as wide as the others. Use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them.</>} code={`<Tip
-  icon={<Bell />}
-  title="Turn on notifications"
-  description="Get a message when someone replies to your post or mentions you."
-  actions={
-    <>
-      <Button color="primary" variant="soft" size="sm" pill>Not now</Button>
-      <Button color="primary" size="sm" pill>Turn on</Button>
-    </>
-  }
-/>`} previewMinHeight={220}>
-  <TipActionsDemo />
-</ComponentPreview>
-
-### Buttons on a phone
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>With <code>mobileActions="buttons"</code> the actions keep their buttons on a phone: each is a capsule as wide as the tip under the message, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button.</>} code={`<Tip
-  icon={<Bell />}
-  title="Get alerts"
-  description="Hear about severe weather where you are, even when the app is closed."
-  mobileActions="buttons"
-  actions={<Button color="primary" variant="soft" size="sm" pill>Turn on</Button>}
-/>`} previewMinHeight={200}>
-  <TipPermissionDemo />
-</ComponentPreview>
-
-### Arrow
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>With <code>arrowEdge</code> an inline tip points at what it explains with the kit's arrow, centered on that edge. The tip leaves room for the arrow on that side.</>} code={`<Button color="secondary" variant="soft" uniform pill aria-label="Filter">
-  <Filter />
-</Button>
-<Tip
-  arrowEdge="top"
-  title="Filter the list"
-  description="Show only the items from the last week, month or year."
-/>`} previewMinHeight={240}>
-  <TipArrowDemo />
 </ComponentPreview>
 
 ### Popover

@@ -9645,70 +9645,48 @@ Props:
     - close-button (boolean) default: true — Shows the Close button
 
 ### Overview
-An inline tip takes its place in the layout. A symbol in the icon slot leads the message in the secondary color; on-close shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background.
+An inline tip takes its place in the layout. A symbol in the icon slot leads the message in the secondary color; on-close shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background. Actions in the actions slot sit side by side below the message, each as wide as the others; use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them. With mobile-actions="buttons" they keep their buttons there: each is a capsule as wide as the tip, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button. It changes nothing on a desktop, so only the Phone preview offers it, and only with actions. With arrow-edge the tip points at what it explains with the kit's arrow, centered on that edge, and leaves room for the arrow on that side. On a phone the tip stands over or under its control, as TipKit's inline tip does: no iOS screen sets a control beside a card of a grouped list, so the Phone preview offers no sideways arrow.
 ```vue
-<div class="flex w-full max-w-[360px] flex-col items-center gap-3">
-  <Tip
-    v-if="shown"
-    title="Save it for later"
-    description="Bookmarked articles wait in your reading list, ready offline on every device."
-    class="w-full"
-    :on-close="() => (shown = false)"
-  >
-    <template #icon><Bookmark /></template>
-  </Tip>
-  <Button v-else color="secondary" variant="soft" @click="shown = true">Show the tip again</Button>
-</div>
-```
+<script setup lang="ts">
+import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+import { Bell } from '@plexui/vue/components/Icon';
+import { Tip } from '@plexui/vue/components/Tip';
 
-### Actions
-Actions in the actions slot sit side by side below the message, each as wide as the others. Use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them.
-```vue
-<div class="w-full max-w-[360px]">
-  <Tip
-    title="Turn on notifications"
-    description="Get a message when someone replies to your post or mentions you."
-  >
-    <template #icon><Bell /></template>
-    <template #actions>
-      <Button color="primary" variant="soft" size="sm" pill>Not now</Button>
-      <Button color="primary" size="sm" pill>Turn on</Button>
-    </template>
-  </Tip>
-</div>
-```
+const shown = ref(true);
+const icon = ref(true);
+const onClose = ref(true);
+const actions = ref<"none" | "one" | "two">("none");
+const mobileActions = ref<"rows" | "buttons">("rows"); // a phone only: rows of text, or the buttons
+const arrowEdge = ref<"none" | "top" | "bottom" | "left" | "right">("none"); // a phone: none, top or bottom
+</script>
 
-### Buttons on a phone
-With mobile-actions="buttons" the actions keep their buttons on a phone: each is a capsule as wide as the tip under the message, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button.
-```vue
-<div class="w-full max-w-[360px]">
-  <Tip
-    title="Get alerts"
-    description="Hear about severe weather where you are, even when the app is closed."
-    mobile-actions="buttons"
-  >
-    <template #icon><Bell /></template>
-    <template #actions>
-      <Button color="primary" variant="soft" size="sm" pill>Turn on</Button>
-    </template>
-  </Tip>
-</div>
-```
-
-### Arrow
-With arrow-edge an inline tip points at what it explains with the kit's arrow, centered on that edge. The tip leaves room for the arrow on that side.
-```vue
-<div class="flex w-full max-w-[360px] flex-col items-center gap-1">
-  <Button color="secondary" variant="soft" uniform pill aria-label="Filter">
-    <Filter />
+<template>
+<div :class="['flex w-full md:max-w-[360px] items-center gap-1', arrowEdge === 'left' || arrowEdge === 'right' ? 'flex-row' : 'flex-col']">
+  <Button v-if="arrowEdge === 'top' || arrowEdge === 'left'" color="secondary" variant="soft" uniform pill aria-label="Notifications" class="shrink-0">
+    <Bell />
   </Button>
   <Tip
-    arrow-edge="top"
-    title="Filter the list"
-    description="Show only the items from the last week, month or year."
-    class="w-full"
-  />
+    v-if="shown"
+    title="Turn on notifications"
+    description="Get a message when someone replies to your post or mentions you."
+    :on-close="onClose ? () => (shown = false) : undefined"
+    :mobile-actions="actions === 'none' ? undefined : mobileActions"
+    :arrow-edge="arrowEdge === 'none' ? undefined : arrowEdge"
+    :class="arrowEdge === 'left' || arrowEdge === 'right' ? 'min-w-0 flex-1' : 'w-full'"
+  >
+    <template v-if="icon" #icon><Bell /></template>
+    <template v-if="actions !== 'none'" #actions>
+      <Button v-if="actions === 'two'" color="primary" variant="soft" size="sm" pill>Not now</Button>
+      <Button color="primary" :variant="actions === 'two' ? 'solid' : 'soft'" size="sm" pill>Turn on</Button>
+    </template>
+  </Tip>
+  <Button v-else color="secondary" variant="soft" @click="shown = true">Show the tip again</Button>
+  <Button v-if="arrowEdge === 'bottom' || arrowEdge === 'right'" color="secondary" variant="soft" uniform pill aria-label="Notifications" class="shrink-0">
+    <Bell />
+  </Button>
 </div>
+</template>
 ```
 
 ### Popover
