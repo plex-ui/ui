@@ -78,15 +78,17 @@ export const Alert = ({
   // @ts-expect-error -- Type issue in usehooks-ts
   const { width: containerWidth } = useResizeObserver({ ref: containerRef })
 
+  const dismissible = onDismiss !== undefined
+  // Measured again when the actions change too (another button, Dismiss added), not only the width
   useEffect(() => {
-    const actionsWidth = actionsRef.current?.clientWidth ?? 0
+    const actionsWidth = actionsWidthOf(actionsRef.current)
 
     if (actionsWidth && containerWidth) {
       // If actions are larger than a third of the container width, wrap them.
       const placement = actionsWidth > containerWidth / 3 ? "bottom" : "end"
       setActionsAutoPlacement(placement)
     }
-  }, [containerWidth])
+  }, [containerWidth, actions, dismissible])
 
   return (
     <div
@@ -127,6 +129,14 @@ export const Alert = ({
       )}
     </div>
   )
+}
+
+/** The actions' own width: their row stretches to the alert's width when they sit at the bottom */
+const actionsWidthOf = (element: HTMLElement | null) => {
+  if (!element) return 0
+  const children = Array.from(element.children) as HTMLElement[]
+  const gap = parseFloat(getComputedStyle(element).columnGap) || 0
+  return children.reduce((width, child) => width + child.offsetWidth, 0) + gap * Math.max(0, children.length - 1)
 }
 
 export const Indicator = ({ color }: { color: AlertProps["color"] }) => {

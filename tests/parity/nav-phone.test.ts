@@ -35,7 +35,6 @@ describe.each([
   ["popover", ["Open on hover"]],
   ["breadcrumb", ["Sizes"]],
   ["page", ["Widths"]],
-  ["alert", ["Action placement"]],
 ])("%s on a phone", (page, desktop) => {
   test("leaves out the examples a phone cannot show, in React and Vue, and says why", () => {
     for (const path of both(page)) {
@@ -100,41 +99,46 @@ describe("Breadcrumb on a phone", () => {
   })
 })
 
-describe("an inline Alert on a phone takes the shape and text of an iOS tip (TipKit, iOS Mini Tip Style=Hint 41:4207)", () => {
+// The geometry of the TipView in the iOS 27.2 simulator (ref-app screen `tip`, owner 11.11: the text and the icon on one line)
+describe("an inline Alert on a phone takes the shape and text of an iOS tip (TipKit, the iOS 27.2 TipView)", () => {
   const css = "packages/styles/src/components/Alert/Alert.module.css"
 
-  test("the description at 15/20 and the title at 17/22, 4 apart", () => {
+  test("the description at 15/20 and the title at 17/22, 2 apart, the text ending 21 above the edge", () => {
     const touch = read("packages/styles/src/styles/touch.css")
     const phone = touch.slice(touch.indexOf("@media (max-width: 767px)"), touch.indexOf("@media (min-width: 414px)"))
     expect(phone).toMatch(/--alert-font-size: 15px;\n\s+--alert-line-height: 20px;/)
     expect(phone).toMatch(/--button-font-size-xl: 17px;\n\s+--button-line-height-xl: 22px;/)
     expect(phoneRule(css, ".Title")).toEqual({ "font-size": "17px", "line-height": "22px" })
-    expect(phoneRule(css, ".Title ~ .Description")).toEqual({ "margin-top": "4px" })
+    expect(phoneRule(css, ".Title,\n  .Description")).toEqual({ "text-wrap": "wrap" })
+    expect(phoneRule(css, ".Title ~ .Description")).toEqual({ "margin-top": "2px", "margin-bottom": "4px" })
   })
 
-  test("26px corners, 22 above and 16 around, the icon and the text 22 from the edge", () => {
-    expect(phoneRule(css, ".Alert")).toMatchObject({ "border-radius": "26px", padding: "22px 16px", "column-gap": "12px", "row-gap": "22px", "--alert-indicator-size": "28px" })
+  test("26px corners, the text 17 from the top, the icon's 38px glyph 22 from the top and the side, a title alone centred on it", () => {
+    expect(phoneRule(css, ".Alert")).toMatchObject({ "border-radius": "26px", padding: "17px 16px", "column-gap": "8px", "row-gap": "18px", "--alert-indicator-size": "46px" })
     expect(phoneRule(css, "&:has(> .Content > .Actions > :not(.DismissButton))")).toEqual({ "padding-bottom": "16px" })
     expect(phoneRule(css, ".Alert[data-banner]")).toEqual({ "border-radius": "0" })
     expect(phoneRule(css, ".Content")).toEqual({ display: "contents" })
-    expect(phoneRule(css, ".Indicator")).toEqual({ "padding-inline-start": "6px" })
+    // A 46px icon draws its glyph 38 tall, 3.8 inside: in a 48 frame 17 from the top it stands 22 from the top and the side
+    expect(phoneRule(css, ".Indicator")).toEqual({ padding: "1px 0 1px 2px" })
     expect(phoneRule(css, ".Message")).toEqual({ "padding-inline-start": "6px" })
+    expect(phoneRule(css, ".Indicator + .Content > .Message")).toEqual({ display: "flex", "flex-direction": "column", "justify-content": "center", "min-height": "calc(var(--alert-indicator-size) + 2px)", "padding-inline-start": "0" })
   })
 
   test("the actions on a line of their own as 50px capsules, Dismiss as a close button in the corner", () => {
-    expect(phoneRule(css, ".Actions")).toMatchObject({ flex: "1 0 100%", gap: "10px 12px", margin: "0" })
+    expect(phoneRule(css, ".Actions")).toMatchObject({ flex: "1 0 100%", gap: "8px", margin: "0" })
     // Unless the Alert keeps its buttons' own size (mobileActions="own")
     expect(phoneRule(css, '.Alert:where(:not([data-mobile-actions="own"])) .Actions > :where(button, a, [role="link"])')).toMatchObject({
       "--button-size": "var(--button-size-xl, 50px)",
       "--button-gutter": "var(--button-gutter-xl, 20px)",
       "--button-font-weight": "var(--font-weight-semibold)",
       "--button-radius": "var(--radius-full)",
-      "min-width": "calc(50% - 6px)",
+      "min-width": "calc(50% - 4px)",
     })
     expect(phoneRule(css, ".Alert .Actions > .DismissButton")).toEqual({ display: "none" })
-    // A 44px target whose background and focus ring draw the 30px circle 19 from the edges
-    expect(phoneRule(css, ".Alert > .CloseButton")).toMatchObject({ "--button-uniform-size": "44px", position: "absolute", top: "12px", "inset-inline-end": "12px", display: "inline-flex" })
-    expect(phoneRule(css, "&::before,\n    &::after")).toEqual({ inset: "7px" })
+    // A 44px target whose background and focus ring draw the 26px circle 14 from the edges, the first line of text short of it
+    expect(phoneRule(css, ".Alert > .CloseButton")).toMatchObject({ "--button-uniform-size": "44px", "--button-icon-size": "19px", position: "absolute", top: "5px", "inset-inline-end": "5px", display: "inline-flex" })
+    expect(phoneRule(css, "&::before,\n    &::after")).toEqual({ inset: "9px" })
+    expect(phoneRule(css, ".Alert:has(> .CloseButton) .Message > :first-child")).toEqual({ "padding-inline-end": "34px" })
     for (const path of ["packages/ui/src/components/Alert/Alert.tsx", "packages/vue/src/components/Alert/Alert.ts"]) {
       const source = read(path)
       expect(source, path).toMatch(/aria-label"?[:=] ?"Dismiss"/)
@@ -144,16 +148,15 @@ describe("an inline Alert on a phone takes the shape and text of an iOS tip (Tip
   })
 })
 
-test("the Alert Indicator example does not repeat the Description message", () => {
+// Alert: Action placement, once a desktop-only example, is a desktop setting of the one Overview (owner 11.11): on a
+// phone the actions always stand under the message
+test("Alert: actionsPlacement is a desktop control of the Overview, and the page says why", () => {
+  expect(read("components/docs/AlertDemos.tsx")).toMatch(/name="actionsPlacement"[^\n]*desktopOnly/)
+  expect(read("content/vue/components/alert.mdx")).toMatch(/\{ name: "actionsPlacement",[^\n]*desktopOnly: true/)
   for (const path of both("alert")) {
-    const source = read(path)
-    expect(source, path).toContain("centralizing SCIM")
-    // React shows it in the Description section; Vue keeps each example's template in an export
-    const indicator = path.includes("/vue/") ? source.slice(source.indexOf("export const indicator"), source.indexOf("export const dismissible")) : source.split("### Indicator\n")[1].split("\n### ")[0]
-    expect(indicator, path).not.toContain("centralizing SCIM")
-    expect(indicator, path).toContain("Tip: pin the projects you open most")
+    expect(desktopOnly(path), path).toEqual([])
+    expect(read(path), path).toMatch(/so <code>actions-?[pP]lacement<\/code> is a desktop setting/)
   }
-  expect(read("components/docs/AlertDemos.tsx")).not.toContain("centralizing SCIM")
 })
 
 describe("a toast on a phone", () => {

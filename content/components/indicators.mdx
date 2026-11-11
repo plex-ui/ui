@@ -4,127 +4,70 @@ description: Loading and progress indicators, from circular spinners and determi
 metaDescription: React loading and progress indicator components with circular spinners, determinate progress rings, and loading dots with configurable color and stroke
 ---
 
-import { LoadingIndicator, LoadingDots, CircularProgress } from "@plexui/ui/components/Indicator"
-import {
-  IndicatorHeroContent,
-  LoadingIndicatorSizingDemo,
-  LoadingIndicatorDurationDemo,
-  CircularProgressBaseDemo,
-  CircularProgressStaticDemo,
-  CircularProgressSizingDemo,
-  CircularProgressColorDemo,
-} from "@/components/docs/IndicatorDemos"
+import { IndicatorOverviewDemo } from "@/components/docs/IndicatorDemos"
+
+export const overviewCode = `const [indicator, setIndicator] = useState("LoadingIndicator") // or "CircularProgress", "LoadingDots"
+const [size, setSize] = useState(20)
+const [strokeWidth, setStrokeWidth] = useState(2)
+const [color, setColor] = useState(undefined) // or "text-secondary", "text-danger": the spinner and the dots take the text color
+const [duration, setDuration] = useState(800) // ms, one turn of the spinner
+const [simulated, setSimulated] = useState(true) // without progress the ring simulates it
+const [progress, setProgress] = useState(25)
+const [maxDuration, setMaxDuration] = useState(15000)
+const [done, setDone] = useState(false) // fills the ring and ends the simulation
+const [trackColor, setTrackColor] = useState(undefined) // or "var(--alpha-15)"
+const [trackActiveColor, setTrackActiveColor] = useState(undefined) // or "var(--gray-1000)"
+
+{indicator === "LoadingIndicator" && (
+  <div style={{ "--indicator-rotate-duration": \`\${duration}ms\` } as React.CSSProperties}>
+    <LoadingIndicator size={size} strokeWidth={strokeWidth} className={color} />
+  </div>
+)}
+{indicator === "CircularProgress" && (
+  <CircularProgress
+    size={size}
+    strokeWidth={strokeWidth}
+    progress={simulated ? undefined : progress}
+    maxDuration={maxDuration}
+    done={done}
+    trackColor={trackColor}
+    trackActiveColor={trackActiveColor}
+  />
+)}
+{indicator === "LoadingDots" && <LoadingDots className={color} />}`
 
 <UsageBlock>{`import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/ui/components/Indicator";`}</UsageBlock>
 
 ## Examples
 
+<span id="loadingindicator" />
+<span id="sizing--stroke" />
+<span id="color" />
+<span id="duration" />
+<span id="circularprogress" />
+<span id="progress" />
+<span id="sizing--stroke-1" />
+<span id="color-1" />
+<span id="loadingdots" />
+<span id="color-2" />
+<span id="phone-spinner" />
+
 ### Overview
 
-<ComponentPreview details={<>The demos restart every few seconds through a <code>done</code> flag that fills the ring before the simulation starts over.</>} code={`<div className="flex items-center gap-6">
-  <LoadingIndicator size={20} />
-  <CircularProgress size={24} />
-  <LoadingDots />
-</div>`}>
-  <IndicatorHeroContent />
-</ComponentPreview>
-
-### LoadingIndicator
-
-<ComponentPreview details={<>Simple spinning indicator for general loading states.</>} code={`<LoadingIndicator />`} previewMinHeight={168}>
-  <LoadingIndicator />
-</ComponentPreview>
-
-### Sizing & stroke
-
-<ComponentPreview details={<>By default, the indicator adapts to the surrounding <code>font-size</code> and <code>color</code> of text. You can control the size of the <code>LoadingIndicator</code> using the <code>--indicator-size</code> CSS custom property.</>} code={`<LoadingIndicator size={30} strokeWidth={2} />`} previewMinHeight={168}>
-  <LoadingIndicatorSizingDemo />
-</ComponentPreview>
-
-### Color
-
-<ComponentPreview details={<>The indicator defaults to <code>currentcolor</code>, inheriting the surrounding text color. This can also be customized by altering the <code>--indicator-color</code> variable around the DOM scope of the component.</>} code={`<div className="flex items-center gap-2 text-danger">
-  <LoadingIndicator size={16} /> <span>Destroying forever...</span>
-</div>`} previewMinHeight={168}>
-  <div className="flex items-center gap-2 text-danger">
-    <LoadingIndicator size={16} /> <span>Destroying forever...</span>
-  </div>
-</ComponentPreview>
-
-### Duration
-
-<ComponentPreview details={<>You can control the rotation speed of the spinner with <code>--indicator-rotate-duration</code>.</>} code={`<div style={{ '--indicator-rotate-duration': '3s' } as React.CSSProperties}>
-  <LoadingIndicator />
-</div>`} previewMinHeight={168}>
-  <LoadingIndicatorDurationDemo />
-</ComponentPreview>
-
-### CircularProgress
-
-<ComponentPreview details={<>Circular progress ring with simulated progress animation.</>} code={`<CircularProgress />`} previewMinHeight={168}>
-  <CircularProgressBaseDemo />
-</ComponentPreview>
-
-### Progress
-
-<ComponentPreview details={<>Use <code>progress</code> to show static progress and prevent the animation.</>} code={`<CircularProgress progress={25} />`} previewMinHeight={168}>
-  <CircularProgressStaticDemo />
-</ComponentPreview>
-
-### Sizing & stroke
-
-<ComponentPreview details={<>Use <code>size</code> and <code>strokeWidth</code>. Or use <code>--circular-progress-size</code> and <code>--circular-progress-stroke</code> CSS variables.</>} code={`<CircularProgress size={30} strokeWidth={2} />`} previewMinHeight={168}>
-  <CircularProgressSizingDemo />
-</ComponentPreview>
-
-### Color
-
-<ComponentPreview details={<>Customize the color of the indicator with the <code>--circular-progress-track-color</code> and <code>--circular-progress-track-active-color</code> variables.</>} code={`<CircularProgress trackColor="var(--alpha-15)" trackActiveColor="var(--gray-1000)" />`} previewMinHeight={168}>
-  <CircularProgressColorDemo />
-</ComponentPreview>
-
-### LoadingDots
-
-<ComponentPreview details={<>Indicate typing progress with staggered pulsing dot animation.</>} code={`<LoadingDots />`} previewMinHeight={168}>
-  <LoadingDots />
-</ComponentPreview>
-
-### Color
-
-<ComponentPreview details={<>The indicator defaults to <code>currentcolor</code>, inheriting the surrounding text color. You can customize the color by providing a different <code>color</code> value or context.</>} code={`<div className="text-danger">
-  <LoadingDots />
-</div>`} previewMinHeight={168}>
-  <div className="text-danger">
-    <LoadingDots />
-  </div>
-</ComponentPreview>
-
-### Phone spinner
-
-With the optional [touch stylesheet](/docs/installation), the spinner uses eight rounded spokes. The default size is 20px, the iOS 27 Regular spinner, also inside a field (an `Input` adornment, an `InputGroup` addon or a `SelectControl`, through `--control-indicator-size`); up to 16px, as `size={14}`, takes the Small spokes and from 28px, as `size={35}`, the Large ones. Explicit sizes, color and animation duration remain configurable. Desktop keeps the circular ring.
-
-<ComponentPreview code={`<div className="flex items-center gap-6">
-  <LoadingIndicator size={14} />
-  <LoadingIndicator />
-  <LoadingIndicator size={35} />
-</div>`} previewMinHeight={168}>
-  <div className="flex items-center gap-6">
-    <LoadingIndicator size={14} />
-    <LoadingIndicator />
-    <LoadingIndicator size={35} />
-  </div>
+<ComponentPreview details={<><code>indicator</code> picks one of the three. <code>LoadingIndicator</code> is a spinner for general loading states. It takes the surrounding <code>font-size</code> and text color by default; <code>size</code> and <code>strokeWidth</code> set its size and stroke in pixels, a text class such as <code>text-danger</code> (or <code>--indicator-color</code>) colors it, and <code>--indicator-rotate-duration</code> sets the time of one turn. On a desktop it is a turning ring. With the optional <a href="/docs/installation">touch stylesheet</a> it is the iOS 27 spinner of eight rounded spokes: 20px by default, also inside a field (an <code>Input</code> adornment, an <code>InputGroup</code> addon or a <code>SelectControl</code>, through <code>--control-indicator-size</code>); up to 16px it takes the Small spokes and from 28px the Large ones. A <code>strokeWidth</code> replaces the spokes' widths, so the Phone view leaves it unset. <code>CircularProgress</code> is a progress ring. Without <code>progress</code> it simulates progress over <code>maxDuration</code> milliseconds, and <code>done</code> fills the ring and ends the simulation; this preview sets it every 4 seconds to start over. <code>progress</code>, from 0 to 100, shows a fixed value instead. <code>size</code> and <code>strokeWidth</code> (at most 4) size the ring, and <code>trackColor</code> and <code>trackActiveColor</code> color its track and its progress. <code>LoadingDots</code> shows typing progress with staggered pulsing dots in the current text color.</>} code={overviewCode} previewMinHeight={228}>
+  <IndicatorOverviewDemo />
 </ComponentPreview>
 
 ## API
 
-### LoadingIndicator
+### LoadingIndicator [#loadingindicator-1]
 
 <PropsTable data={[
   { prop: "size", type: "number | string", default: '"1em"', description: "Size in px or any CSS length. Defaults to 20px with the optional touch stylesheet, also inside a field. Also accepts --indicator-size." },
   { prop: "strokeWidth", type: "number", default: "2", description: "Ring stroke or mobile spoke width in px. Mobile spokes default to the iOS 27 kit proportion: 2/14 of the size up to 16px, 4/30 to 27px, 5/35 from 28px." },
 ]} />
 
-### CircularProgress
+### CircularProgress [#circularprogress-1]
 
 <PropsTable data={[
   { prop: "progress", type: "number", description: "Static progress 0-100 (disables the simulated animation)" },
@@ -142,8 +85,8 @@ A `style` prop replaces the size, stroke and color variables these props set. Al
 
 The indicators read these CSS custom properties, each with a fallback. Set them at any scope to restyle the indicators inside it:
 
-- `--indicator-size`: `LoadingIndicator` size (defaults to `1em`, or `30px` with the touch stylesheet and `22px` inside a field)
-- `--indicator-stroke`: ring stroke width (defaults to `2px`) or mobile spoke width (defaults to `4px` at 30px and `3px` at 22px)
+- `--indicator-size`: `LoadingIndicator` size (defaults to `1em`, or `20px` with the touch stylesheet, also inside a field)
+- `--indicator-stroke`: ring stroke width (defaults to `2px`) or mobile spoke width (defaults to the iOS 27 kit proportion of the size: 2/14 up to 16px, 4/30 to 27px, 5/35 from 28px)
 - `--indicator-color`: `LoadingIndicator` color (defaults to `currentcolor`)
 - `--indicator-rotate-duration`: time of one `LoadingIndicator` turn (defaults to `0.8s`)
 - `--circular-progress-size`: `CircularProgress` diameter (defaults to `28px`)

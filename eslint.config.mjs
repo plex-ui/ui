@@ -17,7 +17,6 @@ const compilerRules = [
 ];
 const compilerAdoptionBacklog = [
   "app/(home)/_components/ComponentShowcase.tsx",
-  "components/docs/AvatarIconDemo.tsx",
   "components/docs/DocsPageWithMobileTOC.tsx",
   "components/docs/IconBrowser/IconBrowser.tsx",
   "components/docs/SliderDemos.tsx",

@@ -214,48 +214,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<Alert\n  title=\"Scheduled maintenance\"\n  description=\"We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database.\"\n  @dismiss=\"() => {}\"\n/>",
-          "details": "On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants. With mobile-actions=\"own\" the actions keep the size you give the buttons, for an alert inside a block of its own buttons."
-        },
-        {
-          "name": "Colors & variants",
-          "code": "<div class=\"w-fit max-w-[500px]\">\n  <div class=\"flex flex-col gap-6\">\n    <div\n      v-for=\"color in ['primary', 'success', 'danger', 'warning', 'caution', 'info', 'discovery']\"\n      :key=\"color\"\n      class=\"flex flex-col items-stretch gap-1.5 md:flex-row md:items-center md:gap-0\"\n    >\n      <div class=\"text-sm md:text-right md:mr-8 md:min-w-[4rem]\" style=\"color: var(--color-text-tertiary)\">{{ color }}</div>\n      <div class=\"md:flex-1\">\n        <Alert :color=\"color\" :variant=\"variant\" title=\"Scheduled maintenance on Saturday, 2-4 AM PT\">\n          <template #description>\n            Track status updates on <TextLink color=\"currentcolor\" href=\"#\">status page</TextLink>\n          </template>\n        </Alert>\n      </div>\n    </div>\n  </div>\n</div>",
-          "details": "You can stylize the display of the alert using the color and variant props."
-        },
-        {
-          "name": "Title",
-          "code": "<Alert title=\"Your current access level limits what you can view or modify\" />",
-          "details": "You can optionally include a title for your alert with the title prop (or the title slot)."
-        },
-        {
-          "name": "Description",
-          "code": "<Alert>\n  <template #description>\n    We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href=\"#\">Learn more</TextLink>\n  </template>\n</Alert>",
-          "details": "You can optionally include description text for your alert with the description prop, or the description slot for rich content."
-        },
-        {
-          "name": "Actions",
-          "code": "<div class=\"flex flex-col items-center justify-center gap-6 w-full\">\n  <Alert\n    variant=\"soft\"\n    color=\"warning\"\n    title=\"Password expires in 3 days\"\n    description=\"Update it now to avoid losing access to your account.\"\n  >\n    <template #actions>\n      <Button color=\"primary\" pill>Update password</Button>\n    </template>\n  </Alert>\n  <Alert\n    variant=\"soft\"\n    color=\"warning\"\n    title=\"Your API key will be rotated soon\"\n    description=\"Automatic key rotation is scheduled for March 10. Download the new key afterward to keep your integrations running.\"\n    @dismiss=\"() => {}\"\n  >\n    <template #actions>\n      <Button color=\"warning\" variant=\"soft\" pill>Remind me later</Button>\n    </template>\n  </Alert>\n</div>",
-          "details": "You can add actions to the alert with the actions slot. Combine with @dismiss to add a dismiss button."
-        },
-        {
-          "name": "Indicator",
-          "code": "<div class=\"flex flex-col items-center justify-center gap-6 w-full\">\n  <Alert description=\"Tip: pin the projects you open most, and they stay at the top of the list.\">\n    <template #indicator>\n      <Lightbulb />\n    </template>\n  </Alert>\n  <Alert\n    :indicator=\"false\"\n    description=\"Version 2.18.5 rolls out behind-the-scenes tweaks to caching and background sync. You don't need to do anything.\"\n  />\n</div>",
-          "details": "Alert provides an indicator icon by default. You can override it with the indicator slot, or pass :indicator=\"false\" to hide it entirely."
-        },
-        {
-          "name": "Dismissible",
-          "code": "<div class=\"flex flex-col items-center justify-center gap-6 w-full\">\n  <Alert\n    class=\"items-start\"\n    title=\"Try our new dashboard layout\"\n    description=\"We've introduced a streamlined layout that makes using the dashboard even easier. You can switch back any time.\"\n  >\n    <template #actions>\n      <Button color=\"primary\" variant=\"soft\" pill>Dismiss</Button>\n      <Button color=\"primary\" variant=\"solid\" pill>Try it</Button>\n    </template>\n  </Alert>\n  <Alert\n    title=\"Thank you!\"\n    description=\"Your application has been received. We will review your application and respond within the next 48 hours.\"\n    @dismiss=\"() => {}\"\n  />\n</div>",
-          "details": "The suggested approach for dismissible notices is to use labeled buttons in the actions slot. You can also listen to @dismiss to render a dismiss button in the alert chrome. On a phone that button is a close button in the alert's corner, as on an iOS tip, while a labeled action stays a capsule under the message."
-        },
-        {
-          "name": "Banner",
-          "code": "<div class=\"flex flex-col items-stretch justify-center gap-6 w-full\">\n  <Alert\n    banner\n    color=\"caution\"\n    variant=\"soft\"\n    :indicator=\"false\"\n    description=\"You are offline. Changes will sync when the connection is back.\"\n  />\n  <Alert banner color=\"info\" variant=\"outline\" description=\"A new version is available.\">\n    <template #actions>\n      <Button color=\"primary\" variant=\"soft\" size=\"sm\">Reload</Button>\n    </template>\n  </Alert>\n</div>",
-          "details": "Use banner for a full-width strip across the top or bottom of a page or panel: offline, read-only, a new version. It drops the rounded corners and keeps only the lines above and below. Pass :indicator=\"false\" for a plain strip."
-        },
-        {
-          "name": "Action placement",
-          "code": "<Alert\n  title=\"Our terms of service has been updated\"\n  description=\"We've updated our terms to clarify how we handle data, billing, and user permissions. Please review and accept the latest terms to avoid impacting your service.\"\n  actions-placement=\"bottom\"\n>\n  <template #actions>\n    <Button color=\"primary\" variant=\"soft\" pill>Set reminder</Button>\n    <Button color=\"primary\" variant=\"solid\" pill>Review terms</Button>\n  </template>\n</Alert>",
-          "details": "Actions are automatically positioned in the alert by default. You can force a specific position with the actions-placement prop by passing either 'end' or 'bottom'. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only."
+          "code": "<Alert\n  :color=\"color\"\n  :variant=\"variant\"\n  :title=\"title ? 'Scheduled maintenance' : undefined\"\n  :description=\"description ? 'We\\'ll be offline 2 - 4 AM UTC on July 14 while we upgrade our database.' : undefined\"\n  :indicator=\"indicator === 'none' ? false : undefined\"\n  :actions-placement=\"actionsPlacement === 'auto' ? undefined : actionsPlacement\"\n  :mobile-actions=\"mobileActions\"\n  :on-dismiss=\"onDismiss ? () => {} : undefined\"\n  :banner=\"banner\"\n>\n  <template v-if=\"indicator === 'custom'\" #indicator>\n    <Lightbulb />\n  </template>\n  <template v-if=\"actions\" #actions>\n    <Button color=\"primary\" variant=\"soft\" pill>Set reminder</Button>\n    <Button color=\"primary\" variant=\"solid\" pill>View status</Button>\n  </template>\n</Alert>",
+          "details": "color and variant style the alert. It shows a title, a description or both; each takes text, or content in the #title and #description slots, such as a &lt;TextLink color=\"currentcolor\"&gt; to a status page. It has an indicator icon by default, chosen from its color: the indicator slot replaces it, and :indicator=\"false\" hides it. The actions slot takes buttons or other content. They are placed automatically, at the end or, when they take more than a third of the alert's width, under the message, unless actions-placement is 'end' or 'bottom'. @dismiss adds a Dismiss button in the alert's chrome (this preview binds it as :on-dismiss, which can be left unset); for a dismissible notice, labeled buttons in actions are the suggested approach. A solid alert is for a message alone: buttons, Dismiss among them, do not read on its color, so this preview offers them on soft and outline alerts. Use banner for a full-width strip across the top or bottom of a page or panel (offline, read-only, a new version): it drops the rounded corners and keeps only the lines above and below. On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners (a banner stays square), the title at 17/22 semibold and the description at 15/20, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants, and its actions always stand under the message as 50px capsules side by side, so actions-placement is a desktop setting. With mobile-actions=\"own\" the actions keep the size you give the buttons, for an alert inside a block of its own buttons."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/alert"
@@ -325,48 +285,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div class=\"flex gap-4\">\n  <Avatar name=\"Tyler\" image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" :size=\"48\" />\n  <Avatar name=\"Will\" :size=\"48\" />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" :size=\"48\" color=\"primary\" variant=\"solid\" />\n</div>",
-          "details": "A variety of avatar types: text, image, icon, and overflow."
-        },
-        {
-          "name": "Text",
-          "code": "<Avatar name=\"David\" :size=\"48\" />",
-          "details": "For text-based avatars, a single initial is displayed based on the name prop passed to the component."
-        },
-        {
-          "name": "Image",
-          "code": "<Avatar\n  name=\"Tyler\"\n  image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n  :size=\"48\"\n/>",
-          "details": "To display an image avatar, provide an absolute URL to the image with image-url. Images will have a soft fade entrance once loaded, or fall back to a text display if the image fails to load."
-        },
-        {
-          "name": "Icon",
-          "code": "<Avatar\n  :Icon=\"Robot\"\n  :size=\"48\"\n/>",
-          "details": "To display an icon avatar, pass an icon component to the Icon prop, for example Robot imported from @plexui/vue/components/Icon. The name prop is not used in this case, and can be omitted."
-        },
-        {
-          "name": "Overflow count",
-          "code": "<Avatar :overflow-count=\"overflowCount\" :size=\"size\" />",
-          "details": "To display an overflow avatar, provide a number to the overflow-count prop. The number will be automatically formatted and scaled to fit."
-        },
-        {
-          "name": "Sizing",
-          "code": "<Avatar name=\"David\" :size=\"size\" />",
-          "details": "To size the avatar, pass a number to the size prop, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value."
-        },
-        {
-          "name": "Colors & variants",
-          "code": "<div\n  class=\"grid items-center gap-x-8 gap-y-5\"\n  style=\"grid-template-columns: repeat(2, minmax(0, auto)) auto; justify-items: center\"\n>\n  <div\n    v-for=\"variant in ['soft', 'solid']\"\n    :key=\"variant\"\n    class=\"text-sm font-medium\"\n    style=\"color: var(--color-text-tertiary)\"\n  >{{ variant }}</div>\n  <div />\n  <template v-for=\"(color, idx) in ['primary', 'secondary', 'success', 'danger', 'info', 'discovery']\" :key=\"color\">\n    <Avatar\n      v-for=\"variant in ['soft', 'solid']\"\n      :key=\"variant\"\n      :name=\"String.fromCharCode(65 + idx)\"\n      :color=\"color\"\n      :variant=\"variant\"\n      :size=\"size\"\n    />\n    <div class=\"text-sm font-medium justify-self-start\" style=\"color: var(--color-text-tertiary)\">{{ color }}</div>\n  </template>\n</div>",
-          "details": "You can stylize the display of the avatar using the color and variant props."
-        },
-        {
-          "name": "Roundness",
-          "code": "<Avatar\n  name=\"Acme, co.\"\n  color=\"primary\"\n  variant=\"solid\"\n  :size=\"size\"\n  :class=\"'rounded-' + roundness\"\n/>",
-          "details": "By default, avatars are fully rounded. You can override this by passing a Tailwind rounding class to class."
-        },
-        {
-          "name": "Interactive",
-          "code": "<div class=\"flex items-center gap-4\">\n  <Avatar name=\"Will\" :size=\"48\" @click=\"saySup\" />\n  <Avatar\n    image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n    name=\"Tyler\"\n    :size=\"48\"\n    @click=\"saySup\"\n  />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" :size=\"48\" color=\"info\" @click=\"saySup\" />\n</div>",
-          "details": "Avatars can be used as interactive elements by listening to @click (or @pointerdown). The avatar then renders a button and applies semantic and visual interaction styles."
+          "code": "<Avatar\n  :name=\"type === 'icon' ? 'Tech support' : type === 'overflow' ? overflowCount + ' more' : 'Tyler'\"\n  :image-url=\"type === 'image' ? 'https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552' : undefined\"\n  :Icon=\"type === 'icon' ? Robot : undefined\"\n  :overflow-count=\"type === 'overflow' ? overflowCount : undefined\"\n  :size=\"size\"\n  :color=\"color\"\n  :variant=\"variant\"\n  :class=\"{ full: 'rounded-full', xl: 'rounded-xl', lg: 'rounded-lg', md: 'rounded-md', sm: 'rounded-sm', none: 'rounded-none' }[roundness]\"\n  v-on=\"onClick ? { click: saySup } : {}\"\n/>",
+          "details": "An avatar shows one of four things. Without other props it shows the first letter of name. With image-url, an absolute URL, it shows the photo with a soft fade once it loads, and the initial if it fails. With Icon, an icon component such as Robot from @plexui/vue/components/Icon, it shows the icon; name is not shown, and only names the avatar when it is a button. With overflow-count it shows the count, formatted and scaled to fit. size sets the width and height in pixels, and the initial, icon and count scale with it. color and variant style every avatar except a loaded photo, which covers them. Avatars are fully rounded by default; a Tailwind rounding class in class overrides that. Listening to @click (or @pointerdown) makes the avatar a button with interaction styles and its name as the accessible name."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/avatar"
@@ -3115,62 +3035,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div class=\"flex items-center gap-6\">\n  <LoadingIndicator :size=\"20\" />\n  <CircularProgress :size=\"24\" :done=\"done\" />\n  <LoadingDots />\n</div>",
-          "details": "The demos restart every few seconds through a done flag that fills the ring before the simulation starts over."
-        },
-        {
-          "name": "LoadingIndicator",
-          "code": "<LoadingIndicator />",
-          "details": "Simple spinning indicator for general loading states."
-        },
-        {
-          "name": "Sizing & stroke",
-          "code": "<LoadingIndicator :size=\"size\" :stroke-width=\"strokeWidth\" />",
-          "details": "By default, the indicator adapts to the surrounding font-size and color of text. You can control the size of the LoadingIndicator using the --indicator-size CSS custom property."
-        },
-        {
-          "name": "Color",
-          "code": "<div class=\"flex items-center gap-2 text-danger\">\n  <LoadingIndicator :size=\"16\" /> <span>Destroying forever...</span>\n</div>",
-          "details": "The indicator defaults to currentcolor, inheriting the surrounding text color. This can also be customized by altering the --indicator-color variable around the DOM scope of the component."
-        },
-        {
-          "name": "Duration",
-          "code": "<div style=\"--indicator-rotate-duration: 3s\">\n  <LoadingIndicator />\n</div>",
-          "details": "You can control the rotation speed of the spinner with --indicator-rotate-duration."
-        },
-        {
-          "name": "CircularProgress",
-          "code": "<CircularProgress :done=\"done\" />",
-          "details": "Circular progress ring with simulated progress animation."
-        },
-        {
-          "name": "Progress",
-          "code": "<CircularProgress :progress=\"25\" />",
-          "details": "Use progress to show static progress and prevent the animation."
-        },
-        {
-          "name": "Sizing & stroke",
-          "code": "<CircularProgress :size=\"size\" :stroke-width=\"strokeWidth\" :done=\"done\" />",
-          "details": "Use size and stroke-width. Or use --circular-progress-size and --circular-progress-stroke CSS variables."
-        },
-        {
-          "name": "Color",
-          "code": "<CircularProgress\n  track-color=\"var(--alpha-15)\"\n  track-active-color=\"var(--gray-1000)\"\n  :done=\"done\"\n/>",
-          "details": "Customize the color of the indicator with the --circular-progress-track-color and --circular-progress-track-active-color variables."
-        },
-        {
-          "name": "LoadingDots",
-          "code": "<LoadingDots />",
-          "details": "Indicate typing progress with staggered pulsing dot animation."
-        },
-        {
-          "name": "Color",
-          "code": "<div class=\"text-danger\">\n  <LoadingDots />\n</div>",
-          "details": "The indicator defaults to currentcolor, inheriting the surrounding text color. You can customize the color by providing a different color value or context."
-        },
-        {
-          "name": "Phone spinner",
-          "code": "<div class=\"flex items-center gap-6\">\n<LoadingIndicator :size=\"14\" />\n<LoadingIndicator />\n<LoadingIndicator :size=\"35\" />\n</div>"
+          "code": "<div v-if=\"indicator === 'LoadingIndicator'\" :style=\"{ '--indicator-rotate-duration': duration + 'ms' }\">\n  <LoadingIndicator :size=\"size\" :stroke-width=\"strokeWidth\" :class=\"color || undefined\" />\n</div>\n<CircularProgress\n  v-else-if=\"indicator === 'CircularProgress'\"\n  :size=\"size\"\n  :stroke-width=\"strokeWidth\"\n  :progress=\"simulated ? undefined : progress\"\n  :max-duration=\"maxDuration\"\n  :done=\"done\"\n  :track-color=\"trackColor || undefined\"\n  :track-active-color=\"trackActiveColor || undefined\"\n/>\n<LoadingDots v-else :class=\"color || undefined\" />",
+          "details": "indicator picks one of the three. LoadingIndicator is a spinner for general loading states. It takes the surrounding font-size and text color by default; size and stroke-width set its size and stroke in pixels, a text class such as text-danger (or --indicator-color) colors it, and --indicator-rotate-duration sets the time of one turn. On a desktop it is a turning ring. With the optional touch stylesheet it is the iOS 27 spinner of eight rounded spokes: 20px by default, also inside a field (an Input adornment, an InputGroup addon or a SelectControl, through --control-indicator-size); up to 16px it takes the Small spokes and from 28px the Large ones. A stroke-width replaces the spokes' widths, so the Phone view leaves it unset. CircularProgress is a progress ring. Without progress it simulates progress over max-duration milliseconds, and done fills the ring and ends the simulation; this preview sets it every 4 seconds to start over. progress, from 0 to 100, shows a fixed value instead. size and stroke-width (at most 4) size the ring, and track-color and track-active-color color its track and its progress. LoadingDots shows typing progress with staggered pulsing dots in the current text color."
         }
       ],
       "subComponents": [
@@ -7210,36 +7076,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div class=\"flex gap-4\">\n  <TextLink href=\"#\">Read more</TextLink>\n  <TextLink href=\"#\" primary>External link <ArrowUpRight /></TextLink>\n</div>"
-        },
-        {
-          "name": "Inline usage",
-          "code": "<p>\n  You can use the <TextLink href=\"#\">responses endpoint</TextLink> to generate text. You can\n  either use the API directly from an HTTP client of your choice, or use one of the\n  <TextLink href=\"#\">official SDKs</TextLink> for your preferred language.\n</p>"
-        },
-        {
-          "name": "Default inheritance",
-          "code": "<p :class=\"colorClassName\">\n  You can use the <TextLink href=\"#\">responses endpoint</TextLink> to generate text. You can\n  either use the API directly from an HTTP client of your choice, or use one of the\n  <TextLink href=\"#\">official SDKs</TextLink> for your preferred language.\n</p>",
-          "details": "By default, TextLink uses currentcolor inheritance and text-decoration: underline to create subtle visual differentiation from surrounding text. The hover effect is a dynamic deemphasis of the currentcolor, with some special cases for text-secondary and text-tertiary contexts.You can see this behavior by changing the text color context of the paragraph the links are in below:"
-        },
-        {
-          "name": "Primary color",
-          "code": "<p>\n  Sample text with a <TextLink href=\"#\" :primary=\"primary\">primary link</TextLink>\n</p>",
-          "details": "You can create a colorful link style with the primary prop, which uses color for visual differentiation.Primary links also remove the default underline treatment: pass underline to re-apply that style."
-        },
-        {
-          "name": "Underline",
-          "code": "<p class=\"text-secondary\">\n  Sample text with a <TextLink href=\"#\" :underline=\"underline\">subtle link</TextLink>\n</p>",
-          "details": "Links have an underlined aesthetic by default.Pass {':underline=\"false\"'} to remove the underline from the link."
-        },
-        {
-          "name": "External links",
-          "code": "<TextLink href=\"#\" primary underline>\n  External link <ArrowUpRight />\n</TextLink>",
-          "details": "When external paths are provided, {''} will be used with {'target=\"_blank\"'} and {'rel=\"noopener noreferrer\"'} included by default. You can also compose icons along with the text to add visual indication."
-        },
-        {
-          "name": "Font weight",
-          "code": "<TextLink href=\"#\" class=\"font-semibold\" :underline=\"false\">\n  Contact support <ArrowRight />\n</TextLink>",
-          "details": "Use the class attribute to customize font weight."
+          "code": "<p :class=\"colorClassName || undefined\">\n  You can use the\n  <TextLink href=\"#\" :primary=\"primary\" :underline=\"underline === 'auto' ? undefined : underline === 'on'\" :class=\"weight || undefined\">responses endpoint</TextLink>\n  to generate text. You can either use the API directly from an HTTP client of your choice, or use one of the\n  <TextLink\n    :href=\"external ? 'https://example.com' : '#'\"\n    :primary=\"primary\"\n    :underline=\"underline === 'auto' ? undefined : underline === 'on'\"\n    :class=\"weight || undefined\"\n  >official SDKs <ArrowUpRight v-if=\"external\" /></TextLink>\n  for your preferred language.\n</p>",
+          "details": "A TextLink sits in running text. By default it takes the surrounding text color (currentcolor) and an underline, a subtle difference from the text around it; on hover it fades the color, with special cases in text-secondary and text-tertiary text. Change the paragraph's color class to see it. primary colors the link instead and drops the underline by default. underline turns the underline on or off; unset, it is on unless the link is primary. An http:// or https:// URL is external: the link opens it in a new tab with target=\"_blank\" and rel=\"noopener noreferrer\", and an icon such as ArrowUpRight can mark it. A font-weight class in class sets the weight."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/text-link"
@@ -7902,5 +7740,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-11T10:43:22.227Z"
+  "generatedAt": "2026-11-11T11:39:46.154Z"
 }

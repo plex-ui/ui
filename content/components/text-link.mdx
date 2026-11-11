@@ -4,83 +4,43 @@ description: Text link for inline internal and external links with router integr
 metaDescription: React text link component for inline internal and external links with router integration, color inheritance, underline control, and weight options
 ---
 
-import {
-  TextLinkBaseDemo,
-  TextLinkColorsDemo,
-  TextLinkPrimaryDemo,
-  TextLinkUnderlineDemo,
-  TextLinkExternalDemo,
-  TextLinkWeightDemo,
-} from '@/components/docs/TextLinkDemos'
-import { TextLink } from '@plexui/ui/components/TextLink'
-import { ArrowUpRight } from '@plexui/ui/components/Icon'
+import { TextLinkOverviewDemo } from '@/components/docs/TextLinkDemos'
+
+export const overviewCode = `const [colorClassName, setColorClassName] = useState(undefined) // or "text-secondary", "text-tertiary"
+const [primary, setPrimary] = useState(false)
+const [underline, setUnderline] = useState(undefined) // or true, false; unset, on unless primary
+const [external, setExternal] = useState(false)
+const [weight, setWeight] = useState(undefined) // or "font-medium", "font-semibold"
+
+<p className={colorClassName}>
+  You can use the{" "}
+  <TextLink href="#" primary={primary} underline={underline} className={weight}>responses endpoint</TextLink>{" "}
+  to generate text. You can either use the API directly from an HTTP client of your choice, or use one of the{" "}
+  {external ? (
+    <TextLink href="https://example.com" primary={primary} underline={underline} className={weight}>
+      official SDKs <ArrowUpRight />
+    </TextLink>
+  ) : (
+    <TextLink href="#" primary={primary} underline={underline} className={weight}>official SDKs</TextLink>
+  )}{" "}
+  for your preferred language.
+</p>`
 
 <UsageBlock>{`import { TextLink } from "@plexui/ui/components/TextLink";`}</UsageBlock>
 
 ## Examples
 
+<span id="inline-usage" />
+<span id="default-inheritance" />
+<span id="primary-color" />
+<span id="underline" />
+<span id="external-links" />
+<span id="font-weight" />
+
 ### Overview
 
-<ComponentPreview phonePresentation="none" code={`<div className="flex gap-4">
-  <TextLink href="#">Read more</TextLink>
-  <TextLink href="#" primary>External link <ArrowUpRight /></TextLink>
-</div>`} previewMinHeight={168}>
-  <div className="flex gap-4">
-    <TextLink href="#">Read more</TextLink>
-    <TextLink href="#" primary>External link <ArrowUpRight /></TextLink>
-  </div>
-</ComponentPreview>
-
-### Inline usage
-
-<ComponentPreview phonePresentation="none" code={`<p>
-  You can use the <TextLink href="#">responses endpoint</TextLink> to generate text. You can
-  either use the API directly from an HTTP client of your choice, or use one of the{" "}
-  <TextLink href="#">official SDKs</TextLink> for your preferred language.
-</p>`} previewMinHeight={168}>
-  <TextLinkBaseDemo />
-</ComponentPreview>
-
-### Default inheritance
-
-<ComponentPreview phonePresentation="none" details={<>By default, <code>TextLink</code> uses <code>currentcolor</code> inheritance and <code>text-decoration: underline</code> to create subtle visual differentiation from surrounding text. The hover effect is a dynamic deemphasis of the <code>currentcolor</code>, with some special cases for <code>text-secondary</code> and <code>text-tertiary</code> contexts.<br /><br />You can see this behavior by changing the text color context of the paragraph the links are in below:</>} code={`<p className="text-secondary">
-  You can use the <TextLink href="#">responses endpoint</TextLink> to generate text. You can
-  either use the API directly from an HTTP client of your choice, or use one of the{" "}
-  <TextLink href="#">official SDKs</TextLink> for your preferred language.
-</p>`} previewMinHeight={168}>
-  <TextLinkColorsDemo />
-</ComponentPreview>
-
-### Primary color
-
-<ComponentPreview phonePresentation="none" details={<>You can create a colorful link style with the <code>primary</code> prop, which uses color for visual differentiation.<br /><br />Primary links also remove the default <code>underline</code> treatment: pass <code>underline</code> to re-apply that style.</>} code={`<p>
-  Sample text with a <TextLink href="#" primary>primary link</TextLink>
-</p>`} previewMinHeight={168}>
-  <TextLinkPrimaryDemo />
-</ComponentPreview>
-
-### Underline
-
-<ComponentPreview phonePresentation="none" details={<>Links have an underlined aesthetic by default.<br /><br />Pass <code>{'underline={false}'}</code> to remove the underline from the link.</>} code={`<p className="text-secondary">
-  Sample text with a <TextLink href="#" underline={false}>subtle link</TextLink>
-</p>`} previewMinHeight={168}>
-  <TextLinkUnderlineDemo />
-</ComponentPreview>
-
-### External links
-
-<ComponentPreview phonePresentation="none" details={<>When external paths are provided, <code>{'<a>'}</code> will be used with <code>{'target="_blank"'}</code> and <code>{'rel="noopener noreferrer"'}</code> included by default. You can also compose icons along with the text to add visual indication.</>} code={`<TextLink href="#" primary underline>
-  External link <ArrowUpRight />
-</TextLink>`} previewMinHeight={168}>
-  <TextLinkExternalDemo />
-</ComponentPreview>
-
-### Font weight
-
-<ComponentPreview phonePresentation="none" details={<>Use the <code>className</code> prop to customize font weight.</>} code={`<TextLink href="#" className="font-semibold" underline={false}>
-  Contact support <ArrowRight />
-</TextLink>`} previewMinHeight={168}>
-  <TextLinkWeightDemo />
+<ComponentPreview phonePresentation="none" details={<>A <code>TextLink</code> sits in running text. By default it takes the surrounding text color (<code>currentcolor</code>) and an underline, a subtle difference from the text around it; on hover it fades the color, with special cases in <code>text-secondary</code> and <code>text-tertiary</code> text. Change the paragraph's color class to see it. <code>primary</code> colors the link instead and drops the underline by default. <code>underline</code> turns the underline on or off; unset, it is on unless the link is <code>primary</code>. An <code>http://</code> or <code>https://</code> URL is external: the link opens it in a new tab with <code>target="_blank"</code> and <code>rel="noopener noreferrer"</code>, and an icon such as <code>ArrowUpRight</code> can mark it. A font-weight class in <code>className</code> sets the weight.</>} code={overviewCode} previewMinHeight={228}>
+  <TextLinkOverviewDemo />
 </ComponentPreview>
 
 ## API

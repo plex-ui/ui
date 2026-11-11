@@ -223,48 +223,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<Alert\ntitle=\"Scheduled maintenance\"\ndescription=\"We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database.\"\nonDismiss={() => {}}\n/>",
-          "details": "On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants. With mobileActions=\"own\" the actions keep the size you give the buttons, for an alert inside a block of its own buttons."
-        },
-        {
-          "name": "Colors & variants",
-          "code": "<Alert\ncolor=\"primary\"\nvariant=\"outline\"\ntitle=\"Scheduled maintenance on Saturday, 2-4 AM PT\"\ndescription={<>Track status updates on <TextLink color=\"currentcolor\" href=\"#\">status page</TextLink></>}\n/>",
-          "details": "You can stylize the display of the alert using the color and variant props."
-        },
-        {
-          "name": "Title",
-          "code": "<Alert title=\"Your current access level limits what you can view or modify\" />",
-          "details": "You can optionally include a title for your alert with the title prop."
-        },
-        {
-          "name": "Description",
-          "code": "<Alert\ndescription={\n  <>\n    We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href=\"#\">Learn more</TextLink>\n  </>\n}\n/>",
-          "details": "You can optionally include description text for your alert with the description prop."
-        },
-        {
-          "name": "Actions",
-          "code": "<>\n<Alert\n  variant=\"soft\"\n  color=\"warning\"\n  title=\"Password expires in 3 days\"\n  description=\"Update it now to avoid losing access to your account.\"\n  actions={<Button color=\"primary\" pill>Update password</Button>}\n/>\n<Alert\n  variant=\"soft\"\n  color=\"warning\"\n  title=\"Your API key will be rotated soon\"\n  description=\"Automatic key rotation is scheduled for March 10. Download the new key afterward to keep your integrations running.\"\n  actions={<Button color=\"warning\" variant=\"soft\" pill>Remind me later</Button>}\n  onDismiss={() => {}}\n/>\n</>",
-          "details": "You can add actions to the alert with the actions prop, which accepts ReactNode. Combine with onDismiss to add a dismiss button."
-        },
-        {
-          "name": "Indicator",
-          "code": "<>\n<Alert\n  indicator={<Lightbulb />}\n  description=\"Tip: pin the projects you open most, and they stay at the top of the list.\"\n/>\n<Alert\n  indicator={false}\n  description=\"Version 2.18.5 rolls out behind-the-scenes tweaks to caching and background sync. You don't need to do anything.\"\n/>\n</>",
-          "details": "Alert provides an indicator icon by default. You can override it by passing a custom icon to indicator, or pass indicator={'{false}'} to hide it entirely."
-        },
-        {
-          "name": "Dismissible",
-          "code": "<>\n<Alert\n  className=\"items-start\"\n  title=\"Try our new dashboard layout\"\n  description=\"We've introduced a streamlined layout that makes using the dashboard even easier. You can switch back any time.\"\n  actions={(\n    <>\n      <Button color=\"primary\" variant=\"soft\" pill>Dismiss</Button>\n      <Button color=\"primary\" variant=\"solid\" pill>Try it</Button>\n    </>\n  )}\n/>\n<Alert\n  title=\"Thank you!\"\n  description=\"Your application has been received. We will review your application and respond within the next 48 hours.\"\n  onDismiss={() => {}}\n/>\n</>",
-          "details": "The suggested approach for dismissible notices is to use labeled buttons via actions. You can also provide onDismiss to render a dismiss button in the alert chrome. On a phone that button is a close button in the alert's corner, as on an iOS tip, while a labeled action stays a capsule under the message."
-        },
-        {
-          "name": "Banner",
-          "code": "<Alert\nbanner\ncolor=\"caution\"\nvariant=\"soft\"\nindicator={false}\ndescription=\"You are offline. Changes will sync when the connection is back.\"\n/>",
-          "details": "Use banner for a full-width strip across the top or bottom of a page or panel: offline, read-only, a new version. It drops the rounded corners and keeps only the lines above and below. Pass indicator={'{false}'} for a plain strip."
-        },
-        {
-          "name": "Action placement",
-          "code": "<Alert\ntitle=\"Our terms of service has been updated\"\ndescription=\"We've updated our terms to clarify how we handle data, billing, and user permissions. Please review and accept the latest terms to avoid impacting your service.\"\nactions={(\n  <>\n    <Button color=\"primary\" variant=\"soft\" pill>Set reminder</Button>\n    <Button color=\"primary\" variant=\"solid\" pill>Review terms</Button>\n  </>\n)}\nactionsPlacement=\"bottom\"\n/>",
-          "details": "Actions are automatically positioned in the alert by default. You can force a specific position with the actionsPlacement prop by passing either 'end' or 'bottom'. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only."
+          "code": "const [color, setColor] = useState(\"primary\")\nconst [variant, setVariant] = useState(\"outline\")\nconst [title, setTitle] = useState(true)\nconst [description, setDescription] = useState(true) // an alert needs a title or a description\nconst [indicator, setIndicator] = useState(undefined) // or <Lightbulb />, false\nconst [actions, setActions] = useState(false) // not on a solid alert, whose color buttons do not read on\nconst [actionsPlacement, setActionsPlacement] = useState(undefined) // or \"end\", \"bottom\"; automatic when unset\nconst [mobileActions, setMobileActions] = useState(\"capsules\") // or \"own\"\nconst [onDismiss, setOnDismiss] = useState(false) // not on a solid alert either\nconst [banner, setBanner] = useState(false)\n\n<Alert\n  color={color}\n  variant={variant}\n  title={title ? \"Scheduled maintenance\" : undefined}\n  description={description ? \"We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database.\" : undefined}\n  indicator={indicator}\n  actions={actions ? (\n    <>\n      <Button color=\"primary\" variant=\"soft\" pill>Set reminder</Button>\n      <Button color=\"primary\" variant=\"solid\" pill>View status</Button>\n    </>\n  ) : undefined}\n  actionsPlacement={actionsPlacement}\n  mobileActions={mobileActions}\n  onDismiss={onDismiss ? () => {} : undefined}\n  banner={banner}\n/>",
+          "details": "color and variant style the alert. It shows a title, a description or both; each takes text or nodes, such as a &lt;TextLink color=\"currentcolor\"&gt; to a status page. It has an indicator icon by default, chosen from its color: an icon in indicator replaces it, and indicator={'{false}'} hides it. actions takes buttons or other nodes. They are placed automatically, at the end or, when they take more than a third of the alert's width, under the message, unless actionsPlacement is 'end' or 'bottom'. onDismiss adds a Dismiss button in the alert's chrome; for a dismissible notice, labeled buttons in actions are the suggested approach. A solid alert is for a message alone: buttons, Dismiss among them, do not read on its color, so this preview offers them on soft and outline alerts. Use banner for a full-width strip across the top or bottom of a page or panel (offline, read-only, a new version): it drops the rounded corners and keeps only the lines above and below. On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners (a banner stays square), the title at 17/22 semibold and the description at 15/20, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants, and its actions always stand under the message as 50px capsules side by side, so actionsPlacement is a desktop setting. With mobileActions=\"own\" the actions keep the size you give the buttons, for an alert inside a block of its own buttons."
         }
       ],
       "docsUrl": "https://plexui.com/components/alert"
@@ -384,48 +344,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div className=\"flex gap-4\">\n<Avatar name=\"Tyler\" imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" size={48} />\n<Avatar name=\"Will\" size={48} />\n<Avatar name=\"Tech support\" Icon={Robot} size={48} color=\"primary\" variant=\"solid\" />\n</div>",
-          "details": "A variety of avatar types: text, image, icon, and overflow."
-        },
-        {
-          "name": "Text",
-          "code": "<Avatar name=\"David\" size={48} />",
-          "details": "For text-based avatars, a single initial is displayed based on the name prop passed to the component."
-        },
-        {
-          "name": "Image",
-          "code": "<Avatar\nname=\"Tyler\"\nimageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\nsize={48}\n/>",
-          "details": "To display an image avatar, provide an absolute URL to the image with imageUrl. Images will have a soft fade entrance once loaded, or fall back to a text display if the image fails to load."
-        },
-        {
-          "name": "Icon",
-          "code": "<Avatar\nIcon={Robot}\nsize={48}\n/>",
-          "details": "To display an icon avatar, provide an icon to render to the Icon prop. The name prop is not used in this case, and can be omitted."
-        },
-        {
-          "name": "Overflow count",
-          "code": "<Avatar overflowCount={9} size={48} />",
-          "details": "To display an overflow avatar, provide a number to the overflowCount prop. The number will be automatically formatted and scaled to fit."
-        },
-        {
-          "name": "Sizing",
-          "code": "<Avatar name=\"David\" size={48} />",
-          "details": "To size the avatar, pass a number to the size property, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value."
-        },
-        {
-          "name": "Colors & variants",
-          "code": "<div\nclassName=\"grid items-center gap-x-8 gap-y-5\"\nstyle={{ gridTemplateColumns: \"repeat(2, minmax(0, auto)) auto\", justifyItems: \"center\" }}\n>\n{([\"soft\", \"solid\"] as const).map((variant) => (\n  <div key={variant} className=\"text-sm font-medium\" style={{ color: \"var(--color-text-tertiary)\" }}>\n    {variant}\n  </div>\n))}\n<div />\n{([\"primary\", \"secondary\", \"success\", \"danger\", \"info\", \"discovery\"] as const).map((color, idx) => (\n  <Fragment key={color}>\n    {([\"soft\", \"solid\"] as const).map((variant) => (\n      <Avatar key={variant} name={String.fromCharCode(65 + idx)} color={color} variant={variant} size={48} />\n    ))}\n    <div className=\"text-sm font-medium justify-self-start\" style={{ color: \"var(--color-text-tertiary)\" }}>\n      {color}\n    </div>\n  </Fragment>\n))}\n</div>",
-          "details": "You can stylize the display of the avatar using the color and variant props."
-        },
-        {
-          "name": "Roundness",
-          "code": "<Avatar name=\"Acme, co.\" color=\"primary\" variant=\"solid\" size={48} className=\"rounded-lg\" />",
-          "details": "By default, avatars are fully rounded. You can override this by passing a Tailwind rounding class to className."
-        },
-        {
-          "name": "Interactive",
-          "code": "<div className=\"flex items-center gap-4\">\n<Avatar name=\"Will\" size={48} onClick={saySup} />\n<Avatar\n  imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n  name=\"Tyler\"\n  size={48}\n  onClick={saySup}\n/>\n<Avatar name=\"Tech support\" Icon={Robot} size={48} color=\"info\" onClick={saySup} />\n</div>",
-          "details": "Avatars can be used as interactive elements by passing an onClick (or onPointerDown) handler. The avatar then renders a button and applies semantic and visual interaction styles."
+          "code": "const [type, setType] = useState(\"text\") // \"text\", \"image\", \"icon\" or \"overflow\": which of the props below it sets\nconst [overflowCount, setOverflowCount] = useState(9)\nconst [size, setSize] = useState(48)\nconst [color, setColor] = useState(\"secondary\")\nconst [variant, setVariant] = useState(\"soft\")\nconst [roundness, setRoundness] = useState(\"full\")\nconst [onClick, setOnClick] = useState(false)\n\n// A literal class per roundness, so Tailwind finds each one\nconst rounded = { full: \"rounded-full\", xl: \"rounded-xl\", lg: \"rounded-lg\", md: \"rounded-md\", sm: \"rounded-sm\", none: \"rounded-none\" }\n\n<Avatar\n  name={type === \"icon\" ? \"Tech support\" : type === \"overflow\" ? `${overflowCount} more` : \"Tyler\"}\n  imageUrl={type === \"image\" ? \"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" : undefined}\n  Icon={type === \"icon\" ? Robot : undefined}\n  overflowCount={type === \"overflow\" ? overflowCount : undefined}\n  size={size}\n  color={color}\n  variant={variant}\n  className={rounded[roundness]}\n  onClick={onClick ? saySup : undefined}\n/>",
+          "details": "An avatar shows one of four things. Without other props it shows the first letter of name. With imageUrl, an absolute URL, it shows the photo with a soft fade once it loads, and the initial if it fails. With Icon, an icon component such as Robot from @plexui/ui/components/Icon, it shows the icon; name is not shown, and only names the avatar when it is a button. With overflowCount it shows the count, formatted and scaled to fit. size sets the width and height in pixels, and the initial, icon and count scale with it. color and variant style every avatar except a loaded photo, which covers them. Avatars are fully rounded by default; a Tailwind rounding class in className overrides that. An onClick (or onPointerDown) handler makes the avatar a button with interaction styles and its name as the accessible name."
         }
       ],
       "docsUrl": "https://plexui.com/components/avatar"
@@ -3126,62 +3046,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div className=\"flex items-center gap-6\">\n<LoadingIndicator size={20} />\n<CircularProgress size={24} />\n<LoadingDots />\n</div>",
-          "details": "The demos restart every few seconds through a done flag that fills the ring before the simulation starts over."
-        },
-        {
-          "name": "LoadingIndicator",
-          "code": "<LoadingIndicator />",
-          "details": "Simple spinning indicator for general loading states."
-        },
-        {
-          "name": "Sizing & stroke",
-          "code": "<LoadingIndicator size={30} strokeWidth={2} />",
-          "details": "By default, the indicator adapts to the surrounding font-size and color of text. You can control the size of the LoadingIndicator using the --indicator-size CSS custom property."
-        },
-        {
-          "name": "Color",
-          "code": "<div className=\"flex items-center gap-2 text-danger\">\n<LoadingIndicator size={16} /> <span>Destroying forever...</span>\n</div>",
-          "details": "The indicator defaults to currentcolor, inheriting the surrounding text color. This can also be customized by altering the --indicator-color variable around the DOM scope of the component."
-        },
-        {
-          "name": "Duration",
-          "code": "<div style={{ '--indicator-rotate-duration': '3s' } as React.CSSProperties}>\n<LoadingIndicator />\n</div>",
-          "details": "You can control the rotation speed of the spinner with --indicator-rotate-duration."
-        },
-        {
-          "name": "CircularProgress",
-          "code": "<CircularProgress />",
-          "details": "Circular progress ring with simulated progress animation."
-        },
-        {
-          "name": "Progress",
-          "code": "<CircularProgress progress={25} />",
-          "details": "Use progress to show static progress and prevent the animation."
-        },
-        {
-          "name": "Sizing & stroke",
-          "code": "<CircularProgress size={30} strokeWidth={2} />",
-          "details": "Use size and strokeWidth. Or use --circular-progress-size and --circular-progress-stroke CSS variables."
-        },
-        {
-          "name": "Color",
-          "code": "<CircularProgress trackColor=\"var(--alpha-15)\" trackActiveColor=\"var(--gray-1000)\" />",
-          "details": "Customize the color of the indicator with the --circular-progress-track-color and --circular-progress-track-active-color variables."
-        },
-        {
-          "name": "LoadingDots",
-          "code": "<LoadingDots />",
-          "details": "Indicate typing progress with staggered pulsing dot animation."
-        },
-        {
-          "name": "Color",
-          "code": "<div className=\"text-danger\">\n<LoadingDots />\n</div>",
-          "details": "The indicator defaults to currentcolor, inheriting the surrounding text color. You can customize the color by providing a different color value or context."
-        },
-        {
-          "name": "Phone spinner",
-          "code": "<div className=\"flex items-center gap-6\">\n<LoadingIndicator size={14} />\n<LoadingIndicator />\n<LoadingIndicator size={35} />\n</div>"
+          "code": "const [indicator, setIndicator] = useState(\"LoadingIndicator\") // or \"CircularProgress\", \"LoadingDots\"\nconst [size, setSize] = useState(20)\nconst [strokeWidth, setStrokeWidth] = useState(2)\nconst [color, setColor] = useState(undefined) // or \"text-secondary\", \"text-danger\": the spinner and the dots take the text color\nconst [duration, setDuration] = useState(800) // ms, one turn of the spinner\nconst [simulated, setSimulated] = useState(true) // without progress the ring simulates it\nconst [progress, setProgress] = useState(25)\nconst [maxDuration, setMaxDuration] = useState(15000)\nconst [done, setDone] = useState(false) // fills the ring and ends the simulation\nconst [trackColor, setTrackColor] = useState(undefined) // or \"var(--alpha-15)\"\nconst [trackActiveColor, setTrackActiveColor] = useState(undefined) // or \"var(--gray-1000)\"\n\n{indicator === \"LoadingIndicator\" && (\n  <div style={{ \"--indicator-rotate-duration\": `${duration}ms` } as React.CSSProperties}>\n    <LoadingIndicator size={size} strokeWidth={strokeWidth} className={color} />\n  </div>\n)}\n{indicator === \"CircularProgress\" && (\n  <CircularProgress\n    size={size}\n    strokeWidth={strokeWidth}\n    progress={simulated ? undefined : progress}\n    maxDuration={maxDuration}\n    done={done}\n    trackColor={trackColor}\n    trackActiveColor={trackActiveColor}\n  />\n)}\n{indicator === \"LoadingDots\" && <LoadingDots className={color} />}",
+          "details": "indicator picks one of the three. LoadingIndicator is a spinner for general loading states. It takes the surrounding font-size and text color by default; size and strokeWidth set its size and stroke in pixels, a text class such as text-danger (or --indicator-color) colors it, and --indicator-rotate-duration sets the time of one turn. On a desktop it is a turning ring. With the optional touch stylesheet it is the iOS 27 spinner of eight rounded spokes: 20px by default, also inside a field (an Input adornment, an InputGroup addon or a SelectControl, through --control-indicator-size); up to 16px it takes the Small spokes and from 28px the Large ones. A strokeWidth replaces the spokes' widths, so the Phone view leaves it unset. CircularProgress is a progress ring. Without progress it simulates progress over maxDuration milliseconds, and done fills the ring and ends the simulation; this preview sets it every 4 seconds to start over. progress, from 0 to 100, shows a fixed value instead. size and strokeWidth (at most 4) size the ring, and trackColor and trackActiveColor color its track and its progress. LoadingDots shows typing progress with staggered pulsing dots in the current text color."
         }
       ],
       "subComponents": [
@@ -7239,36 +7105,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div className=\"flex gap-4\">\n<TextLink href=\"#\">Read more</TextLink>\n<TextLink href=\"#\" primary>External link <ArrowUpRight /></TextLink>\n</div>"
-        },
-        {
-          "name": "Inline usage",
-          "code": "<p>\nYou can use the <TextLink href=\"#\">responses endpoint</TextLink> to generate text. You can\neither use the API directly from an HTTP client of your choice, or use one of the{\" \"}\n<TextLink href=\"#\">official SDKs</TextLink> for your preferred language.\n</p>"
-        },
-        {
-          "name": "Default inheritance",
-          "code": "<p className=\"text-secondary\">\nYou can use the <TextLink href=\"#\">responses endpoint</TextLink> to generate text. You can\neither use the API directly from an HTTP client of your choice, or use one of the{\" \"}\n<TextLink href=\"#\">official SDKs</TextLink> for your preferred language.\n</p>",
-          "details": "By default, TextLink uses currentcolor inheritance and text-decoration: underline to create subtle visual differentiation from surrounding text. The hover effect is a dynamic deemphasis of the currentcolor, with some special cases for text-secondary and text-tertiary contexts.You can see this behavior by changing the text color context of the paragraph the links are in below:"
-        },
-        {
-          "name": "Primary color",
-          "code": "<p>\nSample text with a <TextLink href=\"#\" primary>primary link</TextLink>\n</p>",
-          "details": "You can create a colorful link style with the primary prop, which uses color for visual differentiation.Primary links also remove the default underline treatment: pass underline to re-apply that style."
-        },
-        {
-          "name": "Underline",
-          "code": "<p className=\"text-secondary\">\nSample text with a <TextLink href=\"#\" underline={false}>subtle link</TextLink>\n</p>",
-          "details": "Links have an underlined aesthetic by default.Pass {'underline={false}'} to remove the underline from the link."
-        },
-        {
-          "name": "External links",
-          "code": "<TextLink href=\"#\" primary underline>\nExternal link <ArrowUpRight />\n</TextLink>",
-          "details": "When external paths are provided, {''} will be used with {'target=\"_blank\"'} and {'rel=\"noopener noreferrer\"'} included by default. You can also compose icons along with the text to add visual indication."
-        },
-        {
-          "name": "Font weight",
-          "code": "<TextLink href=\"#\" className=\"font-semibold\" underline={false}>\nContact support <ArrowRight />\n</TextLink>",
-          "details": "Use the className prop to customize font weight."
+          "code": "const [colorClassName, setColorClassName] = useState(undefined) // or \"text-secondary\", \"text-tertiary\"\nconst [primary, setPrimary] = useState(false)\nconst [underline, setUnderline] = useState(undefined) // or true, false; unset, on unless primary\nconst [external, setExternal] = useState(false)\nconst [weight, setWeight] = useState(undefined) // or \"font-medium\", \"font-semibold\"\n\n<p className={colorClassName}>\n  You can use the{\" \"}\n  <TextLink href=\"#\" primary={primary} underline={underline} className={weight}>responses endpoint</TextLink>{\" \"}\n  to generate text. You can either use the API directly from an HTTP client of your choice, or use one of the{\" \"}\n  {external ? (\n    <TextLink href=\"https://example.com\" primary={primary} underline={underline} className={weight}>\n      official SDKs <ArrowUpRight />\n    </TextLink>\n  ) : (\n    <TextLink href=\"#\" primary={primary} underline={underline} className={weight}>official SDKs</TextLink>\n  )}{\" \"}\n  for your preferred language.\n</p>",
+          "details": "A TextLink sits in running text. By default it takes the surrounding text color (currentcolor) and an underline, a subtle difference from the text around it; on hover it fades the color, with special cases in text-secondary and text-tertiary text. Change the paragraph's color class to see it. primary colors the link instead and drops the underline by default. underline turns the underline on or off; unset, it is on unless the link is primary. An http:// or https:// URL is external: the link opens it in a new tab with target=\"_blank\" and rel=\"noopener noreferrer\", and an icon such as ArrowUpRight can mark it. A font-weight class in className sets the weight."
         }
       ],
       "docsUrl": "https://plexui.com/components/text-link"
@@ -7981,5 +7819,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-11T10:43:21.008Z"
+  "generatedAt": "2026-11-11T11:39:44.847Z"
 }

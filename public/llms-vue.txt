@@ -62,7 +62,7 @@ Props:
   - indicator (slot | false) — Custom indicator (slot), or :indicator="false" to hide it
   - @dismiss (() => void) — Shows the dismiss button when set
   - banner (boolean) default: false — Full-width strip: square corners, lines above and below only
-Examples: Overview, Colors & variants, Title, Description, Actions, Indicator, Dismissible, Banner, Action placement
+Examples: Overview
 
 ## Avatar
 An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.
@@ -79,7 +79,7 @@ Props:
   - class (string) — Applied to the avatar root
   - @click ((event: MouseEvent) => void) — Makes avatar interactive (renders a button)
   - @pointerdown ((event: PointerEvent) => void) — Makes avatar interactive (renders a button)
-Examples: Overview, Text, Image, Icon, Overflow count, Sizing, Colors & variants, Roundness, Interactive
+Examples: Overview
 
 ## Avatar Group
 Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.
@@ -560,7 +560,7 @@ Docs: https://plexui.com/vue/components/indicators
     - stroke-width (number) default: 2 — Stroke thickness in px, capped at 4
     - track-color (string) — Track color (CSS variable or value)
     - track-active-color (string) — Active segment color
-Examples: Overview, LoadingIndicator, Sizing & stroke, Color, Duration, CircularProgress, Progress, Sizing & stroke, Color, LoadingDots, Color, Phone spinner
+Examples: Overview
 
 ## Input
 Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
@@ -1270,7 +1270,7 @@ Props:
   - as (Component) — Link component (e.g. RouterLink, NuxtLink)
   - target (string) — Where to open the link. External links default to _blank
   - class (string) — Extra classes on the link
-Examples: Overview, Inline usage, Default inheritance, Primary color, Underline, External links, Font weight
+Examples: Overview
 
 ## Textarea
 Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.

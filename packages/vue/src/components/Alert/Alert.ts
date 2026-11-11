@@ -4,6 +4,7 @@ import {
   h,
   onBeforeUnmount,
   onMounted,
+  onUpdated,
   ref,
   watch,
   type HTMLAttributes,
@@ -51,6 +52,14 @@ const contentBoxSize = (entry: ResizeObserverEntry, sizeType: "inlineSize" | "bl
   if (!box) return entry.contentRect[sizeType === "inlineSize" ? "width" : "height"]
   // Firefox once reported a single object instead of an array
   return Array.isArray(box) ? box[0]?.[sizeType] : (box as ResizeObserverSize)[sizeType]
+}
+
+/** The actions' own width: their row stretches to the alert's width when they sit at the bottom */
+const actionsWidthOf = (element: HTMLElement | null) => {
+  if (!element) return 0
+  const children = Array.from(element.children) as HTMLElement[]
+  const gap = parseFloat(getComputedStyle(element).columnGap) || 0
+  return children.reduce((width, child) => width + child.offsetWidth, 0) + gap * Math.max(0, children.length - 1)
 }
 
 const AlertComponent = defineComponent({
@@ -107,14 +116,18 @@ const AlertComponent = defineComponent({
     })
     onBeforeUnmount(() => observer?.disconnect())
 
-    watch(containerWidth, (width) => {
-      const actionsWidth = actionsRef.value?.clientWidth ?? 0
+    const measure = () => {
+      const actionsWidth = actionsWidthOf(actionsRef.value)
+      const width = containerWidth.value
 
       if (actionsWidth && width) {
         // If actions are larger than a third of the container width, wrap them.
         actionsAutoPlacement.value = actionsWidth > width / 3 ? "bottom" : "end"
       }
-    })
+    }
+    watch(containerWidth, measure)
+    // Measured again when the actions change too (another button, Dismiss added), not only the width
+    onUpdated(measure)
 
     return () => {
       const { color } = props

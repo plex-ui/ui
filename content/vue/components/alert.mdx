@@ -8,117 +8,38 @@ import { VueDemo } from "@/components/docs/vue/VueDemo"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 export const overview = `<Alert
-  title="Scheduled maintenance"
-  description="We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database."
-  @dismiss="() => {}"
-/>`
-
-export const colors = `<div class="w-fit max-w-[500px]">
-  <div class="flex flex-col gap-6">
-    <div
-      v-for="color in ['primary', 'success', 'danger', 'warning', 'caution', 'info', 'discovery']"
-      :key="color"
-      class="flex flex-col items-stretch gap-1.5 md:flex-row md:items-center md:gap-0"
-    >
-      <div class="text-sm md:text-right md:mr-8 md:min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ color }}</div>
-      <div class="md:flex-1">
-        <Alert :color="color" :variant="variant" title="Scheduled maintenance on Saturday, 2-4 AM PT">
-          <template #description>
-            Track status updates on <TextLink color="currentcolor" href="#">status page</TextLink>
-          </template>
-        </Alert>
-      </div>
-    </div>
-  </div>
-</div>`
-
-export const titleExample = `<Alert title="Your current access level limits what you can view or modify" />`
-
-export const descriptionExample = `<Alert>
-  <template #description>
-    We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
-  </template>
-</Alert>`
-
-export const actions = `<div class="flex flex-col items-center justify-center gap-6 w-full">
-  <Alert
-    variant="soft"
-    color="warning"
-    title="Password expires in 3 days"
-    description="Update it now to avoid losing access to your account."
-  >
-    <template #actions>
-      <Button color="primary" pill>Update password</Button>
-    </template>
-  </Alert>
-  <Alert
-    variant="soft"
-    color="warning"
-    title="Your API key will be rotated soon"
-    description="Automatic key rotation is scheduled for March 10. Download the new key afterward to keep your integrations running."
-    @dismiss="() => {}"
-  >
-    <template #actions>
-      <Button color="warning" variant="soft" pill>Remind me later</Button>
-    </template>
-  </Alert>
-</div>`
-
-export const actionPlacement = `<Alert
-  title="Our terms of service has been updated"
-  description="We've updated our terms to clarify how we handle data, billing, and user permissions. Please review and accept the latest terms to avoid impacting your service."
-  actions-placement="bottom"
+  :color="color"
+  :variant="variant"
+  :title="title ? 'Scheduled maintenance' : undefined"
+  :description="description ? 'We\\'ll be offline 2 - 4 AM UTC on July 14 while we upgrade our database.' : undefined"
+  :indicator="indicator === 'none' ? false : undefined"
+  :actions-placement="actionsPlacement === 'auto' ? undefined : actionsPlacement"
+  :mobile-actions="mobileActions"
+  :on-dismiss="onDismiss ? () => {} : undefined"
+  :banner="banner"
 >
-  <template #actions>
+  <template v-if="indicator === 'custom'" #indicator>
+    <Lightbulb />
+  </template>
+  <template v-if="actions" #actions>
     <Button color="primary" variant="soft" pill>Set reminder</Button>
-    <Button color="primary" variant="solid" pill>Review terms</Button>
+    <Button color="primary" variant="solid" pill>View status</Button>
   </template>
 </Alert>`
 
-export const indicator = `<div class="flex flex-col items-center justify-center gap-6 w-full">
-  <Alert description="Tip: pin the projects you open most, and they stay at the top of the list.">
-    <template #indicator>
-      <Lightbulb />
-    </template>
-  </Alert>
-  <Alert
-    :indicator="false"
-    description="Version 2.18.5 rolls out behind-the-scenes tweaks to caching and background sync. You don't need to do anything."
-  />
-</div>`
-
-export const dismissible = `<div class="flex flex-col items-center justify-center gap-6 w-full">
-  <Alert
-    class="items-start"
-    title="Try our new dashboard layout"
-    description="We've introduced a streamlined layout that makes using the dashboard even easier. You can switch back any time."
-  >
-    <template #actions>
-      <Button color="primary" variant="soft" pill>Dismiss</Button>
-      <Button color="primary" variant="solid" pill>Try it</Button>
-    </template>
-  </Alert>
-  <Alert
-    title="Thank you!"
-    description="Your application has been received. We will review your application and respond within the next 48 hours."
-    @dismiss="() => {}"
-  />
-</div>`
-
-export const banner = `<div class="flex flex-col items-stretch justify-center gap-6 w-full">
-  <Alert
-    banner
-    color="caution"
-    variant="soft"
-    :indicator="false"
-    description="You are offline. Changes will sync when the connection is back."
-  />
-  <Alert banner color="info" variant="outline" description="A new version is available.">
-    <template #actions>
-      <Button color="primary" variant="soft" size="sm">Reload</Button>
-    </template>
-  </Alert>
-</div>`
+{/* An alert needs a title or a description; actionsPlacement and mobileActions act only on actions, on a desktop and on a phone; a solid alert has no buttons, which do not read on its color (owner 11.11) */}
+export const overviewControls = [
+  { name: "color", type: "select", options: ["primary", "success", "danger", "warning", "caution", "info", "discovery"], default: "primary", menu: true },
+  { name: "variant", type: "select", options: ["solid", "soft", "outline"], default: "outline" },
+  { name: "title", type: "boolean", default: true },
+  { name: "description", type: "boolean", default: true, when: { title: true } },
+  { name: "indicator", type: "select", options: ["default", "custom", "none"], default: "default" },
+  { name: "actions", type: "boolean", default: false, when: { variant: ["soft", "outline"] } },
+  { name: "actionsPlacement", type: "select", options: ["auto", "end", "bottom"], default: "auto", when: { actions: true }, desktopOnly: true },
+  { name: "mobileActions", type: "select", options: ["capsules", "own"], default: "capsules", when: { actions: true }, phoneOnly: true },
+  { name: "onDismiss", type: "boolean", default: false, when: { variant: ["soft", "outline"] } },
+  { name: "banner", type: "boolean", default: false },
+]
 
 <UsageBlock>{`import { Alert } from "@plexui/vue/components/Alert";`}</UsageBlock>
 
@@ -126,62 +47,24 @@ export const banner = `<div class="flex flex-col items-stretch justify-center ga
 
 <div id="first-component-page">
 
+<span id="colors--variants" />
+<span id="title" />
+<span id="description" />
+<span id="actions" />
+<span id="indicator" />
+<span id="dismissible" />
+<span id="banner" />
+<span id="action-placement" />
+
 ### Overview
 
-<ComponentPreview details={<>On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants. With <code>mobile-actions="own"</code> the actions keep the size you give the buttons, for an alert inside a block of its own buttons.</>} language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo template={overview} />
-</ComponentPreview>
-
-### Colors & variants
-
-<ComponentPreview language="vue" details={<>You can stylize the display of the alert using the <code>color</code> and <code>variant</code> props.</>} code={colors} previewMinHeight={PREVIEW_MIN_HEIGHT.showcaseTall}>
-  <VueDemo
-    template={colors}
-    stageClassName="flex-1 w-full py-12 flex items-center justify-center"
-    controls={[{ name: "variant", type: "select", options: ["solid", "soft", "outline"], default: "outline" }]}
-  />
-</ComponentPreview>
-
-### Title
-
-<ComponentPreview language="vue" details={<>You can optionally include a title for your alert with the <code>title</code> prop (or the <code>title</code> slot).</>} code={titleExample} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo template={titleExample} />
-</ComponentPreview>
-
-### Description
-
-<ComponentPreview language="vue" details={<>You can optionally include description text for your alert with the <code>description</code> prop, or the <code>description</code> slot for rich content.</>} code={descriptionExample} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo template={descriptionExample} />
-</ComponentPreview>
-
-### Actions
-
-<ComponentPreview language="vue" details={<>You can add actions to the alert with the <code>actions</code> slot. Combine with <code>@dismiss</code> to add a dismiss button.</>} code={actions} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo template={actions} />
-</ComponentPreview>
-
-### Indicator
-
-<ComponentPreview language="vue" details={<>Alert provides an indicator icon by default. You can override it with the <code>indicator</code> slot, or pass <code>:indicator="false"</code> to hide it entirely.</>} code={indicator} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo template={indicator} />
-</ComponentPreview>
-
-### Dismissible
-
-<ComponentPreview language="vue" details={<>The suggested approach for dismissible notices is to use labeled buttons in the <code>actions</code> slot. You can also listen to <code>@dismiss</code> to render a dismiss button in the alert chrome. On a phone that button is a close button in the alert's corner, as on an iOS tip, while a labeled action stays a capsule under the message.</>} code={dismissible} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo template={dismissible} />
-</ComponentPreview>
-
-### Banner
-
-<ComponentPreview language="vue" details={<>Use <code>banner</code> for a full-width strip across the top or bottom of a page or panel: offline, read-only, a new version. It drops the rounded corners and keeps only the lines above and below. Pass <code>:indicator="false"</code> for a plain strip.</>} code={banner} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo template={banner} />
-</ComponentPreview>
-
-### Action placement
-
-<ComponentPreview language="vue" details={<>Actions are automatically positioned in the alert by default. You can force a specific position with the <code>actions-placement</code> prop by passing either <code>'end'</code> or <code>'bottom'</code>. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only.</>} phonePresentation="none" code={actionPlacement} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo template={actionPlacement} />
+<ComponentPreview language="vue" details={<>
+  <p><code>color</code> and <code>variant</code> style the alert. It shows a <code>title</code>, a <code>description</code> or both; each takes text, or content in the <code>#title</code> and <code>#description</code> slots, such as a <code>&lt;TextLink color="currentcolor"&gt;</code> to a status page. It has an indicator icon by default, chosen from its color: the <code>indicator</code> slot replaces it, and <code>:indicator="false"</code> hides it.</p>
+  <p>The <code>actions</code> slot takes buttons or other content. They are placed automatically, at the end or, when they take more than a third of the alert's width, under the message, unless <code>actions-placement</code> is <code>'end'</code> or <code>'bottom'</code>. <code>@dismiss</code> adds a Dismiss button in the alert's chrome (this preview binds it as <code>:on-dismiss</code>, which can be left unset); for a dismissible notice, labeled buttons in <code>actions</code> are the suggested approach. A solid alert is for a message alone: buttons, Dismiss among them, do not read on its color, so this preview offers them on soft and outline alerts.</p>
+  <p>Use <code>banner</code> for a full-width strip across the top or bottom of a page or panel (offline, read-only, a new version): it drops the rounded corners and keeps only the lines above and below.</p>
+  <p>On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners (a banner stays square), the title at 17/22 semibold and the description at 15/20, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants, and its actions always stand under the message as 50px capsules side by side, so <code>actions-placement</code> is a desktop setting. With <code>mobile-actions="own"</code> the actions keep the size you give the buttons, for an alert inside a block of its own buttons.</p>
+</>} code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo template={overview} controls={overviewControls} stageClassName="flex-1 w-full py-12 flex items-center justify-center" />
 </ComponentPreview>
 
 ## API

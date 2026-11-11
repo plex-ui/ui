@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Alert } from '@plexui/ui/components/Alert';
 import { Button } from '@plexui/ui/components/Button';
-import { TextLink } from '@plexui/ui/components/TextLink';
 import { Lightbulb } from '@plexui/ui/components/Icon';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { DemoControlBoolean, DemoControlRow, DemoControlSelect, controlsTableStyle } from './ButtonDemos';
 
 const COLOR_OPTIONS = [
   'primary',
@@ -19,178 +18,80 @@ const COLOR_OPTIONS = [
 ] as const;
 
 const VARIANT_OPTIONS = ['solid', 'soft', 'outline'] as const;
+const INDICATOR_OPTIONS = ['default', 'custom', 'none'] as const;
+const PLACEMENT_OPTIONS = ['auto', 'end', 'bottom'] as const;
+const MOBILE_ACTIONS_OPTIONS = ['capsules', 'own'] as const;
 
-function RowMatrix({
-  rowLabels,
-  renderRow,
-}: {
-  rowLabels: Readonly<string[]>;
-  renderRow: (rowIndex: number) => React.ReactNode;
-}) {
+function Segments<T extends string>({ name, options, value, onChange, desktopOnly, phoneOnly }: { name: string; options: readonly T[]; value: T; onChange: (value: T) => void; desktopOnly?: boolean; phoneOnly?: boolean }) {
   return (
-    <div className="flex flex-col gap-6">
-      {/* On a phone the color names stand above the alerts, which keep the screen's width */}
-      {rowLabels.map((row, ri) => (
-        <div key={ri} className="flex flex-col items-stretch gap-1.5 md:flex-row md:items-center md:gap-0">
-          <div
-            className="text-sm md:text-right md:mr-8 md:min-w-[4rem]"
-            style={{ color: 'var(--color-text-tertiary)' }}
-          >
-            {row}
-          </div>
-          <div className="md:flex-1">{renderRow(ri)}</div>
-        </div>
-      ))}
-    </div>
+    <DemoControlRow name={name} desktopOnly={desktopOnly} phoneOnly={phoneOnly}>
+      <SegmentedControl<T> value={value} onChange={onChange} aria-label={name} size="xs">
+        {options.map((option) => (
+          <SegmentedControl.Option key={option} value={option}>
+            {option}
+          </SegmentedControl.Option>
+        ))}
+      </SegmentedControl>
+    </DemoControlRow>
   );
 }
 
-/** The Overview notice; on a phone its dismiss button is the close button in the corner of an iOS tip. */
+/** The Overview, with every setting of the alert: what the page's examples once showed one by one (Colors & variants,
+ * Title, Description, Actions, Indicator, Dismissible, Banner, Action placement) are its settings (owner 11.11: «в
+ * первом примере можно сразу показать все со всеми настройками»). An alert needs a title or a description, so
+ * `description` is offered only with a title. `actionsPlacement` and `mobileActions` act only on actions, so they are
+ * offered only with them; on a phone the actions always stand under the message, so `actionsPlacement` is a desktop
+ * setting, and `mobileActions` (their size there) a phone one. A solid alert is for a message alone: buttons, its own
+ * Dismiss among them, do not read on its color, so `actions` and `onDismiss` are offered only on soft and outline ones.
+ * A setting that is not offered keeps its choice and shows its default, as in the Vue demo. `color` has more options
+ * than a row of segments shows whole, so it is a menu. */
 export function AlertOverviewDemo() {
-  return (
-    <Alert
-      title="Scheduled maintenance"
-      description="We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database."
-      onDismiss={() => {}}
-    />
-  );
-}
-
-export function AlertColorsDemo() {
+  const [color, setColor] = useState<(typeof COLOR_OPTIONS)[number]>('primary');
   const [variant, setVariant] = useState<(typeof VARIANT_OPTIONS)[number]>('outline');
+  const [title, setTitle] = useState(true);
+  const [description, setDescription] = useState(true);
+  const [indicator, setIndicator] = useState<(typeof INDICATOR_OPTIONS)[number]>('default');
+  const [actions, setActions] = useState(false);
+  const [actionsPlacement, setActionsPlacement] = useState<(typeof PLACEMENT_OPTIONS)[number]>('auto');
+  const [mobileActions, setMobileActions] = useState<(typeof MOBILE_ACTIONS_OPTIONS)[number]>('capsules');
+  const [onDismiss, setOnDismiss] = useState(false);
+  const [banner, setBanner] = useState(false);
+  const shownDescription = !title || description;
+  const buttons = variant !== 'solid';
+  const shownActions = buttons && actions;
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="variant">
-          <SegmentedControl<(typeof VARIANT_OPTIONS)[number]>
-            value={variant}
-            onChange={setVariant}
-            aria-label="variant"
-            size="xs"
-          >
-            {VARIANT_OPTIONS.map((v) => (
-              <SegmentedControl.Option key={v} value={v}>
-                {v}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
+        <DemoControlSelect name="color" options={COLOR_OPTIONS} value={color} onChange={setColor} />
+        <Segments name="variant" options={VARIANT_OPTIONS} value={variant} onChange={setVariant} />
+        <DemoControlBoolean name="title" value={title} onChange={setTitle} />
+        {title && <DemoControlBoolean name="description" value={description} onChange={setDescription} />}
+        <Segments name="indicator" options={INDICATOR_OPTIONS} value={indicator} onChange={setIndicator} />
+        {buttons && <DemoControlBoolean name="actions" value={actions} onChange={setActions} />}
+        {shownActions && <Segments name="actionsPlacement" options={PLACEMENT_OPTIONS} value={actionsPlacement} onChange={setActionsPlacement} desktopOnly />}
+        {shownActions && <Segments name="mobileActions" options={MOBILE_ACTIONS_OPTIONS} value={mobileActions} onChange={setMobileActions} phoneOnly />}
+        {buttons && <DemoControlBoolean name="onDismiss" value={onDismiss} onChange={setOnDismiss} />}
+        <DemoControlBoolean name="banner" value={banner} onChange={setBanner} />
       </div>
       <div data-demo-stage className="flex-1 w-full py-12 flex items-center justify-center">
-        <div className="w-fit max-w-[500px]">
-          <RowMatrix
-            rowLabels={[...COLOR_OPTIONS]}
-            renderRow={(row) => (
-              <Alert
-                color={COLOR_OPTIONS[row]}
-                variant={variant}
-                title="Scheduled maintenance on Saturday, 2-4 AM PT"
-                description={
-                  <>
-                    Track status updates on{' '}
-                    <TextLink color="currentcolor" href="#">
-                      status page
-                    </TextLink>
-                  </>
-                }
-              />
-            )}
-          />
-        </div>
+        <Alert
+          color={color}
+          variant={variant}
+          title={title ? 'Scheduled maintenance' : undefined}
+          description={shownDescription ? "We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database." : undefined}
+          indicator={indicator === 'custom' ? <Lightbulb /> : indicator === 'none' ? false : undefined}
+          actions={shownActions ? (
+            <>
+              <Button color="primary" variant="soft" pill>Set reminder</Button>
+              <Button color="primary" variant="solid" pill>View status</Button>
+            </>
+          ) : undefined}
+          actionsPlacement={shownActions && actionsPlacement !== 'auto' ? actionsPlacement : undefined}
+          mobileActions={shownActions ? mobileActions : undefined}
+          onDismiss={buttons && onDismiss ? () => {} : undefined}
+          banner={banner}
+        />
       </div>
     </>
-  );
-}
-
-export function AlertIndicatorDemo() {
-  return (
-    <div data-demo-stage className="flex-1 w-full py-12 flex flex-col items-center justify-center gap-6">
-      <Alert
-        indicator={<Lightbulb />}
-        description="Tip: pin the projects you open most, and they stay at the top of the list."
-      />
-      <Alert
-        indicator={false}
-        description="Version 2.18.5 rolls out behind-the-scenes tweaks to caching and background sync. You don't need to do anything."
-      />
-    </div>
-  );
-}
-
-export function AlertActionsDemo() {
-  return (
-    <div data-demo-stage className="flex-1 w-full py-12 flex flex-col items-center justify-center gap-6">
-      <Alert
-        variant="soft"
-        color="warning"
-        title="Password expires in 3 days"
-        description="Update it now to avoid losing access to your account."
-        actions={<Button color="primary" pill>Update password</Button>}
-      />
-      <Alert
-        variant="soft"
-        color="warning"
-        title="Your API key will be rotated soon"
-        description="Automatic key rotation is scheduled for March 10. Download the new key afterward to keep your integrations running."
-        actions={
-          <Button color="warning" variant="soft" pill>
-            Remind me later
-          </Button>
-        }
-        onDismiss={() => {}}
-      />
-    </div>
-  );
-}
-
-export function AlertDismissibleDemo() {
-  return (
-    <div data-demo-stage className="flex-1 w-full py-12 flex flex-col items-center justify-center gap-6">
-      <Alert
-        className="items-start"
-        title="Try our new dashboard layout"
-        description="We've introduced a streamlined layout that makes using the dashboard even easier. You can switch back any time."
-        actions={
-          <>
-            <Button color="primary" variant="soft" pill>
-              Dismiss
-            </Button>
-            <Button color="primary" variant="solid" pill>
-              Try it
-            </Button>
-          </>
-        }
-      />
-      <Alert
-        title="Thank you!"
-        description="Your application has been received. We will review your application and respond within the next 48 hours."
-        onDismiss={() => {}}
-      />
-    </div>
-  );
-}
-
-export function AlertBannerDemo() {
-  return (
-    <div data-demo-stage className="flex-1 w-full py-12 flex flex-col items-stretch justify-center gap-6">
-      <Alert
-        banner
-        color="caution"
-        variant="soft"
-        indicator={false}
-        description="You are offline. Changes will sync when the connection is back."
-      />
-      <Alert
-        banner
-        color="info"
-        variant="outline"
-        description="A new version is available."
-        actions={
-          <Button color="primary" variant="soft" size="sm">
-            Reload
-          </Button>
-        }
-      />
-    </div>
   );
 }

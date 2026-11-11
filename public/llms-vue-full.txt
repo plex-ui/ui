@@ -184,150 +184,25 @@ Props:
   - banner (boolean) default: false — Full-width strip: square corners, lines above and below only
 
 ### Overview
-On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants. With mobile-actions="own" the actions keep the size you give the buttons, for an alert inside a block of its own buttons.
+color and variant style the alert. It shows a title, a description or both; each takes text, or content in the #title and #description slots, such as a &lt;TextLink color="currentcolor"&gt; to a status page. It has an indicator icon by default, chosen from its color: the indicator slot replaces it, and :indicator="false" hides it. The actions slot takes buttons or other content. They are placed automatically, at the end or, when they take more than a third of the alert's width, under the message, unless actions-placement is 'end' or 'bottom'. @dismiss adds a Dismiss button in the alert's chrome (this preview binds it as :on-dismiss, which can be left unset); for a dismissible notice, labeled buttons in actions are the suggested approach. A solid alert is for a message alone: buttons, Dismiss among them, do not read on its color, so this preview offers them on soft and outline alerts. Use banner for a full-width strip across the top or bottom of a page or panel (offline, read-only, a new version): it drops the rounded corners and keeps only the lines above and below. On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners (a banner stays square), the title at 17/22 semibold and the description at 15/20, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants, and its actions always stand under the message as 50px capsules side by side, so actions-placement is a desktop setting. With mobile-actions="own" the actions keep the size you give the buttons, for an alert inside a block of its own buttons.
 ```vue
 <Alert
-  title="Scheduled maintenance"
-  description="We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database."
-  @dismiss="() => {}"
-/>
-```
-
-### Colors & variants
-You can stylize the display of the alert using the color and variant props.
-```vue
-<div class="w-fit max-w-[500px]">
-  <div class="flex flex-col gap-6">
-    <div
-      v-for="color in ['primary', 'success', 'danger', 'warning', 'caution', 'info', 'discovery']"
-      :key="color"
-      class="flex flex-col items-stretch gap-1.5 md:flex-row md:items-center md:gap-0"
-    >
-      <div class="text-sm md:text-right md:mr-8 md:min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ color }}</div>
-      <div class="md:flex-1">
-        <Alert :color="color" :variant="variant" title="Scheduled maintenance on Saturday, 2-4 AM PT">
-          <template #description>
-            Track status updates on <TextLink color="currentcolor" href="#">status page</TextLink>
-          </template>
-        </Alert>
-      </div>
-    </div>
-  </div>
-</div>
-```
-
-### Title
-You can optionally include a title for your alert with the title prop (or the title slot).
-```vue
-<Alert title="Your current access level limits what you can view or modify" />
-```
-
-### Description
-You can optionally include description text for your alert with the description prop, or the description slot for rich content.
-```vue
-<Alert>
-  <template #description>
-    We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
-  </template>
-</Alert>
-```
-
-### Actions
-You can add actions to the alert with the actions slot. Combine with @dismiss to add a dismiss button.
-```vue
-<div class="flex flex-col items-center justify-center gap-6 w-full">
-  <Alert
-    variant="soft"
-    color="warning"
-    title="Password expires in 3 days"
-    description="Update it now to avoid losing access to your account."
-  >
-    <template #actions>
-      <Button color="primary" pill>Update password</Button>
-    </template>
-  </Alert>
-  <Alert
-    variant="soft"
-    color="warning"
-    title="Your API key will be rotated soon"
-    description="Automatic key rotation is scheduled for March 10. Download the new key afterward to keep your integrations running."
-    @dismiss="() => {}"
-  >
-    <template #actions>
-      <Button color="warning" variant="soft" pill>Remind me later</Button>
-    </template>
-  </Alert>
-</div>
-```
-
-### Indicator
-Alert provides an indicator icon by default. You can override it with the indicator slot, or pass :indicator="false" to hide it entirely.
-```vue
-<div class="flex flex-col items-center justify-center gap-6 w-full">
-  <Alert description="Tip: pin the projects you open most, and they stay at the top of the list.">
-    <template #indicator>
-      <Lightbulb />
-    </template>
-  </Alert>
-  <Alert
-    :indicator="false"
-    description="Version 2.18.5 rolls out behind-the-scenes tweaks to caching and background sync. You don't need to do anything."
-  />
-</div>
-```
-
-### Dismissible
-The suggested approach for dismissible notices is to use labeled buttons in the actions slot. You can also listen to @dismiss to render a dismiss button in the alert chrome. On a phone that button is a close button in the alert's corner, as on an iOS tip, while a labeled action stays a capsule under the message.
-```vue
-<div class="flex flex-col items-center justify-center gap-6 w-full">
-  <Alert
-    class="items-start"
-    title="Try our new dashboard layout"
-    description="We've introduced a streamlined layout that makes using the dashboard even easier. You can switch back any time."
-  >
-    <template #actions>
-      <Button color="primary" variant="soft" pill>Dismiss</Button>
-      <Button color="primary" variant="solid" pill>Try it</Button>
-    </template>
-  </Alert>
-  <Alert
-    title="Thank you!"
-    description="Your application has been received. We will review your application and respond within the next 48 hours."
-    @dismiss="() => {}"
-  />
-</div>
-```
-
-### Banner
-Use banner for a full-width strip across the top or bottom of a page or panel: offline, read-only, a new version. It drops the rounded corners and keeps only the lines above and below. Pass :indicator="false" for a plain strip.
-```vue
-<div class="flex flex-col items-stretch justify-center gap-6 w-full">
-  <Alert
-    banner
-    color="caution"
-    variant="soft"
-    :indicator="false"
-    description="You are offline. Changes will sync when the connection is back."
-  />
-  <Alert banner color="info" variant="outline" description="A new version is available.">
-    <template #actions>
-      <Button color="primary" variant="soft" size="sm">Reload</Button>
-    </template>
-  </Alert>
-</div>
-```
-
-### Action placement
-Actions are automatically positioned in the alert by default. You can force a specific position with the actions-placement prop by passing either 'end' or 'bottom'. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only.
-```vue
-<Alert
-  title="Our terms of service has been updated"
-  description="We've updated our terms to clarify how we handle data, billing, and user permissions. Please review and accept the latest terms to avoid impacting your service."
-  actions-placement="bottom"
+  :color="color"
+  :variant="variant"
+  :title="title ? 'Scheduled maintenance' : undefined"
+  :description="description ? 'We\'ll be offline 2 - 4 AM UTC on July 14 while we upgrade our database.' : undefined"
+  :indicator="indicator === 'none' ? false : undefined"
+  :actions-placement="actionsPlacement === 'auto' ? undefined : actionsPlacement"
+  :mobile-actions="mobileActions"
+  :on-dismiss="onDismiss ? () => {} : undefined"
+  :banner="banner"
 >
-  <template #actions>
+  <template v-if="indicator === 'custom'" #indicator>
+    <Lightbulb />
+  </template>
+  <template v-if="actions" #actions>
     <Button color="primary" variant="soft" pill>Set reminder</Button>
-    <Button color="primary" variant="solid" pill>Review terms</Button>
+    <Button color="primary" variant="solid" pill>View status</Button>
   </template>
 </Alert>
 ```
@@ -349,105 +224,19 @@ Props:
   - @pointerdown ((event: PointerEvent) => void) — Makes avatar interactive (renders a button)
 
 ### Overview
-A variety of avatar types: text, image, icon, and overflow.
-```vue
-<div class="flex gap-4">
-  <Avatar name="Tyler" image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" :size="48" />
-  <Avatar name="Will" :size="48" />
-  <Avatar name="Tech support" :Icon="Robot" :size="48" color="primary" variant="solid" />
-</div>
-```
-
-### Text
-For text-based avatars, a single initial is displayed based on the name prop passed to the component.
-```vue
-<Avatar name="David" :size="48" />
-```
-
-### Image
-To display an image avatar, provide an absolute URL to the image with image-url. Images will have a soft fade entrance once loaded, or fall back to a text display if the image fails to load.
+An avatar shows one of four things. Without other props it shows the first letter of name. With image-url, an absolute URL, it shows the photo with a soft fade once it loads, and the initial if it fails. With Icon, an icon component such as Robot from @plexui/vue/components/Icon, it shows the icon; name is not shown, and only names the avatar when it is a button. With overflow-count it shows the count, formatted and scaled to fit. size sets the width and height in pixels, and the initial, icon and count scale with it. color and variant style every avatar except a loaded photo, which covers them. Avatars are fully rounded by default; a Tailwind rounding class in class overrides that. Listening to @click (or @pointerdown) makes the avatar a button with interaction styles and its name as the accessible name.
 ```vue
 <Avatar
-  name="Tyler"
-  image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
-  :size="48"
-/>
-```
-
-### Icon
-To display an icon avatar, pass an icon component to the Icon prop, for example Robot imported from @plexui/vue/components/Icon. The name prop is not used in this case, and can be omitted.
-```vue
-<Avatar
-  :Icon="Robot"
-  :size="48"
-/>
-```
-
-### Overflow count
-To display an overflow avatar, provide a number to the overflow-count prop. The number will be automatically formatted and scaled to fit.
-```vue
-<Avatar :overflow-count="overflowCount" :size="size" />
-```
-
-### Sizing
-To size the avatar, pass a number to the size prop, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value.
-```vue
-<Avatar name="David" :size="size" />
-```
-
-### Colors & variants
-You can stylize the display of the avatar using the color and variant props.
-```vue
-<div
-  class="grid items-center gap-x-8 gap-y-5"
-  style="grid-template-columns: repeat(2, minmax(0, auto)) auto; justify-items: center"
->
-  <div
-    v-for="variant in ['soft', 'solid']"
-    :key="variant"
-    class="text-sm font-medium"
-    style="color: var(--color-text-tertiary)"
-  >{{ variant }}</div>
-  <div />
-  <template v-for="(color, idx) in ['primary', 'secondary', 'success', 'danger', 'info', 'discovery']" :key="color">
-    <Avatar
-      v-for="variant in ['soft', 'solid']"
-      :key="variant"
-      :name="String.fromCharCode(65 + idx)"
-      :color="color"
-      :variant="variant"
-      :size="size"
-    />
-    <div class="text-sm font-medium justify-self-start" style="color: var(--color-text-tertiary)">{{ color }}</div>
-  </template>
-</div>
-```
-
-### Roundness
-By default, avatars are fully rounded. You can override this by passing a Tailwind rounding class to class.
-```vue
-<Avatar
-  name="Acme, co."
-  color="primary"
-  variant="solid"
+  :name="type === 'icon' ? 'Tech support' : type === 'overflow' ? overflowCount + ' more' : 'Tyler'"
+  :image-url="type === 'image' ? 'https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552' : undefined"
+  :Icon="type === 'icon' ? Robot : undefined"
+  :overflow-count="type === 'overflow' ? overflowCount : undefined"
   :size="size"
-  :class="'rounded-' + roundness"
+  :color="color"
+  :variant="variant"
+  :class="{ full: 'rounded-full', xl: 'rounded-xl', lg: 'rounded-lg', md: 'rounded-md', sm: 'rounded-sm', none: 'rounded-none' }[roundness]"
+  v-on="onClick ? { click: saySup } : {}"
 />
-```
-
-### Interactive
-Avatars can be used as interactive elements by listening to @click (or @pointerdown). The avatar then renders a button and applies semantic and visual interaction styles.
-```vue
-<div class="flex items-center gap-4">
-  <Avatar name="Will" :size="48" @click="saySup" />
-  <Avatar
-    image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
-    name="Tyler"
-    :size="48"
-    @click="saySup"
-  />
-  <Avatar name="Tech support" :Icon="Robot" :size="48" color="info" @click="saySup" />
-</div>
 ```
 
 ## Avatar Group
@@ -3738,92 +3527,22 @@ Docs: https://plexui.com/vue/components/indicators
     - track-active-color (string) — Active segment color
 
 ### Overview
-The demos restart every few seconds through a done flag that fills the ring before the simulation starts over.
+indicator picks one of the three. LoadingIndicator is a spinner for general loading states. It takes the surrounding font-size and text color by default; size and stroke-width set its size and stroke in pixels, a text class such as text-danger (or --indicator-color) colors it, and --indicator-rotate-duration sets the time of one turn. On a desktop it is a turning ring. With the optional touch stylesheet it is the iOS 27 spinner of eight rounded spokes: 20px by default, also inside a field (an Input adornment, an InputGroup addon or a SelectControl, through --control-indicator-size); up to 16px it takes the Small spokes and from 28px the Large ones. A stroke-width replaces the spokes' widths, so the Phone view leaves it unset. CircularProgress is a progress ring. Without progress it simulates progress over max-duration milliseconds, and done fills the ring and ends the simulation; this preview sets it every 4 seconds to start over. progress, from 0 to 100, shows a fixed value instead. size and stroke-width (at most 4) size the ring, and track-color and track-active-color color its track and its progress. LoadingDots shows typing progress with staggered pulsing dots in the current text color.
 ```vue
-<div class="flex items-center gap-6">
-  <LoadingIndicator :size="20" />
-  <CircularProgress :size="24" :done="done" />
-  <LoadingDots />
+<div v-if="indicator === 'LoadingIndicator'" :style="{ '--indicator-rotate-duration': duration + 'ms' }">
+  <LoadingIndicator :size="size" :stroke-width="strokeWidth" :class="color || undefined" />
 </div>
-```
-
-### LoadingIndicator
-Simple spinning indicator for general loading states.
-```vue
-<LoadingIndicator />
-```
-
-### Sizing & stroke
-By default, the indicator adapts to the surrounding font-size and color of text. You can control the size of the LoadingIndicator using the --indicator-size CSS custom property.
-```vue
-<LoadingIndicator :size="size" :stroke-width="strokeWidth" />
-```
-
-### Color
-The indicator defaults to currentcolor, inheriting the surrounding text color. This can also be customized by altering the --indicator-color variable around the DOM scope of the component.
-```vue
-<div class="flex items-center gap-2 text-danger">
-  <LoadingIndicator :size="16" /> <span>Destroying forever...</span>
-</div>
-```
-
-### Duration
-You can control the rotation speed of the spinner with --indicator-rotate-duration.
-```vue
-<div style="--indicator-rotate-duration: 3s">
-  <LoadingIndicator />
-</div>
-```
-
-### CircularProgress
-Circular progress ring with simulated progress animation.
-```vue
-<CircularProgress :done="done" />
-```
-
-### Progress
-Use progress to show static progress and prevent the animation.
-```vue
-<CircularProgress :progress="25" />
-```
-
-### Sizing & stroke
-Use size and stroke-width. Or use --circular-progress-size and --circular-progress-stroke CSS variables.
-```vue
-<CircularProgress :size="size" :stroke-width="strokeWidth" :done="done" />
-```
-
-### Color
-Customize the color of the indicator with the --circular-progress-track-color and --circular-progress-track-active-color variables.
-```vue
 <CircularProgress
-  track-color="var(--alpha-15)"
-  track-active-color="var(--gray-1000)"
+  v-else-if="indicator === 'CircularProgress'"
+  :size="size"
+  :stroke-width="strokeWidth"
+  :progress="simulated ? undefined : progress"
+  :max-duration="maxDuration"
   :done="done"
+  :track-color="trackColor || undefined"
+  :track-active-color="trackActiveColor || undefined"
 />
-```
-
-### LoadingDots
-Indicate typing progress with staggered pulsing dot animation.
-```vue
-<LoadingDots />
-```
-
-### Color
-The indicator defaults to currentcolor, inheriting the surrounding text color. You can customize the color by providing a different color value or context.
-```vue
-<div class="text-danger">
-  <LoadingDots />
-</div>
-```
-
-### Phone spinner
-```vue
-<div class="flex items-center gap-6">
-<LoadingIndicator :size="14" />
-<LoadingIndicator />
-<LoadingIndicator :size="35" />
-</div>
+<LoadingDots v-else :class="color || undefined" />
 ```
 
 ## Input
@@ -10226,62 +9945,20 @@ Props:
   - class (string) — Extra classes on the link
 
 ### Overview
+A TextLink sits in running text. By default it takes the surrounding text color (currentcolor) and an underline, a subtle difference from the text around it; on hover it fades the color, with special cases in text-secondary and text-tertiary text. Change the paragraph's color class to see it. primary colors the link instead and drops the underline by default. underline turns the underline on or off; unset, it is on unless the link is primary. An http:// or https:// URL is external: the link opens it in a new tab with target="_blank" and rel="noopener noreferrer", and an icon such as ArrowUpRight can mark it. A font-weight class in class sets the weight.
 ```vue
-<div class="flex gap-4">
-  <TextLink href="#">Read more</TextLink>
-  <TextLink href="#" primary>External link <ArrowUpRight /></TextLink>
-</div>
-```
-
-### Inline usage
-```vue
-<p>
-  You can use the <TextLink href="#">responses endpoint</TextLink> to generate text. You can
-  either use the API directly from an HTTP client of your choice, or use one of the
-  <TextLink href="#">official SDKs</TextLink> for your preferred language.
+<p :class="colorClassName || undefined">
+  You can use the
+  <TextLink href="#" :primary="primary" :underline="underline === 'auto' ? undefined : underline === 'on'" :class="weight || undefined">responses endpoint</TextLink>
+  to generate text. You can either use the API directly from an HTTP client of your choice, or use one of the
+  <TextLink
+    :href="external ? 'https://example.com' : '#'"
+    :primary="primary"
+    :underline="underline === 'auto' ? undefined : underline === 'on'"
+    :class="weight || undefined"
+  >official SDKs <ArrowUpRight v-if="external" /></TextLink>
+  for your preferred language.
 </p>
-```
-
-### Default inheritance
-By default, TextLink uses currentcolor inheritance and text-decoration: underline to create subtle visual differentiation from surrounding text. The hover effect is a dynamic deemphasis of the currentcolor, with some special cases for text-secondary and text-tertiary contexts.You can see this behavior by changing the text color context of the paragraph the links are in below:
-```vue
-<p :class="colorClassName">
-  You can use the <TextLink href="#">responses endpoint</TextLink> to generate text. You can
-  either use the API directly from an HTTP client of your choice, or use one of the
-  <TextLink href="#">official SDKs</TextLink> for your preferred language.
-</p>
-```
-
-### Primary color
-You can create a colorful link style with the primary prop, which uses color for visual differentiation.Primary links also remove the default underline treatment: pass underline to re-apply that style.
-```vue
-<p>
-  Sample text with a <TextLink href="#" :primary="primary">primary link</TextLink>
-</p>
-```
-
-### Underline
-Links have an underlined aesthetic by default.Pass {':underline="false"'} to remove the underline from the link.
-```vue
-<p class="text-secondary">
-  Sample text with a <TextLink href="#" :underline="underline">subtle link</TextLink>
-</p>
-```
-
-### External links
-When external paths are provided, {''} will be used with {'target="_blank"'} and {'rel="noopener noreferrer"'} included by default. You can also compose icons along with the text to add visual indication.
-```vue
-<TextLink href="#" primary underline>
-  External link <ArrowUpRight />
-</TextLink>
-```
-
-### Font weight
-Use the class attribute to customize font weight.
-```vue
-<TextLink href="#" class="font-semibold" :underline="false">
-  Contact support <ArrowRight />
-</TextLink>
 ```
 
 ## Textarea

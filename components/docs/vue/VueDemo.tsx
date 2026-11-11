@@ -24,8 +24,12 @@ export type VueDemoControl = {
   phoneOnly?: boolean;
   /** `bottom`: the control is for what sits at the bottom of the screen, and stands under the preview */
   placement?: 'bottom';
-  /** Hidden on a phone (narrow page or Phone preview), where the template gets its `phoneDefault`, else `default` */
-  desktopOnly?: boolean;
+  /**
+   * Hidden on a phone (narrow page or Phone preview), where the template gets its `phoneDefault`, else `default`; a
+   * `when` instead of `true` makes it so only while the other controls have those values (a spinner's stroke, which
+   * the phone spinner takes from its size, but not a ring's)
+   */
+  desktopOnly?: boolean | Record<string, unknown>;
   /**
    * Shown only while the other controls have these values (`collapsible` for a `single` accordion), a list naming
    * the values any of which will do; where it is not shown, the template gets its `default`.
@@ -41,7 +45,8 @@ export type VueDemoControl = {
   | { type: 'select'; options: readonly VueDemoOption[]; phoneOptions?: readonly VueDemoOption[]; default: string | boolean; phoneDefault?: string | boolean; limit?: { total: number; taken: readonly string[] };
       /** A menu rather than a row of segments: more options than the row shows whole (eight colors), as React's DemoControlSelect */
       menu?: boolean }
-  | { type: 'range'; min: number; max: number; step: number; default: number; phoneDefault?: number }
+  /** `phoneDefault: null`: on a phone the template gets no value, and the component takes its own */
+  | { type: 'range'; min: number; max: number; step: number; default: number; phoneDefault?: number | null }
 );
 
 const optionsOf = (options: readonly VueDemoOption[]) =>
@@ -50,6 +55,10 @@ const optionsOf = (options: readonly VueDemoOption[]) =>
 /** Whether the values meet a `when`: each named control has the value, or one of the values a list names */
 const holds = (when: Record<string, unknown> | undefined, values: Record<string, unknown>) =>
   Object.entries(when ?? {}).every(([name, value]) => (Array.isArray(value) ? value.includes(values[name]) : values[name] === value));
+
+/** Whether the control is a desktop one under these values */
+const desktopOnlyIn = (control: VueDemoControl, values: Record<string, unknown>) =>
+  control.desktopOnly === true || (typeof control.desktopOnly === 'object' && holds(control.desktopOnly, values));
 
 /**
  * A control a `when` hides gives the template its default, and so does a value on an option a `when` does not
@@ -91,9 +100,10 @@ const withinLimits = (controls: readonly VueDemoControl[], values: Record<string
 /**
  * Restarts a demo on a timer, like the React demos that loop a simulation:
  * every `every` ms the boolean `name` turns true for `holdFor` ms, then the
- * preview remounts with it false.
+ * preview remounts with it false. `when`: only while the controls hold these values (the ring of the Indicators
+ * Overview restarts; its spinner and dots do not)
  */
-export type VueDemoLoop = { name: string; every: number; holdFor: number };
+export type VueDemoLoop = { name: string; every: number; holdFor: number; when?: Record<string, unknown> };
 
 const DEFAULT_STAGE = 'flex-1 flex flex-col items-center justify-center py-12 w-full';
 
@@ -178,7 +188,8 @@ function VueDemoView({
   // A hidden desktop-only control keeps the chosen value; the template shows its phone default or default
   const templateProps = useMemo(() => (phone ? {
     ...props,
-    ...Object.fromEntries(controls.filter((control) => control.desktopOnly).map((control) => [control.name, control.phoneDefault ?? control.default])),
+    ...Object.fromEntries(controls.filter((control) => desktopOnlyIn(control, props))
+      .map((control) => [control.name, control.phoneDefault === null ? undefined : control.phoneDefault ?? control.default])),
   } : props), [controls, phone, props]);
   const set = (name: string) => (value: unknown) => {
     setValues((current) => ({ ...current, [name]: value }));
@@ -188,8 +199,16 @@ function VueDemoView({
   };
 
   const { name: loopName, every, holdFor } = loop ?? {};
+  const looping = loop !== undefined && holds(loop.when, props);
+  // A loop its controls start again starts from the beginning, as React's demo mounts its ring again (a ring that
+  // stood fixed for longer than its simulation would otherwise show full until the loop comes round)
+  const [wasLooping, setWasLooping] = useState(looping);
+  if (looping !== wasLooping) {
+    setWasLooping(looping);
+    if (looping) setRun((n) => n + 1);
+  }
   useEffect(() => {
-    if (!loopName || !every) return;
+    if (!loopName || !every || !looping) return;
     let hold: ReturnType<typeof setTimeout> | undefined;
     const id = setInterval(() => {
       setValues((current) => ({ ...current, [loopName]: true }));
@@ -201,8 +220,10 @@ function VueDemoView({
     return () => {
       clearInterval(id);
       clearTimeout(hold);
+      // A loop that stops while it holds lets go of its value
+      setValues((current) => (current[loopName] ? { ...current, [loopName]: false } : current));
     };
-  }, [loopName, every, holdFor]);
+  }, [loopName, every, holdFor, looping]);
 
   // The preview's code follows the values the template gets (a phone's default for a desktop-only control, an
   // option's value rather than its label), so the demo writes them itself and its controls do not
@@ -269,10 +290,10 @@ function VueDemoView({
         onChange={set(control.name)}
         syncValue={asked(control.name) as boolean}
         phoneOnly={control.phoneOnly}
-        desktopOnly={control.desktopOnly}
+        desktopOnly={desktopOnlyIn(control, props)}
       />
     ) : control.type === 'range' ? (
-      <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
+      <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={control.phoneOnly} desktopOnly={desktopOnlyIn(control, props)}>
         <SliderValueControl
           ariaLabel={control.label ?? control.name}
           min={control.min}
@@ -289,14 +310,14 @@ function VueDemoView({
         name={control.name}
         label={control.label}
         phoneOnly={control.phoneOnly}
-        desktopOnly={control.desktopOnly}
+        desktopOnly={desktopOnlyIn(control, props)}
         options={optionsFor(control).map((option) => option.label)}
         value={optionsFor(control).find((option) => option.value === props[control.name])?.label ?? ''}
         syncValue={labelOf(control, asked(control.name))}
         onChange={(label) => set(control.name)(valueOf(control, label))}
       />
     ) : (
-      <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly} syncValue={labelOf(control, asked(control.name))}>
+      <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={control.phoneOnly} desktopOnly={desktopOnlyIn(control, props)} syncValue={labelOf(control, asked(control.name))}>
         <SegmentedControl<string>
           value={optionsFor(control).find((option) => option.value === props[control.name])?.label ?? ''}
           onChange={(label) => {

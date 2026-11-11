@@ -3,10 +3,14 @@ import { act, cleanup, fireEvent, render, waitFor, within } from '@testing-libra
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { indentCode } from '../../components/docs/demoCode.mjs';
 import { AccordionOverviewDemo } from '../../components/docs/AccordionDemos';
+import { AlertOverviewDemo } from '../../components/docs/AlertDemos';
+import { AvatarOverviewDemo } from '../../components/docs/AvatarIconDemo';
+import { IndicatorOverviewDemo } from '../../components/docs/IndicatorDemos';
 import { CheckboxOverviewDemo } from '../../components/docs/CheckboxDemos';
 import { TabsOverviewDemo } from '../../components/docs/TabsDemos';
 import { TableVariantDemo } from '../../components/docs/TableDemos';
 import { TextareaOverviewDemo } from '../../components/docs/TextareaDemos';
+import { TextLinkOverviewDemo } from '../../components/docs/TextLinkDemos';
 import { SelectControlOverviewDemo } from '../../components/docs/SelectControlDemos';
 import { SelectOverviewDemo } from '../../components/docs/SelectDemos';
 import { ProgressStepsOverviewDemo } from '../../components/docs/ProgressStepsDemos';
@@ -14,8 +18,9 @@ import { RadioGroupOverviewDemo } from '../../components/docs/RadioGroupDemos';
 import { VuePhoneRowsDemo } from '../../components/docs/vue/VuePhoneRowsDemo';
 import { VueSelectDemo } from '../../components/docs/vue/VueSelectDemos';
 import { phoneRows } from '../../components/docs/phoneRowsTemplate';
-import { VueDemo, type VueDemoControl, type VueDemoOption } from '../../components/docs/vue/VueDemo';
+import { VueDemo, type VueDemoControl, type VueDemoLoop, type VueDemoOption } from '../../components/docs/vue/VueDemo';
 import { VueDataTableDemo } from '../../components/docs/vue/VueDataTableDemos';
+import { VueAvatarDemo } from '../../components/docs/vue/VueAvatarDemos';
 import { flushVue } from './harness';
 
 vi.mock('../../components/docs/VuePreview', async () => ({
@@ -24,6 +29,14 @@ vi.mock('../../components/docs/VuePreview', async () => ({
 vi.mock('../../components/docs/PreviewEmbed.module.css', () => ({ default: { Root: 'PreviewEmbedRoot' } }));
 vi.mock('@plexui/ui/components/Accordion', async () => import('../../packages/ui/src/components/Accordion'));
 vi.mock('@plexui/vue/components/Accordion', async () => import('../../packages/vue/src/components/Accordion'));
+vi.mock('@plexui/ui/components/Avatar', async () => import('../../packages/ui/src/components/Avatar'));
+vi.mock('@plexui/vue/components/Avatar', async () => import('../../packages/vue/src/components/Avatar'));
+vi.mock('@plexui/ui/components/Indicator', async () => import('../../packages/ui/src/components/Indicator'));
+vi.mock('@plexui/vue/components/Indicator', async () => import('../../packages/vue/src/components/Indicator'));
+vi.mock('@plexui/ui/components/Alert', async () => import('../../packages/ui/src/components/Alert'));
+vi.mock('@plexui/vue/components/Alert', async () => import('../../packages/vue/src/components/Alert'));
+vi.mock('@plexui/ui/components/TextLink', async () => import('../../packages/ui/src/components/TextLink'));
+vi.mock('@plexui/vue/components/TextLink', async () => import('../../packages/vue/src/components/TextLink'));
 vi.mock('@plexui/ui/components/Checkbox', async () => import('../../packages/ui/src/components/Checkbox'));
 vi.mock('@plexui/vue/components/Checkbox', async () => import('../../packages/vue/src/components/Checkbox'));
 vi.mock('@plexui/ui/components/Tabs', async () => import('../../packages/ui/src/components/Tabs'));
@@ -59,23 +72,38 @@ function example(page: string, name: string, references: string[] = []) {
     const when = 'when' in control && control.when && typeof control.when === 'object' ? { when: control.when as Record<string, unknown> } : {};
     // A control's phone settings: hidden there (`desktopOnly`, giving its `phoneDefault`), or other options
     const phoneSettings = {
-      ...('desktopOnly' in control && control.desktopOnly === true ? { desktopOnly: true } : {}),
+      ...('desktopOnly' in control && (control.desktopOnly === true || (!!control.desktopOnly && typeof control.desktopOnly === 'object'))
+        ? { desktopOnly: control.desktopOnly as true | Record<string, unknown> } : {}),
+      ...('phoneOnly' in control && control.phoneOnly === true ? { phoneOnly: true } : {}),
       ...('phoneDefault' in control && (typeof control.phoneDefault === 'string' || typeof control.phoneDefault === 'boolean') ? { phoneDefault: control.phoneDefault } : {}),
     };
     if (control.type === 'boolean' && typeof control.default === 'boolean') return { name: control.name, type: 'boolean', default: control.default, ...when, ...phoneSettings };
     if (control.type === 'range' && typeof control.default === 'number' && 'min' in control && typeof control.min === 'number' && 'max' in control && typeof control.max === 'number' && 'step' in control && typeof control.step === 'number') {
-      return { name: control.name, type: 'range', default: control.default, min: control.min, max: control.max, step: control.step, ...when, ...phoneSettings };
+      const phoneDefault = 'phoneDefault' in control && (control.phoneDefault === null || typeof control.phoneDefault === 'number') ? { phoneDefault: control.phoneDefault } : {};
+      return { name: control.name, type: 'range', default: control.default, min: control.min, max: control.max, step: control.step, ...when, ...phoneSettings, ...phoneDefault };
     }
     // An option is its value, or a value under a label offered only while its `when` holds (icon only, horizontal)
     const isOption = (option: unknown): option is VueDemoOption => typeof option === 'string'
       || (!!option && typeof option === 'object' && 'value' in option && typeof option.value === 'string' && 'label' in option && typeof option.label === 'string');
     if (control.type !== 'select' || typeof control.default !== 'string' || !('options' in control) || !Array.isArray(control.options) || !control.options.every(isOption)) throw new Error('Invalid select control');
     const phoneOptions = 'phoneOptions' in control && Array.isArray(control.phoneOptions) && control.phoneOptions.every(isOption) ? { phoneOptions: control.phoneOptions } : {};
-    return { name: control.name, type: 'select', default: control.default, options: control.options, ...when, ...phoneSettings, ...phoneOptions };
+    const menu = 'menu' in control && control.menu === true ? { menu: true } : {};
+    return { name: control.name, type: 'select', default: control.default, options: control.options, ...when, ...phoneSettings, ...phoneOptions, ...menu };
   });
   return { template, controls };
 }
 const checkbox = example('checkbox', 'overview');
+const avatar = example('avatar', 'overview');
+const alert = example('alert', 'overview');
+const textLink = example('text-link', 'overview');
+/** The Indicators Overview as its page mounts it, with the loop that restarts its simulated ring */
+const indicators = (() => {
+  const mdx = readFileSync('content/vue/components/indicators.mdx', 'utf8');
+  const marker = 'export const overviewLoop = ';
+  const rest = mdx.slice(mdx.indexOf(marker) + marker.length);
+  const loop = new Function(`return ${rest.slice(0, rest.search(/\nexport const |\n<UsageBlock>/)).trim()}`)() as VueDemoLoop;
+  return { ...example('indicators', 'overview'), loop };
+})();
 const accordion = example('accordion', 'overview', ['overviewAccordion']);
 const tabs = example('segmented-control', 'overview', ['SIZES', 'VARIANTS', 'ORIENTATIONS']);
 const table = example('table', 'variant');
@@ -120,6 +148,243 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) => {
+  test('avatar: one Overview carries every setting, each where it acts (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <AvatarOverviewDemo /> : <VueAvatarDemo {...avatar} stageClassName="flex" />);
+    await interact(() => {});
+    const page = within(view.container);
+    const shown = () => view.container.querySelector<HTMLElement>('[data-demo-stage] [data-color]')!;
+    const group = (name: string) => page.queryByRole('radiogroup', { name });
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(group(name)!).getByRole('radio', { name: option, exact: true })));
+    // An initial of the name; the count is offered only for an overflow avatar
+    expect(shown().textContent).toBe('T');
+    expect(page.queryByRole('slider', { name: 'overflowCount' })).toBeNull();
+    await choose('color', 'danger');
+    await choose('variant', 'solid');
+    expect([shown().dataset.color, shown().dataset.variant]).toEqual(['danger', 'solid']);
+    await choose('type', 'overflow');
+    expect(page.getByRole('slider', { name: 'overflowCount' })).toBeTruthy();
+    expect(shown().textContent).toBe('+9');
+    // A loaded photo covers the color: color and variant are not offered, and the avatar gets their defaults
+    await choose('type', 'image');
+    expect(group('color')).toBeNull();
+    expect(group('variant')).toBeNull();
+    expect([shown().dataset.color, shown().dataset.variant]).toEqual(['secondary', 'soft']);
+    expect(shown().querySelector('img')?.getAttribute('src')).toContain('gravatar.com');
+    // They keep their choice for the next type
+    await choose('type', 'icon');
+    expect(within(group('color')!).getByRole('radio', { name: 'danger' }).getAttribute('aria-checked')).toBe('true');
+    expect([shown().dataset.color, shown().dataset.variant]).toEqual(['danger', 'solid']);
+    expect(shown().querySelector('svg')).not.toBeNull();
+    await choose('roundness', 'lg');
+    expect(shown().classList.contains('rounded-lg')).toBe(true);
+    expect(shown().classList.contains('rounded-full')).toBe(false);
+    // onClick makes the avatar a button named by its name
+    expect(page.queryByRole('button', { name: 'Tech support' })).toBeNull();
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'onClick', exact: true })));
+    expect(page.getByRole('button', { name: 'Tech support' })).toBe(shown());
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'onClick', exact: true })));
+    expect(shown().tagName).toBe('SPAN');
+    // size sets the width and height; the count follows its slider, and so does its name as a button
+    const size = page.getByRole('slider', { name: 'size' });
+    expect([size.getAttribute('aria-valuemin'), size.getAttribute('aria-valuemax')]).toEqual(['14', '80']);
+    await interact(() => { fireEvent.keyDown(size, { key: 'ArrowRight' }); });
+    expect(shown().style.getPropertyValue('--avatar-size')).toBe('50px');
+    await choose('type', 'overflow');
+    await interact(() => { fireEvent.keyDown(page.getByRole('slider', { name: 'overflowCount' }), { key: 'ArrowRight' }); });
+    expect(shown().textContent).toBe('+10');
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'onClick', exact: true })));
+    expect(page.getByRole('button', { name: '10 more' })).toBe(shown());
+  });
+
+  test('indicators: one Overview of the three indicators carries every setting, each for the ones it acts on (owner 11.11)', async () => {
+    vi.useFakeTimers();
+    try {
+      const view = render(framework === 'React' ? <IndicatorOverviewDemo /> : <VueDemo {...indicators} stageClassName="flex" />);
+      await interact(() => {});
+      const page = within(view.container);
+      const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+      const offered = () => [...view.container.querySelectorAll('[data-demo-controls] [role="radiogroup"], [data-demo-controls] [role="slider"], [data-demo-controls] [role="switch"]')]
+        .map((control) => control.getAttribute('aria-label') ?? control.id);
+      const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+      const wait = (ms: number) => act(async () => { vi.advanceTimersByTime(ms); await flushVue(); });
+      // The spinner: its size, stroke, text color and turn; it does not restart
+      expect(offered()).toEqual(['indicator', 'size', 'strokeWidth', 'color', 'duration']);
+      const spinner = stage().querySelector<HTMLElement>('[class*="LoadingIndicator"]')!;
+      expect(spinner.style.getPropertyValue('--indicator-size')).toBe('20px');
+      expect(spinner.style.getPropertyValue('--indicator-stroke')).toBe('2px');
+      // The spinner's stroke is a desktop setting: the phone spinner takes the kit's spokes for its size
+      expect(page.getByRole('slider', { name: 'strokeWidth' }).closest('[data-demo-desktop-only]')).not.toBeNull();
+      expect(spinner.parentElement?.style.getPropertyValue('--indicator-rotate-duration')).toBe('800ms');
+      await choose('color', 'danger');
+      expect(stage().querySelector('[class*="LoadingIndicator"]')?.classList.contains('text-danger')).toBe(true);
+      const turning = stage().querySelector('[class*="LoadingIndicator"]');
+      await wait(4600);
+      expect(stage().querySelector('[class*="LoadingIndicator"]')).toBe(turning);
+      // The ring: progress, simulated or fixed, and its track colors; the simulated one starts over
+      await choose('indicator', 'CircularProgress');
+      expect(offered()).toEqual(['indicator', 'size', 'strokeWidth', 'simulated', 'maxDuration', 'trackColor', 'trackActiveColor']);
+      expect(page.getByRole('slider', { name: 'strokeWidth' }).closest('[data-demo-desktop-only]')).toBeNull();
+      const simulated = stage().querySelector<HTMLElement>('[class*="Container"]');
+      expect(simulated?.style.getPropertyValue('--circular-progress-stroke')).toBe('2px');
+      // It simulates progress: the ring fills as time goes on, until the loop starts it over
+      const offset = () => Number(stage().querySelectorAll('svg')[1]?.style.strokeDashoffset);
+      await wait(1000);
+      const early = offset();
+      await wait(1000);
+      expect(early).toBeLessThan(50);
+      expect(offset()).toBeLessThan(early);
+      await wait(2600);
+      expect(stage().querySelector('[class*="Container"]')).not.toBe(simulated);
+      await interact(() => fireEvent.click(page.getByRole('switch', { name: 'simulated', exact: true })));
+      expect(offered()).toEqual(['indicator', 'size', 'strokeWidth', 'simulated', 'progress', 'trackColor', 'trackActiveColor']);
+      expect(stage().querySelectorAll('svg')[1]?.style.strokeDashoffset).toBe('37.5');
+      await choose('trackActiveColor', '--gray-1000');
+      const fixed = stage().querySelector<HTMLElement>('[class*="Container"]')!;
+      expect(fixed.style.getPropertyValue('--circular-progress-track-active-color')).toBe('var(--gray-1000)');
+      expect(fixed.style.getPropertyValue('--circular-progress-track-color')).toBe('');
+      await wait(4600);
+      expect(stage().querySelector('[class*="Container"]')).toBe(fixed);
+      // Simulated again, the ring starts over, as it would on its page
+      await interact(() => fireEvent.click(page.getByRole('switch', { name: 'simulated', exact: true })));
+      await wait(200);
+      expect(offset()).toBeGreaterThan(early);
+      // The dots take the text color alone, and the color kept its choice
+      await choose('indicator', 'LoadingDots');
+      expect(offered()).toEqual(['indicator', 'color']);
+      expect(stage().querySelector('[class*="LoadingDots"]')?.classList.contains('text-danger')).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test('indicators: on a phone the spinner keeps the kit spokes, and its stroke is not offered; the ring keeps its stroke', async () => {
+    vi.stubGlobal('matchMedia', (media: string) => ({ matches: false, media, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }));
+    const view = render(framework === 'React' ? <IndicatorOverviewDemo /> : <VueDemo {...indicators} stageClassName="flex" />);
+    await interact(() => {});
+    const page = within(view.container);
+    const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+    expect(stage().querySelector<HTMLElement>('[class*="LoadingIndicator"]')?.style.getPropertyValue('--indicator-stroke')).toBe('');
+    expect(page.getByRole('slider', { name: 'strokeWidth' }).closest('[data-demo-desktop-only]')).not.toBeNull();
+    await interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name: 'indicator' })).getByRole('radio', { name: 'CircularProgress', exact: true })));
+    expect(page.getByRole('slider', { name: 'strokeWidth' }).closest('[data-demo-desktop-only]')).toBeNull();
+    expect(stage().querySelector<HTMLElement>('[class*="Container"]')?.style.getPropertyValue('--circular-progress-stroke')).toBe('2px');
+  });
+
+  test('alert: one Overview carries every setting, each where it acts (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <AlertOverviewDemo /> : <VueDemo {...alert} stageClassName="flex" />);
+    await interact(() => {});
+    const page = within(view.container);
+    const shown = () => view.container.querySelector<HTMLElement>('[data-demo-stage] [data-actions-placement]')!;
+    const indicator = () => shown().querySelector(':scope > [class*="Indicator"]');
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const dismiss = () => page.queryAllByRole('button', { name: 'Dismiss' });
+    expect(shown().textContent).toContain('Scheduled maintenance');
+    expect(shown().textContent).toContain("We'll be offline");
+    // Not dismissible until onDismiss is set, as the component
+    expect(dismiss()).toHaveLength(0);
+    // color, of seven options, is a menu; variant a row of segments
+    expect(page.queryByRole('radiogroup', { name: 'color' })).toBeNull();
+    await interact(() => fireEvent.click(page.getByRole('button', { name: /^color/ })));
+    const colors = await within(document.body).findByRole('listbox');
+    await interact(() => fireEvent.click(within(colors).getByRole('option', { name: 'danger', exact: true })));
+    await choose('variant', 'soft');
+    expect([shown().dataset.color, shown().dataset.variant]).toEqual(['danger', 'soft']);
+    // The indicator: the color's icon, another icon, or none
+    const own = indicator()?.innerHTML;
+    expect(own).toBeTruthy();
+    await choose('indicator', 'custom');
+    expect(indicator()?.querySelector('svg')).not.toBeNull();
+    expect(indicator()?.innerHTML).not.toBe(own);
+    await choose('indicator', 'none');
+    expect(indicator()).toBeNull();
+    // Where the actions stand and their size on a phone are offered only with actions, on a desktop and on a phone
+    expect(page.queryByRole('radiogroup', { name: 'actionsPlacement' })).toBeNull();
+    expect(page.queryByRole('radiogroup', { name: 'mobileActions' })).toBeNull();
+    await toggle('actions');
+    expect(page.getByRole('button', { name: 'Set reminder' })).toBeTruthy();
+    expect(page.getByRole('radiogroup', { name: 'actionsPlacement' }).closest('[data-demo-desktop-only]')).not.toBeNull();
+    expect(page.getByRole('radiogroup', { name: 'mobileActions' }).closest('[data-demo-phone-only]')).not.toBeNull();
+    await choose('actionsPlacement', 'bottom');
+    expect(shown().dataset.actionsPlacement).toBe('bottom');
+    await choose('mobileActions', 'own');
+    expect(shown().dataset.mobileActions).toBe('own');
+    await toggle('onDismiss');
+    expect(dismiss().length).toBeGreaterThan(0);
+    // A solid alert has no buttons, which do not read on its color: actions and onDismiss go, and keep their choice
+    await choose('variant', 'solid');
+    for (const name of ['actions', 'onDismiss']) expect(page.queryByRole('switch', { name, exact: true })).toBeNull();
+    expect(page.queryByRole('radiogroup', { name: 'actionsPlacement' })).toBeNull();
+    expect(page.queryByRole('button', { name: 'Set reminder' })).toBeNull();
+    expect(dismiss()).toHaveLength(0);
+    expect(shown().dataset.actionsPlacement).toBe('end');
+    await choose('variant', 'outline');
+    expect(page.getByRole('button', { name: 'Set reminder' })).toBeTruthy();
+    expect(dismiss().length).toBeGreaterThan(0);
+    expect(shown().dataset.actionsPlacement).toBe('bottom');
+    // An alert needs a title or a description: description is offered only with a title, and keeps its choice
+    await toggle('description');
+    expect(shown().textContent).not.toContain("We'll be offline");
+    await toggle('title');
+    expect(page.queryByRole('switch', { name: 'description', exact: true })).toBeNull();
+    expect(shown().textContent).not.toContain('Scheduled maintenance');
+    expect(shown().textContent).toContain("We'll be offline");
+    await toggle('title');
+    expect(page.getByRole('switch', { name: 'description', exact: true }).getAttribute('aria-checked')).toBe('false');
+    expect(shown().textContent).not.toContain("We'll be offline");
+    await toggle('banner');
+    expect(shown().hasAttribute('data-banner')).toBe(true);
+    await toggle('onDismiss');
+    expect(dismiss()).toHaveLength(0);
+    // Without actions, their settings go and the alert gets their defaults
+    await toggle('actions');
+    expect(page.queryByRole('button', { name: 'Set reminder' })).toBeNull();
+    expect(page.queryByRole('radiogroup', { name: 'mobileActions' })).toBeNull();
+    expect(shown().dataset.mobileActions).toBeUndefined();
+    expect(shown().dataset.actionsPlacement).toBe('end');
+  });
+
+  test('text link: one Overview on a paragraph carries every setting (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <TextLinkOverviewDemo /> : <VueDemo {...textLink} stageClassName="flex" />);
+    await interact(() => {});
+    const page = within(view.container);
+    const paragraph = () => view.container.querySelector<HTMLElement>('[data-demo-stage] p')!;
+    const links = () => [...paragraph().querySelectorAll<HTMLAnchorElement>('a')];
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    expect(links().map((link) => link.textContent?.trim())).toEqual(['responses endpoint', 'official SDKs']);
+    expect(paragraph().className).toBe('');
+    // The paragraph takes the color class
+    expect(within(page.getByRole('radiogroup', { name: 'colorClassName' })).getAllByRole('radio').map((option) => option.textContent)).toEqual(['default', 'secondary', 'tertiary']);
+    await choose('colorClassName', 'secondary');
+    expect(paragraph().className).toBe('text-secondary');
+    // primary and underline: unset, the underline is on unless the link is primary
+    const marks = () => links().map((link) => ({ primary: link.hasAttribute('data-primary'), underline: link.hasAttribute('data-underline') }));
+    expect(marks()).toEqual([{ primary: false, underline: true }, { primary: false, underline: true }]);
+    await toggle('primary');
+    expect(marks()).toEqual([{ primary: true, underline: false }, { primary: true, underline: false }]);
+    await choose('underline', 'on');
+    expect(marks()).toEqual([{ primary: true, underline: true }, { primary: true, underline: true }]);
+    await toggle('primary');
+    await choose('underline', 'off');
+    expect(marks()).toEqual([{ primary: false, underline: false }, { primary: false, underline: false }]);
+    await choose('underline', 'auto');
+    expect(marks()).toEqual([{ primary: false, underline: true }, { primary: false, underline: true }]);
+    // external: the second link opens an external URL in a new tab, marked by the arrow
+    expect(links()[1].getAttribute('target')).toBeNull();
+    await toggle('external');
+    expect(links()[1].getAttribute('href')).toBe('https://example.com');
+    expect(links()[1].getAttribute('target')).toBe('_blank');
+    expect(links()[1].getAttribute('rel')).toBe('noopener noreferrer');
+    expect(links()[1].querySelector('svg')).not.toBeNull();
+    expect(links()[0].getAttribute('target')).toBeNull();
+    // weight: a font-weight class on both links
+    await choose('weight', 'semibold');
+    expect(links().every((link) => link.classList.contains('font-semibold'))).toBe(true);
+    await choose('weight', 'normal');
+    expect(links().some((link) => /font-/.test(link.className))).toBe(false);
+  });
+
   test('checkbox: one Overview of the three states carries every setting, each where it acts, and disabled keeps the states (owner 11.11)', async () => {
     const view = render(framework === 'React' ? <CheckboxOverviewDemo /> : <VueDemo {...checkbox} />);
     await interact(() => {});

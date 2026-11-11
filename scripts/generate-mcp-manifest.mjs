@@ -215,6 +215,9 @@ const textOf = (node) => {
   return (node.children ?? []).map(textOf).join("");
 };
 
+/** A heading's text without its custom id (`### LoadingIndicator [#loadingindicator-1]`, which keeps an old anchor) */
+const headingText = (node) => textOf(node).replace(/\s*\[#[^\]]+\]\s*$/, "").trim();
+
 const attribute = (node, name) => node.attributes?.find((a) => a.name === name);
 
 /** Top-level blocks, looking through wrapper elements such as `<div id="first-component-page">`. */
@@ -238,7 +241,7 @@ export function extractExamples(content, { tree, context }) {
 
   const visit = (node) => {
     if (node.type === "heading") {
-      name = node.depth >= 3 ? textOf(node).trim() : null;
+      name = node.depth >= 3 ? headingText(node) : null;
       return;
     }
     if ((node.type === "mdxJsxFlowElement" || node.type === "mdxJsxTextElement") && node.name === "ComponentPreview") {
@@ -396,12 +399,12 @@ function extractProps({ tree, context }, componentNames) {
 
   for (const node of blocks(tree.children)) {
     if (node.type === "heading" && node.depth <= 2) {
-      inApi = /^(reference|api)$/i.test(textOf(node).trim());
+      inApi = /^(reference|api)$/i.test(headingText(node));
       current = null;
       continue;
     }
     if (inApi && node.type === "heading" && node.depth === 3) {
-      startSection(textOf(node).trim());
+      startSection(headingText(node));
       continue;
     }
     if (inApi && node.type === "paragraph" && node.children[0]?.type === "strong") {

@@ -394,8 +394,11 @@ describe("Alert parity", () => {
           disconnect() {}
         },
       )
-      vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(function (this: HTMLElement) {
-        return this.classList.contains("Actions") ? actionsWidth.value : 0
+      // The alert measures the buttons' own widths (its actions row stretches at the bottom): share the width
+      // among the buttons of the actions row (jsdom has no gap)
+      vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(function (this: HTMLElement) {
+        const row = this.parentElement
+        return row?.classList.contains("Actions") ? actionsWidth.value / row.children.length : 0
       })
     }
     const resize = async (inlineSize: number, blockSize = 40) => {

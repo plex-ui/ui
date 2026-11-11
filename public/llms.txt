@@ -62,7 +62,7 @@ Props:
   - onDismiss (() => void) — Shows the dismiss button when set
   - banner (boolean) default: false — Full-width strip: square corners, lines above and below only
   - className (string) — Class applied to the alert container
-Examples: Overview, Colors & variants, Title, Description, Actions, Indicator, Dismissible, Banner, Action placement
+Examples: Overview
 
 ## Avatar Group
 Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.
@@ -90,7 +90,7 @@ Props:
   - className (string) — Applied to the avatar root
   - onClick (() => void) — Makes avatar interactive (renders a button)
   - onPointerDown (() => void) — Makes avatar interactive (renders a button)
-Examples: Overview, Text, Image, Icon, Overflow count, Sizing, Colors & variants, Roundness, Interactive
+Examples: Overview
 
 ## Badge
 Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.
@@ -567,7 +567,7 @@ Docs: https://plexui.com/components/indicators
     - strokeWidth (number) default: 2 — Stroke thickness in px, capped at 4
     - trackColor (string) — Track color (CSS variable or value)
     - trackActiveColor (string) — Active segment color
-Examples: Overview, LoadingIndicator, Sizing & stroke, Color, Duration, CircularProgress, Progress, Sizing & stroke, Color, LoadingDots, Color, Phone spinner
+Examples: Overview
 
 ## Input Group
 Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.
@@ -1285,7 +1285,7 @@ Props:
   - as (Component) — Link component (e.g. Next Link)
   - target (string) — Where to open the link. External links default to _blank
   - className (string) — Extra classes on the link
-Examples: Overview, Inline usage, Default inheritance, Primary color, Underline, External links, Font weight
+Examples: Overview
 
 ## Textarea
 Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.

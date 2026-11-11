@@ -226,23 +226,25 @@
 }
 
 /* On a phone an Alert takes the shape and text of an iOS inline tip (TipKit), the system's message
-   inside a screen (kit TipKit, iOS Mini Tip Style=Hint 41:4207): 26 corners, 22 above and 16 at the
-   sides and below (22 below as well when no action shows), the icon 22 from the edge and 12 from the message, the title at 17/22 semibold and
-   the description at 15/20 4 under it, 22 to the actions, and the actions as 50px capsules with 17/22
-   semibold labels (a phone xl Button in touch.css), side by side 12 apart, each at least half the width,
-   wrapping when a label needs more. A dismissible alert closes with a 30px button in its corner, 19 from
-   the edges, in a 44px target, instead of a Dismiss action. The alert keeps its icon, colors and variants; a banner keeps
-   its square strip. */
+   inside a screen, as a TipView draws it in the iOS 27.2 simulator (owner 11.11: the text and the icon on one
+   line; ref-app screen `tip`): 26 corners; the icon's glyph 38 tall, 22 from the top and the side (a 46px
+   icon in a 48 frame, 17 from the top); the title at 17/22 semibold, 17 from the top, beside a title alone
+   centred on the icon, and the description at 15/20 2 under it, the text ending 21 above the edge; 8 from
+   the icon's frame to the text and 18 to the actions; the actions as 50px capsules with 17/22 semibold labels
+   (a phone xl Button in touch.css), 16 from the sides and the edge, side by side 8 apart, each at least half
+   the width, wrapping when a label needs more. A dismissible alert closes with a 26px button 14 from the top
+   and the side, in a 44px target, instead of a Dismiss action; the first line of text stops short of it. The
+   alert keeps its icon, colors and variants; a banner keeps its square strip. */
 @media (max-width: 767px) {
   .Alert {
     position: relative;
     flex-wrap: wrap;
     align-items: flex-start;
-    column-gap: 12px;
-    row-gap: 22px;
-    padding: 22px 16px;
+    column-gap: 8px;
+    row-gap: 18px;
+    padding: 17px 16px;
     border-radius: 26px;
-    --alert-indicator-size: 28px;
+    --alert-indicator-size: 46px;
 
     &:has(> .Content > .Actions > :not(.DismissButton)) {
       padding-bottom: 16px;
@@ -259,7 +261,7 @@
   }
 
   .Indicator {
-    padding-inline-start: 6px;
+    padding: 1px 0 1px 2px;
 
     &::before {
       content: none;
@@ -270,12 +272,23 @@
     padding-inline-start: 6px;
   }
 
+  /* Text shorter than the icon stands centred on it */
   .Indicator + .Content > .Message {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(var(--alert-indicator-size) + 2px);
     padding-inline-start: 0;
   }
 
-  .Alert:has(> .CloseButton) .Message {
+  .Alert:has(> .CloseButton) .Message > :first-child {
     padding-inline-end: 34px;
+  }
+
+  /* Lines break as iOS breaks them, as many words as fit (a TipView leaves one word on its last line) */
+  .Title,
+  .Description {
+    text-wrap: wrap;
   }
 
   .Title {
@@ -284,13 +297,14 @@
   }
 
   .Title ~ .Description {
-    margin-top: 4px;
+    margin-top: 2px;
+    margin-bottom: 4px;
   }
 
   .Actions {
     flex: 1 0 100%;
     flex-flow: row wrap;
-    gap: 10px 12px;
+    gap: 8px;
     align-self: stretch;
     margin: 0;
 
@@ -307,7 +321,7 @@
     --button-gutter: var(--button-gutter-xl, 20px);
     --button-radius: var(--radius-full);
     flex: 1 0 auto;
-    min-width: calc(50% - 6px);
+    min-width: calc(50% - 4px);
     max-width: 100%;
     min-height: var(--button-size-xl, 50px);
     height: auto;
@@ -321,18 +335,18 @@
     display: none;
   }
 
-  /* A 44px target with its 30px circle (the background and the focus ring) 19 from the edges */
+  /* A 44px target with its 26px circle (the background and the focus ring) 14 from the edges, its cross 10.5 */
   .Alert > .CloseButton {
     --button-uniform-size: 44px;
-    --button-icon-size: 16px;
+    --button-icon-size: 19px;
     position: absolute;
-    top: 12px;
-    inset-inline-end: 12px;
+    top: 5px;
+    inset-inline-end: 5px;
     display: inline-flex;
 
     &::before,
     &::after {
-      inset: 7px;
+      inset: 9px;
     }
   }
 }
