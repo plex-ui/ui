@@ -8958,64 +8958,84 @@ Props:
     - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
 
 ### Overview
-Leading and trailing items take 44px targets; the title is centered across the whole width. Scroll the content: the canvas color fades out over the rows under the bar, and the glass starts to cast a shadow.
+Leading and trailing items take 44px targets; an inline title is centered across the whole width. titleStyle sets the size and place of the title: inline in the row of controls, large on a row of its own below them (on a page it scrolls up with the content under the controls, which then show it inline), and compact-large or compact-medium at the leading edge of the row, on a screen with no Back button. subtitle adds a second line under an inline or large title. titleAlign="start" puts an inline title after the leading items. Scroll the content: the canvas color fades out over the rows under the bar, and the glass starts to cast a shadow. Toolbar.Group puts related actions in one capsule; a single action, as Back or Close, keeps a capsule of its own. Without Toolbar.Title the bar holds its controls alone. A ButtonGroup in a toolbar is the same capsule. Name each icon button with aria-label. Toolbar.Content fill stretches a search field across the row in the place of the title, up to the trailing items; the field takes the row height and the material of the bar buttons. placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, and a bottom bar draws no band: the content runs under and around its glass, as in iOS 26 Mail and Contacts. A search field holds SearchSm, set in Regular; a plus next to it takes iconSize="sm", as Contacts draws it smaller than the other symbols. The page content scrolls under both bars. A screen holds one search field, so with one in the top bar the bottom bar offers neither its own field nor its Search button. background sets how a bar meets the content scrolled under it. glass, the default of a top bar, is a translucent, blurred bar with a hairline. soft, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a line. solid is an opaque bar with no line. Glass and hard show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values. The top and the bottom bar each take their own; the bottom bar's controls stand under the preview.
 ```tsx
+const [search, setSearch] = useState(false) // a search field in place of the title
+const [title, setTitle] = useState(true) // false: the bar holds its controls alone
+const [titleStyle, setTitleStyle] = useState("inline") // or "large", "compact-large", "compact-medium"
+const [titleAlign, setTitleAlign] = useState("center") // or "start"; an inline title only
+const [subtitle, setSubtitle] = useState(false) // not with a compact title
+const [group, setGroup] = useState(false)
+const [topBackground, setTopBackground] = useState("glass") // or "soft", "hard", "solid"
+const [bottom, setBottom] = useState("none") // or "buttons", "search" (one search field to a screen), "action"
+const [bottomBackground, setBottomBackground] = useState("soft") // or "hard", "glass", "solid"
+const named = !search && title
+const compact = named && titleStyle.startsWith("compact")
+const shownBottom = search && bottom === "search" ? "none" : bottom // one search field to a screen
+
 <Page surface="grouped">
-<Toolbar>
-  <Toolbar.Leading>
-    <NavigationButton action="back" />
-  </Toolbar.Leading>
-  <Toolbar.Title>Orders</Toolbar.Title>
-  <Toolbar.Trailing>
-    <NavigationButton action="close" />
-  </Toolbar.Trailing>
-</Toolbar>
-<Page.Content>...</Page.Content>
+  <Toolbar titleStyle={named ? titleStyle : undefined} titleAlign={named && titleStyle === "inline" ? titleAlign : undefined} background={topBackground}>
+    {search ? (
+      <Toolbar.Content fill>
+        <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+      </Toolbar.Content>
+    ) : (
+      <>
+        {!compact && (
+          <Toolbar.Leading>
+            <NavigationButton action="back" />
+          </Toolbar.Leading>
+        )}
+        {named && <Toolbar.Title subtitle={subtitle && !compact ? "24 orders" : undefined}>Orders</Toolbar.Title>}
+      </>
+    )}
+    <Toolbar.Trailing>
+      {search ? (
+        <NavigationButton action="close" aria-label="Close search" />
+      ) : group ? (
+        <Toolbar.Group aria-label="Order actions">
+          <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
+          <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+        </Toolbar.Group>
+      ) : (
+        <NavigationButton action={named && titleStyle === "large" ? "confirm" : "close"} />
+      )}
+    </Toolbar.Trailing>
+  </Toolbar>
+  <Page.Content>...</Page.Content>
+  {shownBottom === "buttons" && (
+    <Toolbar placement="bottom" background={bottomBackground}>
+      <Toolbar.Leading>
+        <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
+      </Toolbar.Leading>
+      <Toolbar.Content>
+        <Button color="primary" pill>New order</Button>
+      </Toolbar.Content>
+      {!search && (
+        <Toolbar.Trailing>
+          <Button color="secondary" variant="soft" uniform pill aria-label="Search"><Search /></Button>
+        </Toolbar.Trailing>
+      )}
+    </Toolbar>
+  )}
+  {shownBottom === "search" && (
+    <Toolbar placement="bottom" background={bottomBackground}>
+      <Toolbar.Content fill>
+        <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+      </Toolbar.Content>
+      <Toolbar.Trailing>
+        <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="New order"><PlusLg /></Button>
+      </Toolbar.Trailing>
+    </Toolbar>
+  )}
+  {shownBottom === "action" && (
+    <Toolbar placement="bottom" background={bottomBackground}>
+      <Toolbar.Content fill>
+        <Button color="primary" pill block><Plus /> New order</Button>
+      </Toolbar.Content>
+    </Toolbar>
+  )}
 </Page>
-```
-
-### Titles
-titleStyle sets the size and place of the title: inline in the row of controls, large on a row of its own below them (on a page it scrolls up with the content under the controls, which then show it inline), and compact-large or compact-medium at the leading edge of the row. subtitle adds a second line. titleAlign="start" puts an inline title after the leading items.
-```tsx
-<Toolbar titleStyle="large">
-<Toolbar.Leading>
-  <NavigationButton action="back" />
-</Toolbar.Leading>
-<Toolbar.Title subtitle="24 orders">Orders</Toolbar.Title>
-<Toolbar.Trailing>
-  <NavigationButton action="confirm" />
-</Toolbar.Trailing>
-</Toolbar>
-```
-
-### Group
-Toolbar.Group puts related actions in one capsule. A single action keeps a capsule of its own. A ButtonGroup in a toolbar is the same capsule. Name each icon button with aria-label.
-```tsx
-<Toolbar>
-<Toolbar.Leading>
-  <NavigationButton action="close" />
-</Toolbar.Leading>
-<Toolbar.Trailing>
-  <Button color="secondary" variant="soft" uniform pill aria-label="Details"><InfoCircle /></Button>
-  <Toolbar.Group aria-label="Order actions">
-    <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
-    <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
-  </Toolbar.Group>
-</Toolbar.Trailing>
-</Toolbar>
-```
-
-### Search
-Toolbar.Content fill stretches a search field between the leading and trailing items. The field takes the row height and the material of the bar buttons.
-```tsx
-<Toolbar>
-<Toolbar.Content fill>
-  <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
-</Toolbar.Content>
-<Toolbar.Trailing>
-  <NavigationButton action="close" aria-label="Close search" />
-</Toolbar.Trailing>
-</Toolbar>
 ```
 
 ### Search in the content
@@ -9043,62 +9063,6 @@ A search field in the content, under a large title or at the top of a sheet, is 
   />
   ...
 </Page.Content>
-</Page>
-```
-
-### Bottom
-placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, and a bottom bar draws no band: the content runs under and around its glass, as in iOS 26 Mail and Contacts. A search field holds SearchSm, set in Regular; a plus next to it takes iconSize="sm", as Contacts draws it smaller than the other symbols. The page content scrolls under both bars.
-```tsx
-<Page surface="grouped">
-<Toolbar>
-  <Toolbar.Title>Orders</Toolbar.Title>
-</Toolbar>
-<Page.Content>...</Page.Content>
-<Toolbar placement="bottom">
-  <Toolbar.Leading>
-    <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
-  </Toolbar.Leading>
-  <Toolbar.Content>
-    <Button color="primary" pill>New order</Button>
-  </Toolbar.Content>
-  <Toolbar.Trailing>
-    <Button color="secondary" variant="soft" uniform pill aria-label="Search"><Search /></Button>
-  </Toolbar.Trailing>
-</Toolbar>
-</Page>
-
-<Toolbar placement="bottom">
-<Toolbar.Content fill>
-  <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
-</Toolbar.Content>
-<Toolbar.Trailing>
-  <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="New order"><PlusLg /></Button>
-</Toolbar.Trailing>
-</Toolbar>
-
-<Toolbar placement="bottom">
-<Toolbar.Content fill>
-  <Button color="primary" pill block><Plus /> New order</Button>
-</Toolbar.Content>
-</Toolbar>
-```
-
-### Background
-background sets how a bar meets the content scrolled under it. glass, the default of a top bar, is a translucent, blurred bar with a hairline. soft, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: a top bar with a title covers the content under its controls with the canvas color and fades it out past them over a light blur, while a top bar of controls alone on a page covers only the status bar, and a bottom bar on a page leaves the content clear under and around its controls, as native iOS 26 does (Contacts, Notes, Mail); each glass control stands out by itself. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a line. solid is an opaque bar with no line. Glass and hard show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values. The example sets the top and the bottom bar apart: the control of the bottom bar stands under the preview.
-```tsx
-<Page surface="grouped">
-<Toolbar background="hard">
-  <Toolbar.Leading>
-    <NavigationButton action="back" />
-  </Toolbar.Leading>
-  <Toolbar.Title>Orders</Toolbar.Title>
-</Toolbar>
-<Page.Content>...</Page.Content>
-<Toolbar placement="bottom" background="hard">
-  <Toolbar.Content>
-    <Button color="primary" pill>New order</Button>
-  </Toolbar.Content>
-</Toolbar>
 </Page>
 ```
 

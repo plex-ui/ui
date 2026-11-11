@@ -4,12 +4,12 @@ import { useState, type ReactNode } from 'react';
 import { Button, NavigationButton } from '@plexui/ui/components/Button';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { DotsHorizontal, Filter, InfoCircle, Plus, PlusLg, Search, SearchSm, Translate } from '@plexui/ui/components/Icon';
+import { DotsHorizontal, Filter, Plus, PlusLg, Search, SearchSm, Translate } from '@plexui/ui/components/Icon';
 import { Input } from '@plexui/ui/components/Input';
 import { Page } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Toolbar, type BarBackground, type ToolbarTitleAlign, type ToolbarTitleStyle } from '@plexui/ui/components/Toolbar';
-import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { DemoControlBoolean, DemoControlRow, Segments, controlsTableStyle } from './ButtonDemos';
 import { DemoControlsBottom, usePreviewEmbed } from './PreviewEmbed';
 import s from './PageDemos.module.css';
 import t from './ToolbarDemos.module.css';
@@ -34,114 +34,120 @@ export function Rows() {
   );
 }
 
-export function ToolbarOverviewDemo() {
-  return (
-    <Frame>
-      <Page surface="grouped">
-        <Toolbar>
-          <Toolbar.Leading>
-            <NavigationButton action="back" />
-          </Toolbar.Leading>
-          <Toolbar.Title>Orders</Toolbar.Title>
-          <Toolbar.Trailing>
-            <NavigationButton action="close" />
-          </Toolbar.Trailing>
-        </Toolbar>
-        <Page.Content>
-          <Rows />
-        </Page.Content>
-      </Page>
-    </Frame>
-  );
-}
-
 const TITLE_STYLES = ['inline', 'large', 'compact-large', 'compact-medium'] as const satisfies readonly ToolbarTitleStyle[];
+const TITLE_ALIGNS = ['center', 'start'] as const satisfies readonly ToolbarTitleAlign[];
+// What the bottom bar holds: buttons round a main action, a search field and a plus, one action across the row
+const BOTTOM = ['none', 'buttons', 'search', 'action'] as const;
 
-export function ToolbarTitlesDemo() {
+/**
+ * The Overview, with every setting of the bars: what the page's examples once showed one by one (Titles, Group,
+ * Search, Bottom, Background) are its settings (owner 11.11: «в первом примере можно сразу показать все со всеми
+ * настройками»). The top bar's controls stand above the preview and the bottom bar's under it (owner 09.11). Disabled
+ * (a form's Cancel and Done), Search in the content (an Input under a large title) and Sheet (another host) keep
+ * examples of their own: other content.
+ */
+export function ToolbarOverviewDemo() {
+  const [search, setSearch] = useState(false);
+  const [title, setTitle] = useState(true);
   const [titleStyle, setTitleStyle] = useState<ToolbarTitleStyle>('inline');
   const [titleAlign, setTitleAlign] = useState<ToolbarTitleAlign>('center');
-  const [subtitle, setSubtitle] = useState(true);
-  const compact = titleStyle === 'compact-large' || titleStyle === 'compact-medium';
+  const [subtitle, setSubtitle] = useState(false);
+  const [group, setGroup] = useState(false);
+  const [topBackground, setTopBackground] = useState<BarBackground>('glass');
+  const [bottom, setBottom] = useState<(typeof BOTTOM)[number]>('none');
+  const [bottomBackground, setBottomBackground] = useState<BarBackground>('soft');
+  // A title, unless a search field takes its place or the bar holds its controls alone
+  const named = !search && title;
+  const compact = named && (titleStyle === 'compact-large' || titleStyle === 'compact-medium');
+  // One search field to a screen: with one in the top bar, the bottom bar does not offer its own (and falls back)
+  const bottomOptions = search ? BOTTOM.filter((option) => option !== 'search') : BOTTOM;
+  const shownBottom = search && bottom === 'search' ? 'none' : bottom;
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="titleStyle">
-          <SegmentedControl<ToolbarTitleStyle> aria-label="titleStyle" size="xs" value={titleStyle} onChange={setTitleStyle}>
-            {TITLE_STYLES.map((value) => <SegmentedControl.Option key={value} value={value}>{value}</SegmentedControl.Option>)}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlRow name="titleAlign">
-          <SegmentedControl<ToolbarTitleAlign> aria-label="titleAlign" size="xs" value={titleAlign} onChange={setTitleAlign}>
-            <SegmentedControl.Option value="center">center</SegmentedControl.Option>
-            <SegmentedControl.Option value="start">start</SegmentedControl.Option>
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlBoolean name="subtitle" value={subtitle} onChange={setSubtitle} />
+        <DemoControlBoolean name="search" value={search} onChange={setSearch} />
+        {!search && <DemoControlBoolean name="title" value={title} onChange={setTitle} />}
+        {named && <Segments name="titleStyle" options={TITLE_STYLES} value={titleStyle} onChange={setTitleStyle} />}
+        {named && titleStyle === 'inline' && <Segments name="titleAlign" options={TITLE_ALIGNS} value={titleAlign} onChange={setTitleAlign} />}
+        {named && !compact && <DemoControlBoolean name="subtitle" value={subtitle} onChange={setSubtitle} />}
+        {!search && <DemoControlBoolean name="group" value={group} onChange={setGroup} />}
+        <BarBackgroundRow name="background (top)" value={topBackground} onChange={setTopBackground} />
       </div>
       <Frame>
         <Page surface="grouped">
-          <Toolbar titleStyle={titleStyle} titleAlign={titleAlign}>
-            {!compact && (
-              <Toolbar.Leading>
-                <NavigationButton action="back" />
-              </Toolbar.Leading>
+          <Toolbar titleStyle={named ? titleStyle : undefined} titleAlign={named && titleStyle === 'inline' ? titleAlign : undefined} background={topBackground}>
+            {search ? (
+              <Toolbar.Content fill>
+                <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+              </Toolbar.Content>
+            ) : (
+              <>
+                {!compact && (
+                  <Toolbar.Leading>
+                    <NavigationButton action="back" />
+                  </Toolbar.Leading>
+                )}
+                {named && <Toolbar.Title subtitle={subtitle && !compact ? '24 orders' : undefined}>Orders</Toolbar.Title>}
+              </>
             )}
-            <Toolbar.Title subtitle={subtitle && !compact ? '24 orders' : undefined}>Orders</Toolbar.Title>
             <Toolbar.Trailing>
-              <NavigationButton action={titleStyle === 'large' ? 'confirm' : 'close'} />
+              {search ? (
+                <NavigationButton action="close" aria-label="Close search" />
+              ) : group ? (
+                <Toolbar.Group aria-label="Order actions">
+                  <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
+                  <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+                </Toolbar.Group>
+              ) : (
+                <NavigationButton action={named && titleStyle === 'large' ? 'confirm' : 'close'} />
+              )}
             </Toolbar.Trailing>
           </Toolbar>
           <Page.Content>
             <Rows />
           </Page.Content>
+          {shownBottom !== 'none' && (
+            <Toolbar placement="bottom" background={bottomBackground}>
+              {shownBottom === 'buttons' ? (
+                <>
+                  <Toolbar.Leading>
+                    <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
+                  </Toolbar.Leading>
+                  <Toolbar.Content>
+                    <Button color="primary" pill>New order</Button>
+                  </Toolbar.Content>
+                  {/* With a search field in the top bar, no second way to search */}
+                  {!search && (
+                    <Toolbar.Trailing>
+                      <Button color="secondary" variant="soft" uniform pill aria-label="Search"><Search /></Button>
+                    </Toolbar.Trailing>
+                  )}
+                </>
+              ) : shownBottom === 'search' ? (
+                <>
+                  <Toolbar.Content fill>
+                    <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+                  </Toolbar.Content>
+                  <Toolbar.Trailing>
+                    <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="New order"><PlusLg /></Button>
+                  </Toolbar.Trailing>
+                </>
+              ) : (
+                <Toolbar.Content fill>
+                  <Button color="primary" pill block><Plus /> New order</Button>
+                </Toolbar.Content>
+              )}
+            </Toolbar>
+          )}
         </Page>
       </Frame>
+      {/* The bottom bar's controls stand under the preview, on its side (owner 09.11) */}
+      <DemoControlsBottom style={controlsTableStyle}>
+        <Segments name="bottom" options={bottomOptions} value={shownBottom} onChange={setBottom} />
+        {shownBottom !== 'none' && <BarBackgroundRow name="background (bottom)" value={bottomBackground} onChange={setBottomBackground} />}
+      </DemoControlsBottom>
     </>
-  );
-}
-
-export function ToolbarGroupDemo() {
-  return (
-    <Frame>
-      <Page surface="grouped">
-        <Toolbar>
-          <Toolbar.Leading>
-            <NavigationButton action="close" />
-          </Toolbar.Leading>
-          <Toolbar.Trailing>
-            <Button color="secondary" variant="soft" uniform pill aria-label="Details"><InfoCircle /></Button>
-            <Toolbar.Group aria-label="Order actions">
-              <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
-              <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
-            </Toolbar.Group>
-          </Toolbar.Trailing>
-        </Toolbar>
-        <Page.Content>
-          <Rows />
-        </Page.Content>
-      </Page>
-    </Frame>
-  );
-}
-
-export function ToolbarSearchDemo() {
-  return (
-    <Frame>
-      <Page surface="grouped">
-        <Toolbar>
-          <Toolbar.Content fill>
-            <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
-          </Toolbar.Content>
-          <Toolbar.Trailing>
-            <NavigationButton action="close" aria-label="Close search" />
-          </Toolbar.Trailing>
-        </Toolbar>
-        <Page.Content>
-          <Rows />
-        </Page.Content>
-      </Page>
-    </Frame>
   );
 }
 
@@ -177,64 +183,6 @@ export function ToolbarSearchLargeTitleDemo() {
   );
 }
 
-const BOTTOM_CONTENT = ['buttons', 'search', 'action'] as const;
-type BottomContent = (typeof BOTTOM_CONTENT)[number];
-
-export function ToolbarBottomDemo() {
-  const [content, setContent] = useState<BottomContent>('buttons');
-
-  return (
-    <>
-      <Frame>
-        <Page surface="grouped">
-          <Toolbar>
-            <Toolbar.Title>Orders</Toolbar.Title>
-          </Toolbar>
-          <Page.Content>
-            <Rows />
-          </Page.Content>
-          {content === 'buttons' ? (
-            <Toolbar placement="bottom">
-              <Toolbar.Leading>
-                <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
-              </Toolbar.Leading>
-              <Toolbar.Content>
-                <Button color="primary" pill>New order</Button>
-              </Toolbar.Content>
-              <Toolbar.Trailing>
-                <Button color="secondary" variant="soft" uniform pill aria-label="Search"><Search /></Button>
-              </Toolbar.Trailing>
-            </Toolbar>
-          ) : content === 'search' ? (
-            <Toolbar placement="bottom">
-              <Toolbar.Content fill>
-                <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
-              </Toolbar.Content>
-              <Toolbar.Trailing>
-                <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="New order"><PlusLg /></Button>
-              </Toolbar.Trailing>
-            </Toolbar>
-          ) : (
-            <Toolbar placement="bottom">
-              <Toolbar.Content fill>
-                <Button color="primary" pill block><Plus /> New order</Button>
-              </Toolbar.Content>
-            </Toolbar>
-          )}
-        </Page>
-      </Frame>
-      {/* The content is the bottom bar's, so its control stands under the preview (owner 09.11) */}
-      <DemoControlsBottom style={controlsTableStyle}>
-        <DemoControlRow name="content">
-          <SegmentedControl<BottomContent> aria-label="content" size="xs" value={content} onChange={setContent}>
-            {BOTTOM_CONTENT.map((value) => <SegmentedControl.Option key={value} value={value}>{value}</SegmentedControl.Option>)}
-          </SegmentedControl>
-        </DemoControlRow>
-      </DemoControlsBottom>
-    </>
-  );
-}
-
 export const BAR_BACKGROUNDS = ['soft', 'hard', 'glass', 'solid'] as const satisfies readonly BarBackground[];
 
 /** One `background` row of the bar demos: a SegmentedControl over the four scroll edge styles. */
@@ -263,34 +211,6 @@ export function BarBackgroundControls({ top, onTopChange, bottom, onBottomChange
         <BarBackgroundRow name="background (bottom)" value={bottom} onChange={onBottomChange} phoneOnly={phoneOnly} />
       </DemoControlsBottom>
     </>
-  );
-}
-
-export function ToolbarBackgroundDemo() {
-  const [top, setTop] = useState<BarBackground>('glass');
-  const [bottom, setBottom] = useState<BarBackground>('soft');
-
-  return (
-    <BarBackgroundControls top={top} onTopChange={setTop} bottom={bottom} onBottomChange={setBottom}>
-      <Frame>
-        <Page surface="grouped">
-          <Toolbar background={top}>
-            <Toolbar.Leading>
-              <NavigationButton action="back" />
-            </Toolbar.Leading>
-            <Toolbar.Title>Orders</Toolbar.Title>
-          </Toolbar>
-          <Page.Content>
-            <Rows />
-          </Page.Content>
-          <Toolbar placement="bottom" background={bottom}>
-            <Toolbar.Content>
-              <Button color="primary" pill>New order</Button>
-            </Toolbar.Content>
-          </Toolbar>
-        </Page>
-      </Frame>
-    </BarBackgroundControls>
   );
 }
 

@@ -115,6 +115,7 @@ describe('demo controls by the part of the screen they change', () => {
       // A bottom bar the page may leave out takes a `when`: the regex lets its braces through
       expect(mdx).toMatch(/\{ name: "bottomBackground", label: "background \(bottom\)", [^\n]*default: "soft"[^\n]*placement: "bottom" \}/);
     }
-    expect(readFileSync('content/vue/components/toolbar.mdx', 'utf8')).toContain('options: ["buttons", "search", "action"], default: "buttons", placement: "bottom"');
+    // The bottom bar of the Toolbar Overview, its own control under the preview, with no second search field
+    expect(readFileSync('content/vue/components/toolbar.mdx', 'utf8')).toContain('{ name: "bottom", type: "select", options: ["none", "buttons", { value: "search", label: "search", when: { search: false } }, "action"], default: "none", placement: "bottom" }');
   });
 });

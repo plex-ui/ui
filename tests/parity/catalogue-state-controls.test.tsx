@@ -24,6 +24,7 @@ import { SkeletonOverviewDemo } from '../../components/docs/SkeletonDemos';
 import { PageOverviewDemo } from '../../components/docs/PageDemos';
 import { SliderOverviewDemo } from '../../components/docs/SliderDemos';
 import { TipOverviewDemo } from '../../components/docs/TipDemos';
+import { ToolbarOverviewDemo } from '../../components/docs/ToolbarDemos';
 import { ToastDemosHost, ToastOverviewDemo } from '../../components/docs/ToastDemos';
 import { VueToastDemo, VueToastDemosHost } from '../../components/docs/vue/VueToastDemos';
 import { TOAST_LONG_DESCRIPTION, TOAST_MESSAGES } from '../../components/docs/toastMessages';
@@ -208,6 +209,18 @@ const tipOverview = (() => {
   };
   const template = read('overview') as string;
   return { template, phoneTemplate: phoneRows(template), stageClassName: read('stage') as string, phoneStageClassName: 'w-full', controls: read('overviewControls') as VueDemoControl[], state: { shown: true } };
+})();
+/** The Toolbar Overview as its page mounts it: the page in its frame, the orders and the controls of both bars */
+const toolbarOverview = (() => {
+  const mdx = readFileSync('content/vue/components/toolbar.mdx', 'utf8');
+  const read = (key: string, bindings: Record<string, unknown> = {}): unknown => {
+    const rest = mdx.slice(mdx.indexOf(`export const ${key} = `) + `export const ${key} = `.length);
+    return new Function(...Object.keys(bindings), `return ${rest.slice(0, rest.search(/\nexport const |\n<UsageBlock>/)).trim()}`)(...Object.values(bindings));
+  };
+  const styles = { Row: 'Row', Value: 'Value', Frame: 'Frame', Stage: 'Stage' };
+  const frame = read('frame', { pageStyles: styles }) as (body: string) => string;
+  const template = frame(read('overview', { list: read('list', { toolbarStyles: styles }) }) as string);
+  return { template, stageClassName: 'Stage', state: { rows: read('rows') }, controls: read('overviewControls') as VueDemoControl[] };
 })();
 /** A viewport a test can narrow to a phone and widen again, telling the demos' media queries */
 function viewport() {
@@ -1570,6 +1583,82 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     // The code sample lays the tip out as the demo does
     const code = readFileSync(framework === 'React' ? 'content/components/tip.mdx' : 'content/vue/components/tip.mdx', 'utf8');
     for (const part of ['md:max-w-[360px]', 'min-w-0 flex-1', 'shrink-0', 'Show the tip again', '"none"']) expect(code, part).toContain(part);
+  });
+
+  test('toolbar: one Overview carries the settings of both bars, each where it acts (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <ToolbarOverviewDemo /> : <VueDemo {...toolbarOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const bar = (placement: 'top' | 'bottom') => view.container.querySelector<HTMLElement>(`[data-toolbar][data-placement="${placement}"]`);
+    const top = () => bar('top')!;
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name })));
+    const offered = (name: string) => !!(page.queryByRole('radiogroup', { name }) ?? page.queryByRole('switch', { name }));
+    const buttons = (element: HTMLElement) => within(element).getAllByRole('button').map((button) => button.getAttribute('aria-label') ?? button.textContent?.trim());
+    const options = (name: string) => within(page.getByRole('radiogroup', { name })).getAllByRole('radio').map((radio) => radio.textContent);
+    // Back, the title and Close in a glass bar, and no bottom bar: its control stands under the preview
+    expect([top().dataset.titleStyle, top().dataset.titleAlign, top().dataset.background]).toEqual(['inline', 'center', 'glass']);
+    expect(buttons(top())).toEqual(['Back', 'Close']);
+    expect(within(top()).getByText('Orders')).toBeTruthy();
+    expect(bar('bottom')).toBeNull();
+    expect(page.getByRole('radiogroup', { name: 'bottom' }).closest('[data-demo-controls="bottom"]')).toBeTruthy();
+    expect(offered('background (bottom)')).toBe(false);
+    // An inline title aligns and takes a subtitle; a large one takes Done (confirm), a compact one the Back button's place
+    await choose('titleAlign', 'start');
+    await toggle('subtitle');
+    expect([top().dataset.titleAlign, within(top()).queryAllByText('24 orders').length > 0]).toEqual(['start', true]);
+    await choose('titleStyle', 'large');
+    expect([top().dataset.titleStyle, top().dataset.titleAlign, offered('titleAlign'), within(top()).queryAllByText('24 orders').length > 0]).toEqual(['large', 'center', false, true]);
+    expect(buttons(top())).toEqual(['Back', 'Confirm']);
+    await choose('titleStyle', 'compact-large');
+    expect([offered('subtitle'), within(top()).queryAllByText('24 orders').length, buttons(top())]).toEqual([false, 0, ['Close']]);
+    await choose('titleStyle', 'compact-medium');
+    expect([top().dataset.titleStyle, buttons(top())]).toEqual(['compact-medium', ['Close']]);
+    // Without a title the bar holds its controls alone, Back among them, and offers none of the title's settings
+    await toggle('title');
+    expect([within(top()).queryAllByText('Orders').length, buttons(top())]).toEqual([0, ['Back', 'Close']]);
+    expect(['titleStyle', 'titleAlign', 'subtitle', 'group'].map(offered)).toEqual([false, false, false, true]);
+    await toggle('title');
+    await choose('titleStyle', 'inline');
+    // A group of actions in one capsule, which leaves an inline title room on a phone
+    await toggle('group');
+    expect(buttons(top())).toEqual(['Back', 'Translate', 'More']);
+    expect(within(top()).getByRole('group', { name: 'Order actions' })).toBeTruthy();
+    // A search field in place of the title: the title's settings and the group go
+    await toggle('search');
+    expect(within(top()).getByRole('textbox', { name: 'Search orders' })).toBeTruthy();
+    expect([within(top()).queryAllByText('Orders').length, buttons(top())]).toEqual([0, ['Close search']]);
+    expect(['title', 'titleStyle', 'titleAlign', 'subtitle', 'group'].map(offered)).toEqual([false, false, false, false, false]);
+    // The top bar's background, the flat soft edge too
+    await choose('background (top)', 'hard');
+    expect(top().dataset.background).toBe('hard');
+    await choose('background (top)', 'soft');
+    expect(top().dataset.background).toBe('soft');
+    // The bottom bar: one search field to a screen, so not a second one while the top bar holds it
+    expect(options('bottom')).toEqual(['none', 'buttons', 'action']);
+    await choose('bottom', 'buttons');
+    // No second way to search: the bottom bar leaves out its Search button
+    expect([buttons(bar('bottom')!), bar('bottom')!.dataset.background]).toEqual([['Filter', 'New order'], 'soft']);
+    expect(page.getByRole('radiogroup', { name: 'background (bottom)' }).closest('[data-demo-controls="bottom"]')).toBeTruthy();
+    await choose('background (bottom)', 'glass');
+    expect(bar('bottom')!.dataset.background).toBe('glass');
+    await choose('bottom', 'action');
+    expect(buttons(bar('bottom')!)).toEqual(['New order']);
+    await toggle('search');
+    await choose('bottom', 'buttons');
+    expect(buttons(bar('bottom')!)).toEqual(['Filter', 'New order', 'Search']);
+    expect(options('bottom')).toEqual(['none', 'buttons', 'search', 'action']);
+    await choose('bottom', 'search');
+    expect(buttons(bar('bottom')!)).toEqual(['New order']);
+    expect(within(bar('bottom')!).getByRole('textbox', { name: 'Search orders' })).toBeTruthy();
+    // A search field turned on in the top bar sends the bottom bar's back to none, and off again brings it back
+    await toggle('search');
+    expect([bar('bottom'), offered('background (bottom)')]).toEqual([null, false]);
+    await toggle('search');
+    expect(within(bar('bottom')!).getByRole('textbox', { name: 'Search orders' })).toBeTruthy();
+    // The code sample keeps one search field to a screen too
+    const code = readFileSync(framework === 'React' ? 'content/components/toolbar.mdx' : 'content/vue/components/toolbar.mdx', 'utf8');
+    expect(code).toContain(framework === 'React' ? 'const shownBottom = search && bottom === "search" ? "none" : bottom' : `v-if="bottom !== 'none' && !(search && bottom === 'search')"`);
   });
 
   test('DataTable restores the sorted rows after empty, with default, text and rich message modes', async () => {

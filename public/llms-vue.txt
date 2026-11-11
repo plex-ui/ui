@@ -1362,7 +1362,7 @@ Props:
   ToolbarTitle:
     - subtitle (string) — Second, smaller line below the title. The subtitle slot takes precedence
     - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
-Examples: Overview, Titles, Group, Search, Search in the content, Bottom, Background, Disabled, Sheet
+Examples: Overview, Search in the content, Disabled, Sheet
 
 ## Tooltip
 Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
