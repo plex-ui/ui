@@ -157,10 +157,11 @@
     --button-group-text-border-color: var(--color-border-secondary-outline, var(--color-border));
     --button-group-text-font-size: var(--font-text-sm-size);
     --button-group-text-font-weight: var(--font-weight-medium);
-    /* A glass group on a phone (`mobileMaterial="glass"`, or any group in a Toolbar): the Button Group of the iOS 27
-       kit (Toolbars 507:25993, _Buttons - 44pt and 48pt, Type=Button Group). A row is the 44pt top bar's capsule,
-       160 wide with three symbols: 2 + 44 + 12 + 44 + 12 + 44 + 2, the centers of the kit's 36pt symbols 56 apart
-       (padding 6, gap 20). A column is the kit's only vertical one, the 48pt capsule, 48 x 164 with three symbols:
+    /* A glass group on a phone (`mobileMaterial="glass"`, or any group in a Toolbar). A row is the 44pt top bar's
+       capsule as iOS 27.2 groups a bar's symbols (ref-app nav-group3, plan 178 block 15), 154 wide with three:
+       1 + 44 + 10 + 44 + 10 + 44 + 1, the symbols as far apart as the bar's separate items (the iOS 27 kit, Toolbars
+       507:25993, Type=Button Group, drew 2 and 12 for 160). A column is the kit's only vertical one, the 48pt capsule
+       (_Buttons - 48pt), 48 x 164 with three symbols:
        4 + 48 + 6 + 48 + 6 + 48 + 4 (the kit's padding 10, gap 18 around 36pt symbols). Groups side by side keep the
        10px of the top bar's items. In a Toolbar a group takes the bar's own sizes instead. */
     --button-group-glass-item-size: var(--toolbar-top-item-size);
@@ -499,8 +500,11 @@
     --toolbar-top-item-gap: 10px;
     --toolbar-bottom-item-gap: 12px;
     --toolbar-bottom-gutter: 28px;
-    --toolbar-group-gap: 12px;
-    --toolbar-group-padding: 2px;
+    /* Several symbols in one capsule of a top bar (iOS 27.2 UINavigationBar, ref-app nav-inline and nav-group3,
+       plan 178 block 15): 44pt items 10 apart, as the bar's separate items stand, with 1 at the ends; two make
+       100, three 154.33. The iOS 26 kit drew 12 and 2. */
+    --toolbar-group-gap: 10px;
+    --toolbar-group-padding: 1px;
     --toolbar-bottom-group-gap: 6px;
     --toolbar-bottom-group-padding: 4px;
     --toolbar-padding-bottom: 10px;
@@ -542,8 +546,11 @@
     --toolbar-icon-size-sm: 23.56px;
     --toolbar-label-font-size: 17px;
     --toolbar-label-line-height: 22px;
+    /* A bar's text button (ref-app nav-inline, nav-text): 17pt medium, a prominent one semibold (stems of 1.8 and
+       2.1pt), 16 from the capsule's edge to the text (Edit 63.33 wide, Cancel 86.33, Done 74); the kit drew 14. */
     --toolbar-label-font-weight: 510;
-    --toolbar-label-gutter: 14px;
+    --toolbar-label-prominent-font-weight: 590;
+    --toolbar-label-gutter: 16px;
     --toolbar-bottom-label-gutter: 12px;
     --toolbar-title-font-size: 17px;
     --toolbar-title-line-height: 22px;

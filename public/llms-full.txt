@@ -576,7 +576,7 @@ Props:
     - className (string) default: — — Applied to the wrapper
 
 ### Overview
-On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule, the Button Group of the iOS 27 kit: 44px buttons 12px apart in a 160px capsule on top, 48px ones 6px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do.
+On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 6px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do.
 ```tsx
 // Desktop
 <ButtonGroup>

@@ -328,6 +328,16 @@
     --button-radius: var(--radius-full);
   }
 
+  /* The weight on the button itself, as in a Toolbar: touch.css's semibold --button-font-weight outweighs the one
+     above. Medium, a solid one semibold (iOS 27.2, plan 178 block 15). */
+  :is(.Leading, .Actions) > :is(button, a, [role="link"]) {
+    font-weight: var(--toolbar-label-font-weight);
+  }
+
+  :is(.Leading, .Actions) > :is(button, a, [role="link"])[data-variant="solid"] {
+    font-weight: var(--toolbar-label-prominent-font-weight);
+  }
+
   .Leading > :is(button, a):not([data-navigation-action]),
   .Actions > :is(button, a):not([data-navigation-action]) {
     --button-icon-size: 17px;

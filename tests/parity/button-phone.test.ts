@@ -170,6 +170,27 @@ describe("Button on a phone", () => {
       .toEqual({ "--button-gutter": "var(--toolbar-bottom-label-gutter)" })
   })
 
+  test("a bar's text button is medium and a solid one semibold, set as font-weight past touch.css's semibold (iOS 27.2)", () => {
+    // touch.css is unlayered, so its semibold --button-font-weight on a filled phone button outweighs the bar's token;
+    // the bars set the weight on the button itself, 16 from the capsule's edge to the text (ref-app nav-inline, nav-text)
+    const tokens = read("packages/styles/src/styles/variables-components.css")
+    expect(tokens).toMatch(/--toolbar-label-font-weight: 510;\s*--toolbar-label-prominent-font-weight: 590;\s*--toolbar-label-gutter: 16px;/)
+    const toolbar = "packages/styles/src/components/Toolbar/Toolbar.module.css"
+    expect(declsOf(toolbar, '.Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a, [role="link"])', true))
+      .toEqual({ "font-weight": "var(--toolbar-label-font-weight)" })
+    expect(declsOf(toolbar, '.Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a, [role="link"])[data-variant="solid"]', true))
+      .toEqual({ "font-weight": "var(--toolbar-label-prominent-font-weight)" })
+    const page = "packages/styles/src/components/Page/Page.module.css"
+    expect(declsOf(page, ':is(.Leading, .Actions) > :is(button, a, [role="link"])', true))
+      .toEqual({ "font-weight": "var(--toolbar-label-font-weight)" })
+    expect(declsOf(page, ':is(.Leading, .Actions) > :is(button, a, [role="link"])[data-variant="solid"]', true))
+      .toEqual({ "font-weight": "var(--toolbar-label-prominent-font-weight)" })
+    // A title with a subtitle: baselines 82.17 and 97.17 under the screen's top, as UIKit sets them (ref-app nav-subtitle)
+    const css = read(toolbar)
+    expect(css).toMatch(/\.Heading:has\(> \.Subtitle\) \{\s*transform: translateY\(-0\.33px\);/)
+    expect(css).not.toContain("translateY(1px)")
+  })
+
   test("a Field row action sets its weight on its buttons, so the filled weight does not replace it", () => {
     expect(declsOf("packages/styles/src/components/Field/Field.module.css", '.Action :where(button, a, [role="link"])', false))
       .toEqual({ "--button-font-weight": "var(--field-row-action-font-weight)" })

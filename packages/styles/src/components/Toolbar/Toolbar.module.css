@@ -273,8 +273,9 @@
     grid-area: content;
   }
 
-  /* Several buttons in one capsule (iOS 26 kit Buttons Top and Bottom: 2 to 6 Symbols). The capsule
-     carries the shared mobile glass; the buttons inside it stay clear. */
+  /* Several buttons in one capsule: on top as iOS 27.2 groups a bar's symbols (10 apart, 1 at the ends), at the
+     bottom the iOS 26 kit's Buttons Bottom (2 to 6 Symbols). The capsule carries the shared mobile glass; the
+     buttons inside it stay clear. */
   .Group {
     gap: var(--toolbar-group-gap);
     padding-inline: var(--toolbar-group-padding);
@@ -314,6 +315,17 @@
     --button-font-size: var(--toolbar-label-font-size);
     --button-line-height: var(--toolbar-label-line-height);
     --button-font-weight: var(--toolbar-label-font-weight);
+  }
+
+  /* The label's weight on the button itself: touch.css gives a filled phone button a semibold --button-font-weight
+     outside the layers, which outweighs the one above. iOS 27.2 sets a bar's text in medium and a prominent
+     (solid) one in semibold. */
+  .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a, [role="link"]) {
+    font-weight: var(--toolbar-label-font-weight);
+  }
+
+  .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a, [role="link"])[data-variant="solid"] {
+    font-weight: var(--toolbar-label-prominent-font-weight);
   }
 
   /* A bar symbol, sized by its drawn glyph (--toolbar-icon-size: the kit's 29pt box, about 22pt of ink). */
@@ -447,10 +459,12 @@
     white-space: nowrap;
   }
 
-  /* Two lines: title 15/20 at 6px, subtitle 12/16 below it. The title of a Dialog's bar can sit in a wrapper of
-     its own (one that takes focus when the Sheet opens). */
+  /* Two lines: title 15/20 at 6px, subtitle 12/16 below it, their baselines where iOS 27.2 sets them (ref-app
+     nav-subtitle, plan 178 block 15: 82.17 and 97.17, a third of a point above the row's middle; the kit's 1px
+     down left both 1.33 low). The title of a Dialog's bar can sit in a wrapper of its own (one that takes focus
+     when the Sheet opens). */
   .Heading:has(> .Subtitle) {
-    transform: translateY(1px);
+    transform: translateY(-0.33px);
 
     & .Title {
       font-size: var(--toolbar-title-compact-font-size);
@@ -597,7 +611,7 @@
       justify-content: center;
       font-size: var(--toolbar-title-compact-font-size);
       line-height: var(--toolbar-title-compact-line-height);
-      transform: translateY(1px);
+      transform: translateY(-0.33px);
     }
 
     & > .CollapsedTitle > :is(.CollapsedLine, .CollapsedSubtitle) {

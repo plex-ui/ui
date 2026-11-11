@@ -29,7 +29,7 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/components/tool
 
 ### Overview
 
-<ComponentPreview phonePresentation="screen" details={<>On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A <code>ButtonGroup</code> in a <code>Toolbar</code> is that capsule, the Button Group of the iOS 27 kit: 44px buttons 12px apart in a 160px capsule on top, 48px ones 6px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do.</>} code={`// Desktop
+<ComponentPreview phonePresentation="screen" details={<>On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A <code>ButtonGroup</code> in a <code>Toolbar</code> is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 6px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do.</>} code={`// Desktop
 <ButtonGroup>
   <ButtonGroup>
     <Button variant="outline" color="secondary" size="sm" uniform aria-label="Go back">
@@ -330,8 +330,8 @@ Nesting `ButtonGroup` inside a parent `ButtonGroup` automatically introduces a g
 - `--button-group-separator-color`: color of the `ButtonGroup.Separator` line
 - `--button-group-text-background` / `--button-group-text-color` / `--button-group-text-border-color`: surface, text, and 1px inset border of `ButtonGroup.Text`
 - `--button-group-text-font-size` / `--button-group-text-font-weight`: typography of `ButtonGroup.Text`
-- `--button-group-glass-item-size`, `--button-group-glass-gap`, `--button-group-glass-padding`: a glass group on a phone, its buttons, the space between them and at the ends (default `44px`, `12px`, `2px`; in a `Toolbar` the bar's own)
+- `--button-group-glass-item-size`, `--button-group-glass-gap`, `--button-group-glass-padding`: a glass group on a phone, its buttons, the space between them and at the ends (default `44px`, `10px`, `1px`; in a `Toolbar` the bar's own)
 - `--button-group-glass-vertical-item-size`, `--button-group-glass-vertical-gap`, `--button-group-glass-vertical-padding`: a vertical glass group (default `48px`, `6px`, `4px`)
-- `--button-group-glass-nested-gap`, `--button-group-glass-label-gutter`: between glass groups side by side, and the gutter of a label in one (default `10px`, `14px`)
+- `--button-group-glass-nested-gap`, `--button-group-glass-label-gutter`: between glass groups side by side, and the gutter of a label in one (default `10px`, `16px`)
 
 Radius, border, and focus styles of joined buttons come from each child control's own tokens (`--button-radius`, `--input-radius`, etc.). The group only strips the shared edge radii so joined items align.
