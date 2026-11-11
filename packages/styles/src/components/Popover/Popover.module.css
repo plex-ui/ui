@@ -21,6 +21,8 @@
   }
 
   &[data-translucent] {
+    /* Its own shadow on a phone too, where the panel otherwise takes the menus' */
+    box-shadow: var(--shadow), var(--shadow-hairline);
     backdrop-filter: blur(16px);
     background: linear-gradient(360deg, rgb(247 247 248 / 50%) 0%, rgb(247 247 248 / 100%) 100%);
 
@@ -64,16 +66,15 @@
   }
 }
 
-/* iPhone: the panel takes the phone popover material, the elevated surface in light and the menus' glass
-   in dark, and the phone radius. A translucent panel and the DatePicker calendar keep their own surface. */
+/* iPhone: the panel is the glass of the menus in both themes, with their shadow and edge, and the phone radius,
+   as iOS 27.2 draws a popover (UIPopoverPresentationController and SwiftUI .popover on an iPhone 17, measures/
+   sheets.md). A translucent panel and the DatePicker calendar keep their own surface and shadow. */
 @media (max-width: 767px) {
   .Popover {
     background: var(--popover-mobile-background, var(--color-surface-elevated));
-
-    @mixin dark {
-      -webkit-backdrop-filter: var(--popover-mobile-backdrop-filter, none);
-      backdrop-filter: var(--popover-mobile-backdrop-filter, none);
-    }
+    box-shadow: var(--popover-mobile-shadow, var(--menu-shadow, var(--shadow), var(--shadow-hairline)));
+    -webkit-backdrop-filter: var(--popover-mobile-backdrop-filter, none);
+    backdrop-filter: var(--popover-mobile-backdrop-filter, none);
   }
 }
 

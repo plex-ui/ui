@@ -506,7 +506,10 @@
     }
   }
 
-  /* Hosts: a Page puts the top bar over its content under the status bar, a Sheet below its grabber. */
+  /* Hosts: a Page puts the top bar over its content under the status bar, a Sheet 16 below its top edge. iOS 27.2
+     sets a sheet's row of controls there, its centre 38 below the edge, and draws no grabber over it: a grabber
+     (60 by 4, 6 down) shows only on a sheet that changes height (prefersGrabberVisible, measures/sheets.md), and a
+     PlexUI Sheet keeps one height. */
   .Toolbar[data-host="page"][data-placement="top"] {
     --toolbar-padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
     position: absolute;
@@ -623,26 +626,10 @@
     &::before {
       border-radius: inherit;
     }
-
-    /* Grabber (iOS 26 kit Grabber: 36 × 5 at 5px). */
-    &::after {
-      position: absolute;
-      top: 5px;
-      left: calc(50% - 18px);
-      width: 36px;
-      height: 5px;
-      border-radius: var(--radius-full);
-      background: var(--mobile-grabber-color, var(--color-background-secondary-soft-alpha));
-      content: "";
-    }
   }
 
   :where([data-mobile-placement="fullscreen"]) .Toolbar[data-host="dialog"][data-placement="top"] {
     --toolbar-padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
-
-    &::after {
-      display: none;
-    }
   }
 
   .Toolbar[data-host="dialog"][data-placement="bottom"] {

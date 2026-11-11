@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { act, render } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { h } from "vue"
@@ -211,5 +212,21 @@ describe.each<Framework>(["React", "Vue"])("%s phone Sheet header", (framework) 
     expect(description.className).not.toContain("Subtitle")
     const action = [...inner.querySelectorAll("button")].find((button) => button.textContent === "Inner action")!
     expect(action.parentElement?.className).toContain("HeaderAction")
+  })
+})
+
+// iOS 27.2 draws a grabber only on a sheet that changes height (prefersGrabberVisible; ref-app sheet-large and
+// sheet-large-grabber, block 14): a PlexUI Sheet keeps one height, so its bar draws none and keeps the 16 above it
+// that native keeps (the controls' centre 38 below the top edge).
+describe("a phone Sheet has no grabber, as an iOS 27.2 sheet of one height", () => {
+  const read = (path: string) => readFileSync(`${process.cwd()}/packages/styles/src/${path}`, "utf8")
+
+  test("the Sheet's top bar draws nothing over itself and sits 16px under the top edge", () => {
+    const css = read("components/Toolbar/Toolbar.module.css")
+    const bar = css.slice(css.indexOf('.Toolbar[data-host="dialog"][data-placement="top"] {'), css.indexOf('.Toolbar[data-host="dialog"][data-placement="bottom"]'))
+    expect(bar).toContain("--toolbar-padding-top: var(--toolbar-sheet-padding-top);")
+    expect(bar).not.toContain("::after")
+    expect(read("styles/variables-components.css")).toContain("--toolbar-sheet-padding-top: 16px;")
+    expect(read("styles/mobile-materials.css")).not.toContain("--mobile-grabber-color")
   })
 })

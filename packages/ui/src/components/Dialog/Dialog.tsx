@@ -409,7 +409,7 @@ const Header = ({ children, className, background = "glass" }: DialogHeaderProps
     const description = descriptions.length > 0 && <div className={s.SheetDescription}>{descriptions}</div>
     // On a phone the header of a Sheet is its Toolbar (iOS 27 kit Sheets 507-24684, Toolbar - Top - iPhone
     // 1-54520): Close at the leading edge, the title alone centered on the row of controls, the header actions
-    // at the trailing edge, all on one 44px row under the grabber.
+    // at the trailing edge, all on one 44px row 16px under the top edge.
     return (
       <>
         <Toolbar background={background} className={className} data-dialog-bar="">

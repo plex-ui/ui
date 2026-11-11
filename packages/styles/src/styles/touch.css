@@ -246,8 +246,8 @@
     /* A menu has the corner of the iOS 27 kit Menu (Menus: r34), as a popover on a phone does. */
     --menu-radius: 34px;
     --menu-radius-pill: 34px;
-    /* A popover on a phone has the corner of an iOS 26 action sheet presented from its source: 34px, as
-       the kit Action Sheet (5446:10266) and an iPhone confirmation popover (iOS2 IMG_5528) measure. */
+    /* A popover on a phone has the corner of an iOS 27.2 popover: 34px, as the ref-app popovers measure (block 14,
+       the arc 102px at @3x, as the alert's) and the kit Action Sheet (5446:10266) and iOS2 IMG_5528 did. */
     --popover-radius: 34px;
     --menu-font-size: 17px;
     --menu-line-height: 20px;

@@ -32,7 +32,7 @@ export type ToolbarBackground = BarBackground | "edge"
 
 /**
  * A surface that places phone toolbars: `Page` puts the top bar over its content
- * and reserves the space; `Dialog` puts it under the Sheet's grabber.
+ * and reserves the space; `Dialog` puts it 16px under the Sheet's top edge.
  */
 export type ToolbarHost = {
   kind: "page" | "dialog"

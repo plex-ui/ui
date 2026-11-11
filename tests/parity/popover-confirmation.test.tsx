@@ -138,37 +138,47 @@ describe.each<Example>(["React", "React copied example", "Vue preview", "Vue cop
   })
 })
 
-describe("a phone popover takes the iOS 26 popover material (kit Action Sheet 5446:10266, iOS2 IMG_5528)", () => {
-  test("the phone tokens: the 34px corner, the menu's dark glass and the elevated surface in light", () => {
+describe("a phone popover takes the iOS 27.2 popover material (ref-app popovers, block 14)", () => {
+  test("the phone tokens: the 34px corner and the menus' glass, blur and shadow in both themes", () => {
     const touch = read("packages/styles/src/styles/touch.css")
     const phone = touch.slice(touch.indexOf("@media (max-width: 767px) {"), touch.indexOf("@media (min-width: 414px)"))
     expect(phone).toContain("--popover-radius: 34px;")
     const materials = read("packages/styles/src/styles/mobile-materials.css")
-    // Light menus became glass in iOS 27.2 (block 8); a popover keeps the elevated surface until it is measured
-    expect(materials).toContain("--popover-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));")
+    // A 27.2 popover is the glass of the menus in light too: 250 to 253 over the grouped 242 and white cells. The
+    // pair is written out, so a nested [data-theme] root flips it as it flips the menus'
+    expect(materials).toContain("--popover-mobile-background: light-dark(rgb(255 255 255 / 65%), var(--alpha-12));")
+    expect(materials).toContain("--menu-mobile-background: light-dark(rgb(255 255 255 / 65%), var(--alpha-12));")
     expect(materials).toContain("--popover-mobile-backdrop-filter: var(--menu-mobile-backdrop-filter);")
+    // No popover shadow on the root: the panel falls back to the menus' --menu-shadow, as Menu and Select read it
+    expect(materials).not.toContain("--popover-mobile-shadow:")
     expect(read("packages/styles/src/styles/variables-components.css")).toContain("--popover-radius: var(--radius-xl);")
   })
 
-  test("the panel reads them on a phone, with the blur in dark only; translucent and calendar panels keep theirs", () => {
+  test("the panel reads them on a phone, the blur in both themes; translucent and calendar panels keep their own", () => {
     const css = read("packages/styles/src/components/Popover/Popover.module.css")
     const phone = css.slice(css.indexOf("@media (max-width: 767px) {"), css.indexOf("@keyframes shake"))
-    expect(phone).toMatch(/\.Popover \{\s*background: var\(--popover-mobile-background, var\(--color-surface-elevated\)\);\s*@mixin dark \{\s*-webkit-backdrop-filter: var\(--popover-mobile-backdrop-filter, none\);\s*backdrop-filter: var\(--popover-mobile-backdrop-filter, none\);\s*\}\s*\}/)
+    expect(phone).toMatch(/\.Popover \{\s*background: var\(--popover-mobile-background, var\(--color-surface-elevated\)\);\s*box-shadow: var\(--popover-mobile-shadow, var\(--menu-shadow, var\(--shadow\), var\(--shadow-hairline\)\)\);\s*-webkit-backdrop-filter: var\(--popover-mobile-backdrop-filter, none\);\s*backdrop-filter: var\(--popover-mobile-backdrop-filter, none\);\s*\}/)
+    expect(phone).not.toContain("@mixin dark")
     expect(phone).not.toContain("data-translucent")
-    expect(css).toContain("&[data-translucent] {\n    backdrop-filter: blur(16px);")
+    // A translucent panel sets its own shadow beside its surface, past the phone rule by specificity
+    expect(css).toMatch(/&\[data-translucent\] \{[^}]*box-shadow: var\(--shadow\), var\(--shadow-hairline\);\s*backdrop-filter: blur\(16px\);/)
     const calendar = read("packages/styles/src/components/DatePicker/Calendar.module.css")
     expect(calendar).toContain("--popover-radius: calc(22px + var(--calendar-inner-padding));")
-    expect(calendar).toContain(".Popover[role=\"dialog\"] {")
+    expect(calendar).toMatch(/\.Popover\[role="dialog"\] \{[^}]*background: [^;]+;\s*box-shadow: [^;]+;\s*-webkit-backdrop-filter: blur\(50px\);/)
   })
 
   test("the confirmation inside follows the native Alert layout on a phone", () => {
     const css = read("components/docs/PopoverConfirmation.module.css")
     const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
     expect(phone).toContain("--popover-width: 240px;")
-    // its own insets until block 14 measures the action sheet from a source; the alert's padding is 16 now
-    expect(phone).toContain("padding: 14px;")
-    expect(phone).toContain("padding: 8px 8px 14px;")
+    // iOS 27.2 sets an action sheet from its source as its alert: the action 16 from the edge (the panel's own 16,
+    // which the phone keeps), the text 31, the capsule 23.83 under the last baseline (block 14)
+    expect(css.slice(0, css.indexOf("@media"))).toMatch(/\.Confirmation \{[^}]*padding: 16px;/)
+    expect(phone).toMatch(/\.Confirmation \{[^}]*gap: 0;[^}]*\}/)
+    expect(phone).not.toMatch(/\.Confirmation \{[^}]*padding/)
+    expect(phone).toContain("padding: 5px 15px 19px;")
     expect(phone).toContain("--button-size: var(--dialog-alert-action-height, 48px);")
-    expect(phone).toContain("--button-font-weight: var(--font-weight-medium);")
+    // 510, the medium of SF, as the alert's actions (--font-weight-medium is 500)
+    expect(phone).toContain("font-weight: var(--dialog-alert-action-font-weight, 510);")
   })
 })

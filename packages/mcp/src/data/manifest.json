@@ -4577,7 +4577,7 @@
         {
           "name": "Confirmation",
           "code": "import { Button } from '@plexui/ui/components/Button';\nimport { Popover, usePopoverController } from '@plexui/ui/components/Popover';\nimport { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';\nimport styles from './PopoverConfirmation.module.css';\n\nfunction ConfirmationBody({ wide }: { wide: boolean }) {\n  const { close } = usePopoverController();\n  return (\n    <>\n      <p className={styles.Message}>Are you sure you want to delete this event?</p>\n      <Button color=\"danger\" variant=\"soft\" block pill={!wide} className={styles.Action} onClick={close}>\n        Delete event\n      </Button>\n    </>\n  );\n}\n\nexport function PopoverConfirmationDemo() {\n  const wide = useBreakpoint('md');\n  return (\n    <Popover>\n      <Popover.Trigger>\n        <Button color=\"danger\" variant=\"soft\" size={wide ? 'md' : '3xl'} block={!wide} pill={!wide}>\n          Delete event\n        </Button>\n      </Popover.Trigger>\n      {/* On a phone the panel covers its 50px button and ends 16px above the button's bottom edge. */}\n      <Popover.Content side=\"top\" sideOffset={wide ? 8 : -34} className={styles.Confirmation}>\n        <ConfirmationBody wide={wide} />\n      </Popover.Content>\n    </Popover>\n  );\n}",
-          "details": "Confirm a destructive action from the button that asks for it. On a desktop the panel opens above the button. On a phone it covers the button, as iOS 26 presents an action sheet from its source: no Cancel button, since a tap anywhere else cancels, the message in the body text and the action as a 48px capsule. Opening moves focus to the panel, not to the action. Copy the shared styles with the example."
+          "details": "Confirm a destructive action from the button that asks for it. On a desktop the panel opens above the button. On a phone it covers the button, as iOS presents an action sheet from a bar button: no Cancel button, since a tap anywhere else cancels, the message in the body text and the action as a 48px capsule, with the insets of the iOS 27.2 alert. Opening moves focus to the panel, not to the action. Copy the shared styles with the example."
         },
         {
           "name": "Column configuration",
@@ -8115,7 +8115,7 @@
         {
           "name": "Sheet",
           "code": "<Dialog.Content mobileVariant=\"sheet\" surface=\"grouped\">\n<Toolbar>\n  <Toolbar.Leading>\n    <Dialog.Close>\n      <NavigationButton action=\"close\" />\n    </Dialog.Close>\n  </Toolbar.Leading>\n  <Toolbar.Title>Orders</Toolbar.Title>\n</Toolbar>\n<Dialog.Header>\n  <Dialog.Title>Orders</Dialog.Title>\n</Dialog.Header>\n<Dialog.Body>...</Dialog.Body>\n</Dialog.Content>",
-          "details": "In a Sheet the toolbar sits below the grabber and takes the place of the Sheet's own bar and Close button on a phone. Keep Dialog.Header with Dialog.Title: it still names the dialog for assistive technology, and it is the header from 768px up."
+          "details": "In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's own bar and Close button on a phone. Keep Dialog.Header with Dialog.Title: it still names the dialog for assistive technology, and it is the header from 768px up."
         }
       ],
       "subComponents": [
@@ -8252,5 +8252,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-11T02:14:43.616Z"
+  "generatedAt": "2026-11-11T03:45:54.115Z"
 }

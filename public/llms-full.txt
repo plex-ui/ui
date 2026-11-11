@@ -6093,7 +6093,7 @@ export function PopoverControllerDemo() {
 ```
 
 ### Confirmation
-Confirm a destructive action from the button that asks for it. On a desktop the panel opens above the button. On a phone it covers the button, as iOS 26 presents an action sheet from its source: no Cancel button, since a tap anywhere else cancels, the message in the body text and the action as a 48px capsule. Opening moves focus to the panel, not to the action. Copy the shared styles with the example.
+Confirm a destructive action from the button that asks for it. On a desktop the panel opens above the button. On a phone it covers the button, as iOS presents an action sheet from a bar button: no Cancel button, since a tap anywhere else cancels, the message in the body text and the action as a 48px capsule, with the insets of the iOS 27.2 alert. Opening moves focus to the panel, not to the action. Copy the shared styles with the example.
 ```tsx
 import { Button } from '@plexui/ui/components/Button';
 import { Popover, usePopoverController } from '@plexui/ui/components/Popover';
@@ -10272,7 +10272,7 @@ A disabled bar button keeps its glass capsule and draws its symbol or label in t
 ```
 
 ### Sheet
-In a Sheet the toolbar sits below the grabber and takes the place of the Sheet's own bar and Close button on a phone. Keep Dialog.Header with Dialog.Title: it still names the dialog for assistive technology, and it is the header from 768px up.
+In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's own bar and Close button on a phone. Keep Dialog.Header with Dialog.Title: it still names the dialog for assistive technology, and it is the header from 768px up.
 ```tsx
 <Dialog.Content mobileVariant="sheet" surface="grouped">
 <Toolbar>

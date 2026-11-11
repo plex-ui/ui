@@ -156,7 +156,7 @@ export function DetailsDialogExample() {
 
 <UsageBlock>{`import { Dialog } from "@plexui/ui/components/Dialog";`}</UsageBlock>
 
-At 767px and below, `mobileVariant="alert"` presents a compact centered glass alert, a confirmation or a request for one short value, with its actions side by side, or stacked from three, and no close icon. Use `mobileVariant="sheet"` for forms and details: it opens at the bottom with a grabber, a leading Close button and a centered title. Both variants preserve the desktop appearance.
+At 767px and below, `mobileVariant="alert"` presents a compact centered glass alert, a confirmation or a request for one short value, with its actions side by side, or stacked from three, and no close icon. Use `mobileVariant="sheet"` for forms and details: it opens at the bottom with a leading Close button and a centered title, and without a grabber, as iOS 27.2 draws one only on a sheet that changes height. Both variants preserve the desktop appearance.
 
 Two alert actions stand side by side and wrap onto separate rows when their labels need more space; three or more stack, as on iOS. Set `<Dialog.Footer mobileLayout="stacked">` when two actions should stack too. A title without a message stands centered. Put long sheet content in `Dialog.Body` to keep the header and actions visible while the body scrolls.
 

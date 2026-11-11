@@ -1,10 +1,10 @@
 /* A confirmation from the button that asks for it. On a desktop the panel sits above its button. On a phone
-   it covers the button, as iOS 26 presents an action sheet that has a source: over it, without Cancel,
-   cancelled by a tap anywhere else (WWDC25 "Build a UIKit app with the new design"). Its inside follows the
-   native one (iOS2 IMG_5528) with the measures of the iOS 27 alert (kit iOS 27, Alerts): 14 to the edge, the
-   message in the primary label at 17/22 and 22 from the edge, a 48px capsule 24 under the message text, its
-   label medium as in the kit Action Sheet. The alert moved to iOS 27.2 (plan 178 block 13); this confirmation
-   keeps its own insets until the action sheet from a source is measured with the popover (block 14). */
+   it covers the button, as iOS 26 presents an action sheet from a bar button: over it, without Cancel,
+   cancelled by a tap anywhere else (WWDC25 "Build a UIKit app with the new design"). Inside, iOS 27.2 sets an
+   action sheet from its source as its alert (ref-app actionsheet-source, block 14): the action 16 from the edge
+   and the text 31, a line's baseline 38.33 under the top and the 48px capsule 23.83 under the last one, its label
+   510. The message stays in the primary label at 17/22, as the iOS 26 confirmation sets a message without a
+   title (iOS2 IMG_5528). */
 .Confirmation {
   display: flex;
   flex-direction: column;
@@ -23,20 +23,20 @@
   .Confirmation {
     --popover-width: 240px;
     --popover-min-width: 0px;
-    gap: 10px;
-    padding: 14px;
+    gap: 0;
   }
 
   .Message {
-    padding: 8px 8px 14px;
+    padding: 5px 15px 19px;
     font-size: var(--dialog-mobile-type-size, 17px);
     line-height: var(--dialog-mobile-type-leading, 22px);
     overflow-wrap: anywhere;
   }
 
+  /* 510, the medium of SF that native sets (--font-weight-medium is 500), as the alert's actions take it */
   .Action {
     --button-size: var(--dialog-alert-action-height, 48px);
     --button-font-size: var(--dialog-mobile-type-size, 17px);
-    --button-font-weight: var(--font-weight-medium);
+    font-weight: var(--dialog-alert-action-font-weight, 510);
   }
 }

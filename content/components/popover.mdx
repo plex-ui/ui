@@ -217,7 +217,7 @@ function Example() {
 
 ### Confirmation
 
-<ComponentPreview details={<>Confirm a destructive action from the button that asks for it. On a desktop the panel opens above the button. On a phone it covers the button, as iOS 26 presents an action sheet from its source: no Cancel button, since a tap anywhere else cancels, the message in the body text and the action as a 48px capsule. Opening moves focus to the panel, not to the action. Copy the <a href="https://github.com/plex-ui/ui/blob/master/components/docs/PopoverConfirmation.module.css">shared styles</a> with the example.</>} code={confirmationCode} previewMinHeight={168}>
+<ComponentPreview details={<>Confirm a destructive action from the button that asks for it. On a desktop the panel opens above the button. On a phone it covers the button, as iOS presents an action sheet from a bar button: no Cancel button, since a tap anywhere else cancels, the message in the body text and the action as a 48px capsule, with the insets of the iOS 27.2 alert. Opening moves focus to the panel, not to the action. Copy the <a href="https://github.com/plex-ui/ui/blob/master/components/docs/PopoverConfirmation.module.css">shared styles</a> with the example.</>} code={confirmationCode} previewMinHeight={168}>
   <PopoverConfirmationStage data-demo-stage>
     <PopoverConfirmationDemo />
   </PopoverConfirmationStage>
@@ -356,8 +356,9 @@ Additionally, `esc` keypresses are handled independently as a stacking order.
 
 Popover reads these component tokens. Override them at any scope to restyle it:
 
-- `--popover-radius`: radius (default `var(--radius-xl)`, `34px` at 767px and below, the corner of an iOS 26 action sheet)
-- `--popover-mobile-background`: panel surface at 767px and below (default `light-dark(var(--color-surface-elevated), var(--alpha-12))`: the elevated surface in light, the menus' glass in dark)
-- `--popover-mobile-backdrop-filter`: blur behind the panel at 767px and below in the dark theme (default `--menu-mobile-backdrop-filter`, `blur(18px)`)
+- `--popover-radius`: radius (default `var(--radius-xl)`, `34px` at 767px and below, the corner of an iOS 27.2 popover)
+- `--popover-mobile-background`: panel surface at 767px and below (default `light-dark(rgb(255 255 255 / 65%), var(--alpha-12))`: the glass of the phone menus, as iOS 27.2 draws a popover)
+- `--popover-mobile-backdrop-filter`: blur behind the panel at 767px and below (default `--menu-mobile-backdrop-filter`, `blur(18px)`)
+- `--popover-mobile-shadow`: shadow and edge of the panel at 767px and below (unset; the panel then takes `--menu-shadow`, the phone menus' raised shadow and edge)
 
-A `translucent` panel keeps its own surface on phones.
+A `translucent` panel keeps its own surface and shadow on phones.

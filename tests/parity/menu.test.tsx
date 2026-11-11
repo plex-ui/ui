@@ -1907,8 +1907,8 @@ describe("phone menus are glass (dark: iOS2 IMG_5524, 5525, 5528; light: iOS 27.
     // The page under a menu does not read through: a blur of 18, as a switch under a native one spreads
     // (IMG_5524 to IMG_5525); 10 left its text at 1.5 to 3:1 (plan 176)
     expect(materials).toContain("--menu-mobile-backdrop-filter: blur(18px);")
-    // A popover keeps the elevated surface in light until it is measured (block 14)
-    expect(materials).toContain("--popover-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));")
+    // A popover is the same glass in iOS 27.2 (block 14)
+    expect(materials).toContain("--popover-mobile-background: light-dark(rgb(255 255 255 / 65%), var(--alpha-12));")
     expect(read("styles/touch.css")).not.toContain("--menu-mobile-background")
   })
 

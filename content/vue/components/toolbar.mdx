@@ -409,7 +409,7 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
 
 ### Sheet
 
-<ComponentPreview phoneOnly phoneDialog language="vue" details={<>In a Sheet the toolbar sits below the grabber and takes the place of the Sheet's own bar and Close button on a phone. Keep <code>DialogHeader</code> with <code>DialogTitle</code>: it still names the dialog for assistive technology, and it is the header from 768px up.</>} code={sheetCode}>
+<ComponentPreview phoneOnly phoneDialog language="vue" details={<>In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's own bar and Close button on a phone. Keep <code>DialogHeader</code> with <code>DialogTitle</code>: it still names the dialog for assistive technology, and it is the header from 768px up.</>} code={sheetCode}>
   <VueDemo template={sheet} phoneTemplate={sheet.replace('v-model:open="open"', ':open="true"').replace('<DialogContent mobile-variant="sheet" surface="grouped">', '<DialogContent mobile-variant="sheet" surface="grouped" @open-auto-focus="$event.preventDefault()">')} phoneState={{ open: true, rows }} stageClassName="py-10 flex justify-center" state={{ open: false, rows }} />
 </ComponentPreview>
 
@@ -418,7 +418,7 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
 A toolbar places itself by its parent:
 
 - In `Page`, the top bar covers the content below the device's top safe area, and `PageContent` starts below it. The bottom bar stays below the content, which scrolls under it. Under 768px a top toolbar replaces `PageHeader` and a bottom toolbar replaces `PageFooter`, so one page can keep its desktop header and its phone toolbar side by side.
-- In a `Dialog` Sheet, the top bar starts with the grabber, hides the Sheet's own bar and Close button, and leaves `DialogHeader` to name the dialog. Its title is hidden from assistive technology there. A bottom bar replaces `DialogFooter`.
+- In a `Dialog` Sheet, the top bar sits 16px under the top edge, hides the Sheet's own bar and Close button, and leaves `DialogHeader` to name the dialog. Its title is hidden from assistive technology there. A bottom bar replaces `DialogFooter`.
 
 Put the Back button of a phone screen in the toolbar only. A desktop layout shows its own navigation, such as a sidebar or breadcrumbs.
 
@@ -464,7 +464,7 @@ Toolbar reads these component tokens. Override them at any scope to restyle it:
 - `--toolbar-top-item-gap`, `--toolbar-bottom-item-gap`: gap between items (default `10px` and `12px`)
 - `--toolbar-group-padding`, `--toolbar-group-gap`: inner padding and spacing of a capsule in the top bar (default `2px` and `12px`; `4px` and `6px` in the bottom bar)
 - `--toolbar-padding-bottom`: space below the top row (default `10px`)
-- `--toolbar-sheet-padding-top`: space for the grabber in a Sheet (default `16px`)
+- `--toolbar-sheet-padding-top`: space above the bar in a Sheet, which sets its controls 38px below the top edge as iOS 27.2 does (default `16px`)
 - `--toolbar-bottom-padding-top`, `--toolbar-bottom-padding-bottom`: padding of the bottom bar (default `4px`, and the bottom safe area less `6px`, at least `16px`: the 48px items stand 28px above the screen's edge over the 34px home indicator inset, as in iOS 26 Mail and Contacts)
 - `--mobile-glass-background`, `--mobile-glass-sheen`, `--mobile-glass-shadow`, `--mobile-glass-shadow-raised`, `--mobile-glass-backdrop-filter`: glass of the buttons, capsules and search field, at rest and with content under the bar
 - `--toolbar-title-font-size`, `--toolbar-large-title-font-size`, `--toolbar-medium-title-font-size`: title sizes (default `17px`, `34px` and `22px`)

@@ -674,8 +674,8 @@
     }
   }
 
-  /* The header of a phone Sheet is its Toolbar (Dialog.Header renders one): the grabber, the row of controls and
-     the title are the Toolbar's. Its heading holds what the header holds besides its actions, as wide as the
+  /* The header of a phone Sheet is its Toolbar (Dialog.Header renders one): the row of controls and the title
+     are the Toolbar's. Its heading holds what the header holds besides its actions, as wide as the
      row leaves it. */
   .BarHeading > * {
     max-width: 100%;

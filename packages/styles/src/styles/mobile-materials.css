@@ -53,7 +53,6 @@
     --mobile-switch-knob-lens-scale: calc(58 / 37) calc(38 / 24);
     --mobile-knob-lens-background: rgb(255 255 255 / 9%);
     --mobile-knob-lens-shadow: 0 4.5px 8px rgb(0 0 0 / 12%), 0 0 0 0.33px rgb(0 0 0 / 20%), inset 0 0.5px 0 rgb(255 255 255 / 16%), inset 0 -0.5px 0 rgb(255 255 255 / 16%);
-    --mobile-grabber-color: light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 20%));
     /* Dark menus and Select lists are glass, as native iOS 26 pop-up menus and popovers are: the glass
        of the buttons, alpha-12, over a blurred backdrop (iOS2 IMG_5524, 5525, 5528: a sheet of 28 shows at
        56, a card of 44 at 69). The page under it does not read through: the white knob of a switch behind
@@ -65,10 +64,15 @@
        as the glass Alert does. The page under them is blurred the same. */
     --menu-mobile-background: light-dark(rgb(255 255 255 / 65%), var(--alpha-12));
     --menu-mobile-backdrop-filter: blur(18px);
-    /* A popover takes the dark material of the menus: iOS 26 presents an action sheet from its source in the same
-       dark glass (iOS2 IMG_5528: a card of 44 under it at 65 to 69, the sheet of 28 at 55). In light it keeps the
-       elevated surface until the popover is measured in iOS 27.2 (block 14). */
-    --popover-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));
+    /* A popover is the glass of the menus in both themes, as iOS 27.2 draws one and an action sheet from its source
+       (ref-app popover, popover-row, popover-swiftui, actionsheet-source, block 14, @3x): in light 250 to 253 over
+       the grouped 242 and the white cells, as white at 65% comes to; in dark 54 over a cell of 28 and 35 over black,
+       as white at 12% comes to (iOS 26 drew the same dark glass, iOS2 IMG_5528). The pair is written out, not taken
+       from --menu-mobile-background: a var() declared here resolves here and would not follow a nested
+       [data-theme] root. The shadow and the edge are the menus' (--menu-shadow, touch.css, which the panel falls back
+       to in Popover.module.css; declared on the root, it keeps the root's theme as the menus' does): 20 levels
+       under the panel on a white cell, gone within 38pt. */
+    --popover-mobile-background: light-dark(rgb(255 255 255 / 65%), var(--alpha-12));
     --popover-mobile-backdrop-filter: var(--menu-mobile-backdrop-filter);
     /* An Alert is glass in both themes, as native iOS alerts are. Light: Files (iOS-menu, Screenshot 18.22.08,
        08.11) shows 237 over a page dimmed to 204, as white at 65% does; kit iOS 27 (Alerts 65:57149) comes to
