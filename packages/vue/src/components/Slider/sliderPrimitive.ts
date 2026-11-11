@@ -196,6 +196,8 @@ export const SliderRoot = defineComponent({
 
     const isHorizontal = () => props.orientation === "horizontal"
 
+    const thumbsInOrder = () => Array.from(root.value?.querySelectorAll<HTMLElement>('[role="slider"]') ?? [])
+
     const setRoot = (element: unknown) => {
       root.value = (element as HTMLElement | null) ?? null
       props.elementRef?.(root.value)
@@ -211,13 +213,15 @@ export const SliderRoot = defineComponent({
       valueIndexToChange,
       userRequestedValues,
       thumbs,
-      thumbIndex: (thumb) => Array.from(root.value?.querySelectorAll('[role="slider"]') ?? []).indexOf(thumb),
+      thumbIndex: (thumb) => thumbsInOrder().indexOf(thumb),
     })
 
     // Radix's controlled useControllableState: a new array is reported,
     // focusing the thumb that changed first
     const reportValues = (values: number[]) => {
-      const thumbList = [...thumbs]
+      // In the order of the page, not of the set: Vue mounts new keyed thumbs from the last (a slider turning into a
+      // range), so the set may hold them backwards
+      const thumbList = thumbsInOrder()
       thumbList[valueIndexToChange.current]?.focus({
         preventScroll: true,
         focusVisible: isKeyboardInteraction,

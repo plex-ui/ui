@@ -377,7 +377,9 @@ const SliderComponent = defineComponent({
       if (!props.disabled) return
       debouncedOnChange.cancel()
       pointerDown.value = false
-      if (!isRange()) setInputValueNumber(props.value as number)
+      // A sync watcher runs at each prop as Vue sets them one by one: a disabled range switched to one thumb has
+      // range off here while its value is still the array, and the number comes with the next prop
+      if (!isRange() && typeof props.value === "number") setInputValueNumber(props.value)
     }, { flush: "sync" })
     const isMounted = ref(false)
 

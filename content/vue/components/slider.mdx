@@ -4,37 +4,36 @@ description: Slider for fine-tuning numeric values with single or range thumbs, 
 metaDescription: Vue 3 slider component for fine-tuning numeric values with single or range thumbs, marks, an editable value input, v-model:value binding, and vertical orientation.
 ---
 
-import { VueDemo } from "@/components/docs/vue/VueDemo"
 import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import { phoneRows, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const stage = "flex-1 flex flex-col items-center justify-center py-12 w-full"
-export const marksStage = "flex-1 flex flex-col items-center justify-center py-20 w-full"
 
-export const overview = `<div style="width: 300px">
+export const overviewState = {
+  values: { one: 50, two: [25, 75], three: [10, 40, 70] },
+  scaleMarks: [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) })),
+}
+
+export const overview = `<div :style="orientation === 'horizontal' ? { width: '300px' } : undefined">
   <Slider
+    :range="thumbs !== 'one'"
     label="Example field"
     :min="0"
-    :max="2000"
-    :reset-value="1000"
-    :step="10"
-    unit="ms"
-    v-model:value="value"
+    :max="100"
+    :step="1"
+    v-model:value="values[thumbs]"
+    :min-steps-between-thumbs="thumbs === 'one' ? undefined : minStepsBetweenThumbs"
+    :reset-value="thumbs === 'one' && resetValue ? 50 : undefined"
+    :unit="unit === 'unit' ? '%' : undefined"
+    :prefix-unit="unit === 'prefixUnit' ? '$' : undefined"
+    :marks="marks ? scaleMarks : undefined"
+    :track-color="colors ? '#61C454' : undefined"
+    :range-color="colors ? '#EF4146' : undefined"
+    :orientation="orientation"
     :disabled="disabled"
-  />
-</div>`
-
-export const overviewPhone = `<FieldGroup title="Example field">
-  <div data-row class="${sliderCellClassName}">
-    <Slider aria-label="Example field" :min="0" :max="2000" :step="10" v-model:value="value" :disabled="disabled" class="min-w-0 flex-1" />
-    <span :class="['min-w-[7ch] ${sliderCellValueClassName}', disabled ? '${sliderCellValueDisabledClassName}' : 'text-secondary']">{{ value }} ms</span>
-  </div>
-</FieldGroup>`
-
-export const tooltip = `<div style="width: 300px">
-  <Slider :min="0" :max="2000" :reset-value="1000" :step="10" unit="ms" v-model:value="value">
-    <template #label>
+  >
+    <template v-if="tooltip" #label>
       <Tooltip content="More details about this field">
         <TooltipTriggerDecorator>Example field</TooltipTriggerDecorator>
       </Tooltip>
@@ -42,148 +41,95 @@ export const tooltip = `<div style="width: 300px">
   </Slider>
 </div>`
 
-export const marks = `<div style="width: 300px">
-  <Slider
-    v-model:value="value"
-    label="Passing grade"
-    :min="1"
-    :max="5"
-    :step="1"
-    :marks="[
-      { value: 1, label: '1' },
-      { value: 2, label: '2' },
-      { value: 3, label: '3' },
-      { value: 4, label: '4' },
-      { value: 5, label: '5' },
-    ]"
-    track-color="#61C454"
-    range-color="#EF4146"
-  />
-</div>`
-
-export const marksPhone = `<FieldGroup title="Passing grade">
-  <div data-row class="${sliderCellStackedClassName}">
+export const overviewPhone = `<FieldGroup title="Example field">
+  <div v-if="thumbs === 'one' && !marks" data-row class="${sliderCellClassName}">
     <Slider
-      aria-label="Passing grade"
-      v-model:value="value"
-      :min="1"
-      :max="5"
+      aria-label="Example field"
+      :min="0"
+      :max="100"
       :step="1"
-      :marks="[
-        { value: 1, label: '1' },
-        { value: 2, label: '2' },
-        { value: 3, label: '3' },
-        { value: 4, label: '4' },
-        { value: 5, label: '5' },
-      ]"
-      track-color="#61C454"
-      range-color="#EF4146"
+      v-model:value="values.one"
+      :track-color="colors ? '#61C454' : undefined"
+      :range-color="colors ? '#EF4146' : undefined"
+      :disabled="disabled"
+      class="min-w-0 flex-1"
     />
+    <span :class="['min-w-[4ch] ${sliderCellValueClassName}', disabled ? '${sliderCellValueDisabledClassName}' : 'text-secondary']">{{ (unit === 'prefixUnit' ? '$' : '') + values.one + (unit === 'unit' ? '%' : '') }}</span>
+  </div>
+  <div v-else data-row class="${sliderCellStackedClassName}">
+    <Slider
+      :range="thumbs !== 'one'"
+      aria-label="Example field"
+      :min="0"
+      :max="100"
+      :step="1"
+      v-model:value="values[thumbs]"
+      :min-steps-between-thumbs="thumbs === 'one' ? undefined : minStepsBetweenThumbs"
+      :marks="marks ? scaleMarks : undefined"
+      :track-color="colors ? '#61C454' : undefined"
+      :range-color="colors ? '#EF4146' : undefined"
+      :disabled="disabled"
+    />
+    <span v-if="!marks" :class="['${sliderCellValueBelowClassName}', disabled ? '${sliderCellValueDisabledClassName}' : '']">{{ [values[thumbs]].flat().map((value) => (unit === 'prefixUnit' ? '$' : '') + value + (unit === 'unit' ? '%' : '')).join(' – ') }}</span>
   </div>
 </FieldGroup>`
 
-export const range = `<div style="width: 300px">
-  <Slider
-    range
-    label="Price range"
-    :min="0"
-    :max="100"
-    :step="1"
-    v-model:value="value"
-    prefix-unit="$"
-  />
-</div>`
-
-export const rangePhone = `<FieldGroup title="Price range">
-  <div data-row class="${sliderCellStackedClassName}">
-    <Slider range aria-label="Price range" :min="0" :max="100" :step="1" v-model:value="value" />
-    <span class="${sliderCellValueBelowClassName}">{{ value.map((v) => '$' + v).join(' – ') }}</span>
-  </div>
-</FieldGroup>`
-
-export const multipleThumbs = `<div style="width: 300px">
-  <Slider
-    range
-    label="Breakpoints"
-    :min="0"
-    :max="100"
-    :step="1"
-    v-model:value="value"
-    :min-steps-between-thumbs="5"
-  />
-</div>`
-
-export const multipleThumbsPhone = `<FieldGroup title="Breakpoints">
-  <div data-row class="${sliderCellStackedClassName}">
-    <Slider range aria-label="Breakpoints" :min="0" :max="100" :step="1" v-model:value="value" :min-steps-between-thumbs="5" />
-    <span class="${sliderCellValueBelowClassName}">{{ value.join(' – ') }}</span>
-  </div>
-</FieldGroup>`
-
-export const vertical = `<Slider
-  label="Volume"
-  :min="0"
-  :max="100"
-  :step="1"
-  v-model:value="value"
-  orientation="vertical"
-/>`
+export const overviewControls = [
+  { name: "thumbs", type: "select", options: ["one", "two", "three"], default: "one" },
+  { name: "minStepsBetweenThumbs", type: "range", min: 0, max: 20, step: 1, default: 5, when: { thumbs: ["two", "three"] } },
+  { name: "resetValue", type: "boolean", default: true, when: { thumbs: "one", disabled: false }, desktopOnly: true },
+  { name: "unit", type: "select", options: ["none", "unit", "prefixUnit"], default: "unit", desktopOnly: { marks: true } },
+  { name: "marks", type: "boolean", default: false, when: { orientation: "horizontal" } },
+  { name: "colors", type: "boolean", default: false },
+  { name: "tooltip", type: "boolean", default: false, desktopOnly: true },
+  { name: "orientation", type: "select", options: ["horizontal", "vertical"], default: "horizontal", desktopOnly: true },
+  { name: "disabled", type: "boolean", default: false },
+]
 
 export const overviewCode = `<script setup lang="ts">
 import { ref } from 'vue';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { Slider } from '@plexui/vue/components/Slider';
+import { Tooltip, TooltipTriggerDecorator } from '@plexui/vue/components/Tooltip';
 
-const value = ref(1000);
+const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) }));
+const thumbs = ref<"one" | "two" | "three">("one");
+const values = ref<{ one: number; two: number[]; three: number[] }>({ one: 50, two: [25, 75], three: [10, 40, 70] });
+const minStepsBetweenThumbs = ref(5); // with two or three thumbs
+const resetValue = ref(true); // with one thumb, while enabled
+const unit = ref<"none" | "unit" | "prefixUnit">("unit");
+const marks = ref(false); // horizontal only
+const colors = ref(false);
+const tooltip = ref(false);
+const orientation = ref<"horizontal" | "vertical">("horizontal");
 const disabled = ref(false);
 </script>
 
 <template>
-${withPhone(overview, overviewPhone, "the group's title names the slider and its value ends the cell")}
+${withPhone(overview, overviewPhone, "the group's title names the slider; one value ends the cell, a range goes under the track, and marks show the scale in its place. The phone slider is horizontal, with no reset button or tooltip")}
 </template>`
 
 <UsageBlock>{`import { Slider } from "@plexui/vue/components/Slider";`}</UsageBlock>
 
-On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider, the slider fills the cell, a short value ends it, and a longer value goes under the track. For a slider among other settings, see [Settings with a slider](/vue/components/settings-forms#settings-with-a-slider).
+On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider and the slider fills the cell. One value ends the cell, a range goes under the track, and with marks the cell shows the scale instead of a value. For a slider among other settings, see [Settings with a slider](/vue/components/settings-forms#settings-with-a-slider).
 
 ## Examples
 
 <span id="disabled" />
+<span id="marks" />
+<span id="range" />
+<span id="multiple-thumbs" />
+<span id="adding-a-tooltip" />
+<span id="vertical" />
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={overviewCode} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} stageClassName={stage} state={{ value: 1000 }} controls={[{ name: "disabled", type: "boolean", default: false }]} />
-</ComponentPreview>
-
-### Marks
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Slider marks can be easily added by passing an array of values to the <code>marks</code> prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own.</>} code={withPhone(marks, marksPhone)} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={marks} phoneTemplate={phoneRows(marksPhone)} stageClassName={marksStage} state={{ value: 3 }} />
-</ComponentPreview>
-
-### Range
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Set <code>range</code> to enable a dual-thumb slider for selecting a value range. <code>v-model:value</code> then binds an array instead of a single number.</>} code={withPhone(range, rangePhone, "the range is too long to stand beside the track, so it goes under it")} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={range} phoneTemplate={phoneRows(rangePhone)} stageClassName={stage} state={{ value: [25, 75] }} />
-</ComponentPreview>
-
-### Multiple thumbs
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Pass three or more values to create a multi-thumb slider. Use <code>min-steps-between-thumbs</code> to enforce minimum spacing between thumbs.</>} code={withPhone(multipleThumbs, multipleThumbsPhone, "the values go under the track")} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={multipleThumbs} phoneTemplate={phoneRows(multipleThumbsPhone)} stageClassName={stage} state={{ value: [10, 40, 70] }} />
-</ComponentPreview>
-
-### Adding a tooltip
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>A tooltip can easily be added to the Slider label by passing rich content through the <code>label</code> slot instead of a simple string. A tooltip opens on hover, which a phone does not have, so this example is desktop only.</>} code={tooltip} previewMinHeight={168}>
-  <VueDemo template={tooltip} stageClassName={stage} state={{ value: 1000 }} />
-</ComponentPreview>
-
-### Vertical
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Set <code>orientation="vertical"</code> to render a vertical slider. Marks are not supported in vertical orientation. A list of iOS settings has no vertical slider, so this example is desktop only.</>} code={vertical} previewMinHeight={280}>
-  <VueDemo template={vertical} stageClassName={stage} state={{ value: 50 }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>Set <code>range</code> and bind an array of two numbers with <code>v-model:value</code> for a range, or three or more for several thumbs. <code>min-steps-between-thumbs</code> keeps the thumbs that many steps apart. <code>reset-value</code>, with one thumb, adds a button to the label that brings the value back; a disabled slider hides it.</p>
+  <p><code>unit</code> follows the value and <code>prefix-unit</code> comes before it. <code>marks</code> label points of the scale under the track, horizontal only. <code>track-color</code> and <code>range-color</code> color the track and its fill. The <code>label</code> slot can carry a tooltip, and <code>orientation="vertical"</code> stands the slider up.</p>
+  <p>On a phone the slider is horizontal, as a list of iOS settings has no vertical slider. A tooltip opens on hover, which a phone does not have, and the cell has no label to hold a reset button, so the Phone preview leaves out those controls. Marks take the place of the value, so with marks the phone shows no unit either.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} stageClassName={stage} state={overviewState} controls={overviewControls} />
 </ComponentPreview>
 
 ## API

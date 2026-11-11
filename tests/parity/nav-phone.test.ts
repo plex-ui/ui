@@ -127,14 +127,16 @@ describe("an inline Alert on a phone takes the shape and text of an iOS tip (Tip
     expect(phoneRule(css, ".Title ~ .Description")).toEqual({ "margin-top": "2px", "margin-bottom": "4px" })
   })
 
-  test("26px corners, the text 17 from the top, the icon as an iOS row's icon (22 in a 30 column on the first line, the text 14 after it)", () => {
+  test("26px corners, the text 17 from the top, the icon where TipKit puts a 22pt image (22 from the edge, the text 12 after it)", () => {
     expect(phoneRule(css, ".Alert")).toMatchObject({ "border-radius": "26px", padding: "17px 16px", "column-gap": "8px", "row-gap": "18px", "--alert-indicator-size": "22px" })
     expect(phoneRule(css, "&:has(> .Content > .Actions > :not(.DismissButton))")).toEqual({ "padding-bottom": "16px" })
     expect(phoneRule(css, ".Alert[data-banner]")).toEqual({ "border-radius": "0" })
     expect(phoneRule(css, ".Content")).toEqual({ display: "contents" })
-    // Not the simulator's 38pt TipView glyph (owner 11.11: «она не должна быть огромной… как устроены rows с иконками?»):
-    // Calendar's rows (IMG_5434) centre a 22 icon in a 30 column at the inset, the text 14 after it: 16 + 4 + 22 + 10 + 8 = 60
-    expect(phoneRule(css, ".Indicator")).toEqual({ "padding-inline": "4px 10px" })
+    // Not the simulator's 38pt TipView glyph (owner 11.11: «она не должна быть огромной»), nor a list row's 30 column
+    // («не сильно большие паддинги вокруг иконки?»): a TipView with tipImageSize 22 puts it 22 from the edge, the text 12
+    // after it (16 + 6 + 22 + 4 + 8 = 56), 20 from the top in Safari of the same simulator; a title alone stands on its middle
+    expect(phoneRule(css, ".Indicator")).toEqual({ "padding-inline": "6px 4px", "margin-block": "5px" })
+    expect(phoneRule(css, ".Indicator + .Content > .Message:not(:has(> .Description))")).toEqual({ "align-self": "center" })
     expect(phoneRule(css, ".Message")).toEqual({ "padding-inline-start": "6px" })
     expect(phoneRule(css, ".Indicator + .Content > .Message")).toEqual({ "padding-inline-start": "0" })
   })

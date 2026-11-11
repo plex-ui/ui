@@ -2,7 +2,7 @@ import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, useSyncExternalStore, type ReactNode } from "react"
 import { Direction } from "radix-ui"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
-import { h, reactive, type VNode } from "vue"
+import { createApp, h, reactive, type VNode } from "vue"
 import { Slider as RSlider } from "../../packages/ui/src/components/Slider"
 import { Tooltip as RTooltip } from "../../packages/ui/src/components/Tooltip"
 import { Slider } from "../../packages/vue/src/components/Slider"
@@ -669,6 +669,35 @@ describe("Slider value input parity", () => {
     expect(result.vue).toEqual(result.react)
     expect(result.vueLog).toEqual(result.reactLog)
     expect(result.reactLog.filter((entry) => entry.startsWith("change"))).toEqual([])
+  })
+
+  test("a disabled range switched to one thumb in one update shows the number", async () => {
+    const result = await sliderWalk({ range: true, label: "Band", min: 0, max: 100, step: 1, value: [20, 60], disabled: true }, "controlled", async (t) => {
+      await t.set({ range: false, value: 40 })
+      t.snapshot()
+      expect($<HTMLInputElement>("input.ValueInput").value).toBe("40")
+    })
+    expect(result.vue).toEqual(result.react)
+  })
+
+  test("Vue: a template that switches a disabled range to one thumb sets range before the value, and the slider follows", async () => {
+    // A compiled template sets its props in their order, and a sync watcher runs at each: range is off while the value
+    // is still the array (a render function sets booleans last, so the walk above cannot show it)
+    const state = reactive<{ range: boolean; value: number | number[] }>({ range: true, value: [20, 60] })
+    const container = document.createElement("div")
+    document.body.appendChild(container)
+    const app = createApp({
+      components: { Slider },
+      setup: () => state,
+      template: `<Slider :range="range" label="Band" :min="0" :max="100" :step="1" :value="value" disabled />`,
+    })
+    app.mount(container)
+    state.range = false
+    state.value = 40
+    await flushVue()
+    expect(container.querySelector<HTMLInputElement>("input.ValueInput")?.value).toBe("40")
+    app.unmount()
+    container.remove()
   })
 
   test("reset supersedes a pending typed value even while the input still has focus", async () => {

@@ -1066,7 +1066,7 @@ Props:
   - @change ((value: number | number[]) => void) — Emitted with update:value, named after the React onChange prop
   - @focus ((event: FocusEvent) => void) — Emitted when the value input or a thumb gains focus
   - @blur ((event: FocusEvent) => void) — Emitted when the value input or a thumb loses focus
-Examples: Overview, Marks, Range, Multiple thumbs, Adding a tooltip, Vertical
+Examples: Overview
 
 ## Sortable
 "Reorders a list by dragging: rows of a group, table rows, images, tags and cards. The order changes on the drop."

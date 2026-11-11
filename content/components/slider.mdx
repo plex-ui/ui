@@ -4,175 +4,99 @@ description: Slider for fine-tuning numeric values with single or range thumbs, 
 metaDescription: React slider component for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation
 ---
 
-import {
-  SliderBaseDemo,
-  SliderBaseDemoWithControls,
-  SliderTooltipsDemo,
-  SliderMarksDemo,
-  SliderRangeDemo,
-  SliderMultipleThumbsDemo,
-  SliderVerticalDemo,
-} from '@/components/docs/SliderDemos'
+import { SliderOverviewDemo } from '@/components/docs/SliderDemos'
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import { sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName } from "@/components/docs/phoneRowsTemplate"
 
-export const overviewCode = `const [value, setValue] = useState(1000)
-const [disabled] = useState(false)
+export const overviewCode = `const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) }))
+
+const [thumbs, setThumbs] = useState("one") // or "two", "three"
+const [values, setValues] = useState({ one: 50, two: [25, 75], three: [10, 40, 70] })
+const [minStepsBetweenThumbs, setMinStepsBetweenThumbs] = useState(5) // with two or three thumbs
+const [resetValue, setResetValue] = useState(true) // with one thumb, while enabled
+const [unit, setUnit] = useState("unit") // or "none", "prefixUnit"
+const [marks, setMarks] = useState(false) // horizontal only
+const [colors, setColors] = useState(false)
+const [tooltip, setTooltip] = useState(false)
+const [orientation, setOrientation] = useState("horizontal") // or "vertical"
+const [disabled, setDisabled] = useState(false)
+
+const setValue = (value) => setValues({ ...values, [thumbs]: value })
+const text = (value) => (unit === "prefixUnit" ? "$" : "") + value + (unit === "unit" ? "%" : "")
+const shared = {
+  min: 0,
+  max: 100,
+  step: 1,
+  marks: marks ? scaleMarks : undefined, // a vertical slider draws none
+  trackColor: colors ? "#61C454" : undefined,
+  rangeColor: colors ? "#EF4146" : undefined,
+  disabled,
+}
+
+const desktop = {
+  ...shared,
+  label: tooltip ? (
+    <Tooltip content="More details about this field">
+      <Tooltip.TriggerDecorator>Example field</Tooltip.TriggerDecorator>
+    </Tooltip>
+  ) : "Example field",
+  unit: unit === "unit" ? "%" : undefined,
+  prefixUnit: unit === "prefixUnit" ? "$" : undefined,
+  orientation,
+}
 
 // Desktop
-<Slider
-  label="Example field"
-  min={0}
-  max={2000}
-  resetValue={1000}
-  step={10}
-  unit="ms"
-  value={value}
-  onChange={setValue}
-  disabled={disabled}
-/>
+<div style={orientation === "horizontal" ? { width: 300 } : undefined}>
+  {thumbs === "one" ? (
+    <Slider {...desktop} value={values.one} onChange={setValue} resetValue={resetValue ? 50 : undefined} />
+  ) : (
+    <Slider {...desktop} range value={values[thumbs]} onChange={setValue} minStepsBetweenThumbs={minStepsBetweenThumbs} />
+  )}
+</div>
 
-// Phone: the group's title names the slider and its value ends the cell.
+// Phone: the group's title names the slider; one value ends the cell, a range goes under the track, and marks show
+// the scale in its place. The phone slider is horizontal, with no reset button or tooltip.
 <FieldGroup title="Example field">
-  <div data-row className="${sliderCellClassName}">
-    <Slider aria-label="Example field" min={0} max={2000} step={10} value={value} onChange={setValue} disabled={disabled} className="min-w-0 flex-1" />
-    <span className={\`min-w-[7ch] ${sliderCellValueClassName} \${disabled ? "${sliderCellValueDisabledClassName}" : "text-secondary"}\`}>{value} ms</span>
-  </div>
+  {thumbs === "one" && !marks ? (
+    <div data-row className="${sliderCellClassName}">
+      <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} className="min-w-0 flex-1" />
+      <span className={\`min-w-[4ch] ${sliderCellValueClassName} \${disabled ? "${sliderCellValueDisabledClassName}" : "text-secondary"}\`}>{text(values.one)}</span>
+    </div>
+  ) : (
+    <div data-row className="${sliderCellStackedClassName}">
+      {thumbs === "one" ? (
+        <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} />
+      ) : (
+        <Slider range aria-label="Example field" {...shared} value={values[thumbs]} onChange={setValue} minStepsBetweenThumbs={minStepsBetweenThumbs} />
+      )}
+      {!marks && (
+        <span className={\`${sliderCellValueBelowClassName}\${disabled ? " ${sliderCellValueDisabledClassName}" : ""}\`}>{values[thumbs].map(text).join(" – ")}</span>
+      )}
+    </div>
+  )}
 </FieldGroup>`
 
 <UsageBlock>{`import { Slider } from "@plexui/ui/components/Slider";`}</UsageBlock>
 
-On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider, the slider fills the cell, a short value ends it, and a longer value goes under the track. For a slider among other settings, see [Settings with a slider](/components/settings-forms#settings-with-a-slider).
+On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider and the slider fills the cell. One value ends the cell, a range goes under the track, and with marks the cell shows the scale instead of a value. For a slider among other settings, see [Settings with a slider](/components/settings-forms#settings-with-a-slider).
 
 ## Examples
 
 <span id="disabled" />
+<span id="marks" />
+<span id="range" />
+<span id="multiple-thumbs" />
+<span id="adding-a-tooltip" />
+<span id="vertical" />
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={overviewCode} previewMinHeight={168}>
-  <SliderBaseDemoWithControls />
-</ComponentPreview>
-
-### Marks
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Slider marks can be easily added by passing an array of values to the <code>marks</code> prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own.</>} code={`const marks = [
-  { value: 1, label: "1" },
-  { value: 2, label: "2" },
-  { value: 3, label: "3" },
-  { value: 4, label: "4" },
-  { value: 5, label: "5" },
-]
-
-// Desktop
-<Slider
-  value={value}
-  onChange={setValue}
-  label="Passing grade"
-  min={1}
-  max={5}
-  step={1}
-  marks={marks}
-  trackColor="#61C454"
-  rangeColor="#EF4146"
-/>
-
-// Phone
-<FieldGroup title="Passing grade">
-  <div data-row className="${sliderCellStackedClassName}">
-    <Slider aria-label="Passing grade" min={1} max={5} step={1} value={value} onChange={setValue} marks={marks} trackColor="#61C454" rangeColor="#EF4146" />
-  </div>
-</FieldGroup>`} previewMinHeight={168}>
-  <SliderMarksDemo />
-</ComponentPreview>
-
-### Range
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Set <code>range</code> to enable a dual-thumb slider for selecting a value range. The <code>value</code> and <code>onChange</code> props accept arrays instead of single numbers.</>} code={`const [value, setValue] = useState([25, 75])
-
-// Desktop
-<Slider
-  range
-  label="Price range"
-  min={0}
-  max={100}
-  step={1}
-  value={value}
-  onChange={setValue}
-  prefixUnit="$"
-/>
-
-// Phone: the range is too long to stand beside the track, so it goes under it.
-<FieldGroup title="Price range">
-  <div data-row className="${sliderCellStackedClassName}">
-    <Slider range aria-label="Price range" min={0} max={100} step={1} value={value} onChange={setValue} />
-    <span className="${sliderCellValueBelowClassName}">{value.map((v) => "$" + v).join(" – ")}</span>
-  </div>
-</FieldGroup>`} previewMinHeight={168}>
-  <SliderRangeDemo />
-</ComponentPreview>
-
-### Multiple thumbs
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass three or more values to create a multi-thumb slider. Use <code>minStepsBetweenThumbs</code> to enforce minimum spacing between thumbs.</>} code={`const [value, setValue] = useState([10, 40, 70])
-
-// Desktop
-<Slider
-  range
-  label="Breakpoints"
-  min={0}
-  max={100}
-  step={1}
-  value={value}
-  onChange={setValue}
-  minStepsBetweenThumbs={5}
-/>
-
-// Phone: the values go under the track.
-<FieldGroup title="Breakpoints">
-  <div data-row className="${sliderCellStackedClassName}">
-    <Slider range aria-label="Breakpoints" min={0} max={100} step={1} value={value} onChange={setValue} minStepsBetweenThumbs={5} />
-    <span className="${sliderCellValueBelowClassName}">{value.join(" – ")}</span>
-  </div>
-</FieldGroup>`} previewMinHeight={168}>
-  <SliderMultipleThumbsDemo />
-</ComponentPreview>
-
-### Adding a tooltip
-
-<ComponentPreview phonePresentation="none" details={<>A tooltip can easily be added to the Slider label by providing JSX instead of a simple string. A tooltip opens on hover, which a phone does not have, so this example is desktop only.</>} code={`const [value, setValue] = useState(1000)
-
-return (
-  <Slider
-    label={
-      <Tooltip content="More details about this field">
-        <Tooltip.TriggerDecorator>Example field</Tooltip.TriggerDecorator>
-      </Tooltip>
-    }
-    min={0}
-    max={2000}
-    resetValue={1000}
-    step={10}
-    unit="ms"
-    value={value}
-    onChange={setValue}
-  />
-)`} previewMinHeight={168}>
-  <SliderTooltipsDemo />
-</ComponentPreview>
-
-### Vertical
-
-<ComponentPreview phonePresentation="none" details={<>Set <code>orientation="vertical"</code> to render a vertical slider. Marks are not supported in vertical orientation. A list of iOS settings has no vertical slider, so this example is desktop only.</>} code={`<Slider
-  label="Volume"
-  min={0}
-  max={100}
-  step={1}
-  value={value}
-  onChange={setValue}
-  orientation="vertical"
-/>`} previewMinHeight={280}>
-  <SliderVerticalDemo />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>Set <code>range</code> and give <code>value</code> two numbers for a range, or three or more for several thumbs; <code>onChange</code> then receives an array. <code>minStepsBetweenThumbs</code> keeps the thumbs that many steps apart. <code>resetValue</code>, with one thumb, adds a button to the label that brings the value back; a disabled slider hides it.</p>
+  <p><code>unit</code> follows the value and <code>prefixUnit</code> comes before it. <code>marks</code> label points of the scale under the track, horizontal only. <code>trackColor</code> and <code>rangeColor</code> color the track and its fill. A label given as JSX can carry a tooltip, and <code>orientation="vertical"</code> stands the slider up.</p>
+  <p>On a phone the slider is horizontal, as a list of iOS settings has no vertical slider. A tooltip opens on hover, which a phone does not have, and the cell has no label to hold a reset button, so the Phone preview leaves out those controls. Marks take the place of the value, so with marks the phone shows no unit either.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <SliderOverviewDemo />
 </ComponentPreview>
 
 ## API

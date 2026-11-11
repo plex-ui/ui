@@ -77,6 +77,11 @@ const phoneOnlyIn = (control: VueDemoControl, values: Record<string, unknown>) =
 const desktopOnlyIn = (control: VueDemoControl, values: Record<string, unknown>) =>
   control.desktopOnly === true || (typeof control.desktopOnly === 'object' && holds(control.desktopOnly, values));
 
+/** What the desktop-only controls give a phone template: their `phoneDefault`, else `default` */
+const phoneValues = (controls: readonly VueDemoControl[], values: Record<string, unknown>) =>
+  Object.fromEntries(controls.filter((control) => desktopOnlyIn(control, values))
+    .map((control) => [control.name, control.phoneDefault === null ? undefined : control.phoneDefault ?? control.default]));
+
 /**
  * A control a `when` hides gives the template its default, and so does a value on an option a `when` does not
  * offer: what the preview and its code show is what the shown controls say. A `when` may name a control set back
@@ -190,24 +195,36 @@ function VueDemoView({
   const [modifiedControls, setModifiedControls] = useState<ReadonlySet<string>>(() => new Set(
     phonePreview ? Object.keys(phoneState ?? {}) : [],
   ));
-  const props = useMemo(() => withinLimits(controls, withinConditions(controls, {
-    ...values,
-    ...(reactiveControlDefaults ? Object.fromEntries(controls
-      .filter((control) => !modifiedControls.has(control.name) && control.name !== loop?.name)
-      .map((control) => [control.name, control.default])) : {}),
-    // A value chosen on a desktop that a phone does not offer (a color) shows as the default there
-    ...(phone ? Object.fromEntries(controls
-      .filter((control) => control.type === 'select' && control.phoneOptions
-        && !optionsOf(control.phoneOptions).some((option) => option.value === values[control.name]))
-      .map((control) => [control.name, control.default])) : {}),
-    ...context,
-  })), [context, controls, loop?.name, modifiedControls, phone, reactiveControlDefaults, values]);
+  const props = useMemo(() => {
+    const asked = {
+      ...values,
+      ...(reactiveControlDefaults ? Object.fromEntries(controls
+        .filter((control) => !modifiedControls.has(control.name) && control.name !== loop?.name)
+        .map((control) => [control.name, control.default])) : {}),
+      // A value chosen on a desktop that a phone does not offer (a color) shows as the default there
+      ...(phone ? Object.fromEntries(controls
+        .filter((control) => control.type === 'select' && control.phoneOptions
+          && !optionsOf(control.phoneOptions).some((option) => option.value === values[control.name]))
+        .map((control) => [control.name, control.default])) : {}),
+      ...context,
+    };
+    if (!phone) return withinLimits(controls, withinConditions(controls, asked));
+    // A phone has no desktop-only control, so the others' conditions see the value its template gets (marks are
+    // offered on a phone slider, which is horizontal whatever orientation the desktop chose); its own hidden row
+    // keeps the value chosen for it (a stroke the phone spinner leaves out, a fill that makes a divider phone-only)
+    const hidden = phoneValues(controls, asked);
+    const seen = withinConditions(controls, { ...asked, ...hidden });
+    return withinLimits(controls, {
+      ...seen,
+      ...Object.fromEntries(controls.filter((control) => control.name in hidden)
+        .map((control) => [control.name, holds(control.when, seen) ? asked[control.name] : control.default])),
+    });
+  }, [context, controls, loop?.name, modifiedControls, phone, reactiveControlDefaults, values]);
   // A hidden desktop-only control keeps the chosen value; the template shows its phone default or default. So does
   // a control that a condition makes phone-only, on a desktop
   const templateProps = useMemo(() => (phone ? {
     ...props,
-    ...Object.fromEntries(controls.filter((control) => desktopOnlyIn(control, props))
-      .map((control) => [control.name, control.phoneDefault === null ? undefined : control.phoneDefault ?? control.default])),
+    ...phoneValues(controls, props),
   } : {
     ...props,
     ...Object.fromEntries(controls.filter((control) => typeof control.phoneOnly === 'object' && phoneOnlyIn(control, props))
@@ -284,9 +301,11 @@ function VueDemoView({
       }}
     />
   );
-  const shownControls = controls.filter((control) => !hiddenControls.includes(control.name) && holds(control.when, props));
+  // On a phone a control's conditions see what the template gets, as the values above do
+  const conditionValues = phone ? templateProps : props;
+  const shownControls = controls.filter((control) => !hiddenControls.includes(control.name) && holds(control.when, conditionValues));
   const optionsFor = (control: Extract<VueDemoControl, { type: 'select' }>) => optionsOf(phone && control.phoneOptions ? control.phoneOptions : control.options)
-    .filter((option) => holds(option.when, props));
+    .filter((option) => holds(option.when, conditionValues));
   if (shownControls.length === 0) {
     return stageClassName ? (
       <div className={stageClassName} data-demo-stage>

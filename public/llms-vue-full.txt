@@ -8349,162 +8349,89 @@ Props:
   - @blur ((event: FocusEvent) => void) — Emitted when the value input or a thumb loses focus
 
 ### Overview
+Set range and bind an array of two numbers with v-model:value for a range, or three or more for several thumbs. min-steps-between-thumbs keeps the thumbs that many steps apart. reset-value, with one thumb, adds a button to the label that brings the value back; a disabled slider hides it. unit follows the value and prefix-unit comes before it. marks label points of the scale under the track, horizontal only. track-color and range-color color the track and its fill. The label slot can carry a tooltip, and orientation="vertical" stands the slider up. On a phone the slider is horizontal, as a list of iOS settings has no vertical slider. A tooltip opens on hover, which a phone does not have, and the cell has no label to hold a reset button, so the Phone preview leaves out those controls. Marks take the place of the value, so with marks the phone shows no unit either.
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { Slider } from '@plexui/vue/components/Slider';
+import { Tooltip, TooltipTriggerDecorator } from '@plexui/vue/components/Tooltip';
 
-const value = ref(1000);
+const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) }));
+const thumbs = ref<"one" | "two" | "three">("one");
+const values = ref<{ one: number; two: number[]; three: number[] }>({ one: 50, two: [25, 75], three: [10, 40, 70] });
+const minStepsBetweenThumbs = ref(5); // with two or three thumbs
+const resetValue = ref(true); // with one thumb, while enabled
+const unit = ref<"none" | "unit" | "prefixUnit">("unit");
+const marks = ref(false); // horizontal only
+const colors = ref(false);
+const tooltip = ref(false);
+const orientation = ref<"horizontal" | "vertical">("horizontal");
 const disabled = ref(false);
 </script>
 
 <template>
 <!-- Desktop -->
-<div style="width: 300px">
+<div :style="orientation === 'horizontal' ? { width: '300px' } : undefined">
   <Slider
+    :range="thumbs !== 'one'"
     label="Example field"
     :min="0"
-    :max="2000"
-    :reset-value="1000"
-    :step="10"
-    unit="ms"
-    v-model:value="value"
+    :max="100"
+    :step="1"
+    v-model:value="values[thumbs]"
+    :min-steps-between-thumbs="thumbs === 'one' ? undefined : minStepsBetweenThumbs"
+    :reset-value="thumbs === 'one' && resetValue ? 50 : undefined"
+    :unit="unit === 'unit' ? '%' : undefined"
+    :prefix-unit="unit === 'prefixUnit' ? '$' : undefined"
+    :marks="marks ? scaleMarks : undefined"
+    :track-color="colors ? '#61C454' : undefined"
+    :range-color="colors ? '#EF4146' : undefined"
+    :orientation="orientation"
     :disabled="disabled"
-  />
-</div>
-
-<!-- Phone: the group's title names the slider and its value ends the cell -->
-<FieldGroup title="Example field">
-  <div data-row class="flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]">
-    <Slider aria-label="Example field" :min="0" :max="2000" :step="10" v-model:value="value" :disabled="disabled" class="min-w-0 flex-1" />
-    <span :class="['min-w-[7ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums', disabled ? 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]' : 'text-secondary']">{{ value }} ms</span>
-  </div>
-</FieldGroup>
-</template>
-```
-
-### Marks
-Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own.
-```vue
-<!-- Desktop -->
-<div style="width: 300px">
-  <Slider
-    v-model:value="value"
-    label="Passing grade"
-    :min="1"
-    :max="5"
-    :step="1"
-    :marks="[
-      { value: 1, label: '1' },
-      { value: 2, label: '2' },
-      { value: 3, label: '3' },
-      { value: 4, label: '4' },
-      { value: 5, label: '5' },
-    ]"
-    track-color="#61C454"
-    range-color="#EF4146"
-  />
-</div>
-
-<!-- Phone -->
-<FieldGroup title="Passing grade">
-  <div data-row class="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
-    <Slider
-      aria-label="Passing grade"
-      v-model:value="value"
-      :min="1"
-      :max="5"
-      :step="1"
-      :marks="[
-        { value: 1, label: '1' },
-        { value: 2, label: '2' },
-        { value: 3, label: '3' },
-        { value: 4, label: '4' },
-        { value: 5, label: '5' },
-      ]"
-      track-color="#61C454"
-      range-color="#EF4146"
-    />
-  </div>
-</FieldGroup>
-```
-
-### Range
-Set range to enable a dual-thumb slider for selecting a value range. v-model:value then binds an array instead of a single number.
-```vue
-<!-- Desktop -->
-<div style="width: 300px">
-  <Slider
-    range
-    label="Price range"
-    :min="0"
-    :max="100"
-    :step="1"
-    v-model:value="value"
-    prefix-unit="$"
-  />
-</div>
-
-<!-- Phone: the range is too long to stand beside the track, so it goes under it -->
-<FieldGroup title="Price range">
-  <div data-row class="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
-    <Slider range aria-label="Price range" :min="0" :max="100" :step="1" v-model:value="value" />
-    <span class="text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums">{{ value.map((v) => '$' + v).join(' – ') }}</span>
-  </div>
-</FieldGroup>
-```
-
-### Multiple thumbs
-Pass three or more values to create a multi-thumb slider. Use min-steps-between-thumbs to enforce minimum spacing between thumbs.
-```vue
-<!-- Desktop -->
-<div style="width: 300px">
-  <Slider
-    range
-    label="Breakpoints"
-    :min="0"
-    :max="100"
-    :step="1"
-    v-model:value="value"
-    :min-steps-between-thumbs="5"
-  />
-</div>
-
-<!-- Phone: the values go under the track -->
-<FieldGroup title="Breakpoints">
-  <div data-row class="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
-    <Slider range aria-label="Breakpoints" :min="0" :max="100" :step="1" v-model:value="value" :min-steps-between-thumbs="5" />
-    <span class="text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums">{{ value.join(' – ') }}</span>
-  </div>
-</FieldGroup>
-```
-
-### Adding a tooltip
-A tooltip can easily be added to the Slider label by passing rich content through the label slot instead of a simple string. A tooltip opens on hover, which a phone does not have, so this example is desktop only.
-```vue
-<div style="width: 300px">
-  <Slider :min="0" :max="2000" :reset-value="1000" :step="10" unit="ms" v-model:value="value">
-    <template #label>
+  >
+    <template v-if="tooltip" #label>
       <Tooltip content="More details about this field">
         <TooltipTriggerDecorator>Example field</TooltipTriggerDecorator>
       </Tooltip>
     </template>
   </Slider>
 </div>
-```
 
-### Vertical
-Set orientation="vertical" to render a vertical slider. Marks are not supported in vertical orientation. A list of iOS settings has no vertical slider, so this example is desktop only.
-```vue
-<Slider
-  label="Volume"
-  :min="0"
-  :max="100"
-  :step="1"
-  v-model:value="value"
-  orientation="vertical"
-/>
+<!-- Phone: the group's title names the slider; one value ends the cell, a range goes under the track, and marks show the scale in its place. The phone slider is horizontal, with no reset button or tooltip -->
+<FieldGroup title="Example field">
+  <div v-if="thumbs === 'one' && !marks" data-row class="flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]">
+    <Slider
+      aria-label="Example field"
+      :min="0"
+      :max="100"
+      :step="1"
+      v-model:value="values.one"
+      :track-color="colors ? '#61C454' : undefined"
+      :range-color="colors ? '#EF4146' : undefined"
+      :disabled="disabled"
+      class="min-w-0 flex-1"
+    />
+    <span :class="['min-w-[4ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums', disabled ? 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]' : 'text-secondary']">{{ (unit === 'prefixUnit' ? '$' : '') + values.one + (unit === 'unit' ? '%' : '') }}</span>
+  </div>
+  <div v-else data-row class="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
+    <Slider
+      :range="thumbs !== 'one'"
+      aria-label="Example field"
+      :min="0"
+      :max="100"
+      :step="1"
+      v-model:value="values[thumbs]"
+      :min-steps-between-thumbs="thumbs === 'one' ? undefined : minStepsBetweenThumbs"
+      :marks="marks ? scaleMarks : undefined"
+      :track-color="colors ? '#61C454' : undefined"
+      :range-color="colors ? '#EF4146' : undefined"
+      :disabled="disabled"
+    />
+    <span v-if="!marks" :class="['text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums', disabled ? 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]' : '']">{{ [values[thumbs]].flat().map((value) => (unit === 'prefixUnit' ? '$' : '') + value + (unit === 'unit' ? '%' : '')).join(' – ') }}</span>
+  </div>
+</FieldGroup>
+</template>
 ```
 
 ## Sortable

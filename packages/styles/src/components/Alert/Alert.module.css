@@ -262,12 +262,22 @@
     display: contents;
   }
 
+  /* TipKit's own layout of a 22pt image (TipView with tipImageSize 22, iOS 27.2 simulator; owner 11.11: the 30pt
+     column of a list row left too much room around it): the image 22 from the edge, the text 12 after it, at 56; and
+     as low against the title as there, 20 from the top of the card in Safari of the same simulator, with 20 under it
+     beside a title alone */
   .Indicator {
-    padding-inline: 4px 10px;
+    padding-inline: 6px 4px;
+    margin-block: 5px;
 
     &::before {
       content: none;
     }
+  }
+
+  /* A title alone stands on the middle of the image, as TipKit centres it, 20 from the top and the bottom */
+  .Indicator + .Content > .Message:not(:has(> .Description)) {
+    align-self: center;
   }
 
   .Message {

@@ -22,6 +22,7 @@ import { SortableOverviewDemo } from '../../components/docs/SortableDemos';
 import { BadgeOverviewDemo } from '../../components/docs/BadgeDemos';
 import { SkeletonOverviewDemo } from '../../components/docs/SkeletonDemos';
 import { PageOverviewDemo } from '../../components/docs/PageDemos';
+import { SliderOverviewDemo } from '../../components/docs/SliderDemos';
 import { ToastDemosHost, ToastOverviewDemo } from '../../components/docs/ToastDemos';
 import { VueToastDemo, VueToastDemosHost } from '../../components/docs/vue/VueToastDemos';
 import { TOAST_LONG_DESCRIPTION, TOAST_MESSAGES } from '../../components/docs/toastMessages';
@@ -29,7 +30,7 @@ import { compact as reactCompact, toast as reactToast } from '@plexui/ui/compone
 import { compact as vueCompact, toast as vueToast } from '@plexui/vue/components/Toast';
 import { VuePhoneRowsDemo } from '../../components/docs/vue/VuePhoneRowsDemo';
 import { VueSelectDemo } from '../../components/docs/vue/VueSelectDemos';
-import { phoneRows } from '../../components/docs/phoneRowsTemplate';
+import { phoneRows, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName } from '../../components/docs/phoneRowsTemplate';
 import { VueDemo, type VueDemoControl, type VueDemoLoop, type VueDemoOption, type VueDemoWhen } from '../../components/docs/vue/VueDemo';
 import { VueDataTableDemo } from '../../components/docs/vue/VueDataTableDemos';
 import { VueAvatarDemo } from '../../components/docs/vue/VueAvatarDemos';
@@ -181,6 +182,38 @@ const pageOverview = (() => {
   const template = read('overview', { frame: read('frame', { pageStyles: styles }), list: read('list', { toolbarStyles: styles }) }) as string;
   return { template, controls: read('overviewControls') as VueDemoControl[], state: { rows: read('rows') } };
 })();
+/** The Slider Overview as its page mounts it: its phone cell, its state (a value for each number of thumbs, the
+ * scale's marks) and its controls */
+const sliderOverview = (() => {
+  const mdx = readFileSync('content/vue/components/slider.mdx', 'utf8');
+  const read = (key: string, bindings: Record<string, unknown> = {}): unknown => {
+    const rest = mdx.slice(mdx.indexOf(`export const ${key} = `) + `export const ${key} = `.length);
+    return new Function(...Object.keys(bindings), `return ${rest.slice(0, rest.search(/\nexport const |\n<UsageBlock>/)).trim()}`)(...Object.values(bindings));
+  };
+  const cells = { sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName };
+  return {
+    template: read('overview') as string,
+    phoneTemplate: phoneRows(read('overviewPhone', cells) as string),
+    controls: read('overviewControls') as VueDemoControl[],
+    state: read('overviewState') as Record<string, unknown>,
+  };
+})();
+/** A viewport a test can narrow to a phone and widen again, telling the demos' media queries */
+function viewport() {
+  let wide = true;
+  const listeners = new Set<() => void>();
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    get matches() { return wide ? query.includes('min-width') : !query.includes('min-width'); },
+    media: query,
+    addEventListener: (_: string, listener: () => void) => listeners.add(listener),
+    removeEventListener: (_: string, listener: () => void) => listeners.delete(listener),
+    addListener: (listener: () => void) => listeners.add(listener),
+    removeListener: (listener: () => void) => listeners.delete(listener),
+    dispatchEvent: () => true,
+    onchange: null,
+  }));
+  return (next: 'desktop' | 'phone') => interact(() => { wide = next === 'desktop'; listeners.forEach((listener) => listener()); });
+}
 /** Where a demo control shows: on both, a desktop or a phone only, or neither (its row's flags) */
 const pageControlPlace = (control: HTMLElement | null) => {
   const row = control?.closest<HTMLElement>('[data-demo-controls] > *');
@@ -1318,6 +1351,150 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(header().hasAttribute('data-divider')).toBe(false);
     await choose('background (top)', 'solid');
     expect([pageControlPlace(divider()), header().dataset.background, header().hasAttribute('data-divider')]).toEqual(['neither', 'solid', true]);
+  });
+
+  test('slider: one Overview carries every setting on one scale, each where it acts (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <SliderOverviewDemo /> : <VuePhoneRowsDemo {...sliderOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+    const root = () => stage().querySelector<HTMLElement>('[data-orientation]')!;
+    const thumbs = () => within(stage()).queryAllByRole('slider');
+    const values = () => thumbs().map((thumb) => thumb.getAttribute('aria-valuenow'));
+    const text = () => stage().textContent!.replace(/\s+/g, ' ');
+    const group = (name: string) => within(page.getByRole('radiogroup', { name }));
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(group(name).getByRole('radio', { name: option })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name })));
+    const minSteps = () => page.queryByRole('slider', { name: 'minStepsBetweenThumbs' });
+    const marks = () => Array.from(stage().querySelectorAll('[data-mark]'), (mark) => mark.textContent);
+    for (const name of ['thumbs', 'unit', 'orientation']) expect(page.getByRole('radiogroup', { name })).toBeTruthy();
+    for (const name of ['resetValue', 'marks', 'colors', 'tooltip', 'disabled']) expect(page.getByRole('switch', { name })).toBeTruthy();
+    // One thumb at 50 of 0–100, its label and a reset button over the value and its %
+    expect(values()).toEqual(['50']);
+    expect(root().getAttribute('data-orientation')).toBe('horizontal');
+    expect(within(stage()).getByText('Example field')).toBeTruthy();
+    expect(within(stage()).getByRole('button', { name: 'Reset to default' })).toBeTruthy();
+    expect(text()).toContain('%');
+    expect(minSteps()).toBeNull();
+    await toggle('resetValue');
+    expect(within(stage()).queryByRole('button', { name: 'Reset to default' })).toBeNull();
+    // Two thumbs: a range, kept minStepsBetweenThumbs apart, with no reset button (one value only)
+    await choose('thumbs', 'two');
+    expect(values()).toEqual(['25', '75']);
+    expect(text()).toContain('25% – 75%');
+    expect(page.queryByRole('switch', { name: 'resetValue' })).toBeNull();
+    expect(minSteps()?.getAttribute('aria-valuenow')).toBe('5');
+    const push = async (times: number) => {
+      const thumb = thumbs()[0];
+      await interact(() => thumb.focus());
+      for (let i = 0; i < times; i += 1) await interact(() => fireEvent.keyDown(thumb, { key: 'ArrowRight', shiftKey: true }));
+    };
+    // Ten steps at a time from 25: 5 steps apart stops the first thumb at 65, 20 at 55
+    await push(5);
+    expect(values()).toEqual(['65', '75']);
+    await interact(() => minSteps()!.focus());
+    await interact(() => fireEvent.keyDown(minSteps()!, { key: 'End' }));
+    expect(minSteps()?.getAttribute('aria-valuenow')).toBe('20');
+    await choose('thumbs', 'three');
+    expect(values()).toEqual(['10', '40', '70']);
+    await choose('thumbs', 'two');
+    expect(values()).toEqual(['65', '75']);
+    await choose('thumbs', 'three');
+    await push(3);
+    expect(values()).toEqual(['20', '40', '70']);
+    // unit follows the value, prefixUnit comes before it, none is a bare number
+    await choose('unit', 'prefixUnit');
+    expect(text()).toContain('$20 – $40 – $70');
+    await choose('unit', 'none');
+    expect(text()).toContain('20 – 40 – 70');
+    // The scale's marks, the track's colors, a tooltip on the label
+    await toggle('marks');
+    expect(marks()).toEqual(['0', '25', '50', '75', '100']);
+    await toggle('colors');
+    const colors = stage().querySelector<HTMLElement>('[style*="--slider-track-color"]')!;
+    expect(colors.style.getPropertyValue('--slider-track-color')).toBe('#61C454');
+    expect(colors.style.getPropertyValue('--slider-range-color')).toBe('#EF4146');
+    await toggle('tooltip');
+    expect(within(stage()).getByText('Example field').closest('[data-state]')).toBeTruthy();
+    // A vertical slider draws no marks, so they are not offered there, and they come back with the horizontal one
+    await choose('orientation', 'vertical');
+    expect(root().getAttribute('data-orientation')).toBe('vertical');
+    expect(page.queryByRole('switch', { name: 'marks' })).toBeNull();
+    expect(marks()).toEqual([]);
+    await choose('orientation', 'horizontal');
+    expect(marks()).toHaveLength(5);
+    await toggle('disabled');
+    expect(thumbs().every((thumb) => thumb.hasAttribute('data-disabled'))).toBe(true);
+    // A disabled slider hides its reset button, so resetValue is not offered; enabled again, it keeps the choice
+    await choose('thumbs', 'one');
+    expect(page.queryByRole('switch', { name: 'resetValue' })).toBeNull();
+    await toggle('disabled');
+    expect(page.getByRole('switch', { name: 'resetValue' }).getAttribute('aria-checked')).toBe('false');
+    expect(within(stage()).queryByRole('button', { name: 'Reset to default' })).toBeNull();
+    // prefixUnit stands before one value too
+    await choose('unit', 'prefixUnit');
+    expect([text().includes('$'), text().includes('%')]).toEqual([true, false]);
+  });
+
+  test('slider on a phone: one value ends the cell, a range goes under the track, marks take its place', async () => {
+    const show = viewport();
+    const view = render(framework === 'React' ? <SliderOverviewDemo /> : <VuePhoneRowsDemo {...sliderOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name })));
+    // A desktop-only row is left out, or hidden on a phone (marked for the stylesheet)
+    const offered = (role: string, name: string) => { const row = page.queryByRole(role, { name }); return !!row && !row.closest('[data-demo-desktop-only]'); };
+    // On desktop: three thumbs, marks, then a vertical slider, which draws none
+    await choose('thumbs', 'three');
+    await toggle('marks');
+    await choose('orientation', 'vertical');
+    expect(view.container.querySelectorAll('[data-mark]')).toHaveLength(0);
+    await show('phone');
+    const cell = () => view.container.querySelector<HTMLElement>('[data-row]')!;
+    const slider = () => cell().querySelector<HTMLElement>('[data-orientation]')!;
+    // The phone slider is horizontal, in a cell of a group its title names, with no label row of its own
+    expect(within(view.container).getByText('Example field').closest('[data-row]')).toBeNull();
+    expect(slider().getAttribute('data-orientation')).toBe('horizontal');
+    expect(within(cell()).getAllByRole('slider').map((thumb) => thumb.getAttribute('aria-label'))).toEqual(['Example field Value 1 of 3', 'Example field Value 2 of 3', 'Example field Value 3 of 3']);
+    for (const [role, name] of [['switch', 'resetValue'], ['switch', 'tooltip'], ['radiogroup', 'orientation']]) expect(offered(role, name), name).toBe(false);
+    expect(offered('slider', 'minStepsBetweenThumbs')).toBe(true);
+    // Marks show the scale in the value's place, so the unit is not offered with them
+    expect(offered('switch', 'marks')).toBe(true);
+    expect(Array.from(cell().querySelectorAll('[data-mark]'), (mark) => mark.textContent)).toEqual(['0', '25', '50', '75', '100']);
+    expect(cell().className).toBe(sliderCellStackedClassName);
+    expect(offered('radiogroup', 'unit')).toBe(false);
+    // Without marks a range goes under the track
+    await toggle('marks');
+    expect(offered('radiogroup', 'unit')).toBe(true);
+    expect(cell().className).toBe(sliderCellStackedClassName);
+    expect(cell().querySelector(`[class="${sliderCellValueBelowClassName}"]`)?.textContent).toBe('10% – 40% – 70%');
+    await choose('unit', 'prefixUnit');
+    expect(cell().textContent).toContain('$10 – $40 – $70');
+    // One value ends the cell, and takes the tertiary label when the slider is disabled
+    await choose('thumbs', 'one');
+    expect(cell().className).toBe(sliderCellClassName);
+    const value = () => cell().lastElementChild!;
+    expect(value().textContent).toBe('$50');
+    expect(value().className).toContain('text-secondary');
+    await toggle('disabled');
+    expect(value().className).toContain(sliderCellValueDisabledClassName);
+    expect(within(cell()).getByRole('slider').hasAttribute('data-disabled')).toBe(true);
+    // A range under the track takes it too
+    await choose('thumbs', 'two');
+    expect(value().className).toBe(`${sliderCellValueBelowClassName} ${sliderCellValueDisabledClassName}`);
+    // One thumb with marks: the scale under the track in the value's place
+    await choose('thumbs', 'one');
+    await toggle('marks');
+    expect(cell().className).toBe(sliderCellStackedClassName);
+    expect(cell().querySelectorAll('[data-mark]')).toHaveLength(5);
+    expect(cell().textContent).not.toContain('$50');
+    // The track's colors reach the cell
+    await toggle('colors');
+    expect(cell().querySelector<HTMLElement>('[style*="--slider-track-color"]')?.style.getPropertyValue('--slider-range-color')).toBe('#EF4146');
+    await show('desktop');
+    expect(view.container.querySelector('[data-demo-stage] [data-orientation]')?.getAttribute('data-orientation')).toBe('vertical');
+    expect(page.getByRole('radiogroup', { name: 'orientation' })).toBeTruthy();
   });
 
   test('DataTable restores the sorted rows after empty, with default, text and rich message modes', async () => {
