@@ -8581,11 +8581,11 @@ The grid layout also fits a line that wraps: the end of one line and the start o
 ```
 
 ### Cards
-Any element can be an item, such as a StatCard.
+Any element can be an item, such as a StatsCard.
 ```vue
 <Sortable v-model:value="cards" layout="grid" class="grid w-[480px] max-w-full grid-cols-2 gap-3">
   <div v-for="card in cards" :key="card.label" tabindex="0" class="rounded-xl">
-    <StatCard :label="card.label" :value="card.value" />
+    <StatsCard :label="card.label" :value="card.value" />
   </div>
 </Sortable>
 ```
@@ -8604,10 +8604,10 @@ Lists of one group trade items, and an empty list takes a drop. Each list has a 
 </div>
 ```
 
-## Stat Card
-Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.
-Import: import { StatCard } from "@plexui/vue/components/StatCard"
-Docs: https://plexui.com/vue/components/stat-card
+## Stats Card
+Stats card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.
+Import: import { StatsCard } from "@plexui/vue/components/StatsCard"
+Docs: https://plexui.com/vue/components/stats-card
 Props:
   - label (string) — Required. Label describing the metric
   - value (string | number) — The primary metric value
@@ -8628,10 +8628,10 @@ Props:
   - class (string) — Extra classes on the card element
 
 ### Overview
-Dashboard-ready stat cards with trends, icons, and progress bars. Use size="sm" for compact analytics rows with denser spacing and smaller typography; it pairs well with tooltip, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (trend-position), as plain text or in a badge (trend-variant). Use invert-trend for metrics where a rise is bad, such as error rate or response time. An icon in the icon slot stands in a small soft tile at the end of the header, and progress draws a bar of completion or usage across the card. The accent variant adds a colored bar before the content in one of eight semantic colors (accent-color).
+Dashboard-ready stats cards with trends, icons, and progress bars. Use size="sm" for compact analytics rows with denser spacing and smaller typography; it pairs well with tooltip, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (trend-position), as plain text or in a badge (trend-variant). Use invert-trend for metrics where a rise is bad, such as error rate or response time. An icon in the icon slot stands in a small soft tile at the end of the header, and progress draws a bar of completion or usage across the card. The accent variant adds a colored bar before the content in one of eight semantic colors (accent-color).
 ```vue
 <div style="max-width: 320px; width: 100%" class="mx-auto">
-  <StatCard
+  <StatsCard
     label="Total Revenue"
     value="$45,231"
     :size="size"
@@ -8647,7 +8647,7 @@ Dashboard-ready stat cards with trends, icons, and progress bars. Use size="sm" 
     :description="progress ? 'of $62,800 goal' : undefined"
   >
     <template v-if="icon" #icon><DollarCircle /></template>
-  </StatCard>
+  </StatsCard>
 </div>
 ```
 

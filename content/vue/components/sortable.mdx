@@ -176,7 +176,7 @@ export const tagsDemo = `<Sortable v-model:value="tags" layout="grid" class="fle
 
 export const cardsDemo = `<Sortable v-model:value="cards" layout="grid" class="grid w-[480px] max-w-full grid-cols-2 gap-3">
   <div v-for="card in cards" :key="card.label" tabindex="0" class="rounded-xl">
-    <StatCard :label="card.label" :value="card.value" />
+    <StatsCard :label="card.label" :value="card.value" />
   </div>
 </Sortable>`
 
@@ -246,7 +246,7 @@ export const groupDemo = `<div class="grid w-[640px] max-w-full gap-4 sm:grid-co
 
 ### Cards
 
-<ComponentPreview language="vue" details={<>Any element can be an item, such as a <code>StatCard</code>.</>} code={cardsDemo} previewMinHeight={300}>
+<ComponentPreview language="vue" details={<>Any element can be an item, such as a <code>StatsCard</code>.</>} code={cardsDemo} previewMinHeight={300}>
   <VueDemo template={cardsDemo} stageClassName={STAGE} state={{ cards }} />
 </ComponentPreview>
 

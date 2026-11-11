@@ -1,9 +1,9 @@
 import { type Meta } from "@storybook/react"
-import { StatCard, type StatCardProps } from "./"
+import { StatsCard, type StatsCardProps } from "./"
 
-const meta: Meta<StatCardProps> = {
-  title: "Components/StatCard",
-  component: StatCard,
+const meta: Meta<StatsCardProps> = {
+  title: "Components/StatsCard",
+  component: StatsCard,
   args: {
     label: "Total Revenue",
     value: "$45,231",
@@ -26,11 +26,11 @@ const meta: Meta<StatCardProps> = {
       options: ["primary", "info", "success", "warning", "danger", "discovery"],
     },
   },
-} satisfies Meta<typeof StatCard>
+} satisfies Meta<typeof StatsCard>
 
 export default meta
 
-export const Base = (args: StatCardProps) => <StatCard {...args} />
+export const Base = (args: StatsCardProps) => <StatsCard {...args} />
 
 Base.args = {
   label: "Total Revenue",
@@ -45,29 +45,29 @@ export const Sizes = () => (
     <div>
       <div className="text-tertiary text-sm mb-2">size=&quot;default&quot;</div>
       <div className="grid grid-cols-3 gap-4">
-        <StatCard label="Total Revenue" value="$45,231" trend={{ value: 12.5 }} />
-        <StatCard label="Active Users" value="2,847" trend={{ value: 8.2 }} />
-        <StatCard label="Conversion Rate" value="3.24%" trend={{ value: -1.8 }} />
+        <StatsCard label="Total Revenue" value="$45,231" trend={{ value: 12.5 }} />
+        <StatsCard label="Active Users" value="2,847" trend={{ value: 8.2 }} />
+        <StatsCard label="Conversion Rate" value="3.24%" trend={{ value: -1.8 }} />
       </div>
     </div>
     <div>
       <div className="text-tertiary text-sm mb-2">size=&quot;sm&quot;</div>
       <div className="grid grid-cols-3 gap-3">
-        <StatCard
+        <StatsCard
           size="sm"
           label="Total Inquiries"
           value="3,544"
           trend={{ value: -2.6 }}
           tooltip="Total inquiries in the selected period"
         />
-        <StatCard
+        <StatsCard
           size="sm"
           label="Avg Completion Rate"
           value="89.2%"
           trend={{ value: 0.5 }}
           tooltip="Average across all templates"
         />
-        <StatCard
+        <StatsCard
           size="sm"
           label="Avg Approval Rate"
           value="84.6%"
@@ -85,7 +85,7 @@ export const TrendPositions = () => (
   <div className="grid grid-cols-2 gap-6" style={{ maxWidth: 600 }}>
     <div>
       <div className="text-tertiary text-sm mb-2">trendPosition=&quot;value&quot;</div>
-      <StatCard
+      <StatsCard
         label="Total Revenue"
         value="$45,231"
         trend={{ value: 12.5, label: "vs last month" }}
@@ -93,7 +93,7 @@ export const TrendPositions = () => (
     </div>
     <div>
       <div className="text-tertiary text-sm mb-2">trendPosition=&quot;header&quot;</div>
-      <StatCard
+      <StatsCard
         label="Total Revenue"
         value="$45,231"
         trend={{ value: 12.5, label: "vs last month" }}
@@ -109,15 +109,15 @@ export const TrendVariants = () => (
   <div className="grid grid-cols-2 gap-6" style={{ maxWidth: 600 }}>
     <div>
       <div className="text-tertiary text-sm mb-2">trendVariant=&quot;text&quot;</div>
-      <StatCard label="Active Users" value="2,847" trend={{ value: 8.2 }} />
+      <StatsCard label="Active Users" value="2,847" trend={{ value: 8.2 }} />
     </div>
     <div>
       <div className="text-tertiary text-sm mb-2">trendVariant=&quot;badge&quot;</div>
-      <StatCard label="Active Users" value="2,847" trend={{ value: 8.2 }} trendVariant="badge" />
+      <StatsCard label="Active Users" value="2,847" trend={{ value: 8.2 }} trendVariant="badge" />
     </div>
     <div>
       <div className="text-tertiary text-sm mb-2">badge + header position</div>
-      <StatCard
+      <StatsCard
         label="Error Rate"
         value="0.12%"
         trend={{ value: -0.5 }}
@@ -128,7 +128,7 @@ export const TrendVariants = () => (
     </div>
     <div>
       <div className="text-tertiary text-sm mb-2">badge + negative</div>
-      <StatCard label="Churn Rate" value="2.4%" trend={{ value: 0.3 }} invertTrend trendVariant="badge" />
+      <StatsCard label="Churn Rate" value="2.4%" trend={{ value: 0.3 }} invertTrend trendVariant="badge" />
     </div>
   </div>
 )
@@ -137,19 +137,19 @@ TrendVariants.parameters = { controls: { disable: true } }
 
 export const WithInfoTooltip = () => (
   <div className="grid grid-cols-3 gap-4" style={{ maxWidth: 720 }}>
-    <StatCard
+    <StatsCard
       label="Total Revenue"
       value="$45,231"
       trend={{ value: 12.5 }}
       tooltip="Sum of all revenue streams including subscriptions and one-time purchases"
     />
-    <StatCard
+    <StatsCard
       label="Active Users"
       value="2,847"
       trend={{ value: 8.2 }}
       tooltip="Users with at least one session in the last 30 days"
     />
-    <StatCard
+    <StatsCard
       label="Avg Response Time"
       value="234ms"
       trend={{ value: 15.3 }}
@@ -161,7 +161,7 @@ export const WithInfoTooltip = () => (
 
 WithInfoTooltip.parameters = { controls: { disable: true } }
 
-export const WithProgress = (args: StatCardProps) => <StatCard {...args} />
+export const WithProgress = (args: StatsCardProps) => <StatsCard {...args} />
 
 WithProgress.args = {
   label: "Storage Used",
@@ -172,7 +172,7 @@ WithProgress.args = {
   trend: undefined,
 }
 
-export const WithIcon = (args: StatCardProps) => <StatCard {...args} />
+export const WithIcon = (args: StatsCardProps) => <StatsCard {...args} />
 
 WithIcon.args = {
   label: "Total Orders",
@@ -190,7 +190,7 @@ const ACCENT_COLORS = ["primary", "info", "success", "warning", "danger", "disco
 export const AccentColors = () => (
   <div className="grid grid-cols-3 gap-4" style={{ maxWidth: 720 }}>
     {ACCENT_COLORS.map((color) => (
-      <StatCard
+      <StatsCard
         key={color}
         label={color}
         value="1,234"
@@ -206,13 +206,13 @@ AccentColors.parameters = { controls: { disable: true } }
 
 export const Grid = () => (
   <div className="grid grid-cols-4 gap-4" style={{ maxWidth: 960 }}>
-    <StatCard
+    <StatsCard
       label="Total Revenue"
       value="$45,231"
       trend={{ value: 12.5, label: "vs last month" }}
       tooltip="Sum of all revenue streams"
     />
-    <StatCard
+    <StatsCard
       label="Active Users"
       value="2,847"
       trend={{ value: 8.2 }}
@@ -223,7 +223,7 @@ export const Grid = () => (
         </svg>
       }
     />
-    <StatCard
+    <StatsCard
       label="Conversion Rate"
       value="3.24%"
       trend={{ value: -1.8 }}
@@ -231,7 +231,7 @@ export const Grid = () => (
       accentColor="warning"
       trendPosition="header"
     />
-    <StatCard
+    <StatsCard
       label="Storage Used"
       value="7.2 GB"
       progress={72}
@@ -249,21 +249,21 @@ export const AnalyticsDashboard = () => (
       Compact analytics row (size=&quot;sm&quot; + tooltip)
     </div>
     <div className="grid grid-cols-3 gap-3">
-      <StatCard
+      <StatsCard
         size="sm"
         label="Total Inquiries"
         value="3,544"
         trend={{ value: -2.6 }}
         tooltip="Total inquiries created in the selected period"
       />
-      <StatCard
+      <StatsCard
         size="sm"
         label="Avg Completion Rate"
         value="89.2%"
         trend={{ value: 0.5 }}
         tooltip="Percentage of inquiries reaching final state"
       />
-      <StatCard
+      <StatsCard
         size="sm"
         label="Avg Approval Rate"
         value="84.6%"
@@ -275,20 +275,20 @@ export const AnalyticsDashboard = () => (
       Full dashboard mix
     </div>
     <div className="grid grid-cols-4 gap-4">
-      <StatCard
+      <StatsCard
         label="Revenue"
         value="$142K"
         trend={{ value: 12.5, label: "vs last month" }}
         tooltip="Monthly recurring revenue"
         trendVariant="badge"
       />
-      <StatCard
+      <StatsCard
         label="Customers"
         value="1,847"
         trend={{ value: 4.2 }}
         trendPosition="header"
       />
-      <StatCard
+      <StatsCard
         label="Error Rate"
         value="0.12%"
         trend={{ value: -0.5 }}
@@ -298,7 +298,7 @@ export const AnalyticsDashboard = () => (
         trendVariant="badge"
         trendPosition="header"
       />
-      <StatCard
+      <StatsCard
         label="Uptime"
         value="99.98%"
         trend={{ value: 0.01 }}

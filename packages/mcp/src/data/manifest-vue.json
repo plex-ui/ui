@@ -5929,8 +5929,8 @@
         },
         {
           "name": "Cards",
-          "code": "<Sortable v-model:value=\"cards\" layout=\"grid\" class=\"grid w-[480px] max-w-full grid-cols-2 gap-3\">\n  <div v-for=\"card in cards\" :key=\"card.label\" tabindex=\"0\" class=\"rounded-xl\">\n    <StatCard :label=\"card.label\" :value=\"card.value\" />\n  </div>\n</Sortable>",
-          "details": "Any element can be an item, such as a StatCard."
+          "code": "<Sortable v-model:value=\"cards\" layout=\"grid\" class=\"grid w-[480px] max-w-full grid-cols-2 gap-3\">\n  <div v-for=\"card in cards\" :key=\"card.label\" tabindex=\"0\" class=\"rounded-xl\">\n    <StatsCard :label=\"card.label\" :value=\"card.value\" />\n  </div>\n</Sortable>",
+          "details": "Any element can be an item, such as a StatsCard."
         },
         {
           "name": "Between lists",
@@ -5941,11 +5941,14 @@
       "docsUrl": "https://plexui.com/vue/components/sortable"
     },
     {
-      "slug": "stat-card",
-      "name": "Stat Card",
-      "description": "Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.",
-      "importPath": "@plexui/vue/components/StatCard",
+      "slug": "stats-card",
+      "name": "Stats Card",
+      "description": "Stats card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.",
+      "importPath": "@plexui/vue/components/StatsCard",
       "exports": [
+        "StatsCard"
+      ],
+      "aliases": [
         "StatCard"
       ],
       "props": [
@@ -6044,11 +6047,11 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div style=\"max-width: 320px; width: 100%\" class=\"mx-auto\">\n  <StatCard\n    label=\"Total Revenue\"\n    value=\"$45,231\"\n    :size=\"size\"\n    :variant=\"variant\"\n    :accent-color=\"accentColor\"\n    :trend-position=\"trendPosition\"\n    :trend-variant=\"trendVariant\"\n    :trend=\"trend ? { value: 12.5, label: 'vs last month' } : undefined\"\n    :invert-trend=\"invertTrend\"\n    :tooltip=\"tooltip ? 'Sum of all revenue streams' : undefined\"\n    :progress=\"progress ? 72 : undefined\"\n    :progress-label=\"progress ? '72%' : undefined\"\n    :description=\"progress ? 'of $62,800 goal' : undefined\"\n  >\n    <template v-if=\"icon\" #icon><DollarCircle /></template>\n  </StatCard>\n</div>",
-          "details": "Dashboard-ready stat cards with trends, icons, and progress bars. Use size=\"sm\" for compact analytics rows with denser spacing and smaller typography; it pairs well with tooltip, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (trend-position), as plain text or in a badge (trend-variant). Use invert-trend for metrics where a rise is bad, such as error rate or response time. An icon in the icon slot stands in a small soft tile at the end of the header, and progress draws a bar of completion or usage across the card. The accent variant adds a colored bar before the content in one of eight semantic colors (accent-color)."
+          "code": "<div style=\"max-width: 320px; width: 100%\" class=\"mx-auto\">\n  <StatsCard\n    label=\"Total Revenue\"\n    value=\"$45,231\"\n    :size=\"size\"\n    :variant=\"variant\"\n    :accent-color=\"accentColor\"\n    :trend-position=\"trendPosition\"\n    :trend-variant=\"trendVariant\"\n    :trend=\"trend ? { value: 12.5, label: 'vs last month' } : undefined\"\n    :invert-trend=\"invertTrend\"\n    :tooltip=\"tooltip ? 'Sum of all revenue streams' : undefined\"\n    :progress=\"progress ? 72 : undefined\"\n    :progress-label=\"progress ? '72%' : undefined\"\n    :description=\"progress ? 'of $62,800 goal' : undefined\"\n  >\n    <template v-if=\"icon\" #icon><DollarCircle /></template>\n  </StatsCard>\n</div>",
+          "details": "Dashboard-ready stats cards with trends, icons, and progress bars. Use size=\"sm\" for compact analytics rows with denser spacing and smaller typography; it pairs well with tooltip, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (trend-position), as plain text or in a badge (trend-variant). Use invert-trend for metrics where a rise is bad, such as error rate or response time. An icon in the icon slot stands in a small soft tile at the end of the header, and progress draws a bar of completion or usage across the card. The accent variant adds a colored bar before the content in one of eight semantic colors (accent-color)."
         }
       ],
-      "docsUrl": "https://plexui.com/vue/components/stat-card"
+      "docsUrl": "https://plexui.com/vue/components/stats-card"
     },
     {
       "slug": "stepper",
@@ -7521,5 +7524,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-11T14:34:25.829Z"
+  "generatedAt": "2026-11-11T15:03:47.015Z"
 }

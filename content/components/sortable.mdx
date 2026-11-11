@@ -128,10 +128,10 @@ const [disabled, setDisabled] = useState(false)
 
 ### Cards
 
-<ComponentPreview details={<>Any element can be an item, such as a <code>StatCard</code>.</>} code={`<Sortable value={cards} onChange={setCards} layout="grid" className="grid grid-cols-2 gap-3">
+<ComponentPreview details={<>Any element can be an item, such as a <code>StatsCard</code>.</>} code={`<Sortable value={cards} onChange={setCards} layout="grid" className="grid grid-cols-2 gap-3">
   {cards.map((card) => (
     <div key={card.label} tabIndex={0} className="rounded-xl">
-      <StatCard label={card.label} value={card.value} />
+      <StatsCard label={card.label} value={card.value} />
     </div>
   ))}
 </Sortable>`} previewMinHeight={300}>

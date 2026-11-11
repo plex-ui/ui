@@ -1,37 +1,37 @@
-.StatCard {
+.StatsCard {
   position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
   min-width: 0;
-  padding: var(--stat-card-padding);
-  border-radius: var(--stat-card-radius);
-  background: var(--stat-card-background);
-  box-shadow: 0 0 0 1px var(--stat-card-border-color) inset;
-  font-size: var(--stat-card-label-font-size);
+  padding: var(--stats-card-padding);
+  border-radius: var(--stats-card-radius);
+  background: var(--stats-card-background);
+  box-shadow: 0 0 0 1px var(--stats-card-border-color) inset;
+  font-size: var(--stats-card-label-font-size);
   line-height: var(--font-text-sm-line-height);
 
   &:where([data-size="sm"]) {
-    padding: var(--stat-card-sm-padding-block) var(--stat-card-sm-padding-inline);
+    padding: var(--stats-card-sm-padding-block) var(--stats-card-sm-padding-inline);
 
     .Label {
-      font-size: var(--stat-card-sm-label-font-size);
+      font-size: var(--stats-card-sm-label-font-size);
       line-height: var(--font-text-xs-line-height);
     }
 
     .InfoIcon svg {
-      width: var(--stat-card-sm-info-icon-size);
-      height: var(--stat-card-sm-info-icon-size);
+      width: var(--stats-card-sm-info-icon-size);
+      height: var(--stats-card-sm-info-icon-size);
     }
 
     .Value {
-      font-size: var(--stat-card-sm-value-font-size);
+      font-size: var(--stats-card-sm-value-font-size);
       line-height: var(--font-heading-md-line-height);
       letter-spacing: var(--font-heading-md-tracking);
     }
 
     .Trend {
-      font-size: var(--stat-card-sm-trend-font-size);
+      font-size: var(--stats-card-sm-trend-font-size);
       line-height: var(--font-text-xs-line-height);
     }
 
@@ -40,28 +40,28 @@
     }
 
     .TrendRow {
-      font-size: var(--stat-card-sm-description-font-size);
+      font-size: var(--stats-card-sm-description-font-size);
       line-height: var(--font-text-xs-line-height);
     }
 
     .Description {
-      font-size: var(--stat-card-sm-description-font-size);
+      font-size: var(--stats-card-sm-description-font-size);
       line-height: var(--font-text-xs-line-height);
     }
 
     .TrendLabel {
-      font-size: var(--stat-card-sm-description-font-size);
+      font-size: var(--stats-card-sm-description-font-size);
       line-height: var(--font-text-xs-line-height);
     }
 
     .IconWrapper {
-      width: var(--stat-card-sm-icon-wrapper-size);
-      height: var(--stat-card-sm-icon-wrapper-size);
-      border-radius: var(--stat-card-sm-icon-wrapper-radius);
+      width: var(--stats-card-sm-icon-wrapper-size);
+      height: var(--stats-card-sm-icon-wrapper-size);
+      border-radius: var(--stats-card-sm-icon-wrapper-radius);
 
       svg {
-        width: var(--stat-card-sm-icon-size);
-        height: var(--stat-card-sm-icon-size);
+        width: var(--stats-card-sm-icon-size);
+        height: var(--stats-card-sm-icon-size);
       }
     }
 
@@ -74,57 +74,57 @@
      a border on the card's edge bent along its rounded corners */
   /* The progress bar keeps its own fill: in the accent's colour too, it drew a second stripe of it (owner 11.11) */
   &:where([data-variant="accent"]) {
-    padding-inline-start: calc(var(--stat-card-padding) + var(--stat-card-accent-width) + spacing(3));
+    padding-inline-start: calc(var(--stats-card-padding) + var(--stats-card-accent-width) + spacing(3));
 
     &::before {
       content: "";
       position: absolute;
-      inset-block: var(--stat-card-padding);
-      inset-inline-start: var(--stat-card-padding);
-      width: var(--stat-card-accent-width);
+      inset-block: var(--stats-card-padding);
+      inset-inline-start: var(--stats-card-padding);
+      width: var(--stats-card-accent-width);
       border-radius: var(--radius-full);
-      background: var(--stat-card-accent-color, var(--color-background-primary-solid));
+      background: var(--stats-card-accent-color, var(--color-background-primary-solid));
     }
 
     &:where([data-size="sm"]) {
-      padding-inline-start: calc(var(--stat-card-sm-padding-inline) + var(--stat-card-accent-width) + spacing(2.5));
+      padding-inline-start: calc(var(--stats-card-sm-padding-inline) + var(--stats-card-accent-width) + spacing(2.5));
 
       &::before {
-        inset-block: var(--stat-card-sm-padding-block);
-        inset-inline-start: var(--stat-card-sm-padding-inline);
+        inset-block: var(--stats-card-sm-padding-block);
+        inset-inline-start: var(--stats-card-sm-padding-inline);
       }
     }
 
     &:where([data-accent-color="primary"]) {
-      --stat-card-accent-color: var(--color-background-primary-solid);
+      --stats-card-accent-color: var(--color-background-primary-solid);
     }
 
     &:where([data-accent-color="info"]) {
-      --stat-card-accent-color: var(--color-background-info-solid);
+      --stats-card-accent-color: var(--color-background-info-solid);
     }
 
     &:where([data-accent-color="success"]) {
-      --stat-card-accent-color: var(--color-background-success-solid);
+      --stats-card-accent-color: var(--color-background-success-solid);
     }
 
     &:where([data-accent-color="warning"]) {
-      --stat-card-accent-color: var(--color-background-warning-solid);
+      --stats-card-accent-color: var(--color-background-warning-solid);
     }
 
     &:where([data-accent-color="danger"]) {
-      --stat-card-accent-color: var(--color-background-danger-solid);
+      --stats-card-accent-color: var(--color-background-danger-solid);
     }
 
     &:where([data-accent-color="secondary"]) {
-      --stat-card-accent-color: var(--color-background-secondary-solid);
+      --stats-card-accent-color: var(--color-background-secondary-solid);
     }
 
     &:where([data-accent-color="discovery"]) {
-      --stat-card-accent-color: var(--color-background-discovery-solid);
+      --stats-card-accent-color: var(--color-background-discovery-solid);
     }
 
     &:where([data-accent-color="caution"]) {
-      --stat-card-accent-color: var(--color-background-caution-solid);
+      --stats-card-accent-color: var(--color-background-caution-solid);
     }
   }
 }
@@ -146,8 +146,8 @@
 .Label {
   min-width: 0;
   overflow: hidden;
-  color: var(--stat-card-label-color);
-  font-size: var(--stat-card-label-font-size);
+  color: var(--stats-card-label-color);
+  font-size: var(--stats-card-label-font-size);
   line-height: var(--font-text-sm-line-height);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -160,8 +160,8 @@
   cursor: help;
 
   svg {
-    width: var(--stat-card-info-icon-size);
-    height: var(--stat-card-info-icon-size);
+    width: var(--stats-card-info-icon-size);
+    height: var(--stats-card-info-icon-size);
   }
 }
 
@@ -171,15 +171,15 @@
   justify-content: center;
   flex-shrink: 0;
   /* A small square at the end of the header (shadcn's metric card with an icon), a soft tint behind the icon */
-  width: var(--stat-card-icon-wrapper-size);
-  height: var(--stat-card-icon-wrapper-size);
-  border-radius: var(--stat-card-icon-wrapper-radius);
-  background: var(--stat-card-icon-wrapper-background);
-  color: var(--stat-card-icon-color);
+  width: var(--stats-card-icon-wrapper-size);
+  height: var(--stats-card-icon-wrapper-size);
+  border-radius: var(--stats-card-icon-wrapper-radius);
+  background: var(--stats-card-icon-wrapper-background);
+  color: var(--stats-card-icon-color);
 
   svg {
-    width: var(--stat-card-icon-size);
-    height: var(--stat-card-icon-size);
+    width: var(--stats-card-icon-size);
+    height: var(--stats-card-icon-size);
   }
 }
 
@@ -206,15 +206,15 @@
   align-items: center;
   column-gap: spacing(1);
   margin-block-start: spacing(1);
-  font-size: var(--stat-card-description-font-size);
+  font-size: var(--stats-card-description-font-size);
   line-height: var(--font-text-sm-line-height);
 }
 
 .Value {
   min-width: 0;
-  color: var(--stat-card-value-color);
-  font-size: var(--stat-card-value-font-size);
-  font-weight: var(--stat-card-value-font-weight);
+  color: var(--stats-card-value-color);
+  font-size: var(--stats-card-value-font-size);
+  font-weight: var(--stats-card-value-font-weight);
   line-height: var(--font-heading-xl-line-height);
   letter-spacing: var(--font-heading-xl-tracking);
   font-variant-numeric: tabular-nums;
@@ -225,8 +225,8 @@
   align-items: center;
   gap: spacing(0.5);
   flex-shrink: 0;
-  font-size: var(--stat-card-trend-font-size);
-  font-weight: var(--stat-card-trend-font-weight);
+  font-size: var(--stats-card-trend-font-size);
+  font-weight: var(--stats-card-trend-font-weight);
   line-height: var(--font-text-sm-line-height);
   white-space: nowrap;
 
@@ -242,26 +242,26 @@
 }
 
 .TrendPositive {
-  color: var(--stat-card-trend-positive-color);
+  color: var(--stats-card-trend-positive-color);
 }
 
 .TrendNegative {
-  color: var(--stat-card-trend-negative-color);
+  color: var(--stats-card-trend-negative-color);
 }
 
 .TrendNeutral {
-  color: var(--stat-card-trend-neutral-color);
+  color: var(--stats-card-trend-neutral-color);
 }
 
 .TrendLabel {
-  color: var(--stat-card-description-color);
+  color: var(--stats-card-description-color);
   font-weight: var(--font-weight-normal);
 }
 
 .Description {
   margin-block-start: spacing(1);
-  color: var(--stat-card-description-color);
-  font-size: var(--stat-card-description-font-size);
+  color: var(--stats-card-description-color);
+  font-size: var(--stats-card-description-font-size);
   line-height: var(--font-text-sm-line-height);
   text-wrap: pretty;
 }
@@ -276,21 +276,21 @@
 
 .ProgressTrack {
   flex: 1;
-  height: var(--stat-card-progress-height);
-  border-radius: var(--stat-card-progress-radius);
-  background: var(--stat-card-progress-background);
+  height: var(--stats-card-progress-height);
+  border-radius: var(--stats-card-progress-radius);
+  background: var(--stats-card-progress-background);
   overflow: hidden;
 }
 
 .ProgressBar {
   height: 100%;
   border-radius: inherit;
-  background: var(--stat-card-progress-fill);
+  background: var(--stats-card-progress-fill);
 }
 
 .ProgressLabel {
-  color: var(--stat-card-label-color);
-  font-size: var(--stat-card-description-font-size);
+  color: var(--stats-card-label-color);
+  font-size: var(--stats-card-description-font-size);
   font-weight: var(--font-weight-medium);
   line-height: var(--font-text-sm-line-height);
   font-variant-numeric: tabular-nums;

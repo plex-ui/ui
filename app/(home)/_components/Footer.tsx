@@ -50,7 +50,7 @@ const componentLinks: FooterLink[] = [
   { label: 'Skeleton', href: '/components/skeleton' },
   { label: 'Slider', href: '/components/slider' },
   { label: 'Sortable', href: '/components/sortable' },
-  { label: 'Stat Card', href: '/components/stat-card' },
+  { label: 'Stats Card', href: '/components/stats-card' },
   { label: 'Switch', href: '/components/switch' },
   { label: 'Table', href: '/components/table' },
   { label: 'Tag Input', href: '/components/tag-input' },

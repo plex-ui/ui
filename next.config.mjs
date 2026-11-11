@@ -115,6 +115,23 @@ const config = {
         destination: '/r/vue/segmented-control.json',
         permanent: true,
       },
+      // Stat Card is now Stats Card, the name of the metric cards it follows
+      // (owner 11.11); the component keeps StatCard as an alias.
+      {
+        source: '/components/stat-card',
+        destination: '/components/stats-card',
+        permanent: true,
+      },
+      {
+        source: '/vue/components/stat-card',
+        destination: '/vue/components/stats-card',
+        permanent: true,
+      },
+      {
+        source: '/r/vue/stat-card.json',
+        destination: '/r/vue/stats-card.json',
+        permanent: true,
+      },
       // /docs/components/* and /docs/icons/* moved out of /docs to be
       // top-level peers of /docs and /blog (matches the top-nav
       // structure where Components / Icons are siblings of Docs).

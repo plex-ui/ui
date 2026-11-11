@@ -3,22 +3,22 @@ import { Badge } from "../Badge/index.js"
 import { InfoCircle, Trending } from "../Icon/index.js"
 import { Tooltip } from "../Tooltip/index.js"
 import { hasContent } from "../../lib/slotContent.js"
-import s from "@plexui/styles/components/StatCard/StatCard.module.css"
+import s from "@plexui/styles/components/StatsCard/StatsCard.module.css"
 
-// Vue port of packages/ui/src/components/StatCard/StatCard.tsx. Props,
+// Vue port of packages/ui/src/components/StatsCard/StatsCard.tsx. Props,
 // defaults and rendered DOM match React (checked by the parity tests).
 // ReactNode props are slots: `value` (also a prop, for plain values),
 // `icon` and `sparkline`. React spreads the remaining props after its own
 // attributes, so caller attributes win; Vue's fallthrough does the same.
 
-export type StatCardTrend = {
+export type StatsCardTrend = {
   /** The percentage change value (e.g. 12.5 for +12.5%) */
   value: number
   /** Optional label for the trend (e.g. "vs last month") */
   label?: string
 }
 
-export type StatCardAccentColor =
+export type StatsCardAccentColor =
   | "primary"
   | "secondary"
   | "info"
@@ -28,8 +28,8 @@ export type StatCardAccentColor =
   | "discovery"
   | "caution"
 
-const StatCardComponent = defineComponent({
-  name: "StatCard",
+const StatsCardComponent = defineComponent({
+  name: "StatsCard",
   props: {
     /** Label describing the metric */
     label: { type: String, required: true },
@@ -38,7 +38,7 @@ const StatCardComponent = defineComponent({
     /** Optional description or subtitle below the value */
     description: String,
     /** Trend indicator with percentage change */
-    trend: Object as PropType<StatCardTrend>,
+    trend: Object as PropType<StatsCardTrend>,
     /** When true, a positive trend is bad (red) and negative is good (green). Use for metrics like "Error Rate" or "Avg Completion Time". */
     invertTrend: { type: Boolean, default: undefined },
     /** Progress value from 0 to 100. Shows a progress bar at the bottom. */
@@ -56,7 +56,7 @@ const StatCardComponent = defineComponent({
     /** Visual variant of the card. @default "default" */
     variant: { type: String as PropType<"default" | "accent">, default: "default" },
     /** Color of the accent variant's bar. @default "primary" */
-    accentColor: { type: String as PropType<StatCardAccentColor>, default: "primary" },
+    accentColor: { type: String as PropType<StatsCardAccentColor>, default: "primary" },
   },
   setup(props, { slots }) {
     return () => {
@@ -165,7 +165,7 @@ const StatCardComponent = defineComponent({
       return h(
         "div",
         {
-          "class": s.StatCard,
+          "class": s.StatsCard,
           "data-variant": props.variant,
           "data-size": props.size,
           "data-accent-color": props.accentColor,
@@ -176,9 +176,9 @@ const StatCardComponent = defineComponent({
   },
 })
 
-type StatCardOwnProps = InstanceType<typeof StatCardComponent>["$props"]
+type StatsCardOwnProps = InstanceType<typeof StatsCardComponent>["$props"]
 
-/** StatCard props plus the native <div> attributes that fall through to it, as in React. */
-export type StatCardProps = StatCardOwnProps & Omit<HTMLAttributes, keyof StatCardOwnProps>
+/** StatsCard props plus the native <div> attributes that fall through to it, as in React. */
+export type StatsCardProps = StatsCardOwnProps & Omit<HTMLAttributes, keyof StatsCardOwnProps>
 
-export const StatCard = StatCardComponent as typeof StatCardComponent & { new (): { $props: StatCardProps } }
+export const StatsCard = StatsCardComponent as typeof StatsCardComponent & { new (): { $props: StatsCardProps } }

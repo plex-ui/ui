@@ -5,14 +5,16 @@ import { createElement, type ReactElement } from "react"
 import { describe, expect, test, vi } from "vitest"
 import { createTextVNode, Fragment, h, type VNode } from "vue"
 import { DollarCircle as RDollarCircle } from "../../packages/ui/src/components/Icon"
-import { StatCard as RStatCard } from "../../packages/ui/src/components/StatCard"
+import { StatsCard as RStatsCard } from "../../packages/ui/src/components/StatsCard"
 import { DollarCircle } from "../../packages/vue/src/components/Icon"
+import { StatsCard } from "../../packages/vue/src/components/StatsCard"
+import { StatCard as RStatCard } from "../../packages/ui/src/components/StatCard"
 import { StatCard } from "../../packages/vue/src/components/StatCard"
 import { flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
 import { renderPair } from "./pair"
 
-// React-vs-Vue parity for StatCard. ReactNode props are slots in Vue:
+// React-vs-Vue parity for StatsCard. ReactNode props are slots in Vue:
 // `icon`, `sparkline` and `value` (also a prop for plain values).
 
 type Props = Record<string, unknown>
@@ -58,10 +60,16 @@ const cases: [string, Props][] = [
   ["caller attributes win", { ...BASE, "data-variant": "custom" }],
 ]
 
-describe("StatCard markup parity", () => {
+// StatCard was renamed StatsCard (owner 11.11): the old import path keeps the same component
+test("the old StatCard name and import path give StatsCard", () => {
+  expect(RStatCard).toBe(RStatsCard)
+  expect(StatCard).toBe(StatsCard)
+})
+
+describe("StatsCard markup parity", () => {
   test.each(cases)("%s", async (_name, props) => {
-    const { react, vue } = await renderPair(createElement(RStatCard as never, props), () =>
-      h(StatCard as never, toVue(props)),
+    const { react, vue } = await renderPair(createElement(RStatsCard as never, props), () =>
+      h(StatsCard as never, toVue(props)),
     )
     expect(vue).toBe(react)
   })
@@ -69,8 +77,8 @@ describe("StatCard markup parity", () => {
   test("icon slot switches to the icon layout", async () => {
     for (const size of ["default", "sm"]) {
       const props = { ...BASE, size, trend: { value: 12.5 }, tooltip: "Tip", progress: 50 }
-      const { react, vue } = await renderPair(<RStatCard {...(props as never)} icon={<RDollarCircle />} />, () =>
-        h(StatCard as never, props, { icon: () => h(DollarCircle) }),
+      const { react, vue } = await renderPair(<RStatsCard {...(props as never)} icon={<RDollarCircle />} />, () =>
+        h(StatsCard as never, props, { icon: () => h(DollarCircle) }),
       )
       expect(vue).toBe(react)
       expect(react).toContain('class="IconWrapper"')
@@ -79,7 +87,7 @@ describe("StatCard markup parity", () => {
 
   test("value and sparkline slots take rich content", async () => {
     const { react, vue } = await renderPair(
-      <RStatCard
+      <RStatsCard
         label="Latency"
         value={
           <>
@@ -90,7 +98,7 @@ describe("StatCard markup parity", () => {
       />,
       () =>
         h(
-          StatCard,
+          StatsCard,
           { label: "Latency" },
           {
             value: () => ["234", h("small", null, "ms")],
@@ -107,8 +115,8 @@ describe("StatCard markup parity", () => {
     ["an empty string", () => ""],
     ["an empty text vnode in a fragment", () => [h(Fragment, null, [createTextVNode("")])]],
   ])("icon and sparkline slots rendering %s render like React's \"\"", async (_name, slot) => {
-    const { react, vue } = await renderPair(<RStatCard {...BASE} icon="" sparkline="" />, () =>
-      h(StatCard, BASE, { icon: slot, sparkline: slot }),
+    const { react, vue } = await renderPair(<RStatsCard {...BASE} icon="" sparkline="" />, () =>
+      h(StatsCard, BASE, { icon: slot, sparkline: slot }),
     )
     expect(vue).toBe(react)
     expect(react).not.toContain("IconWrapper")
@@ -116,8 +124,8 @@ describe("StatCard markup parity", () => {
   })
 
   test("empty slots render like absent ReactNodes", async () => {
-    const { react, vue } = await renderPair(<RStatCard {...BASE} icon={null} sparkline={false} />, () =>
-      h(StatCard, BASE, { icon: () => [], sparkline: () => [] }),
+    const { react, vue } = await renderPair(<RStatsCard {...BASE} icon={null} sparkline={false} />, () =>
+      h(StatsCard, BASE, { icon: () => [], sparkline: () => [] }),
     )
     expect(vue).toBe(react)
     expect(react).not.toContain("IconWrapper")
@@ -146,7 +154,7 @@ const settle = async () => {
   for (let i = 0; i < 100; i++) await Promise.resolve()
 }
 
-describe("StatCard tooltip parity", () => {
+describe("StatsCard tooltip parity", () => {
   test("hovering the info icon opens the tooltip after its delay; leaving closes it", async () => {
     const props = { ...BASE, tooltip: "Sum of all revenue streams", size: "sm" }
     const results: string[][] = []
@@ -174,11 +182,11 @@ describe("StatCard tooltip parity", () => {
       }
       for (const mount of [
         async () => {
-          await act(async () => void render(createElement(RStatCard as never, props) as ReactElement))
+          await act(async () => void render(createElement(RStatsCard as never, props) as ReactElement))
           return () => cleanup()
         },
         async () => {
-          const { unmount } = mountVue(() => h(StatCard as never, props) as VNode)
+          const { unmount } = mountVue(() => h(StatsCard as never, props) as VNode)
           await flushVue()
           return unmount
         },
@@ -205,8 +213,8 @@ describe("StatCard tooltip parity", () => {
 // tile stretched to a narrow bar, and a description beside the trend ran over the value. Then (owner 11.11: "не
 // красиво", "две зеленые полоски?", "иконка в квадрате?") the card took the layout of shadcn's metric cards: the icon
 // a small tile at the end of the header, the trend and its label one line under the value, the accent one bar.
-describe("StatCard layout", () => {
-  const css = postcss.parse(readFileSync("packages/styles/src/components/StatCard/StatCard.module.css", "utf8"))
+describe("StatsCard layout", () => {
+  const css = postcss.parse(readFileSync("packages/styles/src/components/StatsCard/StatsCard.module.css", "utf8"))
   const declarations = (selector: string) => {
     const found: Record<string, string> = {}
     css.walkRules((rule) => {
@@ -217,7 +225,7 @@ describe("StatCard layout", () => {
   }
 
   test("the icon's tile is the square its token sizes, as tall as the label and the value", () => {
-    expect(declarations(".IconWrapper")).toMatchObject({ width: "var(--stat-card-icon-wrapper-size)", height: "var(--stat-card-icon-wrapper-size)" })
+    expect(declarations(".IconWrapper")).toMatchObject({ width: "var(--stats-card-icon-wrapper-size)", height: "var(--stats-card-icon-wrapper-size)" })
     expect(declarations(".IconWrapper")).not.toHaveProperty("align-self")
     expect(declarations(".IconWrapper")).not.toHaveProperty("aspect-ratio")
   })
@@ -229,12 +237,12 @@ describe("StatCard layout", () => {
   test("the accent is a bar inside the card, not a border bent along its corners, and the progress keeps its fill", () => {
     const accent = css.toString().slice(css.toString().indexOf('&:where([data-variant="accent"])'))
     expect(accent).not.toMatch(/border-inline-start/)
-    expect(accent).toMatch(/&::before \{[^}]*width: var\(--stat-card-accent-width\)/)
-    expect(accent.slice(0, accent.indexOf("&::before"))).not.toMatch(/--stat-card-progress-fill/)
+    expect(accent).toMatch(/&::before \{[^}]*width: var\(--stats-card-accent-width\)/)
+    expect(accent.slice(0, accent.indexOf("&::before"))).not.toMatch(/--stats-card-progress-fill/)
   })
 
   test("the icon stands at the end of the header, and the trend with its label on a line under the value", () => {
-    const view = render(<RStatCard {...BASE} icon={<RDollarCircle />} trend={{ value: -3.2, label: "vs last month" }} />)
+    const view = render(<RStatsCard {...BASE} icon={<RDollarCircle />} trend={{ value: -3.2, label: "vs last month" }} />)
     const card = view.container.firstElementChild as HTMLElement
     const [header, valueRow, trendRow] = [...card.children] as HTMLElement[]
     expect(header.lastElementChild?.firstElementChild?.querySelector("svg")).not.toBeNull()

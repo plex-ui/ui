@@ -7,6 +7,14 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Changed
+
+- `StatCard` is now `StatsCard` (React and Vue), the name of the metric cards it follows, and its page is [Stats Card](/components/stats-card); the old page redirects there. `StatCard`, `StatCardProps` and the import path `components/StatCard` still work as deprecated aliases (Vue also keeps `StatCardTrend` and `StatCardAccentColor`). The component tokens `--stat-card-*` are now `--stats-card-*`: an override of a token needs the new name. The CSS module moved to `@plexui/styles/components/StatsCard/StatsCard.module.css`, and the Vue component's `name` is `"StatsCard"`.
+
+---
+
 ## 0.42.0 (2026-11-09)
 
 ### Changed
@@ -1696,7 +1704,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 <ul className="changelog-list">
   <li>
-    <strong>StatCard component</strong> (<a href="/components/stat-card">Stat Card</a>)<br/>
+    <strong>StatCard component</strong> (<a href="/components/stats-card">Stats Card</a>)<br/>
     New dashboard statistics card with 7 configurable features: <code>size</code> (sm/md/lg), <code>tooltip</code>, <code>trendPosition</code> (label/value), <code>trendVariant</code> (positive/negative/neutral), <code>icon</code> with accent colors, and <code>invertTrend</code>. Supports 8 accent color schemes. Icon layout uses <code>align-self: stretch; aspect-ratio: 1</code> for equal padding. Includes 5 interactive demo components with live controls.
   </li>
   <li>

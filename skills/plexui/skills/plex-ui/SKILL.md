@@ -132,7 +132,7 @@ Import each component from its folder: `import { X } from "@plexui/ui/components
 | `Progress` | `value` (omit for indeterminate), `max` | Progress bar |
 | `Skeleton` | `circle` + div props (size it with `className`) | Loading placeholder |
 | `EmptyMessage` | `fill`; parts `.Icon`, `.Title`, `.Description`, `.ActionRow` | Empty state component |
-| `StatCard` | `label`, `value`, `trend`, `description` | Statistics display card |
+| `StatsCard` | `label`, `value`, `trend`, `description` | Statistics display card |
 | `ShimmerText` | `children`, `as` (`ShimmerableText` adds `shimmer`) | Animated shimmer text effect |
 | `Card` | `variant`, `size`, `interactive`; parts `.Header`, `.Title`, `.Description`, `.Content`, `.Footer`, `.Action` | Content container |
 | `Table` | `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell` (named exports) | Static table parts |

@@ -10,7 +10,7 @@ import { Input } from '@plexui/ui/components/Input';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Select } from '@plexui/ui/components/Select';
 import { Sortable, type SortableMove } from '@plexui/ui/components/Sortable';
-import { StatCard } from '@plexui/ui/components/StatCard';
+import { StatsCard } from '@plexui/ui/components/StatsCard';
 import { Switch } from '@plexui/ui/components/Switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@plexui/ui/components/Table';
 import { Textarea } from '@plexui/ui/components/Textarea';
@@ -253,7 +253,7 @@ export function SortableCardsDemo() {
       <Sortable value={cards} onChange={setCards} layout="grid" className="grid w-[480px] max-w-full grid-cols-2 gap-3">
         {cards.map((card) => (
           <div key={card.label} tabIndex={0} className="rounded-xl">
-            <StatCard label={card.label} value={card.value} />
+            <StatsCard label={card.label} value={card.value} />
           </div>
         ))}
       </Sortable>

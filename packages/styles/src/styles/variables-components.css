@@ -1157,50 +1157,50 @@
     --sidebar-card-active-scale: 0.98;
 
     /* =============================================
-      StatCard
+      StatsCard
     ============================================= */
-    --stat-card-padding: spacing(5);
-    --stat-card-radius: var(--radius-xl);
+    --stats-card-padding: spacing(5);
+    --stats-card-radius: var(--radius-xl);
     /* spacing is per-section: 12px label→value, 4px value→trend row→description, 16px → progress */
-    --stat-card-background: var(--color-surface);
-    --stat-card-border-color: var(--color-border);
-    --stat-card-label-font-size: var(--font-text-sm-size);
-    --stat-card-label-color: var(--color-text-secondary);
-    --stat-card-value-font-size: var(--font-heading-xl-size);
-    --stat-card-value-font-weight: var(--font-weight-semibold);
-    --stat-card-value-color: var(--color-text);
-    --stat-card-description-font-size: var(--font-text-sm-size);
-    --stat-card-description-color: var(--color-text-tertiary);
-    --stat-card-trend-font-size: var(--font-text-sm-size);
-    --stat-card-trend-font-weight: var(--font-weight-semibold);
-    --stat-card-trend-positive-color: var(--color-text-success-soft);
-    --stat-card-trend-negative-color: var(--color-text-danger-soft);
-    --stat-card-trend-neutral-color: var(--color-text-tertiary);
-    --stat-card-progress-height: 4px;
-    --stat-card-progress-radius: var(--radius-full);
-    --stat-card-progress-background: light-dark(var(--alpha-08), var(--alpha-12));
-    --stat-card-progress-fill: var(--color-background-primary-solid);
-    --stat-card-icon-size: 16px;
-    --stat-card-icon-color: var(--color-text-primary);
+    --stats-card-background: var(--color-surface);
+    --stats-card-border-color: var(--color-border);
+    --stats-card-label-font-size: var(--font-text-sm-size);
+    --stats-card-label-color: var(--color-text-secondary);
+    --stats-card-value-font-size: var(--font-heading-xl-size);
+    --stats-card-value-font-weight: var(--font-weight-semibold);
+    --stats-card-value-color: var(--color-text);
+    --stats-card-description-font-size: var(--font-text-sm-size);
+    --stats-card-description-color: var(--color-text-tertiary);
+    --stats-card-trend-font-size: var(--font-text-sm-size);
+    --stats-card-trend-font-weight: var(--font-weight-semibold);
+    --stats-card-trend-positive-color: var(--color-text-success-soft);
+    --stats-card-trend-negative-color: var(--color-text-danger-soft);
+    --stats-card-trend-neutral-color: var(--color-text-tertiary);
+    --stats-card-progress-height: 4px;
+    --stats-card-progress-radius: var(--radius-full);
+    --stats-card-progress-background: light-dark(var(--alpha-08), var(--alpha-12));
+    --stats-card-progress-fill: var(--color-background-primary-solid);
+    --stats-card-icon-size: 16px;
+    --stats-card-icon-color: var(--color-text-primary);
     /* A small tile at the end of the header (shadcn's metric card with an icon: p-2 around a 16 icon) */
-    --stat-card-icon-wrapper-size: 32px;
-    --stat-card-icon-wrapper-radius: var(--radius-md);
-    --stat-card-icon-wrapper-background: var(--color-background-primary-soft-alpha);
-    --stat-card-accent-width: 4px;
-    --stat-card-info-icon-size: 16px;
+    --stats-card-icon-wrapper-size: 32px;
+    --stats-card-icon-wrapper-radius: var(--radius-md);
+    --stats-card-icon-wrapper-background: var(--color-background-primary-soft-alpha);
+    --stats-card-accent-width: 4px;
+    --stats-card-info-icon-size: 16px;
 
     /* sm size overrides */
-    --stat-card-sm-padding-block: spacing(3);
-    --stat-card-sm-padding-inline: spacing(4);
-    --stat-card-sm-label-font-size: var(--font-text-xs-size);
-    --stat-card-sm-value-font-size: var(--font-heading-md-size);
-    --stat-card-sm-trend-font-size: var(--font-text-xs-size);
-    --stat-card-sm-description-font-size: var(--font-text-xs-size);
-    --stat-card-sm-icon-size: 14px;
+    --stats-card-sm-padding-block: spacing(3);
+    --stats-card-sm-padding-inline: spacing(4);
+    --stats-card-sm-label-font-size: var(--font-text-xs-size);
+    --stats-card-sm-value-font-size: var(--font-heading-md-size);
+    --stats-card-sm-trend-font-size: var(--font-text-xs-size);
+    --stats-card-sm-description-font-size: var(--font-text-xs-size);
+    --stats-card-sm-icon-size: 14px;
     /* 7 around a 14 icon */
-    --stat-card-sm-icon-wrapper-size: 28px;
-    --stat-card-sm-icon-wrapper-radius: var(--radius-sm);
-    --stat-card-sm-info-icon-size: 14px;
+    --stats-card-sm-icon-wrapper-size: 28px;
+    --stats-card-sm-icon-wrapper-radius: var(--radius-sm);
+    --stats-card-sm-info-icon-size: 14px;
 
     /* =============================================
       Table

@@ -7639,12 +7639,12 @@ The grid layout also fits a line that wraps: the end of one line and the start o
 ```
 
 ### Cards
-Any element can be an item, such as a StatCard.
+Any element can be an item, such as a StatsCard.
 ```tsx
 <Sortable value={cards} onChange={setCards} layout="grid" className="grid grid-cols-2 gap-3">
 {cards.map((card) => (
   <div key={card.label} tabIndex={0} className="rounded-xl">
-    <StatCard label={card.label} value={card.value} />
+    <StatsCard label={card.label} value={card.value} />
   </div>
 ))}
 </Sortable>
@@ -7669,10 +7669,10 @@ setLists((current) => {
 ))}
 ```
 
-## Stat Card
-Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.
-Import: import { StatCard } from "@plexui/ui/components/StatCard"
-Docs: https://plexui.com/components/stat-card
+## Stats Card
+Stats card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.
+Import: import { StatsCard } from "@plexui/ui/components/StatsCard"
+Docs: https://plexui.com/components/stats-card
 Props:
   - label (string) — Required. Label describing the metric
   - value (ReactNode) — Required. The primary metric value
@@ -7692,7 +7692,7 @@ Props:
   - className (string) — Extra classes on the card element
 
 ### Overview
-Dashboard-ready stat cards with trends, icons, and progress bars. Use size="sm" for compact analytics rows with denser spacing and smaller typography; it pairs well with tooltip, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (trendPosition), as plain text or in a badge (trendVariant). Use invertTrend for metrics where a rise is bad, such as error rate or response time. An icon stands in a small soft tile at the end of the header, and progress draws a bar of completion or usage across the card. The accent variant adds a colored bar before the content in one of eight semantic colors (accentColor).
+Dashboard-ready stats cards with trends, icons, and progress bars. Use size="sm" for compact analytics rows with denser spacing and smaller typography; it pairs well with tooltip, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (trendPosition), as plain text or in a badge (trendVariant). Use invertTrend for metrics where a rise is bad, such as error rate or response time. An icon stands in a small soft tile at the end of the header, and progress draws a bar of completion or usage across the card. The accent variant adds a colored bar before the content in one of eight semantic colors (accentColor).
 ```tsx
 import { DollarCircle } from "@plexui/ui/components/Icon"
 
@@ -7707,7 +7707,7 @@ const [showTooltip, setShowTooltip] = useState(false)
 const [showIcon, setShowIcon] = useState(false)
 const [showProgress, setShowProgress] = useState(false)
 
-<StatCard
+<StatsCard
 label="Total Revenue"
 value="$45,231"
 size={size}

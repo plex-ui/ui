@@ -469,7 +469,7 @@ Exports: `Animate`, `AnimateLayout`, `AnimateLayoutGroup`, `TransitionGroup`, `S
 | Progress | `@plexui/ui/components/Progress` | `value` (omit for indeterminate), `max` (100) |
 | SelectControl | `@plexui/ui/components/SelectControl` | Select trigger shell for custom dropdowns: `variant`, `size`, `selected`, `onClearClick`, `StartIcon`, `children` |
 | ShimmerText | `@plexui/ui/components/ShimmerText` | `children`, `as`; `ShimmerableText` adds `shimmer` |
-| StatCard | `@plexui/ui/components/StatCard` | `label`, `value`, `description`, `trend` (`{ value, label? }`), `icon` |
+| StatsCard | `@plexui/ui/components/StatsCard` | `label`, `value`, `description`, `trend` (`{ value, label? }`), `icon` |
 | Card | `@plexui/ui/components/Card` | `variant` ("outline" \| "solid" \| "ghost"), `size`, `interactive`, `href`; sub: `.Header`, `.Title`, `.Description`, `.Content`, `.Footer`, `.Action` |
 | Accordion | `@plexui/ui/components/Accordion` | Radix Accordion props (`type`, `collapsible`); sub: `.Item`, `.Trigger`, `.Content` |
 | ButtonGroup | `@plexui/ui/components/ButtonGroup` | `orientation`; sub: `.Separator`, `.Text` |

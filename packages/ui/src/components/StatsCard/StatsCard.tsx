@@ -5,9 +5,9 @@ import { type ReactNode, type Ref } from "react"
 import { Badge } from "../Badge"
 import { InfoCircle, Trending } from "../Icon"
 import { Tooltip } from "../Tooltip"
-import s from "@plexui/styles/components/StatCard/StatCard.module.css"
+import s from "@plexui/styles/components/StatsCard/StatsCard.module.css"
 
-export type StatCardProps = {
+export type StatsCardProps = {
   /** Label describing the metric */
   label: string
   /** The primary metric value (e.g. "1,234" or "$50K") */
@@ -70,7 +70,7 @@ export type StatCardProps = {
   ref?: Ref<HTMLDivElement>
 }
 
-export const StatCard = ({
+export const StatsCard = ({
   label,
   value,
   description,
@@ -89,7 +89,7 @@ export const StatCard = ({
   className,
   ref,
   ...restProps
-}: StatCardProps) => {
+}: StatsCardProps) => {
   const trendValue = trend?.value ?? 0
   const trendClassName =
     trendValue === 0
@@ -199,7 +199,7 @@ export const StatCard = ({
   return (
     <div
       ref={ref}
-      className={clsx(s.StatCard, className)}
+      className={clsx(s.StatsCard, className)}
       data-variant={variant}
       data-size={size}
       data-accent-color={accentColor}

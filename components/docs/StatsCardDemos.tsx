@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { StatCard } from '@plexui/ui/components/StatCard';
+import { StatsCard } from '@plexui/ui/components/StatsCard';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DollarCircle } from '@plexui/ui/components/Icon';
 import { DemoControlBoolean, DemoControlRow, DemoControlSelect, controlsTableStyle } from './ButtonDemos';
@@ -12,9 +12,9 @@ const TREND_VARIANTS = ['text', 'badge'] as const;
 const VARIANTS = ['default', 'accent'] as const;
 const ACCENT_COLORS = ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning'] as const;
 
-/** The Overview of Stat Card: what the page's examples once showed one by one (sizes, trend position and variant,
+/** The Overview of Stats Card: what the page's examples once showed one by one (sizes, trend position and variant,
  * tooltip, icon, progress, accent border, inverted trend) are its settings (owner 11.11). */
-export function StatCardOverviewDemo() {
+export function StatsCardOverviewDemo() {
   const [size, setSize] = useState<(typeof SIZES)[number]>('default');
   const [variant, setVariant] = useState<(typeof VARIANTS)[number]>('default');
   const [accentColor, setAccentColor] = useState<(typeof ACCENT_COLORS)[number]>('primary');
@@ -57,7 +57,7 @@ export function StatCardOverviewDemo() {
       </div>
       <div data-demo-stage className="py-10 px-6">
         <div style={{ maxWidth: 320, width: '100%' }} className="mx-auto">
-          <StatCard
+          <StatsCard
             label="Total Revenue"
             value="$45,231"
             size={size}

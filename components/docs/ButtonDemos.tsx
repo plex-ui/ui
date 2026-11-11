@@ -140,7 +140,7 @@ export function Segments<T extends string>({ name, options, value, onChange, pho
 }
 
 /** A control of more options than a row of segments shows whole (eight colors), as a menu: a row of segments that
- * runs past the panel hides its last options and does not show it scrolls (owner 11.11, the Stat Card's accentColor).
+ * runs past the panel hides its last options and does not show it scrolls (owner 11.11, the Stats Card's accentColor).
  * Storybook's controls make the same cut, radio buttons for an enum of up to five options and a select above. */
 export function DemoControlSelect<T extends string>({ name, label, options, value, onChange, phoneOnly = false, desktopOnly = false, syncValue }: {
   name: string;
