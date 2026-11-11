@@ -7,91 +7,72 @@ metaDescription: Vue 3 stepper component for multi-step flows like checkouts and
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
 export const steps = [
-  { title: "Your details", description: "Please provide your name and email" },
-  { title: "Company details", description: "A few details about your company" },
-  { title: "Invite your team", description: "Start collaborating with your team" },
-  { title: "Add your socials", description: "Share posts to your social accounts" },
+  { title: "Your details", description: "Please provide your name and email", icon: "Email" },
+  { title: "Company details", description: "A few details about your company", icon: "Globe" },
+  { title: "Invite your team", description: "Start collaborating with your team", icon: "Users" },
+  { title: "Add your socials", description: "Share posts to your social accounts", icon: "Bolt" },
 ]
 
-export const overview = `<ProgressSteps
-  :current="Number(current)"
+export const overview = `<ProgressSteps v-if="variant === 'minimal'" variant="minimal" :current="current" :total="steps.length" :size="size" :color="color" />
+<ProgressSteps
+  v-else
+  :current="current"
   :orientation="orientation"
   :size="size"
   :color="color"
   :connector-style="connectorStyle"
   class="w-full"
 >
-  <ProgressStepsStep>
-    <ProgressStepsTitle>Your details</ProgressStepsTitle>
-    <ProgressStepsDescription>Please provide your name and email</ProgressStepsDescription>
-  </ProgressStepsStep>
-  <ProgressStepsStep>
-    <ProgressStepsTitle>Company details</ProgressStepsTitle>
-    <ProgressStepsDescription>A few details about your company</ProgressStepsDescription>
-  </ProgressStepsStep>
-  <ProgressStepsStep>
-    <ProgressStepsTitle>Invite your team</ProgressStepsTitle>
-    <ProgressStepsDescription>Start collaborating with your team</ProgressStepsDescription>
-  </ProgressStepsStep>
-  <ProgressStepsStep>
-    <ProgressStepsTitle>Add your socials</ProgressStepsTitle>
-    <ProgressStepsDescription>Share posts to your social accounts</ProgressStepsDescription>
+  <ProgressStepsStep v-for="step in steps" :key="step.title">
+    <template v-if="icons" #icon><component :is="step.icon" /></template>
+    <ProgressStepsTitle :visually-hidden="text === 'none'">{{ step.title }}</ProgressStepsTitle>
+    <ProgressStepsDescription v-if="text === 'full'">{{ step.description }}</ProgressStepsDescription>
   </ProgressStepsStep>
 </ProgressSteps>`
 
-export const sizes = `<ProgressSteps :current="Number(current)" :size="size" class="w-full">
-  <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>
-  <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>
-  <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>
-  <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>
-</ProgressSteps>`
+export const overviewCode = `<script setup>
+import { ref } from "vue"
+import { Bolt, Email, Globe, Users } from "@plexui/vue/components/Icon"
+import { ProgressSteps, ProgressStepsStep, ProgressStepsTitle, ProgressStepsDescription } from "@plexui/vue/components/ProgressSteps"
+import { useBreakpoint } from "@plexui/vue/composables/useBreakpoints"
 
-export const vertical = `<div class="flex flex-wrap justify-center gap-20">
-  <div>
-    <div class="mb-4 text-tertiary text-sm">Default</div>
-    <ProgressSteps :current="2" orientation="vertical">
-      <ProgressStepsStep v-for="step in steps" :key="step.title">
-        <ProgressStepsTitle>{{ step.title }}</ProgressStepsTitle>
-        <ProgressStepsDescription>{{ step.description }}</ProgressStepsDescription>
-      </ProgressStepsStep>
-    </ProgressSteps>
-  </div>
-  <div>
-    <div class="mb-4 text-tertiary text-sm">With dashed connector</div>
-    <ProgressSteps :current="3" orientation="vertical" connector-style="dashed">
-      <ProgressStepsStep v-for="step in steps" :key="step.title">
-        <ProgressStepsTitle>{{ step.title }}</ProgressStepsTitle>
-        <ProgressStepsDescription>{{ step.description }}</ProgressStepsDescription>
-      </ProgressStepsStep>
-    </ProgressSteps>
-  </div>
-</div>`
+const variant = ref("default")
+const current = ref(2)
+const orientation = ref("horizontal")
+const size = ref("md") // the minimal bar: "md" or "lg"
+const color = ref("default")
+const connectorStyle = ref("solid") // dashes the connectors ahead of current
+const icons = ref(false)
+const text = ref("full") // "full", "title" or "none"
 
-export const withIcons = `<ProgressSteps :current="3" class="w-full">
-  <ProgressStepsStep>
-    <template #icon><Email /></template>
-    <ProgressStepsTitle>Your details</ProgressStepsTitle>
-    <ProgressStepsDescription>Please provide your name and email</ProgressStepsDescription>
-  </ProgressStepsStep>
-  <ProgressStepsStep>
-    <template #icon><Globe /></template>
-    <ProgressStepsTitle>Company details</ProgressStepsTitle>
-    <ProgressStepsDescription>Website and location</ProgressStepsDescription>
-  </ProgressStepsStep>
-  <ProgressStepsStep>
-    <template #icon><Users /></template>
-    <ProgressStepsTitle>Invite your team</ProgressStepsTitle>
-    <ProgressStepsDescription>Start collaborating</ProgressStepsDescription>
-  </ProgressStepsStep>
-  <ProgressStepsStep>
-    <template #icon><Bolt /></template>
-    <ProgressStepsTitle>Get started</ProgressStepsTitle>
-    <ProgressStepsDescription>Ready to go</ProgressStepsDescription>
-  </ProgressStepsStep>
-</ProgressSteps>`
+// A phone shows the steps vertically: four columns cannot hold a description
+const wide = useBreakpoint("md")
 
-{/* The phone shows the steps vertically, where each description has room; the code shows the template above. */}
-export const withIconsDemo = withIcons.replace('<ProgressSteps :current="3"', '<ProgressSteps :current="3" :orientation="orientation"')
+const steps = [
+  { title: "Your details", description: "Please provide your name and email", icon: Email },
+  { title: "Company details", description: "A few details about your company", icon: Globe },
+  { title: "Invite your team", description: "Start collaborating with your team", icon: Users },
+  { title: "Add your socials", description: "Share posts to your social accounts", icon: Bolt },
+]
+</script>
+
+<template>
+${overview.replace(':orientation="orientation"', ":orientation=\"wide ? orientation : 'vertical'\"")}
+</template>`
+
+export const overviewControls = [
+  // The minimal bar has no orientation, connector, icons or text; a phone shows the steps vertically
+  { name: "variant", type: "select", options: ["default", "minimal"], default: "default" },
+  { name: "current", type: "range", min: 1, max: 4, step: 1, default: 2 },
+  { name: "orientation", desktopOnly: true, phoneDefault: "vertical", type: "select", options: ["horizontal", "vertical"], default: "horizontal", when: { variant: "default" } },
+  // The minimal bar draws sm as md
+  { name: "size", type: "select", options: [{ value: "sm", label: "sm", when: { variant: "default" } }, "md", "lg"], default: "md" },
+  { name: "color", type: "select", options: ["default", "success"], default: "default" },
+  // A dash draws the connectors ahead of the current step: at the last step every connector is solid
+  { name: "connectorStyle", type: "select", options: ["solid", "dashed"], default: "solid", when: { variant: "default", current: [1, 2, 3] } },
+  { name: "icons", type: "boolean", default: false, when: { variant: "default" } },
+  { name: "text", type: "select", options: ["full", "title", "none"], default: "full", when: { variant: "default" } },
+]
 
 export const withNavigation = `<div class="flex flex-col items-center gap-6">
   <ProgressSteps variant="minimal" :current="step" :total="4" />
@@ -109,36 +90,6 @@ export const withNavigation = `<div class="flex flex-col items-center gap-6">
   </div>
 </div>`
 
-export const minimal = `<ProgressSteps variant="minimal" :current="Number(current)" :total="4" :color="color" />`
-
-export const iconsOnly = `<ProgressSteps :current="2" class="w-full">
-  <ProgressStepsStep />
-  <ProgressStepsStep />
-  <ProgressStepsStep />
-  <ProgressStepsStep />
-</ProgressSteps>`
-
-export const colors = `<div class="flex flex-col gap-12 w-full">
-  <div>
-    <div class="mb-4 text-tertiary text-sm">Default</div>
-    <ProgressSteps :current="3" class="w-full">
-      <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>
-      <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>
-      <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>
-      <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>
-    </ProgressSteps>
-  </div>
-  <div>
-    <div class="mb-4 text-tertiary text-sm">Success</div>
-    <ProgressSteps :current="3" color="success" class="w-full">
-      <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>
-      <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>
-      <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>
-      <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>
-    </ProgressSteps>
-  </div>
-</div>`
-
 <UsageBlock>{`import {
   ProgressSteps,
   ProgressStepsStep,
@@ -148,87 +99,25 @@ export const colors = `<div class="flex flex-col gap-12 w-full">
 
 ## Examples
 
+{/* The examples Sizes, Vertical, With Icons, Minimal, Icons Only and Colors are settings of the Overview (owner
+    11.11: the first example shows everything with every setting); their anchors stay */}
+<span id="sizes" />
+<span id="vertical" />
+<span id="with-icons" />
+<span id="minimal" />
+<span id="icons-only" />
+<span id="colors" />
+
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
-  <VueDemo
-    template={overview}
-    stageClassName="py-8 px-4 w-full"
-    controls={[
-      { name: "current", type: "select", options: ["1", "2", "3", "4"], default: "2" },
-      { name: "orientation", desktopOnly: true, phoneDefault: "vertical", type: "select", options: ["horizontal", "vertical"], default: "horizontal" },
-      { name: "size", type: "select", options: ["sm", "md", "lg"], default: "md" },
-      { name: "color", type: "select", options: ["default", "success"], default: "default" },
-      { name: "connectorStyle", type: "select", options: ["solid", "dashed"], default: "solid" },
-    ]}
-  />
-</ComponentPreview>
-
-### Sizes
-
-<ComponentPreview language="vue" details={<>Use <code>size</code> to control the scale of step indicators.</>} code={sizes} previewMinHeight={168}>
-  <VueDemo
-    template={sizes}
-    stageClassName="py-8 px-4 w-full"
-    controls={[
-      { name: "current", type: "select", options: ["1", "2", "3", "4"], default: "2" },
-      { name: "size", type: "select", options: ["sm", "md", "lg"], default: "md" },
-    ]}
-  />
-</ComponentPreview>
-
-### Vertical
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>
-  <p>Use <code>orientation="vertical"</code> to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. <code>steps</code> is an array of <code>{"{ title, description }"}</code> objects.</p>
-  <p>On a phone the four columns of a horizontal row cannot hold a step's description, so the Overview and With Icons examples show the steps vertically there; Overview leaves out its orientation control. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen. The Overview already shows these vertical steps on a phone, with the dashed connector among its settings, so this example is desktop only.</p>
-</>} code={vertical} previewMinHeight={168}>
-  <div className="w-full h-full flex items-center justify-center py-6 px-4">
-    <VueDemo template={vertical} state={{ steps }} />
-  </div>
-</ComponentPreview>
-
-### With Icons
-
-<ComponentPreview language="vue" details={<>Use the <code>icon</code> slot (or the <code>icon</code> prop) on <code>ProgressStepsStep</code> to display custom icons instead of step numbers.</>} code={withIcons} previewMinHeight={168}>
-  <div className="py-6 px-4 w-full">
-    <VueDemo template={withIconsDemo} controls={[{ name: "orientation", desktopOnly: true, phoneDefault: "vertical", type: "select", options: ["horizontal", "vertical"], default: "horizontal" }]} hiddenControls={["orientation"]} />
-  </div>
+<ComponentPreview language="vue" details={<><code>current</code> is the active step, counted from 1: the steps before it are completed and show a check. <code>variant="minimal"</code> draws a compact bar of segments instead, one per step, and takes the count as <code>total</code>; it has no orientation, connector, icons or text, so those settings are for the default variant, and it draws <code>sm</code> as <code>md</code>, so it offers <code>md</code> and <code>lg</code>. <code>orientation="vertical"</code> stacks the steps, for a sidebar or a multi-step form. <code>size</code> sets the scale of the indicators, and <code>color</code> the color scheme of completed and active steps. <code>connector-style</code> draws the lines ahead of the current step solid or dashed; a completed line is solid, so at the last step the setting is not offered. The <code>icon</code> slot (or the <code>icon</code> prop) of a <code>ProgressStepsStep</code> shows a custom icon instead of its number. A step shows a <code>ProgressStepsTitle</code> and a <code>ProgressStepsDescription</code>; leave out the description, or show the indicators alone when the step's details are shown elsewhere. Keep the title then for screen readers with <code>visually-hidden</code>: an icon or a check has no name, and the step takes no room under its indicator.<br /><br />On a phone the four columns of a horizontal row cannot hold a step's description, so the steps stand vertically there and the phone has no <code>orientation</code> setting: <code>useBreakpoint("md")</code> tells which to use. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen.</>} code={overviewCode} previewMinHeight={168}>
+  <VueDemo template={overview} stageClassName="py-8 px-4 w-full flex justify-center" state={{ steps }} controls={overviewControls} />
 </ComponentPreview>
 
 ### With Navigation
 
 <ComponentPreview language="vue" details={<>Example of integrating with navigation controls.</>} code={withNavigation} previewMinHeight={168}>
   <VueDemo template={withNavigation} state={{ step: 1, steps }} />
-</ComponentPreview>
-
-### Minimal
-
-<ComponentPreview language="vue" details={<>Use <code>variant="minimal"</code> for a compact horizontal bar indicator. Requires <code>total</code> prop.</>} code={minimal} previewMinHeight={168}>
-  <VueDemo
-    template={minimal}
-    stageClassName="py-10 px-4 flex justify-center"
-    controls={[
-      { name: "current", type: "select", options: ["1", "2", "3", "4"], default: "3" },
-      { name: "color", type: "select", options: ["default", "success"], default: "default" },
-    ]}
-  />
-</ComponentPreview>
-
-### Icons Only
-
-<ComponentPreview language="vue" details={<>Omit <code>ProgressStepsTitle</code> and <code>ProgressStepsDescription</code> for a minimal indicator when step details are shown elsewhere.</>} code={iconsOnly} previewMinHeight={168}>
-  <div className="py-6 px-4 w-full">
-    <VueDemo template={iconsOnly} />
-  </div>
-</ComponentPreview>
-
-### Colors
-
-<ComponentPreview language="vue" details={<>Use <code>color</code> to change the color scheme of completed and active steps.</>} code={colors} previewMinHeight={168}>
-  <div className="py-6 px-4 w-full max-w-[900px]">
-    <VueDemo template={colors} />
-  </div>
 </ComponentPreview>
 
 ## API
@@ -253,6 +142,10 @@ export const colors = `<div class="flex flex-col gap-12 w-full">
 ]} />
 
 **ProgressStepsTitle**: Wrapper for step title text. Applies appropriate styling based on step state.
+
+<PropsTable data={[
+  { prop: "visually-hidden", type: "boolean", default: "false", description: "Hides the title from view and keeps it for screen readers, for steps that show their indicators alone; the step then takes no room under its indicator" },
+]} />
 
 **ProgressStepsDescription**: Wrapper for step description text. Applies appropriate styling based on step state.
 

@@ -212,9 +212,11 @@ export const SelectControl = ({
       data-selected={selected}
       data-loading={loading ? "" : undefined}
       data-invalid={invalid ? "" : undefined}
-      data-disabled={disabled ? "" : undefined}
       aria-disabled={disabled}
       {...restProps}
+      // A wrapping trigger (Menu.Trigger, Radix's Slot) passes its own data-disabled, undefined while it is enabled:
+      // the control's disabled state stays, and a disabled trigger still marks it
+      data-disabled={disabled ? "" : (restProps as { "data-disabled"?: string })["data-disabled"]}
       onClick={handleClick}
       onPointerCancel={(evt) => {
         mouseClickHandled.current = false

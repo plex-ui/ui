@@ -142,141 +142,128 @@ const SELECT_VARIANT_OPTIONS = ['outline', 'soft', 'ghost'] as const;
 const SELECT_SIZE_OPTIONS = ['sm', 'md', 'lg'] as const;
 const CHECK_POSITION_OPTIONS = ['start', 'end'] as const;
 
-export function SelectBaseDemo() {
-  const [variant, setVariant] = useState<(typeof SELECT_VARIANT_OPTIONS)[number]>('outline');
-  const [size, setSize] = useState<(typeof SELECT_SIZE_OPTIONS)[number]>('md');
-  const [clearable, setClearable] = useState(false);
-  const [checkPosition, setCheckPosition] = useState<(typeof CHECK_POSITION_OPTIONS)[number]>('start');
-  const [multiple, setMultiple] = useState(false);
+const OVERVIEW_SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
+const DROPDOWN_ICON_OPTIONS = ['dropdown', 'chevronDown', 'none'] as const;
+const OVERVIEW_CHECK_POSITION_OPTIONS = ['start', 'end', 'none'] as const;
+const SIDE_OPTIONS = ['bottom', 'top'] as const;
+// Only without block: a block list matches its trigger. `start` is the default there
+const ALIGN_OPTIONS = ['start', 'center', 'end'] as const;
+// `none`: no opticallyAlign, the trigger keeps its gutter. `end` only with block: a narrower trigger does not reach the
+// field's end, so the setting would move nothing
+const OPTICAL_ALIGN_OPTIONS = ['none', 'start', 'end'] as const;
 
-  const [singleFruit, setSingleFruit] = useState<string>('');
-  const [multiFruits, setMultiFruits] = useState<string[]>([]);
+/** `syncValue`: the value asked for, which the Phone view trades with the page when it shows another (`end` shows as
+ * `start` on a phone, where the checkmark leads every row) */
+function Segments<T extends string>({ name, options, value, onChange, desktopOnly = false, syncValue }: { name: string; options: readonly T[]; value: T; onChange: (value: T) => void; desktopOnly?: boolean; syncValue?: T }) {
+  return (
+    <DemoControlRow name={name} desktopOnly={desktopOnly} syncValue={syncValue}>
+      <SegmentedControl<T> value={value} onChange={onChange} aria-label={name} size="xs">
+        {options.map((option) => (
+          <SegmentedControl.Option key={option} value={option}>
+            {option}
+          </SegmentedControl.Option>
+        ))}
+      </SegmentedControl>
+    </DemoControlRow>
+  );
+}
+
+/** The Overview, with every setting of the select: Multiple selection, once an example of its own, is its `multiple`
+ * (owner 11.11: «в первом примере можно сразу показать все со всеми настройками»). The select is the Fruit field of
+ * a 290px form. A setting shows only where it acts: a block list matches its field, so `align` is offered only when
+ * the select is not block, and `opticallyAlign` offsets a ghost trigger by its gutter, `start` its text onto the label's
+ * edge and `end`, with block, its indicator onto the field's end, so it is offered only for `ghost`, where there is no
+ * frame to keep. On a phone the select is the value of a row, which sets its height, insets, type and
+ * colors, and its list opens over the value as an iOS pop-up menu with the checkmark leading, so variant, size, pill,
+ * block, the dropdown icon, side, align and optical alignment are desktop settings, and checkPosition is start or none; a clearable select unsets its value
+ * with the list's None row. */
+export function SelectOverviewDemo() {
   const phone = usePhoneRows();
-
+  const [fruit, setFruit] = useState('');
+  const [fruits, setFruits] = useState<string[]>([]);
+  const [variant, setVariant] = useState<(typeof SELECT_VARIANT_OPTIONS)[number]>('outline');
+  const [size, setSize] = useState<(typeof OVERVIEW_SIZE_OPTIONS)[number]>('md');
+  const [pill, setPill] = useState(false);
+  const [block, setBlock] = useState(true);
+  const [dropdownIconType, setDropdownIconType] = useState<(typeof DROPDOWN_ICON_OPTIONS)[number]>('dropdown');
+  const [checkPosition, setCheckPosition] = useState<(typeof OVERVIEW_CHECK_POSITION_OPTIONS)[number]>('start');
+  const [side, setSide] = useState<(typeof SIDE_OPTIONS)[number]>('bottom');
+  const [align, setAlign] = useState<(typeof ALIGN_OPTIONS)[number]>('start');
+  const [opticallyAlign, setOpticallyAlign] = useState<(typeof OPTICAL_ALIGN_OPTIONS)[number]>('none');
+  const [clearable, setClearable] = useState(false);
+  const [multiple, setMultiple] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  // A narrower trigger does not reach the field's end: without block `end` moves nothing, so it is not offered and
+  // shows as `none`; the choice comes back with block, as in the Vue demo
+  const opticalAlignOptions = block ? OPTICAL_ALIGN_OPTIONS : OPTICAL_ALIGN_OPTIONS.filter((option) => option !== 'end');
+  const shownOpticalAlign = !block && opticallyAlign === 'end' ? 'none' : opticallyAlign;
+  // On a phone the checkmark leads every row: `end` is `start` there, and `none` still leaves it out
+  const checkPositionOptions = phone ? OVERVIEW_CHECK_POSITION_OPTIONS.filter((option) => option !== 'end') : OVERVIEW_CHECK_POSITION_OPTIONS;
+  const shownCheckPosition = phone && checkPosition === 'end' ? 'start' : checkPosition;
+  const shared = { options: fruitsOptions, name: 'fruits', clearable, loading, disabled };
+  // The desktop field's own settings; a phone row sets its look and opens its list over the value
+  const look = phone
+    ? { placeholder: 'None', block: false, align: 'end' as const, checkPosition: shownCheckPosition }
+    : {
+      placeholder: multiple ? 'Select fruits...' : 'Select a fruit...',
+      variant,
+      size,
+      pill,
+      block,
+      dropdownIconType,
+      checkPosition,
+      side,
+      align: block ? undefined : align,
+      // Wider than the trigger, so align places the list against it; a block list takes the trigger's width
+      listMinWidth: block ? undefined : 240,
+      opticallyAlign: variant === 'ghost' && shownOpticalAlign !== 'none' ? shownOpticalAlign : undefined,
+    };
+  const select = multiple ? (
+    <Select
+      key="multi"
+      {...shared}
+      {...look}
+      multiple
+      value={fruits}
+      onChange={(values) => setFruits(values.map(({ value }) => value))}
+      TriggerView={MultiFruitTriggerView}
+    />
+  ) : (
+    <Select
+      key="single"
+      {...shared}
+      {...look}
+      multiple={false}
+      value={fruit}
+      onChange={(option) => setFruit(option.value)}
+    />
+  );
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        {!phone && (<>
-        <DemoControlRow name="variant">
-          <SegmentedControl<(typeof SELECT_VARIANT_OPTIONS)[number]>
-            value={variant}
-            onChange={setVariant}
-            aria-label="variant"
-            size="xs"
-          >
-            {SELECT_VARIANT_OPTIONS.map((v) => (
-              <SegmentedControl.Option key={v} value={v}>
-                {v}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlRow name="size">
-          <SegmentedControl<(typeof SELECT_SIZE_OPTIONS)[number]>
-            value={size}
-            onChange={setSize}
-            aria-label="size"
-            size="xs"
-          >
-            {SELECT_SIZE_OPTIONS.map((v) => (
-              <SegmentedControl.Option key={v} value={v}>
-                {v}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        </>)}
-        {/* On a phone the checkmark leads every row, as in iOS menus, whatever checkPosition says */}
-        {!phone && (
-        <DemoControlRow name="checkPosition">
-          <SegmentedControl<(typeof CHECK_POSITION_OPTIONS)[number]>
-            value={checkPosition}
-            onChange={setCheckPosition}
-            aria-label="checkPosition"
-            size="xs"
-          >
-            {CHECK_POSITION_OPTIONS.map((v) => (
-              <SegmentedControl.Option key={v} value={v}>
-                {v}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        )}
+        <Segments name="variant" options={SELECT_VARIANT_OPTIONS} value={variant} onChange={setVariant} desktopOnly />
+        <Segments name="size" options={OVERVIEW_SIZE_OPTIONS} value={size} onChange={setSize} desktopOnly />
+        <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
+        <DemoControlBoolean name="block" value={block} onChange={setBlock} desktopOnly />
+        <Segments name="dropdownIconType" options={DROPDOWN_ICON_OPTIONS} value={dropdownIconType} onChange={setDropdownIconType} desktopOnly />
+        <Segments name="checkPosition" options={checkPositionOptions} value={shownCheckPosition} onChange={setCheckPosition} syncValue={checkPosition} />
+        <Segments name="side" options={SIDE_OPTIONS} value={side} onChange={setSide} desktopOnly />
+        {!block && <Segments name="align" options={ALIGN_OPTIONS} value={align} onChange={setAlign} desktopOnly />}
+        {variant === 'ghost' && <Segments name="opticallyAlign" options={opticalAlignOptions} value={shownOpticalAlign} onChange={setOpticallyAlign} desktopOnly />}
         <DemoControlBoolean name="clearable" value={clearable} onChange={setClearable} />
         <DemoControlBoolean name="multiple" value={multiple} onChange={setMultiple} />
+        <DemoControlBoolean name="loading" value={loading} onChange={setLoading} />
+        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
       {phone ? (
-        <PhoneSelectRow label={multiple ? 'Fruits' : 'Fruit'}>
-          {multiple ? (
-            <Select
-              key="multi"
-              placeholder="None"
-              options={fruitsOptions}
-              name="fruits"
-              multiple
-              block={false}
-              align="end"
-              clearable={clearable}
-              checkPosition={checkPosition}
-              value={multiFruits}
-              onChange={(values) => setMultiFruits(values.map(({ value }) => value))}
-              TriggerView={MultiFruitTriggerView}
-            />
-          ) : (
-            <Select
-              key="single"
-              placeholder="None"
-              options={fruitsOptions}
-              name="fruits"
-              multiple={false}
-              block={false}
-              align="end"
-              clearable={clearable}
-              checkPosition={checkPosition}
-              value={singleFruit}
-              onChange={(params) => setSingleFruit(params.value)}
-            />
-          )}
-        </PhoneSelectRow>
+        <PhoneSelectRow label={multiple ? 'Fruits' : 'Fruit'}>{select}</PhoneSelectRow>
       ) : (
-      <div
-        data-demo-stage
-        className="flex-1 w-full py-12 flex items-center justify-center"
-      >
-        <div style={{ width: 200 }}>
-          {multiple ? (
-            <Select
-              key="multi"
-              placeholder="Select fruits..."
-              options={fruitsOptions}
-              name="fruits"
-              multiple
-              variant={variant}
-              size={size}
-              clearable={clearable}
-              checkPosition={checkPosition}
-              value={multiFruits}
-              onChange={(values) => setMultiFruits(values.map(({ value }) => value))}
-              TriggerView={MultiFruitTriggerView}
-            />
-          ) : (
-            <Select
-              key="single"
-              placeholder="Select a fruit..."
-              options={fruitsOptions}
-              name="fruits"
-              multiple={false}
-              variant={variant}
-              size={size}
-              clearable={clearable}
-              checkPosition={checkPosition}
-              value={singleFruit}
-              onChange={(params) => setSingleFruit(params.value)}
-            />
-          )}
+        <div data-demo-stage className="flex-1 w-full py-12 flex items-center justify-center">
+          <div className="w-[290px]">
+            <Field label={multiple ? 'Fruits' : 'Fruit'}>{select}</Field>
+          </div>
         </div>
-      </div>
       )}
     </>
   );
@@ -449,43 +436,4 @@ function MultiFruitTriggerView({
       : `${values.length} fruits`;
 
   return <>{displayValue}</>;
-}
-
-export function SelectMultiSelectDemo() {
-  const [fruits, setFruits] = useState<string[]>([]);
-  const phone = usePhoneRows();
-
-  if (phone) {
-    return (
-      <PhoneSelectRow label="Fruits">
-        <Select
-          placeholder="None"
-          options={fruitsOptions}
-          name="fruits"
-          multiple
-          clearable
-          block={false}
-          align="end"
-          value={fruits}
-          onChange={(values) => setFruits(values.map(({ value }) => value))}
-          TriggerView={MultiFruitTriggerView}
-        />
-      </PhoneSelectRow>
-    );
-  }
-  return (
-    <div style={{ width: 200 }}>
-      <Select
-        variant="soft"
-        placeholder="Select fruits..."
-        options={fruitsOptions}
-        name="fruits"
-        multiple
-        clearable
-        value={fruits}
-        onChange={(values) => setFruits(values.map(({ value }) => value))}
-        TriggerView={MultiFruitTriggerView}
-      />
-    </div>
-  );
 }

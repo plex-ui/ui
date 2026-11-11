@@ -5,21 +5,39 @@ import { ProgressSteps } from '@plexui/ui/components/ProgressSteps';
 import { Button } from '@plexui/ui/components/Button';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Bolt, Email, Globe, Users } from '@plexui/ui/components/Icon';
-import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { usePhoneRows } from './PhoneRows';
+import { SliderValueControl } from './SliderValueControl';
 
 const steps = [
-  { title: 'Your details', description: 'Please provide your name and email' },
-  { title: 'Company details', description: 'A few details about your company' },
-  { title: 'Invite your team', description: 'Start collaborating with your team' },
-  { title: 'Add your socials', description: 'Share posts to your social accounts' },
+  { title: 'Your details', description: 'Please provide your name and email', icon: <Email /> },
+  { title: 'Company details', description: 'A few details about your company', icon: <Globe /> },
+  { title: 'Invite your team', description: 'Start collaborating with your team', icon: <Users /> },
+  { title: 'Add your socials', description: 'Share posts to your social accounts', icon: <Bolt /> },
 ];
 
+const VARIANT_OPTIONS = ['default', 'minimal'] as const;
 const ORIENTATION_OPTIONS = ['horizontal', 'vertical'] as const;
 const SIZE_OPTIONS = ['sm', 'md', 'lg'] as const;
 const COLOR_OPTIONS = ['default', 'success'] as const;
 const CONNECTOR_OPTIONS = ['solid', 'dashed'] as const;
-const CURRENT_OPTIONS = ['1', '2', '3', '4'] as const;
+// The text of each step: its title and description, the title alone, or none (the indicators alone, when the step's
+// details are shown elsewhere)
+const TEXT_OPTIONS = ['full', 'title', 'none'] as const;
+
+function Segments<T extends string>({ name, options, value, onChange, desktopOnly = false }: { name: string; options: readonly T[]; value: T; onChange: (value: T) => void; desktopOnly?: boolean }) {
+  return (
+    <DemoControlRow name={name} desktopOnly={desktopOnly}>
+      <SegmentedControl<T> value={value} onChange={onChange} aria-label={name} size="xs">
+        {options.map((option) => (
+          <SegmentedControl.Option key={option} value={option}>
+            {option}
+          </SegmentedControl.Option>
+        ))}
+      </SegmentedControl>
+    </DemoControlRow>
+  );
+}
 
 export function ProgressStepsHeroDemo() {
   return (
@@ -36,264 +54,68 @@ export function ProgressStepsHeroDemo() {
   );
 }
 
-export function ProgressStepsBaseDemoWithControls() {
-  const [current, setCurrent] = useState<(typeof CURRENT_OPTIONS)[number]>('2');
+/** The Overview, with every setting of the progress steps: what the page's examples once showed one by one (Sizes,
+ * Vertical, With Icons, Minimal, Icons Only, Colors) are its settings (owner 11.11: «в первом примере можно сразу
+ * показать все со всеми настройками»). current is a number, so a slider of 1–4 with its value, as Storybook's range
+ * control (owner 11.11 on Textarea's rows). A setting shows only where it acts: the minimal bar has no orientation,
+ * connector, icons or text, only its segments, so those four are settings of the default variant; it draws sm as md, so
+ * it offers md and lg. A dash draws the connectors ahead of the current step, so at the last step there is none to
+ * dash and connectorStyle is not offered. Four columns leave a description about 80px on a phone, so a phone shows the
+ * steps vertically and has no orientation setting. Without text each step keeps its title for screen readers. */
+export function ProgressStepsOverviewDemo() {
+  const phone = usePhoneRows();
+  const [variant, setVariant] = useState<(typeof VARIANT_OPTIONS)[number]>('default');
+  const [current, setCurrent] = useState(2);
   const [orientation, setOrientation] = useState<(typeof ORIENTATION_OPTIONS)[number]>('horizontal');
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
   const [color, setColor] = useState<(typeof COLOR_OPTIONS)[number]>('default');
   const [connectorStyle, setConnectorStyle] = useState<(typeof CONNECTOR_OPTIONS)[number]>('solid');
-  // Four steps side by side leave each description about 80px on a phone, so a phone shows them vertically
-  const phone = usePhoneRows();
-
+  const [icons, setIcons] = useState(false);
+  const [text, setText] = useState<(typeof TEXT_OPTIONS)[number]>('full');
+  const minimal = variant === 'minimal';
+  // The minimal bar draws sm as md, so it offers md and lg; a size it does not offer shows as md
+  const sizeOptions = minimal ? SIZE_OPTIONS.filter((option) => option !== 'sm') : SIZE_OPTIONS;
+  const shownSize = minimal && size === 'sm' ? 'md' : size;
+  // A dash draws the connectors ahead of the current step: at the last step every connector is completed and solid
+  const connectorShown = !minimal && current < steps.length;
+  const shownConnector = connectorShown ? connectorStyle : 'solid';
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
+        <Segments name="variant" options={VARIANT_OPTIONS} value={variant} onChange={setVariant} />
         <DemoControlRow name="current">
-          <SegmentedControl<(typeof CURRENT_OPTIONS)[number]>
-            value={current}
-            onChange={setCurrent}
-            aria-label="current"
-            size="xs"
-          >
-            {CURRENT_OPTIONS.map((c) => (
-              <SegmentedControl.Option key={c} value={c}>
-                {c}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
+          <SliderValueControl ariaLabel="current" min={1} max={steps.length} step={1} value={current} onChange={setCurrent} width="min(42vw, 340px)" />
         </DemoControlRow>
-        <DemoControlRow name="orientation" desktopOnly>
-          <SegmentedControl<(typeof ORIENTATION_OPTIONS)[number]>
-            value={orientation}
-            onChange={setOrientation}
-            aria-label="orientation"
-            size="xs"
-          >
-            {ORIENTATION_OPTIONS.map((o) => (
-              <SegmentedControl.Option key={o} value={o}>
-                {o}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlRow name="size">
-          <SegmentedControl<(typeof SIZE_OPTIONS)[number]>
-            value={size}
-            onChange={setSize}
-            aria-label="size"
-            size="xs"
-          >
-            {SIZE_OPTIONS.map((s) => (
-              <SegmentedControl.Option key={s} value={s}>
-                {s}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlRow name="color">
-          <SegmentedControl<(typeof COLOR_OPTIONS)[number]>
-            value={color}
-            onChange={setColor}
-            aria-label="color"
-            size="xs"
-          >
-            {COLOR_OPTIONS.map((c) => (
-              <SegmentedControl.Option key={c} value={c}>
-                {c}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlRow name="connectorStyle">
-          <SegmentedControl<(typeof CONNECTOR_OPTIONS)[number]>
-            value={connectorStyle}
-            onChange={setConnectorStyle}
-            aria-label="connectorStyle"
-            size="xs"
-          >
-            {CONNECTOR_OPTIONS.map((c) => (
-              <SegmentedControl.Option key={c} value={c}>
-                {c}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
+        {!minimal && <Segments name="orientation" options={ORIENTATION_OPTIONS} value={orientation} onChange={setOrientation} desktopOnly />}
+        <Segments name="size" options={sizeOptions} value={shownSize} onChange={setSize} />
+        <Segments name="color" options={COLOR_OPTIONS} value={color} onChange={setColor} />
+        {connectorShown && <Segments name="connectorStyle" options={CONNECTOR_OPTIONS} value={connectorStyle} onChange={setConnectorStyle} />}
+        {!minimal && <DemoControlBoolean name="icons" value={icons} onChange={setIcons} />}
+        {!minimal && <Segments name="text" options={TEXT_OPTIONS} value={text} onChange={setText} />}
       </div>
-      <div data-demo-stage className="py-8 px-4 w-full">
-        <ProgressSteps
-          current={Number(current)}
-          orientation={phone ? 'vertical' : orientation}
-          size={size}
-          color={color}
-          connectorStyle={connectorStyle}
-          className="w-full"
-        >
-          {steps.map((step) => (
-            <ProgressSteps.Step key={step.title}>
-              <ProgressSteps.Title>{step.title}</ProgressSteps.Title>
-              <ProgressSteps.Description>{step.description}</ProgressSteps.Description>
-            </ProgressSteps.Step>
-          ))}
-        </ProgressSteps>
-      </div>
-    </>
-  );
-}
-
-export function ProgressStepsSizesDemoWithControls() {
-  const [current, setCurrent] = useState<(typeof CURRENT_OPTIONS)[number]>('2');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="current">
-          <SegmentedControl<(typeof CURRENT_OPTIONS)[number]>
-            value={current}
-            onChange={setCurrent}
-            aria-label="current"
-            size="xs"
+      <div data-demo-stage className="py-8 px-4 w-full flex justify-center">
+        {minimal ? (
+          <ProgressSteps variant="minimal" current={current} total={steps.length} size={shownSize} color={color} />
+        ) : (
+          <ProgressSteps
+            current={current}
+            orientation={phone ? 'vertical' : orientation}
+            size={size}
+            color={color}
+            connectorStyle={shownConnector}
+            className="w-full"
           >
-            {CURRENT_OPTIONS.map((c) => (
-              <SegmentedControl.Option key={c} value={c}>
-                {c}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlRow name="size">
-          <SegmentedControl<(typeof SIZE_OPTIONS)[number]>
-            value={size}
-            onChange={setSize}
-            aria-label="size"
-            size="xs"
-          >
-            {SIZE_OPTIONS.map((s) => (
-              <SegmentedControl.Option key={s} value={s}>
-                {s}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
-      <div data-demo-stage className="py-8 px-4 w-full">
-        <ProgressSteps current={Number(current)} size={size} className="w-full">
-          <ProgressSteps.Step>
-            <ProgressSteps.Title>Step 1</ProgressSteps.Title>
-          </ProgressSteps.Step>
-          <ProgressSteps.Step>
-            <ProgressSteps.Title>Step 2</ProgressSteps.Title>
-          </ProgressSteps.Step>
-          <ProgressSteps.Step>
-            <ProgressSteps.Title>Step 3</ProgressSteps.Title>
-          </ProgressSteps.Step>
-          <ProgressSteps.Step>
-            <ProgressSteps.Title>Step 4</ProgressSteps.Title>
-          </ProgressSteps.Step>
-        </ProgressSteps>
-      </div>
-    </>
-  );
-}
-
-export function ProgressStepsMinimalDemoWithControls() {
-  const [current, setCurrent] = useState<(typeof CURRENT_OPTIONS)[number]>('3');
-  const [color, setColor] = useState<(typeof COLOR_OPTIONS)[number]>('default');
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="current">
-          <SegmentedControl<(typeof CURRENT_OPTIONS)[number]>
-            value={current}
-            onChange={setCurrent}
-            aria-label="current"
-            size="xs"
-          >
-            {CURRENT_OPTIONS.map((c) => (
-              <SegmentedControl.Option key={c} value={c}>
-                {c}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlRow name="color">
-          <SegmentedControl<(typeof COLOR_OPTIONS)[number]>
-            value={color}
-            onChange={setColor}
-            aria-label="color"
-            size="xs"
-          >
-            {COLOR_OPTIONS.map((c) => (
-              <SegmentedControl.Option key={c} value={c}>
-                {c}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
-      <div data-demo-stage className="py-10 px-4 flex justify-center">
-        <ProgressSteps variant="minimal" current={Number(current)} total={4} color={color} />
-      </div>
-    </>
-  );
-}
-
-export function ProgressStepsVerticalDemo() {
-  return (
-    <div className="w-full h-full flex items-center justify-center py-6 px-4">
-      <div className="flex flex-wrap justify-center gap-20">
-        <div>
-          <div className="mb-4 text-tertiary text-sm">Default</div>
-          <ProgressSteps current={2} orientation="vertical">
             {steps.map((step) => (
-              <ProgressSteps.Step key={step.title}>
-                <ProgressSteps.Title>{step.title}</ProgressSteps.Title>
-                <ProgressSteps.Description>{step.description}</ProgressSteps.Description>
+              <ProgressSteps.Step key={step.title} icon={icons ? step.icon : undefined}>
+                {/* Without text the title stays for screen readers: an icon or a check has no name */}
+                <ProgressSteps.Title visuallyHidden={text === 'none'}>{step.title}</ProgressSteps.Title>
+                {text === 'full' && <ProgressSteps.Description>{step.description}</ProgressSteps.Description>}
               </ProgressSteps.Step>
             ))}
           </ProgressSteps>
-        </div>
-        <div>
-          <div className="mb-4 text-tertiary text-sm">With dashed connector</div>
-          <ProgressSteps current={3} orientation="vertical" connectorStyle="dashed">
-            {steps.map((step) => (
-              <ProgressSteps.Step key={step.title}>
-                <ProgressSteps.Title>{step.title}</ProgressSteps.Title>
-                <ProgressSteps.Description>{step.description}</ProgressSteps.Description>
-              </ProgressSteps.Step>
-            ))}
-          </ProgressSteps>
-        </div>
+        )}
       </div>
-    </div>
-  );
-}
-
-export function ProgressStepsWithIconsDemo() {
-  // A phone shows the steps vertically, where each description has room
-  const phone = usePhoneRows();
-  return (
-    <div className="py-6 px-4 w-full">
-      <ProgressSteps current={3} orientation={phone ? 'vertical' : 'horizontal'} className="w-full">
-        <ProgressSteps.Step icon={<Email />}>
-          <ProgressSteps.Title>Your details</ProgressSteps.Title>
-          <ProgressSteps.Description>Please provide your name and email</ProgressSteps.Description>
-        </ProgressSteps.Step>
-        <ProgressSteps.Step icon={<Globe />}>
-          <ProgressSteps.Title>Company details</ProgressSteps.Title>
-          <ProgressSteps.Description>Website and location</ProgressSteps.Description>
-        </ProgressSteps.Step>
-        <ProgressSteps.Step icon={<Users />}>
-          <ProgressSteps.Title>Invite your team</ProgressSteps.Title>
-          <ProgressSteps.Description>Start collaborating</ProgressSteps.Description>
-        </ProgressSteps.Step>
-        <ProgressSteps.Step icon={<Bolt />}>
-          <ProgressSteps.Title>Get started</ProgressSteps.Title>
-          <ProgressSteps.Description>Ready to go</ProgressSteps.Description>
-        </ProgressSteps.Step>
-      </ProgressSteps>
-    </div>
+    </>
   );
 }
 
@@ -336,60 +158,6 @@ export function ProgressStepsWithNavigationDemo() {
         >
           Next
         </Button>
-      </div>
-    </div>
-  );
-}
-
-export function ProgressStepsIconsOnlyDemo() {
-  return (
-    <div className="py-6 px-4 w-full">
-      <ProgressSteps current={2} className="w-full">
-        <ProgressSteps.Step />
-        <ProgressSteps.Step />
-        <ProgressSteps.Step />
-        <ProgressSteps.Step />
-      </ProgressSteps>
-    </div>
-  );
-}
-
-export function ProgressStepsSuccessColorDemo() {
-  return (
-    <div className="flex flex-col gap-12 py-6 px-4 w-full max-w-[900px]">
-      <div>
-        <div className="mb-4 text-tertiary text-sm">Default</div>
-        <ProgressSteps current={3} className="w-full">
-          <ProgressSteps.Step>
-            <ProgressSteps.Title>Step 1</ProgressSteps.Title>
-          </ProgressSteps.Step>
-          <ProgressSteps.Step>
-            <ProgressSteps.Title>Step 2</ProgressSteps.Title>
-          </ProgressSteps.Step>
-          <ProgressSteps.Step>
-            <ProgressSteps.Title>Step 3</ProgressSteps.Title>
-          </ProgressSteps.Step>
-          <ProgressSteps.Step>
-            <ProgressSteps.Title>Step 4</ProgressSteps.Title>
-          </ProgressSteps.Step>
-        </ProgressSteps>
-      </div>
-      <div>
-        <div className="mb-4 text-tertiary text-sm">Success</div>
-        <ProgressSteps current={3} color="success" className="w-full">
-          <ProgressSteps.Step>
-            <ProgressSteps.Title>Step 1</ProgressSteps.Title>
-          </ProgressSteps.Step>
-          <ProgressSteps.Step>
-            <ProgressSteps.Title>Step 2</ProgressSteps.Title>
-          </ProgressSteps.Step>
-          <ProgressSteps.Step>
-            <ProgressSteps.Title>Step 3</ProgressSteps.Title>
-          </ProgressSteps.Step>
-          <ProgressSteps.Step>
-            <ProgressSteps.Title>Step 4</ProgressSteps.Title>
-          </ProgressSteps.Step>
-        </ProgressSteps>
       </div>
     </div>
   );

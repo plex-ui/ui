@@ -184,8 +184,19 @@ const Step = ({ children, icon, _index = 0 }: StepProps) => {
   )
 }
 
-const Title = ({ children, className }: { children: ReactNode; className?: string }) => (
-  <div className={clsx(s.StepTitle, className)}>{children}</div>
+export type TitleProps = {
+  children: ReactNode
+  className?: string
+  /**
+   * Hides the title from view and keeps it for screen readers, for steps that show their indicators alone: an icon
+   * or a check has no name. The step then takes no room under its indicator.
+   * @default false
+   */
+  visuallyHidden?: boolean
+}
+
+const Title = ({ children, className, visuallyHidden = false }: TitleProps) => (
+  <div className={clsx(s.StepTitle, className)} data-visually-hidden={visuallyHidden ? "" : undefined}>{children}</div>
 )
 
 const Description = ({ children, className }: { children: ReactNode; className?: string }) => (

@@ -5,74 +5,67 @@ metaDescription: React stepper component for multi-step flows like checkouts and
 ---
 
 import { ProgressSteps } from "@plexui/ui/components/ProgressSteps"
-import {
-  ProgressStepsBaseDemoWithControls,
-  ProgressStepsSizesDemoWithControls,
-  ProgressStepsMinimalDemoWithControls,
-  ProgressStepsVerticalDemo,
-  ProgressStepsWithIconsDemo,
-  ProgressStepsWithNavigationDemo,
-  ProgressStepsIconsOnlyDemo,
-  ProgressStepsSuccessColorDemo,
-} from "@/components/docs/ProgressStepsDemos"
+import { ProgressStepsOverviewDemo, ProgressStepsWithNavigationDemo } from "@/components/docs/ProgressStepsDemos"
+
+export const overviewCode = `const [variant, setVariant] = useState("default")
+const [current, setCurrent] = useState(2)
+const [orientation, setOrientation] = useState("horizontal")
+const [size, setSize] = useState("md") // the minimal bar: "md" or "lg"
+const [color, setColor] = useState("default")
+const [connectorStyle, setConnectorStyle] = useState("solid") // dashes the connectors ahead of current
+const [icons, setIcons] = useState(false)
+const [text, setText] = useState("full") // "full", "title" or "none"
+
+// A phone shows the steps vertically: four columns cannot hold a description
+const wide = useBreakpoint("md")
+
+const steps = [
+  { title: "Your details", description: "Please provide your name and email", icon: <Email /> },
+  { title: "Company details", description: "A few details about your company", icon: <Globe /> },
+  { title: "Invite your team", description: "Start collaborating with your team", icon: <Users /> },
+  { title: "Add your socials", description: "Share posts to your social accounts", icon: <Bolt /> },
+]
+
+// The minimal bar counts its steps with total
+variant === "minimal" ? (
+  <ProgressSteps variant="minimal" current={current} total={steps.length} size={size} color={color} />
+) : (
+  <ProgressSteps
+    current={current}
+    orientation={wide ? orientation : "vertical"}
+    size={size}
+    color={color}
+    connectorStyle={connectorStyle}
+    className="w-full"
+  >
+    {steps.map((step) => (
+      <ProgressSteps.Step key={step.title} icon={icons ? step.icon : undefined}>
+        {/* Without text the title stays for screen readers */}
+        <ProgressSteps.Title visuallyHidden={text === "none"}>{step.title}</ProgressSteps.Title>
+        {text === "full" && <ProgressSteps.Description>{step.description}</ProgressSteps.Description>}
+      </ProgressSteps.Step>
+    ))}
+  </ProgressSteps>
+)`
+
 
 <UsageBlock>{`import { ProgressSteps } from "@plexui/ui/components/ProgressSteps";`}</UsageBlock>
 
 ## Examples
 
+{/* The examples Sizes, Vertical, With Icons, Minimal, Icons Only and Colors are settings of the Overview (owner
+    11.11: the first example shows everything with every setting); their anchors stay */}
+<span id="sizes" />
+<span id="vertical" />
+<span id="with-icons" />
+<span id="minimal" />
+<span id="icons-only" />
+<span id="colors" />
+
 ### Overview
 
-<ComponentPreview code={`<ProgressSteps current={2}>
-  <ProgressSteps.Step>
-    <ProgressSteps.Title>Your details</ProgressSteps.Title>
-    <ProgressSteps.Description>Please provide your name and email</ProgressSteps.Description>
-  </ProgressSteps.Step>
-  <ProgressSteps.Step>
-    <ProgressSteps.Title>Company details</ProgressSteps.Title>
-    <ProgressSteps.Description>A few details about your company</ProgressSteps.Description>
-  </ProgressSteps.Step>
-  <ProgressSteps.Step>
-    <ProgressSteps.Title>Invite your team</ProgressSteps.Title>
-    <ProgressSteps.Description>Start collaborating with your team</ProgressSteps.Description>
-  </ProgressSteps.Step>
-  <ProgressSteps.Step>
-    <ProgressSteps.Title>Add your socials</ProgressSteps.Title>
-    <ProgressSteps.Description>Share posts to your social accounts</ProgressSteps.Description>
-  </ProgressSteps.Step>
-</ProgressSteps>`} previewMinHeight={168}>
-  <ProgressStepsBaseDemoWithControls />
-</ComponentPreview>
-
-### Sizes
-
-<ComponentPreview details={<>Use <code>size</code> to control the scale of step indicators.</>} code={`<ProgressSteps current={2} size="md">
-  <ProgressSteps.Step><ProgressSteps.Title>Step 1</ProgressSteps.Title></ProgressSteps.Step>
-  <ProgressSteps.Step><ProgressSteps.Title>Step 2</ProgressSteps.Title></ProgressSteps.Step>
-  <ProgressSteps.Step><ProgressSteps.Title>Step 3</ProgressSteps.Title></ProgressSteps.Step>
-  <ProgressSteps.Step><ProgressSteps.Title>Step 4</ProgressSteps.Title></ProgressSteps.Step>
-</ProgressSteps>`} previewMinHeight={168}>
-  <ProgressStepsSizesDemoWithControls />
-</ComponentPreview>
-
-### Vertical
-
-<ComponentPreview phonePresentation="none" details={<>
-  <p>Use <code>orientation="vertical"</code> to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style.</p>
-  <p>On a phone the four columns of a horizontal row cannot hold a step's description, so the Overview and With Icons examples show the steps vertically there; Overview leaves out its orientation control. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen. The Overview already shows these vertical steps on a phone, with the dashed connector among its settings, so this example is desktop only.</p>
-</>} code={`<ProgressSteps current={2} orientation="vertical">...</ProgressSteps>
-<ProgressSteps current={3} orientation="vertical" connectorStyle="dashed">...</ProgressSteps>`} previewMinHeight={168}>
-  <ProgressStepsVerticalDemo />
-</ComponentPreview>
-
-### With Icons
-
-<ComponentPreview details={<>Use <code>icon</code> prop on <code>ProgressSteps.Step</code> to display custom icons instead of step numbers.</>} code={`<ProgressSteps current={3}>
-  <ProgressSteps.Step icon={<Email />}>...</ProgressSteps.Step>
-  <ProgressSteps.Step icon={<Globe />}>...</ProgressSteps.Step>
-  <ProgressSteps.Step icon={<Users />}>...</ProgressSteps.Step>
-  <ProgressSteps.Step icon={<Bolt />}>...</ProgressSteps.Step>
-</ProgressSteps>`} previewMinHeight={168}>
-  <ProgressStepsWithIconsDemo />
+<ComponentPreview details={<><code>current</code> is the active step, counted from 1: the steps before it are completed and show a check. <code>variant="minimal"</code> draws a compact bar of segments instead, one per step, and takes the count as <code>total</code>; it has no orientation, connector, icons or text, so those settings are for the default variant, and it draws <code>sm</code> as <code>md</code>, so it offers <code>md</code> and <code>lg</code>. <code>orientation="vertical"</code> stacks the steps, for a sidebar or a multi-step form. <code>size</code> sets the scale of the indicators, and <code>color</code> the color scheme of completed and active steps. <code>connectorStyle</code> draws the lines ahead of the current step solid or dashed; a completed line is solid, so at the last step the setting is not offered. <code>icon</code> on a <code>ProgressSteps.Step</code> shows a custom icon instead of its number. A step shows a <code>Title</code> and a <code>Description</code>; leave out the description, or show the indicators alone when the step's details are shown elsewhere. Keep the title then for screen readers with <code>visuallyHidden</code>: an icon or a check has no name, and the step takes no room under its indicator.<br /><br />On a phone the four columns of a horizontal row cannot hold a step's description, so the steps stand vertically there and the phone has no <code>orientation</code> setting: <code>useBreakpoint("md")</code> tells which to use. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen.</>} code={overviewCode} previewMinHeight={168}>
+  <ProgressStepsOverviewDemo />
 </ComponentPreview>
 
 ### With Navigation
@@ -100,30 +93,6 @@ return (
   <ProgressStepsWithNavigationDemo />
 </ComponentPreview>
 
-### Minimal
-
-<ComponentPreview details={<>Use <code>variant="minimal"</code> for a compact horizontal bar indicator. Requires <code>total</code> prop.</>} code={`<ProgressSteps variant="minimal" current={3} total={4} color="default" />`} previewMinHeight={168}>
-  <ProgressStepsMinimalDemoWithControls />
-</ComponentPreview>
-
-### Icons Only
-
-<ComponentPreview details={<>Omit <code>Title</code> and <code>Description</code> for a minimal indicator when step details are shown elsewhere.</>} code={`<ProgressSteps current={2}>
-  <ProgressSteps.Step />
-  <ProgressSteps.Step />
-  <ProgressSteps.Step />
-  <ProgressSteps.Step />
-</ProgressSteps>`} previewMinHeight={168}>
-  <ProgressStepsIconsOnlyDemo />
-</ComponentPreview>
-
-### Colors
-
-<ComponentPreview details={<>Use <code>color</code> to change the color scheme of completed and active steps.</>} code={`<ProgressSteps current={3}>...</ProgressSteps>
-<ProgressSteps current={3} color="success">...</ProgressSteps>`} previewMinHeight={168}>
-  <ProgressStepsSuccessColorDemo />
-</ComponentPreview>
-
 ## API
 
 **ProgressSteps** (root)
@@ -146,6 +115,10 @@ return (
 ]} />
 
 **ProgressSteps.Title**: Wrapper for step title text. Applies appropriate styling based on step state.
+
+<PropsTable data={[
+  { prop: "visuallyHidden", type: "boolean", default: "false", description: "Hides the title from view and keeps it for screen readers, for steps that show their indicators alone; the step then takes no room under its indicator" },
+]} />
 
 **ProgressSteps.Description**: Wrapper for step description text. Applies appropriate styling based on step state.
 

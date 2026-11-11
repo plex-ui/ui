@@ -6238,56 +6238,52 @@ Props:
   - className (string) — Class applied to the container
   ProgressSteps.Step:
     - icon (ReactNode) — Custom icon instead of step number
+  ProgressSteps.Title:
+    - visuallyHidden (boolean) default: false — Hides the title from view and keeps it for screen readers, for steps that show their indicators alone; the step then takes no room under its indicator
 
 ### Overview
+current is the active step, counted from 1: the steps before it are completed and show a check. variant="minimal" draws a compact bar of segments instead, one per step, and takes the count as total; it has no orientation, connector, icons or text, so those settings are for the default variant, and it draws sm as md, so it offers md and lg. orientation="vertical" stacks the steps, for a sidebar or a multi-step form. size sets the scale of the indicators, and color the color scheme of completed and active steps. connectorStyle draws the lines ahead of the current step solid or dashed; a completed line is solid, so at the last step the setting is not offered. icon on a ProgressSteps.Step shows a custom icon instead of its number. A step shows a Title and a Description; leave out the description, or show the indicators alone when the step's details are shown elsewhere. Keep the title then for screen readers with visuallyHidden: an icon or a check has no name, and the step takes no room under its indicator.On a phone the four columns of a horizontal row cannot hold a step's description, so the steps stand vertically there and the phone has no orientation setting: useBreakpoint("md") tells which to use. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen.
 ```tsx
-<ProgressSteps current={2}>
-<ProgressSteps.Step>
-  <ProgressSteps.Title>Your details</ProgressSteps.Title>
-  <ProgressSteps.Description>Please provide your name and email</ProgressSteps.Description>
-</ProgressSteps.Step>
-<ProgressSteps.Step>
-  <ProgressSteps.Title>Company details</ProgressSteps.Title>
-  <ProgressSteps.Description>A few details about your company</ProgressSteps.Description>
-</ProgressSteps.Step>
-<ProgressSteps.Step>
-  <ProgressSteps.Title>Invite your team</ProgressSteps.Title>
-  <ProgressSteps.Description>Start collaborating with your team</ProgressSteps.Description>
-</ProgressSteps.Step>
-<ProgressSteps.Step>
-  <ProgressSteps.Title>Add your socials</ProgressSteps.Title>
-  <ProgressSteps.Description>Share posts to your social accounts</ProgressSteps.Description>
-</ProgressSteps.Step>
-</ProgressSteps>
-```
+const [variant, setVariant] = useState("default")
+const [current, setCurrent] = useState(2)
+const [orientation, setOrientation] = useState("horizontal")
+const [size, setSize] = useState("md") // the minimal bar: "md" or "lg"
+const [color, setColor] = useState("default")
+const [connectorStyle, setConnectorStyle] = useState("solid") // dashes the connectors ahead of current
+const [icons, setIcons] = useState(false)
+const [text, setText] = useState("full") // "full", "title" or "none"
 
-### Sizes
-Use size to control the scale of step indicators.
-```tsx
-<ProgressSteps current={2} size="md">
-<ProgressSteps.Step><ProgressSteps.Title>Step 1</ProgressSteps.Title></ProgressSteps.Step>
-<ProgressSteps.Step><ProgressSteps.Title>Step 2</ProgressSteps.Title></ProgressSteps.Step>
-<ProgressSteps.Step><ProgressSteps.Title>Step 3</ProgressSteps.Title></ProgressSteps.Step>
-<ProgressSteps.Step><ProgressSteps.Title>Step 4</ProgressSteps.Title></ProgressSteps.Step>
-</ProgressSteps>
-```
+// A phone shows the steps vertically: four columns cannot hold a description
+const wide = useBreakpoint("md")
 
-### Vertical
-Use orientation="vertical" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. On a phone the four columns of a horizontal row cannot hold a step's description, so the Overview and With Icons examples show the steps vertically there; Overview leaves out its orientation control. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen. The Overview already shows these vertical steps on a phone, with the dashed connector among its settings, so this example is desktop only.
-```tsx
-<ProgressSteps current={2} orientation="vertical">...</ProgressSteps>
-<ProgressSteps current={3} orientation="vertical" connectorStyle="dashed">...</ProgressSteps>
-```
+const steps = [
+  { title: "Your details", description: "Please provide your name and email", icon: <Email /> },
+  { title: "Company details", description: "A few details about your company", icon: <Globe /> },
+  { title: "Invite your team", description: "Start collaborating with your team", icon: <Users /> },
+  { title: "Add your socials", description: "Share posts to your social accounts", icon: <Bolt /> },
+]
 
-### With Icons
-Use icon prop on ProgressSteps.Step to display custom icons instead of step numbers.
-```tsx
-<ProgressSteps current={3}>
-<ProgressSteps.Step icon={<Email />}>...</ProgressSteps.Step>
-<ProgressSteps.Step icon={<Globe />}>...</ProgressSteps.Step>
-<ProgressSteps.Step icon={<Users />}>...</ProgressSteps.Step>
-<ProgressSteps.Step icon={<Bolt />}>...</ProgressSteps.Step>
-</ProgressSteps>
+// The minimal bar counts its steps with total
+variant === "minimal" ? (
+  <ProgressSteps variant="minimal" current={current} total={steps.length} size={size} color={color} />
+) : (
+  <ProgressSteps
+    current={current}
+    orientation={wide ? orientation : "vertical"}
+    size={size}
+    color={color}
+    connectorStyle={connectorStyle}
+    className="w-full"
+  >
+    {steps.map((step) => (
+      <ProgressSteps.Step key={step.title} icon={icons ? step.icon : undefined}>
+        {/* Without text the title stays for screen readers */}
+        <ProgressSteps.Title visuallyHidden={text === "none"}>{step.title}</ProgressSteps.Title>
+        {text === "full" && <ProgressSteps.Description>{step.description}</ProgressSteps.Description>}
+      </ProgressSteps.Step>
+    ))}
+  </ProgressSteps>
+)
 ```
 
 ### With Navigation
@@ -6313,30 +6309,6 @@ return (
   </div>
 </div>
 )
-```
-
-### Minimal
-Use variant="minimal" for a compact horizontal bar indicator. Requires total prop.
-```tsx
-<ProgressSteps variant="minimal" current={3} total={4} color="default" />
-```
-
-### Icons Only
-Omit Title and Description for a minimal indicator when step details are shown elsewhere.
-```tsx
-<ProgressSteps current={2}>
-<ProgressSteps.Step />
-<ProgressSteps.Step />
-<ProgressSteps.Step />
-<ProgressSteps.Step />
-</ProgressSteps>
-```
-
-### Colors
-Use color to change the color scheme of completed and active steps.
-```tsx
-<ProgressSteps current={3}>...</ProgressSteps>
-<ProgressSteps current={3} color="success">...</ProgressSteps>
 ```
 
 ## Progress
@@ -6936,208 +6908,89 @@ Props:
   - className (string) — Applied to the control
 
 ### Overview
+Use variant to stylize the control: its styles are like those of {""}, with the small differences of {""}, and ghost has no frame. size sets the control's height, font size, gutter and the placement of its icon and indicator, on the 9-step scale of Button, Input, Select and SegmentedControl; pill rounds it fully and widens its gutter, and its clear action is a pill too. StartIcon puts an icon before the value, sized, spaced and colored by the control, and dropdownIconType picks the indicator. selected says the control holds a value and turns off the placeholder styling. It does nothing to the content, which is up to you, so here it follows the value: pick a period, or clear it. Pass onClearClick to make the control clearable: the clear action shows while it is selected. During loading the dropdown icon and clear action are hidden, the control is marked aria-busy and it ignores pointer and keyboard interaction; add disabled to dim it as well. invalid marks the control invalid; pair it with the field's errorMessage. disabled disables it both visually and accessibly. block stretches it across its container, here the 290px field. opticallyAlign offsets the control by its gutter: "start" puts the start of a ghost control, its icon or its text, on the label's edge, and "end" puts the end of a block one, its indicator, on the field's end. A framed control keeps its gutter, so the example offers the setting for ghost only, and "end" only with block: a narrower control does not reach the field's end. The control's own aria-labelledby names it by the label and the value, as Select's trigger is named.On Phone the control is the value of a row in a FieldGroup: the value and its up-down chevrons sit at the row's end, as an iOS pop-up button. The row sets its height, insets, type and colors, so the Phone preview has no variant, size, pill, StartIcon, dropdownIconType, block and opticallyAlign controls. A selected value takes the secondary label color (the primary one in a group with columns), a placeholder the tertiary one. A clearable control unsets its value with the menu's None row, as iOS pop-ups do, rather than a clear button. A row has no frame to color, so the error is the row's errorMessage line.
 ```tsx
 const [value, setValue] = useState("")
+const [variant, setVariant] = useState("outline")
+const [size, setSize] = useState("md")
+const [pill, setPill] = useState(false)
+const [startIcon, setStartIcon] = useState(true)
+const [dropdownIconType, setDropdownIconType] = useState("dropdown")
+const [clearable, setClearable] = useState(true)
+const [loading, setLoading] = useState(false)
+const [invalid, setInvalid] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [block, setBlock] = useState(false)
+const [opticallyAlign, setOpticallyAlign] = useState("none") // ghost only: "start", or "end" with block
 
 // Desktop
-<Menu>
-<Menu.Trigger>
-  <SelectControl className="w-[200px]" selected={!!value} onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
-    {value || "Select date..."}
-  </SelectControl>
-</Menu.Trigger>
-<Menu.Content minWidth={200} width={200}>
-  <Menu.RadioGroup value={value} onChange={setValue}>
-    <Menu.RadioItem value="Today">Today</Menu.RadioItem>
-    <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
-    <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
-    <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
-  </Menu.RadioGroup>
-</Menu.Content>
-</Menu>
-
-// Phone: the control is the value of a row; its label reaches the trigger, and None clears it.
-<FieldGroup>
-<Field row label="Period">
-  {(control) => (
-    <Menu>
-      <Menu.Trigger>
-        <SelectControl {...control} selected={!!value}>
-          {value || "None"}
-        </SelectControl>
-      </Menu.Trigger>
-      <Menu.Content minWidth={200} align="end">
-        <Menu.RadioGroup value={value} onChange={setValue}>
-          <Menu.RadioItem value="">None</Menu.RadioItem>
-          <Menu.RadioItem value="Today">Today</Menu.RadioItem>
-          <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
-          <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
-          <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
-        </Menu.RadioGroup>
-      </Menu.Content>
-    </Menu>
-  )}
-</Field>
-</FieldGroup>
-```
-
-### Variants
-Use the variant prop to stylize the select control. Available variant styles are similar to {""}, but aligned with subtle differences from {""} variant treatments. In a phone row the row is the frame, so this example is desktop only; Invalid and Disabled show the row's states.
-```tsx
-// Desktop
-<div className="flex w-full min-w-0 max-w-[400px] flex-col gap-6">
-<SelectControl className="w-full" variant="soft" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
-<SelectControl className="w-full" variant="outline" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
-<SelectControl className="w-full" variant="ghost" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
+<div className="w-[290px]">
+  <Field label="Period" errorMessage={invalid ? "No data for this period." : undefined}>
+    {(control) => (
+      <Menu>
+        <Menu.Trigger>
+          <SelectControl
+            {...control}
+            aria-labelledby={`${control["aria-labelledby"]} ${control.id}-value`}
+            className={block ? undefined : "w-[200px]"}
+            variant={variant}
+            size={size}
+            pill={pill}
+            block={block}
+            opticallyAlign={variant === "ghost" && opticallyAlign !== "none" ? opticallyAlign : undefined}
+            StartIcon={startIcon ? CalendarAlt : undefined}
+            dropdownIconType={dropdownIconType}
+            selected={!!value}
+            onClearClick={clearable ? () => setValue("") : undefined}
+            loading={loading}
+            invalid={invalid}
+            disabled={disabled}
+          >
+            <span id={`${control.id}-value`}>{value || "Select date..."}</span>
+          </SelectControl>
+        </Menu.Trigger>
+        <Menu.Content minWidth={200} width={block ? 290 : 200}>
+          <Menu.RadioGroup value={value} onChange={setValue}>
+            <Menu.RadioItem value="Today">Today</Menu.RadioItem>
+            <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
+            <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
+            <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
+          </Menu.RadioGroup>
+        </Menu.Content>
+      </Menu>
+    )}
+  </Field>
 </div>
 
-// Phone
+// Phone: the control is the value of a row; its label and value name the trigger, and a clearable one has None.
 <FieldGroup>
-<Field row label="Folder" errorMessage={invalid ? "Choose a folder you can edit." : undefined}>
-  <SelectControl selected invalid={invalid} disabled={disabled}>Sample value</SelectControl>
-</Field>
-</FieldGroup>
-```
-
-### Sizing & roundness
-Sizing of the control is determined with the size prop. Each size provides dynamic values for various aspects of the control, including icon and indicator placement, as well font-size and gutter values.Create fully rounded controls with the pill prop. When pill is set, extra horizontal gutter is dynamically applied, and the clear action is also set to pill. On Phone the row sets the control's size, so a row's control takes no size or pill, and this example is desktop only.
-```tsx
-// Desktop
-<SelectControl size="md" pill={false} dropdownIconType="none">Select...</SelectControl>
-<SelectControl size="md" loading>Select...</SelectControl>
-<SelectControl size="md">Select...</SelectControl>
-<SelectControl size="md" StartIcon={Tools} dropdownIconType="none">Tool calls</SelectControl>
-...
-
-// Phone
-<FieldGroup>
-<Field row label="Model">
-  <SelectControl>None</SelectControl>
-</Field>
-<Field row label="Tools">
-  <SelectControl loading>Loading...</SelectControl>
-</Field>
-<Field row label="Date">
-  <SelectControl selected>Today</SelectControl>
-</Field>
-</FieldGroup>
-```
-
-### Selected
-Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control. That's up to you. In a phone row a selected value takes the secondary label color (the primary one in a group with columns), a placeholder the tertiary one.
-```tsx
-// Desktop
-<SelectControl selected={false}>Select...</SelectControl>
-
-// Phone
-<FieldGroup>
-<Field row label="Fruit">
-  <SelectControl selected={false}>Mango</SelectControl>
-</Field>
-</FieldGroup>
-```
-
-### Start icon
-Use StartIcon to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon, and this example is desktop only.
-```tsx
-// Desktop
-<SelectControl StartIcon={CalendarAlt}>Select date...</SelectControl>
-
-// Phone
-<FieldGroup>
-<Field row label="Date">
-  <SelectControl>None</SelectControl>
-</Field>
-</FieldGroup>
-```
-
-### Dropdown icon
-Use dropdownIconType to control the presentation of the dropdown indicator. In a phone row the indicator is always the up-down chevrons of an iOS pop-up button, so this example is desktop only.
-```tsx
-// Desktop
-<SelectControl selected dropdownIconType="dropdown" StartIcon={CalendarAlt}>Select date...</SelectControl>
-
-// Phone
-<FieldGroup>
-<Field row label="Date">
-  <SelectControl selected>Today</SelectControl>
-</Field>
-</FieldGroup>
-```
-
-### Clearable
-Pass a callback onClearClick to enable the clearable action.
-```tsx
-// Desktop
-<SelectControl selected onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
-{value || "Select..."}
-</SelectControl>
-
-// Phone
-<FieldGroup>
-<Field row label="Date">
-  <SelectControl selected={!!value} onClearClick={() => setValue("")}>
-    {value || "None"}
-  </SelectControl>
-</Field>
-</FieldGroup>
-```
-
-### Loading
-During loading, the dropdown icon and clear action are automatically hidden, the control is marked aria-busy, and it ignores pointer and keyboard interaction. Use disabled to add visual disablement.
-```tsx
-// Desktop
-<SelectControl selected loading StartIcon={CalendarAlt}>Loading...</SelectControl>
-
-// Phone
-<FieldGroup>
-<Field row label="Calendar">
-  <SelectControl selected loading>Loading...</SelectControl>
-</Field>
-</FieldGroup>
-```
-
-### Invalid
-Use invalid to visually indicate the control is in an invalid state. A row has no frame to color: on Phone, pair invalid with the row's errorMessage.
-```tsx
-// Desktop
-<SelectControl invalid selected>Pineapple on pizza</SelectControl>
-
-// Phone
-<FieldGroup>
-<Field row label="Topping" errorMessage="Choose another topping.">
-  <SelectControl invalid selected>Pineapple</SelectControl>
-</Field>
-</FieldGroup>
-```
-
-### Disabled
-Use disabled to both visually and accessibly disable the control.
-```tsx
-// Desktop
-<SelectControl disabled selected StartIcon={User}>Reader</SelectControl>
-
-// Phone
-<FieldGroup>
-<Field row label="Role">
-  <SelectControl disabled selected>Reader</SelectControl>
-</Field>
-</FieldGroup>
-```
-
-### Block
-Create full-width controls with the block prop. In a phone row the value sits at the row's end, so the row's control takes no block, and this example is desktop only.
-```tsx
-// Desktop
-<div className="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
-<SelectControl block size="lg" StartIcon={CalendarAlt}>Select...</SelectControl>
-</div>
-
-// Phone
-<FieldGroup>
-<Field row label="Date">
-  <SelectControl>None</SelectControl>
-</Field>
+  <Field row label="Period" errorMessage={invalid ? "No data for this period." : undefined}>
+    {(control) => (
+      <Menu>
+        <Menu.Trigger>
+          <SelectControl
+            {...control}
+            aria-labelledby={`${control["aria-labelledby"]} ${control.id}-value`}
+            selected={!!value}
+            loading={loading}
+            invalid={invalid}
+            disabled={disabled}
+          >
+            <span id={`${control.id}-value`}>{value || "None"}</span>
+          </SelectControl>
+        </Menu.Trigger>
+        <Menu.Content minWidth={200} align="end">
+          <Menu.RadioGroup value={value} onChange={setValue}>
+            {clearable && <Menu.RadioItem value="">None</Menu.RadioItem>}
+            <Menu.RadioItem value="Today">Today</Menu.RadioItem>
+            <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
+            <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
+            <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
+          </Menu.RadioGroup>
+        </Menu.Content>
+      </Menu>
+    )}
+  </Field>
 </FieldGroup>
 ```
 
@@ -7407,20 +7260,6 @@ return (
 }
 ```
 
-### Optical alignment
-Use opticallyAlign with either "start" or "end" to offset the gutter of the control. In a phone row the row aligns the value with its inset, so opticallyAlign is for desktop, and so is this example.
-```tsx
-// Desktop
-<SelectControl selected variant="ghost" opticallyAlign="start">Ghost control</SelectControl>
-
-// Phone
-<FieldGroup>
-<Field row label="Theme">
-  <SelectControl selected>System</SelectControl>
-</Field>
-</FieldGroup>
-```
-
 ## Select
 Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.
 Import: import { Select } from "@plexui/ui/components/Select"
@@ -7464,34 +7303,74 @@ Props:
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
 
 ### Overview
-Pass the selection as value: a string, or an array of strings with multiple. onChange receives the selected option (or options).
+Pass the selection as value: a string, or an array of strings with multiple. multiple also changes how onChange and TriggerView are typed: onChange receives the selected option, or every selected option, and TriggerView receives {"{ values, selectedAll }"}. The trigger is a SelectControl: variant, size (the 9-step scale of Button, Input, SelectControl and SegmentedControl), pill and dropdownIconType style it. block stretches it across its container, here the 290px field, and the list takes its width. Without block the trigger fits its value and the list is at least listMinWidth, here 240px, wider than the trigger, so align places it against the trigger. side is the side the list prefers. checkPosition puts the checkmark at the start or the end of a row; "none" leaves the column out. clearable adds a clear action. loading shows loadingPlaceholder and keeps the list closed. disabled disables the select, and a disabled select is not submitted with its form. opticallyAlign offsets the trigger by its gutter: "start" puts the text of a ghost trigger on the label's edge, and "end" puts the end of a block one, its indicator, on the field's end. A framed trigger keeps its gutter, so the example offers the setting for ghost only, and "end" only with block: a narrower trigger does not reach the field's end.On Phone the select is the value of a row in a FieldGroup, with {"block={false}"} and align="end". The row sets its height, insets, type and colors, and the list opens over the value with the checkmark leading. So the Phone preview has no variant, size, pill, block, dropdownIconType, side, align and opticallyAlign controls, and its checkPosition is "start" or "none": the checkmark leads every row, and "none" leaves it out. A clearable select leads its list with a None row instead of a clear button.
 ```tsx
 const [fruit, setFruit] = useState("")
+const [fruits, setFruits] = useState([])
+const [variant, setVariant] = useState("outline")
+const [size, setSize] = useState("md")
+const [pill, setPill] = useState(false)
+const [block, setBlock] = useState(true)
+const [dropdownIconType, setDropdownIconType] = useState("dropdown")
+const [checkPosition, setCheckPosition] = useState("start")
+const [side, setSide] = useState("bottom")
+const [align, setAlign] = useState("start") // without block: "start", "center" or "end"
+const [opticallyAlign, setOpticallyAlign] = useState("none") // ghost only: "start", or "end" with block
+const [clearable, setClearable] = useState(false)
+const [multiple, setMultiple] = useState(false)
+const [loading, setLoading] = useState(false)
+const [disabled, setDisabled] = useState(false)
+
+const FruitsView = ({ values, selectedAll }) => (
+  <>{selectedAll ? "All fruits" : values.length === 1 ? values[0].label : `${values.length} fruits`}</>
+)
+
+// With multiple, value is an array and onChange receives every selected option
+const selection = multiple
+  ? { multiple: true, value: fruits, onChange: (options) => setFruits(options.map(({ value }) => value)), TriggerView: FruitsView }
+  : { multiple: false, value: fruit, onChange: ({ value }) => setFruit(value) }
 
 // Desktop
-<Select
-value={fruit}
-options={fruits}
-onChange={({ value }) => setFruit(value)}
-placeholder="Select a fruit..."
-name="fruits"
-variant="outline"
-size="md"
-/>
+<div className="w-[290px]">
+  <Field label={multiple ? "Fruits" : "Fruit"}>
+    <Select
+      {...selection}
+      options={fruitOptions}
+      name="fruits"
+      placeholder={multiple ? "Select fruits..." : "Select a fruit..."}
+      variant={variant}
+      size={size}
+      pill={pill}
+      block={block}
+      dropdownIconType={dropdownIconType}
+      checkPosition={checkPosition}
+      side={side}
+      align={block ? undefined : align}
+      listMinWidth={block ? undefined : 240} // wider than the trigger, so align places the list
+      opticallyAlign={variant === "ghost" && opticallyAlign !== "none" ? opticallyAlign : undefined}
+      clearable={clearable}
+      loading={loading}
+      disabled={disabled}
+    />
+  </Field>
+</div>
 
-// Phone: the select is the value of a row.
+// Phone: the select is the value of a row; a clearable one leads its list with None.
 <FieldGroup>
-<Field row label="Fruit">
-  <Select
-    value={fruit}
-    options={fruits}
-    onChange={({ value }) => setFruit(value)}
-    placeholder="None"
-    name="fruits"
-    block={false}
-    align="end"
-  />
-</Field>
+  <Field row label={multiple ? "Fruits" : "Fruit"}>
+    <Select
+      {...selection}
+      options={fruitOptions}
+      name="fruits"
+      placeholder="None"
+      block={false}
+      align="end"
+      checkPosition={checkPosition} // the checkmark leads every row: "start" or "none"
+      clearable={clearable}
+      loading={loading}
+      disabled={disabled}
+    />
+  </Field>
 </FieldGroup>
 ```
 
@@ -7583,6 +7462,7 @@ actions={[
     placeholder="None"
     block={false}
     align="end"
+    checkPosition={checkPosition} // the checkmark leads every row: "start" or "none"
     actions={actions}
   />
 </Field>
@@ -7615,41 +7495,6 @@ clearable
     block={false}
     align="end"
     searchPlaceholder="Select an option..."
-  />
-</Field>
-</FieldGroup>
-```
-
-### Multiple selection
-Multiple selection is supported through the multiple property. This changes how value, onChange, and TriggerView are typed, accepting and returning arrays of values.
-```tsx
-// Desktop
-<Select
-variant="soft"
-placeholder="Select fruits..."
-options={fruitsOptions}
-name="fruits"
-multiple
-clearable
-value={fruits}
-onChange={(values) => setFruits(values.map(({ value }) => value))}
-TriggerView={MultiFruitTriggerView}
-/>
-
-// Phone
-<FieldGroup>
-<Field row label="Fruits">
-  <Select
-    placeholder="None"
-    options={fruitsOptions}
-    name="fruits"
-    multiple
-    clearable
-    block={false}
-    align="end"
-    value={fruits}
-    onChange={(values) => setFruits(values.map(({ value }) => value))}
-    TriggerView={MultiFruitTriggerView}
   />
 </Field>
 </FieldGroup>

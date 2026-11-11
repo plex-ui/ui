@@ -1,1 +1,1 @@
-export { ProgressSteps, type ProgressStepsProps, type StepProps } from "./ProgressSteps"
+export { ProgressSteps, type ProgressStepsProps, type StepProps, type TitleProps } from "./ProgressSteps"

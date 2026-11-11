@@ -11,69 +11,42 @@ import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import { phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const STAGE = "flex-1 flex flex-col items-center justify-center py-12 w-full"
-export const NARROW_STAGE = "flex-1 flex flex-col gap-2 justify-center items-center py-10 w-full"
 export const SIZES = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
-export const VARIANTS = ["soft", "outline", "ghost"]
 
-export const overview = `<Menu>
-  <MenuTrigger>
-    <SelectControl class="w-[200px]" :selected="!!value" @clear-click="value = ''" :StartIcon="CalendarAlt">{{ value || "Select date..." }}</SelectControl>
-  </MenuTrigger>
-  <MenuContent :min-width="200" :width="200">
-    <MenuRadioGroup v-model:value="value">
-      <MenuRadioItem value="Today">Today</MenuRadioItem>
-      <MenuRadioItem value="Last week">Last week</MenuRadioItem>
-      <MenuRadioItem value="Last month">Last month</MenuRadioItem>
-      <MenuRadioItem value="Last 3 months">Last 3 months</MenuRadioItem>
-    </MenuRadioGroup>
-  </MenuContent>
-</Menu>`
-
-export const variants = `<div class="w-full min-w-0 max-w-[400px]">
-  <div class="flex flex-col gap-6">
-    <div v-for="variant in ['soft', 'outline', 'ghost']" :key="variant" class="flex items-center">
-      <div class="text-right text-sm mr-8 min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ variant }}</div>
-      <div class="min-w-0 flex-1">
-        <SelectControl
-          class="w-full"
-          :variant="variant"
-          selected
-          :StartIcon="Cabinet"
-          @clear-click="() => {}"
-          :invalid="invalid"
-          :disabled="disabled"
-        >Sample value</SelectControl>
-      </div>
-    </div>
-  </div>
-</div>`
-
-export const sizing = `<div class="flex flex-col gap-2 justify-start items-start w-[240px]">
-  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" dropdown-icon-type="none">Select...</SelectControl>
-  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" loading>Select...</SelectControl>
-  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant">Select...</SelectControl>
-  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" :StartIcon="Tools" dropdown-icon-type="none">Tool calls</SelectControl>
-  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" @clear-click="() => {}" selected :StartIcon="Tools" dropdown-icon-type="none">With tool calls</SelectControl>
-  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" @clear-click="() => {}" selected :StartIcon="CalendarAlt" dropdown-icon-type="chevronDown">Today</SelectControl>
-  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" @clear-click="() => {}" selected :StartIcon="CalendarAlt">Today</SelectControl>
-</div>`
-
-export const selected = `<SelectControl class="w-[200px]" :selected="selected">Select...</SelectControl>`
-
-export const startIcon = `<SelectControl class="w-[200px]" :StartIcon="CalendarAlt">Select date...</SelectControl>`
-
-export const dropdownIcon = `<SelectControl class="w-[200px]" selected :dropdown-icon-type="dropdownIconType" :StartIcon="CalendarAlt">Select date...</SelectControl>`
-
-export const clearable = `<SelectControl class="w-[200px]" selected @clear-click="value = ''" :StartIcon="CalendarAlt">{{ value || "Select..." }}</SelectControl>`
-
-export const loading = `<SelectControl class="w-[200px]" selected :loading="loading" :StartIcon="CalendarAlt">Loading...</SelectControl>`
-
-export const invalid = `<SelectControl class="w-[200px]" :invalid="invalid" selected>Pineapple on pizza</SelectControl>`
-
-export const disabled = `<SelectControl class="w-[200px]" :disabled="disabled" selected :StartIcon="User">Reader</SelectControl>`
-
-export const block = `<div class="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
-  <SelectControl size="lg" :block="block" :StartIcon="CalendarAlt">Select...</SelectControl>
+export const overview = `<div class="w-[290px]">
+  <Field label="Period" :error-message="invalid ? 'No data for this period.' : undefined">
+    <template #default="control">
+      <Menu>
+        <MenuTrigger>
+          <SelectControl
+            v-bind="control"
+            :aria-labelledby="control['aria-labelledby'] + ' ' + control.id + '-value'"
+            :class="block ? undefined : 'w-[200px]'"
+            :variant="variant"
+            :size="size"
+            :pill="pill"
+            :block="block"
+            :optically-align="variant === 'ghost' && opticallyAlign !== 'none' ? opticallyAlign : undefined"
+            :StartIcon="startIcon ? CalendarAlt : undefined"
+            :dropdown-icon-type="dropdownIconType"
+            :selected="!!value"
+            :on-clear-click="clearable ? () => (value = '') : undefined"
+            :loading="loading"
+            :invalid="invalid"
+            :disabled="disabled"
+          ><span :id="control.id + '-value'">{{ value || "Select date..." }}</span></SelectControl>
+        </MenuTrigger>
+        <MenuContent :min-width="200" :width="block ? 290 : 200">
+          <MenuRadioGroup v-model:value="value">
+            <MenuRadioItem value="Today">Today</MenuRadioItem>
+            <MenuRadioItem value="Last week">Last week</MenuRadioItem>
+            <MenuRadioItem value="Last month">Last month</MenuRadioItem>
+            <MenuRadioItem value="Last 3 months">Last 3 months</MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuContent>
+      </Menu>
+    </template>
+  </Field>
 </div>`
 
 export const countrySelector = `<div class="w-[320px]">
@@ -169,29 +142,27 @@ export const phoneForm = `<form class="w-[360px]" novalidate @submit.prevent="su
   <Button type="submit" color="primary" variant="solid" :size="size" :pill="pill" class="w-full mt-3">Continue</Button>
 </form>`
 
-export const opticalAlignment = `<div class="flex flex-col gap-3 w-[280px]">
-  <div class="border border-dashed border-alpha/20 rounded-md py-4 px-6">
-    <div class="mb-2 text-secondary text-sm">Default</div>
-    <SelectControl class="w-full" selected variant="ghost">Ghost control</SelectControl>
-  </div>
-  <div class="border border-dashed border-alpha/20 rounded-md py-4 px-6">
-    <div class="mb-2 text-secondary text-sm">optically-align="{{ opticallyAlign }}"</div>
-    <SelectControl class="w-full" selected variant="ghost" :optically-align="opticallyAlign">Ghost control</SelectControl>
-  </div>
-</div>`
+
 
 import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
 
 export const overviewPhone = `<FieldGroup>
-  <Field row label="Period">
+  <Field row label="Period" :error-message="invalid ? 'No data for this period.' : undefined">
     <template #default="control">
       <Menu>
         <MenuTrigger>
-          <SelectControl v-bind="control" :selected="!!value">{{ value || "None" }}</SelectControl>
+          <SelectControl
+            v-bind="control"
+            :aria-labelledby="control['aria-labelledby'] + ' ' + control.id + '-value'"
+            :selected="!!value"
+            :loading="loading"
+            :invalid="invalid"
+            :disabled="disabled"
+          ><span :id="control.id + '-value'">{{ value || "None" }}</span></SelectControl>
         </MenuTrigger>
         <MenuContent :min-width="200" align="end">
           <MenuRadioGroup v-model:value="value">
-            <MenuRadioItem value="">None</MenuRadioItem>
+            <MenuRadioItem v-if="clearable" value="">None</MenuRadioItem>
             <MenuRadioItem value="Today">Today</MenuRadioItem>
             <MenuRadioItem value="Last week">Last week</MenuRadioItem>
             <MenuRadioItem value="Last month">Last month</MenuRadioItem>
@@ -203,71 +174,21 @@ export const overviewPhone = `<FieldGroup>
   </Field>
 </FieldGroup>`
 
-export const variantsPhone = `<FieldGroup>
-  <Field row label="Folder" :error-message="invalid ? 'Choose a folder you can edit.' : undefined">
-    <SelectControl selected :invalid="invalid" :disabled="disabled">Sample value</SelectControl>
-  </Field>
-</FieldGroup>`
-
-export const sizingPhone = `<FieldGroup>
-  <Field row label="Model">
-    <SelectControl>None</SelectControl>
-  </Field>
-  <Field row label="Tools">
-    <SelectControl loading>Loading...</SelectControl>
-  </Field>
-  <Field row label="Date">
-    <SelectControl selected>Today</SelectControl>
-  </Field>
-</FieldGroup>`
-
-export const selectedPhone = `<FieldGroup>
-  <Field row label="Fruit">
-    <SelectControl :selected="selected">Mango</SelectControl>
-  </Field>
-</FieldGroup>`
-
-export const startIconPhone = `<FieldGroup>
-  <Field row label="Date">
-    <SelectControl>None</SelectControl>
-  </Field>
-</FieldGroup>`
-
-export const dropdownIconPhone = `<FieldGroup>
-  <Field row label="Date">
-    <SelectControl selected>Today</SelectControl>
-  </Field>
-</FieldGroup>`
-
-export const clearablePhone = `<FieldGroup>
-  <Field row label="Date">
-    <SelectControl :selected="!!value" @clear-click="value = ''">{{ value || "None" }}</SelectControl>
-  </Field>
-</FieldGroup>`
-
-export const loadingPhone = `<FieldGroup>
-  <Field row label="Calendar">
-    <SelectControl selected :loading="loading">{{ loading ? "Loading..." : "Work" }}</SelectControl>
-  </Field>
-</FieldGroup>`
-
-export const invalidPhone = `<FieldGroup>
-  <Field row label="Topping" :error-message="invalid ? 'Choose another topping.' : undefined">
-    <SelectControl :invalid="invalid" selected>Pineapple</SelectControl>
-  </Field>
-</FieldGroup>`
-
-export const disabledPhone = `<FieldGroup>
-  <Field row label="Role">
-    <SelectControl :disabled="disabled" selected>Reader</SelectControl>
-  </Field>
-</FieldGroup>`
-
-export const blockPhone = `<FieldGroup>
-  <Field row label="Date">
-    <SelectControl>None</SelectControl>
-  </Field>
-</FieldGroup>`
+export const overviewControls = [
+  { name: "variant", type: "select", options: ["outline", "soft", "ghost"], default: "outline" },
+  { name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" },
+  { name: "pill", type: "boolean", default: false },
+  { name: "startIcon", type: "boolean", default: true },
+  { name: "dropdownIconType", type: "select", options: ["dropdown", "chevronDown", "none"], default: "dropdown" },
+  { name: "clearable", type: "boolean", default: true },
+  { name: "loading", type: "boolean", default: false },
+  { name: "invalid", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+  { name: "block", type: "boolean", default: false },
+  // A framed control keeps its gutter: the setting lines up a ghost control with the label (start) or, with block,
+  // with the field's end (end); a narrower control does not reach the field's end
+  { name: "opticallyAlign", type: "select", options: ["none", "start", { value: "end", label: "end", when: { block: true } }], default: "none", when: { variant: "ghost" } },
+]
 
 export const countrySelectorPhone = `<FieldGroup>
   <Field row label="Country">
@@ -306,13 +227,6 @@ export const countryCodeSelectorPhone = `<FieldGroup>
   </Field>
 </FieldGroup>`
 
-export const opticalAlignmentPhone = `<FieldGroup>
-  <Field row label="Theme">
-    <SelectControl selected>System</SelectControl>
-  </Field>
-</FieldGroup>`
-
-
 <UsageBlock>{`import { SelectControl } from "@plexui/vue/components/SelectControl";`}</UsageBlock>
 
 <MenuFamilyNote current="select-control" framework="vue" />
@@ -323,70 +237,25 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `icon-type`
 
 ## Examples
 
+{/* The examples Variants, Sizing & roundness, Selected, Start icon, Dropdown icon, Clearable, Loading, Invalid,
+    Disabled, Block and Optical alignment are settings of the Overview (owner 11.11: the first example shows everything
+    with every setting); their anchors stay */}
+<span id="variants" />
+<span id="sizing--roundness" />
+<span id="selected" />
+<span id="start-icon" />
+<span id="dropdown-icon" />
+<span id="clearable" />
+<span id="loading" />
+<span id="invalid" />
+<span id="disabled" />
+<span id="block" />
+<span id="optical-alignment" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={withPhone(overview, overviewPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" stageClassName={STAGE} template={overview} state={{ value: "" }} />
-</ComponentPreview>
-
-### Variants
-
-<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments. In a phone row the row is the frame, so this example is desktop only; Invalid and Disabled show the row's states.</>} code={withPhone(variants, variantsPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo phoneTemplate={phoneRows(variantsPhone)} phoneStageClassName="w-full" template={variants} controls={[{ name: "invalid", type: "boolean", default: false }, { name: "disabled", type: "boolean", default: false }]} />
-</ComponentPreview>
-
-### Sizing & roundness
-
-<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Sizing of the control is determined with the <code>size</code> prop. Each <code>size</code> provides dynamic values for various aspects of the control, including icon and indicator placement, as well <code>font-size</code> and gutter values.<br/><br/>Create fully rounded controls with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied, and the clear action is also set to <code>pill</code>. On Phone the row sets the control's size, so a row's control takes no <code>size</code> or <code>pill</code>, and this example is desktop only.</>} code={withPhone(sizing, sizingPhone)} previewMinHeight={276}>
-  <VueSelectDemo phoneTemplate={phoneRows(sizingPhone)} phoneStageClassName="w-full" desktopControlNames={["size", "pill", "variant"]} template={sizing} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }, { name: "pill", type: "boolean", default: false }, { name: "variant", type: "select", options: VARIANTS, default: "outline" }]} />
-</ComponentPreview>
-
-### Selected
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>selected</code> to indicate if the control has a selected value, which toggles visual placeholder styling.<br/><br/>As you'll notice here, this doesn't do anything to the content of the control. That's up to you. In a phone row a selected value takes the secondary label color (the primary one in a group with <code>columns</code>), a placeholder the tertiary one.</>} code={withPhone(selected, selectedPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo phoneTemplate={phoneRows(selectedPhone)} phoneStageClassName="w-full" stageClassName={NARROW_STAGE} template={selected} controls={[{ name: "selected", type: "boolean", default: false }]} />
-</ComponentPreview>
-
-### Start icon
-
-<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Pass a component to <code>StartIcon</code> to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon, and this example is desktop only.</>} code={withPhone(startIcon, startIconPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo phoneTemplate={phoneRows(startIconPhone)} phoneStageClassName="w-full" stageClassName={STAGE} template={startIcon} />
-</ComponentPreview>
-
-### Dropdown icon
-
-<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>dropdown-icon-type</code> to control the presentation of the dropdown indicator. In a phone row the indicator is always the up-down chevrons of an iOS pop-up button, so this example is desktop only.</>} code={withPhone(dropdownIcon, dropdownIconPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo phoneTemplate={phoneRows(dropdownIconPhone)} phoneStageClassName="w-full" desktopControlNames={["dropdownIconType"]} template={dropdownIcon} controls={[{ name: "dropdownIconType", type: "select", options: ["chevronDown", "dropdown", "none"], default: "dropdown" }]} />
-</ComponentPreview>
-
-### Clearable
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Listen to <code>@clear-click</code> to enable the clearable action. The clear button shows while the control is <code>selected</code>.</>} code={withPhone(clearable, clearablePhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo phoneTemplate={phoneRows(clearablePhone)} phoneStageClassName="w-full" stageClassName={STAGE} template={clearable} state={{ value: "Today" }} />
-</ComponentPreview>
-
-### Loading
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>During loading, the dropdown icon and clear action are automatically hidden, the control is marked <code>aria-busy</code>, and it ignores pointer and keyboard interaction. Use <code>disabled</code> to add visual disablement.</>} code={withPhone(loading, loadingPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo phoneTemplate={phoneRows(loadingPhone)} phoneStageClassName="w-full" template={loading} controls={[{ name: "loading", type: "boolean", default: true }]} />
-</ComponentPreview>
-
-### Invalid
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>invalid</code> to visually indicate the control is in an invalid state. A row has no frame to color: on Phone, pair <code>invalid</code> with the row's <code>error-message</code>.</>} code={withPhone(invalid, invalidPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo phoneTemplate={phoneRows(invalidPhone)} phoneStageClassName="w-full" template={invalid} controls={[{ name: "invalid", type: "boolean", default: true }]} />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>disabled</code> to both visually and accessibly disable the control.</>} code={withPhone(disabled, disabledPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo phoneTemplate={phoneRows(disabledPhone)} phoneStageClassName="w-full" template={disabled} controls={[{ name: "disabled", type: "boolean", default: true }]} />
-</ComponentPreview>
-
-### Block
-
-<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Create full-width controls with the <code>block</code> prop. In a phone row the value sits at the row's end, so the row's control takes no <code>block</code>, and this example is desktop only.</>} code={withPhone(block, blockPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo phoneTemplate={phoneRows(blockPhone)} phoneStageClassName="w-full" desktopControlNames={["block"]} template={block} controls={[{ name: "block", type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>variant</code> to stylize the control: its styles are like those of <code>{"<Button>"}</code>, with the small differences of <code>{"<Input>"}</code>, and <code>ghost</code> has no frame. <code>size</code> sets the control's height, font size, gutter and the placement of its icon and indicator, on the 9-step scale of Button, Input, Select and SegmentedControl; <code>pill</code> rounds it fully and widens its gutter, and its clear action is a pill too. Pass a component to <code>StartIcon</code> to put an icon before the value, sized, spaced and colored by the control, and <code>dropdown-icon-type</code> picks the indicator. <code>selected</code> says the control holds a value and turns off the placeholder styling. It does nothing to the content, which is up to you, so here it follows the value: pick a period, or clear it. Listen to <code>@clear-click</code> (or pass <code>on-clear-click</code>) to make the control clearable: the clear action shows while it is <code>selected</code>. During <code>loading</code> the dropdown icon and clear action are hidden, the control is marked <code>aria-busy</code> and it ignores pointer and keyboard interaction; add <code>disabled</code> to dim it as well. <code>invalid</code> marks the control invalid; pair it with the field's <code>error-message</code>. <code>disabled</code> disables it both visually and accessibly. <code>block</code> stretches it across its container, here the 290px field. <code>optically-align</code> offsets the control by its gutter: <code>"start"</code> puts the start of a <code>ghost</code> control, its icon or its text, on the label's edge, and <code>"end"</code> puts the end of a block one, its indicator, on the field's end. A framed control keeps its gutter, so the example offers the setting for ghost only, and <code>"end"</code> only with <code>block</code>: a narrower control does not reach the field's end. The control's own <code>aria-labelledby</code> names it by the label and the value, as Select's trigger is named.<br /><br />On Phone the control is the value of a row in a <code>FieldGroup</code>: the value and its up-down chevrons sit at the row's end, as an iOS pop-up button. The row sets its height, insets, type and colors, so the Phone preview has no <code>variant</code>, <code>size</code>, <code>pill</code>, <code>StartIcon</code>, <code>dropdownIconType</code>, <code>block</code> and <code>opticallyAlign</code> controls. A selected value takes the secondary label color (the primary one in a group with <code>columns</code>), a placeholder the tertiary one. A clearable control unsets its value with the menu's None row, as iOS pop-ups do, rather than a clear button. A row has no frame to color, so the error is the row's <code>error-message</code> line.</>} code={withPhone(overview, overviewPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" stageClassName={STAGE} template={overview} state={{ value: "" }} controls={overviewControls} desktopControlNames={["variant", "size", "pill", "startIcon", "dropdownIconType", "block", "opticallyAlign"]} />
 </ComponentPreview>
 
 ### Country selector
@@ -421,12 +290,6 @@ export const phoneFormMobile = formScreenTemplate("Phone number", `<FieldGroup t
 
 <ComponentPreview phonePresentation="screen" language="vue" details={<>Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix, clears the phone field and focuses it. Phone numbers are formatted as you type using per-country patterns (e.g. <code>123 456 7890</code> for US, <code>1234 567 890</code> for UK). Search works by both country name and dial code. Validation runs on submit: the phone field shows an error state with <code>FieldError</code> when the number is too short or too long.</>} code={phoneFormMobile} previewMinHeight={240}>
   <VueCountryFormDemo stageClassName="py-10" template={`<template v-if="!wide">${phoneFormMobile}</template><template v-else>${phoneForm}</template>`} state={{ country: "es", phone: "", submitted: false }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: false }]} />
-</ComponentPreview>
-
-### Optical alignment
-
-<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>optically-align</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the control. In a phone row the row aligns the value with its inset, so <code>optically-align</code> is for desktop, and so is this example.</>} code={withPhone(opticalAlignment, opticalAlignmentPhone)} previewMinHeight={292}>
-  <VueSelectDemo phoneTemplate={phoneRows(opticalAlignmentPhone)} phoneStageClassName="w-full" desktopControlNames={["opticallyAlign"]} stageClassName={NARROW_STAGE} template={opticalAlignment} controls={[{ name: "opticallyAlign", type: "select", options: ["start", "end"], default: "start" }]} />
 </ComponentPreview>
 
 ## API

@@ -826,7 +826,9 @@ Props:
   - class (string) — Class applied to the container
   ProgressStepsStep:
     - icon (Component | VNode | string) — Custom icon instead of step number; the icon slot takes precedence
-Examples: Overview, Sizes, Vertical, With Icons, With Navigation, Minimal, Icons Only, Colors
+  ProgressStepsTitle:
+    - visually-hidden (boolean) default: false — Hides the title from view and keeps it for screen readers, for steps that show their indicators alone; the step then takes no room under its indicator
+Examples: Overview, With Navigation
 
 ## Radio Group
 Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.
@@ -930,7 +932,7 @@ Props:
   - search-size (ControlSize) default: "md" — Size of the search input in the menu. A phone list has no search: it is an iOS menu, and a long one scrolls
   - search-predicate ((option, term) => boolean) — Filters options while searching
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
-Examples: Overview, With descriptions, Actions, Grouped options, Multiple selection
+Examples: Overview, With descriptions, Actions, Grouped options
 
 ## Select Control
 The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.
@@ -952,7 +954,7 @@ Props:
   - loading (boolean) default: false — Loading state (aria-busy); hides the indicators and ignores interaction
   - optically-align ("start" | "end") — Optical alignment
   - class (string) — Applied to the control
-Examples: Overview, Variants, Sizing & roundness, Selected, Start icon, Dropdown icon, Clearable, Loading, Invalid, Disabled, Block, Country selector, Country code selector, Phone form, Optical alignment
+Examples: Overview, Country selector, Country code selector, Phone form
 
 ## Separator
 A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.

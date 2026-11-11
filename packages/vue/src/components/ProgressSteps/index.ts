@@ -6,4 +6,5 @@ export {
   type ProgressStepsProps,
   type StepIconProp,
   type StepProps,
+  type TitleProps,
 } from "./ProgressSteps.js"

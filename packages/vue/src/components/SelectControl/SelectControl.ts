@@ -172,9 +172,11 @@ const SelectControlComponent = defineComponent({
           "data-selected": selected,
           "data-loading": loading ? "" : undefined,
           "data-invalid": props.invalid ? "" : undefined,
-          "data-disabled": disabled ? "" : undefined,
           "aria-disabled": disabled,
           ...restAttrs,
+          // A wrapping trigger (MenuTrigger) passes its own data-disabled, undefined while it is enabled: the
+          // control's disabled state stays, and a disabled trigger still marks it
+          "data-disabled": disabled ? "" : restAttrs["data-disabled"],
           "onClick": handleClick,
           "onPointercancel": (evt: PointerEvent) => {
             mouseClickHandled = false

@@ -33,7 +33,6 @@ const phoneRule = (path: string, selector: string) => {
 
 describe.each([
   ["popover", ["Open on hover"]],
-  ["progress-steps", ["Vertical"]],
   ["breadcrumb", ["Sizes"]],
   ["page", ["Widths"]],
   ["alert", ["Action placement"]],
@@ -45,6 +44,17 @@ describe.each([
       expect(section.slice(0, section.indexOf("</>}")), path).toMatch(/so this example is desktop only\./)
     }
   })
+})
+
+// Progress steps: Vertical, once a desktop-only example, is the orientation of the one Overview (owner 11.11), a
+// desktop-only setting: on a phone the steps stand vertically
+test("Progress Steps: orientation is a desktop control of the Overview, and the page says why", () => {
+  expect(read("components/docs/ProgressStepsDemos.tsx")).toMatch(/name="orientation"[^\n]*desktopOnly/)
+  expect(read("content/vue/components/progress-steps.mdx")).toMatch(/\{ name: "orientation", desktopOnly: true, phoneDefault: "vertical"/)
+  for (const path of both("progress-steps")) {
+    expect(desktopOnly(path), path).toEqual([])
+    expect(read(path), path).toContain("so the steps stand vertically there and the phone has no <code>orientation</code> setting")
+  }
 })
 
 test("Copy Tooltip: the hover delay is a desktop control, a tap copies at once", () => {

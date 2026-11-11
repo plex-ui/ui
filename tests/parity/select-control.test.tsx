@@ -369,6 +369,36 @@ describe("SelectControl as a Menu trigger", () => {
     snapshots.push(snapshot())
   }
 
+  test("a disabled control stays marked disabled inside an enabled trigger, and a disabled trigger marks it", async () => {
+    const marks: Array<Array<string | null>> = []
+    for (const mount of [
+      (disabled: boolean, triggerDisabled: boolean) => render(
+        <ReactMenu>
+          <ReactMenu.Trigger disabled={triggerDisabled}>
+            <ReactSelectControl disabled={disabled}>Today</ReactSelectControl>
+          </ReactMenu.Trigger>
+          <ReactMenu.Content><ReactMenu.Item>Today</ReactMenu.Item></ReactMenu.Content>
+        </ReactMenu>,
+      ),
+      (disabled: boolean, triggerDisabled: boolean) => mountVue(() => h(Menu, null, {
+        default: () => [
+          h(MenuTrigger, { disabled: triggerDisabled }, { default: () => h(SelectControl, { disabled }, { default: () => "Today" }) }),
+          h(MenuContent, null, { default: () => h(MenuRadioGroup, { value: "" }, { default: () => h(MenuRadioItem, { value: "Today" }, { default: () => "Today" }) }) }),
+        ],
+      })),
+    ]) {
+      const seen: Array<string | null> = []
+      for (const [disabled, triggerDisabled] of [[true, false], [false, true], [false, false]] as const) {
+        const view = mount(disabled, triggerDisabled)
+        await settle()
+        seen.push(document.querySelector("[data-slot='select-control']")?.getAttribute("data-disabled") ?? null)
+        view.unmount()
+      }
+      marks.push(seen)
+    }
+    expect(marks).toEqual([["", "", null], ["", "", null]])
+  })
+
   test("touch waits for a committed click before opening the menu", async () => {
     const steps = async () => {
       await settle()

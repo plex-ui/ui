@@ -14,35 +14,55 @@ export const VARIANTS = ["outline", "soft", "ghost"]
 export const SIZES = ["sm", "md", "lg"]
 export const CHECK_POSITIONS = ["start", "end"]
 
-export const overview = `<div style="width: 200px">
-  <Select
-    v-if="multiple"
-    key="multi"
-    placeholder="Select fruits..."
-    :options="fruitsOptions"
-    name="fruits"
-    multiple
-    :variant="variant"
-    :size="size"
-    :clearable="clearable"
-    :check-position="checkPosition"
-    v-model:value="multiFruits"
-  >
-    <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
-  </Select>
-  <Select
-    v-else
-    key="single"
-    placeholder="Select a fruit..."
-    :options="fruitsOptions"
-    name="fruits"
-    :multiple="false"
-    :variant="variant"
-    :size="size"
-    :clearable="clearable"
-    :check-position="checkPosition"
-    v-model:value="fruit"
-  />
+export const overview = `<div class="w-[290px]">
+  <Field :label="multiple ? 'Fruits' : 'Fruit'">
+    <Select
+      v-if="multiple"
+      key="multi"
+      v-model:value="fruits"
+      :options="fruitsOptions"
+      name="fruits"
+      multiple
+      placeholder="Select fruits..."
+      :variant="variant"
+      :size="size"
+      :pill="pill"
+      :block="block"
+      :dropdown-icon-type="dropdownIconType"
+      :check-position="checkPosition"
+      :side="side"
+      :align="block ? undefined : align"
+      :list-min-width="block ? undefined : 240"
+      :optically-align="variant === 'ghost' && opticallyAlign !== 'none' ? opticallyAlign : undefined"
+      :clearable="clearable"
+      :loading="loading"
+      :disabled="disabled"
+    >
+      <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
+    </Select>
+    <Select
+      v-else
+      key="single"
+      v-model:value="fruit"
+      :options="fruitsOptions"
+      name="fruits"
+      :multiple="false"
+      placeholder="Select a fruit..."
+      :variant="variant"
+      :size="size"
+      :pill="pill"
+      :block="block"
+      :dropdown-icon-type="dropdownIconType"
+      :check-position="checkPosition"
+      :side="side"
+      :align="block ? undefined : align"
+      :list-min-width="block ? undefined : 240"
+      :optically-align="variant === 'ghost' && opticallyAlign !== 'none' ? opticallyAlign : undefined"
+      :clearable="clearable"
+      :loading="loading"
+      :disabled="disabled"
+    />
+  </Field>
 </div>`
 
 export const descriptions = `<div style="width: 220px">
@@ -88,50 +108,62 @@ export const grouped = `<div style="width: 200px">
   />
 </div>`
 
-export const multiple = `<div style="width: 200px">
-  <Select
-    variant="soft"
-    placeholder="Select fruits..."
-    :options="fruitsOptions"
-    name="fruits"
-    multiple
-    clearable
-    v-model:value="fruits"
-  >
-    <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
-  </Select>
-</div>`
-
 export const overviewPhone = `<FieldGroup>
   <Field row :label="multiple ? 'Fruits' : 'Fruit'">
     <Select
       v-if="multiple"
       key="multi"
-      placeholder="None"
+      v-model:value="fruits"
       :options="fruitsOptions"
       name="fruits"
       multiple
+      placeholder="None"
       :block="false"
       align="end"
+      :check-position="checkPosition"
       :clearable="clearable"
-      v-model:value="multiFruits"
+      :loading="loading"
+      :disabled="disabled"
     >
       <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
     </Select>
     <Select
       v-else
       key="single"
-      placeholder="None"
+      v-model:value="fruit"
       :options="fruitsOptions"
       name="fruits"
       :multiple="false"
+      placeholder="None"
       :block="false"
       align="end"
+      :check-position="checkPosition"
       :clearable="clearable"
-      v-model:value="fruit"
+      :loading="loading"
+      :disabled="disabled"
     />
   </Field>
 </FieldGroup>`
+
+export const overviewControls = [
+  { name: "variant", type: "select", options: VARIANTS, default: "outline" },
+  { name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" },
+  { name: "pill", type: "boolean", default: false },
+  { name: "block", type: "boolean", default: true },
+  { name: "dropdownIconType", type: "select", options: ["dropdown", "chevronDown", "none"], default: "dropdown" },
+  // On a phone the checkmark leads every row: end shows as start there, and none still leaves it out
+  { name: "checkPosition", type: "select", options: ["start", "end", "none"], phoneOptions: ["start", "none"], default: "start" },
+  { name: "side", type: "select", options: ["bottom", "top"], default: "bottom" },
+  // A block list matches its trigger, so align acts only without block
+  { name: "align", type: "select", options: ["start", "center", "end"], default: "start", when: { block: false } },
+  // A framed trigger keeps its gutter: the setting lines up a ghost trigger with the label (start) or, with block,
+  // with the field's end (end); a narrower trigger does not reach the field's end
+  { name: "opticallyAlign", type: "select", options: ["none", "start", { value: "end", label: "end", when: { block: true } }], default: "none", when: { variant: "ghost" } },
+  { name: "clearable", type: "boolean", default: false },
+  { name: "multiple", type: "boolean", default: false },
+  { name: "loading", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+]
 
 export const descriptionsPhone = `<FieldGroup>
   <Field row label="Role">
@@ -172,35 +204,22 @@ export const groupedPhone = `<FieldGroup>
   </Field>
 </FieldGroup>`
 
-export const multiplePhone = `<FieldGroup>
-  <Field row label="Fruits">
-    <Select
-      placeholder="None"
-      :options="fruitsOptions"
-      name="fruits"
-      multiple
-      clearable
-      :block="false"
-      align="end"
-      v-model:value="fruits"
-    >
-      <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
-    </Select>
-  </Field>
-</FieldGroup>`
-
 <UsageBlock>{`import { Select } from "@plexui/vue/components/Select";`}</UsageBlock>
 
 <MenuFamilyNote current="select" framework="vue" />
 
-On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Settings Forms](/vue/components/settings-forms) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, and toward the larger part of the screen. The value is hidden under the list while it is open. The list is an iOS menu, so its rows are the rows of [Menu › On a phone](/vue/components/menu#on-a-phone): a description is the row's subtitle, and so is a tooltip; the checkmark leads every row whatever `checkPosition` says (`"none"` still leaves it out), so the Phone previews leave out that control. It has no search, as an iOS menu has none: a long list scrolls. A `clearable` select with its default trigger has no clear button there, as an iOS pop-up button has none (a custom `trigger` owns its clearing): its list leads with a None row in a section of its own, checked while nothing is chosen, and choosing it unsets the value and closes the list, a multiple one too, as Reminders does. `none-label` names the row. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
+On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Settings Forms](/vue/components/settings-forms) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, and toward the larger part of the screen. The value is hidden under the list while it is open. The list is an iOS menu, so its rows are the rows of [Menu › On a phone](/vue/components/menu#on-a-phone): a description is the row's subtitle, and so is a tooltip; the checkmark leads every row whatever `checkPosition` says, and `"none"` still leaves it out, so the Overview's Phone view offers `"start"` and `"none"` and the other Phone previews leave out that control. It has no search, as an iOS menu has none: a long list scrolls. A `clearable` select with its default trigger has no clear button there, as an iOS pop-up button has none (a custom `trigger` owns its clearing): its list leads with a None row in a section of its own, checked while nothing is chosen, and choosing it unsets the value and closes the list, a multiple one too, as Reminders does. `none-label` names the row. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
 
 ## Examples
 
+{/* Multiple selection is a setting of the Overview (owner 11.11: the first example shows everything with every
+    setting); its anchor stays */}
+<span id="multiple-selection" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Bind the selection with <code>v-model:value</code>: a string, or an array of strings with <code>multiple</code>. The <code>@change</code> event carries the selected option (or options), like React's <code>onChange</code>.</>} code={withPhone(overview, overviewPhone, "the select is the value of a row.")} previewMinHeight={168}>
-  <VueSelectDemo stageClassName={STAGE} template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" desktopControlNames={["variant", "size", "checkPosition"]} state={{ fruit: "", multiFruits: [] }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "outline" }, { name: "size", type: "select", options: SIZES, default: "md" }, { name: "checkPosition", type: "select", options: CHECK_POSITIONS, default: "start" }, { name: "clearable", type: "boolean", default: false }, { name: "multiple", type: "boolean", default: false }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Bind the selection with <code>v-model:value</code>: a string, or an array of strings with <code>multiple</code>. <code>multiple</code> also changes what <code>@change</code> and the <code>#triggerView</code> slot carry: <code>@change</code> carries the selected option, or every selected option, like React's <code>onChange</code>, and the slot receives <code>{"{ values, selectedAll }"}</code>. The trigger is a <code>SelectControl</code>: <code>variant</code>, <code>size</code> (the 9-step scale of Button, Input, SelectControl and SegmentedControl), <code>pill</code> and <code>dropdown-icon-type</code> style it. <code>block</code> stretches it across its container, here the 290px field, and the list takes its width. Without <code>block</code> the trigger fits its value and the list is at least <code>list-min-width</code>, here 240px, wider than the trigger, so <code>align</code> places it against the trigger. <code>side</code> is the side the list prefers. <code>check-position</code> puts the checkmark at the start or the end of a row; <code>"none"</code> leaves the column out. <code>clearable</code> adds a clear action. <code>loading</code> shows <code>loading-placeholder</code> and keeps the list closed. <code>disabled</code> disables the select, and a disabled select is not submitted with its form. <code>optically-align</code> offsets the trigger by its gutter: <code>"start"</code> puts the text of a <code>ghost</code> trigger on the label's edge, and <code>"end"</code> puts the end of a block one, its indicator, on the field's end. A framed trigger keeps its gutter, so the example offers the setting for ghost only, and <code>"end"</code> only with <code>block</code>: a narrower trigger does not reach the field's end.<br /><br />On Phone the select is the value of a row in a <code>FieldGroup</code>, with <code>:block="false"</code> and <code>align="end"</code>. The row sets its height, insets, type and colors, and the list opens over the value with the checkmark leading. So the Phone preview has no <code>variant</code>, <code>size</code>, <code>pill</code>, <code>block</code>, <code>dropdown-icon-type</code>, <code>side</code>, <code>align</code> and <code>optically-align</code> controls, and its <code>check-position</code> is <code>"start"</code> or <code>"none"</code>: the checkmark leads every row, and <code>"none"</code> leaves it out. A clearable select leads its list with a None row instead of a clear button.</>} code={withPhone(overview, overviewPhone, "the select is the value of a row; a clearable one leads its list with None.")} previewMinHeight={168}>
+  <VueSelectDemo stageClassName={STAGE} template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" desktopControlNames={["variant", "size", "pill", "block", "dropdownIconType", "side", "align", "opticallyAlign"]} state={{ fruit: "", fruits: [] }} controls={overviewControls} />
 </ComponentPreview>
 
 ### With descriptions
@@ -219,12 +238,6 @@ On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Settings Form
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Select supports option groups, similar to the native <code>&lt;optgroup&gt;</code> element, and per-option tooltips. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options. On a phone the list is an iOS menu, which has no search: a long list scrolls.</>} code={withPhone(grouped, groupedPhone)} previewMinHeight={168}>
   <VueSelectDemo template={grouped} phoneTemplate={phoneRows(groupedPhone)} phoneStageClassName="w-full" state={{ value: "1" }} />
-</ComponentPreview>
-
-### Multiple selection
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Multiple selection is supported through the <code>multiple</code> property. This changes how <code>v-model:value</code>, <code>@change</code>, and the <code>#triggerView</code> slot are typed, accepting and returning arrays of values.</>} code={withPhone(multiple, multiplePhone)} previewMinHeight={168}>
-  <VueSelectDemo template={multiple} phoneTemplate={phoneRows(multiplePhone)} phoneStageClassName="w-full" state={{ fruits: [] }} />
 </ComponentPreview>
 
 ## API

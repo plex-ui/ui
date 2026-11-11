@@ -249,14 +249,20 @@ export const ProgressStepsStep = defineComponent({
 
 export type StepProps = InstanceType<typeof ProgressStepsStep>["$props"]
 
-/** Step title. Like React, only `class` reaches the DOM from attributes. */
+/** Step title. Like React, only `class` reaches the DOM from attributes. `visuallyHidden` hides it from view and keeps
+ * it for screen readers, for steps that show their indicators alone; the step then takes no room under its indicator. */
 export const ProgressStepsTitle = defineComponent({
   name: "ProgressStepsTitle",
   inheritAttrs: false,
-  setup(_props, { slots, attrs }) {
-    return () => h("div", { class: [s.StepTitle, attrs.class] }, slots.default?.())
+  props: {
+    visuallyHidden: { type: Boolean, default: false },
+  },
+  setup(props, { slots, attrs }) {
+    return () => h("div", { class: [s.StepTitle, attrs.class], "data-visually-hidden": props.visuallyHidden ? "" : undefined }, slots.default?.())
   },
 })
+
+export type TitleProps = InstanceType<typeof ProgressStepsTitle>["$props"]
 
 /** Step description. Like React, only `class` reaches the DOM from attributes. */
 export const ProgressStepsDescription = defineComponent({

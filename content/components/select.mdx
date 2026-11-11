@@ -7,52 +7,97 @@ metaDescription: React select dropdown component with grouped options, per-item 
 import { MenuFamilyNote } from "@/components/docs/MenuFamilyNote"
 import { Select } from "@plexui/ui/components/Select"
 import {
-  SelectBaseDemo,
+  SelectOverviewDemo,
   SelectCustomViewsDemo,
   SelectActionsDemo,
   SelectGroupedOptionsDemo,
-  SelectMultiSelectDemo,
 } from "@/components/docs/SelectDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+
+export const overviewCode = `const [fruit, setFruit] = useState("")
+const [fruits, setFruits] = useState([])
+const [variant, setVariant] = useState("outline")
+const [size, setSize] = useState("md")
+const [pill, setPill] = useState(false)
+const [block, setBlock] = useState(true)
+const [dropdownIconType, setDropdownIconType] = useState("dropdown")
+const [checkPosition, setCheckPosition] = useState("start")
+const [side, setSide] = useState("bottom")
+const [align, setAlign] = useState("start") // without block: "start", "center" or "end"
+const [opticallyAlign, setOpticallyAlign] = useState("none") // ghost only: "start", or "end" with block
+const [clearable, setClearable] = useState(false)
+const [multiple, setMultiple] = useState(false)
+const [loading, setLoading] = useState(false)
+const [disabled, setDisabled] = useState(false)
+
+const FruitsView = ({ values, selectedAll }) => (
+  <>{selectedAll ? "All fruits" : values.length === 1 ? values[0].label : \`\${values.length} fruits\`}</>
+)
+
+// With multiple, value is an array and onChange receives every selected option
+const selection = multiple
+  ? { multiple: true, value: fruits, onChange: (options) => setFruits(options.map(({ value }) => value)), TriggerView: FruitsView }
+  : { multiple: false, value: fruit, onChange: ({ value }) => setFruit(value) }
+
+// Desktop
+<div className="w-[290px]">
+  <Field label={multiple ? "Fruits" : "Fruit"}>
+    <Select
+      {...selection}
+      options={fruitOptions}
+      name="fruits"
+      placeholder={multiple ? "Select fruits..." : "Select a fruit..."}
+      variant={variant}
+      size={size}
+      pill={pill}
+      block={block}
+      dropdownIconType={dropdownIconType}
+      checkPosition={checkPosition}
+      side={side}
+      align={block ? undefined : align}
+      listMinWidth={block ? undefined : 240} // wider than the trigger, so align places the list
+      opticallyAlign={variant === "ghost" && opticallyAlign !== "none" ? opticallyAlign : undefined}
+      clearable={clearable}
+      loading={loading}
+      disabled={disabled}
+    />
+  </Field>
+</div>
+
+// Phone: the select is the value of a row; a clearable one leads its list with None.
+<FieldGroup>
+  <Field row label={multiple ? "Fruits" : "Fruit"}>
+    <Select
+      {...selection}
+      options={fruitOptions}
+      name="fruits"
+      placeholder="None"
+      block={false}
+      align="end"
+      checkPosition={checkPosition} // the checkmark leads every row: "start" or "none"
+      clearable={clearable}
+      loading={loading}
+      disabled={disabled}
+    />
+  </Field>
+</FieldGroup>`
 
 <UsageBlock>{`import { Select } from "@plexui/ui/components/Select";`}</UsageBlock>
 
 <MenuFamilyNote current="select" />
 
-On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Settings Forms](/components/settings-forms) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, and toward the larger part of the screen. The value is hidden under the list while it is open. The list is an iOS menu, so its rows are the rows of [Menu › On a phone](/components/menu#on-a-phone): a description is the row's subtitle, and so is a tooltip; the checkmark leads every row whatever `checkPosition` says (`"none"` still leaves it out), so the Phone previews leave out that control. It has no search, as an iOS menu has none: a long list scrolls. A `clearable` select with its default trigger has no clear button there, as an iOS pop-up button has none (a custom `trigger` owns its clearing): its list leads with a None row in a section of its own, checked while nothing is chosen, and choosing it unsets the value and closes the list, a multiple one too, as Reminders does. `noneLabel` names the row. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
+On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Settings Forms](/components/settings-forms) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, and toward the larger part of the screen. The value is hidden under the list while it is open. The list is an iOS menu, so its rows are the rows of [Menu › On a phone](/components/menu#on-a-phone): a description is the row's subtitle, and so is a tooltip; the checkmark leads every row whatever `checkPosition` says, and `"none"` still leaves it out, so the Overview's Phone view offers `"start"` and `"none"` and the other Phone previews leave out that control. It has no search, as an iOS menu has none: a long list scrolls. A `clearable` select with its default trigger has no clear button there, as an iOS pop-up button has none (a custom `trigger` owns its clearing): its list leads with a None row in a section of its own, checked while nothing is chosen, and choosing it unsets the value and closes the list, a multiple one too, as Reminders does. `noneLabel` names the row. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
 
 ## Examples
 
+{/* Multiple selection is a setting of the Overview (owner 11.11: the first example shows everything with every
+    setting); its anchor stays */}
+<span id="multiple-selection" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass the selection as <code>value</code>: a string, or an array of strings with <code>multiple</code>. <code>onChange</code> receives the selected option (or options).</>} code={`const [fruit, setFruit] = useState("")
-
-// Desktop
-<Select
-  value={fruit}
-  options={fruits}
-  onChange={({ value }) => setFruit(value)}
-  placeholder="Select a fruit..."
-  name="fruits"
-  variant="outline"
-  size="md"
-/>
-
-// Phone: the select is the value of a row.
-<FieldGroup>
-  <Field row label="Fruit">
-    <Select
-      value={fruit}
-      options={fruits}
-      onChange={({ value }) => setFruit(value)}
-      placeholder="None"
-      name="fruits"
-      block={false}
-      align="end"
-    />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <SelectBaseDemo />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass the selection as <code>value</code>: a string, or an array of strings with <code>multiple</code>. <code>multiple</code> also changes how <code>onChange</code> and <code>TriggerView</code> are typed: <code>onChange</code> receives the selected option, or every selected option, and <code>TriggerView</code> receives <code>{"{ values, selectedAll }"}</code>. The trigger is a <code>SelectControl</code>: <code>variant</code>, <code>size</code> (the 9-step scale of Button, Input, SelectControl and SegmentedControl), <code>pill</code> and <code>dropdownIconType</code> style it. <code>block</code> stretches it across its container, here the 290px field, and the list takes its width. Without <code>block</code> the trigger fits its value and the list is at least <code>listMinWidth</code>, here 240px, wider than the trigger, so <code>align</code> places it against the trigger. <code>side</code> is the side the list prefers. <code>checkPosition</code> puts the checkmark at the start or the end of a row; <code>"none"</code> leaves the column out. <code>clearable</code> adds a clear action. <code>loading</code> shows <code>loadingPlaceholder</code> and keeps the list closed. <code>disabled</code> disables the select, and a disabled select is not submitted with its form. <code>opticallyAlign</code> offsets the trigger by its gutter: <code>"start"</code> puts the text of a <code>ghost</code> trigger on the label's edge, and <code>"end"</code> puts the end of a block one, its indicator, on the field's end. A framed trigger keeps its gutter, so the example offers the setting for ghost only, and <code>"end"</code> only with <code>block</code>: a narrower trigger does not reach the field's end.<br /><br />On Phone the select is the value of a row in a <code>FieldGroup</code>, with <code>{"block={false}"}</code> and <code>align="end"</code>. The row sets its height, insets, type and colors, and the list opens over the value with the checkmark leading. So the Phone preview has no <code>variant</code>, <code>size</code>, <code>pill</code>, <code>block</code>, <code>dropdownIconType</code>, <code>side</code>, <code>align</code> and <code>opticallyAlign</code> controls, and its <code>checkPosition</code> is <code>"start"</code> or <code>"none"</code>: the checkmark leads every row, and <code>"none"</code> leaves it out. A clearable select leads its list with a None row instead of a clear button.</>} code={overviewCode} previewMinHeight={168}>
+  <SelectOverviewDemo />
 </ComponentPreview>
 
 ### With descriptions
@@ -142,6 +187,7 @@ const phoneRoles = [
       placeholder="None"
       block={false}
       align="end"
+      checkPosition={checkPosition} // the checkmark leads every row: "start" or "none"
       actions={actions}
     />
   </Field>
@@ -178,41 +224,6 @@ const phoneRoles = [
   </Field>
 </FieldGroup>`} previewMinHeight={168}>
   <SelectGroupedOptionsDemo />
-</ComponentPreview>
-
-### Multiple selection
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Multiple selection is supported through the <code>multiple</code> property. This changes how <code>value</code>, <code>onChange</code>, and <code>TriggerView</code> are typed, accepting and returning arrays of values.</>} code={`// Desktop
-<Select
-  variant="soft"
-  placeholder="Select fruits..."
-  options={fruitsOptions}
-  name="fruits"
-  multiple
-  clearable
-  value={fruits}
-  onChange={(values) => setFruits(values.map(({ value }) => value))}
-  TriggerView={MultiFruitTriggerView}
-/>
-
-// Phone
-<FieldGroup>
-  <Field row label="Fruits">
-    <Select
-      placeholder="None"
-      options={fruitsOptions}
-      name="fruits"
-      multiple
-      clearable
-      block={false}
-      align="end"
-      value={fruits}
-      onChange={(values) => setFruits(values.map(({ value }) => value))}
-      TriggerView={MultiFruitTriggerView}
-    />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <SelectMultiSelectDemo />
 </ComponentPreview>
 
 ## API

@@ -194,6 +194,28 @@
   padding-bottom: 0;
 }
 
+/* A step that shows its indicator alone keeps its title for screen readers (`visuallyHidden`) and takes no room:
+   out of the flow, so neither its padding nor the step's gap shows under the indicator */
+.StepContent:has(> [data-visually-hidden]):not(:has(> :not([data-visually-hidden]))) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.StepTitle[data-visually-hidden] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .StepTitle {
   /* Center title vertically with indicator: (indicator-size - line-height) / 2 */
   padding-top: calc((var(--indicator-size) - var(--font-text-sm-line-height)) / 2);

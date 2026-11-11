@@ -826,7 +826,9 @@ Props:
   - className (string) — Class applied to the container
   ProgressSteps.Step:
     - icon (ReactNode) — Custom icon instead of step number
-Examples: Overview, Sizes, Vertical, With Icons, With Navigation, Minimal, Icons Only, Colors
+  ProgressSteps.Title:
+    - visuallyHidden (boolean) default: false — Hides the title from view and keeps it for screen readers, for steps that show their indicators alone; the step then takes no room under its indicator
+Examples: Overview, With Navigation
 
 ## Progress
 A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
@@ -914,7 +916,7 @@ Props:
   - loading (boolean) default: false — Loading state (aria-busy); hides the indicators and ignores interaction
   - opticallyAlign ("start" | "end") — Optical alignment
   - className (string) — Applied to the control
-Examples: Overview, Variants, Sizing & roundness, Selected, Start icon, Dropdown icon, Clearable, Loading, Invalid, Disabled, Block, Country selector, Country code selector, Phone form, Optical alignment
+Examples: Overview, Country selector, Country code selector, Phone form
 
 ## Select
 Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.
@@ -957,7 +959,7 @@ Props:
   - searchSize (ControlSize) default: "md" — Size of the search input in the menu. A phone list has no search: it is an iOS menu, and a long one scrolls
   - searchPredicate ((option, term) => boolean) — Filters options while searching
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
-Examples: Overview, With descriptions, Actions, Grouped options, Multiple selection
+Examples: Overview, With descriptions, Actions, Grouped options
 
 ## Separator
 A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.

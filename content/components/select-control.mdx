@@ -5,20 +5,7 @@ metaDescription: React select control, the button of a Select on its own for cus
 ---
 
 import { MenuFamilyNote } from "@/components/docs/MenuFamilyNote"
-import {
-  SelectControlBaseDemo,
-  SelectControlVariantsDemo,
-  SelectControlSizingDemo,
-  SelectControlSelectedDemo,
-  SelectControlStartIconDemo,
-  SelectControlClearableDemo,
-  SelectControlDropdownIconDemo,
-  SelectControlLoadingDemo,
-  SelectControlInvalidDemo,
-  SelectControlDisabledDemo,
-  SelectControlBlockDemo,
-  SelectControlOpticalAlignmentDemo,
-} from "@/components/docs/SelectControlDemos"
+import { SelectControlOverviewDemo } from "@/components/docs/SelectControlDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 import {
   CountryCodeSelectorDemo,
@@ -26,6 +13,89 @@ import {
   CountrySelectorDemo,
 } from "@/components/docs/PhoneInputDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+
+export const overviewCode = `const [value, setValue] = useState("")
+const [variant, setVariant] = useState("outline")
+const [size, setSize] = useState("md")
+const [pill, setPill] = useState(false)
+const [startIcon, setStartIcon] = useState(true)
+const [dropdownIconType, setDropdownIconType] = useState("dropdown")
+const [clearable, setClearable] = useState(true)
+const [loading, setLoading] = useState(false)
+const [invalid, setInvalid] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [block, setBlock] = useState(false)
+const [opticallyAlign, setOpticallyAlign] = useState("none") // ghost only: "start", or "end" with block
+
+// Desktop
+<div className="w-[290px]">
+  <Field label="Period" errorMessage={invalid ? "No data for this period." : undefined}>
+    {(control) => (
+      <Menu>
+        <Menu.Trigger>
+          <SelectControl
+            {...control}
+            aria-labelledby={\`\${control["aria-labelledby"]} \${control.id}-value\`}
+            className={block ? undefined : "w-[200px]"}
+            variant={variant}
+            size={size}
+            pill={pill}
+            block={block}
+            opticallyAlign={variant === "ghost" && opticallyAlign !== "none" ? opticallyAlign : undefined}
+            StartIcon={startIcon ? CalendarAlt : undefined}
+            dropdownIconType={dropdownIconType}
+            selected={!!value}
+            onClearClick={clearable ? () => setValue("") : undefined}
+            loading={loading}
+            invalid={invalid}
+            disabled={disabled}
+          >
+            <span id={\`\${control.id}-value\`}>{value || "Select date..."}</span>
+          </SelectControl>
+        </Menu.Trigger>
+        <Menu.Content minWidth={200} width={block ? 290 : 200}>
+          <Menu.RadioGroup value={value} onChange={setValue}>
+            <Menu.RadioItem value="Today">Today</Menu.RadioItem>
+            <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
+            <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
+            <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
+          </Menu.RadioGroup>
+        </Menu.Content>
+      </Menu>
+    )}
+  </Field>
+</div>
+
+// Phone: the control is the value of a row; its label and value name the trigger, and a clearable one has None.
+<FieldGroup>
+  <Field row label="Period" errorMessage={invalid ? "No data for this period." : undefined}>
+    {(control) => (
+      <Menu>
+        <Menu.Trigger>
+          <SelectControl
+            {...control}
+            aria-labelledby={\`\${control["aria-labelledby"]} \${control.id}-value\`}
+            selected={!!value}
+            loading={loading}
+            invalid={invalid}
+            disabled={disabled}
+          >
+            <span id={\`\${control.id}-value\`}>{value || "None"}</span>
+          </SelectControl>
+        </Menu.Trigger>
+        <Menu.Content minWidth={200} align="end">
+          <Menu.RadioGroup value={value} onChange={setValue}>
+            {clearable && <Menu.RadioItem value="">None</Menu.RadioItem>}
+            <Menu.RadioItem value="Today">Today</Menu.RadioItem>
+            <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
+            <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
+            <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
+          </Menu.RadioGroup>
+        </Menu.Content>
+      </Menu>
+    )}
+  </Field>
+</FieldGroup>`
 
 <UsageBlock>{`import { SelectControl } from "@plexui/ui/components/SelectControl";`}</UsageBlock>
 
@@ -37,211 +107,25 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `iconType` 
 
 ## Examples
 
+{/* The examples Variants, Sizing & roundness, Selected, Start icon, Dropdown icon, Clearable, Loading, Invalid,
+    Disabled, Block and Optical alignment are settings of the Overview (owner 11.11: the first example shows everything
+    with every setting); their anchors stay */}
+<span id="variants" />
+<span id="sizing--roundness" />
+<span id="selected" />
+<span id="start-icon" />
+<span id="dropdown-icon" />
+<span id="clearable" />
+<span id="loading" />
+<span id="invalid" />
+<span id="disabled" />
+<span id="block" />
+<span id="optical-alignment" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={`const [value, setValue] = useState("")
-
-// Desktop
-<Menu>
-  <Menu.Trigger>
-    <SelectControl className="w-[200px]" selected={!!value} onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
-      {value || "Select date..."}
-    </SelectControl>
-  </Menu.Trigger>
-  <Menu.Content minWidth={200} width={200}>
-    <Menu.RadioGroup value={value} onChange={setValue}>
-      <Menu.RadioItem value="Today">Today</Menu.RadioItem>
-      <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
-      <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
-      <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
-    </Menu.RadioGroup>
-  </Menu.Content>
-</Menu>
-
-// Phone: the control is the value of a row; its label reaches the trigger, and None clears it.
-<FieldGroup>
-  <Field row label="Period">
-    {(control) => (
-      <Menu>
-        <Menu.Trigger>
-          <SelectControl {...control} selected={!!value}>
-            {value || "None"}
-          </SelectControl>
-        </Menu.Trigger>
-        <Menu.Content minWidth={200} align="end">
-          <Menu.RadioGroup value={value} onChange={setValue}>
-            <Menu.RadioItem value="">None</Menu.RadioItem>
-            <Menu.RadioItem value="Today">Today</Menu.RadioItem>
-            <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
-            <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
-            <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
-          </Menu.RadioGroup>
-        </Menu.Content>
-      </Menu>
-    )}
-  </Field>
-</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <SelectControlBaseDemo />
-</ComponentPreview>
-
-### Variants
-
-<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments. In a phone row the row is the frame, so this example is desktop only; Invalid and Disabled show the row's states.</>} code={`// Desktop
-<div className="flex w-full min-w-0 max-w-[400px] flex-col gap-6">
-  <SelectControl className="w-full" variant="soft" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
-  <SelectControl className="w-full" variant="outline" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
-  <SelectControl className="w-full" variant="ghost" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
-</div>
-
-// Phone
-<FieldGroup>
-  <Field row label="Folder" errorMessage={invalid ? "Choose a folder you can edit." : undefined}>
-    <SelectControl selected invalid={invalid} disabled={disabled}>Sample value</SelectControl>
-  </Field>
-</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <SelectControlVariantsDemo />
-</ComponentPreview>
-
-### Sizing & roundness
-
-<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} details={<>Sizing of the control is determined with the <code>size</code> prop. Each <code>size</code> provides dynamic values for various aspects of the control, including icon and indicator placement, as well <code>font-size</code> and gutter values.<br/><br/>Create fully rounded controls with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied, and the clear action is also set to <code>pill</code>. On Phone the row sets the control's size, so a row's control takes no <code>size</code> or <code>pill</code>, and this example is desktop only.</>} code={`// Desktop
-<SelectControl size="md" pill={false} dropdownIconType="none">Select...</SelectControl>
-<SelectControl size="md" loading>Select...</SelectControl>
-<SelectControl size="md">Select...</SelectControl>
-<SelectControl size="md" StartIcon={Tools} dropdownIconType="none">Tool calls</SelectControl>
-...
-
-// Phone
-<FieldGroup>
-  <Field row label="Model">
-    <SelectControl>None</SelectControl>
-  </Field>
-  <Field row label="Tools">
-    <SelectControl loading>Loading...</SelectControl>
-  </Field>
-  <Field row label="Date">
-    <SelectControl selected>Today</SelectControl>
-  </Field>
-</FieldGroup>`} previewMinHeight={276}>
-  <SelectControlSizingDemo />
-</ComponentPreview>
-
-### Selected
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>selected</code> to indicate if the control has a selected value, which toggles visual placeholder styling.<br/><br/>As you'll notice here, this doesn't do anything to the content of the control. That's up to you. In a phone row a selected value takes the secondary label color (the primary one in a group with <code>columns</code>), a placeholder the tertiary one.</>} code={`// Desktop
-<SelectControl selected={false}>Select...</SelectControl>
-
-// Phone
-<FieldGroup>
-  <Field row label="Fruit">
-    <SelectControl selected={false}>Mango</SelectControl>
-  </Field>
-</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <SelectControlSelectedDemo />
-</ComponentPreview>
-
-### Start icon
-
-<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>StartIcon</code> to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon, and this example is desktop only.</>} code={`// Desktop
-<SelectControl StartIcon={CalendarAlt}>Select date...</SelectControl>
-
-// Phone
-<FieldGroup>
-  <Field row label="Date">
-    <SelectControl>None</SelectControl>
-  </Field>
-</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <SelectControlStartIconDemo />
-</ComponentPreview>
-
-### Dropdown icon
-
-<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>dropdownIconType</code> to control the presentation of the dropdown indicator. In a phone row the indicator is always the up-down chevrons of an iOS pop-up button, so this example is desktop only.</>} code={`// Desktop
-<SelectControl selected dropdownIconType="dropdown" StartIcon={CalendarAlt}>Select date...</SelectControl>
-
-// Phone
-<FieldGroup>
-  <Field row label="Date">
-    <SelectControl selected>Today</SelectControl>
-  </Field>
-</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <SelectControlDropdownIconDemo />
-</ComponentPreview>
-
-### Clearable
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass a callback <code>onClearClick</code> to enable the clearable action.</>} code={`// Desktop
-<SelectControl selected onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
-  {value || "Select..."}
-</SelectControl>
-
-// Phone
-<FieldGroup>
-  <Field row label="Date">
-    <SelectControl selected={!!value} onClearClick={() => setValue("")}>
-      {value || "None"}
-    </SelectControl>
-  </Field>
-</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <SelectControlClearableDemo />
-</ComponentPreview>
-
-### Loading
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>During loading, the dropdown icon and clear action are automatically hidden, the control is marked <code>aria-busy</code>, and it ignores pointer and keyboard interaction. Use <code>disabled</code> to add visual disablement.</>} code={`// Desktop
-<SelectControl selected loading StartIcon={CalendarAlt}>Loading...</SelectControl>
-
-// Phone
-<FieldGroup>
-  <Field row label="Calendar">
-    <SelectControl selected loading>Loading...</SelectControl>
-  </Field>
-</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <SelectControlLoadingDemo />
-</ComponentPreview>
-
-### Invalid
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>invalid</code> to visually indicate the control is in an invalid state. A row has no frame to color: on Phone, pair <code>invalid</code> with the row's <code>errorMessage</code>.</>} code={`// Desktop
-<SelectControl invalid selected>Pineapple on pizza</SelectControl>
-
-// Phone
-<FieldGroup>
-  <Field row label="Topping" errorMessage="Choose another topping.">
-    <SelectControl invalid selected>Pineapple</SelectControl>
-  </Field>
-</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <SelectControlInvalidDemo />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>disabled</code> to both visually and accessibly disable the control.</>} code={`// Desktop
-<SelectControl disabled selected StartIcon={User}>Reader</SelectControl>
-
-// Phone
-<FieldGroup>
-  <Field row label="Role">
-    <SelectControl disabled selected>Reader</SelectControl>
-  </Field>
-</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <SelectControlDisabledDemo />
-</ComponentPreview>
-
-### Block
-
-<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} details={<>Create full-width controls with the <code>block</code> prop. In a phone row the value sits at the row's end, so the row's control takes no <code>block</code>, and this example is desktop only.</>} code={`// Desktop
-<div className="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
-  <SelectControl block size="lg" StartIcon={CalendarAlt}>Select...</SelectControl>
-</div>
-
-// Phone
-<FieldGroup>
-  <Field row label="Date">
-    <SelectControl>None</SelectControl>
-  </Field>
-</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <SelectControlBlockDemo />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>variant</code> to stylize the control: its styles are like those of <code>{"<Button>"}</code>, with the small differences of <code>{"<Input>"}</code>, and <code>ghost</code> has no frame. <code>size</code> sets the control's height, font size, gutter and the placement of its icon and indicator, on the 9-step scale of Button, Input, Select and SegmentedControl; <code>pill</code> rounds it fully and widens its gutter, and its clear action is a pill too. <code>StartIcon</code> puts an icon before the value, sized, spaced and colored by the control, and <code>dropdownIconType</code> picks the indicator. <code>selected</code> says the control holds a value and turns off the placeholder styling. It does nothing to the content, which is up to you, so here it follows the value: pick a period, or clear it. Pass <code>onClearClick</code> to make the control clearable: the clear action shows while it is <code>selected</code>. During <code>loading</code> the dropdown icon and clear action are hidden, the control is marked <code>aria-busy</code> and it ignores pointer and keyboard interaction; add <code>disabled</code> to dim it as well. <code>invalid</code> marks the control invalid; pair it with the field's <code>errorMessage</code>. <code>disabled</code> disables it both visually and accessibly. <code>block</code> stretches it across its container, here the 290px field. <code>opticallyAlign</code> offsets the control by its gutter: <code>"start"</code> puts the start of a <code>ghost</code> control, its icon or its text, on the label's edge, and <code>"end"</code> puts the end of a block one, its indicator, on the field's end. A framed control keeps its gutter, so the example offers the setting for ghost only, and <code>"end"</code> only with <code>block</code>: a narrower control does not reach the field's end. The control's own <code>aria-labelledby</code> names it by the label and the value, as Select's trigger is named.<br /><br />On Phone the control is the value of a row in a <code>FieldGroup</code>: the value and its up-down chevrons sit at the row's end, as an iOS pop-up button. The row sets its height, insets, type and colors, so the Phone preview has no <code>variant</code>, <code>size</code>, <code>pill</code>, <code>StartIcon</code>, <code>dropdownIconType</code>, <code>block</code> and <code>opticallyAlign</code> controls. A selected value takes the secondary label color (the primary one in a group with <code>columns</code>), a placeholder the tertiary one. A clearable control unsets its value with the menu's None row, as iOS pop-ups do, rather than a clear button. A row has no frame to color, so the error is the row's <code>errorMessage</code> line.</>} code={overviewCode} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <SelectControlOverviewDemo />
 </ComponentPreview>
 
 ### Country selector
@@ -508,20 +392,6 @@ function PhoneForm() {
   );
 }`} previewMinHeight={240}>
   <PhoneFormDemo />
-</ComponentPreview>
-
-### Optical alignment
-
-<ComponentPreview phonePresentation="none" className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>opticallyAlign</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the control. In a phone row the row aligns the value with its inset, so <code>opticallyAlign</code> is for desktop, and so is this example.</>} code={`// Desktop
-<SelectControl selected variant="ghost" opticallyAlign="start">Ghost control</SelectControl>
-
-// Phone
-<FieldGroup>
-  <Field row label="Theme">
-    <SelectControl selected>System</SelectControl>
-  </Field>
-</FieldGroup>`} previewMinHeight={292}>
-  <SelectControlOpticalAlignmentDemo />
 </ComponentPreview>
 
 ## API
