@@ -317,34 +317,35 @@
     /* =============================================
       Swipe actions
     ============================================= */
-    /* Actions behind a row of a list, after the iOS 27 kit Row with Swipe Actions (Lists 550:49969; there is no native
-       frame of a swipe): Symbol Only capsules of 60x44 with the symbol in 8px ends; Symbol and Label 84x44 with a 16pt
-       symbol 8px before a 13/15 label; Symbol and Label Tall a 60x38 capsule 6px from the top of a row of 68 with a
-       13/15 medium label 5px under it. The actions stand 10px apart, 16px from the edge and 10px from the content. A
-       17pt symbol draws as a 20px PlexUI icon, a 16pt one as 18px. A longer label widens its capsule past 84 with the
-       kit's 4px ends (text 4px in clears the round end of a 44px capsule). The content of a revealed row is a capsule
-       of the row's color on the background of the list (SwipeActions.module.css: on a phone the canvas of the Page and
-       the fill of a FieldGroup, on a desktop the secondary surface under the surface). */
+    /* Actions behind a row of a list, as iOS 27.2 draws a list's swipe actions (iPhone 17, ref-app swipe-* in rows of
+       52 to 90, measures/swipe.md). The actions stand 4px inside the top and bottom of the row (52: 44 tall), 10px
+       apart, 10px from the edge and 10px from the content, whose corners round by 26px. A symbol alone is a capsule
+       of 60 up to a 50px circle (from a row of 58). With a label inside, every action takes the width of the widest:
+       the symbol (17pt draws 14 tall, an 18px PlexUI icon) 6.67px before a 13px regular label, 16px ends. A label alone
+       is a rounded rectangle of 16px corners, 16px ends. From a row of 60 iOS puts the label under the symbol: the
+       capsule 4.33px from the top takes what a 13px regular secondary label 7px under it leaves (64: 36, 72: 44) and
+       is a 50px circle from a row of 78, the two standing in the middle of a taller row. */
     --swipe-actions-gap: 10px;
-    --swipe-actions-edge-inset: 16px;
+    --swipe-actions-edge-inset: 10px;
     --swipe-actions-content-gap: 10px;
-    --swipe-actions-content-radius: 9999px;
-    --swipe-actions-action-height: 44px;
+    --swipe-actions-content-radius: 26px;
+    --swipe-actions-inset-block: 4px;
     --swipe-actions-action-min-width: 60px;
     --swipe-actions-action-padding-inline: 8px;
+    --swipe-actions-circle-size: 50px;
     --swipe-actions-icon-size: 20px;
-    --swipe-actions-labeled-min-width: 84px;
-    --swipe-actions-labeled-padding-inline: 4px;
+    --swipe-actions-labeled-padding-inline: 16px;
     --swipe-actions-labeled-icon-size: 18px;
-    --swipe-actions-label-gap: 8px;
+    --swipe-actions-label-gap: 6.67px;
     --swipe-actions-label-font-size: 13px;
-    --swipe-actions-label-line-height: 15px;
+    --swipe-actions-label-line-height: 16px;
     --swipe-actions-label-font-weight: var(--font-weight-normal);
-    --swipe-actions-tall-action-height: 38px;
-    --swipe-actions-tall-padding-top: 6px;
-    --swipe-actions-tall-padding-bottom: 4px;
-    --swipe-actions-caption-gap: 5px;
-    --swipe-actions-caption-font-weight: var(--font-weight-medium);
+    --swipe-actions-text-padding-inline: 16px;
+    --swipe-actions-text-radius: 16px;
+    --swipe-actions-tall-padding-top: 4.33px;
+    --swipe-actions-tall-padding-bottom: 3.67px;
+    --swipe-actions-caption-gap: 4px;
+    --swipe-actions-caption-font-weight: var(--font-weight-normal);
     --swipe-actions-duration: 250ms;
 
     /* =============================================

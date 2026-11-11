@@ -125,6 +125,76 @@ describe("SwipeActions DOM parity", () => {
   })
 })
 
+describe.each([
+  ["React", async (props: Case) => {
+    await act(async () => {
+      render(<RSwipeActions {...props} leading={toReact(props.leading)} trailing={toReact(props.trailing)}><span>Row</span></RSwipeActions>)
+    })
+  }],
+  ["Vue", async (props: Case) => {
+    mountVue(() => h(SwipeActions, { ...props, leading: toVue(props.leading), trailing: toVue(props.trailing) }, { default: () => h("span", "Row") }))
+    await flushVue()
+  }],
+] as const)("%s SwipeActions shapes", (_, mount) => {
+  /**
+   * The symbol capsules lay out `height` tall under a max-height of 50px, as the CSS sets it; with `firstOnly`, as in
+   * a full swipe, only the capsule of the first action of a side is laid out and the others measure 0.
+   */
+  const layOut = (height: number, firstOnly = false) => {
+    const rect = vi.mocked(HTMLElement.prototype.getBoundingClientRect)
+    const sides = rect.getMockImplementation()!
+    rect.mockImplementation(function rectOf(this: HTMLElement) {
+      const action = this.parentElement
+      if (action?.dataset.shape === "symbol" && this === action.firstElementChild) {
+        const shown = !firstOnly || action.hasAttribute("data-first")
+        return DOMRect.fromRect({ x: 0, y: 0, width: shown ? 60 : 0, height: shown ? height : 0 })
+      }
+      return sides.call(this)
+    })
+    const style = vi.mocked(window.getComputedStyle)
+    const base = style.getMockImplementation()!
+    style.mockImplementation((element, pseudo) => {
+      if (element.parentElement?.dataset.shape === "symbol") return { maxHeight: "50px" } as unknown as CSSStyleDeclaration
+      return base(element, pseudo)
+    })
+  }
+
+  test("each action has a shape: a label alone is text, a symbol with its label inside a label, else a symbol", async () => {
+    await mount({ labelPlacement: "below", leading: [PIN], trailing: [DELETE, { ...ARCHIVE, icon: false }] })
+    expect([...document.querySelectorAll("button")].map((button) => button.dataset.shape)).toEqual(["symbol", "text", "symbol"])
+    cleanup()
+    document.body.innerHTML = ""
+    await mount({ labelPlacement: "inside", trailing: [DELETE, { ...ARCHIVE, icon: false }] })
+    expect([...document.querySelectorAll("button")].map((button) => button.dataset.shape)).toEqual(["text", "label"])
+  })
+
+  test.each([[50, true], [49.67, true], [48, false]])("a symbol %spx tall under a 50px circle is round: %s", async (height, round) => {
+    layOut(height)
+    await mount({ trailing: [DELETE, ARCHIVE] })
+    expect(document.querySelector("[data-swipe-actions]")!.hasAttribute("data-round")).toBe(round)
+  })
+
+  // The trailing side lists its actions from the far one, so the first symbol in the DOM is the one a full swipe hides.
+  test("a full swipe hides all but the first action: the row stays round by the one laid out", async () => {
+    layOut(50, true)
+    await mount({ trailing: [DELETE, ARCHIVE] })
+    expect(document.querySelector('[data-side="trailing"] > :first-child')!.hasAttribute("data-first")).toBe(false)
+    expect(document.querySelector("[data-swipe-actions]")!.hasAttribute("data-round")).toBe(true)
+  })
+
+  test("while no symbol is laid out the shape stays", async () => {
+    layOut(0)
+    await mount({ trailing: [DELETE, ARCHIVE] })
+    expect(document.querySelector("[data-swipe-actions]")!.hasAttribute("data-round")).toBe(false)
+  })
+
+  test("a label inside never makes the row round", async () => {
+    layOut(50)
+    await mount({ labelPlacement: "inside", trailing: [DELETE, ARCHIVE] })
+    expect(document.querySelector("[data-swipe-actions]")!.hasAttribute("data-round")).toBe(false)
+  })
+})
+
 type Mounted = {
   row: (index?: number) => HTMLElement
   content: (index?: number) => HTMLElement
@@ -474,14 +544,28 @@ describe("SwipeActions CSS", () => {
   const css = read("packages/styles/src/components/SwipeActions/SwipeActions.module.css")
   const group = read("packages/styles/src/components/FieldGroup/FieldGroup.module.css")
 
-  test("the kit measurements: capsules, spacing, labels", () => {
+  // iOS 27.2 (ref-app swipe-* in rows of 52 to 90, measures/swipe.md).
+  test("the native measurements: insets, capsules, circles, labels", () => {
     for (const [name, value] of [
-      ["gap", "10px"], ["edge-inset", "16px"], ["content-gap", "10px"], ["action-height", "44px"], ["action-min-width", "60px"],
-      ["action-padding-inline", "8px"], ["icon-size", "20px"], ["labeled-min-width", "84px"], ["labeled-padding-inline", "4px"], ["labeled-icon-size", "18px"],
-      ["label-gap", "8px"], ["label-font-size", "13px"], ["label-line-height", "15px"], ["tall-action-height", "38px"],
-      ["tall-padding-top", "6px"], ["tall-padding-bottom", "4px"], ["caption-gap", "5px"],
+      ["gap", "10px"], ["edge-inset", "10px"], ["content-gap", "10px"], ["content-radius", "26px"], ["inset-block", "4px"],
+      ["action-min-width", "60px"], ["action-padding-inline", "8px"], ["circle-size", "50px"], ["icon-size", "20px"],
+      ["labeled-padding-inline", "16px"], ["labeled-icon-size", "18px"], ["label-gap", "6.67px"], ["label-font-size", "13px"],
+      ["label-line-height", "16px"], ["text-padding-inline", "16px"], ["text-radius", "16px"], ["tall-padding-top", "4.33px"],
+      ["tall-padding-bottom", "3.67px"], ["caption-gap", "4px"],
     ]) expect(tokens).toContain(`--swipe-actions-${name}: ${value};`)
-    expect(tokens).toContain("--swipe-actions-caption-font-weight: var(--font-weight-medium);")
+    expect(tokens).toContain("--swipe-actions-label-font-weight: var(--font-weight-normal);")
+    expect(tokens).toContain("--swipe-actions-caption-font-weight: var(--font-weight-normal);")
+    // The capsule takes the height of the row: no fixed heights or widths of the kit's.
+    expect(tokens).not.toMatch(/--swipe-actions-(action-height|tall-action-height|labeled-min-width):/)
+  })
+
+  test("an action fills the row but its insets; a symbol grows up to its circle, a label inside sets every width", () => {
+    expect(css).toMatch(/\.Action \{[^}]*justify-content: center;[^}]*padding: var\(--swipe-actions-inset-block\) 0;/)
+    expect(css).toMatch(/\.Capsule \{[^}]*flex: 1 1 0;[^}]*min-height: 0;/)
+    expect(css).toMatch(/\.Action\[data-shape="symbol"\] > \.Capsule \{\s*max-height: var\(--swipe-actions-circle-size\);/)
+    expect(css).toMatch(/\.SwipeActions\[data-round\] > \.Actions:not\(\[data-full\]\) > \.Action\[data-shape="symbol"\] > \.Capsule \{\s*width: var\(--swipe-actions-circle-size\);/)
+    expect(css).toMatch(/\.SwipeActions\[data-label-placement="inside"\] > \.Actions \{\s*display: grid;\s*grid-auto-columns: 1fr;\s*grid-auto-flow: column;/)
+    expect(css).toMatch(/\.Action\[data-shape="text"\] > \.Capsule \{\s*padding-inline: var\(--swipe-actions-text-padding-inline\);\s*border-radius: var\(--swipe-actions-text-radius\);/)
   })
 
   test("solid PlexUI colors for every action color, darker while pressed", () => {
@@ -492,11 +576,11 @@ describe("SwipeActions CSS", () => {
     }
   })
 
-  test("on a phone the row shows the canvas of its Page behind a capsule of the fill of its FieldGroup, and no theme resets them", () => {
+  test("on a phone the row shows the canvas of its Page behind content turned soft gray (systemGray5), and no theme resets them", () => {
     expect(css).toContain("background: var(--swipe-actions-background, var(--color-surface-secondary));")
     expect(css).toContain("background: var(--swipe-actions-content-background, var(--color-surface));")
     expect(css).toContain("var(--swipe-actions-background, var(--mobile-surface-primary, var(--mobile-surface-plain-primary,")
-    expect(css).toContain("var(--swipe-actions-content-background, var(--mobile-surface-secondary, var(--mobile-surface-plain-secondary,")
+    expect(css).toContain("background: var(--swipe-actions-content-background, var(--color-background-secondary-soft));")
     expect(tokens).not.toContain("--swipe-actions-background:")
     expect(tokens).not.toContain("--swipe-actions-content-background:")
     expect(touch).not.toContain("--swipe-actions-")

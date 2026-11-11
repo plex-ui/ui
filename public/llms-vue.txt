@@ -1134,7 +1134,7 @@ Docs: https://plexui.com/vue/components/swipe-actions
 Props:
   - leading (SwipeAction[]) default: [] — Actions revealed by a swipe toward the trailing edge, the first one at the leading edge
   - trailing (SwipeAction[]) default: [] — Actions revealed by a swipe toward the leading edge, the first one at the trailing edge
-  - label-placement ("hidden" | "inside" | "below") default: "hidden" — Where the actions show their labels: symbols only, inside the capsule, or below it (for rows of 68px and taller)
+  - label-placement ("hidden" | "inside" | "below") default: "hidden" — Where the actions show their labels: symbols only, inside the capsule, or below it (for rows of 60px and taller, as iOS sets them)
   - full-swipe (boolean) default: true — A swipe past the middle between the open actions and the far edge runs the first action of that side
   SwipeAction:
     - id (string) — Unique ID of the action within its side

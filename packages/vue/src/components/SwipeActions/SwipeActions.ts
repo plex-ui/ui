@@ -98,7 +98,7 @@ const SwipeActionsComponent = defineComponent({
     leading: { type: Array as PropType<SwipeAction[]>, default: () => [] },
     /** Actions revealed by a swipe toward the leading edge, the first one at the trailing edge */
     trailing: { type: Array as PropType<SwipeAction[]>, default: () => [] },
-    /** Where the actions show their labels: `"hidden"` (symbols only), `"inside"` the capsule, or `"below"` it (for rows of 68px and taller). @default "hidden" */
+    /** Where the actions show their labels: `"hidden"` (symbols only), `"inside"` the capsule, or `"below"` it (for rows of 60px and taller, as iOS sets them). @default "hidden" */
     labelPlacement: { type: String as PropType<"hidden" | "inside" | "below">, default: "hidden" },
     /** A swipe past the middle between the open actions and the far edge runs the first action of that side. @default true */
     fullSwipe: { type: Boolean, default: true },
@@ -108,6 +108,7 @@ const SwipeActionsComponent = defineComponent({
     const full = ref(false)
     const swiping = ref(false)
     const rtl = ref(false)
+    const round = ref(false)
     const root = ref<HTMLElement | null>(null)
     const sides: Record<SwipeActionsSide, HTMLElement | null> = { leading: null, trailing: null }
     let gesture: Gesture | null = null
@@ -172,15 +173,37 @@ const SwipeActionsComponent = defineComponent({
       if (target !== offset.value) move(target)
     }
 
-    // After each render, and whenever the actions change size, an open row takes their width.
+    /**
+     * A symbol that has grown as tall as its circle (its max-height) is one, as iOS draws a circle from there. The
+     * measure is a capsule that is laid out: a full swipe hides all but the first action of its side, and while none
+     * is laid out the shape stays.
+     */
+    const fit = () => {
+      const capsules = [...(root.value?.querySelectorAll<HTMLElement>('[data-shape="symbol"] > :first-child') ?? [])]
+      if (capsules.length < 1) {
+        round.value = false
+        return
+      }
+      const capsule = capsules.find((element) => element.getBoundingClientRect().height > 0)
+      if (!capsule) return
+      const max = parseFloat(getComputedStyle(capsule).maxHeight)
+      round.value = max > 0 && capsule.getBoundingClientRect().height >= max - 0.5
+    }
+
+    // After each render, and whenever the actions change size, an open row takes their width and a symbol its shape.
     const observeSides = () => {
       for (const element of [sides.leading, sides.trailing]) if (element) observer?.observe(element, BORDER_BOX)
     }
     onMounted(() => {
-      if (typeof ResizeObserver !== "undefined") observer = new ResizeObserver(sync)
+      if (typeof ResizeObserver !== "undefined") observer = new ResizeObserver(() => {
+        fit()
+        sync()
+      })
+      fit()
       observeSides()
     })
     onUpdated(() => {
+      fit()
       sync()
       observeSides()
     })
@@ -352,13 +375,16 @@ const SwipeActionsComponent = defineComponent({
         "style": isFull ? { width: `${Math.abs(offset.value)}px` } : undefined,
       }, shown.map((action) => {
         const color = action.color ?? "secondary"
-        const labelInside = props.labelPlacement === "inside" || !action.Icon
-        const labelBelow = props.labelPlacement === "below" && !!action.Icon
+        // A label alone (text), a symbol with its label inside (label), or a symbol with its label hidden or below.
+        const shape = !action.Icon ? "text" : props.labelPlacement === "inside" ? "label" : "symbol"
+        const labelInside = shape !== "symbol"
+        const labelBelow = shape === "symbol" && props.labelPlacement === "below"
         return h("button", {
           "key": action.id,
           "type": "button",
           "class": s.Action,
           "data-color": color,
+          "data-shape": shape,
           "data-first": action === actions[0] ? "" : undefined,
           "aria-label": labelInside || labelBelow ? undefined : action.label,
           "onClick": (event: MouseEvent) => select(action, event),
@@ -379,6 +405,7 @@ const SwipeActionsComponent = defineComponent({
       "data-row": "",
       "data-swipe-actions": "",
       "data-label-placement": props.labelPlacement,
+      "data-round": round.value ? "" : undefined,
       "data-revealed": revealed.value,
       "data-swiping": swiping.value ? "" : undefined,
       "onFocusin": handleFocusIn,

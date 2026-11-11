@@ -203,7 +203,7 @@ export const groupDemo = `<div class="grid w-[640px] max-w-full gap-4 sm:grid-co
 
 ### Rows with a handle
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A row that is mostly a field needs a grip: <code>handles</code> shows it, and then only the grip drags the row. On a phone with <code>touch.css</code> the grip ends the row, after its value, in the tertiary label color, where iOS puts its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode.</>} code={inputsDemo} previewMinHeight={340}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A row that is mostly a field needs a grip: <code>handles</code> shows it, and then only the grip drags the row. On a phone with <code>touch.css</code> the grip ends the row, after its value, as three flat lines 21px wide in the tertiary label color, where and as iOS 27.2 draws its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode.</>} code={inputsDemo} previewMinHeight={340}>
   <VuePhoneRowsDemo template={inputsDemo} phoneTemplate={phoneRows(inputsDemo)} phoneStageClassName="w-full" stageClassName={STAGE} state={{ rows: contact }} />
 </ComponentPreview>
 
@@ -308,6 +308,7 @@ Sortable reads these component tokens. Override them at any scope to restyle it:
 - `--sortable-handle-color`: grip color (default `var(--color-text-tertiary)`)
 - `--sortable-handle-color-hover`: grip color on hover (default `var(--color-text-secondary)`)
 - `--sortable-handle-order`, `--sortable-handle-margin-start`, `--sortable-handle-margin-end`, `--sortable-handle-field-margin-start`: place of the handle in a row, the last one before a Field row (default first, with `--sortable-handle-inset`; `touch.css` puts it last on a phone)
+- `--sortable-phone-grip-ink-width`, `--sortable-phone-grip-ink-height`: the three lines a phone draws instead of the grip, unset by default (`touch.css` sets `21px` and `11px`, as iOS 27.2 draws its reorder control)
 - `--sortable-line-size`: line thickness (default `2px`)
 - `--sortable-line-color`: line color (default `var(--color-background-info-solid)`)
 - `--sortable-line-inset`: line inset from the edges of a list (default `16px`)

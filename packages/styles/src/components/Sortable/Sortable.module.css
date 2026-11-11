@@ -149,9 +149,10 @@
 
 .Handle > .PhoneGrip {
   display: var(--sortable-phone-grip-display, none);
-  /* Hamburger ink occupies x3…21 of its 24-unit viewBox. */
+  /* Hamburger ink occupies x3…21 and y5…19 of its 24-unit viewBox. It draws at its own proportions unless a height
+     is set; the phone draws it flatter, as iOS draws line.3.horizontal (the svg does not keep its aspect ratio). */
   width: calc(var(--sortable-phone-grip-ink-width, 17px) * 24 / 18);
-  height: calc(var(--sortable-phone-grip-ink-width, 17px) * 24 / 18);
+  height: calc(var(--sortable-phone-grip-ink-height, calc(var(--sortable-phone-grip-ink-width, 17px) * 14 / 18)) * 24 / 14);
 }
 
 /* Important: a page's own rule for every button stands outside the layer of this file */

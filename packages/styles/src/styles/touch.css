@@ -203,15 +203,18 @@
     --sortable-handle-icon-size: 17px;
     --sortable-desktop-grip-display: none;
     --sortable-phone-grip-display: block;
-    --sortable-phone-grip-ink-width: 17px;
+    /* iOS 27.2 draws its reorder control (line.3.horizontal) 21 wide and 11 tall: three lines of 1.5, 4.67 apart
+       (ref-app edit-delete, measures/swipe.md). */
+    --sortable-phone-grip-ink-width: 21px;
+    --sortable-phone-grip-ink-height: 11px;
     --sortable-handle-inset: 4px;
     /* Kit iOS 27 Lists (Row, _Grabber 5533:12351): the reorder control ends the row, after its value, in the
-       tertiary label color. Its 22px symbol frame stands on the row margin, 12px after the value; the 44px target
-       centers the 17px symbol, so it reaches 11px past that frame on each side. After a Field row, whose own
-       inline padding is the list inset, it reaches into that padding; after other content it starts where the
-       content ends, so it never covers it. */
+       tertiary label color. iOS 27.2 ends its symbol 21.67px inside the card (ref-app edit-delete): the 44px target
+       centers the 21px symbol, so it ends 10.17px inside the card. After a Field row, whose own inline padding is
+       the list inset, it reaches into that padding; after other content it starts where the content ends, so it
+       never covers it. */
     --sortable-handle-order: 1;
-    --sortable-handle-margin-end: calc(var(--mobile-list-inset) - 11px);
+    --sortable-handle-margin-end: calc(var(--mobile-list-inset) - 9.83px);
     --sortable-handle-margin-start: 0px;
     --sortable-handle-field-margin-start: calc(1px - var(--mobile-list-inset));
     --sortable-handle-color: var(--mobile-label-tertiary);

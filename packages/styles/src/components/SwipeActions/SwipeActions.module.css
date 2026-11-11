@@ -1,6 +1,6 @@
-/* Actions behind a row of a list, after the iOS 27 kit Row with Swipe Actions (Lists 550:49969): the content slides
-   aside and the actions stand behind it as solid capsules, 10px apart, 16px from the edge and 10px from the content,
-   which turns into a capsule of the row's color on the background of the list. The colors are PlexUI's solid ones. */
+/* Actions behind a row of a list, as iOS 27.2 draws a list's swipe actions (ref-app swipe-*, measures/swipe.md): the
+   content slides aside with its corners rounded and the actions stand behind it, 10px apart, 10px from the edge and
+   10px from the content, 4px inside the top and bottom of the row. The colors are PlexUI's solid ones. */
 .SwipeActions {
   position: relative;
   overflow: hidden;
@@ -24,20 +24,21 @@
   transition: translate var(--swipe-actions-duration) var(--ease-cubic-move, ease);
 }
 
-/* Moved aside, the content is a capsule of the row's color, round on the side of the actions. */
+/* Moved aside, the content is rounded on the side of the actions. */
 .SwipeActions[data-revealed] > .Content {
   background: var(--swipe-actions-content-background, var(--color-surface));
 }
 
-/* On a phone the canvas of the Page (or Dialog) and the fill of its FieldGroups, as the kit's row (550:49969) on the
-   background of the list; outside them the plain surfaces. */
+/* On a phone the canvas of the Page (or Dialog) stands behind the row, and the content moved aside turns gray, as
+   iOS fills it with systemGray5 (e5e5ea / 2c2c2e) in a grouped and in a plain list; PlexUI's soft gray is
+   ededed / 303030. */
 @media (max-width: 767.98px) {
   .SwipeActions[data-revealed] {
     background: var(--swipe-actions-background, var(--mobile-surface-primary, var(--mobile-surface-plain-primary, var(--color-surface-secondary))));
   }
 
   .SwipeActions[data-revealed] > .Content {
-    background: var(--swipe-actions-content-background, var(--mobile-surface-secondary, var(--mobile-surface-plain-secondary, var(--color-surface))));
+    background: var(--swipe-actions-content-background, var(--color-background-secondary-soft));
   }
 }
 
@@ -61,8 +62,15 @@
   position: absolute;
   inset-block: 0;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: var(--swipe-actions-gap);
+}
+
+/* A label inside: every action of a side takes the width of the widest, as iOS sets them. */
+.SwipeActions[data-label-placement="inside"] > .Actions {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
 }
 
 .Actions[data-side="leading"] {
@@ -83,12 +91,14 @@
   pointer-events: none;
 }
 
+/* An action fills the height of the row but its insets; a capsule that stops growing stands in its middle. */
 .Action {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   align-items: stretch;
-  padding: 0;
+  justify-content: center;
+  padding: var(--swipe-actions-inset-block) 0;
   border: 0;
   background: none;
   color: inherit;
@@ -108,11 +118,12 @@
 
 .Capsule {
   display: flex;
+  flex: 1 1 0;
   align-items: center;
   justify-content: center;
   gap: var(--swipe-actions-label-gap);
   min-width: var(--swipe-actions-action-min-width);
-  height: var(--swipe-actions-action-height);
+  min-height: 0;
   padding-inline: var(--swipe-actions-action-padding-inline);
   border-radius: 9999px;
   background: var(--swipe-action-background);
@@ -137,25 +148,39 @@
   white-space: nowrap;
 }
 
-/* Symbol and Label: the label inside the capsule, after a smaller symbol. */
-.SwipeActions[data-label-placement="inside"] .Capsule {
-  --swipe-actions-action-min-width: var(--swipe-actions-labeled-min-width);
+/* A symbol grows with the row up to the size of a circle; from there it is a circle (the row sets data-round), as iOS
+   draws one from a row of 58 (78 with the label under it). */
+.Action[data-shape="symbol"] > .Capsule {
+  max-height: var(--swipe-actions-circle-size);
+}
+
+.SwipeActions[data-round] > .Actions:not([data-full]) > .Action[data-shape="symbol"] > .Capsule {
+  width: var(--swipe-actions-circle-size);
+  min-width: 0;
+  padding-inline: 0;
+}
+
+/* The label inside the capsule, after a smaller symbol. */
+.Action[data-shape="label"] > .Capsule {
   --swipe-actions-action-padding-inline: var(--swipe-actions-labeled-padding-inline);
   --swipe-actions-icon-size: var(--swipe-actions-labeled-icon-size);
 }
 
-/* Symbol and Label Tall: a lower capsule with the label under it, for a row of two lines. */
-.SwipeActions[data-label-placement="below"] .Action {
+/* A label alone stands in a rounded rectangle as wide as its text. */
+.Action[data-shape="text"] > .Capsule {
+  padding-inline: var(--swipe-actions-text-padding-inline);
+  border-radius: var(--swipe-actions-text-radius);
+}
+
+/* The label under the capsule, for rows of 60 and taller: the capsule takes what the label leaves. */
+.SwipeActions[data-label-placement="below"] .Action[data-shape="symbol"] {
   gap: var(--swipe-actions-caption-gap);
   padding-block: var(--swipe-actions-tall-padding-top) var(--swipe-actions-tall-padding-bottom);
 }
 
-.SwipeActions[data-label-placement="below"] .Capsule {
-  --swipe-actions-action-height: var(--swipe-actions-tall-action-height);
-}
-
 /* The secondary label of the row (touch.css gives a row the native label roles). */
 .Caption {
+  flex: none;
   color: var(--swipe-actions-caption-color, var(--color-text-secondary));
   font-size: var(--swipe-actions-label-font-size);
   line-height: var(--swipe-actions-label-line-height);

@@ -6378,7 +6378,7 @@
         {
           "name": "Rows with a handle",
           "code": "<FieldGroup title=\"Contact details\">\n<Sortable value={rows} onChange={setRows} handles>\n  {rows.map((row) => (\n    <div key={row.id} data-row>\n      <Sortable.Handle aria-label={`Reorder ${row.label}`} />\n      <Field row label={row.label}>\n        <Input variant=\"ghost\" defaultValue={row.value} />\n      </Field>\n    </div>\n  ))}\n</Sortable>\n</FieldGroup>",
-          "details": "A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row. On a phone with touch.css the grip ends the row, after its value, in the tertiary label color, where iOS puts its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode."
+          "details": "A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row. On a phone with touch.css the grip ends the row, after its value, as three flat lines 21px wide in the tertiary label color, where and as iOS 27.2 draws its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode."
         },
         {
           "name": "Stacked rows",
@@ -6727,7 +6727,7 @@
           "name": "labelPlacement",
           "type": "\"hidden\" | \"inside\" | \"below\"",
           "default": "\"hidden\"",
-          "description": "Where the actions show their labels: symbols only, inside the capsule, or below it (for rows of 68px and taller)"
+          "description": "Where the actions show their labels: symbols only, inside the capsule, or below it (for rows of 60px and taller, as iOS sets them)"
         },
         {
           "name": "fullSwipe",
@@ -6750,17 +6750,17 @@
         {
           "name": "Overview",
           "code": "<FieldGroup>\n{lists.map((name) => (\n  <SwipeActions\n    key={name}\n    leading={[{ id: \"pin\", label: \"Pin\", Icon: Pin, color: \"warning\", onSelect: () => pin(name) }]}\n    trailing={[\n      { id: \"delete\", label: \"Delete\", Icon: RemoveTrash, color: \"danger\", onSelect: () => remove(name) },\n      { id: \"archive\", label: \"Archive\", Icon: Archive, color: \"info\", onSelect: () => archive(name) },\n    ]}\n  >\n    <div className=\"row\">{name}</div>\n  </SwipeActions>\n))}\n</FieldGroup>",
-          "details": "Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart and 16px from the edge, as in the iOS 27 kit; the first action of a side stands at its edge. Swiped aside, the content becomes a capsule of the row&apos;s color on the background of the list. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it."
+          "details": "Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart, 10px from the edge and 4px inside the top and bottom of the row, as iOS 27.2 sets them; the first action of a side stands at its edge. A symbol alone is a capsule of 60px that grows with the row and is a 50px circle from a row of 58px. Swiped aside, the content rounds its corners by 26px and, on a phone, turns soft gray on the background of the list, as iOS fills it. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it."
         },
         {
           "name": "Labels inside",
           "code": "<SwipeActions\nlabelPlacement=\"inside\"\nleading={[{ id: \"pin\", label: \"Pin\", Icon: Pin, color: \"warning\", onSelect: () => pin(name) }]}\ntrailing={[\n  { id: \"delete\", label: \"Delete\", Icon: RemoveTrash, color: \"danger\", onSelect: () => remove(name) },\n  { id: \"archive\", label: \"Archive\", Icon: Archive, color: \"info\", onSelect: () => archive(name) },\n]}\n>\n<div className=\"row\">{name}</div>\n</SwipeActions>",
-          "details": "With labelPlacement=&quot;inside&quot; each capsule holds a smaller symbol and its label, as the kit&apos;s Symbol and Label row. An action without an icon always shows its label inside."
+          "details": "With labelPlacement=&quot;inside&quot; each capsule holds a smaller symbol and its label, and every action of a side takes the width of the widest, as iOS 27.2 sets them. An action without an icon shows its label alone, in a rounded rectangle: beside labels inside it takes the width of the widest too, and elsewhere it is as wide as its text."
         },
         {
           "name": "Labels below",
           "code": "<SwipeActions\nlabelPlacement=\"below\"\nleading={[{ id: \"flag\", label: \"Flag\", Icon: Flag, color: \"warning\", onSelect: () => flag(message) }]}\ntrailing={[\n  { id: \"delete\", label: \"Delete\", Icon: RemoveTrash, color: \"danger\", onSelect: () => remove(message) },\n  { id: \"archive\", label: \"Archive\", Icon: Archive, color: \"info\", onSelect: () => archive(message) },\n]}\n>\n<div className=\"row\">\n  <div>{message.from}</div>\n  <div>{message.subject}</div>\n</div>\n</SwipeActions>",
-          "details": "With labelPlacement=&quot;below&quot; a lower capsule stands over its label, as the kit&apos;s Symbol and Label Tall row. It takes a row of 68px or taller, such as a row of two lines."
+          "details": "With labelPlacement=&quot;below&quot; the label stands under the capsule, which takes the rest of the row: iOS 27.2 sets its labels this way from a row of 60px, such as a row of two lines, and draws a 50px circle from a row of 78px."
         }
       ],
       "subComponents": [
@@ -8262,5 +8262,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-11T04:52:37.238Z"
+  "generatedAt": "2026-11-11T05:45:10.527Z"
 }

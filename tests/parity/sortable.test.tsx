@@ -95,6 +95,8 @@ describe("Sortable markup", () => {
     expect(pair.vue).toBe(pair.react)
     expect(pair.react).toContain('class="DesktopGrip"')
     expect(pair.react).toContain('class="PhoneGrip"')
+    // The phone grip stretches flatter than the icon's own proportions, as iOS draws line.3.horizontal.
+    expect(pair.react).toMatch(/preserveAspectRatio="none"[^>]*class="PhoneGrip"|class="PhoneGrip"[^>]*preserveAspectRatio="none"/)
   })
 
   test("grid, element, disabled", async () => {

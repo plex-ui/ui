@@ -46,7 +46,7 @@ export type SwipeActionsProps = {
   leading?: SwipeAction[]
   /** Actions revealed by a swipe toward the leading edge, the first one at the trailing edge */
   trailing?: SwipeAction[]
-  /** Where the actions show their labels: `"hidden"` (symbols only), `"inside"` the capsule, or `"below"` it (for rows of 68px and taller). @default "hidden" */
+  /** Where the actions show their labels: `"hidden"` (symbols only), `"inside"` the capsule, or `"below"` it (for rows of 60px and taller, as iOS sets them). @default "hidden" */
   labelPlacement?: "hidden" | "inside" | "below"
   /** A swipe past the middle between the open actions and the far edge runs the first action of that side. @default true */
   fullSwipe?: boolean
@@ -135,6 +135,7 @@ export function SwipeActions({
   const [full, setFull] = useState(false)
   const [swiping, setSwiping] = useState(false)
   const [rtl, setRtl] = useState(false)
+  const [round, setRound] = useState(false)
   const root = useRef<HTMLDivElement>(null)
   const sides = useRef<Record<SwipeActionsSide, HTMLDivElement | null>>({ leading: null, trailing: null })
   const gesture = useRef<Gesture | null>(null)
@@ -163,7 +164,7 @@ export function SwipeActions({
   }
 
   /** The handlers of the latest render, for listeners and observers set up once. */
-  const latest = useRef({ close: () => {}, release, finish: () => {}, cancel: () => {}, sync: () => {} })
+  const latest = useRef({ close: () => {}, release, finish: () => {}, cancel: () => {}, sync: () => {}, fit: () => {} })
 
   /** One function for the life of the row, so the list knows which row is open; another row that opens ends this one's gesture too. */
   const closer = useRef(() => {
@@ -205,6 +206,20 @@ export function SwipeActions({
     if (target !== current.current.offset) move(target)
   }
 
+  /**
+   * A symbol that has grown as tall as its circle (its max-height) is one, as iOS draws a circle from there. The
+   * measure is a capsule that is laid out: a full swipe hides all but the first action of its side, and while none
+   * is laid out the shape stays.
+   */
+  const fit = () => {
+    const capsules = [...(root.current?.querySelectorAll<HTMLElement>('[data-shape="symbol"] > :first-child') ?? [])]
+    if (capsules.length < 1) return setRound(false)
+    const capsule = capsules.find((element) => element.getBoundingClientRect().height > 0)
+    if (!capsule) return
+    const max = parseFloat(getComputedStyle(capsule).maxHeight)
+    setRound(max > 0 && capsule.getBoundingClientRect().height >= max - 0.5)
+  }
+
   const settle = (state: Gesture) => {
     const { offset: last, full: wasFull } = current.current
     const side = sideOf(last)
@@ -242,16 +257,20 @@ export function SwipeActions({
     else close()
   }
 
-  latest.current = { close, release, finish, cancel, sync }
+  latest.current = { close, release, finish, cancel, sync, fit }
 
-  // After each render, and whenever the actions change size, an open row takes their width.
+  // After each render, and whenever the actions change size, an open row takes their width and a symbol its shape.
   useEffect(() => {
+    latest.current.fit()
     latest.current.sync()
     for (const element of [sides.current.leading, sides.current.trailing]) if (element) observer.current?.observe(element, BORDER_BOX)
   })
 
   useEffect(() => {
-    if (typeof ResizeObserver !== "undefined") observer.current = new ResizeObserver(() => latest.current.sync())
+    if (typeof ResizeObserver !== "undefined") observer.current = new ResizeObserver(() => {
+      latest.current.fit()
+      latest.current.sync()
+    })
     for (const element of [sides.current.leading, sides.current.trailing]) if (element) observer.current?.observe(element, BORDER_BOX)
     // The open row lets go of the list, and of the finger, when it goes away.
     return () => {
@@ -384,14 +403,17 @@ export function SwipeActions({
       >
         {shown.map((action) => {
           const color = action.color ?? "secondary"
-          const labelInside = labelPlacement === "inside" || !action.Icon
-          const labelBelow = labelPlacement === "below" && !!action.Icon
+          // A label alone (text), a symbol with its label inside (label), or a symbol with its label hidden or below.
+          const shape = !action.Icon ? "text" : labelPlacement === "inside" ? "label" : "symbol"
+          const labelInside = shape !== "symbol"
+          const labelBelow = shape === "symbol" && labelPlacement === "below"
           return (
             <button
               key={action.id}
               type="button"
               className={s.Action}
               data-color={color}
+              data-shape={shape}
               data-first={action === actions[0] ? "" : undefined}
               aria-label={labelInside || labelBelow ? undefined : action.label}
               onClick={(event) => select(action, event)}
@@ -415,6 +437,7 @@ export function SwipeActions({
       data-row=""
       data-swipe-actions=""
       data-label-placement={labelPlacement}
+      data-round={round ? "" : undefined}
       data-revealed={revealed}
       data-swiping={swiping ? "" : undefined}
       onFocus={handleFocus}

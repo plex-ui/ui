@@ -136,7 +136,7 @@ const SortableHandleComponent = defineComponent({
           "data-sortable-handle": "",
           "aria-label": props.ariaLabel,
         },
-        (slots.default ? slots.default() : [h(GripVertical, { class: s.DesktopGrip, "aria-hidden": true }), h(Hamburger, { class: s.PhoneGrip, "aria-hidden": true })]) as VNodeArrayChildren,
+        (slots.default ? slots.default() : [h(GripVertical, { class: s.DesktopGrip, "aria-hidden": true }), h(Hamburger, { class: s.PhoneGrip, "aria-hidden": true, "preserveAspectRatio": "none" })]) as VNodeArrayChildren,
       )
     }
   },

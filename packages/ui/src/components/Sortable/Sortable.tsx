@@ -150,7 +150,7 @@ export type SortableHandleProps = {
 function SortableHandle({ "aria-label": ariaLabel = "Reorder", className, children, ...rest }: SortableHandleProps) {
   return (
     <button {...rest} type="button" className={clsx(s.Handle, className)} data-sortable-handle="" aria-label={ariaLabel}>
-      {children ?? <><GripVertical className={s.DesktopGrip} aria-hidden /><Hamburger className={s.PhoneGrip} aria-hidden /></>}
+      {children ?? <><GripVertical className={s.DesktopGrip} aria-hidden /><Hamburger className={s.PhoneGrip} aria-hidden preserveAspectRatio="none" /></>}
     </button>
   )
 }
