@@ -273,81 +273,36 @@ Props:
   - className (string) — Class applied to the badge
 
 ### Overview
-Status badges in different colors and compositions.
+Style a badge with color and variant, and set its size; pill rounds it fully and adds horizontal gutter. Its content can be composed: an icon before the text takes the badge's color, size and spacing, and a LoadingIndicator marks a task in progress, with a wider gap-1.5 gap. onRemove adds a cross at the end, with its own hover and focus, named by removeLabel. At size="xl" a badge has the height of a control, for a row of removable badges beside a button. Long text ends in an ellipsis and the cross stays.
 ```tsx
-<div className="flex gap-4 flex-wrap">
-<Badge color="success" size="lg">Successful</Badge>
-<Badge size="lg" className="gap-1.5"><LoadingIndicator /> In progress</Badge>
-<Badge color="danger" size="lg">Failed</Badge>
-<Badge color="warning" size="lg" pill><Flask /> Beta</Badge>
-<Badge color="caution" size="lg">Caution</Badge>
-</div>
-```
+const [color, setColor] = useState("info") // "secondary", "success", "warning", "danger", "info", "discovery", "caution"
+const [variant, setVariant] = useState("soft") // or "solid", "outline"
+const [size, setSize] = useState("md") // "sm" to "xl"
+const [pill, setPill] = useState(false)
+const [leading, setLeading] = useState("none") // or "icon", "loading"
+const [onRemove, setOnRemove] = useState(false)
+const [shown, setShown] = useState(true)
+const label = { none: "New", icon: "Beta", loading: "In progress" }[leading]
 
-### Colors & variants
-You can stylize the display of the badge using the color and variant props.
-```tsx
-const variants = ["soft", "solid", "outline"] as const
-const colors = ["secondary", "success", "warning", "danger", "info", "discovery", "caution"] as const
-
-<div className="w-full overflow-x-auto">
-<div className="pt-1 pb-6 px-8 w-fit min-w-full">
-  <div className="grid gap-6 items-center justify-center" style={{ gridTemplateColumns: "auto repeat(7, min-content)" }}>
-    <div />
-    {colors.map((color) => (
-      <div key={color} className="text-center mb-1 text-sm" style={{ color: "var(--color-text-tertiary)" }}>
-        {color}
-      </div>
-    ))}
-    {variants.map((variant) => (
-      <Fragment key={variant}>
-        <div className="text-right mr-3 text-sm" style={{ color: "var(--color-text-tertiary)" }}>
-          {variant}
-        </div>
-        {colors.map((color) => (
-          <div key={color} className="text-center">
-            <Badge color={color} variant={variant}>Sample</Badge>
-          </div>
-        ))}
-      </Fragment>
-    ))}
-  </div>
-</div>
-</div>
-```
-
-### Size & roundness
-You can control the size and roundness of the badge with size and pill props. When pill is set, extra horizontal gutter is dynamically applied to the badge.
-```tsx
-<Badge color="info" size="md">New</Badge>
-```
-
-### Icon
-Content within the badge can be composed, like showing icons. Color, sizing, and spacing adapt by default.
-```tsx
-<Badge color="warning" size="lg"><Flask /> Beta</Badge>
-```
-
-### Remove
-onRemove adds a cross at the end, with its own hover and focus. size="xl" has the height of a control, so a row of these stands beside a button. Long text ends in an ellipsis and the cross stays.
-```tsx
+{shown ? (
 <Badge
-size="xl"
-pill
-variant="outline"
-removeLabel="Remove Oak"
-onRemove={() => remove("oak")}
+  color={color}
+  variant={variant}
+  size={size}
+  pill={pill}
+  className={leading === "loading" ? "gap-1.5" : undefined}
+  removeLabel={`Remove ${label}`}
+  onRemove={onRemove ? () => setShown(false) : undefined}
 >
-Oak
+  {leading === "icon" && <Flask />}
+  {leading === "loading" && <LoadingIndicator />}
+  {label}
 </Badge>
-```
-
-### Loading
-In this example, additional gap is added with a Tailwind gap-1.5 class to provide the appropriate visual spacing.
-```tsx
-<Badge size="lg" color="secondary" className="gap-1.5">
-<LoadingIndicator /> In progress
-</Badge>
+) : (
+<Button color="secondary" variant="outline" size="sm" onClick={() => setShown(true)}>
+  Show again
+</Button>
+)}
 ```
 
 ## Breadcrumb
@@ -1954,185 +1909,81 @@ Props:
   - alignOffset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
 
 ### Overview
-Pass the date (a luxon DateTime, or null) as value and update it in onChange.
+Pass the date (a luxon DateTime, or null) as value and update it in onChange. showTime adds hour and minute fields under the calendar, which then stays open after a date is picked so the time can be set; the arrow keys step the field they are in. triggerTimeFormat writes the time after the date as a part of its own: on Phone, in a row, the date and the time are two capsules, as iOS shows an event's start. Without it, a showTime trigger writes "MM/dd/yy HH:mm" unless you set triggerDateFormat. captionLayout="dropdown" adds month and year dropdowns beside the arrows, for a date of birth or a date years away; yearRange sets their years (the last 120 by default); with min or max the years are those they allow, so here it is offered without limits. min and max limit the dates that can be picked: here 30 days either side of today, or up to today for a date of birth. Equal bounds leave one day.
 ```tsx
-import { useState } from 'react';
-import { DateTime } from 'luxon';
-import { DatePicker } from '@plexui/ui/components/DatePicker';
+const today = DateTime.local()
+const [value, setValue] = useState<DateTime | null>(null)
+const [variant, setVariant] = useState("outline") // or "soft", "ghost"
+const [size, setSize] = useState("lg") // "3xs" to "3xl"
+const [pill, setPill] = useState(true)
+const [block, setBlock] = useState(false)
+const [clearable, setClearable] = useState(true)
+const [triggerShowIcon, setTriggerShowIcon] = useState(true)
+const [dropdownIconType, setDropdownIconType] = useState("dropdown") // or "chevronDown", "none"
+const [triggerDateFormat, setTriggerDateFormat] = useState("MM/dd/yy") // or "MMM d, yyyy", "MMMM d, yyyy"
+const [showTime, setShowTime] = useState(false)
+const [triggerTimeFormat, setTriggerTimeFormat] = useState("HH:mm") // or "h:mm a"; with showTime
+const [captionLayout, setCaptionLayout] = useState("buttons") // or "dropdown"
+const [yearRange, setYearRange] = useState(undefined) // or [2020, 2030]; with the dropdown caption and no limits
+const [limits, setLimits] = useState("none") // or "around" (30 days either side of today), "past" (up to today)
+const [side, setSide] = useState("bottom") // or "top", "right", "left"
+const [sideOffset, setSideOffset] = useState(8)
+const [align, setAlign] = useState("center") // or "start", "end"
+const [alignOffset, setAlignOffset] = useState(-5) // with a start or end alignment
+const [disabled, setDisabled] = useState(false)
+
+const min = limits === "around" ? today.minus({ days: 30 }).startOf("day") : undefined
+const max = limits === "around" ? today.plus({ days: 30 }).endOf("day") : limits === "past" ? today.endOf("day") : undefined
 
 // Desktop
-export default function DatePickerExample() {
-  const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);
-  const [disabled] = useState(false);
+<div className="flex w-[320px] justify-center">
+  <DatePicker
+    id="date-picker-base"
+    placeholder="Select date"
+    variant={variant}
+    size={size}
+    pill={pill}
+    block={block}
+    clearable={clearable}
+    triggerShowIcon={triggerShowIcon}
+    dropdownIconType={dropdownIconType}
+    triggerDateFormat={triggerDateFormat}
+    showTime={showTime}
+    triggerTimeFormat={showTime ? triggerTimeFormat : undefined}
+    captionLayout={captionLayout}
+    yearRange={limits === "none" ? yearRange : undefined}
+    min={min}
+    max={max}
+    side={side}
+    sideOffset={sideOffset}
+    align={align}
+    alignOffset={align === "center" ? undefined : alignOffset}
+    disabled={disabled}
+    value={value}
+    onChange={setValue}
+  />
+</div>
 
-  return (
-    <DatePicker
-      id="date-picker-base"
-      triggerDateFormat="MM/dd/yy"
-      size="lg"
-      pill
-      clearable
-      disabled={disabled}
-      value={selectedDate}
-      onChange={setSelectedDate}
-    />
-  );
-}
-
-// Phone: the date is the value of a row, in the compact date that opens the calendar.
+// Phone: the date is the value of a row, in the compact date that opens the calendar
 <FieldGroup>
   <Field row label="Date">
     <DatePicker
       id="date-picker-base"
+      placeholder="Select date"
       triggerDateFormat="MMM d, yyyy"
       triggerShowIcon={false}
-      placeholder="Select date"
+      showTime={showTime}
+      triggerTimeFormat={showTime ? triggerTimeFormat : undefined}
+      captionLayout={captionLayout}
+      yearRange={limits === "none" ? yearRange : undefined}
+      min={min}
+      max={max}
+      clearable={clearable}
       disabled={disabled}
-      value={selectedDate}
-      onChange={setSelectedDate}
+      value={value}
+      onChange={setValue}
     />
   </Field>
-</FieldGroup>
-```
-
-### Limits
-Use min and max to limit selectable dates to a specific timeframe. Equal bounds leave one selectable day.
-```tsx
-const today = DateTime.local()
-const minDate = today.minus({ days: 30 }).startOf("day")
-const maxDate = today.plus({ days: 30 }).endOf("day")
-const [selectedDate, setSelectedDate] = useState<DateTime | null>(today)
-
-// Desktop
-<DatePicker
-id="date-picker-limits"
-triggerDateFormat="MM/dd/yy"
-size="lg"
-pill
-triggerShowIcon
-value={selectedDate}
-onChange={setSelectedDate}
-min={minDate}
-max={maxDate}
-/>
-
-// Phone
-<FieldGroup>
-<Field row label="Date">
-  <DatePicker
-    id="date-picker-limits"
-    triggerDateFormat="MMM d, yyyy"
-    triggerShowIcon={false}
-    value={selectedDate}
-    onChange={setSelectedDate}
-    min={minDate}
-    max={maxDate}
-  />
-</Field>
-</FieldGroup>
-```
-
-### Date of birth
-Set captionLayout="dropdown" to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical.
-```tsx
-// Desktop
-<DatePicker
-id="date-picker-dob"
-triggerDateFormat="MMMM d, yyyy"
-size="lg"
-pill
-clearable
-placeholder="Select your birthday"
-captionLayout="dropdown"
-value={selectedDate}
-onChange={setSelectedDate}
-max={DateTime.local()}
-/>
-
-// Phone
-<FieldGroup>
-<Field row label="Birthday">
-  <DatePicker
-    id="date-picker-dob"
-    triggerDateFormat="MMM d, yyyy"
-    triggerShowIcon={false}
-    placeholder="Select date"
-    captionLayout="dropdown"
-    value={selectedDate}
-    onChange={setSelectedDate}
-    max={DateTime.local()}
-  />
-</Field>
-</FieldGroup>
-```
-
-### Time picker
-Enable showTime to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values. With triggerTimeFormat the trigger shows the date and the time as two parts: on Phone, in a row, they are two capsules, as iOS shows a date and a time.
-```tsx
-// Desktop
-<DatePicker
-id="date-picker-time"
-triggerDateFormat="MM/dd/yy HH:mm"
-size="lg"
-pill
-clearable
-placeholder="Select date & time"
-showTime
-value={selectedDate}
-onChange={setSelectedDate}
-/>
-
-// Phone
-<FieldGroup>
-<Field row label="Starts">
-  <DatePicker
-    id="date-picker-time"
-    triggerDateFormat="MMM d, yyyy"
-    triggerTimeFormat="HH:mm"
-    triggerShowIcon={false}
-    placeholder="Select date"
-    showTime
-    value={selectedDate}
-    onChange={setSelectedDate}
-  />
-</Field>
-</FieldGroup>
-```
-
-### Dropdown + time
-Combine captionLayout="dropdown" with showTime for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time.
-```tsx
-// Desktop
-<DatePicker
-id="date-picker-datetime-dropdown"
-triggerDateFormat="MMM d, yyyy HH:mm"
-size="lg"
-pill
-clearable
-placeholder="Schedule event"
-captionLayout="dropdown"
-showTime
-yearRange={[2020, 2030]}
-value={selectedDate}
-onChange={setSelectedDate}
-/>
-
-// Phone
-<FieldGroup>
-<Field row label="Event">
-  <DatePicker
-    id="date-picker-datetime-dropdown"
-    triggerDateFormat="MMM d, yyyy"
-    triggerTimeFormat="HH:mm"
-    triggerShowIcon={false}
-    placeholder="Select date"
-    captionLayout="dropdown"
-    showTime
-    yearRange={[2020, 2030]}
-    value={selectedDate}
-    onChange={setSelectedDate}
-  />
-</Field>
 </FieldGroup>
 ```
 
@@ -2225,7 +2076,7 @@ if (next && time) {
 ```
 
 ### Date input
-For typing a date directly instead of picking it, use DateInput, a masked input that auto-formats as you type.
+For typing a date directly instead of picking it, use DateInput, a masked input that auto-formats as you type. With timeMode="HH:MM" it takes the time in the same field.
 ```tsx
 // Desktop
 <div className="w-[200px]">
@@ -2236,58 +2087,6 @@ For typing a date directly instead of picking it, use DateInput, a masked input 
 <FieldGroup>
 <Field row label="Date">
   <DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" />
-</Field>
-</FieldGroup>
-```
-
-### DateTime input
-Pass timeMode="HH:MM" to DateInput to type the date and time in one field.
-```tsx
-// Desktop
-<div className="w-[260px]">
-<DateInput
-  value={dateTime}
-  onChange={setDateTime}
-  mode="mm/dd/yyyy"
-  separator="/"
-  timeMode="HH:MM"
-  aria-label="Date and time"
-/>
-</div>
-
-// Phone
-<FieldGroup>
-<Field row label="Starts">
-  <DateInput value={dateTime} onChange={setDateTime} mode="mm/dd/yyyy" separator="/" timeMode="HH:MM" />
-</Field>
-</FieldGroup>
-```
-
-### Without Icon
-Remove the calendar icon from the trigger by setting triggerShowIcon to false. In a phone row the date never shows the icon, as the compact date of iOS does not, so this example is desktop only.
-```tsx
-// Desktop
-<DatePicker
-id="date-picker-no-icon"
-triggerDateFormat="MM/dd/yy"
-size="lg"
-triggerShowIcon={false}
-placeholder="Choose a date"
-value={selectedDate}
-onChange={setSelectedDate}
-/>
-
-// Phone
-<FieldGroup>
-<Field row label="Date">
-  <DatePicker
-    id="date-picker-no-icon"
-    triggerDateFormat="MMM d, yyyy"
-    triggerShowIcon={false}
-    placeholder="Choose a date"
-    value={selectedDate}
-    onChange={setSelectedDate}
-  />
 </Field>
 </FieldGroup>
 ```
@@ -5349,7 +5148,7 @@ Props:
   - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
   - className (string) default: — — Applied to the root element
   Page.Header:
-    - background ("soft" | "hard" | "glass" | "solid") default: "glass" — How the bar meets the content scrolled under it on a phone, see Background
+    - background ("soft" | "hard" | "glass" | "solid") default: "glass" — How the bar meets the content scrolled under it on a phone, see Overview
     - divider (boolean) default: true — Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background
     - className (string) default: — — Applied to the band
   Page.Content:
@@ -5358,68 +5157,54 @@ Props:
     - className (string) default: — — Applied to the element that scrolls
 
 ### Overview
-The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top.
+The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top. Turn divider off to keep the header without it. A page with fill does not scroll under its header, so on desktop the line does not come and the divider is offered without fill; on a phone only a glass or hard header draws the line, so there the divider is offered with those. width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms; for any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. fill stops the page scrolling from 768px up, so a table can scroll inside itself. On a phone a page takes the width of the screen at every width and scrolls as a whole, so the phone has neither setting. Page.Heading groups the title with metadata in Page.Subtitle. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it. Page.Leading holds a Back button or the menu button of a sidebar, before the title; on a phone the title stays centred between it and the actions. On a phone background sets how the header and the footer meet the content scrolled under them, as a Toolbar does: glass, the header's default, is a translucent, blurred bar with a hairline, soft, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, and solid an opaque bar with no line. Glass and hard show themselves once content is under the bar. surface="grouped" gives the phone canvas the gray of grouped rows; desktop colors stay. The footer and its background stand under the preview, as what sits at the bottom of the screen.
 ```tsx
-<Page>
-<Page.Header>
-  <Page.Bar>
-    <Page.Title>Orders</Page.Title>
-    <Page.Actions>
-      <Button color="primary" pill size="md">New order</Button>
-    </Page.Actions>
-  </Page.Bar>
-</Page.Header>
-<Page.Content>...</Page.Content>
+const [width, setWidth] = useState("full") // or "wide", "column"; from 768px up
+const [surface, setSurface] = useState("plain") // or "grouped"; on a phone
+const [topBackground, setTopBackground] = useState("glass") // or "soft", "hard", "solid"; on a phone
+const [divider, setDivider] = useState(true) // on desktop without fill; on a phone, under a glass or hard header
+const [leading, setLeading] = useState(false)
+const [subtitle, setSubtitle] = useState(false)
+const [actions, setActions] = useState(true)
+const [fill, setFill] = useState(false) // from 768px up
+const [footer, setFooter] = useState(false)
+const [bottomBackground, setBottomBackground] = useState("soft") // or "hard", "glass", "solid"; on a phone
+
+<Page width={width} surface={surface}>
+  <Page.Header background={topBackground} divider={divider}>
+    <Page.Bar>
+      {leading && (
+        <Page.Leading>
+          <NavigationButton action="back" />
+        </Page.Leading>
+      )}
+      {subtitle ? (
+        <Page.Heading>
+          <Page.Title>Orders</Page.Title>
+          <Page.Subtitle>
+            <Badge color="info" size="sm" variant="outline">24 open</Badge>
+            <span>Updated now</span>
+          </Page.Subtitle>
+        </Page.Heading>
+      ) : (
+        <Page.Title>Orders</Page.Title>
+      )}
+      {actions && (
+        <Page.Actions>
+          <Button color="primary" pill size="md">New order</Button>
+        </Page.Actions>
+      )}
+    </Page.Bar>
+  </Page.Header>
+  <Page.Content fill={fill}>
+    {fill ? <div className="min-h-0 flex-1 overflow-auto">...</div> : ...}
+  </Page.Content>
+  {footer && (
+    <Page.Footer background={bottomBackground}>
+      <Button color="primary" pill block>Export orders</Button>
+    </Page.Footer>
+  )}
 </Page>
-```
-
-### Heading
-Page.Heading groups the title with metadata. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it.
-```tsx
-<Page.Bar>
-<Page.Heading>
-  <Page.Title>Menu</Page.Title>
-  <Page.Subtitle>
-    <Badge color="info" size="sm" variant="outline">Draft</Badge>
-    <span>Saved a minute ago</span>
-  </Page.Subtitle>
-</Page.Heading>
-<Page.Actions>...</Page.Actions>
-</Page.Bar>
-```
-
-### Fill
-fill stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with divider.
-```tsx
-<Page>
-<Page.Header divider={false}>...</Page.Header>
-<Page.Content fill>
-  <div className="min-h-0 flex-1 overflow-auto">...</div>
-</Page.Content>
-</Page>
-```
-
-### Background
-background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: glass, the header's default, is a translucent, blurred bar with a hairline, soft, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, and solid an opaque bar with no line. Glass and hard show themselves once content is under the bar; divider={false} keeps a header without its line. The example sets the top and the bottom bar apart: the control of the bottom bar stands under the preview.
-```tsx
-<Page>
-<Page.Header background="hard">...</Page.Header>
-<Page.Content>...</Page.Content>
-<Page.Footer background="hard">
-  <Button color="primary" pill block>New order</Button>
-</Page.Footer>
-</Page>
-```
-
-### Widths
-The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. On a phone a page takes the width of the screen at every width, so this example is desktop only.
-```tsx
-<Page width="column">
-<Page.Header>...</Page.Header>
-<Page.Content>...</Page.Content>
-</Page>
-
-<Page width="column" style={{ "--page-width": "860px" }}>...</Page>
 ```
 
 ## Phone Layout
@@ -7566,10 +7351,12 @@ Props:
   - className (string) — Set dimensions and custom styling
 
 ### Overview
-Use a circular skeleton to represent loading avatars, combined with text placeholders.
+Use a circular skeleton to represent loading avatars, combined with text placeholders. Without circle a skeleton keeps its own radius, as for a square picture. Set its size and shape with className.
 ```tsx
+const [circle, setCircle] = useState(true)
+
 <div className="flex items-center gap-4">
-<Skeleton circle className="size-12" />
+<Skeleton circle={circle} className="size-12" />
 <div className="flex flex-col gap-2">
   <Skeleton className="h-4 w-[200px]" />
   <Skeleton className="h-4 w-[150px]" />
@@ -7825,35 +7612,20 @@ Props:
   - children (ReactNode) — The items: one direct child per entry of value, keyed by the entry and not by its index
   - aria-label (string) default: Reorder — Name of the handle for assistive technology
 
-### Rows
-Every direct child is an item, in the order of value. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with data-row keeps the lines of the group, and rows that touch hold still: the line alone marks the gap. On a phone the rows sit on the grouped background of an iOS settings screen.
+### Overview
+Every direct child is an item, in the order of value. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with data-row keeps the lines of the group, and rows that touch hold still: the line alone marks the gap. On a phone the rows sit on the grouped background of an iOS settings screen. A row that is mostly a field, such as an Input, needs a grip: handles shows it, and then only the grip drags the row. On a phone with touch.css the grip ends the row, after its value, as three flat lines 21px wide in the tertiary label color, where and as iOS 27.2 draws its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode. disabled turns dragging off.
 ```tsx
-const [rows, setRows] = useState(sections);
+const [rows, setRows] = useState(sections)
+const [handles, setHandles] = useState(false)
+const [disabled, setDisabled] = useState(false)
 
 <FieldGroup title="Home screen">
-<Sortable value={rows} onChange={setRows}>
+<Sortable value={rows} onChange={setRows} handles={handles} disabled={disabled}>
   {rows.map((row) => (
     <div key={row.id} data-row>
       <Sortable.Handle aria-label={`Reorder ${row.label}`} />
       <Field row label={row.label} description={row.description}>
         <Switch defaultChecked />
-      </Field>
-    </div>
-  ))}
-</Sortable>
-</FieldGroup>
-```
-
-### Rows with a handle
-A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row. On a phone with touch.css the grip ends the row, after its value, as three flat lines 21px wide in the tertiary label color, where and as iOS 27.2 draws its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode.
-```tsx
-<FieldGroup title="Contact details">
-<Sortable value={rows} onChange={setRows} handles>
-  {rows.map((row) => (
-    <div key={row.id} data-row>
-      <Sortable.Handle aria-label={`Reorder ${row.label}`} />
-      <Field row label={row.label}>
-        <Input variant="ghost" defaultValue={row.value} />
       </Field>
     </div>
   ))}
@@ -9126,34 +8898,46 @@ Docs: https://plexui.com/components/toast
     - gap (number) — Gap between stacked toasts in px
 
 ### Overview
-On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content). Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.
+Call toast with a message, or toast.success, .error, .warning and .info for the semantic types, which map to PlexUI's success, danger, warning and info tokens. No richColors is passed, so the types retheme with data-theme. The options add a description under the message, an action button and a cancel one (either closes the toast after its onClick), and closeButton. Spread compact into the options for a centered toast: on a desktop a toast shrinks to its content anyway, and on a phone, where a toast fills the width, a compact one keeps the width of its content. duration: Infinity keeps a toast open until the user closes it, so give it a labelled action or a close button: a way to close it from the keyboard. An error that waits like this is an alert (see Screen readers). On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content). Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.
 ```tsx
-toast("Inquiry ID copied")
-```
+import { toast, compact as compactOptions } from "@plexui/ui/components/Toast"
 
-### Variants
-Semantic variants map to PlexUI's success / danger / warning / info tokens. No richColors is passed, so variants retheme automatically with data-theme.
-```tsx
-toast("Changes saved")
-toast.success("Inquiry ID copied")
-toast.error("Failed to assign owner")
-toast.warning("Session expires in 2 minutes")
-toast.info("New version available")
-```
+// Each type's title, its short description and its action's label
+const messages = {
+default: { title: "Changes saved", description: "Your profile is live for everyone on the team.", action: "Undo" },
+success: { title: "Inquiry ID copied", description: "Paste it into the support form.", action: "Open" },
+error: { title: "Failed to assign owner", description: "The owner has left the workspace.", action: "Retry" },
+warning: { title: "Session expires in 2 minutes", description: "Unsaved changes will be lost.", action: "Stay" },
+info: { title: "New version available", description: "Reload to get the latest features.", action: "Reload" },
+}
+const longDescription = "This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly."
 
-### Description
-```tsx
-toast("Changes saved", {
-description: "Your profile is live for everyone on the team.",
-})
-```
+const [type, setType] = useState("default") // or "success", "error", "warning", "info"
+const [description, setDescription] = useState("none") // or "short", "long"
+const [action, setAction] = useState("none") // or "action", "cancel" (an action and a cancel)
+const [closeButton, setCloseButton] = useState(false)
+const [compact, setCompact] = useState(false)
+const [persistent, setPersistent] = useState(false) // with an action or a close button
 
-### Action
-```tsx
-toast("Message sent", {
-description: "Delivered to #design channel.",
-action: { label: "Undo", onClick: () => toast.success("Message recalled") },
-})
+const message = messages[type]
+
+<Button
+color="secondary"
+variant="outline"
+onClick={() =>
+  (type === "default" ? toast : toast[type])(message.title, {
+    description: description === "none" ? undefined : description === "short" ? message.description : longDescription,
+    action: action === "none" ? undefined : { label: message.action, onClick: () => {} },
+    cancel: action === "cancel" ? { label: "Cancel", onClick: () => {} } : undefined,
+    closeButton,
+    // Open until closed, once there is a button to close it
+    duration: persistent && (action !== "none" || closeButton) ? Infinity : undefined,
+    ...(compact ? compactOptions : {}),
+  })
+}
+>
+Show toast
+</Button>
 ```
 
 ### Promise
@@ -9163,32 +8947,6 @@ toast.promise(saveProfile(), {
 loading: "Saving…",
 success: (data) => `${data.name} saved`,
 error: "Save failed",
-})
-```
-
-### Long content
-```tsx
-toast("Your deployment is still running", {
-description:
-  "This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly.",
-})
-```
-
-### Compact
-Spread compact into any toast(...) options for a centered-text layout. On a desktop a toast shrinks to its content anyway; on a phone, where a toast fills the width, a compact one keeps the width of its content. Both center its text.
-```tsx
-import { toast, compact } from "@plexui/ui/components/Toast"
-
-toast.success("Inquiry ID copied", compact)
-```
-
-### Persistent
-Pass duration: Infinity for toasts that stay open until the user acts on them. There are no close (×) affordances, so put a labelled action on the toast so dismissal is intentional and keyboard-accessible. An error that waits like this is an alert (see Screen readers).
-```tsx
-const id = toast("Backup scheduled for 2:00 AM UTC", {
-description: "This stays open until you dismiss it.",
-duration: Infinity,
-action: { label: "Dismiss", onClick: () => toast.dismiss(id) },
 })
 ```
 

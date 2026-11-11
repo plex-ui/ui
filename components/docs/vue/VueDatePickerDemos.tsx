@@ -106,22 +106,21 @@ const withTime = (date: DateTime | null, time: string) => {
 };
 
 /**
- * A VueDemo whose template can use `DateTime`, `minDate` / `maxDate` (30 days
- * either side of today) and the "Two fields" helpers. `selectedDate` starts
- * empty, or at today with `startAtToday`.
+ * A VueDemo whose template can use `minDate` / `maxDate` (30 days either side
+ * of today), `endOfToday` and the "Two fields" helpers. `selectedDate` starts
+ * empty.
  */
 export function VueDatePickerDemo({
   state,
-  startAtToday = false,
   ...props
-}: ComponentProps<typeof VuePhoneRowsDemo> & { startAtToday?: boolean }) {
+}: ComponentProps<typeof VuePhoneRowsDemo>) {
   const [scope] = useState(() => {
     const today = DateTime.local();
     return {
-      DateTime,
       minDate: today.minus({ days: 30 }).startOf('day'),
       maxDate: today.plus({ days: 30 }).endOf('day'),
-      selectedDate: startAtToday ? today : null,
+      endOfToday: today.endOf('day'),
+      selectedDate: null,
       formatTime,
       applyTime,
       withTime,

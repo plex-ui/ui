@@ -34,7 +34,6 @@ const phoneRule = (path: string, selector: string) => {
 describe.each([
   ["popover", ["Open on hover"]],
   ["breadcrumb", ["Sizes"]],
-  ["page", ["Widths"]],
 ])("%s on a phone", (page, desktop) => {
   test("leaves out the examples a phone cannot show, in React and Vue, and says why", () => {
     for (const path of both(page)) {
@@ -56,6 +55,21 @@ test("Progress Steps: orientation is a desktop control of the Overview, and the 
   }
 })
 
+// Page: Widths, once a desktop-only example, and Fill are settings of the one Overview (owner 11.11), desktop ones:
+// a phone page takes the width of the screen and scrolls as a whole
+test("Page: width and fill are desktop controls of the Overview, and the page says why", () => {
+  const react = read("components/docs/PageDemos.tsx")
+  expect(react).toMatch(/<Segments name="width"[^\n]*desktopOnly \/>/)
+  expect(react).toMatch(/<DemoControlBoolean name="fill"[^\n]*desktopOnly \/>/)
+  const vue = read("content/vue/components/page.mdx")
+  expect(vue).toContain('{ name: "width", type: "select", options: ["full", "wide", "column"], default: "full", desktopOnly: true }')
+  expect(vue).toContain('{ name: "fill", type: "boolean", default: false, desktopOnly: true }')
+  for (const path of both("page")) {
+    expect(desktopOnly(path), path).toEqual([])
+    expect(read(path), path).toContain("On a phone a page takes the width of the screen at every width and scrolls as a whole, so the phone has neither setting.")
+  }
+})
+
 test("Copy Tooltip: the hover delay is a desktop control, a tap copies at once", () => {
   expect(read("components/docs/CopyTooltipDemo.tsx")).toContain('<DemoControlRow name="openDelay" desktopOnly>')
   expect(read("content/vue/components/copy-tooltip.mdx")).toContain('{ name: "openDelay", desktopOnly: true, type: "range"')
@@ -65,7 +79,7 @@ test("Copy Tooltip: the hover delay is a desktop control, a tap copies at once",
 describe("Page examples on a phone", () => {
   test("draw their orders as the rows of a FieldGroup, as the Toolbar examples do", () => {
     const react = read("components/docs/PageDemos.tsx")
-    expect(react).toContain("import { BarBackgroundControls, Rows } from './ToolbarDemos';")
+    expect(react).toContain("import { BarBackgroundRow, Rows } from './ToolbarDemos';")
     expect(react).not.toMatch(/function Rows\(/)
     expect(read("components/docs/ToolbarDemos.tsx")).toMatch(/export function Rows\(\) \{\n {2}return \(\n {4}<FieldGroup>/)
     const vue = read("content/vue/components/page.mdx")
@@ -74,9 +88,9 @@ describe("Page examples on a phone", () => {
 
   test("each title matches the orders under it", () => {
     for (const path of ["components/docs/PageDemos.tsx", "content/vue/components/page.mdx"]) {
-      const titles = [...read(path).matchAll(/<(?:Page\.Title|PageTitle)>([^<]+)</g)].map((match) => match[1])
-      expect(titles.length, path).toBeGreaterThan(4)
-      expect(new Set(titles), path).toEqual(new Set(["Orders", "Menu"]))
+      const titles = [...read(path).matchAll(/<(?:Page\.Title|PageTitle)(?: v-else)?>([^<]+)</g)].map((match) => match[1])
+      expect(titles.length, path).toBeGreaterThan(0)
+      expect(new Set(titles), path).toEqual(new Set(["Orders"]))
     }
   })
 })

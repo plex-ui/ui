@@ -5,6 +5,7 @@ metaDescription: React skeleton component for showing animated placeholders whil
 ---
 
 import { Skeleton } from "@plexui/ui/components/Skeleton"
+import { SkeletonOverviewDemo } from "@/components/docs/SkeletonDemos"
 
 <UsageBlock>{`import { Skeleton } from "@plexui/ui/components/Skeleton";`}</UsageBlock>
 
@@ -12,20 +13,16 @@ import { Skeleton } from "@plexui/ui/components/Skeleton"
 
 ### Overview
 
-<ComponentPreview phonePresentation="none" details={<>Use a circular skeleton to represent loading avatars, combined with text placeholders.</>} code={`<div className="flex items-center gap-4">
-  <Skeleton circle className="size-12" />
+<ComponentPreview phonePresentation="none" details={<>Use a circular skeleton to represent loading avatars, combined with text placeholders. Without <code>circle</code> a skeleton keeps its own radius, as for a square picture. Set its size and shape with <code>className</code>.</>} code={`const [circle, setCircle] = useState(true)
+
+<div className="flex items-center gap-4">
+  <Skeleton circle={circle} className="size-12" />
   <div className="flex flex-col gap-2">
     <Skeleton className="h-4 w-[200px]" />
     <Skeleton className="h-4 w-[150px]" />
   </div>
 </div>`} previewMinHeight={168}>
-  <div className="flex items-center gap-4">
-    <Skeleton circle className="size-12" />
-    <div className="flex flex-col gap-2">
-      <Skeleton className="h-4 w-[200px]" />
-      <Skeleton className="h-4 w-[150px]" />
-    </div>
-  </div>
+  <SkeletonOverviewDemo />
 </ComponentPreview>
 
 ### Card

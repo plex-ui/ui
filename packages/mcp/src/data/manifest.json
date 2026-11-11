@@ -414,33 +414,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div className=\"flex gap-4 flex-wrap\">\n<Badge color=\"success\" size=\"lg\">Successful</Badge>\n<Badge size=\"lg\" className=\"gap-1.5\"><LoadingIndicator /> In progress</Badge>\n<Badge color=\"danger\" size=\"lg\">Failed</Badge>\n<Badge color=\"warning\" size=\"lg\" pill><Flask /> Beta</Badge>\n<Badge color=\"caution\" size=\"lg\">Caution</Badge>\n</div>",
-          "details": "Status badges in different colors and compositions."
-        },
-        {
-          "name": "Colors & variants",
-          "code": "const variants = [\"soft\", \"solid\", \"outline\"] as const\nconst colors = [\"secondary\", \"success\", \"warning\", \"danger\", \"info\", \"discovery\", \"caution\"] as const\n\n<div className=\"w-full overflow-x-auto\">\n<div className=\"pt-1 pb-6 px-8 w-fit min-w-full\">\n  <div className=\"grid gap-6 items-center justify-center\" style={{ gridTemplateColumns: \"auto repeat(7, min-content)\" }}>\n    <div />\n    {colors.map((color) => (\n      <div key={color} className=\"text-center mb-1 text-sm\" style={{ color: \"var(--color-text-tertiary)\" }}>\n        {color}\n      </div>\n    ))}\n    {variants.map((variant) => (\n      <Fragment key={variant}>\n        <div className=\"text-right mr-3 text-sm\" style={{ color: \"var(--color-text-tertiary)\" }}>\n          {variant}\n        </div>\n        {colors.map((color) => (\n          <div key={color} className=\"text-center\">\n            <Badge color={color} variant={variant}>Sample</Badge>\n          </div>\n        ))}\n      </Fragment>\n    ))}\n  </div>\n</div>\n</div>",
-          "details": "You can stylize the display of the badge using the color and variant props."
-        },
-        {
-          "name": "Size & roundness",
-          "code": "<Badge color=\"info\" size=\"md\">New</Badge>",
-          "details": "You can control the size and roundness of the badge with size and pill props. When pill is set, extra horizontal gutter is dynamically applied to the badge."
-        },
-        {
-          "name": "Icon",
-          "code": "<Badge color=\"warning\" size=\"lg\"><Flask /> Beta</Badge>",
-          "details": "Content within the badge can be composed, like showing icons. Color, sizing, and spacing adapt by default."
-        },
-        {
-          "name": "Remove",
-          "code": "<Badge\nsize=\"xl\"\npill\nvariant=\"outline\"\nremoveLabel=\"Remove Oak\"\nonRemove={() => remove(\"oak\")}\n>\nOak\n</Badge>",
-          "details": "onRemove adds a cross at the end, with its own hover and focus. size=\"xl\" has the height of a control, so a row of these stands beside a button. Long text ends in an ellipsis and the cross stays."
-        },
-        {
-          "name": "Loading",
-          "code": "<Badge size=\"lg\" color=\"secondary\" className=\"gap-1.5\">\n<LoadingIndicator /> In progress\n</Badge>",
-          "details": "In this example, additional gap is added with a Tailwind gap-1.5 class to provide the appropriate visual spacing."
+          "code": "const [color, setColor] = useState(\"info\") // \"secondary\", \"success\", \"warning\", \"danger\", \"info\", \"discovery\", \"caution\"\nconst [variant, setVariant] = useState(\"soft\") // or \"solid\", \"outline\"\nconst [size, setSize] = useState(\"md\") // \"sm\" to \"xl\"\nconst [pill, setPill] = useState(false)\nconst [leading, setLeading] = useState(\"none\") // or \"icon\", \"loading\"\nconst [onRemove, setOnRemove] = useState(false)\nconst [shown, setShown] = useState(true)\nconst label = { none: \"New\", icon: \"Beta\", loading: \"In progress\" }[leading]\n\n{shown ? (\n<Badge\n  color={color}\n  variant={variant}\n  size={size}\n  pill={pill}\n  className={leading === \"loading\" ? \"gap-1.5\" : undefined}\n  removeLabel={`Remove ${label}`}\n  onRemove={onRemove ? () => setShown(false) : undefined}\n>\n  {leading === \"icon\" && <Flask />}\n  {leading === \"loading\" && <LoadingIndicator />}\n  {label}\n</Badge>\n) : (\n<Button color=\"secondary\" variant=\"outline\" size=\"sm\" onClick={() => setShown(true)}>\n  Show again\n</Button>\n)}",
+          "details": "Style a badge with color and variant, and set its size; pill rounds it fully and adds horizontal gutter. Its content can be composed: an icon before the text takes the badge's color, size and spacing, and a LoadingIndicator marks a task in progress, with a wider gap-1.5 gap. onRemove adds a cross at the end, with its own hover and focus, named by removeLabel. At size=\"xl\" a badge has the height of a control, for a row of removable badges beside a button. Long text ends in an ellipsis and the cross stays."
         }
       ],
       "docsUrl": "https://plexui.com/components/badge"
@@ -1847,28 +1822,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "import { useState } from 'react';\nimport { DateTime } from 'luxon';\nimport { DatePicker } from '@plexui/ui/components/DatePicker';\n\n// Desktop\nexport default function DatePickerExample() {\n  const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);\n  const [disabled] = useState(false);\n\n  return (\n    <DatePicker\n      id=\"date-picker-base\"\n      triggerDateFormat=\"MM/dd/yy\"\n      size=\"lg\"\n      pill\n      clearable\n      disabled={disabled}\n      value={selectedDate}\n      onChange={setSelectedDate}\n    />\n  );\n}\n\n// Phone: the date is the value of a row, in the compact date that opens the calendar.\n<FieldGroup>\n  <Field row label=\"Date\">\n    <DatePicker\n      id=\"date-picker-base\"\n      triggerDateFormat=\"MMM d, yyyy\"\n      triggerShowIcon={false}\n      placeholder=\"Select date\"\n      disabled={disabled}\n      value={selectedDate}\n      onChange={setSelectedDate}\n    />\n  </Field>\n</FieldGroup>",
-          "details": "Pass the date (a luxon DateTime, or null) as value and update it in onChange."
-        },
-        {
-          "name": "Limits",
-          "code": "const today = DateTime.local()\nconst minDate = today.minus({ days: 30 }).startOf(\"day\")\nconst maxDate = today.plus({ days: 30 }).endOf(\"day\")\nconst [selectedDate, setSelectedDate] = useState<DateTime | null>(today)\n\n// Desktop\n<DatePicker\nid=\"date-picker-limits\"\ntriggerDateFormat=\"MM/dd/yy\"\nsize=\"lg\"\npill\ntriggerShowIcon\nvalue={selectedDate}\nonChange={setSelectedDate}\nmin={minDate}\nmax={maxDate}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <DatePicker\n    id=\"date-picker-limits\"\n    triggerDateFormat=\"MMM d, yyyy\"\n    triggerShowIcon={false}\n    value={selectedDate}\n    onChange={setSelectedDate}\n    min={minDate}\n    max={maxDate}\n  />\n</Field>\n</FieldGroup>",
-          "details": "Use min and max to limit selectable dates to a specific timeframe. Equal bounds leave one selectable day."
-        },
-        {
-          "name": "Date of birth",
-          "code": "// Desktop\n<DatePicker\nid=\"date-picker-dob\"\ntriggerDateFormat=\"MMMM d, yyyy\"\nsize=\"lg\"\npill\nclearable\nplaceholder=\"Select your birthday\"\ncaptionLayout=\"dropdown\"\nvalue={selectedDate}\nonChange={setSelectedDate}\nmax={DateTime.local()}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Birthday\">\n  <DatePicker\n    id=\"date-picker-dob\"\n    triggerDateFormat=\"MMM d, yyyy\"\n    triggerShowIcon={false}\n    placeholder=\"Select date\"\n    captionLayout=\"dropdown\"\n    value={selectedDate}\n    onChange={setSelectedDate}\n    max={DateTime.local()}\n  />\n</Field>\n</FieldGroup>",
-          "details": "Set captionLayout=\"dropdown\" to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical."
-        },
-        {
-          "name": "Time picker",
-          "code": "// Desktop\n<DatePicker\nid=\"date-picker-time\"\ntriggerDateFormat=\"MM/dd/yy HH:mm\"\nsize=\"lg\"\npill\nclearable\nplaceholder=\"Select date & time\"\nshowTime\nvalue={selectedDate}\nonChange={setSelectedDate}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Starts\">\n  <DatePicker\n    id=\"date-picker-time\"\n    triggerDateFormat=\"MMM d, yyyy\"\n    triggerTimeFormat=\"HH:mm\"\n    triggerShowIcon={false}\n    placeholder=\"Select date\"\n    showTime\n    value={selectedDate}\n    onChange={setSelectedDate}\n  />\n</Field>\n</FieldGroup>",
-          "details": "Enable showTime to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values. With triggerTimeFormat the trigger shows the date and the time as two parts: on Phone, in a row, they are two capsules, as iOS shows a date and a time."
-        },
-        {
-          "name": "Dropdown + time",
-          "code": "// Desktop\n<DatePicker\nid=\"date-picker-datetime-dropdown\"\ntriggerDateFormat=\"MMM d, yyyy HH:mm\"\nsize=\"lg\"\npill\nclearable\nplaceholder=\"Schedule event\"\ncaptionLayout=\"dropdown\"\nshowTime\nyearRange={[2020, 2030]}\nvalue={selectedDate}\nonChange={setSelectedDate}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Event\">\n  <DatePicker\n    id=\"date-picker-datetime-dropdown\"\n    triggerDateFormat=\"MMM d, yyyy\"\n    triggerTimeFormat=\"HH:mm\"\n    triggerShowIcon={false}\n    placeholder=\"Select date\"\n    captionLayout=\"dropdown\"\n    showTime\n    yearRange={[2020, 2030]}\n    value={selectedDate}\n    onChange={setSelectedDate}\n  />\n</Field>\n</FieldGroup>",
-          "details": "Combine captionLayout=\"dropdown\" with showTime for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time."
+          "code": "const today = DateTime.local()\nconst [value, setValue] = useState<DateTime | null>(null)\nconst [variant, setVariant] = useState(\"outline\") // or \"soft\", \"ghost\"\nconst [size, setSize] = useState(\"lg\") // \"3xs\" to \"3xl\"\nconst [pill, setPill] = useState(true)\nconst [block, setBlock] = useState(false)\nconst [clearable, setClearable] = useState(true)\nconst [triggerShowIcon, setTriggerShowIcon] = useState(true)\nconst [dropdownIconType, setDropdownIconType] = useState(\"dropdown\") // or \"chevronDown\", \"none\"\nconst [triggerDateFormat, setTriggerDateFormat] = useState(\"MM/dd/yy\") // or \"MMM d, yyyy\", \"MMMM d, yyyy\"\nconst [showTime, setShowTime] = useState(false)\nconst [triggerTimeFormat, setTriggerTimeFormat] = useState(\"HH:mm\") // or \"h:mm a\"; with showTime\nconst [captionLayout, setCaptionLayout] = useState(\"buttons\") // or \"dropdown\"\nconst [yearRange, setYearRange] = useState(undefined) // or [2020, 2030]; with the dropdown caption and no limits\nconst [limits, setLimits] = useState(\"none\") // or \"around\" (30 days either side of today), \"past\" (up to today)\nconst [side, setSide] = useState(\"bottom\") // or \"top\", \"right\", \"left\"\nconst [sideOffset, setSideOffset] = useState(8)\nconst [align, setAlign] = useState(\"center\") // or \"start\", \"end\"\nconst [alignOffset, setAlignOffset] = useState(-5) // with a start or end alignment\nconst [disabled, setDisabled] = useState(false)\n\nconst min = limits === \"around\" ? today.minus({ days: 30 }).startOf(\"day\") : undefined\nconst max = limits === \"around\" ? today.plus({ days: 30 }).endOf(\"day\") : limits === \"past\" ? today.endOf(\"day\") : undefined\n\n// Desktop\n<div className=\"flex w-[320px] justify-center\">\n  <DatePicker\n    id=\"date-picker-base\"\n    placeholder=\"Select date\"\n    variant={variant}\n    size={size}\n    pill={pill}\n    block={block}\n    clearable={clearable}\n    triggerShowIcon={triggerShowIcon}\n    dropdownIconType={dropdownIconType}\n    triggerDateFormat={triggerDateFormat}\n    showTime={showTime}\n    triggerTimeFormat={showTime ? triggerTimeFormat : undefined}\n    captionLayout={captionLayout}\n    yearRange={limits === \"none\" ? yearRange : undefined}\n    min={min}\n    max={max}\n    side={side}\n    sideOffset={sideOffset}\n    align={align}\n    alignOffset={align === \"center\" ? undefined : alignOffset}\n    disabled={disabled}\n    value={value}\n    onChange={setValue}\n  />\n</div>\n\n// Phone: the date is the value of a row, in the compact date that opens the calendar\n<FieldGroup>\n  <Field row label=\"Date\">\n    <DatePicker\n      id=\"date-picker-base\"\n      placeholder=\"Select date\"\n      triggerDateFormat=\"MMM d, yyyy\"\n      triggerShowIcon={false}\n      showTime={showTime}\n      triggerTimeFormat={showTime ? triggerTimeFormat : undefined}\n      captionLayout={captionLayout}\n      yearRange={limits === \"none\" ? yearRange : undefined}\n      min={min}\n      max={max}\n      clearable={clearable}\n      disabled={disabled}\n      value={value}\n      onChange={setValue}\n    />\n  </Field>\n</FieldGroup>",
+          "details": "Pass the date (a luxon DateTime, or null) as value and update it in onChange. showTime adds hour and minute fields under the calendar, which then stays open after a date is picked so the time can be set; the arrow keys step the field they are in. triggerTimeFormat writes the time after the date as a part of its own: on Phone, in a row, the date and the time are two capsules, as iOS shows an event's start. Without it, a showTime trigger writes \"MM/dd/yy HH:mm\" unless you set triggerDateFormat. captionLayout=\"dropdown\" adds month and year dropdowns beside the arrows, for a date of birth or a date years away; yearRange sets their years (the last 120 by default); with min or max the years are those they allow, so here it is offered without limits. min and max limit the dates that can be picked: here 30 days either side of today, or up to today for a date of birth. Equal bounds leave one day."
         },
         {
           "name": "Two fields",
@@ -1878,17 +1833,7 @@
         {
           "name": "Date input",
           "code": "// Desktop\n<div className=\"w-[200px]\">\n<DateInput value={date} onChange={setDate} mode=\"mm/dd/yyyy\" separator=\"/\" aria-label=\"Date\" />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <DateInput value={date} onChange={setDate} mode=\"mm/dd/yyyy\" separator=\"/\" />\n</Field>\n</FieldGroup>",
-          "details": "For typing a date directly instead of picking it, use DateInput, a masked input that auto-formats as you type."
-        },
-        {
-          "name": "DateTime input",
-          "code": "// Desktop\n<div className=\"w-[260px]\">\n<DateInput\n  value={dateTime}\n  onChange={setDateTime}\n  mode=\"mm/dd/yyyy\"\n  separator=\"/\"\n  timeMode=\"HH:MM\"\n  aria-label=\"Date and time\"\n/>\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Starts\">\n  <DateInput value={dateTime} onChange={setDateTime} mode=\"mm/dd/yyyy\" separator=\"/\" timeMode=\"HH:MM\" />\n</Field>\n</FieldGroup>",
-          "details": "Pass timeMode=\"HH:MM\" to DateInput to type the date and time in one field."
-        },
-        {
-          "name": "Without Icon",
-          "code": "// Desktop\n<DatePicker\nid=\"date-picker-no-icon\"\ntriggerDateFormat=\"MM/dd/yy\"\nsize=\"lg\"\ntriggerShowIcon={false}\nplaceholder=\"Choose a date\"\nvalue={selectedDate}\nonChange={setSelectedDate}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <DatePicker\n    id=\"date-picker-no-icon\"\n    triggerDateFormat=\"MMM d, yyyy\"\n    triggerShowIcon={false}\n    placeholder=\"Choose a date\"\n    value={selectedDate}\n    onChange={setSelectedDate}\n  />\n</Field>\n</FieldGroup>",
-          "details": "Remove the calendar icon from the trigger by setting triggerShowIcon to false. In a phone row the date never shows the icon, as the compact date of iOS does not, so this example is desktop only."
+          "details": "For typing a date directly instead of picking it, use DateInput, a masked input that auto-formats as you type. With timeMode=\"HH:MM\" it takes the time in the same field."
         }
       ],
       "docsUrl": "https://plexui.com/components/date-picker"
@@ -4169,28 +4114,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<Page>\n<Page.Header>\n  <Page.Bar>\n    <Page.Title>Orders</Page.Title>\n    <Page.Actions>\n      <Button color=\"primary\" pill size=\"md\">New order</Button>\n    </Page.Actions>\n  </Page.Bar>\n</Page.Header>\n<Page.Content>...</Page.Content>\n</Page>",
-          "details": "The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top."
-        },
-        {
-          "name": "Heading",
-          "code": "<Page.Bar>\n<Page.Heading>\n  <Page.Title>Menu</Page.Title>\n  <Page.Subtitle>\n    <Badge color=\"info\" size=\"sm\" variant=\"outline\">Draft</Badge>\n    <span>Saved a minute ago</span>\n  </Page.Subtitle>\n</Page.Heading>\n<Page.Actions>...</Page.Actions>\n</Page.Bar>",
-          "details": "Page.Heading groups the title with metadata. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it."
-        },
-        {
-          "name": "Fill",
-          "code": "<Page>\n<Page.Header divider={false}>...</Page.Header>\n<Page.Content fill>\n  <div className=\"min-h-0 flex-1 overflow-auto\">...</div>\n</Page.Content>\n</Page>",
-          "details": "fill stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with divider."
-        },
-        {
-          "name": "Background",
-          "code": "<Page>\n<Page.Header background=\"hard\">...</Page.Header>\n<Page.Content>...</Page.Content>\n<Page.Footer background=\"hard\">\n  <Button color=\"primary\" pill block>New order</Button>\n</Page.Footer>\n</Page>",
-          "details": "background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: glass, the header's default, is a translucent, blurred bar with a hairline, soft, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, and solid an opaque bar with no line. Glass and hard show themselves once content is under the bar; divider={false} keeps a header without its line. The example sets the top and the bottom bar apart: the control of the bottom bar stands under the preview."
-        },
-        {
-          "name": "Widths",
-          "code": "<Page width=\"column\">\n<Page.Header>...</Page.Header>\n<Page.Content>...</Page.Content>\n</Page>\n\n<Page width=\"column\" style={{ \"--page-width\": \"860px\" }}>...</Page>",
-          "details": "The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. On a phone a page takes the width of the screen at every width, so this example is desktop only."
+          "code": "const [width, setWidth] = useState(\"full\") // or \"wide\", \"column\"; from 768px up\nconst [surface, setSurface] = useState(\"plain\") // or \"grouped\"; on a phone\nconst [topBackground, setTopBackground] = useState(\"glass\") // or \"soft\", \"hard\", \"solid\"; on a phone\nconst [divider, setDivider] = useState(true) // on desktop without fill; on a phone, under a glass or hard header\nconst [leading, setLeading] = useState(false)\nconst [subtitle, setSubtitle] = useState(false)\nconst [actions, setActions] = useState(true)\nconst [fill, setFill] = useState(false) // from 768px up\nconst [footer, setFooter] = useState(false)\nconst [bottomBackground, setBottomBackground] = useState(\"soft\") // or \"hard\", \"glass\", \"solid\"; on a phone\n\n<Page width={width} surface={surface}>\n  <Page.Header background={topBackground} divider={divider}>\n    <Page.Bar>\n      {leading && (\n        <Page.Leading>\n          <NavigationButton action=\"back\" />\n        </Page.Leading>\n      )}\n      {subtitle ? (\n        <Page.Heading>\n          <Page.Title>Orders</Page.Title>\n          <Page.Subtitle>\n            <Badge color=\"info\" size=\"sm\" variant=\"outline\">24 open</Badge>\n            <span>Updated now</span>\n          </Page.Subtitle>\n        </Page.Heading>\n      ) : (\n        <Page.Title>Orders</Page.Title>\n      )}\n      {actions && (\n        <Page.Actions>\n          <Button color=\"primary\" pill size=\"md\">New order</Button>\n        </Page.Actions>\n      )}\n    </Page.Bar>\n  </Page.Header>\n  <Page.Content fill={fill}>\n    {fill ? <div className=\"min-h-0 flex-1 overflow-auto\">...</div> : ...}\n  </Page.Content>\n  {footer && (\n    <Page.Footer background={bottomBackground}>\n      <Button color=\"primary\" pill block>Export orders</Button>\n    </Page.Footer>\n  )}\n</Page>",
+          "details": "The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top. Turn divider off to keep the header without it. A page with fill does not scroll under its header, so on desktop the line does not come and the divider is offered without fill; on a phone only a glass or hard header draws the line, so there the divider is offered with those. width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms; for any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. fill stops the page scrolling from 768px up, so a table can scroll inside itself. On a phone a page takes the width of the screen at every width and scrolls as a whole, so the phone has neither setting. Page.Heading groups the title with metadata in Page.Subtitle. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it. Page.Leading holds a Back button or the menu button of a sidebar, before the title; on a phone the title stays centred between it and the actions. On a phone background sets how the header and the footer meet the content scrolled under them, as a Toolbar does: glass, the header's default, is a translucent, blurred bar with a hairline, soft, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, and solid an opaque bar with no line. Glass and hard show themselves once content is under the bar. surface=\"grouped\" gives the phone canvas the gray of grouped rows; desktop colors stay. The footer and its background stand under the preview, as what sits at the bottom of the screen."
         }
       ],
       "subComponents": [
@@ -4201,7 +4126,7 @@
               "name": "background",
               "type": "\"soft\" | \"hard\" | \"glass\" | \"solid\"",
               "default": "\"glass\"",
-              "description": "How the bar meets the content scrolled under it on a phone, see Background"
+              "description": "How the bar meets the content scrolled under it on a phone, see Overview"
             },
             {
               "name": "divider",
@@ -5726,8 +5651,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div className=\"flex items-center gap-4\">\n<Skeleton circle className=\"size-12\" />\n<div className=\"flex flex-col gap-2\">\n  <Skeleton className=\"h-4 w-[200px]\" />\n  <Skeleton className=\"h-4 w-[150px]\" />\n</div>\n</div>",
-          "details": "Use a circular skeleton to represent loading avatars, combined with text placeholders."
+          "code": "const [circle, setCircle] = useState(true)\n\n<div className=\"flex items-center gap-4\">\n<Skeleton circle={circle} className=\"size-12\" />\n<div className=\"flex flex-col gap-2\">\n  <Skeleton className=\"h-4 w-[200px]\" />\n  <Skeleton className=\"h-4 w-[150px]\" />\n</div>\n</div>",
+          "details": "Use a circular skeleton to represent loading avatars, combined with text placeholders. Without circle a skeleton keeps its own radius, as for a square picture. Set its size and shape with className."
         },
         {
           "name": "Card",
@@ -5982,14 +5907,9 @@
       ],
       "examples": [
         {
-          "name": "Rows",
-          "code": "const [rows, setRows] = useState(sections);\n\n<FieldGroup title=\"Home screen\">\n<Sortable value={rows} onChange={setRows}>\n  {rows.map((row) => (\n    <div key={row.id} data-row>\n      <Sortable.Handle aria-label={`Reorder ${row.label}`} />\n      <Field row label={row.label} description={row.description}>\n        <Switch defaultChecked />\n      </Field>\n    </div>\n  ))}\n</Sortable>\n</FieldGroup>",
-          "details": "Every direct child is an item, in the order of value. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with data-row keeps the lines of the group, and rows that touch hold still: the line alone marks the gap. On a phone the rows sit on the grouped background of an iOS settings screen."
-        },
-        {
-          "name": "Rows with a handle",
-          "code": "<FieldGroup title=\"Contact details\">\n<Sortable value={rows} onChange={setRows} handles>\n  {rows.map((row) => (\n    <div key={row.id} data-row>\n      <Sortable.Handle aria-label={`Reorder ${row.label}`} />\n      <Field row label={row.label}>\n        <Input variant=\"ghost\" defaultValue={row.value} />\n      </Field>\n    </div>\n  ))}\n</Sortable>\n</FieldGroup>",
-          "details": "A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row. On a phone with touch.css the grip ends the row, after its value, as three flat lines 21px wide in the tertiary label color, where and as iOS 27.2 draws its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode."
+          "name": "Overview",
+          "code": "const [rows, setRows] = useState(sections)\nconst [handles, setHandles] = useState(false)\nconst [disabled, setDisabled] = useState(false)\n\n<FieldGroup title=\"Home screen\">\n<Sortable value={rows} onChange={setRows} handles={handles} disabled={disabled}>\n  {rows.map((row) => (\n    <div key={row.id} data-row>\n      <Sortable.Handle aria-label={`Reorder ${row.label}`} />\n      <Field row label={row.label} description={row.description}>\n        <Switch defaultChecked />\n      </Field>\n    </div>\n  ))}\n</Sortable>\n</FieldGroup>",
+          "details": "Every direct child is an item, in the order of value. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with data-row keeps the lines of the group, and rows that touch hold still: the line alone marks the gap. On a phone the rows sit on the grouped background of an iOS settings screen. A row that is mostly a field, such as an Input, needs a grip: handles shows it, and then only the grip drags the row. On a phone with touch.css the grip ends the row, after its value, as three flat lines 21px wide in the tertiary label color, where and as iOS 27.2 draws its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode. disabled turns dragging off."
         },
         {
           "name": "Stacked rows",
@@ -7326,40 +7246,13 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "toast(\"Inquiry ID copied\")",
-          "details": "On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content). Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface."
-        },
-        {
-          "name": "Variants",
-          "code": "toast(\"Changes saved\")\ntoast.success(\"Inquiry ID copied\")\ntoast.error(\"Failed to assign owner\")\ntoast.warning(\"Session expires in 2 minutes\")\ntoast.info(\"New version available\")",
-          "details": "Semantic variants map to PlexUI's success / danger / warning / info tokens. No richColors is passed, so variants retheme automatically with data-theme."
-        },
-        {
-          "name": "Description",
-          "code": "toast(\"Changes saved\", {\ndescription: \"Your profile is live for everyone on the team.\",\n})"
-        },
-        {
-          "name": "Action",
-          "code": "toast(\"Message sent\", {\ndescription: \"Delivered to #design channel.\",\naction: { label: \"Undo\", onClick: () => toast.success(\"Message recalled\") },\n})"
+          "code": "import { toast, compact as compactOptions } from \"@plexui/ui/components/Toast\"\n\n// Each type's title, its short description and its action's label\nconst messages = {\ndefault: { title: \"Changes saved\", description: \"Your profile is live for everyone on the team.\", action: \"Undo\" },\nsuccess: { title: \"Inquiry ID copied\", description: \"Paste it into the support form.\", action: \"Open\" },\nerror: { title: \"Failed to assign owner\", description: \"The owner has left the workspace.\", action: \"Retry\" },\nwarning: { title: \"Session expires in 2 minutes\", description: \"Unsaved changes will be lost.\", action: \"Stay\" },\ninfo: { title: \"New version available\", description: \"Reload to get the latest features.\", action: \"Reload\" },\n}\nconst longDescription = \"This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly.\"\n\nconst [type, setType] = useState(\"default\") // or \"success\", \"error\", \"warning\", \"info\"\nconst [description, setDescription] = useState(\"none\") // or \"short\", \"long\"\nconst [action, setAction] = useState(\"none\") // or \"action\", \"cancel\" (an action and a cancel)\nconst [closeButton, setCloseButton] = useState(false)\nconst [compact, setCompact] = useState(false)\nconst [persistent, setPersistent] = useState(false) // with an action or a close button\n\nconst message = messages[type]\n\n<Button\ncolor=\"secondary\"\nvariant=\"outline\"\nonClick={() =>\n  (type === \"default\" ? toast : toast[type])(message.title, {\n    description: description === \"none\" ? undefined : description === \"short\" ? message.description : longDescription,\n    action: action === \"none\" ? undefined : { label: message.action, onClick: () => {} },\n    cancel: action === \"cancel\" ? { label: \"Cancel\", onClick: () => {} } : undefined,\n    closeButton,\n    // Open until closed, once there is a button to close it\n    duration: persistent && (action !== \"none\" || closeButton) ? Infinity : undefined,\n    ...(compact ? compactOptions : {}),\n  })\n}\n>\nShow toast\n</Button>",
+          "details": "Call toast with a message, or toast.success, .error, .warning and .info for the semantic types, which map to PlexUI's success, danger, warning and info tokens. No richColors is passed, so the types retheme with data-theme. The options add a description under the message, an action button and a cancel one (either closes the toast after its onClick), and closeButton. Spread compact into the options for a centered toast: on a desktop a toast shrinks to its content anyway, and on a phone, where a toast fills the width, a compact one keeps the width of its content. duration: Infinity keeps a toast open until the user closes it, so give it a labelled action or a close button: a way to close it from the keyboard. An error that waits like this is an alert (see Screen readers). On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content). Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface."
         },
         {
           "name": "Promise",
           "code": "toast.promise(saveProfile(), {\nloading: \"Saving…\",\nsuccess: (data) => `${data.name} saved`,\nerror: \"Save failed\",\n})",
           "details": "Use toast.promise to tie a single toast to an async operation. The toast shows a loading state, then swaps to success or error. Here saveProfile() resolves with {\"{ name: \\\"Profile\\\" }\"} after 1.5 seconds."
-        },
-        {
-          "name": "Long content",
-          "code": "toast(\"Your deployment is still running\", {\ndescription:\n  \"This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly.\",\n})"
-        },
-        {
-          "name": "Compact",
-          "code": "import { toast, compact } from \"@plexui/ui/components/Toast\"\n\ntoast.success(\"Inquiry ID copied\", compact)",
-          "details": "Spread compact into any toast(...) options for a centered-text layout. On a desktop a toast shrinks to its content anyway; on a phone, where a toast fills the width, a compact one keeps the width of its content. Both center its text."
-        },
-        {
-          "name": "Persistent",
-          "code": "const id = toast(\"Backup scheduled for 2:00 AM UTC\", {\ndescription: \"This stays open until you dismiss it.\",\nduration: Infinity,\naction: { label: \"Dismiss\", onClick: () => toast.dismiss(id) },\n})",
-          "details": "Pass duration: Infinity for toasts that stay open until the user acts on them. There are no close (×) affordances, so put a labelled action on the toast so dismissal is intentional and keyboard-accessible. An error that waits like this is an alert (see Screen readers)."
         }
       ],
       "subComponents": [
@@ -7771,5 +7664,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-11T12:14:35.709Z"
+  "generatedAt": "2026-11-11T13:09:51.014Z"
 }

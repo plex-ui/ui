@@ -18,6 +18,15 @@ import { SelectControlOverviewDemo } from '../../components/docs/SelectControlDe
 import { SelectOverviewDemo } from '../../components/docs/SelectDemos';
 import { ProgressStepsOverviewDemo } from '../../components/docs/ProgressStepsDemos';
 import { RadioGroupOverviewDemo } from '../../components/docs/RadioGroupDemos';
+import { SortableOverviewDemo } from '../../components/docs/SortableDemos';
+import { BadgeOverviewDemo } from '../../components/docs/BadgeDemos';
+import { SkeletonOverviewDemo } from '../../components/docs/SkeletonDemos';
+import { PageOverviewDemo } from '../../components/docs/PageDemos';
+import { ToastDemosHost, ToastOverviewDemo } from '../../components/docs/ToastDemos';
+import { VueToastDemo, VueToastDemosHost } from '../../components/docs/vue/VueToastDemos';
+import { TOAST_LONG_DESCRIPTION, TOAST_MESSAGES } from '../../components/docs/toastMessages';
+import { compact as reactCompact, toast as reactToast } from '@plexui/ui/components/Toast';
+import { compact as vueCompact, toast as vueToast } from '@plexui/vue/components/Toast';
 import { VuePhoneRowsDemo } from '../../components/docs/vue/VuePhoneRowsDemo';
 import { VueSelectDemo } from '../../components/docs/vue/VueSelectDemos';
 import { phoneRows } from '../../components/docs/phoneRowsTemplate';
@@ -82,7 +91,8 @@ function example(page: string, name: string, references: string[] = []) {
     const phoneSettings = {
       ...('desktopOnly' in control && (control.desktopOnly === true || (!!control.desktopOnly && typeof control.desktopOnly === 'object'))
         ? { desktopOnly: control.desktopOnly as true | Record<string, unknown> } : {}),
-      ...('phoneOnly' in control && control.phoneOnly === true ? { phoneOnly: true } : {}),
+      ...('phoneOnly' in control && (control.phoneOnly === true || (!!control.phoneOnly && typeof control.phoneOnly === 'object'))
+        ? { phoneOnly: control.phoneOnly as true | Record<string, unknown> } : {}),
       ...('phoneDefault' in control && (typeof control.phoneDefault === 'string' || typeof control.phoneDefault === 'boolean') ? { phoneDefault: control.phoneDefault } : {}),
     };
     if (control.type === 'boolean' && typeof control.default === 'boolean') return { name: control.name, type: 'boolean', default: control.default, ...when, ...phoneSettings };
@@ -144,6 +154,40 @@ const dateInputOverview = (() => {
   const desktopControlNames = JSON.parse(/desktopControlNames=\{(\[[^\]]*\])\}/.exec(tag)![1]) as string[];
   return { ...example('date-input', 'overview'), phoneTemplate: phoneRows(phone), desktopControlNames, state: { date: null } };
 })();
+/** The Badge Overview as its page mounts it, with its labels */
+/** A plain value a Vue page exports (a demo's state) */
+function pageValue(page: string, key: string): unknown {
+  const mdx = readFileSync(`content/vue/components/${page}.mdx`, 'utf8');
+  const rest = mdx.slice(mdx.indexOf(`export const ${key} = `) + `export const ${key} = `.length);
+  return new Function(`return ${rest.slice(0, rest.search(/\nexport const |\n\{\/\*|\n<UsageBlock>/)).trim()}`)();
+}
+const badgeOverview = { ...example('badge', 'overview'), state: pageValue('badge', 'overviewState') as Record<string, unknown> };
+/** The Sortable Overview as its page mounts it, with the page's rows */
+const sortableOverview = (() => {
+  const mdx = readFileSync('content/vue/components/sortable.mdx', 'utf8');
+  const marker = 'export const sections = ';
+  const rest = mdx.slice(mdx.indexOf(marker) + marker.length);
+  const sections = new Function(`return ${rest.slice(0, rest.search(/\nexport const /)).trim()}`)() as unknown[];
+  return { ...example('sortable', 'overview'), state: { rows: sections } };
+})();
+/** The Page Overview as its page mounts it: its frame and rows, and its controls as written (labels, bottom placement) */
+const pageOverview = (() => {
+  const mdx = readFileSync('content/vue/components/page.mdx', 'utf8');
+  const read = (key: string, bindings: Record<string, unknown> = {}): unknown => {
+    const rest = mdx.slice(mdx.indexOf(`export const ${key} = `) + `export const ${key} = `.length);
+    return new Function(...Object.keys(bindings), `return ${rest.slice(0, rest.search(/\nexport const |\n\{\/\*|\n<UsageBlock>/)).trim()}`)(...Object.values(bindings));
+  };
+  const styles = { Row: 'Row', Value: 'Value', Frame: 'Frame' };
+  const template = read('overview', { frame: read('frame', { pageStyles: styles }), list: read('list', { toolbarStyles: styles }) }) as string;
+  return { template, controls: read('overviewControls') as VueDemoControl[], state: { rows: read('rows') } };
+})();
+/** Where a demo control shows: on both, a desktop or a phone only, or neither (its row's flags) */
+const pageControlPlace = (control: HTMLElement | null) => {
+  const row = control?.closest<HTMLElement>('[data-demo-controls] > *');
+  const desktop = row?.hasAttribute('data-demo-desktop-only');
+  const phone = row?.hasAttribute('data-demo-phone-only');
+  return desktop && phone ? 'neither' : desktop ? 'desktop' : phone ? 'phone' : 'both';
+};
 /** The Radio Group Overview as its page mounts it, with its phone rows */
 const radioOverview = (() => {
   const mdx = readFileSync('content/vue/components/radio-group.mdx', 'utf8');
@@ -533,6 +577,126 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await toggle('disabled');
     expect(input().disabled).toBe(true);
     expect(page.getByRole('switch', { name: 'limits', exact: true }).getAttribute('aria-checked')).toBe('false');
+  });
+
+  test('sortable: one Overview of rows; handles shows the grips and disabled turns dragging off (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <SortableOverviewDemo /> : <VueDemo {...sortableOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const list = () => view.container.querySelector<HTMLElement>('[data-sortable]')!;
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    expect(list().querySelectorAll(':scope > [data-row]')).toHaveLength(4);
+    expect([list().dataset.handles, list().hasAttribute('data-disabled')]).toEqual(['false', false]);
+    expect(page.getByRole('button', { name: 'Reorder Orders' })).toBeTruthy();
+    await toggle('handles');
+    expect(list().dataset.handles).toBe('true');
+    await toggle('disabled');
+    expect(list().hasAttribute('data-disabled')).toBe(true);
+    // The rows keep their switches through the settings
+    expect(list().querySelectorAll('[role="switch"]')).toHaveLength(4);
+  });
+
+  test('skeleton: the Overview carries circle, the one setting (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <SkeletonOverviewDemo /> : <VueDemo {...example('skeleton', 'overview')} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const avatar = () => view.container.querySelector<HTMLElement>('[data-demo-stage] .size-12')!;
+    expect(avatar().hasAttribute('data-circle')).toBe(true);
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'circle', exact: true })));
+    expect(avatar().hasAttribute('data-circle')).toBe(false);
+  });
+
+  test('badge: one Overview carries color, variant, size, pill, what leads the text and the cross (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <BadgeOverviewDemo /> : <VueDemo {...badgeOverview} stageClassName="flex justify-center py-10" />);
+    await interact(() => {});
+    const page = within(view.container);
+    // The badge, not the Show again button that takes its place
+    const badge = () => view.container.querySelector<HTMLElement>('[data-demo-stage] [data-color]:not(button)');
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    expect([badge()?.dataset.color, badge()?.dataset.variant, badge()?.dataset.size, badge()?.textContent?.trim()]).toEqual(['info', 'soft', 'md', 'New']);
+    // color, of seven options, is a menu
+    await interact(() => fireEvent.click(page.getByRole('button', { name: /^color/ })));
+    const colors = await within(document.body).findByRole('listbox');
+    await interact(() => fireEvent.click(within(colors).getByRole('option', { name: 'danger', exact: true })));
+    await choose('variant', 'outline');
+    await choose('size', 'xl');
+    await toggle('pill');
+    expect([badge()?.dataset.color, badge()?.dataset.variant, badge()?.dataset.size, badge()?.hasAttribute('data-pill')]).toEqual(['danger', 'outline', 'xl', true]);
+    // An icon or a loading indicator leads the text
+    await choose('leading', 'icon');
+    expect([badge()?.querySelector('svg') !== null, badge()?.textContent?.trim()]).toEqual([true, 'Beta']);
+    await choose('leading', 'loading');
+    expect([badge()?.classList.contains('gap-1.5'), badge()?.textContent?.trim()]).toEqual([true, 'In progress']);
+    // The cross removes the badge; Show again brings it back
+    expect(page.queryByRole('button', { name: 'Remove In progress' })).toBeNull();
+    await toggle('onRemove');
+    await interact(() => fireEvent.click(page.getByRole('button', { name: 'Remove In progress' })));
+    expect(badge()).toBeNull();
+    await interact(() => fireEvent.click(page.getByRole('button', { name: 'Show again' })));
+    expect(badge()?.textContent?.trim()).toBe('In progress');
+  });
+
+  test('toast: one Overview carries every setting of a toast; persistent comes with a way to close it (owner 11.11)', async () => {
+    // compact is a class to spread into the options: `className` in React, `class` in Vue
+    const [toast, compactClass] = framework === 'React' ? [reactToast, reactCompact.className] : [vueToast, vueCompact.class];
+    const view = render(framework === 'React'
+      ? <><ToastOverviewDemo /><ToastDemosHost /></>
+      : <><VueToastDemo {...example('toast', 'overview')} /><VueToastDemosHost /></>);
+    await interact(() => {});
+    const page = within(view.container);
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const offered = (name: string) => page.queryByRole('switch', { name, exact: true }) !== null;
+    const show = async () => {
+      await interact(() => fireEvent.click(page.getByRole('button', { name: 'Show toast' })));
+      return waitFor(() => {
+        const item = document.querySelector<HTMLElement>('[data-sonner-toast]');
+        if (!item) throw new Error('No toast');
+        return item;
+      });
+    };
+    try {
+      // The code declares the messages it shows
+      const code = readFileSync(framework === 'React' ? 'content/components/toast.mdx' : 'content/vue/components/toast.mdx', 'utf8');
+      for (const message of Object.values(TOAST_MESSAGES)) expect(code).toContain(`{ title: "${message.title}", description: "${message.description}", action: "${message.action}" }`);
+      expect(code).toContain(`const longDescription = "${TOAST_LONG_DESCRIPTION}"`);
+      // Persistent waits to be closed: it comes with an action or a close button
+      expect(offered('persistent')).toBe(false);
+      await toggle('closeButton');
+      expect(offered('persistent')).toBe(true);
+      await toggle('closeButton');
+      expect(offered('persistent')).toBe(false);
+      await choose('action', 'action');
+      expect(offered('persistent')).toBe(true);
+      await choose('action', 'action + cancel');
+      expect(offered('persistent')).toBe(true);
+      // Hidden, it keeps its choice, and the toast shown does not wait: an error that closes itself is no alert
+      await toggle('persistent');
+      await choose('action', 'none');
+      expect(offered('persistent')).toBe(false);
+      await choose('type', 'error');
+      const passing = await show();
+      expect([passing.querySelector('[data-action]'), passing.querySelector('[role="alert"]')]).toEqual([null, null]);
+      await interact(() => { toast.dismiss(); });
+      await waitFor(() => expect(document.querySelector('[data-sonner-toast]')).toBeNull());
+      await choose('description', 'short');
+      await choose('action', 'action + cancel');
+      expect(page.getByRole('switch', { name: 'persistent', exact: true }).getAttribute('aria-checked')).toBe('true');
+      await toggle('closeButton');
+      await toggle('compact');
+      const shown = await show();
+      expect(shown.dataset.type).toBe('error');
+      expect(shown.querySelector('[data-title]')?.textContent).toBe('Failed to assign owner');
+      expect(shown.querySelector('[data-description]')?.textContent).toBe('The owner has left the workspace.');
+      expect([shown.querySelector('[data-action]')?.textContent, shown.querySelector('[data-cancel]')?.textContent]).toEqual(['Retry', 'Cancel']);
+      expect(shown.querySelector('[data-close-button]')).not.toBeNull();
+      expect(shown.classList.contains(compactClass)).toBe(true);
+      // An error that waits to be closed is an alert
+      expect(shown.querySelector('[role="alert"]')).not.toBeNull();
+    } finally {
+      await interact(() => { toast.dismiss(); });
+    }
   });
 
   test('date input on a phone: the value of a row; variant, size, pill and invalid stay on desktop', async () => {
@@ -1076,6 +1240,84 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await interact(() => fireEvent.click(page.getByRole('radio', { name: 'underline' })));
     expect(page.queryByRole('switch', { name: 'pill' })).toBeNull();
     expect(page.getByRole('switch', { name: 'flush' })).toBeTruthy();
+  });
+
+  test('page: one Overview carries every setting, each where it acts (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <PageOverviewDemo /> : <VueDemo {...pageOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const root = () => view.container.querySelector<HTMLElement>('[data-demo-stage] [data-surface]')!;
+    const bars = () => [...view.container.querySelectorAll<HTMLElement>('[data-demo-stage] [data-background]')];
+    const group = (name: string) => page.queryByRole('radiogroup', { name });
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(group(name)!).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const where = pageControlPlace;
+    const text = (name: string) => page.queryByText(name) !== null;
+    // The old Overview: a full page, a glass header with its line, a title and New order; no footer
+    expect([root().dataset.width, root().dataset.surface]).toEqual(['full', 'plain']);
+    expect(bars().map((bar) => bar.dataset.background)).toEqual(['glass']);
+    expect(bars()[0].hasAttribute('data-divider')).toBe(true);
+    expect([text('New order'), page.queryByRole('button', { name: 'Back' }) !== null, text('24 open'), text('Export orders')]).toEqual([true, false, false, false]);
+    expect(group('background (bottom)')).toBeNull();
+    // Width and fill act on desktop, the surface and the bars' backgrounds on a phone
+    expect([where(group('width')), where(page.getByRole('switch', { name: 'fill', exact: true })), where(group('surface')), where(group('background (top)'))]).toEqual(['desktop', 'desktop', 'phone', 'phone']);
+    await choose('width', 'column');
+    await choose('surface', 'grouped');
+    expect([root().dataset.width, root().dataset.surface]).toEqual(['column', 'grouped']);
+    // On a phone only a glass or hard header draws the line
+    const divider = () => page.getByRole('switch', { name: 'divider', exact: true });
+    expect(where(divider())).toBe('both');
+    await choose('background (top)', 'soft');
+    expect(where(divider())).toBe('desktop');
+    await choose('background (top)', 'hard');
+    expect([bars()[0].dataset.background, where(divider())]).toEqual(['hard', 'both']);
+    await toggle('divider');
+    expect(bars()[0].hasAttribute('data-divider')).toBe(false);
+    // The bar: a Back button, a subtitle, the actions
+    await toggle('leading');
+    await toggle('subtitle');
+    await toggle('actions');
+    expect([text('New order'), page.queryByRole('button', { name: 'Back' }) !== null, text('24 open'), text('Updated now')]).toEqual([false, true, true, true]);
+    expect(view.container.querySelector('[data-fill]')).toBeNull();
+    // A filled page does not scroll under its header: on desktop the divider goes, and the header takes its default
+    await toggle('fill');
+    expect(view.container.querySelector('[data-demo-stage] [data-fill]')).not.toBeNull();
+    expect([where(divider()), bars()[0].hasAttribute('data-divider')]).toEqual(['phone', true]);
+    await choose('background (top)', 'soft');
+    expect(where(divider())).toBe('neither');
+    await choose('background (top)', 'hard');
+    // The footer, and its background with it
+    await toggle('footer');
+    expect([text('Export orders'), bars().map((bar) => bar.dataset.background)]).toEqual([true, ['hard', 'soft']]);
+    expect(where(group('background (bottom)'))).toBe('phone');
+    await choose('background (bottom)', 'solid');
+    expect(bars().map((bar) => bar.dataset.background)).toEqual(['hard', 'solid']);
+    await toggle('footer');
+    expect([text('Export orders'), group('background (bottom)')]).toEqual([false, null]);
+  });
+
+  test('page on a phone: the desktop settings give their defaults; the divider goes under a soft or solid header', async () => {
+    vi.stubGlobal('matchMedia', (media: string) => ({ matches: !media.includes('min-width'), media, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }));
+    const view = render(framework === 'React' ? <PageOverviewDemo /> : <VueDemo {...pageOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const root = () => view.container.querySelector<HTMLElement>('[data-demo-stage] [data-surface]')!;
+    const header = () => view.container.querySelector<HTMLElement>('[data-demo-stage] [data-background]')!;
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const divider = () => page.getByRole('switch', { name: 'divider', exact: true });
+    // The hidden controls stay mounted (the preview hides them): a choice made there does not reach the phone
+    await choose('width', 'column');
+    await toggle('fill');
+    expect([root().dataset.width, view.container.querySelector('[data-demo-stage] [data-fill]')]).toEqual(['full', null]);
+    await choose('surface', 'grouped');
+    expect(root().dataset.surface).toBe('grouped');
+    // Under the glass header the divider is offered, filled page or not: a phone page scrolls as a whole
+    expect(pageControlPlace(divider())).toBe('phone');
+    await toggle('divider');
+    expect(header().hasAttribute('data-divider')).toBe(false);
+    await choose('background (top)', 'solid');
+    expect([pageControlPlace(divider()), header().dataset.background, header().hasAttribute('data-divider')]).toEqual(['neither', 'solid', true]);
   });
 
   test('DataTable restores the sorted rows after empty, with default, text and rich message modes', async () => {

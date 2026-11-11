@@ -1,132 +1,64 @@
 'use client';
 
-import React, { Fragment, useState } from 'react';
+import { useState } from 'react';
 import { Badge } from '@plexui/ui/components/Badge';
-import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { Button } from '@plexui/ui/components/Button';
+import { Flask } from '@plexui/ui/components/Icon';
+import { LoadingIndicator } from '@plexui/ui/components/Indicator';
+import { DemoControlBoolean, DemoControlSelect, controlsTableStyle, Segments } from './ButtonDemos';
 
-const labelStyle: React.CSSProperties = {
-  color: 'var(--color-text-tertiary)',
-  fontSize: '0.875rem',
-};
-
-const SIZES = ['sm', 'md', 'lg', 'xl'] as const;
+const COLORS = ['secondary', 'success', 'warning', 'danger', 'info', 'discovery', 'caution'] as const;
 const VARIANTS = ['soft', 'solid', 'outline'] as const;
-const COLORS = [
-  'secondary',
-  'success',
-  'warning',
-  'danger',
-  'info',
-  'discovery',
-  'caution',
-] as const;
+const SIZES = ['sm', 'md', 'lg', 'xl'] as const;
+// What leads the text: nothing, an icon, or a loading indicator (a badge of a task in progress)
+const LEADING_OPTIONS = ['none', 'icon', 'loading'] as const;
+const LABELS = { none: 'New', icon: 'Beta', loading: 'In progress' } as const;
 
-function Matrix({
-  rowLabels,
-  columnLabels,
-  renderCell,
-}: {
-  rowLabels: Readonly<string[]>;
-  columnLabels: Readonly<string[]>;
-  renderCell: (rowIndex: number, colIndex: number) => React.ReactNode;
-}) {
-  const template = `auto repeat(${columnLabels.length}, min-content)`;
-  return (
-    <div className="grid gap-6 items-center justify-center" style={{ gridTemplateColumns: template }}>
-      <div />
-      {columnLabels.map((col) => (
-        <div key={col} className="text-center mb-1" style={labelStyle}>
-          {col}
-        </div>
-      ))}
-      {rowLabels.map((row, rowIndex) => (
-        <Fragment key={row}>
-          <div className="text-right mr-3" style={labelStyle}>
-            {row}
-          </div>
-          {columnLabels.map((col, colIndex) => (
-            <div key={`${row}-${col}`} className="text-center">
-              {renderCell(rowIndex, colIndex)}
-            </div>
-          ))}
-        </Fragment>
-      ))}
-    </div>
-  );
-}
-
-export function BadgeColorsDemo() {
-  return (
-    <div className="w-full overflow-x-auto">
-      <div className="pt-1 pb-6 px-8 w-fit min-w-full">
-        <Matrix
-          rowLabels={VARIANTS}
-          columnLabels={COLORS}
-          renderCell={(rowIndex, colIndex) => (
-            <Badge color={COLORS[colIndex]} variant={VARIANTS[rowIndex]}>
-              Sample
-            </Badge>
-          )}
-        />
-      </div>
-    </div>
-  );
-}
-
-export function BadgeSizingDemo() {
+/** The Overview, with every setting of a badge: what the page's examples once showed one by one (Colors &
+ * variants, Size & roundness, Icon, Remove, Loading) are its settings (owner 11.11: «в первом примере можно сразу
+ * показать все со всеми настройками»). `onRemove` adds the cross; pressing it removes the badge, and Show again
+ * brings it back. */
+export function BadgeOverviewDemo() {
+  const [color, setColor] = useState<(typeof COLORS)[number]>('info');
+  const [variant, setVariant] = useState<(typeof VARIANTS)[number]>('soft');
   const [size, setSize] = useState<(typeof SIZES)[number]>('md');
   const [pill, setPill] = useState(false);
+  const [leading, setLeading] = useState<(typeof LEADING_OPTIONS)[number]>('none');
+  const [onRemove, setOnRemove] = useState(false);
+  const [shown, setShown] = useState(true);
+  const label = LABELS[leading];
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
-          <SegmentedControl<(typeof SIZES)[number]>
-            value={size}
-            onChange={setSize}
-            aria-label="size"
-            size="xs"
-          >
-            {SIZES.map((s) => (
-              <SegmentedControl.Option key={s} value={s}>
-                {s}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
+        <DemoControlSelect name="color" options={COLORS} value={color} onChange={setColor} />
+        <Segments name="variant" options={VARIANTS} value={variant} onChange={setVariant} />
+        <Segments name="size" options={SIZES} value={size} onChange={setSize} />
         <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
+        <Segments name="leading" options={LEADING_OPTIONS} value={leading} onChange={setLeading} />
+        <DemoControlBoolean name="onRemove" value={onRemove} onChange={setOnRemove} />
       </div>
-      <div data-demo-stage className="py-10">
-        <Badge color="info" size={size} pill={pill}>
-          New
-        </Badge>
+      <div data-demo-stage className="flex justify-center py-10">
+        {shown ? (
+          <Badge
+            color={color}
+            variant={variant}
+            size={size}
+            pill={pill}
+            // A loading indicator takes a wider gap than an icon
+            className={leading === 'loading' ? 'gap-1.5' : undefined}
+            removeLabel={`Remove ${label}`}
+            onRemove={onRemove ? () => setShown(false) : undefined}
+          >
+            {leading === 'icon' && <Flask />}
+            {leading === 'loading' && <LoadingIndicator />}
+            {label}
+          </Badge>
+        ) : (
+          <Button color="secondary" variant="outline" size="sm" onClick={() => setShown(true)}>
+            Show again
+          </Button>
+        )}
       </div>
     </>
-  );
-}
-
-export function BadgeRemoveDemo() {
-  const [tags, setTags] = useState(['Oak', 'Steel', 'Linen']);
-
-  return (
-    <div data-demo-stage className="flex justify-center py-10">
-      <div className="flex flex-wrap justify-center gap-2">
-        {tags.map((tag) => (
-          <Badge
-            key={tag}
-            size="xl"
-            pill
-            variant="outline"
-            removeLabel={`Remove ${tag}`}
-            onRemove={() => setTags(tags.filter((item) => item !== tag))}
-          >
-            {tag}
-          </Badge>
-        ))}
-        <Badge size="xl" pill variant="solid" color="discovery" removeLabel="Remove New" onRemove={() => {}}>
-          New
-        </Badge>
-      </div>
-    </div>
   );
 }

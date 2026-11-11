@@ -106,7 +106,7 @@ Props:
   - size ("sm" | "md" | "lg" | "xl") default: "sm" — Badge size
   - pill (boolean) default: false — Fully rounded
   - class (string) — Class applied to the badge
-Examples: Overview, Colors & variants, Size & roundness, Icon, Remove, Loading
+Examples: Overview
 
 ## Breadcrumb
 The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.
@@ -354,7 +354,7 @@ Props:
   - side-offset (number) default: 8 — Distance from the trigger in pixels
   - align ("start" | "center" | "end") default: "center" — Alignment against the trigger
   - align-offset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
-Examples: Overview, Limits, Date of birth, Time picker, Dropdown + time, Two fields, Date input, DateTime input, Without Icon
+Examples: Overview, Two fields, Date input
 
 ## Date Range Picker
 Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
@@ -747,7 +747,7 @@ Props:
   PageContent:
     - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
     - class (string) — Class of the element that scrolls
-Examples: Overview, Heading, Fill, Background, Widths
+Examples: Overview
 
 ## Page Control
 A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
@@ -1080,7 +1080,7 @@ Props:
   - group (string) — Lists of one group trade items, and a SortableTarget of that group takes them. Give each list a name
   - name (string) — Names the list in move
   - aria-label (string) default: Reorder — Name of the handle for assistive technology
-Examples: Rows, Rows with a handle, Stacked rows, Different controls, Table, Images, Tags, Cards, Between lists
+Examples: Overview, Stacked rows, Different controls, Table, Images, Tags, Cards, Between lists
 
 ## Stat Card
 Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.
@@ -1324,7 +1324,7 @@ Docs: https://plexui.com/vue/components/toast
     - offset (string | number | { top?; right?; bottom?; left? }) default: 32px — Distance from the viewport edge. Without a top or bottom edge here, the page's --toast-offset-top or --toast-offset-bottom sets it.
     - mobile-offset (string | number | { top?; right?; bottom?; left? }) default: 16px top and bottom, 14px at the sides, past the safe area — Gutter under 600px, where a toast fills the width between the side gutters. Explicit edges override their defaults; omitted edges keep them, and the page's --toast-mobile-offset-top or --toast-mobile-offset-bottom sets the top or bottom one.
     - gap (number) — Gap between stacked toasts in px
-Examples: Overview, Variants, Description, Action, Promise, Long content, Compact, Persistent
+Examples: Overview, Promise
 
 ## Toggle Group
 A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.

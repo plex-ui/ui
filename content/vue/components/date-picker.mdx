@@ -8,62 +8,52 @@ import { VueDatePickerDemo } from "@/components/docs/vue/VueDatePickerDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import { phoneCalendarStageClassName, phoneCalendarTimeStageClassName, phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
-export const overview = `<DatePicker
-  id="date-picker-base"
-  trigger-date-format="MM/dd/yy"
-  size="lg"
-  pill
-  clearable
-  :disabled="disabled"
-  v-model:value="selectedDate"
-/>`
+export const overview = `<div class="flex w-[320px] justify-center">
+  <DatePicker
+    id="date-picker-base"
+    placeholder="Select date"
+    :variant="variant"
+    :size="size"
+    :pill="pill"
+    :block="block"
+    :clearable="clearable"
+    :trigger-show-icon="triggerShowIcon"
+    :dropdown-icon-type="dropdownIconType"
+    :trigger-date-format="triggerDateFormat"
+    :show-time="showTime"
+    :trigger-time-format="showTime ? triggerTimeFormat : undefined"
+    :caption-layout="captionLayout"
+    :year-range="limits === 'none' && yearRange === '2020-2030' ? [2020, 2030] : undefined"
+    :min="limits === 'around' ? minDate : undefined"
+    :max="limits === 'around' ? maxDate : limits === 'past' ? endOfToday : undefined"
+    :side="side"
+    :side-offset="sideOffset"
+    :align="align"
+    :align-offset="align === 'center' ? undefined : alignOffset"
+    :disabled="disabled"
+    v-model:value="selectedDate"
+  />
+</div>`
 
-export const limits = `<DatePicker
-  id="date-picker-limits"
-  trigger-date-format="MM/dd/yy"
-  size="lg"
-  pill
-  trigger-show-icon
-  v-model:value="selectedDate"
-  :min="minDate"
-  :max="maxDate"
-/>`
-
-export const dob = `<DatePicker
-  id="date-picker-dob"
-  trigger-date-format="MMMM d, yyyy"
-  size="lg"
-  pill
-  clearable
-  placeholder="Select your birthday"
-  caption-layout="dropdown"
-  v-model:value="selectedDate"
-  :max="DateTime.local()"
-/>`
-
-export const time = `<DatePicker
-  id="date-picker-time"
-  trigger-date-format="MM/dd/yy HH:mm"
-  size="lg"
-  pill
-  clearable
-  placeholder="Select date & time"
-  show-time
-  v-model:value="selectedDate"
-/>`
-
-export const dropdownTime = `<DatePicker
-  id="date-picker-datetime-dropdown"
-  trigger-date-format="MMM d, yyyy HH:mm"
-  size="lg"
-  pill
-  clearable
-  placeholder="Schedule event"
-  caption-layout="dropdown"
-  show-time
-  :year-range="[2020, 2030]"
-  v-model:value="selectedDate"
-/>`
+export const overviewPhone = `<FieldGroup>
+  <Field row label="Date">
+    <DatePicker
+      id="date-picker-base"
+      placeholder="Select date"
+      trigger-date-format="MMM d, yyyy"
+      :trigger-show-icon="false"
+      :show-time="showTime"
+      :trigger-time-format="showTime ? triggerTimeFormat : undefined"
+      :caption-layout="captionLayout"
+      :year-range="limits === 'none' && yearRange === '2020-2030' ? [2020, 2030] : undefined"
+      :min="limits === 'around' ? minDate : undefined"
+      :max="limits === 'around' ? maxDate : limits === 'past' ? endOfToday : undefined"
+      :clearable="clearable"
+      :disabled="disabled"
+      v-model:value="selectedDate"
+    />
+  </Field>
+</FieldGroup>`
 
 export const twoFields = `<div style="display: flex; gap: 8px; align-items: center">
   <DatePicker
@@ -93,95 +83,6 @@ export const twoFields = `<div style="display: flex; gap: 8px; align-items: cent
 export const dateInput = `<div class="w-[200px]">
   <DateInput v-model:value="selectedDate" mode="mm/dd/yyyy" separator="/" aria-label="Date" />
 </div>`
-
-export const dateTimeInput = `<div class="w-[260px]">
-  <DateInput
-    v-model:value="selectedDate"
-    mode="mm/dd/yyyy"
-    separator="/"
-    time-mode="HH:MM"
-    aria-label="Date and time"
-  />
-</div>`
-
-export const withoutIcon = `<DatePicker
-  id="date-picker-no-icon"
-  trigger-date-format="MM/dd/yy"
-  size="lg"
-  :trigger-show-icon="false"
-  placeholder="Choose a date"
-  v-model:value="selectedDate"
-/>`
-
-export const overviewPhone = `<FieldGroup>
-  <Field row label="Date">
-    <DatePicker
-      id="date-picker-base"
-      trigger-date-format="MMM d, yyyy"
-      :trigger-show-icon="false"
-      placeholder="Select date"
-      :disabled="disabled"
-      v-model:value="selectedDate"
-    />
-  </Field>
-</FieldGroup>`
-
-export const limitsPhone = `<FieldGroup>
-  <Field row label="Date">
-    <DatePicker
-      id="date-picker-limits"
-      trigger-date-format="MMM d, yyyy"
-      :trigger-show-icon="false"
-      v-model:value="selectedDate"
-      :min="minDate"
-      :max="maxDate"
-    />
-  </Field>
-</FieldGroup>`
-
-export const dobPhone = `<FieldGroup>
-  <Field row label="Birthday">
-    <DatePicker
-      id="date-picker-dob"
-      trigger-date-format="MMM d, yyyy"
-      :trigger-show-icon="false"
-      placeholder="Select date"
-      caption-layout="dropdown"
-      v-model:value="selectedDate"
-      :max="DateTime.local()"
-    />
-  </Field>
-</FieldGroup>`
-
-export const timePhone = `<FieldGroup>
-  <Field row label="Starts">
-    <DatePicker
-      id="date-picker-time"
-      trigger-date-format="MMM d, yyyy"
-      trigger-time-format="HH:mm"
-      :trigger-show-icon="false"
-      placeholder="Select date"
-      show-time
-      v-model:value="selectedDate"
-    />
-  </Field>
-</FieldGroup>`
-
-export const dropdownTimePhone = `<FieldGroup>
-  <Field row label="Event">
-    <DatePicker
-      id="date-picker-datetime-dropdown"
-      trigger-date-format="MMM d, yyyy"
-      trigger-time-format="HH:mm"
-      :trigger-show-icon="false"
-      placeholder="Select date"
-      caption-layout="dropdown"
-      show-time
-      :year-range="[2020, 2030]"
-      v-model:value="selectedDate"
-    />
-  </Field>
-</FieldGroup>`
 
 export const twoFieldsPhone = `<FieldGroup>
   <Field row label="Date">
@@ -213,98 +114,89 @@ export const dateInputPhone = `<FieldGroup>
   </Field>
 </FieldGroup>`
 
-export const dateTimeInputPhone = `<FieldGroup>
-  <Field row label="Starts">
-    <DateInput v-model:value="selectedDate" mode="mm/dd/yyyy" separator="/" time-mode="HH:MM" />
-  </Field>
-</FieldGroup>`
+{/* In a phone row the picker is the compact date of iOS: the row's capsule is its frame, it writes the date as iOS does, with no icon, and opens the calendar under the row, so those controls are desktop ones (owner 11.11). With min or max the dropdown lists the years they allow: yearRange is offered without limits */}
+export const overviewControls = [
+  { name: "variant", type: "select", options: ["outline", "soft", "ghost"], default: "outline" },
+  { name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "lg" },
+  { name: "pill", type: "boolean", default: true },
+  { name: "block", type: "boolean", default: false },
+  { name: "clearable", type: "boolean", default: true },
+  { name: "triggerShowIcon", type: "boolean", default: true },
+  { name: "dropdownIconType", type: "select", options: ["dropdown", "chevronDown", "none"], default: "dropdown" },
+  { name: "triggerDateFormat", type: "select", options: ["MM/dd/yy", "MMM d, yyyy", "MMMM d, yyyy"], default: "MM/dd/yy" },
+  { name: "showTime", type: "boolean", default: false },
+  { name: "triggerTimeFormat", type: "select", options: ["HH:mm", "h:mm a"], default: "HH:mm", when: { showTime: true } },
+  { name: "captionLayout", type: "select", options: ["buttons", "dropdown"], default: "buttons" },
+  { name: "yearRange", type: "select", options: [{ value: "default", label: "last 120 years" }, { value: "2020-2030", label: "2020–2030" }], default: "default", when: { captionLayout: "dropdown", limits: "none" } },
+  { name: "limits", type: "select", options: [{ value: "none", label: "none" }, { value: "around", label: "±30 days" }, { value: "past", label: "to today" }], default: "none" },
+  { name: "side", type: "select", options: ["top", "right", "bottom", "left"], default: "bottom" },
+  { name: "sideOffset", type: "range", min: 0, max: 24, step: 1, default: 8 },
+  { name: "align", type: "select", options: ["start", "center", "end"], default: "center" },
+  { name: "alignOffset", type: "range", min: -20, max: 20, step: 1, default: -5, when: { align: ["start", "end"] } },
+  { name: "disabled", type: "boolean", default: false },
+]
 
-export const withoutIconPhone = `<FieldGroup>
-  <Field row label="Date">
-    <DatePicker
-      id="date-picker-no-icon"
-      trigger-date-format="MMM d, yyyy"
-      :trigger-show-icon="false"
-      placeholder="Choose a date"
-      v-model:value="selectedDate"
-    />
-  </Field>
-</FieldGroup>`
-
-export const overviewControls = [{ name: "disabled", type: "boolean", default: false }]
+export const overviewDesktopControls = ["variant", "size", "pill", "block", "triggerShowIcon", "dropdownIconType", "triggerDateFormat", "side", "sideOffset", "align", "alignOffset"]
 
 export const overviewCode = `<script setup lang="ts">
 import { ref } from 'vue';
 import { DateTime } from 'luxon';
 import { DatePicker } from '@plexui/vue/components/DatePicker';
 
+const today = DateTime.local();
+const minDate = today.minus({ days: 30 }).startOf('day');
+const maxDate = today.plus({ days: 30 }).endOf('day');
+const endOfToday = today.endOf('day');
 const selectedDate = ref<DateTime | null>(null);
+const variant = ref("outline"); // or "soft", "ghost"
+const size = ref("lg"); // "3xs" to "3xl"
+const pill = ref(true);
+const block = ref(false);
+const clearable = ref(true);
+const triggerShowIcon = ref(true);
+const dropdownIconType = ref("dropdown"); // or "chevronDown", "none"
+const triggerDateFormat = ref("MM/dd/yy"); // or "MMM d, yyyy", "MMMM d, yyyy"
+const showTime = ref(false);
+const triggerTimeFormat = ref("HH:mm"); // or "h:mm a"; with show-time
+const captionLayout = ref("buttons"); // or "dropdown"
+const yearRange = ref("default"); // or "2020-2030"; with the dropdown caption and no limits
+const limits = ref("none"); // or "around" (30 days either side of today), "past" (up to today)
+const side = ref("bottom"); // or "top", "right", "left"
+const sideOffset = ref(8);
+const align = ref("center"); // or "start", "end"
+const alignOffset = ref(-5); // with a start or end alignment
 const disabled = ref(false);
 </script>
 
 <template>
 <!-- Desktop -->
-<DatePicker
-  id="date-picker-base"
-  trigger-date-format="MM/dd/yy"
-  size="lg"
-  pill
-  clearable
-  :disabled="disabled"
-  v-model:value="selectedDate"
-/>
+${overview}
 
-<!-- Phone: the date is the value of a row, in the compact date that opens the calendar. -->
-<FieldGroup>
-  <Field row label="Date">
-    <DatePicker
-      id="date-picker-base"
-      trigger-date-format="MMM d, yyyy"
-      :trigger-show-icon="false"
-      placeholder="Select date"
-      :disabled="disabled"
-      v-model:value="selectedDate"
-    />
-  </Field>
-</FieldGroup>
+<!-- Phone: the date is the value of a row, in the compact date that opens the calendar -->
+${overviewPhone}
 </template>`
 
 <UsageBlock>{`import { DatePicker } from "@plexui/vue/components/DatePicker";`}</UsageBlock>
 
-On Phone, put a date picker in a row of a `FieldGroup`, as the [Settings Forms](/vue/components/settings-forms) do. In the row its trigger is the compact date of iOS: a capsule with the date that opens the calendar, 8px under it and, on a screen 392px wide or wider, 32px from its edge, as iOS 27.2 opens it; with a time format the date and the time are two capsules 8px apart, as Calendar shows an event's start. The row is its frame and sets its height, insets and type, so the phone examples leave out `size`, `pill` and `clearable` and set `:trigger-show-icon="false"`. To type a date instead, put a [Date Input](/vue/components/date-input) in the row.
+On Phone, put a date picker in a row of a `FieldGroup`, as the [Settings Forms](/vue/components/settings-forms) do. In the row its trigger is the compact date of iOS: a capsule with the date that opens the calendar, 8px under it and, on a screen 392px wide or wider, 32px from its edge, as iOS 27.2 opens it; with a time format the date and the time are two capsules 8px apart, as Calendar shows an event's start. The row's capsule is its frame and sets its height, insets and type, and iOS opens the calendar under the row, so the Phone previews leave out the `variant`, `size`, `pill`, `block`, icon, date format and placement controls, and set `:trigger-show-icon="false"` and the date as iOS writes it, `"MMM d, yyyy"`. To type a date instead, put a [Date Input](/vue/components/date-input) in the row.
 
 ## Examples
 
 <span id="disabled" />
+<span id="limits" />
+<span id="date-of-birth" />
+<span id="time-picker" />
+<span id="dropdown--time" />
+<span id="without-icon" />
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Bind the date (a luxon <code>DateTime</code>, or <code>null</code>) with <code>v-model:value</code>. The <code>@change</code> event carries the same value, like React's <code>onChange</code>.</>} code={overviewCode} previewMinHeight={168}>
-  <VueDatePickerDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName={phoneCalendarStageClassName} controls={overviewControls} stageClassName="flex-1 flex items-center justify-center py-12 w-full" />
-</ComponentPreview>
-
-### Limits
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>min</code> and <code>max</code> to limit selectable dates to a specific timeframe. Here <code>minDate</code> is <code>{"today.minus({ days: 30 }).startOf('day')"}</code> and <code>maxDate</code> is <code>{"today.plus({ days: 30 }).endOf('day')"}</code>. Equal bounds leave one selectable day.</>} code={withPhone(limits, limitsPhone)} previewMinHeight={168}>
-  <VueDatePickerDemo template={limits} phoneTemplate={phoneRows(limitsPhone)} phoneStageClassName={phoneCalendarStageClassName} startAtToday />
-</ComponentPreview>
-
-### Date of birth
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Set <code>caption-layout="dropdown"</code> to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical.</>} code={withPhone(dob, dobPhone)} previewMinHeight={168}>
-  <VueDatePickerDemo template={dob} phoneTemplate={phoneRows(dobPhone)} phoneStageClassName={phoneCalendarStageClassName} />
-</ComponentPreview>
-
-### Time picker
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Enable <code>show-time</code> to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values. With <code>trigger-time-format</code> the trigger shows the date and the time as two parts: on Phone, in a row, they are two capsules, as iOS shows a date and a time.</>} code={withPhone(time, timePhone)} previewMinHeight={168}>
-  <VueDatePickerDemo template={time} phoneTemplate={phoneRows(timePhone)} phoneStageClassName={phoneCalendarTimeStageClassName} />
-</ComponentPreview>
-
-### Dropdown + time
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Combine <code>caption-layout="dropdown"</code> with <code>show-time</code> for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time.</>} code={withPhone(dropdownTime, dropdownTimePhone)} previewMinHeight={168}>
-  <VueDatePickerDemo template={dropdownTime} phoneTemplate={phoneRows(dropdownTimePhone)} phoneStageClassName={phoneCalendarTimeStageClassName} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>Bind the date (a luxon <code>DateTime</code>, or <code>null</code>) with <code>v-model:value</code>. The <code>@change</code> event carries the same value, like React's <code>onChange</code>.</p>
+  <p><code>show-time</code> adds hour and minute fields under the calendar, which then stays open after a date is picked so the time can be set; the arrow keys step the field they are in. <code>trigger-time-format</code> writes the time after the date as a part of its own: on Phone, in a row, the date and the time are two capsules, as iOS shows an event's start. Without it, a <code>show-time</code> trigger writes <code>"MM/dd/yy HH:mm"</code> unless you set <code>trigger-date-format</code>.</p>
+  <p><code>caption-layout="dropdown"</code> adds month and year dropdowns beside the arrows, for a date of birth or a date years away; <code>year-range</code> sets their years (the last 120 by default); with <code>min</code> or <code>max</code> the years are those they allow, so here it is offered without limits. <code>min</code> and <code>max</code> limit the dates that can be picked: here 30 days either side of today, or up to today for a date of birth. Equal bounds leave one day.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <VueDatePickerDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName={phoneCalendarTimeStageClassName} controls={overviewControls} desktopControlNames={overviewDesktopControls} stageClassName="flex-1 flex items-center justify-center py-12 w-full" />
 </ComponentPreview>
 
 ### Two fields
@@ -313,22 +205,12 @@ On Phone, put a date picker in a row of a `FieldGroup`, as the [Settings Forms](
   <VueDatePickerDemo template={twoFields} phoneTemplate={phoneRows(twoFieldsPhone)} phoneStageClassName={phoneCalendarStageClassName} state={{ time: "10:30" }} />
 </ComponentPreview>
 
+<span id="datetime-input" />
+
 ### Date input
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>For typing a date directly instead of picking it, use <a href="/vue/components/date-input"><code>DateInput</code></a>, a masked input that auto-formats as you type.</>} code={withPhone(dateInput, dateInputPhone)} previewMinHeight={80}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>For typing a date directly instead of picking it, use <a href="/vue/components/date-input"><code>DateInput</code></a>, a masked input that auto-formats as you type. With <code>time-mode="HH:MM"</code> it takes the time in the same field.</>} code={withPhone(dateInput, dateInputPhone)} previewMinHeight={80}>
   <VueDatePickerDemo template={dateInput} phoneTemplate={phoneRows(dateInputPhone)} phoneStageClassName="w-full" />
-</ComponentPreview>
-
-### DateTime input
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Pass <code>time-mode="HH:MM"</code> to <code>DateInput</code> to type the date and time in one field.</>} code={withPhone(dateTimeInput, dateTimeInputPhone)} previewMinHeight={80}>
-  <VueDatePickerDemo template={dateTimeInput} phoneTemplate={phoneRows(dateTimeInputPhone)} phoneStageClassName="w-full" />
-</ComponentPreview>
-
-### Without Icon
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>Remove the calendar icon from the trigger by setting <code>trigger-show-icon</code> to false. In a phone row the date never shows the icon, as the compact date of iOS does not, so this example is desktop only.</>} code={withPhone(withoutIcon, withoutIconPhone)} previewMinHeight={168}>
-  <VueDatePickerDemo template={withoutIcon} phoneTemplate={phoneRows(withoutIconPhone)} phoneStageClassName={phoneCalendarStageClassName} />
 </ComponentPreview>
 
 ## API

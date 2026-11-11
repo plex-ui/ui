@@ -14,6 +14,7 @@ import { StatCard } from '@plexui/ui/components/StatCard';
 import { Switch } from '@plexui/ui/components/Switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@plexui/ui/components/Table';
 import { Textarea } from '@plexui/ui/components/Textarea';
+import { controlsTableStyle, DemoControlBoolean } from './ButtonDemos';
 import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 
 const SECTIONS = [
@@ -21,13 +22,6 @@ const SECTIONS = [
   { id: 'orders', label: 'Orders', description: 'The latest ten.' },
   { id: 'customers', label: 'Customers', description: 'New this week.' },
   { id: 'reports', label: 'Reports', description: 'Sent on Mondays.' },
-];
-
-const CONTACT = [
-  { id: 'first', label: 'First name', value: 'Jane' },
-  { id: 'last', label: 'Last name', value: 'Doe' },
-  { id: 'email', label: 'Email', value: 'jane@example.com' },
-  { id: 'phone', label: 'Phone', value: '+34 600 000 000' },
 ];
 
 const QUESTIONS = [
@@ -83,49 +77,38 @@ function RowsStage({ children }: { children: ReactNode }) {
   return phone ? <PhoneRowsStage>{children}</PhoneRowsStage> : <div data-demo-stage className={STAGE}>{children}</div>;
 }
 
-export function SortableRowsDemo() {
+/** The Overview, with every setting of a list of rows: the page's "Rows with a handle" example is its `handles`
+ * setting (owner 11.11: «в первом примере можно сразу показать все со всеми настройками»). Without `handles` a row
+ * drags from anywhere but its switch; with them only the grip drags it, which on a phone ends the row as the reorder
+ * control of iOS. `disabled` turns dragging off. */
+export function SortableOverviewDemo() {
   const [rows, setRows] = useState(SECTIONS);
+  const [handles, setHandles] = useState(false);
+  const [disabled, setDisabled] = useState(false);
 
   return (
-    <RowsStage>
-      <div className="w-[480px] max-w-full">
-        <FieldGroup title="Home screen">
-          <Sortable value={rows} onChange={setRows}>
-            {rows.map((row) => (
-              <div key={row.id} data-row>
-                <Sortable.Handle aria-label={`Reorder ${row.label}`} />
-                <Field row label={row.label} description={row.description}>
-                  <Switch defaultChecked />
-                </Field>
-              </div>
-            ))}
-          </Sortable>
-        </FieldGroup>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="handles" value={handles} onChange={setHandles} />
+        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
-    </RowsStage>
-  );
-}
-
-export function SortableInputsDemo() {
-  const [rows, setRows] = useState(CONTACT);
-
-  return (
-    <RowsStage>
-      <div className="w-[480px] max-w-full">
-        <FieldGroup title="Contact details">
-          <Sortable value={rows} onChange={setRows} handles>
-            {rows.map((row) => (
-              <div key={row.id} data-row>
-                <Sortable.Handle aria-label={`Reorder ${row.label}`} />
-                <Field row label={row.label}>
-                  <Input variant="ghost" defaultValue={row.value} />
-                </Field>
-              </div>
-            ))}
-          </Sortable>
-        </FieldGroup>
-      </div>
-    </RowsStage>
+      <RowsStage>
+        <div className="w-[480px] max-w-full">
+          <FieldGroup title="Home screen">
+            <Sortable value={rows} onChange={setRows} handles={handles} disabled={disabled}>
+              {rows.map((row) => (
+                <div key={row.id} data-row>
+                  <Sortable.Handle aria-label={`Reorder ${row.label}`} />
+                  <Field row label={row.label} description={row.description}>
+                    <Switch defaultChecked />
+                  </Field>
+                </div>
+              ))}
+            </Sortable>
+          </FieldGroup>
+        </div>
+      </RowsStage>
+    </>
   );
 }
 

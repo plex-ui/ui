@@ -19,13 +19,6 @@ export const sections = [
   { id: "reports", label: "Reports", description: "Sent on Mondays." },
 ]
 
-export const contact = [
-  { id: "first", label: "First name", value: "Jane" },
-  { id: "last", label: "Last name", value: "Doe" },
-  { id: "email", label: "Email", value: "jane@example.com" },
-  { id: "phone", label: "Phone", value: "+34 600 000 000" },
-]
-
 export const questions = [
   { id: "shipping", question: "How long does shipping take?", answer: "Two to four working days within the EU." },
   { id: "returns", question: "Can I return an order?", answer: "Yes, within 30 days. The label is in the box." },
@@ -65,9 +58,9 @@ export const cards = [
   { label: "Refunds", value: "12" },
 ]
 
-export const rowsDemo = `<div class="w-[480px] max-w-full">
+export const overview = `<div class="w-[480px] max-w-full">
   <FieldGroup title="Home screen">
-    <Sortable v-model:value="rows">
+    <Sortable v-model:value="rows" :handles="handles" :disabled="disabled">
       <div v-for="row in rows" :key="row.id" data-row>
         <SortableHandle :aria-label="'Reorder ' + row.label" />
         <Field row :label="row.label" :description="row.description">
@@ -78,18 +71,22 @@ export const rowsDemo = `<div class="w-[480px] max-w-full">
   </FieldGroup>
 </div>`
 
-export const inputsDemo = `<div class="w-[480px] max-w-full">
-  <FieldGroup title="Contact details">
-    <Sortable v-model:value="rows" handles>
-      <div v-for="row in rows" :key="row.id" data-row>
-        <SortableHandle :aria-label="'Reorder ' + row.label" />
-        <Field row :label="row.label">
-          <Input variant="ghost" :default-value="row.value" />
-        </Field>
-      </div>
-    </Sortable>
-  </FieldGroup>
-</div>`
+export const overviewControls = [
+  { name: "handles", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+]
+
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+
+const rows = ref(sections);
+const handles = ref(false);
+const disabled = ref(false);
+</script>
+
+<template>
+${overview}
+</template>`
 
 export const stackedDemo = `<div class="w-[480px] max-w-full">
   <FieldGroup title="Questions">
@@ -195,16 +192,16 @@ export const groupDemo = `<div class="grid w-[640px] max-w-full gap-4 sm:grid-co
 
 ## Examples
 
-### Rows
+<span id="rows" />
+<span id="rows-with-a-handle" />
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Every direct child is an item, in the order of <code>value</code>. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with <code>data-row</code> keeps the lines of the group, and rows that touch hold still: the line alone marks the gap. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={rowsDemo} previewMinHeight={380}>
-  <VuePhoneRowsDemo template={rowsDemo} phoneTemplate={phoneRows(rowsDemo)} phoneStageClassName="w-full" stageClassName={STAGE} state={{ rows: sections }} />
-</ComponentPreview>
+### Overview
 
-### Rows with a handle
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A row that is mostly a field needs a grip: <code>handles</code> shows it, and then only the grip drags the row. On a phone with <code>touch.css</code> the grip ends the row, after its value, as three flat lines 21px wide in the tertiary label color, where and as iOS 27.2 draws its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode.</>} code={inputsDemo} previewMinHeight={340}>
-  <VuePhoneRowsDemo template={inputsDemo} phoneTemplate={phoneRows(inputsDemo)} phoneStageClassName="w-full" stageClassName={STAGE} state={{ rows: contact }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>Every direct child is an item, in the order of <code>value</code>. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with <code>data-row</code> keeps the lines of the group, and rows that touch hold still: the line alone marks the gap. On a phone the rows sit on the grouped background of an iOS settings screen.</p>
+  <p>A row that is mostly a field, such as an <code>Input</code>, needs a grip: <code>handles</code> shows it, and then only the grip drags the row. On a phone with <code>touch.css</code> the grip ends the row, after its value, as three flat lines 21px wide in the tertiary label color, where and as iOS 27.2 draws its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode. <code>disabled</code> turns dragging off.</p>
+</>} code={overviewCode} previewMinHeight={380}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" stageClassName={STAGE} controls={overviewControls} state={{ rows: sections }} />
 </ComponentPreview>
 
 ### Stacked rows

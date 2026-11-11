@@ -5,209 +5,108 @@ metaDescription: React date picker component with interactive calendar, time pic
 ---
 
 import {
-  DatePickerBaseDemo,
-  DatePickerLimitsDemo,
-  DatePickerWithoutIconDemo,
-  DatePickerDobDemo,
-  DatePickerTimeDemo,
-  DatePickerDateTimeDropdownDemo,
+  DatePickerOverviewDemo,
   DatePickerTwoFieldDemo,
   DatePickerMaskedDateDemo,
-  DatePickerMaskedDateTimeDemo,
 } from "@/components/docs/DatePickerDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
-export const overviewCode = `import { useState } from 'react';
-import { DateTime } from 'luxon';
-import { DatePicker } from '@plexui/ui/components/DatePicker';
+export const overviewCode = `const today = DateTime.local()
+const [value, setValue] = useState<DateTime | null>(null)
+const [variant, setVariant] = useState("outline") // or "soft", "ghost"
+const [size, setSize] = useState("lg") // "3xs" to "3xl"
+const [pill, setPill] = useState(true)
+const [block, setBlock] = useState(false)
+const [clearable, setClearable] = useState(true)
+const [triggerShowIcon, setTriggerShowIcon] = useState(true)
+const [dropdownIconType, setDropdownIconType] = useState("dropdown") // or "chevronDown", "none"
+const [triggerDateFormat, setTriggerDateFormat] = useState("MM/dd/yy") // or "MMM d, yyyy", "MMMM d, yyyy"
+const [showTime, setShowTime] = useState(false)
+const [triggerTimeFormat, setTriggerTimeFormat] = useState("HH:mm") // or "h:mm a"; with showTime
+const [captionLayout, setCaptionLayout] = useState("buttons") // or "dropdown"
+const [yearRange, setYearRange] = useState(undefined) // or [2020, 2030]; with the dropdown caption and no limits
+const [limits, setLimits] = useState("none") // or "around" (30 days either side of today), "past" (up to today)
+const [side, setSide] = useState("bottom") // or "top", "right", "left"
+const [sideOffset, setSideOffset] = useState(8)
+const [align, setAlign] = useState("center") // or "start", "end"
+const [alignOffset, setAlignOffset] = useState(-5) // with a start or end alignment
+const [disabled, setDisabled] = useState(false)
+
+const min = limits === "around" ? today.minus({ days: 30 }).startOf("day") : undefined
+const max = limits === "around" ? today.plus({ days: 30 }).endOf("day") : limits === "past" ? today.endOf("day") : undefined
 
 // Desktop
-export default function DatePickerExample() {
-  const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);
-  const [disabled] = useState(false);
+<div className="flex w-[320px] justify-center">
+  <DatePicker
+    id="date-picker-base"
+    placeholder="Select date"
+    variant={variant}
+    size={size}
+    pill={pill}
+    block={block}
+    clearable={clearable}
+    triggerShowIcon={triggerShowIcon}
+    dropdownIconType={dropdownIconType}
+    triggerDateFormat={triggerDateFormat}
+    showTime={showTime}
+    triggerTimeFormat={showTime ? triggerTimeFormat : undefined}
+    captionLayout={captionLayout}
+    yearRange={limits === "none" ? yearRange : undefined}
+    min={min}
+    max={max}
+    side={side}
+    sideOffset={sideOffset}
+    align={align}
+    alignOffset={align === "center" ? undefined : alignOffset}
+    disabled={disabled}
+    value={value}
+    onChange={setValue}
+  />
+</div>
 
-  return (
-    <DatePicker
-      id="date-picker-base"
-      triggerDateFormat="MM/dd/yy"
-      size="lg"
-      pill
-      clearable
-      disabled={disabled}
-      value={selectedDate}
-      onChange={setSelectedDate}
-    />
-  );
-}
-
-// Phone: the date is the value of a row, in the compact date that opens the calendar.
+// Phone: the date is the value of a row, in the compact date that opens the calendar
 <FieldGroup>
   <Field row label="Date">
     <DatePicker
       id="date-picker-base"
+      placeholder="Select date"
       triggerDateFormat="MMM d, yyyy"
       triggerShowIcon={false}
-      placeholder="Select date"
+      showTime={showTime}
+      triggerTimeFormat={showTime ? triggerTimeFormat : undefined}
+      captionLayout={captionLayout}
+      yearRange={limits === "none" ? yearRange : undefined}
+      min={min}
+      max={max}
+      clearable={clearable}
       disabled={disabled}
-      value={selectedDate}
-      onChange={setSelectedDate}
+      value={value}
+      onChange={setValue}
     />
   </Field>
 </FieldGroup>`
 
 <UsageBlock>{`import { DatePicker } from "@plexui/ui/components/DatePicker";`}</UsageBlock>
 
-On Phone, put a date picker in a row of a `FieldGroup`, as the [Settings Forms](/components/settings-forms) do. In the row its trigger is the compact date of iOS: a capsule with the date that opens the calendar, 8px under it and, on a screen 392px wide or wider, 32px from its edge, as iOS 27.2 opens it; with a time format the date and the time are two capsules 8px apart, as Calendar shows an event's start. The row is its frame and sets its height, insets and type, so the phone examples leave out `size`, `pill` and `clearable` and set `triggerShowIcon={false}`. To type a date instead, put a [Date Input](/components/date-input) in the row.
+On Phone, put a date picker in a row of a `FieldGroup`, as the [Settings Forms](/components/settings-forms) do. In the row its trigger is the compact date of iOS: a capsule with the date that opens the calendar, 8px under it and, on a screen 392px wide or wider, 32px from its edge, as iOS 27.2 opens it; with a time format the date and the time are two capsules 8px apart, as Calendar shows an event's start. The row's capsule is its frame and sets its height, insets and type, and iOS opens the calendar under the row, so the Phone previews leave out the `variant`, `size`, `pill`, `block`, icon, date format and placement controls, and set `triggerShowIcon={false}` and the date as iOS writes it, `"MMM d, yyyy"`. To type a date instead, put a [Date Input](/components/date-input) in the row.
 
 ## Examples
 
 <span id="disabled" />
+<span id="limits" />
+<span id="date-of-birth" />
+<span id="time-picker" />
+<span id="dropdown--time" />
+<span id="without-icon" />
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass the date (a luxon <code>DateTime</code>, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>.</>} code={overviewCode} previewMinHeight={168}>
-  <DatePickerBaseDemo />
-</ComponentPreview>
-
-### Limits
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>min</code> and <code>max</code> to limit selectable dates to a specific timeframe. Equal bounds leave one selectable day.</>} code={`const today = DateTime.local()
-const minDate = today.minus({ days: 30 }).startOf("day")
-const maxDate = today.plus({ days: 30 }).endOf("day")
-const [selectedDate, setSelectedDate] = useState<DateTime | null>(today)
-
-// Desktop
-<DatePicker
-  id="date-picker-limits"
-  triggerDateFormat="MM/dd/yy"
-  size="lg"
-  pill
-  triggerShowIcon
-  value={selectedDate}
-  onChange={setSelectedDate}
-  min={minDate}
-  max={maxDate}
-/>
-
-// Phone
-<FieldGroup>
-  <Field row label="Date">
-    <DatePicker
-      id="date-picker-limits"
-      triggerDateFormat="MMM d, yyyy"
-      triggerShowIcon={false}
-      value={selectedDate}
-      onChange={setSelectedDate}
-      min={minDate}
-      max={maxDate}
-    />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <DatePickerLimitsDemo />
-</ComponentPreview>
-
-### Date of birth
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Set <code>captionLayout="dropdown"</code> to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical.</>} code={`// Desktop
-<DatePicker
-  id="date-picker-dob"
-  triggerDateFormat="MMMM d, yyyy"
-  size="lg"
-  pill
-  clearable
-  placeholder="Select your birthday"
-  captionLayout="dropdown"
-  value={selectedDate}
-  onChange={setSelectedDate}
-  max={DateTime.local()}
-/>
-
-// Phone
-<FieldGroup>
-  <Field row label="Birthday">
-    <DatePicker
-      id="date-picker-dob"
-      triggerDateFormat="MMM d, yyyy"
-      triggerShowIcon={false}
-      placeholder="Select date"
-      captionLayout="dropdown"
-      value={selectedDate}
-      onChange={setSelectedDate}
-      max={DateTime.local()}
-    />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <DatePickerDobDemo />
-</ComponentPreview>
-
-### Time picker
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Enable <code>showTime</code> to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values. With <code>triggerTimeFormat</code> the trigger shows the date and the time as two parts: on Phone, in a row, they are two capsules, as iOS shows a date and a time.</>} code={`// Desktop
-<DatePicker
-  id="date-picker-time"
-  triggerDateFormat="MM/dd/yy HH:mm"
-  size="lg"
-  pill
-  clearable
-  placeholder="Select date & time"
-  showTime
-  value={selectedDate}
-  onChange={setSelectedDate}
-/>
-
-// Phone
-<FieldGroup>
-  <Field row label="Starts">
-    <DatePicker
-      id="date-picker-time"
-      triggerDateFormat="MMM d, yyyy"
-      triggerTimeFormat="HH:mm"
-      triggerShowIcon={false}
-      placeholder="Select date"
-      showTime
-      value={selectedDate}
-      onChange={setSelectedDate}
-    />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <DatePickerTimeDemo />
-</ComponentPreview>
-
-### Dropdown + time
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Combine <code>captionLayout="dropdown"</code> with <code>showTime</code> for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time.</>} code={`// Desktop
-<DatePicker
-  id="date-picker-datetime-dropdown"
-  triggerDateFormat="MMM d, yyyy HH:mm"
-  size="lg"
-  pill
-  clearable
-  placeholder="Schedule event"
-  captionLayout="dropdown"
-  showTime
-  yearRange={[2020, 2030]}
-  value={selectedDate}
-  onChange={setSelectedDate}
-/>
-
-// Phone
-<FieldGroup>
-  <Field row label="Event">
-    <DatePicker
-      id="date-picker-datetime-dropdown"
-      triggerDateFormat="MMM d, yyyy"
-      triggerTimeFormat="HH:mm"
-      triggerShowIcon={false}
-      placeholder="Select date"
-      captionLayout="dropdown"
-      showTime
-      yearRange={[2020, 2030]}
-      value={selectedDate}
-      onChange={setSelectedDate}
-    />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <DatePickerDateTimeDropdownDemo />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>Pass the date (a luxon <code>DateTime</code>, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>.</p>
+  <p><code>showTime</code> adds hour and minute fields under the calendar, which then stays open after a date is picked so the time can be set; the arrow keys step the field they are in. <code>triggerTimeFormat</code> writes the time after the date as a part of its own: on Phone, in a row, the date and the time are two capsules, as iOS shows an event's start. Without it, a <code>showTime</code> trigger writes <code>"MM/dd/yy HH:mm"</code> unless you set <code>triggerDateFormat</code>.</p>
+  <p><code>captionLayout="dropdown"</code> adds month and year dropdowns beside the arrows, for a date of birth or a date years away; <code>yearRange</code> sets their years (the last 120 by default); with <code>min</code> or <code>max</code> the years are those they allow, so here it is offered without limits. <code>min</code> and <code>max</code> limit the dates that can be picked: here 30 days either side of today, or up to today for a date of birth. Equal bounds leave one day.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <DatePickerOverviewDemo />
 </ComponentPreview>
 
 ### Two fields
@@ -298,9 +197,11 @@ const onDateChange = (next: DateTime | null) => {
   <DatePickerTwoFieldDemo />
 </ComponentPreview>
 
+<span id="datetime-input" />
+
 ### Date input
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>For typing a date directly instead of picking it, use <a href="/components/date-input"><code>DateInput</code></a>, a masked input that auto-formats as you type.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>For typing a date directly instead of picking it, use <a href="/components/date-input"><code>DateInput</code></a>, a masked input that auto-formats as you type. With <code>timeMode="HH:MM"</code> it takes the time in the same field.</>} code={`// Desktop
 <div className="w-[200px]">
   <DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" aria-label="Date" />
 </div>
@@ -312,58 +213,6 @@ const onDateChange = (next: DateTime | null) => {
   </Field>
 </FieldGroup>`} previewMinHeight={80}>
   <DatePickerMaskedDateDemo />
-</ComponentPreview>
-
-### DateTime input
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass <code>timeMode="HH:MM"</code> to <code>DateInput</code> to type the date and time in one field.</>} code={`// Desktop
-<div className="w-[260px]">
-  <DateInput
-    value={dateTime}
-    onChange={setDateTime}
-    mode="mm/dd/yyyy"
-    separator="/"
-    timeMode="HH:MM"
-    aria-label="Date and time"
-  />
-</div>
-
-// Phone
-<FieldGroup>
-  <Field row label="Starts">
-    <DateInput value={dateTime} onChange={setDateTime} mode="mm/dd/yyyy" separator="/" timeMode="HH:MM" />
-  </Field>
-</FieldGroup>`} previewMinHeight={80}>
-  <DatePickerMaskedDateTimeDemo />
-</ComponentPreview>
-
-### Without Icon
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Remove the calendar icon from the trigger by setting <code>triggerShowIcon</code> to false. In a phone row the date never shows the icon, as the compact date of iOS does not, so this example is desktop only.</>} code={`// Desktop
-<DatePicker
-  id="date-picker-no-icon"
-  triggerDateFormat="MM/dd/yy"
-  size="lg"
-  triggerShowIcon={false}
-  placeholder="Choose a date"
-  value={selectedDate}
-  onChange={setSelectedDate}
-/>
-
-// Phone
-<FieldGroup>
-  <Field row label="Date">
-    <DatePicker
-      id="date-picker-no-icon"
-      triggerDateFormat="MMM d, yyyy"
-      triggerShowIcon={false}
-      placeholder="Choose a date"
-      value={selectedDate}
-      onChange={setSelectedDate}
-    />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <DatePickerWithoutIconDemo />
 </ComponentPreview>
 
 ## API

@@ -106,7 +106,7 @@ Props:
   - removeLabel (string) default: "Remove" — Accessible name of the cross
   - removable (boolean) default: false — Shows the cross as a mark, for a badge inside a control that takes the press
   - className (string) — Class applied to the badge
-Examples: Overview, Colors & variants, Size & roundness, Icon, Remove, Loading
+Examples: Overview
 
 ## Breadcrumb
 The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.
@@ -354,7 +354,7 @@ Props:
   - sideOffset (number) default: 8 — Distance from the trigger in pixels
   - align ("start" | "center" | "end") default: "center" — Alignment against the trigger
   - alignOffset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
-Examples: Overview, Limits, Date of birth, Time picker, Dropdown + time, Two fields, Date input, DateTime input, Without Icon
+Examples: Overview, Two fields, Date input
 
 ## Date Range Picker
 Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
@@ -768,14 +768,14 @@ Props:
   - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
   - className (string) default: — — Applied to the root element
   Page.Header:
-    - background ("soft" | "hard" | "glass" | "solid") default: "glass" — How the bar meets the content scrolled under it on a phone, see Background
+    - background ("soft" | "hard" | "glass" | "solid") default: "glass" — How the bar meets the content scrolled under it on a phone, see Overview
     - divider (boolean) default: true — Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background
     - className (string) default: — — Applied to the band
   Page.Content:
     - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
     - onScroll (UIEventHandler) default: — — Called on every scroll, after the page has read the position
     - className (string) default: — — Applied to the element that scrolls
-Examples: Overview, Heading, Fill, Background, Widths
+Examples: Overview
 
 ## Phone Layout
 Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.
@@ -1086,7 +1086,7 @@ Props:
   - onHold ((name: string) => void) — A drag rests on a Sortable.Target of the group for half a second
   - children (ReactNode) — The items: one direct child per entry of value, keyed by the entry and not by its index
   - aria-label (string) default: Reorder — Name of the handle for assistive technology
-Examples: Rows, Rows with a handle, Stacked rows, Different controls, Table, Images, Tags, Cards, Between lists
+Examples: Overview, Stacked rows, Different controls, Table, Images, Tags, Cards, Between lists
 
 ## Stat Card
 Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.
@@ -1346,7 +1346,7 @@ Docs: https://plexui.com/components/toast
     - offset (string | number | { top?; right?; bottom?; left? }) default: 32px — Distance from the viewport edge. Without a top or bottom edge here, the page's --toast-offset-top or --toast-offset-bottom sets it.
     - mobileOffset (string | number | { top?; right?; bottom?; left? }) default: 16px top and bottom, 14px at the sides, past the safe area — Gutter under 600px, where a toast fills the width between the side gutters. Explicit edges override their defaults; omitted edges keep them, and the page's --toast-mobile-offset-top or --toast-mobile-offset-bottom sets the top or bottom one.
     - gap (number) — Gap between stacked toasts in px
-Examples: Overview, Variants, Description, Action, Promise, Long content, Compact, Persistent
+Examples: Overview, Promise
 
 ## Toggle Group
 A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.

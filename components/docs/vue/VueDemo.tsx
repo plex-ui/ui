@@ -17,14 +17,21 @@ import { renderDemoCode } from '../demoCode.mjs';
  */
 export type VueDemoOption = string | { value: string | boolean; label: string; when?: VueDemoWhen };
 
-/** A condition on the other controls: each one it names has the value, or one of the values a list names */
-export type VueDemoWhen = Record<string, unknown>;
+/**
+ * A condition on the other controls: each one it names has the value, or one of the values a list names. A list of
+ * conditions holds when any of them does (a persistent toast, with an action or a close button).
+ */
+export type VueDemoWhen = Record<string, unknown> | Record<string, unknown>[];
 
 /** `name` is the template variable; `label`, when set, is what the control row shows. */
 export type VueDemoControl = {
   name: string;
   label?: string;
-  phoneOnly?: boolean;
+  /**
+   * Shown only on a phone; a `when` instead of `true` makes it so only while the other controls have those values,
+   * and while it does a desktop template gets its `default` (a header's divider, which a filled page never draws)
+   */
+  phoneOnly?: boolean | Record<string, unknown>;
   /** `bottom`: the control is for what sits at the bottom of the screen, and stands under the preview */
   placement?: 'bottom';
   /**
@@ -35,7 +42,8 @@ export type VueDemoControl = {
   desktopOnly?: boolean | Record<string, unknown>;
   /**
    * Shown only while the other controls have these values (`collapsible` for a `single` accordion), a list naming
-   * the values any of which will do; where it is not shown, the template gets its `default`.
+   * the values any of which will do, or while any of a list of such conditions holds; where it is not shown, the
+   * template gets its `default`.
    */
   when?: VueDemoWhen;
 } & (
@@ -56,8 +64,14 @@ const optionsOf = (options: readonly VueDemoOption[]) =>
   options.map((option): Exclude<VueDemoOption, string> => (typeof option === 'string' ? { value: option, label: option } : option));
 
 /** Whether the values meet a `when` (see VueDemoWhen) */
-const holds = (when: VueDemoWhen | undefined, values: Record<string, unknown>) =>
-  Object.entries(when ?? {}).every(([name, value]) => (Array.isArray(value) ? value.includes(values[name]) : values[name] === value));
+const holds = (when: VueDemoWhen | undefined, values: Record<string, unknown>): boolean =>
+  Array.isArray(when)
+    ? when.some((condition) => holds(condition, values))
+    : Object.entries(when ?? {}).every(([name, value]) => (Array.isArray(value) ? value.includes(values[name]) : values[name] === value));
+
+/** Whether the control is a phone one under these values */
+const phoneOnlyIn = (control: VueDemoControl, values: Record<string, unknown>) =>
+  control.phoneOnly === true || (typeof control.phoneOnly === 'object' && holds(control.phoneOnly, values));
 
 /** Whether the control is a desktop one under these values */
 const desktopOnlyIn = (control: VueDemoControl, values: Record<string, unknown>) =>
@@ -117,7 +131,7 @@ const DEFAULT_STAGE = 'flex-1 flex flex-col items-center justify-center py-12 w-
  */
 export function VueDemo(props: VueDemoProps) {
   // A page's own phone layout passes `phone`; desktop-only controls need to know it themselves
-  return props.phone === undefined && props.controls?.some((control) => control.desktopOnly)
+  return props.phone === undefined && props.controls?.some((control) => control.desktopOnly || typeof control.phoneOnly === 'object')
     ? <VueDemoOnPhone {...props} />
     : <VueDemoView {...props} />;
 }
@@ -188,12 +202,17 @@ function VueDemoView({
       .map((control) => [control.name, control.default])) : {}),
     ...context,
   })), [context, controls, loop?.name, modifiedControls, phone, reactiveControlDefaults, values]);
-  // A hidden desktop-only control keeps the chosen value; the template shows its phone default or default
+  // A hidden desktop-only control keeps the chosen value; the template shows its phone default or default. So does
+  // a control that a condition makes phone-only, on a desktop
   const templateProps = useMemo(() => (phone ? {
     ...props,
     ...Object.fromEntries(controls.filter((control) => desktopOnlyIn(control, props))
       .map((control) => [control.name, control.phoneDefault === null ? undefined : control.phoneDefault ?? control.default])),
-  } : props), [controls, phone, props]);
+  } : {
+    ...props,
+    ...Object.fromEntries(controls.filter((control) => typeof control.phoneOnly === 'object' && phoneOnlyIn(control, props))
+      .map((control) => [control.name, control.default])),
+  }), [controls, phone, props]);
   const set = (name: string) => (value: unknown) => {
     setValues((current) => ({ ...current, [name]: value }));
     if (reactiveControlDefaults) {
@@ -292,11 +311,11 @@ function VueDemoView({
         value={props[control.name] as boolean}
         onChange={set(control.name)}
         syncValue={asked(control.name) as boolean}
-        phoneOnly={control.phoneOnly}
+        phoneOnly={phoneOnlyIn(control, props)}
         desktopOnly={desktopOnlyIn(control, props)}
       />
     ) : control.type === 'range' ? (
-      <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={control.phoneOnly} desktopOnly={desktopOnlyIn(control, props)}>
+      <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={phoneOnlyIn(control, props)} desktopOnly={desktopOnlyIn(control, props)}>
         <SliderValueControl
           ariaLabel={control.label ?? control.name}
           min={control.min}
@@ -312,7 +331,7 @@ function VueDemoView({
         key={control.name}
         name={control.name}
         label={control.label}
-        phoneOnly={control.phoneOnly}
+        phoneOnly={phoneOnlyIn(control, props)}
         desktopOnly={desktopOnlyIn(control, props)}
         options={optionsFor(control).map((option) => option.label)}
         value={optionsFor(control).find((option) => option.value === props[control.name])?.label ?? ''}
@@ -320,7 +339,7 @@ function VueDemoView({
         onChange={(label) => set(control.name)(valueOf(control, label))}
       />
     ) : (
-      <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={control.phoneOnly} desktopOnly={desktopOnlyIn(control, props)} syncValue={labelOf(control, asked(control.name))}>
+      <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={phoneOnlyIn(control, props)} desktopOnly={desktopOnlyIn(control, props)} syncValue={labelOf(control, asked(control.name))}>
         <SegmentedControl<string>
           value={optionsFor(control).find((option) => option.value === props[control.name])?.label ?? ''}
           onChange={(label) => {

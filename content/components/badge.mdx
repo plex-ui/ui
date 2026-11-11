@@ -4,97 +4,52 @@ description: Compact label for statuses and inline metadata, with semantic color
 metaDescription: React badge component for status indicators and inline labels with semantic colors, multiple variants, icon support, and loading state
 ---
 
-import { Badge } from "@plexui/ui/components/Badge"
-import { Flask } from "@plexui/ui/components/Icon"
-import { LoadingIndicator } from "@plexui/ui/components/Indicator"
-import { BadgeColorsDemo, BadgeRemoveDemo, BadgeSizingDemo } from "@/components/docs/BadgeDemos"
+import { BadgeOverviewDemo } from "@/components/docs/BadgeDemos"
 
 <UsageBlock>{`import { Badge } from "@plexui/ui/components/Badge";`}</UsageBlock>
 
 ## Examples
 
+<span id="colors--variants" />
+<span id="size--roundness" />
+<span id="icon" />
+<span id="remove" />
+<span id="loading" />
+
 ### Overview
 
-<ComponentPreview details={<>Status badges in different colors and compositions.</>} code={`<div className="flex gap-4 flex-wrap">
-  <Badge color="success" size="lg">Successful</Badge>
-  <Badge size="lg" className="gap-1.5"><LoadingIndicator /> In progress</Badge>
-  <Badge color="danger" size="lg">Failed</Badge>
-  <Badge color="warning" size="lg" pill><Flask /> Beta</Badge>
-  <Badge color="caution" size="lg">Caution</Badge>
-</div>`}>
-  <div className="flex gap-4 flex-wrap">
-    <Badge color="success" size="lg">Successful</Badge>
-    <Badge size="lg" className="gap-1.5"><LoadingIndicator /> In progress</Badge>
-    <Badge color="danger" size="lg">Failed</Badge>
-    <Badge color="warning" size="lg" pill><Flask /> Beta</Badge>
-    <Badge color="caution" size="lg">Caution</Badge>
-  </div>
-</ComponentPreview>
+<ComponentPreview details={<>
+  <p>Style a badge with <code>color</code> and <code>variant</code>, and set its <code>size</code>; <code>pill</code> rounds it fully and adds horizontal gutter. Its content can be composed: an icon before the text takes the badge's color, size and spacing, and a <code>LoadingIndicator</code> marks a task in progress, with a wider <code>gap-1.5</code> gap.</p>
+  <p><code>onRemove</code> adds a cross at the end, with its own hover and focus, named by <code>removeLabel</code>. At <code>size="xl"</code> a badge has the height of a control, for a row of removable badges beside a button. Long text ends in an ellipsis and the cross stays.</p>
+</>} code={`const [color, setColor] = useState("info") // "secondary", "success", "warning", "danger", "info", "discovery", "caution"
+const [variant, setVariant] = useState("soft") // or "solid", "outline"
+const [size, setSize] = useState("md") // "sm" to "xl"
+const [pill, setPill] = useState(false)
+const [leading, setLeading] = useState("none") // or "icon", "loading"
+const [onRemove, setOnRemove] = useState(false)
+const [shown, setShown] = useState(true)
+const label = { none: "New", icon: "Beta", loading: "In progress" }[leading]
 
-### Colors & variants
-
-<ComponentPreview details={<>You can stylize the display of the badge using the <code>color</code> and <code>variant</code> props.</>} code={`const variants = ["soft", "solid", "outline"] as const
-const colors = ["secondary", "success", "warning", "danger", "info", "discovery", "caution"] as const
-
-<div className="w-full overflow-x-auto">
-  <div className="pt-1 pb-6 px-8 w-fit min-w-full">
-    <div className="grid gap-6 items-center justify-center" style={{ gridTemplateColumns: "auto repeat(7, min-content)" }}>
-      <div />
-      {colors.map((color) => (
-        <div key={color} className="text-center mb-1 text-sm" style={{ color: "var(--color-text-tertiary)" }}>
-          {color}
-        </div>
-      ))}
-      {variants.map((variant) => (
-        <Fragment key={variant}>
-          <div className="text-right mr-3 text-sm" style={{ color: "var(--color-text-tertiary)" }}>
-            {variant}
-          </div>
-          {colors.map((color) => (
-            <div key={color} className="text-center">
-              <Badge color={color} variant={variant}>Sample</Badge>
-            </div>
-          ))}
-        </Fragment>
-      ))}
-    </div>
-  </div>
-</div>`} previewMinHeight={168}>
-  <BadgeColorsDemo />
-</ComponentPreview>
-
-### Size & roundness
-
-<ComponentPreview details={<>You can control the size and roundness of the badge with <code>size</code> and <code>pill</code> props. When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the badge.</>} code={`<Badge color="info" size="md">New</Badge>`} previewMinHeight={120}>
-  <BadgeSizingDemo />
-</ComponentPreview>
-
-### Icon
-
-<ComponentPreview details={<>Content within the badge can be composed, like showing icons. Color, sizing, and spacing adapt by default.</>} code={`<Badge color="warning" size="lg"><Flask /> Beta</Badge>`} previewMinHeight={168}>
-  <Badge color="warning" size="lg"><Flask /> Beta</Badge>
-</ComponentPreview>
-
-### Remove
-
-<ComponentPreview details={<><code>onRemove</code> adds a cross at the end, with its own hover and focus. <code>size="xl"</code> has the height of a control, so a row of these stands beside a button. Long text ends in an ellipsis and the cross stays.</>} code={`<Badge
-  size="xl"
-  pill
-  variant="outline"
-  removeLabel="Remove Oak"
-  onRemove={() => remove("oak")}
->
-  Oak
-</Badge>`} previewMinHeight={168}>
-  <BadgeRemoveDemo />
-</ComponentPreview>
-
-### Loading
-
-<ComponentPreview details={<>In this example, additional gap is added with a Tailwind <code>gap-1.5</code> class to provide the appropriate visual spacing.</>} code={`<Badge size="lg" color="secondary" className="gap-1.5">
-  <LoadingIndicator /> In progress
-</Badge>`} previewMinHeight={168}>
-  <Badge size="lg" color="secondary" className="gap-1.5"><LoadingIndicator /> In progress</Badge>
+{shown ? (
+  <Badge
+    color={color}
+    variant={variant}
+    size={size}
+    pill={pill}
+    className={leading === "loading" ? "gap-1.5" : undefined}
+    removeLabel={\`Remove \${label}\`}
+    onRemove={onRemove ? () => setShown(false) : undefined}
+  >
+    {leading === "icon" && <Flask />}
+    {leading === "loading" && <LoadingIndicator />}
+    {label}
+  </Badge>
+) : (
+  <Button color="secondary" variant="outline" size="sm" onClick={() => setShown(true)}>
+    Show again
+  </Button>
+)}`} previewMinHeight={168}>
+  <BadgeOverviewDemo />
 </ComponentPreview>
 
 ## API

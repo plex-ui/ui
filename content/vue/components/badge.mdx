@@ -6,99 +6,67 @@ metaDescription: Vue 3 badge component for status indicators and inline labels w
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
-export const overview = `<div class="flex gap-4 flex-wrap">
-  <Badge color="success" size="lg">Successful</Badge>
-  <Badge size="lg" class="gap-1.5"><LoadingIndicator /> In progress</Badge>
-  <Badge color="danger" size="lg">Failed</Badge>
-  <Badge color="warning" size="lg" pill><Flask /> Beta</Badge>
-  <Badge color="caution" size="lg">Caution</Badge>
-</div>`
+export const overview = `<Badge
+  v-if="shown"
+  :color="color"
+  :variant="variant"
+  :size="size"
+  :pill="pill"
+  :class="leading === 'loading' ? 'gap-1.5' : undefined"
+  :remove-label="'Remove ' + labels[leading]"
+  :on-remove="onRemove ? () => (shown = false) : undefined"
+>
+  <Flask v-if="leading === 'icon'" />
+  <LoadingIndicator v-if="leading === 'loading'" />
+  {{ labels[leading] }}
+</Badge>
+<Button v-else color="secondary" variant="outline" size="sm" @click="shown = true">Show again</Button>`
 
-export const colors = `<div class="w-full overflow-x-auto">
-  <div class="pt-1 pb-6 px-8 w-fit min-w-full">
-    <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(7, min-content)">
-      <div />
-      <div
-        v-for="color in ['secondary', 'success', 'warning', 'danger', 'info', 'discovery', 'caution']"
-        :key="color"
-        class="text-center mb-1"
-        style="color: var(--color-text-tertiary); font-size: 0.875rem"
-      >{{ color }}</div>
-      <template v-for="variant in ['soft', 'solid', 'outline']" :key="variant">
-        <div class="text-right mr-3" style="color: var(--color-text-tertiary); font-size: 0.875rem">{{ variant }}</div>
-        <div
-          v-for="color in ['secondary', 'success', 'warning', 'danger', 'info', 'discovery', 'caution']"
-          :key="color"
-          class="text-center"
-        >
-          <Badge :color="color" :variant="variant">Sample</Badge>
-        </div>
-      </template>
-    </div>
-  </div>
-</div>`
+export const overviewControls = [
+  { name: "color", type: "select", options: ["secondary", "success", "warning", "danger", "info", "discovery", "caution"], default: "info", menu: true },
+  { name: "variant", type: "select", options: ["soft", "solid", "outline"], default: "soft" },
+  { name: "size", type: "select", options: ["sm", "md", "lg", "xl"], default: "md" },
+  { name: "pill", type: "boolean", default: false },
+  { name: "leading", type: "select", options: ["none", "icon", "loading"], default: "none" },
+  { name: "onRemove", type: "boolean", default: false },
+]
 
-export const sizing = `<Badge color="info" :size="size" :pill="pill">New</Badge>`
+export const overviewState = { shown: true, labels: { none: "New", icon: "Beta", loading: "In progress" } }
 
-export const icon = `<Badge color="warning" size="lg"><Flask /> Beta</Badge>`
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
 
-export const remove = `<div class="flex flex-wrap justify-center gap-2">
-  <Badge
-    v-for="tag in tags"
-    :key="tag"
-    size="xl"
-    pill
-    variant="outline"
-    :remove-label="'Remove ' + tag"
-    @remove="tags = tags.filter((item) => item !== tag)"
-  >
-    {{ tag }}
-  </Badge>
-  <Badge size="xl" pill variant="solid" color="discovery" remove-label="Remove New" @remove="() => {}">New</Badge>
-</div>`
+const color = ref("info"); // "secondary", "success", "warning", "danger", "info", "discovery", "caution"
+const variant = ref("soft"); // or "solid", "outline"
+const size = ref("md"); // "sm" to "xl"
+const pill = ref(false);
+const leading = ref("none"); // or "icon", "loading"
+const onRemove = ref(false);
+const shown = ref(true);
+const labels = { none: "New", icon: "Beta", loading: "In progress" };
+</script>
 
-export const loading = `<Badge size="lg" color="secondary" class="gap-1.5">
-  <LoadingIndicator /> In progress
-</Badge>`
+<template>
+${overview}
+</template>`
 
 <UsageBlock>{`import { Badge } from "@plexui/vue/components/Badge";`}</UsageBlock>
 
 ## Examples
 
+<span id="colors--variants" />
+<span id="size--roundness" />
+<span id="icon" />
+<span id="remove" />
+<span id="loading" />
+
 ### Overview
 
-<ComponentPreview language="vue" details={<>Status badges in different colors and compositions.</>} code={overview}>
-  <VueDemo template={overview} />
-</ComponentPreview>
-
-### Colors & variants
-
-<ComponentPreview language="vue" details={<>You can stylize the display of the badge using the <code>color</code> and <code>variant</code> props.</>} code={colors} previewMinHeight={168}>
-  <VueDemo template={colors} />
-</ComponentPreview>
-
-### Size & roundness
-
-<ComponentPreview language="vue" details={<>You can control the size and roundness of the badge with <code>size</code> and <code>pill</code> props. When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the badge.</>} code={sizing} previewMinHeight={120}>
-  <VueDemo template={sizing} stageClassName="py-10" controls={[{ name: "size", type: "select", options: ["sm", "md", "lg", "xl"], default: "md" }, { name: "pill", type: "boolean", default: false }]} />
-</ComponentPreview>
-
-### Icon
-
-<ComponentPreview language="vue" details={<>Content within the badge can be composed, like showing icons. Color, sizing, and spacing adapt by default.</>} code={icon} previewMinHeight={168}>
-  <VueDemo template={icon} />
-</ComponentPreview>
-
-### Remove
-
-<ComponentPreview language="vue" details={<><code>@remove</code> adds a cross at the end, with its own hover and focus. <code>size="xl"</code> has the height of a control, so a row of these stands beside a button. Long text ends in an ellipsis and the cross stays.</>} code={remove} previewMinHeight={168}>
-  <VueDemo template={remove} stageClassName="py-10 flex justify-center" state={{ tags: ["Oak", "Steel", "Linen"] }} />
-</ComponentPreview>
-
-### Loading
-
-<ComponentPreview language="vue" details={<>In this example, additional gap is added with a Tailwind <code>gap-1.5</code> class to provide the appropriate visual spacing.</>} code={loading} previewMinHeight={168}>
-  <VueDemo template={loading} />
+<ComponentPreview language="vue" details={<>
+  <p>Style a badge with <code>color</code> and <code>variant</code>, and set its <code>size</code>; <code>pill</code> rounds it fully and adds horizontal gutter. Its content can be composed: an icon before the text takes the badge's color, size and spacing, and a <code>LoadingIndicator</code> marks a task in progress, with a wider <code>gap-1.5</code> gap.</p>
+  <p><code>@remove</code> adds a cross at the end, with its own hover and focus, named by <code>remove-label</code>. To add the cross only at times, bind the handler as <code>:on-remove</code> and give it <code>undefined</code> otherwise, as here: Vue wraps an inline <code>@remove</code> expression in a function, so a listener written that way is always there. At <code>size="xl"</code> a badge has the height of a control, for a row of removable badges beside a button. Long text ends in an ellipsis and the cross stays.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <VueDemo template={overview} controls={overviewControls} stageClassName="flex justify-center py-10" state={overviewState} />
 </ComponentPreview>
 
 ## API

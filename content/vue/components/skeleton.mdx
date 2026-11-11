@@ -7,12 +7,24 @@ metaDescription: Vue 3 skeleton loading placeholder component for avatars, text,
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
 export const overview = `<div class="flex items-center gap-4">
-  <Skeleton circle class="size-12" />
+  <Skeleton :circle="circle" class="size-12" />
   <div class="flex flex-col gap-2">
     <Skeleton class="h-4 w-[200px]" />
     <Skeleton class="h-4 w-[150px]" />
   </div>
 </div>`
+
+export const overviewControls = [{ name: "circle", type: "boolean", default: true }]
+
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+
+const circle = ref(true);
+</script>
+
+<template>
+${overview}
+</template>`
 
 export const card = `<div class="flex flex-col gap-3 w-[300px] p-4 border border-default rounded-xl">
   <Skeleton class="h-[150px] w-full rounded-lg" />
@@ -57,8 +69,8 @@ export const table = `<div class="flex flex-col gap-2 w-full min-w-0 max-w-[400p
 
 ### Overview
 
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use a circular skeleton to represent loading avatars, combined with text placeholders.</>} code={overview} previewMinHeight={168}>
-  <VueDemo template={overview} />
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use a circular skeleton to represent loading avatars, combined with text placeholders. Without <code>circle</code> a skeleton keeps its own radius, as for a square picture. Set its size and shape with <code>class</code>.</>} code={overviewCode} previewMinHeight={168}>
+  <VueDemo template={overview} controls={overviewControls} stageClassName="flex-1 w-full py-12 flex items-center justify-center" />
 </ComponentPreview>
 
 ### Card

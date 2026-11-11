@@ -297,82 +297,38 @@ Props:
   - class (string) — Class applied to the badge
 
 ### Overview
-Status badges in different colors and compositions.
+Style a badge with color and variant, and set its size; pill rounds it fully and adds horizontal gutter. Its content can be composed: an icon before the text takes the badge's color, size and spacing, and a LoadingIndicator marks a task in progress, with a wider gap-1.5 gap. @remove adds a cross at the end, with its own hover and focus, named by remove-label. To add the cross only at times, bind the handler as :on-remove and give it undefined otherwise, as here: Vue wraps an inline @remove expression in a function, so a listener written that way is always there. At size="xl" a badge has the height of a control, for a row of removable badges beside a button. Long text ends in an ellipsis and the cross stays.
 ```vue
-<div class="flex gap-4 flex-wrap">
-  <Badge color="success" size="lg">Successful</Badge>
-  <Badge size="lg" class="gap-1.5"><LoadingIndicator /> In progress</Badge>
-  <Badge color="danger" size="lg">Failed</Badge>
-  <Badge color="warning" size="lg" pill><Flask /> Beta</Badge>
-  <Badge color="caution" size="lg">Caution</Badge>
-</div>
-```
+<script setup lang="ts">
+import { ref } from 'vue';
 
-### Colors & variants
-You can stylize the display of the badge using the color and variant props.
-```vue
-<div class="w-full overflow-x-auto">
-  <div class="pt-1 pb-6 px-8 w-fit min-w-full">
-    <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(7, min-content)">
-      <div />
-      <div
-        v-for="color in ['secondary', 'success', 'warning', 'danger', 'info', 'discovery', 'caution']"
-        :key="color"
-        class="text-center mb-1"
-        style="color: var(--color-text-tertiary); font-size: 0.875rem"
-      >{{ color }}</div>
-      <template v-for="variant in ['soft', 'solid', 'outline']" :key="variant">
-        <div class="text-right mr-3" style="color: var(--color-text-tertiary); font-size: 0.875rem">{{ variant }}</div>
-        <div
-          v-for="color in ['secondary', 'success', 'warning', 'danger', 'info', 'discovery', 'caution']"
-          :key="color"
-          class="text-center"
-        >
-          <Badge :color="color" :variant="variant">Sample</Badge>
-        </div>
-      </template>
-    </div>
-  </div>
-</div>
-```
+const color = ref("info"); // "secondary", "success", "warning", "danger", "info", "discovery", "caution"
+const variant = ref("soft"); // or "solid", "outline"
+const size = ref("md"); // "sm" to "xl"
+const pill = ref(false);
+const leading = ref("none"); // or "icon", "loading"
+const onRemove = ref(false);
+const shown = ref(true);
+const labels = { none: "New", icon: "Beta", loading: "In progress" };
+</script>
 
-### Size & roundness
-You can control the size and roundness of the badge with size and pill props. When pill is set, extra horizontal gutter is dynamically applied to the badge.
-```vue
-<Badge color="info" :size="size" :pill="pill">New</Badge>
-```
-
-### Icon
-Content within the badge can be composed, like showing icons. Color, sizing, and spacing adapt by default.
-```vue
-<Badge color="warning" size="lg"><Flask /> Beta</Badge>
-```
-
-### Remove
-@remove adds a cross at the end, with its own hover and focus. size="xl" has the height of a control, so a row of these stands beside a button. Long text ends in an ellipsis and the cross stays.
-```vue
-<div class="flex flex-wrap justify-center gap-2">
-  <Badge
-    v-for="tag in tags"
-    :key="tag"
-    size="xl"
-    pill
-    variant="outline"
-    :remove-label="'Remove ' + tag"
-    @remove="tags = tags.filter((item) => item !== tag)"
-  >
-    {{ tag }}
-  </Badge>
-  <Badge size="xl" pill variant="solid" color="discovery" remove-label="Remove New" @remove="() => {}">New</Badge>
-</div>
-```
-
-### Loading
-In this example, additional gap is added with a Tailwind gap-1.5 class to provide the appropriate visual spacing.
-```vue
-<Badge size="lg" color="secondary" class="gap-1.5">
-  <LoadingIndicator /> In progress
+<template>
+<Badge
+  v-if="shown"
+  :color="color"
+  :variant="variant"
+  :size="size"
+  :pill="pill"
+  :class="leading === 'loading' ? 'gap-1.5' : undefined"
+  :remove-label="'Remove ' + labels[leading]"
+  :on-remove="onRemove ? () => (shown = false) : undefined"
+>
+  <Flask v-if="leading === 'icon'" />
+  <LoadingIndicator v-if="leading === 'loading'" />
+  {{ labels[leading] }}
 </Badge>
+<Button v-else color="secondary" variant="outline" size="sm" @click="shown = true">Show again</Button>
+</template>
 ```
 
 ## Breadcrumb
@@ -1885,171 +1841,88 @@ Props:
   - align-offset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
 
 ### Overview
-Bind the date (a luxon DateTime, or null) with v-model:value. The @change event carries the same value, like React's onChange.
+Bind the date (a luxon DateTime, or null) with v-model:value. The @change event carries the same value, like React's onChange. show-time adds hour and minute fields under the calendar, which then stays open after a date is picked so the time can be set; the arrow keys step the field they are in. trigger-time-format writes the time after the date as a part of its own: on Phone, in a row, the date and the time are two capsules, as iOS shows an event's start. Without it, a show-time trigger writes "MM/dd/yy HH:mm" unless you set trigger-date-format. caption-layout="dropdown" adds month and year dropdowns beside the arrows, for a date of birth or a date years away; year-range sets their years (the last 120 by default); with min or max the years are those they allow, so here it is offered without limits. min and max limit the dates that can be picked: here 30 days either side of today, or up to today for a date of birth. Equal bounds leave one day.
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
 import { DateTime } from 'luxon';
 import { DatePicker } from '@plexui/vue/components/DatePicker';
 
+const today = DateTime.local();
+const minDate = today.minus({ days: 30 }).startOf('day');
+const maxDate = today.plus({ days: 30 }).endOf('day');
+const endOfToday = today.endOf('day');
 const selectedDate = ref<DateTime | null>(null);
+const variant = ref("outline"); // or "soft", "ghost"
+const size = ref("lg"); // "3xs" to "3xl"
+const pill = ref(true);
+const block = ref(false);
+const clearable = ref(true);
+const triggerShowIcon = ref(true);
+const dropdownIconType = ref("dropdown"); // or "chevronDown", "none"
+const triggerDateFormat = ref("MM/dd/yy"); // or "MMM d, yyyy", "MMMM d, yyyy"
+const showTime = ref(false);
+const triggerTimeFormat = ref("HH:mm"); // or "h:mm a"; with show-time
+const captionLayout = ref("buttons"); // or "dropdown"
+const yearRange = ref("default"); // or "2020-2030"; with the dropdown caption and no limits
+const limits = ref("none"); // or "around" (30 days either side of today), "past" (up to today)
+const side = ref("bottom"); // or "top", "right", "left"
+const sideOffset = ref(8);
+const align = ref("center"); // or "start", "end"
+const alignOffset = ref(-5); // with a start or end alignment
 const disabled = ref(false);
 </script>
 
 <template>
 <!-- Desktop -->
-<DatePicker
-  id="date-picker-base"
-  trigger-date-format="MM/dd/yy"
-  size="lg"
-  pill
-  clearable
-  :disabled="disabled"
-  v-model:value="selectedDate"
-/>
+<div class="flex w-[320px] justify-center">
+  <DatePicker
+    id="date-picker-base"
+    placeholder="Select date"
+    :variant="variant"
+    :size="size"
+    :pill="pill"
+    :block="block"
+    :clearable="clearable"
+    :trigger-show-icon="triggerShowIcon"
+    :dropdown-icon-type="dropdownIconType"
+    :trigger-date-format="triggerDateFormat"
+    :show-time="showTime"
+    :trigger-time-format="showTime ? triggerTimeFormat : undefined"
+    :caption-layout="captionLayout"
+    :year-range="limits === 'none' && yearRange === '2020-2030' ? [2020, 2030] : undefined"
+    :min="limits === 'around' ? minDate : undefined"
+    :max="limits === 'around' ? maxDate : limits === 'past' ? endOfToday : undefined"
+    :side="side"
+    :side-offset="sideOffset"
+    :align="align"
+    :align-offset="align === 'center' ? undefined : alignOffset"
+    :disabled="disabled"
+    v-model:value="selectedDate"
+  />
+</div>
 
-<!-- Phone: the date is the value of a row, in the compact date that opens the calendar. -->
+<!-- Phone: the date is the value of a row, in the compact date that opens the calendar -->
 <FieldGroup>
   <Field row label="Date">
     <DatePicker
       id="date-picker-base"
+      placeholder="Select date"
       trigger-date-format="MMM d, yyyy"
       :trigger-show-icon="false"
-      placeholder="Select date"
+      :show-time="showTime"
+      :trigger-time-format="showTime ? triggerTimeFormat : undefined"
+      :caption-layout="captionLayout"
+      :year-range="limits === 'none' && yearRange === '2020-2030' ? [2020, 2030] : undefined"
+      :min="limits === 'around' ? minDate : undefined"
+      :max="limits === 'around' ? maxDate : limits === 'past' ? endOfToday : undefined"
+      :clearable="clearable"
       :disabled="disabled"
       v-model:value="selectedDate"
     />
   </Field>
 </FieldGroup>
 </template>
-```
-
-### Limits
-Use min and max to limit selectable dates to a specific timeframe. Here minDate is {"today.minus({ days: 30 }).startOf('day')"} and maxDate is {"today.plus({ days: 30 }).endOf('day')"}. Equal bounds leave one selectable day.
-```vue
-<!-- Desktop -->
-<DatePicker
-  id="date-picker-limits"
-  trigger-date-format="MM/dd/yy"
-  size="lg"
-  pill
-  trigger-show-icon
-  v-model:value="selectedDate"
-  :min="minDate"
-  :max="maxDate"
-/>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Date">
-    <DatePicker
-      id="date-picker-limits"
-      trigger-date-format="MMM d, yyyy"
-      :trigger-show-icon="false"
-      v-model:value="selectedDate"
-      :min="minDate"
-      :max="maxDate"
-    />
-  </Field>
-</FieldGroup>
-```
-
-### Date of birth
-Set caption-layout="dropdown" to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical.
-```vue
-<!-- Desktop -->
-<DatePicker
-  id="date-picker-dob"
-  trigger-date-format="MMMM d, yyyy"
-  size="lg"
-  pill
-  clearable
-  placeholder="Select your birthday"
-  caption-layout="dropdown"
-  v-model:value="selectedDate"
-  :max="DateTime.local()"
-/>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Birthday">
-    <DatePicker
-      id="date-picker-dob"
-      trigger-date-format="MMM d, yyyy"
-      :trigger-show-icon="false"
-      placeholder="Select date"
-      caption-layout="dropdown"
-      v-model:value="selectedDate"
-      :max="DateTime.local()"
-    />
-  </Field>
-</FieldGroup>
-```
-
-### Time picker
-Enable show-time to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values. With trigger-time-format the trigger shows the date and the time as two parts: on Phone, in a row, they are two capsules, as iOS shows a date and a time.
-```vue
-<!-- Desktop -->
-<DatePicker
-  id="date-picker-time"
-  trigger-date-format="MM/dd/yy HH:mm"
-  size="lg"
-  pill
-  clearable
-  placeholder="Select date & time"
-  show-time
-  v-model:value="selectedDate"
-/>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Starts">
-    <DatePicker
-      id="date-picker-time"
-      trigger-date-format="MMM d, yyyy"
-      trigger-time-format="HH:mm"
-      :trigger-show-icon="false"
-      placeholder="Select date"
-      show-time
-      v-model:value="selectedDate"
-    />
-  </Field>
-</FieldGroup>
-```
-
-### Dropdown + time
-Combine caption-layout="dropdown" with show-time for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time.
-```vue
-<!-- Desktop -->
-<DatePicker
-  id="date-picker-datetime-dropdown"
-  trigger-date-format="MMM d, yyyy HH:mm"
-  size="lg"
-  pill
-  clearable
-  placeholder="Schedule event"
-  caption-layout="dropdown"
-  show-time
-  :year-range="[2020, 2030]"
-  v-model:value="selectedDate"
-/>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Event">
-    <DatePicker
-      id="date-picker-datetime-dropdown"
-      trigger-date-format="MMM d, yyyy"
-      trigger-time-format="HH:mm"
-      :trigger-show-icon="false"
-      placeholder="Select date"
-      caption-layout="dropdown"
-      show-time
-      :year-range="[2020, 2030]"
-      v-model:value="selectedDate"
-    />
-  </Field>
-</FieldGroup>
 ```
 
 ### Two fields
@@ -2108,7 +1981,7 @@ Compose DatePicker and Input side by side for maximum flexibility in form layout
 ```
 
 ### Date input
-For typing a date directly instead of picking it, use DateInput, a masked input that auto-formats as you type.
+For typing a date directly instead of picking it, use DateInput, a masked input that auto-formats as you type. With time-mode="HH:MM" it takes the time in the same field.
 ```vue
 <!-- Desktop -->
 <div class="w-[200px]">
@@ -2119,55 +1992,6 @@ For typing a date directly instead of picking it, use DateInput, a masked input 
 <FieldGroup>
   <Field row label="Date">
     <DateInput v-model:value="selectedDate" mode="mm/dd/yyyy" separator="/" />
-  </Field>
-</FieldGroup>
-```
-
-### DateTime input
-Pass time-mode="HH:MM" to DateInput to type the date and time in one field.
-```vue
-<!-- Desktop -->
-<div class="w-[260px]">
-  <DateInput
-    v-model:value="selectedDate"
-    mode="mm/dd/yyyy"
-    separator="/"
-    time-mode="HH:MM"
-    aria-label="Date and time"
-  />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Starts">
-    <DateInput v-model:value="selectedDate" mode="mm/dd/yyyy" separator="/" time-mode="HH:MM" />
-  </Field>
-</FieldGroup>
-```
-
-### Without Icon
-Remove the calendar icon from the trigger by setting trigger-show-icon to false. In a phone row the date never shows the icon, as the compact date of iOS does not, so this example is desktop only.
-```vue
-<!-- Desktop -->
-<DatePicker
-  id="date-picker-no-icon"
-  trigger-date-format="MM/dd/yy"
-  size="lg"
-  :trigger-show-icon="false"
-  placeholder="Choose a date"
-  v-model:value="selectedDate"
-/>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Date">
-    <DatePicker
-      id="date-picker-no-icon"
-      trigger-date-format="MMM d, yyyy"
-      :trigger-show-icon="false"
-      placeholder="Choose a date"
-      v-model:value="selectedDate"
-    />
   </Field>
 </FieldGroup>
 ```
@@ -5368,68 +5192,52 @@ Props:
     - class (string) — Class of the element that scrolls
 
 ### Overview
-The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top.
+The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top. Turn divider off to keep the header without it. A page with fill does not scroll under its header, so on desktop the line does not come and the divider is offered without fill; on a phone only a glass or hard header draws the line, so there the divider is offered with those. width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms; for any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. fill stops the page scrolling from 768px up, so a table can scroll inside itself. On a phone a page takes the width of the screen at every width and scrolls as a whole, so the phone has neither setting. PageHeading groups the title with metadata in PageSubtitle. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it. PageLeading holds a Back button or the menu button of a sidebar, before the title; on a phone the title stays centred between it and the actions. On a phone background sets how the header and the footer meet the content scrolled under them, as a Toolbar does: glass, the header's default, is a translucent, blurred bar with a hairline, soft, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, and solid an opaque bar with no line. Glass and hard show themselves once content is under the bar. surface="grouped" gives the phone canvas the gray of grouped rows; desktop colors stay. The footer and its background stand under the preview, as what sits at the bottom of the screen.
 ```vue
-<Page>
-  <PageHeader>
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const width = ref("full"); // or "wide", "column"; from 768px up
+const surface = ref("plain"); // or "grouped"; on a phone
+const topBackground = ref("glass"); // or "soft", "hard", "solid"; on a phone
+const divider = ref(true); // on desktop without fill; on a phone, under a glass or hard header
+const leading = ref(false);
+const subtitle = ref(false);
+const actions = ref(true);
+const fill = ref(false); // from 768px up
+const footer = ref(false);
+const bottomBackground = ref("soft"); // or "hard", "glass", "solid"; on a phone
+</script>
+
+<template>
+<Page :width="width" :surface="surface">
+  <PageHeader :background="topBackground" :divider="divider">
     <PageBar>
-      <PageTitle>Orders</PageTitle>
-      <PageActions>
+      <PageLeading v-if="leading">
+        <NavigationButton action="back" />
+      </PageLeading>
+      <PageHeading v-if="subtitle">
+        <PageTitle>Orders</PageTitle>
+        <PageSubtitle>
+          <Badge color="info" size="sm" variant="outline">24 open</Badge>
+          <span>Updated now</span>
+        </PageSubtitle>
+      </PageHeading>
+      <PageTitle v-else>Orders</PageTitle>
+      <PageActions v-if="actions">
         <Button color="primary" pill size="md">New order</Button>
       </PageActions>
     </PageBar>
   </PageHeader>
-  <PageContent>...</PageContent>
-</Page>
-```
-
-### Heading
-PageHeading groups the title with metadata. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it.
-```vue
-<PageBar>
-  <PageHeading>
-    <PageTitle>Menu</PageTitle>
-    <PageSubtitle>
-      <Badge color="info" size="sm" variant="outline">Draft</Badge>
-      <span>Saved a minute ago</span>
-    </PageSubtitle>
-  </PageHeading>
-  <PageActions>...</PageActions>
-</PageBar>
-```
-
-### Fill
-fill stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with divider.
-```vue
-<Page>
-  <PageHeader :divider="false">...</PageHeader>
-  <PageContent fill>
-    <div class="min-h-0 flex-1 overflow-auto">...</div>
+  <PageContent :fill="fill">
+    <div v-if="fill" class="min-h-0 flex-1 overflow-auto">...</div>
+    <template v-else>...</template>
   </PageContent>
-</Page>
-```
-
-### Background
-background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: glass, the header's default, is a translucent, blurred bar with a hairline, soft, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, hard is an opaque bar with a line, and solid an opaque bar with no line. Glass and hard show themselves once content is under the bar; :divider="false" keeps a header without its line. The example sets the top and the bottom bar apart: the control of the bottom bar stands under the preview.
-```vue
-<Page>
-  <PageHeader background="hard">...</PageHeader>
-  <PageContent>...</PageContent>
-  <PageFooter background="hard">
-    <Button color="primary" pill block>New order</Button>
+  <PageFooter v-if="footer" :background="bottomBackground">
+    <Button color="primary" pill block>Export orders</Button>
   </PageFooter>
 </Page>
-```
-
-### Widths
-The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. On a phone a page takes the width of the screen at every width, so this example is desktop only.
-```vue
-<Page width="column">
-  <PageHeader>...</PageHeader>
-  <PageContent>...</PageContent>
-</Page>
-
-<Page width="column" style="--page-width: 860px">...</Page>
+</template>
 ```
 
 ## Page Control
@@ -8438,15 +8246,23 @@ Props:
   - class (string) — Set dimensions and custom styling
 
 ### Overview
-Use a circular skeleton to represent loading avatars, combined with text placeholders.
+Use a circular skeleton to represent loading avatars, combined with text placeholders. Without circle a skeleton keeps its own radius, as for a square picture. Set its size and shape with class.
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const circle = ref(true);
+</script>
+
+<template>
 <div class="flex items-center gap-4">
-  <Skeleton circle class="size-12" />
+  <Skeleton :circle="circle" class="size-12" />
   <div class="flex flex-col gap-2">
     <Skeleton class="h-4 w-[200px]" />
     <Skeleton class="h-4 w-[150px]" />
   </div>
 </div>
+</template>
 ```
 
 ### Card
@@ -8704,12 +8520,21 @@ Props:
   - name (string) — Names the list in move
   - aria-label (string) default: Reorder — Name of the handle for assistive technology
 
-### Rows
-Every direct child is an item, in the order of value. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with data-row keeps the lines of the group, and rows that touch hold still: the line alone marks the gap. On a phone the rows sit on the grouped background of an iOS settings screen.
+### Overview
+Every direct child is an item, in the order of value. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with data-row keeps the lines of the group, and rows that touch hold still: the line alone marks the gap. On a phone the rows sit on the grouped background of an iOS settings screen. A row that is mostly a field, such as an Input, needs a grip: handles shows it, and then only the grip drags the row. On a phone with touch.css the grip ends the row, after its value, as three flat lines 21px wide in the tertiary label color, where and as iOS 27.2 draws its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode. disabled turns dragging off.
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const rows = ref(sections);
+const handles = ref(false);
+const disabled = ref(false);
+</script>
+
+<template>
 <div class="w-[480px] max-w-full">
   <FieldGroup title="Home screen">
-    <Sortable v-model:value="rows">
+    <Sortable v-model:value="rows" :handles="handles" :disabled="disabled">
       <div v-for="row in rows" :key="row.id" data-row>
         <SortableHandle :aria-label="'Reorder ' + row.label" />
         <Field row :label="row.label" :description="row.description">
@@ -8719,23 +8544,7 @@ Every direct child is an item, in the order of value. A row drags from anywhere 
     </Sortable>
   </FieldGroup>
 </div>
-```
-
-### Rows with a handle
-A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row. On a phone with touch.css the grip ends the row, after its value, as three flat lines 21px wide in the tertiary label color, where and as iOS 27.2 draws its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode.
-```vue
-<div class="w-[480px] max-w-full">
-  <FieldGroup title="Contact details">
-    <Sortable v-model:value="rows" handles>
-      <div v-for="row in rows" :key="row.id" data-row>
-        <SortableHandle :aria-label="'Reorder ' + row.label" />
-        <Field row :label="row.label">
-          <Input variant="ghost" :default-value="row.value" />
-        </Field>
-      </div>
-    </Sortable>
-  </FieldGroup>
-</div>
+</template>
 ```
 
 ### Stacked rows
@@ -10002,48 +9811,46 @@ Docs: https://plexui.com/vue/components/toast
     - gap (number) — Gap between stacked toasts in px
 
 ### Overview
-On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content). Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.
+Call toast with a message, or toast.success, .error, .warning and .info for the semantic types, which map to PlexUI's success, danger, warning and info tokens. No richColors is passed, so the types retheme with data-theme. The options add a description under the message, an action button and a cancel one (either closes the toast after its onClick), and closeButton. Spread compact into the options for a centered toast: on a desktop a toast shrinks to its content anyway, and on a phone, where a toast fills the width, a compact one keeps the width of its content. duration: Infinity keeps a toast open until the user closes it, so give it a labelled action or a close button: a way to close it from the keyboard. An error that waits like this is an alert (see Screen readers). On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content). Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.
 ```vue
-<Button color="secondary" variant="outline" @click="toast('Inquiry ID copied')">
-  Show toast
-</Button>
-```
+<script setup lang="ts">
+import { ref } from 'vue';
+import { compact as compactOptions, toast } from '@plexui/vue/components/Toast';
 
-### Variants
-Semantic variants map to PlexUI's success / danger / warning / info tokens. No richColors is passed, so variants retheme automatically with data-theme.
-```vue
-<Button color="secondary" variant="outline" @click="toast('Changes saved')">Default</Button>
-<Button color="secondary" variant="outline" @click="toast.success('Inquiry ID copied')">Success</Button>
-<Button color="secondary" variant="outline" @click="toast.error('Failed to assign owner')">Error</Button>
-<Button color="secondary" variant="outline" @click="toast.warning('Session expires in 2 minutes')">Warning</Button>
-<Button color="secondary" variant="outline" @click="toast.info('New version available')">Info</Button>
-```
+const type = ref("default"); // or "success", "error", "warning", "info"
+const description = ref("none"); // or "short", "long"
+const action = ref("none"); // or "action", "cancel" (an action and a cancel)
+const closeButton = ref(false);
+const compact = ref(false);
+const persistent = ref(false); // with an action or a close button
 
-### Description
-```vue
+// Each type's title, its short description and its action's label
+const messages = {
+  default: { title: "Changes saved", description: "Your profile is live for everyone on the team.", action: "Undo" },
+  success: { title: "Inquiry ID copied", description: "Paste it into the support form.", action: "Open" },
+  error: { title: "Failed to assign owner", description: "The owner has left the workspace.", action: "Retry" },
+  warning: { title: "Session expires in 2 minutes", description: "Unsaved changes will be lost.", action: "Stay" },
+  info: { title: "New version available", description: "Reload to get the latest features.", action: "Reload" },
+};
+const longDescription = "This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly.";
+</script>
+
+<template>
 <Button
   color="secondary"
   variant="outline"
-  @click="toast('Changes saved', {
-    description: 'Your profile is live for everyone on the team.',
+  @click="(type === 'default' ? toast : toast[type])(messages[type].title, {
+    description: description === 'none' ? undefined : description === 'short' ? messages[type].description : longDescription,
+    action: action === 'none' ? undefined : { label: messages[type].action, onClick: () => {} },
+    cancel: action === 'cancel' ? { label: 'Cancel', onClick: () => {} } : undefined,
+    closeButton,
+    duration: persistent && (action !== 'none' || closeButton) ? Infinity : undefined,
+    ...(compact ? compactOptions : {}),
   })"
 >
   Show toast
 </Button>
-```
-
-### Action
-```vue
-<Button
-  color="secondary"
-  variant="outline"
-  @click="toast('Message sent', {
-    description: 'Delivered to #design channel.',
-    action: { label: 'Undo', onClick: () => toast.success('Message recalled') },
-  })"
->
-  Show toast with action
-</Button>
+</template>
 ```
 
 ### Promise
@@ -10059,45 +9866,6 @@ Use toast.promise to tie a single toast to an async operation. The toast shows a
   })"
 >
   Run promise
-</Button>
-```
-
-### Long content
-```vue
-<Button
-  color="secondary"
-  variant="outline"
-  @click="toast('Your deployment is still running', {
-    description: 'This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly.',
-  })"
->
-  Long content
-</Button>
-```
-
-### Compact
-Spread compact ({`import { toast, compact } from "@plexui/vue/components/Toast"`}) into any toast(...) options for a centered-text layout. On a desktop a toast shrinks to its content anyway; on a phone, where a toast fills the width, a compact one keeps the width of its content. Both center its text.
-```vue
-<Button color="secondary" variant="outline" @click="toast.success('Inquiry ID copied', compact)">
-  Compact toast
-</Button>
-```
-
-### Persistent
-Pass duration: Infinity for toasts that stay open until the user acts on them. There are no close (×) affordances: put a labelled action on the toast so dismissal is intentional and keyboard-accessible. An error that waits like this is an alert (see Screen readers).
-```vue
-<Button
-  color="secondary"
-  variant="outline"
-  @click="() => {
-    const id = toast('Backup scheduled for 2:00 AM UTC', {
-      description: 'This stays open until you dismiss it.',
-      duration: Infinity,
-      action: { label: 'Dismiss', onClick: () => toast.dismiss(id) },
-    })
-  }"
->
-  Persistent toast
 </Button>
 ```
 

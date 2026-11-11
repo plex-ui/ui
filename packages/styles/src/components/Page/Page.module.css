@@ -65,6 +65,13 @@
   line-height: var(--page-title-line-height);
 }
 
+/* A bare title takes the bar's free space, as a heading does, so it follows Page.Leading and the actions keep
+   the end (a phone sets the bar as a grid of its own) */
+.Bar > .Title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .Subtitle {
   display: flex;
   align-items: center;

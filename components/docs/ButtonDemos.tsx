@@ -121,6 +121,24 @@ function DemoChoiceMenu<T extends string>({ name, options, value, onChange }: { 
   );
 }
 
+/** A control of a few options as a row of segments, each option its value or a value under a label */
+export function Segments<T extends string>({ name, options, value, onChange, phoneOnly, desktopOnly }: { name: string; options: readonly (T | { value: T; label: string })[]; value: T; onChange: (value: T) => void; phoneOnly?: boolean; desktopOnly?: boolean }) {
+  return (
+    <DemoControlRow name={name} phoneOnly={phoneOnly} desktopOnly={desktopOnly}>
+      <SegmentedControl<T> value={value} onChange={onChange} aria-label={name} size="xs">
+        {options.map((option) => {
+          const { value: optionValue, label } = typeof option === 'string' ? { value: option, label: option } : option;
+          return (
+            <SegmentedControl.Option key={optionValue} value={optionValue}>
+              {label}
+            </SegmentedControl.Option>
+          );
+        })}
+      </SegmentedControl>
+    </DemoControlRow>
+  );
+}
+
 /** A control of more options than a row of segments shows whole (eight colors), as a menu: a row of segments that
  * runs past the panel hides its last options and does not show it scrolls (owner 11.11, the Stat Card's accentColor).
  * Storybook's controls make the same cut, radio buttons for an enum of up to five options and a select above. */

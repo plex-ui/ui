@@ -7,8 +7,7 @@ import { DateInput } from '@plexui/ui/components/DateInput';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 
-import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow, Segments } from './ButtonDemos';
 import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 import { SliderValueControl } from './SliderValueControl';
 
@@ -41,23 +40,6 @@ const DATE_TIME_SEPARATOR_OPTIONS = [
 ] as const;
 // The field takes the width of what it shows: a date, a date and a time, a date and a time with seconds or AM/PM
 const STAGE_WIDTH = { none: 'w-[200px]', 'HH:MM': 'w-[260px]', 'HH:MM:SS': 'w-[300px]', 'HH:MM AA': 'w-[300px]' } as const;
-
-function Segments<T extends string>({ name, options, value, onChange }: { name: string; options: readonly (T | { value: T; label: string })[]; value: T; onChange: (value: T) => void }) {
-  return (
-    <DemoControlRow name={name}>
-      <SegmentedControl<T> value={value} onChange={onChange} aria-label={name} size="xs">
-        {options.map((option) => {
-          const { value: optionValue, label } = typeof option === 'string' ? { value: option, label: option } : option;
-          return (
-            <SegmentedControl.Option key={optionValue} value={optionValue}>
-              {label}
-            </SegmentedControl.Option>
-          );
-        })}
-      </SegmentedControl>
-    </DemoControlRow>
-  );
-}
 
 /** The Overview, with every setting of the field: what the page's examples once showed one by one (With time, With
  * seconds, Limits, US format, ISO format) are its settings (owner 11.11: «в первом примере можно сразу показать все

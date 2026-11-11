@@ -4,108 +4,96 @@ description: "The frame of an app page: header and content share one column, a l
 metaDescription: "React app page layout: header and content in one column at a full, wide or column width, a line that follows scrolling, and an iOS style glass bar on phones."
 ---
 
-import {
-  PageOverviewDemo,
-  PageWidthsDemo,
-  PageHeadingDemo,
-  PageFillDemo,
-  PageBackgroundDemo,
-} from "@/components/docs/PageDemos"
+import { PageOverviewDemo } from "@/components/docs/PageDemos"
+
+export const overviewCode = `const [width, setWidth] = useState("full") // or "wide", "column"; from 768px up
+const [surface, setSurface] = useState("plain") // or "grouped"; on a phone
+const [topBackground, setTopBackground] = useState("glass") // or "soft", "hard", "solid"; on a phone
+const [divider, setDivider] = useState(true) // on desktop without fill; on a phone, under a glass or hard header
+const [leading, setLeading] = useState(false)
+const [subtitle, setSubtitle] = useState(false)
+const [actions, setActions] = useState(true)
+const [fill, setFill] = useState(false) // from 768px up
+const [footer, setFooter] = useState(false)
+const [bottomBackground, setBottomBackground] = useState("soft") // or "hard", "glass", "solid"; on a phone
+
+<Page width={width} surface={surface}>
+  <Page.Header background={topBackground} divider={divider}>
+    <Page.Bar>
+      {leading && (
+        <Page.Leading>
+          <NavigationButton action="back" />
+        </Page.Leading>
+      )}
+      {subtitle ? (
+        <Page.Heading>
+          <Page.Title>Orders</Page.Title>
+          <Page.Subtitle>
+            <Badge color="info" size="sm" variant="outline">24 open</Badge>
+            <span>Updated now</span>
+          </Page.Subtitle>
+        </Page.Heading>
+      ) : (
+        <Page.Title>Orders</Page.Title>
+      )}
+      {actions && (
+        <Page.Actions>
+          <Button color="primary" pill size="md">New order</Button>
+        </Page.Actions>
+      )}
+    </Page.Bar>
+  </Page.Header>
+  <Page.Content fill={fill}>
+    {fill ? <div className="min-h-0 flex-1 overflow-auto">...</div> : ...}
+  </Page.Content>
+  {footer && (
+    <Page.Footer background={bottomBackground}>
+      <Button color="primary" pill block>Export orders</Button>
+    </Page.Footer>
+  )}
+</Page>`
 
 <UsageBlock>{`import { Page } from "@plexui/ui/components/Page";`}</UsageBlock>
 
 ## Examples
 
+<span id="heading" />
+<span id="fill" />
+<span id="background" />
+<span id="widths" />
+
 <div id="first-component-page">
 
 ### Overview
 
-<ComponentPreview phonePresentation="screen" details={<>The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top.</>} code={`<Page>
-  <Page.Header>
-    <Page.Bar>
-      <Page.Title>Orders</Page.Title>
-      <Page.Actions>
-        <Button color="primary" pill size="md">New order</Button>
-      </Page.Actions>
-    </Page.Bar>
-  </Page.Header>
-  <Page.Content>...</Page.Content>
-</Page>`}>
+<ComponentPreview phonePresentation="screen" details={<>
+  <p>The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top. Turn <code>divider</code> off to keep the header without it. A page with <code>fill</code> does not scroll under its header, so on desktop the line does not come and the divider is offered without <code>fill</code>; on a phone only a glass or hard header draws the line, so there the divider is offered with those.</p>
+  <p><code>width</code> belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms; for any other width set <code>--page-width</code> on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. <code>fill</code> stops the page scrolling from 768px up, so a table can scroll inside itself. On a phone a page takes the width of the screen at every width and scrolls as a whole, so the phone has neither setting.</p>
+  <p><code>Page.Heading</code> groups the title with metadata in <code>Page.Subtitle</code>. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it. <code>Page.Leading</code> holds a Back button or the menu button of a sidebar, before the title; on a phone the title stays centred between it and the actions.</p>
+  <p>On a phone <code>background</code> sets how the header and the footer meet the content scrolled under them, as a <a href="/components/toolbar#background">Toolbar</a> does: <code>glass</code>, the header's default, is a translucent, blurred bar with a hairline, <code>soft</code>, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, <code>hard</code> is an opaque bar with a line, and <code>solid</code> an opaque bar with no line. Glass and hard show themselves once content is under the bar. <code>surface="grouped"</code> gives the phone canvas the gray of grouped rows; desktop colors stay. The footer and its background stand under the preview, as what sits at the bottom of the screen.</p>
+</>} code={overviewCode}>
   <PageOverviewDemo />
 </ComponentPreview>
 </div>
 
-### Heading
-
-<ComponentPreview phonePresentation="screen" details={<><code>Page.Heading</code> groups the title with metadata. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it.</>} code={`<Page.Bar>
-  <Page.Heading>
-    <Page.Title>Menu</Page.Title>
-    <Page.Subtitle>
-      <Badge color="info" size="sm" variant="outline">Draft</Badge>
-      <span>Saved a minute ago</span>
-    </Page.Subtitle>
-  </Page.Heading>
-  <Page.Actions>...</Page.Actions>
-</Page.Bar>`}>
-  <PageHeadingDemo />
-</ComponentPreview>
-
-### Fill
-
-<ComponentPreview phonePresentation="screen" details={<><code>fill</code> stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with <code>divider</code>.</>} code={`<Page>
-  <Page.Header divider={false}>...</Page.Header>
-  <Page.Content fill>
-    <div className="min-h-0 flex-1 overflow-auto">...</div>
-  </Page.Content>
-</Page>`}>
-  <PageFillDemo />
-</ComponentPreview>
-
-### Background
-
-<ComponentPreview phoneOnly details={<><code>background</code> sets how the header and the footer meet the content scrolled under them on a phone, as a <a href="/components/toolbar#background">Toolbar</a> does: <code>glass</code>, the header's default, is a translucent, blurred bar with a hairline, <code>soft</code>, the footer's default, fades the canvas color out under a header and leaves the content clear under the footer's actions, as native iOS 26 does, <code>hard</code> is an opaque bar with a line, and <code>solid</code> an opaque bar with no line. Glass and hard show themselves once content is under the bar; <code>divider={false}</code> keeps a header without its line. The example sets the top and the bottom bar apart: the control of the bottom bar stands under the preview.</>} code={`<Page>
-  <Page.Header background="hard">...</Page.Header>
-  <Page.Content>...</Page.Content>
-  <Page.Footer background="hard">
-    <Button color="primary" pill block>New order</Button>
-  </Page.Footer>
-</Page>`}>
-  <PageBackgroundDemo />
-</ComponentPreview>
-
-### Widths
-
-<ComponentPreview phonePresentation="none" details={<>The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms. For any other width set <code>--page-width</code> on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. On a phone a page takes the width of the screen at every width, so this example is desktop only.</>} code={`<Page width="column">
-  <Page.Header>...</Page.Header>
-  <Page.Content>...</Page.Content>
-</Page>
-
-<Page width="column" style={{ "--page-width": "860px" }}>...</Page>`}>
-  <PageWidthsDemo />
-</ComponentPreview>
-
 ## Phone
 
-A page needs a bounded parent. These demos use a 420px frame on desktop and the full viewport on phones, without an outer border or rounded container:
+A page needs a bounded parent. These demos give it a 420px frame that fills the preview on desktop, and the full viewport on phones:
 
 ```css
 .page-frame {
   height: 420px;
   overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
 }
 
 @media (max-width: 767px) {
   .page-frame {
     height: 100dvh;
-    border: 0;
-    border-radius: 0;
   }
 }
 ```
 
-Under 768px the header contains a 44px toolbar row with 10px below it, plus the device top safe area. It floats over the content and meets what scrolls under it by its `background`, see [Background](#background): by default it is a translucent, blurred bar with a hairline once content is under it. With `background="soft"` the canvas color covers the content under the row and fades out below it, and a bar without a title, of controls alone, covers only the status bar and leaves the content clear under its controls, as native iOS 26 does. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner. Under a large title the bar ends at the title's baseline, so the content's 16px top padding is what keeps it clear of the title.
+Under 768px the header contains a 44px toolbar row with 10px below it, plus the device top safe area. It floats over the content and meets what scrolls under it by its `background`, see [Overview](#overview): by default it is a translucent, blurred bar with a hairline once content is under it. With `background="soft"` the canvas color covers the content under the row and fades out below it, and a bar without a title, of controls alone, covers only the status bar and leaves the content clear under its controls, as native iOS 26 does. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner. Under a large title the bar ends at the title's baseline, so the content's 16px top padding is what keeps it clear of the title.
 
 Keep the row to a title and one group of actions. The bar has no room for a second row, so anything set under `Page.Bar`, such as a search field, belongs at the top of `Page.Content` on a phone. `useBreakpoint("md")` tells which one to render. Use `Page.Leading` for a Back button or the menu button of a sidebar. The title stays centred between the leading and trailing controls.
 
@@ -129,7 +117,7 @@ All other `<div>` attributes are forwarded to the root.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `background` | `"soft" \| "hard" \| "glass" \| "solid"` | `"glass"` | How the bar meets the content scrolled under it on a phone, see [Background](#background) |
+| `background` | `"soft" \| "hard" \| "glass" \| "solid"` | `"glass"` | How the bar meets the content scrolled under it on a phone, see [Overview](#overview) |
 | `divider` | `boolean` | `true` | Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background |
 | `className` | `string` | — | Applied to the band |
 
@@ -164,7 +152,7 @@ Actions stay below the scrolling `Page.Content`. `background` sets how the foote
 
 `surface="plain"` is the default mobile canvas. Use `surface="grouped"` for screens of related field groups: light mode uses a gray canvas with white groups; dark mode uses the corresponding base surface levels. This palette is separate from the bars' `background` and leaves desktop colors unchanged.
 
-`Page.Header` and `Page.Footer` take `background`: `glass` (the header's default), `soft` (the footer's default), `hard` or `solid`, see [Background](#background). Use hard or solid bars when the content should not show through them on phones.
+`Page.Header` and `Page.Footer` take `background`: `glass` (the header's default), `soft` (the footer's default), `hard` or `solid`, see [Overview](#overview). Use hard or solid bars when the content should not show through them on phones.
 
 Page reads these component tokens. Override them at any scope to restyle it:
 

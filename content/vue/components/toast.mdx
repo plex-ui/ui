@@ -7,36 +7,56 @@ metaDescription: Vue 3 toast notification component for transient feedback, with
 import { VueToastDemo, VueToastDemosHost } from "@/components/docs/vue/VueToastDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
-export const overview = `<Button color="secondary" variant="outline" @click="toast('Inquiry ID copied')">
-  Show toast
-</Button>`
-
-export const variants = `<Button color="secondary" variant="outline" @click="toast('Changes saved')">Default</Button>
-<Button color="secondary" variant="outline" @click="toast.success('Inquiry ID copied')">Success</Button>
-<Button color="secondary" variant="outline" @click="toast.error('Failed to assign owner')">Error</Button>
-<Button color="secondary" variant="outline" @click="toast.warning('Session expires in 2 minutes')">Warning</Button>
-<Button color="secondary" variant="outline" @click="toast.info('New version available')">Info</Button>`
-
-export const description = `<Button
+export const overview = `<Button
   color="secondary"
   variant="outline"
-  @click="toast('Changes saved', {
-    description: 'Your profile is live for everyone on the team.',
+  @click="(type === 'default' ? toast : toast[type])(messages[type].title, {
+    description: description === 'none' ? undefined : description === 'short' ? messages[type].description : longDescription,
+    action: action === 'none' ? undefined : { label: messages[type].action, onClick: () => {} },
+    cancel: action === 'cancel' ? { label: 'Cancel', onClick: () => {} } : undefined,
+    closeButton,
+    duration: persistent && (action !== 'none' || closeButton) ? Infinity : undefined,
+    ...(compact ? compactOptions : {}),
   })"
 >
   Show toast
 </Button>`
 
-export const action = `<Button
-  color="secondary"
-  variant="outline"
-  @click="toast('Message sent', {
-    description: 'Delivered to #design channel.',
-    action: { label: 'Undo', onClick: () => toast.success('Message recalled') },
-  })"
->
-  Show toast with action
-</Button>`
+{/* A persistent toast waits to be closed: it is offered with an action or a close button (owner 11.11) */}
+export const overviewControls = [
+  { name: "type", type: "select", options: ["default", "success", "error", "warning", "info"], default: "default" },
+  { name: "description", type: "select", options: ["none", "short", "long"], default: "none" },
+  { name: "action", type: "select", options: [{ value: "none", label: "none" }, { value: "action", label: "action" }, { value: "cancel", label: "action + cancel" }], default: "none" },
+  { name: "closeButton", type: "boolean", default: false },
+  { name: "compact", type: "boolean", default: false },
+  { name: "persistent", type: "boolean", default: false, when: [{ action: ["action", "cancel"] }, { closeButton: true }] },
+]
+
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { compact as compactOptions, toast } from '@plexui/vue/components/Toast';
+
+const type = ref("default"); // or "success", "error", "warning", "info"
+const description = ref("none"); // or "short", "long"
+const action = ref("none"); // or "action", "cancel" (an action and a cancel)
+const closeButton = ref(false);
+const compact = ref(false);
+const persistent = ref(false); // with an action or a close button
+
+// Each type's title, its short description and its action's label
+const messages = {
+  default: { title: "Changes saved", description: "Your profile is live for everyone on the team.", action: "Undo" },
+  success: { title: "Inquiry ID copied", description: "Paste it into the support form.", action: "Open" },
+  error: { title: "Failed to assign owner", description: "The owner has left the workspace.", action: "Retry" },
+  warning: { title: "Session expires in 2 minutes", description: "Unsaved changes will be lost.", action: "Stay" },
+  info: { title: "New version available", description: "Reload to get the latest features.", action: "Reload" },
+};
+const longDescription = "This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly.";
+</script>
+
+<template>
+${overview}
+</template>`
 
 export const promise = `<Button
   color="secondary"
@@ -50,34 +70,6 @@ export const promise = `<Button
   Run promise
 </Button>`
 
-export const longContent = `<Button
-  color="secondary"
-  variant="outline"
-  @click="toast('Your deployment is still running', {
-    description: 'This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly.',
-  })"
->
-  Long content
-</Button>`
-
-export const compactExample = `<Button color="secondary" variant="outline" @click="toast.success('Inquiry ID copied', compact)">
-  Compact toast
-</Button>`
-
-export const persistent = `<Button
-  color="secondary"
-  variant="outline"
-  @click="() => {
-    const id = toast('Backup scheduled for 2:00 AM UTC', {
-      description: 'This stays open until you dismiss it.',
-      duration: Infinity,
-      action: { label: 'Dismiss', onClick: () => toast.dismiss(id) },
-    })
-  }"
->
-  Persistent toast
-</Button>`
-
 <VueToastDemosHost />
 
 <UsageBlock>{`import { Toaster, toast } from "@plexui/vue/components/Toast";`}</UsageBlock>
@@ -87,52 +79,27 @@ Render `<Toaster />` once near the root of your app, then call `toast(...)` from
 ## Examples
 
 <div id="first-component-page">
+<span id="variants" />
+<span id="description" />
+<span id="action" />
+<span id="long-content" />
+<span id="compact" />
+<span id="persistent" />
+
 ### Overview
 
-<ComponentPreview details={<>On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content). Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.</>} language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueToastDemo template={overview} />
-</ComponentPreview>
-
-### Variants
-
-<ComponentPreview language="vue" details={<>Semantic variants map to PlexUI's success / danger / warning / info tokens. No <code>richColors</code> is passed, so variants retheme automatically with <code>data-theme</code>.</>} code={variants} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueToastDemo template={variants} />
-</ComponentPreview>
-
-### Description
-
-<ComponentPreview language="vue" code={description} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueToastDemo template={description} />
-</ComponentPreview>
-
-### Action
-
-<ComponentPreview language="vue" code={action} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueToastDemo template={action} />
+<ComponentPreview details={<>
+  <p>Call <code>toast</code> with a message, or <code>toast.success</code>, <code>.error</code>, <code>.warning</code> and <code>.info</code> for the semantic types, which map to PlexUI's success, danger, warning and info tokens. No <code>richColors</code> is passed, so the types retheme with <code>data-theme</code>. The options add a <code>description</code> under the message, an <code>action</code> button and a <code>cancel</code> one (either closes the toast after its <code>onClick</code>), and <code>closeButton</code>. Spread <code>compact</code> into the options for a centered toast: on a desktop a toast shrinks to its content anyway, and on a phone, where a toast fills the width, a compact one keeps the width of its content.</p>
+  <p><code>duration: Infinity</code> keeps a toast open until the user closes it, so give it a labelled action or a close button: a way to close it from the keyboard. An error that waits like this is an alert (see Screen readers).</p>
+  <p>On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content). Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.</p>
+</>} language="vue" code={overviewCode} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueToastDemo template={overview} controls={overviewControls} />
 </ComponentPreview>
 
 ### Promise
 
 <ComponentPreview language="vue" details={<>Use <code>toast.promise</code> to tie a single toast to an async operation. The toast shows a loading state, then swaps to success or error. Here <code>saveProfile()</code> resolves with <code>{"{ name: \"Profile\" }"}</code> after 1.5 seconds.</>} code={promise} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueToastDemo template={promise} />
-</ComponentPreview>
-
-### Long content
-
-<ComponentPreview language="vue" code={longContent} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueToastDemo template={longContent} />
-</ComponentPreview>
-
-### Compact
-
-<ComponentPreview language="vue" details={<>Spread <code>compact</code> (<code>{`import { toast, compact } from "@plexui/vue/components/Toast"`}</code>) into any <code>toast(...)</code> options for a centered-text layout. On a desktop a toast shrinks to its content anyway; on a phone, where a toast fills the width, a <code>compact</code> one keeps the width of its content. Both center its text.</>} code={compactExample} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueToastDemo template={compactExample} />
-</ComponentPreview>
-
-### Persistent
-
-<ComponentPreview language="vue" details={<>Pass <code>duration: Infinity</code> for toasts that stay open until the user acts on them. There are no close (×) affordances: put a labelled action on the toast so dismissal is intentional and keyboard-accessible. An error that waits like this is an alert (see Screen readers).</>} code={persistent} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueToastDemo template={persistent} />
 </ComponentPreview>
 
 ## API
