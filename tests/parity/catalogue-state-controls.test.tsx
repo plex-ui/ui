@@ -3,13 +3,15 @@ import { act, cleanup, fireEvent, render, waitFor, within } from '@testing-libra
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { indentCode } from '../../components/docs/demoCode.mjs';
 import { AccordionOverviewDemo } from '../../components/docs/AccordionDemos';
-import { CheckboxVariantsDemo } from '../../components/docs/CheckboxDemos';
+import { CheckboxOverviewDemo } from '../../components/docs/CheckboxDemos';
 import { TabsOverviewDemo } from '../../components/docs/TabsDemos';
 import { TableVariantDemo } from '../../components/docs/TableDemos';
 import { TextareaOverviewDemo } from '../../components/docs/TextareaDemos';
 import { SelectControlOverviewDemo } from '../../components/docs/SelectControlDemos';
 import { SelectOverviewDemo } from '../../components/docs/SelectDemos';
 import { ProgressStepsOverviewDemo } from '../../components/docs/ProgressStepsDemos';
+import { RadioGroupOverviewDemo } from '../../components/docs/RadioGroupDemos';
+import { VuePhoneRowsDemo } from '../../components/docs/vue/VuePhoneRowsDemo';
 import { VueSelectDemo } from '../../components/docs/vue/VueSelectDemos';
 import { phoneRows } from '../../components/docs/phoneRowsTemplate';
 import { VueDemo, type VueDemoControl, type VueDemoOption } from '../../components/docs/vue/VueDemo';
@@ -34,6 +36,8 @@ vi.mock('@plexui/ui/components/SelectControl', async () => import('../../package
 vi.mock('@plexui/vue/components/SelectControl', async () => import('../../packages/vue/src/components/SelectControl'));
 vi.mock('@plexui/ui/components/Select', async () => import('../../packages/ui/src/components/Select'));
 vi.mock('@plexui/vue/components/Select', async () => import('../../packages/vue/src/components/Select'));
+vi.mock('@plexui/ui/components/RadioGroup', async () => import('../../packages/ui/src/components/RadioGroup'));
+vi.mock('@plexui/vue/components/RadioGroup', async () => import('../../packages/vue/src/components/RadioGroup'));
 
 function example(page: string, name: string, references: string[] = []) {
   const mdx = readFileSync(`content/vue/components/${page}.mdx`, 'utf8');
@@ -71,7 +75,7 @@ function example(page: string, name: string, references: string[] = []) {
   });
   return { template, controls };
 }
-const checkbox = example('checkbox', 'variants');
+const checkbox = example('checkbox', 'overview');
 const accordion = example('accordion', 'overview', ['overviewAccordion']);
 const tabs = example('segmented-control', 'overview', ['SIZES', 'VARIANTS', 'ORIENTATIONS']);
 const table = example('table', 'variant');
@@ -92,6 +96,14 @@ function selectExample(page: string, name: string, references: string[] = []) {
 const selectControlOverview = selectExample('select-control', 'overview');
 const selectOverview = selectExample('select', 'overview', ['VARIANTS']);
 const progressOverview = example('progress-steps', 'overview');
+/** The Radio Group Overview as its page mounts it, with its phone rows */
+const radioOverview = (() => {
+  const mdx = readFileSync('content/vue/components/radio-group.mdx', 'utf8');
+  const marker = 'export const overviewPhone = ';
+  const rest = mdx.slice(mdx.indexOf(marker) + marker.length);
+  const phone = new Function(`return ${rest.slice(0, rest.search(/\nexport const /)).trim()}`)() as string;
+  return { ...example('radio-group', 'overview'), phoneTemplate: phoneRows(phone), state: { frequency: 'daily' } };
+})();
 const progressSteps = [
   { title: 'Your details', description: 'Please provide your name and email', icon: 'Email' },
   { title: 'Company details', description: 'A few details about your company', icon: 'Globe' },
@@ -108,28 +120,119 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) => {
-  test('checkbox variants retain user changes and indeterminate values while disabled', async () => {
-    const view = render(framework === 'React' ? <CheckboxVariantsDemo /> : <VueDemo {...checkbox} />);
+  test('checkbox: one Overview of the three states carries every setting, each where it acts, and disabled keeps the states (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <CheckboxOverviewDemo /> : <VueDemo {...checkbox} />);
     await interact(() => {});
     const page = within(view.container);
-    const unchecked = page.getAllByRole<HTMLButtonElement>('checkbox', { name: 'Unchecked', exact: true });
-    const indeterminate = page.getAllByRole('checkbox', { name: 'Indeterminate', exact: true });
-    for (const item of unchecked) await interact(() => fireEvent.click(item));
-    const toggle = page.getByRole('switch', { name: 'disabled', exact: true });
-    await interact(() => fireEvent.click(toggle));
-    for (const item of unchecked) {
-      expect(item.disabled).toBe(true);
-      await interact(() => fireEvent.click(item));
-      expect(item.getAttribute('aria-checked')).toBe('true');
+    const box = (name: string) => page.getByRole<HTMLButtonElement>('checkbox', { name, exact: true });
+    const group = (name: string) => within(page.getByRole('radiogroup', { name }));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name })));
+    const boxes = () => page.getAllByRole<HTMLButtonElement>('checkbox');
+    expect(box('Share usage data').getAttribute('aria-checked')).toBe('true');
+    expect(box('Enable notifications').getAttribute('aria-checked')).toBe('false');
+    expect(box('Sync all folders').getAttribute('aria-checked')).toBe('mixed');
+    for (const item of boxes()) expect(item.getAttribute('data-variant')).toBe('solid');
+    // pill rounds the box of both variants: the solid fill, the ghost hover tint and focus ring
+    await toggle('pill');
+    for (const item of boxes()) expect(item.hasAttribute('data-pill')).toBe(true);
+    await interact(() => fireEvent.click(group('variant').getByRole('radio', { name: 'ghost' })));
+    expect(page.getByRole('switch', { name: 'pill' }).getAttribute('aria-checked')).toBe('true');
+    for (const item of boxes()) {
+      expect(item.getAttribute('data-variant')).toBe('ghost');
+      expect(item.hasAttribute('data-pill')).toBe(true);
     }
-    for (const item of indeterminate) expect(item.getAttribute('aria-checked')).toBe('mixed');
-    await interact(() => fireEvent.click(toggle));
-    expect(page.getAllByRole('checkbox', { name: 'Unchecked', exact: true })).toEqual(unchecked);
-    for (const item of unchecked) {
-      expect(item.disabled).toBe(false);
-      await interact(() => fireEvent.click(item));
-      expect(item.getAttribute('aria-checked')).toBe('false');
+    await interact(() => fireEvent.click(group('variant').getByRole('radio', { name: 'solid' })));
+    // description and orientation act next to a label
+    expect(box('Share usage data').getAttribute('aria-describedby')).toBeNull();
+    await toggle('description');
+    expect(page.getByText('Help improve the product with anonymous usage reports.')).toBeTruthy();
+    expect(box('Share usage data').getAttribute('aria-describedby')).toBeTruthy();
+    await interact(() => fireEvent.click(group('orientation').getByRole('radio', { name: 'right' })));
+    for (const item of boxes()) expect(item.closest('[data-orientation]')?.getAttribute('data-orientation')).toBe('right');
+    await toggle('label');
+    expect(page.queryByRole('switch', { name: 'description' })).toBeNull();
+    expect(page.queryByRole('radiogroup', { name: 'orientation' })).toBeNull();
+    expect(page.queryByText('Share usage data')).toBeNull();
+    expect(page.queryByText('Help improve the product with anonymous usage reports.')).toBeNull();
+    expect(box('Share usage data').getAttribute('aria-label')).toBe('Share usage data');
+    expect(box('Share usage data').getAttribute('aria-describedby')).toBeNull();
+    // The choices come back with the label
+    await toggle('label');
+    expect(page.getByText('Help improve the product with anonymous usage reports.')).toBeTruthy();
+    expect(group('orientation').getByRole('radio', { name: 'right' }).getAttribute('aria-checked')).toBe('true');
+    // disabled keeps a user's change and the indeterminate state
+    await interact(() => fireEvent.click(box('Enable notifications')));
+    expect(box('Enable notifications').getAttribute('aria-checked')).toBe('true');
+    await toggle('disabled');
+    for (const item of boxes()) expect(item.disabled).toBe(true);
+    await interact(() => fireEvent.click(box('Enable notifications')));
+    expect(box('Enable notifications').getAttribute('aria-checked')).toBe('true');
+    expect(box('Sync all folders').getAttribute('aria-checked')).toBe('mixed');
+    await toggle('disabled');
+    await interact(() => fireEvent.click(box('Enable notifications')));
+    expect(box('Enable notifications').getAttribute('aria-checked')).toBe('false');
+  });
+
+  test('radio group: one Overview carries direction, orientation, descriptions and both kinds of disabled (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <RadioGroupOverviewDemo /> : <VuePhoneRowsDemo {...radioOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const radio = (name: string) => page.getByRole<HTMLButtonElement>('radio', { name, exact: true });
+    const group = (name: string) => within(page.getByRole('radiogroup', { name }));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const items = () => ['Daily', 'Weekly', 'Monthly', 'Never'].map(radio);
+    const list = () => page.getByRole('radiogroup', { name: 'Notification frequency' });
+    expect(radio('Daily').getAttribute('aria-checked')).toBe('true');
+    expect(list().getAttribute('data-direction')).toBe('col');
+    // A column with the indicator after the label fills the group, so the indicators line up
+    await interact(() => fireEvent.click(group('orientation').getByRole('radio', { name: 'right' })));
+    expect(list().classList.contains('w-56')).toBe(true);
+    for (const item of items()) {
+      expect(item.closest('[data-orientation]')?.getAttribute('data-orientation')).toBe('right');
+      expect(item.closest('[data-orientation]')?.hasAttribute('data-block')).toBe(true);
     }
+    await interact(() => fireEvent.click(group('direction').getByRole('radio', { name: 'row' })));
+    expect(list().getAttribute('data-direction')).toBe('row');
+    expect(list().classList.contains('w-56')).toBe(false);
+    for (const item of items()) expect(item.closest('[data-orientation]')?.hasAttribute('data-block')).toBe(false);
+    // An item's description sits outside its label and describes it
+    expect(radio('Daily').getAttribute('aria-describedby')).toBeNull();
+    await toggle('description');
+    const described = document.getElementById(radio('Daily').getAttribute('aria-describedby') ?? '');
+    expect(described?.textContent).toBe('A summary every morning.');
+    await toggle('itemDisabled');
+    expect(items().map((item) => item.disabled)).toEqual([false, false, true, false]);
+    await interact(() => fireEvent.click(radio('Weekly')));
+    expect(radio('Weekly').getAttribute('aria-checked')).toBe('true');
+    await toggle('disabled');
+    for (const item of items()) expect(item.disabled).toBe(true);
+    // A disabled group disables every option: itemDisabled is offered only while it is enabled, and keeps its choice
+    expect(page.queryByRole('switch', { name: 'itemDisabled', exact: true })).toBeNull();
+    await toggle('disabled');
+    expect(page.getByRole('switch', { name: 'itemDisabled', exact: true }).getAttribute('aria-checked')).toBe('true');
+    expect(items().map((item) => item.disabled)).toEqual([false, false, true, false]);
+    expect(radio('Weekly').getAttribute('aria-checked')).toBe('true');
+  });
+
+  test('radio group on a phone: rows of a FieldGroup, with row descriptions and Monthly disabled; direction and orientation are desktop settings', async () => {
+    vi.stubGlobal('matchMedia', (media: string) => ({ matches: !media.includes('min-width'), media, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }));
+    const view = render(framework === 'React' ? <RadioGroupOverviewDemo /> : <VuePhoneRowsDemo {...radioOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const radio = (name: string) => page.getByRole<HTMLButtonElement>('radio', { name, exact: true });
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const row = (name: string) => radio(name).closest<HTMLElement>('[data-slot="field"]');
+    for (const name of ['Daily', 'Weekly', 'Monthly', 'Never']) expect(row(name)?.hasAttribute('data-row')).toBe(true);
+    // Hidden on a phone: left out, or marked for the stylesheet
+    for (const name of ['direction', 'orientation']) {
+      const control = page.queryByRole('radiogroup', { name });
+      expect(!control || !!control.closest('[data-demo-desktop-only]')).toBe(true);
+    }
+    expect(row('Daily')?.textContent).not.toContain('A summary every morning.');
+    await toggle('description');
+    expect(row('Daily')?.textContent).toContain('A summary every morning.');
+    await toggle('itemDisabled');
+    expect(['Daily', 'Weekly', 'Monthly', 'Never'].map((name) => radio(name).disabled)).toEqual([false, false, true, false]);
   });
 
   test('accordion disables only the middle trigger, preserves its open state and skips it by keyboard', async () => {

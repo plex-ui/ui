@@ -5,12 +5,7 @@ metaDescription: React radio group component for single-choice selection with ho
 ---
 
 import {
-  RadioGroupBaseDemo,
-  RadioGroupDirectionDemo,
-  RadioGroupOrientationDemo,
-  RadioGroupDisabledDemo,
-  RadioGroupItemDisabledDemo,
-  RadioGroupWithDescriptionDemo,
+  RadioGroupOverviewDemo,
   RadioGroupWithFieldDemo,
   RadioGroupWithFieldErrorDemo,
   RadioGroupChoiceCardDemo,
@@ -23,32 +18,99 @@ import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { RadioGroup } from "@plexui/ui/components/RadioGroup";`}</UsageBlock>
 
-On Phone, put the options in the rows of a `FieldGroup` inside the `RadioGroup`: each `Field row` names an option, and its `RadioGroup.Item` without children is the checkmark at the end of the row, as in an iOS settings list. The group title names the choice. Direction, orientation, cards and the alignment check are desktop layouts, so those examples are desktop only.
+On Phone, put the options in the rows of a `FieldGroup` inside the `RadioGroup`: each `Field row` names an option, and its `RadioGroup.Item` without children is the checkmark at the end of the row, as in an iOS settings list. The group title names the choice. Direction and orientation are desktop settings of the Overview, and the cards and the alignment check are desktop-only examples.
 
 ## Examples
 
+{/* Direction, Orientation, Group disabled, Item disabled and With description are settings of the Overview (owner
+    11.11: the first example shows everything with every setting); their anchors stay */}
+<span id="direction" />
+<span id="orientation" />
+<span id="group-disabled" />
+<span id="item-disabled" />
+<span id="with-description" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={`const [frequency, setFrequency] = useState("daily")
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p><code>direction</code> sets whether the items flow in a column or a row; the gap follows it. <code>orientation="right"</code> on <code>RadioGroup.Item</code> places the indicator after the label, for settings lists and card-style selections where the content should lead; in a column, also set <code>block</code> on the items so they fill the group and the indicators line up.</p>
+  <p>Use <code>description</code> on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through <code>aria-describedby</code>; clicking it does not select the option.</p>
+  <p><code>disabled</code> on <code>RadioGroup</code> disables every option; on a single <code>RadioGroup.Item</code> it disables only that one, here Monthly, so that setting is offered only while the group is enabled.</p>
+  <p>On a phone each option is a row and the selected row ends with a checkmark. A phone list is always a column and the checkmark always ends the row, so <code>direction</code> and <code>orientation</code> are desktop settings. The row's <code>description</code> takes the item's place, and the label of a disabled option is dimmed with it.</p>
+</>} code={`const [frequency, setFrequency] = useState("daily")
+const [direction, setDirection] = useState("col")
+const [orientation, setOrientation] = useState("left")
+const [description, setDescription] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [itemDisabled, setItemDisabled] = useState(false)
+// In a column with the indicator after the label, block fills the group so the indicators line up
+const block = direction === "col" && orientation === "right"
 
 // Desktop
-<RadioGroup direction="col" value={frequency} onChange={setFrequency} aria-label="Notification frequency">
-  <RadioGroup.Item value="daily">Daily</RadioGroup.Item>
-  <RadioGroup.Item value="weekly">Weekly</RadioGroup.Item>
-  <RadioGroup.Item value="monthly">Monthly</RadioGroup.Item>
-  <RadioGroup.Item value="never">Never</RadioGroup.Item>
-</RadioGroup>
+<div>
+  <h3 className="font-semibold text-sm mb-3">Notification frequency</h3>
+  <RadioGroup
+    direction={direction}
+    className={block ? "w-56" : undefined}
+    value={frequency}
+    onChange={setFrequency}
+    disabled={disabled}
+    aria-label="Notification frequency"
+  >
+    <RadioGroup.Item
+      value="daily"
+      orientation={orientation}
+      block={block}
+      description={description ? "A summary every morning." : undefined}
+    >
+      Daily
+    </RadioGroup.Item>
+    <RadioGroup.Item
+      value="weekly"
+      orientation={orientation}
+      block={block}
+      description={description ? "A digest every Monday." : undefined}
+    >
+      Weekly
+    </RadioGroup.Item>
+    <RadioGroup.Item
+      value="monthly"
+      orientation={orientation}
+      block={block}
+      description={description ? "A recap on the first of the month." : undefined}
+      disabled={itemDisabled}
+    >
+      Monthly
+    </RadioGroup.Item>
+    <RadioGroup.Item
+      value="never"
+      orientation={orientation}
+      block={block}
+      description={description ? "Only security alerts." : undefined}
+    >
+      Never
+    </RadioGroup.Item>
+  </RadioGroup>
+</div>
 
 // Phone: each option is a row; the selected row ends with a checkmark.
-<RadioGroup direction="col" className="w-full" value={frequency} onChange={setFrequency} aria-label="Notification frequency">
+<RadioGroup direction="col" className="w-full" value={frequency} onChange={setFrequency} disabled={disabled} aria-label="Notification frequency">
   <FieldGroup title="Notification frequency">
-    <Field row label="Daily"><RadioGroup.Item value="daily" /></Field>
-    <Field row label="Weekly"><RadioGroup.Item value="weekly" /></Field>
-    <Field row label="Monthly"><RadioGroup.Item value="monthly" /></Field>
-    <Field row label="Never"><RadioGroup.Item value="never" /></Field>
+    <Field row label="Daily" description={description ? "A summary every morning." : undefined}>
+      <RadioGroup.Item value="daily" />
+    </Field>
+    <Field row label="Weekly" description={description ? "A digest every Monday." : undefined}>
+      <RadioGroup.Item value="weekly" />
+    </Field>
+    <Field row label="Monthly" description={description ? "A recap on the first of the month." : undefined}>
+      <RadioGroup.Item value="monthly" disabled={itemDisabled} />
+    </Field>
+    <Field row label="Never" description={description ? "Only security alerts." : undefined}>
+      <RadioGroup.Item value="never" />
+    </Field>
   </FieldGroup>
-</RadioGroup>`} previewMinHeight={168}>
-  <RadioGroupBaseDemo />
+</RadioGroup>`} previewMinHeight={200}>
+  <RadioGroupOverviewDemo />
 </ComponentPreview>
 
 ### With Checkbox
@@ -92,7 +154,7 @@ On Phone, put the options in the rows of a `FieldGroup` inside the `RadioGroup`:
 
 ### Descriptions
 
-<ComponentPreview phonePresentation="none" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as With description and With Field show, so this example is desktop only.</>} code={`<div className="flex flex-col divide-y divide-alpha/15">
+<ComponentPreview phonePresentation="none" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as the Overview and With Field show, so this example is desktop only.</>} code={`<div className="flex flex-col divide-y divide-alpha/15">
   <div className="pb-5">
     <Field label="Notification channel" description="Choose how you'd like to be notified.">
       {() => (
@@ -121,96 +183,6 @@ On Phone, put the options in the rows of a `FieldGroup` inside the `RadioGroup`:
   </div>
 </div>`} previewMinHeight={380}>
   <RadioGroupDescriptionsDemo />
-</ComponentPreview>
-
-### Direction
-
-<ComponentPreview phonePresentation="none" details={<>Use <code>direction</code> to control whether the items flow in a column or row. An optimal <code>gap</code> will be dynamically applied based on the orientation. A phone list is always a column of rows, so this example is desktop only.</>} code={`<RadioGroup direction="col" defaultValue="light" aria-label="Theme">
-  <RadioGroup.Item value="light">Light</RadioGroup.Item>
-  <RadioGroup.Item value="dark">Dark</RadioGroup.Item>
-  <RadioGroup.Item value="system">System</RadioGroup.Item>
-</RadioGroup>`} previewMinHeight={168}>
-  <RadioGroupDirectionDemo />
-</ComponentPreview>
-
-### Orientation
-
-<ComponentPreview phonePresentation="none" details={<>Use <code>orientation="right"</code> on <code>RadioGroup.Item</code> to place the radio indicator after the label text. Useful for settings lists and card-style selections where the content should lead. In a phone row the checkmark always ends the row, so this example is desktop only.</>} code={`<RadioGroup className="w-[320px]" direction="col" defaultValue="medium" aria-label="Text size">
-  <RadioGroup.Item value="small" orientation="right" block>Small</RadioGroup.Item>
-  <RadioGroup.Item value="medium" orientation="right" block>Medium</RadioGroup.Item>
-  <RadioGroup.Item value="large" orientation="right" block>Large</RadioGroup.Item>
-</RadioGroup>`} previewMinHeight={168}>
-  <RadioGroupOrientationDemo />
-</ComponentPreview>
-
-### Group disabled
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>disabled</code> on <code>RadioGroup</code> to disable all radio options. In a phone row the label of a disabled option is dimmed with it.</>} code={`// Desktop
-<RadioGroup disabled defaultValue="automatic" aria-label="Video quality">
-  <RadioGroup.Item value="automatic">Automatic</RadioGroup.Item>
-  <RadioGroup.Item value="high">High</RadioGroup.Item>
-  <RadioGroup.Item value="data-saver">Data saver</RadioGroup.Item>
-</RadioGroup>
-
-// Phone
-<RadioGroup direction="col" className="w-full" disabled defaultValue="automatic" aria-label="Video quality">
-  <FieldGroup title="Video quality">
-    <Field row label="Automatic"><RadioGroup.Item value="automatic" /></Field>
-    <Field row label="High"><RadioGroup.Item value="high" /></Field>
-    <Field row label="Data saver"><RadioGroup.Item value="data-saver" /></Field>
-  </FieldGroup>
-</RadioGroup>`} previewMinHeight={168}>
-  <RadioGroupDisabledDemo />
-</ComponentPreview>
-
-### Item disabled
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>disabled</code> on single <code>RadioGroup.Item</code> to disable only that option. A long label wraps; in a phone row it wraps inside the row.</>} code={`// Desktop
-<RadioGroup aria-label="Delivery method" direction="col">
-  <RadioGroup.Item value="standard">Standard shipping (3-5 days)</RadioGroup.Item>
-  <RadioGroup.Item value="express" disabled>Express shipping (1-2 days)</RadioGroup.Item>
-  <RadioGroup.Item value="same-day">
-    Same-day delivery, available in select metro areas with a minimum order of $50
-  </RadioGroup.Item>
-</RadioGroup>
-
-// Phone
-<RadioGroup direction="col" className="w-full" aria-label="Delivery method">
-  <FieldGroup title="Delivery method">
-    <Field row label="Standard shipping (3-5 days)"><RadioGroup.Item value="standard" /></Field>
-    <Field row label="Express shipping (1-2 days)"><RadioGroup.Item value="express" disabled /></Field>
-    <Field row label="Same-day delivery, available in select metro areas with a minimum order of $50">
-      <RadioGroup.Item value="same-day" />
-    </Field>
-  </FieldGroup>
-</RadioGroup>`} previewMinHeight={168}>
-  <RadioGroupItemDisabledDemo />
-</ComponentPreview>
-
-### With description
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>description</code> on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through <code>aria-describedby</code>; clicking it does not select the option. In a phone row the row's <code>description</code> takes this place.</>} code={`// Desktop
-<RadioGroup direction="col" value={value} onChange={setValue} aria-label="Spacing">
-  <RadioGroup.Item value="default" description="Standard spacing for most use cases.">
-    Default
-  </RadioGroup.Item>
-  <RadioGroup.Item value="comfortable" description="More space between elements.">
-    Comfortable
-  </RadioGroup.Item>
-  <RadioGroup.Item value="compact" description="Minimal spacing for dense layouts.">
-    Compact
-  </RadioGroup.Item>
-</RadioGroup>
-
-// Phone
-<RadioGroup direction="col" className="w-full" value={value} onChange={setValue} aria-label="Spacing">
-  <FieldGroup title="Spacing">
-    <Field row label="Default" description="Standard spacing for most use cases."><RadioGroup.Item value="default" /></Field>
-    <Field row label="Comfortable" description="More space between elements."><RadioGroup.Item value="comfortable" /></Field>
-    <Field row label="Compact" description="Minimal spacing for dense layouts."><RadioGroup.Item value="compact" /></Field>
-  </FieldGroup>
-</RadioGroup>`} previewMinHeight={200}>
-  <RadioGroupWithDescriptionDemo />
 </ComponentPreview>
 
 ### With Field
@@ -281,7 +253,7 @@ On Phone, put the options in the rows of a `FieldGroup` inside the `RadioGroup`:
 
 ### Choice card
 
-<ComponentPreview phonePresentation="none" details={<>Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use <code>orientation="right"</code> to place the indicator after the content. Wrap each <code>RadioGroup.Item</code> in a card container with <code>border</code> and <code>borderRadius</code> on the same element. On a phone a choice with a description is a row, as in With description, so this example is desktop only.</>} code={`<RadioGroup className="flex-col w-[320px] gap-3" value={value} onChange={setValue} aria-label="Workspace type">
+<ComponentPreview phonePresentation="none" details={<>Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use <code>orientation="right"</code> to place the indicator after the content. Wrap each <code>RadioGroup.Item</code> in a card container with <code>border</code> and <code>borderRadius</code> on the same element. On a phone a choice with a description is a row, as in the Overview, so this example is desktop only.</>} code={`<RadioGroup className="flex-col w-[320px] gap-3" value={value} onChange={setValue} aria-label="Workspace type">
   <div style={{
     border: "1px solid",
     borderColor: isSelected ? "var(--color-background-primary-solid)" : "var(--color-border-primary-outline)",

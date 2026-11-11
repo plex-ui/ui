@@ -13,20 +13,73 @@ export const stage = "flex-1 flex items-center justify-center py-12 w-full"
 
 export const overview = `<div>
   <h3 class="font-semibold text-sm mb-3">Notification frequency</h3>
-  <RadioGroup direction="col" v-model:value="frequency" aria-label="Notification frequency">
-    <RadioGroupItem value="daily">Daily</RadioGroupItem>
-    <RadioGroupItem value="weekly">Weekly</RadioGroupItem>
-    <RadioGroupItem value="monthly">Monthly</RadioGroupItem>
-    <RadioGroupItem value="never">Never</RadioGroupItem>
+  <RadioGroup
+    :direction="direction"
+    :class="direction === 'col' && orientation === 'right' ? 'w-56' : undefined"
+    v-model:value="frequency"
+    :disabled="disabled"
+    aria-label="Notification frequency"
+  >
+    <RadioGroupItem
+      value="daily"
+      :orientation="orientation"
+      :block="direction === 'col' && orientation === 'right'"
+      :description="description ? 'A summary every morning.' : undefined"
+    >
+      Daily
+    </RadioGroupItem>
+    <RadioGroupItem
+      value="weekly"
+      :orientation="orientation"
+      :block="direction === 'col' && orientation === 'right'"
+      :description="description ? 'A digest every Monday.' : undefined"
+    >
+      Weekly
+    </RadioGroupItem>
+    <RadioGroupItem
+      value="monthly"
+      :orientation="orientation"
+      :block="direction === 'col' && orientation === 'right'"
+      :description="description ? 'A recap on the first of the month.' : undefined"
+      :disabled="itemDisabled"
+    >
+      Monthly
+    </RadioGroupItem>
+    <RadioGroupItem
+      value="never"
+      :orientation="orientation"
+      :block="direction === 'col' && orientation === 'right'"
+      :description="description ? 'Only security alerts.' : undefined"
+    >
+      Never
+    </RadioGroupItem>
   </RadioGroup>
 </div>`
 
-export const overviewPhone = `<RadioGroup direction="col" class="w-full" v-model:value="frequency" aria-label="Notification frequency">
+{/* direction and orientation are desktop layouts: a phone list is a column of rows ending with the checkmark. A
+    disabled group disables every option, so itemDisabled is offered only without it. */}
+export const overviewControls = [
+  { name: "direction", type: "select", options: ["col", "row"], default: "col", desktopOnly: true },
+  { name: "orientation", type: "select", options: ["left", "right"], default: "left", desktopOnly: true },
+  { name: "description", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+  { name: "itemDisabled", type: "boolean", default: false, when: { disabled: false } },
+]
+
+export const overviewPhone = `<RadioGroup direction="col" class="w-full" v-model:value="frequency" :disabled="disabled" aria-label="Notification frequency">
   <FieldGroup title="Notification frequency">
-    <Field row label="Daily"><RadioGroupItem value="daily" /></Field>
-    <Field row label="Weekly"><RadioGroupItem value="weekly" /></Field>
-    <Field row label="Monthly"><RadioGroupItem value="monthly" /></Field>
-    <Field row label="Never"><RadioGroupItem value="never" /></Field>
+    <Field row label="Daily" :description="description ? 'A summary every morning.' : undefined">
+      <RadioGroupItem value="daily" />
+    </Field>
+    <Field row label="Weekly" :description="description ? 'A digest every Monday.' : undefined">
+      <RadioGroupItem value="weekly" />
+    </Field>
+    <Field row label="Monthly" :description="description ? 'A recap on the first of the month.' : undefined">
+      <RadioGroupItem value="monthly" :disabled="itemDisabled" />
+    </Field>
+    <Field row label="Never" :description="description ? 'Only security alerts.' : undefined">
+      <RadioGroupItem value="never" />
+    </Field>
   </FieldGroup>
 </RadioGroup>`
 
@@ -113,64 +166,6 @@ export const descriptions = `<div class="flex flex-col max-w-sm w-full divide-y 
     </Field>
   </div>
 </div>`
-
-export const direction = `<RadioGroup :direction="direction" default-value="light" aria-label="Theme">
-  <RadioGroupItem value="light">Light</RadioGroupItem>
-  <RadioGroupItem value="dark">Dark</RadioGroupItem>
-  <RadioGroupItem value="system">System</RadioGroupItem>
-</RadioGroup>`
-
-export const orientation = `<RadioGroup class="w-56" direction="col" default-value="medium" aria-label="Text size">
-  <RadioGroupItem value="small" :orientation="orientation" block>Small</RadioGroupItem>
-  <RadioGroupItem value="medium" :orientation="orientation" block>Medium</RadioGroupItem>
-  <RadioGroupItem value="large" :orientation="orientation" block>Large</RadioGroupItem>
-</RadioGroup>`
-
-export const groupDisabled = `<RadioGroup :disabled="disabled" default-value="automatic" aria-label="Video quality">
-  <RadioGroupItem value="automatic">Automatic</RadioGroupItem>
-  <RadioGroupItem value="high">High</RadioGroupItem>
-  <RadioGroupItem value="data-saver">Data saver</RadioGroupItem>
-</RadioGroup>`
-
-export const groupDisabledPhone = `<RadioGroup direction="col" class="w-full" :disabled="disabled" default-value="automatic" aria-label="Video quality">
-  <FieldGroup title="Video quality">
-    <Field row label="Automatic"><RadioGroupItem value="automatic" /></Field>
-    <Field row label="High"><RadioGroupItem value="high" /></Field>
-    <Field row label="Data saver"><RadioGroupItem value="data-saver" /></Field>
-  </FieldGroup>
-</RadioGroup>`
-
-export const itemDisabled = `<RadioGroup aria-label="Delivery method" class="max-w-[320px] m-auto" direction="col">
-  <RadioGroupItem value="standard">Standard shipping (3-5 days)</RadioGroupItem>
-  <RadioGroupItem value="express" :disabled="disabled">Express shipping (1-2 days)</RadioGroupItem>
-  <RadioGroupItem value="same-day">
-    Same-day delivery, available in select metro areas with a minimum order of $50
-  </RadioGroupItem>
-</RadioGroup>`
-
-export const itemDisabledPhone = `<RadioGroup direction="col" class="w-full" aria-label="Delivery method">
-  <FieldGroup title="Delivery method">
-    <Field row label="Standard shipping (3-5 days)"><RadioGroupItem value="standard" /></Field>
-    <Field row label="Express shipping (1-2 days)"><RadioGroupItem value="express" :disabled="disabled" /></Field>
-    <Field row label="Same-day delivery, available in select metro areas with a minimum order of $50">
-      <RadioGroupItem value="same-day" />
-    </Field>
-  </FieldGroup>
-</RadioGroup>`
-
-export const withDescription = `<RadioGroup direction="col" v-model:value="value" aria-label="Spacing">
-  <RadioGroupItem value="default" description="Standard spacing for most use cases.">Default</RadioGroupItem>
-  <RadioGroupItem value="comfortable" description="More space between elements.">Comfortable</RadioGroupItem>
-  <RadioGroupItem value="compact" description="Minimal spacing for dense layouts.">Compact</RadioGroupItem>
-</RadioGroup>`
-
-export const withDescriptionPhone = `<RadioGroup direction="col" class="w-full" v-model:value="value" aria-label="Spacing">
-  <FieldGroup title="Spacing">
-    <Field row label="Default" description="Standard spacing for most use cases."><RadioGroupItem value="default" /></Field>
-    <Field row label="Comfortable" description="More space between elements."><RadioGroupItem value="comfortable" /></Field>
-    <Field row label="Compact" description="Minimal spacing for dense layouts."><RadioGroupItem value="compact" /></Field>
-  </FieldGroup>
-</RadioGroup>`
 
 export const withField = `<div class="max-w-sm">
   <Field label="Notification method" description="Choose how you want to receive notifications." v-slot="fieldProps">
@@ -304,7 +299,7 @@ import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
 
 <UsageBlock>{`import { RadioGroup, RadioGroupItem } from "@plexui/vue/components/RadioGroup";`}</UsageBlock>
 
-On Phone, put the options in the rows of a `FieldGroup` inside the `RadioGroup`: each `Field row` names an option, and its `RadioGroupItem` without content is the checkmark at the end of the row, as in an iOS settings list. The group title names the choice. Direction, orientation, cards and the alignment check are desktop layouts, so those examples are desktop only.
+On Phone, put the options in the rows of a `FieldGroup` inside the `RadioGroup`: each `Field row` names an option, and its `RadioGroupItem` without content is the checkmark at the end of the row, as in an iOS settings list. The group title names the choice. Direction and orientation are desktop settings of the Overview, and the cards and the alignment check are desktop-only examples.
 
 export const groupedSectionsMobile = formScreenTemplate("Preferences", `<RadioGroup direction="col" class="w-full" v-model:value="visibility" aria-label="Visibility">
         <FieldGroup title="Visibility" description="Control who can see project resources.">
@@ -323,10 +318,23 @@ export const groupedSectionsMobile = formScreenTemplate("Preferences", `<RadioGr
 
 ## Examples
 
+{/* Direction, Orientation, Group disabled, Item disabled and With description are settings of the Overview (owner
+    11.11: the first example shows everything with every setting); their anchors stay */}
+<span id="direction" />
+<span id="orientation" />
+<span id="group-disabled" />
+<span id="item-disabled" />
+<span id="with-description" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={withPhone(overview, overviewPhone, "each option is a row; the selected row ends with a checkmark.")} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} state={{ frequency: "daily" }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p><code>direction</code> sets whether the items flow in a column or a row; the gap follows it. <code>orientation="right"</code> on <code>RadioGroupItem</code> places the indicator after the label, for settings lists and card-style selections where the content should lead; in a column, also set <code>block</code> on the items so they fill the group and the indicators line up.</p>
+  <p>Use <code>description</code> (or the <code>description</code> slot) on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through <code>aria-describedby</code>; clicking it does not select the option.</p>
+  <p><code>disabled</code> on <code>RadioGroup</code> disables every option; on a single <code>RadioGroupItem</code> it disables only that one, here Monthly, so that setting is offered only while the group is enabled.</p>
+  <p>On a phone each option is a row and the selected row ends with a checkmark. A phone list is always a column and the checkmark always ends the row, so <code>direction</code> and <code>orientation</code> are desktop settings. The row's <code>description</code> takes the item's place, and the label of a disabled option is dimmed with it.</p>
+</>} code={withPhone(overview, overviewPhone, "each option is a row; the selected row ends with a checkmark.")} previewMinHeight={200}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} stageClassName={stage} controls={overviewControls} state={{ frequency: "daily" }} />
 </ComponentPreview>
 
 ### With Checkbox
@@ -337,46 +345,8 @@ export const groupedSectionsMobile = formScreenTemplate("Preferences", `<RadioGr
 
 ### Descriptions
 
-<ComponentPreview phonePresentation="none" language="vue" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as With description and With Field show, so this example is desktop only.</>} code={descriptions} previewMinHeight={380}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as the Overview and With Field show, so this example is desktop only.</>} code={descriptions} previewMinHeight={380}>
   <VueDemo template={descriptions} stageClassName={stage} state={{ channel: "email", sound: "default" }} />
-</ComponentPreview>
-
-### Direction
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>direction</code> to control whether the items flow in a column or row. An optimal <code>gap</code> will be dynamically applied based on the orientation. A phone list is always a column of rows, so this example is desktop only.</>} code={direction} previewMinHeight={168}>
-  <VueDemo
-    template={direction}
-    stageClassName={stage}
-    controls={[{ name: "direction", type: "select", options: ["col", "row"], default: "col" }]}
-  />
-</ComponentPreview>
-
-### Orientation
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>orientation="right"</code> on <code>RadioGroupItem</code> to place the radio indicator after the label text. Useful for settings lists and card-style selections where the content should lead. In a phone row the checkmark always ends the row, so this example is desktop only.</>} code={orientation} previewMinHeight={168}>
-  <VueDemo
-    template={orientation}
-    stageClassName={stage}
-    controls={[{ name: "orientation", type: "select", options: ["left", "right"], default: "left" }]}
-  />
-</ComponentPreview>
-
-### Group disabled
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>disabled</code> on <code>RadioGroup</code> to disable all radio options. In a phone row the label of a disabled option is dimmed with it.</>} code={withPhone(groupDisabled, groupDisabledPhone)} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={groupDisabled} phoneTemplate={phoneRows(groupDisabledPhone)} stageClassName={stage} controls={[{ name: "disabled", type: "boolean", default: true }]} />
-</ComponentPreview>
-
-### Item disabled
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>disabled</code> on a single <code>RadioGroupItem</code> to disable only that option. A long label wraps; in a phone row it wraps inside the row.</>} code={withPhone(itemDisabled, itemDisabledPhone)} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={itemDisabled} phoneTemplate={phoneRows(itemDisabledPhone)} stageClassName={stage} controls={[{ name: "disabled", type: "boolean", default: true }]} />
-</ComponentPreview>
-
-### With description
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>description</code> (or the <code>description</code> slot) on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through <code>aria-describedby</code>; clicking it does not select the option. In a phone row the row's <code>description</code> takes this place.</>} code={withPhone(withDescription, withDescriptionPhone)} previewMinHeight={200}>
-  <VuePhoneRowsDemo template={withDescription} phoneTemplate={phoneRows(withDescriptionPhone)} stageClassName={stage} state={{ value: "default" }} />
 </ComponentPreview>
 
 ### With Field
@@ -399,7 +369,7 @@ export const groupedSectionsMobile = formScreenTemplate("Preferences", `<RadioGr
 
 ### Choice card
 
-<ComponentPreview phonePresentation="none" language="vue" details={<>Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use <code>orientation="right"</code> to place the indicator after the content. Wrap each <code>RadioGroupItem</code> in a card container with <code>border</code> and <code>borderRadius</code> on the same element. On a phone a choice with a description is a row, as in With description, so this example is desktop only.</>} code={choiceCard} previewMinHeight={240}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use <code>orientation="right"</code> to place the indicator after the content. Wrap each <code>RadioGroupItem</code> in a card container with <code>border</code> and <code>borderRadius</code> on the same element. On a phone a choice with a description is a row, as in the Overview, so this example is desktop only.</>} code={choiceCard} previewMinHeight={240}>
   <VueDemo
     template={choiceCard}
     stageClassName={stage}

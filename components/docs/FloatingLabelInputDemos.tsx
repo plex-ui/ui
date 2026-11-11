@@ -224,26 +224,6 @@ function BirthdayMaskedInput({
 // On a phone a label does not float: each field is a row of a FieldGroup, and its placeholder names it, as in the
 // native forms (iOS 5505, 5625). The label stays for assistive technology (Field hideLabel).
 
-export function FloatingLabelInputOverviewDemo() {
-  const phone = usePhoneRows();
-  if (phone) {
-    return (
-      <PhoneRowsStage>
-        <FieldGroup>
-          <Field row hideLabel label="Email address">
-            <Input type="email" placeholder="Email address" />
-          </Field>
-        </FieldGroup>
-      </PhoneRowsStage>
-    );
-  }
-  return (
-    <div className="w-[360px]">
-      <FloatingLabelInput label="Email address" />
-    </div>
-  );
-}
-
 export function FloatingLabelInputTextareaDemo() {
   const phone = usePhoneRows();
   const [multiline, setMultiline] = useState(true);
@@ -324,9 +304,19 @@ export function FloatingLabelInputPasswordDemo() {
 
 type FloatingLabelValuePreset = 'empty' | 'filled' | 'custom';
 
-export function FloatingLabelInputStatesDemo() {
+const LABEL_PLACEMENT_OPTIONS = ['border', 'inside'] as const;
+
+/** The Overview, with every setting of the field: what the page's examples once showed one by one (Types, Rounded box,
+ * States) are its settings (owner 11.11: «в первом примере можно сразу показать все со всеми настройками»).
+ * `labelPlacement` sets where the label rests, `pill` the shape: `inside` always takes the rounded box, so `pill` is
+ * offered only with the label on the border, and keeps its choice. An error message marks the field invalid, so
+ * `invalid` alone is offered without one. On a phone the label does not float and the cell is the frame, so both are
+ * desktop settings, as is `invalid`. */
+export function FloatingLabelInputOverviewDemo() {
   const phone = usePhoneRows();
   const [value, setValue] = useState('');
+  const [labelPlacement, setLabelPlacement] = useState<(typeof LABEL_PLACEMENT_OPTIONS)[number]>('border');
+  const [pill, setPill] = useState(true);
   const [invalid, setInvalid] = useState(false);
   const [errorMessage, setErrorMessage] = useState(false);
   const [description, setDescription] = useState(false);
@@ -348,7 +338,15 @@ export function FloatingLabelInputStatesDemo() {
             <SegmentedControl.Option value="filled">Filled</SegmentedControl.Option>
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} desktopOnly />
+        <DemoControlRow name="labelPlacement" desktopOnly>
+          <SegmentedControl<(typeof LABEL_PLACEMENT_OPTIONS)[number]> value={labelPlacement} onChange={setLabelPlacement} aria-label="labelPlacement" size="xs">
+            {LABEL_PLACEMENT_OPTIONS.map((option) => (
+              <SegmentedControl.Option key={option} value={option}>{option}</SegmentedControl.Option>
+            ))}
+          </SegmentedControl>
+        </DemoControlRow>
+        {labelPlacement === 'border' && <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />}
+        {!errorMessage && <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} desktopOnly />}
         <DemoControlBoolean name="errorMessage" value={errorMessage} onChange={setErrorMessage} />
         <DemoControlBoolean name="description" value={description} onChange={setDescription} />
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
@@ -377,6 +375,8 @@ export function FloatingLabelInputStatesDemo() {
           <div className="w-full min-w-0 max-w-[360px]">
             <FloatingLabelInput
               label="Email address"
+              labelPlacement={labelPlacement}
+              pill={pill}
               value={value}
               onChange={(evt) => setValue(evt.target.value)}
               invalid={invalid || errorMessage}

@@ -24,191 +24,95 @@ export function RadioGroupHeroContent() {
   );
 }
 
-export function RadioGroupBaseDemo() {
+const FREQUENCIES = [
+  { value: 'daily', label: 'Daily', description: 'A summary every morning.' },
+  { value: 'weekly', label: 'Weekly', description: 'A digest every Monday.' },
+  { value: 'monthly', label: 'Monthly', description: 'A recap on the first of the month.' },
+  { value: 'never', label: 'Never', description: 'Only security alerts.' },
+];
+
+function Segments<T extends string>({ name, options, value, onChange, desktopOnly = false }: { name: string; options: readonly T[]; value: T; onChange: (value: T) => void; desktopOnly?: boolean }) {
+  return (
+    <DemoControlRow name={name} desktopOnly={desktopOnly}>
+      <SegmentedControl<T> value={value} onChange={onChange} aria-label={name} size="xs">
+        {options.map((option) => (
+          <SegmentedControl.Option key={option} value={option}>
+            {option}
+          </SegmentedControl.Option>
+        ))}
+      </SegmentedControl>
+    </DemoControlRow>
+  );
+}
+
+const DIRECTION_OPTIONS = ['col', 'row'] as const;
+const ORIENTATION_OPTIONS = ['left', 'right'] as const;
+
+/** The Overview, with every setting of the radio group: what the page's examples once showed one by one (Direction,
+ * Orientation, Group disabled, Item disabled, With description) are its settings (owner 11.11: «в первом примере
+ * можно сразу показать все со всеми настройками»). `direction` and `orientation` are desktop layouts: a phone list is
+ * a column of rows, each ending with its checkmark. With the indicator after the label a column of items fills a
+ * 224px group, so the indicators line up. `itemDisabled` disables Monthly; a disabled group disables every option, so it
+ * is offered only while the group is enabled, and keeps its choice. */
+export function RadioGroupOverviewDemo() {
   const phone = usePhoneRows();
   const [frequency, setFrequency] = useState('daily');
-  if (phone) return (
-    <PhoneRowsStage>
-      <RadioGroup direction="col" className="w-full" value={frequency} onChange={setFrequency} aria-label="Notification frequency">
-        <FieldGroup title="Notification frequency">
-          <Field row label="Daily"><RadioGroup.Item value="daily" /></Field>
-          <Field row label="Weekly"><RadioGroup.Item value="weekly" /></Field>
-          <Field row label="Monthly"><RadioGroup.Item value="monthly" /></Field>
-          <Field row label="Never"><RadioGroup.Item value="never" /></Field>
-        </FieldGroup>
-      </RadioGroup>
-    </PhoneRowsStage>
-  );
-  return (
-    <div>
-      <h3 className="font-semibold text-sm mb-3">Notification frequency</h3>
-      <RadioGroup
-        direction="col"
-        value={frequency}
-        onChange={setFrequency}
-        aria-label="Notification frequency"
-      >
-        <RadioGroup.Item value="daily">Daily</RadioGroup.Item>
-        <RadioGroup.Item value="weekly">Weekly</RadioGroup.Item>
-        <RadioGroup.Item value="monthly">Monthly</RadioGroup.Item>
-        <RadioGroup.Item value="never">Never</RadioGroup.Item>
-      </RadioGroup>
-    </div>
-  );
-}
-
-export function RadioGroupDirectionDemo() {
-  const [direction, setDirection] = useState<'col' | 'row'>('col');
+  const [direction, setDirection] = useState<(typeof DIRECTION_OPTIONS)[number]>('col');
+  const [orientation, setOrientation] = useState<(typeof ORIENTATION_OPTIONS)[number]>('left');
+  const [description, setDescription] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  const [itemDisabled, setItemDisabled] = useState(false);
+  const block = direction === 'col' && orientation === 'right';
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="direction">
-          <SegmentedControl<'col' | 'row'>
-            value={direction}
-            onChange={setDirection}
-            aria-label="direction"
-            size="xs"
-          >
-            <SegmentedControl.Option value="col">col</SegmentedControl.Option>
-            <SegmentedControl.Option value="row">row</SegmentedControl.Option>
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
-      <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-        <RadioGroup direction={direction} defaultValue="light" aria-label="Theme">
-          <RadioGroup.Item value="light">Light</RadioGroup.Item>
-          <RadioGroup.Item value="dark">Dark</RadioGroup.Item>
-          <RadioGroup.Item value="system">System</RadioGroup.Item>
-        </RadioGroup>
-      </div>
-    </>
-  );
-}
-
-export function RadioGroupOrientationDemo() {
-  const [orientation, setOrientation] = useState<'left' | 'right'>('left');
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="orientation">
-          <SegmentedControl<'left' | 'right'>
-            value={orientation}
-            onChange={setOrientation}
-            aria-label="orientation"
-            size="xs"
-          >
-            <SegmentedControl.Option value="left">left</SegmentedControl.Option>
-            <SegmentedControl.Option value="right">right</SegmentedControl.Option>
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
-      <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-        <RadioGroup className="w-56" direction="col" defaultValue="medium" aria-label="Text size">
-          <RadioGroup.Item value="small" orientation={orientation} block>Small</RadioGroup.Item>
-          <RadioGroup.Item value="medium" orientation={orientation} block>Medium</RadioGroup.Item>
-          <RadioGroup.Item value="large" orientation={orientation} block>Large</RadioGroup.Item>
-        </RadioGroup>
-      </div>
-    </>
-  );
-}
-
-export function RadioGroupDisabledDemo() {
-  const phone = usePhoneRows();
-  const [disabled, setDisabled] = useState(true);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
+        <Segments name="direction" options={DIRECTION_OPTIONS} value={direction} onChange={setDirection} desktopOnly />
+        <Segments name="orientation" options={ORIENTATION_OPTIONS} value={orientation} onChange={setOrientation} desktopOnly />
+        <DemoControlBoolean name="description" value={description} onChange={setDescription} />
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+        {!disabled && <DemoControlBoolean name="itemDisabled" value={itemDisabled} onChange={setItemDisabled} />}
       </div>
       {phone ? (
         <PhoneRowsStage>
-          <RadioGroup direction="col" className="w-full" disabled={disabled} defaultValue="automatic" aria-label="Video quality">
-            <FieldGroup title="Video quality">
-              <Field row label="Automatic"><RadioGroup.Item value="automatic" /></Field>
-              <Field row label="High"><RadioGroup.Item value="high" /></Field>
-              <Field row label="Data saver"><RadioGroup.Item value="data-saver" /></Field>
+          <RadioGroup direction="col" className="w-full" value={frequency} onChange={setFrequency} disabled={disabled} aria-label="Notification frequency">
+            <FieldGroup title="Notification frequency">
+              {FREQUENCIES.map((option) => (
+                <Field key={option.value} row label={option.label} description={description ? option.description : undefined}>
+                  <RadioGroup.Item value={option.value} disabled={itemDisabled && option.value === 'monthly'} />
+                </Field>
+              ))}
             </FieldGroup>
           </RadioGroup>
         </PhoneRowsStage>
       ) : (
         <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-          <RadioGroup disabled={disabled} defaultValue="automatic" aria-label="Video quality">
-            <RadioGroup.Item value="automatic">Automatic</RadioGroup.Item>
-            <RadioGroup.Item value="high">High</RadioGroup.Item>
-            <RadioGroup.Item value="data-saver">Data saver</RadioGroup.Item>
-          </RadioGroup>
+          <div>
+            <h3 className="font-semibold text-sm mb-3">Notification frequency</h3>
+            <RadioGroup
+              direction={direction}
+              className={block ? 'w-56' : undefined}
+              value={frequency}
+              onChange={setFrequency}
+              disabled={disabled}
+              aria-label="Notification frequency"
+            >
+              {FREQUENCIES.map((option) => (
+                <RadioGroup.Item
+                  key={option.value}
+                  value={option.value}
+                  orientation={orientation}
+                  block={block}
+                  description={description ? option.description : undefined}
+                  disabled={itemDisabled && option.value === 'monthly'}
+                >
+                  {option.label}
+                </RadioGroup.Item>
+              ))}
+            </RadioGroup>
+          </div>
         </div>
       )}
     </>
-  );
-}
-
-export function RadioGroupItemDisabledDemo() {
-  const phone = usePhoneRows();
-  const [disabled, setDisabled] = useState(true);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
-      </div>
-      {phone ? (
-        <PhoneRowsStage>
-          <RadioGroup direction="col" className="w-full" aria-label="Delivery method">
-            <FieldGroup title="Delivery method">
-              <Field row label="Standard shipping (3-5 days)"><RadioGroup.Item value="standard" /></Field>
-              <Field row label="Express shipping (1-2 days)"><RadioGroup.Item value="express" disabled={disabled} /></Field>
-              <Field row label="Same-day delivery, available in select metro areas with a minimum order of $50">
-                <RadioGroup.Item value="same-day" />
-              </Field>
-            </FieldGroup>
-          </RadioGroup>
-        </PhoneRowsStage>
-      ) : (
-        <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-          <RadioGroup aria-label="Delivery method" className="max-w-[320px] m-auto" direction="col">
-            <RadioGroup.Item value="standard">Standard shipping (3-5 days)</RadioGroup.Item>
-            <RadioGroup.Item value="express" disabled={disabled}>
-              Express shipping (1-2 days)
-            </RadioGroup.Item>
-            <RadioGroup.Item value="same-day">
-              Same-day delivery, available in select metro areas with a minimum order of $50
-            </RadioGroup.Item>
-          </RadioGroup>
-        </div>
-      )}
-    </>
-  );
-}
-
-export function RadioGroupWithDescriptionDemo() {
-  const phone = usePhoneRows();
-  const [value, setValue] = useState('default');
-  if (phone) return (
-    <PhoneRowsStage>
-      <RadioGroup direction="col" className="w-full" value={value} onChange={setValue} aria-label="Spacing">
-        <FieldGroup title="Spacing">
-          <Field row label="Default" description="Standard spacing for most use cases."><RadioGroup.Item value="default" /></Field>
-          <Field row label="Comfortable" description="More space between elements."><RadioGroup.Item value="comfortable" /></Field>
-          <Field row label="Compact" description="Minimal spacing for dense layouts."><RadioGroup.Item value="compact" /></Field>
-        </FieldGroup>
-      </RadioGroup>
-    </PhoneRowsStage>
-  );
-  return (
-    <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-      <RadioGroup direction="col" value={value} onChange={setValue} aria-label="Spacing">
-        <RadioGroup.Item value="default" description="Standard spacing for most use cases.">
-          Default
-        </RadioGroup.Item>
-        <RadioGroup.Item value="comfortable" description="More space between elements.">
-          Comfortable
-        </RadioGroup.Item>
-        <RadioGroup.Item value="compact" description="Minimal spacing for dense layouts.">
-          Compact
-        </RadioGroup.Item>
-      </RadioGroup>
-    </div>
   );
 }
 

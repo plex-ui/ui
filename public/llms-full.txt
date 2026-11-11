@@ -582,22 +582,24 @@ Props:
     - className (string) default: — — Applied to the wrapper
 
 ### Overview
-On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 8px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do.
+Set size on every Button inside the group so corner radii match; the size setting here sets all of them. Mix icon-only (uniform) with text buttons; each child keeps its own padding. On a phone with touch.css a group in the content keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, sm) and medium (34px, md and lg) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own. On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 8px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do. The bar sets its buttons' size, so the phone view leaves out the size control.
 ```tsx
+const [size, setSize] = useState("sm")
+
 // Desktop
 <ButtonGroup>
 <ButtonGroup>
-  <Button variant="outline" color="secondary" size="sm" uniform aria-label="Go back">
+  <Button variant="outline" color="secondary" size={size} uniform aria-label="Go back">
     <ArrowLeftSm />
   </Button>
 </ButtonGroup>
 <ButtonGroup>
-  <Button variant="outline" color="secondary" size="sm">Pin</Button>
-  <Button variant="outline" color="secondary" size="sm">Tag</Button>
+  <Button variant="outline" color="secondary" size={size}>Pin</Button>
+  <Button variant="outline" color="secondary" size={size}>Tag</Button>
 </ButtonGroup>
 <ButtonGroup>
-  <Button variant="outline" color="secondary" size="sm">Bookmark</Button>
-  <Button variant="outline" color="secondary" size="sm" uniform aria-label="More options">
+  <Button variant="outline" color="secondary" size={size}>Bookmark</Button>
+  <Button variant="outline" color="secondary" size={size} uniform aria-label="More options">
     <DotsHorizontal />
   </Button>
 </ButtonGroup>
@@ -636,12 +638,14 @@ On a phone the example is the bars of a note, as in iOS Notes: Back alone, the n
 ### Orientation
 Pass orientation="vertical" to stack the buttons, useful for + / − steppers, zoom controls, or any vertical toolbar. On a phone the example is zoom controls floating over a canvas, as map controls do: with mobileMaterial="glass" the group is the vertical Button Group of the iOS 27 kit, a 48px wide capsule of 48px buttons 6px apart. In the content a group of icon-only buttons keeps their 44px at each size, so the phone view leaves out the size control.
 ```tsx
+const [size, setSize] = useState("sm")
+
 // Desktop
 <ButtonGroup orientation="vertical" aria-label="Zoom controls">
-<Button variant="outline" color="secondary" size="sm" uniform aria-label="Zoom in">
+<Button variant="outline" color="secondary" size={size} uniform aria-label="Zoom in">
   <PlusSm />
 </Button>
-<Button variant="outline" color="secondary" size="sm" uniform aria-label="Zoom out">
+<Button variant="outline" color="secondary" size={size} uniform aria-label="Zoom out">
   <Minus />
 </Button>
 </ButtonGroup>
@@ -653,45 +657,22 @@ Pass orientation="vertical" to stack the buttons, useful for + / − steppers, z
 </ButtonGroup>
 ```
 
-### Size
-Set size on every Button inside the group so corner radii match. Mix icon-only (uniform) with text buttons; each child keeps its own padding. On a phone with touch.css a group keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, sm) and medium (34px, md and lg) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own.
-```tsx
-<div className="flex flex-col items-start gap-6">
-<ButtonGroup>
-  <Button variant="outline" color="secondary" size="sm">Small</Button>
-  <Button variant="outline" color="secondary" size="sm">Button</Button>
-  <Button variant="outline" color="secondary" size="sm">Group</Button>
-  <Button variant="outline" color="secondary" size="sm" uniform aria-label="Add"><PlusSm /></Button>
-</ButtonGroup>
-<ButtonGroup>
-  <Button variant="outline" color="secondary">Default</Button>
-  <Button variant="outline" color="secondary">Button</Button>
-  <Button variant="outline" color="secondary">Group</Button>
-  <Button variant="outline" color="secondary" uniform aria-label="Add"><PlusSm /></Button>
-</ButtonGroup>
-<ButtonGroup>
-  <Button variant="outline" color="secondary" size="lg">Large</Button>
-  <Button variant="outline" color="secondary" size="lg">Button</Button>
-  <Button variant="outline" color="secondary" size="lg">Group</Button>
-  <Button variant="outline" color="secondary" size="lg" uniform aria-label="Add"><PlusSm /></Button>
-</ButtonGroup>
-</div>
-```
-
 ### Nested
 Place ButtonGroup inside ButtonGroup to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern.
 ```tsx
+const [size, setSize] = useState("sm")
+
 <ButtonGroup aria-label="Pager">
 <ButtonGroup>
   {[1, 2, 3, 4, 5].map((page) => (
-    <Button key={page} variant="outline" color="secondary" size="sm">{page}</Button>
+    <Button key={page} variant="outline" color="secondary" size={size}>{page}</Button>
   ))}
 </ButtonGroup>
 <ButtonGroup>
-  <Button variant="outline" color="secondary" size="sm" uniform aria-label="Previous page">
+  <Button variant="outline" color="secondary" size={size} uniform aria-label="Previous page">
     <ArrowLeftSm />
   </Button>
-  <Button variant="outline" color="secondary" size="sm" uniform aria-label="Next page">
+  <Button variant="outline" color="secondary" size={size} uniform aria-label="Next page">
     <ArrowRightSm />
   </Button>
 </ButtonGroup>
@@ -701,20 +682,24 @@ Place ButtonGroup inside ButtonGroup to create visually separated sub-groups. Th
 ### Separator
 Drop a ButtonGroup.Separator between items to add a visible divider, commonly used for Undo / Redo pairs or any "two related actions" toolbar. A glass group on a phone draws no line, as the capsule of iOS has none.
 ```tsx
+const [size, setSize] = useState("sm")
+
 <ButtonGroup>
-<Button variant="soft" color="secondary" size="sm"><Undo /> Undo</Button>
+<Button variant="soft" color="secondary" size={size}><Undo /> Undo</Button>
 <ButtonGroup.Separator />
-<Button variant="soft" color="secondary" size="sm">Redo <Redo /></Button>
+<Button variant="soft" color="secondary" size={size}>Redo <Redo /></Button>
 </ButtonGroup>
 ```
 
 ### Split
 The classic split button: an action joined to a secondary affordance via ButtonGroup.Separator. Useful for Save / Save-As, Filter / Add-filter, Delete / Undo.
 ```tsx
+const [size, setSize] = useState("sm")
+
 <ButtonGroup>
-<Button variant="soft" color="secondary" size="sm"><Filter /> Filter</Button>
+<Button variant="soft" color="secondary" size={size}><Filter /> Filter</Button>
 <ButtonGroup.Separator />
-<Button variant="soft" color="secondary" size="sm" uniform aria-label="Add filter">
+<Button variant="soft" color="secondary" size={size} uniform aria-label="Add filter">
   <Plus />
 </Button>
 </ButtonGroup>
@@ -723,9 +708,11 @@ The classic split button: an action joined to a secondary affordance via ButtonG
 ### Input
 Join an Input to a trailing Button for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content. On a phone with touch.css the button takes the field's 44px at each size shown, so the phone view leaves out the size control.
 ```tsx
+const [size, setSize] = useState("sm")
+
 <ButtonGroup>
-<Input placeholder="Search docs..." size="sm" />
-<Button variant="outline" color="secondary" size="sm" aria-label="Search">
+<Input placeholder="Search docs..." size={size} />
+<Button variant="outline" color="secondary" size={size} aria-label="Search">
   <SearchSm />
 </Button>
 </ButtonGroup>
@@ -734,16 +721,19 @@ Join an Input to a trailing Button for inline search, token entry, or URL shorte
 ### Input group
 Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via endAdornment. Use Input.AdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size. On a phone with touch.css the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.
 ```tsx
+const [size, setSize] = useState("sm")
+const [voiceEnabled, setVoiceEnabled] = useState(false)
+
 <ButtonGroup style={{ width: "100%", maxWidth: 280 }}>
 <ButtonGroup>
-  <Button variant="outline" color="secondary" pill size="sm" uniform aria-label="Add attachment">
+  <Button variant="outline" color="secondary" pill size={size} uniform aria-label="Add attachment">
     <Plus />
   </Button>
 </ButtonGroup>
 <ButtonGroup>
   <Input
     pill
-    size="sm"
+    size={size}
     placeholder={voiceEnabled ? "Recording your idea…" : "Describe a component…"}
     disabled={voiceEnabled}
     endAdornment={
@@ -764,11 +754,13 @@ Richer composition for message composers: wrap each slot (leading action, flexib
 ### Dropdown menu
 Compose a primary action with a Menu trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….
 ```tsx
+const [size, setSize] = useState("sm")
+
 <ButtonGroup>
-<Button variant="outline" color="secondary" pill={false} size="sm">Export</Button>
+<Button variant="outline" color="secondary" pill={false} size={size}>Export</Button>
 <Menu>
   <Menu.Trigger>
-    <Button variant="outline" color="secondary" pill={false} size="sm" uniform aria-label="More export options">
+    <Button variant="outline" color="secondary" pill={false} size={size} uniform aria-label="More export options">
       <ChevronDownMd />
     </Button>
   </Menu.Trigger>
@@ -787,6 +779,14 @@ Compose a primary action with a Menu trigger for follow-up options. Common for E
 ### Select
 Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested ButtonGroup to get a gap between the compound field and the send affordance. On a phone with touch.css the button takes the height of the 44px fields at each size shown, so the phone view leaves out the size control.
 ```tsx
+const [size, setSize] = useState("sm")
+const [unit, setUnit] = useState("kg")
+const units = [
+{ value: "kg", label: "kg · Kilogram" },
+{ value: "lb", label: "lb · Pound" },
+{ value: "oz", label: "oz · Ounce" },
+]
+
 <ButtonGroup>
 <ButtonGroup>
   <Select
@@ -794,13 +794,13 @@ Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entr
     value={unit}
     onChange={(option) => setUnit(option.value)}
     variant="outline"
-    size="sm"
+    size={size}
     block={false}
   />
-  <Input placeholder="2.50" size="sm" inputMode="decimal" />
+  <Input placeholder="2.50" size={size} inputMode="decimal" />
 </ButtonGroup>
 <ButtonGroup>
-  <Button variant="outline" color="secondary" size="sm" uniform aria-label="Log weight">
+  <Button variant="outline" color="secondary" size={size} uniform aria-label="Log weight">
     <ArrowRight />
   </Button>
 </ButtonGroup>
@@ -810,11 +810,13 @@ Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entr
 ### Popover
 Same split-button shape, but the trailing trigger opens a Popover instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).
 ```tsx
+const [size, setSize] = useState("sm")
+
 <ButtonGroup>
-<Button variant="outline" color="secondary" pill={false} size="sm"><Sparkles /> Generate</Button>
+<Button variant="outline" color="secondary" pill={false} size={size}><Sparkles /> Generate</Button>
 <Popover>
   <Popover.Trigger>
-    <Button variant="outline" color="secondary" pill={false} size="sm" uniform aria-label="More generate options">
+    <Button variant="outline" color="secondary" pill={false} size={size} uniform aria-label="More generate options">
       <ChevronDownMd />
     </Button>
   </Popover.Trigger>
@@ -1482,10 +1484,34 @@ Props:
   - onBlur ((event: FocusEvent) => void) — Called when the checkbox loses focus
 
 ### Overview
+A checkbox is checked, unchecked or indeterminate. Pass checked="indeterminate", or defaultChecked="indeterminate", for a partly selected state: a "select all" box whose items are only partly checked, as in Group with select all. solid (default) fills the box; ghost renders only the checkmark, in the text color, without a border or background, for subtle inline selections or task lists. pill rounds the box (border-radius: full): the solid fill, and on a ghost box its hover tint and focus ring. Use description for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through aria-describedby. By default the box is on the left of its label; orientation="right" places it after the label. Both act only next to a label, so they are offered only with one. Without a label the checkbox is a standalone control: pass aria-label to name it. disabled keeps the checked and indeterminate states. On a phone with touch.css a solid checkbox is the 22px selection circle of iOS with or without pill, so the phone view has no pill setting. A ghost checkbox is the checkmark of an iOS list row.
 ```tsx
-<div className="flex flex-col gap-3">
-<Checkbox label="Same as billing address" />
-<Checkbox label="Subscribe to newsletter" defaultChecked />
+const [variant, setVariant] = useState("solid")
+const [pill, setPill] = useState(false)
+const [label, setLabel] = useState(true)
+const [description, setDescription] = useState(false) // with a label
+const [orientation, setOrientation] = useState("left") // with a label
+const [disabled, setDisabled] = useState(false)
+
+const options = [
+{ label: "Share usage data", description: "Help improve the product with anonymous usage reports.", defaultChecked: true },
+{ label: "Enable notifications", description: "You can enable or disable notifications at any time from settings.", defaultChecked: false },
+{ label: "Sync all folders", description: "Some of its folders are synced.", defaultChecked: "indeterminate" },
+]
+
+<div className={label ? (description ? "flex flex-col gap-4 max-w-sm" : "flex flex-col gap-3") : "flex gap-4"}>
+{options.map((option) => (
+  <Checkbox
+    key={option.label}
+    variant={variant}
+    pill={pill}
+    disabled={disabled}
+    defaultChecked={option.defaultChecked}
+    {...(label
+      ? { label: option.label, description: description ? option.description : undefined, orientation }
+      : { "aria-label": option.label })}
+  />
+))}
 </div>
 ```
 
@@ -1592,99 +1618,6 @@ setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
     )}
   </Field>
 </div>
-</div>
-```
-
-### Variants
-The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill. Toggle disabled without resetting checked or indeterminate states. On a phone with touch.css a solid checkbox is the 22px selection circle of iOS with or without pill, so the phone view leaves out the solid pill group. A ghost checkbox is the checkmark of an iOS list row.
-```tsx
-const [disabled, setDisabled] = useState(false)
-
-<div className="flex flex-wrap gap-x-12 gap-y-6">
-<div className="flex flex-col gap-3 items-start">
-  <span className="text-xs text-secondary font-mono mb-1">solid</span>
-  <Checkbox disabled={disabled} label="Unchecked" />
-  <Checkbox disabled={disabled} label="Checked" defaultChecked />
-  <Checkbox disabled={disabled} label="Indeterminate" checked="indeterminate" />
-</div>
-<div className="flex flex-col gap-3 items-start">
-  <span className="text-xs text-secondary font-mono mb-1">solid pill</span>
-  <Checkbox disabled={disabled} label="Unchecked" pill />
-  <Checkbox disabled={disabled} label="Checked" pill defaultChecked />
-  <Checkbox disabled={disabled} label="Indeterminate" pill checked="indeterminate" />
-</div>
-<div className="flex flex-col gap-3 items-start">
-  <span className="text-xs text-secondary font-mono mb-1">ghost</span>
-  <Checkbox disabled={disabled} label="Unchecked" variant="ghost" />
-  <Checkbox disabled={disabled} label="Checked" variant="ghost" defaultChecked />
-  <Checkbox disabled={disabled} label="Indeterminate" variant="ghost" checked="indeterminate" />
-</div>
-</div>
-```
-
-### Pill
-Set pill to render the checkbox indicator with fully rounded corners (border-radius: full) instead of the default square radius. On a phone with touch.css every checkbox indicator is round, the 22px selection circle of iOS, so pill makes no difference there: the phone view leaves out the pill control in the overview, and this example, which would repeat the solid group of Variants, is desktop only.
-```tsx
-<div className="flex flex-col gap-3">
-<Checkbox label="Unchecked" pill />
-<Checkbox label="Checked" pill defaultChecked />
-<Checkbox label="Indeterminate" pill checked="indeterminate" />
-</div>
-```
-
-### Ghost
-Use variant="ghost" to render the checkbox without a border or background. The checkmark uses the text color instead of white, making it suitable for subtle inline selections or task lists. On a phone this would repeat the ghost group of Variants, so this example is desktop only.
-```tsx
-<div className="flex flex-col gap-3">
-<Checkbox label="Unchecked" variant="ghost" />
-<Checkbox label="Checked" variant="ghost" defaultChecked />
-<Checkbox label="Indeterminate" variant="ghost" checked="indeterminate" />
-</div>
-```
-
-### With description
-Use description for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through aria-describedby. The description renders only next to a label.
-```tsx
-<div className="flex flex-col gap-4 max-w-sm">
-<Checkbox
-  label="Share usage data"
-  description="Help improve the product with anonymous usage reports."
-  defaultChecked
-/>
-<Checkbox
-  label="Enable notifications"
-  description="You can enable or disable notifications at any time from settings."
-/>
-</div>
-```
-
-### Indeterminate
-Use checked="indeterminate" to indicate a partially selected state. This is typically used for "select all" controls where only some child items are checked. Here checked starts as "indeterminate" and each click moves it to the next state.
-```tsx
-const [checked, setChecked] = useState<boolean | "indeterminate">("indeterminate");
-
-<Checkbox
-checked={checked}
-onCheckedChange={() =>
-  setChecked(c => c === "indeterminate" ? true : c ? false : "indeterminate")
-}
-label="Select all"
-/>
-```
-
-### Label orientation
-By default the checkbox renders to the left of the label. Set orientation="right" to place the checkbox after the label.
-```tsx
-<Checkbox label="Remember this device" orientation="right" />
-```
-
-### Without label
-When no label is provided, the checkbox renders as a standalone control, so pass aria-label to give it an accessible name. All three visual states are shown: unchecked, checked, and indeterminate.
-```tsx
-<div className="flex gap-4">
-<Checkbox aria-label="Accept terms" />
-<Checkbox aria-label="Subscribe" defaultChecked />
-<Checkbox aria-label="Select all" checked="indeterminate" />
 </div>
 ```
 
@@ -3664,44 +3597,49 @@ Docs: https://plexui.com/components/floating-label-input
     - onInteract (() => void) — Called on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
 
 ### Overview
+Two things set the type: where the label rests (labelPlacement: on the border, or inside the box with the value under it), and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. pill={'{false}'} takes the rounded box of Input and Select with the label on the border; inside always takes the rounded box, so pill is offered only with the label on the border. Text fields, textareas and selects take both settings the same way. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place. Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid, so invalid is offered only without one; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied. onClear shows a built-in clear button: it appears when the field has a value and is not disabled or read-only, and focus returns to the field. On Phone the field is a cell named by its placeholder: the label does not float and the cell is the frame, so labelPlacement and pill are desktop settings. The description goes in the group's footer and the error stands inside the cell. A cell has no frame to color, so invalid alone is desktop only.
 ```tsx
+const [value, setValue] = useState("")
+const [labelPlacement, setLabelPlacement] = useState("border")
+const [pill, setPill] = useState(true) // with the label on the border; inside always takes the rounded box
+const [invalid, setInvalid] = useState(false)
+const [errorMessage, setErrorMessage] = useState(false)
+const [description, setDescription] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [readOnly, setReadOnly] = useState(false)
+const [clearable, setClearable] = useState(false)
+
 // Desktop
-<FloatingLabelInput label="Email address" />
+<FloatingLabelInput
+  label="Email address"
+  labelPlacement={labelPlacement}
+  pill={pill}
+  value={value}
+  onChange={(evt) => setValue(evt.target.value)}
+  invalid={invalid || errorMessage}
+  errorMessage={errorMessage ? "Email is not valid." : undefined}
+  description={description ? "We'll never share your email with anyone else." : undefined}
+  disabled={disabled}
+  readOnly={readOnly}
+  onClear={clearable ? () => setValue("") : undefined}
+/>
 
-// Phone: a cell of a FieldGroup, named by its placeholder.
-<FieldGroup>
-<Field row hideLabel label="Email address">
-  <Input type="email" placeholder="Email address" />
-</Field>
+// Phone: a cell of a FieldGroup, named by its placeholder. The description goes in the
+// group's footer, the error stands inside the cell.
+<FieldGroup footer={description ? <p>We'll never share your email with anyone else.</p> : undefined}>
+  <Field row hideLabel label="Email address" errorMessage={errorMessage ? "Email is not valid." : undefined}>
+    <Input
+      type="email"
+      placeholder="Email address"
+      value={value}
+      onChange={(evt) => setValue(evt.target.value)}
+      invalid={errorMessage}
+      disabled={disabled}
+      readOnly={readOnly}
+      onClear={clearable ? () => setValue("") : undefined}
+    />
+  </Field>
 </FieldGroup>
-```
-
-### Types
-Two things set the type: where the label rests, and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. Text fields, textareas and selects work the same in each. On Phone the label does not float, so this example has no Phone view.
-```tsx
-<div className="grid w-[44rem] max-w-[calc(100vw-5rem)] grid-cols-1 items-center gap-x-4 gap-y-6 py-8 sm:grid-cols-[10rem_1fr_1fr]">
-<div className="max-sm:hidden" />
-<div className="text-sm text-secondary max-sm:hidden">Empty</div>
-<div className="text-sm text-secondary max-sm:hidden">Filled</div>
-<div className="text-sm">
-  <div>Label on the border</div>
-  <div className="text-secondary">Pill</div>
-</div>
-<FloatingLabelInput label="Email address" />
-<FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />
-<div className="text-sm">
-  <div>Label on the border</div>
-  <div className="text-secondary">Rounded box</div>
-</div>
-<FloatingLabelInput label="Email address" pill={false} />
-<FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" pill={false} />
-<div className="text-sm">
-  <div>Label inside</div>
-  <div className="text-secondary">Rounded box</div>
-</div>
-<FloatingLabelInput label="Email address" labelPlacement="inside" />
-<FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" labelPlacement="inside" />
-</div>
 ```
 
 ### Label inside
@@ -3731,12 +3669,6 @@ const trigger = useCallback(
 <FloatingLabelInput label="Address line 1" labelPlacement="inside" />
 <FloatingLabelInput label="Delivery notes" labelPlacement="inside" multiline />
 </div>
-```
-
-### Rounded box
-Set pill={'{false}'} to take the rounded box of Input and Select, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place. On Phone the cell is the frame, so this example has no Phone view.
-```tsx
-<FloatingLabelInput label="Email address" pill={false} />
 ```
 
 ### Textarea
@@ -3940,35 +3872,6 @@ const trigger = useCallback(
   checkPosition="end"
 />
 </div>
-```
-
-### States
-```tsx
-const [value, setValue] = useState("")
-
-// Desktop
-<FloatingLabelInput
-  label="Email address"
-  value={value}
-  onChange={(evt) => setValue(evt.target.value)}
-  errorMessage="Email is not valid."
-  description="We'll never share your email with anyone else."
-  onClear={() => setValue("")}
-/>
-
-// Phone: a cell of a FieldGroup, named by its placeholder. The description goes in the
-// group's footer, the error stands inside the cell.
-<FieldGroup footer="We'll never share your email with anyone else.">
-  <Field row hideLabel label="Email address" errorMessage="Email is not valid.">
-    <Input
-      type="email"
-      placeholder="Email address"
-      value={value}
-      onChange={(evt) => setValue(evt.target.value)}
-      onClear={() => setValue("")}
-    />
-  </Field>
-</FieldGroup>
 ```
 
 ## Index Bar
@@ -6381,24 +6284,79 @@ Props:
     - className (string) — Extra classes on the label element
 
 ### Overview
+direction sets whether the items flow in a column or a row; the gap follows it. orientation="right" on RadioGroup.Item places the indicator after the label, for settings lists and card-style selections where the content should lead; in a column, also set block on the items so they fill the group and the indicators line up. Use description on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through aria-describedby; clicking it does not select the option. disabled on RadioGroup disables every option; on a single RadioGroup.Item it disables only that one, here Monthly, so that setting is offered only while the group is enabled. On a phone each option is a row and the selected row ends with a checkmark. A phone list is always a column and the checkmark always ends the row, so direction and orientation are desktop settings. The row's description takes the item's place, and the label of a disabled option is dimmed with it.
 ```tsx
 const [frequency, setFrequency] = useState("daily")
+const [direction, setDirection] = useState("col")
+const [orientation, setOrientation] = useState("left")
+const [description, setDescription] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [itemDisabled, setItemDisabled] = useState(false)
+// In a column with the indicator after the label, block fills the group so the indicators line up
+const block = direction === "col" && orientation === "right"
 
 // Desktop
-<RadioGroup direction="col" value={frequency} onChange={setFrequency} aria-label="Notification frequency">
-<RadioGroup.Item value="daily">Daily</RadioGroup.Item>
-<RadioGroup.Item value="weekly">Weekly</RadioGroup.Item>
-<RadioGroup.Item value="monthly">Monthly</RadioGroup.Item>
-<RadioGroup.Item value="never">Never</RadioGroup.Item>
+<div>
+<h3 className="font-semibold text-sm mb-3">Notification frequency</h3>
+<RadioGroup
+  direction={direction}
+  className={block ? "w-56" : undefined}
+  value={frequency}
+  onChange={setFrequency}
+  disabled={disabled}
+  aria-label="Notification frequency"
+>
+  <RadioGroup.Item
+    value="daily"
+    orientation={orientation}
+    block={block}
+    description={description ? "A summary every morning." : undefined}
+  >
+    Daily
+  </RadioGroup.Item>
+  <RadioGroup.Item
+    value="weekly"
+    orientation={orientation}
+    block={block}
+    description={description ? "A digest every Monday." : undefined}
+  >
+    Weekly
+  </RadioGroup.Item>
+  <RadioGroup.Item
+    value="monthly"
+    orientation={orientation}
+    block={block}
+    description={description ? "A recap on the first of the month." : undefined}
+    disabled={itemDisabled}
+  >
+    Monthly
+  </RadioGroup.Item>
+  <RadioGroup.Item
+    value="never"
+    orientation={orientation}
+    block={block}
+    description={description ? "Only security alerts." : undefined}
+  >
+    Never
+  </RadioGroup.Item>
 </RadioGroup>
+</div>
 
 // Phone: each option is a row; the selected row ends with a checkmark.
-<RadioGroup direction="col" className="w-full" value={frequency} onChange={setFrequency} aria-label="Notification frequency">
+<RadioGroup direction="col" className="w-full" value={frequency} onChange={setFrequency} disabled={disabled} aria-label="Notification frequency">
 <FieldGroup title="Notification frequency">
-  <Field row label="Daily"><RadioGroup.Item value="daily" /></Field>
-  <Field row label="Weekly"><RadioGroup.Item value="weekly" /></Field>
-  <Field row label="Monthly"><RadioGroup.Item value="monthly" /></Field>
-  <Field row label="Never"><RadioGroup.Item value="never" /></Field>
+  <Field row label="Daily" description={description ? "A summary every morning." : undefined}>
+    <RadioGroup.Item value="daily" />
+  </Field>
+  <Field row label="Weekly" description={description ? "A digest every Monday." : undefined}>
+    <RadioGroup.Item value="weekly" />
+  </Field>
+  <Field row label="Monthly" description={description ? "A recap on the first of the month." : undefined}>
+    <RadioGroup.Item value="monthly" disabled={itemDisabled} />
+  </Field>
+  <Field row label="Never" description={description ? "Only security alerts." : undefined}>
+    <RadioGroup.Item value="never" />
+  </Field>
 </FieldGroup>
 </RadioGroup>
 ```
@@ -6443,7 +6401,7 @@ Place RadioGroup alongside Checkbox controls to verify that indicator sizes, lab
 ```
 
 ### Descriptions
-Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as With description and With Field show, so this example is desktop only.
+Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as the Overview and With Field show, so this example is desktop only.
 ```tsx
 <div className="flex flex-col divide-y divide-alpha/15">
 <div className="pb-5">
@@ -6473,96 +6431,6 @@ Combine Field-level label and description with item-level descriptions for optio
   </Field>
 </div>
 </div>
-```
-
-### Direction
-Use direction to control whether the items flow in a column or row. An optimal gap will be dynamically applied based on the orientation. A phone list is always a column of rows, so this example is desktop only.
-```tsx
-<RadioGroup direction="col" defaultValue="light" aria-label="Theme">
-<RadioGroup.Item value="light">Light</RadioGroup.Item>
-<RadioGroup.Item value="dark">Dark</RadioGroup.Item>
-<RadioGroup.Item value="system">System</RadioGroup.Item>
-</RadioGroup>
-```
-
-### Orientation
-Use orientation="right" on RadioGroup.Item to place the radio indicator after the label text. Useful for settings lists and card-style selections where the content should lead. In a phone row the checkmark always ends the row, so this example is desktop only.
-```tsx
-<RadioGroup className="w-[320px]" direction="col" defaultValue="medium" aria-label="Text size">
-<RadioGroup.Item value="small" orientation="right" block>Small</RadioGroup.Item>
-<RadioGroup.Item value="medium" orientation="right" block>Medium</RadioGroup.Item>
-<RadioGroup.Item value="large" orientation="right" block>Large</RadioGroup.Item>
-</RadioGroup>
-```
-
-### Group disabled
-Use disabled on RadioGroup to disable all radio options. In a phone row the label of a disabled option is dimmed with it.
-```tsx
-// Desktop
-<RadioGroup disabled defaultValue="automatic" aria-label="Video quality">
-<RadioGroup.Item value="automatic">Automatic</RadioGroup.Item>
-<RadioGroup.Item value="high">High</RadioGroup.Item>
-<RadioGroup.Item value="data-saver">Data saver</RadioGroup.Item>
-</RadioGroup>
-
-// Phone
-<RadioGroup direction="col" className="w-full" disabled defaultValue="automatic" aria-label="Video quality">
-<FieldGroup title="Video quality">
-  <Field row label="Automatic"><RadioGroup.Item value="automatic" /></Field>
-  <Field row label="High"><RadioGroup.Item value="high" /></Field>
-  <Field row label="Data saver"><RadioGroup.Item value="data-saver" /></Field>
-</FieldGroup>
-</RadioGroup>
-```
-
-### Item disabled
-Use disabled on single RadioGroup.Item to disable only that option. A long label wraps; in a phone row it wraps inside the row.
-```tsx
-// Desktop
-<RadioGroup aria-label="Delivery method" direction="col">
-<RadioGroup.Item value="standard">Standard shipping (3-5 days)</RadioGroup.Item>
-<RadioGroup.Item value="express" disabled>Express shipping (1-2 days)</RadioGroup.Item>
-<RadioGroup.Item value="same-day">
-  Same-day delivery, available in select metro areas with a minimum order of $50
-</RadioGroup.Item>
-</RadioGroup>
-
-// Phone
-<RadioGroup direction="col" className="w-full" aria-label="Delivery method">
-<FieldGroup title="Delivery method">
-  <Field row label="Standard shipping (3-5 days)"><RadioGroup.Item value="standard" /></Field>
-  <Field row label="Express shipping (1-2 days)"><RadioGroup.Item value="express" disabled /></Field>
-  <Field row label="Same-day delivery, available in select metro areas with a minimum order of $50">
-    <RadioGroup.Item value="same-day" />
-  </Field>
-</FieldGroup>
-</RadioGroup>
-```
-
-### With description
-Use description on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through aria-describedby; clicking it does not select the option. In a phone row the row's description takes this place.
-```tsx
-// Desktop
-<RadioGroup direction="col" value={value} onChange={setValue} aria-label="Spacing">
-<RadioGroup.Item value="default" description="Standard spacing for most use cases.">
-  Default
-</RadioGroup.Item>
-<RadioGroup.Item value="comfortable" description="More space between elements.">
-  Comfortable
-</RadioGroup.Item>
-<RadioGroup.Item value="compact" description="Minimal spacing for dense layouts.">
-  Compact
-</RadioGroup.Item>
-</RadioGroup>
-
-// Phone
-<RadioGroup direction="col" className="w-full" value={value} onChange={setValue} aria-label="Spacing">
-<FieldGroup title="Spacing">
-  <Field row label="Default" description="Standard spacing for most use cases."><RadioGroup.Item value="default" /></Field>
-  <Field row label="Comfortable" description="More space between elements."><RadioGroup.Item value="comfortable" /></Field>
-  <Field row label="Compact" description="Minimal spacing for dense layouts."><RadioGroup.Item value="compact" /></Field>
-</FieldGroup>
-</RadioGroup>
 ```
 
 ### With Field
@@ -6632,7 +6500,7 @@ aria-describedby={showError ? errorId : undefined}
 ```
 
 ### Choice card
-Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use orientation="right" to place the indicator after the content. Wrap each RadioGroup.Item in a card container with border and borderRadius on the same element. On a phone a choice with a description is a row, as in With description, so this example is desktop only.
+Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use orientation="right" to place the indicator after the content. Wrap each RadioGroup.Item in a card container with border and borderRadius on the same element. On a phone a choice with a description is a row, as in the Overview, so this example is desktop only.
 ```tsx
 <RadioGroup className="flex-col w-[320px] gap-3" value={value} onChange={setValue} aria-label="Workspace type">
 <div style={{

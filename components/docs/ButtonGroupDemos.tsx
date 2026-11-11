@@ -132,7 +132,7 @@ export function ButtonGroupOverviewDemo() {
   }
   return (
     <>
-      <SizeToggle value={size} onChange={setSize} />
+      <SizeToggle value={size} onChange={setSize} desktopOnly />
       <DemoStage>
       <ButtonGroup>
         <ButtonGroup>
@@ -236,73 +236,6 @@ export function ButtonGroupOrientationDemo() {
       </ButtonGroup>
       </DemoStage>
     </>
-  );
-}
-
-/* ============================================================
-   Size — sm / md / lg side-by-side (intentional showcase, no toggle)
-   ============================================================ */
-
-export function ButtonGroupSizeDemo() {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 24 }}>
-      <ButtonGroup>
-        <Button variant="outline" color="secondary" pill={false} size="sm">
-          Small
-        </Button>
-        <Button variant="outline" color="secondary" pill={false} size="sm">
-          Button
-        </Button>
-        <Button variant="outline" color="secondary" pill={false} size="sm">
-          Group
-        </Button>
-        <Button
-          variant="outline"
-          color="secondary"
-          pill={false}
-          size="sm"
-          uniform
-          aria-label="Add"
-        >
-          <PlusSm />
-        </Button>
-      </ButtonGroup>
-      <ButtonGroup>
-        <Button variant="outline" color="secondary" pill={false}>
-          Default
-        </Button>
-        <Button variant="outline" color="secondary" pill={false}>
-          Button
-        </Button>
-        <Button variant="outline" color="secondary" pill={false}>
-          Group
-        </Button>
-        <Button variant="outline" color="secondary" pill={false} uniform aria-label="Add">
-          <PlusSm />
-        </Button>
-      </ButtonGroup>
-      <ButtonGroup>
-        <Button variant="outline" color="secondary" pill={false} size="lg">
-          Large
-        </Button>
-        <Button variant="outline" color="secondary" pill={false} size="lg">
-          Button
-        </Button>
-        <Button variant="outline" color="secondary" pill={false} size="lg">
-          Group
-        </Button>
-        <Button
-          variant="outline"
-          color="secondary"
-          pill={false}
-          size="lg"
-          uniform
-          aria-label="Add"
-        >
-          <PlusSm />
-        </Button>
-      </ButtonGroup>
-    </div>
   );
 }
 

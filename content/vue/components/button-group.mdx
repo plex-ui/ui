@@ -98,27 +98,6 @@ export const orientation = `<ButtonGroup orientation="vertical" aria-label="Zoom
   </Button>
 </ButtonGroup>`
 
-export const sizes = `<div class="flex flex-col items-start gap-6">
-  <ButtonGroup>
-    <Button variant="outline" color="secondary" size="sm">Small</Button>
-    <Button variant="outline" color="secondary" size="sm">Button</Button>
-    <Button variant="outline" color="secondary" size="sm">Group</Button>
-    <Button variant="outline" color="secondary" size="sm" uniform aria-label="Add"><PlusSm /></Button>
-  </ButtonGroup>
-  <ButtonGroup>
-    <Button variant="outline" color="secondary">Default</Button>
-    <Button variant="outline" color="secondary">Button</Button>
-    <Button variant="outline" color="secondary">Group</Button>
-    <Button variant="outline" color="secondary" uniform aria-label="Add"><PlusSm /></Button>
-  </ButtonGroup>
-  <ButtonGroup>
-    <Button variant="outline" color="secondary" size="lg">Large</Button>
-    <Button variant="outline" color="secondary" size="lg">Button</Button>
-    <Button variant="outline" color="secondary" size="lg">Group</Button>
-    <Button variant="outline" color="secondary" size="lg" uniform aria-label="Add"><PlusSm /></Button>
-  </ButtonGroup>
-</div>`
-
 export const nested = `<ButtonGroup aria-label="Pager">
   <ButtonGroup>
     <Button v-for="page in 5" :key="page" variant="outline" color="secondary" :size="size">{{ page }}</Button>
@@ -251,9 +230,17 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/vue/components/
 
 ## Examples
 
+{/* The Size example is the size setting of the Overview (owner 11.11: the first example shows everything with every
+    setting); its anchor stays */}
+<span id="size" />
+
 ### Overview
 
-<ComponentPreview language="vue" phonePresentation="screen" details={<>On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A <code>ButtonGroup</code> in a <code>Toolbar</code> is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 8px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do.</>} code={withPhone(overview, overviewPhone.replace(`<p v-for="line in note" :key="line">{{ line }}</p>`, "…"), "the bars of a note")}>
+<ComponentPreview language="vue" phonePresentation="screen" details={<>
+  <p>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match; the size setting here sets all of them. Mix icon-only (<code>uniform</code>) with text buttons; each child keeps its own padding.</p>
+  <p>On a phone with <code>touch.css</code> a group in the content keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, <code>sm</code>) and medium (34px, <code>md</code> and <code>lg</code>) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own.</p>
+  <p>On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A <code>ButtonGroup</code> in a <code>Toolbar</code> is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 8px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do. The bar sets its buttons' size, so the phone view leaves out the size control.</p>
+</>} code={withPhone(overview, overviewPhone.replace(`<p v-for="line in note" :key="line">{{ line }}</p>`, "…"), "the bars of a note")}>
   <VuePhoneRowsDemo template={overview} controls={phoneFixedSizeControl} phoneTemplate={frame(overviewPhone)} phoneStageClassName={STAGE} state={{ note }} />
 </ComponentPreview>
 
@@ -264,15 +251,6 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/vue/components/
   <p>On a phone the example is zoom controls floating over a canvas, as map controls do: with <code>mobile-material="glass"</code> the group is the vertical Button Group of the iOS 27 kit, a 48px wide capsule of 48px buttons 6px apart. In the content a group of icon-only buttons keeps their 44px at each size, so the phone view leaves out the size control.</p>
 </>} code={withPhone(orientation, orientationPhone.replace("top-[calc(var(--safe-area-inset-top,0px)+8px)]", "top-2"), "zoom controls over a canvas")}>
   <VuePhoneRowsDemo template={orientation} controls={phoneFixedSizeControl} phoneTemplate={frame(canvas(orientationPhone))} phoneStageClassName={STAGE} />
-</ComponentPreview>
-
-### Size
-
-<ComponentPreview language="vue" phonePresentation="none" details={<>
-  <p>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match. Mix icon-only (<code>uniform</code>) with text buttons; each child keeps its own padding.</p>
-  <p>On a phone with <code>touch.css</code> a group keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, <code>sm</code>) and medium (34px, <code>md</code> and <code>lg</code>) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own.</p>
-</>} code={sizes}>
-  <VueDemo template={sizes} />
 </ComponentPreview>
 
 ### Nested

@@ -4,117 +4,91 @@ description: Text input whose label floats above the value, with error and helpe
 metaDescription: React input with a floating label that animates into the field border on focus, for text inputs, textareas, descriptions, and errors.
 ---
 
-import { FloatingLabelInput } from "@plexui/ui/components/FloatingLabelInput"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import {
   FloatingLabelInputOverviewDemo,
   FloatingLabelInputTextareaDemo,
   FloatingLabelInputPasswordDemo,
   FloatingLabelInsideDemo,
-  FloatingLabelInputStatesDemo,
   FloatingLabelInputPhoneDemo,
   FloatingLabelSelectPlainDemo,
   FloatingLabelSelectMultiDemo,
   FloatingLabelSelectCountryDemo,
 } from "@/components/docs/FloatingLabelInputDemos"
 
-export const statesCode = `const [value, setValue] = useState("")
+export const overviewCode = `const [value, setValue] = useState("")
+const [labelPlacement, setLabelPlacement] = useState("border")
+const [pill, setPill] = useState(true) // with the label on the border; inside always takes the rounded box
+const [invalid, setInvalid] = useState(false)
+const [errorMessage, setErrorMessage] = useState(false)
+const [description, setDescription] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [readOnly, setReadOnly] = useState(false)
+const [clearable, setClearable] = useState(false)
 
 // Desktop
 <FloatingLabelInput
   label="Email address"
+  labelPlacement={labelPlacement}
+  pill={pill}
   value={value}
   onChange={(evt) => setValue(evt.target.value)}
-  errorMessage="Email is not valid."
-  description="We'll never share your email with anyone else."
-  onClear={() => setValue("")}
+  invalid={invalid || errorMessage}
+  errorMessage={errorMessage ? "Email is not valid." : undefined}
+  description={description ? "We'll never share your email with anyone else." : undefined}
+  disabled={disabled}
+  readOnly={readOnly}
+  onClear={clearable ? () => setValue("") : undefined}
 />
 
 // Phone: a cell of a FieldGroup, named by its placeholder. The description goes in the
 // group's footer, the error stands inside the cell.
-<FieldGroup footer="We'll never share your email with anyone else.">
-  <Field row hideLabel label="Email address" errorMessage="Email is not valid.">
+<FieldGroup footer={description ? <p>We'll never share your email with anyone else.</p> : undefined}>
+  <Field row hideLabel label="Email address" errorMessage={errorMessage ? "Email is not valid." : undefined}>
     <Input
       type="email"
       placeholder="Email address"
       value={value}
       onChange={(evt) => setValue(evt.target.value)}
-      onClear={() => setValue("")}
+      invalid={errorMessage}
+      disabled={disabled}
+      readOnly={readOnly}
+      onClear={clearable ? () => setValue("") : undefined}
     />
   </Field>
 </FieldGroup>`
 
 <UsageBlock>{`import { FloatingLabelInput } from "@plexui/ui/components/FloatingLabelInput";`}</UsageBlock>
 
-On Phone a label does not float: iOS has no floating label. Each field is a cell of a `FieldGroup` on the grouped background, and its placeholder names it: an [Input](/components/input), a [Textarea](/components/textarea) or a [Select](/components/select) in a `Field row hideLabel`, as the [Settings Forms](/components/settings-forms) do. The label stays for screen readers, a description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; the examples about the floating label itself (where it rests, the shape of the field) have no Phone view.
+On Phone a label does not float: iOS has no floating label. Each field is a cell of a `FieldGroup` on the grouped background, and its placeholder names it: an [Input](/components/input), a [Textarea](/components/textarea) or a [Select](/components/select) in a `Field row hideLabel`, as the [Settings Forms](/components/settings-forms) do. The label stays for screen readers, a description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; where the label rests and the shape of the field are desktop settings, and the Label inside example has no Phone view.
 
 ## Examples
 
+{/* Types, Rounded box and States are settings of the Overview (owner 11.11: the first example shows everything with
+    every setting); their anchors stay */}
+<span id="types" />
+<span id="rounded-box" />
+<span id="states" />
+<span id="filled-state" />
+<span id="with-error-message" />
+<span id="with-description" />
+<span id="with-description-and-error" />
+<span id="disabled" />
+<span id="read-only" />
+<span id="all-states" />
+<span id="clear-button" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={`// Desktop
-<FloatingLabelInput label="Email address" />
-
-// Phone: a cell of a FieldGroup, named by its placeholder.
-<FieldGroup>
-  <Field row hideLabel label="Email address">
-    <Input type="email" placeholder="Email address" />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>Two things set the type: where the label rests (<code>labelPlacement</code>: on the border, or <code>inside</code> the box with the value under it), and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. <code>pill={'{false}'}</code> takes the rounded box of <code>Input</code> and <code>Select</code> with the label on the border; <code>inside</code> always takes the rounded box, so <code>pill</code> is offered only with the label on the border. Text fields, textareas and selects take both settings the same way. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place.</p>
+  <p>Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid, so <code>invalid</code> is offered only without one; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied. <code>onClear</code> shows a built-in clear button: it appears when the field has a value and is not disabled or read-only, and focus returns to the field.</p>
+  <p>On Phone the field is a cell named by its placeholder: the label does not float and the cell is the frame, so <code>labelPlacement</code> and <code>pill</code> are desktop settings. The description goes in the group's footer and the error stands inside the cell. A cell has no frame to color, so <code>invalid</code> alone is desktop only.</p>
+</>} code={overviewCode} previewMinHeight={168}>
   <FloatingLabelInputOverviewDemo />
 </ComponentPreview>
 
-### Types
-
-<ComponentPreview phonePresentation="none" details={<>Two things set the type: where the label rests, and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. Text fields, textareas and selects work the same in each. On Phone the label does not float, so this example has no Phone view.</>} code={`<div className="grid w-[44rem] max-w-[calc(100vw-5rem)] grid-cols-1 items-center gap-x-4 gap-y-6 py-8 sm:grid-cols-[10rem_1fr_1fr]">
-  <div className="max-sm:hidden" />
-  <div className="text-sm text-secondary max-sm:hidden">Empty</div>
-  <div className="text-sm text-secondary max-sm:hidden">Filled</div>
-  <div className="text-sm">
-    <div>Label on the border</div>
-    <div className="text-secondary">Pill</div>
-  </div>
-  <FloatingLabelInput label="Email address" />
-  <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />
-  <div className="text-sm">
-    <div>Label on the border</div>
-    <div className="text-secondary">Rounded box</div>
-  </div>
-  <FloatingLabelInput label="Email address" pill={false} />
-  <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" pill={false} />
-  <div className="text-sm">
-    <div>Label inside</div>
-    <div className="text-secondary">Rounded box</div>
-  </div>
-  <FloatingLabelInput label="Email address" labelPlacement="inside" />
-  <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" labelPlacement="inside" />
-</div>`} previewMinHeight={320}>
-  <div className="grid w-[44rem] max-w-[calc(100vw-5rem)] grid-cols-1 items-center gap-x-4 gap-y-6 py-8 sm:grid-cols-[10rem_1fr_1fr]">
-    <div className="max-sm:hidden" />
-    <div className="text-sm text-secondary max-sm:hidden">Empty</div>
-    <div className="text-sm text-secondary max-sm:hidden">Filled</div>
-    <div className="text-sm">
-      <div>Label on the border</div>
-      <div className="text-secondary">Pill</div>
-    </div>
-    <FloatingLabelInput label="Email address" />
-    <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />
-    <div className="text-sm">
-      <div>Label on the border</div>
-      <div className="text-secondary">Rounded box</div>
-    </div>
-    <FloatingLabelInput label="Email address" pill={false} />
-    <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" pill={false} />
-    <div className="text-sm">
-      <div>Label inside</div>
-      <div className="text-secondary">Rounded box</div>
-    </div>
-    <FloatingLabelInput label="Email address" labelPlacement="inside" />
-    <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" labelPlacement="inside" />
-  </div>
-</ComponentPreview>
-
-#### Label inside
+### Label inside
 
 <ComponentPreview phonePresentation="none" details={<>Use <code>labelPlacement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box. On Phone a cell names its field with the placeholder, so this example has no Phone view.</>} code={`const [country, setCountry] = useState("es")
 const label = countries.find((option) => option.value === country)?.label
@@ -141,14 +115,6 @@ const trigger = useCallback(
   <FloatingLabelInput label="Delivery notes" labelPlacement="inside" multiline />
 </div>`} previewMinHeight={380}>
   <FloatingLabelInsideDemo />
-</ComponentPreview>
-
-#### Rounded box
-
-<ComponentPreview phonePresentation="none" details={<>Set <code>pill={'{false}'}</code> to take the rounded box of <code>Input</code> and <code>Select</code>, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place. On Phone the cell is the frame, so this example has no Phone view.</>} code={`<FloatingLabelInput label="Email address" pill={false} />`} previewMinHeight={168}>
-  <div className="w-[360px]">
-    <FloatingLabelInput label="Email address" pill={false} />
-  </div>
 </ComponentPreview>
 
 ### Text fields
@@ -360,26 +326,6 @@ const trigger = useCallback(
   />
 </div>`} previewMinHeight={168}>
   <FloatingLabelSelectCountryDemo />
-</ComponentPreview>
-
-<span id="filled-state" />
-<span id="with-error-message" />
-<span id="with-description" />
-<span id="with-description-and-error" />
-<span id="disabled" />
-<span id="read-only" />
-<span id="all-states" />
-
-<span id="clear-button" />
-
-### States
-
-Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied. `onClear` shows a built-in clear button: it appears when the field has a value and is not disabled or read-only, and focus returns to the field.
-
-On Phone the field is a cell named by its placeholder: the description goes in the group's footer and the error stands inside the cell. A cell has no frame to color, so `invalid` alone is desktop only.
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={statesCode} previewMinHeight={168}>
-  <FloatingLabelInputStatesDemo />
 </ComponentPreview>
 
 ## API

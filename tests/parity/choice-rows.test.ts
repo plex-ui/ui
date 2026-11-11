@@ -21,7 +21,7 @@ const groupTitles = (code: string) => [...code.matchAll(/<FieldGroup\b[^>]*?\bti
 const shape = (code: string) => ({
   titles: groupTitles(code),
   rows: rowLabels(code),
-  disabled: [...code.matchAll(/<Field row label="([^"]*)">\s*<RadioGroup\.?Item [^>]*:?disabled/g)].map((match) => match[1]),
+  disabled: [...code.matchAll(/<Field row label="([^"]*)"[^>]*>\s*<RadioGroup\.?Item [^>]*:?disabled/g)].map((match) => match[1]),
   groupDisabled: /<RadioGroup\s[^>]*\s:?disabled\b/.test(code),
   error: code.match(/<FieldError id=[^>]*>([^<]*)</)?.[1] ?? null,
 })
@@ -56,8 +56,8 @@ describe("a disabled choice or popup row on a phone", () => {
 })
 
 describe.each([
-  ["Radio Group", "radio-group", "RadioGroupDemos", ["With Checkbox", "Descriptions", "Direction", "Orientation", "Choice card", "Card selection"], 6],
-  ["Checkbox", "checkbox", "CheckboxDemos", ["With Radio Group", "Descriptions", "Pill", "Ghost"], 2],
+  ["Radio Group", "radio-group", "RadioGroupDemos", ["With Checkbox", "Descriptions", "Choice card", "Card selection"], 3],
+  ["Checkbox", "checkbox", "CheckboxDemos", ["With Radio Group", "Descriptions"], 2],
 ])("%s on a phone", (_, page, demos, desktop, phoneExamples) => {
   const react = `content/components/${page}.mdx`
   const vue = `content/vue/components/${page}.mdx`

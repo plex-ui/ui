@@ -15,150 +15,66 @@ import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './Button
 const VARIANT_OPTIONS = ['solid', 'ghost'] as const;
 const ORIENTATION_OPTIONS = ['left', 'right'] as const;
 
+/** The three states of the Overview: a checked option, an unchecked one, and a parent whose items are partly on */
+const OVERVIEW_OPTIONS = [
+  { label: 'Share usage data', description: 'Help improve the product with anonymous usage reports.', defaultChecked: true },
+  { label: 'Enable notifications', description: 'You can enable or disable notifications at any time from settings.', defaultChecked: false },
+  { label: 'Sync all folders', description: 'Some of its folders are synced.', defaultChecked: 'indeterminate' as const },
+];
+
+function Segments<T extends string>({ name, options, value, onChange }: { name: string; options: readonly T[]; value: T; onChange: (value: T) => void }) {
+  return (
+    <DemoControlRow name={name}>
+      <SegmentedControl<T> value={value} onChange={onChange} aria-label={name} size="xs">
+        {options.map((option) => (
+          <SegmentedControl.Option key={option} value={option}>
+            {option}
+          </SegmentedControl.Option>
+        ))}
+      </SegmentedControl>
+    </DemoControlRow>
+  );
+}
+
+/** The Overview, with every setting of the checkbox: what the page's examples once showed one by one (Variants, Pill,
+ * Ghost, With description, Indeterminate, Label orientation, Without label) are its settings (owner 11.11: «в первом
+ * примере можно сразу показать все со всеми настройками»). Three options show the three states. `pill` rounds the
+ * box: the solid fill, and on a ghost box its hover tint and focus ring; on a phone every box is the round iOS
+ * selection circle, so it is a desktop setting. `description` and `orientation` act only next to a label,
+ * so they are offered only with one; without a label each box is named by `aria-label`. A setting that is not offered
+ * keeps its choice and shows its default, as in the Vue demo. */
 export function CheckboxOverviewDemo() {
-  const [variant, setVariant] = useState<'solid' | 'ghost'>('solid');
+  const [variant, setVariant] = useState<(typeof VARIANT_OPTIONS)[number]>('solid');
   const [pill, setPill] = useState(false);
+  const [label, setLabel] = useState(true);
+  const [description, setDescription] = useState(false);
+  const [orientation, setOrientation] = useState<(typeof ORIENTATION_OPTIONS)[number]>('left');
   const [disabled, setDisabled] = useState(false);
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="variant">
-          <SegmentedControl<'solid' | 'ghost'>
-            value={variant}
-            onChange={setVariant}
-            aria-label="variant"
-            size="xs"
-          >
-            {VARIANT_OPTIONS.map((v) => (
-              <SegmentedControl.Option key={v} value={v}>
-                {v}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
+        <Segments name="variant" options={VARIANT_OPTIONS} value={variant} onChange={setVariant} />
         <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
+        <DemoControlBoolean name="label" value={label} onChange={setLabel} />
+        {label && <DemoControlBoolean name="description" value={description} onChange={setDescription} />}
+        {label && <Segments name="orientation" options={ORIENTATION_OPTIONS} value={orientation} onChange={setOrientation} />}
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
       <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-        <div className="flex flex-col gap-3">
-          <Checkbox label="Same as billing address" variant={variant} pill={pill} disabled={disabled} />
-          <Checkbox label="Subscribe to newsletter" variant={variant} pill={pill} disabled={disabled} defaultChecked />
+        <div className={label ? (description ? 'flex flex-col gap-4 max-w-sm' : 'flex flex-col gap-3') : 'flex gap-4'}>
+          {OVERVIEW_OPTIONS.map((option) => (
+            <Checkbox
+              key={option.label}
+              variant={variant}
+              pill={pill}
+              disabled={disabled}
+              defaultChecked={option.defaultChecked}
+              {...(label
+                ? { label: option.label, description: description ? option.description : undefined, orientation }
+                : { 'aria-label': option.label })}
+            />
+          ))}
         </div>
-      </div>
-    </>
-  );
-}
-
-export function CheckboxVariantsDemo() {
-  const [disabled, setDisabled] = useState(false);
-  // On a phone every solid indicator is the round iOS selection circle, so solid pill would repeat solid
-  const phone = usePhoneRows();
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
-      </div>
-      <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-        <div className="flex flex-wrap gap-x-12 gap-y-6">
-          <div className="flex flex-col gap-3 items-start">
-            <span className="text-xs text-secondary font-mono mb-1">solid</span>
-            <Checkbox label="Unchecked" disabled={disabled} />
-            <Checkbox label="Checked" defaultChecked disabled={disabled} />
-            <Checkbox label="Indeterminate" checked="indeterminate" disabled={disabled} />
-          </div>
-          {phone ? null : (
-            <div className="flex flex-col gap-3 items-start">
-              <span className="text-xs text-secondary font-mono mb-1">solid pill</span>
-              <Checkbox label="Unchecked" pill disabled={disabled} />
-              <Checkbox label="Checked" pill defaultChecked disabled={disabled} />
-              <Checkbox label="Indeterminate" pill checked="indeterminate" disabled={disabled} />
-            </div>
-          )}
-          <div className="flex flex-col gap-3 items-start">
-            <span className="text-xs text-secondary font-mono mb-1">ghost</span>
-            <Checkbox label="Unchecked" variant="ghost" disabled={disabled} />
-            <Checkbox label="Checked" variant="ghost" defaultChecked disabled={disabled} />
-            <Checkbox label="Indeterminate" variant="ghost" checked="indeterminate" disabled={disabled} />
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function CheckboxPillDemo() {
-  const [pill, setPill] = useState(true);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
-      </div>
-      <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-        <div className="flex flex-col gap-3">
-          <Checkbox label="Unchecked" pill={pill} />
-          <Checkbox label="Checked" pill={pill} defaultChecked />
-          <Checkbox label="Indeterminate" pill={pill} checked="indeterminate" />
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function CheckboxGhostDemo() {
-  const [disabled, setDisabled] = useState(false);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
-      </div>
-      <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-        <div className="flex flex-col gap-3">
-          <Checkbox label="Unchecked" variant="ghost" disabled={disabled} />
-          <Checkbox label="Checked" variant="ghost" disabled={disabled} defaultChecked />
-          <Checkbox label="Indeterminate" variant="ghost" disabled={disabled} checked="indeterminate" />
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function CheckboxIndeterminateDemo() {
-  const [checked, setChecked] = useState<boolean | 'indeterminate'>('indeterminate');
-  return (
-    <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-      <Checkbox
-        checked={checked}
-        onCheckedChange={() =>
-          setChecked((c) => (c === 'indeterminate' ? true : c ? false : 'indeterminate'))
-        }
-        label="Select all"
-      />
-    </div>
-  );
-}
-
-export function CheckboxOrientationDemo() {
-  const [orientation, setOrientation] = useState<'left' | 'right'>('left');
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="orientation">
-          <SegmentedControl<'left' | 'right'>
-            value={orientation}
-            onChange={setOrientation}
-            aria-label="orientation"
-            size="xs"
-          >
-            {ORIENTATION_OPTIONS.map((o) => (
-              <SegmentedControl.Option key={o} value={o}>
-                {o}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
-      <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-        <Checkbox label="Remember this device" orientation={orientation} />
       </div>
     </>
   );
@@ -200,36 +116,6 @@ export function CheckboxGroupDemo() {
             />
           ))}
         </div>
-      </div>
-    </div>
-  );
-}
-
-export function CheckboxWithoutLabelDemo() {
-  return (
-    <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-      <div className="flex gap-4">
-        <Checkbox aria-label="Accept terms" />
-        <Checkbox aria-label="Subscribe" defaultChecked />
-        <Checkbox aria-label="Select all" checked="indeterminate" />
-      </div>
-    </div>
-  );
-}
-
-export function CheckboxWithDescriptionDemo() {
-  return (
-    <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-      <div className="flex flex-col gap-4 max-w-sm">
-        <Checkbox
-          label="Share usage data"
-          description="Help improve the product with anonymous usage reports."
-          defaultChecked
-        />
-        <Checkbox
-          label="Enable notifications"
-          description="You can enable or disable notifications at any time from settings."
-        />
       </div>
     </div>
   );

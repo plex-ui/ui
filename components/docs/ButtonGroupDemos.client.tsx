@@ -9,7 +9,6 @@
 export {
   ButtonGroupOverviewDemo,
   ButtonGroupOrientationDemo,
-  ButtonGroupSizeDemo,
   ButtonGroupNestedDemo,
   ButtonGroupSeparatorDemo,
   ButtonGroupSplitDemo,

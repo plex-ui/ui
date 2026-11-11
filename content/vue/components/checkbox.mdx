@@ -11,11 +11,35 @@ import { phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const stage = "flex-1 flex items-center justify-center py-12 w-full"
 
-export const overview = `<div class="flex flex-col gap-3">
-  <Checkbox label="Same as billing address" :variant="variant" :pill="pill" :disabled="disabled" />
-  <Checkbox label="Subscribe to newsletter" :variant="variant" :pill="pill" :disabled="disabled" default-checked />
+export const overview = `<div :class="label ? (description ? 'flex flex-col gap-4 max-w-sm' : 'flex flex-col gap-3') : 'flex gap-4'">
+  <Checkbox
+    v-for="option in [
+      { label: 'Share usage data', description: 'Help improve the product with anonymous usage reports.', defaultChecked: true },
+      { label: 'Enable notifications', description: 'You can enable or disable notifications at any time from settings.', defaultChecked: false },
+      { label: 'Sync all folders', description: 'Some of its folders are synced.', defaultChecked: 'indeterminate' },
+    ]"
+    :key="option.label"
+    :variant="variant"
+    :pill="pill"
+    :disabled="disabled"
+    :default-checked="option.defaultChecked"
+    :label="label ? option.label : undefined"
+    :description="label && description ? option.description : undefined"
+    :orientation="orientation"
+    :aria-label="label ? undefined : option.label"
+  />
 </div>`
 
+{/* description and orientation act only next to a label. A hidden control gives the
+    template its default and keeps its choice. On a phone every solid box is the round iOS selection circle. */}
+export const overviewControls = [
+  { name: "variant", type: "select", options: ["solid", "ghost"], default: "solid" },
+  { name: "pill", desktopOnly: true, type: "boolean", default: false },
+  { name: "label", type: "boolean", default: true },
+  { name: "description", type: "boolean", default: false, when: { label: true } },
+  { name: "orientation", type: "select", options: ["left", "right"], default: "left", when: { label: true } },
+  { name: "disabled", type: "boolean", default: false },
+]
 export const withRadioGroup = `<div class="flex flex-col gap-6 w-full max-w-md">
   <Field label="Notification channel" description="Choose how you'd like to be notified." v-slot="{ id }">
     <RadioGroup :direction="direction" default-value="email" aria-label="Notification channel">
@@ -96,69 +120,6 @@ export const descriptions = `<div class="flex flex-col max-w-sm w-full divide-y 
       </div>
     </Field>
   </div>
-</div>`
-
-export const variantsControls = [
-  { name: "disabled", type: "boolean", default: false },
-  { name: "pillGroup", desktopOnly: true, type: "boolean", default: true, phoneDefault: false },
-]
-
-export const variants = `<div class="flex flex-wrap gap-x-12 gap-y-6">
-  <div
-    v-for="group in [
-      { name: 'solid' },
-      { name: 'solid pill', pill: true },
-      { name: 'ghost', variant: 'ghost' },
-    ]"
-    :key="group.name"
-    class="flex flex-col gap-3 items-start"
-  >
-    <span class="text-xs text-secondary font-mono mb-1">{{ group.name }}</span>
-    <Checkbox label="Unchecked" :pill="group.pill" :variant="group.variant" :disabled="disabled" />
-    <Checkbox label="Checked" :pill="group.pill" :variant="group.variant" :disabled="disabled" default-checked />
-    <Checkbox label="Indeterminate" :pill="group.pill" :variant="group.variant" :disabled="disabled" checked="indeterminate" />
-  </div>
-</div>`
-
-{/* On a phone every solid indicator is the round iOS selection circle, so the preview leaves out solid pill; the code shows the template above, and the search string must match it. */}
-export const variantsDemo = variants.replace("{ name: 'solid pill', pill: true },", "...(pillGroup ? [{ name: 'solid pill', pill: true }] : []),")
-
-export const pill = `<div class="flex flex-col gap-3">
-  <Checkbox label="Unchecked" :pill="pill" />
-  <Checkbox label="Checked" :pill="pill" default-checked />
-  <Checkbox label="Indeterminate" :pill="pill" checked="indeterminate" />
-</div>`
-
-export const ghost = `<div class="flex flex-col gap-3">
-  <Checkbox label="Unchecked" variant="ghost" :disabled="disabled" />
-  <Checkbox label="Checked" variant="ghost" :disabled="disabled" default-checked />
-  <Checkbox label="Indeterminate" variant="ghost" :disabled="disabled" checked="indeterminate" />
-</div>`
-
-export const withDescription = `<div class="flex flex-col gap-4 max-w-sm">
-  <Checkbox
-    label="Share usage data"
-    description="Help improve the product with anonymous usage reports."
-    default-checked
-  />
-  <Checkbox
-    label="Enable notifications"
-    description="You can enable or disable notifications at any time from settings."
-  />
-</div>`
-
-export const indeterminate = `<Checkbox
-  :checked="checked"
-  @update:checked="checked = checked === 'indeterminate' ? true : checked ? false : 'indeterminate'"
-  label="Select all"
-/>`
-
-export const orientation = `<Checkbox label="Remember this device" :orientation="orientation" />`
-
-export const withoutLabel = `<div class="flex gap-4">
-  <Checkbox aria-label="Accept terms" />
-  <Checkbox aria-label="Subscribe" default-checked />
-  <Checkbox aria-label="Select all" checked="indeterminate" />
 </div>`
 
 export const group = `<div class="flex flex-col gap-3">
@@ -270,18 +231,27 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
 
 ## Examples
 
+{/* Variants, Pill, Ghost, With description, Indeterminate, Label orientation and Without label are settings of the
+    Overview (owner 11.11: the first example shows everything with every setting); their anchors stay */}
+<span id="variants" />
+<span id="pill" />
+<span id="ghost" />
+<span id="with-description" />
+<span id="indeterminate" />
+<span id="label-orientation" />
+<span id="without-label" />
+<span id="disabled" />
+
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
-  <VueDemo
-    template={overview}
-    stageClassName={stage}
-    controls={[
-      { name: "variant", type: "select", options: ["solid", "ghost"], default: "solid" },
-      { name: "pill", desktopOnly: true, type: "boolean", default: false },
-      { name: "disabled", type: "boolean", default: false },
-    ]}
-  />
+<ComponentPreview language="vue" details={<>
+  <p>A checkbox is checked, unchecked or indeterminate. Pass <code>checked="indeterminate"</code>, or <code>default-checked="indeterminate"</code>, for a partly selected state: a "select all" box whose items are only partly checked, as in <a href="#group-with-select-all">Group with select all</a>.</p>
+  <p><code>solid</code> (default) fills the box; <code>ghost</code> renders only the checkmark, in the text color, without a border or background, for subtle inline selections or task lists. <code>pill</code> rounds the box (<code>border-radius: full</code>): the solid fill, and on a ghost box its hover tint and focus ring.</p>
+  <p>Use <code>description</code> (or the <code>description</code> slot) for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through <code>aria-describedby</code>. By default the box is on the left of its label; <code>orientation="right"</code> places it after the label. Both act only next to a label, so they are offered only with one. Without a <code>label</code> the checkbox is a standalone control: pass <code>aria-label</code> to name it.</p>
+  <p><code>disabled</code> keeps the checked and indeterminate states.</p>
+  <p>On a phone with <code>touch.css</code> a solid checkbox is the 22px selection circle of iOS with or without <code>pill</code>, so the phone view has no <code>pill</code> setting. A ghost checkbox is the checkmark of an iOS list row.</p>
+</>} code={overview} previewMinHeight={200}>
+  <VueDemo template={overview} stageClassName={stage} controls={overviewControls} />
 </ComponentPreview>
 
 ### With Radio Group
@@ -298,56 +268,6 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
     stageClassName={stage}
     state={{ settings: { projects: true, members: true, csv: true, json: false, pdf: false } }}
   />
-</ComponentPreview>
-
-<span id="disabled" />
-
-### Variants
-
-<ComponentPreview language="vue" details={<>
-  <p>The checkbox supports three visual styles: <code>solid</code> (default) with a filled background and standard radius, <code>solid pill</code> with fully rounded corners, and <code>ghost</code>, which renders only the checkmark without a border or background fill. Toggle <code>disabled</code> without resetting checked or indeterminate states.</p>
-  <p>On a phone with <code>touch.css</code> a solid checkbox is the 22px selection circle of iOS with or without <code>pill</code>, so the phone view leaves out the <code>solid pill</code> group. A ghost checkbox is the checkmark of an iOS list row.</p>
-</>} code={variants} previewMinHeight={240}>
-  <VueDemo template={variantsDemo} stageClassName={stage} controls={variantsControls} hiddenControls={["pillGroup"]} />
-</ComponentPreview>
-
-### Pill
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>
-  <p>Set <code>pill</code> to render the checkbox indicator with fully rounded corners (<code>border-radius: full</code>) instead of the default square radius.</p>
-  <p>On a phone with <code>touch.css</code> every checkbox indicator is round, the 22px selection circle of iOS, so <code>pill</code> makes no difference there: the phone view leaves out the <code>pill</code> control in the overview, and this example, which would repeat the solid group of Variants, is desktop only.</p>
-</>} code={pill} previewMinHeight={168}>
-  <VueDemo template={pill} stageClassName={stage} controls={[{ name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
-</ComponentPreview>
-
-### Ghost
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>variant="ghost"</code> to render the checkbox without a border or background. The checkmark uses the text color instead of white, making it suitable for subtle inline selections or task lists. On a phone this would repeat the ghost group of Variants, so this example is desktop only.</>} code={ghost} previewMinHeight={168}>
-  <VueDemo template={ghost} stageClassName={stage} controls={[{ name: "disabled", type: "boolean", default: false }]} />
-</ComponentPreview>
-
-### With description
-
-<ComponentPreview language="vue" details={<>Use <code>description</code> (or the <code>description</code> slot) for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through <code>aria-describedby</code>. The description renders only next to a label.</>} code={withDescription} previewMinHeight={200}>
-  <VueDemo template={withDescription} />
-</ComponentPreview>
-
-### Indeterminate
-
-<ComponentPreview language="vue" details={<>Use <code>checked="indeterminate"</code> to indicate a partially selected state. This is typically used for "select all" controls where only some child items are checked. Here <code>checked</code> starts as <code>"indeterminate"</code> and each click moves it to the next state.</>} code={indeterminate} previewMinHeight={168}>
-  <VueDemo template={indeterminate} state={{ checked: "indeterminate" }} />
-</ComponentPreview>
-
-### Label orientation
-
-<ComponentPreview language="vue" details={<>By default the checkbox renders to the left of the label. Set <code>orientation="right"</code> to place the checkbox after the label.</>} code={orientation} previewMinHeight={168}>
-  <VueDemo template={orientation} stageClassName={stage} controls={[{ name: "orientation", type: "select", options: ["left", "right"], default: "left" }]} />
-</ComponentPreview>
-
-### Without label
-
-<ComponentPreview language="vue" details={<>When no <code>label</code> is provided, the checkbox renders as a standalone control, so pass <code>aria-label</code> to give it an accessible name. All three visual states are shown: unchecked, checked, and indeterminate.</>} code={withoutLabel} previewMinHeight={168}>
-  <VueDemo template={withoutLabel} />
 </ComponentPreview>
 
 ### Group with select all

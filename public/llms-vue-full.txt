@@ -875,7 +875,7 @@ Props:
     - class (string) — Applied to the wrapper
 
 ### Overview
-On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 8px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do.
+Set size on every Button inside the group so corner radii match; the size setting here sets all of them. Mix icon-only (uniform) with text buttons; each child keeps its own padding. On a phone with touch.css a group in the content keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, sm) and medium (34px, md and lg) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own. On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 8px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do. The bar sets its buttons' size, so the phone view leaves out the size control.
 ```vue
 <!-- Desktop -->
 <ButtonGroup>
@@ -949,31 +949,6 @@ Pass orientation="vertical" to stack the buttons, useful for + / − steppers, z
   <Button color="secondary" variant="soft" uniform pill aria-label="Zoom in"><Plus /></Button>
   <Button color="secondary" variant="soft" uniform pill aria-label="Zoom out"><Minus /></Button>
 </ButtonGroup>
-```
-
-### Size
-Set size on every Button inside the group so corner radii match. Mix icon-only (uniform) with text buttons; each child keeps its own padding. On a phone with touch.css a group keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, sm) and medium (34px, md and lg) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own.
-```vue
-<div class="flex flex-col items-start gap-6">
-  <ButtonGroup>
-    <Button variant="outline" color="secondary" size="sm">Small</Button>
-    <Button variant="outline" color="secondary" size="sm">Button</Button>
-    <Button variant="outline" color="secondary" size="sm">Group</Button>
-    <Button variant="outline" color="secondary" size="sm" uniform aria-label="Add"><PlusSm /></Button>
-  </ButtonGroup>
-  <ButtonGroup>
-    <Button variant="outline" color="secondary">Default</Button>
-    <Button variant="outline" color="secondary">Button</Button>
-    <Button variant="outline" color="secondary">Group</Button>
-    <Button variant="outline" color="secondary" uniform aria-label="Add"><PlusSm /></Button>
-  </ButtonGroup>
-  <ButtonGroup>
-    <Button variant="outline" color="secondary" size="lg">Large</Button>
-    <Button variant="outline" color="secondary" size="lg">Button</Button>
-    <Button variant="outline" color="secondary" size="lg">Group</Button>
-    <Button variant="outline" color="secondary" size="lg" uniform aria-label="Add"><PlusSm /></Button>
-  </ButtonGroup>
-</div>
 ```
 
 ### Nested
@@ -1539,10 +1514,25 @@ Props:
   - @blur ((event: FocusEvent) => void) — Emitted when the checkbox loses focus
 
 ### Overview
+A checkbox is checked, unchecked or indeterminate. Pass checked="indeterminate", or default-checked="indeterminate", for a partly selected state: a "select all" box whose items are only partly checked, as in Group with select all. solid (default) fills the box; ghost renders only the checkmark, in the text color, without a border or background, for subtle inline selections or task lists. pill rounds the box (border-radius: full): the solid fill, and on a ghost box its hover tint and focus ring. Use description (or the description slot) for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through aria-describedby. By default the box is on the left of its label; orientation="right" places it after the label. Both act only next to a label, so they are offered only with one. Without a label the checkbox is a standalone control: pass aria-label to name it. disabled keeps the checked and indeterminate states. On a phone with touch.css a solid checkbox is the 22px selection circle of iOS with or without pill, so the phone view has no pill setting. A ghost checkbox is the checkmark of an iOS list row.
 ```vue
-<div class="flex flex-col gap-3">
-  <Checkbox label="Same as billing address" :variant="variant" :pill="pill" :disabled="disabled" />
-  <Checkbox label="Subscribe to newsletter" :variant="variant" :pill="pill" :disabled="disabled" default-checked />
+<div :class="label ? (description ? 'flex flex-col gap-4 max-w-sm' : 'flex flex-col gap-3') : 'flex gap-4'">
+  <Checkbox
+    v-for="option in [
+      { label: 'Share usage data', description: 'Help improve the product with anonymous usage reports.', defaultChecked: true },
+      { label: 'Enable notifications', description: 'You can enable or disable notifications at any time from settings.', defaultChecked: false },
+      { label: 'Sync all folders', description: 'Some of its folders are synced.', defaultChecked: 'indeterminate' },
+    ]"
+    :key="option.label"
+    :variant="variant"
+    :pill="pill"
+    :disabled="disabled"
+    :default-checked="option.defaultChecked"
+    :label="label ? option.label : undefined"
+    :description="label && description ? option.description : undefined"
+    :orientation="orientation"
+    :aria-label="label ? undefined : option.label"
+  />
 </div>
 ```
 
@@ -1628,89 +1618,6 @@ Combine Field-level label and description with item-level descriptions for optio
       </div>
     </Field>
   </div>
-</div>
-```
-
-### Variants
-The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill. Toggle disabled without resetting checked or indeterminate states. On a phone with touch.css a solid checkbox is the 22px selection circle of iOS with or without pill, so the phone view leaves out the solid pill group. A ghost checkbox is the checkmark of an iOS list row.
-```vue
-<div class="flex flex-wrap gap-x-12 gap-y-6">
-  <div
-    v-for="group in [
-      { name: 'solid' },
-      { name: 'solid pill', pill: true },
-      { name: 'ghost', variant: 'ghost' },
-    ]"
-    :key="group.name"
-    class="flex flex-col gap-3 items-start"
-  >
-    <span class="text-xs text-secondary font-mono mb-1">{{ group.name }}</span>
-    <Checkbox label="Unchecked" :pill="group.pill" :variant="group.variant" :disabled="disabled" />
-    <Checkbox label="Checked" :pill="group.pill" :variant="group.variant" :disabled="disabled" default-checked />
-    <Checkbox label="Indeterminate" :pill="group.pill" :variant="group.variant" :disabled="disabled" checked="indeterminate" />
-  </div>
-</div>
-```
-
-### Pill
-Set pill to render the checkbox indicator with fully rounded corners (border-radius: full) instead of the default square radius. On a phone with touch.css every checkbox indicator is round, the 22px selection circle of iOS, so pill makes no difference there: the phone view leaves out the pill control in the overview, and this example, which would repeat the solid group of Variants, is desktop only.
-```vue
-<div class="flex flex-col gap-3">
-  <Checkbox label="Unchecked" :pill="pill" />
-  <Checkbox label="Checked" :pill="pill" default-checked />
-  <Checkbox label="Indeterminate" :pill="pill" checked="indeterminate" />
-</div>
-```
-
-### Ghost
-Use variant="ghost" to render the checkbox without a border or background. The checkmark uses the text color instead of white, making it suitable for subtle inline selections or task lists. On a phone this would repeat the ghost group of Variants, so this example is desktop only.
-```vue
-<div class="flex flex-col gap-3">
-  <Checkbox label="Unchecked" variant="ghost" :disabled="disabled" />
-  <Checkbox label="Checked" variant="ghost" :disabled="disabled" default-checked />
-  <Checkbox label="Indeterminate" variant="ghost" :disabled="disabled" checked="indeterminate" />
-</div>
-```
-
-### With description
-Use description (or the description slot) for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through aria-describedby. The description renders only next to a label.
-```vue
-<div class="flex flex-col gap-4 max-w-sm">
-  <Checkbox
-    label="Share usage data"
-    description="Help improve the product with anonymous usage reports."
-    default-checked
-  />
-  <Checkbox
-    label="Enable notifications"
-    description="You can enable or disable notifications at any time from settings."
-  />
-</div>
-```
-
-### Indeterminate
-Use checked="indeterminate" to indicate a partially selected state. This is typically used for "select all" controls where only some child items are checked. Here checked starts as "indeterminate" and each click moves it to the next state.
-```vue
-<Checkbox
-  :checked="checked"
-  @update:checked="checked = checked === 'indeterminate' ? true : checked ? false : 'indeterminate'"
-  label="Select all"
-/>
-```
-
-### Label orientation
-By default the checkbox renders to the left of the label. Set orientation="right" to place the checkbox after the label.
-```vue
-<Checkbox label="Remember this device" :orientation="orientation" />
-```
-
-### Without label
-When no label is provided, the checkbox renders as a standalone control, so pass aria-label to give it an accessible name. All three visual states are shown: unchecked, checked, and indeterminate.
-```vue
-<div class="flex gap-4">
-  <Checkbox aria-label="Accept terms" />
-  <Checkbox aria-label="Subscribe" default-checked />
-  <Checkbox aria-label="Select all" checked="indeterminate" />
 </div>
 ```
 
@@ -3540,46 +3447,41 @@ Docs: https://plexui.com/vue/components/floating-label-input
     - @interact (() => void) — Fires on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
 
 ### Overview
+Two things set the type: where the label rests (label-placement: on the border, or inside the box with the value under it), and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. :pill="false" takes the rounded box of Input and Select with the label on the border; inside always takes the rounded box, so pill is offered only with the label on the border. Text fields, textareas and selects take both settings the same way. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place. Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid, so invalid is offered only without one; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied. onClear shows a built-in clear button: it appears when the field has a value and is not disabled or read-only, and focus returns to the field. Listen to @clear, or bind :on-clear as here to switch it on and off. On Phone the field is a cell named by its placeholder: the label does not float and the cell is the frame, so label-placement and pill are desktop settings. The description goes in the group's footer and the error stands inside the cell. A cell has no frame to color, so invalid alone is desktop only.
 ```vue
 <!-- Desktop -->
-<div class="w-[360px]">
-  <FloatingLabelInput label="Email address" />
+<div class="w-full min-w-0 max-w-[360px]">
+  <FloatingLabelInput
+    v-model:value="value"
+    label="Email address"
+    :label-placement="labelPlacement"
+    :pill="pill"
+    :invalid="invalid || errorMessage"
+    :error-message="errorMessage ? 'Email is not valid.' : undefined"
+    :description="description ? `We'll never share your email with anyone else.` : undefined"
+    :disabled="disabled"
+    :read-only="readOnly"
+    :on-clear="clearable ? () => (value = '') : undefined"
+  />
 </div>
 
-<!-- Phone: a cell of a FieldGroup, named by its placeholder -->
+<!-- Phone: a cell of a FieldGroup; the description goes in the footer, the error stands inside the cell -->
 <FieldGroup>
-  <Field row hide-label label="Email address">
-    <Input type="email" placeholder="Email address" />
+  <Field row hide-label label="Email address" :error-message="errorMessage ? 'Email is not valid.' : undefined">
+    <Input
+      v-model:value="value"
+      type="email"
+      placeholder="Email address"
+      :invalid="errorMessage"
+      :disabled="disabled"
+      :read-only="readOnly"
+      :on-clear="clearable ? () => (value = '') : undefined"
+    />
   </Field>
+  <template v-if="description" #footer>
+    <p>We'll never share your email with anyone else.</p>
+  </template>
 </FieldGroup>
-```
-
-### Types
-Two things set the type: where the label rests, and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. Text fields, textareas and selects work the same in each. On Phone the label does not float, so this example has no Phone view.
-```vue
-<div class="grid w-[44rem] max-w-[calc(100vw-5rem)] grid-cols-1 items-center gap-x-4 gap-y-6 py-8 sm:grid-cols-[10rem_1fr_1fr]">
-  <div class="max-sm:hidden"></div>
-  <div class="text-sm text-secondary max-sm:hidden">Empty</div>
-  <div class="text-sm text-secondary max-sm:hidden">Filled</div>
-  <div class="text-sm">
-    Label on the border
-    <div class="text-secondary">Pill</div>
-  </div>
-  <FloatingLabelInput label="Email address" />
-  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" />
-  <div class="text-sm">
-    Label on the border
-    <div class="text-secondary">Rounded box</div>
-  </div>
-  <FloatingLabelInput label="Email address" :pill="false" />
-  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" :pill="false" />
-  <div class="text-sm">
-    Label inside
-    <div class="text-secondary">Rounded box</div>
-  </div>
-  <FloatingLabelInput label="Email address" label-placement="inside" />
-  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" label-placement="inside" />
-</div>
 ```
 
 ### Label inside
@@ -3608,14 +3510,6 @@ Use label-placement="inside" on FloatingLabelInput and FloatingLabelSelect for l
   </Select>
   <FloatingLabelInput label="Address line 1" label-placement="inside" />
   <FloatingLabelInput label="Delivery notes" label-placement="inside" multiline />
-</div>
-```
-
-### Rounded box
-Set :pill="false" to take the rounded box of Input and Select, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place. On Phone the cell is the frame, so this example has no Phone view.
-```vue
-<div class="w-[360px]">
-  <FloatingLabelInput label="Email address" :pill="false" />
 </div>
 ```
 
@@ -3799,41 +3693,6 @@ Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling
     </template>
   </Select>
 </div>
-```
-
-### States
-```vue
-<!-- Desktop -->
-<div class="w-full min-w-0 max-w-[360px]">
-  <FloatingLabelInput
-    v-model:value="value"
-    label="Email address"
-    :invalid="invalid || errorMessage"
-    :error-message="errorMessage ? 'Email is not valid.' : undefined"
-    :description="description ? `We'll never share your email with anyone else.` : undefined"
-    :disabled="disabled"
-    :read-only="readOnly"
-    :on-clear="clearable ? () => (value = '') : undefined"
-  />
-</div>
-
-<!-- Phone: a cell of a FieldGroup; the description goes in the footer, the error stands inside the cell -->
-<FieldGroup>
-  <Field row hide-label label="Email address" :error-message="errorMessage ? 'Email is not valid.' : undefined">
-    <Input
-      v-model:value="value"
-      type="email"
-      placeholder="Email address"
-      :invalid="errorMessage"
-      :disabled="disabled"
-      :read-only="readOnly"
-      :on-clear="clearable ? () => (value = '') : undefined"
-    />
-  </Field>
-  <template v-if="description" #footer>
-    <p>We'll never share your email with anyone else.</p>
-  </template>
-</FieldGroup>
 ```
 
 ## Index Bar
@@ -6587,25 +6446,69 @@ Props:
     - default slot (VNode[]) — Label content (text or rich content)
 
 ### Overview
+direction sets whether the items flow in a column or a row; the gap follows it. orientation="right" on RadioGroupItem places the indicator after the label, for settings lists and card-style selections where the content should lead; in a column, also set block on the items so they fill the group and the indicators line up. Use description (or the description slot) on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through aria-describedby; clicking it does not select the option. disabled on RadioGroup disables every option; on a single RadioGroupItem it disables only that one, here Monthly, so that setting is offered only while the group is enabled. On a phone each option is a row and the selected row ends with a checkmark. A phone list is always a column and the checkmark always ends the row, so direction and orientation are desktop settings. The row's description takes the item's place, and the label of a disabled option is dimmed with it.
 ```vue
 <!-- Desktop -->
 <div>
   <h3 class="font-semibold text-sm mb-3">Notification frequency</h3>
-  <RadioGroup direction="col" v-model:value="frequency" aria-label="Notification frequency">
-    <RadioGroupItem value="daily">Daily</RadioGroupItem>
-    <RadioGroupItem value="weekly">Weekly</RadioGroupItem>
-    <RadioGroupItem value="monthly">Monthly</RadioGroupItem>
-    <RadioGroupItem value="never">Never</RadioGroupItem>
+  <RadioGroup
+    :direction="direction"
+    :class="direction === 'col' && orientation === 'right' ? 'w-56' : undefined"
+    v-model:value="frequency"
+    :disabled="disabled"
+    aria-label="Notification frequency"
+  >
+    <RadioGroupItem
+      value="daily"
+      :orientation="orientation"
+      :block="direction === 'col' && orientation === 'right'"
+      :description="description ? 'A summary every morning.' : undefined"
+    >
+      Daily
+    </RadioGroupItem>
+    <RadioGroupItem
+      value="weekly"
+      :orientation="orientation"
+      :block="direction === 'col' && orientation === 'right'"
+      :description="description ? 'A digest every Monday.' : undefined"
+    >
+      Weekly
+    </RadioGroupItem>
+    <RadioGroupItem
+      value="monthly"
+      :orientation="orientation"
+      :block="direction === 'col' && orientation === 'right'"
+      :description="description ? 'A recap on the first of the month.' : undefined"
+      :disabled="itemDisabled"
+    >
+      Monthly
+    </RadioGroupItem>
+    <RadioGroupItem
+      value="never"
+      :orientation="orientation"
+      :block="direction === 'col' && orientation === 'right'"
+      :description="description ? 'Only security alerts.' : undefined"
+    >
+      Never
+    </RadioGroupItem>
   </RadioGroup>
 </div>
 
 <!-- Phone: each option is a row; the selected row ends with a checkmark. -->
-<RadioGroup direction="col" class="w-full" v-model:value="frequency" aria-label="Notification frequency">
+<RadioGroup direction="col" class="w-full" v-model:value="frequency" :disabled="disabled" aria-label="Notification frequency">
   <FieldGroup title="Notification frequency">
-    <Field row label="Daily"><RadioGroupItem value="daily" /></Field>
-    <Field row label="Weekly"><RadioGroupItem value="weekly" /></Field>
-    <Field row label="Monthly"><RadioGroupItem value="monthly" /></Field>
-    <Field row label="Never"><RadioGroupItem value="never" /></Field>
+    <Field row label="Daily" :description="description ? 'A summary every morning.' : undefined">
+      <RadioGroupItem value="daily" />
+    </Field>
+    <Field row label="Weekly" :description="description ? 'A digest every Monday.' : undefined">
+      <RadioGroupItem value="weekly" />
+    </Field>
+    <Field row label="Monthly" :description="description ? 'A recap on the first of the month.' : undefined">
+      <RadioGroupItem value="monthly" :disabled="itemDisabled" />
+    </Field>
+    <Field row label="Never" :description="description ? 'Only security alerts.' : undefined">
+      <RadioGroupItem value="never" />
+    </Field>
   </FieldGroup>
 </RadioGroup>
 ```
@@ -6658,7 +6561,7 @@ Place RadioGroup alongside Checkbox controls to verify that indicator sizes, lab
 ```
 
 ### Descriptions
-Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as With description and With Field show, so this example is desktop only.
+Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as the Overview and With Field show, so this example is desktop only.
 ```vue
 <div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
   <div class="pb-5">
@@ -6695,90 +6598,6 @@ Combine Field-level label and description with item-level descriptions for optio
     </Field>
   </div>
 </div>
-```
-
-### Direction
-Use direction to control whether the items flow in a column or row. An optimal gap will be dynamically applied based on the orientation. A phone list is always a column of rows, so this example is desktop only.
-```vue
-<RadioGroup :direction="direction" default-value="light" aria-label="Theme">
-  <RadioGroupItem value="light">Light</RadioGroupItem>
-  <RadioGroupItem value="dark">Dark</RadioGroupItem>
-  <RadioGroupItem value="system">System</RadioGroupItem>
-</RadioGroup>
-```
-
-### Orientation
-Use orientation="right" on RadioGroupItem to place the radio indicator after the label text. Useful for settings lists and card-style selections where the content should lead. In a phone row the checkmark always ends the row, so this example is desktop only.
-```vue
-<RadioGroup class="w-56" direction="col" default-value="medium" aria-label="Text size">
-  <RadioGroupItem value="small" :orientation="orientation" block>Small</RadioGroupItem>
-  <RadioGroupItem value="medium" :orientation="orientation" block>Medium</RadioGroupItem>
-  <RadioGroupItem value="large" :orientation="orientation" block>Large</RadioGroupItem>
-</RadioGroup>
-```
-
-### Group disabled
-Use disabled on RadioGroup to disable all radio options. In a phone row the label of a disabled option is dimmed with it.
-```vue
-<!-- Desktop -->
-<RadioGroup :disabled="disabled" default-value="automatic" aria-label="Video quality">
-  <RadioGroupItem value="automatic">Automatic</RadioGroupItem>
-  <RadioGroupItem value="high">High</RadioGroupItem>
-  <RadioGroupItem value="data-saver">Data saver</RadioGroupItem>
-</RadioGroup>
-
-<!-- Phone -->
-<RadioGroup direction="col" class="w-full" :disabled="disabled" default-value="automatic" aria-label="Video quality">
-  <FieldGroup title="Video quality">
-    <Field row label="Automatic"><RadioGroupItem value="automatic" /></Field>
-    <Field row label="High"><RadioGroupItem value="high" /></Field>
-    <Field row label="Data saver"><RadioGroupItem value="data-saver" /></Field>
-  </FieldGroup>
-</RadioGroup>
-```
-
-### Item disabled
-Use disabled on a single RadioGroupItem to disable only that option. A long label wraps; in a phone row it wraps inside the row.
-```vue
-<!-- Desktop -->
-<RadioGroup aria-label="Delivery method" class="max-w-[320px] m-auto" direction="col">
-  <RadioGroupItem value="standard">Standard shipping (3-5 days)</RadioGroupItem>
-  <RadioGroupItem value="express" :disabled="disabled">Express shipping (1-2 days)</RadioGroupItem>
-  <RadioGroupItem value="same-day">
-    Same-day delivery, available in select metro areas with a minimum order of $50
-  </RadioGroupItem>
-</RadioGroup>
-
-<!-- Phone -->
-<RadioGroup direction="col" class="w-full" aria-label="Delivery method">
-  <FieldGroup title="Delivery method">
-    <Field row label="Standard shipping (3-5 days)"><RadioGroupItem value="standard" /></Field>
-    <Field row label="Express shipping (1-2 days)"><RadioGroupItem value="express" :disabled="disabled" /></Field>
-    <Field row label="Same-day delivery, available in select metro areas with a minimum order of $50">
-      <RadioGroupItem value="same-day" />
-    </Field>
-  </FieldGroup>
-</RadioGroup>
-```
-
-### With description
-Use description (or the description slot) on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through aria-describedby; clicking it does not select the option. In a phone row the row's description takes this place.
-```vue
-<!-- Desktop -->
-<RadioGroup direction="col" v-model:value="value" aria-label="Spacing">
-  <RadioGroupItem value="default" description="Standard spacing for most use cases.">Default</RadioGroupItem>
-  <RadioGroupItem value="comfortable" description="More space between elements.">Comfortable</RadioGroupItem>
-  <RadioGroupItem value="compact" description="Minimal spacing for dense layouts.">Compact</RadioGroupItem>
-</RadioGroup>
-
-<!-- Phone -->
-<RadioGroup direction="col" class="w-full" v-model:value="value" aria-label="Spacing">
-  <FieldGroup title="Spacing">
-    <Field row label="Default" description="Standard spacing for most use cases."><RadioGroupItem value="default" /></Field>
-    <Field row label="Comfortable" description="More space between elements."><RadioGroupItem value="comfortable" /></Field>
-    <Field row label="Compact" description="Minimal spacing for dense layouts."><RadioGroupItem value="compact" /></Field>
-  </FieldGroup>
-</RadioGroup>
 ```
 
 ### With Field
@@ -6845,7 +6664,7 @@ When a Field has an error-message, it sets aria-invalid on the child control for
 ```
 
 ### Choice card
-Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use orientation="right" to place the indicator after the content. Wrap each RadioGroupItem in a card container with border and borderRadius on the same element. On a phone a choice with a description is a row, as in With description, so this example is desktop only.
+Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use orientation="right" to place the indicator after the content. Wrap each RadioGroupItem in a card container with border and borderRadius on the same element. On a phone a choice with a description is a row, as in the Overview, so this example is desktop only.
 ```vue
 <RadioGroup class="flex-col w-[320px] gap-3" v-model:value="value" aria-label="Workspace type">
   <div

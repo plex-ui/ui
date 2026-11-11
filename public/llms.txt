@@ -136,7 +136,7 @@ Props:
   ButtonGroup.Text:
     - asChild (boolean) default: false — Render as the passed child (e.g. a <label> tied to an input)
     - className (string) default: — — Applied to the wrapper
-Examples: Overview, Orientation, Size, Nested, Separator, Split, Input, Input group, Dropdown menu, Select, Popover
+Examples: Overview, Orientation, Nested, Separator, Split, Input, Input group, Dropdown menu, Select, Popover
 
 ## Button Link
 A semantic anchor with full button styling, for internal and external links with icons and block layout.
@@ -222,7 +222,7 @@ Props:
   - id (string) — The id of the checkbox element (generated when omitted)
   - onFocus ((event: FocusEvent) => void) — Called when the checkbox gains focus
   - onBlur ((event: FocusEvent) => void) — Called when the checkbox loses focus
-Examples: Overview, With Radio Group, Descriptions, Variants, Pill, Ghost, With description, Indeterminate, Label orientation, Without label, Group with select all, Group with description, With Field, Grouped sections
+Examples: Overview, With Radio Group, Descriptions, Group with select all, Group with description, With Field, Grouped sections
 
 ## Code Block
 Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
@@ -535,7 +535,7 @@ Docs: https://plexui.com/components/floating-label-input
     - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
     - onClearClick (() => void) — Shows a clear button when a value is selected
     - onInteract (() => void) — Called on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
-Examples: Overview, Types, Label inside, Rounded box, Textarea, Password input, Phone input, Select, Multiple selection, Country select, States
+Examples: Overview, Label inside, Textarea, Password input, Phone input, Select, Multiple selection, Country select
 
 ## Index Bar
 "The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up."
@@ -863,7 +863,7 @@ Props:
     - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
     - description (ReactNode) — Second line below the option's label, linked via aria-describedby
     - className (string) — Extra classes on the label element
-Examples: Overview, With Checkbox, Descriptions, Direction, Orientation, Group disabled, Item disabled, With description, With Field, With Field error, Choice card, Card selection, Grouped sections
+Examples: Overview, With Checkbox, Descriptions, With Field, With Field error, Choice card, Card selection, Grouped sections
 
 ## Segmented Control
 Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.
