@@ -369,9 +369,15 @@
     --card-section-border-color: transparent;
     --card-solid-section-background: var(--color-background-secondary-soft-alpha);
 
-    /* An Accordion item is an iOS disclosure row (kit iOS 27 Lists, _Trailing Type=Disclosure): a 52px row with
-       its title at 17/22 regular and a chevron in the accent color (PlexUI primary) that points to the end and
-       turns down when the item opens (Accordion.module.css); the content reads as a row subtitle, 15/20 secondary. */
+    /* An Accordion item is a DisclosureGroup of an inset grouped List, measured on iOS 27.2 (plan 178 block 20):
+       a 52px row with its title at 17/22 regular and a chevron in the label color that points to the end and
+       turns down when the item opens (Accordion.module.css). The chevron's ink is 12.33 x 7.33 open, which the
+       PlexUI chevron draws at 21px (16px drew 9.33 x 5.33), and it ends 1px past the end of the title's
+       margin. The content is a row under the title, as SwiftUI lays out what a group holds: 17/22 in the label
+       color, 20px in from the title, with a separator above it across the row and the item's own separator
+       below it from the content's start; its first line is 14.33px under that separator and its last 13px
+       over the next. UIKit's outline disclosure (UICollectionView lists) draws its chevron secondary and
+       indents less; PlexUI follows SwiftUI, as it does for its lists. */
     --accordion-chevron-closed-angle: -90deg;
     --accordion-chevron-open-angle: 0deg;
     --accordion-trigger-font-size: 17px;
@@ -380,10 +386,15 @@
     --accordion-trigger-min-height: 52px;
     --accordion-trigger-padding-block: 15px;
     --accordion-icon-color: var(--color-text);
-    --accordion-content-font-size: 15px;
-    --accordion-content-line-height: 20px;
-    --accordion-content-color: var(--color-text-secondary);
-    --accordion-content-padding-bottom: 15px;
+    --accordion-icon-size: 21px;
+    --accordion-icon-margin-inline-end: -5.33px;
+    --accordion-content-font-size: 17px;
+    --accordion-content-line-height: 22px;
+    --accordion-content-color: var(--color-text);
+    --accordion-content-padding-top: 14.33px;
+    --accordion-content-padding-bottom: 13px;
+    --accordion-content-padding-inline-start: 20px;
+    --accordion-content-divider-width: 1px;
 
     --table-cell-font-size: 15px;
     --table-cell-line-height: 20px;

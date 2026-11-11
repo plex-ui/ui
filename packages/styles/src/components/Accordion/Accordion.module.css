@@ -62,6 +62,7 @@
   flex-shrink: 0;
   width: var(--accordion-icon-size);
   height: var(--accordion-icon-size);
+  margin-inline-end: var(--accordion-icon-margin-inline-end, 0px);
   color: var(--accordion-icon-color);
   transition: transform var(--accordion-transition-duration)
     var(--accordion-transition-ease);
@@ -91,7 +92,10 @@
 .ContentInner {
   min-width: 0;
   overflow-wrap: anywhere;
+  padding-top: var(--accordion-content-padding-top, 0px);
   padding-bottom: var(--accordion-content-padding-bottom);
+  padding-inline-start: var(--accordion-content-padding-inline-start, 0px);
+  border-top: var(--accordion-content-divider-width, 0px) solid var(--accordion-item-divider-color);
 }
 
 @keyframes accordion-down {
@@ -114,8 +118,34 @@
 
 /* On a phone, with touch.css, the chevron of a closed item points to the end, as the iOS disclosure chevron
    (chevron.right) does, and turns down when the item opens: --accordion-chevron-closed-angle -90deg (mirrored for
-   right to left) and --accordion-chevron-open-angle 0deg. Without touch.css it keeps the desktop turn. */
+   right to left) and --accordion-chevron-open-angle 0deg. Without touch.css it keeps the desktop turn.
+   Under an open item the separator starts where its content does, as under the last row a DisclosureGroup
+   holds (iOS 27.2): the border turns clear and the item's background draws the line in its place. It holds while
+   the content is shown, through the closing animation too (the content stays until it ends, then hides). */
 @media (max-width: 767px) {
+  .Item:not(:last-child):has(> .Content:not([hidden])) {
+    border-bottom-color: transparent;
+    background: linear-gradient(var(--accordion-item-divider-color) 0 0) border-box no-repeat 100% 100% /
+      calc(100% - var(--accordion-content-padding-inline-start, 0px)) var(--accordion-item-divider-width);
+  }
+
+  .Item:not(:last-child):has(> .Content:not([hidden])):dir(rtl) {
+    background-position: 0 100%;
+  }
+
+  /* The content still clips what is wider than the row, but 2px past its end: a nested item's chevron reaches
+     1px past the end, as the top one does. The text keeps its width. */
+  .Content {
+    margin-inline-end: -2px;
+    padding-inline-end: 2px;
+  }
+
+  /* An Accordion alone in the content is rows, as a DisclosureGroup nested in one: they stand right under the
+     separator and over the next, with no padding of text around them. */
+  .ContentInner:has(> .Root:only-child) {
+    padding-block: 0;
+  }
+
   .Chevron {
     transform: rotate(var(--accordion-chevron-closed-angle, 0deg));
   }

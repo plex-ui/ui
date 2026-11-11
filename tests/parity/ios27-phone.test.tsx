@@ -489,3 +489,62 @@ describe("the compact date of iOS 27.2 in a row and its calendar (plan 178 block
     }
   })
 })
+
+describe("an Accordion on a phone is a DisclosureGroup of an iOS 27.2 inset grouped List (plan 178 block 20)", () => {
+  const css = "packages/styles/src/components/Accordion/Accordion.module.css"
+  const tokens = read("packages/styles/src/styles/variables-components.css")
+
+  test("its chevron draws 12.33 x 7.33 at 21px and ends 1px past the title's margin, in the label color", () => {
+    for (const token of [
+      "--accordion-icon-color: var(--color-text);",
+      "--accordion-icon-size: 21px;",
+      "--accordion-icon-margin-inline-end: -5.33px;",
+      "--accordion-chevron-closed-angle: -90deg;",
+      "--accordion-chevron-open-angle: 0deg;",
+    ]) expect(touch).toContain(token)
+    expect(decls(baseRules(css).get(".Chevron"))["margin-inline-end"]).toBe("var(--accordion-icon-margin-inline-end, 0px)")
+  })
+
+  test("its content is a row: 17/22 in the label color, 20px in, a separator above, 14.33 and 13 from the separators", () => {
+    for (const token of [
+      "--accordion-content-font-size: 17px;",
+      "--accordion-content-line-height: 22px;",
+      "--accordion-content-color: var(--color-text);",
+      "--accordion-content-padding-top: 14.33px;",
+      "--accordion-content-padding-bottom: 13px;",
+      "--accordion-content-padding-inline-start: 20px;",
+      "--accordion-content-divider-width: 1px;",
+    ]) expect(touch).toContain(token)
+    expect(decls(baseRules(css).get(".ContentInner"))).toMatchObject({
+      "padding-top": "var(--accordion-content-padding-top, 0px)",
+      "padding-inline-start": "var(--accordion-content-padding-inline-start, 0px)",
+      "border-top": "var(--accordion-content-divider-width, 0px) solid var(--accordion-item-divider-color)",
+    })
+  })
+
+  test("under an open item the separator starts where the content does, from the end in right to left", () => {
+    const rules = phoneRules(css)
+    expect(decls(rules.get('.Item:not(:last-child):has(> .Content:not([hidden]))'))).toEqual({
+      "border-bottom-color": "transparent",
+      background: "linear-gradient(var(--accordion-item-divider-color) 0 0) border-box no-repeat 100% 100% /\n      calc(100% - var(--accordion-content-padding-inline-start, 0px)) var(--accordion-item-divider-width)",
+    })
+    expect(decls(rules.get('.Item:not(:last-child):has(> .Content:not([hidden])):dir(rtl)'))).toEqual({ "background-position": "0 100%" })
+  })
+
+  test("a nested Accordion's rows stand right under the separator, and its open chevron is not clipped", () => {
+    const rules = phoneRules(css)
+    expect(decls(rules.get(".ContentInner:has(> .Root:only-child)"))).toEqual({ "padding-block": "0" })
+    expect(decls(rules.get(".Content"))).toEqual({ "margin-inline-end": "-2px", "padding-inline-end": "2px" })
+    expect(decls(baseRules(css).get(".Content")).overflow).toBe("hidden")
+  })
+
+  test("a desktop Accordion keeps its chevron and content: the new tokens default to nothing", () => {
+    for (const token of [
+      "--accordion-icon-size: 16px;",
+      "--accordion-icon-margin-inline-end: 0px;",
+      "--accordion-content-padding-top: 0px;",
+      "--accordion-content-padding-inline-start: 0px;",
+      "--accordion-content-divider-width: 0px;",
+    ]) expect(tokens).toContain(token)
+  })
+})

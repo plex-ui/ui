@@ -190,10 +190,14 @@
     --accordion-trigger-focus-radius: var(--radius-sm);
     --accordion-icon-color: var(--color-text-secondary);
     --accordion-icon-size: 16px;
+    --accordion-icon-margin-inline-end: 0px;
     --accordion-content-color: var(--color-text);
     --accordion-content-font-size: var(--font-text-sm-size);
     --accordion-content-line-height: var(--font-text-sm-line-height);
+    --accordion-content-padding-top: 0px;
     --accordion-content-padding-bottom: spacing(2.5);
+    --accordion-content-padding-inline-start: 0px;
+    --accordion-content-divider-width: 0px;
     --accordion-transition-duration: var(--transition-duration-basic);
     --accordion-transition-ease: var(--transition-ease-basic);
 

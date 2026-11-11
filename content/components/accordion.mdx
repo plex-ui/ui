@@ -17,6 +17,8 @@ import { PhoneScreen } from "@/components/docs/PhoneScreen"
 
 Compose with `Accordion.Item`, `Accordion.Trigger`, and `Accordion.Content`. Built on Radix Accordion, so the primitive handles keyboard navigation, focus management, and WAI-ARIA semantics.
 
+On a phone an item reads as an iOS 27.2 DisclosureGroup in an inset grouped list: a 52px row with its title at 17/22 regular and a chevron in the label color that points to the end and turns down when the item opens. The chevron is 21px and ends 1px past the title's margin, where iOS draws it. The content is a row under the title, 17/22 in the label color, 20px in from it, with a separator above it across the row; under an open item the separator starts where the content does, as under the last row a group holds.
+
 ## Examples
 
 <span id="disabled" />
@@ -136,9 +138,12 @@ Colors, spacing, and transitions are controlled by component tokens:
 - `--accordion-trigger-padding-block`: trigger vertical padding
 - `--accordion-trigger-gap`: space between label and chevron
 - `--accordion-trigger-focus-ring-color`: focus ring color
-- `--accordion-icon-color` / `--accordion-icon-size`: chevron color and size
+- `--accordion-icon-color` / `--accordion-icon-size`: chevron color and size (on a phone `--color-text` and `21px`)
+- `--accordion-icon-margin-inline-end`: how far the chevron reaches past the end of the trigger (defaults to `0px`; `-5.33px` on a phone)
 - `--accordion-content-color` / `--accordion-content-font-size` / `--accordion-content-line-height`: content typography
 - `--accordion-content-padding-bottom`: space between content text and the next divider
+- `--accordion-content-padding-top` / `--accordion-content-padding-inline-start`: space above the content and before it (default `0px`; `14.33px` and `20px` on a phone)
+- `--accordion-content-divider-width`: the separator between a trigger and its content (defaults to `0px`; `1px` on a phone)
 - `--accordion-transition-duration` / `--accordion-transition-ease`: open/close animation
 
 Override at any scope to tune the look:
