@@ -6,6 +6,7 @@ import { AccordionOverviewDemo } from '../../components/docs/AccordionDemos';
 import { CheckboxVariantsDemo } from '../../components/docs/CheckboxDemos';
 import { TabsOverviewDemo } from '../../components/docs/TabsDemos';
 import { TableVariantDemo } from '../../components/docs/TableDemos';
+import { TextareaOverviewDemo } from '../../components/docs/TextareaDemos';
 import { VueDemo, type VueDemoControl } from '../../components/docs/vue/VueDemo';
 import { VueDataTableDemo } from '../../components/docs/vue/VueDataTableDemos';
 import { flushVue } from './harness';
@@ -22,6 +23,8 @@ vi.mock('@plexui/ui/components/Tabs', async () => import('../../packages/ui/src/
 vi.mock('@plexui/vue/components/Tabs', async () => import('../../packages/vue/src/components/Tabs'));
 vi.mock('@plexui/ui/components/DataTable', async () => import('../../packages/ui/src/components/DataTable'));
 vi.mock('@plexui/vue/components/DataTable', async () => import('../../packages/vue/src/components/DataTable'));
+vi.mock('@plexui/ui/components/Textarea', async () => import('../../packages/ui/src/components/Textarea'));
+vi.mock('@plexui/vue/components/Textarea', async () => import('../../packages/vue/src/components/Textarea'));
 
 function example(page: string, name: string, references: string[] = []) {
   const mdx = readFileSync(`content/vue/components/${page}.mdx`, 'utf8');
@@ -42,6 +45,9 @@ function example(page: string, name: string, references: string[] = []) {
     if (!control || typeof control !== 'object' || !('name' in control) || typeof control.name !== 'string' || !('type' in control) || !('default' in control)) throw new Error('Invalid control');
     const when = 'when' in control && control.when && typeof control.when === 'object' ? { when: control.when as Record<string, unknown> } : {};
     if (control.type === 'boolean' && typeof control.default === 'boolean') return { name: control.name, type: 'boolean', default: control.default, ...when };
+    if (control.type === 'range' && typeof control.default === 'number' && 'min' in control && typeof control.min === 'number' && 'max' in control && typeof control.max === 'number' && 'step' in control && typeof control.step === 'number') {
+      return { name: control.name, type: 'range', default: control.default, min: control.min, max: control.max, step: control.step, ...when };
+    }
     if (control.type !== 'select' || typeof control.default !== 'string' || !('options' in control) || !Array.isArray(control.options) || !control.options.every((option: unknown) => typeof option === 'string')) throw new Error('Invalid select control');
     return { name: control.name, type: 'select', default: control.default, options: control.options, ...when };
   });
@@ -51,6 +57,7 @@ const checkbox = example('checkbox', 'variants');
 const accordion = example('accordion', 'overview', ['overviewAccordion']);
 const tabs = example('segmented-control', 'overview', ['SIZES', 'VARIANTS', 'ORIENTATIONS']);
 const table = example('table', 'variant');
+const textareaOverview = example('textarea', 'overview');
 const interact = async (action: () => void) => { await act(async () => { action(); await flushVue(); }); };
 
 beforeEach(() => {
@@ -136,6 +143,41 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await interact(() => fireEvent.click(page.getByRole('switch', { name: 'card' })));
     expect(page.getByText('Orders & returns')).toBeTruthy();
     expect(page.getAllByRole('button', { name: /\?$/ })).toHaveLength(3);
+  });
+
+  test('textarea: every setting is a control of the one Overview, rows and maxRows on one 1–10 scale (owner 11.11)', async () => {
+    const note = 'Gate code 4512\nThird floor, door on the left\nCall when you arrive';
+    const view = render(framework === 'React' ? <TextareaOverviewDemo /> : <VueDemo {...textareaOverview} state={{ value: note }} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const area = () => page.getByPlaceholderText<HTMLTextAreaElement>('Add a note');
+    const frame = () => area().closest('[data-variant]');
+    expect(area().value).toBe(note);
+    expect(frame()?.getAttribute('data-variant')).toBe('outline');
+    expect(frame()?.getAttribute('data-size')).toBe('md');
+    await interact(() => fireEvent.click(page.getByRole('radio', { name: 'soft' })));
+    await interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name: 'size' })).getByRole('radio', { name: 'lg' })));
+    expect(frame()?.getAttribute('data-variant')).toBe('soft');
+    expect(frame()?.getAttribute('data-size')).toBe('lg');
+    // rows and maxRows: sliders of one scale, 1 to 10 by one
+    for (const name of ['rows', 'maxRows']) {
+      const slider = page.getByRole('slider', { name });
+      expect([slider.getAttribute('aria-valuemin'), slider.getAttribute('aria-valuemax')]).toEqual(['1', '10']);
+    }
+    expect(area().getAttribute('rows')).toBe('3');
+    const rows = page.getByRole('slider', { name: 'rows' });
+    await interact(() => { fireEvent.keyDown(rows, { key: 'ArrowRight' }); });
+    await interact(() => { fireEvent.keyDown(rows, { key: 'ArrowRight' }); });
+    expect(area().getAttribute('rows')).toBe('5');
+    // The extensions are let in or kept out as the field mounts: the text the user typed stays
+    await interact(() => fireEvent.input(area(), { target: { value: 'Typed' } }));
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'allowAutofillExtensions' })));
+    expect(area().value).toBe('Typed');
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'disabled' })));
+    expect(area().disabled).toBe(true);
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'invalid' })));
+    expect(frame()?.hasAttribute('data-invalid')).toBe(true);
+    for (const name of ['autoResize', 'autoSelect']) expect(page.getByRole('switch', { name })).toBeTruthy();
   });
 
   test('tabs keep selected Month while disabling it, separate group disablement and skip it in both orientations', async () => {

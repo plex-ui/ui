@@ -1291,7 +1291,7 @@ Props:
   - class (string) — Applied to the container <div>
   - @update:value ((value: string) => void) — Emitted on every input
   - @autofill (() => void) — Emitted when the browser autofills the textarea
-Examples: Overview, Variants, Auto resize, Sizing, Disabled, Invalid, Auto select text, Autofill extensions
+Examples: Overview
 
 ## Tip
 A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.

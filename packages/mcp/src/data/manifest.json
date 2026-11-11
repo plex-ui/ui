@@ -7582,42 +7582,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea placeholder=\"Enter text...\" autoResize rows={3} />\n</div>\n\n// Phone: the textarea is the value of a row, under its label.\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Notes\">\n  <Textarea variant=\"ghost\" placeholder=\"Add a note\" autoResize rows={2} />\n</Field>\n</FieldGroup>"
-        },
-        {
-          "name": "Variants",
-          "code": "// Desktop\n<div className=\"flex flex-col gap-6 w-full min-w-0 max-w-[400px]\">\n<Textarea placeholder=\"Enter text...\" variant=\"outline\" rows={3} />\n<Textarea placeholder=\"Enter text...\" variant=\"soft\" rows={3} />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Note for the courier\">\n  <Textarea variant=\"ghost\" placeholder=\"Gate code, floor, a safe place to leave it\" autoResize rows={2} />\n</Field>\n</FieldGroup>",
-          "details": "Use variant to stylize the textarea. ghost has no border and no fill, for a field its container already frames. On Phone the row is the frame, so the textarea is ghost under the row's label."
-        },
-        {
-          "name": "Auto resize",
-          "code": "const [value, setValue] = useState(\"Line 1\\nLine 2\\nLine 3\")\n\n// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder=\"Type to grow...\" autoResize rows={3} maxRows={8} />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Notes\">\n  <Textarea variant=\"ghost\" value={value} onChange={(e) => setValue(e.target.value)} placeholder=\"Type to grow...\" autoResize rows={3} maxRows={8} />\n</Field>\n</FieldGroup>",
-          "details": "Enable autoResize to automatically grow/shrink the textarea as the user types. Control the bounds with rows (initial height) and maxRows. On Phone the row grows with it."
-        },
-        {
-          "name": "Sizing",
-          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea placeholder=\"Write a message...\" size=\"lg\" gutterSize=\"md\" />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Message\">\n  <Textarea variant=\"ghost\" placeholder=\"Write a message...\" rows={4} />\n</Field>\n</FieldGroup>",
-          "details": "Sizing of the textarea is controlled with size and gutterSize props. size sets the textarea to a specific control height for single-line equivalent, and gutterSize sets the horizontal padding.Each size provides default values for gutterSize, as well as font-size and border-radius. Each of these values can be overridden independently.On Phone the row sets the type and insets, so a textarea in a row takes no size or gutterSize; rows sets its height. This example is desktop only, as Input's Sizing is."
-        },
-        {
-          "name": "Disabled",
-          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea disabled defaultValue=\"Jane Doe\" aria-label=\"Name\" />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Notes\">\n  <Textarea variant=\"ghost\" disabled defaultValue=\"Leave it at the front desk.\" autoResize rows={2} />\n</Field>\n</FieldGroup>",
-          "details": "Use the disabled prop to disable the textarea, greying it out and preventing user interactions."
-        },
-        {
-          "name": "Invalid",
-          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea invalid placeholder=\"Invalid textarea\" />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Reference\" errorMessage={invalid ? \"Keep it under 140 characters.\" : undefined}>\n  <Textarea variant=\"ghost\" defaultValue={reference} invalid={invalid} autoResize rows={2} />\n</Field>\n</FieldGroup>",
-          "details": "Use the invalid prop to mark the textarea as invalid. You decide how this state is removed, whether that's through onFocus, onChange, an onSubmit handler, etc.Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling.On Phone the row is the frame, so the error is the errorMessage line under the row."
-        },
-        {
-          "name": "Auto select text",
-          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea defaultValue=\"Toggle to auto select\" autoSelect={false} aria-label=\"Notes\" />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Notes\">\n  <Textarea variant=\"ghost\" defaultValue=\"Toggle to auto select\" autoSelect={false} autoResize rows={2} />\n</Field>\n</FieldGroup>",
-          "details": "Pass autoSelect to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change."
-        },
-        {
-          "name": "Autofill extensions",
-          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea name=\"email\" placeholder=\"Allowed\" allowAutofillExtensions />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Address\">\n  <Textarea variant=\"ghost\" name=\"address\" autoComplete=\"street-address\" placeholder=\"Allowed\" allowAutofillExtensions autoResize rows={2} />\n</Field>\n</FieldGroup>",
-          "details": "By default, autofill extensions are prevented by Textarea. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling.When name is passed this value will default to true. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard, so this example is desktop only."
+          "code": "const [value, setValue] = useState(\"Gate code 4512\\nThird floor, door on the left\\nCall when you arrive\")\nconst [variant, setVariant] = useState(\"outline\")\nconst [size, setSize] = useState(\"md\")\nconst [gutterSize, setGutterSize] = useState(undefined) // undefined: the size gives it\nconst [rows, setRows] = useState(3)\nconst [maxRows, setMaxRows] = useState(10)\nconst [autoResize, setAutoResize] = useState(true)\nconst [autoSelect, setAutoSelect] = useState(false)\nconst [allowAutofillExtensions, setAllowAutofillExtensions] = useState(true)\nconst [disabled, setDisabled] = useState(false)\nconst [invalid, setInvalid] = useState(false)\n\n// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n  <Textarea\n    key={String(allowAutofillExtensions)} // the extensions are let in or kept out as the field mounts\n    name=\"notes\"\n    value={value}\n    onChange={(e) => setValue(e.target.value)}\n    placeholder=\"Add a note\"\n    variant={variant}\n    size={size}\n    gutterSize={gutterSize}\n    rows={rows}\n    maxRows={maxRows}\n    autoResize={autoResize}\n    autoSelect={autoSelect}\n    allowAutofillExtensions={allowAutofillExtensions}\n    disabled={disabled}\n    invalid={invalid}\n  />\n</div>\n\n// Phone: the textarea is the value of a row, under its label; the row is its frame.\n<FieldGroup>\n  <Field row orientation=\"vertical\" label=\"Notes\" errorMessage={invalid ? \"Keep the note to two lines.\" : undefined}>\n    <Textarea\n      variant=\"ghost\"\n      name=\"notes\"\n      value={value}\n      onChange={(e) => setValue(e.target.value)}\n      placeholder=\"Add a note\"\n      rows={rows}\n      maxRows={maxRows}\n      autoResize={autoResize}\n      autoSelect={autoSelect}\n      disabled={disabled}\n      invalid={invalid}\n    />\n  </Field>\n</FieldGroup>",
+          "details": "Use variant to stylize the textarea; ghost has no border and no fill, for a field its container already frames. size sets the control height for a single-line equivalent, with its own gutterSize (horizontal padding), font-size and border-radius; gutterSize overrides the padding. rows sets the initial height; with autoResize the textarea grows and shrinks as the user types, up to maxRows, never fewer than rows (10 when unset). autoSelect selects all its text, useful with copy actions; it acts when toggled and leaves the selection free to change. Autofill extensions are prevented by default; allowAutofillExtensions lets them in, and a name turns it on by default. disabled greys the textarea out and blocks interaction. invalid marks it invalid, with styles for each variant and [data-invalid] on the container; you decide how the state is removed (onFocus, onChange, onSubmit).On Phone the row is the frame and sets the type and insets: the textarea is ghost under the row's label, takes no size or gutterSize, grows the row with it, and the error is the row's errorMessage line. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard, so that setting is desktop only."
         }
       ],
       "docsUrl": "https://plexui.com/components/textarea"
@@ -8217,5 +8183,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-11T07:27:34.394Z"
+  "generatedAt": "2026-11-11T08:08:57.625Z"
 }

@@ -9617,132 +9617,58 @@ Props:
   - ref (Ref<HTMLTextAreaElement>) — Ref to the <textarea>
 
 ### Overview
+Use variant to stylize the textarea; ghost has no border and no fill, for a field its container already frames. size sets the control height for a single-line equivalent, with its own gutterSize (horizontal padding), font-size and border-radius; gutterSize overrides the padding. rows sets the initial height; with autoResize the textarea grows and shrinks as the user types, up to maxRows, never fewer than rows (10 when unset). autoSelect selects all its text, useful with copy actions; it acts when toggled and leaves the selection free to change. Autofill extensions are prevented by default; allowAutofillExtensions lets them in, and a name turns it on by default. disabled greys the textarea out and blocks interaction. invalid marks it invalid, with styles for each variant and [data-invalid] on the container; you decide how the state is removed (onFocus, onChange, onSubmit).On Phone the row is the frame and sets the type and insets: the textarea is ghost under the row's label, takes no size or gutterSize, grows the row with it, and the error is the row's errorMessage line. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard, so that setting is desktop only.
 ```tsx
-// Desktop
-<div className="w-full min-w-0 max-w-[400px]">
-<Textarea placeholder="Enter text..." autoResize rows={3} />
-</div>
-
-// Phone: the textarea is the value of a row, under its label.
-<FieldGroup>
-<Field row orientation="vertical" label="Notes">
-  <Textarea variant="ghost" placeholder="Add a note" autoResize rows={2} />
-</Field>
-</FieldGroup>
-```
-
-### Variants
-Use variant to stylize the textarea. ghost has no border and no fill, for a field its container already frames. On Phone the row is the frame, so the textarea is ghost under the row's label.
-```tsx
-// Desktop
-<div className="flex flex-col gap-6 w-full min-w-0 max-w-[400px]">
-<Textarea placeholder="Enter text..." variant="outline" rows={3} />
-<Textarea placeholder="Enter text..." variant="soft" rows={3} />
-</div>
-
-// Phone
-<FieldGroup>
-<Field row orientation="vertical" label="Note for the courier">
-  <Textarea variant="ghost" placeholder="Gate code, floor, a safe place to leave it" autoResize rows={2} />
-</Field>
-</FieldGroup>
-```
-
-### Auto resize
-Enable autoResize to automatically grow/shrink the textarea as the user types. Control the bounds with rows (initial height) and maxRows. On Phone the row grows with it.
-```tsx
-const [value, setValue] = useState("Line 1\nLine 2\nLine 3")
+const [value, setValue] = useState("Gate code 4512\nThird floor, door on the left\nCall when you arrive")
+const [variant, setVariant] = useState("outline")
+const [size, setSize] = useState("md")
+const [gutterSize, setGutterSize] = useState(undefined) // undefined: the size gives it
+const [rows, setRows] = useState(3)
+const [maxRows, setMaxRows] = useState(10)
+const [autoResize, setAutoResize] = useState(true)
+const [autoSelect, setAutoSelect] = useState(false)
+const [allowAutofillExtensions, setAllowAutofillExtensions] = useState(true)
+const [disabled, setDisabled] = useState(false)
+const [invalid, setInvalid] = useState(false)
 
 // Desktop
 <div className="w-full min-w-0 max-w-[400px]">
-<Textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder="Type to grow..." autoResize rows={3} maxRows={8} />
+  <Textarea
+    key={String(allowAutofillExtensions)} // the extensions are let in or kept out as the field mounts
+    name="notes"
+    value={value}
+    onChange={(e) => setValue(e.target.value)}
+    placeholder="Add a note"
+    variant={variant}
+    size={size}
+    gutterSize={gutterSize}
+    rows={rows}
+    maxRows={maxRows}
+    autoResize={autoResize}
+    autoSelect={autoSelect}
+    allowAutofillExtensions={allowAutofillExtensions}
+    disabled={disabled}
+    invalid={invalid}
+  />
 </div>
 
-// Phone
+// Phone: the textarea is the value of a row, under its label; the row is its frame.
 <FieldGroup>
-<Field row orientation="vertical" label="Notes">
-  <Textarea variant="ghost" value={value} onChange={(e) => setValue(e.target.value)} placeholder="Type to grow..." autoResize rows={3} maxRows={8} />
-</Field>
-</FieldGroup>
-```
-
-### Sizing
-Sizing of the textarea is controlled with size and gutterSize props. size sets the textarea to a specific control height for single-line equivalent, and gutterSize sets the horizontal padding.Each size provides default values for gutterSize, as well as font-size and border-radius. Each of these values can be overridden independently.On Phone the row sets the type and insets, so a textarea in a row takes no size or gutterSize; rows sets its height. This example is desktop only, as Input's Sizing is.
-```tsx
-// Desktop
-<div className="w-full min-w-0 max-w-[400px]">
-<Textarea placeholder="Write a message..." size="lg" gutterSize="md" />
-</div>
-
-// Phone
-<FieldGroup>
-<Field row orientation="vertical" label="Message">
-  <Textarea variant="ghost" placeholder="Write a message..." rows={4} />
-</Field>
-</FieldGroup>
-```
-
-### Disabled
-Use the disabled prop to disable the textarea, greying it out and preventing user interactions.
-```tsx
-// Desktop
-<div className="w-full min-w-0 max-w-[400px]">
-<Textarea disabled defaultValue="Jane Doe" aria-label="Name" />
-</div>
-
-// Phone
-<FieldGroup>
-<Field row orientation="vertical" label="Notes">
-  <Textarea variant="ghost" disabled defaultValue="Leave it at the front desk." autoResize rows={2} />
-</Field>
-</FieldGroup>
-```
-
-### Invalid
-Use the invalid prop to mark the textarea as invalid. You decide how this state is removed, whether that's through onFocus, onChange, an onSubmit handler, etc.Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling.On Phone the row is the frame, so the error is the errorMessage line under the row.
-```tsx
-// Desktop
-<div className="w-full min-w-0 max-w-[400px]">
-<Textarea invalid placeholder="Invalid textarea" />
-</div>
-
-// Phone
-<FieldGroup>
-<Field row orientation="vertical" label="Reference" errorMessage={invalid ? "Keep it under 140 characters." : undefined}>
-  <Textarea variant="ghost" defaultValue={reference} invalid={invalid} autoResize rows={2} />
-</Field>
-</FieldGroup>
-```
-
-### Auto select text
-Pass autoSelect to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.
-```tsx
-// Desktop
-<div className="w-full min-w-0 max-w-[400px]">
-<Textarea defaultValue="Toggle to auto select" autoSelect={false} aria-label="Notes" />
-</div>
-
-// Phone
-<FieldGroup>
-<Field row orientation="vertical" label="Notes">
-  <Textarea variant="ghost" defaultValue="Toggle to auto select" autoSelect={false} autoResize rows={2} />
-</Field>
-</FieldGroup>
-```
-
-### Autofill extensions
-By default, autofill extensions are prevented by Textarea. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling.When name is passed this value will default to true. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard, so this example is desktop only.
-```tsx
-// Desktop
-<div className="w-full min-w-0 max-w-[400px]">
-<Textarea name="email" placeholder="Allowed" allowAutofillExtensions />
-</div>
-
-// Phone
-<FieldGroup>
-<Field row orientation="vertical" label="Address">
-  <Textarea variant="ghost" name="address" autoComplete="street-address" placeholder="Allowed" allowAutofillExtensions autoResize rows={2} />
-</Field>
+  <Field row orientation="vertical" label="Notes" errorMessage={invalid ? "Keep the note to two lines." : undefined}>
+    <Textarea
+      variant="ghost"
+      name="notes"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      placeholder="Add a note"
+      rows={rows}
+      maxRows={maxRows}
+      autoResize={autoResize}
+      autoSelect={autoSelect}
+      disabled={disabled}
+      invalid={invalid}
+    />
+  </Field>
 </FieldGroup>
 ```
 

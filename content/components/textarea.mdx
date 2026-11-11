@@ -4,154 +4,82 @@ description: Multi-line text input that can grow with its content, with a size s
 metaDescription: React textarea component for multi-line text input with auto-resize, configurable size scale, autofill extensions, and invalid state styling
 ---
 
-import {
-  TextareaBaseDemo,
-  TextareaVariantsDemo,
-  TextareaAutoResizeDemo,
-  TextareaSizingDemo,
-  TextareaDisabledDemo,
-  TextareaInvalidDemo,
-  TextareaAutoSelectDemo,
-  TextareaAutofillExtensionsDemo,
-} from '@/components/docs/TextareaDemos'
+import { TextareaOverviewDemo } from '@/components/docs/TextareaDemos'
 import { Textarea } from "@plexui/ui/components/Textarea"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
-<UsageBlock>{`import { Textarea } from "@plexui/ui/components/Textarea";`}</UsageBlock>
-
-On Phone, put a textarea under the label of a row in a `FieldGroup` (`Field row orientation="vertical"`) with `variant="ghost"`, as the [Settings Forms](/components/settings-forms) do. The row is its frame and sets its insets and type, so the Phone previews show rows without the `size`, `gutterSize` and `variant` controls; `rows` sets its height.
-
-## Examples
-
-### Overview
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={`// Desktop
-<div className="w-full min-w-0 max-w-[400px]">
-  <Textarea placeholder="Enter text..." autoResize rows={3} />
-</div>
-
-// Phone: the textarea is the value of a row, under its label.
-<FieldGroup>
-  <Field row orientation="vertical" label="Notes">
-    <Textarea variant="ghost" placeholder="Add a note" autoResize rows={2} />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <TextareaBaseDemo />
-</ComponentPreview>
-
-### Variants
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>variant</code> to stylize the textarea. <code>ghost</code> has no border and no fill, for a field its container already frames. On Phone the row is the frame, so the textarea is <code>ghost</code> under the row's label.</>} code={`// Desktop
-<div className="flex flex-col gap-6 w-full min-w-0 max-w-[400px]">
-  <Textarea placeholder="Enter text..." variant="outline" rows={3} />
-  <Textarea placeholder="Enter text..." variant="soft" rows={3} />
-</div>
-
-// Phone
-<FieldGroup>
-  <Field row orientation="vertical" label="Note for the courier">
-    <Textarea variant="ghost" placeholder="Gate code, floor, a safe place to leave it" autoResize rows={2} />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <TextareaVariantsDemo />
-</ComponentPreview>
-
-### Auto resize
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Enable <code>autoResize</code> to automatically grow/shrink the textarea as the user types. Control the bounds with <code>rows</code> (initial height) and <code>maxRows</code>. On Phone the row grows with it.</>} code={`const [value, setValue] = useState("Line 1\\nLine 2\\nLine 3")
+export const overviewCode = `const [value, setValue] = useState("Gate code 4512\\nThird floor, door on the left\\nCall when you arrive")
+const [variant, setVariant] = useState("outline")
+const [size, setSize] = useState("md")
+const [gutterSize, setGutterSize] = useState(undefined) // undefined: the size gives it
+const [rows, setRows] = useState(3)
+const [maxRows, setMaxRows] = useState(10)
+const [autoResize, setAutoResize] = useState(true)
+const [autoSelect, setAutoSelect] = useState(false)
+const [allowAutofillExtensions, setAllowAutofillExtensions] = useState(true)
+const [disabled, setDisabled] = useState(false)
+const [invalid, setInvalid] = useState(false)
 
 // Desktop
 <div className="w-full min-w-0 max-w-[400px]">
-  <Textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder="Type to grow..." autoResize rows={3} maxRows={8} />
+  <Textarea
+    key={String(allowAutofillExtensions)} // the extensions are let in or kept out as the field mounts
+    name="notes"
+    value={value}
+    onChange={(e) => setValue(e.target.value)}
+    placeholder="Add a note"
+    variant={variant}
+    size={size}
+    gutterSize={gutterSize}
+    rows={rows}
+    maxRows={maxRows}
+    autoResize={autoResize}
+    autoSelect={autoSelect}
+    allowAutofillExtensions={allowAutofillExtensions}
+    disabled={disabled}
+    invalid={invalid}
+  />
 </div>
 
-// Phone
+// Phone: the textarea is the value of a row, under its label; the row is its frame.
 <FieldGroup>
-  <Field row orientation="vertical" label="Notes">
-    <Textarea variant="ghost" value={value} onChange={(e) => setValue(e.target.value)} placeholder="Type to grow..." autoResize rows={3} maxRows={8} />
+  <Field row orientation="vertical" label="Notes" errorMessage={invalid ? "Keep the note to two lines." : undefined}>
+    <Textarea
+      variant="ghost"
+      name="notes"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      placeholder="Add a note"
+      rows={rows}
+      maxRows={maxRows}
+      autoResize={autoResize}
+      autoSelect={autoSelect}
+      disabled={disabled}
+      invalid={invalid}
+    />
   </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <TextareaAutoResizeDemo />
-</ComponentPreview>
+</FieldGroup>`
 
-### Sizing
+<UsageBlock>{`import { Textarea } from "@plexui/ui/components/Textarea";`}</UsageBlock>
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Sizing of the textarea is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the textarea to a specific control <code>height</code> for single-line equivalent, and <code>gutterSize</code> sets the horizontal padding.<br /><br />Each <code>size</code> provides default values for <code>gutterSize</code>, as well as <code>font-size</code> and <code>border-radius</code>. Each of these values can be overridden independently.<br /><br />On Phone the row sets the type and insets, so a textarea in a row takes no <code>size</code> or <code>gutterSize</code>; <code>rows</code> sets its height. This example is desktop only, as Input's Sizing is.</>} code={`// Desktop
-<div className="w-full min-w-0 max-w-[400px]">
-  <Textarea placeholder="Write a message..." size="lg" gutterSize="md" />
-</div>
+On Phone, put a textarea under the label of a row in a `FieldGroup` (`Field row orientation="vertical"`) with `variant="ghost"`, as the [Settings Forms](/components/settings-forms) do. The row is its frame and sets its insets and type, so the Phone preview shows the row without the `size`, `gutterSize` and `variant` controls, nor `allowAutofillExtensions`, a desktop matter; `rows` sets its height.
 
-// Phone
-<FieldGroup>
-  <Field row orientation="vertical" label="Message">
-    <Textarea variant="ghost" placeholder="Write a message..." rows={4} />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <TextareaSizingDemo />
-</ComponentPreview>
+## Examples
 
-### Disabled
+{/* The examples Variants, Sizing, Disabled, Invalid, Auto resize, Auto select text and Autofill extensions are
+    settings of the Overview (owner 11.11: the first example shows everything with every setting); their anchors stay */}
+<span id="variants" />
+<span id="sizing" />
+<span id="disabled" />
+<span id="invalid" />
+<span id="auto-resize" />
+<span id="auto-select-text" />
+<span id="autofill-extensions" />
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>disabled</code> prop to disable the textarea, greying it out and preventing user interactions.</>} code={`// Desktop
-<div className="w-full min-w-0 max-w-[400px]">
-  <Textarea disabled defaultValue="Jane Doe" aria-label="Name" />
-</div>
+### Overview
 
-// Phone
-<FieldGroup>
-  <Field row orientation="vertical" label="Notes">
-    <Textarea variant="ghost" disabled defaultValue="Leave it at the front desk." autoResize rows={2} />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <TextareaDisabledDemo />
-</ComponentPreview>
-
-### Invalid
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>invalid</code> prop to mark the textarea as invalid. You decide how this state is removed, whether that's through <code>onFocus</code>, <code>onChange</code>, an <code>onSubmit</code> handler, etc.<br /><br />Default visual styles will be applied, based on the <code>variant</code>. Additionally, <code>[data-invalid]</code> is applied to the container for custom styling.<br /><br />On Phone the row is the frame, so the error is the <code>errorMessage</code> line under the row.</>} code={`// Desktop
-<div className="w-full min-w-0 max-w-[400px]">
-  <Textarea invalid placeholder="Invalid textarea" />
-</div>
-
-// Phone
-<FieldGroup>
-  <Field row orientation="vertical" label="Reference" errorMessage={invalid ? "Keep it under 140 characters." : undefined}>
-    <Textarea variant="ghost" defaultValue={reference} invalid={invalid} autoResize rows={2} />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <TextareaInvalidDemo />
-</ComponentPreview>
-
-### Auto select text
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass <code>autoSelect</code> to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.</>} code={`// Desktop
-<div className="w-full min-w-0 max-w-[400px]">
-  <Textarea defaultValue="Toggle to auto select" autoSelect={false} aria-label="Notes" />
-</div>
-
-// Phone
-<FieldGroup>
-  <Field row orientation="vertical" label="Notes">
-    <Textarea variant="ghost" defaultValue="Toggle to auto select" autoSelect={false} autoResize rows={2} />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <TextareaAutoSelectDemo />
-</ComponentPreview>
-
-### Autofill extensions
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>By default, autofill extensions are prevented by <code>Textarea</code>. For the occasions where you want browser extensions to be present, pass <code>allowAutofillExtensions</code> to remove the disabling.<br /><br />When <code>name</code> is passed this value will default to <code>true</code>. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard, so this example is desktop only.</>} code={`// Desktop
-<div className="w-full min-w-0 max-w-[400px]">
-  <Textarea name="email" placeholder="Allowed" allowAutofillExtensions />
-</div>
-
-// Phone
-<FieldGroup>
-  <Field row orientation="vertical" label="Address">
-    <Textarea variant="ghost" name="address" autoComplete="street-address" placeholder="Allowed" allowAutofillExtensions autoResize rows={2} />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <TextareaAutofillExtensionsDemo />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>variant</code> to stylize the textarea; <code>ghost</code> has no border and no fill, for a field its container already frames. <code>size</code> sets the control <code>height</code> for a single-line equivalent, with its own <code>gutterSize</code> (horizontal padding), <code>font-size</code> and <code>border-radius</code>; <code>gutterSize</code> overrides the padding. <code>rows</code> sets the initial height; with <code>autoResize</code> the textarea grows and shrinks as the user types, up to <code>maxRows</code>, never fewer than <code>rows</code> (10 when unset). <code>autoSelect</code> selects all its text, useful with copy actions; it acts when toggled and leaves the selection free to change. Autofill extensions are prevented by default; <code>allowAutofillExtensions</code> lets them in, and a <code>name</code> turns it on by default. <code>disabled</code> greys the textarea out and blocks interaction. <code>invalid</code> marks it invalid, with styles for each <code>variant</code> and <code>[data-invalid]</code> on the container; you decide how the state is removed (<code>onFocus</code>, <code>onChange</code>, <code>onSubmit</code>).<br /><br />On Phone the row is the frame and sets the type and insets: the textarea is <code>ghost</code> under the row's label, takes no <code>size</code> or <code>gutterSize</code>, grows the row with it, and the error is the row's <code>errorMessage</code> line. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard, so that setting is desktop only.</>} code={overviewCode} previewMinHeight={168}>
+  <TextareaOverviewDemo />
 </ComponentPreview>
 
 ## API

@@ -10822,161 +10822,42 @@ Props:
   - @autofill (() => void) — Emitted when the browser autofills the textarea
 
 ### Overview
-```vue
-<!-- Desktop -->
-<div class="w-full min-w-0 max-w-[400px]">
-  <Textarea placeholder="Enter text..." auto-resize :rows="3" />
-</div>
-
-<!-- Phone: the textarea is the value of a row, under its label. -->
-<FieldGroup>
-  <Field row orientation="vertical" label="Notes">
-    <Textarea variant="ghost" placeholder="Add a note" auto-resize :rows="2" />
-  </Field>
-</FieldGroup>
-```
-
-### Variants
-Use variant to stylize the textarea. ghost has no border and no fill, for a field its container already frames. On Phone the row is the frame, so the textarea is ghost under the row's label.
-```vue
-<!-- Desktop -->
-<div class="w-full min-w-0 max-w-[400px]">
-  <div class="flex flex-col gap-6">
-    <div v-for="variant in ['outline', 'soft']" :key="variant" class="flex items-center">
-      <div class="text-right text-sm mr-8 min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ variant }}</div>
-      <div class="min-w-0 flex-1">
-        <Textarea placeholder="Enter text..." class="w-full" :variant="variant" :rows="3" />
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row orientation="vertical" label="Note for the courier">
-    <Textarea variant="ghost" placeholder="Gate code, floor, a safe place to leave it" auto-resize :rows="2" />
-  </Field>
-</FieldGroup>
-```
-
-### Auto resize
-Enable auto-resize to automatically grow/shrink the textarea as the user types. Control the bounds with rows (initial height) and max-rows. Bind the text with v-model:value. On Phone the row grows with it.
-```vue
-<!-- Desktop -->
-<div class="w-full min-w-0 max-w-[400px]">
-  <Textarea
-    v-model:value="value"
-    placeholder="Type to grow..."
-    :auto-resize="autoResize"
-    :rows="Number(rows)"
-    :max-rows="Number(maxRows)"
-  />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row orientation="vertical" label="Notes">
-    <Textarea
-      v-model:value="value"
-      variant="ghost"
-      placeholder="Type to grow..."
-      :auto-resize="autoResize"
-      :rows="Number(rows)"
-      :max-rows="Number(maxRows)"
-    />
-  </Field>
-</FieldGroup>
-```
-
-### Sizing
-Sizing of the textarea is controlled with size and gutter-size props. size sets the textarea to a specific control height for single-line equivalent, and gutter-size sets the horizontal padding.Each size provides default values for gutter-size, as well as font-size and border-radius. Each of these values can be overridden independently.On Phone the row sets the type and insets, so a textarea in a row takes no size or gutter-size; rows sets its height. This example is desktop only, as Input's Sizing is.
-```vue
-<!-- Desktop -->
-<div class="w-full min-w-0 max-w-[400px]">
-  <Textarea placeholder="Write a message..." :size="size" :gutter-size="gutterSize" />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row orientation="vertical" label="Message">
-    <Textarea variant="ghost" placeholder="Write a message..." :rows="4" />
-  </Field>
-</FieldGroup>
-```
-
-### Disabled
-Use the disabled prop to disable the textarea, greying it out and preventing user interactions.
-```vue
-<!-- Desktop -->
-<div class="w-full min-w-0 max-w-[400px]">
-  <Textarea :disabled="disabled" default-value="Jane Doe" aria-label="Name" />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row orientation="vertical" label="Notes">
-    <Textarea variant="ghost" :disabled="disabled" default-value="Leave it at the front desk." auto-resize :rows="2" />
-  </Field>
-</FieldGroup>
-```
-
-### Invalid
-Use the invalid prop to mark the textarea as invalid. You decide how this state is removed, whether that's through @focus, @input, a submit handler, etc.Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling.On Phone the row is the frame, so the error is the error-message line under the row.
-```vue
-<!-- Desktop -->
-<div class="w-full min-w-0 max-w-[400px]">
-  <Textarea :invalid="invalid" placeholder="Invalid textarea" />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row orientation="vertical" label="Reference" :error-message="invalid ? 'Keep it under 140 characters.' : undefined">
-    <Textarea variant="ghost" :default-value="reference" :invalid="invalid" auto-resize :rows="2" />
-  </Field>
-</FieldGroup>
-```
-
-### Auto select text
-Pass auto-select to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.
-```vue
-<!-- Desktop -->
-<div class="w-full min-w-0 max-w-[400px]">
-  <Textarea default-value="Toggle to auto select" :auto-select="autoSelect" aria-label="Notes" />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row orientation="vertical" label="Notes">
-    <Textarea variant="ghost" default-value="Toggle to auto select" :auto-select="autoSelect" auto-resize :rows="2" />
-  </Field>
-</FieldGroup>
-```
-
-### Autofill extensions
-By default, autofill extensions are prevented by Textarea. For the occasions where you want browser extensions to be present, pass allow-autofill-extensions to remove the disabling.When name is passed this value will default to true. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard, so this example is desktop only.
+Use variant to stylize the textarea; ghost has no border and no fill, for a field its container already frames. size sets the control height for a single-line equivalent, with its own gutter-size (horizontal padding), font-size and border-radius; gutter-size overrides the padding. Bind the text with v-model:value. rows sets the initial height; with auto-resize the textarea grows and shrinks as the user types, up to max-rows, never fewer than rows (10 when unset). auto-select selects all its text, useful with copy actions; it acts when toggled and leaves the selection free to change. Autofill extensions are prevented by default; allow-autofill-extensions lets them in, and a name turns it on by default. disabled greys the textarea out and blocks interaction. invalid marks it invalid, with styles for each variant and [data-invalid] on the container; you decide how the state is removed (@focus, @input, a submit handler).On Phone the row is the frame and sets the type and insets: the textarea is ghost under the row's label, takes no size or gutter-size, grows the row with it, and the error is the row's error-message line. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard, so that setting is desktop only.
 ```vue
 <!-- Desktop -->
 <div class="w-full min-w-0 max-w-[400px]">
   <Textarea
     :key="String(allowAutofillExtensions)"
-    name="email"
+    v-model:value="value"
+    name="notes"
+    placeholder="Add a note"
+    :variant="variant"
+    :size="size"
+    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+    :rows="rows"
+    :max-rows="maxRows"
+    :auto-resize="autoResize"
+    :auto-select="autoSelect"
     :allow-autofill-extensions="allowAutofillExtensions"
-    :placeholder="allowAutofillExtensions ? 'Allowed' : 'Not allowed'"
+    :disabled="disabled"
+    :invalid="invalid"
   />
 </div>
 
-<!-- Phone -->
+<!-- Phone: the textarea is the value of a row, under its label; the row is its frame. -->
 <FieldGroup>
-  <Field row orientation="vertical" label="Address">
+  <Field row orientation="vertical" label="Notes" :error-message="invalid ? 'Keep the note to two lines.' : undefined">
     <Textarea
-      :key="String(allowAutofillExtensions)"
+      v-model:value="value"
       variant="ghost"
-      name="address"
-      autocomplete="street-address"
-      :allow-autofill-extensions="allowAutofillExtensions"
-      :placeholder="allowAutofillExtensions ? 'Allowed' : 'Not allowed'"
-      auto-resize
-      :rows="2"
+      name="notes"
+      placeholder="Add a note"
+      :rows="rows"
+      :max-rows="maxRows"
+      :auto-resize="autoResize"
+      :auto-select="autoSelect"
+      :disabled="disabled"
+      :invalid="invalid"
     />
   </Field>
 </FieldGroup>

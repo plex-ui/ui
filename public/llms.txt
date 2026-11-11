@@ -1307,7 +1307,7 @@ Props:
   - onAutofill (() => void) — Called when the browser autofills the textarea
   - className (string) — Applied to the container <div>
   - ref (Ref<HTMLTextAreaElement>) — Ref to the <textarea>
-Examples: Overview, Variants, Auto resize, Sizing, Disabled, Invalid, Auto select text, Autofill extensions
+Examples: Overview
 
 ## Tip
 A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.
