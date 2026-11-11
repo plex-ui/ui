@@ -113,16 +113,16 @@ describe("an inline Alert on a phone takes the shape and text of an iOS tip (Tip
     expect(phoneRule(css, ".Title ~ .Description")).toEqual({ "margin-top": "2px", "margin-bottom": "4px" })
   })
 
-  test("26px corners, the text 17 from the top, the icon as Screen Time's tip draws it (33 wide, 21 from the side, 15 from the top, the text 75 from the side), a title alone centred on it", () => {
-    expect(phoneRule(css, ".Alert")).toMatchObject({ "border-radius": "26px", padding: "17px 16px", "column-gap": "8px", "row-gap": "18px", "--alert-indicator-size": "33px" })
+  test("26px corners, the text 17 from the top, the icon as an iOS row's icon (22 in a 30 column on the first line, the text 14 after it)", () => {
+    expect(phoneRule(css, ".Alert")).toMatchObject({ "border-radius": "26px", padding: "17px 16px", "column-gap": "8px", "row-gap": "18px", "--alert-indicator-size": "22px" })
     expect(phoneRule(css, "&:has(> .Content > .Actions > :not(.DismissButton))")).toEqual({ "padding-bottom": "16px" })
     expect(phoneRule(css, ".Alert[data-banner]")).toEqual({ "border-radius": "0" })
     expect(phoneRule(css, ".Content")).toEqual({ display: "contents" })
-    // Not the simulator's 38pt TipView glyph (owner 11.11: «она не должна быть огромной»): 16 + 5 from the side, 17 - 2
-    // from the top, and 13 + 8 to the text, 75 from the side
-    expect(phoneRule(css, ".Indicator")).toEqual({ "margin-top": "-2px", "padding-inline": "5px 13px" })
+    // Not the simulator's 38pt TipView glyph (owner 11.11: «она не должна быть огромной… как устроены rows с иконками?»):
+    // Calendar's rows (IMG_5434) centre a 22 icon in a 30 column at the inset, the text 14 after it: 16 + 4 + 22 + 10 + 8 = 60
+    expect(phoneRule(css, ".Indicator")).toEqual({ "padding-inline": "4px 10px" })
     expect(phoneRule(css, ".Message")).toEqual({ "padding-inline-start": "6px" })
-    expect(phoneRule(css, ".Indicator + .Content > .Message")).toEqual({ display: "flex", "flex-direction": "column", "justify-content": "center", "min-height": "calc(var(--alert-indicator-size) - 4px)", "padding-inline-start": "0" })
+    expect(phoneRule(css, ".Indicator + .Content > .Message")).toEqual({ "padding-inline-start": "0" })
   })
 
   test("the actions on a line of their own as 50px capsules, Dismiss as a close button in the corner", () => {

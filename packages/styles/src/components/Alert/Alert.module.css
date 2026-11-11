@@ -227,11 +227,12 @@
 
 /* On a phone an Alert takes the shape and text of an iOS inline tip (TipKit), the system's message
    inside a screen, as a TipView draws it in the iOS 27.2 simulator (owner 11.11: the text and the icon on one
-   line; ref-app screen `tip`): 26 corners; the title at 17/22 semibold, 17 from the top, a title alone
-   centred on the icon, and the description at 15/20 2 under it, the text ending 21 above the edge; 18 from
-   the icon to the actions. The icon is the size an Apple app gives a tip's icon, not the simulator's 38pt
-   glyph (owner 11.11: «она не должна быть огромной»): Screen Time's App Restrictions tip (IMG_5730) draws it
-   33 wide, 21 from the side and 15 from the top, its text 75 from the side; the actions as 50px capsules with 17/22 semibold labels
+   line; ref-app screen `tip`): 26 corners; the title at 17/22 semibold, 17 from the top, and the description
+   at 15/20 2 under it, the text ending 21 above the edge; 18 from the message to the actions. The icon leads
+   the message as an icon leads an iOS row (owner 11.11: «она не должна быть огромной… как устроены rows с
+   иконками?»), not as the simulator's TipView draws its 38pt glyph: a 22px icon centred in a 30 column at the
+   row's inset, on the first line, and the text 14 after the column (Calendar's rows, IMG_5434, as the docs'
+   icon rows draw them); the actions as 50px capsules with 17/22 semibold labels
    (a phone xl Button in touch.css), 16 from the sides and the edge, side by side 8 apart, each at least half
    the width, wrapping when a label needs more. A dismissible alert closes with a 26px button 14 from the top
    and the side, in a 44px target, instead of a Dismiss action; the first line of text stops short of it. The
@@ -245,7 +246,7 @@
     row-gap: 18px;
     padding: 17px 16px;
     border-radius: 26px;
-    --alert-indicator-size: 33px;
+    --alert-indicator-size: 22px;
 
     &:has(> .Content > .Actions > :not(.DismissButton)) {
       padding-bottom: 16px;
@@ -262,8 +263,7 @@
   }
 
   .Indicator {
-    margin-top: -2px;
-    padding-inline: 5px 13px;
+    padding-inline: 4px 10px;
 
     &::before {
       content: none;
@@ -274,12 +274,7 @@
     padding-inline-start: 6px;
   }
 
-  /* Text shorter than the icon stands centred on it */
   .Indicator + .Content > .Message {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: calc(var(--alert-indicator-size) - 4px);
     padding-inline-start: 0;
   }
 
