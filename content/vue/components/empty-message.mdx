@@ -7,19 +7,22 @@ metaDescription: Vue 3 empty state component for telling users when there's noth
 import emptyMessageStyles from "@/components/docs/EmptyMessageDemos.module.css"
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
-export const composition = `<div
+export const overview = `<div
   class="flex w-full flex-1 flex-col items-center justify-center"
   :style="fill === 'absolute' ? { position: 'relative', minHeight: '200px' } : undefined"
 >
-  <EmptyMessage :fill="fill" :size="size">
-    <EmptyMessageIcon v-if="icon === 'on'" :color="color" :size="size">
+  <EmptyMessage :fill="fill" :size="size" :align="align">
+    <EmptyMessageIcon v-if="icon" :color="iconColor" :size="iconSize">
       <Explore />
     </EmptyMessageIcon>
-    <EmptyMessageTitle v-if="content !== 'description'" :color="color">No projects yet</EmptyMessageTitle>
-    <EmptyMessageDescription v-if="content !== 'title'">
+    <EmptyMessageTitle v-if="title" :color="titleColor">No projects yet</EmptyMessageTitle>
+    <EmptyMessageDescription v-if="description || !title">
       Create your first project to get started
     </EmptyMessageDescription>
-    <EmptyMessageActionRow v-if="actions !== 'none'">
+    <EmptyMessageActionRow v-if="actions === 'link'" class="text-sm">
+      <TextLink href="#">Learn more <ArrowUpRight /></TextLink>
+    </EmptyMessageActionRow>
+    <EmptyMessageActionRow v-else-if="actions !== 'none'">
       <Button color="primary" :size="size === 'sm' ? 'md' : 'xl'">
         <Plus class="mr-[-2px]" />
         New project
@@ -29,73 +32,20 @@ export const composition = `<div
   </EmptyMessage>
 </div>`
 
-export const error = `<EmptyMessage>
-  <EmptyMessageIcon color="danger">
-    <Mic />
-  </EmptyMessageIcon>
-  <EmptyMessageTitle color="danger">
-    Enable microphone access in your browser's settings.
-  </EmptyMessageTitle>
-</EmptyMessage>`
-
-export const warning = `<EmptyMessage>
-  <EmptyMessageIcon color="warning">
-    <Sparkle />
-  </EmptyMessageIcon>
-  <EmptyMessageTitle>o1-preview is in beta</EmptyMessageTitle>
-  <EmptyMessageDescription>
-    System instructions and model configuration are not available yet. Responses may take
-    longer.
-  </EmptyMessageDescription>
-  <EmptyMessageActionRow class="text-sm">
-    <TextLink href="/">
-      Learn more
-      <ArrowUpRight />
-    </TextLink>
-  </EmptyMessageActionRow>
-</EmptyMessage>`
-
-export const noResults = `<div class="w-full">
-  <EmptyMessage fill="none">
-    <EmptyMessageIcon size="sm">
-      <Search />
-    </EmptyMessageIcon>
-    <EmptyMessageDescription>
-      No icons found matching <span class="font-semibold">"pizza"</span>
-    </EmptyMessageDescription>
-  </EmptyMessage>
-</div>`
-
-export const compact = `<div class="w-[320px]">
-  <Card>
-    <CardHeader>
-      <CardTitle>Members</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <EmptyMessage size="sm" fill="none">
-        <EmptyMessageIcon size="sm"><Group /></EmptyMessageIcon>
-        <EmptyMessageTitle>No members yet</EmptyMessageTitle>
-        <EmptyMessageDescription>Invite people to work on this project.</EmptyMessageDescription>
-        <EmptyMessageActionRow>
-          <Button color="secondary" variant="soft" size="sm">Invite</Button>
-        </EmptyMessageActionRow>
-      </EmptyMessage>
-    </CardContent>
-  </Card>
-</div>`
-
-export const leftAligned = `<div class="w-[320px]">
-  <Card>
-    <CardHeader>
-      <CardTitle>Tags</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <EmptyMessage size="sm" align="start" fill="none">
-        <EmptyMessageDescription>No tags added.</EmptyMessageDescription>
-      </EmptyMessage>
-    </CardContent>
-  </Card>
-</div>`
+export const overviewControls = [
+  { name: "fill", type: "select", options: ["static", "absolute", "none"], default: "static" },
+  { name: "size", type: "select", options: ["md", "sm"], default: "md" },
+  { name: "align", type: "select", options: ["center", "start"], default: "center" },
+  { name: "icon", type: "boolean", default: true },
+  // A small message gives its icon the small badge
+  { name: "iconSize", type: "select", options: ["md", "sm"], default: "md", when: { icon: true, size: "md" } },
+  { name: "iconColor", type: "select", options: ["secondary", "danger", "warning"], default: "secondary", when: { icon: true } },
+  { name: "title", type: "boolean", default: true },
+  { name: "titleColor", type: "select", options: ["secondary", "danger", "warning"], default: "secondary", when: { title: true } },
+  // A message needs a title or a description
+  { name: "description", type: "boolean", default: true, when: { title: true } },
+  { name: "actions", type: "select", options: ["one", "two", "link", "none"], default: "one" },
+]
 
 <UsageBlock>{`import {
   EmptyMessage,
@@ -107,51 +57,21 @@ export const leftAligned = `<div class="w-[320px]">
 
 ## Examples
 
-### Composition
+<span id="composition" />
+<span id="error-message" />
+<span id="warning-message" />
+<span id="no-results" />
+<span id="compact" />
+<span id="left-aligned" />
 
-<ComponentPreview className={emptyMessageStyles.PhoneScreenPreview} language="vue" code={composition} previewMinHeight={168}>
-  <VueDemo
-    template={composition}
-    stageClassName="flex-1 w-full py-12 flex items-center justify-center"
-    controls={[
-      { name: "fill", type: "select", options: ["static", "absolute", "none"], default: "static" },
-      { name: "color", type: "select", options: ["secondary", "danger", "warning"], default: "secondary" },
-      { name: "size", type: "select", options: ["sm", "md"], default: "md" },
-      { name: "icon", type: "select", options: ["on", "off"], default: "on" },
-      { name: "actions", type: "select", options: ["one", "two", "none"], default: "one" },
-      { name: "content", type: "select", options: ["title + description", "title", "description"], default: "title + description" },
-    ]}
-  />
-</ComponentPreview>
+### Overview
 
-### Error message
-
-<ComponentPreview className={emptyMessageStyles.PhoneScreenPreview} language="vue" details={<>The <code>color</code> property enables you to display clearer intent with the message, such as showing an error state.</>} code={error} previewMinHeight={168}>
-  <VueDemo template={error} />
-</ComponentPreview>
-
-### Warning message
-
-<ComponentPreview className={emptyMessageStyles.PhoneScreenPreview} language="vue" code={warning} previewMinHeight={168}>
-  <VueDemo template={warning} />
-</ComponentPreview>
-
-### No results
-
-<ComponentPreview language="vue" details={<>The parts of <code>EmptyMessage</code> are both composable and optional. This example omits <code>EmptyMessageTitle</code>, using only an icon and description for a simpler message style.</>} code={noResults} previewMinHeight={168}>
-  <VueDemo template={noResults} />
-</ComponentPreview>
-
-### Compact
-
-<ComponentPreview language="vue" details={<>Use <code>size="sm"</code> for an empty panel, card section or list: a smaller title, tighter spacing and no minimum width. Pair it with <code>fill="none"</code> when the container sets the height.</>} code={compact} previewMinHeight={240}>
-  <VueDemo template={compact} />
-</ComponentPreview>
-
-### Left aligned
-
-<ComponentPreview language="vue" details={<>Use <code>align="start"</code> for an empty state that sits under a section heading instead of filling a surface: a single line such as "No tags added" reads with the heading above it.</>} code={leftAligned} previewMinHeight={168}>
-  <VueDemo template={leftAligned} />
+<ComponentPreview className={emptyMessageStyles.PhoneScreenPreview} language="vue" details={<>
+  <p>An empty message is made of parts, each optional: an icon, a title, a description and an action row. It needs a title or a description, so this preview offers <code>description</code> with a title; the description takes text or nodes, such as a search term in <code>font-semibold</code>. <code>color</code> on <code>EmptyMessageIcon</code> and on <code>EmptyMessageTitle</code> shows the intent of the message, such as <code>danger</code> on both for an error (a missing permission) or <code>warning</code> on the icon for a notice (a feature in beta); the description keeps its own color.</p>
+  <p><code>fill</code> sizes the message to its parent: <code>static</code> takes the full width and height, <code>absolute</code> covers a positioned parent, and <code>none</code> applies no sizing, for a container that sets the height (a list with no results). Use <code>size="sm"</code> for an empty panel, card section or list: a smaller title, tighter spacing, no minimum width and a small icon badge; in a message of the default size the icon takes its own <code>size</code>. <code>align="start"</code> left-aligns the message, for an empty state under a section heading: a single line such as "No tags added" reads with the heading above it.</p>
+  <p>The action row takes buttons, or a <code>TextLink</code> with <code>class="text-sm"</code> on the row. On a phone a message of the default size that fills the screen takes the shape of the iOS empty state: its buttons stand at the bottom across the width, one under the other, and its text is centred in the space above them; a link stays under the text.</p>
+</>} code={overview} previewMinHeight={240}>
+  <VueDemo template={overview} stageClassName="flex-1 w-full py-12 flex items-center justify-center" controls={overviewControls} />
 </ComponentPreview>
 
 ## API

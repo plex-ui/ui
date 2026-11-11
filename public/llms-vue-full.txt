@@ -1754,120 +1754,68 @@ Props:
   - placeholder (string) — Generated from the format if not set
 
 ### Overview
-Bind a Luxon DateTime (or null) with v-model:value. It updates once a complete, valid date is typed, and becomes null when the field is emptied or cleared; @change carries the same value. Leaving the field with a partly typed date shows the value again.
+Bind a Luxon DateTime (or null) with v-model:value. It updates once a complete, valid date is typed, and becomes null when the field is emptied or cleared; @change carries the same value. Leaving the field with a partly typed date shows the value again. mode orders the day, month and year ("mm/dd/yyyy" in the US, "yyyy/mm/dd" for ISO 8601 with separator="-"), and separator is the character between them. time-mode adds a time to the date in one field, "HH:MM", "HH:MM:SS" for seconds or "HH:MM AA" for a 12-hour time, whose AM or PM completes the date; with a time, date-time-separator stands between the date and the time, and time-step lets the arrow keys step the time segment under the caret. min and max restrict the dates: a date typed past one becomes that limit (here 30 days around today, DateTime.local()). The placeholder follows the format unless you set placeholder.
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
 import { DateTime } from 'luxon';
 import { DateInput } from '@plexui/vue/components/DateInput';
 
+const today = DateTime.local();
 const date = ref<DateTime | null>(null);
+const variant = ref("outline"); // or "soft"
+const size = ref("md"); // "3xs" to "3xl"
+const pill = ref(false);
+const mode = ref("dd/mm/yyyy"); // or "mm/dd/yyyy", "yyyy/mm/dd"
+const separator = ref("."); // or "/", "-"
+const timeMode = ref(""); // or "HH:MM", "HH:MM:SS", "HH:MM AA"
+const dateTimeSeparator = ref(", "); // or " "; with a time
+const timeStep = ref(0); // the arrow keys' step on a time segment, 0 for none; with a time
+const limits = ref(false); // min and max, 30 days around today
+const clearable = ref(true);
+const invalid = ref(false);
 const disabled = ref(false);
 </script>
 
 <template>
-<!-- Desktop -->
-<div class="w-[200px]">
-  <DateInput v-model:value="date" size="md" variant="outline" clearable :disabled="disabled" />
-</div>
-
-<!-- Phone: the date is the value of a row. -->
-<FieldGroup>
-  <Field row label="Date">
-    <DateInput v-model:value="date" clearable :disabled="disabled" />
-  </Field>
-</FieldGroup>
-</template>
-```
-
-### With time
-Pass time-mode="HH:MM" to enable date + time input in one field.
-```vue
-<!-- Desktop -->
-<div class="w-[260px]">
-  <DateInput v-model:value="date" time-mode="HH:MM" clearable />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Starts">
-    <DateInput v-model:value="date" time-mode="HH:MM" clearable />
-  </Field>
-</FieldGroup>
-```
-
-### With seconds
-Use time-mode="HH:MM:SS" for second-level precision.
-```vue
-<!-- Desktop -->
-<div class="w-[300px]">
-  <DateInput v-model:value="date" time-mode="HH:MM:SS" clearable />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Logged">
-    <DateInput v-model:value="date" time-mode="HH:MM:SS" clearable />
-  </Field>
-</FieldGroup>
-```
-
-### Limits
-Use min and max to restrict the date range. The mask prevents entering values outside the allowed range. today is DateTime.local().
-```vue
-<!-- Desktop -->
-<div class="w-[200px]">
+<!-- Desktop: wide enough for the date, and for its time -->
+<div :class="!timeMode ? 'w-[200px]' : timeMode === 'HH:MM' ? 'w-[260px]' : 'w-[300px]'">
   <DateInput
     v-model:value="date"
-    :min="today.minus({ days: 30 }).startOf('day')"
-    :max="today.plus({ days: 30 }).endOf('day')"
-    clearable
+    :variant="variant"
+    :size="size"
+    :pill="pill"
+    :mode="mode"
+    :separator="separator"
+    :time-mode="timeMode || undefined"
+    :date-time-separator="dateTimeSeparator"
+    :time-step="timeStep"
+    :min="limits ? today.minus({ days: 30 }).startOf('day') : undefined"
+    :max="limits ? today.plus({ days: 30 }).endOf('day') : undefined"
+    :clearable="clearable"
+    :invalid="invalid"
+    :disabled="disabled"
   />
 </div>
 
-<!-- Phone -->
+<!-- Phone: the date is the value of a row, which is its frame -->
 <FieldGroup>
   <Field row label="Date">
     <DateInput
       v-model:value="date"
-      :min="today.minus({ days: 30 }).startOf('day')"
-      :max="today.plus({ days: 30 }).endOf('day')"
-      clearable
+      :mode="mode"
+      :separator="separator"
+      :time-mode="timeMode || undefined"
+      :date-time-separator="dateTimeSeparator"
+      :time-step="timeStep"
+      :min="limits ? today.minus({ days: 30 }).startOf('day') : undefined"
+      :max="limits ? today.plus({ days: 30 }).endOf('day') : undefined"
+      :clearable="clearable"
+      :disabled="disabled"
     />
   </Field>
 </FieldGroup>
-```
-
-### US format
-Set mode="mm/dd/yyyy" and separator="/" for US-style date formatting.
-```vue
-<!-- Desktop -->
-<div class="w-[200px]">
-  <DateInput v-model:value="date" mode="mm/dd/yyyy" separator="/" clearable />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Date">
-    <DateInput v-model:value="date" mode="mm/dd/yyyy" separator="/" clearable />
-  </Field>
-</FieldGroup>
-```
-
-### ISO format
-Set mode="yyyy/mm/dd" and separator="-" for ISO 8601 formatting.
-```vue
-<!-- Desktop -->
-<div class="w-[200px]">
-  <DateInput v-model:value="date" mode="yyyy/mm/dd" separator="-" clearable />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Date">
-    <DateInput v-model:value="date" mode="yyyy/mm/dd" separator="-" clearable />
-  </Field>
-</FieldGroup>
+</template>
 ```
 
 ### With Field
@@ -2787,21 +2735,25 @@ Props:
   EmptyMessageActionRow:
     - class (string) — Additional classes for the action row container
 
-### Composition
+### Overview
+An empty message is made of parts, each optional: an icon, a title, a description and an action row. It needs a title or a description, so this preview offers description with a title; the description takes text or nodes, such as a search term in font-semibold. color on EmptyMessageIcon and on EmptyMessageTitle shows the intent of the message, such as danger on both for an error (a missing permission) or warning on the icon for a notice (a feature in beta); the description keeps its own color. fill sizes the message to its parent: static takes the full width and height, absolute covers a positioned parent, and none applies no sizing, for a container that sets the height (a list with no results). Use size="sm" for an empty panel, card section or list: a smaller title, tighter spacing, no minimum width and a small icon badge; in a message of the default size the icon takes its own size. align="start" left-aligns the message, for an empty state under a section heading: a single line such as "No tags added" reads with the heading above it. The action row takes buttons, or a TextLink with class="text-sm" on the row. On a phone a message of the default size that fills the screen takes the shape of the iOS empty state: its buttons stand at the bottom across the width, one under the other, and its text is centred in the space above them; a link stays under the text.
 ```vue
 <div
   class="flex w-full flex-1 flex-col items-center justify-center"
   :style="fill === 'absolute' ? { position: 'relative', minHeight: '200px' } : undefined"
 >
-  <EmptyMessage :fill="fill" :size="size">
-    <EmptyMessageIcon v-if="icon === 'on'" :color="color" :size="size">
+  <EmptyMessage :fill="fill" :size="size" :align="align">
+    <EmptyMessageIcon v-if="icon" :color="iconColor" :size="iconSize">
       <Explore />
     </EmptyMessageIcon>
-    <EmptyMessageTitle v-if="content !== 'description'" :color="color">No projects yet</EmptyMessageTitle>
-    <EmptyMessageDescription v-if="content !== 'title'">
+    <EmptyMessageTitle v-if="title" :color="titleColor">No projects yet</EmptyMessageTitle>
+    <EmptyMessageDescription v-if="description || !title">
       Create your first project to get started
     </EmptyMessageDescription>
-    <EmptyMessageActionRow v-if="actions !== 'none'">
+    <EmptyMessageActionRow v-if="actions === 'link'" class="text-sm">
+      <TextLink href="#">Learn more <ArrowUpRight /></TextLink>
+    </EmptyMessageActionRow>
+    <EmptyMessageActionRow v-else-if="actions !== 'none'">
       <Button color="primary" :size="size === 'sm' ? 'md' : 'xl'">
         <Plus class="mr-[-2px]" />
         New project
@@ -2809,93 +2761,6 @@ Props:
       <Button v-if="actions === 'two'" color="secondary" variant="outline" :size="size === 'sm' ? 'md' : 'xl'">Browse templates</Button>
     </EmptyMessageActionRow>
   </EmptyMessage>
-</div>
-```
-
-### Error message
-The color property enables you to display clearer intent with the message, such as showing an error state.
-```vue
-<EmptyMessage>
-  <EmptyMessageIcon color="danger">
-    <Mic />
-  </EmptyMessageIcon>
-  <EmptyMessageTitle color="danger">
-    Enable microphone access in your browser's settings.
-  </EmptyMessageTitle>
-</EmptyMessage>
-```
-
-### Warning message
-```vue
-<EmptyMessage>
-  <EmptyMessageIcon color="warning">
-    <Sparkle />
-  </EmptyMessageIcon>
-  <EmptyMessageTitle>o1-preview is in beta</EmptyMessageTitle>
-  <EmptyMessageDescription>
-    System instructions and model configuration are not available yet. Responses may take
-    longer.
-  </EmptyMessageDescription>
-  <EmptyMessageActionRow class="text-sm">
-    <TextLink href="/">
-      Learn more
-      <ArrowUpRight />
-    </TextLink>
-  </EmptyMessageActionRow>
-</EmptyMessage>
-```
-
-### No results
-The parts of EmptyMessage are both composable and optional. This example omits EmptyMessageTitle, using only an icon and description for a simpler message style.
-```vue
-<div class="w-full">
-  <EmptyMessage fill="none">
-    <EmptyMessageIcon size="sm">
-      <Search />
-    </EmptyMessageIcon>
-    <EmptyMessageDescription>
-      No icons found matching <span class="font-semibold">"pizza"</span>
-    </EmptyMessageDescription>
-  </EmptyMessage>
-</div>
-```
-
-### Compact
-Use size="sm" for an empty panel, card section or list: a smaller title, tighter spacing and no minimum width. Pair it with fill="none" when the container sets the height.
-```vue
-<div class="w-[320px]">
-  <Card>
-    <CardHeader>
-      <CardTitle>Members</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <EmptyMessage size="sm" fill="none">
-        <EmptyMessageIcon size="sm"><Group /></EmptyMessageIcon>
-        <EmptyMessageTitle>No members yet</EmptyMessageTitle>
-        <EmptyMessageDescription>Invite people to work on this project.</EmptyMessageDescription>
-        <EmptyMessageActionRow>
-          <Button color="secondary" variant="soft" size="sm">Invite</Button>
-        </EmptyMessageActionRow>
-      </EmptyMessage>
-    </CardContent>
-  </Card>
-</div>
-```
-
-### Left aligned
-Use align="start" for an empty state that sits under a section heading instead of filling a surface: a single line such as "No tags added" reads with the heading above it.
-```vue
-<div class="w-[320px]">
-  <Card>
-    <CardHeader>
-      <CardTitle>Tags</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <EmptyMessage size="sm" align="start" fill="none">
-        <EmptyMessageDescription>No tags added.</EmptyMessageDescription>
-      </EmptyMessage>
-    </CardContent>
-  </Card>
 </div>
 ```
 

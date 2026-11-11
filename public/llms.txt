@@ -323,7 +323,7 @@ Props:
   - disabled (boolean) default: false — Disable input
   - invalid (boolean) default: false — Mark as invalid
   - placeholder (string) — Generated from the format if not set
-Examples: Overview, With time, With seconds, Limits, US format, ISO format, With Field, Validation
+Examples: Overview, With Field, Validation
 
 ## Date Picker
 Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.
@@ -434,7 +434,7 @@ Props:
     - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
   EmptyMessage.ActionRow:
     - className (string) — Additional classes for the action row container
-Examples: Composition, Error message, Warning message, No results, Compact, Left aligned
+Examples: Overview
 
 ## Field
 Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.

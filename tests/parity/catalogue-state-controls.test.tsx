@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { act, cleanup, fireEvent, render, waitFor, within } from '@testing-library/react';
+import { DateTime } from 'luxon';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { indentCode } from '../../components/docs/demoCode.mjs';
 import { AccordionOverviewDemo } from '../../components/docs/AccordionDemos';
@@ -11,6 +12,8 @@ import { TabsOverviewDemo } from '../../components/docs/TabsDemos';
 import { TableVariantDemo } from '../../components/docs/TableDemos';
 import { TextareaOverviewDemo } from '../../components/docs/TextareaDemos';
 import { TextLinkOverviewDemo } from '../../components/docs/TextLinkDemos';
+import { EmptyMessageOverviewDemo } from '../../components/docs/EmptyMessageDemos';
+import { DateInputOverviewDemo } from '../../components/docs/DateInputDemos';
 import { SelectControlOverviewDemo } from '../../components/docs/SelectControlDemos';
 import { SelectOverviewDemo } from '../../components/docs/SelectDemos';
 import { ProgressStepsOverviewDemo } from '../../components/docs/ProgressStepsDemos';
@@ -18,9 +21,10 @@ import { RadioGroupOverviewDemo } from '../../components/docs/RadioGroupDemos';
 import { VuePhoneRowsDemo } from '../../components/docs/vue/VuePhoneRowsDemo';
 import { VueSelectDemo } from '../../components/docs/vue/VueSelectDemos';
 import { phoneRows } from '../../components/docs/phoneRowsTemplate';
-import { VueDemo, type VueDemoControl, type VueDemoLoop, type VueDemoOption } from '../../components/docs/vue/VueDemo';
+import { VueDemo, type VueDemoControl, type VueDemoLoop, type VueDemoOption, type VueDemoWhen } from '../../components/docs/vue/VueDemo';
 import { VueDataTableDemo } from '../../components/docs/vue/VueDataTableDemos';
 import { VueAvatarDemo } from '../../components/docs/vue/VueAvatarDemos';
+import { VueDateInputDemo } from '../../components/docs/vue/VueDateInputDemos';
 import { flushVue } from './harness';
 
 vi.mock('../../components/docs/VuePreview', async () => ({
@@ -37,6 +41,10 @@ vi.mock('@plexui/ui/components/Alert', async () => import('../../packages/ui/src
 vi.mock('@plexui/vue/components/Alert', async () => import('../../packages/vue/src/components/Alert'));
 vi.mock('@plexui/ui/components/TextLink', async () => import('../../packages/ui/src/components/TextLink'));
 vi.mock('@plexui/vue/components/TextLink', async () => import('../../packages/vue/src/components/TextLink'));
+vi.mock('@plexui/ui/components/EmptyMessage', async () => import('../../packages/ui/src/components/EmptyMessage'));
+vi.mock('@plexui/vue/components/EmptyMessage', async () => import('../../packages/vue/src/components/EmptyMessage'));
+vi.mock('@plexui/ui/components/DateInput', async () => import('../../packages/ui/src/components/DateInput'));
+vi.mock('@plexui/vue/components/DateInput', async () => import('../../packages/vue/src/components/DateInput'));
 vi.mock('@plexui/ui/components/Checkbox', async () => import('../../packages/ui/src/components/Checkbox'));
 vi.mock('@plexui/vue/components/Checkbox', async () => import('../../packages/vue/src/components/Checkbox'));
 vi.mock('@plexui/ui/components/Tabs', async () => import('../../packages/ui/src/components/Tabs'));
@@ -69,7 +77,7 @@ function example(page: string, name: string, references: string[] = []) {
   if (typeof template !== 'string' || !Array.isArray(rawControls)) throw new Error('Invalid demo');
   const controls: VueDemoControl[] = rawControls.map((control: unknown) => {
     if (!control || typeof control !== 'object' || !('name' in control) || typeof control.name !== 'string' || !('type' in control) || !('default' in control)) throw new Error('Invalid control');
-    const when = 'when' in control && control.when && typeof control.when === 'object' ? { when: control.when as Record<string, unknown> } : {};
+    const when = 'when' in control && control.when && typeof control.when === 'object' ? { when: control.when as VueDemoWhen } : {};
     // A control's phone settings: hidden there (`desktopOnly`, giving its `phoneDefault`), or other options
     const phoneSettings = {
       ...('desktopOnly' in control && (control.desktopOnly === true || (!!control.desktopOnly && typeof control.desktopOnly === 'object'))
@@ -96,6 +104,7 @@ const checkbox = example('checkbox', 'overview');
 const avatar = example('avatar', 'overview');
 const alert = example('alert', 'overview');
 const textLink = example('text-link', 'overview');
+const emptyMessage = example('empty-message', 'overview');
 /** The Indicators Overview as its page mounts it, with the loop that restarts its simulated ring */
 const indicators = (() => {
   const mdx = readFileSync('content/vue/components/indicators.mdx', 'utf8');
@@ -124,6 +133,17 @@ function selectExample(page: string, name: string, references: string[] = []) {
 const selectControlOverview = selectExample('select-control', 'overview');
 const selectOverview = selectExample('select', 'overview', ['VARIANTS']);
 const progressOverview = example('progress-steps', 'overview');
+/** The Date Input Overview as its page mounts it, with its phone row and desktop-only controls */
+const dateInputOverview = (() => {
+  const mdx = readFileSync('content/vue/components/date-input.mdx', 'utf8');
+  const marker = 'export const overviewPhone = ';
+  const rest = mdx.slice(mdx.indexOf(marker) + marker.length);
+  const phone = new Function(`return ${rest.slice(0, rest.search(/\nexport const /)).trim()}`)() as string;
+  const tag = mdx.split('\n').find((line) => line.includes('<VueDateInputDemo') && line.includes('template={overview}'));
+  if (!tag) throw new Error('Missing the Date Input Overview');
+  const desktopControlNames = JSON.parse(/desktopControlNames=\{(\[[^\]]*\])\}/.exec(tag)![1]) as string[];
+  return { ...example('date-input', 'overview'), phoneTemplate: phoneRows(phone), desktopControlNames, state: { date: null } };
+})();
 /** The Radio Group Overview as its page mounts it, with its phone rows */
 const radioOverview = (() => {
   const mdx = readFileSync('content/vue/components/radio-group.mdx', 'utf8');
@@ -383,6 +403,152 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(links().every((link) => link.classList.contains('font-semibold'))).toBe(true);
     await choose('weight', 'normal');
     expect(links().some((link) => /font-/.test(link.className))).toBe(false);
+  });
+
+  test('empty message: one Overview carries every setting, each where it acts (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <EmptyMessageOverviewDemo /> : <VueDemo {...emptyMessage} stageClassName="flex" />);
+    await interact(() => {});
+    const page = within(view.container);
+    const root = () => view.container.querySelector<HTMLElement>('[data-demo-stage] [data-fill]')!;
+    const part = (name: string) => root().querySelector<HTMLElement>(`:scope > [class*="${name}"]`);
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const offered = (name: string) => page.queryByRole('radiogroup', { name }) !== null;
+    const buttons = () => [...root().querySelectorAll('button')].map((button) => button.textContent?.trim());
+    expect(root().dataset.fill).toBe('static');
+    expect(part('Title')?.textContent).toBe('No projects yet');
+    expect(part('Description')?.textContent?.trim()).toBe('Create your first project to get started');
+    expect(buttons()).toEqual(['New project']);
+    expect(root().querySelector<HTMLElement>('button')?.dataset.size).toBe('xl');
+    // The icon and the title take their own color (a warning icon over a plain title); the description keeps its own
+    await choose('iconColor', 'warning');
+    expect([part('IconBadge')?.dataset.color, part('Title')?.dataset.color]).toEqual(['warning', 'secondary']);
+    await choose('titleColor', 'danger');
+    expect(part('Title')?.dataset.color).toBe('danger');
+    expect(part('Description')?.hasAttribute('data-color')).toBe(false);
+    // The icon's own size acts in a message of the default size; a small message gives its icon the small badge
+    await choose('iconSize', 'sm');
+    expect(part('IconBadge')?.dataset.size).toBe('sm');
+    await choose('fill', 'absolute');
+    await choose('size', 'sm');
+    await choose('align', 'start');
+    expect([root().dataset.fill, root().dataset.size, root().dataset.align]).toEqual(['absolute', 'sm', 'start']);
+    expect(root().parentElement?.style.position).toBe('relative');
+    expect(offered('iconSize')).toBe(false);
+    expect(part('IconBadge')?.dataset.size).toBe('md');
+    expect(root().querySelector<HTMLElement>('button')?.dataset.size).toBe('md');
+    await choose('size', 'md');
+    expect(part('IconBadge')?.dataset.size).toBe('sm');
+    // actions: buttons, two buttons, a text link or none
+    await choose('actions', 'two');
+    expect(buttons()).toEqual(['New project', 'Browse templates']);
+    await choose('actions', 'link');
+    expect(buttons()).toEqual([]);
+    expect(part('ActionRow')?.querySelector('a')?.textContent?.trim()).toBe('Learn more');
+    expect(part('ActionRow')?.querySelector('a')?.getAttribute('href')).toBe('#');
+    expect(part('ActionRow')?.classList.contains('text-sm')).toBe(true);
+    await choose('actions', 'none');
+    expect(part('ActionRow')).toBeNull();
+    // A message needs a title or a description: description is offered only with a title, and keeps its choice;
+    // each part's color is offered with its part and keeps its choice
+    await toggle('description');
+    expect(part('Description')).toBeNull();
+    await toggle('title');
+    expect(page.queryByRole('switch', { name: 'description', exact: true })).toBeNull();
+    expect(offered('titleColor')).toBe(false);
+    expect(offered('iconColor')).toBe(true);
+    expect(part('Title')).toBeNull();
+    expect(part('Description')).not.toBeNull();
+    await toggle('icon');
+    expect(part('IconBadge')).toBeNull();
+    expect([offered('iconColor'), offered('iconSize')]).toEqual([false, false]);
+    await toggle('title');
+    await toggle('icon');
+    expect(within(page.getByRole('radiogroup', { name: 'titleColor' })).getByRole('radio', { name: 'danger', exact: true }).getAttribute('aria-checked')).toBe('true');
+    expect([part('IconBadge')?.dataset.color, part('IconBadge')?.dataset.size, part('Title')?.dataset.color]).toEqual(['warning', 'sm', 'danger']);
+    expect(page.getByRole('switch', { name: 'description', exact: true }).getAttribute('aria-checked')).toBe('false');
+    expect(part('Description')).toBeNull();
+  });
+
+  test('date input: one Overview carries every setting: format, time, limits; the time settings come with a time (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <DateInputOverviewDemo /> : <VueDateInputDemo {...dateInputOverview} stageClassName="py-10" />);
+    await interact(() => {});
+    const page = within(view.container);
+    const input = () => view.container.querySelector<HTMLInputElement>('[data-demo-stage] input')!;
+    const frame = () => input().closest<HTMLElement>('[data-variant]')!;
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const offered = (name: string) => page.queryByRole('radiogroup', { name }) !== null || page.queryByRole('slider', { name }) !== null;
+    const width = () => [...input().closest('[data-demo-stage]')!.querySelectorAll<HTMLElement>('div')].find((div) => /w-\[\d+px\]/.test(div.className))?.className;
+    expect(input().placeholder).toBe('DD.MM.YYYY');
+    expect(width()).toBe('w-[200px]');
+    expect([offered('dateTimeSeparator'), offered('timeStep')]).toEqual([false, false]);
+    // limits: a date typed past one becomes that limit, 30 days before today
+    const today = DateTime.local();
+    await toggle('limits');
+    await interact(() => { input().focus(); fireEvent.input(input(), { target: { value: '01.01.2000' } }); });
+    expect(input().value).toBe(today.minus({ days: 30 }).toFormat('dd.MM.yyyy'));
+    // clearable: a clear button empties the field
+    await interact(() => fireEvent.click(page.getByRole('button', { name: 'Clear input' })));
+    expect(input().value).toBe('');
+    await toggle('limits');
+    await interact(() => { input().focus(); fireEvent.input(input(), { target: { value: '01.01.2000' } }); });
+    expect(input().value).toBe('01.01.2000');
+    await toggle('clearable');
+    expect(page.queryByRole('button', { name: 'Clear input' })).toBeNull();
+    await toggle('clearable');
+    await interact(() => fireEvent.click(page.getByRole('button', { name: 'Clear input' })));
+    // mode orders the parts, separator stands between them
+    await choose('mode', 'mm/dd/yyyy');
+    await choose('separator', '/');
+    expect(input().placeholder).toBe('MM/DD/YYYY');
+    await choose('mode', 'yyyy/mm/dd');
+    await choose('separator', '-');
+    expect(input().placeholder).toBe('YYYY-MM-DD');
+    // A time comes with its separator and its arrow-key step, and a wider field
+    await choose('timeMode', 'HH:MM');
+    expect(input().placeholder).toBe('YYYY-MM-DD, HH:MM');
+    expect(width()).toBe('w-[260px]');
+    expect([offered('dateTimeSeparator'), offered('timeStep')]).toEqual([true, true]);
+    await choose('dateTimeSeparator', 'space');
+    expect(input().placeholder).toBe('YYYY-MM-DD HH:MM');
+    await choose('timeMode', 'HH:MM:SS');
+    expect(input().placeholder).toBe('YYYY-MM-DD HH:MM:SS');
+    expect(width()).toBe('w-[300px]');
+    await choose('timeMode', 'HH:MM AA');
+    expect(input().placeholder).toMatch(/^YYYY-MM-DD HH:MM\s+AA$/);
+    expect(width()).toBe('w-[300px]');
+    // Without a time, its settings go and keep their choice
+    await choose('timeMode', 'none');
+    expect(input().placeholder).toBe('YYYY-MM-DD');
+    expect([offered('dateTimeSeparator'), offered('timeStep')]).toEqual([false, false]);
+    await choose('timeMode', 'HH:MM');
+    expect(input().placeholder).toBe('YYYY-MM-DD HH:MM');
+    // The frame's settings
+    await choose('variant', 'soft');
+    await choose('size', 'lg');
+    await toggle('pill');
+    await toggle('invalid');
+    expect([frame().dataset.variant, frame().dataset.size, frame().hasAttribute('data-pill'), frame().hasAttribute('data-invalid')]).toEqual(['soft', 'lg', true, true]);
+    await toggle('disabled');
+    expect(input().disabled).toBe(true);
+    expect(page.getByRole('switch', { name: 'limits', exact: true }).getAttribute('aria-checked')).toBe('false');
+  });
+
+  test('date input on a phone: the value of a row; variant, size, pill and invalid stay on desktop', async () => {
+    vi.stubGlobal('matchMedia', (media: string) => ({ matches: !media.includes('min-width'), media, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }));
+    const view = render(framework === 'React' ? <DateInputOverviewDemo /> : <VueDateInputDemo {...dateInputOverview} stageClassName="py-10" />);
+    await interact(() => {});
+    const page = within(view.container);
+    const input = () => view.container.querySelector<HTMLInputElement>('input')!;
+    expect(input().closest('[data-slot="field"]')?.hasAttribute('data-row')).toBe(true);
+    expect(input().closest('[data-slot="field"]')?.textContent).toContain('Date');
+    for (const name of ['variant', 'size', 'pill', 'invalid']) {
+      const control = page.queryByRole('radiogroup', { name }) ?? page.queryByRole('switch', { name, exact: true });
+      expect(!control || !!control.closest('[data-demo-desktop-only]')).toBe(true);
+    }
+    await interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name: 'timeMode' })).getByRole('radio', { name: 'HH:MM', exact: true })));
+    expect(input().placeholder).toBe('DD.MM.YYYY, HH:MM');
   });
 
   test('checkbox: one Overview of the three states carries every setting, each where it acts, and disabled keeps the states (owner 11.11)', async () => {

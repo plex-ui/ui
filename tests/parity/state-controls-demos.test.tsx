@@ -3,9 +3,9 @@ import { act, cleanup, fireEvent, render, waitFor, within } from '@testing-libra
 import { DateTime } from 'luxon';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ButtonStatesDemo } from '../../components/docs/ButtonDemos';
-import { DateInputBaseDemo } from '../../components/docs/DateInputDemos';
+import { DateInputOverviewDemo } from '../../components/docs/DateInputDemos';
 import { DatePickerBaseDemo } from '../../components/docs/DatePickerDemos';
-import { VueDemo, type VueDemoControl } from '../../components/docs/vue/VueDemo';
+import { VueDemo, type VueDemoControl, type VueDemoOption, type VueDemoWhen } from '../../components/docs/vue/VueDemo';
 import { VueDateInputDemo } from '../../components/docs/vue/VueDateInputDemos';
 import { VueDatePickerDemo } from '../../components/docs/vue/VueDatePickerDemos';
 import { flushVue } from './harness';
@@ -34,9 +34,16 @@ function example(page: string, name: string) {
   if (typeof template !== 'string' || !Array.isArray(rawControls)) throw new Error('Invalid demo');
   const controls: VueDemoControl[] = rawControls.map((control: unknown) => {
     if (!control || typeof control !== 'object' || !('name' in control) || typeof control.name !== 'string' || !('type' in control) || !('default' in control)) throw new Error('Invalid control');
-    if (control.type === 'boolean' && typeof control.default === 'boolean') return { name: control.name, type: 'boolean', default: control.default };
-    if (control.type !== 'select' || typeof control.default !== 'string' || !('options' in control) || !Array.isArray(control.options) || !control.options.every((option: unknown) => typeof option === 'string')) throw new Error('Invalid select');
-    return { name: control.name, type: 'select', default: control.default, options: control.options };
+    const when = 'when' in control && control.when && typeof control.when === 'object' ? { when: control.when as VueDemoWhen } : {};
+    if (control.type === 'boolean' && typeof control.default === 'boolean') return { name: control.name, type: 'boolean', default: control.default, ...when };
+    if (control.type === 'range' && typeof control.default === 'number' && 'min' in control && typeof control.min === 'number' && 'max' in control && typeof control.max === 'number' && 'step' in control && typeof control.step === 'number') {
+      return { name: control.name, type: 'range', default: control.default, min: control.min, max: control.max, step: control.step, ...when };
+    }
+    // An option is its value, or a value under a label (`none` for an unset time)
+    const isOption = (option: unknown): option is VueDemoOption => typeof option === 'string'
+      || (!!option && typeof option === 'object' && 'value' in option && typeof option.value === 'string' && 'label' in option && typeof option.label === 'string');
+    if (control.type !== 'select' || typeof control.default !== 'string' || !('options' in control) || !Array.isArray(control.options) || !control.options.every(isOption)) throw new Error('Invalid select');
+    return { name: control.name, type: 'select', default: control.default, options: control.options, ...when };
   });
   return { template, controls };
 }
@@ -86,7 +93,7 @@ describe.each(['React', 'Vue'])('%s state-only demo consolidation', (framework) 
   });
 
   test('date input preserves a typed date through disabled and accepts edits after re-enabling', async () => {
-    const view = render(framework === 'React' ? <DateInputBaseDemo /> : <VueDateInputDemo {...dateInput} state={{ date: null }} />);
+    const view = render(framework === 'React' ? <DateInputOverviewDemo /> : <VueDateInputDemo {...dateInput} state={{ date: null }} />);
     await interact(() => {});
     const page = within(view.container);
     const input = page.getByRole<HTMLInputElement>('textbox');

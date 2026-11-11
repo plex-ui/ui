@@ -15,7 +15,10 @@ import { renderDemoCode } from '../demoCode.mjs';
  * the other controls have these values (icon only on a horizontal control); a value on an option not offered shows
  * as the control's `default`.
  */
-export type VueDemoOption = string | { value: string | boolean; label: string; when?: Record<string, unknown> };
+export type VueDemoOption = string | { value: string | boolean; label: string; when?: VueDemoWhen };
+
+/** A condition on the other controls: each one it names has the value, or one of the values a list names */
+export type VueDemoWhen = Record<string, unknown>;
 
 /** `name` is the template variable; `label`, when set, is what the control row shows. */
 export type VueDemoControl = {
@@ -34,7 +37,7 @@ export type VueDemoControl = {
    * Shown only while the other controls have these values (`collapsible` for a `single` accordion), a list naming
    * the values any of which will do; where it is not shown, the template gets its `default`.
    */
-  when?: Record<string, unknown>;
+  when?: VueDemoWhen;
 } & (
   | { type: 'boolean'; default: boolean; phoneDefault?: boolean }
   /**
@@ -52,8 +55,8 @@ export type VueDemoControl = {
 const optionsOf = (options: readonly VueDemoOption[]) =>
   options.map((option): Exclude<VueDemoOption, string> => (typeof option === 'string' ? { value: option, label: option } : option));
 
-/** Whether the values meet a `when`: each named control has the value, or one of the values a list names */
-const holds = (when: Record<string, unknown> | undefined, values: Record<string, unknown>) =>
+/** Whether the values meet a `when` (see VueDemoWhen) */
+const holds = (when: VueDemoWhen | undefined, values: Record<string, unknown>) =>
   Object.entries(when ?? {}).every(([name, value]) => (Array.isArray(value) ? value.includes(values[name]) : values[name] === value));
 
 /** Whether the control is a desktop one under these values */
@@ -103,7 +106,7 @@ const withinLimits = (controls: readonly VueDemoControl[], values: Record<string
  * preview remounts with it false. `when`: only while the controls hold these values (the ring of the Indicators
  * Overview restarts; its spinner and dots do not)
  */
-export type VueDemoLoop = { name: string; every: number; holdFor: number; when?: Record<string, unknown> };
+export type VueDemoLoop = { name: string; every: number; holdFor: number; when?: VueDemoWhen };
 
 const DEFAULT_STAGE = 'flex-1 flex flex-col items-center justify-center py-12 w-full';
 

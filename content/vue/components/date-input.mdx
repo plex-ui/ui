@@ -13,44 +13,34 @@ export const overviewControls = [
   { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" },
   { name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" },
   { name: "pill", type: "boolean", default: false },
+  { name: "mode", type: "select", options: ["dd/mm/yyyy", "mm/dd/yyyy", "yyyy/mm/dd"], default: "dd/mm/yyyy" },
+  { name: "separator", type: "select", options: [".", "/", "-"], default: "." },
+  { name: "timeMode", type: "select", options: [{ value: "", label: "none" }, "HH:MM", "HH:MM:SS", "HH:MM AA"], default: "" },
+  { name: "dateTimeSeparator", type: "select", options: [{ value: ", ", label: "comma" }, { value: " ", label: "space" }], default: ", ", when: { timeMode: ["HH:MM", "HH:MM:SS", "HH:MM AA"] } },
+  { name: "timeStep", type: "range", min: 0, max: 15, step: 1, default: 0, when: { timeMode: ["HH:MM", "HH:MM:SS", "HH:MM AA"] } },
+  { name: "limits", type: "boolean", default: false },
   { name: "clearable", type: "boolean", default: true },
+  { name: "invalid", type: "boolean", default: false },
   { name: "disabled", type: "boolean", default: false },
 ]
 
-export const overview = `<div class="w-[200px]">
+export const overview = `<div :class="!timeMode ? 'w-[200px]' : timeMode === 'HH:MM' ? 'w-[260px]' : 'w-[300px]'">
   <DateInput
     v-model:value="date"
-    :size="size"
     :variant="variant"
+    :size="size"
     :pill="pill"
+    :mode="mode"
+    :separator="separator"
+    :time-mode="timeMode || undefined"
+    :date-time-separator="dateTimeSeparator"
+    :time-step="timeStep"
+    :min="limits ? today.minus({ days: 30 }).startOf('day') : undefined"
+    :max="limits ? today.plus({ days: 30 }).endOf('day') : undefined"
     :clearable="clearable"
+    :invalid="invalid"
     :disabled="disabled"
   />
-</div>`
-
-export const withTime = `<div class="w-[260px]">
-  <DateInput v-model:value="date" time-mode="HH:MM" clearable />
-</div>`
-
-export const withSeconds = `<div class="w-[300px]">
-  <DateInput v-model:value="date" time-mode="HH:MM:SS" clearable />
-</div>`
-
-export const limits = `<div class="w-[200px]">
-  <DateInput
-    v-model:value="date"
-    :min="today.minus({ days: 30 }).startOf('day')"
-    :max="today.plus({ days: 30 }).endOf('day')"
-    clearable
-  />
-</div>`
-
-export const usFormat = `<div class="w-[200px]">
-  <DateInput v-model:value="date" mode="mm/dd/yyyy" separator="/" clearable />
-</div>`
-
-export const isoFormat = `<div class="w-[200px]">
-  <DateInput v-model:value="date" mode="yyyy/mm/dd" separator="-" clearable />
 </div>`
 
 export const withField = `<div class="w-[200px]">
@@ -67,42 +57,18 @@ export const validation = `<div class="w-[200px]">
 
 export const overviewPhone = `<FieldGroup>
   <Field row label="Date">
-    <DateInput v-model:value="date" :clearable="clearable" :disabled="disabled" />
-  </Field>
-</FieldGroup>`
-
-export const withTimePhone = `<FieldGroup>
-  <Field row label="Starts">
-    <DateInput v-model:value="date" time-mode="HH:MM" clearable />
-  </Field>
-</FieldGroup>`
-
-export const withSecondsPhone = `<FieldGroup>
-  <Field row label="Logged">
-    <DateInput v-model:value="date" time-mode="HH:MM:SS" clearable />
-  </Field>
-</FieldGroup>`
-
-export const limitsPhone = `<FieldGroup>
-  <Field row label="Date">
     <DateInput
       v-model:value="date"
-      :min="today.minus({ days: 30 }).startOf('day')"
-      :max="today.plus({ days: 30 }).endOf('day')"
-      clearable
+      :mode="mode"
+      :separator="separator"
+      :time-mode="timeMode || undefined"
+      :date-time-separator="dateTimeSeparator"
+      :time-step="timeStep"
+      :min="limits ? today.minus({ days: 30 }).startOf('day') : undefined"
+      :max="limits ? today.plus({ days: 30 }).endOf('day') : undefined"
+      :clearable="clearable"
+      :disabled="disabled"
     />
-  </Field>
-</FieldGroup>`
-
-export const usFormatPhone = `<FieldGroup>
-  <Field row label="Date">
-    <DateInput v-model:value="date" mode="mm/dd/yyyy" separator="/" clearable />
-  </Field>
-</FieldGroup>`
-
-export const isoFormatPhone = `<FieldGroup>
-  <Field row label="Date">
-    <DateInput v-model:value="date" mode="yyyy/mm/dd" separator="-" clearable />
   </Field>
 </FieldGroup>`
 
@@ -123,66 +89,51 @@ import { ref } from 'vue';
 import { DateTime } from 'luxon';
 import { DateInput } from '@plexui/vue/components/DateInput';
 
+const today = DateTime.local();
 const date = ref<DateTime | null>(null);
+const variant = ref("outline"); // or "soft"
+const size = ref("md"); // "3xs" to "3xl"
+const pill = ref(false);
+const mode = ref("dd/mm/yyyy"); // or "mm/dd/yyyy", "yyyy/mm/dd"
+const separator = ref("."); // or "/", "-"
+const timeMode = ref(""); // or "HH:MM", "HH:MM:SS", "HH:MM AA"
+const dateTimeSeparator = ref(", "); // or " "; with a time
+const timeStep = ref(0); // the arrow keys' step on a time segment, 0 for none; with a time
+const limits = ref(false); // min and max, 30 days around today
+const clearable = ref(true);
+const invalid = ref(false);
 const disabled = ref(false);
 </script>
 
 <template>
-<!-- Desktop -->
-<div class="w-[200px]">
-  <DateInput v-model:value="date" size="md" variant="outline" clearable :disabled="disabled" />
-</div>
+<!-- Desktop: wide enough for the date, and for its time -->
+${overview}
 
-<!-- Phone: the date is the value of a row. -->
-<FieldGroup>
-  <Field row label="Date">
-    <DateInput v-model:value="date" clearable :disabled="disabled" />
-  </Field>
-</FieldGroup>
+<!-- Phone: the date is the value of a row, which is its frame -->
+${overviewPhone}
 </template>`
 
 <UsageBlock>{`import { DateInput } from "@plexui/vue/components/DateInput";`}</UsageBlock>
 
-On Phone, put a date input in a row of a `FieldGroup`, as the [Input](/vue/components/input) examples and the [Settings Forms](/vue/components/settings-forms) do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the `variant`, `size` and `pill` controls. To pick a date rather than type it, use the compact date of a [Date Picker](/vue/components/date-picker) in the row.
+On Phone, put a date input in a row of a `FieldGroup`, as the [Input](/vue/components/input) examples and the [Settings Forms](/vue/components/settings-forms) do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the `variant`, `size`, `pill` and `invalid` controls (a row shows its error as [Validation](#validation) does). To pick a date rather than type it, use the compact date of a [Date Picker](/vue/components/date-picker) in the row.
 
 ## Examples
 
 <span id="disabled" />
+<span id="with-time" />
+<span id="with-seconds" />
+<span id="limits" />
+<span id="us-format" />
+<span id="iso-format" />
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Bind a Luxon <code>DateTime</code> (or <code>null</code>) with <code>v-model:value</code>. It updates once a complete, valid date is typed, and becomes <code>null</code> when the field is emptied or cleared; <code>@change</code> carries the same value. Leaving the field with a partly typed date shows the value again.</>} code={overviewCode} previewMinHeight={168}>
-  <VueDateInputDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" desktopControlNames={["variant", "size", "pill"]} stageClassName="py-10" state={{ date: null }} controls={overviewControls} />
-</ComponentPreview>
-
-### With time
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Pass <code>time-mode="HH:MM"</code> to enable date + time input in one field.</>} code={withPhone(withTime, withTimePhone)} previewMinHeight={80}>
-  <VueDateInputDemo template={withTime} phoneTemplate={phoneRows(withTimePhone)} phoneStageClassName="w-full" state={{ date: null }} />
-</ComponentPreview>
-
-### With seconds
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>time-mode="HH:MM:SS"</code> for second-level precision.</>} code={withPhone(withSeconds, withSecondsPhone)} previewMinHeight={80}>
-  <VueDateInputDemo template={withSeconds} phoneTemplate={phoneRows(withSecondsPhone)} phoneStageClassName="w-full" state={{ date: null }} />
-</ComponentPreview>
-
-### Limits
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>min</code> and <code>max</code> to restrict the date range. The mask prevents entering values outside the allowed range. <code>today</code> is <code>DateTime.local()</code>.</>} code={withPhone(limits, limitsPhone)} previewMinHeight={80}>
-  <VueDateInputDemo template={limits} phoneTemplate={phoneRows(limitsPhone)} phoneStageClassName="w-full" dates={{ date: "today" }} />
-</ComponentPreview>
-
-### US format
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Set <code>mode="mm/dd/yyyy"</code> and <code>separator="/"</code> for US-style date formatting.</>} code={withPhone(usFormat, usFormatPhone)} previewMinHeight={80}>
-  <VueDateInputDemo template={usFormat} phoneTemplate={phoneRows(usFormatPhone)} phoneStageClassName="w-full" state={{ date: null }} />
-</ComponentPreview>
-
-### ISO format
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Set <code>mode="yyyy/mm/dd"</code> and <code>separator="-"</code> for ISO 8601 formatting.</>} code={withPhone(isoFormat, isoFormatPhone)} previewMinHeight={80}>
-  <VueDateInputDemo template={isoFormat} phoneTemplate={phoneRows(isoFormatPhone)} phoneStageClassName="w-full" state={{ date: null }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>Bind a Luxon <code>DateTime</code> (or <code>null</code>) with <code>v-model:value</code>. It updates once a complete, valid date is typed, and becomes <code>null</code> when the field is emptied or cleared; <code>@change</code> carries the same value. Leaving the field with a partly typed date shows the value again.</p>
+  <p><code>mode</code> orders the day, month and year (<code>"mm/dd/yyyy"</code> in the US, <code>"yyyy/mm/dd"</code> for ISO 8601 with <code>separator="-"</code>), and <code>separator</code> is the character between them. <code>time-mode</code> adds a time to the date in one field, <code>"HH:MM"</code>, <code>"HH:MM:SS"</code> for seconds or <code>"HH:MM AA"</code> for a 12-hour time, whose AM or PM completes the date; with a time, <code>date-time-separator</code> stands between the date and the time, and <code>time-step</code> lets the arrow keys step the time segment under the caret.</p>
+  <p><code>min</code> and <code>max</code> restrict the dates: a date typed past one becomes that limit (here 30 days around today, <code>DateTime.local()</code>). The placeholder follows the format unless you set <code>placeholder</code>.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <VueDateInputDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" desktopControlNames={["variant", "size", "pill", "invalid"]} stageClassName="py-10" state={{ date: null }} controls={overviewControls} />
 </ComponentPreview>
 
 ### With Field
