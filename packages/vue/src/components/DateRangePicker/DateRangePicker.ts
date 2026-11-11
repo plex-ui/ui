@@ -5,7 +5,7 @@ import type { ControlSize } from "@plexui/styles/types"
 import { useBreakpoint } from "../../composables/useBreakpoints.js"
 import { isAfter } from "../../lib/dateUtils.js"
 import { Popover, PopoverContent, PopoverTrigger, type PopoverAlign, type PopoverSide } from "../Popover/index.js"
-import { useCalendarGutter } from "../DatePicker/useCalendarGutter.js"
+import { useCalendarCollisionPadding } from "../DatePicker/useCalendarCollisionPadding.js"
 import type { DropdownIconType } from "../SelectControl/index.js"
 import { DateRangeCalendar, DateRangeShortcuts } from "./Calendar.js"
 import { DateRangeContextKey, type DateRangeContextValue } from "./context.js"
@@ -77,7 +77,7 @@ const DateRangePickerComponent = defineComponent({
   },
   setup(props, { emit }) {
     const wide = useBreakpoint("md")
-    const calendarGutter = useCalendarGutter()
+    const calendarCollisionPadding = useCalendarCollisionPadding()
     const unwrap = <T>(value: T): T => (value ? toRaw(value) : value)
 
     // A new range only when `value` or one of its endpoints changes, as the
@@ -168,7 +168,7 @@ const DateRangePickerComponent = defineComponent({
             {
               class: s.Popover,
               minWidth: 230,
-              collisionPadding: wide.value ? 20 : calendarGutter.value,
+              collisionPadding: wide.value ? 20 : calendarCollisionPadding.value,
               side: wide.value || props.side === "top" ? props.side : "bottom",
               sideOffset: props.sideOffset,
               align,

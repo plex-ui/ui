@@ -9,6 +9,8 @@ import { Tabs as RTabs } from "../../packages/ui/src/components/Tabs"
 import { FloatingLabelInput } from "../../packages/vue/src/components/FloatingLabelInput"
 import { Input } from "../../packages/vue/src/components/Input"
 import { Tabs, TabsTab } from "../../packages/vue/src/components/Tabs"
+import { calendarCollisionPadding as rCalendarCollisionPadding } from "../../packages/ui/src/components/DatePicker/useCalendarCollisionPadding"
+import { calendarCollisionPadding } from "../../packages/vue/src/components/DatePicker/useCalendarCollisionPadding"
 import { renderPair } from "./pair"
 
 // Plan 163: the phone rules taken from the iOS 27 kit (text field clear, empty state, slider label row, sheet title).
@@ -461,3 +463,22 @@ describe("a disabled segmented control on a phone (kit iOS 27 Segmented Controls
   })
 })
 
+describe("the compact date of iOS 27.2 in a row and its calendar (plan 178 block 11)", () => {
+  test("both calendars are 328px of 44px days with no gap between the weeks", () => {
+    for (const path of ["packages/styles/src/components/DatePicker/Calendar.module.css", "packages/styles/src/components/DateRangePicker/Calendar.module.css"]) {
+      const css = read(path)
+      expect(css).toContain("width: min(328px, calc(100vw - 2 * var(--calendar-gutter)), var(--radix-popover-content-available-width, 328px));")
+      expect(css).toContain("--calendar-width: min(308px, calc(100vw - 2 * var(--calendar-gutter) - 2 * var(--calendar-inner-padding)), calc(var(--radix-popover-content-available-width, 328px) - 2 * var(--calendar-inner-padding)));")
+      expect(css.match(/--cell-vertical-gutter: 0px;/g)).toHaveLength(2)
+      expect(css).not.toContain("--cell-vertical-gutter: 7px;")
+    }
+  })
+
+  test("the calendar's sides keep 32px from the screen's edges where it fits, its top and bottom the gutter, React and Vue alike", () => {
+    for (const [width, side, gutter] of [[402, 32, 16], [440, 32, 16], [375, 23.5, 16], [360, 16, 13], [340, 8, 8], [320, 3, 3]] as const) {
+      const padding = { top: gutter, right: side, bottom: gutter, left: side }
+      expect(rCalendarCollisionPadding(width)).toEqual(padding)
+      expect(calendarCollisionPadding(width)).toEqual(padding)
+    }
+  })
+})

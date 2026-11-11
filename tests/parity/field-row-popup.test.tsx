@@ -301,7 +301,7 @@ describe.each(["React", "Vue"])("%s Field popup row", (framework) => {
   })
 })
 
-describe("Phone date capsule in a row (iOS 26 kit Date and time - Collapsed)", () => {
+describe("Phone date capsule in a row (iOS 27.2 compact date picker)", () => {
   // jsdom does not evaluate media queries; the contract is read from the source rules the phone applies.
   const phone = (file: string) => {
     const rules: postcss.Rule[] = []
@@ -319,14 +319,14 @@ describe("Phone date capsule in a row (iOS 26 kit Date and time - Collapsed)", (
   }
   const nestedDecls = (rule: postcss.Rule) => Object.fromEntries(rule.nodes.filter((n): n is postcss.Rule => n.type === "rule").map((r) => [r.selector.replace(/\s+/g, " "), decls(r)]))
 
-  test("the row trigger is a 34px capsule with 11px insets on the time pill fill", () => {
+  test("the row trigger is a 34px capsule with 12px insets on the time pill fill (iOS 27.2 Calendar and UIKit)", () => {
     const roots = phone("packages/styles/src/components/Field/Field.module.css").filter((rule) => rule.selector.endsWith('> .Control > [data-date-picker][data-variant][role="button"][aria-haspopup]:not([aria-haspopup="false"])'))
     expect(roots).toHaveLength(1)
     const [root] = roots
     expect(decls(root)).toEqual({
       "--select-control-size": "34px",
       "margin-block": "calc((var(--field-row-label-line-height) - 34px) / 2)",
-      "padding-inline": "11px",
+      "padding-inline": "12px",
       "border-radius": "var(--radius-full)",
       "color": "var(--color-text)",
     })
@@ -334,19 +334,22 @@ describe("Phone date capsule in a row (iOS 26 kit Date and time - Collapsed)", (
       "&::before": { "background-color": "var(--color-background-secondary-soft-alpha)" },
       "&[data-selected=\"false\"], &[data-disabled]": { color: "var(--mobile-label-tertiary, var(--color-text-tertiary))" },
       "&[aria-expanded=\"true\"]:not([data-disabled])": { color: "var(--link-primary-text-color)" },
+      // A disabled date draws no capsule, as UIKit's disabled compact picker
+      "&[data-disabled]::before": { "background-color": "transparent" },
     })
     // The calendar's time pill paints the same fill.
     expect(readFileSync("packages/styles/src/components/DatePicker/Calendar.module.css", "utf8")).toContain("background: var(--color-background-secondary-soft-alpha);")
   })
 
-  test("a date and a time are two capsules 6px apart on the trigger's clear fill (kit: two pills, gap 6)", () => {
+  test("a date and a time are two capsules 8px apart on the trigger's clear fill (iOS 27.2 Calendar: 8pt)", () => {
     const parts = find("packages/styles/src/components/Field/Field.module.css", ":has([data-date-parts])")
     expect(parts.selector).toMatch(/> \.Control > \[data-date-picker\]\[data-variant\]\[role="button"\]\[aria-haspopup\]:not\(\[aria-haspopup="false"\]\):has\(\[data-date-parts\]\)$/)
     expect(decls(parts)).toEqual({ "padding-inline": "0" })
     expect(nestedDecls(parts)).toEqual({
       "&::before": { "background-color": "transparent" },
-      "& [data-date-parts]": { "display": "flex", "gap": "6px", "min-width": "0" },
-      "& [data-date-part]": { "padding": "6px 11px", "border-radius": "var(--radius-full)", "background-color": "var(--color-background-secondary-soft-alpha)" },
+      "& [data-date-parts]": { "display": "flex", "gap": "8px", "min-width": "0" },
+      "& [data-date-part]": { "padding": "6px 12px", "border-radius": "var(--radius-full)", "background-color": "var(--color-background-secondary-soft-alpha)" },
+      "&[data-disabled] [data-date-part]": { "background-color": "transparent" },
       // Short of room the date ends in an ellipsis and the time keeps its width
       "& [data-date-part=\"date\"]": { "min-width": "0", "overflow": "hidden", "text-overflow": "ellipsis" },
       "& [data-date-part=\"time\"]": { "flex-shrink": "0" },

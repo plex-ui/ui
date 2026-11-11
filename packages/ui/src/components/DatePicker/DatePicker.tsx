@@ -10,7 +10,7 @@ import { Calendar } from "../Icon"
 import { Popover, type PopoverContentProps } from "../Popover"
 import { SelectControl, type SelectControlProps } from "../SelectControl"
 import { DateCalendar } from "./Calendar"
-import { useCalendarGutter } from "./useCalendarGutter"
+import { useCalendarCollisionPadding } from "./useCalendarCollisionPadding"
 import { DateContext, type DateContextValue } from "./context"
 
 export type DatePickerProps = Pick<SelectControlProps, "aria-label" | "aria-labelledby" | "aria-describedby" | "aria-invalid"> & {
@@ -178,7 +178,7 @@ export const DatePicker = (props: DatePickerProps) => {
   // The value text needs an id for aria-labelledby, also when `id` is not set
   const generatedId = useId()
   const wide = useBreakpoint("md")
-  const calendarGutter = useCalendarGutter()
+  const calendarCollisionPadding = useCalendarCollisionPadding()
   const valueId = `${id ?? generatedId}-value`
 
   // Create stable, mutable references to avoid memoization requirements from consumers
@@ -268,7 +268,7 @@ export const DatePicker = (props: DatePickerProps) => {
         <Popover.Content
           className={s.Popover}
           minWidth={230}
-          collisionPadding={wide ? 20 : calendarGutter}
+          collisionPadding={wide ? 20 : calendarCollisionPadding}
           side={wide || side === "top" ? side : "bottom"}
           sideOffset={sideOffset}
           align={align}

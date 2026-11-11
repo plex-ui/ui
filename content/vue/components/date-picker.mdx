@@ -271,7 +271,7 @@ const disabled = ref(false);
 
 <UsageBlock>{`import { DatePicker } from "@plexui/vue/components/DatePicker";`}</UsageBlock>
 
-On Phone, put a date picker in a row of a `FieldGroup`, as the [Settings Forms](/vue/components/settings-forms) do. In the row its trigger is the compact date of iOS: a capsule with the date that opens the calendar. The row is its frame and sets its height, insets and type, so the phone examples leave out `size`, `pill` and `clearable` and set `:trigger-show-icon="false"`. To type a date instead, put a [Date Input](/vue/components/date-input) in the row.
+On Phone, put a date picker in a row of a `FieldGroup`, as the [Settings Forms](/vue/components/settings-forms) do. In the row its trigger is the compact date of iOS: a capsule with the date that opens the calendar, 8px under it and, on a screen 392px wide or wider, 32px from its edge, as iOS 27.2 opens it; with a time format the date and the time are two capsules 8px apart, as Calendar shows an event's start. The row is its frame and sets its height, insets and type, so the phone examples leave out `size`, `pill` and `clearable` and set `:trigger-show-icon="false"`. To type a date instead, put a [Date Input](/vue/components/date-input) in the row.
 
 ## Examples
 

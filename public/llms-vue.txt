@@ -792,7 +792,7 @@ Props:
     - side-offset (number) default: 8 — Offset from trigger (px)
     - align-offset (number) default: -5 — Offset from the start or end alignment (px)
     - avoid-collisions (boolean) default: true — Reposition to stay inside the viewport and scroll containers
-    - collision-padding (number) default: 20 — Space in px to keep from viewport and scroll container boundaries
+    - collision-padding (number | { top?, right?, bottom?, left? }) default: 20 — Space in px to keep from viewport and scroll container boundaries; an object such as `{ top: 16, right: 32, bottom: 16, left: 32 }` sets it per side, and a side it leaves out gets 0
     - translucent (boolean) default: false — Translucent, blurred surface
     - auto-focus (boolean) default: true — Move focus into the panel when it opens (hover popovers never take focus)
     - data-* (string) — Data attributes land on the panel

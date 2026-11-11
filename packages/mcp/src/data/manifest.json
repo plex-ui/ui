@@ -4634,9 +4634,9 @@
             },
             {
               "name": "collisionPadding",
-              "type": "number",
+              "type": "number | { top?, right?, bottom?, left? }",
               "default": "20",
-              "description": "Space in px to keep from viewport and scroll container boundaries"
+              "description": "Space in px to keep from viewport and scroll container boundaries; an object such as `{ top: 16, right: 32, bottom: 16, left: 32 }` sets it per side, and a side it leaves out gets 0"
             },
             {
               "name": "translucent",
@@ -8247,5 +8247,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-10T23:28:49.796Z"
+  "generatedAt": "2026-11-11T00:17:57.447Z"
 }

@@ -705,14 +705,16 @@
     cursor: pointer;
   }
 
-  /* A date in a row is the compact date picker of iOS 26 (kit Date and time - Collapsed 30:53803): a 34px
-     capsule with 11px insets on the fill of the calendar's time pill, the date in the primary label and in
-     the accent text while its calendar is open. It keeps the 52px row; the row stays its target. */
+  /* A date in a row is the compact date picker of iOS 27.2: a 34px capsule with 12px insets on the fill of the
+     calendar's time pill, the date in the primary label and in the accent text while its calendar is open
+     (Calendar's new event on an iPhone 17: 34.3pt, the text 12pt in from either end; UIKit's own capsule 36pt
+     with the same insets; the iOS 26 kit drew 11px). It keeps the 52px row; the row stays its target. A
+     disabled date draws no capsule, as UIKit's disabled compact picker does, and stays dimmed. */
   .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > [data-date-picker][data-variant][role="button"][aria-haspopup]:not([aria-haspopup="false"]) {
     --select-control-size: 34px;
 
     margin-block: calc((var(--field-row-label-line-height) - 34px) / 2);
-    padding-inline: 11px;
+    padding-inline: 12px;
     border-radius: var(--radius-full);
     color: var(--color-text);
 
@@ -725,14 +727,18 @@
       color: var(--mobile-label-tertiary, var(--color-text-tertiary));
     }
 
+    &[data-disabled]::before {
+      background-color: transparent;
+    }
+
     &[aria-expanded="true"]:not([data-disabled]) {
       color: var(--link-primary-text-color);
     }
   }
 
-  /* A date and a time (showTime with a triggerTimeFormat) are two capsules 6px apart, as the kit draws them (Date and
-     time - Collapsed 30:53803) and iOS Calendar shows an event's start. Either opens the calendar, whose time
-     fields set the time; the trigger stays the row's target and takes the accent while the calendar is open. */
+  /* A date and a time (showTime with a triggerTimeFormat) are two capsules 8px apart, as Calendar on iOS 27.2 shows
+     an event's start (8pt; UIKit's own pair 4pt, the iOS 26 kit 6px). Either opens the calendar, whose time fields
+     set the time; the trigger stays the row's target and takes the accent while the calendar is open. */
   .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > [data-date-picker][data-variant][role="button"][aria-haspopup]:not([aria-haspopup="false"]):has([data-date-parts]) {
     padding-inline: 0;
 
@@ -742,14 +748,18 @@
 
     & [data-date-parts] {
       display: flex;
-      gap: 6px;
+      gap: 8px;
       min-width: 0;
     }
 
     & [data-date-part] {
-      padding: 6px 11px;
+      padding: 6px 12px;
       border-radius: var(--radius-full);
       background-color: var(--color-background-secondary-soft-alpha);
+    }
+
+    &[data-disabled] [data-date-part] {
+      background-color: transparent;
     }
 
     /* Short of room, the date ends in an ellipsis inside its capsule; the time keeps its width */

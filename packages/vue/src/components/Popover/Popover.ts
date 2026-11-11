@@ -280,8 +280,8 @@ export const PopoverTrigger = defineComponent({
 const contentProps = {
   /** Avoids collisions with the viewport and scroll containers. @default true */
   avoidCollisions: { type: Boolean, default: undefined },
-  /** Distance from viewport and scroll container boundaries, in pixels. @default 20 */
-  collisionPadding: { type: Number, default: 20 },
+  /** Distance from viewport and scroll container boundaries, in pixels; an object sets it per side, and a side it leaves out gets 0. @default 20 */
+  collisionPadding: { type: [Number, Object] as PropType<number | Partial<Record<PopoverSide, number>>>, default: 20 },
   /** `width` of the popover; numbers are pixels. @default "auto" */
   width: [Number, String] as PropType<number | "auto">,
   /** `min-width` of the popover; numbers are pixels. @default 300 */

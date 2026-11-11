@@ -8,7 +8,7 @@ import { Calendar } from "../Icon/index.js"
 import { Popover, PopoverContent, PopoverTrigger, type PopoverAlign, type PopoverSide } from "../Popover/index.js"
 import { SelectControl, type DropdownIconType } from "../SelectControl/index.js"
 import { DateCalendar } from "./Calendar.js"
-import { useCalendarGutter } from "./useCalendarGutter.js"
+import { useCalendarCollisionPadding } from "./useCalendarCollisionPadding.js"
 import { DateContextKey, type DateContextValue } from "./context.js"
 
 // Vue port of packages/ui/src/components/DatePicker/DatePicker.tsx.
@@ -88,7 +88,7 @@ const DatePickerComponent = defineComponent({
   },
   setup(props, { emit }) {
     const wide = useBreakpoint("md")
-    const calendarGutter = useCalendarGutter()
+    const calendarCollisionPadding = useCalendarCollisionPadding()
     const unwrap = <T>(value: T): T => (value ? toRaw(value) : value)
 
     const onChange = (nextValue: DateTime | null) => {
@@ -188,7 +188,7 @@ const DatePickerComponent = defineComponent({
             {
               class: s.Popover,
               minWidth: 230,
-              collisionPadding: wide.value ? 20 : calendarGutter.value,
+              collisionPadding: wide.value ? 20 : calendarCollisionPadding.value,
               side: wide.value || props.side === "top" ? props.side : "bottom",
               sideOffset: props.sideOffset,
               align,

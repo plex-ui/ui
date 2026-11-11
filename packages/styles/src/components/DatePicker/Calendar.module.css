@@ -323,17 +323,19 @@
   }
 
   .CalendarWrapper {
-    /* Preserve the outer collision gutter; the inner inset follows the
-       corner geometry while seven 44px targets still fit at 320px. */
+    /* The compact date picker's calendar of iOS 27.2 is a 321pt panel of seven 42.7pt columns and 38pt rows
+       (UIKit and Calendar on an iPhone 17). PlexUI keeps its seven 44px targets (owner 06.11), side by side
+       and row on row as native's, with the corner's 10px inset: 328px. Narrower screens keep the outer
+       collision gutter; the inner inset follows the corner geometry while seven 44px targets fit at 320px. */
     box-sizing: border-box;
-    width: min(370px, calc(100vw - 2 * var(--calendar-gutter)), var(--radix-popover-content-available-width, 370px));
+    width: min(328px, calc(100vw - 2 * var(--calendar-gutter)), var(--radix-popover-content-available-width, 328px));
     padding: 0 var(--calendar-inner-padding);
   }
 
   .CalendarContainer {
     --cell-size: 44px;
-    --cell-vertical-gutter: 7px;
-    --calendar-width: min(350px, calc(100vw - 2 * var(--calendar-gutter) - 2 * var(--calendar-inner-padding)), calc(var(--radix-popover-content-available-width, 370px) - 2 * var(--calendar-inner-padding)));
+    --cell-vertical-gutter: 0px;
+    --calendar-width: min(308px, calc(100vw - 2 * var(--calendar-gutter) - 2 * var(--calendar-inner-padding)), calc(var(--radix-popover-content-available-width, 328px) - 2 * var(--calendar-inner-padding)));
 
     width: var(--calendar-width);
   }
@@ -356,7 +358,7 @@
 
   .Calendar {
     --cell-size: 44px;
-    --cell-vertical-gutter: 7px;
+    --cell-vertical-gutter: 0px;
 
     box-sizing: border-box;
     padding-bottom: var(--calendar-inner-padding);
@@ -427,7 +429,6 @@
   .Week {
     display: grid;
     grid-template-columns: repeat(7, var(--cell-size));
-    justify-content: space-between;
   }
 
   .WeekdayHeader {
@@ -568,7 +569,6 @@
     line-height: 22px;
   }
 }
-
 
 @media (prefers-reduced-motion: reduce) {
   .CalendarContainer {

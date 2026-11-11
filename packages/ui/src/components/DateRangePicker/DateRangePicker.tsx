@@ -7,7 +7,7 @@ import { useBreakpoint } from "../../hooks/useBreakpoints"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { isAfter } from "../../lib/dateUtils"
 import { Popover, type PopoverContentProps } from "../Popover"
-import { useCalendarGutter } from "../DatePicker/useCalendarGutter"
+import { useCalendarCollisionPadding } from "../DatePicker/useCalendarCollisionPadding"
 import type { SelectControlProps } from "../SelectControl"
 import { DateRangeCalendar, DateRangeShortcuts } from "./Calendar"
 import { DateRangeContext, type DateRangeContextValue } from "./context"
@@ -167,7 +167,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
 
   // Create stable, mutable references to avoid memoization requirements from consumers
   const wide = useBreakpoint("md")
-  const calendarGutter = useCalendarGutter()
+  const calendarCollisionPadding = useCalendarCollisionPadding()
   const onChangeRef = useLatestValue(onChange)
 
   const store = useMemo<DateRangeContextValue>(
@@ -224,7 +224,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
         <Popover.Content
           className={s.Popover}
           minWidth={230}
-          collisionPadding={wide ? 20 : calendarGutter}
+          collisionPadding={wide ? 20 : calendarCollisionPadding}
           side={wide || side === "top" ? side : "bottom"}
           sideOffset={sideOffset}
           align={align}

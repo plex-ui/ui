@@ -341,7 +341,7 @@ Additionally, `esc` keypresses are handled independently as a stacking order.
   { prop: "side-offset", type: "number", default: "8", description: "Offset from trigger (px)" },
   { prop: "align-offset", type: "number", default: "-5", description: "Offset from the start or end alignment (px)" },
   { prop: "avoid-collisions", type: "boolean", default: "true", description: "Reposition to stay inside the viewport and scroll containers" },
-  { prop: "collision-padding", type: "number", default: "20", description: "Space in px to keep from viewport and scroll container boundaries" },
+  { prop: "collision-padding", type: "number | { top?, right?, bottom?, left? }", default: "20", description: "Space in px to keep from viewport and scroll container boundaries; an object such as `{ top: 16, right: 32, bottom: 16, left: 32 }` sets it per side, and a side it leaves out gets 0" },
   { prop: "translucent", type: "boolean", default: "false", description: "Translucent, blurred surface" },
   { prop: "auto-focus", type: "boolean", default: "true", description: "Move focus into the panel when it opens (hover popovers never take focus)" },
   { prop: "data-*", type: "string", description: "Data attributes land on the panel" },

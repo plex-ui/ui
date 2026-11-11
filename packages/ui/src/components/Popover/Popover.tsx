@@ -263,10 +263,10 @@ export type PopoverContentProps = {
    */
   avoidCollisions?: boolean
   /**
-   * Distance in pixels to keep from viewport and scroll container boundaries.
+   * Distance in pixels to keep from viewport and scroll container boundaries; an object sets it per side, and a side it leaves out gets 0.
    * @default 20
    */
-  collisionPadding?: number
+  collisionPadding?: Popper.PopperContentProps["collisionPadding"]
   /**
    * Set the `width` of the popover, in pixels.
    * @default auto

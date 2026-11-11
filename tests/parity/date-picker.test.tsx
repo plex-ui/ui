@@ -399,14 +399,27 @@ describe("DatePicker parity: markup", () => {
       const availableWidth = () => Number(/--radix-popper-available-width: (-?[\d.]+)px/.exec(snapshotDom())?.[1])
       const desktop = availableWidth()
       expect(Number.isFinite(desktop)).toBe(true)
+      // Desktop keeps 20px; a phone keeps up to 32px at the sides where the 328px calendar fits (23.5 at 375),
+      // else the gutter.
+      await tools.resize(402)
+      expect(availableWidth()).toBe(desktop - 24)
+      // With a classic scrollbar the padding, like the popover's own viewport, leaves it out: 387 wide, 29.5px at the
+      // sides, and the 328px calendar fits.
+      Object.defineProperty(document.documentElement, "clientWidth", { configurable: true, get: () => 387 })
+      try {
+        await tools.resize(402)
+        expect(availableWidth()).toBe(328)
+      } finally {
+        Reflect.deleteProperty(document.documentElement, "clientWidth")
+      }
       await tools.resize(375)
-      expect(availableWidth()).toBe(desktop + 8)
+      expect(availableWidth()).toBe(desktop - 7)
       await tools.resize(360)
-      expect(availableWidth()).toBe(desktop + 14)
+      expect(availableWidth()).toBe(desktop + 8)
       await tools.resize(320)
       expect(availableWidth()).toBe(desktop + 34)
       await tools.resize(375)
-      expect(availableWidth()).toBe(desktop + 8)
+      expect(availableWidth()).toBe(desktop - 7)
       await tools.resize(1024)
       expect(availableWidth()).toBe(desktop)
       tools.snapshot()
