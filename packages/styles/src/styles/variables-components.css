@@ -827,18 +827,21 @@
     /* =============================================
       Index bar (phone)
     ============================================= */
-    /* The section index of a phone list, after native iOS Contacts (IMG_5737; 09.11) and the iOS 27 kit (Lists,
-       Index Bar 48:56457), which agree: letters of about 11pt (a cap height of 7.7-8pt) 14pt apart (13.8 native),
-       in a 16pt column at the trailing edge, centred 8pt from it (7.7 native), in the medium weight of the kit.
-       The country list of a sheet (IMG_5491: 15pt apart, 10pt from the edge) is the exception. The kit tints them
-       systemBlue; PlexUI draws that tint as info, as it does the prominent toolbar button. The target reaches 30px
-       in from the edge (agent: the kit and native frames show no target). A list keeps its margins beside the
-       index, whose letters sit in the trailing one (Contacts rows end 16pt from the edge). */
-    --index-bar-width: 16px;
+    /* The section index of a phone list, measured on iOS 27.2 (iPhone 17, UITableView and SwiftUI List with
+       26 sections, plan 178 block 19): letters of 11pt (a cap height of 7.7-8pt) 13.79pt apart, centred 7.5pt
+       from the trailing edge, in the semibold weight. Contacts (IMG_5737) agrees on the spacing. At 590 the
+       letters A to V carry the ink of native ones (515 against 515pt²; medium gave 453). In a 14.67px column each
+       letter centres where its native one does (7.4px from the edge on average). The country list of a sheet
+       (IMG_5491: 15pt apart, 10pt from the edge) is the exception. iOS tints them systemBlue (0088ff); PlexUI
+       draws that tint as info, as it does the prominent toolbar button. A drag along the letters highlights
+       nothing, as on iOS. The target reaches 30px in from the edge (the native frames show no target). A list
+       keeps its margins beside the index, whose letters sit in the trailing one (Contacts rows end 16pt from the
+       edge). */
+    --index-bar-width: 14.67px;
     --index-bar-inset-inline-end: 0px;
     --index-bar-font-size: 11px;
-    --index-bar-line-height: 14px;
-    --index-bar-font-weight: var(--font-weight-medium);
+    --index-bar-line-height: 13.79px;
+    --index-bar-font-weight: 590;
     --index-bar-color: var(--color-text-info);
     --index-bar-target-width: 30px;
 

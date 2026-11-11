@@ -270,17 +270,17 @@ describe.each([
   })
 })
 
-describe("IndexBar tokens follow native iOS and the iOS 27 kit Index Bar (48:56457)", () => {
+describe("IndexBar tokens follow the iOS 27.2 section index", () => {
   const tokens = read("packages/styles/src/styles/variables-components.css")
   const css = read("packages/styles/src/components/IndexBar/IndexBar.module.css")
 
-  test("11px medium letters 14px apart, centred 8px from the edge, in the info color", () => {
+  test("11px semibold letters 13.79px apart, centred about 7.4px from the edge, in the info color", () => {
     for (const token of [
-      "--index-bar-width: 16px;",
+      "--index-bar-width: 14.67px;",
       "--index-bar-inset-inline-end: 0px;",
       "--index-bar-font-size: 11px;",
-      "--index-bar-line-height: 14px;",
-      "--index-bar-font-weight: var(--font-weight-medium);",
+      "--index-bar-line-height: 13.79px;",
+      "--index-bar-font-weight: 590;",
       "--index-bar-color: var(--color-text-info);",
       "--index-bar-target-width: 30px;",
     ]) expect(tokens).toContain(token)

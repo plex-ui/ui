@@ -16,7 +16,7 @@ The example shows the phone view.
 
 ### Overview
 
-<ComponentPreview phoneOnly details={<>Put the bar in a <code>Page</code>, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as iOS centres its index, its letters 14px apart and centred 8px from the edge, in the info color, as native iOS draws its tint (Contacts and the iOS 27 kit). The rows keep the margins of the list, and the letters sit in the trailing one, as in Contacts. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; <code>onSelect</code> receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it.</>} code={`const content = useRef<HTMLDivElement>(null)
+<ComponentPreview phoneOnly details={<>Put the bar in a <code>Page</code>, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as iOS centres its index, its letters semibold, 13.79px apart and centred about 7.4px from the edge, where iOS 27.2 centres its own, in the info color, as iOS 27.2 draws its index and its tint. A drag highlights nothing, as on iOS. The rows keep the margins of the list, and the letters sit in the trailing one, as in Contacts. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; <code>onSelect</code> receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it.</>} code={`const content = useRef<HTMLDivElement>(null)
 
 <Page surface="grouped">
   <Toolbar>
@@ -56,7 +56,7 @@ The bar is one stop for the Tab key: a vertical slider named Section index, read
 
 IndexBar reads these component tokens. Override them at any scope to restyle it:
 
-- `--index-bar-width`, `--index-bar-inset-inline-end`: the column of letters and its space from the trailing edge (default `16px`, `0px`)
-- `--index-bar-font-size`, `--index-bar-line-height`, `--index-bar-font-weight`: the letters and the space from one to the next (default `11px`, `14px`, medium)
+- `--index-bar-width`, `--index-bar-inset-inline-end`: the column of letters and its space from the trailing edge (default `14.67px`, `0px`)
+- `--index-bar-font-size`, `--index-bar-line-height`, `--index-bar-font-weight`: the letters and the space from one to the next (default `11px`, `13.79px`, `590`, the semibold of iOS)
 - `--index-bar-color`: the letters (default `var(--color-text-info)`)
 - `--index-bar-target-width`: how far in from the edge a press reaches the bar (default `30px`)
