@@ -801,21 +801,30 @@
       --segmented-control-backdrop-filter: var(--mobile-glass-backdrop-filter);
       --segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);
       /* Held and released as native (variables-components): it grows and whitens, the held label fades, no capsule
-         of its own under the finger, and the selection travels as the lens of a switch's knob. */
+         of its own under the finger, and the selection travels as a clear lens (Tabs playThumbLens). */
       --segmented-control-pressed-scale: var(--segmented-control-mobile-pressed-scale);
       --segmented-control-pressed-background: var(--segmented-control-mobile-glass-background-pressed);
       --segmented-control-option-pressed-opacity: var(--segmented-control-mobile-pressed-label-opacity);
       --segmented-control-option-highlight-background-color: transparent;
-      --segmented-control-thumb-lens-scale: var(--segmented-control-mobile-thumb-lens-scale);
-      --segmented-control-thumb-lens-background: var(--mobile-knob-lens-background);
-      --segmented-control-thumb-lens-shadow: var(--mobile-knob-lens-shadow);
+      --segmented-control-thumb-lens-outset: var(--segmented-control-mobile-thumb-lens-outset);
+      --segmented-control-thumb-lens-background: var(--segmented-control-mobile-thumb-lens-background);
+      --segmented-control-thumb-lens-shadow: var(--segmented-control-mobile-thumb-lens-shadow);
     }
 
-    /* The lens slides about 0.3s in iOS 27.2 (release to landing, 7.37 to 7.66s in the recording). */
+    /* The lens travels as iOS 27.2 moves it (ref-app segmented-bar-symbols, 11.11, Day to Month, 87pt): a quarter of
+       the way in 12ms, three quarters by 97ms, 94% by 214ms and landed by 400ms, each point of the curve a frame of
+       the recording. A browser without linear() keeps the kit's curve over the same time. */
     @media (prefers-reduced-motion: no-preference) {
       html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"])),
       html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
-        --tabs-thumb-transition-duration: 330ms;
+        --tabs-thumb-transition-duration: 400ms;
+      }
+
+      @supports (transition-timing-function: linear(0, 1)) {
+        html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"])),
+        html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
+          --tabs-thumb-transition-easing: linear(0, 0.2 3%, 0.33 6.25%, 0.45 10%, 0.538 12.25%, 0.623 16.25%, 0.69 20%, 0.747 24.25%, 0.793 28.75%, 0.83 32.5%, 0.862 36.75%, 0.887 41%, 0.908 45%, 0.925 49.25%, 0.943 53.5%, 0.956 58%, 0.975 66%, 0.981 70%, 0.989 74.75%, 0.994 82.5%, 1);
+        }
       }
     }
   }

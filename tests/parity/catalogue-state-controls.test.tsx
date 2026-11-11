@@ -7,7 +7,7 @@ import { CheckboxVariantsDemo } from '../../components/docs/CheckboxDemos';
 import { TabsOverviewDemo } from '../../components/docs/TabsDemos';
 import { TableVariantDemo } from '../../components/docs/TableDemos';
 import { TextareaOverviewDemo } from '../../components/docs/TextareaDemos';
-import { VueDemo, type VueDemoControl } from '../../components/docs/vue/VueDemo';
+import { VueDemo, type VueDemoControl, type VueDemoOption } from '../../components/docs/vue/VueDemo';
 import { VueDataTableDemo } from '../../components/docs/vue/VueDataTableDemos';
 import { flushVue } from './harness';
 
@@ -48,7 +48,10 @@ function example(page: string, name: string, references: string[] = []) {
     if (control.type === 'range' && typeof control.default === 'number' && 'min' in control && typeof control.min === 'number' && 'max' in control && typeof control.max === 'number' && 'step' in control && typeof control.step === 'number') {
       return { name: control.name, type: 'range', default: control.default, min: control.min, max: control.max, step: control.step, ...when };
     }
-    if (control.type !== 'select' || typeof control.default !== 'string' || !('options' in control) || !Array.isArray(control.options) || !control.options.every((option: unknown) => typeof option === 'string')) throw new Error('Invalid select control');
+    // An option is its value, or a value under a label offered only while its `when` holds (icon only, horizontal)
+    const isOption = (option: unknown): option is VueDemoOption => typeof option === 'string'
+      || (!!option && typeof option === 'object' && 'value' in option && typeof option.value === 'string' && 'label' in option && typeof option.label === 'string');
+    if (control.type !== 'select' || typeof control.default !== 'string' || !('options' in control) || !Array.isArray(control.options) || !control.options.every(isOption)) throw new Error('Invalid select control');
     return { name: control.name, type: 'select', default: control.default, options: control.options, ...when };
   });
   return { template, controls };
@@ -211,6 +214,49 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(month.getAttribute('aria-checked')).toBe('true');
     await interact(() => fireEvent.click(week));
     expect(week.getAttribute('aria-checked')).toBe('true');
+  });
+
+  test('segmented control: icons and badges are settings of the Overview, each shown where it acts (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <TabsOverviewDemo /> : <VueDemo {...tabs} state={{ tab: 'day' }} />);
+    await interact(() => {});
+    const page = within(view.container);
+    // Day is the first tab; with a badge its accessible name takes the count too
+    const day = () => within(page.getByRole('radiogroup', { name: 'Calendar view' })).getAllByRole('radio')[0];
+    const iconOption = (name: string) => within(page.getByRole('radiogroup', { name: 'icon' })).queryByRole('radio', { name });
+    const choose = (group: string, name: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name: group })).getByRole('radio', { name })));
+    expect(day().querySelector('svg')).toBeNull();
+    // start: an icon before the label; only: the icon alone, the label its accessible name
+    await choose('icon', 'start');
+    expect(day().querySelector('svg')).not.toBeNull();
+    expect(day().textContent).toBe('Day');
+    // badge: a count after the label, and badgePill only with a badge
+    expect(page.queryByRole('switch', { name: 'badgePill' })).toBeNull();
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'badge' })));
+    expect(day().textContent).toBe('Day3');
+    expect(page.getByRole('switch', { name: 'badgePill' })).toBeTruthy();
+    // A count names what it counts: icon-only tabs carry none (owner 11.11: «зачем это вообще?»)
+    await choose('icon', 'only');
+    expect(day().querySelector('svg')).not.toBeNull();
+    expect(day().textContent).toBe('');
+    expect(page.queryByRole('switch', { name: 'badge' })).toBeNull();
+    expect(page.queryByRole('switch', { name: 'badgePill' })).toBeNull();
+    // Vertical tabs are a list whose rows have titles: no icon only there, and one chosen shows as none
+    await choose('orientation', 'vertical');
+    expect(iconOption('only')).toBeNull();
+    expect(iconOption('none')?.getAttribute('aria-checked')).toBe('true');
+    // A vertical tab draws the checkmark of a phone list row, its one symbol without an icon
+    expect(day().querySelectorAll('svg')).toHaveLength(1);
+    // With its label back the tab takes the badge chosen before
+    expect(day().textContent).toBe('Day3');
+    expect(page.getByRole('switch', { name: 'badge' })).toBeTruthy();
+    await choose('orientation', 'horizontal');
+    expect(iconOption('only')?.getAttribute('aria-checked')).toBe('true');
+    // pill acts on the segmented variant, flush on underline
+    expect(page.getByRole('switch', { name: 'pill' })).toBeTruthy();
+    expect(page.queryByRole('switch', { name: 'flush' })).toBeNull();
+    await interact(() => fireEvent.click(page.getByRole('radio', { name: 'underline' })));
+    expect(page.queryByRole('switch', { name: 'pill' })).toBeNull();
+    expect(page.getByRole('switch', { name: 'flush' })).toBeTruthy();
   });
 
   test('DataTable restores the sorted rows after empty, with default, text and rich message modes', async () => {

@@ -149,10 +149,18 @@ export function usePhoneViewport() {
 }
 
 /** Keep the visible control bar and the mounted Phone demo in sync both ways. */
-export function useDemoControlSync(name: string, value: unknown, onChange: ((value: never) => void) | undefined) {
+/** `channelValue` is what the page and its Phone view trade, when it is not the value shown (a choice the phone does not
+ * offer, shown as another, stays the page's choice); `channel: false` keeps the control off the trade (a desktop-only
+ * row, which the Phone view does not show and must not set on the page). */
+export function useDemoControlSync(
+  name: string,
+  value: unknown,
+  onChange: ((value: never) => void) | undefined,
+  { channelValue = value, channel: traded = true }: { channelValue?: unknown; channel?: boolean } = {},
+) {
   const host = useContext(DemoControlHostContext);
   const embed = useContext(DemoControlEmbedContext);
-  const channel = embed ?? host;
+  const channel = traded ? embed ?? host : null;
   const values = useContext(DemoControlValuesContext);
   const owner = useMemo(() => ({}), []);
   const onChangeRef = useRef(onChange);
@@ -173,6 +181,7 @@ export function useDemoControlSync(name: string, value: unknown, onChange: ((val
 
   useEffect(() => {
     if (!channel || !synced) return;
+    const value = channelValue;
     const initial = published.current?.channel !== channel || published.current?.name !== name;
     // What this control last published it does not publish again: StrictMode runs the effect twice, and the second
     // run, no longer initial, sent a row shown only under another setting (accentColor) its default back to the page,
@@ -180,7 +189,7 @@ export function useDemoControlSync(name: string, value: unknown, onChange: ((val
     if (!initial && Object.is(published.current?.value, value)) return;
     published.current = { channel, name, value };
     channel.publish(name, value, initial);
-  }, [channel, name, value, synced]);
+  }, [channel, name, channelValue, synced]);
 
   useEffect(() => {
     if (!channel || !synced) return;

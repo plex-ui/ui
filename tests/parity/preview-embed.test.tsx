@@ -11,6 +11,7 @@ import { compactPreviewHeight, measureCompactPreviewHeight, PreviewEmbed, useDem
 import { PreviewViewportControl, PreviewViewportProvider, usePreviewViewport } from "../../components/docs/PreviewViewport"
 import { ToastDemosHost } from "../../components/docs/ToastDemos"
 import { VueToastDemosHost } from "../../components/docs/vue/VueToastDemos"
+import { VueDemo, type VueDemoControl } from "../../components/docs/vue/VueDemo"
 import { remarkPreviewId } from "../../lib/remark-preview-id"
 import { Dialog as ReactDialog } from "../../packages/ui/src/components/Dialog"
 import { Popover as ReactPopover } from "../../packages/ui/src/components/Popover"
@@ -739,6 +740,30 @@ describe("Compact Phone viewport", () => {
     post.mockClear()
     act(() => window.dispatchEvent(new MessageEvent("message", { source: frame.contentWindow, origin: window.location.origin, data: { previewKey: "controls", demoReady: true } })))
     expect(post).toHaveBeenLastCalledWith({ previewKey: "controls", demoControl: { name: "compact-disabled", value: true } }, window.location.origin)
+  })
+
+  test("a Vue row trades the value asked for while it shows another, so the Phone view keeps the choice", () => {
+    // Icon only is ruled out on vertical tabs: the row shows none, and the choice of only stays for horizontal ones
+    const controls: VueDemoControl[] = [
+      { name: "orientation", type: "select", options: ["horizontal", "vertical"], default: "horizontal" },
+      { name: "icon", type: "select", options: ["none", "start", { value: "only", label: "only", when: { orientation: "horizontal" } }], default: "none" },
+    ]
+    const view = render(<PhonePage><ComponentPreview phonePresentation="component" previewId="vue-controls"><VueDemo template="<div />" controls={controls} /></ComponentPreview></PhonePage>)
+    fireEvent.click(view.getByText("Use Phone"))
+    const frame = view.getByTitle("Phone component preview") as HTMLIFrameElement
+    const post = vi.spyOn(frame.contentWindow!, "postMessage")
+    const icon = () => within(view.getByRole("radiogroup", { name: "icon" }))
+    fireEvent.click(icon().getByRole("radio", { name: "only" }))
+    fireEvent.click(within(view.getByRole("radiogroup", { name: "orientation" })).getByRole("radio", { name: "vertical" }))
+    expect(icon().getByRole("radio", { name: "none" }).getAttribute("aria-checked")).toBe("true")
+    const traded = post.mock.calls
+      .map(([data]) => (data as { demoControl?: { name: string; value: unknown } }).demoControl)
+      .filter((control) => control?.name === "icon")
+    expect(traded.at(-1)?.value).toBe("only")
+    // The Phone view gets the choice once it is ready, not the none the row shows
+    post.mockClear()
+    act(() => window.dispatchEvent(new MessageEvent("message", { source: frame.contentWindow, origin: window.location.origin, data: { previewKey: "vue-controls", demoReady: true } })))
+    expect(post).toHaveBeenCalledWith({ previewKey: "vue-controls", demoControl: { name: "icon", value: "only" } }, window.location.origin)
   })
 
   test("Phone changes update only their own control bar without echoing or publishing initial defaults", () => {

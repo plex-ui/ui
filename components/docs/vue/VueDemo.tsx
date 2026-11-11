@@ -10,8 +10,12 @@ import { usePhoneRows } from '../PhoneRows';
 import { createInitialDemoState } from './initialDemoState';
 import { renderDemoCode } from '../demoCode.mjs';
 
-/** A select option: the value itself, or a value shown under another label (`Per-digit`). */
-export type VueDemoOption = string | { value: string | boolean; label: string };
+/**
+ * A select option: the value itself, or a value shown under another label (`Per-digit`). `when`: offered only while
+ * the other controls have these values (icon only on a horizontal control); a value on an option not offered shows
+ * as the control's `default`.
+ */
+export type VueDemoOption = string | { value: string | boolean; label: string; when?: Record<string, unknown> };
 
 /** `name` is the template variable; `label`, when set, is what the control row shows. */
 export type VueDemoControl = {
@@ -22,7 +26,10 @@ export type VueDemoControl = {
   placement?: 'bottom';
   /** Hidden on a phone (narrow page or Phone preview), where the template gets its `phoneDefault`, else `default` */
   desktopOnly?: boolean;
-  /** Shown only while the other controls have these values (`collapsible` for a `single` accordion) */
+  /**
+   * Shown only while the other controls have these values (`collapsible` for a `single` accordion), a list naming
+   * the values any of which will do; where it is not shown, the template gets its `default`.
+   */
   when?: Record<string, unknown>;
 } & (
   | { type: 'boolean'; default: boolean; phoneDefault?: boolean }
@@ -38,7 +45,33 @@ export type VueDemoControl = {
 );
 
 const optionsOf = (options: readonly VueDemoOption[]) =>
-  options.map((option) => (typeof option === 'string' ? { value: option, label: option } : option));
+  options.map((option): Exclude<VueDemoOption, string> => (typeof option === 'string' ? { value: option, label: option } : option));
+
+/** Whether the values meet a `when`: each named control has the value, or one of the values a list names */
+const holds = (when: Record<string, unknown> | undefined, values: Record<string, unknown>) =>
+  Object.entries(when ?? {}).every(([name, value]) => (Array.isArray(value) ? value.includes(values[name]) : values[name] === value));
+
+/**
+ * A control a `when` hides gives the template its default, and so does a value on an option a `when` does not
+ * offer: what the preview and its code show is what the shown controls say. A `when` may name a control set back
+ * before it (badgePill after badge), so the passes go on until nothing changes.
+ */
+const withinConditions = (controls: readonly VueDemoControl[], values: Record<string, unknown>) => {
+  const next = { ...values };
+  for (let pass = 0; pass <= controls.length; pass += 1) {
+    let changed = false;
+    for (const control of controls) {
+      const ruledOut = control.type === 'select' && optionsOf(control.options)
+        .some((option) => option.value === next[control.name] && option.when !== undefined && !holds(option.when, next));
+      if ((ruledOut || !holds(control.when, next)) && next[control.name] !== control.default) {
+        next[control.name] = control.default;
+        changed = true;
+      }
+    }
+    if (!changed) break;
+  }
+  return next;
+};
 
 const overLimit = (control: VueDemoControl, value: unknown, values: Record<string, unknown>) =>
   control.type === 'select' && control.limit !== undefined
@@ -130,7 +163,7 @@ function VueDemoView({
   const [modifiedControls, setModifiedControls] = useState<ReadonlySet<string>>(() => new Set(
     phonePreview ? Object.keys(phoneState ?? {}) : [],
   ));
-  const props = useMemo(() => withinLimits(controls, {
+  const props = useMemo(() => withinLimits(controls, withinConditions(controls, {
     ...values,
     ...(reactiveControlDefaults ? Object.fromEntries(controls
       .filter((control) => !modifiedControls.has(control.name) && control.name !== loop?.name)
@@ -141,7 +174,7 @@ function VueDemoView({
         && !optionsOf(control.phoneOptions).some((option) => option.value === values[control.name]))
       .map((control) => [control.name, control.default])) : {}),
     ...context,
-  }), [context, controls, loop?.name, modifiedControls, phone, reactiveControlDefaults, values]);
+  })), [context, controls, loop?.name, modifiedControls, phone, reactiveControlDefaults, values]);
   // A hidden desktop-only control keeps the chosen value; the template shows its phone default or default
   const templateProps = useMemo(() => (phone ? {
     ...props,
@@ -208,9 +241,9 @@ function VueDemoView({
       }}
     />
   );
-  const shownControls = controls.filter((control) => !hiddenControls.includes(control.name)
-    && Object.entries(control.when ?? {}).every(([name, value]) => props[name] === value));
-  const optionsFor = (control: Extract<VueDemoControl, { type: 'select' }>) => optionsOf(phone && control.phoneOptions ? control.phoneOptions : control.options);
+  const shownControls = controls.filter((control) => !hiddenControls.includes(control.name) && holds(control.when, props));
+  const optionsFor = (control: Extract<VueDemoControl, { type: 'select' }>) => optionsOf(phone && control.phoneOptions ? control.phoneOptions : control.options)
+    .filter((option) => holds(option.when, props));
   if (shownControls.length === 0) {
     return stageClassName ? (
       <div className={stageClassName} data-demo-stage>
@@ -221,6 +254,12 @@ function VueDemoView({
     );
   }
 
+  // The page and its Phone view trade the value asked for, which a row may show as another: an option its `when`
+  // rules out (icon only on vertical tabs) or a value the phone does not offer. Rows trade a select's labels.
+  const asked = (name: string) => (context && name in context) || (reactiveControlDefaults && !modifiedControls.has(name)) ? props[name] : values[name];
+  const everyOption = (control: Extract<VueDemoControl, { type: 'select' }>) => optionsOf([...control.options, ...(control.phoneOptions ?? [])]);
+  const labelOf = (control: Extract<VueDemoControl, { type: 'select' }>, value: unknown) => everyOption(control).find((option) => option.value === value)?.label;
+  const valueOf = (control: Extract<VueDemoControl, { type: 'select' }>, label: string) => everyOption(control).find((option) => option.label === label)?.value;
   const renderControl = (control: VueDemoControl) =>
     control.type === 'boolean' ? (
       <DemoControlBoolean
@@ -228,6 +267,7 @@ function VueDemoView({
         name={control.label ?? control.name}
         value={props[control.name] as boolean}
         onChange={set(control.name)}
+        syncValue={asked(control.name) as boolean}
         phoneOnly={control.phoneOnly}
         desktopOnly={control.desktopOnly}
       />
@@ -252,14 +292,15 @@ function VueDemoView({
         desktopOnly={control.desktopOnly}
         options={optionsFor(control).map((option) => option.label)}
         value={optionsFor(control).find((option) => option.value === props[control.name])?.label ?? ''}
-        onChange={(label) => set(control.name)(optionsFor(control).find((option) => option.label === label)?.value)}
+        syncValue={labelOf(control, asked(control.name))}
+        onChange={(label) => set(control.name)(valueOf(control, label))}
       />
     ) : (
-      <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
+      <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly} syncValue={labelOf(control, asked(control.name))}>
         <SegmentedControl<string>
           value={optionsFor(control).find((option) => option.value === props[control.name])?.label ?? ''}
           onChange={(label) => {
-            const value = optionsFor(control).find((option) => option.label === label)?.value;
+            const value = valueOf(control, label);
             // A limited control's shown value coming back (the phone view's sync) keeps the value asked for
             if (control.limit && value === props[control.name]) return;
             set(control.name)(value);

@@ -892,7 +892,7 @@ Props:
     - badge (ReactNode | { content: ReactNode; color?: "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"; variant?: "soft" | "solid"; pill?: boolean; loading?: boolean }) — Badge content (for example a count) or a badge config
     - aria-label (string) — Accessible name (required for icon-only tabs)
     - children (ReactNode) — Tab label
-Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Sizing, Scrollable, Overflow menu
+Examples: Overview, Icons, Icon only, Badges, Overflow
 
 ## Select Control
 The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.

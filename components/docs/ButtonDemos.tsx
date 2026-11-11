@@ -35,6 +35,7 @@ export function DemoControlBoolean({
   onChange,
   phoneOnly = false,
   desktopOnly = false,
+  syncValue,
 }: {
   name: string;
   value: boolean;
@@ -42,10 +43,12 @@ export function DemoControlBoolean({
   phoneOnly?: boolean;
   /** Hidden on a phone (narrow page or Phone preview), where the value looks the same; it stays mounted */
   desktopOnly?: boolean;
+  /** What the page and its Phone view trade, when the row shows another value */
+  syncValue?: boolean;
 }) {
   // Unique per instance: two demos with the same control name share a page
   const controlId = useId();
-  useDemoControlSync(name, value, onChange);
+  useDemoControlSync(name, value, onChange, { channelValue: syncValue ?? value, channel: !desktopOnly });
 
   return (
     <div style={controlRowStyle} data-demo-phone-only={phoneOnly || undefined} data-demo-desktop-only={desktopOnly || undefined}>
@@ -76,9 +79,20 @@ const hasSegments = (children: React.ReactNode): boolean =>
 
 /** `name` keys the control between the page and its Phone view; `label`, when set, is what the row shows (a phone-only
  * row for a prop that also has a desktop row, such as a size with the phone's own options). */
-export function DemoControlRow({ name, label, children, phoneOnly = false, desktopOnly = false }: { name: string; label?: string; children: React.ReactNode; phoneOnly?: boolean; desktopOnly?: boolean }) {
+export function DemoControlRow({ name, label, children, phoneOnly = false, desktopOnly = false, syncValue }: {
+  name: string;
+  label?: string;
+  children: React.ReactNode;
+  phoneOnly?: boolean;
+  desktopOnly?: boolean;
+  /** What the page and its Phone view trade, when the row shows another value (a choice the phone does not offer) */
+  syncValue?: unknown;
+}) {
   const control = syncedControl(children);
-  useDemoControlSync(name, control?.value, control?.onChange);
+  useDemoControlSync(name, control?.value, control?.onChange, {
+    channelValue: syncValue === undefined ? control?.value : syncValue,
+    channel: !desktopOnly,
+  });
 
   return (
     <div style={controlRowStyle} data-demo-phone-only={phoneOnly || undefined} data-demo-desktop-only={desktopOnly || undefined}>
@@ -110,7 +124,7 @@ function DemoChoiceMenu<T extends string>({ name, options, value, onChange }: { 
 /** A control of more options than a row of segments shows whole (eight colors), as a menu: a row of segments that
  * runs past the panel hides its last options and does not show it scrolls (owner 11.11, the Stat Card's accentColor).
  * Storybook's controls make the same cut, radio buttons for an enum of up to five options and a select above. */
-export function DemoControlSelect<T extends string>({ name, label, options, value, onChange, phoneOnly = false, desktopOnly = false }: {
+export function DemoControlSelect<T extends string>({ name, label, options, value, onChange, phoneOnly = false, desktopOnly = false, syncValue }: {
   name: string;
   label?: string;
   options: readonly T[];
@@ -118,9 +132,11 @@ export function DemoControlSelect<T extends string>({ name, label, options, valu
   onChange: (value: T) => void;
   phoneOnly?: boolean;
   desktopOnly?: boolean;
+  /** What the page and its Phone view trade, when the row shows another value */
+  syncValue?: unknown;
 }) {
   return (
-    <DemoControlRow name={name} label={label} phoneOnly={phoneOnly} desktopOnly={desktopOnly}>
+    <DemoControlRow name={name} label={label} phoneOnly={phoneOnly} desktopOnly={desktopOnly} syncValue={syncValue}>
       <DemoChoiceMenu name={label ?? name} options={options} value={value} onChange={onChange} />
     </DemoControlRow>
   );

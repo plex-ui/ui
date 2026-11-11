@@ -887,7 +887,7 @@ Props:
     - default slot (VNode[]) — Tab label
     - icon slot (VNode[]) — Icon before the label
     - badge slot (VNode[]) — Badge content; styling still comes from the badge object
-Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Sizing, Scrollable, Overflow menu
+Examples: Overview, Icons, Icon only, Badges, Overflow
 
 ## Select
 Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.

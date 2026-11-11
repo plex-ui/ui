@@ -718,12 +718,27 @@
        the capsule grows by 7% (709 to 757px wide and 145 to 155px tall at @3x), its glass turns white (253 on the 242
        sheet) and the held segment's label fades to about a fifth (black to 203 on 253); the selected label keeps its
        color. Dark was not recorded and takes the shared glass's pressed step, alpha-20. Released, the selection
-       travels as a lens the track's height and a third wider (147 x 48pt around 110 x 40pt; Tabs playThumbLens). */
+       travels as a lens (Tabs playThumbLens). */
     --segmented-control-mobile-pressed-scale: 1.07;
     --segmented-control-mobile-glass-background-pressed: light-dark(alpha(var(--gray-0), 85%), var(--alpha-20));
     --segmented-control-mobile-pressed-label-opacity: 0.2;
-    /* The arguments of the lens's scale() (Tabs playThumbLens). */
-    --segmented-control-mobile-thumb-lens-scale: calc(147 / 110), calc(48 / 40);
+    /* The lens a switch lifts the selection into (Tabs playThumbLens), as iOS 27.2 draws it (ref-app
+       segmented-bar-text4 switched Day to Year, recorded 11.11 after the owner's «анимация не правильная и стиль»;
+       segmented-bar-symbols before it). At its widest it is the selection and 36pt (268 around 160 @3x) and at its
+       tallest 11pt over it (150 around 118), past the 48pt capsule. It is nearly clear, a shade over the track darker
+       at its top (230 under its top edge to 242 under its bottom on 245; 26 on 30 in dark). Its rim is a dark line
+       (204 then 195 on 240 at 2px @3x in light, 10 on 26 in dark) with a light one inside it, the capsule's edge shows
+       through it as a band along its top and its bottom (216 and 222 on the 245 track, 3pt), and a faint shade falls
+       under it (232 on 238). */
+    --segmented-control-mobile-thumb-lens-outset: 36px 11px;
+    --segmented-control-mobile-thumb-lens-background: light-dark(transparent, rgb(0 0 0 / 13%));
+    --segmented-control-mobile-thumb-lens-shadow:
+      0 0 0 0.5px light-dark(rgb(0 0 0 / 22%), rgb(0 0 0 / 60%)),
+      inset 0 0 0 0.5px light-dark(rgb(255 255 255 / 60%), rgb(255 255 255 / 6%)),
+      inset 0 3px 0 light-dark(rgb(0 0 0 / 11%), rgb(0 0 0 / 20%)),
+      inset 0 -3px 0 light-dark(rgb(0 0 0 / 9%), rgb(0 0 0 / 20%)),
+      inset 0 12px 12px -6px light-dark(rgb(0 0 0 / 5%), rgb(0 0 0 / 10%)),
+      0 2px 4px rgb(0 0 0 / 6%);
     --segmented-control-option-highlight-gutter: 1px;
     --segmented-control-option-highlight-background-color: light-dark(
       var(--gray-200),

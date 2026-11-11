@@ -273,8 +273,8 @@ const TabsRoot = <T extends string>({
   }, [applyThumbSizing])
 
   const transitionProperty = isVertical
-    ? "height var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter), transform var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter)"
-    : "width var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter), transform var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter)"
+    ? "height var(--tabs-thumb-transition-duration, 200ms) var(--tabs-thumb-transition-easing, var(--cubic-enter)), transform var(--tabs-thumb-transition-duration, 200ms) var(--tabs-thumb-transition-easing, var(--cubic-enter))"
+    : "width var(--tabs-thumb-transition-duration, 200ms) var(--tabs-thumb-transition-easing, var(--cubic-enter)), transform var(--tabs-thumb-transition-duration, 200ms) var(--tabs-thumb-transition-easing, var(--cubic-enter))"
 
   useLayoutEffect(() => {
     const root = rootRef.current
@@ -302,8 +302,9 @@ const TabsRoot = <T extends string>({
       })
     } else if (thumb.style.transition) {
       // Normal update (value change, etc.): the thumb leaves with the label's colour
+      const from = valueChanged ? thumbBox(thumb) : null
       applyThumbSizing(true)
-      if (valueChanged) playThumbLens(thumb)
+      if (valueChanged) playThumbLens(thumb, from)
     } else {
       // First measure: apply transition after initial calculation is set
       waitForAnimationFrame(() => {
@@ -411,52 +412,174 @@ const isBadgeObject = (
  * nothing. */
 // Arrays and fragments always go through Children.map, with or without text, so their children keep the same keys
 // when a text child comes or goes; a fragment keeps its element and key, so a new key still remounts its icons.
-/** On a phone the large control's selection travels as a lens of glass, as iOS 27.2 draws it (Xcode segmented-sheet and
- * segmented-bottom, recorded 10.11): released, the selection lifts into a clear lens the track's height and about a
- * third wider (147 x 48pt around a 110 x 40pt selection), slides to the new segment, lands a little wide and settles
- * back into the gray selection (298, 262, then 272px at @3x within 0.4s). touch.css names the lens's scale on the
- * large control only, so everywhere else the selection just slides. The lens is the knob lens of a switch (white
- * at 9%, its edge and rim): CSS has no refraction. */
-const playThumbLens = (thumb: HTMLElement) => {
+/** On a phone the large control's selection travels as a lens of glass, as iOS 27.2 draws it. Recorded frame by frame
+ * 11.11 (ref-app segmented-bar-text4, a toolbar Picker of Day, Week, Month and Year switched Day to Year and back,
+ * after the owner's «анимация не правильная и стиль» and «day<->year пробуй переключать»; segmented-bar-symbols, a
+ * segment away, before it): the gray selection clears into a lens within 45ms, taller than the capsule (11pt) and
+ * wider the faster it goes (36pt at 200ms), and carries across; it lands as the gray selection again by 300ms,
+ * pressed against its segment's far side (7pt narrower, 6pt taller and its centre 2.5% of the way past at 430ms), and
+ * springs back by 750ms while the label under it dims to 76% and comes back. The centre's path is a share of the
+ * distance and the growth is in points, as both recordings show: as much growth a segment away as three. touch.css
+ * names the lens's growth on the large control only, so everywhere else the selection just slides with its
+ * transition. CSS has no refraction, so the lens is its rim, its tint and the capsule's edge seen through it. */
+let lensRun = 0
+const LENS_ID = "segmented-control-lens"
+const LENS_DURATION = 750
+// At each measured frame: [ms, the centre's share of the distance, share of the growth's width, share of its height]
+const LENS_PATH = [
+  [0, 0, 0, 0],
+  [10, 0.014, 0.036, 0.065],
+  [32, 0.077, 0.13, 0.19],
+  [47, 0.169, 0.22, 0.44],
+  [70, 0.378, 0.44, 0.87],
+  [92, 0.478, 0.52, 1],
+  [125, 0.647, 0.7, 0.93],
+  [150, 0.773, 0.85, 0.87],
+  [182, 0.856, 0.96, 0.93],
+  [205, 0.9, 1, 1],
+  [227, 0.932, 0.96, 0.93],
+  [245, 0.951, 0.8, 0.44],
+  [262, 0.964, 0.67, 0.31],
+  [295, 0.989, 0.37, 0.31],
+  [330, 1.005, 0.13, 0.31],
+  [363, 1.016, -0.02, 0.37],
+  [395, 1.023, -0.13, 0.5],
+  [430, 1.025, -0.19, 0.56],
+  [497, 1.022, -0.19, 0.56],
+  [545, 1.018, -0.17, 0.37],
+  [597, 1.014, -0.11, 0.25],
+  [647, 1.007, -0.075, 0.12],
+  [697, 1.004, -0.036, 0],
+  [750, 1, 0, 0],
+] as const
+// The selected label's opacity as the lens lands: [ms, opacity]
+const LENS_LABEL = [
+  [0, 1],
+  [380, 1],
+  [428, 0.77],
+  [460, 0.76],
+  [515, 0.85],
+  [580, 0.93],
+  [650, 0.98],
+  [713, 1],
+  [750, 1],
+] as const
+type ThumbBox = { x: number; width: number }
+type LensRun = { from: ThumbBox; to: ThumbBox; move: Animation; label?: Animation }
+const lensRuns = new WeakMap<HTMLElement, LensRun>()
+const round = (value: number) => Math.round(value * 100) / 100
+// The box the lens draws at a time of its run
+const lensBox = ({ from, to }: LensRun, ms: number, growth: number): ThumbBox => {
+  const next = LENS_PATH.findIndex(([time]) => time >= ms)
+  const at = next < 0 ? LENS_PATH.length - 1 : Math.max(1, next)
+  const [t0, share0, wide0] = LENS_PATH[at - 1]
+  const [t1, share1, wide1] = LENS_PATH[Math.min(at, LENS_PATH.length - 1)]
+  const k = t1 > t0 ? Math.min(1, Math.max(0, (ms - t0) / (t1 - t0))) : 1
+  const share = share0 + (share1 - share0) * k
+  const width = from.width + (to.width - from.width) * Math.min(share, 1) + growth * (wide0 + (wide1 - wide0) * k)
+  return { x: from.x + from.width / 2 + (to.x + to.width / 2 - from.x - from.width / 2) * share - width / 2, width }
+}
+/** Where a horizontal thumb is drawn, from its control's left edge: where the script set it, or where a lens still
+ * on its way has it, so a switch mid-flight sets off from there */
+const thumbBox = (thumb: HTMLElement): ThumbBox | null => {
+  const offset = /^translateX\((-?[\d.]+)px\)$/.exec(thumb.style.transform)
+  const width = parseFloat(thumb.style.width)
+  if (!offset || !(width > 0)) return null
+  const run = lensRuns.get(thumb)
+  const ms = Number(run?.move.currentTime)
+  if (run && (run.move.playState === "running" || run.move.playState === "paused") && ms >= 0) {
+    const growth = lensGrowth(getComputedStyle(thumb))
+    if (growth) return lensBox(run, ms, growth[0])
+  }
+  return { x: parseFloat(offset[1]), width }
+}
+// The lens's growth at its widest and tallest, which touch.css names on the large control only
+const lensGrowth = (style: CSSStyleDeclaration) => {
+  const [wide = Number.NaN, tall = wide] = style.getPropertyValue("--segmented-control-thumb-lens-outset").trim().split(/\s+/).map(parseFloat)
+  return wide >= 0 && tall >= 0 ? ([wide, tall] as const) : null
+}
+const playThumbLens = (thumb: HTMLElement, from: ThumbBox | null) => {
   if (typeof thumb.animate !== "function") return
   // A lens still on its way ends first, so the thumb's own fill and edge are read below (and none outlives a switch
   // to reduced motion)
   thumb.getAnimations().forEach((animation) => {
-    if (animation.id === "segmented-control-lens") animation.cancel()
+    if (animation.id === LENS_ID) animation.cancel()
   })
-  if (prefersReducedMotion()) return
+  lensRuns.get(thumb)?.label?.cancel()
+  lensRuns.delete(thumb)
+  if (!from || prefersReducedMotion()) return
   const style = getComputedStyle(thumb)
-  const scale = style.getPropertyValue("--segmented-control-thumb-lens-scale").trim()
-  if (!scale) return
+  const growth = lensGrowth(style)
+  const to = thumbBox(thumb)
+  const top = parseFloat(style.top)
+  const bottom = parseFloat(style.bottom)
+  if (!growth || !to || !Number.isFinite(top) || !Number.isFinite(bottom)) return
+  const [wide, tall] = growth
+  const timing = { id: LENS_ID, duration: LENS_DURATION }
+  const run: LensRun = { from, to, move: undefined as unknown as Animation }
+  // The thumb's box at each frame replaces its own while the lens runs (its transition is overridden); the height
+  // grows about the middle
+  run.move = thumb.animate(
+    LENS_PATH.map(([ms, , , high]) => {
+      const box = lensBox(run, ms, wide)
+      const grown = (tall * high) / 2
+      return {
+        offset: ms / LENS_DURATION,
+        transform: `translateX(${round(box.x)}px)`,
+        width: `${round(Math.max(1, box.width))}px`,
+        top: `${round(top - grown)}px`,
+        bottom: `${round(bottom - grown)}px`,
+      }
+    }),
+    timing,
+  )
   const lens = {
     backgroundColor: style.getPropertyValue("--segmented-control-thumb-lens-background").trim(),
     boxShadow: style.getPropertyValue("--segmented-control-thumb-lens-shadow").trim(),
   }
   const rest = { backgroundColor: style.backgroundColor, boxShadow: style.boxShadow }
-  const timing = { id: "segmented-control-lens", duration: 550 }
-  // The scale is added to the thumb's own translateX, so it grows about its centre and not the distance it travels;
-  // the fill and the edge replace the thumb's (added, the two fills would mix).
-  thumb.animate(
+  // The gray clears as the lens lifts (45ms) and comes back as it lands (250 to 300ms)
+  const fill = thumb.animate(
     [
-      { offset: 0, transform: "scale(1)", easing: "ease-out" },
-      { offset: 0.16, transform: `scale(${scale})` },
-      { offset: 0.6, transform: `scale(${scale})`, easing: "ease-out" },
-      { offset: 0.76, transform: "scale(1.09, 1)", easing: "ease-in-out" },
-      { offset: 0.88, transform: "scale(0.96, 1)", easing: "ease-in-out" },
-      { offset: 1, transform: "scale(1)" },
-    ],
-    { ...timing, composite: "add" },
-  )
-  thumb.animate(
-    [
-      { offset: 0, ...rest, easing: "ease-out" },
-      { offset: 0.16, ...lens },
-      { offset: 0.6, ...lens, easing: "ease-out" },
-      { offset: 0.76, ...rest },
+      { offset: 0, ...rest },
+      { offset: 45 / LENS_DURATION, ...lens },
+      { offset: 250 / LENS_DURATION, ...lens },
+      { offset: 300 / LENS_DURATION, ...rest },
       { offset: 1, ...rest },
     ],
     timing,
   )
+  const root = thumb.parentElement
+  const selected = root?.querySelector<HTMLElement>('[data-state="on"]')
+  if (selected && typeof selected.animate === "function") {
+    run.label = selected.animate(
+      LENS_LABEL.map(([ms, opacity]) => ({ offset: ms / LENS_DURATION, opacity })),
+      timing,
+    )
+  }
+  lensRuns.set(thumb, run)
+  // The frame a switch is drawn in also lays out whatever the switch changes around the control, which can take a
+  // few frames' time; the lens holds its first frame until then and sets off from the next, so none of its way is
+  // skipped (a tap's first 45ms were, recorded in Safari 11.11)
+  if (typeof requestAnimationFrame === "function") {
+    const held = [run.move, fill, run.label].filter((animation): animation is Animation => typeof animation?.pause === "function")
+    held.forEach((animation) => animation.pause())
+    requestAnimationFrame(() => {
+      held.forEach((animation) => {
+        if (animation.playState === "paused") animation.play()
+      })
+    })
+  }
+  // The lens reaches past the capsule, which clips what scrolls in it: a control whose segments all fit lets it out
+  // for the switch
+  if (!root || root.scrollWidth > root.clientWidth + 1) return
+  const id = String(++lensRun)
+  root.setAttribute("data-lens", id)
+  const done = () => {
+    if (root.getAttribute("data-lens") === id) root.removeAttribute("data-lens")
+  }
+  if (run.move?.finished) run.move.finished.then(done, done)
+  else done()
 }
 
 const renderTabIcon = (icon: React.ReactNode): React.ReactNode => {

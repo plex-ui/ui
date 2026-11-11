@@ -808,23 +808,62 @@
   }
 
   /* Held, a control grows, its glass lightens and the held segment's label fades, by the values touch.css gives the
-     large control (iOS 27.2); without them a press changes none of these. */
+     large control (iOS 27.2); without them a press changes none of these. Timed to iOS 27.2 held (ref-app
+     segmented-bar-text4 recorded 11.11, after the owner's «в iOS анимация более плавная и аккуратная»): pressed, the
+     capsule grows at once, half of the way in 60ms, 96% in 130ms and 4% past at 210ms (745 to 793 @3x), its glass
+     lightens in 90ms (245 to 253) and the label fades over 430ms; let go, the label is back in a frame, the capsule
+     in 170ms a touch under and the glass in 380ms. So a quick tap barely shows the press. The press sets the timing
+     of the way in through these properties, so the transitions stay in the one-class rules the reduced-motion reset
+     after them overrides. A browser without linear() (Safari before 17.2) would drop a transition that names it, so
+     these rules give it cubic Béziers close to the curves, and the measured curves follow under @supports. */
   .Tabs:where([data-orientation="horizontal"]) {
-    transition: scale 150ms var(--cubic-enter), background-color 150ms var(--cubic-enter);
+    transition:
+      scale var(--segmented-control-press-scale-timing, 300ms cubic-bezier(0.3, 0.8, 0.3, 1.1)),
+      background-color var(--segmented-control-press-background-timing, 380ms ease-out);
   }
 
   .Tabs:where([data-orientation="horizontal"]):has(> .Tab:where(:not([disabled])):active) {
+    --segmented-control-press-scale-timing: 300ms cubic-bezier(0.2, 0.9, 0.3, 1.1);
+    --segmented-control-press-background-timing: 90ms ease-out;
     background-color: var(--segmented-control-pressed-background, var(--segmented-control-background));
     scale: var(--segmented-control-pressed-scale, 1);
   }
 
   /* Kept as light as the reduced-motion reset at the end of the file, which must win */
   :where(.Tabs[data-orientation="horizontal"]) .TabContent {
-    transition: opacity 150ms var(--cubic-enter);
+    transition: opacity var(--segmented-control-press-label-timing, 110ms cubic-bezier(0.1, 0.9, 0.3, 1));
   }
 
   .Tabs[data-orientation="horizontal"] .Tab[data-state="off"]:where(:not([disabled])):active > .TabContent {
+    --segmented-control-press-label-timing: 430ms ease-out;
     opacity: var(--segmented-control-option-pressed-opacity, 1);
+  }
+
+  @supports (transition-timing-function: linear(0, 1)) {
+    .Tabs:where([data-orientation="horizontal"]) {
+      transition:
+        scale var(--segmented-control-press-scale-timing, 300ms linear(0, 0.14 10%, 0.37 21%, 0.71 27%, 0.88 38%, 1.04 56%, 1)),
+        background-color var(--segmented-control-press-background-timing, 380ms linear(0, 0.09 8%, 0.18 16%, 0.36 22%, 0.55 30%, 0.73 39%, 0.82 56%, 0.91 69%, 1));
+    }
+
+    .Tabs:where([data-orientation="horizontal"]):has(> .Tab:where(:not([disabled])):active) {
+      --segmented-control-press-scale-timing: 300ms linear(0, 0.08 3.7%, 0.21 10%, 0.33 15%, 0.5 20%, 0.79 32%, 0.96 43%, 1.04 71%, 1);
+      --segmented-control-press-background-timing: 90ms linear(0, 0.62 33%, 0.75 50%, 0.87 68%, 1);
+    }
+
+    :where(.Tabs[data-orientation="horizontal"]) .TabContent {
+      transition: opacity var(--segmented-control-press-label-timing, 110ms linear(0, 0.87 15%, 0.94 50%, 1));
+    }
+
+    .Tabs[data-orientation="horizontal"] .Tab[data-state="off"]:where(:not([disabled])):active > .TabContent {
+      --segmented-control-press-label-timing: 430ms linear(0, 0.07 2.6%, 0.16 7%, 0.29 14%, 0.47 22%, 0.6 30%, 0.78 46%, 0.9 62%, 0.96 77%, 1);
+    }
+  }
+
+  /* A switch lifts the selection into a lens past the capsule's height (Tabs playThumbLens); a control whose segments
+     all fit lets it out while it travels, as iOS 27.2 draws it over the capsule's rim. */
+  .Tabs:where([data-orientation="horizontal"])[data-lens] {
+    overflow: visible;
   }
 
   /* The script sets the thumb to its segment's box from the left edge, so the outset is physical. */

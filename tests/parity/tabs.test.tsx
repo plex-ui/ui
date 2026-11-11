@@ -503,17 +503,48 @@ describe("Tabs renders the same DOM as React", () => {
   })
 
   test("a new selection travels as a lens where the control names one (the phone's large control), in React and Vue", async () => {
-    const calls: { keyframes: Keyframe[]; options: KeyframeAnimationOptions }[] = []
+    const calls: { target: HTMLElement; keyframes: Keyframe[]; options: KeyframeAnimationOptions; animation: { playState: string } }[] = []
     Object.defineProperty(HTMLElement.prototype, "animate", {
       configurable: true,
-      value(keyframes: Keyframe[], options: KeyframeAnimationOptions) {
-        calls.push({ keyframes, options })
-        return { id: options.id, cancel() {} }
+      value(this: HTMLElement, keyframes: Keyframe[], options: KeyframeAnimationOptions) {
+        // Still on its way, 205ms in: the control lets the lens out until it ends, and a switch now sets off from there
+        const animation = {
+          id: options.id,
+          playState: "running",
+          currentTime: 205,
+          finished: new Promise(() => {}),
+          cancel() {},
+          pause() { this.playState = "paused" },
+          play() { this.playState = "running" },
+        }
+        calls.push({ target: this, keyframes, options, animation })
+        return animation
       },
     })
     Object.defineProperty(HTMLElement.prototype, "getAnimations", { configurable: true, value: () => [] })
-    const wait = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 60)) })
-    const lens = (thumb: HTMLElement | null) => thumb?.style.setProperty("--segmented-control-thumb-lens-scale", "1.3, 1.2")
+    // Segments 60pt wide from 4pt in, in a 250pt capsule; jsdom's own sizes come back after
+    const sizes = ["clientWidth", "offsetLeft"].map((name) => [name, Object.getOwnPropertyDescriptor(HTMLElement.prototype, name)] as const)
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.getAttribute("role") === "radiogroup" ? 250 : 60
+      },
+    })
+    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
+      configurable: true,
+      get(this: HTMLElement) {
+        return 4 + 62 * Array.from(this.parentElement?.querySelectorAll(":scope > [role=radio]") ?? []).indexOf(this)
+      },
+    })
+    // The first measure sets the thumb's transition after four frames
+    const wait = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 150)) })
+    // touch.css names the lens's growth on the large control only, and the thumb's insets come from the gutter
+    const lens = (thumb: HTMLElement | null) => {
+      thumb?.style.setProperty("--segmented-control-thumb-lens-outset", "36px 11px")
+      thumb?.style.setProperty("top", "4px")
+      thumb?.style.setProperty("bottom", "4px")
+    }
+    const shape = (call?: (typeof calls)[number]) => call && { keyframes: call.keyframes, options: call.options }
     const running: { id: string; cancel: () => void; cancelled: boolean }[] = []
     try {
       const view = (value: string) => (
@@ -524,22 +555,45 @@ describe("Tabs renders the same DOM as React", () => {
       )
       const { container, rerender, unmount } = render(view("day"))
       await wait()
-      // Without the lens's scale (desktop, the small control) the selection only slides
+      // Without the lens's growth (desktop, the small control) the selection only slides
       rerender(view("week"))
       expect(calls).toHaveLength(0)
-      lens(container.querySelector<HTMLElement>(".TabsThumb"))
+      const thumb = container.querySelector<HTMLElement>(".TabsThumb")
+      lens(thumb)
       rerender(view("day"))
-      expect(calls).toHaveLength(2)
-      expect(calls[0]?.keyframes[1]).toMatchObject({ transform: "scale(1.3, 1.2)" })
-      expect(calls[0]?.keyframes.at(-1)).toMatchObject({ transform: "scale(1)" })
-      // The scale is added to the thumb's translateX (its own would scale the distance it travels too); the fill and
-      // the edge replace the thumb's, as two added fills would mix
-      expect(calls[0]?.options).toMatchObject({ id: "segmented-control-lens", duration: 550, composite: "add" })
-      expect(calls[1]?.options).toEqual({ id: "segmented-control-lens", duration: 550 })
-      expect(Object.keys(calls[1]?.keyframes[1] ?? {})).toEqual(["offset", "backgroundColor", "boxShadow"])
+      expect(calls).toHaveLength(3)
+      // The recording's path, Week (66pt in) back to Day (4pt): the centre a share of the way, the lens 36pt wider and
+      // 11pt taller at 205ms, then pressed against Day's far side, and the thumb's own box at the end
+      const [move, fill, label] = calls
+      expect(move?.target).toBe(thumb)
+      expect(move?.options).toEqual({ id: "segmented-control-lens", duration: 750 })
+      expect(move?.keyframes[0]).toEqual({ offset: 0, transform: "translateX(66px)", width: "60px", top: "4px", bottom: "4px" })
+      expect(move?.keyframes[9]).toEqual({ offset: 205 / 750, transform: "translateX(-7.8px)", width: "96px", top: "-1.5px", bottom: "-1.5px" })
+      expect(move?.keyframes[17]).toMatchObject({ offset: 430 / 750, width: "53.16px", top: "0.92px", bottom: "0.92px" })
+      expect(move?.keyframes.at(-1)).toEqual({ offset: 1, transform: "translateX(4px)", width: "60px", top: "4px", bottom: "4px" })
+      // The fill and the edge: clear by 45ms, gray again from 250 to 300ms
+      expect(fill?.options).toEqual({ id: "segmented-control-lens", duration: 750 })
+      expect(fill?.keyframes.map((keyframe) => keyframe.offset)).toEqual([0, 45 / 750, 250 / 750, 300 / 750, 1])
+      expect(Object.keys(fill?.keyframes[1] ?? {})).toEqual(["offset", "backgroundColor", "boxShadow"])
+      // The label it lands on dims to 76% and comes back
+      expect(label?.target.getAttribute("data-state")).toBe("on")
+      expect(label?.target.textContent).toBe("Day")
+      expect(label?.keyframes.map((keyframe) => keyframe.opacity)).toEqual([1, 1, 0.77, 0.76, 0.85, 0.93, 0.98, 1, 1])
+      // The capsule lets the lens out while it travels, as the segments all fit
+      expect(container.querySelector("[role=radiogroup]")?.hasAttribute("data-lens")).toBe(true)
+      // The lens holds its first frame while the switch's frame is drawn, and sets off from the next
+      expect(calls.map(({ animation }) => animation.playState)).toEqual(["paused", "paused", "paused"])
+      await act(async () => { await new Promise((resolve) => requestAnimationFrame(resolve)) })
+      expect(calls.map(({ animation }) => animation.playState)).toEqual(["running", "running", "running"])
+      // Switched again mid-flight, the lens sets off from where it is drawn and not from where it was going
+      rerender(view("week"))
+      expect(calls).toHaveLength(6)
+      expect(calls[3]?.keyframes[0]).toEqual({ offset: 0, transform: "translateX(-7.8px)", width: "96px", top: "4px", bottom: "4px" })
+      expect(calls[3]?.keyframes.at(-1)).toMatchObject({ transform: "translateX(66px)", width: "60px" })
       unmount()
+      calls.length = 0
 
-      const value = ref("day")
+      const value = ref("week")
       const { container: vue } = mountVue(() =>
         h(SegmentedControl, { "value": value.value, "aria-label": "Time" }, {
           default: () => [
@@ -550,15 +604,11 @@ describe("Tabs renders the same DOM as React", () => {
       )
       await wait()
       await flushVue()
-      value.value = "week"
-      await flushVue()
-      await wait()
-      expect(calls).toHaveLength(2)
       lens(vue.querySelector<HTMLElement>(".TabsThumb"))
       value.value = "day"
       await flushVue()
-      expect(calls).toHaveLength(4)
-      expect(calls.slice(2)).toEqual(calls.slice(0, 2))
+      expect(calls).toHaveLength(3)
+      expect(calls.map(shape)).toEqual([move, fill, label].map(shape))
 
       // A lens still running ends when the next change comes, also when that change comes with reduced motion
       Object.defineProperty(HTMLElement.prototype, "getAnimations", {
@@ -573,10 +623,14 @@ describe("Tabs renders the same DOM as React", () => {
       value.value = "week"
       await flushVue()
       expect(running.map((animation) => animation.cancelled)).toEqual([true, false])
-      expect(calls).toHaveLength(4)
+      expect(calls).toHaveLength(3)
     } finally {
       delete (HTMLElement.prototype as { animate?: unknown }).animate
       delete (HTMLElement.prototype as { getAnimations?: unknown }).getAnimations
+      for (const [name, descriptor] of sizes) {
+        if (descriptor) Object.defineProperty(HTMLElement.prototype, name, descriptor)
+        else delete (HTMLElement.prototype as Record<string, unknown>)[name]
+      }
       vi.unstubAllGlobals()
     }
   })
@@ -591,26 +645,40 @@ describe("Tabs renders the same DOM as React", () => {
     expect(tokens).toContain("--segmented-control-mobile-pressed-scale: 1.07;")
     expect(tokens).toContain("--segmented-control-mobile-glass-background-pressed: light-dark(alpha(var(--gray-0), 85%), var(--alpha-20));")
     expect(tokens).toContain("--segmented-control-mobile-pressed-label-opacity: 0.2;")
-    expect(tokens).toContain("--segmented-control-mobile-thumb-lens-scale: calc(147 / 110), calc(48 / 40);")
+    expect(tokens).toContain("--segmented-control-mobile-thumb-lens-outset: 36px 11px;")
+    expect(tokens).toContain("--segmented-control-mobile-thumb-lens-background: light-dark(transparent, rgb(0 0 0 / 13%));")
     for (const declaration of [
       "--segmented-control-pressed-scale: var(--segmented-control-mobile-pressed-scale);",
       "--segmented-control-pressed-background: var(--segmented-control-mobile-glass-background-pressed);",
       "--segmented-control-option-pressed-opacity: var(--segmented-control-mobile-pressed-label-opacity);",
       "--segmented-control-option-highlight-background-color: transparent;",
-      "--segmented-control-thumb-lens-scale: var(--segmented-control-mobile-thumb-lens-scale);",
-      "--segmented-control-thumb-lens-background: var(--mobile-knob-lens-background);",
-      "--segmented-control-thumb-lens-shadow: var(--mobile-knob-lens-shadow);",
+      "--segmented-control-thumb-lens-outset: var(--segmented-control-mobile-thumb-lens-outset);",
+      "--segmented-control-thumb-lens-background: var(--segmented-control-mobile-thumb-lens-background);",
+      "--segmented-control-thumb-lens-shadow: var(--segmented-control-mobile-thumb-lens-shadow);",
     ]) {
       expect(touch).toContain(declaration)
     }
-    // Only the large control slides slower; reduced motion keeps the instant move
-    expect(touch).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{[^}]*--tabs-thumb-transition-duration: 330ms;/)
+    // Only the large control slides on the recording's curve; reduced motion keeps the instant move
+    expect(touch).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{[^}]*--tabs-thumb-transition-duration: 400ms;/)
+    expect(touch).toMatch(/@supports \(transition-timing-function: linear\(0, 1\)\) \{[^}]*--tabs-thumb-transition-easing: linear\(0, 0\.2 3%, /)
+    expect(phone).toContain(".Tabs:where([data-orientation=\"horizontal\"])[data-lens] {\n    overflow: visible;")
     expect(phone).toContain(".Tabs:where([data-orientation=\"horizontal\"]):has(> .Tab:where(:not([disabled])):active) {")
     expect(phone).toContain("scale: var(--segmented-control-pressed-scale, 1);")
     expect(phone).toContain("opacity: var(--segmented-control-option-pressed-opacity, 1);")
-    // The press transitions stay as light as the reduced-motion reset after them (one class each), so it wins
-    expect(phone).toContain(":where(.Tabs[data-orientation=\"horizontal\"]) .TabContent {\n    transition: opacity 150ms var(--cubic-enter);")
-    expect(phone).toContain(".Tabs:where([data-orientation=\"horizontal\"]) {\n    transition: scale 150ms var(--cubic-enter), background-color 150ms var(--cubic-enter);")
+    // The press transitions stay as light as the reduced-motion reset after them (one class each), so it wins. A
+    // browser without linear() gets cubic Béziers, the measured curves come under @supports
+    expect(phone).toContain(":where(.Tabs[data-orientation=\"horizontal\"]) .TabContent {\n    transition: opacity var(--segmented-control-press-label-timing, 110ms cubic-bezier(")
+    expect(phone).toContain(".Tabs:where([data-orientation=\"horizontal\"]) {\n    transition:\n      scale var(--segmented-control-press-scale-timing, 300ms cubic-bezier(")
+    const curves = phone.slice(phone.indexOf("@supports (transition-timing-function: linear(0, 1)) {\n    .Tabs:where([data-orientation=\"horizontal\"]) {"))
+    expect(curves).toContain(":where(.Tabs[data-orientation=\"horizontal\"]) .TabContent {\n      transition: opacity var(--segmented-control-press-label-timing, 110ms linear(")
+    expect(curves).toContain(".Tabs:where([data-orientation=\"horizontal\"]) {\n      transition:\n        scale var(--segmented-control-press-scale-timing, 300ms linear(")
+    // The press sets the timing of the way in (iOS 27.2 held: the capsule 96% grown in 130ms, the label faded over
+    // 430ms) and leaves the transitions themselves to the one-class rules
+    for (const [rules, scale] of [[phone, "300ms cubic-bezier(0.2, 0.9, "], [curves, "300ms linear(0, 0.08 3.7%, "]]) {
+      const pressed = rules.slice(rules.indexOf(":has(> .Tab:where(:not([disabled])):active) {"))
+      expect(pressed.slice(0, pressed.indexOf("}"))).toContain(`--segmented-control-press-scale-timing: ${scale}`)
+      expect(pressed.slice(0, pressed.indexOf("}"))).not.toMatch(/\btransition:/)
+    }
     const reduced = css.slice(css.lastIndexOf("@media (prefers-reduced-motion: reduce)"))
     expect(reduced).toMatch(/\.Tabs,\n  \.Tab,\n  \.Tab::before,\n  \.TabContent \{\n    transition-duration: 0ms;/)
     expect(css.slice(0, css.indexOf("@media (max-width: 767px)"))).not.toContain("--segmented-control-pressed-scale")
@@ -1286,7 +1354,7 @@ describe("Tabs thumb positioning matches React", () => {
     })
     expect(vue).toEqual(react)
     expect(react[1]).not.toContain("TabsThumb\" style")
-    expect(react[3]).toContain("transition: width var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter), transform var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter)")
+    expect(react[3]).toContain("transition: width var(--tabs-thumb-transition-duration, 200ms) var(--tabs-thumb-transition-easing, var(--cubic-enter)), transform var(--tabs-thumb-transition-duration, 200ms) var(--tabs-thumb-transition-easing, var(--cubic-enter))")
     expect(react[3]).toContain("translateX(2px)")
   })
 
@@ -1318,7 +1386,7 @@ describe("Tabs thumb positioning matches React", () => {
       snapshot()
     })
     expect(vue).toEqual(react)
-    expect(react[0]).toContain("height var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter)")
+    expect(react[0]).toContain("height var(--tabs-thumb-transition-duration, 200ms) var(--tabs-thumb-transition-easing, var(--cubic-enter))")
     expect(react[0]).toMatch(/translateY\(30px\)/)
   })
 

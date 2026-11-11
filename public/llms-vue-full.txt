@@ -7054,7 +7054,7 @@ Props:
     - badge slot (VNode[]) — Badge content; styling still comes from the badge object
 
 ### Overview
-SegmentedControl provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with v-model:value; the examples keep it in a tab variable. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; monthDisabled disables only Month, whose label on a phone takes the disabled label of iOS, 20% of the label color. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS 27 segmented control, filling the row of a phone screen, in its two sizes. The default md and larger are the large control of iOS 27 apps, as Calendar and Reminders draw it and SwiftUI draws a segmented Picker in a toolbar: a 48px glass capsule, a 40px gray selection 4px inside it, 8px between segments, every label 15px Medium and primary. sm and smaller are the small one, the plain control of SwiftUI's Picker in content and of Safari's bookmarks: a 32px capsule of the tertiary fill, a white selection 2px inside it, labels 13px, Semibold when selected. mobileMaterial switches the look, as for Button: flat makes the large one plain, 49px as SwiftUI's .controlSize(.large), and glass puts the small one under the Liquid Glass of .glassEffect(). Inside a phone Toolbar every control is the large glass one. The phone example puts the control in a top bar between Close and Confirm, as a sheet's toolbar holds a segmented Picker in iOS 27.2 and Calendar its new event, in a bottom bar, or above the content, as Safari's bookmarks do, over a day that scrolls under the glass of the bars; placement picks one. Vertical tabs are an inset grouped list, shown below. Underline tabs draw the same segmented control on a phone and every control there is a capsule filling its row, so the phone view has no variant, orientation, flush, block and pill controls, and its size offers sm and md.
+SegmentedControl provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator under the active tab and no background container. Bind the selected tab with v-model:value; the examples keep it in a tab variable. flush makes the underline indicator match the text width exactly, with gap between tabs instead of padding, and block stretches the tabs evenly across the container. orientation="vertical" stacks the tabs: the thumb slides up and down, and the underline becomes a line on the left side, for sidebar-style navigation. Both variants take the full 9-step size scale of Button, Input, Select and SelectControl, which sets the height, font size, icon size and spacing of the tabs. Put an icon in a tab's icon slot, or pass a component to its icon prop, to show it before the label, sized to the size; leave out the label for icon-only tabs of a horizontal control and give each an aria-label. Vertical tabs keep their labels, so the example offers no icon only there: they are a list, a sidebar or on a phone an inset grouped list, and a list row always has a title. badge takes a number or an object with content, color, variant and pill, shown after the label inside the control; a count names what it counts, so it sits on a labelled tab and icon-only tabs carry none. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; monthDisabled disables only Month, whose label in a horizontal control on a phone takes the disabled label of iOS, 20% of the label color, while its row in a vertical one shows at half opacity. Arrow-key navigation skips disabled tabs without resetting the selected value.On a phone horizontal tabs of either variant are the iOS 27 segmented control, filling the row of a phone screen, in its two sizes. The default md and larger are the large control of iOS 27 apps, as Calendar and Reminders draw it and SwiftUI draws a segmented Picker in a toolbar: a 48px glass capsule, a 40px gray selection 4px inside it, 8px between segments, every label 15px Medium and primary. sm and smaller are the small one, the plain control of SwiftUI's Picker in content and of Safari's bookmarks: a 32px capsule of the tertiary fill, a white selection 2px inside it, labels 13px, Semibold when selected. mobileMaterial switches the look, as for Button: flat makes the large one plain, 49px as SwiftUI's .controlSize(.large), and glass puts the small one under the Liquid Glass of .glassEffect(). Inside a phone Toolbar every control is the large glass one. The phone example puts the control in a top bar between Close and Confirm, as a sheet's toolbar holds a segmented Picker in iOS 27.2 and Calendar its new event, in a bottom bar, or above the content, as Safari's bookmarks do, over a day that scrolls under the glass of the bars; placement picks one. Vertical tabs of either variant are an inset grouped list, as iOS lists a choice: 52px rows with the 17px label and a checkmark on the selected row instead of the thumb. A segment with an icon and a label shows the icon alone, at the 20px symbol size, as UISegmentedControl draws an action with a title and an image; the label stays the segment&apos;s accessible name, since iOS segments carry a title or a symbol, not both. They carry no badges either: on a phone write a count into the label instead, or leave it out. Underline tabs draw the same segmented control on a phone and every control there is a capsule filling its row, so the phone view has no variant, flush, block, pill and badge controls, and its size offers sm and md.
 ```vue
 <SegmentedControl
   v-model:value="tab"
@@ -7075,151 +7075,77 @@ SegmentedControl provides two visual variants: segmented (default) with a slidin
 </SegmentedControl>
 ```
 
-### Segmented with icons
-Icons work with the segmented variant: put the icon in the icon slot of individual tabs, or pass a component to the icon prop. Icons are automatically sized to match the current size. On a phone a segment with an icon and a label shows the icon alone, at the 20px symbol size, as UISegmentedControl draws an action with a title and an image; the label stays the segment&apos;s accessible name. iOS segments carry a title or a symbol, not both.
+### Icons
+An icon before each label, sized to the control's size.
 ```vue
-<SegmentedControl v-model:value="tab" :size="size" :pill="pill" aria-label="View">
-  <SegmentedControlOption value="list"><template #icon><List /></template>List</SegmentedControlOption>
-  <SegmentedControlOption value="grid"><template #icon><Grid /></template>Grid</SegmentedControlOption>
+<SegmentedControl
+  v-model:value="tab"
+  :variant="variant"
+  :orientation="orientation"
+  :size="size"
+  :pill="pill"
+  :flush="flush"
+  :block="block"
+  :disabled="disabled"
+  :mobile-material="mobileMaterial"
+  aria-label="Calendar view"
+>
+  <SegmentedControlOption value="day"><template #icon><CalendarToday /></template>Day</SegmentedControlOption>
+  <SegmentedControlOption value="week"><template #icon><List /></template>Week</SegmentedControlOption>
+  <SegmentedControlOption value="month" :disabled="monthDisabled"><template #icon><Calendar /></template>Month</SegmentedControlOption>
+  <SegmentedControlOption value="year"><template #icon><Grid /></template>Year</SegmentedControlOption>
 </SegmentedControl>
 ```
 
 ### Icon only
-Leave out the label and fill only the icon slot for compact icon-only tabs. Always provide an aria-label on each tab for accessibility. On a phone a symbol alone in its segment is 20px, the size iOS 27.2 draws a segment's symbol at.
+Icons alone, each tab named by its aria-label.
 ```vue
-<SegmentedControl v-model:value="tab" :variant="variant" :size="size" :pill="pill" aria-label="Alignment">
-  <SegmentedControlOption value="start" aria-label="Align left"><template #icon><TextAlignStart /></template></SegmentedControlOption>
-  <SegmentedControlOption value="center" aria-label="Center"><template #icon><TextAlignCenter /></template></SegmentedControlOption>
-  <SegmentedControlOption value="end" aria-label="Align right"><template #icon><TextAlignEnd /></template></SegmentedControlOption>
+<SegmentedControl
+  v-model:value="tab"
+  :variant="variant"
+  :orientation="orientation"
+  :size="size"
+  :pill="pill"
+  :flush="flush"
+  :block="block"
+  :disabled="disabled"
+  :mobile-material="mobileMaterial"
+  aria-label="Calendar view"
+>
+  <SegmentedControlOption value="day" aria-label="Day"><template #icon><CalendarToday /></template></SegmentedControlOption>
+  <SegmentedControlOption value="week" aria-label="Week"><template #icon><List /></template></SegmentedControlOption>
+  <SegmentedControlOption value="month" :disabled="monthDisabled" aria-label="Month"><template #icon><Calendar /></template></SegmentedControlOption>
+  <SegmentedControlOption value="year" aria-label="Year"><template #icon><Grid /></template></SegmentedControlOption>
 </SegmentedControl>
 ```
 
-### Segmented with badge
-Pass a number or an object with content, color, variant, and pill to the badge prop. Badges render inline after the tab label inside the segmented container. An iOS segmented control carries no badges, so this example has no Phone preview: on a phone write a count into the label instead, or leave it out.
+### Badges
+A count after each label: a number, or an object with content, color, variant and pill.
 ```vue
-<SegmentedControl v-model:value="tab" :size="size" :pill="pill" aria-label="Filter">
-  <SegmentedControlOption value="all" :badge="{ content: 128, pill: badgePill }">All</SegmentedControlOption>
-  <SegmentedControlOption value="unread" :badge="{ content: 12, color: 'info', pill: badgePill }">Unread</SegmentedControlOption>
-  <SegmentedControlOption value="flagged" :badge="{ content: 3, color: 'danger', pill: badgePill }">Flagged</SegmentedControlOption>
+<SegmentedControl
+  v-model:value="tab"
+  :variant="variant"
+  :orientation="orientation"
+  :size="size"
+  :pill="pill"
+  :flush="flush"
+  :block="block"
+  :disabled="disabled"
+  :mobile-material="mobileMaterial"
+  aria-label="Calendar view"
+>
+  <SegmentedControlOption value="day" :badge="{ content: 3, color: 'danger', pill: true }">Day</SegmentedControlOption>
+  <SegmentedControlOption value="week" :badge="{ content: 12, color: 'info', pill: true }">Week</SegmentedControlOption>
+  <SegmentedControlOption value="month" :disabled="monthDisabled" :badge="{ content: 48, pill: true }">Month</SegmentedControlOption>
+  <SegmentedControlOption value="year">Year</SegmentedControlOption>
 </SegmentedControl>
 ```
 
-### Underline
-Set variant="underline" for a minimal tab style with an animated line indicator under the active tab. No background container is rendered. iOS has no underline tabs: on a phone they are the segmented control of Overview, so this example has no Phone preview.
-```vue
-<SegmentedControl v-model:value="tab" variant="underline" :size="size" aria-label="Sections">
-  <SegmentedControlOption value="overview">Overview</SegmentedControlOption>
-  <SegmentedControlOption value="analytics">Analytics</SegmentedControlOption>
-  <SegmentedControlOption value="reports">Reports</SegmentedControlOption>
-  <SegmentedControlOption value="settings">Settings</SegmentedControlOption>
-</SegmentedControl>
-```
-
-### Underline flush
-Add flush with variant="underline" for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview.
-```vue
-<SegmentedControl v-model:value="tab" variant="underline" flush :size="size" aria-label="Sections">
-  <SegmentedControlOption value="overview">Overview</SegmentedControlOption>
-  <SegmentedControlOption value="analytics">Analytics</SegmentedControlOption>
-  <SegmentedControlOption value="reports">Reports</SegmentedControlOption>
-  <SegmentedControlOption value="settings">Settings</SegmentedControlOption>
-</SegmentedControl>
-```
-
-### Underline block
-Use block with the underline variant for full-width tabs that stretch evenly across the container. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview.
-```vue
-<SegmentedControl v-model:value="tab" variant="underline" block :size="size" aria-label="Sections">
-  <SegmentedControlOption value="overview">Overview</SegmentedControlOption>
-  <SegmentedControlOption value="analytics">Analytics</SegmentedControlOption>
-  <SegmentedControlOption value="reports">Reports</SegmentedControlOption>
-</SegmentedControl>
-```
-
-### Underline with icons
-Icons work with the underline variant the same way as with segmented. Use the icon slot on individual tabs. On a phone these tabs are the segmented control of Segmented with icons, so this example has no Phone preview.
-```vue
-<SegmentedControl v-model:value="tab" variant="underline" :size="size" aria-label="Navigation">
-  <SegmentedControlOption value="home"><template #icon><Home /></template>Home</SegmentedControlOption>
-  <SegmentedControlOption value="settings"><template #icon><SettingsCog /></template>Settings</SegmentedControlOption>
-  <SegmentedControlOption value="notifications"><template #icon><Bell /></template>Notifications</SegmentedControlOption>
-</SegmentedControl>
-```
-
-### Underline with badge
-Badges are supported with the underline variant. Pass a simple value or an object with content, color, variant, and pill. On a phone these tabs are the segmented control of Segmented with badge, so this example has no Phone preview.
-```vue
-<SegmentedControl v-model:value="tab" variant="underline" :size="size" aria-label="Filter">
-  <SegmentedControlOption value="all" :badge="{ content: 128, pill: badgePill }">All</SegmentedControlOption>
-  <SegmentedControlOption value="unread" :badge="{ content: 12, color: 'info', pill: badgePill }">Unread</SegmentedControlOption>
-  <SegmentedControlOption value="flagged" :badge="{ content: 3, color: 'danger', pill: badgePill }">Flagged</SegmentedControlOption>
-</SegmentedControl>
-```
-
-### Vertical segmented
-Set orientation="vertical" to stack tabs vertically. The sliding thumb animates up and down. On a phone vertical tabs are an inset grouped list, as iOS lists a choice: 52px rows with the 17px label and a checkmark on the selected row instead of the thumb.
-```vue
-<SegmentedControl v-model:value="tab" orientation="vertical" :size="size" aria-label="Settings">
-  <SegmentedControlOption value="account">Account</SegmentedControlOption>
-  <SegmentedControlOption value="password">Password</SegmentedControlOption>
-  <SegmentedControlOption value="notifications">Notifications</SegmentedControlOption>
-  <SegmentedControlOption value="display">Display</SegmentedControlOption>
-</SegmentedControl>
-```
-
-### Vertical underline
-Combine variant="underline" with orientation="vertical" for a sidebar-style navigation pattern. The line indicator appears on the left side. On a phone both vertical variants are the list of Vertical segmented, so this example has no Phone preview.
-```vue
-<SegmentedControl v-model:value="tab" variant="underline" orientation="vertical" :size="size" aria-label="Settings">
-  <SegmentedControlOption value="account">Account</SegmentedControlOption>
-  <SegmentedControlOption value="password">Password</SegmentedControlOption>
-  <SegmentedControlOption value="notifications">Notifications</SegmentedControlOption>
-  <SegmentedControlOption value="display">Display</SegmentedControlOption>
-</SegmentedControl>
-```
-
-### Vertical underline with icons
-Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels.
-```vue
-<SegmentedControl v-model:value="tab" variant="underline" orientation="vertical" :size="size" aria-label="Navigation">
-  <SegmentedControlOption value="home"><template #icon><Home /></template>Home</SegmentedControlOption>
-  <SegmentedControlOption value="settings"><template #icon><SettingsCog /></template>Settings</SegmentedControlOption>
-  <SegmentedControlOption value="notifications"><template #icon><Bell /></template>Notifications</SegmentedControlOption>
-</SegmentedControl>
-```
-
-### Sizing
-Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS (the 48px glass one in a Toolbar), and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls.
-```vue
-<SegmentedControl v-model:value="tab" :variant="variant" :size="size" aria-label="Demo tabs">
-  <SegmentedControlOption value="overview">Overview</SegmentedControlOption>
-  <SegmentedControlOption value="analytics">Analytics</SegmentedControlOption>
-  <SegmentedControlOption value="reports">Reports</SegmentedControlOption>
-</SegmentedControl>
-```
-
-### Scrollable
-When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width. A phone scrolls them the same way inside the capsule, as Safari's tab groups and Telegram's chat folders do, and each segment then takes the width of its label.
-```vue
-<div class="flex w-full min-w-0 max-w-[400px]">
-  <SegmentedControl v-model:value="tab" :variant="variant" :size="size" aria-label="Scrollable tabs">
-    <SegmentedControlOption value="1">Overview</SegmentedControlOption>
-    <SegmentedControlOption value="2">Analytics</SegmentedControlOption>
-    <SegmentedControlOption value="3">Reports</SegmentedControlOption>
-    <SegmentedControlOption value="4">Settings</SegmentedControlOption>
-    <SegmentedControlOption value="5">Members</SegmentedControlOption>
-    <SegmentedControlOption value="6">Billing</SegmentedControlOption>
-    <SegmentedControlOption value="7">Security</SegmentedControlOption>
-    <SegmentedControlOption value="8">Integrations</SegmentedControlOption>
-  </SegmentedControl>
-</div>
-```
-
-### Overflow menu
-With overflow="menu", the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflow-label sets the button's text (default "More"). Works for horizontal tabs without block.
+### Overflow
+When tabs overflow their container they scroll sideways, the default overflow="scroll", and the active tab scrolls into view smoothly: constrain the container width and nothing else is needed. A phone scrolls them the same way inside the capsule, as Safari's tab groups and Telegram's chat folders do, and each segment then takes the width of its label. With overflow="menu" the tabs that do not fit stay out of the row and move into a menu at its end. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflow-label sets the button's text (default "More"). The menu works for horizontal tabs without block.
 ```vue
 <div class="flex min-w-0 max-w-full" :style="{ width: width + 'px' }">
-  <SegmentedControl v-model:value="tab" variant="underline" overflow="menu" aria-label="Repository">
+  <SegmentedControl v-model:value="tab" :overflow="overflow" :variant="variant" aria-label="Repository">
     <SegmentedControlOption value="code">Code</SegmentedControlOption>
     <SegmentedControlOption value="issues" :badge="12">Issues</SegmentedControlOption>
     <SegmentedControlOption value="pulls" :badge="3">Pull requests</SegmentedControlOption>
