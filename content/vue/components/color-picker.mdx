@@ -1,7 +1,7 @@
 ---
 title: Color Picker
-description: "The iOS 26 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
-metaDescription: "Vue 3 color picker in the iOS 26 style: a grid of colors, a spectrum, RGB sliders and hex, opacity, saved colors with Add, v-model:value, and a color well that opens the picker in a popover or a phone sheet."
+description: "The iOS 27.2 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
+metaDescription: "Vue 3 color picker in the iOS 27 style: a grid of colors, a spectrum, RGB sliders and hex, opacity, saved colors with Add, v-model:value, and a color well that opens the picker in a popover or a phone sheet."
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
@@ -58,13 +58,13 @@ export const opaque = `<ColorPicker default-value="#007aff" default-mode="slider
 
 <UsageBlock>{`import { ColorPicker, ColorWell } from "@plexui/vue/components/ColorPicker";`}</UsageBlock>
 
-A color well shows a color and opens the system color picker, where people choose a color from a grid, a spectrum or sliders, set its opacity and save colors they use again, as in iOS 26. Use `ColorWell` for a setting that is a color; use `ColorPicker` on its own to put the picker in a surface of your own.
+A color well shows a color and opens the system color picker, where people choose a color from a grid, a spectrum or sliders, set its opacity and save colors they use again, as in iOS 27.2. Use `ColorWell` for a setting that is a color; use `ColorPicker` on its own to put the picker in a surface of your own.
 
 ## Examples
 
 ### Color well
 
-<ComponentPreview language="vue" phonePresentation="screen" details={<>The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (<code>null</code>). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar.</>} code={overviewCode} previewMinHeight={200}>
+<ComponentPreview language="vue" phonePresentation="screen" details={<>The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (<code>null</code>). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen; on a phone the sheet's bar has Close first and the eyedropper last, as iOS 27.2 sets them. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar.</>} code={overviewCode} previewMinHeight={200}>
   <VuePhoneRowsDemo template={overview} phoneTemplate={formScreenTemplate("Appearance", overview)} phoneStageClassName={formStyles.ScreenStage} state={{ tint: '#af52de', highlight: null, swatches: kitSwatches }} />
 </ComponentPreview>
 
@@ -76,7 +76,7 @@ A color well shows a color and opens the system color picker, where people choos
 
 ### Picker
 
-<ComponentPreview language="vue" details={<>The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of ten that scroll sideways.</>} code={inlineCode} previewMinHeight={640}>
+<ComponentPreview language="vue" details={<>The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of twelve, two rows of six, that scroll sideways, as in iOS 27.2.</>} code={inlineCode} previewMinHeight={640}>
   <VueDemo template={inline} state={{ color: '#be38f3', swatches: kitSwatches }} />
 </ComponentPreview>
 
@@ -130,9 +130,12 @@ ColorPicker and ColorWell read these component tokens. Override them at any scop
 - `--color-picker-width`: the picker's column (default `264px`, the full width of the sheet on a phone)
 - `--color-picker-body-radius`: the corner of the grid and the spectrum (default `var(--radius-xl)`, `18px` on a phone)
 - `--color-picker-selection-color`: the ring of the selected cell, swatch, knob and loupe (default `#fff`)
-- `--color-picker-track-height` and `--color-picker-knob-size`: the sliders (default `28px` and `24px`, `40px` and `36px` on a phone)
-- `--color-picker-field-background`: the fields and Add (default `var(--color-background-secondary-soft-alpha)`, `var(--alpha-12)` on a phone)
-- `--color-picker-separator-color`: the line over the saved colors (default `var(--color-border)`, `var(--alpha-25)` on a phone)
+- `--color-picker-label-color`: the Opacity and channel labels (default `var(--color-text)`, `var(--mobile-label-secondary)` on a phone, where they are 13px caps)
+- `--color-picker-track-height` and `--color-picker-knob-size`: the sliders (default `28px` and `24px`, `34px` and `34px` on a phone)
+- `--color-picker-checker`: the picker's checkerboard under a clear color, on the tracks, the current color and the saved colors (default black and white squares; on a phone light gray squares over the surface)
+- `--color-picker-field-background`: the fields (default `var(--color-background-secondary-soft-alpha)`, `var(--mobile-surface-elevated-grouped-secondary)` on a phone)
+- `--color-picker-add-background` and `--color-picker-add-color`: the Add button (default the field background and the text color; `#d9d9d9` and `#4a4a4a` on a phone, in both themes)
+- `--color-picker-separator-color`: the line over the saved colors (default `var(--color-border)`, `light-dark(var(--alpha-20), var(--alpha-15))` on a phone)
 - `--color-picker-swatch-size`: a saved color (default `24px`, `30px` on a phone)
 - `--color-well-size-sm` and `--color-well-size-lg`: the well (default `28px` and `36px`)
 - `--color-well-rainbow`: the ring of the well (the kit's angular gradient)

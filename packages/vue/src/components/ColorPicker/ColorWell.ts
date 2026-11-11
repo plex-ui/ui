@@ -183,11 +183,13 @@ const ColorWellComponent = defineComponent({
           ])
         : h(Dialog, { "open": open.value, "onUpdate:open": setOpen }, () => [
             h(DialogTrigger, null, () => well),
-            h(DialogContent, { mobileVariant: "sheet", showClose: false, class: s.Sheet }, () => [
+            h(DialogContent, { mobileVariant: "sheet", surface: "grouped", showClose: false, class: s.Sheet }, () => [
+              // iOS 27.2 sets Close first and the eyedropper last (UIColorPickerViewController on an iPhone 17); the
+              // iOS 26 kit had them the other way round.
               h(Toolbar, { background: "solid" }, () => [
-                h(ToolbarLeading, null, () => eyedropperButton(true)),
+                h(ToolbarLeading, null, () => h(DialogClose, null, () => h(NavigationButton, { action: "close" }))),
                 h(ToolbarTitle, null, () => props.title),
-                h(ToolbarTrailing, null, () => h(DialogClose, null, () => h(NavigationButton, { action: "close" }))),
+                h(ToolbarTrailing, null, () => eyedropperButton(true)),
               ]),
               h(DialogHeader, null, () => h(DialogTitle, null, () => props.title)),
               h(DialogBody, { class: s.SheetBody }, () => picker()),

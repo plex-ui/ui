@@ -244,7 +244,7 @@ Props:
 Examples: Overview, Collapsible, Expanded by default, Custom collapsed height, Max expanded height, Without copy button, Supported languages
 
 ## Color Picker
-"The iOS 26 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
+"The iOS 27.2 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
 Import: import { ColorPicker, ColorWell } from "@plexui/vue/components/ColorPicker"
 Docs: https://plexui.com/vue/components/color-picker
 Props:

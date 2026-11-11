@@ -1885,7 +1885,7 @@ A pragmatic set of Prism grammars are pre-registered out of the box.
 ```
 
 ## Color Picker
-"The iOS 26 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
+"The iOS 27.2 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
 Import: import { ColorPicker, ColorWell } from "@plexui/vue/components/ColorPicker"
 Docs: https://plexui.com/vue/components/color-picker
 Props:
@@ -1909,7 +1909,7 @@ Props:
     - aria-labelledby (string) — The `id` of the visible label of the well
 
 ### Color well
-The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (null). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar.
+The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (null). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen; on a phone the sheet's bar has Close first and the eyedropper last, as iOS 27.2 sets them. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar.
 ```vue
 <script setup lang="ts">
 const tint = ref('#af52de')
@@ -1938,7 +1938,7 @@ The kit's two sizes: sm 28px and lg 36px.
 ```
 
 ### Picker
-The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of ten that scroll sideways.
+The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of twelve, two rows of six, that scroll sideways, as in iOS 27.2.
 ```vue
 <script setup lang="ts">
 const color = ref('#be38f3')

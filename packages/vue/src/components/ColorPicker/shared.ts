@@ -28,9 +28,10 @@ export const COLOR_PICKER_GRID: readonly (readonly string[])[] = [
 export const COLOR_PICKER_GRID_COLUMNS = 12
 const GRID = COLOR_PICKER_GRID.flat()
 
-/** Saved colors fill pages of two rows of five, with the Add button after the last one (kit Swatches 515:52724). */
-export const COLOR_PICKER_SWATCHES_PER_PAGE = 10
-export const COLOR_PICKER_SWATCHES_PER_ROW = 5
+/** Saved colors fill pages of two rows of six, with the Add button after the last one, as iOS 27.2's picker lays them
+ * out (UIColorPickerViewController on an iPhone 17; the iOS 26 kit's Swatches 515:52724 had rows of five). */
+export const COLOR_PICKER_SWATCHES_PER_PAGE = 12
+export const COLOR_PICKER_SWATCHES_PER_ROW = 6
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 const byte = (value: number) => clamp(Math.round(value), 0, 255)
@@ -100,7 +101,7 @@ export function listMove(index: number, count: number, key: string): number {
   return next[key] ?? index
 }
 
-/** Pages of saved colors: the colors and the Add button after them, ten to a page. */
+/** Pages of saved colors: the colors and the Add button after them, twelve to a page. */
 export const swatchPageCount = (count: number) => Math.max(1, Math.ceil((count + 1) / COLOR_PICKER_SWATCHES_PER_PAGE))
 
 function rgbToHsl({ r, g, b }: Rgba) {

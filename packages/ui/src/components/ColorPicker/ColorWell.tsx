@@ -149,15 +149,17 @@ export function ColorWell({
       ) : (
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Trigger>{well}</Dialog.Trigger>
-          <Dialog.Content mobileVariant="sheet" showClose={false} className={s.Sheet}>
+          <Dialog.Content mobileVariant="sheet" surface="grouped" showClose={false} className={s.Sheet}>
+            {/* iOS 27.2 sets Close first and the eyedropper last (UIColorPickerViewController on an iPhone 17); the
+                iOS 26 kit had them the other way round. */}
             <Toolbar background="solid">
-              <Toolbar.Leading>{eyedropperButton(true)}</Toolbar.Leading>
-              <Toolbar.Title>{title}</Toolbar.Title>
-              <Toolbar.Trailing>
+              <Toolbar.Leading>
                 <Dialog.Close>
                   <NavigationButton action="close" />
                 </Dialog.Close>
-              </Toolbar.Trailing>
+              </Toolbar.Leading>
+              <Toolbar.Title>{title}</Toolbar.Title>
+              <Toolbar.Trailing>{eyedropperButton(true)}</Toolbar.Trailing>
             </Toolbar>
             <Dialog.Header>
               <Dialog.Title>{title}</Dialog.Title>

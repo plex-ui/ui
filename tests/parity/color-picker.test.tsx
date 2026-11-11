@@ -9,9 +9,10 @@ import * as vueShared from "../../packages/vue/src/components/ColorPicker/shared
 import { flushVue, mountVue } from "./harness"
 import { interact, walkPair } from "./pair"
 
-// React-vs-Vue parity for ColorPicker and ColorWell (iOS 26 kit Color Pickers 507:26010): the same DOM through Grid,
+// React-vs-Vue parity for ColorPicker and ColorWell (iOS 27.2 UIColorPickerViewController, after the iOS 26 kit's Color
+// Pickers 507:26010): the same DOM through Grid,
 // Spectrum and Sliders, the Opacity slider, the saved colors with Add and Delete, the well in a popover and in the
-// phone sheet, the controlled props and their events, the shared color helpers, and the kit tokens.
+// phone sheet, the controlled props and their events, the shared color helpers, and the native tokens.
 
 const read = (path: string) => readFileSync(`${process.cwd()}/${path}`, "utf8")
 const SPECTRUM = { x: 0, y: 0, width: 300, height: 250 }
@@ -159,10 +160,10 @@ describe("ColorPicker DOM parity", () => {
         await settled(snapshot)
 
         expect(document.querySelector('[aria-label="Saved color pages"]')).toBeNull()
-        for (let i = 0; i < 7; i++) await click(screen.getByRole("button", { name: "Add color" }))
-        // Ten saved colors and Add are two pages.
-        expect(saved().getAllByRole("radio")).toHaveLength(10)
-        expect(document.querySelectorAll("[data-swatch]").length).toBe(10)
+        for (let i = 0; i < 9; i++) await click(screen.getByRole("button", { name: "Add color" }))
+        // Twelve saved colors and Add are two pages: iOS 27.2 sets two rows of six to a page.
+        expect(saved().getAllByRole("radio")).toHaveLength(12)
+        expect(document.querySelectorAll("[data-swatch]").length).toBe(12)
         expect(one('[aria-label="Saved color pages"]').getAttribute("aria-valuemax")).toBe("2")
         await settled(snapshot)
       },
@@ -334,6 +335,10 @@ describe("ColorWell DOM parity", () => {
       expect(dialog.getAttribute("data-mobile-variant") ?? dialog.closest("[data-mobile-variant]")?.getAttribute("data-mobile-variant")).toBe("sheet")
       // No color yet: the picker starts from black.
       expect(current()).toBe("Selected color #000000")
+      // iOS 27.2 sets Close first in the sheet's bar.
+      expect(one('.Leading button[aria-label="Close"]', dialog)).not.toBeNull()
+      // iOS 27.2's large sheet: the Dialog's flush phone sheet on the grouped palette of a sheet.
+      expect(dialog.getAttribute("data-surface") ?? dialog.closest("[data-surface]")?.getAttribute("data-surface")).toBe("grouped")
       await settled(snapshot)
       await click(one('[data-index="5"]', dialog))
       expect(screen.getByRole("button", { name: "Highlight", hidden: true }).hasAttribute("data-selected")).toBe(true)
@@ -343,6 +348,19 @@ describe("ColorWell DOM parity", () => {
       await settled(snapshot)
     })
     expectSame(pair)
+  })
+})
+
+describe.each([
+  ["React", () => { render(<RColorPicker defaultValue="#ff000080" defaultMode="sliders" />) }],
+  ["Vue", () => { mountVue(() => h(ColorPicker, { defaultValue: "#ff000080", defaultMode: "sliders" })) }],
+] as const)("%s ColorPicker knobs", (_, mount) => {
+  test("are filled with the current color, opaque on a channel and at its opacity on Opacity, as iOS 27.2 fills them", async () => {
+    await act(async () => { mount() })
+    await settle()
+    const fills = [...document.querySelectorAll<HTMLElement>(".Knob")].map((knob) => knob.getAttribute("style") ?? "")
+    // Red, Green and Blue, then Opacity: #ff000080 is 128/255 opaque.
+    expect(fills).toEqual([...Array(3).fill("background-color: rgb(255, 0, 0);"), "background-color: rgba(255, 0, 0, 0.502);"])
   })
 })
 
@@ -395,7 +413,8 @@ describe("the shared color helpers are the same in React and Vue", () => {
     expect([shared.gridMove(0, "ArrowLeft"), shared.gridMove(0, "ArrowRight"), shared.gridMove(0, "ArrowDown"), shared.gridMove(0, "ArrowUp")]).toEqual([0, 1, 12, 0])
     expect([shared.gridMove(13, "Home"), shared.gridMove(13, "End"), shared.gridMove(11, "ArrowRight"), shared.gridMove(115, "ArrowDown")]).toEqual([12, 23, 11, 115])
     expect([shared.listMove(0, 3, "ArrowLeft"), shared.listMove(2, 3, "ArrowRight"), shared.listMove(1, 3, "Home"), shared.listMove(0, 3, "End")]).toEqual([0, 2, 0, 2])
-    expect([0, 9, 10, 19, 20].map(shared.swatchPageCount)).toEqual([1, 1, 2, 2, 3])
+    expect([0, 11, 12, 23, 24].map(shared.swatchPageCount)).toEqual([1, 1, 2, 2, 3])
+    expect([shared.COLOR_PICKER_SWATCHES_PER_PAGE, shared.COLOR_PICKER_SWATCHES_PER_ROW]).toEqual([12, 6])
     expect(shared.spectrumColor({ x: 0.25, y: 0.5 }, 1)).toEqual({ r: 128, g: 255, b: 255, a: 1 })
     expect(shared.spectrumColor({ x: 0, y: 0 }, 1)).toEqual({ r: 255, g: 255, b: 255, a: 1 })
     expect(shared.spectrumColor({ x: 1, y: 0.3 }, 0.4)).toEqual({ r: 0, g: 0, b: 0, a: 0.4 })
@@ -409,38 +428,72 @@ describe("the shared color helpers are the same in React and Vue", () => {
   })
 })
 
-describe("ColorPicker tokens follow the iOS 26 kit (Color Picker - iPhone 0:5275)", () => {
+describe("ColorPicker tokens follow iOS 27.2 (UIColorPickerViewController on an iPhone 17)", () => {
   const tokens = read("packages/styles/src/styles/variables-components.css")
   const touch = read("packages/styles/src/styles/touch.css")
   const styles = read("packages/styles/src/components/ColorPicker/ColorPicker.module.css")
   const value = (css: string, name: string) => new RegExp(`${name}:\\s*([^;]+);`).exec(css)?.[1]?.trim()
 
-  test("the phone sizes are the kit's", () => {
+  test("the phone sizes are the native ones", () => {
     const phone = touch.slice(touch.indexOf("--color-picker-width"))
     expect(Object.fromEntries([
-      "--color-picker-body-radius", "--color-picker-track-height", "--color-picker-knob-size", "--color-picker-knob-border",
-      "--color-picker-field-width", "--color-picker-field-height", "--color-picker-current-size", "--color-picker-swatch-size",
-      "--color-picker-selection-width", "--color-picker-opacity-padding-bottom",
+      "--color-picker-modes-gap", "--color-picker-body-radius", "--color-picker-section-gap", "--color-picker-row-gap",
+      "--color-picker-track-height", "--color-picker-track-inset", "--color-picker-checker-size", "--color-picker-knob-size",
+      "--color-picker-knob-border", "--color-picker-field-gap", "--color-picker-field-width", "--color-picker-field-height",
+      "--color-picker-field-wide-width", "--color-picker-current-size", "--color-picker-current-gap",
+      "--color-picker-swatches-padding-top", "--color-picker-swatch-size", "--color-picker-swatch-row-gap",
+      "--color-picker-selection-width", "--color-picker-opacity-padding-bottom", "--color-picker-channel-gap",
     ].map((name) => [name, value(phone, name)]))).toEqual({
+      "--color-picker-modes-gap": "15px",
       "--color-picker-body-radius": "18px",
-      "--color-picker-track-height": "40px",
-      "--color-picker-knob-size": "36px",
+      "--color-picker-section-gap": "18px",
+      "--color-picker-row-gap": "5px",
+      "--color-picker-track-height": "34px",
+      "--color-picker-track-inset": "0px",
+      "--color-picker-checker-size": "12px",
+      "--color-picker-knob-size": "34px",
       "--color-picker-knob-border": "3px",
-      "--color-picker-field-width": "75px",
-      "--color-picker-field-height": "40px",
-      "--color-picker-current-size": "82px",
+      "--color-picker-field-gap": "16px",
+      "--color-picker-field-width": "76px",
+      "--color-picker-field-height": "36px",
+      "--color-picker-field-wide-width": "100px",
+      "--color-picker-current-size": "78px",
+      "--color-picker-current-gap": "20px",
+      "--color-picker-swatches-padding-top": "22px",
       "--color-picker-swatch-size": "30px",
+      "--color-picker-swatch-row-gap": "18px",
       "--color-picker-selection-width": "3px",
-      "--color-picker-opacity-padding-bottom": "24px",
+      "--color-picker-opacity-padding-bottom": "22px",
+      "--color-picker-channel-gap": "17.67px",
     })
-    expect(value(phone, "--color-picker-field-background")).toBe("var(--color-picker-mobile-field-background)")
-    expect(value(tokens, "--color-picker-mobile-field-background")).toBe("var(--alpha-12)")
-    expect(value(tokens, "--color-picker-mobile-separator-color")).toBe("var(--alpha-25)")
+    // Two rows of saved colors are as tall as the current color, on a phone and on a desktop.
+    const px = (css: string, name: string) => Number.parseFloat(value(css, name) ?? "")
+    expect(2 * px(phone, "--color-picker-swatch-size") + px(phone, "--color-picker-swatch-row-gap")).toBe(px(phone, "--color-picker-current-size"))
+    expect(2 * px(tokens, "--color-picker-swatch-size") + px(tokens, "--color-picker-swatch-row-gap")).toBe(px(tokens, "--color-picker-current-size"))
+    expect(styles).toContain("grid-template-columns: repeat(6, var(--color-picker-swatch-size))")
+    // The grid's 12 x 10 cells are square, as in iOS 27.2.
+    expect(value(tokens, "--color-picker-body-aspect-ratio")).toBe("6 / 5")
+    // Labels are small caps in the secondary label color; the field a regular capsule; the Hex row at the right.
+    expect([value(phone, "--color-picker-label-font-size"), value(phone, "--color-picker-label-font-weight"), value(phone, "--color-picker-label-text-transform"), value(phone, "--color-picker-label-color")])
+      .toEqual(["13px", "590", "uppercase", "var(--mobile-label-secondary)"])
+    expect([value(phone, "--color-picker-field-radius"), value(phone, "--color-picker-field-font-weight"), value(phone, "--color-picker-field-background")])
+      .toEqual(["var(--radius-full)", "var(--font-weight-normal)", "var(--mobile-surface-elevated-grouped-secondary)"])
+    expect([value(phone, "--color-picker-sliders-justify"), value(phone, "--color-picker-hex-justify"), value(phone, "--color-picker-hex-margin-block")]).toEqual(["flex-start", "flex-end", "auto"])
+    // The checkerboard and the Add button are light gray in both themes.
+    expect(value(phone, "--color-picker-checker")).toBe("repeating-conic-gradient(transparent 0 25%, #d9d9d9 0 50%)")
+    expect([value(phone, "--color-picker-add-background"), value(phone, "--color-picker-add-color")]).toEqual(["#d9d9d9", "#4a4a4a"])
+    expect(value(phone, "--color-picker-separator-color")).toBe("var(--color-picker-mobile-separator-color)")
+    expect(value(tokens, "--color-picker-mobile-separator-color")).toBe("light-dark(var(--alpha-20), var(--alpha-15))")
+    // A desktop keeps its labels, field and checkerboard.
+    expect([value(tokens, "--color-picker-label-text-transform"), value(tokens, "--color-picker-field-font-weight"), value(tokens, "--color-picker-checker")])
+      .toEqual(["none", "var(--font-weight-semibold)", "repeating-conic-gradient(#fff 0 25%, #000 0 50%)"])
   })
 
   test("the well, the sheet and the Mode control", () => {
     expect([value(tokens, "--color-well-size-sm"), value(tokens, "--color-well-size-lg"), value(tokens, "--color-well-ring-width")]).toEqual(["28px", "36px", "3px"])
-    expect(value(tokens, "--color-picker-sheet-radius")).toBe("34px 34px 58px 58px")
+    // iOS 27.2's large sheet is flush and opaque: the picker no longer turns the Dialog's sheet into inset glass.
+    expect(styles).not.toMatch(/\n\.Sheet \{/)
+    expect(styles).not.toContain("backdrop-filter")
     // The Mode control is the plain segmented control every phone tab group takes in content (touch.css), as the
     // kit picker draws it; the picker keeps no override of its own.
     expect(styles).not.toContain(".Modes[data-variant")
@@ -487,7 +540,8 @@ describe("ColorPicker saved color pages and reduced motion (plan 95)", () => {
       configurable: true,
       value(options: ScrollToOptions) { scrolls.push(`${options.left} ${options.behavior}`) },
     })
-    const swatches = ["#000000", "#007aff", "#34c759", "#ff9500", "#ff3b30", "#af52de", "#5856d6", "#ffcc00", "#00c7be", "#8e8e93"]
+    // Twelve saved colors and Add are two pages.
+    const swatches = ["#000000", "#007aff", "#34c759", "#ff9500", "#ff3b30", "#af52de", "#5856d6", "#ffcc00", "#00c7be", "#8e8e93", "#ff2d55", "#a2845e"]
     const runs: string[][] = []
     try {
       await walkPair(

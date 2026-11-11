@@ -50,12 +50,14 @@ type ColorSliderOptions = {
   value: number
   max: number
   track: string
+  /** The knob's fill: the current color, as iOS 27.2 fills it (opaque on a channel, at its opacity on Opacity). */
+  fill: string
   valueText: string
   onChange: (value: number) => void
 }
 
-/** A slider on a colored track, after the kit's Opacity slider (515:47434): a 36px ring on a 40px capsule. */
-const colorSlider = ({ labelId, value, max, track, valueText, onChange }: ColorSliderOptions) =>
+/** A slider on a colored track, after the kit's Opacity slider (515:47434): a ring filled with the color on a capsule. */
+const colorSlider = ({ labelId, value, max, track, fill, valueText, onChange }: ColorSliderOptions) =>
   h("div", { class: s.Track, style: { "--color-picker-track": track } }, [
     h(
       SliderRoot,
@@ -70,7 +72,7 @@ const colorSlider = ({ labelId, value, max, track, valueText, onChange }: ColorS
       {
         default: () => [
           h(SliderTrack, { class: s.SliderTrack }),
-          h(SliderThumb, { "class": s.Knob, "aria-labelledby": labelId, "aria-valuetext": valueText }),
+          h(SliderThumb, { "class": s.Knob, "style": { backgroundColor: fill }, "aria-labelledby": labelId, "aria-valuetext": valueText }),
         ],
       },
     ),
@@ -251,6 +253,7 @@ const colorSliders = (uid: string, color: Rgba, onSelect: Select) =>
             value: color[channel],
             max: 255,
             track: channelTrack(color, channel),
+            fill: cssColor(color, 1),
             valueText: String(color[channel]),
             onChange: (next) => onSelect({ ...color, [channel]: next }),
           }),
@@ -267,7 +270,7 @@ const colorSliders = (uid: string, color: Rgba, onSelect: Select) =>
       ])
     }),
     h("div", { class: s.Hex }, [
-      h("span", { id: `${uid}-hex`, class: s.Label }, "Hex Color #"),
+      h("span", { id: `${uid}-hex`, class: s.HexLabel }, "Hex Color #"),
       h(ColorField, {
         value: hexDigits(color),
         labelledBy: `${uid}-hex`,
@@ -284,8 +287,9 @@ const colorSliders = (uid: string, color: Rgba, onSelect: Select) =>
 const colorName = (color: Rgba) => `#${hexDigits(color)}${color.a < 1 ? `, ${alphaPercent(color.a)}% opacity` : ""}`
 
 /**
- * The current color, and the saved colors in pages of two rows of five with Add after the last (kit Swatches
- * 515:46585). A saved color is a radio; Delete or Backspace, or Delete in its context menu, removes it.
+ * The current color, and the saved colors in pages of two rows of six with Add after the last (iOS 27.2; kit
+ * Swatches 515:46585 had rows of five). A saved color is a radio; Delete or Backspace, or Delete in its context
+ * menu, removes it.
  */
 const ColorSwatches = defineComponent({
   name: "ColorPickerSwatches",
@@ -538,6 +542,7 @@ const ColorPickerComponent = defineComponent({
                     value: alphaPercent(current.a),
                     max: 100,
                     track: opacityTrack(current),
+                    fill: cssColor(current),
                     valueText: `${alphaPercent(current.a)}%`,
                     onChange: (percent) => commit({ ...color.value, a: percent / 100 }),
                   }),
@@ -563,7 +568,8 @@ const ColorPickerComponent = defineComponent({
 export type ColorPickerProps = InstanceType<typeof ColorPickerComponent>["$props"]
 
 /**
- * The system color picker of iOS 26 (kit Color Picker - iPhone 0:5275): Grid, Spectrum and Sliders, the Opacity
- * slider, and the saved colors with Add. Show it inside a Popover or a Sheet, or use `ColorWell`, which does.
+ * The system color picker of iOS 27.2 (UIColorPickerViewController, after the iOS 26 kit's Color Picker - iPhone
+ * 0:5275): Grid, Spectrum and Sliders, the Opacity slider, and the saved colors with Add. Show it inside a Popover or
+ * a Sheet, or use `ColorWell`, which does.
  */
 export const ColorPicker = ColorPickerComponent

@@ -434,39 +434,60 @@
     --stepper-segment-background-disabled: var(--stepper-mobile-segment-background-disabled);
     --stepper-separator-color: var(--stepper-mobile-separator-color);
     --stepper-icon-disabled-color: var(--mobile-label-tertiary);
-    /* Color picker: the iOS 26 kit Color Picker - iPhone (0:5275), 358px wide in its sheet. The segmented control
-       is the iOS 27 kit's small one, 32px (ColorPicker.module.css), grid cells 30, the Opacity track 40 with a 36px knob (3px white ring), the field 75 x 40,
-       the current color 82 and saved colors 30, 24 apart, in rows 22 apart; the checkerboard is 13.6px. */
+    /* Color picker: iOS 27.2's UIColorPickerViewController on an iPhone 17 (measures/color.md). The Mode control is
+       the small segmented control, 32px (ColorPicker.module.css), 15 over the grid of square cells. Labels are 13px
+       caps in the secondary label color, their caps 18.7 over a 34px track whose 34px knob has a 3px white ring; the
+       field is a 76 x 36 capsule 16 after its track, regular 17px. The checkerboard is 12px light gray squares over
+       the sheet. A separator 22 under the Opacity row; 22 under it the 78px current color, and 20 after it the saved
+       colors, 30px in rows of six, 18 apart, two rows as tall as the current color, the Add button light gray in
+       both themes. In Sliders the channels are 74.67 apart and the Hex row is centered in the space under them, its
+       field at the right. */
     --color-picker-width: 100%;
-    --color-picker-modes-gap: 24px;
+    --color-picker-modes-gap: 15px;
     --color-picker-body-radius: 18px;
-    --color-picker-section-gap: 26px;
-    --color-picker-row-gap: 3px;
-    /* The Opacity block: 22 under the row and 3 more, the 1px separator inside them (kit 515:47431, 114 tall). */
-    --color-picker-opacity-padding-bottom: 24px;
-    --color-picker-label-font-size: 15px;
-    --color-picker-label-line-height: 20px;
+    --color-picker-section-gap: 18px;
+    --color-picker-row-gap: 5px;
+    --color-picker-opacity-padding-bottom: 22px;
+    --color-picker-label-font-size: 13px;
+    --color-picker-label-line-height: 16px;
+    --color-picker-label-font-weight: 590;
+    --color-picker-label-color: var(--mobile-label-secondary);
+    --color-picker-label-text-transform: uppercase;
+    --color-picker-sliders-justify: flex-start;
+    --color-picker-channel-gap: 17.67px;
+    --color-picker-hex-justify: flex-end;
+    --color-picker-hex-margin-block: auto;
+    --color-picker-hex-label-font-size: 17px;
+    --color-picker-hex-label-line-height: 22px;
+    --color-picker-hex-label-font-weight: var(--font-weight-normal);
     --color-picker-selection-width: 3px;
-    --color-picker-track-height: 40px;
-    --color-picker-checker-size: 13.6px;
-    --color-picker-knob-size: 36px;
+    --color-picker-track-height: 34px;
+    --color-picker-track-inset: 0px;
+    --color-picker-checker: repeating-conic-gradient(transparent 0 25%, #d9d9d9 0 50%);
+    --color-picker-checker-size: 12px;
+    --color-picker-knob-size: 34px;
     --color-picker-knob-border: 3px;
     --color-picker-loupe-size: 30px;
-    --color-picker-field-gap: 11px;
-    --color-picker-field-width: 75px;
-    --color-picker-field-wide-width: 110px;
-    --color-picker-field-height: 40px;
+    --color-picker-field-gap: 16px;
+    --color-picker-field-width: 76px;
+    --color-picker-field-wide-width: 100px;
+    --color-picker-field-height: 36px;
+    --color-picker-field-radius: var(--radius-full);
     --color-picker-field-font-size: 17px;
     --color-picker-field-line-height: 22px;
-    --color-picker-field-background: var(--color-picker-mobile-field-background);
+    --color-picker-field-font-weight: var(--font-weight-normal);
+    --color-picker-field-background: var(--mobile-surface-elevated-grouped-secondary);
     --color-picker-separator-color: var(--color-picker-mobile-separator-color);
-    --color-picker-current-size: 82px;
+    --color-picker-current-size: 78px;
     --color-picker-current-radius: 18px;
-    --color-picker-current-gap: 30px;
+    --color-picker-current-gap: 20px;
+    --color-picker-swatches-padding-top: 22px;
     --color-picker-swatch-size: 30px;
-    --color-picker-swatch-row-gap: 22px;
+    --color-picker-swatch-row-gap: 18px;
     --color-picker-swatch-ring-inset: 3px;
     --color-picker-add-icon-size: 20px;
+    --color-picker-add-background: #d9d9d9;
+    --color-picker-add-color: #4a4a4a;
     --color-picker-page-control-row-height: 10px;
     --color-picker-page-control-empty-display: flex;
     /* Page control: the kit component is 44pt tall around its 24px capsule; its other dots are Labels/Tertiary

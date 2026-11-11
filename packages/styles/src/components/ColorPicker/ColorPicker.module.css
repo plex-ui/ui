@@ -1,6 +1,7 @@
-/* The system color picker, after the iOS 26 kit Color Picker - iPhone (0:5275): a segmented control over the
-   grid, spectrum or sliders, the Opacity slider, a separator, then the current color and the saved colors. On a
-   phone the sizes are the kit's (touch.css); on a desktop the same layout in PlexUI sizes. */
+/* The system color picker, as iOS 27.2 lays out UIColorPickerViewController (iPhone 17; the iOS 26 kit's Color
+   Picker - iPhone 0:5275 before it): a segmented control over the grid, spectrum or sliders, the Opacity slider, a
+   separator, then the current color and the saved colors. On a phone the sizes are the native ones (touch.css); on a
+   desktop the same layout in PlexUI sizes. */
 .ColorPicker {
   display: flex;
   flex-direction: column;
@@ -98,7 +99,8 @@
 .Sliders {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: var(--color-picker-sliders-justify);
+  gap: var(--color-picker-channel-gap);
   height: 100%;
 }
 
@@ -111,8 +113,15 @@
 .Hex {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: var(--color-picker-hex-justify);
   gap: var(--color-picker-field-gap);
+  margin-block: var(--color-picker-hex-margin-block);
+}
+
+.HexLabel {
+  font-size: var(--color-picker-hex-label-font-size);
+  font-weight: var(--color-picker-hex-label-font-weight);
+  line-height: var(--color-picker-hex-label-line-height);
 }
 
 /* ===== Opacity ===== */
@@ -127,9 +136,11 @@
 }
 
 .Label {
+  color: var(--color-picker-label-color);
   font-size: var(--color-picker-label-font-size);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--color-picker-label-font-weight);
   line-height: var(--color-picker-label-line-height);
+  text-transform: var(--color-picker-label-text-transform);
 }
 
 .Row {
@@ -148,7 +159,7 @@
   border-radius: var(--radius-full);
   background:
     var(--color-picker-track),
-    repeating-conic-gradient(#fff 0 25%, #000 0 50%) 0 0 / calc(2 * var(--color-picker-checker-size)) calc(2 * var(--color-picker-checker-size));
+    var(--color-picker-checker) 0 0 / calc(2 * var(--color-picker-checker-size)) calc(2 * var(--color-picker-checker-size));
 }
 
 .SliderRoot {
@@ -201,7 +212,7 @@
   color: var(--color-text);
   font: inherit;
   font-size: var(--color-picker-field-font-size);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--color-picker-field-font-weight);
   line-height: var(--color-picker-field-line-height);
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -226,18 +237,21 @@
   display: flex;
   align-items: flex-start;
   gap: var(--color-picker-current-gap);
-  padding-top: var(--color-picker-section-gap);
+  padding-top: var(--color-picker-swatches-padding-top);
 }
 
-/* The current color, over a checkerboard when it is not opaque. */
+/* The current color, over a checkerboard when it is not opaque. The checkerboard stops half a pixel inside the edge,
+   so it does not show around an opaque color where the rounded edge is smoothed. */
 .Current {
   position: relative;
   flex-shrink: 0;
   width: var(--color-picker-current-size);
   height: var(--color-picker-current-size);
+  padding: 0.5px;
+  box-sizing: border-box;
   overflow: hidden;
   border-radius: var(--color-picker-current-radius);
-  background: repeating-conic-gradient(#fff 0 25%, #000 0 50%) 0 0 / calc(2 * var(--color-picker-checker-size)) calc(2 * var(--color-picker-checker-size));
+  background: var(--color-picker-checker) 0 0 / calc(2 * var(--color-picker-checker-size)) calc(2 * var(--color-picker-checker-size)) content-box;
 }
 
 .CurrentFill,
@@ -255,7 +269,7 @@
   min-width: 0;
 }
 
-/* Pages of ten that scroll sideways, a page at a time. */
+/* Pages of twelve that scroll sideways, a page at a time. */
 .Pages {
   display: flex;
   overflow-x: auto;
@@ -271,7 +285,7 @@
 .Page {
   display: grid;
   flex: 0 0 100%;
-  grid-template-columns: repeat(5, var(--color-picker-swatch-size));
+  grid-template-columns: repeat(6, var(--color-picker-swatch-size));
   grid-auto-rows: var(--color-picker-swatch-size);
   align-content: start;
   justify-content: space-between;
@@ -303,8 +317,11 @@
 }
 
 .Swatch {
+  padding: 0.5px;
+  box-sizing: border-box;
   overflow: hidden;
-  background: repeating-conic-gradient(#fff 0 25%, #000 0 50%) 0 0 / calc(var(--color-picker-swatch-size) / 3) calc(var(--color-picker-swatch-size) / 3);
+  /* As under the current color, the checkerboard stops half a pixel inside the round edge. */
+  background: var(--color-picker-checker) 0 0 / calc(var(--color-picker-swatch-size) / 3) calc(var(--color-picker-swatch-size) / 3) content-box;
 
   &[aria-checked="true"]::after {
     position: absolute;
@@ -318,8 +335,8 @@
 .Add {
   display: grid;
   place-items: center;
-  background: var(--color-picker-field-background);
-  color: var(--color-text);
+  background: var(--color-picker-add-background);
+  color: var(--color-picker-add-color);
 
   & > svg {
     width: var(--color-picker-add-icon-size);
@@ -436,22 +453,14 @@
   line-height: var(--font-text-sm-line-height);
 }
 
-/* The kit's Sheet - Inspector - iPhone: a glass panel 6px from the sides and the bottom, its corners 34px at the
-   top and 58px at the bottom, concentric with the display. */
-.Sheet {
-  --dialog-panel-width: calc(100% - 12px);
-  --dialog-panel-radius: var(--color-picker-sheet-radius);
-  --dialog-panel-hidden-transform: translateY(calc(100% + 6px));
-  --dialog-panel-background: var(--mobile-glass-background);
-  margin: 0 6px 6px;
-  box-shadow: var(--mobile-glass-shadow);
-  -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
-  backdrop-filter: var(--mobile-glass-backdrop-filter);
-}
+/* iOS 27.2 opens the picker in a large sheet, flush with the screen's sides and opaque (UIColorPickerViewController on
+   an iPhone 17: 243 in light, 20 in dark, where the iOS 26 kit drew a glass Inspector sheet 6px in from the sides):
+   the Dialog's own phone sheet with surface="grouped" (ColorWell), so the light gray Add button and checkerboard
+   read on it as in iOS.
 
-/* One glass surface: the bar is clear (it is solid, so no scroll edge blurs the segmented control), and the picker
-   starts right under it, as the kit's 70px Toolbar keeps its own 10px bottom padding. The body does not run under
-   the bar, so on a short screen the picker scrolls below it. This outranks the Dialog's
+   One surface: the bar is clear (it is solid, so no scroll edge blurs the segmented control), and the picker starts
+   right under it, as the bar keeps its own 10px bottom padding. The body does not run under the bar, so on a short
+   screen the picker scrolls below it. This outranks the Dialog's
    `.Content[data-mobile-variant="sheet"] .Panel > .Body`. */
 .Sheet > [data-toolbar] {
   --dialog-panel-background: transparent;
