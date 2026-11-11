@@ -175,6 +175,8 @@ describe("Button on a phone", () => {
     // the bars set the weight on the button itself, 16 from the capsule's edge to the text (ref-app nav-inline, nav-text)
     const tokens = read("packages/styles/src/styles/variables-components.css")
     expect(tokens).toMatch(/--toolbar-label-font-weight: 510;\s*--toolbar-label-prominent-font-weight: 590;\s*--toolbar-label-gutter: 16px;/)
+    // The bottom bar's text stands 16 inside its capsule too (ref-app tb-text, tb-mixed; it was 12)
+    expect(tokens).toMatch(/--toolbar-bottom-label-gutter: 16px;/)
     const toolbar = "packages/styles/src/components/Toolbar/Toolbar.module.css"
     expect(declsOf(toolbar, '.Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a, [role="link"])', true))
       .toEqual({ "font-weight": "var(--toolbar-label-font-weight)" })

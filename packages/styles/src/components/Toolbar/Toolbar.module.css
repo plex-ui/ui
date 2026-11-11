@@ -273,9 +273,8 @@
     grid-area: content;
   }
 
-  /* Several buttons in one capsule: on top as iOS 27.2 groups a bar's symbols (10 apart, 1 at the ends), at the
-     bottom the iOS 26 kit's Buttons Bottom (2 to 6 Symbols). The capsule carries the shared mobile glass; the
-     buttons inside it stay clear. */
+  /* Several buttons in one capsule, as iOS 27.2 groups a bar's symbols: 10 apart with 1 at the ends on top, 8 apart
+     with 2 at the ends at the bottom. The capsule carries the shared mobile glass; the buttons inside it stay clear. */
   .Group {
     gap: var(--toolbar-group-gap);
     padding-inline: var(--toolbar-group-padding);

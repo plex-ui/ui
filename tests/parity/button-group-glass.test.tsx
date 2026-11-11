@@ -12,9 +12,9 @@ import { Input } from "../../packages/vue/src/components/Input"
 import { Toolbar, ToolbarLeading, ToolbarTrailing } from "../../packages/vue/src/components/Toolbar"
 import { flushVue, mountVue } from "./harness"
 
-// A glass ButtonGroup on a phone is one capsule of bar buttons, as Notes holds its symbols (IMG_5734, 5736): on top
-// as iOS 27.2 groups a bar's symbols (plan 178 block 15), at the bottom the iOS 27 kit's Button Group (Toolbars
-// 507:25993, _Buttons - 48pt). A group in a
+// A glass ButtonGroup on a phone is one capsule of bar buttons, as Notes holds its symbols (IMG_5734, 5736): in a
+// row as iOS 27.2 groups a bar's symbols (plan 178 blocks 15 and 16), as a column the iOS 27 kit's Button Group
+// (Toolbars 507:25993, _Buttons - 48pt). A group in a
 // Toolbar is one by itself; `mobileMaterial="glass"` asks for it elsewhere; "flat" keeps the joined look; a group
 // in the content, or of a field and buttons, stays joined.
 
@@ -69,17 +69,17 @@ describe("ButtonGroup glass on a phone", () => {
     expect(phone).toMatch(/& > :where\(button, a, \[role="link"\]\)\[data-variant="solid"\] \{\s*font-weight: var\(--toolbar-label-prominent-font-weight\);/)
   })
 
-  test("the tokens are the capsules: 154 x 44 on top (iOS 27.2), 164 x 48 at the bottom and as a column (the kit)", () => {
+  test("the tokens are the capsules: 154 x 44 on top and 164 x 48 at the bottom (iOS 27.2), 48 x 164 as a column (the kit)", () => {
     const tokens = read("styles/variables-components.css")
     expect(tokens).toMatch(/--button-group-glass-item-size: var\(--toolbar-top-item-size\);/)
     expect(tokens).toMatch(/--button-group-glass-gap: var\(--toolbar-group-gap\);/)
     expect(tokens).toMatch(/--button-group-glass-padding: var\(--toolbar-group-padding\);/)
     expect(tokens).toMatch(/--button-group-glass-vertical-item-size: var\(--toolbar-bottom-item-size\);/)
-    expect(tokens).toMatch(/--button-group-glass-vertical-gap: var\(--toolbar-bottom-group-gap\);/)
-    expect(tokens).toMatch(/--button-group-glass-vertical-padding: var\(--toolbar-bottom-group-padding\);/)
-    // 1 + 3 x 44 + 2 x 10 + 1 = 154 (iOS 27.2: 154.33), 4 + 3 x 48 + 2 x 6 + 4 = 164
+    expect(tokens).toMatch(/--button-group-glass-vertical-gap: 6px;/)
+    expect(tokens).toMatch(/--button-group-glass-vertical-padding: 4px;/)
+    // iOS 27.2: 1 + 3 x 44 + 2 x 10 + 1 = 154 on top, 2 + 3 x 48 + 2 x 8 + 2 = 164 at the bottom; the kit's column 4 + 3 x 48 + 2 x 6 + 4
     expect(tokens).toMatch(/--toolbar-top-item-size: 44px;/)
-    expect(tokens).toMatch(/--toolbar-group-gap: 10px;\s*--toolbar-group-padding: 1px;\s*--toolbar-bottom-group-gap: 6px;\s*--toolbar-bottom-group-padding: 4px;/)
+    expect(tokens).toMatch(/--toolbar-group-gap: 10px;\s*--toolbar-group-padding: 1px;\s*\/\*[^*]*\*\/\s*--toolbar-bottom-group-gap: 8px;\s*--toolbar-bottom-group-padding: 2px;/)
     // The bottom bar sets its group sizes on the bar, so a ButtonGroup in it inherits them as a Toolbar.Group does
     const toolbar = read("components/Toolbar/Toolbar.module.css")
     expect(toolbar).toMatch(/\.Toolbar\[data-placement="bottom"\] \{\s*--toolbar-group-gap: var\(--toolbar-bottom-group-gap\);/)

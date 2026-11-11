@@ -161,15 +161,16 @@
        capsule as iOS 27.2 groups a bar's symbols (ref-app nav-group3, plan 178 block 15), 154 wide with three:
        1 + 44 + 10 + 44 + 10 + 44 + 1, the symbols as far apart as the bar's separate items (the iOS 27 kit, Toolbars
        507:25993, Type=Button Group, drew 2 and 12 for 160). A column is the kit's only vertical one, the 48pt capsule
-       (_Buttons - 48pt), 48 x 164 with three symbols:
-       4 + 48 + 6 + 48 + 6 + 48 + 4 (the kit's padding 10, gap 18 around 36pt symbols). Groups side by side keep the
-       10px of the top bar's items. In a Toolbar a group takes the bar's own sizes instead. */
+       (_Buttons - 48pt), 48 x 164 with three symbols: 4 + 48 + 6 + 48 + 6 + 48 + 4 (the kit's padding 10, gap 18
+       around 36pt symbols); iOS has no column of bar items to measure, so it keeps the kit's sizes while the bottom
+       bar's row takes those of iOS 27.2. Groups side by side keep the 10px of the top bar's items. In a Toolbar a
+       group takes the bar's own sizes instead. */
     --button-group-glass-item-size: var(--toolbar-top-item-size);
     --button-group-glass-gap: var(--toolbar-group-gap);
     --button-group-glass-padding: var(--toolbar-group-padding);
     --button-group-glass-vertical-item-size: var(--toolbar-bottom-item-size);
-    --button-group-glass-vertical-gap: var(--toolbar-bottom-group-gap);
-    --button-group-glass-vertical-padding: var(--toolbar-bottom-group-padding);
+    --button-group-glass-vertical-gap: 6px;
+    --button-group-glass-vertical-padding: 4px;
     --button-group-glass-nested-gap: var(--toolbar-top-item-gap);
     --button-group-glass-label-gutter: var(--toolbar-label-gutter);
 
@@ -505,8 +506,11 @@
        100, three 154.33. The iOS 26 kit drew 12 and 2. */
     --toolbar-group-gap: 10px;
     --toolbar-group-padding: 1px;
-    --toolbar-bottom-group-gap: 6px;
-    --toolbar-bottom-group-padding: 4px;
+    /* Several symbols in one capsule of a bottom bar (iOS 27.2 UIToolbar, ref-app tb-circles2 and tb-circles3, plan
+       178 block 16): 48pt items 8 apart with 2 at the ends; two make 108, three 164, their centers 56 apart (12 more,
+       60, between capsules of their own). The iOS 26 kit drew 6 and 4, the same 164 with centers 54 apart. */
+    --toolbar-bottom-group-gap: 8px;
+    --toolbar-bottom-group-padding: 2px;
     --toolbar-padding-bottom: 10px;
     --toolbar-sheet-padding-top: 16px;
     --toolbar-bottom-padding-top: 4px;
@@ -551,7 +555,9 @@
     --toolbar-label-font-weight: 510;
     --toolbar-label-prominent-font-weight: 590;
     --toolbar-label-gutter: 16px;
-    --toolbar-bottom-label-gutter: 12px;
+    /* The same 16 in a bottom bar (ref-app tb-text, tb-mixed: Select All, Done and Updated Just Now all start and
+       end 16 inside their capsules, Done 74.67 wide as on top); it was 12. */
+    --toolbar-bottom-label-gutter: 16px;
     --toolbar-title-font-size: 17px;
     --toolbar-title-line-height: 22px;
     --toolbar-title-font-weight: 590;

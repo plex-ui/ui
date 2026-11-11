@@ -167,9 +167,9 @@
   }
 }
 
-/* A glass group on a phone: the capsule in which iOS 27.2 groups a bar's symbols on top and the Button Group of the
-   iOS 27 kit at the bottom (Toolbars 507:25993, _Buttons - 48pt), as the top and bottom bars of Notes hold their
-   symbols (IMG_5734, 5736: Back alone, then one capsule of three symbols). A group in a Toolbar is one by itself, the same capsule as Toolbar.Group;
+/* A glass group on a phone: the capsule in which iOS 27.2 groups a bar's symbols, on top and at the bottom, and as a
+   column the Button Group of the iOS 27 kit (Toolbars 507:25993, _Buttons - 48pt), as the top and bottom bars of
+   Notes hold their symbols (IMG_5734, 5736: Back alone, then one capsule of three symbols). A group in a Toolbar is one by itself, the same capsule as Toolbar.Group;
    elsewhere `mobileMaterial="glass"` asks for it, for controls that float over the content, as the column of map
    controls. Liquid Glass belongs to the controls over the content, so a group in the content keeps its joined
    look, and `mobileMaterial="flat"` keeps it in a Toolbar. A group of a field and buttons stays joined anywhere.

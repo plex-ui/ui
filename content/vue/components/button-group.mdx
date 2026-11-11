@@ -15,7 +15,7 @@ export const frame = (body) => `<div class="${pageStyles.Frame}">
 ${body}
 </div>`
 
-{/* Phone: the bars of a note, as in iOS Notes (IMG_5734, 5736). A ButtonGroup in a Toolbar is the kit's glass Button Group. */}
+{/* Phone: the bars of a note, as in iOS Notes (IMG_5734, 5736). A ButtonGroup in a Toolbar is the glass capsule in which iOS 27.2 groups a bar's symbols. */}
 export const overviewPhone = `<Page>
   <Toolbar>
     <ToolbarLeading>
@@ -253,7 +253,7 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/vue/components/
 
 ### Overview
 
-<ComponentPreview language="vue" phonePresentation="screen" details={<>On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A <code>ButtonGroup</code> in a <code>Toolbar</code> is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 6px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do.</>} code={withPhone(overview, overviewPhone.replace(`<p v-for="line in note" :key="line">{{ line }}</p>`, "…"), "the bars of a note")}>
+<ComponentPreview language="vue" phonePresentation="screen" details={<>On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A <code>ButtonGroup</code> in a <code>Toolbar</code> is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 8px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do.</>} code={withPhone(overview, overviewPhone.replace(`<p v-for="line in note" :key="line">{{ line }}</p>`, "…"), "the bars of a note")}>
   <VuePhoneRowsDemo template={overview} controls={phoneFixedSizeControl} phoneTemplate={frame(overviewPhone)} phoneStageClassName={STAGE} state={{ note }} />
 </ComponentPreview>
 
