@@ -5,30 +5,15 @@ metaDescription: React accordion component with vertically stacked panels that e
 ---
 
 import { Accordion } from "@plexui/ui/components/Accordion"
-import {
-  AccordionOverviewDemo,
-  AccordionSingleDemo,
-  AccordionMultipleDemo,
-  AccordionCardDemo,
-} from "@/components/docs/AccordionDemos"
-import { PhoneScreen } from "@/components/docs/PhoneScreen"
+import { AccordionOverviewDemo } from "@/components/docs/AccordionDemos"
+import { indentCode } from "@/components/docs/demoCode.mjs"
 
-<UsageBlock>{`import { Accordion } from "@plexui/ui/components/Accordion";`}</UsageBlock>
-
-Compose with `Accordion.Item`, `Accordion.Trigger`, and `Accordion.Content`. Built on Radix Accordion, so the primitive handles keyboard navigation, focus management, and WAI-ARIA semantics.
-
-On a phone an item reads as an iOS 27.2 DisclosureGroup in an inset grouped list: a 52px row with its title at 17/22 regular and a chevron in the label color that points to the end and turns down when the item opens. The chevron is 21px and ends 1px past the title's margin, where iOS draws it. The content is a row under the title, 17/22 in the label color, 20px in from it, with a separator above it across the row; under an open item the separator starts where the content does, as under the last row a group holds.
-
-## Examples
-
-<span id="disabled" />
-
-### Overview
-
-<ComponentPreview phonePresentation="screen" details={<>The <code>returnsDisabled</code> control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.</>} code={`const [value, setValue] = useState("shipping")
-const [returnsDisabled, setReturnsDisabled] = useState(false)
-
-<Accordion type="single" collapsible value={value} onValueChange={setValue}>
+export const overviewAccordion = `[[#type=single]]
+<Accordion type="single"[[#collapsible]] collapsible[[/collapsible]] defaultValue="shipping">
+[[/type=single]]
+[[#type=multiple]]
+<Accordion type="multiple" defaultValue={["shipping"]}>
+[[/type=multiple]]
   <Accordion.Item value="shipping">
     <Accordion.Trigger>What are your shipping options?</Accordion.Trigger>
     <Accordion.Content>
@@ -43,55 +28,43 @@ const [returnsDisabled, setReturnsDisabled] = useState(false)
     <Accordion.Trigger>How can I contact customer support?</Accordion.Trigger>
     <Accordion.Content>Reach us by email, live chat, or phone Monday–Friday…</Accordion.Content>
   </Accordion.Item>
-</Accordion>`}>
-  <AccordionOverviewDemo />
-</ComponentPreview>
+</Accordion>`
 
-### Single
+export const overviewCode = `const [returnsDisabled, setReturnsDisabled] = useState([[returnsDisabled]])
 
-<ComponentPreview phonePresentation="screen" details={<>Default shape. <code>type="single"</code> + <code>collapsible</code> lets users close the currently open item; without <code>collapsible</code>, one item is always open.</>} code={`<Accordion type="single" collapsible defaultValue="trial">
-  {items.map((item) => (
-    <Accordion.Item key={item.value} value={item.value}>
-      <Accordion.Trigger>{item.trigger}</Accordion.Trigger>
-      <Accordion.Content>{item.content}</Accordion.Content>
-    </Accordion.Item>
-  ))}
-</Accordion>`}>
-  <PhoneScreen section><AccordionSingleDemo /></PhoneScreen>
-</ComponentPreview>
-
-### Multiple
-
-<ComponentPreview phonePresentation="screen" details={<>Use <code>type="multiple"</code> when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references.</>} code={`<Accordion type="multiple" defaultValue={["notifications"]}>
-  {items.map((item) => (
-    <Accordion.Item key={item.value} value={item.value}>
-      <Accordion.Trigger>{item.trigger}</Accordion.Trigger>
-      <Accordion.Content>{item.content}</Accordion.Content>
-    </Accordion.Item>
-  ))}
-</Accordion>`}>
-  <PhoneScreen section><AccordionMultipleDemo /></PhoneScreen>
-</ComponentPreview>
-
-### Card
-
-<ComponentPreview phonePresentation="screen" details={<>Composed inside <code>Card</code>, the most common landing-page FAQ pattern.</>} code={`<Card>
+[[#card]]
+<Card>
   <Card.Header>
-    <Card.Title>Subscription & billing</Card.Title>
-    <Card.Description>Common questions about plans, invoices, and cancellations.</Card.Description>
+    <Card.Title>Orders & returns</Card.Title>
+    <Card.Description>Shipping, returns, and support at a glance.</Card.Description>
   </Card.Header>
   <Card.Content>
-    <Accordion type="single" collapsible defaultValue="plans">
-      {items.map((item) => (
-        <Accordion.Item key={item.value} value={item.value}>
-          <Accordion.Trigger>{item.trigger}</Accordion.Trigger>
-          <Accordion.Content>{item.content}</Accordion.Content>
-        </Accordion.Item>
-      ))}
-    </Accordion>
+${indentCode(overviewAccordion, 4)}
   </Card.Content>
-</Card>`}>
-  <PhoneScreen><AccordionCardDemo /></PhoneScreen>
+</Card>
+[[/card]]
+[[^card]]
+${overviewAccordion}
+[[/card]]`
+
+<UsageBlock>{`import { Accordion } from "@plexui/ui/components/Accordion";`}</UsageBlock>
+
+Compose with `Accordion.Item`, `Accordion.Trigger`, and `Accordion.Content`. Built on Radix Accordion, so the primitive handles keyboard navigation, focus management, and WAI-ARIA semantics.
+
+On a phone an item reads as an iOS 27.2 DisclosureGroup in an inset grouped list: a 52px row with its title at 17/22 regular and a chevron in the label color that points to the end and turns down when the item opens. The chevron is 21px and ends 1px past the title's margin, where iOS draws it. The content is a row under the title, 17/22 in the label color, 20px in from it, with a separator above it across the row; under an open item the separator starts where the content does, as under the last row a group holds.
+
+## Examples
+
+{/* The examples Single, Multiple, Card and Disabled are settings of the Overview now (owner 11.11) */}
+<span id="single" />
+<span id="multiple" />
+<span id="card" />
+<span id="disabled" />
+
+### Overview
+
+<ComponentPreview phonePresentation="screen" details={<>Set <code>type</code> to <code>multiple</code> when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references. A <code>single</code> accordion with <code>collapsible</code> lets readers close the open item; without it one item is always open. <code>card</code> composes the accordion inside <code>Card</code>, the most common landing-page FAQ pattern; on a phone the card is a section of the grouped list. The <code>returnsDisabled</code> control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.</>} code={overviewCode} codeValues={{ type: "single", collapsible: true, card: false, returnsDisabled: false }} codeExamples={[{ name: "Multiple", values: { type: "multiple" }, details: "Use type=\"multiple\" when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references." }, { name: "Card", values: { card: true }, details: "Composed inside Card, the most common landing-page FAQ pattern." }]}>
+  <AccordionOverviewDemo />
 </ComponentPreview>
 
 ## API

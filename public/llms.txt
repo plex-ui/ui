@@ -43,7 +43,7 @@ Props:
     - value (string) default: — — Required. Unique identifier used by value / defaultValue
     - disabled (boolean) default: false — Disable this item
     - className (string) default: — — Applied to the item wrapper
-Examples: Overview, Single, Multiple, Card
+Examples: Overview, Multiple, Card
 
 ## Alert
 Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.
@@ -1087,7 +1087,7 @@ Props:
 Examples: Rows, Rows with a handle, Stacked rows, Different controls, Table, Images, Tags, Cards, Between lists
 
 ## Stat Card
-Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.
+Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.
 Import: import { StatCard } from "@plexui/ui/components/StatCard"
 Docs: https://plexui.com/components/stat-card
 Props:
@@ -1099,15 +1099,15 @@ Props:
   - trendPosition ("value" | "header") default: "value" — Where the trend indicator is rendered
   - trendVariant ("text" | "badge") default: "text" — Render trend as text or badge
   - size ("default" | "sm") default: "default" — Card size. Use sm for compact analytics layouts
-  - icon (ReactNode) — Icon displayed on the left with a soft background
+  - icon (ReactNode) — Icon in a small soft tile at the end of the header
   - sparkline (ReactNode) — Chart rendered at the bottom
   - progress (number) — Progress bar value (0-100)
-  - progressLabel (string) — Label next to progress bar
+  - progressLabel (string) — Label after the progress bar
   - tooltip (string) — Shows an info icon next to the label with tooltip text
   - variant ("default" | "accent") default: "default" — Visual variant
-  - accentColor ("primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning") default: "primary" — Left border color (accent variant)
+  - accentColor ("primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning") default: "primary" — Color of the accent bar (accent variant)
   - className (string) — Extra classes on the card element
-Examples: Overview, Sizes, Trend position, Trend variant, Info tooltip, With icon, With progress, Accent border, Inverted trend
+Examples: Overview
 
 ## Stepper
 Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.

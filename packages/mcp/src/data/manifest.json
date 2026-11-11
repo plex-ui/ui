@@ -105,22 +105,17 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "const [value, setValue] = useState(\"shipping\")\nconst [returnsDisabled, setReturnsDisabled] = useState(false)\n\n<Accordion type=\"single\" collapsible value={value} onValueChange={setValue}>\n<Accordion.Item value=\"shipping\">\n  <Accordion.Trigger>What are your shipping options?</Accordion.Trigger>\n  <Accordion.Content>\n    We offer standard (5–7 business days), express (2–3 days), and overnight shipping…\n  </Accordion.Content>\n</Accordion.Item>\n<Accordion.Item value=\"returns\" disabled={returnsDisabled}>\n  <Accordion.Trigger>What is your return policy?</Accordion.Trigger>\n  <Accordion.Content>Returns are accepted within 30 days of delivery…</Accordion.Content>\n</Accordion.Item>\n<Accordion.Item value=\"support\">\n  <Accordion.Trigger>How can I contact customer support?</Accordion.Trigger>\n  <Accordion.Content>Reach us by email, live chat, or phone Monday–Friday…</Accordion.Content>\n</Accordion.Item>\n</Accordion>",
-          "details": "The returnsDisabled control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger."
-        },
-        {
-          "name": "Single",
-          "code": "<Accordion type=\"single\" collapsible defaultValue=\"trial\">\n{items.map((item) => (\n  <Accordion.Item key={item.value} value={item.value}>\n    <Accordion.Trigger>{item.trigger}</Accordion.Trigger>\n    <Accordion.Content>{item.content}</Accordion.Content>\n  </Accordion.Item>\n))}\n</Accordion>",
-          "details": "Default shape. type=\"single\" + collapsible lets users close the currently open item; without collapsible, one item is always open."
+          "code": "const [returnsDisabled, setReturnsDisabled] = useState(false)\n\n<Accordion type=\"single\" collapsible defaultValue=\"shipping\">\n  <Accordion.Item value=\"shipping\">\n    <Accordion.Trigger>What are your shipping options?</Accordion.Trigger>\n    <Accordion.Content>\n      We offer standard (5–7 business days), express (2–3 days), and overnight shipping…\n    </Accordion.Content>\n  </Accordion.Item>\n  <Accordion.Item value=\"returns\" disabled={returnsDisabled}>\n    <Accordion.Trigger>What is your return policy?</Accordion.Trigger>\n    <Accordion.Content>Returns are accepted within 30 days of delivery…</Accordion.Content>\n  </Accordion.Item>\n  <Accordion.Item value=\"support\">\n    <Accordion.Trigger>How can I contact customer support?</Accordion.Trigger>\n    <Accordion.Content>Reach us by email, live chat, or phone Monday–Friday…</Accordion.Content>\n  </Accordion.Item>\n</Accordion>",
+          "details": "Set type to multiple when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references. A single accordion with collapsible lets readers close the open item; without it one item is always open. card composes the accordion inside Card, the most common landing-page FAQ pattern; on a phone the card is a section of the grouped list. The returnsDisabled control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger."
         },
         {
           "name": "Multiple",
-          "code": "<Accordion type=\"multiple\" defaultValue={[\"notifications\"]}>\n{items.map((item) => (\n  <Accordion.Item key={item.value} value={item.value}>\n    <Accordion.Trigger>{item.trigger}</Accordion.Trigger>\n    <Accordion.Content>{item.content}</Accordion.Content>\n  </Accordion.Item>\n))}\n</Accordion>",
+          "code": "const [returnsDisabled, setReturnsDisabled] = useState(false)\n\n<Accordion type=\"multiple\" defaultValue={[\"shipping\"]}>\n  <Accordion.Item value=\"shipping\">\n    <Accordion.Trigger>What are your shipping options?</Accordion.Trigger>\n    <Accordion.Content>\n      We offer standard (5–7 business days), express (2–3 days), and overnight shipping…\n    </Accordion.Content>\n  </Accordion.Item>\n  <Accordion.Item value=\"returns\" disabled={returnsDisabled}>\n    <Accordion.Trigger>What is your return policy?</Accordion.Trigger>\n    <Accordion.Content>Returns are accepted within 30 days of delivery…</Accordion.Content>\n  </Accordion.Item>\n  <Accordion.Item value=\"support\">\n    <Accordion.Trigger>How can I contact customer support?</Accordion.Trigger>\n    <Accordion.Content>Reach us by email, live chat, or phone Monday–Friday…</Accordion.Content>\n  </Accordion.Item>\n</Accordion>",
           "details": "Use type=\"multiple\" when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references."
         },
         {
           "name": "Card",
-          "code": "<Card>\n<Card.Header>\n  <Card.Title>Subscription & billing</Card.Title>\n  <Card.Description>Common questions about plans, invoices, and cancellations.</Card.Description>\n</Card.Header>\n<Card.Content>\n  <Accordion type=\"single\" collapsible defaultValue=\"plans\">\n    {items.map((item) => (\n      <Accordion.Item key={item.value} value={item.value}>\n        <Accordion.Trigger>{item.trigger}</Accordion.Trigger>\n        <Accordion.Content>{item.content}</Accordion.Content>\n      </Accordion.Item>\n    ))}\n  </Accordion>\n</Card.Content>\n</Card>",
+          "code": "const [returnsDisabled, setReturnsDisabled] = useState(false)\n\n<Card>\n  <Card.Header>\n    <Card.Title>Orders & returns</Card.Title>\n    <Card.Description>Shipping, returns, and support at a glance.</Card.Description>\n  </Card.Header>\n  <Card.Content>\n    <Accordion type=\"single\" collapsible defaultValue=\"shipping\">\n      <Accordion.Item value=\"shipping\">\n        <Accordion.Trigger>What are your shipping options?</Accordion.Trigger>\n        <Accordion.Content>\n          We offer standard (5–7 business days), express (2–3 days), and overnight shipping…\n        </Accordion.Content>\n      </Accordion.Item>\n      <Accordion.Item value=\"returns\" disabled={returnsDisabled}>\n        <Accordion.Trigger>What is your return policy?</Accordion.Trigger>\n        <Accordion.Content>Returns are accepted within 30 days of delivery…</Accordion.Content>\n      </Accordion.Item>\n      <Accordion.Item value=\"support\">\n        <Accordion.Trigger>How can I contact customer support?</Accordion.Trigger>\n        <Accordion.Content>Reach us by email, live chat, or phone Monday–Friday…</Accordion.Content>\n      </Accordion.Item>\n    </Accordion>\n  </Card.Content>\n</Card>",
           "details": "Composed inside Card, the most common landing-page FAQ pattern."
         }
       ],
@@ -6421,7 +6416,7 @@
     {
       "slug": "stat-card",
       "name": "Stat Card",
-      "description": "Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.",
+      "description": "Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.",
       "importPath": "@plexui/ui/components/StatCard",
       "exports": [
         "StatCard"
@@ -6474,7 +6469,7 @@
         {
           "name": "icon",
           "type": "ReactNode",
-          "description": "Icon displayed on the left with a soft background"
+          "description": "Icon in a small soft tile at the end of the header"
         },
         {
           "name": "sparkline",
@@ -6489,7 +6484,7 @@
         {
           "name": "progressLabel",
           "type": "string",
-          "description": "Label next to progress bar"
+          "description": "Label after the progress bar"
         },
         {
           "name": "tooltip",
@@ -6506,7 +6501,7 @@
           "name": "accentColor",
           "type": "\"primary\" | \"secondary\" | \"danger\" | \"info\" | \"discovery\" | \"success\" | \"caution\" | \"warning\"",
           "default": "\"primary\"",
-          "description": "Left border color (accent variant)"
+          "description": "Color of the accent bar (accent variant)"
         },
         {
           "name": "className",
@@ -6517,48 +6512,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "const [size, setSize] = useState(\"default\")\nconst [variant, setVariant] = useState(\"default\")\nconst [trendPosition, setTrendPosition] = useState(\"value\")\nconst [trendVariant, setTrendVariant] = useState(\"text\")\nconst [showTrend, setShowTrend] = useState(true)\nconst [showTooltip, setShowTooltip] = useState(false)\nconst [invertTrend, setInvertTrend] = useState(false)\n\n<StatCard\nlabel=\"Total Revenue\"\nvalue=\"$45,231\"\nsize={size}\nvariant={variant}\ntrendPosition={trendPosition}\ntrendVariant={trendVariant}\ntrend={showTrend ? { value: 12.5, label: \"vs last month\" } : undefined}\ntooltip={showTooltip ? \"Sum of all revenue streams\" : undefined}\ninvertTrend={invertTrend}\n/>",
-          "details": "Dashboard-ready stat cards with trends, icons, and progress bars. Use the controls below to explore all available props."
-        },
-        {
-          "name": "Sizes",
-          "code": "<div className=\"flex flex-col gap-6\">\n{/* Default size */}\n<div className=\"grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-4\">\n  <StatCard label=\"Total Revenue\" value=\"$45,231\" trend={{ value: 12.5 }} />\n  <StatCard label=\"Active Users\" value=\"2,847\" trend={{ value: 8.2 }} />\n  <StatCard label=\"Conversion Rate\" value=\"3.24%\" trend={{ value: -1.8 }} />\n</div>\n{/* Small size */}\n<div className=\"grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3\">\n  <StatCard size=\"sm\" label=\"Total Inquiries\" value=\"3,544\" trend={{ value: -2.6 }} tooltip=\"Total inquiries in period\" />\n  <StatCard size=\"sm\" label=\"Completion Rate\" value=\"89.2%\" trend={{ value: 0.5 }} tooltip=\"Average across templates\" />\n  <StatCard size=\"sm\" label=\"Approval Rate\" value=\"84.6%\" trend={{ value: 1.8 }} tooltip=\"Average across templates\" />\n</div>\n</div>",
-          "details": "Use size=\"sm\" for compact analytics rows with denser spacing and smaller typography. The small size also pairs well with the tooltip prop for info icons."
-        },
-        {
-          "name": "Trend position",
-          "code": "<div className=\"grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4\" style={{ maxWidth: 480 }}>\n<StatCard label=\"Revenue\" value=\"$45,231\" trend={{ value: 12.5 }} trendPosition=\"value\" />\n<StatCard label=\"Revenue\" value=\"$45,231\" trend={{ value: 12.5 }} trendPosition=\"header\" />\n</div>",
-          "details": "Control where the trend appears: next to the value (default) or right-aligned in the header row."
-        },
-        {
-          "name": "Trend variant",
-          "code": "<div className=\"grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4\" style={{ maxWidth: 480 }}>\n<StatCard label=\"Users\" value=\"2,847\" trend={{ value: 8.2 }} trendVariant=\"text\" />\n<StatCard label=\"Users\" value=\"2,847\" trend={{ value: 8.2 }} trendVariant=\"badge\" />\n</div>",
-          "details": "Display the trend as plain text or wrapped in a badge."
-        },
-        {
-          "name": "Info tooltip",
-          "code": "<StatCard label=\"Avg Completion Rate\" value=\"89.2%\" trend={{ value: 0.5 }} tooltip=\"Percentage of inquiries reaching final state\" />",
-          "details": "Pass a tooltip string to render an info icon next to the label with a tooltip on hover."
-        },
-        {
-          "name": "With icon",
-          "code": "import { DollarCircle, Users, ShoppingBag } from \"@plexui/ui/components/Icon\"\n\n{/* Default size */}\n<div className=\"grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4\">\n<StatCard icon={<DollarCircle />} label=\"Total Revenue\" value=\"$45,231\" trend={{ value: 12.5 }} />\n<StatCard icon={<Users />} label=\"Active Users\" value=\"2,847\" trend={{ value: 8.2 }} />\n</div>\n\n{/* Small size */}\n<div className=\"grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3\">\n<StatCard size=\"sm\" icon={<DollarCircle />} label=\"Revenue\" value=\"$45,231\" trend={{ value: 12.5 }} />\n<StatCard size=\"sm\" icon={<Users />} label=\"Users\" value=\"2,847\" trend={{ value: 8.2 }} />\n<StatCard size=\"sm\" icon={<ShoppingBag />} label=\"Orders\" value=\"1,234\" trend={{ value: -3.1 }} />\n</div>",
-          "details": "Pass an icon to display it on the left side with a soft background. The layout automatically switches to a horizontal icon + content arrangement. Works with both default and sm sizes."
-        },
-        {
-          "name": "With progress",
-          "code": "<StatCard label=\"Storage Used\" value=\"7.2 GB\" progress={72} progressLabel=\"72%\" description=\"of 10 GB\" />",
-          "details": "Progress bars show a visual representation of completion or usage percentage."
-        },
-        {
-          "name": "Accent border",
-          "code": "const [accentColor, setAccentColor] = useState(\"primary\")\n\n<StatCard\nlabel=\"Total Revenue\"\nvalue=\"$45,231\"\nvariant=\"accent\"\naccentColor={accentColor}\ntrend={{ value: 12.5, label: \"vs last month\" }}\n/>",
-          "details": "The accent variant adds a colored left border. Choose from eight semantic colors."
-        },
-        {
-          "name": "Inverted trend",
-          "code": "const [invertTrend, setInvertTrend] = useState(true)\n\n<StatCard\nlabel=\"Avg Response Time\"\nvalue=\"234ms\"\ntrend={{ value: 15.3, label: \"vs last hour\" }}\ninvertTrend={invertTrend}\n/>",
-          "details": "Use invertTrend for metrics where positive values are bad (e.g., error rate, response time). Toggle the switch to see the color flip."
+          "code": "import { DollarCircle } from \"@plexui/ui/components/Icon\"\n\nconst [size, setSize] = useState(\"default\")\nconst [variant, setVariant] = useState(\"default\")\nconst [accentColor, setAccentColor] = useState(\"primary\")\nconst [trendPosition, setTrendPosition] = useState(\"value\")\nconst [trendVariant, setTrendVariant] = useState(\"text\")\nconst [showTrend, setShowTrend] = useState(true)\nconst [invertTrend, setInvertTrend] = useState(false)\nconst [showTooltip, setShowTooltip] = useState(false)\nconst [showIcon, setShowIcon] = useState(false)\nconst [showProgress, setShowProgress] = useState(false)\n\n<StatCard\nlabel=\"Total Revenue\"\nvalue=\"$45,231\"\nsize={size}\nvariant={variant}\naccentColor={accentColor}\ntrendPosition={trendPosition}\ntrendVariant={trendVariant}\ntrend={showTrend ? { value: 12.5, label: \"vs last month\" } : undefined}\ninvertTrend={invertTrend}\ntooltip={showTooltip ? \"Sum of all revenue streams\" : undefined}\nicon={showIcon ? <DollarCircle /> : undefined}\nprogress={showProgress ? 72 : undefined}\nprogressLabel={showProgress ? \"72%\" : undefined}\ndescription={showProgress ? \"of $62,800 goal\" : undefined}\n/>",
+          "details": "Dashboard-ready stat cards with trends, icons, and progress bars. Use size=\"sm\" for compact analytics rows with denser spacing and smaller typography; it pairs well with tooltip, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (trendPosition), as plain text or in a badge (trendVariant). Use invertTrend for metrics where a rise is bad, such as error rate or response time. An icon stands in a small soft tile at the end of the header, and progress draws a bar of completion or usage across the card. The accent variant adds a colored bar before the content in one of eight semantic colors (accentColor)."
         }
       ],
       "docsUrl": "https://plexui.com/components/stat-card"
@@ -8262,5 +8217,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-11T06:08:01.235Z"
+  "generatedAt": "2026-11-11T07:27:34.394Z"
 }

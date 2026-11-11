@@ -1,4 +1,5 @@
 .StatCard {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -38,8 +39,9 @@
       margin-block-start: spacing(1.5);
     }
 
-    .Footer {
-      margin-block-start: spacing(0.5);
+    .TrendRow {
+      font-size: var(--stat-card-sm-description-font-size);
+      line-height: var(--font-text-xs-line-height);
     }
 
     .Description {
@@ -53,6 +55,8 @@
     }
 
     .IconWrapper {
+      width: var(--stat-card-sm-icon-wrapper-size);
+      height: var(--stat-card-sm-icon-wrapper-size);
       border-radius: var(--stat-card-sm-icon-wrapper-radius);
 
       svg {
@@ -61,14 +65,35 @@
       }
     }
 
-    .Body {
-      gap: spacing(2.5);
+    .Progress {
+      margin-block-start: spacing(3);
     }
   }
 
+  /* The accent is a rounded bar inside the card, before its content (Tremor's KPI cards draw a w-1 rounded bar so):
+     a border on the card's edge bent along its rounded corners */
+  /* The progress bar keeps its own fill: in the accent's colour too, it drew a second stripe of it (owner 11.11) */
   &:where([data-variant="accent"]) {
-    border-inline-start: var(--stat-card-accent-width) solid
-      var(--stat-card-accent-color, var(--color-background-primary-solid));
+    padding-inline-start: calc(var(--stat-card-padding) + var(--stat-card-accent-width) + spacing(3));
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block: var(--stat-card-padding);
+      inset-inline-start: var(--stat-card-padding);
+      width: var(--stat-card-accent-width);
+      border-radius: var(--radius-full);
+      background: var(--stat-card-accent-color, var(--color-background-primary-solid));
+    }
+
+    &:where([data-size="sm"]) {
+      padding-inline-start: calc(var(--stat-card-sm-padding-inline) + var(--stat-card-accent-width) + spacing(2.5));
+
+      &::before {
+        inset-block: var(--stat-card-sm-padding-block);
+        inset-inline-start: var(--stat-card-sm-padding-inline);
+      }
+    }
 
     &:where([data-accent-color="primary"]) {
       --stat-card-accent-color: var(--color-background-primary-solid);
@@ -140,28 +165,14 @@
   }
 }
 
-.Body {
-  display: flex;
-  align-items: flex-start;
-  gap: spacing(3);
-}
-
-.Content {
-  flex: 1;
-  min-width: 0;
-
-  .ValueRow {
-    margin-block-start: spacing(0.5);
-  }
-}
-
 .IconWrapper {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  align-self: stretch;
-  aspect-ratio: 1;
+  /* A small square at the end of the header (shadcn's metric card with an icon), a soft tint behind the icon */
+  width: var(--stat-card-icon-wrapper-size);
+  height: var(--stat-card-icon-wrapper-size);
   border-radius: var(--stat-card-icon-wrapper-radius);
   background: var(--stat-card-icon-wrapper-background);
   color: var(--stat-card-icon-color);
@@ -181,9 +192,22 @@
 
 .ValueRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: spacing(2);
+  column-gap: spacing(2);
   margin-block-start: spacing(3);
+}
+
+/* A trend and what it compares with, on one line under the value: "↗ +12.5% vs last month" (shadcn's metric card
+   with a trend) */
+.TrendRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: spacing(1);
+  margin-block-start: spacing(1);
+  font-size: var(--stat-card-description-font-size);
+  line-height: var(--font-text-sm-line-height);
 }
 
 .Value {
@@ -193,15 +217,28 @@
   font-weight: var(--stat-card-value-font-weight);
   line-height: var(--font-heading-xl-line-height);
   letter-spacing: var(--font-heading-xl-tracking);
+  font-variant-numeric: tabular-nums;
 }
 
 .Trend {
   display: inline-flex;
+  align-items: center;
+  gap: spacing(0.5);
   flex-shrink: 0;
   font-size: var(--stat-card-trend-font-size);
   font-weight: var(--stat-card-trend-font-weight);
   line-height: var(--font-text-sm-line-height);
   white-space: nowrap;
+
+  svg {
+    width: 1.15em;
+    height: 1.15em;
+    flex-shrink: 0;
+  }
+}
+
+.TrendDown {
+  transform: scaleY(-1);
 }
 
 .TrendPositive {
@@ -216,21 +253,13 @@
   color: var(--stat-card-trend-neutral-color);
 }
 
-.Footer {
-  display: flex;
-  flex-direction: column;
-  gap: spacing(0.5);
-  margin-block-start: spacing(2);
-}
-
 .TrendLabel {
   color: var(--stat-card-description-color);
-  font-size: var(--stat-card-description-font-size);
   font-weight: var(--font-weight-normal);
-  line-height: var(--font-text-sm-line-height);
 }
 
 .Description {
+  margin-block-start: spacing(1);
   color: var(--stat-card-description-color);
   font-size: var(--stat-card-description-font-size);
   line-height: var(--font-text-sm-line-height);
@@ -238,10 +267,11 @@
 }
 
 .Progress {
+  /* The bar spans the card, its label after it (Ant Design's line progress) */
   display: flex;
   align-items: center;
-  gap: spacing(2);
-  margin-block-start: spacing(3);
+  gap: spacing(3);
+  margin-block-start: spacing(4);
 }
 
 .ProgressTrack {
@@ -259,9 +289,11 @@
 }
 
 .ProgressLabel {
-  color: var(--stat-card-description-color);
+  color: var(--stat-card-label-color);
   font-size: var(--stat-card-description-font-size);
+  font-weight: var(--font-weight-medium);
   line-height: var(--font-text-sm-line-height);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 

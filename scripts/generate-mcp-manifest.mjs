@@ -16,6 +16,7 @@ import remarkMdx from "remark-mdx";
 import remarkParse from "remark-parse";
 import ts from "typescript";
 import { unified } from "unified";
+import { renderDemoCode } from "../components/docs/demoCode.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -253,9 +254,45 @@ export function extractExamples(content, { tree, context }) {
         ?.replace(/<[^>]+>/g, "")
         .replace(/\s+/g, " ")
         .trim();
+      // A preview whose controls set its code (demoCode.mjs): the code with the defaults, and one example for each
+      // of its `codeExamples`
+      const valuesAttribute = attribute(node, "codeValues");
+      const codeValues = valuesAttribute ? evaluateExpression(valuesAttribute.value?.value, context) : undefined;
+      const examplesAttribute = attribute(node, "codeExamples");
+      const codeExamples = examplesAttribute ? evaluateExpression(examplesAttribute.value?.value, context) : undefined;
+      const renderCode = (values) => {
+        try {
+          return renderDemoCode(code, values).trim();
+        } catch (error) {
+          console.warn(`[manifest] "${name}": ${error.message}; the example is skipped`);
+          return undefined;
+        }
+      };
       // One example per heading: the first preview (a section may show several)
       if (name && typeof code === "string" && code.trim()) {
-        examples.push({ name, code: code.trim(), ...(details && { details }) });
+        if (valuesAttribute && (!codeValues || typeof codeValues !== "object")) {
+          console.warn(`[manifest] "${name}": the preview's codeValues could not be resolved; the example is skipped`);
+        } else if (codeValues) {
+          const heading = name;
+          const shown = renderCode(codeValues);
+          if (shown) examples.push({ name: heading, code: shown, ...(details && { details }) });
+          if (examplesAttribute && !Array.isArray(codeExamples)) {
+            console.warn(`[manifest] "${heading}": the preview's codeExamples could not be resolved; they are skipped`);
+          }
+          for (const example of Array.isArray(codeExamples) ? codeExamples : []) {
+            // A value the code does not follow would only repeat the default
+            const unknown = Object.keys(example.values ?? {}).filter((key) => !(key in codeValues));
+            if (unknown.length > 0) {
+              console.warn(`[manifest] "${heading}": codeExamples "${example.name}" sets ${unknown.join(", ")}, which codeValues do not have; it is skipped`);
+              continue;
+            }
+            const variant = renderCode({ ...codeValues, ...example.values });
+            if (variant) examples.push({ name: example.name, code: variant, ...(example.details && { details: example.details }) });
+          }
+        } else {
+          if (examplesAttribute) console.warn(`[manifest] "${name}": codeExamples need codeValues; they are skipped`);
+          examples.push({ name, code: code.trim(), ...(details && { details }) });
+        }
         name = null;
       } else if (name && codeAttribute) {
         console.warn(`[manifest] "${name}": the preview's code could not be resolved; the example is skipped`);

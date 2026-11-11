@@ -103,22 +103,17 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<script setup>\nimport { ref } from 'vue';\nimport { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@plexui/vue/components/Accordion';\n\nconst value = ref('shipping');\nconst returnsDisabled = ref(false);\n</script>\n\n<template>\n<Accordion type=\"single\" collapsible v-model:value=\"value\" style=\"width: 100%; max-width: 384px\">\n  <AccordionItem value=\"shipping\">\n    <AccordionTrigger>What are your shipping options?</AccordionTrigger>\n    <AccordionContent>\n      We offer standard (5–7 business days), express (2–3 days), and\n      overnight shipping. Free standard shipping on orders over $50.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"returns\" :disabled=\"returnsDisabled\">\n    <AccordionTrigger>What is your return policy?</AccordionTrigger>\n    <AccordionContent>\n      Returns are accepted within 30 days of delivery. Items must be unused\n      and in original packaging. Refunds are processed within 5–7 business\n      days of receipt.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"support\">\n    <AccordionTrigger>How can I contact customer support?</AccordionTrigger>\n    <AccordionContent>\n      Reach us by email, live chat, or phone Monday through Friday, 9am–6pm\n      ET. Weekend tickets are handled within 24 hours.\n    </AccordionContent>\n  </AccordionItem>\n</Accordion>\n</template>",
-          "details": "The returnsDisabled control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger."
-        },
-        {
-          "name": "Single",
-          "code": "<Accordion type=\"single\" collapsible default-value=\"trial\" style=\"width: 100%; max-width: 384px\">\n  <AccordionItem\n    v-for=\"item in [\n      {\n        value: 'trial',\n        trigger: 'How long is the free trial?',\n        content: '14 days, no credit card required. At the end of the trial you can keep the free tier or upgrade to Pro; your projects stay in place either way.',\n      },\n      {\n        value: 'plan',\n        trigger: 'Can I change plans mid-cycle?',\n        content: 'Yes. Upgrades are prorated immediately; downgrades take effect at the next billing date. Invoices always reflect the exact span each plan was active.',\n      },\n      {\n        value: 'invoices',\n        trigger: 'Where can I find past invoices?',\n        content: 'Billing → Invoices in your workspace settings. Every PDF is archived for seven years and can be pulled via the Billing API.',\n      },\n    ]\"\n    :key=\"item.value\"\n    :value=\"item.value\"\n  >\n    <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>\n    <AccordionContent>{{ item.content }}</AccordionContent>\n  </AccordionItem>\n</Accordion>",
-          "details": "Default shape. type=\"single\" + collapsible lets users close the currently open item; without collapsible, one item is always open."
+          "code": "<script setup>\nimport { ref } from 'vue';\nimport { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@plexui/vue/components/Accordion';\n\nconst returnsDisabled = ref(false);\n</script>\n\n<template>\n<Accordion type=\"single\" collapsible default-value=\"shipping\" style=\"width: 100%; max-width: 384px\">\n  <AccordionItem value=\"shipping\">\n    <AccordionTrigger>What are your shipping options?</AccordionTrigger>\n    <AccordionContent>\n      We offer standard (5–7 business days), express (2–3 days), and\n      overnight shipping. Free standard shipping on orders over $50.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"returns\" :disabled=\"returnsDisabled\">\n    <AccordionTrigger>What is your return policy?</AccordionTrigger>\n    <AccordionContent>\n      Returns are accepted within 30 days of delivery. Items must be unused\n      and in original packaging. Refunds are processed within 5–7 business\n      days of receipt.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"support\">\n    <AccordionTrigger>How can I contact customer support?</AccordionTrigger>\n    <AccordionContent>\n      Reach us by email, live chat, or phone Monday through Friday, 9am–6pm\n      ET. Weekend tickets are handled within 24 hours.\n    </AccordionContent>\n  </AccordionItem>\n</Accordion>\n</template>",
+          "details": "Set type to multiple when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references. A single accordion with collapsible lets readers close the open item; without it one item is always open. card composes the accordion inside Card, the most common landing-page FAQ pattern; on a phone the card is a section of the grouped list. The returnsDisabled control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger."
         },
         {
           "name": "Multiple",
-          "code": "<Accordion type=\"multiple\" :default-value=\"['notifications']\" style=\"width: 100%; max-width: 384px\">\n  <AccordionItem\n    v-for=\"item in [\n      {\n        value: 'notifications',\n        trigger: 'Notification settings',\n        content: 'Pick which events trigger email, push, or in-app alerts. Release-blocker incidents always page the on-call regardless of quiet hours.',\n      },\n      {\n        value: 'privacy',\n        trigger: 'Privacy & security',\n        content: 'Turn on two-factor, review active sessions, and manage connected apps. Workspace admins can also enforce SSO and hardware-key policies org-wide.',\n      },\n      {\n        value: 'billing',\n        trigger: 'Billing & subscription',\n        content: 'View your current plan, payment method, and upcoming renewal. Seat changes apply immediately; the next invoice will include a prorated adjustment.',\n      },\n    ]\"\n    :key=\"item.value\"\n    :value=\"item.value\"\n  >\n    <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>\n    <AccordionContent>{{ item.content }}</AccordionContent>\n  </AccordionItem>\n</Accordion>",
+          "code": "<script setup>\nimport { ref } from 'vue';\nimport { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@plexui/vue/components/Accordion';\n\nconst returnsDisabled = ref(false);\n</script>\n\n<template>\n<Accordion type=\"multiple\" :default-value=\"['shipping']\" style=\"width: 100%; max-width: 384px\">\n  <AccordionItem value=\"shipping\">\n    <AccordionTrigger>What are your shipping options?</AccordionTrigger>\n    <AccordionContent>\n      We offer standard (5–7 business days), express (2–3 days), and\n      overnight shipping. Free standard shipping on orders over $50.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"returns\" :disabled=\"returnsDisabled\">\n    <AccordionTrigger>What is your return policy?</AccordionTrigger>\n    <AccordionContent>\n      Returns are accepted within 30 days of delivery. Items must be unused\n      and in original packaging. Refunds are processed within 5–7 business\n      days of receipt.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"support\">\n    <AccordionTrigger>How can I contact customer support?</AccordionTrigger>\n    <AccordionContent>\n      Reach us by email, live chat, or phone Monday through Friday, 9am–6pm\n      ET. Weekend tickets are handled within 24 hours.\n    </AccordionContent>\n  </AccordionItem>\n</Accordion>\n</template>",
           "details": "Use type=\"multiple\" when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references."
         },
         {
           "name": "Card",
-          "code": "<Card style=\"width: 100%; max-width: 384px\">\n  <CardHeader>\n    <CardTitle>Subscription & billing</CardTitle>\n    <CardDescription>Common questions about plans, invoices, and cancellations.</CardDescription>\n  </CardHeader>\n  <CardContent>\n    <Accordion type=\"single\" collapsible default-value=\"plans\">\n      <AccordionItem\n        v-for=\"item in [\n          {\n            value: 'plans',\n            trigger: 'What subscription plans do you offer?',\n            content: 'Starter ($9/mo), Pro ($29/mo), and Enterprise (from $99/mo). Each tier raises seat, project, and API call limits; Enterprise adds SSO, audit log export, and a dedicated success manager.',\n          },\n          {\n            value: 'billing',\n            trigger: 'How does billing work?',\n            content: 'Billed at the start of each cycle. We accept all major cards, and ACH or invoice for annual Enterprise contracts. Every invoice is emailed and archived in Billing → Invoices.',\n          },\n          {\n            value: 'cancel',\n            trigger: 'How do I cancel my subscription?',\n            content: 'Cancel anytime from Billing → Plan. No cancellation fee. Access continues through the end of the current billing period, and projects stay read-only afterwards. Nothing is deleted.',\n          },\n        ]\"\n        :key=\"item.value\"\n        :value=\"item.value\"\n      >\n        <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>\n        <AccordionContent>{{ item.content }}</AccordionContent>\n      </AccordionItem>\n    </Accordion>\n  </CardContent>\n</Card>",
+          "code": "<script setup>\nimport { ref } from 'vue';\nimport { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@plexui/vue/components/Accordion';\nimport { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@plexui/vue/components/Card';\n\nconst returnsDisabled = ref(false);\n</script>\n\n<template>\n<Card style=\"width: 100%; max-width: 384px\">\n  <CardHeader>\n    <CardTitle>Orders & returns</CardTitle>\n    <CardDescription>Shipping, returns, and support at a glance.</CardDescription>\n  </CardHeader>\n  <CardContent>\n    <Accordion type=\"single\" collapsible default-value=\"shipping\" style=\"width: 100%; max-width: 384px\">\n      <AccordionItem value=\"shipping\">\n        <AccordionTrigger>What are your shipping options?</AccordionTrigger>\n        <AccordionContent>\n          We offer standard (5–7 business days), express (2–3 days), and\n          overnight shipping. Free standard shipping on orders over $50.\n        </AccordionContent>\n      </AccordionItem>\n      <AccordionItem value=\"returns\" :disabled=\"returnsDisabled\">\n        <AccordionTrigger>What is your return policy?</AccordionTrigger>\n        <AccordionContent>\n          Returns are accepted within 30 days of delivery. Items must be unused\n          and in original packaging. Refunds are processed within 5–7 business\n          days of receipt.\n        </AccordionContent>\n      </AccordionItem>\n      <AccordionItem value=\"support\">\n        <AccordionTrigger>How can I contact customer support?</AccordionTrigger>\n        <AccordionContent>\n          Reach us by email, live chat, or phone Monday through Friday, 9am–6pm\n          ET. Weekend tickets are handled within 24 hours.\n        </AccordionContent>\n      </AccordionItem>\n    </Accordion>\n  </CardContent>\n</Card>\n</template>",
           "details": "Composed inside Card, the most common landing-page FAQ pattern."
         }
       ],
@@ -6436,7 +6431,7 @@
     {
       "slug": "stat-card",
       "name": "Stat Card",
-      "description": "Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.",
+      "description": "Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.",
       "importPath": "@plexui/vue/components/StatCard",
       "exports": [
         "StatCard"
@@ -6494,7 +6489,7 @@
         {
           "name": "icon slot",
           "type": "VNode[]",
-          "description": "Icon displayed on the left with a soft background"
+          "description": "Icon in a small soft tile at the end of the header"
         },
         {
           "name": "sparkline slot",
@@ -6509,7 +6504,7 @@
         {
           "name": "progress-label",
           "type": "string",
-          "description": "Label next to progress bar"
+          "description": "Label after the progress bar"
         },
         {
           "name": "tooltip",
@@ -6526,7 +6521,7 @@
           "name": "accent-color",
           "type": "\"primary\" | \"secondary\" | \"danger\" | \"info\" | \"discovery\" | \"success\" | \"caution\" | \"warning\"",
           "default": "\"primary\"",
-          "description": "Left border color (accent variant)"
+          "description": "Color of the accent bar (accent variant)"
         },
         {
           "name": "class",
@@ -6537,48 +6532,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div style=\"max-width: 320px; width: 100%\" class=\"mx-auto\">\n  <StatCard\n    label=\"Total Revenue\"\n    value=\"$45,231\"\n    :size=\"size\"\n    :variant=\"variant\"\n    accent-color=\"primary\"\n    :trend-position=\"trendPosition\"\n    :trend-variant=\"trendVariant\"\n    :trend=\"trend ? { value: 12.5, label: 'vs last month' } : undefined\"\n    :tooltip=\"tooltip ? 'Sum of all revenue streams' : undefined\"\n    :invert-trend=\"invertTrend\"\n  />\n</div>",
-          "details": "Dashboard-ready stat cards with trends, icons, and progress bars. Use the controls below to explore all available props."
-        },
-        {
-          "name": "Sizes",
-          "code": "<div class=\"flex flex-col gap-6 w-full\">\n  <!-- Default size -->\n  <div class=\"grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-4\" style=\"max-width: 720px\">\n    <StatCard label=\"Total Revenue\" value=\"$45,231\" :trend=\"{ value: 12.5 }\" />\n    <StatCard label=\"Active Users\" value=\"2,847\" :trend=\"{ value: 8.2 }\" />\n    <StatCard label=\"Conversion Rate\" value=\"3.24%\" :trend=\"{ value: -1.8 }\" />\n  </div>\n  <!-- Small size -->\n  <div class=\"grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3\" style=\"max-width: 720px\">\n    <StatCard size=\"sm\" label=\"Total Inquiries\" value=\"3,544\" :trend=\"{ value: -2.6 }\" tooltip=\"Total inquiries in period\" />\n    <StatCard size=\"sm\" label=\"Completion Rate\" value=\"89.2%\" :trend=\"{ value: 0.5 }\" tooltip=\"Average across templates\" />\n    <StatCard size=\"sm\" label=\"Approval Rate\" value=\"84.6%\" :trend=\"{ value: 1.8 }\" tooltip=\"Average across templates\" />\n  </div>\n</div>",
-          "details": "Use size=\"sm\" for compact analytics rows with denser spacing and smaller typography. The small size also pairs well with the tooltip prop for info icons."
-        },
-        {
-          "name": "Trend position",
-          "code": "<div class=\"grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4\" style=\"max-width: 480px\">\n  <StatCard label=\"Revenue\" value=\"$45,231\" :trend=\"{ value: 12.5 }\" trend-position=\"value\" />\n  <StatCard label=\"Revenue\" value=\"$45,231\" :trend=\"{ value: 12.5 }\" trend-position=\"header\" />\n</div>",
-          "details": "Control where the trend appears: next to the value (default) or right-aligned in the header row."
-        },
-        {
-          "name": "Trend variant",
-          "code": "<div class=\"grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4\" style=\"max-width: 480px\">\n  <StatCard label=\"Users\" value=\"2,847\" :trend=\"{ value: 8.2 }\" trend-variant=\"text\" />\n  <StatCard label=\"Users\" value=\"2,847\" :trend=\"{ value: 8.2 }\" trend-variant=\"badge\" />\n</div>",
-          "details": "Display the trend as plain text or wrapped in a badge."
-        },
-        {
-          "name": "Info tooltip",
-          "code": "<div style=\"max-width: 320px; width: 100%; margin: 0 auto\">\n  <StatCard\n    label=\"Avg Completion Rate\"\n    value=\"89.2%\"\n    :trend=\"{ value: 0.5 }\"\n    tooltip=\"Percentage of inquiries reaching final state\"\n  />\n</div>",
-          "details": "Pass a tooltip string to render an info icon next to the label with a tooltip on hover."
-        },
-        {
-          "name": "With icon",
-          "code": "<div class=\"flex flex-col gap-6 w-full\">\n  <!-- Default size -->\n  <div class=\"grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4\">\n    <StatCard label=\"Total Revenue\" value=\"$45,231\" :trend=\"{ value: 12.5 }\">\n      <template #icon><DollarCircle /></template>\n    </StatCard>\n    <StatCard label=\"Active Users\" value=\"2,847\" :trend=\"{ value: 8.2 }\">\n      <template #icon><Users /></template>\n    </StatCard>\n  </div>\n  <!-- Small size -->\n  <div class=\"grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3\">\n    <StatCard size=\"sm\" label=\"Revenue\" value=\"$45,231\" :trend=\"{ value: 12.5 }\">\n      <template #icon><DollarCircle /></template>\n    </StatCard>\n    <StatCard size=\"sm\" label=\"Users\" value=\"2,847\" :trend=\"{ value: 8.2 }\">\n      <template #icon><Users /></template>\n    </StatCard>\n    <StatCard size=\"sm\" label=\"Orders\" value=\"1,234\" :trend=\"{ value: -3.1 }\">\n      <template #icon><ShoppingBag /></template>\n    </StatCard>\n  </div>\n</div>",
-          "details": "Pass an icon through the icon slot to display it on the left side with a soft background. The layout automatically switches to a horizontal icon + content arrangement. Works with both default and sm sizes."
-        },
-        {
-          "name": "With progress",
-          "code": "<StatCard label=\"Storage Used\" value=\"7.2 GB\" :progress=\"72\" progress-label=\"72%\" description=\"of 10 GB\" />",
-          "details": "Progress bars show a visual representation of completion or usage percentage."
-        },
-        {
-          "name": "Accent border",
-          "code": "<div style=\"max-width: 320px; width: 100%\" class=\"mx-auto\">\n  <StatCard\n    label=\"Total Revenue\"\n    value=\"$45,231\"\n    variant=\"accent\"\n    :accent-color=\"accentColor\"\n    :trend=\"{ value: 12.5, label: 'vs last month' }\"\n  />\n</div>",
-          "details": "The accent variant adds a colored left border. Choose from eight semantic colors."
-        },
-        {
-          "name": "Inverted trend",
-          "code": "<div style=\"max-width: 320px; width: 100%\" class=\"mx-auto\">\n  <StatCard\n    label=\"Avg Response Time\"\n    value=\"234ms\"\n    :trend=\"{ value: 15.3, label: 'vs last hour' }\"\n    :invert-trend=\"invertTrend\"\n  />\n</div>",
-          "details": "Use invert-trend for metrics where positive values are bad (e.g., error rate, response time). Toggle the switch to see the color flip."
+          "code": "<div style=\"max-width: 320px; width: 100%\" class=\"mx-auto\">\n  <StatCard\n    label=\"Total Revenue\"\n    value=\"$45,231\"\n    :size=\"size\"\n    :variant=\"variant\"\n    :accent-color=\"accentColor\"\n    :trend-position=\"trendPosition\"\n    :trend-variant=\"trendVariant\"\n    :trend=\"trend ? { value: 12.5, label: 'vs last month' } : undefined\"\n    :invert-trend=\"invertTrend\"\n    :tooltip=\"tooltip ? 'Sum of all revenue streams' : undefined\"\n    :progress=\"progress ? 72 : undefined\"\n    :progress-label=\"progress ? '72%' : undefined\"\n    :description=\"progress ? 'of $62,800 goal' : undefined\"\n  >\n    <template v-if=\"icon\" #icon><DollarCircle /></template>\n  </StatCard>\n</div>",
+          "details": "Dashboard-ready stat cards with trends, icons, and progress bars. Use size=\"sm\" for compact analytics rows with denser spacing and smaller typography; it pairs well with tooltip, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (trend-position), as plain text or in a badge (trend-variant). Use invert-trend for metrics where a rise is bad, such as error rate or response time. An icon in the icon slot stands in a small soft tile at the end of the header, and progress draws a bar of completion or usage across the card. The accent variant adds a colored bar before the content in one of eight semantic colors (accent-color)."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/stat-card"
@@ -8183,5 +8138,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-11T06:08:02.322Z"
+  "generatedAt": "2026-11-11T07:27:35.646Z"
 }

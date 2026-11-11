@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from '../ButtonDemos';
+import { DemoControlBoolean, DemoControlRow, DemoControlSelect, controlsTableStyle } from '../ButtonDemos';
 import { SliderValueControl } from '../SliderValueControl';
 import { VuePreview } from '../VuePreview';
-import { DemoControlsBottom, usePreviewEmbed } from '../PreviewEmbed';
+import { DemoControlValuesContext, DemoControlsBottom, usePreviewEmbed } from '../PreviewEmbed';
 import { usePhoneRows } from '../PhoneRows';
 import { createInitialDemoState } from './initialDemoState';
+import { renderDemoCode } from '../demoCode.mjs';
 
 /** A select option: the value itself, or a value shown under another label (`Per-digit`). */
 export type VueDemoOption = string | { value: string | boolean; label: string };
@@ -21,6 +22,8 @@ export type VueDemoControl = {
   placement?: 'bottom';
   /** Hidden on a phone (narrow page or Phone preview), where the template gets its `phoneDefault`, else `default` */
   desktopOnly?: boolean;
+  /** Shown only while the other controls have these values (`collapsible` for a `single` accordion) */
+  when?: Record<string, unknown>;
 } & (
   | { type: 'boolean'; default: boolean; phoneDefault?: boolean }
   /**
@@ -28,7 +31,9 @@ export type VueDemoControl = {
    * `limit`: numeric options stay at most `total` less the boolean controls named in `taken` that are on;
    * the others are disabled, and a value over the limit shows as the largest option that fits.
    */
-  | { type: 'select'; options: readonly VueDemoOption[]; phoneOptions?: readonly VueDemoOption[]; default: string | boolean; phoneDefault?: string | boolean; limit?: { total: number; taken: readonly string[] } }
+  | { type: 'select'; options: readonly VueDemoOption[]; phoneOptions?: readonly VueDemoOption[]; default: string | boolean; phoneDefault?: string | boolean; limit?: { total: number; taken: readonly string[] };
+      /** A menu rather than a row of segments: more options than the row shows whole (eight colors), as React's DemoControlSelect */
+      menu?: boolean }
   | { type: 'range'; min: number; max: number; step: number; default: number; phoneDefault?: number }
 );
 
@@ -166,18 +171,45 @@ function VueDemoView({
     };
   }, [loopName, every, holdFor]);
 
+  // The preview's code follows the values the template gets (a phone's default for a desktop-only control, an
+  // option's value rather than its label), so the demo writes them itself and its controls do not
+  const codeValues = useContext(DemoControlValuesContext);
+  const owner = useMemo(() => ({}), []);
+  const controlValues = useMemo(() => Object.fromEntries(controls.map((control) => [control.name, templateProps[control.name]])), [controls, templateProps]);
+  useEffect(() => {
+    if (!codeValues) return;
+    for (const [name, value] of Object.entries(controlValues)) codeValues.set(name, value, owner);
+  }, [codeValues, controlValues, owner]);
+  useEffect(() => {
+    if (!codeValues) return;
+    const names = controls.map((control) => control.name);
+    return () => names.forEach((name) => codeValues.remove(name, owner));
+  }, [codeValues, controls, owner]);
+  // A template with `[[ ]]` tags (demoCode.mjs) is the preview's code: the controls set it, and the Vue app mounts
+  // again when they do. Other values reach the template as reactive props.
+  const source = phonePreview ? phoneTemplate ?? template : template;
+  const filledTemplate = useMemo(() => {
+    if (!source.includes('[[')) return source;
+    try {
+      return renderDemoCode(source, templateProps);
+    } catch (error) {
+      console.error(error);
+      return source;
+    }
+  }, [source, templateProps]);
   // A control follows the demo when the template changes its value
   const preview = (
     <VuePreview
       key={run}
-      template={phonePreview ? phoneTemplate ?? template : template}
+      template={filledTemplate}
       props={templateProps}
       onPropChange={(name, value) => {
         if (controls.some((control) => control.name === name)) set(name)(value);
       }}
     />
   );
-  const shownControls = controls.filter((control) => !hiddenControls.includes(control.name));
+  const shownControls = controls.filter((control) => !hiddenControls.includes(control.name)
+    && Object.entries(control.when ?? {}).every(([name, value]) => props[name] === value));
   const optionsFor = (control: Extract<VueDemoControl, { type: 'select' }>) => optionsOf(phone && control.phoneOptions ? control.phoneOptions : control.options);
   if (shownControls.length === 0) {
     return stageClassName ? (
@@ -211,6 +243,17 @@ function VueDemoView({
           width="min(42vw, 340px)"
         />
       </DemoControlRow>
+    ) : control.menu ? (
+      <DemoControlSelect
+        key={control.name}
+        name={control.name}
+        label={control.label}
+        phoneOnly={control.phoneOnly}
+        desktopOnly={control.desktopOnly}
+        options={optionsFor(control).map((option) => option.label)}
+        value={optionsFor(control).find((option) => option.value === props[control.name])?.label ?? ''}
+        onChange={(label) => set(control.name)(optionsFor(control).find((option) => option.label === label)?.value)}
+      />
     ) : (
       <DemoControlRow key={control.name} name={control.name} label={control.label} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
         <SegmentedControl<string>
@@ -237,11 +280,15 @@ function VueDemoView({
 
   return (
     <>
-      {topControls.length > 0 && <div data-demo-controls style={controlsTableStyle}>{topControls.map(renderControl)}</div>}
+      <DemoControlValuesContext.Provider value={null}>
+        {topControls.length > 0 && <div data-demo-controls style={controlsTableStyle}>{topControls.map(renderControl)}</div>}
+      </DemoControlValuesContext.Provider>
       <div className={stageClassName ?? DEFAULT_STAGE} data-demo-stage>
         {preview}
       </div>
-      {bottomControls.length > 0 && <DemoControlsBottom style={controlsTableStyle}>{bottomControls.map(renderControl)}</DemoControlsBottom>}
+      <DemoControlValuesContext.Provider value={null}>
+        {bottomControls.length > 0 && <DemoControlsBottom style={controlsTableStyle}>{bottomControls.map(renderControl)}</DemoControlsBottom>}
+      </DemoControlValuesContext.Provider>
     </>
   );
 }

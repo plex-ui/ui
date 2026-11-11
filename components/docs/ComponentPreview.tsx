@@ -8,7 +8,8 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Button } from '@plexui/ui/components/Button';
 import { Eye, Code, InfoCircle, Desktop, Mobile, Reload } from '@plexui/ui/components/Icon';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import { DemoControlHostContext, DemoControlsBottomSlotContext, compactPreviewHeight, createDemoControlChannel, usePreviewEmbed } from './PreviewEmbed';
+import { DemoControlHostContext, DemoControlValuesContext, DemoControlsBottomSlotContext, compactPreviewHeight, createDemoControlChannel, createDemoControlValues, usePreviewEmbed, type DemoControlValues } from './PreviewEmbed';
+import { renderDemoCode } from './demoCode.mjs';
 import s from './ComponentPreview.module.css';
 import { usePreviewViewport } from './PreviewViewport';
 import { goToPreviousExample } from './previewNavigation';
@@ -27,6 +28,7 @@ export function ComponentPreview({
   previewTitle,
   children,
   code,
+  codeValues,
   details,
   description,
   language = 'tsx',
@@ -42,7 +44,12 @@ export function ComponentPreview({
   /** The heading of the example's section (remarkPreviewId): the title of the top bar of its phone page. */
   previewTitle?: string;
   children: ReactNode;
+  /** The example's code. With `codeValues` it is a template the controls fill in (demoCode.mjs). */
   code?: string;
+  /** The default value of each control the code follows. The demo starts with these values. */
+  codeValues?: Record<string, unknown>;
+  /** Further examples of the code for the MCP manifest: a name and the values that differ from `codeValues`. */
+  codeExamples?: readonly { name: string; values: Record<string, unknown>; details?: string }[];
   details?: ReactNode;
   description?: string;
   language?: string;
@@ -68,6 +75,8 @@ export function ComponentPreview({
   const phonePage = requestedPhonePresentation === undefined && !phoneDialog && !phoneOnly;
   const [mode, setMode] = useState<Mode>('preview');
   const [resetRevision, setResetRevision] = useState(0);
+  // The controls' values: the demo stays mounted under the Code and Details views, so its settings stay too
+  const [controlValues] = useState(createDemoControlValues);
   const [phoneActivation, setPhoneActivation] = useState(0);
   const [override, setOverride] = useState<{ viewport: Viewport; revision: number } | null>(null);
   const viewport = phoneOnly ? 'phone' : override?.revision === pageViewport.revision ? override.viewport : pageViewport.viewport;
@@ -192,9 +201,10 @@ export function ComponentPreview({
 
       {/* Content block */}
       <div className={s.PreviewBlock}>
-        {mode === 'preview' ? (
+        <DemoControlValuesContext.Provider value={controlValues}>
           <PreviewPane
             key={resetRevision}
+            hidden={mode !== 'preview'}
             className={className}
             previewMinHeight={previewMinHeight}
             resizable={resizable}
@@ -202,22 +212,36 @@ export function ComponentPreview({
           >
             {normalizedChildren}
           </PreviewPane>
-        ) : mode === 'code' ? (
+        </DemoControlValuesContext.Provider>
+        {mode === 'code' ? (
           <div className={s.CodeBlockWrap}>
-            <DynamicCodeBlock
-              lang={language}
-              code={code!}
-              codeblock={{ allowCopy: true }}
-            />
+            <PreviewCode code={code!} codeValues={codeValues} controlValues={controlValues} language={language} />
           </div>
-        ) : (
+        ) : mode === 'details' ? (
           <div className={s.DetailsWrap}>
             <div className={s.DetailsContent}>{details}</div>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
+}
+
+/** The example's code, as its controls set it when the code is a template (`codeValues`). */
+function PreviewCode({ code, codeValues, controlValues, language }: { code: string; codeValues?: Record<string, unknown>; controlValues: DemoControlValues; language: string }) {
+  const current = useSyncExternalStore(controlValues.subscribe, controlValues.snapshot, controlValues.snapshot);
+  const shown = useMemo(() => {
+    if (!codeValues) return code;
+    // Only the values the code follows: another control of the demo keeps out of it
+    const values = { ...codeValues, ...Object.fromEntries(Object.entries(current).filter(([name]) => name in codeValues)) };
+    try {
+      return renderDemoCode(code, values);
+    } catch (error) {
+      console.error(error);
+      return code;
+    }
+  }, [code, codeValues, current]);
+  return <DynamicCodeBlock lang={language} code={shown} codeblock={{ allowCopy: true }} />;
 }
 
 /* ------------------------------------------------------------------ */
@@ -379,12 +403,15 @@ const subscribeToNothing = () => () => {};
 
 function PreviewPane({
   children,
+  hidden,
   className,
   previewMinHeight,
   resizable,
   phone,
 }: {
   children: ReactNode;
+  /** Under the Code and Details views: still mounted, so the demo keeps its state */
+  hidden: boolean;
   className?: string;
   previewMinHeight?: number | string;
   resizable: boolean;
@@ -454,6 +481,8 @@ function PreviewPane({
     const el = containerRef.current;
     if (!el) return;
     const ro = new ResizeObserver(() => {
+      // Hidden under the Code view the pane has no width: the chosen width waits for it to show again
+      if (el.clientWidth === 0) return;
       setWidth((prev) => {
         if (prev === null) return null;
         return Math.min(prev, el.clientWidth);
@@ -464,7 +493,7 @@ function PreviewPane({
   }, [resizable]);
 
   return (
-    <div className={s.PreviewContainer} data-preview-zone ref={containerRef}>
+    <div className={s.PreviewContainer} data-preview-zone ref={containerRef} hidden={hidden} style={hidden ? { display: 'none' } : undefined}>
       <div
         className={`${s.PreviewContent} ${className ?? ''}`.trim()}
         style={

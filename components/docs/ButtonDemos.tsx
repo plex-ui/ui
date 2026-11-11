@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useId, useState } from 'react';
+import React, { useId, useMemo, useState } from 'react';
 import { Button } from '@plexui/ui/components/Button';
 import { Switch } from '@plexui/ui/components/Switch';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Popover } from '@plexui/ui/components/Popover';
+import { Select } from '@plexui/ui/components/Select';
 import { Mail, PlusLg, ArrowRight, CompareArrows, Delete, Clear } from '@plexui/ui/components/Icon';
 import { useDemoControlSync } from './PreviewEmbed';
 import { usePhoneRows } from './PhoneRows';
@@ -69,6 +70,10 @@ function syncedControl(children: React.ReactNode): { value: unknown; onChange: (
   return null;
 }
 
+const hasSegments = (children: React.ReactNode): boolean =>
+  React.Children.toArray(children).some((child) => React.isValidElement(child)
+    && (child.type === SegmentedControl || (child.type === React.Fragment && hasSegments((child.props as { children?: React.ReactNode }).children))));
+
 /** `name` keys the control between the page and its Phone view; `label`, when set, is what the row shows (a phone-only
  * row for a prop that also has a desktop row, such as a size with the phone's own options). */
 export function DemoControlRow({ name, label, children, phoneOnly = false, desktopOnly = false }: { name: string; label?: string; children: React.ReactNode; phoneOnly?: boolean; desktopOnly?: boolean }) {
@@ -77,9 +82,47 @@ export function DemoControlRow({ name, label, children, phoneOnly = false, deskt
 
   return (
     <div style={controlRowStyle} data-demo-phone-only={phoneOnly || undefined} data-demo-desktop-only={desktopOnly || undefined}>
-      <span style={controlLabelStyle}>{label ?? name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
+      <span style={{ ...controlLabelStyle, flexShrink: 0 }}>{label ?? name}</span>
+      {/* Segments wider than the row (eight colors) scroll in it, rather than run past its end */}
+      <div style={{ display: 'flex', alignItems: 'center', minWidth: 0, ...(hasSegments(children) ? { overflowX: 'auto' } : {}) }}>{children}</div>
     </div>
+  );
+}
+
+/** A menu of a control's options, its value and onChange in the option's own terms (the row's phone view sets it so) */
+function DemoChoiceMenu<T extends string>({ name, options, value, onChange }: { name: string; options: readonly T[]; value: T; onChange: (value: T) => void }) {
+  // Select wants its options as a stable reference: they change only when the options do (a phone's own options)
+  const key = options.join('\n');
+  const menuOptions = useMemo(() => key.split('\n').map((option) => ({ value: option, label: option })), [key]);
+  return (
+    <Select
+      options={menuOptions}
+      value={value}
+      onChange={(option) => onChange(option.value as T)}
+      aria-label={name}
+      size="xs"
+      variant="soft"
+      block={false}
+    />
+  );
+}
+
+/** A control of more options than a row of segments shows whole (eight colors), as a menu: a row of segments that
+ * runs past the panel hides its last options and does not show it scrolls (owner 11.11, the Stat Card's accentColor).
+ * Storybook's controls make the same cut, radio buttons for an enum of up to five options and a select above. */
+export function DemoControlSelect<T extends string>({ name, label, options, value, onChange, phoneOnly = false, desktopOnly = false }: {
+  name: string;
+  label?: string;
+  options: readonly T[];
+  value: T;
+  onChange: (value: T) => void;
+  phoneOnly?: boolean;
+  desktopOnly?: boolean;
+}) {
+  return (
+    <DemoControlRow name={name} label={label} phoneOnly={phoneOnly} desktopOnly={desktopOnly}>
+      <DemoChoiceMenu name={label ?? name} options={options} value={value} onChange={onChange} />
+    </DemoControlRow>
   );
 }
 

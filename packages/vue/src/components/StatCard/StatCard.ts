@@ -1,6 +1,6 @@
 import { defineComponent, h, type HTMLAttributes, type PropType } from "vue"
 import { Badge } from "../Badge/index.js"
-import { InfoCircle } from "../Icon/index.js"
+import { InfoCircle, Trending } from "../Icon/index.js"
 import { Tooltip } from "../Tooltip/index.js"
 import { hasContent } from "../../lib/slotContent.js"
 import s from "@plexui/styles/components/StatCard/StatCard.module.css"
@@ -43,11 +43,11 @@ const StatCardComponent = defineComponent({
     invertTrend: { type: Boolean, default: undefined },
     /** Progress value from 0 to 100. Shows a progress bar at the bottom. */
     progress: Number,
-    /** Label displayed next to the progress bar */
+    /** Label displayed after the progress bar */
     progressLabel: String,
     /** Tooltip text: renders an (i) icon next to the label with a tooltip on hover */
     tooltip: String,
-    /** Where the trend indicator is positioned: next to the value, or right-aligned in the header row. @default "value" */
+    /** Where the trend indicator is positioned: under the value with its label, or right-aligned in the header row (its label under the value). @default "value" */
     trendPosition: { type: String as PropType<"value" | "header">, default: "value" },
     /** Visual style of the trend indicator: plain colored text, or a Badge. @default "text" */
     trendVariant: { type: String as PropType<"text" | "badge">, default: "text" },
@@ -55,7 +55,7 @@ const StatCardComponent = defineComponent({
     size: { type: String as PropType<"default" | "sm">, default: "default" },
     /** Visual variant of the card. @default "default" */
     variant: { type: String as PropType<"default" | "accent">, default: "default" },
-    /** Accent border color for the "accent" variant. @default "primary" */
+    /** Color of the accent variant's bar. @default "primary" */
     accentColor: { type: String as PropType<StatCardAccentColor>, default: "primary" },
   },
   setup(props, { slots }) {
@@ -89,12 +89,24 @@ const StatCardComponent = defineComponent({
               ? "success"
               : "danger"
 
+      // A trend line points the way the value moved, whichever colour that is (shadcn's metric cards draw lucide's
+      // trending-up and trending-down); a fall is the rise mirrored
+      const trendContent = () => [
+        trendValue !== 0 ? h(Trending, { class: trendValue < 0 ? s.TrendDown : undefined }) : null,
+        trendText,
+      ]
+
       const trendEl =
         trend != null
           ? trendVariant === "badge"
-            ? h(Badge, { size: "sm", color: trendBadgeColor }, { default: () => trendText })
-            : h("div", { class: [s.Trend, trendClassName] }, trendText)
+            ? h(Badge, { size: "sm", color: trendBadgeColor }, { default: trendContent })
+            : h("div", { class: [s.Trend, trendClassName] }, trendContent())
           : null
+
+      // The icon's tile stands at the end of the header, as the trend may (shadcn's metric card with an icon)
+      const iconSlot = slots.icon?.()
+      const iconEl = hasContent(iconSlot) ? h("div", { class: s.IconWrapper }, iconSlot) : null
+      const headerTrendEl = trendPosition === "header" ? trendEl : null
 
       const headerEl = h("div", { class: s.Header }, [
         h("div", { class: s.LabelRow }, [
@@ -113,19 +125,25 @@ const StatCardComponent = defineComponent({
               )
             : null,
         ]),
-        trendPosition === "header" && trendEl ? h("div", { class: s.HeaderEnd }, [trendEl]) : null,
+        headerTrendEl || iconEl ? h("div", { class: s.HeaderEnd }, [headerTrendEl, iconEl]) : null,
       ])
 
       const valueSlot = slots.value?.()
       const valueRowEl = h("div", { class: s.ValueRow }, [
         h("div", { class: s.Value }, hasContent(valueSlot) ? valueSlot : props.value),
-        trendPosition === "value" ? trendEl : null,
-        description ? h("div", { class: s.Description }, description) : null,
       ])
 
-      const footerEl = trend?.label
-        ? h("div", { class: s.Footer }, [h("div", { class: s.TrendLabel }, trend.label)])
-        : null
+      // Under the value, a trend and what it compares with, on one line (shadcn's metric card with a trend); a trend
+      // in the header leaves its label there
+      const trendRowEl =
+        trend != null && (trendPosition === "value" || trend.label)
+          ? h("div", { class: s.TrendRow }, [
+              trendPosition === "value" ? trendEl : null,
+              trend.label ? h("span", { class: s.TrendLabel }, trend.label) : null,
+            ])
+          : null
+
+      const descriptionEl = description ? h("div", { class: s.Description }, description) : null
 
       const progressEl =
         progressValue !== undefined || progressLabel
@@ -144,9 +162,6 @@ const StatCardComponent = defineComponent({
       const sparklineSlot = slots.sparkline?.()
       const sparklineEl = hasContent(sparklineSlot) ? h("div", { class: s.Sparkline }, sparklineSlot) : null
 
-      const iconSlot = slots.icon?.()
-      const content = [headerEl, valueRowEl, footerEl, progressEl, sparklineEl]
-
       return h(
         "div",
         {
@@ -155,14 +170,7 @@ const StatCardComponent = defineComponent({
           "data-size": props.size,
           "data-accent-color": props.accentColor,
         },
-        hasContent(iconSlot)
-          ? [
-              h("div", { class: s.Body }, [
-                h("div", { class: s.IconWrapper }, iconSlot),
-                h("div", { class: s.Content }, content),
-              ]),
-            ]
-          : content,
+        [headerEl, valueRowEl, trendRowEl, descriptionEl, progressEl, sparklineEl],
       )
     }
   },

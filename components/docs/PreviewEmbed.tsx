@@ -81,6 +81,52 @@ export function createDemoControlChannel(key: string, authority: 'host' | 'embed
 /** Set by the parent page's preview while it shows the phone view. */
 export const DemoControlHostContext = createContext<DemoControlChannel | null>(null);
 
+/* ------------------------------------------------------------------ */
+/*  Control values the preview's code follows                         */
+/* ------------------------------------------------------------------ */
+
+export type DemoControlValues = {
+  /** `owner` is the control that sets it: of two controls with one name (a phone row and a desktop row), the last to
+   * set it holds it, and only the one that holds it removes it */
+  set: (name: string, value: unknown, owner: object) => void;
+  remove: (name: string, owner: object) => void;
+  subscribe: (listener: () => void) => () => void;
+  /** The current values: a new object after each change, for useSyncExternalStore */
+  snapshot: () => Readonly<Record<string, unknown>>;
+};
+
+/** The values of a preview's controls, so its Code view shows the example as it is set (demoCode.mjs). */
+export function createDemoControlValues(): DemoControlValues {
+  let values: Readonly<Record<string, unknown>> = {};
+  const owners = new Map<string, object>();
+  const listeners = new Set<() => void>();
+  const notify = () => listeners.forEach((listener) => listener());
+  return {
+    set(name, value, owner) {
+      owners.set(name, owner);
+      if (Object.prototype.hasOwnProperty.call(values, name) && Object.is(values[name], value)) return;
+      values = { ...values, [name]: value };
+      notify();
+    },
+    remove(name, owner) {
+      if (owners.get(name) !== owner) return;
+      owners.delete(name);
+      if (!Object.prototype.hasOwnProperty.call(values, name)) return;
+      const { [name]: _removed, ...rest } = values;
+      values = rest;
+      notify();
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => { listeners.delete(listener); };
+    },
+    snapshot: () => values,
+  };
+}
+
+/** Set by every preview on the docs page: its controls report their values there. */
+export const DemoControlValuesContext = createContext<DemoControlValues | null>(null);
+
 /** Set by the parent page's preview in the phone view: where controls for the bottom of the screen go, after the phone. */
 export const DemoControlsBottomSlotContext = createContext<HTMLElement | null>(null);
 
@@ -107,17 +153,32 @@ export function useDemoControlSync(name: string, value: unknown, onChange: ((val
   const host = useContext(DemoControlHostContext);
   const embed = useContext(DemoControlEmbedContext);
   const channel = embed ?? host;
+  const values = useContext(DemoControlValuesContext);
+  const owner = useMemo(() => ({}), []);
   const onChangeRef = useRef(onChange);
-  const published = useRef<{ channel: DemoControlChannel; name: string } | null>(null);
+  const published = useRef<{ channel: DemoControlChannel; name: string; value: unknown } | null>(null);
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
   const synced = onChange !== undefined;
 
+  // The preview's code follows the control; a control that is not shown (one that applies to another variant) gives
+  // its default back to the code
+  useEffect(() => {
+    if (values && synced) values.set(name, value, owner);
+  }, [values, name, value, synced, owner]);
+  useEffect(() => {
+    if (values && synced) return () => values.remove(name, owner);
+  }, [values, name, synced, owner]);
+
   useEffect(() => {
     if (!channel || !synced) return;
     const initial = published.current?.channel !== channel || published.current?.name !== name;
-    published.current = { channel, name };
+    // What this control last published it does not publish again: StrictMode runs the effect twice, and the second
+    // run, no longer initial, sent a row shown only under another setting (accentColor) its default back to the page,
+    // over the value the page had just replayed to it
+    if (!initial && Object.is(published.current?.value, value)) return;
+    published.current = { channel, name, value };
     channel.publish(name, value, initial);
   }, [channel, name, value, synced]);
 

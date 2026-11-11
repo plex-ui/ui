@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs"
+import postcss from "postcss"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, type ReactElement } from "react"
 import { describe, expect, test, vi } from "vitest"
@@ -30,6 +32,7 @@ const cases: [string, Props][] = [
   ["negative trend", { ...BASE, trend: { value: -1.8 } }],
   ["zero trend", { ...BASE, trend: { value: 0 } }],
   ["trend with label", { ...BASE, trend: { value: 12.5, label: "vs last month" } }],
+  ["trend in the header with its label", { ...BASE, trend: { value: -3, label: "vs last week" }, trendPosition: "header" }],
   ["inverted positive trend", { ...BASE, trend: { value: 15.3, label: "vs last hour" }, invertTrend: true }],
   ["inverted negative trend", { ...BASE, trend: { value: -4 }, invertTrend: true }],
   ["inverted zero trend", { ...BASE, trend: { value: 0 }, invertTrend: true }],
@@ -195,5 +198,50 @@ describe("StatCard tooltip parity", () => {
     expect(results[0]![1]).toContain('role="tooltip"')
     expect(results[0]![1]).toContain('"Sum of all revenue streams"')
     expect(results[0]![2]).not.toContain('role="tooltip"')
+  })
+})
+
+// Shown together on the Overview (owner 11.11), an icon, a trend and a progress bar laid the card out wrong: the icon's
+// tile stretched to a narrow bar, and a description beside the trend ran over the value. Then (owner 11.11: "не
+// красиво", "две зеленые полоски?", "иконка в квадрате?") the card took the layout of shadcn's metric cards: the icon
+// a small tile at the end of the header, the trend and its label one line under the value, the accent one bar.
+describe("StatCard layout", () => {
+  const css = postcss.parse(readFileSync("packages/styles/src/components/StatCard/StatCard.module.css", "utf8"))
+  const declarations = (selector: string) => {
+    const found: Record<string, string> = {}
+    css.walkRules((rule) => {
+      if (rule.selector !== selector) return
+      rule.each((node) => { if (node.type === "decl") found[node.prop] = node.value })
+    })
+    return found
+  }
+
+  test("the icon's tile is the square its token sizes, as tall as the label and the value", () => {
+    expect(declarations(".IconWrapper")).toMatchObject({ width: "var(--stat-card-icon-wrapper-size)", height: "var(--stat-card-icon-wrapper-size)" })
+    expect(declarations(".IconWrapper")).not.toHaveProperty("align-self")
+    expect(declarations(".IconWrapper")).not.toHaveProperty("aspect-ratio")
+  })
+
+  test("what does not fit beside the value goes to the next line", () => {
+    expect(declarations(".ValueRow")).toMatchObject({ "flex-wrap": "wrap" })
+  })
+
+  test("the accent is a bar inside the card, not a border bent along its corners, and the progress keeps its fill", () => {
+    const accent = css.toString().slice(css.toString().indexOf('&:where([data-variant="accent"])'))
+    expect(accent).not.toMatch(/border-inline-start/)
+    expect(accent).toMatch(/&::before \{[^}]*width: var\(--stat-card-accent-width\)/)
+    expect(accent.slice(0, accent.indexOf("&::before"))).not.toMatch(/--stat-card-progress-fill/)
+  })
+
+  test("the icon stands at the end of the header, and the trend with its label on a line under the value", () => {
+    const view = render(<RStatCard {...BASE} icon={<RDollarCircle />} trend={{ value: -3.2, label: "vs last month" }} />)
+    const card = view.container.firstElementChild as HTMLElement
+    const [header, valueRow, trendRow] = [...card.children] as HTMLElement[]
+    expect(header.lastElementChild?.firstElementChild?.querySelector("svg")).not.toBeNull()
+    expect(valueRow.textContent).toBe("$45,231")
+    expect(trendRow.textContent).toBe("-3.2%vs last month")
+    // A fall draws the rise's trend line mirrored
+    expect(trendRow.querySelector("svg")?.getAttribute("class")).toMatch(/TrendDown/)
+    cleanup()
   })
 })

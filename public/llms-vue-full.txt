@@ -44,18 +44,17 @@ Props:
     - class (string) — Applied to the item wrapper
 
 ### Overview
-The returnsDisabled control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.
+Set type to multiple when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references. A single accordion with collapsible lets readers close the open item; without it one item is always open. card composes the accordion inside Card, the most common landing-page FAQ pattern; on a phone the card is a section of the grouped list. The returnsDisabled control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.
 ```vue
 <script setup>
 import { ref } from 'vue';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@plexui/vue/components/Accordion';
 
-const value = ref('shipping');
 const returnsDisabled = ref(false);
 </script>
 
 <template>
-<Accordion type="single" collapsible v-model:value="value" style="width: 100%; max-width: 384px">
+<Accordion type="single" collapsible default-value="shipping" style="width: 100%; max-width: 384px">
   <AccordionItem value="shipping">
     <AccordionTrigger>What are your shipping options?</AccordionTrigger>
     <AccordionContent>
@@ -82,105 +81,89 @@ const returnsDisabled = ref(false);
 </template>
 ```
 
-### Single
-Default shape. type="single" + collapsible lets users close the currently open item; without collapsible, one item is always open.
-```vue
-<Accordion type="single" collapsible default-value="trial" style="width: 100%; max-width: 384px">
-  <AccordionItem
-    v-for="item in [
-      {
-        value: 'trial',
-        trigger: 'How long is the free trial?',
-        content: '14 days, no credit card required. At the end of the trial you can keep the free tier or upgrade to Pro; your projects stay in place either way.',
-      },
-      {
-        value: 'plan',
-        trigger: 'Can I change plans mid-cycle?',
-        content: 'Yes. Upgrades are prorated immediately; downgrades take effect at the next billing date. Invoices always reflect the exact span each plan was active.',
-      },
-      {
-        value: 'invoices',
-        trigger: 'Where can I find past invoices?',
-        content: 'Billing → Invoices in your workspace settings. Every PDF is archived for seven years and can be pulled via the Billing API.',
-      },
-    ]"
-    :key="item.value"
-    :value="item.value"
-  >
-    <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>
-    <AccordionContent>{{ item.content }}</AccordionContent>
-  </AccordionItem>
-</Accordion>
-```
-
 ### Multiple
 Use type="multiple" when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references.
 ```vue
-<Accordion type="multiple" :default-value="['notifications']" style="width: 100%; max-width: 384px">
-  <AccordionItem
-    v-for="item in [
-      {
-        value: 'notifications',
-        trigger: 'Notification settings',
-        content: 'Pick which events trigger email, push, or in-app alerts. Release-blocker incidents always page the on-call regardless of quiet hours.',
-      },
-      {
-        value: 'privacy',
-        trigger: 'Privacy & security',
-        content: 'Turn on two-factor, review active sessions, and manage connected apps. Workspace admins can also enforce SSO and hardware-key policies org-wide.',
-      },
-      {
-        value: 'billing',
-        trigger: 'Billing & subscription',
-        content: 'View your current plan, payment method, and upcoming renewal. Seat changes apply immediately; the next invoice will include a prorated adjustment.',
-      },
-    ]"
-    :key="item.value"
-    :value="item.value"
-  >
-    <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>
-    <AccordionContent>{{ item.content }}</AccordionContent>
+<script setup>
+import { ref } from 'vue';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@plexui/vue/components/Accordion';
+
+const returnsDisabled = ref(false);
+</script>
+
+<template>
+<Accordion type="multiple" :default-value="['shipping']" style="width: 100%; max-width: 384px">
+  <AccordionItem value="shipping">
+    <AccordionTrigger>What are your shipping options?</AccordionTrigger>
+    <AccordionContent>
+      We offer standard (5–7 business days), express (2–3 days), and
+      overnight shipping. Free standard shipping on orders over $50.
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="returns" :disabled="returnsDisabled">
+    <AccordionTrigger>What is your return policy?</AccordionTrigger>
+    <AccordionContent>
+      Returns are accepted within 30 days of delivery. Items must be unused
+      and in original packaging. Refunds are processed within 5–7 business
+      days of receipt.
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="support">
+    <AccordionTrigger>How can I contact customer support?</AccordionTrigger>
+    <AccordionContent>
+      Reach us by email, live chat, or phone Monday through Friday, 9am–6pm
+      ET. Weekend tickets are handled within 24 hours.
+    </AccordionContent>
   </AccordionItem>
 </Accordion>
+</template>
 ```
 
 ### Card
 Composed inside Card, the most common landing-page FAQ pattern.
 ```vue
+<script setup>
+import { ref } from 'vue';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@plexui/vue/components/Accordion';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@plexui/vue/components/Card';
+
+const returnsDisabled = ref(false);
+</script>
+
+<template>
 <Card style="width: 100%; max-width: 384px">
   <CardHeader>
-    <CardTitle>Subscription & billing</CardTitle>
-    <CardDescription>Common questions about plans, invoices, and cancellations.</CardDescription>
+    <CardTitle>Orders & returns</CardTitle>
+    <CardDescription>Shipping, returns, and support at a glance.</CardDescription>
   </CardHeader>
   <CardContent>
-    <Accordion type="single" collapsible default-value="plans">
-      <AccordionItem
-        v-for="item in [
-          {
-            value: 'plans',
-            trigger: 'What subscription plans do you offer?',
-            content: 'Starter ($9/mo), Pro ($29/mo), and Enterprise (from $99/mo). Each tier raises seat, project, and API call limits; Enterprise adds SSO, audit log export, and a dedicated success manager.',
-          },
-          {
-            value: 'billing',
-            trigger: 'How does billing work?',
-            content: 'Billed at the start of each cycle. We accept all major cards, and ACH or invoice for annual Enterprise contracts. Every invoice is emailed and archived in Billing → Invoices.',
-          },
-          {
-            value: 'cancel',
-            trigger: 'How do I cancel my subscription?',
-            content: 'Cancel anytime from Billing → Plan. No cancellation fee. Access continues through the end of the current billing period, and projects stay read-only afterwards. Nothing is deleted.',
-          },
-        ]"
-        :key="item.value"
-        :value="item.value"
-      >
-        <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>
-        <AccordionContent>{{ item.content }}</AccordionContent>
+    <Accordion type="single" collapsible default-value="shipping" style="width: 100%; max-width: 384px">
+      <AccordionItem value="shipping">
+        <AccordionTrigger>What are your shipping options?</AccordionTrigger>
+        <AccordionContent>
+          We offer standard (5–7 business days), express (2–3 days), and
+          overnight shipping. Free standard shipping on orders over $50.
+        </AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="returns" :disabled="returnsDisabled">
+        <AccordionTrigger>What is your return policy?</AccordionTrigger>
+        <AccordionContent>
+          Returns are accepted within 30 days of delivery. Items must be unused
+          and in original packaging. Refunds are processed within 5–7 business
+          days of receipt.
+        </AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="support">
+        <AccordionTrigger>How can I contact customer support?</AccordionTrigger>
+        <AccordionContent>
+          Reach us by email, live chat, or phone Monday through Friday, 9am–6pm
+          ET. Weekend tickets are handled within 24 hours.
+        </AccordionContent>
       </AccordionItem>
     </Accordion>
   </CardContent>
 </Card>
+</template>
 ```
 
 ## Alert
@@ -9817,7 +9800,7 @@ Lists of one group trade items, and an empty list takes a drop. Each list has a 
 ```
 
 ## Stat Card
-Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.
+Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.
 Import: import { StatCard } from "@plexui/vue/components/StatCard"
 Docs: https://plexui.com/vue/components/stat-card
 Props:
@@ -9830,17 +9813,17 @@ Props:
   - trend-position ("value" | "header") default: "value" — Where the trend indicator is rendered
   - trend-variant ("text" | "badge") default: "text" — Render trend as text or badge
   - size ("default" | "sm") default: "default" — Card size; sm for compact analytics layouts
-  - icon slot (VNode[]) — Icon displayed on the left with a soft background
+  - icon slot (VNode[]) — Icon in a small soft tile at the end of the header
   - sparkline slot (VNode[]) — Chart rendered at the bottom
   - progress (number) — Progress bar value (0-100)
-  - progress-label (string) — Label next to progress bar
+  - progress-label (string) — Label after the progress bar
   - tooltip (string) — Shows an info icon next to the label with tooltip text
   - variant ("default" | "accent") default: "default" — Visual variant
-  - accent-color ("primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning") default: "primary" — Left border color (accent variant)
+  - accent-color ("primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning") default: "primary" — Color of the accent bar (accent variant)
   - class (string) — Extra classes on the card element
 
 ### Overview
-Dashboard-ready stat cards with trends, icons, and progress bars. Use the controls below to explore all available props.
+Dashboard-ready stat cards with trends, icons, and progress bars. Use size="sm" for compact analytics rows with denser spacing and smaller typography; it pairs well with tooltip, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (trend-position), as plain text or in a badge (trend-variant). Use invert-trend for metrics where a rise is bad, such as error rate or response time. An icon in the icon slot stands in a small soft tile at the end of the header, and progress draws a bar of completion or usage across the card. The accent variant adds a colored bar before the content in one of eight semantic colors (accent-color).
 ```vue
 <div style="max-width: 320px; width: 100%" class="mx-auto">
   <StatCard
@@ -9848,124 +9831,18 @@ Dashboard-ready stat cards with trends, icons, and progress bars. Use the contro
     value="$45,231"
     :size="size"
     :variant="variant"
-    accent-color="primary"
+    :accent-color="accentColor"
     :trend-position="trendPosition"
     :trend-variant="trendVariant"
     :trend="trend ? { value: 12.5, label: 'vs last month' } : undefined"
+    :invert-trend="invertTrend"
     :tooltip="tooltip ? 'Sum of all revenue streams' : undefined"
-    :invert-trend="invertTrend"
-  />
-</div>
-```
-
-### Sizes
-Use size="sm" for compact analytics rows with denser spacing and smaller typography. The small size also pairs well with the tooltip prop for info icons.
-```vue
-<div class="flex flex-col gap-6 w-full">
-  <!-- Default size -->
-  <div class="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-4" style="max-width: 720px">
-    <StatCard label="Total Revenue" value="$45,231" :trend="{ value: 12.5 }" />
-    <StatCard label="Active Users" value="2,847" :trend="{ value: 8.2 }" />
-    <StatCard label="Conversion Rate" value="3.24%" :trend="{ value: -1.8 }" />
-  </div>
-  <!-- Small size -->
-  <div class="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3" style="max-width: 720px">
-    <StatCard size="sm" label="Total Inquiries" value="3,544" :trend="{ value: -2.6 }" tooltip="Total inquiries in period" />
-    <StatCard size="sm" label="Completion Rate" value="89.2%" :trend="{ value: 0.5 }" tooltip="Average across templates" />
-    <StatCard size="sm" label="Approval Rate" value="84.6%" :trend="{ value: 1.8 }" tooltip="Average across templates" />
-  </div>
-</div>
-```
-
-### Trend position
-Control where the trend appears: next to the value (default) or right-aligned in the header row.
-```vue
-<div class="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style="max-width: 480px">
-  <StatCard label="Revenue" value="$45,231" :trend="{ value: 12.5 }" trend-position="value" />
-  <StatCard label="Revenue" value="$45,231" :trend="{ value: 12.5 }" trend-position="header" />
-</div>
-```
-
-### Trend variant
-Display the trend as plain text or wrapped in a badge.
-```vue
-<div class="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style="max-width: 480px">
-  <StatCard label="Users" value="2,847" :trend="{ value: 8.2 }" trend-variant="text" />
-  <StatCard label="Users" value="2,847" :trend="{ value: 8.2 }" trend-variant="badge" />
-</div>
-```
-
-### Info tooltip
-Pass a tooltip string to render an info icon next to the label with a tooltip on hover.
-```vue
-<div style="max-width: 320px; width: 100%; margin: 0 auto">
-  <StatCard
-    label="Avg Completion Rate"
-    value="89.2%"
-    :trend="{ value: 0.5 }"
-    tooltip="Percentage of inquiries reaching final state"
-  />
-</div>
-```
-
-### With icon
-Pass an icon through the icon slot to display it on the left side with a soft background. The layout automatically switches to a horizontal icon + content arrangement. Works with both default and sm sizes.
-```vue
-<div class="flex flex-col gap-6 w-full">
-  <!-- Default size -->
-  <div class="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4">
-    <StatCard label="Total Revenue" value="$45,231" :trend="{ value: 12.5 }">
-      <template #icon><DollarCircle /></template>
-    </StatCard>
-    <StatCard label="Active Users" value="2,847" :trend="{ value: 8.2 }">
-      <template #icon><Users /></template>
-    </StatCard>
-  </div>
-  <!-- Small size -->
-  <div class="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3">
-    <StatCard size="sm" label="Revenue" value="$45,231" :trend="{ value: 12.5 }">
-      <template #icon><DollarCircle /></template>
-    </StatCard>
-    <StatCard size="sm" label="Users" value="2,847" :trend="{ value: 8.2 }">
-      <template #icon><Users /></template>
-    </StatCard>
-    <StatCard size="sm" label="Orders" value="1,234" :trend="{ value: -3.1 }">
-      <template #icon><ShoppingBag /></template>
-    </StatCard>
-  </div>
-</div>
-```
-
-### With progress
-Progress bars show a visual representation of completion or usage percentage.
-```vue
-<StatCard label="Storage Used" value="7.2 GB" :progress="72" progress-label="72%" description="of 10 GB" />
-```
-
-### Accent border
-The accent variant adds a colored left border. Choose from eight semantic colors.
-```vue
-<div style="max-width: 320px; width: 100%" class="mx-auto">
-  <StatCard
-    label="Total Revenue"
-    value="$45,231"
-    variant="accent"
-    :accent-color="accentColor"
-    :trend="{ value: 12.5, label: 'vs last month' }"
-  />
-</div>
-```
-
-### Inverted trend
-Use invert-trend for metrics where positive values are bad (e.g., error rate, response time). Toggle the switch to see the color flip.
-```vue
-<div style="max-width: 320px; width: 100%" class="mx-auto">
-  <StatCard
-    label="Avg Response Time"
-    value="234ms"
-    :trend="{ value: 15.3, label: 'vs last hour' }"
-    :invert-trend="invertTrend"
-  />
+    :progress="progress ? 72 : undefined"
+    :progress-label="progress ? '72%' : undefined"
+    :description="progress ? 'of $62,800 goal' : undefined"
+  >
+    <template v-if="icon" #icon><DollarCircle /></template>
+  </StatCard>
 </div>
 ```
 

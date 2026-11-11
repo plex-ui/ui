@@ -1,141 +1,59 @@
 ---
 title: Stat Card
-description: Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.
-metaDescription: React stat card component for dashboards displaying KPIs with trend deltas, info tooltip, icon, progress bar, and accent border styling
+description: Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.
+metaDescription: React stat card component for dashboards displaying KPIs with trend deltas, info tooltip, icon, progress bar, and accent bar
 ---
 
 import { StatCard } from "@plexui/ui/components/StatCard"
-import { StatCardOverviewDemo, StatCardSizesDemo, StatCardAccentDemo, StatCardInvertedTrendDemo, StatCardIconDemo } from "@/components/docs/StatCardDemos"
+import { StatCardOverviewDemo } from "@/components/docs/StatCardDemos"
 
 <UsageBlock>{`import { StatCard } from "@plexui/ui/components/StatCard";`}</UsageBlock>
 
 ## Examples
 
+{/* The examples Sizes, Trend position, Trend variant, Info tooltip, With icon, With progress, Accent border and
+    Inverted trend are settings of the Overview now (owner 11.11) */}
+<span id="sizes" />
+<span id="trend-position" />
+<span id="trend-variant" />
+<span id="info-tooltip" />
+<span id="with-icon" />
+<span id="with-progress" />
+<span id="accent-border" />
+<span id="inverted-trend" />
+
 ### Overview
 
-<ComponentPreview details={<>Dashboard-ready stat cards with trends, icons, and progress bars. Use the controls below to explore all available props.</>} code={`const [size, setSize] = useState("default")
+<ComponentPreview details={<>Dashboard-ready stat cards with trends, icons, and progress bars. Use <code>size="sm"</code> for compact analytics rows with denser spacing and smaller typography; it pairs well with <code>tooltip</code>, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (<code>trendPosition</code>), as plain text or in a badge (<code>trendVariant</code>). Use <code>invertTrend</code> for metrics where a rise is bad, such as error rate or response time. An <code>icon</code> stands in a small soft tile at the end of the header, and <code>progress</code> draws a bar of completion or usage across the card. The <code>accent</code> variant adds a colored bar before the content in one of eight semantic colors (<code>accentColor</code>).</>} code={`import { DollarCircle } from "@plexui/ui/components/Icon"
+
+const [size, setSize] = useState("default")
 const [variant, setVariant] = useState("default")
+const [accentColor, setAccentColor] = useState("primary")
 const [trendPosition, setTrendPosition] = useState("value")
 const [trendVariant, setTrendVariant] = useState("text")
 const [showTrend, setShowTrend] = useState(true)
-const [showTooltip, setShowTooltip] = useState(false)
 const [invertTrend, setInvertTrend] = useState(false)
+const [showTooltip, setShowTooltip] = useState(false)
+const [showIcon, setShowIcon] = useState(false)
+const [showProgress, setShowProgress] = useState(false)
 
 <StatCard
   label="Total Revenue"
   value="$45,231"
   size={size}
   variant={variant}
+  accentColor={accentColor}
   trendPosition={trendPosition}
   trendVariant={trendVariant}
   trend={showTrend ? { value: 12.5, label: "vs last month" } : undefined}
-  tooltip={showTooltip ? "Sum of all revenue streams" : undefined}
   invertTrend={invertTrend}
+  tooltip={showTooltip ? "Sum of all revenue streams" : undefined}
+  icon={showIcon ? <DollarCircle /> : undefined}
+  progress={showProgress ? 72 : undefined}
+  progressLabel={showProgress ? "72%" : undefined}
+  description={showProgress ? "of $62,800 goal" : undefined}
 />`} previewMinHeight={120}>
   <StatCardOverviewDemo />
-</ComponentPreview>
-
-### Sizes
-
-<ComponentPreview details={<>Use <code>size="sm"</code> for compact analytics rows with denser spacing and smaller typography. The small size also pairs well with the <code>tooltip</code> prop for info icons.</>} code={`<div className="flex flex-col gap-6">
-  {/* Default size */}
-  <div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-4">
-    <StatCard label="Total Revenue" value="$45,231" trend={{ value: 12.5 }} />
-    <StatCard label="Active Users" value="2,847" trend={{ value: 8.2 }} />
-    <StatCard label="Conversion Rate" value="3.24%" trend={{ value: -1.8 }} />
-  </div>
-  {/* Small size */}
-  <div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3">
-    <StatCard size="sm" label="Total Inquiries" value="3,544" trend={{ value: -2.6 }} tooltip="Total inquiries in period" />
-    <StatCard size="sm" label="Completion Rate" value="89.2%" trend={{ value: 0.5 }} tooltip="Average across templates" />
-    <StatCard size="sm" label="Approval Rate" value="84.6%" trend={{ value: 1.8 }} tooltip="Average across templates" />
-  </div>
-</div>`} previewMinHeight={120}>
-  <StatCardSizesDemo />
-</ComponentPreview>
-
-### Trend position
-
-<ComponentPreview details={<>Control where the trend appears: next to the value (default) or right-aligned in the header row.</>} code={`<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
-  <StatCard label="Revenue" value="$45,231" trend={{ value: 12.5 }} trendPosition="value" />
-  <StatCard label="Revenue" value="$45,231" trend={{ value: 12.5 }} trendPosition="header" />
-</div>`} previewMinHeight={120}>
-  <div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
-    <StatCard label="Revenue" value="$45,231" trend={{ value: 12.5 }} trendPosition="value" />
-    <StatCard label="Revenue" value="$45,231" trend={{ value: 12.5 }} trendPosition="header" />
-  </div>
-</ComponentPreview>
-
-### Trend variant
-
-<ComponentPreview details={<>Display the trend as plain text or wrapped in a badge.</>} code={`<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
-  <StatCard label="Users" value="2,847" trend={{ value: 8.2 }} trendVariant="text" />
-  <StatCard label="Users" value="2,847" trend={{ value: 8.2 }} trendVariant="badge" />
-</div>`} previewMinHeight={120}>
-  <div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
-    <StatCard label="Users" value="2,847" trend={{ value: 8.2 }} trendVariant="text" />
-    <StatCard label="Users" value="2,847" trend={{ value: 8.2 }} trendVariant="badge" />
-  </div>
-</ComponentPreview>
-
-### Info tooltip
-
-<ComponentPreview details={<>Pass a <code>tooltip</code> string to render an info icon next to the label with a tooltip on hover.</>} code={`<StatCard label="Avg Completion Rate" value="89.2%" trend={{ value: 0.5 }} tooltip="Percentage of inquiries reaching final state" />`} previewMinHeight={120}>
-  <div style={{ maxWidth: 320, width: '100%', margin: '0 auto' }}>
-    <StatCard label="Avg Completion Rate" value="89.2%" trend={{ value: 0.5 }} tooltip="Percentage of inquiries reaching final state" />
-  </div>
-</ComponentPreview>
-
-### With icon
-
-<ComponentPreview details={<>Pass an <code>icon</code> to display it on the left side with a soft background. The layout automatically switches to a horizontal icon + content arrangement. Works with both default and <code>sm</code> sizes.</>} code={`import { DollarCircle, Users, ShoppingBag } from "@plexui/ui/components/Icon"
-
-{/* Default size */}
-<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4">
-  <StatCard icon={<DollarCircle />} label="Total Revenue" value="$45,231" trend={{ value: 12.5 }} />
-  <StatCard icon={<Users />} label="Active Users" value="2,847" trend={{ value: 8.2 }} />
-</div>
-
-{/* Small size */}
-<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3">
-  <StatCard size="sm" icon={<DollarCircle />} label="Revenue" value="$45,231" trend={{ value: 12.5 }} />
-  <StatCard size="sm" icon={<Users />} label="Users" value="2,847" trend={{ value: 8.2 }} />
-  <StatCard size="sm" icon={<ShoppingBag />} label="Orders" value="1,234" trend={{ value: -3.1 }} />
-</div>`} previewMinHeight={120}>
-  <StatCardIconDemo />
-</ComponentPreview>
-
-### With progress
-
-<ComponentPreview details={<>Progress bars show a visual representation of completion or usage percentage.</>} code={`<StatCard label="Storage Used" value="7.2 GB" progress={72} progressLabel="72%" description="of 10 GB" />`} previewMinHeight={120}>
-  <StatCard label="Storage Used" value="7.2 GB" progress={72} progressLabel="72%" description="of 10 GB" />
-</ComponentPreview>
-
-### Accent border
-
-<ComponentPreview details={<>The accent variant adds a colored left border. Choose from eight semantic colors.</>} code={`const [accentColor, setAccentColor] = useState("primary")
-
-<StatCard
-  label="Total Revenue"
-  value="$45,231"
-  variant="accent"
-  accentColor={accentColor}
-  trend={{ value: 12.5, label: "vs last month" }}
-/>`} previewMinHeight={120}>
-  <StatCardAccentDemo />
-</ComponentPreview>
-
-### Inverted trend
-
-<ComponentPreview details={<>Use <code>invertTrend</code> for metrics where positive values are bad (e.g., error rate, response time). Toggle the switch to see the color flip.</>} code={`const [invertTrend, setInvertTrend] = useState(true)
-
-<StatCard
-  label="Avg Response Time"
-  value="234ms"
-  trend={{ value: 15.3, label: "vs last hour" }}
-  invertTrend={invertTrend}
-/>`} previewMinHeight={120}>
-  <StatCardInvertedTrendDemo />
 </ComponentPreview>
 
 ## API
@@ -149,13 +67,13 @@ const [invertTrend, setInvertTrend] = useState(false)
   { prop: "trendPosition", type: '"value" | "header"', default: '"value"', description: "Where the trend indicator is rendered" },
   { prop: "trendVariant", type: '"text" | "badge"', default: '"text"', description: "Render trend as text or badge" },
   { prop: "size", type: '"default" | "sm"', default: '"default"', description: "Card size. Use sm for compact analytics layouts" },
-  { prop: "icon", type: "ReactNode", description: "Icon displayed on the left with a soft background" },
+  { prop: "icon", type: "ReactNode", description: "Icon in a small soft tile at the end of the header" },
   { prop: "sparkline", type: "ReactNode", description: "Chart rendered at the bottom" },
   { prop: "progress", type: "number", description: "Progress bar value (0-100)" },
-  { prop: "progressLabel", type: "string", description: "Label next to progress bar" },
+  { prop: "progressLabel", type: "string", description: "Label after the progress bar" },
   { prop: "tooltip", type: "string", description: "Shows an info icon next to the label with tooltip text" },
   { prop: "variant", type: '"default" | "accent"', default: '"default"', description: "Visual variant" },
-  { prop: "accentColor", type: '"primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning"', default: '"primary"', description: "Left border color (accent variant)" },
+  { prop: "accentColor", type: '"primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning"', default: '"primary"', description: "Color of the accent bar (accent variant)" },
   { prop: "className", type: "string", description: "Extra classes on the card element" },
 ]} />
 
@@ -163,15 +81,16 @@ const [invertTrend, setInvertTrend] = useState(false)
 
 Stat Card reads these component tokens. Override them at any scope to restyle it:
 
-- `--stat-card-accent-width`: accent width (default `3px`)
+- `--stat-card-accent-width`: accent width (default `4px`)
 - `--stat-card-background`: background (default `var(--color-surface)`)
 - `--stat-card-border-color`: border color (default `var(--color-border)`)
 - `--stat-card-description-color`: description color (default `var(--color-text-tertiary)`)
 - `--stat-card-description-font-size`: description font size (default `var(--font-text-sm-size)`)
 - `--stat-card-icon-color`: icon color (default `var(--color-text-primary)`)
-- `--stat-card-icon-size`: icon size (default `24px`)
+- `--stat-card-icon-size`: icon size (default `16px`)
 - `--stat-card-icon-wrapper-background`: icon wrapper background (default `var(--color-background-primary-soft-alpha)`)
 - `--stat-card-icon-wrapper-radius`: icon wrapper radius (default `var(--radius-md)`)
+- `--stat-card-icon-wrapper-size`: icon wrapper size (default `32px`)
 - `--stat-card-info-icon-size`: info icon size (default `16px`)
 - `--stat-card-label-color`: label color (default `var(--color-text-secondary)`)
 - `--stat-card-label-font-size`: label font size (default `var(--font-text-sm-size)`)
@@ -182,8 +101,9 @@ Stat Card reads these component tokens. Override them at any scope to restyle it
 - `--stat-card-progress-radius`: progress radius (default `var(--radius-full)`)
 - `--stat-card-radius`: radius (default `var(--radius-xl)`)
 - `--stat-card-sm-description-font-size`: sm description font size (default `var(--font-text-xs-size)`)
-- `--stat-card-sm-icon-size`: sm icon size (default `20px`)
+- `--stat-card-sm-icon-size`: sm icon size (default `14px`)
 - `--stat-card-sm-icon-wrapper-radius`: sm icon wrapper radius (default `var(--radius-sm)`)
+- `--stat-card-sm-icon-wrapper-size`: sm icon wrapper size (default `28px`)
 - `--stat-card-sm-info-icon-size`: sm info icon size (default `14px`)
 - `--stat-card-sm-label-font-size`: sm label font size (default `var(--font-text-xs-size)`)
 - `--stat-card-sm-padding-block`: sm padding block (default `spacing(3)`)

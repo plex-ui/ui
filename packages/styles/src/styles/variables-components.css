@@ -1146,7 +1146,7 @@
     ============================================= */
     --stat-card-padding: spacing(5);
     --stat-card-radius: var(--radius-xl);
-    /* spacing is per-section: mt-3 (12px) label→value, mt-2 (8px) value→footer */
+    /* spacing is per-section: 12px label→value, 4px value→trend row→description, 16px → progress */
     --stat-card-background: var(--color-surface);
     --stat-card-border-color: var(--color-border);
     --stat-card-label-font-size: var(--font-text-sm-size);
@@ -1165,13 +1165,13 @@
     --stat-card-progress-radius: var(--radius-full);
     --stat-card-progress-background: light-dark(var(--alpha-08), var(--alpha-12));
     --stat-card-progress-fill: var(--color-background-primary-solid);
-    --stat-card-icon-size: 24px;
+    --stat-card-icon-size: 16px;
     --stat-card-icon-color: var(--color-text-primary);
-    /* label line-height (20) + gap spacing(0.5) (2) + value line-height (38) = 60 */
-    --stat-card-icon-wrapper-size: 60px;
+    /* A small tile at the end of the header (shadcn's metric card with an icon: p-2 around a 16 icon) */
+    --stat-card-icon-wrapper-size: 32px;
     --stat-card-icon-wrapper-radius: var(--radius-md);
     --stat-card-icon-wrapper-background: var(--color-background-primary-soft-alpha);
-    --stat-card-accent-width: 3px;
+    --stat-card-accent-width: 4px;
     --stat-card-info-icon-size: 16px;
 
     /* sm size overrides */
@@ -1181,9 +1181,9 @@
     --stat-card-sm-value-font-size: var(--font-heading-md-size);
     --stat-card-sm-trend-font-size: var(--font-text-xs-size);
     --stat-card-sm-description-font-size: var(--font-text-xs-size);
-    --stat-card-sm-icon-size: 20px;
-    /* label line-height (18) + gap spacing(0.5) (2) + value line-height (26) = 46 */
-    --stat-card-sm-icon-wrapper-size: 46px;
+    --stat-card-sm-icon-size: 14px;
+    /* 7 around a 14 icon */
+    --stat-card-sm-icon-wrapper-size: 28px;
     --stat-card-sm-icon-wrapper-radius: var(--radius-sm);
     --stat-card-sm-info-icon-size: 14px;
 

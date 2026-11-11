@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { act, cleanup, fireEvent, render, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { indentCode } from '../../components/docs/demoCode.mjs';
 import { AccordionOverviewDemo } from '../../components/docs/AccordionDemos';
 import { CheckboxVariantsDemo } from '../../components/docs/CheckboxDemos';
 import { TabsOverviewDemo } from '../../components/docs/TabsDemos';
@@ -32,19 +33,22 @@ function example(page: string, name: string, references: string[] = []) {
     const boundary = rest.search(/\nexport const |\n<UsageBlock>/);
     return new Function(...Object.keys(bindings), `return ${(boundary < 0 ? rest : rest.slice(0, boundary)).trim()}`)(...Object.values(bindings));
   };
-  const template = read(name);
-  const rawControls = read(`${name}Controls`, Object.fromEntries(references.map((key) => [key, read(key)])));
+  // A templated example (demoCode.mjs) builds its code from constants and helpers of the page
+  const referenced = Object.fromEntries(references.map((key) => [key, read(key, { indentCode })]));
+  const template = read(name, { indentCode, ...referenced });
+  const rawControls = read(`${name}Controls`, referenced);
   if (typeof template !== 'string' || !Array.isArray(rawControls)) throw new Error('Invalid demo');
   const controls: VueDemoControl[] = rawControls.map((control: unknown) => {
     if (!control || typeof control !== 'object' || !('name' in control) || typeof control.name !== 'string' || !('type' in control) || !('default' in control)) throw new Error('Invalid control');
-    if (control.type === 'boolean' && typeof control.default === 'boolean') return { name: control.name, type: 'boolean', default: control.default };
+    const when = 'when' in control && control.when && typeof control.when === 'object' ? { when: control.when as Record<string, unknown> } : {};
+    if (control.type === 'boolean' && typeof control.default === 'boolean') return { name: control.name, type: 'boolean', default: control.default, ...when };
     if (control.type !== 'select' || typeof control.default !== 'string' || !('options' in control) || !Array.isArray(control.options) || !control.options.every((option: unknown) => typeof option === 'string')) throw new Error('Invalid select control');
-    return { name: control.name, type: 'select', default: control.default, options: control.options };
+    return { name: control.name, type: 'select', default: control.default, options: control.options, ...when };
   });
   return { template, controls };
 }
 const checkbox = example('checkbox', 'variants');
-const accordion = example('accordion', 'overview');
+const accordion = example('accordion', 'overview', ['overviewAccordion']);
 const tabs = example('segmented-control', 'overview', ['SIZES', 'VARIANTS', 'ORIENTATIONS']);
 const table = example('table', 'variant');
 const interact = async (action: () => void) => { await act(async () => { action(); await flushVue(); }); };
@@ -106,6 +110,32 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await waitFor(() => expect(document.activeElement).toBe(returns));
     await interact(() => fireEvent.click(returns));
     expect(returns.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  test('accordion type, collapsible and card are settings of the one Overview (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <AccordionOverviewDemo /> : <VueDemo {...accordion} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const trigger = (name: string) => page.getByRole<HTMLButtonElement>('button', { name });
+    // single and collapsible: the open item closes, and opening another closes the first
+    expect(trigger('What are your shipping options?').getAttribute('aria-expanded')).toBe('true');
+    await interact(() => fireEvent.click(trigger('What are your shipping options?')));
+    expect(trigger('What are your shipping options?').getAttribute('aria-expanded')).toBe('false');
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'collapsible' })));
+    expect(trigger('What are your shipping options?').getAttribute('aria-expanded')).toBe('true');
+    await interact(() => fireEvent.click(trigger('What are your shipping options?')));
+    expect(trigger('What are your shipping options?').getAttribute('aria-expanded')).toBe('true');
+    // multiple: several items stay open, and collapsible, which only a single accordion has, is not offered
+    await interact(() => fireEvent.click(page.getByRole('radio', { name: 'multiple' })));
+    expect(page.queryByRole('switch', { name: 'collapsible' })).toBeNull();
+    await interact(() => fireEvent.click(trigger('How can I contact customer support?')));
+    expect(trigger('What are your shipping options?').getAttribute('aria-expanded')).toBe('true');
+    expect(trigger('How can I contact customer support?').getAttribute('aria-expanded')).toBe('true');
+    // card: the same accordion inside a Card with its header
+    expect(page.queryByText('Orders & returns')).toBeNull();
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'card' })));
+    expect(page.getByText('Orders & returns')).toBeTruthy();
+    expect(page.getAllByRole('button', { name: /\?$/ })).toHaveLength(3);
   });
 
   test('tabs keep selected Month while disabling it, separate group disablement and skip it in both orientations', async () => {

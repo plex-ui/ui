@@ -3,7 +3,7 @@
 import clsx from "clsx"
 import { type ReactNode, type Ref } from "react"
 import { Badge } from "../Badge"
-import { InfoCircle } from "../Icon"
+import { InfoCircle, Trending } from "../Icon"
 import { Tooltip } from "../Tooltip"
 import s from "@plexui/styles/components/StatCard/StatCard.module.css"
 
@@ -23,20 +23,20 @@ export type StatCardProps = {
   }
   /** When true, a positive trend is bad (red) and negative is good (green). Use for metrics like "Error Rate" or "Avg Completion Time". */
   invertTrend?: boolean
-  /** Icon displayed on the left side with a soft background */
+  /** Icon in a small tile with a soft background, at the end of the header */
   icon?: ReactNode
   /** Optional ReactNode for a sparkline/chart rendered at the bottom */
   sparkline?: ReactNode
   /** Progress value from 0 to 100. Shows a progress bar at the bottom. */
   progress?: number
-  /** Label displayed next to the progress bar */
+  /** Label displayed after the progress bar */
   progressLabel?: string
   /** Tooltip text — renders an (i) icon next to the label with a tooltip on hover */
   tooltip?: string
   /**
    * Where the trend indicator is positioned
-   * - `"value"` — next to the value (default)
-   * - `"header"` — right-aligned in the header row
+   * - `"value"` — under the value, with its label (default)
+   * - `"header"` — right-aligned in the header row, its label under the value
    * @default "value"
    */
   trendPosition?: "value" | "header"
@@ -60,7 +60,7 @@ export type StatCardProps = {
    */
   variant?: "default" | "accent"
   /**
-   * Accent border color for the "accent" variant
+   * Color of the accent variant's bar
    * @default "primary"
    */
   accentColor?: "primary" | "secondary" | "info" | "success" | "warning" | "danger" | "discovery" | "caution"
@@ -117,17 +117,30 @@ export const StatCard = ({
           ? "success"
           : "danger"
 
+  // A trend line points the way the value moved, whichever colour that is (shadcn's metric cards draw lucide's
+  // trending-up and trending-down); a fall is the rise mirrored
+  const trendContent = (
+    <>
+      {trendValue !== 0 && <Trending className={trendValue < 0 ? s.TrendDown : undefined} />}
+      {trendText}
+    </>
+  )
+
   const trendEl = trend != null && (
     trendVariant === "badge" ? (
       <Badge size="sm" color={trendBadgeColor as "secondary" | "success" | "danger"}>
-        {trendText}
+        {trendContent}
       </Badge>
     ) : (
       <div className={clsx(s.Trend, trendClassName)}>
-        {trendText}
+        {trendContent}
       </div>
     )
   )
+
+  // The icon's tile stands at the end of the header, as the trend may (shadcn's metric card with an icon)
+  const iconEl = icon ? <div className={s.IconWrapper}>{icon}</div> : null
+  const headerTrendEl = trendPosition === "header" ? trendEl : null
 
   const headerEl = (
     <div className={s.Header}>
@@ -142,8 +155,11 @@ export const StatCard = ({
           </Tooltip>
         )}
       </div>
-      {trendPosition === "header" && trendEl && (
-        <div className={s.HeaderEnd}>{trendEl}</div>
+      {(headerTrendEl || iconEl) && (
+        <div className={s.HeaderEnd}>
+          {headerTrendEl}
+          {iconEl}
+        </div>
       )}
     </div>
   )
@@ -151,16 +167,19 @@ export const StatCard = ({
   const valueRowEl = (
     <div className={s.ValueRow}>
       <div className={s.Value}>{value}</div>
-      {trendPosition === "value" && trendEl}
-      {description && <div className={s.Description}>{description}</div>}
     </div>
   )
 
-  const footerEl = trend?.label ? (
-    <div className={s.Footer}>
-      <div className={s.TrendLabel}>{trend.label}</div>
+  // Under the value, a trend and what it compares with, on one line (shadcn's metric card with a trend); a trend in
+  // the header leaves its label there
+  const trendRowEl = trend != null && (trendPosition === "value" || trend.label) ? (
+    <div className={s.TrendRow}>
+      {trendPosition === "value" && trendEl}
+      {trend.label && <span className={s.TrendLabel}>{trend.label}</span>}
     </div>
   ) : null
+
+  const descriptionEl = description ? <div className={s.Description}>{description}</div> : null
 
   const progressEl = (progressValue !== undefined || progressLabel) ? (
     <div className={s.Progress}>
@@ -186,26 +205,12 @@ export const StatCard = ({
       data-accent-color={accentColor}
       {...restProps}
     >
-      {icon ? (
-        <div className={s.Body}>
-          <div className={s.IconWrapper}>{icon}</div>
-          <div className={s.Content}>
-            {headerEl}
-            {valueRowEl}
-            {footerEl}
-            {progressEl}
-            {sparklineEl}
-          </div>
-        </div>
-      ) : (
-        <>
-          {headerEl}
-          {valueRowEl}
-          {footerEl}
-          {progressEl}
-          {sparklineEl}
-        </>
-      )}
+      {headerEl}
+      {valueRowEl}
+      {trendRowEl}
+      {descriptionEl}
+      {progressEl}
+      {sparklineEl}
     </div>
   )
 }
