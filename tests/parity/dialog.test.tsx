@@ -670,32 +670,48 @@ describe("Dialog parity, radix-ui 1.8", () => {
     expect(rule(".Panel")).toContain("pointer-events: auto;")
   })
 
-  test("a phone Alert follows the iOS 27 alert (kit iOS 27, Alerts 65:57149; plan 163)", () => {
+  test("a phone Alert follows the iOS 27.2 alert (UIAlertController on an iPhone 17; plan 178 block 13)", () => {
     const root = `${process.cwd()}/packages/styles/src`
     const css = readFileSync(`${root}/components/Dialog/Dialog.module.css`, "utf8")
     const rule = (selector: string) => css.slice(css.indexOf(`${selector} {`)).match(/\{([^}]*)\}/)?.[1] ?? ""
     const alert = '.Content[data-mobile-variant="alert"]'
-    // glass, fields and actions 14 from the edge, text at 22, title and message 17/22 in the primary label 10 apart,
-    // 24 from the text to a control, 52px field rows 19 above the actions, 8 between actions
+    // 320 wide, glass, the actions 16 from the edge and a field 15, the text 31 from the sides: the title 17/22 with
+    // its baseline 38.33 from the top, the message 15/20 25.67 under it, the actions 24.17 under the last baseline
+    // (19.5 from the line box), a 48px field 20.17 under it (15.5) and 20 over the actions, 8 between actions
     expect(rule(`${alert} .Panel`)).toContain("background: var(--dialog-alert-background, var(--dialog-panel-background, var(--color-surface-elevated)));")
     expect(rule(`${alert} .Panel`)).toContain("backdrop-filter: var(--dialog-alert-backdrop-filter, none);")
-    expect(rule(`${alert} .Header`)).toContain("padding: var(--dialog-alert-header-padding, 8px 8px 14px);")
-    expect(rule(`${alert} .Description`)).toContain("font-size: var(--dialog-alert-message-size, 17px);")
-    expect(rule(`${alert} .Description`)).toContain("line-height: var(--dialog-alert-message-leading, 22px);")
+    expect(rule(`${alert} .Header`)).toContain("padding: var(--dialog-alert-header-padding, 5px 15px 5.5px);")
+    expect(rule(`${alert} .Header`)).toContain("gap: var(--dialog-alert-header-gap, 5.67px);")
+    expect(rule(`${alert} .Header + .Footer`)).toContain("margin-top: 4px;")
+    expect(rule(`${alert} .Description`)).toContain("font-size: var(--dialog-alert-message-size, 15px);")
+    expect(rule(`${alert} .Description`)).toContain("line-height: var(--dialog-alert-message-leading, 20px);")
     expect(rule(`${alert} .Description`)).toContain("color: var(--dialog-alert-message-color, var(--color-text));")
-    expect(rule(`${alert} .Body`)).toContain("--control-size-3xl: var(--dialog-alert-field-height, 52px);")
-    expect(rule(`${alert} .Footer:not([data-mobile-layout="stacked"])`)).toContain("column-gap: var(--dialog-alert-action-gap, 8px);")
-    expect(readFileSync(`${root}/styles/variables-components.css`, "utf8")).toContain("--dialog-alert-padding: 14px;")
-    const touch = readFileSync(`${root}/styles/touch.css`, "utf8")
-    expect(touch.slice(touch.indexOf("@media (min-width: 414px) and (max-width: 767px)"))).toMatch(/^[^}]*--dialog-alert-width: 320px;/)
+    expect(rule(`${alert} .Body`)).toContain("--control-size-3xl: var(--dialog-alert-field-height, 48px);")
+    // the field is 290 wide over actions of 288, a point further out on each side
+    expect(rule(`${alert} .Body`)).toContain("margin-inline: -1px;")
+    expect(rule(`${alert} .Body`)).toContain("padding: 0 0 10px;")
+    // a title alone stands centered; two actions side by side, three or more stacked, 8 apart either way
+    expect(rule(`${alert} .Header:not(:has(.Description))`)).toContain("text-align: center;")
+    expect(rule(`${alert} .Footer`)).toContain("gap: var(--dialog-alert-action-gap, 8px);")
+    expect(rule(`${alert} .Footer:not([data-mobile-layout="stacked"], :has(> :nth-child(3)))`)).toContain("gap: var(--dialog-alert-action-gap, 8px);")
+    expect(css).toContain(`${alert} .Footer:not([data-mobile-layout="stacked"], :has(> :nth-child(3))),\n  .Content .Footer[data-mobile-layout="inline"] {\n    flex-flow: row wrap;`)
+    const components = readFileSync(`${root}/styles/variables-components.css`, "utf8")
+    expect(components).toContain("--dialog-alert-width: 320px;")
+    expect(components).toContain("--dialog-alert-padding: 16px;")
+    // one width on every phone: 27.2 sets 320 at 402pt, the kit's 300 is gone
+    expect(readFileSync(`${root}/styles/touch.css`, "utf8")).not.toContain("--dialog-alert-width")
     const materials = readFileSync(`${root}/styles/mobile-materials.css`, "utf8")
     // Native frames over the kit (plan 162): Files shows 237 over a page dimmed to 204, the message in the
     // secondary label and a soft action at 203 (15% of black), with the raised glass shadow (plan 170)
     expect(materials).toContain("--dialog-alert-background: light-dark(rgb(255 255 255 / 65%), var(--alpha-12));")
     expect(materials).toContain("--dialog-alert-shadow: var(--mobile-glass-shadow-raised);")
+    // dark 27.2 sets the message at 109 on the glass of 32 (3.1:1); the secondary label keeps about 5:1
     expect(materials).toContain("--dialog-alert-message-color: var(--mobile-label-secondary, var(--color-text-secondary));")
     expect(materials).toContain("--dialog-alert-fill: light-dark(var(--alpha-15), var(--alpha-12));")
-    expect(rule(`${alert} .Footer > :where(button, a, [role="link"])`)).toContain("--button-font-weight: var(--dialog-alert-action-font-weight, 600);")
+    // medium actions, a semibold preferred one, set on the button: touch.css's semibold --button-font-weight on
+    // every filled phone button stands outside the layers
+    expect(rule(`${alert} .Footer > :where(button, a, [role="link"])`)).toContain("font-weight: var(--dialog-alert-action-font-weight, 510);")
+    expect(rule(`${alert} .Footer > [data-variant="solid"]:not([data-color="danger"])`)).toContain("font-weight: var(--dialog-alert-preferred-font-weight, 590);")
     expect(rule(`${alert} .Footer > [data-variant="soft"]:where([data-color="primary"], [data-color="secondary"])`)).toContain("--button-background-color: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));")
     expect(css).toContain(`${alert} .Body {\n    --input-soft-background-color: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));`)
     // A destructive action keeps the fill of the others with a red label; the message is plain text

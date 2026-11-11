@@ -475,7 +475,7 @@ const DescriptionSlot = () => {
 export type DialogFooterProps = DialogSlotProps & {
   /** How the bar meets the content scrolled under it in a phone Sheet. @default "soft" */
   background?: DialogBarBackground
-  /** Override the mobile action layout. Alerts default to inline; sheets to stacked. */
+  /** Override the mobile action layout. Two alert actions default to inline, three or more and sheets to stacked. */
   mobileLayout?: "inline" | "stacked"
 }
 

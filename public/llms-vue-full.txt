@@ -2721,7 +2721,7 @@ Props:
     - layout ("auto" | "phone") default: "auto" — phone lays the dialog out as on a phone at any window width, with the dialogs it opens. Inside a PhoneLayout it always is
   DialogFooter:
     - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged
-    - mobile-layout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
+    - mobile-layout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit
   DialogSteps:
     - step (string | number) — The step on screen. A new value brings its content in
     - direction ("forward" | "back") default: "forward" — forward brings the new step in from the trailing edge over the one before; back returns to a step before it
@@ -2774,8 +2774,31 @@ Use color="danger" on the action button for destructive operations.
 </Dialog>
 ```
 
+### Three actions
+Three or more actions stack on a phone, in their order: put Cancel last, as iOS sets it at the bottom. Two stand side by side. On a desktop they stay in one row in that order.
+```vue
+<Dialog v-model:open="open">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">Close document</Button>
+  </DialogTrigger>
+  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
+    <DialogHeader>
+      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Save changes?</DialogTitle></div>
+      <DialogDescription>Do you want to save the changes you made to this document?</DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <Button color="primary" @click="open = false">Save</Button>
+      <Button color="danger" variant="soft" @click="open = false">Don’t save</Button>
+      <DialogClose>
+        <Button color="primary" variant="soft">Cancel</Button>
+      </DialogClose>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
 ### Text field
-An alert can ask for one short value. The field fills the alert like its actions, a 52px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.
+An alert can ask for one short value. The field fills the alert like its actions, a 48px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.
 ```vue
 <Dialog v-model:open="open" @update:open="(next) => { if (next) folderName = 'New folder' }">
   <DialogTrigger>

@@ -82,6 +82,34 @@ export function DialogOverviewDemo() {
   );
 }
 
+export function DialogThreeActionsDemo() {
+  const [open, setOpen, phonePreview] = useDialogDemoState();
+  const heading = useRef<HTMLDivElement>(null);
+
+  return (
+    <div data-demo-stage className="py-10 flex justify-center">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog.Trigger>
+          <Button color="secondary" variant="outline">Close document</Button>
+        </Dialog.Trigger>
+        <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }}>
+          <Dialog.Header>
+            <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Save changes?</Dialog.Title></div>
+            <Dialog.Description>Do you want to save the changes you made to this document?</Dialog.Description>
+          </Dialog.Header>
+          <Dialog.Footer>
+            <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
+            <Button color="danger" variant="soft" onClick={() => setOpen(false)}>Don’t save</Button>
+            <Dialog.Close>
+              <Button color="primary" variant="soft">Cancel</Button>
+            </Dialog.Close>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
+    </div>
+  );
+}
+
 export function DialogDeleteConfirmDemo() {
   const [open, setOpen, phonePreview] = useDialogDemoState();
   const heading = useRef<HTMLDivElement>(null);

@@ -79,7 +79,10 @@
     --dialog-alert-backdrop-filter: blur(10px);
     --dialog-alert-shadow: var(--mobile-glass-shadow-raised);
     /* Native frames take precedence over the kit (plan 162): the message is the secondary label under a primary
-       title, as Files shows it (125 on 237) and iOS 26 did (IMG_5532, 5533); kit iOS 27 draws it primary. */
+       title, as Files shows it (125 on 237) and iOS 26 did (IMG_5532, 5533); kit iOS 27 draws it primary. In dark
+       iOS 27.2 sets it dimmer, 109 on the glass of 32, about 3.1:1; the secondary label keeps 143, about 5:1, over
+       the 4.5:1 that WCAG and Apple's guidelines ask of text this size. Light stays below it, about 3.5:1, as
+       native draws it (plan 162). */
     --dialog-alert-message-color: var(--mobile-label-secondary, var(--color-text-secondary));
     /* A soft action and a field share one fill: Files 203 on 237 in light, 15% of black; dark 73 on 46. */
     --dialog-alert-fill: light-dark(var(--alpha-15), var(--alpha-12));

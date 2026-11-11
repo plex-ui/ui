@@ -72,9 +72,10 @@
   /* A filled, tinted or gray button sets its label in Semibold at every size, as iOS 26 screens do (IMG_5432
      Continue, IMG_5516 Scan QR Code and Other Options, IMG_5437 Learn More, IMG_5494 the amount pills, IMG_5453
      Add Photos at 28); a plain one (ghost) keeps Regular (IMG_5432 Create Pass Manually). The kit draws them all
-     Regular (Content Area 5:108579), which the screenshots do not show. With zero specificity on the button itself,
-     a component that sets the weight on its buttons keeps it (Toolbar, Page, Dialog, Alert). A disabled ButtonLink
-     renders a span with the link role. */
+     Regular (Content Area 5:108579), which the screenshots do not show. The rule stands outside the layers, so it
+     beats a --button-font-weight that a component sets on a filled button in @layer components: a component that
+     needs another weight there sets font-weight on the button itself (the actions of a Dialog alert). A disabled
+     ButtonLink renders a span with the link role. */
   :where(:is(button, a, [role="link"])[data-variant]:not([data-variant="ghost"])[data-color][data-size]) {
     --button-font-weight: var(--font-weight-semibold);
   }
@@ -921,8 +922,6 @@
 @media (min-width: 414px) and (max-width: 767px) {
   html:root {
     --mobile-layout-margin: 20px;
-    /* A native alert is 320 wide at 430pt (iOS2 IMG_5532, IMG_5533); the kit's 300 stays up to 413. */
-    --dialog-alert-width: 320px;
   }
 }
 

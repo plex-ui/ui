@@ -494,11 +494,12 @@
     --dialog-panel-radius: var(--dialog-alert-radius);
   }
 
-  /* iOS 27 alerts (kit iOS 27, Alerts 65:57149, Side-by-Side): glass, fields and actions 14 from the edge, the
-     title 22 from the top and from the sides, the message 10 under the title, both 17/22 (the title semibold),
-     24 from the text to a field or the actions, a field block of 52px rows, 19 under it to the actions, 8
-     between two actions. The colors follow native frames (mobile-materials.css): the message is the secondary
-     label, as in Files (owner 08.11); native iOS 26 frames (iOS2 IMG_5532, IMG_5533) also set it at 15/20. */
+  /* The alert of iOS 27.2 (UIAlertController .alert on an iPhone 17, measures/alerts.md): 320 wide, glass, the
+     actions 16 from the edge and a field 15, the text 31 from the sides. The title is 17/22 semibold, its baseline
+     38.33 from the top; the message 15/20 in the secondary label (native dark is dimmer, mobile-materials.css),
+     its first baseline 25.67 under the title's.
+     The actions stand 24.17 under the last baseline, 48 tall and 8 apart; a field 48 tall stands 20.17 under
+     the message and 20 over the actions. The colors follow native frames (mobile-materials.css). */
   .Content[data-mobile-variant="alert"] .Panel {
     gap: 10px;
     padding: var(--dialog-alert-padding);
@@ -514,8 +515,18 @@
   }
 
   .Content[data-mobile-variant="alert"] .Header {
-    gap: var(--dialog-alert-header-gap, 10px);
-    padding: var(--dialog-alert-header-padding, 8px 8px 14px);
+    gap: var(--dialog-alert-header-gap, 5.67px);
+    padding: var(--dialog-alert-header-padding, 5px 15px 5.5px);
+  }
+
+  /* A title alone stands centered, as native sets one without a message ("Unable to Connect", 27.2). */
+  .Content[data-mobile-variant="alert"] .Header:not(:has(.Description)) {
+    text-align: center;
+  }
+
+  /* The actions under the text stand 4 lower than a field does: 19.5 from the text's line box, 15.5 for a field. */
+  .Content[data-mobile-variant="alert"] .Header + .Footer {
+    margin-top: 4px;
   }
 
   .Content[data-mobile-variant="alert"] .Header > :first-child {
@@ -534,8 +545,8 @@
 
   .Content[data-mobile-variant="alert"] .Description {
     color: var(--dialog-alert-message-color, var(--color-text));
-    font-size: var(--dialog-alert-message-size, 17px);
-    line-height: var(--dialog-alert-message-leading, 22px);
+    font-size: var(--dialog-alert-message-size, 15px);
+    line-height: var(--dialog-alert-message-leading, 20px);
   }
 
   /* The message of an iOS alert is plain text: a code or a name in it reads as the rest of the message. A link
@@ -553,11 +564,12 @@
     text-decoration: none;
   }
 
-  /* A text field fills the alert as its actions do: a 52px row with 26px corners, 19 above the actions. */
+  /* A text field fills the alert as its actions do: a 48px capsule 20 above the actions. Native draws it 290
+     wide over actions of 288, a point further out on each side. */
   .Content[data-mobile-variant="alert"] .Body {
-    --control-size-3xl: var(--dialog-alert-field-height, 52px);
-    margin-inline: 0;
-    padding: 0 0 9px;
+    --control-size-3xl: var(--dialog-alert-field-height, 48px);
+    margin-inline: -1px;
+    padding: 0 0 10px;
     --dialog-steps-gutter: 0px;
   }
 
@@ -579,7 +591,8 @@
     overflow-wrap: anywhere;
   }
 
-  .Content[data-mobile-variant="alert"] .Footer:not([data-mobile-layout="stacked"]),
+  /* Two actions stand side by side; three or more stack, as native lays them out ("Unsaved Changes", 27.2). */
+  .Content[data-mobile-variant="alert"] .Footer:not([data-mobile-layout="stacked"], :has(> :nth-child(3))),
   .Content .Footer[data-mobile-layout="inline"] {
     flex-flow: row wrap;
     gap: 10px 16px;
@@ -597,10 +610,17 @@
     overflow-wrap: anywhere;
   }
 
-  /* Native alert actions are semibold, and a soft action and a field share the fill of the glass,
-     about 13% of the label color in both themes (light 202 on 232, dark 73 on 46). */
+  /* Native alert actions are medium, the preferred one semibold (stems of 1.84 and 2.07pt at 17pt, against 1.45
+     for regular text, 27.2), and a soft action and a field share the fill of the glass, about 13% of the label
+     color in both themes (light 202 on 233, dark 60 on 32). The weight is set on the button itself: touch.css
+     gives every filled phone button a semibold --button-font-weight outside the layers, where a component's
+     value for it cannot reach. */
   .Content[data-mobile-variant="alert"] .Footer > :where(button, a, [role="link"]) {
-    --button-font-weight: var(--dialog-alert-action-font-weight, 600);
+    font-weight: var(--dialog-alert-action-font-weight, 510);
+  }
+
+  .Content[data-mobile-variant="alert"] .Footer > [data-variant="solid"]:not([data-color="danger"]) {
+    font-weight: var(--dialog-alert-preferred-font-weight, 590);
   }
 
   .Content[data-mobile-variant="alert"] .Footer > [data-variant="soft"]:where([data-color="primary"], [data-color="secondary"]) {
@@ -621,8 +641,12 @@
     --input-soft-background-color: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));
   }
 
-  .Content[data-mobile-variant="alert"] .Footer:not([data-mobile-layout="stacked"]) {
-    column-gap: var(--dialog-alert-action-gap, 8px);
+  .Content[data-mobile-variant="alert"] .Footer {
+    gap: var(--dialog-alert-action-gap, 8px);
+  }
+
+  .Content[data-mobile-variant="alert"] .Footer:not([data-mobile-layout="stacked"], :has(> :nth-child(3))) {
+    gap: var(--dialog-alert-action-gap, 8px);
 
     & > * {
       min-width: calc(50% - var(--dialog-alert-action-gap, 8px) / 2);

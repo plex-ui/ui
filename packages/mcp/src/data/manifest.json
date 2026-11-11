@@ -2237,9 +2237,14 @@
           "details": "Use color=\"danger\" on the action button for destructive operations."
         },
         {
+          "name": "Three actions",
+          "code": "const [open, setOpen] = useState(false)\nconst heading = useRef<HTMLDivElement>(null)\n\n<Dialog open={open} onOpenChange={setOpen}>\n<Dialog.Trigger>\n  <Button color=\"secondary\" variant=\"outline\">Close document</Button>\n</Dialog.Trigger>\n<Dialog.Content mobileVariant=\"alert\" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>\n  <Dialog.Header>\n    <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Save changes?</Dialog.Title></div>\n    <Dialog.Description>Do you want to save the changes you made to this document?</Dialog.Description>\n  </Dialog.Header>\n  <Dialog.Footer>\n    <Button color=\"primary\" onClick={() => setOpen(false)}>Save</Button>\n    <Button color=\"danger\" variant=\"soft\" onClick={() => setOpen(false)}>Don’t save</Button>\n    <Dialog.Close>\n      <Button color=\"primary\" variant=\"soft\">Cancel</Button>\n    </Dialog.Close>\n  </Dialog.Footer>\n</Dialog.Content>\n</Dialog>",
+          "details": "Three or more actions stack on a phone, in their order: put Cancel last, as iOS sets it at the bottom. Two stand side by side. On a desktop they stay in one row in that order."
+        },
+        {
           "name": "Text field",
           "code": "const [open, setOpen] = useState(false)\nconst [name, setName] = useState(\"New folder\")\nconst field = useRef<HTMLInputElement>(null)\n\n<Dialog open={open} onOpenChange={(next) => { setOpen(next); if (next) setName(\"New folder\"); }}>\n<Dialog.Trigger>\n  <Button color=\"secondary\" variant=\"outline\">New folder</Button>\n</Dialog.Trigger>\n<Dialog.Content mobileVariant=\"alert\" onOpenAutoFocus={(event) => { event.preventDefault(); field.current?.select(); }}>\n  <Dialog.Header>\n    <Dialog.Title>New folder</Dialog.Title>\n    <Dialog.Description>Enter a name for this folder.</Dialog.Description>\n  </Dialog.Header>\n  <Dialog.Body>\n    <Input ref={field} aria-label=\"Folder name\" variant=\"soft\" size=\"3xl\" pill value={name} onChange={(event) => setName(event.target.value)} onClear={() => setName(\"\")} />\n  </Dialog.Body>\n  <Dialog.Footer>\n    <Dialog.Close>\n      <Button color=\"primary\" variant=\"soft\">Cancel</Button>\n    </Dialog.Close>\n    <Button color=\"primary\" disabled={!name.trim()} onClick={() => setOpen(false)}>Create</Button>\n  </Dialog.Footer>\n</Dialog.Content>\n</Dialog>",
-          "details": "An alert can ask for one short value. The field fills the alert like its actions, a 52px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty."
+          "details": "An alert can ask for one short value. The field fills the alert like its actions, a 48px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty."
         },
         {
           "name": "Metadata details",
@@ -2374,7 +2379,7 @@
         },
         {
           "name": "Dialog.Footer",
-          "description": "footer area for action buttons. Mobile alert actions are 48px pills in a wrapping row by default. Mobile sheets use 50px pill actions, 24px side gutters and at least 24px below the actions, including the bottom safe area. Standard dialogs and sheets stack their mobile actions.",
+          "description": "footer area for action buttons. Mobile alert actions are 48px pills: two in a wrapping row, three or more stacked. Mobile sheets use 50px pill actions, 24px side gutters and at least 24px below the actions, including the bottom safe area. Standard dialogs and sheets stack their mobile actions.",
           "props": [
             {
               "name": "background",
@@ -2385,7 +2390,7 @@
             {
               "name": "mobileLayout",
               "type": "\"inline\" | \"stacked\"",
-              "description": "Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit"
+              "description": "Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit"
             }
           ]
         },
@@ -8247,5 +8252,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-11T01:05:07.288Z"
+  "generatedAt": "2026-11-11T02:14:43.616Z"
 }

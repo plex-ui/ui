@@ -165,8 +165,9 @@ describe("a phone popover takes the iOS 26 popover material (kit Action Sheet 54
     const css = read("components/docs/PopoverConfirmation.module.css")
     const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
     expect(phone).toContain("--popover-width: 240px;")
-    expect(phone).toContain("padding: var(--dialog-alert-padding, 14px);")
-    expect(phone).toContain("padding: var(--dialog-alert-header-padding, 8px 8px 14px);")
+    // its own insets until block 14 measures the action sheet from a source; the alert's padding is 16 now
+    expect(phone).toContain("padding: 14px;")
+    expect(phone).toContain("padding: 8px 8px 14px;")
     expect(phone).toContain("--button-size: var(--dialog-alert-action-height, 48px);")
     expect(phone).toContain("--button-font-weight: var(--font-weight-medium);")
   })
