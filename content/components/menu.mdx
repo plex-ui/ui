@@ -83,43 +83,6 @@ const [group, setGroup] = useState("date")
   <MenuBaseDemo />
 </ComponentPreview>
 
-### Natural sizing
-
-<ComponentPreview phonePresentation="none" details={<>
-  <p>Menu supports several sizing strategies:</p><ul><li><strong>Natural sizing</strong>: use <code>minWidth="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>minWidth</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>minWidth</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>Menu.Content</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for Radix variables used in collision detection.</li></ul><p>Desktop only: on a phone a menu is the 250px panel of iOS menus, unless it sets a width or a larger minimum width of its own.</p></>} code={`<Menu>
-  <Menu.Trigger>
-    <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><Tools /> Tools</Button>
-  </Menu.Trigger>
-  <Menu.Content minWidth="auto">
-    <Menu.Item onSelect={() => {}}><Functions height={18} width={18} /> Function</Menu.Item>
-    <Menu.Item onSelect={() => {}}><Search height={18} width={18} /> File Search</Menu.Item>
-    <Menu.Item onSelect={() => {}}><Globe height={18} width={18} /> Web Search</Menu.Item>
-    <Menu.Item onSelect={() => {}}><Code height={18} width={18} /> Code Interpreter</Menu.Item>
-    <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image Generation</Menu.Item>
-  </Menu.Content>
-</Menu>`} previewMinHeight={168}>
-  <MenuNaturalSizingDemo />
-</ComponentPreview>
-
-### Horizontal (icons only)
-
-<ComponentPreview phonePresentation="none" details={<>
-  <p>Set <code>layout="horizontal"</code> on <code>Menu.Content</code> for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
-  <p>Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled mode switch at the top of a menu, as in Mode switch below.</p>
-</>} code={`<Menu>
-  <Menu.Trigger>
-    <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
-  </Menu.Trigger>
-  <Menu.Content layout="horizontal" size="md" minWidth="auto">
-    <Menu.Item onSelect={() => {}}><EditPencil /><span className="sr-only">Edit</span></Menu.Item>
-    <Menu.Item onSelect={() => {}}><SettingsCog /><span className="sr-only">Settings</span></Menu.Item>
-    <Menu.Item onSelect={() => {}}><Play /><span className="sr-only">Play</span></Menu.Item>
-    <Menu.Item onSelect={() => {}}><UnfoldHorizontal /><span className="sr-only">Expand</span></Menu.Item>
-  </Menu.Content>
-</Menu>`} previewMinHeight={168}>
-  <MenuHorizontalIconsOnlyDemoWithControls />
-</ComponentPreview>
-
 ### Mode switch
 
 <ComponentPreview phoneOnly details={<>
@@ -341,6 +304,61 @@ return (
   <MenuWithRadioItemsDemoWithControls />
 </ComponentPreview>
 
+### Destructive items
+
+<ComponentPreview details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>Menu.Link</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={withMenuPhoneReact(`<Menu>
+  <Menu.Trigger>
+    <Button color="secondary" variant="soft" uniform aria-label="More actions">
+      <DotsHorizontal />
+    </Button>
+  </Menu.Trigger>
+  <Menu.Content align="end" minWidth={200}>
+    <Menu.Item onSelect={rename}><EditPencil /> Rename</Menu.Item>
+    <Menu.Item onSelect={duplicate}><Copy /> Duplicate</Menu.Item>
+    <Menu.Separator />
+    <Menu.Item onSelect={remove} danger><Trash /> Delete project</Menu.Item>
+  </Menu.Content>
+</Menu>`, "Destructive items")} previewMinHeight={168}>
+  <MenuDangerDemo />
+</ComponentPreview>
+
+### Natural sizing
+
+<ComponentPreview phonePresentation="none" details={<>
+  <p>Menu supports several sizing strategies:</p><ul><li><strong>Natural sizing</strong>: use <code>minWidth="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>minWidth</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>minWidth</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>Menu.Content</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for Radix variables used in collision detection.</li></ul><p>Desktop only: on a phone a menu is the 250px panel of iOS menus, unless it sets a width or a larger minimum width of its own.</p></>} code={`<Menu>
+  <Menu.Trigger>
+    <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><Tools /> Tools</Button>
+  </Menu.Trigger>
+  <Menu.Content minWidth="auto">
+    <Menu.Item onSelect={() => {}}><Functions height={18} width={18} /> Function</Menu.Item>
+    <Menu.Item onSelect={() => {}}><Search height={18} width={18} /> File Search</Menu.Item>
+    <Menu.Item onSelect={() => {}}><Globe height={18} width={18} /> Web Search</Menu.Item>
+    <Menu.Item onSelect={() => {}}><Code height={18} width={18} /> Code Interpreter</Menu.Item>
+    <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image Generation</Menu.Item>
+  </Menu.Content>
+</Menu>`} previewMinHeight={168}>
+  <MenuNaturalSizingDemo />
+</ComponentPreview>
+
+### Horizontal (icons only)
+
+<ComponentPreview phonePresentation="none" details={<>
+  <p>Set <code>layout="horizontal"</code> on <code>Menu.Content</code> for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
+  <p>Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled mode switch at the top of a menu, as in Mode switch above.</p>
+</>} code={`<Menu>
+  <Menu.Trigger>
+    <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
+  </Menu.Trigger>
+  <Menu.Content layout="horizontal" size="md" minWidth="auto">
+    <Menu.Item onSelect={() => {}}><EditPencil /><span className="sr-only">Edit</span></Menu.Item>
+    <Menu.Item onSelect={() => {}}><SettingsCog /><span className="sr-only">Settings</span></Menu.Item>
+    <Menu.Item onSelect={() => {}}><Play /><span className="sr-only">Play</span></Menu.Item>
+    <Menu.Item onSelect={() => {}}><UnfoldHorizontal /><span className="sr-only">Expand</span></Menu.Item>
+  </Menu.Content>
+</Menu>`} previewMinHeight={168}>
+  <MenuHorizontalIconsOnlyDemoWithControls />
+</ComponentPreview>
+
 ### Item actions
 
 <ComponentPreview phonePresentation="none" details={<>Use <code>Menu.ItemActions</code> and <code>Menu.ItemAction</code> for hover actions (e.g. delete) on an item.<br/><br/><strong>Accessibility note:</strong> these actions are not keyboard accessible due to how Radix Menu works, so they should not be critical actions with no other parity.<br/><br/>Desktop only: the rows of an iOS menu carry no actions of their own.</>} code={`<Menu>
@@ -369,24 +387,6 @@ return (
   </Menu.Content>
 </Menu>`} previewMinHeight={168}>
   <MenuItemActionsDemo />
-</ComponentPreview>
-
-### Destructive items
-
-<ComponentPreview details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>Menu.Link</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={withMenuPhoneReact(`<Menu>
-  <Menu.Trigger>
-    <Button color="secondary" variant="soft" uniform aria-label="More actions">
-      <DotsHorizontal />
-    </Button>
-  </Menu.Trigger>
-  <Menu.Content align="end" minWidth={200}>
-    <Menu.Item onSelect={rename}><EditPencil /> Rename</Menu.Item>
-    <Menu.Item onSelect={duplicate}><Copy /> Duplicate</Menu.Item>
-    <Menu.Separator />
-    <Menu.Item onSelect={remove} danger><Trash /> Delete project</Menu.Item>
-  </Menu.Content>
-</Menu>`, "Destructive items")} previewMinHeight={168}>
-  <MenuDangerDemo />
 </ComponentPreview>
 
 ## API

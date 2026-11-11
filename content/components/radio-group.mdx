@@ -113,6 +113,99 @@ const block = direction === "col" && orientation === "right"
   <RadioGroupOverviewDemo />
 </ComponentPreview>
 
+### With Field
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Wrap a <code>RadioGroup</code> in a <code>Field</code> for a shared label and description. Spread the field props from the render prop onto the group so it is described by the Field's description (<code>aria-describedby</code>). On a phone the <code>FieldGroup</code> title and description above the rows take this place.</>} code={`// Desktop
+<Field label="Notification method" description="Choose how you want to receive notifications.">
+  {(fieldProps) => (
+    <RadioGroup direction="col" value={value} onChange={setValue} aria-label="Notification method" {...fieldProps}>
+      <RadioGroup.Item value="email">Email</RadioGroup.Item>
+      <RadioGroup.Item value="sms">SMS</RadioGroup.Item>
+      <RadioGroup.Item value="push">Push notification</RadioGroup.Item>
+    </RadioGroup>
+  )}
+</Field>
+
+// Phone
+<RadioGroup direction="col" className="w-full" value={value} onChange={setValue} aria-label="Notification method">
+  <FieldGroup title="Notification method" description="Choose how you want to receive notifications.">
+    <Field row label="Email"><RadioGroup.Item value="email" /></Field>
+    <Field row label="SMS"><RadioGroup.Item value="sms" /></Field>
+    <Field row label="Push notification"><RadioGroup.Item value="push" /></Field>
+  </FieldGroup>
+</RadioGroup>`} previewMinHeight={200}>
+  <RadioGroupWithFieldDemo />
+</ComponentPreview>
+
+### With Field error
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>When a <code>Field</code> has an <code>errorMessage</code>, it sets <code>aria-invalid</code> on the child control for screen readers. The error message is displayed below the group. On a phone a <code>FieldError</code> in the group's footer shows it under the rows; link it to the group with <code>aria-describedby</code>.</>} code={`const errorId = useId()
+
+// Desktop
+<Field
+  label="Subscription plan"
+  description="Select a plan to continue."
+  errorMessage={showError ? "Please select a subscription plan." : undefined}
+>
+  {(fieldProps) => (
+    <RadioGroup direction="col" aria-label="Subscription plan" {...fieldProps}>
+      <RadioGroup.Item value="monthly">Monthly ($9.99/month)</RadioGroup.Item>
+      <RadioGroup.Item value="yearly">Yearly ($99.99/year)</RadioGroup.Item>
+      <RadioGroup.Item value="lifetime">Lifetime ($299.99)</RadioGroup.Item>
+    </RadioGroup>
+  )}
+</Field>
+
+// Phone
+<RadioGroup
+  direction="col"
+  className="w-full"
+  value={value}
+  onChange={setValue}
+  aria-label="Subscription plan"
+  aria-invalid={showError || undefined}
+  aria-describedby={showError ? errorId : undefined}
+>
+  <FieldGroup
+    title="Subscription plan"
+    description="Select a plan to continue."
+    footer={showError ? <FieldError id={errorId}>Please select a subscription plan.</FieldError> : undefined}
+  >
+    <Field row label="Monthly ($9.99/month)"><RadioGroup.Item value="monthly" /></Field>
+    <Field row label="Yearly ($99.99/year)"><RadioGroup.Item value="yearly" /></Field>
+    <Field row label="Lifetime ($299.99)"><RadioGroup.Item value="lifetime" /></Field>
+  </FieldGroup>
+</RadioGroup>`} previewMinHeight={240}>
+  <RadioGroupWithFieldErrorDemo />
+</ComponentPreview>
+
+### Grouped sections
+
+<ComponentPreview phonePresentation="screen" details={<>Use dividers to separate radio groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={`// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+  <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Preferences</Page.Title></Page.Bar></Page.Header>
+  <Page.Content>
+    <div className="flex flex-col gap-6">
+      <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
+        <FieldGroup title="Visibility" description="Control who can see project resources.">
+          <Field row label="Hidden"><RadioGroup.Item value="hidden" /></Field>
+          <Field row label="Visible to organization owners"><RadioGroup.Item value="owners" /></Field>
+          <Field row label="Visible to everyone"><RadioGroup.Item value="everyone" /></Field>
+        </FieldGroup>
+      </RadioGroup>
+      <RadioGroup direction="col" className="w-full" value={view} onChange={setView} aria-label="Default view">
+        <FieldGroup title="Default view" description="What opens first in a project.">
+          <Field row label="Board"><RadioGroup.Item value="board" /></Field>
+          <Field row label="List"><RadioGroup.Item value="list" /></Field>
+          <Field row label="Timeline"><RadioGroup.Item value="timeline" /></Field>
+        </FieldGroup>
+      </RadioGroup>
+    </div>
+  </Page.Content>
+</Page>`} previewMinHeight={380}>
+  <RadioGroupNotificationSettingsDemo />
+</ComponentPreview>
+
 ### With Checkbox
 
 <ComponentPreview phonePresentation="none" details={<>Place <code>RadioGroup</code> alongside <code>Checkbox</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.</>} code={`<div className="flex flex-col gap-6 w-full max-w-md">
@@ -185,72 +278,6 @@ const block = direction === "col" && orientation === "right"
   <RadioGroupDescriptionsDemo />
 </ComponentPreview>
 
-### With Field
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Wrap a <code>RadioGroup</code> in a <code>Field</code> for a shared label and description. Spread the field props from the render prop onto the group so it is described by the Field's description (<code>aria-describedby</code>). On a phone the <code>FieldGroup</code> title and description above the rows take this place.</>} code={`// Desktop
-<Field label="Notification method" description="Choose how you want to receive notifications.">
-  {(fieldProps) => (
-    <RadioGroup direction="col" value={value} onChange={setValue} aria-label="Notification method" {...fieldProps}>
-      <RadioGroup.Item value="email">Email</RadioGroup.Item>
-      <RadioGroup.Item value="sms">SMS</RadioGroup.Item>
-      <RadioGroup.Item value="push">Push notification</RadioGroup.Item>
-    </RadioGroup>
-  )}
-</Field>
-
-// Phone
-<RadioGroup direction="col" className="w-full" value={value} onChange={setValue} aria-label="Notification method">
-  <FieldGroup title="Notification method" description="Choose how you want to receive notifications.">
-    <Field row label="Email"><RadioGroup.Item value="email" /></Field>
-    <Field row label="SMS"><RadioGroup.Item value="sms" /></Field>
-    <Field row label="Push notification"><RadioGroup.Item value="push" /></Field>
-  </FieldGroup>
-</RadioGroup>`} previewMinHeight={200}>
-  <RadioGroupWithFieldDemo />
-</ComponentPreview>
-
-### With Field error
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>When a <code>Field</code> has an <code>errorMessage</code>, it sets <code>aria-invalid</code> on the child control for screen readers. The error message is displayed below the group. On a phone a <code>FieldError</code> in the group's footer shows it under the rows; link it to the group with <code>aria-describedby</code>.</>} code={`const errorId = useId()
-
-// Desktop
-<Field
-  label="Subscription plan"
-  description="Select a plan to continue."
-  errorMessage={showError ? "Please select a subscription plan." : undefined}
->
-  {(fieldProps) => (
-    <RadioGroup direction="col" aria-label="Subscription plan" {...fieldProps}>
-      <RadioGroup.Item value="monthly">Monthly ($9.99/month)</RadioGroup.Item>
-      <RadioGroup.Item value="yearly">Yearly ($99.99/year)</RadioGroup.Item>
-      <RadioGroup.Item value="lifetime">Lifetime ($299.99)</RadioGroup.Item>
-    </RadioGroup>
-  )}
-</Field>
-
-// Phone
-<RadioGroup
-  direction="col"
-  className="w-full"
-  value={value}
-  onChange={setValue}
-  aria-label="Subscription plan"
-  aria-invalid={showError || undefined}
-  aria-describedby={showError ? errorId : undefined}
->
-  <FieldGroup
-    title="Subscription plan"
-    description="Select a plan to continue."
-    footer={showError ? <FieldError id={errorId}>Please select a subscription plan.</FieldError> : undefined}
-  >
-    <Field row label="Monthly ($9.99/month)"><RadioGroup.Item value="monthly" /></Field>
-    <Field row label="Yearly ($99.99/year)"><RadioGroup.Item value="yearly" /></Field>
-    <Field row label="Lifetime ($299.99)"><RadioGroup.Item value="lifetime" /></Field>
-  </FieldGroup>
-</RadioGroup>`} previewMinHeight={240}>
-  <RadioGroupWithFieldErrorDemo />
-</ComponentPreview>
-
 ### Choice card
 
 <ComponentPreview phonePresentation="none" details={<>Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use <code>orientation="right"</code> to place the indicator after the content. Wrap each <code>RadioGroup.Item</code> in a card container with <code>border</code> and <code>borderRadius</code> on the same element. On a phone a choice with a description is a row, as in the Overview, so this example is desktop only.</>} code={`<RadioGroup className="flex-col w-[320px] gap-3" value={value} onChange={setValue} aria-label="Workspace type">
@@ -282,34 +309,6 @@ const block = direction === "col" && orientation === "right"
 </RadioGroup>`} previewMinHeight={168}>
   <RadioGroupCardSelectionDemo />
 </ComponentPreview>
-
-### Grouped sections
-
-<ComponentPreview phonePresentation="screen" details={<>Use dividers to separate radio groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={`// BackButton is your app's navigation action.
-<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
-  <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Preferences</Page.Title></Page.Bar></Page.Header>
-  <Page.Content>
-    <div className="flex flex-col gap-6">
-      <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
-        <FieldGroup title="Visibility" description="Control who can see project resources.">
-          <Field row label="Hidden"><RadioGroup.Item value="hidden" /></Field>
-          <Field row label="Visible to organization owners"><RadioGroup.Item value="owners" /></Field>
-          <Field row label="Visible to everyone"><RadioGroup.Item value="everyone" /></Field>
-        </FieldGroup>
-      </RadioGroup>
-      <RadioGroup direction="col" className="w-full" value={view} onChange={setView} aria-label="Default view">
-        <FieldGroup title="Default view" description="What opens first in a project.">
-          <Field row label="Board"><RadioGroup.Item value="board" /></Field>
-          <Field row label="List"><RadioGroup.Item value="list" /></Field>
-          <Field row label="Timeline"><RadioGroup.Item value="timeline" /></Field>
-        </FieldGroup>
-      </RadioGroup>
-    </div>
-  </Page.Content>
-</Page>`} previewMinHeight={380}>
-  <RadioGroupNotificationSettingsDemo />
-</ComponentPreview>
-
 
 ## API
 

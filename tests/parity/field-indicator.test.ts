@@ -48,7 +48,13 @@ describe("inline addons in a phone row", () => {
 
 // The phone code of each Input Group example: React MDX `// Phone` blocks and Vue `...Phone` templates.
 const reactPhone = [...read("content/components/input-group.mdx").matchAll(/\/\/ Phone[^\n]*\n([\s\S]*?)`\} previewMinHeight/g)].map((match) => match[1])
-const vuePhone = [...read("content/vue/components/input-group.mdx").matchAll(/export const \w+Phone = `([\s\S]*?)`\n/g)].map((match) => match[1])
+// Vue templates in the order the page shows them, as the React blocks are (owner 11.11 moved the sections)
+const vueDocs = read("content/vue/components/input-group.mdx")
+const vueTemplates = new Map([...vueDocs.matchAll(/export const (\w+Phone) = `([\s\S]*?)`\n/g)].map((match) => [match[1], match[2]]))
+const vueBody = vueDocs.slice(vueDocs.indexOf("\n## Examples\n"))
+const vuePhone = [...vueTemplates.keys()]
+  .sort((a, b) => vueBody.search(new RegExp(`\\b${a}\\b`)) - vueBody.search(new RegExp(`\\b${b}\\b`)))
+  .map((name) => vueTemplates.get(name) ?? "")
 const groups = (code: string) => [...code.matchAll(/<FieldGroup([^>]*)>([\s\S]*?)<\/FieldGroup>/g)].map(([, attrs, body]) => ({ columns: /\bcolumns\b/.test(attrs), body }))
 const rows = (body: string) => [...body.matchAll(/<Field row[\s\S]*?<\/Field>/g)].map((match) => match[0])
 // A row without the bindings of the demo controls, to compare rows between examples.

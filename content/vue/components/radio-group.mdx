@@ -337,18 +337,6 @@ export const groupedSectionsMobile = formScreenTemplate("Preferences", `<RadioGr
   <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} stageClassName={stage} controls={overviewControls} state={{ frequency: "daily" }} />
 </ComponentPreview>
 
-### With Checkbox
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Place <code>RadioGroup</code> alongside <code>Checkbox</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.</>} code={withCheckbox} previewMinHeight={168}>
-  <VueDemo template={withCheckbox} stageClassName={stage} controls={alignmentControls} />
-</ComponentPreview>
-
-### Descriptions
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as the Overview and With Field show, so this example is desktop only.</>} code={descriptions} previewMinHeight={380}>
-  <VueDemo template={descriptions} stageClassName={stage} state={{ channel: "email", sound: "default" }} />
-</ComponentPreview>
-
 ### With Field
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Wrap a <code>RadioGroup</code> in a <code>Field</code> for a shared label and description. Bind the field props from the slot onto the group so it is described by the Field's description (<code>aria-describedby</code>). On a phone the <code>FieldGroup</code> title and description above the rows take this place.</>} code={withPhone(withField, withFieldPhone)} previewMinHeight={200}>
@@ -367,6 +355,24 @@ export const groupedSectionsMobile = formScreenTemplate("Preferences", `<RadioGr
   />
 </ComponentPreview>
 
+### Grouped sections
+
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Use dividers to separate radio groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={groupedSectionsMobile} previewMinHeight={380}>
+  <VueFormScreenDemo template={`<template v-if="!wide">${groupedSectionsMobile}</template><template v-else>${groupedSections}</template>`} state={{ visibility: "owners", view: "list" }} />
+</ComponentPreview>
+
+### With Checkbox
+
+<ComponentPreview phonePresentation="none" language="vue" details={<>Place <code>RadioGroup</code> alongside <code>Checkbox</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.</>} code={withCheckbox} previewMinHeight={168}>
+  <VueDemo template={withCheckbox} stageClassName={stage} controls={alignmentControls} />
+</ComponentPreview>
+
+### Descriptions
+
+<ComponentPreview phonePresentation="none" language="vue" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as the Overview and With Field show, so this example is desktop only.</>} code={descriptions} previewMinHeight={380}>
+  <VueDemo template={descriptions} stageClassName={stage} state={{ channel: "email", sound: "default" }} />
+</ComponentPreview>
+
 ### Choice card
 
 <ComponentPreview phonePresentation="none" language="vue" details={<>Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use <code>orientation="right"</code> to place the indicator after the content. Wrap each <code>RadioGroupItem</code> in a card container with <code>border</code> and <code>borderRadius</code> on the same element. On a phone a choice with a description is a row, as in the Overview, so this example is desktop only.</>} code={choiceCard} previewMinHeight={240}>
@@ -382,12 +388,6 @@ export const groupedSectionsMobile = formScreenTemplate("Preferences", `<RadioGr
 
 <ComponentPreview phonePresentation="none" language="vue" details={<>Leverage component composition and <code>class</code> overrides to build card-style radio selections with rich content per option. Desktop only, like Choice card.</>} className="justify-start" code={cardSelection} previewMinHeight={168}>
   <VueDemo template={cardSelection} />
-</ComponentPreview>
-
-### Grouped sections
-
-<ComponentPreview phonePresentation="screen" language="vue" details={<>Use dividers to separate radio groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={groupedSectionsMobile} previewMinHeight={380}>
-  <VueFormScreenDemo template={`<template v-if="!wide">${groupedSectionsMobile}</template><template v-else>${groupedSections}</template>`} state={{ visibility: "owners", view: "list" }} />
 </ComponentPreview>
 
 ## API

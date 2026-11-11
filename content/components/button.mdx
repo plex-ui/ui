@@ -199,22 +199,6 @@ Use disabled to visually and accessibly disable the button. Loading shows a spin
   <ButtonStatesDemo />
 </ComponentPreview>
 
-### Selected
-
-<ComponentPreview phonePresentation="none" details={<>
-  <p>Use <code>selected</code> to show that a button is in an open or selected state. The exact visual behavior differs across each <code>variant</code>.</p>
-  <p>This behavior is automatically configured with components like <code>Menu</code> that apply <code>[aria-expanded="true"]</code> or <code>[data-state="open"]</code> attributes.</p>
-</>} code={`<Popover>
-  <Popover.Trigger>
-    <Button color="primary" selected variant="solid">Click to open</Button>
-  </Popover.Trigger>
-  <Popover.Content minWidth="auto" className="p-4 text-sm">
-    Button should look selected
-  </Popover.Content>
-</Popover>`} previewMinHeight={168}>
-  <ButtonSelectedDemoWithControls />
-</ComponentPreview>
-
 ### Optical alignment
 
 <ComponentPreview details={<>Use <code>opticallyAlign</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the button. On a phone a button under text starts its label where the text does, as Forgot your password? under the Apple Account sign-in, whose text starts 40px from the screen's edge; a soft button shows its capsule reaching past the text. The button is as wide as its label: a full-width button centers its label, which leaves nothing to align.</>} code={`// Desktop
@@ -238,6 +222,22 @@ Use disabled to visually and accessibly disable the button. Loading shows a spin
 </ComponentPreview>
 
 Button shares the unified 9-step size scale with Input, Select, SelectControl, and SegmentedControl.
+
+### Selected
+
+<ComponentPreview phonePresentation="none" details={<>
+  <p>Use <code>selected</code> to show that a button is in an open or selected state. The exact visual behavior differs across each <code>variant</code>.</p>
+  <p>This behavior is automatically configured with components like <code>Menu</code> that apply <code>[aria-expanded="true"]</code> or <code>[data-state="open"]</code> attributes.</p>
+</>} code={`<Popover>
+  <Popover.Trigger>
+    <Button color="primary" selected variant="solid">Click to open</Button>
+  </Popover.Trigger>
+  <Popover.Content minWidth="auto" className="p-4 text-sm">
+    Button should look selected
+  </Popover.Content>
+</Popover>`} previewMinHeight={168}>
+  <ButtonSelectedDemoWithControls />
+</ComponentPreview>
 
 ## NavigationButton
 

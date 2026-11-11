@@ -282,12 +282,6 @@ These examples keep the panel beside the trigger on desktop and below it on phon
   <VueDemo template={sizing} />
 </ComponentPreview>
 
-### Open on hover
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>show-on-hover</code> to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.<br/><br/>By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and <code>tab</code> is used to navigate into the popover, focus will be restored to the trigger on close.</>} code={responsiveCode(hover)} previewMinHeight={168}>
-  <VuePopoverDemo template={hover} />
-</ComponentPreview>
-
 ### Using the controller
 
 <ComponentPreview language="vue" details={<>The default slot of <code>PopoverContent</code> receives <code>{"{ close, shake }"}</code>. Components rendered inside it can get the same two methods from <code>usePopoverController()</code> in their <code>setup()</code>. They do exactly what you think they do.<br/><br/><ul><li>Attempting to submit an empty form calls the <code>shake()</code> method</li><li>After the simulated two-second request, <code>close()</code> dismisses the popup. Closing or unmounting cancels the pending request; reopening starts a fresh session.</li></ul></>} code={controllerCode} previewMinHeight={168}>
@@ -316,6 +310,12 @@ These examples keep the panel beside the trigger on desktop and below it on phon
 All floating UI components in Plex UI can be infinitely nested by relying on `z-index: auto;` and natural stacking order.
 
 Additionally, `esc` keypresses are handled independently as a stacking order.
+
+### Open on hover
+
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>show-on-hover</code> to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.<br/><br/>By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and <code>tab</code> is used to navigate into the popover, focus will be restored to the trigger on close.</>} code={responsiveCode(hover)} previewMinHeight={168}>
+  <VuePopoverDemo template={hover} />
+</ComponentPreview>
 
 ## API
 

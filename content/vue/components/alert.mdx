@@ -125,6 +125,7 @@ export const banner = `<div class="flex flex-col items-stretch justify-center ga
 ## Examples
 
 <div id="first-component-page">
+
 ### Overview
 
 <ComponentPreview details={<>On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants. With <code>mobile-actions="own"</code> the actions keep the size you give the buttons, for an alert inside a block of its own buttons.</>} language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
@@ -159,12 +160,6 @@ export const banner = `<div class="flex flex-col items-stretch justify-center ga
   <VueDemo template={actions} />
 </ComponentPreview>
 
-### Action placement
-
-<ComponentPreview language="vue" details={<>Actions are automatically positioned in the alert by default. You can force a specific position with the <code>actions-placement</code> prop by passing either <code>'end'</code> or <code>'bottom'</code>. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only.</>} phonePresentation="none" code={actionPlacement} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo template={actionPlacement} />
-</ComponentPreview>
-
 ### Indicator
 
 <ComponentPreview language="vue" details={<>Alert provides an indicator icon by default. You can override it with the <code>indicator</code> slot, or pass <code>:indicator="false"</code> to hide it entirely.</>} code={indicator} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
@@ -181,6 +176,12 @@ export const banner = `<div class="flex flex-col items-stretch justify-center ga
 
 <ComponentPreview language="vue" details={<>Use <code>banner</code> for a full-width strip across the top or bottom of a page or panel: offline, read-only, a new version. It drops the rounded corners and keeps only the lines above and below. Pass <code>:indicator="false"</code> for a plain strip.</>} code={banner} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueDemo template={banner} />
+</ComponentPreview>
+
+### Action placement
+
+<ComponentPreview language="vue" details={<>Actions are automatically positioned in the alert by default. You can force a specific position with the <code>actions-placement</code> prop by passing either <code>'end'</code> or <code>'bottom'</code>. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only.</>} phonePresentation="none" code={actionPlacement} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo template={actionPlacement} />
 </ComponentPreview>
 
 ## API

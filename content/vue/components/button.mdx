@@ -278,6 +278,14 @@ Use disabled to visually and accessibly disable the button. Loading shows a spin
   <VuePhoneRowsDemo template={states} phoneTemplate={statesPhone} controls={statesControls} stageClassName="flex-1 flex items-center justify-center py-12 w-full" phoneStageClassName="flex-1 flex flex-col w-full" />
 </ComponentPreview>
 
+### Optical alignment
+
+<ComponentPreview language="vue" details={<>Use <code>optically-align</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the button. On a phone a button under text starts its label where the text does, as Forgot your password? under the Apple Account sign-in, whose text starts 40px from the screen's edge; a soft button shows its capsule reaching past the text. The button is as wide as its label: a full-width button centers its label, which leaves nothing to align.</>} code={withPhone(opticalAlignment, opticalAlignmentPhone, "the label starts where the text above it does, 40px from the screen's edge")} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={opticalAlignment} phoneTemplate={opticalAlignmentPhone} phoneStageClassName="flex-1 flex flex-col w-full" controls={[{ name: "opticallyAlign", type: "select", options: ["none", "start"], default: "start", phoneOnly: true }]} />
+</ComponentPreview>
+
+Button shares the unified 9-step size scale with Input, Select, SelectControl, and SegmentedControl.
+
 ### Selected
 
 <ComponentPreview language="vue" phonePresentation="none" details={<>
@@ -293,14 +301,6 @@ Use disabled to visually and accessibly disable the button. Loading shows a spin
     ]}
   />
 </ComponentPreview>
-
-### Optical alignment
-
-<ComponentPreview language="vue" details={<>Use <code>optically-align</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the button. On a phone a button under text starts its label where the text does, as Forgot your password? under the Apple Account sign-in, whose text starts 40px from the screen's edge; a soft button shows its capsule reaching past the text. The button is as wide as its label: a full-width button centers its label, which leaves nothing to align.</>} code={withPhone(opticalAlignment, opticalAlignmentPhone, "the label starts where the text above it does, 40px from the screen's edge")} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={opticalAlignment} phoneTemplate={opticalAlignmentPhone} phoneStageClassName="flex-1 flex flex-col w-full" controls={[{ name: "opticallyAlign", type: "select", options: ["none", "start"], default: "start", phoneOnly: true }]} />
-</ComponentPreview>
-
-Button shares the unified 9-step size scale with Input, Select, SelectControl, and SegmentedControl.
 
 ## NavigationButton
 

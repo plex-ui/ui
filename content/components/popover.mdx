@@ -193,22 +193,6 @@ function Example() {
   <PopoverNaturalSizingDemo />
 </ComponentPreview>
 
-### Open on hover
-
-<ComponentPreview phonePresentation="none" details={<>Use <code>showOnHover</code> to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.<br/><br/>By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and <code>tab</code> is used to navigate into the popover, focus will be restored to the trigger on close.</>} code={`import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-
-function Example() {
-  const wide = useBreakpoint('md');
-  return (
-    <Popover showOnHover>
-      <Popover.Trigger>...</Popover.Trigger>
-      <Popover.Content side={wide ? 'right' : 'bottom'}>...</Popover.Content>
-    </Popover>
-  );
-}`} previewMinHeight={168}>
-  <PopoverHoverDemo />
-</ComponentPreview>
-
 ### Using the controller
 
 <ComponentPreview details={<>You can access <code>usePopoverController()</code> controller context from components within <code>Popover.Content</code>. The hook exposes two methods, <code>close()</code> and <code>shake()</code>. They do exactly what you think they do.<br/><br/><ul><li>Attempting to submit an empty form calls the <code>shake()</code> method</li><li>After the simulated two-second request, <code>close()</code> dismisses the popup. Closing or unmounting cancels the pending request; reopening starts a fresh session.</li></ul></>} code={controllerCode} previewMinHeight={168}>
@@ -318,6 +302,22 @@ const hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))
 All floating UI components in Plex UI can be infinitely nested by relying on `z-index: auto;` and natural stacking order.
 
 Additionally, `esc` keypresses are handled independently as a stacking order.
+
+### Open on hover
+
+<ComponentPreview phonePresentation="none" details={<>Use <code>showOnHover</code> to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.<br/><br/>By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and <code>tab</code> is used to navigate into the popover, focus will be restored to the trigger on close.</>} code={`import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+
+function Example() {
+  const wide = useBreakpoint('md');
+  return (
+    <Popover showOnHover>
+      <Popover.Trigger>...</Popover.Trigger>
+      <Popover.Content side={wide ? 'right' : 'bottom'}>...</Popover.Content>
+    </Popover>
+  );
+}`} previewMinHeight={168}>
+  <PopoverHoverDemo />
+</ComponentPreview>
 
 ## API
 

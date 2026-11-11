@@ -25,16 +25,6 @@ import {
   <BreadcrumbOverviewDemo />
 </ComponentPreview>
 
-### Sizes
-
-<ComponentPreview phonePresentation="none" details={<>Use <code>size="sm"</code> for a trail above a compact header; the default <code>md</code> sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.</>} code={`<Breadcrumb size="sm">
-  <Breadcrumb.Item href="/projects">Projects</Breadcrumb.Item>
-  <Breadcrumb.Item href="/projects/website">Website</Breadcrumb.Item>
-  <Breadcrumb.Item current>Deployments</Breadcrumb.Item>
-</Breadcrumb>`} previewMinHeight={160}>
-  <BreadcrumbSizesDemo />
-</ComponentPreview>
-
 ### Separator
 
 <ComponentPreview details={<>A small chevron stands between items by default. Pass any node to <code>separator</code>, such as a slash for file paths. Separators are hidden from assistive technology.</>} code={`<Breadcrumb separator="/">
@@ -55,6 +45,16 @@ import {
   <Breadcrumb.Item current>Invoice 2024-0193</Breadcrumb.Item>
 </Breadcrumb>`} previewMinHeight={160}>
   <BreadcrumbWrapDemo />
+</ComponentPreview>
+
+### Sizes
+
+<ComponentPreview phonePresentation="none" details={<>Use <code>size="sm"</code> for a trail above a compact header; the default <code>md</code> sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.</>} code={`<Breadcrumb size="sm">
+  <Breadcrumb.Item href="/projects">Projects</Breadcrumb.Item>
+  <Breadcrumb.Item href="/projects/website">Website</Breadcrumb.Item>
+  <Breadcrumb.Item current>Deployments</Breadcrumb.Item>
+</Breadcrumb>`} previewMinHeight={160}>
+  <BreadcrumbSizesDemo />
 </ComponentPreview>
 
 ## API

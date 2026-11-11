@@ -52,12 +52,6 @@ export const wrap = `<div class="w-[260px]">
   <VueDemo stageClassName={STAGE} template={overview} />
 </ComponentPreview>
 
-### Sizes
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>size="sm"</code> for a trail above a compact header; the default <code>md</code> sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.</>} code={sizes} previewMinHeight={160}>
-  <VueDemo stageClassName={STAGE} template={sizes} />
-</ComponentPreview>
-
 ### Separator
 
 <ComponentPreview language="vue" details={<>A small chevron stands between items by default. The <code>separator</code> slot replaces it, such as with a slash for file paths. Separators are hidden from assistive technology.</>} code={separator} previewMinHeight={140}>
@@ -68,6 +62,12 @@ export const wrap = `<div class="w-[260px]">
 
 <ComponentPreview language="vue" details={<>A trail that does not fit wraps onto the next line instead of leaving the screen. An item without <code>href</code> is a plain step; listen to <code>@click</code> to make it act as a button.</>} code={wrap} previewMinHeight={160}>
   <VueDemo stageClassName={STAGE} template={wrap} />
+</ComponentPreview>
+
+### Sizes
+
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>size="sm"</code> for a trail above a compact header; the default <code>md</code> sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.</>} code={sizes} previewMinHeight={160}>
+  <VueDemo stageClassName={STAGE} template={sizes} />
 </ComponentPreview>
 
 ## API

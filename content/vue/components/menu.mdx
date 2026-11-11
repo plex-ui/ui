@@ -292,22 +292,6 @@ export const danger = `<Menu>
   <VueDemo template={overview} phoneTemplate={menuPhoneTemplateVue(overview, "Overview", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ view: "list", sort: "date", group: "date" }} controls={[{ name: "icons", type: "boolean", default: true }, { name: "checkmarks", type: "boolean", default: true }, { name: "pill", desktopOnly: true, type: "boolean", default: false }]} />
 </ComponentPreview>
 
-### Natural sizing
-
-<ComponentPreview language="vue" phonePresentation="none" details={<>
-  <p>Menu supports several sizing strategies:</p><ul><li><strong>Natural sizing</strong>: use <code>min-width="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>min-width</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>min-width</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>MenuContent</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for the custom properties used in collision detection.</li></ul><p>Desktop only: on a phone a menu is the 250px panel of iOS menus, unless it sets a width or a larger minimum width of its own.</p></>} code={naturalSizing} previewMinHeight={168}>
-  <VueDemo template={naturalSizing} />
-</ComponentPreview>
-
-### Horizontal (icons only)
-
-<ComponentPreview language="vue" phonePresentation="none" details={<>
-  <p>Set <code>layout="horizontal"</code> on <code>MenuContent</code> for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
-  <p>Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled mode switch at the top of a menu, as in Mode switch below.</p>
-</>} code={horizontalIcons} previewMinHeight={168}>
-  <VueDemo template={horizontalIcons} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
-</ComponentPreview>
-
 ### Mode switch
 
 <ComponentPreview phoneOnly language="vue" details={<>
@@ -365,16 +349,32 @@ export const danger = `<Menu>
   <VueDemo template={radioItems} phoneTemplate={menuPhoneTemplateVue(radioItems, "Radio items", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ value: "any" }} controls={[{ name: "indicatorPosition", desktopOnly: true, type: "select", options: INDICATOR_POSITIONS, default: "end" }]} />
 </ComponentPreview>
 
-### Item actions
-
-<ComponentPreview language="vue" phonePresentation="none" details={<>Use <code>MenuItemActions</code> and <code>MenuItemAction</code> for hover actions (e.g. delete) on an item.<br/><br/><strong>Accessibility note:</strong> these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity.<br/><br/>Desktop only: the rows of an iOS menu carry no actions of their own.</>} code={itemActions} previewMinHeight={168}>
-  <VueDemo template={itemActions} />
-</ComponentPreview>
-
 ### Destructive items
 
 <ComponentPreview language="vue" details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>MenuLink</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={withMenuPhoneVue(danger, "Destructive items")} previewMinHeight={168}>
   <VueDemo template={danger} phoneTemplate={menuPhoneTemplateVue(danger, "Destructive items", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} />
+</ComponentPreview>
+
+### Natural sizing
+
+<ComponentPreview language="vue" phonePresentation="none" details={<>
+  <p>Menu supports several sizing strategies:</p><ul><li><strong>Natural sizing</strong>: use <code>min-width="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>min-width</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>min-width</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>MenuContent</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for the custom properties used in collision detection.</li></ul><p>Desktop only: on a phone a menu is the 250px panel of iOS menus, unless it sets a width or a larger minimum width of its own.</p></>} code={naturalSizing} previewMinHeight={168}>
+  <VueDemo template={naturalSizing} />
+</ComponentPreview>
+
+### Horizontal (icons only)
+
+<ComponentPreview language="vue" phonePresentation="none" details={<>
+  <p>Set <code>layout="horizontal"</code> on <code>MenuContent</code> for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
+  <p>Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled mode switch at the top of a menu, as in Mode switch above.</p>
+</>} code={horizontalIcons} previewMinHeight={168}>
+  <VueDemo template={horizontalIcons} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
+</ComponentPreview>
+
+### Item actions
+
+<ComponentPreview language="vue" phonePresentation="none" details={<>Use <code>MenuItemActions</code> and <code>MenuItemAction</code> for hover actions (e.g. delete) on an item.<br/><br/><strong>Accessibility note:</strong> these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity.<br/><br/>Desktop only: the rows of an iOS menu carry no actions of their own.</>} code={itemActions} previewMinHeight={168}>
+  <VueDemo template={itemActions} />
 </ComponentPreview>
 
 ## API

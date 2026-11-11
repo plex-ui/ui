@@ -254,22 +254,6 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
   <VueDemo template={overview} stageClassName={stage} controls={overviewControls} />
 </ComponentPreview>
 
-### With Radio Group
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Place <code>Checkbox</code> alongside <code>RadioGroup</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.</>} code={withRadioGroup} previewMinHeight={168}>
-  <VueDemo template={withRadioGroup} stageClassName={stage} controls={alignmentControls} />
-</ComponentPreview>
-
-### Descriptions
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as Group with description and Grouped sections show, so this example is desktop only.</>} code={descriptions} previewMinHeight={380}>
-  <VueDemo
-    template={descriptions}
-    stageClassName={stage}
-    state={{ settings: { projects: true, members: true, csv: true, json: false, pdf: false } }}
-  />
-</ComponentPreview>
-
 ### Group with select all
 
 <ComponentPreview language="vue" details={<>Combine a parent checkbox with child checkboxes to create a "select all" pattern. The parent shows an <code>indeterminate</code> state when only some children are checked. Each child binds <code>v-model:checked</code> to its item in <code>items</code>.</>} code={group} previewMinHeight={240}>
@@ -324,6 +308,22 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
     state={{
       settings: { emailMarketing: true, emailSecurity: true, pushMessages: true, pushMentions: true, pushComments: false },
     }}
+  />
+</ComponentPreview>
+
+### With Radio Group
+
+<ComponentPreview phonePresentation="none" language="vue" details={<>Place <code>Checkbox</code> alongside <code>RadioGroup</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.</>} code={withRadioGroup} previewMinHeight={168}>
+  <VueDemo template={withRadioGroup} stageClassName={stage} controls={alignmentControls} />
+</ComponentPreview>
+
+### Descriptions
+
+<ComponentPreview phonePresentation="none" language="vue" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as Group with description and Grouped sections show, so this example is desktop only.</>} code={descriptions} previewMinHeight={380}>
+  <VueDemo
+    template={descriptions}
+    stageClassName={stage}
+    state={{ settings: { projects: true, members: true, csv: true, json: false, pdf: false } }}
   />
 </ComponentPreview>
 

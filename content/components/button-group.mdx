@@ -113,6 +113,42 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/components/tool
   <ButtonGroupOrientationDemo />
 </ComponentPreview>
 
+### Input group
+
+<ComponentPreview details={<>
+  <p>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via <code>endAdornment</code>. Use <code>Input.AdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</p>
+  <p>On a phone with <code>touch.css</code> the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.</p>
+</>} code={`const [size, setSize] = useState("sm")
+const [voiceEnabled, setVoiceEnabled] = useState(false)
+
+<ButtonGroup style={{ width: "100%", maxWidth: 280 }}>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" pill size={size} uniform aria-label="Add attachment">
+      <Plus />
+    </Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Input
+      pill
+      size={size}
+      placeholder={voiceEnabled ? "Recording your idea…" : "Describe a component…"}
+      disabled={voiceEnabled}
+      endAdornment={
+        <Input.AdornmentButton
+          color={voiceEnabled ? "caution" : undefined}
+          aria-label="Toggle voice mode"
+          aria-pressed={voiceEnabled}
+          onClick={() => setVoiceEnabled((prev) => !prev)}
+        >
+          <Mic />
+        </Input.AdornmentButton>
+      }
+    />
+  </ButtonGroup>
+</ButtonGroup>`}>
+  <ButtonGroupInputGroupDemo />
+</ComponentPreview>
+
 ### Nested
 
 <ComponentPreview phonePresentation="none" details={<>Place <code>ButtonGroup</code> inside <code>ButtonGroup</code> to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern.</>} code={`const [size, setSize] = useState("sm")
@@ -175,42 +211,6 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/components/tool
   </Button>
 </ButtonGroup>`}>
   <ButtonGroupInputDemo />
-</ComponentPreview>
-
-### Input group
-
-<ComponentPreview details={<>
-  <p>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via <code>endAdornment</code>. Use <code>Input.AdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</p>
-  <p>On a phone with <code>touch.css</code> the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.</p>
-</>} code={`const [size, setSize] = useState("sm")
-const [voiceEnabled, setVoiceEnabled] = useState(false)
-
-<ButtonGroup style={{ width: "100%", maxWidth: 280 }}>
-  <ButtonGroup>
-    <Button variant="outline" color="secondary" pill size={size} uniform aria-label="Add attachment">
-      <Plus />
-    </Button>
-  </ButtonGroup>
-  <ButtonGroup>
-    <Input
-      pill
-      size={size}
-      placeholder={voiceEnabled ? "Recording your idea…" : "Describe a component…"}
-      disabled={voiceEnabled}
-      endAdornment={
-        <Input.AdornmentButton
-          color={voiceEnabled ? "caution" : undefined}
-          aria-label="Toggle voice mode"
-          aria-pressed={voiceEnabled}
-          onClick={() => setVoiceEnabled((prev) => !prev)}
-        >
-          <Mic />
-        </Input.AdornmentButton>
-      }
-    />
-  </ButtonGroup>
-</ButtonGroup>`}>
-  <ButtonGroupInputGroupDemo />
 </ComponentPreview>
 
 ### Dropdown menu

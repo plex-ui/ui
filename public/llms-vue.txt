@@ -62,7 +62,7 @@ Props:
   - indicator (slot | false) — Custom indicator (slot), or :indicator="false" to hide it
   - @dismiss (() => void) — Shows the dismiss button when set
   - banner (boolean) default: false — Full-width strip: square corners, lines above and below only
-Examples: Overview, Colors & variants, Title, Description, Actions, Action placement, Indicator, Dismissible, Banner
+Examples: Overview, Colors & variants, Title, Description, Actions, Indicator, Dismissible, Banner, Action placement
 
 ## Avatar
 An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.
@@ -123,7 +123,7 @@ Props:
     - current (boolean) default: false — The current page: plain text marked aria-current="page"
     - @click ((event: MouseEvent) => void) — Makes an item without a destination act as a button
     - class (string) — Applied to the li element
-Examples: Overview, Sizes, Separator, Long trails
+Examples: Overview, Separator, Long trails, Sizes
 
 ## Button
 Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.
@@ -147,7 +147,7 @@ Props:
   - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in the slot; defaults from size
   - type ("button" | "submit" | "reset") default: "button" — Native button type
   - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
-Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, States, Selected, Optical alignment
+Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, States, Optical alignment, Selected
 
 ## Button Group
 Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
@@ -160,7 +160,7 @@ Props:
   ButtonGroupText:
     - as-child (boolean) default: false — Render the slotted child (e.g. a <label> tied to an input) instead of a <div>
     - class (string) — Applied to the wrapper
-Examples: Overview, Orientation, Nested, Separator, Split, Input, Input group, Dropdown menu, Select, Popover
+Examples: Overview, Orientation, Input group, Nested, Separator, Split, Input, Dropdown menu, Select, Popover
 
 ## Button Link
 A semantic anchor with full button styling, for internal and external links with icons and block layout.
@@ -222,7 +222,7 @@ Props:
   - @update:checked ((next: boolean | "indeterminate") => void) — Emitted with the next state when it changes (a click always emits a boolean)
   - @focus ((event: FocusEvent) => void) — Emitted when the checkbox gains focus
   - @blur ((event: FocusEvent) => void) — Emitted when the checkbox loses focus
-Examples: Overview, With Radio Group, Descriptions, Group with select all, Group with description, With Field, Grouped sections
+Examples: Overview, Group with select all, Group with description, With Field, Grouped sections, With Radio Group, Descriptions
 
 ## Code Block
 Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
@@ -532,7 +532,7 @@ Docs: https://plexui.com/vue/components/floating-label-input
     - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
     - @clear-click (() => void) — Shows a clear button when a value is selected
     - @interact (() => void) — Fires on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
-Examples: Overview, Label inside, Textarea, Password input, Phone input, Select, Multiple selection, Country select
+Examples: Overview, Textarea, Password input, Phone input, Select, Multiple selection, Country select, Label inside
 
 ## Index Bar
 "The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up."
@@ -585,7 +585,7 @@ Props:
   InputAdornmentButton:
     - color (SemanticColor) — Tint of the pressed (aria-pressed="true") state; the neutral primary-soft tint when unset
     - type (string) default: "button" — Button type
-Examples: Overview, Variants, Sizing & roundness, Adornments, Clear button, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, Behavior, With button, Optical alignment
+Examples: Overview, Variants, Adornments, Clear button, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, With button, Sizing & roundness, Behavior, Optical alignment
 
 ## Input Group
 Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.
@@ -601,7 +601,7 @@ Props:
   InputGroupAddon:
     - align ("inline-start" | "inline-end" | "block-start" | "block-end") default: "inline-start" — Before or after the control on its line, or a row above or below it
     - class (string) — Applied to the addon <div>
-Examples: Overview, Variants, Sizes, Align, Text, Button, Dropdown, Spinner, Textarea
+Examples: Overview, Variants, Align, Text, Button, Dropdown, Spinner, Textarea, Sizes
 
 ## Kbd
 A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.
@@ -713,7 +713,7 @@ Props:
     - indicator-position ("start" | "end") default: "end" — Checkbox position
     - indicator-variant ("solid" | "ghost") default: "solid" — Indicator style
     - disabled (boolean) default: false — Disable the item
-Examples: Overview, Natural sizing, Horizontal (icons only), Mode switch, Header, Grouped items, Submenus, Checkbox items, Radio items, Item actions, Destructive items
+Examples: Overview, Mode switch, Header, Grouped items, Submenus, Checkbox items, Radio items, Destructive items, Natural sizing, Horizontal (icons only), Item actions
 
 ## OTP Input
 Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.
@@ -747,7 +747,7 @@ Props:
   PageContent:
     - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
     - class (string) — Class of the element that scrolls
-Examples: Overview, Widths, Heading, Fill, Background
+Examples: Overview, Heading, Fill, Background, Widths
 
 ## Page Control
 A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
@@ -798,7 +798,7 @@ Props:
     - data-* (string) — Data attributes land on the panel
     - class (string) — Applied to the panel
     - default slot ({ close, shake }) — Panel content; receives the controller functions
-Examples: Overview, Sizing the popover, Open on hover, Using the controller, Confirmation, Column configuration
+Examples: Overview, Sizing the popover, Using the controller, Confirmation, Column configuration, Open on hover
 
 ## Progress
 A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
@@ -855,7 +855,7 @@ Props:
     - description (string) — Second line below the option's label, linked via aria-describedby (or the description slot)
     - class (string) — Extra classes on the label element
     - default slot (VNode[]) — Label content (text or rich content)
-Examples: Overview, With Checkbox, Descriptions, With Field, With Field error, Choice card, Card selection, Grouped sections
+Examples: Overview, With Field, With Field error, Grouped sections, With Checkbox, Descriptions, Choice card, Card selection
 
 ## Segmented Control
 Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.
@@ -1066,7 +1066,7 @@ Props:
   - @change ((value: number | number[]) => void) — Emitted with update:value, named after the React onChange prop
   - @focus ((event: FocusEvent) => void) — Emitted when the value input or a thumb gains focus
   - @blur ((event: FocusEvent) => void) — Emitted when the value input or a thumb loses focus
-Examples: Overview, Adding a tooltip, Marks, Range, Multiple thumbs, Vertical
+Examples: Overview, Marks, Range, Multiple thumbs, Adding a tooltip, Vertical
 
 ## Sortable
 "Reorders a list by dragging: rows of a group, table rows, images, tags and cards. The order changes on the drop."

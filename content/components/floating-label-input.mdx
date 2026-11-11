@@ -88,35 +88,6 @@ On Phone a label does not float: iOS has no floating label. Each field is a cell
   <FloatingLabelInputOverviewDemo />
 </ComponentPreview>
 
-### Label inside
-
-<ComponentPreview phonePresentation="none" details={<>Use <code>labelPlacement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box. On Phone a cell names its field with the placeholder, so this example has no Phone view.</>} code={`const [country, setCountry] = useState("es")
-const label = countries.find((option) => option.value === country)?.label
-const trigger = useCallback(
-  ({ open }: { open: boolean }) => (
-    <FloatingLabelSelect label="Country or region" labelPlacement="inside" selected={!!label} open={open}>
-      {label}
-    </FloatingLabelSelect>
-  ),
-  [label],
-)
-
-<div className="flex w-[360px] flex-col gap-3">
-  <FloatingLabelInput label="Full name" labelPlacement="inside" defaultValue="Jane Doe" />
-  <Select
-    value={country}
-    options={countries}
-    onChange={(option) => setCountry(option.value)}
-    block
-    trigger={trigger}
-    checkPosition="end"
-  />
-  <FloatingLabelInput label="Address line 1" labelPlacement="inside" />
-  <FloatingLabelInput label="Delivery notes" labelPlacement="inside" multiline />
-</div>`} previewMinHeight={380}>
-  <FloatingLabelInsideDemo />
-</ComponentPreview>
-
 ### Text fields
 
 Everything that is typed: more than one line, a password, or a phone number. Values with a mask, such as an [SSN](/components/input#ssn-input) or a [birthday](/components/input#birthday-input), are on the Input page: their mask works the same under a floating label.
@@ -326,6 +297,35 @@ const trigger = useCallback(
   />
 </div>`} previewMinHeight={168}>
   <FloatingLabelSelectCountryDemo />
+</ComponentPreview>
+
+### Label inside
+
+<ComponentPreview phonePresentation="none" details={<>Use <code>labelPlacement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box. On Phone a cell names its field with the placeholder, so this example has no Phone view.</>} code={`const [country, setCountry] = useState("es")
+const label = countries.find((option) => option.value === country)?.label
+const trigger = useCallback(
+  ({ open }: { open: boolean }) => (
+    <FloatingLabelSelect label="Country or region" labelPlacement="inside" selected={!!label} open={open}>
+      {label}
+    </FloatingLabelSelect>
+  ),
+  [label],
+)
+
+<div className="flex w-[360px] flex-col gap-3">
+  <FloatingLabelInput label="Full name" labelPlacement="inside" defaultValue="Jane Doe" />
+  <Select
+    value={country}
+    options={countries}
+    onChange={(option) => setCountry(option.value)}
+    block
+    trigger={trigger}
+    checkPosition="end"
+  />
+  <FloatingLabelInput label="Address line 1" labelPlacement="inside" />
+  <FloatingLabelInput label="Delivery notes" labelPlacement="inside" multiline />
+</div>`} previewMinHeight={380}>
+  <FloatingLabelInsideDemo />
 </ComponentPreview>
 
 ## API

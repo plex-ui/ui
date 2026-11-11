@@ -108,35 +108,6 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
   <InputGroupVariantsDemo />
 </ComponentPreview>
 
-### Sizes
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroup.Button</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with <code>touch.css</code>, <code>3xs</code> to <code>xl</code> are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.</>} code={`// Desktop
-<InputGroup size="lg">
-  <InputGroup.Input placeholder="Search..." />
-  <InputGroup.Addon>
-    <Search />
-  </InputGroup.Addon>
-  <InputGroup.Addon align="inline-end">
-    <InputGroup.Button>Search</InputGroup.Button>
-  </InputGroup.Addon>
-</InputGroup>
-
-// Phone: one size, the 52px row.
-<FieldGroup columns>
-  <Field row label="Domain">
-    {(control) => (
-      <InputGroup>
-        <InputGroup.Input {...control} defaultValue="plexui.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
-        <InputGroup.Addon>
-          <InputGroup.Text>https://</InputGroup.Text>
-        </InputGroup.Addon>
-      </InputGroup>
-    )}
-  </Field>
-</FieldGroup>`} previewMinHeight={480}>
-  <InputGroupSizesDemo />
-</ComponentPreview>
-
 ### Align
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>align</code> on <code>InputGroup.Addon</code> to place it before (<code>inline-start</code>, the default) or after (<code>inline-end</code>) the control, or as a row above (<code>block-start</code>) or below (<code>block-end</code>) it. Place addons after the control in the markup so the tab order starts with the field; <code>align</code> handles the visual position. On Phone the inline addons stay in the row (see Variants), a <code>block-start</code> text becomes the row's label and a <code>block-end</code> text the group's footer.</>} code={`// Desktop
@@ -415,6 +386,35 @@ const phoneUnitMenu = (units, unit, setUnit) => (
 </FieldGroup>
 <Button color="primary" size="3xl" pill block>Run</Button>`} previewMinHeight={280}>
   <InputGroupTextareaDemo />
+</ComponentPreview>
+
+### Sizes
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroup.Button</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with <code>touch.css</code>, <code>3xs</code> to <code>xl</code> are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.</>} code={`// Desktop
+<InputGroup size="lg">
+  <InputGroup.Input placeholder="Search..." />
+  <InputGroup.Addon>
+    <Search />
+  </InputGroup.Addon>
+  <InputGroup.Addon align="inline-end">
+    <InputGroup.Button>Search</InputGroup.Button>
+  </InputGroup.Addon>
+</InputGroup>
+
+// Phone: one size, the 52px row.
+<FieldGroup columns>
+  <Field row label="Domain">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} defaultValue="plexui.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+        <InputGroup.Addon>
+          <InputGroup.Text>https://</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+</FieldGroup>`} previewMinHeight={480}>
+  <InputGroupSizesDemo />
 </ComponentPreview>
 
 ## API

@@ -200,22 +200,6 @@ You can add actions to the alert with the actions prop, which accepts ReactNode.
 </>
 ```
 
-### Action placement
-Actions are automatically positioned in the alert by default. You can force a specific position with the actionsPlacement prop by passing either 'end' or 'bottom'. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only.
-```tsx
-<Alert
-title="Our terms of service has been updated"
-description="We've updated our terms to clarify how we handle data, billing, and user permissions. Please review and accept the latest terms to avoid impacting your service."
-actions={(
-  <>
-    <Button color="primary" variant="soft" pill>Set reminder</Button>
-    <Button color="primary" variant="solid" pill>Review terms</Button>
-  </>
-)}
-actionsPlacement="bottom"
-/>
-```
-
 ### Indicator
 Alert provides an indicator icon by default. You can override it by passing a custom icon to indicator, or pass indicator={'{false}'} to hide it entirely.
 ```tsx
@@ -263,6 +247,22 @@ color="caution"
 variant="soft"
 indicator={false}
 description="You are offline. Changes will sync when the connection is back."
+/>
+```
+
+### Action placement
+Actions are automatically positioned in the alert by default. You can force a specific position with the actionsPlacement prop by passing either 'end' or 'bottom'. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only.
+```tsx
+<Alert
+title="Our terms of service has been updated"
+description="We've updated our terms to clarify how we handle data, billing, and user permissions. Please review and accept the latest terms to avoid impacting your service."
+actions={(
+  <>
+    <Button color="primary" variant="soft" pill>Set reminder</Button>
+    <Button color="primary" variant="solid" pill>Review terms</Button>
+  </>
+)}
+actionsPlacement="bottom"
 />
 ```
 
@@ -537,16 +537,6 @@ Breadcrumb renders a nav landmark named "Breadcrumb" around an ordered list. An 
 </Breadcrumb>
 ```
 
-### Sizes
-Use size="sm" for a trail above a compact header; the default md sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.
-```tsx
-<Breadcrumb size="sm">
-<Breadcrumb.Item href="/projects">Projects</Breadcrumb.Item>
-<Breadcrumb.Item href="/projects/website">Website</Breadcrumb.Item>
-<Breadcrumb.Item current>Deployments</Breadcrumb.Item>
-</Breadcrumb>
-```
-
 ### Separator
 A small chevron stands between items by default. Pass any node to separator, such as a slash for file paths. Separators are hidden from assistive technology.
 ```tsx
@@ -566,6 +556,16 @@ A trail that does not fit wraps onto the next line instead of leaving the screen
 <Breadcrumb.Item href="/accounts/northwind">Northwind Traders</Breadcrumb.Item>
 <Breadcrumb.Item>Archived</Breadcrumb.Item>
 <Breadcrumb.Item current>Invoice 2024-0193</Breadcrumb.Item>
+</Breadcrumb>
+```
+
+### Sizes
+Use size="sm" for a trail above a compact header; the default md sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.
+```tsx
+<Breadcrumb size="sm">
+<Breadcrumb.Item href="/projects">Projects</Breadcrumb.Item>
+<Breadcrumb.Item href="/projects/website">Website</Breadcrumb.Item>
+<Breadcrumb.Item current>Deployments</Breadcrumb.Item>
 </Breadcrumb>
 ```
 
@@ -657,6 +657,39 @@ const [size, setSize] = useState("sm")
 </ButtonGroup>
 ```
 
+### Input group
+Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via endAdornment. Use Input.AdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size. On a phone with touch.css the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.
+```tsx
+const [size, setSize] = useState("sm")
+const [voiceEnabled, setVoiceEnabled] = useState(false)
+
+<ButtonGroup style={{ width: "100%", maxWidth: 280 }}>
+<ButtonGroup>
+  <Button variant="outline" color="secondary" pill size={size} uniform aria-label="Add attachment">
+    <Plus />
+  </Button>
+</ButtonGroup>
+<ButtonGroup>
+  <Input
+    pill
+    size={size}
+    placeholder={voiceEnabled ? "Recording your idea…" : "Describe a component…"}
+    disabled={voiceEnabled}
+    endAdornment={
+      <Input.AdornmentButton
+        color={voiceEnabled ? "caution" : undefined}
+        aria-label="Toggle voice mode"
+        aria-pressed={voiceEnabled}
+        onClick={() => setVoiceEnabled((prev) => !prev)}
+      >
+        <Mic />
+      </Input.AdornmentButton>
+    }
+  />
+</ButtonGroup>
+</ButtonGroup>
+```
+
 ### Nested
 Place ButtonGroup inside ButtonGroup to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern.
 ```tsx
@@ -715,39 +748,6 @@ const [size, setSize] = useState("sm")
 <Button variant="outline" color="secondary" size={size} aria-label="Search">
   <SearchSm />
 </Button>
-</ButtonGroup>
-```
-
-### Input group
-Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via endAdornment. Use Input.AdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size. On a phone with touch.css the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.
-```tsx
-const [size, setSize] = useState("sm")
-const [voiceEnabled, setVoiceEnabled] = useState(false)
-
-<ButtonGroup style={{ width: "100%", maxWidth: 280 }}>
-<ButtonGroup>
-  <Button variant="outline" color="secondary" pill size={size} uniform aria-label="Add attachment">
-    <Plus />
-  </Button>
-</ButtonGroup>
-<ButtonGroup>
-  <Input
-    pill
-    size={size}
-    placeholder={voiceEnabled ? "Recording your idea…" : "Describe a component…"}
-    disabled={voiceEnabled}
-    endAdornment={
-      <Input.AdornmentButton
-        color={voiceEnabled ? "caution" : undefined}
-        aria-label="Toggle voice mode"
-        aria-pressed={voiceEnabled}
-        onClick={() => setVoiceEnabled((prev) => !prev)}
-      >
-        <Mic />
-      </Input.AdornmentButton>
-    }
-  />
-</ButtonGroup>
 </ButtonGroup>
 ```
 
@@ -1172,19 +1172,6 @@ export default function ButtonStatesExample() {
 }
 ```
 
-### Selected
-Use selected to show that a button is in an open or selected state. The exact visual behavior differs across each variant. This behavior is automatically configured with components like Menu that apply [aria-expanded="true"] or [data-state="open"] attributes.
-```tsx
-<Popover>
-<Popover.Trigger>
-  <Button color="primary" selected variant="solid">Click to open</Button>
-</Popover.Trigger>
-<Popover.Content minWidth="auto" className="p-4 text-sm">
-  Button should look selected
-</Popover.Content>
-</Popover>
-```
-
 ### Optical alignment
 Use opticallyAlign with either "start" or "end" to offset the gutter of the button. On a phone a button under text starts its label where the text does, as Forgot your password? under the Apple Account sign-in, whose text starts 40px from the screen's edge; a soft button shows its capsule reaching past the text. The button is as wide as its label: a full-width button centers its label, which leaves nothing to align.
 ```tsx
@@ -1205,6 +1192,19 @@ Use opticallyAlign with either "start" or "end" to offset the gutter of the butt
 <p className="text-[17px] leading-[22px] text-secondary">Sign in with your email or phone number to continue.</p>
 <Button color="secondary" variant="soft" size="xl" opticallyAlign="start">Forgot your password?</Button>
 </div>
+```
+
+### Selected
+Use selected to show that a button is in an open or selected state. The exact visual behavior differs across each variant. This behavior is automatically configured with components like Menu that apply [aria-expanded="true"] or [data-state="open"] attributes.
+```tsx
+<Popover>
+<Popover.Trigger>
+  <Button color="primary" selected variant="solid">Click to open</Button>
+</Popover.Trigger>
+<Popover.Content minWidth="auto" className="p-4 text-sm">
+  Button should look selected
+</Popover.Content>
+</Popover>
 ```
 
 ## Card
@@ -1515,112 +1515,6 @@ const options = [
 </div>
 ```
 
-### With Radio Group
-Place Checkbox alongside RadioGroup controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.
-```tsx
-const channels = [
-{ value: "email", label: "Email", description: "Messages delivered to your inbox." },
-{ value: "sms", label: "SMS", description: "Text messages to your phone number." },
-{ value: "push", label: "Push", description: "Real-time alerts on your device." },
-]
-const topics = [
-{ label: "Product updates", description: "New features and improvements.", checked: true },
-{ label: "Security alerts", description: "Account activity and login notifications.", checked: true },
-{ label: "Community", description: "Events, meetups, and discussions.", checked: false },
-]
-
-<div className="flex flex-col gap-6 w-full max-w-md">
-<Field label="Notification channel" description="Choose how you'd like to be notified.">
-  {() => (
-    <RadioGroup direction="col" defaultValue="email" aria-label="Notification channel">
-      {channels.map((channel) => (
-        <RadioGroup.Item key={channel.value} value={channel.value}>
-          <div className="flex flex-col">
-            <span className="font-medium">{channel.label}</span>
-            <span className="text-xs text-secondary mt-0.5">{channel.description}</span>
-          </div>
-        </RadioGroup.Item>
-      ))}
-    </RadioGroup>
-  )}
-</Field>
-<Field label="Topics" description="Select the topics you want to follow.">
-  {() => (
-    <div className="flex flex-col gap-2.5">
-      {topics.map((topic) => (
-        <Checkbox
-          key={topic.label}
-          defaultChecked={topic.checked}
-          label={
-            <div className="flex flex-col">
-              <span className="font-medium">{topic.label}</span>
-              <span className="text-xs text-secondary mt-0.5">{topic.description}</span>
-            </div>
-          }
-        />
-      ))}
-    </div>
-  )}
-</Field>
-</div>
-```
-
-### Descriptions
-Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as Group with description and Grouped sections show, so this example is desktop only.
-```tsx
-const [settings, setSettings] = useState({
-projects: true,
-members: true,
-csv: true,
-json: false,
-pdf: false,
-})
-const toggle = (key: keyof typeof settings) => () =>
-setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
-
-<div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
-<div className="pb-5">
-  <Field label="Export contents" description="Choose what the archive includes.">
-    {() => (
-      <div className="flex flex-col gap-2.5">
-        <Checkbox
-          label={
-            <div className="flex flex-col">
-              <span className="font-medium">Projects</span>
-              <span className="text-xs text-secondary mt-0.5">Files, comments, and version history.</span>
-            </div>
-          }
-          checked={settings.projects}
-          onCheckedChange={toggle("projects")}
-        />
-        <Checkbox
-          label={
-            <div className="flex flex-col">
-              <span className="font-medium">Members</span>
-              <span className="text-xs text-secondary mt-0.5">Names, roles, and email addresses.</span>
-            </div>
-          }
-          checked={settings.members}
-          onCheckedChange={toggle("members")}
-        />
-      </div>
-    )}
-  </Field>
-</div>
-<div className="pt-5">
-  <Field label="File formats">
-    {() => (
-      <div className="flex flex-col gap-3">
-        <Checkbox label="CSV" checked={settings.csv} onCheckedChange={toggle("csv")} />
-        <Checkbox label="JSON" checked={settings.json} onCheckedChange={toggle("json")} />
-        <Checkbox label="PDF" checked={settings.pdf} onCheckedChange={toggle("pdf")} />
-      </div>
-    )}
-  </Field>
-</div>
-</div>
-```
-
 ### Group with select all
 Combine a parent checkbox with child checkboxes to create a "select all" pattern. The parent shows an indeterminate state when only some children are checked. Each child is controlled by its item in items.
 ```tsx
@@ -1754,6 +1648,112 @@ setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
   </div>
 </Page.Content>
 </Page>
+```
+
+### With Radio Group
+Place Checkbox alongside RadioGroup controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.
+```tsx
+const channels = [
+{ value: "email", label: "Email", description: "Messages delivered to your inbox." },
+{ value: "sms", label: "SMS", description: "Text messages to your phone number." },
+{ value: "push", label: "Push", description: "Real-time alerts on your device." },
+]
+const topics = [
+{ label: "Product updates", description: "New features and improvements.", checked: true },
+{ label: "Security alerts", description: "Account activity and login notifications.", checked: true },
+{ label: "Community", description: "Events, meetups, and discussions.", checked: false },
+]
+
+<div className="flex flex-col gap-6 w-full max-w-md">
+<Field label="Notification channel" description="Choose how you'd like to be notified.">
+  {() => (
+    <RadioGroup direction="col" defaultValue="email" aria-label="Notification channel">
+      {channels.map((channel) => (
+        <RadioGroup.Item key={channel.value} value={channel.value}>
+          <div className="flex flex-col">
+            <span className="font-medium">{channel.label}</span>
+            <span className="text-xs text-secondary mt-0.5">{channel.description}</span>
+          </div>
+        </RadioGroup.Item>
+      ))}
+    </RadioGroup>
+  )}
+</Field>
+<Field label="Topics" description="Select the topics you want to follow.">
+  {() => (
+    <div className="flex flex-col gap-2.5">
+      {topics.map((topic) => (
+        <Checkbox
+          key={topic.label}
+          defaultChecked={topic.checked}
+          label={
+            <div className="flex flex-col">
+              <span className="font-medium">{topic.label}</span>
+              <span className="text-xs text-secondary mt-0.5">{topic.description}</span>
+            </div>
+          }
+        />
+      ))}
+    </div>
+  )}
+</Field>
+</div>
+```
+
+### Descriptions
+Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as Group with description and Grouped sections show, so this example is desktop only.
+```tsx
+const [settings, setSettings] = useState({
+projects: true,
+members: true,
+csv: true,
+json: false,
+pdf: false,
+})
+const toggle = (key: keyof typeof settings) => () =>
+setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
+
+<div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
+<div className="pb-5">
+  <Field label="Export contents" description="Choose what the archive includes.">
+    {() => (
+      <div className="flex flex-col gap-2.5">
+        <Checkbox
+          label={
+            <div className="flex flex-col">
+              <span className="font-medium">Projects</span>
+              <span className="text-xs text-secondary mt-0.5">Files, comments, and version history.</span>
+            </div>
+          }
+          checked={settings.projects}
+          onCheckedChange={toggle("projects")}
+        />
+        <Checkbox
+          label={
+            <div className="flex flex-col">
+              <span className="font-medium">Members</span>
+              <span className="text-xs text-secondary mt-0.5">Names, roles, and email addresses.</span>
+            </div>
+          }
+          checked={settings.members}
+          onCheckedChange={toggle("members")}
+        />
+      </div>
+    )}
+  </Field>
+</div>
+<div className="pt-5">
+  <Field label="File formats">
+    {() => (
+      <div className="flex flex-col gap-3">
+        <Checkbox label="CSV" checked={settings.csv} onCheckedChange={toggle("csv")} />
+        <Checkbox label="JSON" checked={settings.json} onCheckedChange={toggle("json")} />
+        <Checkbox label="PDF" checked={settings.pdf} onCheckedChange={toggle("pdf")} />
+      </div>
+    )}
+  </Field>
+</div>
+</div>
 ```
 
 ## Code Block
@@ -3642,35 +3642,6 @@ const [clearable, setClearable] = useState(false)
 </FieldGroup>
 ```
 
-### Label inside
-Use labelPlacement="inside" on FloatingLabelInput and FloatingLabelSelect for long forms such as an address: the label stays inside the box, with the value under it. It works with multiline, adornments, errors and the clear button, and always takes the rounded box. On Phone a cell names its field with the placeholder, so this example has no Phone view.
-```tsx
-const [country, setCountry] = useState("es")
-const label = countries.find((option) => option.value === country)?.label
-const trigger = useCallback(
-({ open }: { open: boolean }) => (
-  <FloatingLabelSelect label="Country or region" labelPlacement="inside" selected={!!label} open={open}>
-    {label}
-  </FloatingLabelSelect>
-),
-[label],
-)
-
-<div className="flex w-[360px] flex-col gap-3">
-<FloatingLabelInput label="Full name" labelPlacement="inside" defaultValue="Jane Doe" />
-<Select
-  value={country}
-  options={countries}
-  onChange={(option) => setCountry(option.value)}
-  block
-  trigger={trigger}
-  checkPosition="end"
-/>
-<FloatingLabelInput label="Address line 1" labelPlacement="inside" />
-<FloatingLabelInput label="Delivery notes" labelPlacement="inside" multiline />
-</div>
-```
-
 ### Textarea
 Use multiline to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height. On Phone the cell grows with a Textarea that starts at one line.
 ```tsx
@@ -3871,6 +3842,35 @@ const trigger = useCallback(
   trigger={trigger}
   checkPosition="end"
 />
+</div>
+```
+
+### Label inside
+Use labelPlacement="inside" on FloatingLabelInput and FloatingLabelSelect for long forms such as an address: the label stays inside the box, with the value under it. It works with multiline, adornments, errors and the clear button, and always takes the rounded box. On Phone a cell names its field with the placeholder, so this example has no Phone view.
+```tsx
+const [country, setCountry] = useState("es")
+const label = countries.find((option) => option.value === country)?.label
+const trigger = useCallback(
+({ open }: { open: boolean }) => (
+  <FloatingLabelSelect label="Country or region" labelPlacement="inside" selected={!!label} open={open}>
+    {label}
+  </FloatingLabelSelect>
+),
+[label],
+)
+
+<div className="flex w-[360px] flex-col gap-3">
+<FloatingLabelInput label="Full name" labelPlacement="inside" defaultValue="Jane Doe" />
+<Select
+  value={country}
+  options={countries}
+  onChange={(option) => setCountry(option.value)}
+  block
+  trigger={trigger}
+  checkPosition="end"
+/>
+<FloatingLabelInput label="Address line 1" labelPlacement="inside" />
+<FloatingLabelInput label="Delivery notes" labelPlacement="inside" multiline />
 </div>
 ```
 
@@ -4101,35 +4101,6 @@ Use variant to stylize the group, like Input. On Phone the row is the frame, so 
       <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
       <InputGroup.Addon>
         <InputGroup.Text>€</InputGroup.Text>
-      </InputGroup.Addon>
-    </InputGroup>
-  )}
-</Field>
-</FieldGroup>
-```
-
-### Sizes
-Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.
-```tsx
-// Desktop
-<InputGroup size="lg">
-<InputGroup.Input placeholder="Search..." />
-<InputGroup.Addon>
-  <Search />
-</InputGroup.Addon>
-<InputGroup.Addon align="inline-end">
-  <InputGroup.Button>Search</InputGroup.Button>
-</InputGroup.Addon>
-</InputGroup>
-
-// Phone: one size, the 52px row.
-<FieldGroup columns>
-<Field row label="Domain">
-  {(control) => (
-    <InputGroup>
-      <InputGroup.Input {...control} defaultValue="plexui.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
-      <InputGroup.Addon>
-        <InputGroup.Text>https://</InputGroup.Text>
       </InputGroup.Addon>
     </InputGroup>
   )}
@@ -4417,6 +4388,35 @@ With InputGroup.Textarea, use block-start and block-end addons for a header and 
 <Button color="primary" size="3xl" pill block>Run</Button>
 ```
 
+### Sizes
+Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.
+```tsx
+// Desktop
+<InputGroup size="lg">
+<InputGroup.Input placeholder="Search..." />
+<InputGroup.Addon>
+  <Search />
+</InputGroup.Addon>
+<InputGroup.Addon align="inline-end">
+  <InputGroup.Button>Search</InputGroup.Button>
+</InputGroup.Addon>
+</InputGroup>
+
+// Phone: one size, the 52px row.
+<FieldGroup columns>
+<Field row label="Domain">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} defaultValue="plexui.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+      <InputGroup.Addon>
+        <InputGroup.Text>https://</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+</FieldGroup>
+```
+
 ## Input
 Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
 Import: import { Input } from "@plexui/ui/components/Input"
@@ -4491,27 +4491,6 @@ Use variant to stylize the input. ghost has no border and no fill, for a field i
 </Field>
 <Field row orientation="vertical" label="Email">
   <Input variant="ghost" type="email" placeholder="name@example.com" disabled />
-</Field>
-</FieldGroup>
-```
-
-### Sizing & roundness
-Sizing of the input is controlled with size and gutterSize props. size sets the input to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so this example has no Phone switch.
-```tsx
-// Desktop
-<div className="flex flex-col gap-2.5 justify-start items-start w-[320px]">
-<Input placeholder="Enter text..." size="lg" />
-<Input placeholder="Search..." startAdornment={<Search className="fill-tertiary" />} size="lg" />
-<Input value={username} placeholder="Username" onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{username.length}/16</span>} />
-</div>
-
-// Phone: the row sets the height, insets and type.
-<FieldGroup columns>
-<Field row label="Name">
-  <Input placeholder="Enter text..." />
-</Field>
-<Field row label="Username">
-  <Input value={username} placeholder="Required" onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className="tabular-nums text-secondary">{username.length}/16</span>} />
 </Field>
 </FieldGroup>
 ```
@@ -4674,24 +4653,6 @@ invalid={!!errorMessage}
 </FieldGroup>
 ```
 
-### Behavior
-Pass autoSelect to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change. By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling. When name is passed, or type is set to "password", this value will default to true. Both behave the same in a phone row, so this example has no Phone switch.
-```tsx
-// Desktop
-<Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />
-<Input allowAutofillExtensions name="email" placeholder="Allowed" />
-
-// Phone
-<FieldGroup>
-<Field row label="Name">
-  <Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />
-</Field>
-<Field row label="Email">
-  <Input allowAutofillExtensions name="email" placeholder="Allowed" />
-</Field>
-</FieldGroup>
-```
-
 ### With button
 You can pair Input and Button components together by using the same size value. On Phone, the button is the 50px main action under the group, size="3xl".
 ```tsx
@@ -4708,6 +4669,45 @@ You can pair Input and Button components together by using the same size value. 
 </Field>
 </FieldGroup>
 <Button color="primary" size="3xl" pill block>Subscribe</Button>
+```
+
+### Sizing & roundness
+Sizing of the input is controlled with size and gutterSize props. size sets the input to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so this example has no Phone switch.
+```tsx
+// Desktop
+<div className="flex flex-col gap-2.5 justify-start items-start w-[320px]">
+<Input placeholder="Enter text..." size="lg" />
+<Input placeholder="Search..." startAdornment={<Search className="fill-tertiary" />} size="lg" />
+<Input value={username} placeholder="Username" onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{username.length}/16</span>} />
+</div>
+
+// Phone: the row sets the height, insets and type.
+<FieldGroup columns>
+<Field row label="Name">
+  <Input placeholder="Enter text..." />
+</Field>
+<Field row label="Username">
+  <Input value={username} placeholder="Required" onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className="tabular-nums text-secondary">{username.length}/16</span>} />
+</Field>
+</FieldGroup>
+```
+
+### Behavior
+Pass autoSelect to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change. By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling. When name is passed, or type is set to "password", this value will default to true. Both behave the same in a phone row, so this example has no Phone switch.
+```tsx
+// Desktop
+<Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />
+<Input allowAutofillExtensions name="email" placeholder="Allowed" />
+
+// Phone
+<FieldGroup>
+<Field row label="Name">
+  <Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />
+</Field>
+<Field row label="Email">
+  <Input allowAutofillExtensions name="email" placeholder="Allowed" />
+</Field>
+</FieldGroup>
 ```
 
 ### Optical alignment
@@ -5118,39 +5118,6 @@ const [group, setGroup] = useState("date")
 </Toolbar>
 ```
 
-### Natural sizing
-Menu supports several sizing strategies:Natural sizing: use minWidth="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and minWidth to set the menu to a fixed size, regardless of content size.Flexible sizing: minWidth can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of Menu.Content. maxWidth isn't exposed as a prop because it's reserved for Radix variables used in collision detection.Desktop only: on a phone a menu is the 250px panel of iOS menus, unless it sets a width or a larger minimum width of its own.
-```tsx
-<Menu>
-<Menu.Trigger>
-  <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><Tools /> Tools</Button>
-</Menu.Trigger>
-<Menu.Content minWidth="auto">
-  <Menu.Item onSelect={() => {}}><Functions height={18} width={18} /> Function</Menu.Item>
-  <Menu.Item onSelect={() => {}}><Search height={18} width={18} /> File Search</Menu.Item>
-  <Menu.Item onSelect={() => {}}><Globe height={18} width={18} /> Web Search</Menu.Item>
-  <Menu.Item onSelect={() => {}}><Code height={18} width={18} /> Code Interpreter</Menu.Item>
-  <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image Generation</Menu.Item>
-</Menu.Content>
-</Menu>
-```
-
-### Horizontal (icons only)
-Set layout="horizontal" on Menu.Content for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled mode switch at the top of a menu, as in Mode switch below.
-```tsx
-<Menu>
-<Menu.Trigger>
-  <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
-</Menu.Trigger>
-<Menu.Content layout="horizontal" size="md" minWidth="auto">
-  <Menu.Item onSelect={() => {}}><EditPencil /><span className="sr-only">Edit</span></Menu.Item>
-  <Menu.Item onSelect={() => {}}><SettingsCog /><span className="sr-only">Settings</span></Menu.Item>
-  <Menu.Item onSelect={() => {}}><Play /><span className="sr-only">Play</span></Menu.Item>
-  <Menu.Item onSelect={() => {}}><UnfoldHorizontal /><span className="sr-only">Expand</span></Menu.Item>
-</Menu.Content>
-</Menu>
-```
-
 ### Mode switch
 Set layout="horizontal" on a Menu.RadioGroup at the top of a menu for a mode switch: one mode of several, the options side by side, each an icon over its label, with the chosen one on a fill, above the list, as Photos orders by Added or by Captured. The options are radio items, so the fill moves with the value, no radio indicator is drawn, and choosing one closes the menu, as any item does. On a phone with touch.css they are equal 56px-tall tiles with a 20px icon over a 12px label, 10px from the panel's edges, the chosen one on black at 12%, as in Photos. Phone only: the mode switch is an iOS pattern, which desktop menus do not have; there modes are radio items of the list, as in Radio items below.
 ```tsx
@@ -5503,36 +5470,6 @@ const [value, setValue] = useState("any")
 </Toolbar>
 ```
 
-### Item actions
-Use Menu.ItemActions and Menu.ItemAction for hover actions (e.g. delete) on an item.Accessibility note: these actions are not keyboard accessible due to how Radix Menu works, so they should not be critical actions with no other parity.Desktop only: the rows of an iOS menu carry no actions of their own.
-```tsx
-<Menu>
-<Menu.Trigger>
-  <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><History /> Conversations</Button>
-</Menu.Trigger>
-<Menu.Content width={270}>
-  <Menu.Item onSelect={() => {}}>
-    <span className="flex-1 truncate">Sample thread title</span>
-    <Menu.ItemActions>
-      <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
-    </Menu.ItemActions>
-  </Menu.Item>
-  <Menu.Item onSelect={() => {}}>
-    <span className="flex-1 truncate">Another sample thread title</span>
-    <Menu.ItemActions>
-      <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
-    </Menu.ItemActions>
-  </Menu.Item>
-  <Menu.Item onSelect={() => {}}>
-    <span className="flex-1 truncate">Long thread title that is going to be clipped off</span>
-    <Menu.ItemActions>
-      <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
-    </Menu.ItemActions>
-  </Menu.Item>
-</Menu.Content>
-</Menu>
-```
-
 ### Destructive items
 Mark a destructive action (delete, remove, leave) with danger: the label and the highlight take the danger color, and a description keeps its secondary color. Menu.Link takes danger too. Put such items last, after a separator.
 ```tsx
@@ -5568,6 +5505,69 @@ Mark a destructive action (delete, remove, leave) with danger: the label and the
     </Menu>
   </Toolbar.Trailing>
 </Toolbar>
+```
+
+### Natural sizing
+Menu supports several sizing strategies:Natural sizing: use minWidth="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and minWidth to set the menu to a fixed size, regardless of content size.Flexible sizing: minWidth can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of Menu.Content. maxWidth isn't exposed as a prop because it's reserved for Radix variables used in collision detection.Desktop only: on a phone a menu is the 250px panel of iOS menus, unless it sets a width or a larger minimum width of its own.
+```tsx
+<Menu>
+<Menu.Trigger>
+  <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><Tools /> Tools</Button>
+</Menu.Trigger>
+<Menu.Content minWidth="auto">
+  <Menu.Item onSelect={() => {}}><Functions height={18} width={18} /> Function</Menu.Item>
+  <Menu.Item onSelect={() => {}}><Search height={18} width={18} /> File Search</Menu.Item>
+  <Menu.Item onSelect={() => {}}><Globe height={18} width={18} /> Web Search</Menu.Item>
+  <Menu.Item onSelect={() => {}}><Code height={18} width={18} /> Code Interpreter</Menu.Item>
+  <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image Generation</Menu.Item>
+</Menu.Content>
+</Menu>
+```
+
+### Horizontal (icons only)
+Set layout="horizontal" on Menu.Content for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled mode switch at the top of a menu, as in Mode switch above.
+```tsx
+<Menu>
+<Menu.Trigger>
+  <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
+</Menu.Trigger>
+<Menu.Content layout="horizontal" size="md" minWidth="auto">
+  <Menu.Item onSelect={() => {}}><EditPencil /><span className="sr-only">Edit</span></Menu.Item>
+  <Menu.Item onSelect={() => {}}><SettingsCog /><span className="sr-only">Settings</span></Menu.Item>
+  <Menu.Item onSelect={() => {}}><Play /><span className="sr-only">Play</span></Menu.Item>
+  <Menu.Item onSelect={() => {}}><UnfoldHorizontal /><span className="sr-only">Expand</span></Menu.Item>
+</Menu.Content>
+</Menu>
+```
+
+### Item actions
+Use Menu.ItemActions and Menu.ItemAction for hover actions (e.g. delete) on an item.Accessibility note: these actions are not keyboard accessible due to how Radix Menu works, so they should not be critical actions with no other parity.Desktop only: the rows of an iOS menu carry no actions of their own.
+```tsx
+<Menu>
+<Menu.Trigger>
+  <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><History /> Conversations</Button>
+</Menu.Trigger>
+<Menu.Content width={270}>
+  <Menu.Item onSelect={() => {}}>
+    <span className="flex-1 truncate">Sample thread title</span>
+    <Menu.ItemActions>
+      <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
+    </Menu.ItemActions>
+  </Menu.Item>
+  <Menu.Item onSelect={() => {}}>
+    <span className="flex-1 truncate">Another sample thread title</span>
+    <Menu.ItemActions>
+      <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
+    </Menu.ItemActions>
+  </Menu.Item>
+  <Menu.Item onSelect={() => {}}>
+    <span className="flex-1 truncate">Long thread title that is going to be clipped off</span>
+    <Menu.ItemActions>
+      <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
+    </Menu.ItemActions>
+  </Menu.Item>
+</Menu.Content>
+</Menu>
 ```
 
 ## OTP Input
@@ -5700,17 +5700,6 @@ The header has no line at rest. Scroll the content: the line comes after 4px and
 </Page>
 ```
 
-### Widths
-The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. On a phone a page takes the width of the screen at every width, so this example is desktop only.
-```tsx
-<Page width="column">
-<Page.Header>...</Page.Header>
-<Page.Content>...</Page.Content>
-</Page>
-
-<Page width="column" style={{ "--page-width": "860px" }}>...</Page>
-```
-
 ### Heading
 Page.Heading groups the title with metadata. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it.
 ```tsx
@@ -5747,6 +5736,17 @@ background sets how the header and the footer meet the content scrolled under th
   <Button color="primary" pill block>New order</Button>
 </Page.Footer>
 </Page>
+```
+
+### Widths
+The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. On a phone a page takes the width of the screen at every width, so this example is desktop only.
+```tsx
+<Page width="column">
+<Page.Header>...</Page.Header>
+<Page.Content>...</Page.Content>
+</Page>
+
+<Page width="column" style={{ "--page-width": "860px" }}>...</Page>
 ```
 
 ## Phone Layout
@@ -5865,22 +5865,6 @@ The popover can be sized with any combination of width, minWidth, or maxWidth. A
 <Popover.Trigger>...</Popover.Trigger>
 <Popover.Content minWidth="auto" side="top">...</Popover.Content>
 </Popover>
-```
-
-### Open on hover
-Use showOnHover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close.
-```tsx
-import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-
-function Example() {
-const wide = useBreakpoint('md');
-return (
-  <Popover showOnHover>
-    <Popover.Trigger>...</Popover.Trigger>
-    <Popover.Content side={wide ? 'right' : 'bottom'}>...</Popover.Content>
-  </Popover>
-);
-}
 ```
 
 ### Using the controller
@@ -6126,6 +6110,22 @@ const hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))
 </Page>
 ```
 
+### Open on hover
+Use showOnHover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close.
+```tsx
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+
+function Example() {
+const wide = useBreakpoint('md');
+return (
+  <Popover showOnHover>
+    <Popover.Trigger>...</Popover.Trigger>
+    <Popover.Content side={wide ? 'right' : 'bottom'}>...</Popover.Content>
+  </Popover>
+);
+}
+```
+
 ## Progress Steps
 Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
 Import: import { ProgressSteps } from "@plexui/ui/components/ProgressSteps"
@@ -6361,6 +6361,99 @@ const block = direction === "col" && orientation === "right"
 </RadioGroup>
 ```
 
+### With Field
+Wrap a RadioGroup in a Field for a shared label and description. Spread the field props from the render prop onto the group so it is described by the Field's description (aria-describedby). On a phone the FieldGroup title and description above the rows take this place.
+```tsx
+// Desktop
+<Field label="Notification method" description="Choose how you want to receive notifications.">
+{(fieldProps) => (
+  <RadioGroup direction="col" value={value} onChange={setValue} aria-label="Notification method" {...fieldProps}>
+    <RadioGroup.Item value="email">Email</RadioGroup.Item>
+    <RadioGroup.Item value="sms">SMS</RadioGroup.Item>
+    <RadioGroup.Item value="push">Push notification</RadioGroup.Item>
+  </RadioGroup>
+)}
+</Field>
+
+// Phone
+<RadioGroup direction="col" className="w-full" value={value} onChange={setValue} aria-label="Notification method">
+<FieldGroup title="Notification method" description="Choose how you want to receive notifications.">
+  <Field row label="Email"><RadioGroup.Item value="email" /></Field>
+  <Field row label="SMS"><RadioGroup.Item value="sms" /></Field>
+  <Field row label="Push notification"><RadioGroup.Item value="push" /></Field>
+</FieldGroup>
+</RadioGroup>
+```
+
+### With Field error
+When a Field has an errorMessage, it sets aria-invalid on the child control for screen readers. The error message is displayed below the group. On a phone a FieldError in the group's footer shows it under the rows; link it to the group with aria-describedby.
+```tsx
+const errorId = useId()
+
+// Desktop
+<Field
+label="Subscription plan"
+description="Select a plan to continue."
+errorMessage={showError ? "Please select a subscription plan." : undefined}
+>
+{(fieldProps) => (
+  <RadioGroup direction="col" aria-label="Subscription plan" {...fieldProps}>
+    <RadioGroup.Item value="monthly">Monthly ($9.99/month)</RadioGroup.Item>
+    <RadioGroup.Item value="yearly">Yearly ($99.99/year)</RadioGroup.Item>
+    <RadioGroup.Item value="lifetime">Lifetime ($299.99)</RadioGroup.Item>
+  </RadioGroup>
+)}
+</Field>
+
+// Phone
+<RadioGroup
+direction="col"
+className="w-full"
+value={value}
+onChange={setValue}
+aria-label="Subscription plan"
+aria-invalid={showError || undefined}
+aria-describedby={showError ? errorId : undefined}
+>
+<FieldGroup
+  title="Subscription plan"
+  description="Select a plan to continue."
+  footer={showError ? <FieldError id={errorId}>Please select a subscription plan.</FieldError> : undefined}
+>
+  <Field row label="Monthly ($9.99/month)"><RadioGroup.Item value="monthly" /></Field>
+  <Field row label="Yearly ($99.99/year)"><RadioGroup.Item value="yearly" /></Field>
+  <Field row label="Lifetime ($299.99)"><RadioGroup.Item value="lifetime" /></Field>
+</FieldGroup>
+</RadioGroup>
+```
+
+### Grouped sections
+Use dividers to separate radio groups into logical sections. Each section can be wrapped in a Field with its own label and description.
+```tsx
+// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+<Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Preferences</Page.Title></Page.Bar></Page.Header>
+<Page.Content>
+  <div className="flex flex-col gap-6">
+    <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
+      <FieldGroup title="Visibility" description="Control who can see project resources.">
+        <Field row label="Hidden"><RadioGroup.Item value="hidden" /></Field>
+        <Field row label="Visible to organization owners"><RadioGroup.Item value="owners" /></Field>
+        <Field row label="Visible to everyone"><RadioGroup.Item value="everyone" /></Field>
+      </FieldGroup>
+    </RadioGroup>
+    <RadioGroup direction="col" className="w-full" value={view} onChange={setView} aria-label="Default view">
+      <FieldGroup title="Default view" description="What opens first in a project.">
+        <Field row label="Board"><RadioGroup.Item value="board" /></Field>
+        <Field row label="List"><RadioGroup.Item value="list" /></Field>
+        <Field row label="Timeline"><RadioGroup.Item value="timeline" /></Field>
+      </FieldGroup>
+    </RadioGroup>
+  </div>
+</Page.Content>
+</Page>
+```
+
 ### With Checkbox
 Place RadioGroup alongside Checkbox controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.
 ```tsx
@@ -6433,72 +6526,6 @@ Combine Field-level label and description with item-level descriptions for optio
 </div>
 ```
 
-### With Field
-Wrap a RadioGroup in a Field for a shared label and description. Spread the field props from the render prop onto the group so it is described by the Field's description (aria-describedby). On a phone the FieldGroup title and description above the rows take this place.
-```tsx
-// Desktop
-<Field label="Notification method" description="Choose how you want to receive notifications.">
-{(fieldProps) => (
-  <RadioGroup direction="col" value={value} onChange={setValue} aria-label="Notification method" {...fieldProps}>
-    <RadioGroup.Item value="email">Email</RadioGroup.Item>
-    <RadioGroup.Item value="sms">SMS</RadioGroup.Item>
-    <RadioGroup.Item value="push">Push notification</RadioGroup.Item>
-  </RadioGroup>
-)}
-</Field>
-
-// Phone
-<RadioGroup direction="col" className="w-full" value={value} onChange={setValue} aria-label="Notification method">
-<FieldGroup title="Notification method" description="Choose how you want to receive notifications.">
-  <Field row label="Email"><RadioGroup.Item value="email" /></Field>
-  <Field row label="SMS"><RadioGroup.Item value="sms" /></Field>
-  <Field row label="Push notification"><RadioGroup.Item value="push" /></Field>
-</FieldGroup>
-</RadioGroup>
-```
-
-### With Field error
-When a Field has an errorMessage, it sets aria-invalid on the child control for screen readers. The error message is displayed below the group. On a phone a FieldError in the group's footer shows it under the rows; link it to the group with aria-describedby.
-```tsx
-const errorId = useId()
-
-// Desktop
-<Field
-label="Subscription plan"
-description="Select a plan to continue."
-errorMessage={showError ? "Please select a subscription plan." : undefined}
->
-{(fieldProps) => (
-  <RadioGroup direction="col" aria-label="Subscription plan" {...fieldProps}>
-    <RadioGroup.Item value="monthly">Monthly ($9.99/month)</RadioGroup.Item>
-    <RadioGroup.Item value="yearly">Yearly ($99.99/year)</RadioGroup.Item>
-    <RadioGroup.Item value="lifetime">Lifetime ($299.99)</RadioGroup.Item>
-  </RadioGroup>
-)}
-</Field>
-
-// Phone
-<RadioGroup
-direction="col"
-className="w-full"
-value={value}
-onChange={setValue}
-aria-label="Subscription plan"
-aria-invalid={showError || undefined}
-aria-describedby={showError ? errorId : undefined}
->
-<FieldGroup
-  title="Subscription plan"
-  description="Select a plan to continue."
-  footer={showError ? <FieldError id={errorId}>Please select a subscription plan.</FieldError> : undefined}
->
-  <Field row label="Monthly ($9.99/month)"><RadioGroup.Item value="monthly" /></Field>
-  <Field row label="Yearly ($99.99/year)"><RadioGroup.Item value="yearly" /></Field>
-  <Field row label="Lifetime ($299.99)"><RadioGroup.Item value="lifetime" /></Field>
-</FieldGroup>
-</RadioGroup>
-```
-
 ### Choice card
 Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use orientation="right" to place the indicator after the content. Wrap each RadioGroup.Item in a card container with border and borderRadius on the same element. On a phone a choice with a description is a row, as in the Overview, so this example is desktop only.
 ```tsx
@@ -6529,33 +6556,6 @@ Leverage component composition and className overrides to build card-style radio
 </RadioGroup.Item>
 ...
 </RadioGroup>
-```
-
-### Grouped sections
-Use dividers to separate radio groups into logical sections. Each section can be wrapped in a Field with its own label and description.
-```tsx
-// BackButton is your app's navigation action.
-<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
-<Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Preferences</Page.Title></Page.Bar></Page.Header>
-<Page.Content>
-  <div className="flex flex-col gap-6">
-    <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
-      <FieldGroup title="Visibility" description="Control who can see project resources.">
-        <Field row label="Hidden"><RadioGroup.Item value="hidden" /></Field>
-        <Field row label="Visible to organization owners"><RadioGroup.Item value="owners" /></Field>
-        <Field row label="Visible to everyone"><RadioGroup.Item value="everyone" /></Field>
-      </FieldGroup>
-    </RadioGroup>
-    <RadioGroup direction="col" className="w-full" value={view} onChange={setView} aria-label="Default view">
-      <FieldGroup title="Default view" description="What opens first in a project.">
-        <Field row label="Board"><RadioGroup.Item value="board" /></Field>
-        <Field row label="List"><RadioGroup.Item value="list" /></Field>
-        <Field row label="Timeline"><RadioGroup.Item value="timeline" /></Field>
-      </FieldGroup>
-    </RadioGroup>
-  </div>
-</Page.Content>
-</Page>
 ```
 
 ## Segmented Control
@@ -8014,29 +8014,6 @@ const [disabled] = useState(false)
 </FieldGroup>
 ```
 
-### Adding a tooltip
-A tooltip can easily be added to the Slider label by providing JSX instead of a simple string. A tooltip opens on hover, which a phone does not have, so this example is desktop only.
-```tsx
-const [value, setValue] = useState(1000)
-
-return (
-<Slider
-  label={
-    <Tooltip content="More details about this field">
-      <Tooltip.TriggerDecorator>Example field</Tooltip.TriggerDecorator>
-    </Tooltip>
-  }
-  min={0}
-  max={2000}
-  resetValue={1000}
-  step={10}
-  unit="ms"
-  value={value}
-  onChange={setValue}
-/>
-)
-```
-
 ### Marks
 Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own.
 ```tsx
@@ -8119,6 +8096,29 @@ minStepsBetweenThumbs={5}
   <span className="text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums">{value.join(" – ")}</span>
 </div>
 </FieldGroup>
+```
+
+### Adding a tooltip
+A tooltip can easily be added to the Slider label by providing JSX instead of a simple string. A tooltip opens on hover, which a phone does not have, so this example is desktop only.
+```tsx
+const [value, setValue] = useState(1000)
+
+return (
+<Slider
+  label={
+    <Tooltip content="More details about this field">
+      <Tooltip.TriggerDecorator>Example field</Tooltip.TriggerDecorator>
+    </Tooltip>
+  }
+  min={0}
+  max={2000}
+  resetValue={1000}
+  step={10}
+  unit="ms"
+  value={value}
+  onChange={setValue}
+/>
+)
 ```
 
 ### Vertical

@@ -84,6 +84,7 @@ export const fill = `<Page>
 ## Examples
 
 <div id="first-component-page">
+
 ### Overview
 
 <ComponentPreview phonePresentation="screen" language="vue" details={<>The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top.</>} code={overview}>
@@ -102,24 +103,6 @@ export const fill = `<Page>
   </Page>`)} />
 </ComponentPreview>
 </div>
-
-### Widths
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms. For any other width set <code>--page-width</code> on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. On a phone a page takes the width of the screen at every width, so this example is desktop only.</>} code={widths}>
-  <VueDemo stageClassName={STAGE} state={{ rows }} controls={[{ name: "width", type: "select", options: ["full", "wide", "column"], default: "column" }]} template={frame(`  <Page :width="width" style="--page-width-wide: 640px; --page-width-column: 384px">
-    <PageHeader>
-      <PageBar>
-        <PageTitle>Orders</PageTitle>
-        <PageActions>
-          <Button color="primary" pill size="md">Export</Button>
-        </PageActions>
-      </PageBar>
-    </PageHeader>
-    <PageContent>
-      ${list}
-    </PageContent>
-  </Page>`)} />
-</ComponentPreview>
 
 ### Heading
 
@@ -180,6 +163,24 @@ export const fill = `<Page>
     <PageFooter :background="bottomBackground">
       <Button color="primary" pill block>New order</Button>
     </PageFooter>
+  </Page>`)} />
+</ComponentPreview>
+
+### Widths
+
+<ComponentPreview phonePresentation="none" language="vue" details={<>The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms. For any other width set <code>--page-width</code> on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. On a phone a page takes the width of the screen at every width, so this example is desktop only.</>} code={widths}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} controls={[{ name: "width", type: "select", options: ["full", "wide", "column"], default: "column" }]} template={frame(`  <Page :width="width" style="--page-width-wide: 640px; --page-width-column: 384px">
+    <PageHeader>
+      <PageBar>
+        <PageTitle>Orders</PageTitle>
+        <PageActions>
+          <Button color="primary" pill size="md">Export</Button>
+        </PageActions>
+      </PageBar>
+    </PageHeader>
+    <PageContent>
+      ${list}
+    </PageContent>
   </Page>`)} />
 </ComponentPreview>
 

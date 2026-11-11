@@ -571,12 +571,6 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
   <VuePhoneRowsDemo template={variants} phoneTemplate={phoneRows(variantsPhone)} phoneStageClassName="w-full" />
 </ComponentPreview>
 
-### Sizes
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroupButton</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with <code>touch.css</code>, <code>3xs</code> to <code>xl</code> are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.</>} code={withPhone(sizes, sizesPhone)} previewMinHeight={480}>
-  <VuePhoneRowsDemo template={sizes} phoneTemplate={phoneRows(sizesPhone)} phoneStageClassName="w-full" desktopControlNames={["pill"]} stageClassName="py-10" state={{ sizes: sizeOptions }} controls={[{ name: "pill", type: "boolean", default: false }]} />
-</ComponentPreview>
-
 ### Align
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>align</code> on <code>InputGroupAddon</code> to place it before (<code>inline-start</code>, the default) or after (<code>inline-end</code>) the control, or as a row above (<code>block-start</code>) or below (<code>block-end</code>) it. Place addons after the control in the markup so the tab order starts with the field; <code>align</code> handles the visual position. On Phone the inline addons stay in the row (see Variants), a <code>block-start</code> text becomes the row's label and a <code>block-end</code> text the group's footer.</>} code={withPhone(align, alignPhone)} previewMinHeight={280}>
@@ -633,6 +627,12 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>With <code>InputGroupTextarea</code>, use <code>block-start</code> and <code>block-end</code> addons for a header and a footer. Utility classes such as <code>ml-auto</code> push a button to the far side.</>} code={withPhone(textarea, textareaPhone, "the header is the row's label, the status line the group's footer.")} previewMinHeight={280}>
   <VuePhoneRowsDemo template={textarea} phoneTemplate={phoneRows(textareaPhone)} phoneStageClassName="w-full" />
+</ComponentPreview>
+
+### Sizes
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroupButton</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with <code>touch.css</code>, <code>3xs</code> to <code>xl</code> are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.</>} code={withPhone(sizes, sizesPhone)} previewMinHeight={480}>
+  <VuePhoneRowsDemo template={sizes} phoneTemplate={phoneRows(sizesPhone)} phoneStageClassName="w-full" desktopControlNames={["pill"]} stageClassName="py-10" state={{ sizes: sizeOptions }} controls={[{ name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ## API

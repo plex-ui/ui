@@ -262,12 +262,6 @@ On Phone a label does not float: iOS has no floating label. Each field is a cell
   <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" controls={overviewControls} stageClassName="py-10 w-full flex justify-center" />
 </ComponentPreview>
 
-### Label inside
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>label-placement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box. On Phone a cell names its field with the placeholder, so this example has no Phone view.</>} code={inside} previewMinHeight={380}>
-  <VueFloatingLabelInputDemo template={inside} stageClassName="py-10" state={{ country: "es" }} />
-</ComponentPreview>
-
 ### Text fields
 
 Everything that is typed: more than one line, a password, or a phone number. Values with a mask, such as an [SSN](/vue/components/input#ssn-input) or a [birthday](/vue/components/input#birthday-input), are on the Input page: their mask works the same under a floating label.
@@ -310,6 +304,12 @@ Everything that is typed: more than one line, a password, or a phone number. Val
 
 <ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>FloatingLabelSelect</code> alongside <code>FloatingLabelInput</code> for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected. On Phone this is the cell of the Select example with a flag in its options, so it has no Phone view.</>} code={country} previewMinHeight={168}>
   <VueFloatingLabelInputDemo template={country} stageClassName="py-10" state={{ country: "" }} />
+</ComponentPreview>
+
+### Label inside
+
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>label-placement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box. On Phone a cell names its field with the placeholder, so this example has no Phone view.</>} code={inside} previewMinHeight={380}>
+  <VueFloatingLabelInputDemo template={inside} stageClassName="py-10" state={{ country: "es" }} />
 </ComponentPreview>
 
 ## API

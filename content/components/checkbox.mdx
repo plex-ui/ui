@@ -71,112 +71,6 @@ const options = [
   <CheckboxOverviewDemo />
 </ComponentPreview>
 
-### With Radio Group
-
-<ComponentPreview phonePresentation="none" details={<>Place <code>Checkbox</code> alongside <code>RadioGroup</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.</>} code={`const channels = [
-  { value: "email", label: "Email", description: "Messages delivered to your inbox." },
-  { value: "sms", label: "SMS", description: "Text messages to your phone number." },
-  { value: "push", label: "Push", description: "Real-time alerts on your device." },
-]
-const topics = [
-  { label: "Product updates", description: "New features and improvements.", checked: true },
-  { label: "Security alerts", description: "Account activity and login notifications.", checked: true },
-  { label: "Community", description: "Events, meetups, and discussions.", checked: false },
-]
-
-<div className="flex flex-col gap-6 w-full max-w-md">
-  <Field label="Notification channel" description="Choose how you'd like to be notified.">
-    {() => (
-      <RadioGroup direction="col" defaultValue="email" aria-label="Notification channel">
-        {channels.map((channel) => (
-          <RadioGroup.Item key={channel.value} value={channel.value}>
-            <div className="flex flex-col">
-              <span className="font-medium">{channel.label}</span>
-              <span className="text-xs text-secondary mt-0.5">{channel.description}</span>
-            </div>
-          </RadioGroup.Item>
-        ))}
-      </RadioGroup>
-    )}
-  </Field>
-  <Field label="Topics" description="Select the topics you want to follow.">
-    {() => (
-      <div className="flex flex-col gap-2.5">
-        {topics.map((topic) => (
-          <Checkbox
-            key={topic.label}
-            defaultChecked={topic.checked}
-            label={
-              <div className="flex flex-col">
-                <span className="font-medium">{topic.label}</span>
-                <span className="text-xs text-secondary mt-0.5">{topic.description}</span>
-              </div>
-            }
-          />
-        ))}
-      </div>
-    )}
-  </Field>
-</div>`} previewMinHeight={168}>
-  <ControlsAlignmentDemo />
-</ComponentPreview>
-
-### Descriptions
-
-<ComponentPreview phonePresentation="none" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as Group with description and Grouped sections show, so this example is desktop only.</>} code={`const [settings, setSettings] = useState({
-  projects: true,
-  members: true,
-  csv: true,
-  json: false,
-  pdf: false,
-})
-const toggle = (key: keyof typeof settings) => () =>
-  setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
-
-<div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
-  <div className="pb-5">
-    <Field label="Export contents" description="Choose what the archive includes.">
-      {() => (
-        <div className="flex flex-col gap-2.5">
-          <Checkbox
-            label={
-              <div className="flex flex-col">
-                <span className="font-medium">Projects</span>
-                <span className="text-xs text-secondary mt-0.5">Files, comments, and version history.</span>
-              </div>
-            }
-            checked={settings.projects}
-            onCheckedChange={toggle("projects")}
-          />
-          <Checkbox
-            label={
-              <div className="flex flex-col">
-                <span className="font-medium">Members</span>
-                <span className="text-xs text-secondary mt-0.5">Names, roles, and email addresses.</span>
-              </div>
-            }
-            checked={settings.members}
-            onCheckedChange={toggle("members")}
-          />
-        </div>
-      )}
-    </Field>
-  </div>
-  <div className="pt-5">
-    <Field label="File formats">
-      {() => (
-        <div className="flex flex-col gap-3">
-          <Checkbox label="CSV" checked={settings.csv} onCheckedChange={toggle("csv")} />
-          <Checkbox label="JSON" checked={settings.json} onCheckedChange={toggle("json")} />
-          <Checkbox label="PDF" checked={settings.pdf} onCheckedChange={toggle("pdf")} />
-        </div>
-      )}
-    </Field>
-  </div>
-</div>`} previewMinHeight={380}>
-  <CheckboxDescriptionsDemo />
-</ComponentPreview>
-
 ### Group with select all
 
 <ComponentPreview details={<>Combine a parent checkbox with child checkboxes to create a "select all" pattern. The parent shows an <code>indeterminate</code> state when only some children are checked. Each child is controlled by its item in <code>items</code>.</>} code={`const [items, setItems] = useState([
@@ -312,6 +206,111 @@ const toggle = (key: keyof typeof settings) => () =>
   <CheckboxNotificationSettingsDemo />
 </ComponentPreview>
 
+### With Radio Group
+
+<ComponentPreview phonePresentation="none" details={<>Place <code>Checkbox</code> alongside <code>RadioGroup</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.</>} code={`const channels = [
+  { value: "email", label: "Email", description: "Messages delivered to your inbox." },
+  { value: "sms", label: "SMS", description: "Text messages to your phone number." },
+  { value: "push", label: "Push", description: "Real-time alerts on your device." },
+]
+const topics = [
+  { label: "Product updates", description: "New features and improvements.", checked: true },
+  { label: "Security alerts", description: "Account activity and login notifications.", checked: true },
+  { label: "Community", description: "Events, meetups, and discussions.", checked: false },
+]
+
+<div className="flex flex-col gap-6 w-full max-w-md">
+  <Field label="Notification channel" description="Choose how you'd like to be notified.">
+    {() => (
+      <RadioGroup direction="col" defaultValue="email" aria-label="Notification channel">
+        {channels.map((channel) => (
+          <RadioGroup.Item key={channel.value} value={channel.value}>
+            <div className="flex flex-col">
+              <span className="font-medium">{channel.label}</span>
+              <span className="text-xs text-secondary mt-0.5">{channel.description}</span>
+            </div>
+          </RadioGroup.Item>
+        ))}
+      </RadioGroup>
+    )}
+  </Field>
+  <Field label="Topics" description="Select the topics you want to follow.">
+    {() => (
+      <div className="flex flex-col gap-2.5">
+        {topics.map((topic) => (
+          <Checkbox
+            key={topic.label}
+            defaultChecked={topic.checked}
+            label={
+              <div className="flex flex-col">
+                <span className="font-medium">{topic.label}</span>
+                <span className="text-xs text-secondary mt-0.5">{topic.description}</span>
+              </div>
+            }
+          />
+        ))}
+      </div>
+    )}
+  </Field>
+</div>`} previewMinHeight={168}>
+  <ControlsAlignmentDemo />
+</ComponentPreview>
+
+### Descriptions
+
+<ComponentPreview phonePresentation="none" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as Group with description and Grouped sections show, so this example is desktop only.</>} code={`const [settings, setSettings] = useState({
+  projects: true,
+  members: true,
+  csv: true,
+  json: false,
+  pdf: false,
+})
+const toggle = (key: keyof typeof settings) => () =>
+  setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
+
+<div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
+  <div className="pb-5">
+    <Field label="Export contents" description="Choose what the archive includes.">
+      {() => (
+        <div className="flex flex-col gap-2.5">
+          <Checkbox
+            label={
+              <div className="flex flex-col">
+                <span className="font-medium">Projects</span>
+                <span className="text-xs text-secondary mt-0.5">Files, comments, and version history.</span>
+              </div>
+            }
+            checked={settings.projects}
+            onCheckedChange={toggle("projects")}
+          />
+          <Checkbox
+            label={
+              <div className="flex flex-col">
+                <span className="font-medium">Members</span>
+                <span className="text-xs text-secondary mt-0.5">Names, roles, and email addresses.</span>
+              </div>
+            }
+            checked={settings.members}
+            onCheckedChange={toggle("members")}
+          />
+        </div>
+      )}
+    </Field>
+  </div>
+  <div className="pt-5">
+    <Field label="File formats">
+      {() => (
+        <div className="flex flex-col gap-3">
+          <Checkbox label="CSV" checked={settings.csv} onCheckedChange={toggle("csv")} />
+          <Checkbox label="JSON" checked={settings.json} onCheckedChange={toggle("json")} />
+          <Checkbox label="PDF" checked={settings.pdf} onCheckedChange={toggle("pdf")} />
+        </div>
+      )}
+    </Field>
+  </div>
+</div>`} previewMinHeight={380}>
+  <CheckboxDescriptionsDemo />
+</ComponentPreview>
 
 ## API
 

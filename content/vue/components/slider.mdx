@@ -156,12 +156,6 @@ On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: th
   <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} stageClassName={stage} state={{ value: 1000 }} controls={[{ name: "disabled", type: "boolean", default: false }]} />
 </ComponentPreview>
 
-### Adding a tooltip
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>A tooltip can easily be added to the Slider label by passing rich content through the <code>label</code> slot instead of a simple string. A tooltip opens on hover, which a phone does not have, so this example is desktop only.</>} code={tooltip} previewMinHeight={168}>
-  <VueDemo template={tooltip} stageClassName={stage} state={{ value: 1000 }} />
-</ComponentPreview>
-
 ### Marks
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Slider marks can be easily added by passing an array of values to the <code>marks</code> prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own.</>} code={withPhone(marks, marksPhone)} previewMinHeight={168}>
@@ -178,6 +172,12 @@ On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: th
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Pass three or more values to create a multi-thumb slider. Use <code>min-steps-between-thumbs</code> to enforce minimum spacing between thumbs.</>} code={withPhone(multipleThumbs, multipleThumbsPhone, "the values go under the track")} previewMinHeight={168}>
   <VuePhoneRowsDemo template={multipleThumbs} phoneTemplate={phoneRows(multipleThumbsPhone)} stageClassName={stage} state={{ value: [10, 40, 70] }} />
+</ComponentPreview>
+
+### Adding a tooltip
+
+<ComponentPreview phonePresentation="none" language="vue" details={<>A tooltip can easily be added to the Slider label by passing rich content through the <code>label</code> slot instead of a simple string. A tooltip opens on hover, which a phone does not have, so this example is desktop only.</>} code={tooltip} previewMinHeight={168}>
+  <VueDemo template={tooltip} stageClassName={stage} state={{ value: 1000 }} />
 </ComponentPreview>
 
 ### Vertical

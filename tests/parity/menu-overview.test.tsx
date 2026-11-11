@@ -20,7 +20,11 @@ const demo = readFileSync('components/docs/MenuDemos.tsx', 'utf8');
 const reactDocs = readFileSync('content/components/menu.mdx', 'utf8');
 const vueDocs = readFileSync('content/vue/components/menu.mdx', 'utf8');
 
-const section = (docs: string, from = '### Overview', to = '### Natural sizing') => docs.slice(docs.indexOf(from), docs.indexOf(to));
+// A section runs to the next heading, or to `to` when given
+const section = (docs: string, from = '### Overview', to?: string) => {
+  const start = docs.indexOf(from);
+  return docs.slice(start, to ? docs.indexOf(to) : docs.indexOf('\n### ', start + from.length));
+};
 const reactDemo = demo.slice(demo.indexOf('export function MenuBaseDemo'), demo.indexOf('export function MenuNaturalSizingDemo'));
 const vueExport = (name: string) => vueDocs.slice(vueDocs.indexOf(`export const ${name} =`), vueDocs.indexOf('</Menu>`', vueDocs.indexOf(`export const ${name} =`)));
 const vueTemplate = vueExport('overview');

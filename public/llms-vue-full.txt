@@ -260,21 +260,6 @@ You can add actions to the alert with the actions slot. Combine with @dismiss to
 </div>
 ```
 
-### Action placement
-Actions are automatically positioned in the alert by default. You can force a specific position with the actions-placement prop by passing either 'end' or 'bottom'. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only.
-```vue
-<Alert
-  title="Our terms of service has been updated"
-  description="We've updated our terms to clarify how we handle data, billing, and user permissions. Please review and accept the latest terms to avoid impacting your service."
-  actions-placement="bottom"
->
-  <template #actions>
-    <Button color="primary" variant="soft" pill>Set reminder</Button>
-    <Button color="primary" variant="solid" pill>Review terms</Button>
-  </template>
-</Alert>
-```
-
 ### Indicator
 Alert provides an indicator icon by default. You can override it with the indicator slot, or pass :indicator="false" to hide it entirely.
 ```vue
@@ -330,6 +315,21 @@ Use banner for a full-width strip across the top or bottom of a page or panel: o
     </template>
   </Alert>
 </div>
+```
+
+### Action placement
+Actions are automatically positioned in the alert by default. You can force a specific position with the actions-placement prop by passing either 'end' or 'bottom'. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only.
+```vue
+<Alert
+  title="Our terms of service has been updated"
+  description="We've updated our terms to clarify how we handle data, billing, and user permissions. Please review and accept the latest terms to avoid impacting your service."
+  actions-placement="bottom"
+>
+  <template #actions>
+    <Button color="primary" variant="soft" pill>Set reminder</Button>
+    <Button color="primary" variant="solid" pill>Review terms</Button>
+  </template>
+</Alert>
 ```
 
 ## Avatar
@@ -612,21 +612,6 @@ Breadcrumb renders a nav landmark named "Breadcrumb" around an ordered list. An 
 </Breadcrumb>
 ```
 
-### Sizes
-Use size="sm" for a trail above a compact header; the default md sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.
-```vue
-<Breadcrumb size="sm">
-  <BreadcrumbItem href="#">Projects</BreadcrumbItem>
-  <BreadcrumbItem href="#">Website</BreadcrumbItem>
-  <BreadcrumbItem current>Deployments</BreadcrumbItem>
-</Breadcrumb>
-<Breadcrumb>
-  <BreadcrumbItem href="#">Projects</BreadcrumbItem>
-  <BreadcrumbItem href="#">Website</BreadcrumbItem>
-  <BreadcrumbItem current>Deployments</BreadcrumbItem>
-</Breadcrumb>
-```
-
 ### Separator
 A small chevron stands between items by default. The separator slot replaces it, such as with a slash for file paths. Separators are hidden from assistive technology.
 ```vue
@@ -650,6 +635,21 @@ A trail that does not fit wraps onto the next line instead of leaving the screen
     <BreadcrumbItem current>Invoice 2024-0193</BreadcrumbItem>
   </Breadcrumb>
 </div>
+```
+
+### Sizes
+Use size="sm" for a trail above a compact header; the default md sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.
+```vue
+<Breadcrumb size="sm">
+  <BreadcrumbItem href="#">Projects</BreadcrumbItem>
+  <BreadcrumbItem href="#">Website</BreadcrumbItem>
+  <BreadcrumbItem current>Deployments</BreadcrumbItem>
+</Breadcrumb>
+<Breadcrumb>
+  <BreadcrumbItem href="#">Projects</BreadcrumbItem>
+  <BreadcrumbItem href="#">Website</BreadcrumbItem>
+  <BreadcrumbItem current>Deployments</BreadcrumbItem>
+</Breadcrumb>
 ```
 
 ## Button
@@ -827,19 +827,6 @@ const label = (variant: string) => variant.charAt(0).toUpperCase() + variant.sli
 </template>
 ```
 
-### Selected
-Use selected to show that a button is in an open or selected state. The exact visual behavior differs across each variant. This behavior is automatically configured with components like Menu that apply [aria-expanded="true"] or [data-state="open"] attributes.
-```vue
-<Popover>
-  <PopoverTrigger>
-    <Button color="primary" :selected="selected" :variant="variant">Click to open</Button>
-  </PopoverTrigger>
-  <PopoverContent min-width="auto" class="p-4 text-sm">
-    Button should look selected
-  </PopoverContent>
-</Popover>
-```
-
 ### Optical alignment
 Use optically-align with either "start" or "end" to offset the gutter of the button. On a phone a button under text starts its label where the text does, as Forgot your password? under the Apple Account sign-in, whose text starts 40px from the screen's edge; a soft button shows its capsule reaching past the text. The button is as wide as its label: a full-width button centers its label, which leaves nothing to align.
 ```vue
@@ -860,6 +847,19 @@ Use optically-align with either "start" or "end" to offset the gutter of the but
   <p class="text-[17px] leading-[22px] text-secondary">Sign in with your email or phone number to continue.</p>
   <Button color="secondary" variant="soft" size="xl" :optically-align="opticallyAlign === 'start' ? 'start' : undefined">Forgot your password?</Button>
 </div>
+```
+
+### Selected
+Use selected to show that a button is in an open or selected state. The exact visual behavior differs across each variant. This behavior is automatically configured with components like Menu that apply [aria-expanded="true"] or [data-state="open"] attributes.
+```vue
+<Popover>
+  <PopoverTrigger>
+    <Button color="primary" :selected="selected" :variant="variant">Click to open</Button>
+  </PopoverTrigger>
+  <PopoverContent min-width="auto" class="p-4 text-sm">
+    Button should look selected
+  </PopoverContent>
+</Popover>
 ```
 
 ## Button Group
@@ -951,6 +951,37 @@ Pass orientation="vertical" to stack the buttons, useful for + / − steppers, z
 </ButtonGroup>
 ```
 
+### Input group
+Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via the endAdornment slot. Use InputAdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size. On a phone with touch.css the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.
+```vue
+<ButtonGroup style="width: 100%; max-width: 280px">
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" pill :size="size" uniform aria-label="Add attachment">
+      <Plus />
+    </Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Input
+      pill
+      :size="size"
+      :placeholder="voiceEnabled ? 'Recording your idea…' : 'Describe a component…'"
+      :disabled="voiceEnabled"
+    >
+      <template #endAdornment>
+        <InputAdornmentButton
+          :color="voiceEnabled ? 'caution' : undefined"
+          aria-label="Toggle voice mode"
+          :aria-pressed="voiceEnabled"
+          @click="voiceEnabled = !voiceEnabled"
+        >
+          <Mic />
+        </InputAdornmentButton>
+      </template>
+    </Input>
+  </ButtonGroup>
+</ButtonGroup>
+```
+
 ### Nested
 Place ButtonGroup inside ButtonGroup to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern.
 ```vue
@@ -999,37 +1030,6 @@ Join an Input to a trailing Button for inline search, token entry, or URL shorte
   <Button variant="outline" color="secondary" :size="size" aria-label="Search">
     <SearchSm />
   </Button>
-</ButtonGroup>
-```
-
-### Input group
-Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via the endAdornment slot. Use InputAdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size. On a phone with touch.css the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.
-```vue
-<ButtonGroup style="width: 100%; max-width: 280px">
-  <ButtonGroup>
-    <Button variant="outline" color="secondary" pill :size="size" uniform aria-label="Add attachment">
-      <Plus />
-    </Button>
-  </ButtonGroup>
-  <ButtonGroup>
-    <Input
-      pill
-      :size="size"
-      :placeholder="voiceEnabled ? 'Recording your idea…' : 'Describe a component…'"
-      :disabled="voiceEnabled"
-    >
-      <template #endAdornment>
-        <InputAdornmentButton
-          :color="voiceEnabled ? 'caution' : undefined"
-          aria-label="Toggle voice mode"
-          :aria-pressed="voiceEnabled"
-          @click="voiceEnabled = !voiceEnabled"
-        >
-          <Mic />
-        </InputAdornmentButton>
-      </template>
-    </Input>
-  </ButtonGroup>
 </ButtonGroup>
 ```
 
@@ -1536,91 +1536,6 @@ A checkbox is checked, unchecked or indeterminate. Pass checked="indeterminate",
 </div>
 ```
 
-### With Radio Group
-Place Checkbox alongside RadioGroup controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.
-```vue
-<div class="flex flex-col gap-6 w-full max-w-md">
-  <Field label="Notification channel" description="Choose how you'd like to be notified." v-slot="{ id }">
-    <RadioGroup :direction="direction" default-value="email" aria-label="Notification channel">
-      <RadioGroupItem
-        v-for="channel in [
-          { value: 'email', label: 'Email', description: 'Messages delivered to your inbox.' },
-          { value: 'sms', label: 'SMS', description: 'Text messages to your phone number.' },
-          { value: 'push', label: 'Push', description: 'Real-time alerts on your device.' },
-        ]"
-        :key="channel.value"
-        :value="channel.value"
-      >
-        <div v-if="description === 'true'" class="flex flex-col">
-          <span class="font-medium">{{ channel.label }}</span>
-          <span class="text-xs text-secondary mt-0.5">{{ channel.description }}</span>
-        </div>
-        <template v-else>{{ channel.label }}</template>
-      </RadioGroupItem>
-    </RadioGroup>
-  </Field>
-  <Field label="Topics" description="Select the topics you want to follow." v-slot="{ id }">
-    <div :class="direction === 'row' ? 'flex flex-row gap-5' : 'flex flex-col gap-2.5'">
-      <Checkbox
-        v-for="topic in [
-          { label: 'Product updates', description: 'New features and improvements.', checked: true },
-          { label: 'Security alerts', description: 'Account activity and login notifications.', checked: true },
-          { label: 'Community', description: 'Events, meetups, and discussions.', checked: false },
-        ]"
-        :key="topic.label"
-        :default-checked="topic.checked"
-      >
-        <template #label>
-          <div v-if="description === 'true'" class="flex flex-col">
-            <span class="font-medium">{{ topic.label }}</span>
-            <span class="text-xs text-secondary mt-0.5">{{ topic.description }}</span>
-          </div>
-          <template v-else>{{ topic.label }}</template>
-        </template>
-      </Checkbox>
-    </div>
-  </Field>
-</div>
-```
-
-### Descriptions
-Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as Group with description and Grouped sections show, so this example is desktop only.
-```vue
-<div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
-  <div class="pb-5">
-    <Field label="Export contents" description="Choose what the archive includes." v-slot="{ id }">
-      <div class="flex flex-col gap-2.5">
-        <Checkbox v-model:checked="settings.projects">
-          <template #label>
-            <div class="flex flex-col">
-              <span class="font-medium">Projects</span>
-              <span class="text-xs text-secondary mt-0.5">Files, comments, and version history.</span>
-            </div>
-          </template>
-        </Checkbox>
-        <Checkbox v-model:checked="settings.members">
-          <template #label>
-            <div class="flex flex-col">
-              <span class="font-medium">Members</span>
-              <span class="text-xs text-secondary mt-0.5">Names, roles, and email addresses.</span>
-            </div>
-          </template>
-        </Checkbox>
-      </div>
-    </Field>
-  </div>
-  <div class="pt-5">
-    <Field label="File formats" v-slot="{ id }">
-      <div class="flex flex-col gap-3">
-        <Checkbox label="CSV" v-model:checked="settings.csv" />
-        <Checkbox label="JSON" v-model:checked="settings.json" />
-        <Checkbox label="PDF" v-model:checked="settings.pdf" />
-      </div>
-    </Field>
-  </div>
-</div>
-```
-
 ### Group with select all
 Combine a parent checkbox with child checkboxes to create a "select all" pattern. The parent shows an indeterminate state when only some children are checked. Each child binds v-model:checked to its item in items.
 ```vue
@@ -1716,6 +1631,91 @@ Use dividers to separate checkbox groups into logical sections. Each section can
   </PageContent>
 
 </Page>
+```
+
+### With Radio Group
+Place Checkbox alongside RadioGroup controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.
+```vue
+<div class="flex flex-col gap-6 w-full max-w-md">
+  <Field label="Notification channel" description="Choose how you'd like to be notified." v-slot="{ id }">
+    <RadioGroup :direction="direction" default-value="email" aria-label="Notification channel">
+      <RadioGroupItem
+        v-for="channel in [
+          { value: 'email', label: 'Email', description: 'Messages delivered to your inbox.' },
+          { value: 'sms', label: 'SMS', description: 'Text messages to your phone number.' },
+          { value: 'push', label: 'Push', description: 'Real-time alerts on your device.' },
+        ]"
+        :key="channel.value"
+        :value="channel.value"
+      >
+        <div v-if="description === 'true'" class="flex flex-col">
+          <span class="font-medium">{{ channel.label }}</span>
+          <span class="text-xs text-secondary mt-0.5">{{ channel.description }}</span>
+        </div>
+        <template v-else>{{ channel.label }}</template>
+      </RadioGroupItem>
+    </RadioGroup>
+  </Field>
+  <Field label="Topics" description="Select the topics you want to follow." v-slot="{ id }">
+    <div :class="direction === 'row' ? 'flex flex-row gap-5' : 'flex flex-col gap-2.5'">
+      <Checkbox
+        v-for="topic in [
+          { label: 'Product updates', description: 'New features and improvements.', checked: true },
+          { label: 'Security alerts', description: 'Account activity and login notifications.', checked: true },
+          { label: 'Community', description: 'Events, meetups, and discussions.', checked: false },
+        ]"
+        :key="topic.label"
+        :default-checked="topic.checked"
+      >
+        <template #label>
+          <div v-if="description === 'true'" class="flex flex-col">
+            <span class="font-medium">{{ topic.label }}</span>
+            <span class="text-xs text-secondary mt-0.5">{{ topic.description }}</span>
+          </div>
+          <template v-else>{{ topic.label }}</template>
+        </template>
+      </Checkbox>
+    </div>
+  </Field>
+</div>
+```
+
+### Descriptions
+Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory. On a phone the group title, its description and row descriptions do this, as Group with description and Grouped sections show, so this example is desktop only.
+```vue
+<div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
+  <div class="pb-5">
+    <Field label="Export contents" description="Choose what the archive includes." v-slot="{ id }">
+      <div class="flex flex-col gap-2.5">
+        <Checkbox v-model:checked="settings.projects">
+          <template #label>
+            <div class="flex flex-col">
+              <span class="font-medium">Projects</span>
+              <span class="text-xs text-secondary mt-0.5">Files, comments, and version history.</span>
+            </div>
+          </template>
+        </Checkbox>
+        <Checkbox v-model:checked="settings.members">
+          <template #label>
+            <div class="flex flex-col">
+              <span class="font-medium">Members</span>
+              <span class="text-xs text-secondary mt-0.5">Names, roles, and email addresses.</span>
+            </div>
+          </template>
+        </Checkbox>
+      </div>
+    </Field>
+  </div>
+  <div class="pt-5">
+    <Field label="File formats" v-slot="{ id }">
+      <div class="flex flex-col gap-3">
+        <Checkbox label="CSV" v-model:checked="settings.csv" />
+        <Checkbox label="JSON" v-model:checked="settings.json" />
+        <Checkbox label="PDF" v-model:checked="settings.pdf" />
+      </div>
+    </Field>
+  </div>
+</div>
 ```
 
 ## Code Block
@@ -3484,35 +3484,6 @@ Two things set the type: where the label rests (label-placement: on the border, 
 </FieldGroup>
 ```
 
-### Label inside
-Use label-placement="inside" on FloatingLabelInput and FloatingLabelSelect for long forms such as an address: the label stays inside the box, with the value under it. It works with multiline, adornments, errors and the clear button, and always takes the rounded box. On Phone a cell names its field with the placeholder, so this example has no Phone view.
-```vue
-<div class="flex w-[360px] flex-col gap-3">
-  <FloatingLabelInput label="Full name" label-placement="inside" default-value="Jane Doe" />
-  <Select
-    v-model:value="country"
-    :options="countries"
-    search-placeholder="Search countries..."
-    :list-min-width="360"
-    block
-    check-position="end"
-  >
-    <template #trigger="{ open }">
-      <FloatingLabelSelect
-        label="Country or region"
-        label-placement="inside"
-        :selected="!!country"
-        :open="open"
-      >
-        {{ countries.find((option) => option.value === country)?.label }}
-      </FloatingLabelSelect>
-    </template>
-  </Select>
-  <FloatingLabelInput label="Address line 1" label-placement="inside" />
-  <FloatingLabelInput label="Delivery notes" label-placement="inside" multiline />
-</div>
-```
-
 ### Textarea
 Use multiline to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height. On Phone the cell grows with a Textarea that starts at one line.
 ```vue
@@ -3692,6 +3663,35 @@ Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling
       </FloatingLabelSelect>
     </template>
   </Select>
+</div>
+```
+
+### Label inside
+Use label-placement="inside" on FloatingLabelInput and FloatingLabelSelect for long forms such as an address: the label stays inside the box, with the value under it. It works with multiline, adornments, errors and the clear button, and always takes the rounded box. On Phone a cell names its field with the placeholder, so this example has no Phone view.
+```vue
+<div class="flex w-[360px] flex-col gap-3">
+  <FloatingLabelInput label="Full name" label-placement="inside" default-value="Jane Doe" />
+  <Select
+    v-model:value="country"
+    :options="countries"
+    search-placeholder="Search countries..."
+    :list-min-width="360"
+    block
+    check-position="end"
+  >
+    <template #trigger="{ open }">
+      <FloatingLabelSelect
+        label="Country or region"
+        label-placement="inside"
+        :selected="!!country"
+        :open="open"
+      >
+        {{ countries.find((option) => option.value === country)?.label }}
+      </FloatingLabelSelect>
+    </template>
+  </Select>
+  <FloatingLabelInput label="Address line 1" label-placement="inside" />
+  <FloatingLabelInput label="Delivery notes" label-placement="inside" multiline />
 </div>
 ```
 
@@ -3917,56 +3917,6 @@ Use variant to stylize the input. ghost has no border and no fill, for a field i
       :invalid="state === 'invalid'"
       :disabled="state === 'disabled'"
     />
-  </Field>
-</FieldGroup>
-```
-
-### Sizing & roundness
-Sizing of the input is controlled with the size and gutter-size props. size sets the input to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so this example has no Phone switch.
-```vue
-<!-- Desktop -->
-<div class="flex flex-col gap-2.5 justify-start items-start w-[320px]">
-  <Input
-    placeholder="Enter text..."
-    :size="size"
-    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
-    :pill="pill"
-  />
-  <Input
-    placeholder="Search..."
-    :size="size"
-    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
-    :pill="pill"
-  >
-    <template #startAdornment>
-      <Search class="fill-tertiary" />
-    </template>
-  </Input>
-  <Input
-    v-model:value="username"
-    placeholder="Username"
-    maxlength="16"
-    :size="size"
-    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
-    :pill="pill"
-  >
-    <template #endAdornment>
-      <span class="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{{ username.length }}/16</span>
-    </template>
-  </Input>
-</div>
-
-<!-- Phone: the row sets the height, insets and type. -->
-<FieldGroup columns>
-  <Field row label="Name">
-    <Input placeholder="Enter text..." />
-  </Field>
-  <Field row label="Username">
-    <Input v-model:value="username" placeholder="Required" maxlength="16">
-      <template #endAdornment>
-        <span class="tabular-nums text-secondary">{{ username.length }}/16</span>
-      </template>
-    </Input>
   </Field>
 </FieldGroup>
 ```
@@ -4307,6 +4257,74 @@ Use invalid and FieldError to display a validation state when the entered date i
 </FieldGroup>
 ```
 
+### With button
+You can pair Input and Button components together by using the same size value. On Phone, the button is the 50px main action under the group, size="3xl".
+```vue
+<!-- Desktop -->
+<div class="flex w-[320px] gap-2">
+  <Input placeholder="jane.doe@gmail.com" :size="size" :variant="variant" />
+  <Button color="primary" :size="size" :variant="variant">Subscribe</Button>
+</div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Email">
+    <Input type="email" placeholder="jane.doe@gmail.com" />
+  </Field>
+</FieldGroup>
+<Button color="primary" size="3xl" pill block>Subscribe</Button>
+```
+
+### Sizing & roundness
+Sizing of the input is controlled with the size and gutter-size props. size sets the input to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so this example has no Phone switch.
+```vue
+<!-- Desktop -->
+<div class="flex flex-col gap-2.5 justify-start items-start w-[320px]">
+  <Input
+    placeholder="Enter text..."
+    :size="size"
+    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+    :pill="pill"
+  />
+  <Input
+    placeholder="Search..."
+    :size="size"
+    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+    :pill="pill"
+  >
+    <template #startAdornment>
+      <Search class="fill-tertiary" />
+    </template>
+  </Input>
+  <Input
+    v-model:value="username"
+    placeholder="Username"
+    maxlength="16"
+    :size="size"
+    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+    :pill="pill"
+  >
+    <template #endAdornment>
+      <span class="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{{ username.length }}/16</span>
+    </template>
+  </Input>
+</div>
+
+<!-- Phone: the row sets the height, insets and type. -->
+<FieldGroup columns>
+  <Field row label="Name">
+    <Input placeholder="Enter text..." />
+  </Field>
+  <Field row label="Username">
+    <Input v-model:value="username" placeholder="Required" maxlength="16">
+      <template #endAdornment>
+        <span class="tabular-nums text-secondary">{{ username.length }}/16</span>
+      </template>
+    </Input>
+  </Field>
+</FieldGroup>
+```
+
 ### Behavior
 Pass auto-select to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change. By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allow-autofill-extensions to remove the disabling. When name is passed, or type is set to "password", this value will default to true. Both behave the same in a phone row, so this example has no Phone switch.
 ```vue
@@ -4335,24 +4353,6 @@ Pass auto-select to select all text in the input, useful when pairing with other
     />
   </Field>
 </FieldGroup>
-```
-
-### With button
-You can pair Input and Button components together by using the same size value. On Phone, the button is the 50px main action under the group, size="3xl".
-```vue
-<!-- Desktop -->
-<div class="flex w-[320px] gap-2">
-  <Input placeholder="jane.doe@gmail.com" :size="size" :variant="variant" />
-  <Button color="primary" :size="size" :variant="variant">Subscribe</Button>
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Email">
-    <Input type="email" placeholder="jane.doe@gmail.com" />
-  </Field>
-</FieldGroup>
-<Button color="primary" size="3xl" pill block>Subscribe</Button>
 ```
 
 ### Optical alignment
@@ -4516,40 +4516,6 @@ Use variant to stylize the group, like Input. On Phone the row is the frame, so 
         <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
         <InputGroupAddon>
           <InputGroupText>€</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-</FieldGroup>
-```
-
-### Sizes
-Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.
-```vue
-<!-- Desktop -->
-<div class="flex flex-col gap-2.5 w-[360px]">
-  <div v-for="size in sizes" :key="size" class="flex items-center gap-4">
-    <span class="w-8 shrink-0 text-right text-sm text-tertiary">{{ size }}</span>
-    <InputGroup :size="size" :pill="pill">
-      <InputGroupInput placeholder="Search..." />
-      <InputGroupAddon>
-        <Search />
-      </InputGroupAddon>
-      <InputGroupAddon align="inline-end">
-        <InputGroupButton>Search</InputGroupButton>
-      </InputGroupAddon>
-    </InputGroup>
-  </div>
-</div>
-
-<!-- Phone -->
-<FieldGroup columns>
-  <Field row label="Domain">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" default-value="plexui.com" inputmode="url" autocapitalize="none" spellcheck="false" />
-        <InputGroupAddon>
-          <InputGroupText>https://</InputGroupText>
         </InputGroupAddon>
       </InputGroup>
     </template>
@@ -4922,6 +4888,40 @@ With InputGroupTextarea, use block-start and block-end addons for a header and a
   </Field>
 </FieldGroup>
 <Button color="primary" size="3xl" pill block>Run</Button>
+```
+
+### Sizes
+Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.
+```vue
+<!-- Desktop -->
+<div class="flex flex-col gap-2.5 w-[360px]">
+  <div v-for="size in sizes" :key="size" class="flex items-center gap-4">
+    <span class="w-8 shrink-0 text-right text-sm text-tertiary">{{ size }}</span>
+    <InputGroup :size="size" :pill="pill">
+      <InputGroupInput placeholder="Search..." />
+      <InputGroupAddon>
+        <Search />
+      </InputGroupAddon>
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton>Search</InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>
+  </div>
+</div>
+
+<!-- Phone -->
+<FieldGroup columns>
+  <Field row label="Domain">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" default-value="plexui.com" inputmode="url" autocapitalize="none" spellcheck="false" />
+        <InputGroupAddon>
+          <InputGroupText>https://</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+</FieldGroup>
 ```
 
 ## Kbd
@@ -5308,39 +5308,6 @@ A folder's menu, as Files opens it on iOS: actions with their icons, then the vi
 </Toolbar>
 ```
 
-### Natural sizing
-Menu supports several sizing strategies:Natural sizing: use min-width="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and min-width to set the menu to a fixed size, regardless of content size.Flexible sizing: min-width can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of MenuContent. maxWidth isn't exposed as a prop because it's reserved for the custom properties used in collision detection.Desktop only: on a phone a menu is the 250px panel of iOS menus, unless it sets a width or a larger minimum width of its own.
-```vue
-<Menu>
-  <MenuTrigger>
-    <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><Tools /> Tools</Button>
-  </MenuTrigger>
-  <MenuContent min-width="auto">
-    <MenuItem @select="() => {}"><Functions :height="18" :width="18" /> Function</MenuItem>
-    <MenuItem @select="() => {}"><Search :height="18" :width="18" /> File Search</MenuItem>
-    <MenuItem @select="() => {}"><Globe :height="18" :width="18" /> Web Search</MenuItem>
-    <MenuItem @select="() => {}"><Code :height="18" :width="18" /> Code Interpreter</MenuItem>
-    <MenuItem @select="() => {}"><ImageSquare :height="18" :width="18" /> Image Generation</MenuItem>
-  </MenuContent>
-</Menu>
-```
-
-### Horizontal (icons only)
-Set layout="horizontal" on MenuContent for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled mode switch at the top of a menu, as in Mode switch below.
-```vue
-<Menu>
-  <MenuTrigger>
-    <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
-  </MenuTrigger>
-  <MenuContent layout="horizontal" :size="size" min-width="auto">
-    <MenuItem @select="() => {}"><EditPencil /><span class="sr-only">Edit</span></MenuItem>
-    <MenuItem @select="() => {}"><SettingsCog /><span class="sr-only">Settings</span></MenuItem>
-    <MenuItem @select="() => {}"><Play /><span class="sr-only">Play</span></MenuItem>
-    <MenuItem @select="() => {}"><UnfoldHorizontal /><span class="sr-only">Expand</span></MenuItem>
-  </MenuContent>
-</Menu>
-```
-
 ### Mode switch
 Set layout="horizontal" on a MenuRadioGroup at the top of a menu for a mode switch: one mode of several, the options side by side, each an icon over its label, with the chosen one on a fill, above the list, as Photos orders by Added or by Captured. The options are radio items, so the fill moves with the value, no radio indicator is drawn, and choosing one closes the menu, as any item does. On a phone with touch.css they are equal 56px-tall tiles with a 20px icon over a 12px label, 10px from the panel's edges, the chosen one on black at 12%, as in Photos. Phone only: the mode switch is an iOS pattern, which desktop menus do not have; there modes are radio items of the list, as in Radio items below.
 ```vue
@@ -5658,36 +5625,6 @@ Use MenuRadioGroup and MenuRadioItem for single-selection options. Bind the sele
 </Toolbar>
 ```
 
-### Item actions
-Use MenuItemActions and MenuItemAction for hover actions (e.g. delete) on an item.Accessibility note: these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity.Desktop only: the rows of an iOS menu carry no actions of their own.
-```vue
-<Menu>
-  <MenuTrigger>
-    <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><History /> Conversations</Button>
-  </MenuTrigger>
-  <MenuContent :width="270">
-    <MenuItem @select="() => {}">
-      <span class="flex-1 truncate">Sample thread title</span>
-      <MenuItemActions>
-        <MenuItemAction @click="() => {}"><Trash /></MenuItemAction>
-      </MenuItemActions>
-    </MenuItem>
-    <MenuItem @select="() => {}">
-      <span class="flex-1 truncate">Another sample thread title</span>
-      <MenuItemActions>
-        <MenuItemAction @click="() => {}"><Trash /></MenuItemAction>
-      </MenuItemActions>
-    </MenuItem>
-    <MenuItem @select="() => {}">
-      <span class="flex-1 truncate">Long thread title that is going to be clipped off</span>
-      <MenuItemActions>
-        <MenuItemAction @click="() => {}"><Trash /></MenuItemAction>
-      </MenuItemActions>
-    </MenuItem>
-  </MenuContent>
-</Menu>
-```
-
 ### Destructive items
 Mark a destructive action (delete, remove, leave) with danger: the label and the highlight take the danger color, and a description keeps its secondary color. MenuLink takes danger too. Put such items last, after a separator.
 ```vue
@@ -5723,6 +5660,69 @@ Mark a destructive action (delete, remove, leave) with danger: the label and the
     </Menu>
   </ToolbarTrailing>
 </Toolbar>
+```
+
+### Natural sizing
+Menu supports several sizing strategies:Natural sizing: use min-width="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and min-width to set the menu to a fixed size, regardless of content size.Flexible sizing: min-width can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of MenuContent. maxWidth isn't exposed as a prop because it's reserved for the custom properties used in collision detection.Desktop only: on a phone a menu is the 250px panel of iOS menus, unless it sets a width or a larger minimum width of its own.
+```vue
+<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><Tools /> Tools</Button>
+  </MenuTrigger>
+  <MenuContent min-width="auto">
+    <MenuItem @select="() => {}"><Functions :height="18" :width="18" /> Function</MenuItem>
+    <MenuItem @select="() => {}"><Search :height="18" :width="18" /> File Search</MenuItem>
+    <MenuItem @select="() => {}"><Globe :height="18" :width="18" /> Web Search</MenuItem>
+    <MenuItem @select="() => {}"><Code :height="18" :width="18" /> Code Interpreter</MenuItem>
+    <MenuItem @select="() => {}"><ImageSquare :height="18" :width="18" /> Image Generation</MenuItem>
+  </MenuContent>
+</Menu>
+```
+
+### Horizontal (icons only)
+Set layout="horizontal" on MenuContent for an icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. Desktop only: iOS has no row of icons alone; on a phone a horizontal row is the labelled mode switch at the top of a menu, as in Mode switch above.
+```vue
+<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent layout="horizontal" :size="size" min-width="auto">
+    <MenuItem @select="() => {}"><EditPencil /><span class="sr-only">Edit</span></MenuItem>
+    <MenuItem @select="() => {}"><SettingsCog /><span class="sr-only">Settings</span></MenuItem>
+    <MenuItem @select="() => {}"><Play /><span class="sr-only">Play</span></MenuItem>
+    <MenuItem @select="() => {}"><UnfoldHorizontal /><span class="sr-only">Expand</span></MenuItem>
+  </MenuContent>
+</Menu>
+```
+
+### Item actions
+Use MenuItemActions and MenuItemAction for hover actions (e.g. delete) on an item.Accessibility note: these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity.Desktop only: the rows of an iOS menu carry no actions of their own.
+```vue
+<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><History /> Conversations</Button>
+  </MenuTrigger>
+  <MenuContent :width="270">
+    <MenuItem @select="() => {}">
+      <span class="flex-1 truncate">Sample thread title</span>
+      <MenuItemActions>
+        <MenuItemAction @click="() => {}"><Trash /></MenuItemAction>
+      </MenuItemActions>
+    </MenuItem>
+    <MenuItem @select="() => {}">
+      <span class="flex-1 truncate">Another sample thread title</span>
+      <MenuItemActions>
+        <MenuItemAction @click="() => {}"><Trash /></MenuItemAction>
+      </MenuItemActions>
+    </MenuItem>
+    <MenuItem @select="() => {}">
+      <span class="flex-1 truncate">Long thread title that is going to be clipped off</span>
+      <MenuItemActions>
+        <MenuItemAction @click="() => {}"><Trash /></MenuItemAction>
+      </MenuItemActions>
+    </MenuItem>
+  </MenuContent>
+</Menu>
 ```
 
 ## OTP Input
@@ -5799,17 +5799,6 @@ The header has no line at rest. Scroll the content: the line comes after 4px and
 </Page>
 ```
 
-### Widths
-The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. On a phone a page takes the width of the screen at every width, so this example is desktop only.
-```vue
-<Page width="column">
-  <PageHeader>...</PageHeader>
-  <PageContent>...</PageContent>
-</Page>
-
-<Page width="column" style="--page-width: 860px">...</Page>
-```
-
 ### Heading
 PageHeading groups the title with metadata. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it.
 ```vue
@@ -5846,6 +5835,17 @@ background sets how the header and the footer meet the content scrolled under th
     <Button color="primary" pill block>New order</Button>
   </PageFooter>
 </Page>
+```
+
+### Widths
+The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. On a phone a page takes the width of the screen at every width, so this example is desktop only.
+```vue
+<Page width="column">
+  <PageHeader>...</PageHeader>
+  <PageContent>...</PageContent>
+</Page>
+
+<Page width="column" style="--page-width: 860px">...</Page>
 ```
 
 ## Page Control
@@ -6054,56 +6054,6 @@ The popover can be sized with any combination of width, min-width, or max-width.
 </Popover>
 ```
 
-### Open on hover
-Use show-on-hover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close.
-```vue
-<script setup lang="ts">
-import { Button } from '@plexui/vue/components/Button';
-import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
-import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
-
-const wide = useBreakpoint('md');
-</script>
-
-<template>
-<div class="flex flex-col gap-4">
-  <Popover show-on-hover>
-    <PopoverTrigger>
-      <Button color="primary" :pill="false">Static content</Button>
-    </PopoverTrigger>
-    <PopoverContent :width="320" :side="wide ? 'right' : 'bottom'">
-      <div class="p-3">
-        <h3 class="mb-0.5 font-semibold">Popover Title</h3>
-        <p class="text-sm text-secondary">
-          This is an example of a hoverable popover containing presentational content.
-        </p>
-        <footer class="mt-2 text-xs text-tertiary">Last updated June 20, 2025</footer>
-      </div>
-    </PopoverContent>
-  </Popover>
-  <Popover show-on-hover>
-    <PopoverTrigger>
-      <Button color="primary" :pill="false">Interactive content</Button>
-    </PopoverTrigger>
-    <PopoverContent :min-width="230" :side="wide ? 'right' : 'bottom'" v-slot="{ close }">
-      <div class="p-3">
-        <h3 class="mb-0.5 text-sm font-semibold">Popover with actions</h3>
-        <p class="text-sm text-secondary">Try using tab to navigate</p>
-        <div class="mt-3 flex gap-2">
-          <Button color="secondary" variant="soft" :pill="false" @click="close">
-            Cancel
-          </Button>
-          <Button color="primary" :pill="false" @click="close">
-            Confirm
-          </Button>
-        </div>
-      </div>
-    </PopoverContent>
-  </Popover>
-</div>
-</template>
-```
-
 ### Using the controller
 The default slot of PopoverContent receives {"{ close, shake }"}. Components rendered inside it can get the same two methods from usePopoverController() in their setup(). They do exactly what you think they do.Attempting to submit an empty form calls the shake() methodAfter the simulated two-second request, close() dismisses the popup. Closing or unmounting cancels the pending request; reopening starts a fresh session.
 ```vue
@@ -6280,6 +6230,56 @@ A column-visibility panel built with Popover and Switch. Toggling a switch moves
     </ToolbarTrailing>
   </Toolbar>
 </Page>
+```
+
+### Open on hover
+Use show-on-hover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close.
+```vue
+<script setup lang="ts">
+import { Button } from '@plexui/vue/components/Button';
+import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
+import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
+
+const wide = useBreakpoint('md');
+</script>
+
+<template>
+<div class="flex flex-col gap-4">
+  <Popover show-on-hover>
+    <PopoverTrigger>
+      <Button color="primary" :pill="false">Static content</Button>
+    </PopoverTrigger>
+    <PopoverContent :width="320" :side="wide ? 'right' : 'bottom'">
+      <div class="p-3">
+        <h3 class="mb-0.5 font-semibold">Popover Title</h3>
+        <p class="text-sm text-secondary">
+          This is an example of a hoverable popover containing presentational content.
+        </p>
+        <footer class="mt-2 text-xs text-tertiary">Last updated June 20, 2025</footer>
+      </div>
+    </PopoverContent>
+  </Popover>
+  <Popover show-on-hover>
+    <PopoverTrigger>
+      <Button color="primary" :pill="false">Interactive content</Button>
+    </PopoverTrigger>
+    <PopoverContent :min-width="230" :side="wide ? 'right' : 'bottom'" v-slot="{ close }">
+      <div class="p-3">
+        <h3 class="mb-0.5 text-sm font-semibold">Popover with actions</h3>
+        <p class="text-sm text-secondary">Try using tab to navigate</p>
+        <div class="mt-3 flex gap-2">
+          <Button color="secondary" variant="soft" :pill="false" @click="close">
+            Cancel
+          </Button>
+          <Button color="primary" :pill="false" @click="close">
+            Confirm
+          </Button>
+        </div>
+      </div>
+    </PopoverContent>
+  </Popover>
+</div>
+</template>
 ```
 
 ## Progress
@@ -6513,6 +6513,99 @@ direction sets whether the items flow in a column or a row; the gap follows it. 
 </RadioGroup>
 ```
 
+### With Field
+Wrap a RadioGroup in a Field for a shared label and description. Bind the field props from the slot onto the group so it is described by the Field's description (aria-describedby). On a phone the FieldGroup title and description above the rows take this place.
+```vue
+<!-- Desktop -->
+<div class="max-w-sm">
+  <Field label="Notification method" description="Choose how you want to receive notifications." v-slot="fieldProps">
+    <RadioGroup direction="col" v-model:value="value" aria-label="Notification method" v-bind="fieldProps">
+      <RadioGroupItem value="email">Email</RadioGroupItem>
+      <RadioGroupItem value="sms">SMS</RadioGroupItem>
+      <RadioGroupItem value="push">Push notification</RadioGroupItem>
+    </RadioGroup>
+  </Field>
+</div>
+
+<!-- Phone -->
+<RadioGroup direction="col" class="w-full" v-model:value="value" aria-label="Notification method">
+  <FieldGroup title="Notification method" description="Choose how you want to receive notifications.">
+    <Field row label="Email"><RadioGroupItem value="email" /></Field>
+    <Field row label="SMS"><RadioGroupItem value="sms" /></Field>
+    <Field row label="Push notification"><RadioGroupItem value="push" /></Field>
+  </FieldGroup>
+</RadioGroup>
+```
+
+### With Field error
+When a Field has an error-message, it sets aria-invalid on the child control for screen readers. The error message is displayed below the group. On a phone a FieldError in the group's footer shows it under the rows; link it to the group with aria-describedby.
+```vue
+<!-- Desktop -->
+<div class="max-w-sm">
+  <Field
+    label="Subscription plan"
+    description="Select a plan to continue."
+    :error-message="showError ? 'Please select a subscription plan.' : undefined"
+    v-slot="fieldProps"
+  >
+    <RadioGroup direction="col" v-model:value="value" aria-label="Subscription plan" v-bind="fieldProps">
+      <RadioGroupItem value="monthly">Monthly ($9.99/month)</RadioGroupItem>
+      <RadioGroupItem value="yearly">Yearly ($99.99/year)</RadioGroupItem>
+      <RadioGroupItem value="lifetime">Lifetime ($299.99)</RadioGroupItem>
+    </RadioGroup>
+  </Field>
+</div>
+
+<!-- Phone -->
+<RadioGroup
+  direction="col"
+  class="w-full"
+  v-model:value="value"
+  aria-label="Subscription plan"
+  :aria-invalid="showError || undefined"
+  :aria-describedby="showError ? 'subscription-plan-error' : undefined"
+>
+  <FieldGroup title="Subscription plan" description="Select a plan to continue.">
+    <Field row label="Monthly ($9.99/month)"><RadioGroupItem value="monthly" /></Field>
+    <Field row label="Yearly ($99.99/year)"><RadioGroupItem value="yearly" /></Field>
+    <Field row label="Lifetime ($299.99)"><RadioGroupItem value="lifetime" /></Field>
+    <template v-if="showError" #footer>
+      <FieldError id="subscription-plan-error">Please select a subscription plan.</FieldError>
+    </template>
+  </FieldGroup>
+</RadioGroup>
+```
+
+### Grouped sections
+Use dividers to separate radio groups into logical sections. Each section can be wrapped in a Field with its own label and description.
+```vue
+<Page surface="grouped" class="h-dvh" data-form-screen style="--page-content-padding-top:10px; --page-content-padding-bottom:16px; --page-footer-gutter:24px; --page-footer-padding-bottom:max(24px, env(safe-area-inset-bottom, 0px))">
+  <Toolbar>
+    <ToolbarLeading><DemoBackButton /></ToolbarLeading>
+    <ToolbarTitle>Preferences</ToolbarTitle>
+  </Toolbar>
+  <PageContent data-form-content>
+    <form ref="screenForm" class="flex flex-col gap-6" @submit.prevent="" >
+      <RadioGroup direction="col" class="w-full" v-model:value="visibility" aria-label="Visibility">
+        <FieldGroup title="Visibility" description="Control who can see project resources.">
+          <Field row label="Hidden"><RadioGroupItem value="hidden" /></Field>
+          <Field row label="Visible to organization owners"><RadioGroupItem value="owners" /></Field>
+          <Field row label="Visible to everyone"><RadioGroupItem value="everyone" /></Field>
+        </FieldGroup>
+      </RadioGroup>
+      <RadioGroup direction="col" class="w-full" v-model:value="view" aria-label="Default view">
+        <FieldGroup title="Default view" description="What opens first in a project.">
+          <Field row label="Board"><RadioGroupItem value="board" /></Field>
+          <Field row label="List"><RadioGroupItem value="list" /></Field>
+          <Field row label="Timeline"><RadioGroupItem value="timeline" /></Field>
+        </FieldGroup>
+      </RadioGroup>
+    </form>
+  </PageContent>
+
+</Page>
+```
+
 ### With Checkbox
 Place RadioGroup alongside Checkbox controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.
 ```vue
@@ -6600,69 +6693,6 @@ Combine Field-level label and description with item-level descriptions for optio
 </div>
 ```
 
-### With Field
-Wrap a RadioGroup in a Field for a shared label and description. Bind the field props from the slot onto the group so it is described by the Field's description (aria-describedby). On a phone the FieldGroup title and description above the rows take this place.
-```vue
-<!-- Desktop -->
-<div class="max-w-sm">
-  <Field label="Notification method" description="Choose how you want to receive notifications." v-slot="fieldProps">
-    <RadioGroup direction="col" v-model:value="value" aria-label="Notification method" v-bind="fieldProps">
-      <RadioGroupItem value="email">Email</RadioGroupItem>
-      <RadioGroupItem value="sms">SMS</RadioGroupItem>
-      <RadioGroupItem value="push">Push notification</RadioGroupItem>
-    </RadioGroup>
-  </Field>
-</div>
-
-<!-- Phone -->
-<RadioGroup direction="col" class="w-full" v-model:value="value" aria-label="Notification method">
-  <FieldGroup title="Notification method" description="Choose how you want to receive notifications.">
-    <Field row label="Email"><RadioGroupItem value="email" /></Field>
-    <Field row label="SMS"><RadioGroupItem value="sms" /></Field>
-    <Field row label="Push notification"><RadioGroupItem value="push" /></Field>
-  </FieldGroup>
-</RadioGroup>
-```
-
-### With Field error
-When a Field has an error-message, it sets aria-invalid on the child control for screen readers. The error message is displayed below the group. On a phone a FieldError in the group's footer shows it under the rows; link it to the group with aria-describedby.
-```vue
-<!-- Desktop -->
-<div class="max-w-sm">
-  <Field
-    label="Subscription plan"
-    description="Select a plan to continue."
-    :error-message="showError ? 'Please select a subscription plan.' : undefined"
-    v-slot="fieldProps"
-  >
-    <RadioGroup direction="col" v-model:value="value" aria-label="Subscription plan" v-bind="fieldProps">
-      <RadioGroupItem value="monthly">Monthly ($9.99/month)</RadioGroupItem>
-      <RadioGroupItem value="yearly">Yearly ($99.99/year)</RadioGroupItem>
-      <RadioGroupItem value="lifetime">Lifetime ($299.99)</RadioGroupItem>
-    </RadioGroup>
-  </Field>
-</div>
-
-<!-- Phone -->
-<RadioGroup
-  direction="col"
-  class="w-full"
-  v-model:value="value"
-  aria-label="Subscription plan"
-  :aria-invalid="showError || undefined"
-  :aria-describedby="showError ? 'subscription-plan-error' : undefined"
->
-  <FieldGroup title="Subscription plan" description="Select a plan to continue.">
-    <Field row label="Monthly ($9.99/month)"><RadioGroupItem value="monthly" /></Field>
-    <Field row label="Yearly ($99.99/year)"><RadioGroupItem value="yearly" /></Field>
-    <Field row label="Lifetime ($299.99)"><RadioGroupItem value="lifetime" /></Field>
-    <template v-if="showError" #footer>
-      <FieldError id="subscription-plan-error">Please select a subscription plan.</FieldError>
-    </template>
-  </FieldGroup>
-</RadioGroup>
-```
-
 ### Choice card
 Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use orientation="right" to place the indicator after the content. Wrap each RadioGroupItem in a card container with border and borderRadius on the same element. On a phone a choice with a description is a row, as in the Overview, so this example is desktop only.
 ```vue
@@ -6724,36 +6754,6 @@ Leverage component composition and class overrides to build card-style radio sel
     </TooltipTrigger>
   </Tooltip>
 </RadioGroup>
-```
-
-### Grouped sections
-Use dividers to separate radio groups into logical sections. Each section can be wrapped in a Field with its own label and description.
-```vue
-<Page surface="grouped" class="h-dvh" data-form-screen style="--page-content-padding-top:10px; --page-content-padding-bottom:16px; --page-footer-gutter:24px; --page-footer-padding-bottom:max(24px, env(safe-area-inset-bottom, 0px))">
-  <Toolbar>
-    <ToolbarLeading><DemoBackButton /></ToolbarLeading>
-    <ToolbarTitle>Preferences</ToolbarTitle>
-  </Toolbar>
-  <PageContent data-form-content>
-    <form ref="screenForm" class="flex flex-col gap-6" @submit.prevent="" >
-      <RadioGroup direction="col" class="w-full" v-model:value="visibility" aria-label="Visibility">
-        <FieldGroup title="Visibility" description="Control who can see project resources.">
-          <Field row label="Hidden"><RadioGroupItem value="hidden" /></Field>
-          <Field row label="Visible to organization owners"><RadioGroupItem value="owners" /></Field>
-          <Field row label="Visible to everyone"><RadioGroupItem value="everyone" /></Field>
-        </FieldGroup>
-      </RadioGroup>
-      <RadioGroup direction="col" class="w-full" v-model:value="view" aria-label="Default view">
-        <FieldGroup title="Default view" description="What opens first in a project.">
-          <Field row label="Board"><RadioGroupItem value="board" /></Field>
-          <Field row label="List"><RadioGroupItem value="list" /></Field>
-          <Field row label="Timeline"><RadioGroupItem value="timeline" /></Field>
-        </FieldGroup>
-      </RadioGroup>
-    </form>
-  </PageContent>
-
-</Page>
 ```
 
 ## Segmented Control
@@ -8984,20 +8984,6 @@ const disabled = ref(false);
 </template>
 ```
 
-### Adding a tooltip
-A tooltip can easily be added to the Slider label by passing rich content through the label slot instead of a simple string. A tooltip opens on hover, which a phone does not have, so this example is desktop only.
-```vue
-<div style="width: 300px">
-  <Slider :min="0" :max="2000" :reset-value="1000" :step="10" unit="ms" v-model:value="value">
-    <template #label>
-      <Tooltip content="More details about this field">
-        <TooltipTriggerDecorator>Example field</TooltipTriggerDecorator>
-      </Tooltip>
-    </template>
-  </Slider>
-</div>
-```
-
 ### Marks
 Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own.
 ```vue
@@ -9092,6 +9078,20 @@ Pass three or more values to create a multi-thumb slider. Use min-steps-between-
     <span class="text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums">{{ value.join(' – ') }}</span>
   </div>
 </FieldGroup>
+```
+
+### Adding a tooltip
+A tooltip can easily be added to the Slider label by passing rich content through the label slot instead of a simple string. A tooltip opens on hover, which a phone does not have, so this example is desktop only.
+```vue
+<div style="width: 300px">
+  <Slider :min="0" :max="2000" :reset-value="1000" :step="10" unit="ms" v-model:value="value">
+    <template #label>
+      <Tooltip content="More details about this field">
+        <TooltipTriggerDecorator>Example field</TooltipTriggerDecorator>
+      </Tooltip>
+    </template>
+  </Slider>
+</div>
 ```
 
 ### Vertical

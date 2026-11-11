@@ -253,6 +253,15 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/vue/components/
   <VuePhoneRowsDemo template={orientation} controls={phoneFixedSizeControl} phoneTemplate={frame(canvas(orientationPhone))} phoneStageClassName={STAGE} />
 </ComponentPreview>
 
+### Input group
+
+<ComponentPreview language="vue" details={<>
+  <p>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via the <code>endAdornment</code> slot. Use <code>InputAdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</p>
+  <p>On a phone with <code>touch.css</code> the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.</p>
+</>} code={inputGroup}>
+  <VueDemo template={inputGroup} controls={phoneFixedSizeControl} state={{ voiceEnabled: false }} />
+</ComponentPreview>
+
 ### Nested
 
 <ComponentPreview language="vue" phonePresentation="none" details={<>Place <code>ButtonGroup</code> inside <code>ButtonGroup</code> to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern.</>} code={nested}>
@@ -278,15 +287,6 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/vue/components/
   <p>On a phone with <code>touch.css</code> the button takes the field's 44px at each size shown, so the phone view leaves out the size control.</p>
 </>} code={input}>
   <VueDemo template={input} controls={phoneFixedSizeControl} />
-</ComponentPreview>
-
-### Input group
-
-<ComponentPreview language="vue" details={<>
-  <p>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via the <code>endAdornment</code> slot. Use <code>InputAdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</p>
-  <p>On a phone with <code>touch.css</code> the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.</p>
-</>} code={inputGroup}>
-  <VueDemo template={inputGroup} controls={phoneFixedSizeControl} state={{ voiceEnabled: false }} />
 </ComponentPreview>
 
 ### Dropdown menu

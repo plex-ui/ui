@@ -54,29 +54,6 @@ On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: th
   <SliderBaseDemoWithControls />
 </ComponentPreview>
 
-### Adding a tooltip
-
-<ComponentPreview phonePresentation="none" details={<>A tooltip can easily be added to the Slider label by providing JSX instead of a simple string. A tooltip opens on hover, which a phone does not have, so this example is desktop only.</>} code={`const [value, setValue] = useState(1000)
-
-return (
-  <Slider
-    label={
-      <Tooltip content="More details about this field">
-        <Tooltip.TriggerDecorator>Example field</Tooltip.TriggerDecorator>
-      </Tooltip>
-    }
-    min={0}
-    max={2000}
-    resetValue={1000}
-    step={10}
-    unit="ms"
-    value={value}
-    onChange={setValue}
-  />
-)`} previewMinHeight={168}>
-  <SliderTooltipsDemo />
-</ComponentPreview>
-
 ### Marks
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Slider marks can be easily added by passing an array of values to the <code>marks</code> prop. Responsive behaviors are handled automatically. On Phone the marks show the scale, so the cell has no value of its own.</>} code={`const marks = [
@@ -159,6 +136,29 @@ return (
   </div>
 </FieldGroup>`} previewMinHeight={168}>
   <SliderMultipleThumbsDemo />
+</ComponentPreview>
+
+### Adding a tooltip
+
+<ComponentPreview phonePresentation="none" details={<>A tooltip can easily be added to the Slider label by providing JSX instead of a simple string. A tooltip opens on hover, which a phone does not have, so this example is desktop only.</>} code={`const [value, setValue] = useState(1000)
+
+return (
+  <Slider
+    label={
+      <Tooltip content="More details about this field">
+        <Tooltip.TriggerDecorator>Example field</Tooltip.TriggerDecorator>
+      </Tooltip>
+    }
+    min={0}
+    max={2000}
+    resetValue={1000}
+    step={10}
+    unit="ms"
+    value={value}
+    onChange={setValue}
+  />
+)`} previewMinHeight={168}>
+  <SliderTooltipsDemo />
 </ComponentPreview>
 
 ### Vertical
