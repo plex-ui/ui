@@ -80,6 +80,11 @@ export type TabBarProps = {
   onMinimizedChange?: (minimized: boolean) => void
   /** How the bar meets the content scrolled under it; see `BarBackground`. @default "soft" */
   background?: BarBackground
+  /**
+   * Content in a glass capsule above the tabs, a now playing row or a status, as the iOS 27 bottom accessory;
+   * minimized, it stands between the two circles. The bar grows by its height.
+   */
+  accessory?: ReactNode
   /** Accessible name of the navigation. @default "Tabs" */
   "aria-label"?: string
   /** `TabBar.Item` elements. */
@@ -106,6 +111,7 @@ function TabBarRoot({
   defaultMinimized = false,
   onMinimizedChange,
   background = "soft",
+  accessory,
   "aria-label": ariaLabel = "Tabs",
   children,
   className,
@@ -180,6 +186,20 @@ function TabBarRoot({
   }, [setHeight])
 
   const context = { value, minimized, select, expand }
+  // `accessory={playing && <NowPlaying />}` leaves no empty capsule when nothing plays.
+  const hasAccessory = accessory != null && typeof accessory !== "boolean" && accessory !== ""
+  const accessoryCapsule = hasAccessory && <div key="accessory" className={s.Accessory}>{accessory}</div>
+  const tabs = (
+    <div key="tabs" className={s.Tabs}>
+      {children}
+      {search && prominent && <TabBarItem value={search.value} label={search.label ?? "Search"} icon={<SearchIcon />} />}
+    </div>
+  )
+  const circle = prominent ? (
+    <TabBarItem key="prominent" className={s.Prominent} value={prominent.value} label={prominent.label} icon={prominent.icon} hideLabel />
+  ) : search && (
+    <TabBarItem key="search" className={s.Search} value={search.value} label={search.label ?? "Search"} icon={<SearchIcon />} hideLabel />
+  )
 
   return (
     <nav
@@ -192,17 +212,12 @@ function TabBarRoot({
       data-minimized={minimized ? "" : undefined}
       data-search={search && !prominent ? "" : undefined}
       data-prominent={prominent ? "" : undefined}
+      data-accessory={hasAccessory ? "" : undefined}
     >
       <TabBarContext.Provider value={context}>
-        <div className={s.Tabs}>
-          {children}
-          {search && prominent && <TabBarItem value={search.value} label={search.label ?? "Search"} icon={<SearchIcon />} />}
-        </div>
-        {prominent ? (
-          <TabBarItem className={s.Prominent} value={prominent.value} label={prominent.label} icon={prominent.icon} hideLabel />
-        ) : search && (
-          <TabBarItem className={s.Search} value={search.value} label={search.label ?? "Search"} icon={<SearchIcon />} hideLabel />
-        )}
+        {/* The accessory is read where it stands: above the tabs, and minimized between the two circles. The keys
+            move it there without remounting its content. */}
+        {minimized ? [tabs, accessoryCapsule, circle] : [accessoryCapsule, tabs, circle]}
       </TabBarContext.Provider>
     </nav>
   )
@@ -216,6 +231,11 @@ export type TabBarItemProps = {
   label: string
   /** The symbol, a PlexUI icon. */
   icon: ReactNode
+  /**
+   * A count or a short word in a red capsule over the symbol, as an iOS tab badge; it is read after the label.
+   * A count of 0 shows none, as on iOS.
+   */
+  badge?: ReactNode
   /** Makes the tab a link to this URL. */
   href?: string
   /** When `true`, the tab cannot be selected. */
@@ -228,7 +248,10 @@ export type TabBarItemProps = {
   hideLabel?: boolean
 }
 
-function TabBarItem({ value, label, icon, href, disabled = false, onClick, className, hideLabel = false }: TabBarItemProps) {
+/** A badge shows unless it is empty: nothing, false, an empty text or a count of 0 (iOS hides `.badge(0)`). */
+const hasBadge = (badge: ReactNode) => badge != null && badge !== false && badge !== "" && badge !== 0
+
+function TabBarItem({ value, label, icon, badge, href, disabled = false, onClick, className, hideLabel = false }: TabBarItemProps) {
   const context = useTabBarContext("TabBar.Item")
   const selected = context.value === value
   // A minimized bar shows the selected tab only; pressing it brings the other tabs back.
@@ -246,6 +269,8 @@ function TabBarItem({ value, label, icon, href, disabled = false, onClick, class
     <>
       <span className={s.Icon} aria-hidden="true">{icon}</span>
       {!hideLabel && <span className={s.Label}>{label}</span>}
+      {/* The space keeps the accessible name "Inbox 3", not "Inbox3". */}
+      {hasBadge(badge) && <>{" "}<span className={s.Badge}>{badge}</span></>}
     </>
   )
   const props = {

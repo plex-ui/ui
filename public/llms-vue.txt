@@ -1185,6 +1185,7 @@ Props:
   TabBarItem:
     - value (string) — Value of the tab
     - label (string) — Label under the symbol and the name of the tab
+    - badge (string | number) — A count or a short word in a red capsule over the symbol; 0 shows none
     - href (string) — Makes the tab a link
     - disabled (boolean) default: false — The tab cannot be selected
 Examples: Overview

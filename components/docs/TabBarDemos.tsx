@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import { Button } from '@plexui/ui/components/Button';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { Calendar, Folder, Home, Images, SettingsCog, ShoppingBag } from '@plexui/ui/components/Icon';
+import { Calendar, Folder, Home, Images, Music, Play, SettingsCog, ShoppingBag, Skip } from '@plexui/ui/components/Icon';
 import { Page } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { TabBar, type TabBarProps } from '@plexui/ui/components/TabBar';
@@ -12,6 +13,7 @@ import { DemoControlsBottom } from './PreviewEmbed';
 import { BarBackgroundRow } from './ToolbarDemos';
 import s from './PageDemos.module.css';
 import t from './ToolbarDemos.module.css';
+import b from './TabBarDemos.module.css';
 
 const TABS = [
   { value: 'home', label: 'Home', icon: <Home /> },
@@ -39,9 +41,24 @@ function Rows({ label }: { label: string }) {
 
 type TabBarMinimizeBehavior = NonNullable<TabBarProps['minimizeBehavior']>;
 
+/** Badges as the native example sets them (ref-app tabs4-badge): a count on one tab and a word on another */
+const BADGES: Record<string, string | number> = { calendar: 3, photos: 'New' };
+
+/** The app's own content in the bottom accessory: a now playing row */
+function NowPlaying() {
+  return (
+    <div className={b.NowPlaying}>
+      <span className={b.Artwork} aria-hidden="true"><Music /></span>
+      <span className={b.Title}>Now Playing</span>
+      <Button color="secondary" variant="ghost" uniform pill aria-label="Play"><Play /></Button>
+      <Button color="secondary" variant="ghost" uniform pill aria-label="Next"><Skip /></Button>
+    </div>
+  );
+}
+
 const BAG = { value: 'bag', label: 'Bag', icon: <ShoppingBag /> };
 
-function Screen({ tabs, search, prominent, minimizeBehavior, toolbarBackground, background }: { tabs: typeof TABS; search: boolean; prominent: boolean; minimizeBehavior: TabBarMinimizeBehavior; toolbarBackground: BarBackground; background: BarBackground }) {
+function Screen({ tabs, search, prominent, badges, accessory, minimizeBehavior, toolbarBackground, background }: { tabs: typeof TABS; search: boolean; prominent: boolean; badges: boolean; accessory: boolean; minimizeBehavior: TabBarMinimizeBehavior; toolbarBackground: BarBackground; background: BarBackground }) {
   const [tab, setTab] = useState(tabs[0].value);
   // A tab the settings take away leaves the first one selected
   const shown = [...tabs, ...(search ? [{ value: 'search', label: 'Search' }] : []), ...(prominent ? [BAG] : [])];
@@ -62,8 +79,9 @@ function Screen({ tabs, search, prominent, minimizeBehavior, toolbarBackground, 
           prominent={prominent ? BAG : undefined}
           minimizeBehavior={minimizeBehavior}
           background={background}
+          accessory={accessory && <NowPlaying />}
         >
-          {tabs.map((item) => <TabBar.Item key={item.value} {...item} />)}
+          {tabs.map((item) => <TabBar.Item key={item.value} {...item} badge={badges ? BADGES[item.value] : undefined} />)}
         </TabBar>
       </Page>
     </Frame>
@@ -79,11 +97,14 @@ const MINIMIZE: TabBarMinimizeBehavior[] = ['never', 'onScrollDown'];
  */
 const tabBarMaxTabs = (search: boolean, prominent: boolean) => 5 - Number(search) - Number(prominent);
 
-/** One bar with its settings: the number of tabs, the search and prominent circles, minimizing and the backgrounds */
+/** One bar with its settings: the number of tabs, the search and prominent circles, badges, the accessory, minimizing
+ * and the backgrounds */
 export function TabBarDemo() {
   const [count, setCount] = useState<(typeof COUNTS)[number]>('4');
   const [search, setSearch] = useState(false);
   const [prominent, setProminent] = useState(false);
+  const [badges, setBadges] = useState(false);
+  const [accessory, setAccessory] = useState(false);
   const [minimizeBehavior, setMinimizeBehavior] = useState<TabBarMinimizeBehavior>('never');
   const [toolbarBackground, setToolbarBackground] = useState<BarBackground>('glass');
   const [background, setBackground] = useState<BarBackground>('soft');
@@ -94,7 +115,7 @@ export function TabBarDemo() {
       <div data-demo-controls style={controlsTableStyle}>
         <BarBackgroundRow name="background (top)" value={toolbarBackground} onChange={setToolbarBackground} />
       </div>
-      <Screen tabs={TABS.slice(0, Number(shownCount))} search={search} prominent={prominent} minimizeBehavior={minimizeBehavior} toolbarBackground={toolbarBackground} background={background} />
+      <Screen tabs={TABS.slice(0, Number(shownCount))} search={search} prominent={prominent} badges={badges} accessory={accessory} minimizeBehavior={minimizeBehavior} toolbarBackground={toolbarBackground} background={background} />
       {/* The bar is at the bottom of the screen, so its settings stand under the preview (owner 09.11) */}
       <DemoControlsBottom style={controlsTableStyle}>
         <DemoControlRow name="tabs">
@@ -105,6 +126,8 @@ export function TabBarDemo() {
         </DemoControlRow>
         <DemoControlBoolean name="search" value={search} onChange={setSearch} />
         <DemoControlBoolean name="prominent" value={prominent} onChange={setProminent} />
+        <DemoControlBoolean name="badge" value={badges} onChange={setBadges} />
+        <DemoControlBoolean name="accessory" value={accessory} onChange={setAccessory} />
         <DemoControlRow name="minimizeBehavior">
           <SegmentedControl<TabBarMinimizeBehavior> aria-label="minimizeBehavior" size="xs" value={minimizeBehavior} onChange={setMinimizeBehavior}>
             {MINIMIZE.map((value) => <SegmentedControl.Option key={value} value={value}>{value}</SegmentedControl.Option>)}

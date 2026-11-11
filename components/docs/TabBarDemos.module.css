@@ -1,0 +1,28 @@
+/* The example's bottom accessory: a now playing row as an app would put in it, artwork, a title and two
+   controls, the artwork 16px inside the capsule (ref-app tabs-accessory, iOS 27.2). */
+.NowPlaying {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 0 8px 0 16px;
+}
+
+.Artwork {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--color-background-secondary-soft-alpha);
+}
+
+.Title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

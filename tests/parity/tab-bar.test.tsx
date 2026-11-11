@@ -22,7 +22,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-type Tab = { value: string; label: string; icon: "home" | "calendar" | "photos" | "settings"; href?: string; disabled?: boolean }
+type Tab = { value: string; label: string; icon: "home" | "calendar" | "photos" | "settings"; href?: string; disabled?: boolean; badge?: string | number }
 const TABS: Tab[] = [
   { value: "home", label: "Home", icon: "home" },
   { value: "calendar", label: "Calendar", icon: "calendar" },
@@ -33,7 +33,8 @@ const reactIcons = { home: <RHome />, calendar: <RCalendar />, photos: <RImages 
 const vueIcons = { home: Home, calendar: Calendar, photos: Images, settings: SettingsCog }
 
 // The prominent tab names its symbol by key: React takes the icon in the prop, Vue in the `prominent-icon` slot.
-type Case = Omit<RTabBarProps, "children" | "prominent"> & { tabs?: Tab[]; prominent?: { value: string; label: string; icon: Tab["icon"] } }
+// The accessory is text: React takes it in the prop, Vue in the `accessory` slot.
+type Case = Omit<RTabBarProps, "children" | "prominent" | "accessory"> & { tabs?: Tab[]; prominent?: { value: string; label: string; icon: Tab["icon"] }; accessory?: string }
 
 const reactBar = ({ tabs = TABS, prominent, ...props }: Case) => (
   <RTabBar {...props} prominent={prominent && { ...prominent, icon: reactIcons[prominent.icon] }}>
@@ -42,7 +43,7 @@ const reactBar = ({ tabs = TABS, prominent, ...props }: Case) => (
 )
 
 const vueProps = (props: Case) => {
-  const { "aria-label": ariaLabel, onValueChange, onMinimizedChange, prominent, ...rest } = props
+  const { "aria-label": ariaLabel, onValueChange, onMinimizedChange, prominent, accessory: _accessory, ...rest } = props
   delete rest.tabs
   return {
     ...rest,
@@ -56,6 +57,7 @@ const vueProps = (props: Case) => {
 const vueSlots = (props: Case) => ({
   "default": () => (props.tabs ?? TABS).map(({ icon, ...tab }) => h(TabBarItem, { key: tab.value, ...tab }, { icon: () => h(vueIcons[icon]) })),
   ...(props.prominent && { "prominent-icon": () => h(vueIcons[props.prominent!.icon]) }),
+  ...(props.accessory !== undefined && { accessory: () => props.accessory }),
 })
 
 const vueBar = (props: Case) => h(TabBar, vueProps(props), vueSlots(props))
@@ -73,6 +75,10 @@ const cases: Array<[string, Case]> = [
   ["minimized, search selected in the capsule beside a prominent tab", { tabs: TABS.slice(0, 2), search: { value: "search" }, prominent: { value: "library", label: "Library", icon: "photos" }, defaultValue: "search", defaultMinimized: true }],
   ["a link and a disabled tab", { tabs: [{ ...TABS[0], href: "/home" }, { ...TABS[1], disabled: true }, { ...TABS[2], href: "/photos", disabled: true }], defaultValue: "home" }],
   ["named", { "aria-label": "Sections", "defaultValue": "photos" }],
+  ["badges: a count and a word, a count of 0 and an empty one shown as none", { tabs: [{ ...TABS[0], badge: 3 }, { ...TABS[1], badge: "New" }, { ...TABS[2], badge: 0 }, { ...TABS[3], badge: "" }], defaultValue: "home" }],
+  ["a badge on the minimized tab", { tabs: [TABS[0], { ...TABS[1], badge: 12 }], search: { value: "search" }, defaultValue: "calendar", defaultMinimized: true }],
+  ["an accessory above the tabs", { accessory: "Now Playing", defaultValue: "home" }],
+  ["minimized, the accessory between the circles", { tabs: TABS.slice(0, 3), search: { value: "search" }, accessory: "Now Playing", defaultValue: "calendar", defaultMinimized: true }],
 ]
 
 describe("TabBar DOM parity", () => {
@@ -90,6 +96,112 @@ describe("TabBar DOM parity", () => {
     ])
     expect([...document.querySelectorAll("nav span[aria-hidden]")].every((icon) => icon.firstElementChild?.tagName === "svg")).toBe(true)
     expect(document.querySelector("[role=tablist], [role=tab]")).toBeNull()
+  })
+
+  test("a badge is read after the label, and the accessory comes before the tabs", async () => {
+    await act(async () => { render(reactBar({ tabs: [TABS[0], { ...TABS[1], badge: 3 }], accessory: "Now Playing", defaultValue: "home" })) })
+    expect(document.querySelector("[data-value=calendar]")?.textContent).toBe("Calendar 3")
+    expect(document.querySelector("nav")?.hasAttribute("data-accessory")).toBe(true)
+    expect(document.querySelector("nav")?.firstElementChild?.textContent).toBe("Now Playing")
+  })
+
+  test.each([["false", false], ["null", null], ["an empty text", ""]] as const)("no accessory leaves no capsule: %s is nothing", async (_, accessory) => {
+    await act(async () => { render(<RTabBar accessory={accessory} defaultValue="home"><RTabBar.Item value="home" label="Home" icon={<RHome />} /></RTabBar>) })
+    expect(document.querySelector("nav")?.hasAttribute("data-accessory")).toBe(false)
+    expect(document.querySelector("nav")?.childElementCount).toBe(1)
+  })
+
+  test("Vue: an accessory slot that renders nothing and a null badge leave nothing, as in React", async () => {
+    mountVue(() => h(TabBar, { defaultValue: "home" }, {
+      "default": () => [
+        h(TabBarItem, { value: "home", label: "Home", badge: null as unknown as string }, { icon: () => h(Home) }),
+        h(TabBarItem, { value: "calendar", label: "Calendar", badge: 0 }, { icon: () => h(Calendar) }),
+      ],
+      "accessory": () => [],
+    }))
+    await flushVue()
+    expect(document.querySelector("nav")?.hasAttribute("data-accessory")).toBe(false)
+    expect(document.querySelector("nav")?.childElementCount).toBe(1)
+    expect([...document.querySelectorAll("[data-value]")].map((tab) => tab.textContent)).toEqual(["Home", "Calendar"])
+  })
+})
+
+type SetMinimized = (next: boolean) => Promise<void>
+const ACCESSORY_BAR: Case = { tabs: TABS.slice(0, 2), search: { value: "search" }, accessory: "Now Playing", defaultValue: "home" }
+
+describe.each([
+  ["React", async (): Promise<SetMinimized> => {
+    let setMinimized: (next: boolean) => void = () => {}
+    function Host() {
+      const [minimized, set] = useState(false)
+      setMinimized = set
+      return reactBar({ ...ACCESSORY_BAR, minimized })
+    }
+    await act(async () => { render(<Host />) })
+    return async (next) => { await act(async () => { setMinimized(next) }) }
+  }],
+  ["Vue", async (): Promise<SetMinimized> => {
+    const state = reactive({ minimized: false })
+    mountVue(() => vueBar({ ...ACCESSORY_BAR, minimized: state.minimized }))
+    await flushVue()
+    return async (next) => { state.minimized = next; await flushVue() }
+  }],
+] as const)("%s TabBar accessory", (_, mount) => {
+  test("reads where it stands: above the tabs, and minimized between the circles, the same element moved", async () => {
+    const setMinimized = await mount()
+    const order = () => [...document.querySelector("nav")!.children].map((child) => child.textContent || child.getAttribute("aria-label"))
+    const capsule = document.querySelector("nav")!.firstElementChild
+    expect(order()).toEqual(["Now Playing", "HomeCalendar", "Search"])
+    await setMinimized(true)
+    expect(order()).toEqual(["HomeCalendar", "Now Playing", "Search"])
+    expect(document.querySelector("nav")!.children[1]).toBe(capsule)
+    await setMinimized(false)
+    expect(order()).toEqual(["Now Playing", "HomeCalendar", "Search"])
+    expect(document.querySelector("nav")!.firstElementChild).toBe(capsule)
+  })
+})
+
+// Moving a node that holds the focus sends it to the body; the bar keeps it where it was, in both frameworks.
+describe.each([
+  ["React", async (): Promise<SetMinimized> => {
+    let setMinimized: (next: boolean) => void = () => {}
+    function Host() {
+      const [minimized, set] = useState(false)
+      setMinimized = set
+      return (
+        <RTabBar defaultValue="home" search={{ value: "search" }} accessory={<button type="button">Play</button>} minimized={minimized}>
+          {TABS.slice(0, 2).map(({ icon, ...tab }) => <RTabBar.Item key={tab.value} {...tab} icon={reactIcons[icon]} />)}
+        </RTabBar>
+      )
+    }
+    await act(async () => { render(<Host />) })
+    return async (next) => { await act(async () => { setMinimized(next) }) }
+  }],
+  ["Vue", async (): Promise<SetMinimized> => {
+    const state = reactive({ minimized: false })
+    mountVue(() => h(TabBar, { defaultValue: "home", search: { value: "search" }, minimized: state.minimized }, {
+      default: () => TABS.slice(0, 2).map(({ icon, ...tab }) => h(TabBarItem, { key: tab.value, ...tab }, { icon: () => h(vueIcons[icon]) })),
+      accessory: () => h("button", { type: "button" }, "Play"),
+    }))
+    await flushVue()
+    return async (next) => { state.minimized = next; await flushVue() }
+  }],
+] as const)("%s TabBar accessory and focus", (_, mount) => {
+  test("a tab or the accessory keeps the focus while the bar minimizes and expands", async () => {
+    const setMinimized = await mount()
+    const home = document.querySelector<HTMLElement>("[data-value=home]")!
+    const play = [...document.querySelectorAll<HTMLElement>("nav button")].find((button) => button.textContent === "Play")!
+    home.focus()
+    await setMinimized(true)
+    expect(document.activeElement).toBe(home)
+    play.focus()
+    await setMinimized(false)
+    expect(document.activeElement).toBe(play)
+    await setMinimized(true)
+    expect(document.activeElement).toBe(play)
+    home.focus()
+    await setMinimized(false)
+    expect(document.activeElement).toBe(home)
   })
 })
 
@@ -339,7 +451,7 @@ describe.each(["React", "Vue"] as const)("%s TabBar in Page", (framework) => {
   })
 })
 
-describe("TabBar tokens follow the iOS 26 and 27 kits, Tab Bar - iPhone (507:24689, 3:70967)", () => {
+describe("TabBar tokens follow the iOS 26 and 27 kits, Tab Bar - iPhone (507:24689, 3:70967), and iOS 27.2", () => {
   test("the bar, the capsule, the tabs and the search circle", () => {
     const tokens = read("packages/styles/src/styles/variables-components.css")
     for (const line of [
@@ -352,9 +464,12 @@ describe("TabBar tokens follow the iOS 26 and 27 kits, Tab Bar - iPhone (507:246
       "--tab-bar-minimized-padding-bottom: max(28px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 6px));",
       "--tab-bar-capsule-padding-block: 4px;",
       "--tab-bar-capsule-padding-inline: 10px;",
-      "--tab-bar-item-width: 94px;",
+      // iOS 27.2 hugs three tabs in a 275 capsule (ref-app tabs3); the kit's 94 made 302.
+      "--tab-bar-item-width: 85px;",
       "--tab-bar-item-height: 54px;",
       "--tab-bar-pill-outset: 6px;",
+      // The native magnifier draws 22.33; a PlexUI icon draws about 0.8 of its box.
+      "--tab-bar-icon-size: 28px;",
       "--tab-bar-label-font-size: 10px;",
       "--tab-bar-label-line-height: 12px;",
       "--tab-bar-search-size: 62px;",
@@ -365,15 +480,42 @@ describe("TabBar tokens follow the iOS 26 and 27 kits, Tab Bar - iPhone (507:246
     ]) expect(tokens).toContain(line)
   })
 
+  test("the badge and the bottom accessory, as iOS 27.2 draws them (ref-app tabs4-badge, tabs-accessory)", () => {
+    const tokens = read("packages/styles/src/styles/variables-components.css")
+    for (const line of [
+      "--tab-bar-badge-size: 18px;",
+      "--tab-bar-badge-padding-inline: 5px;",
+      "--tab-bar-badge-font-size: 12px;",
+      "--tab-bar-badge-font-weight: var(--font-weight-normal);",
+      "--tab-bar-badge-top: 2.33px;",
+      "--tab-bar-badge-start: 11.67px;",
+      "--tab-bar-badge-background: var(--color-background-danger-solid);",
+      "--tab-bar-badge-color: var(--color-text-danger-solid);",
+      "--tab-bar-minimized-badge-top: 2px;",
+      "--tab-bar-minimized-badge-start: 9.67px;",
+      "--tab-bar-accessory-height: 48px;",
+      "--tab-bar-accessory-gap: 8px;",
+      "--tab-bar-minimized-accessory-gap: 13.33px;",
+    ]) expect(tokens).toContain(line)
+    const css = read("packages/styles/src/components/TabBar/TabBar.module.css")
+    // The bar grows by the accessory in both states, so it keeps one height (151) and the Page does not move.
+    expect(css).toContain("padding-top: calc(var(--tab-bar-padding-top) + var(--tab-bar-accessory-height) + var(--tab-bar-accessory-gap));")
+    expect(css).toContain("padding-top: calc(var(--tab-bar-minimized-padding-top) + var(--tab-bar-accessory-height) + var(--tab-bar-accessory-gap));")
+    expect(css).toContain("left: calc(50% + var(--tab-bar-badge-start));")
+    // Minimized, the badge keeps to the circle (ref-app tabs-minimize-badge): 2 below its top, 9.67 past its middle.
+    expect(css).toContain("top: calc(var(--tab-bar-minimized-badge-top) - var(--tab-bar-capsule-padding-block));")
+    expect(css).toContain("left: calc(50% + var(--tab-bar-minimized-badge-start));")
+  })
+
   test("phone only, on the shared mobile glass with its raised shadow", () => {
     const css = read("packages/styles/src/components/TabBar/TabBar.module.css")
     expect(css.indexOf(".TabBar {\n  display: none;\n}")).toBe(css.indexOf(".TabBar {"))
     expect(css).toContain("@media (max-width: 767.98px) {")
-    // The capsule sizes itself from 94px tabs and then shrinks them together: 302px for three, 360px for four.
+    // The capsule sizes itself from 85px tabs and then shrinks them together: 275px for three, 360px for four.
     expect(css).toContain("flex: 0 1 auto;\n    flex-direction: column;")
     expect(css).toContain("width: var(--tab-bar-item-width);")
-    // The search and the prominent circles carry the glass over the reset of every tab.
-    expect(css).toContain(".Tabs,\n  .Item:is(.Search, .Prominent) {")
+    // The search and the prominent circles carry the glass over the reset of every tab; the accessory is glass too.
+    expect(css).toContain(".Tabs,\n  .Accessory,\n  .Item:is(.Search, .Prominent) {")
     // Minimized, the circles keep 28px from the sides and the bottom of the 95px bar (kit iOS 27).
     expect(css).toContain("padding: var(--tab-bar-minimized-padding-top) var(--tab-bar-minimized-gutter) var(--tab-bar-minimized-padding-bottom);")
     for (const line of [

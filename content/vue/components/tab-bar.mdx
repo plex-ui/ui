@@ -7,6 +7,7 @@ metaDescription: "Vue 3 phone tab bar in the iOS 26 style: a floating Liquid Gla
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 import pageStyles from "@/components/docs/PageDemos.module.css"
 import toolbarStyles from "@/components/docs/ToolbarDemos.module.css"
+import tabBarStyles from "@/components/docs/TabBarDemos.module.css"
 
 export const STAGE = pageStyles.Stage
 
@@ -18,7 +19,7 @@ export const current = "(['home', 'calendar', 'photos', 'settings', 'files'].sli
 
 export const names = { home: 'Home', calendar: 'Calendar', photos: 'Photos', settings: 'Settings', files: 'Files', search: 'Search', bag: 'Bag' }
 
-export const item = (value, label, icon, count) => `<TabBarItem ${count ? `v-if="Number(tabs) >= ${count}" ` : ''}value="${value}" label="${label}">
+export const item = (value, label, icon, count, badge) => `<TabBarItem ${count ? `v-if="Number(tabs) >= ${count}" ` : ''}value="${value}" label="${label}"${badge ? ` :badge="badge ? ${badge} : undefined"` : ''}>
           <template #icon><${icon} /></template>
         </TabBarItem>`
 
@@ -42,9 +43,17 @@ export const screen = frame(`  <template v-for="shown in [${current}]" :key="0">
         :background="background"
         @update:value="(value) => tab = value"
       >
+        <template v-if="accessory" #accessory>
+          <div class="${tabBarStyles.NowPlaying}">
+            <span class="${tabBarStyles.Artwork}" aria-hidden="true"><Music /></span>
+            <span class="${tabBarStyles.Title}">Now Playing</span>
+            <Button color="secondary" variant="ghost" uniform pill aria-label="Play"><Play /></Button>
+            <Button color="secondary" variant="ghost" uniform pill aria-label="Next"><Skip /></Button>
+          </div>
+        </template>
         ${item('home', 'Home', 'Home')}
-        ${item('calendar', 'Calendar', 'Calendar')}
-        ${item('photos', 'Photos', 'Images', 3)}
+        ${item('calendar', 'Calendar', 'Calendar', 0, '3')}
+        ${item('photos', 'Photos', 'Images', 3, "'New'")}
         ${item('settings', 'Settings', 'SettingsCog', 4)}
         ${item('files', 'Files', 'Folder', 5)}
         <template #prominent-icon><ShoppingBag /></template>
@@ -64,10 +73,11 @@ export const overview = `<Page surface="grouped">
     minimize-behavior="onScrollDown"
     background="soft"
   >
+    <template #accessory><NowPlaying /></template>
     <TabBarItem value="home" label="Home">
       <template #icon><Home /></template>
     </TabBarItem>
-    <TabBarItem value="calendar" label="Calendar">
+    <TabBarItem value="calendar" label="Calendar" :badge="3">
       <template #icon><Calendar /></template>
     </TabBarItem>
     <TabBarItem value="photos" label="Photos">
@@ -87,12 +97,14 @@ The example shows the phone view. Its settings change the bar in place.
 
 ### Overview
 
-<ComponentPreview phoneOnly language="vue" details={<>Put the bar last in a <code>Page</code>: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are. With <code>search</code> the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does, and the capsule keeps to the leading end at the width of its tabs; show the search screen when its value is selected. With <code>prominent</code> one key destination, such as a cart or a library, takes that circle instead, as the prominent tab of iOS 27: it is still a tab, the circle shows the symbol from the <code>prominent-icon</code> slot only and <code>label</code> names it, and with both the search tab joins the capsule as its last tab. The bar holds five tabs at most, the search and prominent tabs counted, as in the kit's Tab Bar - iPhone: next to a circle the capsule keeps four, so the example disables the counts that would not fit. With <code>minimize-behavior="onScrollDown"</code> the bar shrinks while the content scrolls down to a circle of the selected tab at the leading end, the search or prominent circle staying at the trailing end, as the minimized tab bar of the kit; it comes back when the content scrolls up, and a tap on the minimized tab brings the others back. <code>background</code> sets how the bar meets the content scrolled under it, as on a <a href="/vue/components/toolbar#background">Toolbar</a>: <code>soft</code> (the default) leaves the content clear around the capsule, as native iOS 26 does, <code>glass</code> lays a translucent, blurred band with a hairline under it, <code>hard</code> an opaque band with a line on top and <code>solid</code> an opaque band with no line. The top bar sets its own <code>background</code>, <code>glass</code> by default, so the example sets the two apart.</>} code={overview}>
+<ComponentPreview phoneOnly language="vue" details={<>Put the bar last in a <code>Page</code>: it reserves its height there. Up to three tabs sit in the middle, 85px apart, as iOS 27 sets them; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are. With <code>search</code> the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does, and the capsule keeps to the leading end at the width of its tabs; show the search screen when its value is selected. With <code>prominent</code> one key destination, such as a cart or a library, takes that circle instead, as the prominent tab of iOS 27: it is still a tab, the circle shows the symbol from the <code>prominent-icon</code> slot only and <code>label</code> names it, and with both the search tab joins the capsule as its last tab. The bar holds five tabs at most, the search and prominent tabs counted, as in the kit's Tab Bar - iPhone: next to a circle the capsule keeps four, so the example disables the counts that would not fit. With <code>minimize-behavior="onScrollDown"</code> the bar shrinks while the content scrolls down to a circle of the selected tab at the leading end, the search or prominent circle staying at the trailing end, as the minimized tab bar of the kit; it comes back when the content scrolls up, and a tap on the minimized tab brings the others back. A tab's <code>badge</code> shows a count or a short word in a red capsule over its symbol, as an iOS tab badge, and the minimized circle keeps it; a count of 0 shows none. The <code>accessory</code> slot puts the app's own content, a now playing row or a status, in a glass capsule above the tabs, as the bottom accessory of iOS 27: minimized, it moves between the two circles, and the bar keeps its height so the content does not move. <code>background</code> sets how the bar meets the content scrolled under it, as on a <a href="/vue/components/toolbar#background">Toolbar</a>: <code>soft</code> (the default) leaves the content clear around the capsule, as native iOS 26 does, <code>glass</code> lays a translucent, blurred band with a hairline under it, <code>hard</code> an opaque band with a line on top and <code>solid</code> an opaque band with no line. The top bar sets its own <code>background</code>, <code>glass</code> by default, so the example sets the two apart.</>} code={overview}>
   <VueDemo stageClassName={STAGE} state={{ tab: 'home', names }} controls={[
     { name: "toolbarBackground", label: "background (top)", type: "select", options: ["soft", "hard", "glass", "solid"], default: "glass" },
     { name: "tabs", type: "select", options: ["2", "3", "4", "5"], default: "4", limit: { total: 5, taken: ["search", "prominent"] }, placement: "bottom" },
     { name: "search", type: "boolean", default: false, placement: "bottom" },
     { name: "prominent", type: "boolean", default: false, placement: "bottom" },
+    { name: "badge", type: "boolean", default: false, placement: "bottom" },
+    { name: "accessory", type: "boolean", default: false, placement: "bottom" },
     { name: "minimizeBehavior", type: "select", options: ["never", "onScrollDown"], default: "never", placement: "bottom" },
     { name: "background", label: "background (bottom)", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft", placement: "bottom" },
   ]} template={screen} />
@@ -114,20 +126,21 @@ The example shows the phone view. Its settings change the bar in place.
   { prop: "aria-label", type: "string", default: '"Tabs"', description: "Name of the navigation" },
 ]} />
 
-**Slots**: `default`, the `TabBarItem` elements; `prominent-icon`, the symbol of the prominent tab, a PlexUI icon. **Events**: `update:value` and `valueChange` with the value of the selected tab; `update:minimized` when the bar minimizes or expands.
+**Slots**: `default`, the `TabBarItem` elements; `prominent-icon`, the symbol of the prominent tab, a PlexUI icon; `accessory`, content in a glass capsule above the tabs. **Events**: `update:value` and `valueChange` with the value of the selected tab; `update:minimized` when the bar minimizes or expands.
 
 ### TabBarItem
 
 <PropsTable data={[
   { prop: "value", type: "string", description: "Value of the tab" },
   { prop: "label", type: "string", description: "Label under the symbol and the name of the tab" },
+  { prop: "badge", type: "string | number", description: "A count or a short word in a red capsule over the symbol; 0 shows none" },
   { prop: "href", type: "string", description: "Makes the tab a link" },
   { prop: "disabled", type: "boolean", default: "false", description: "The tab cannot be selected" },
 ]} />
 
 **Slots**: `icon`, the symbol, a PlexUI icon. **Events**: `click` when the tab is pressed, before it is selected.
 
-The bar is a `nav` named Tabs. Each tab is a button, or a link with `href`, and the selected one has `aria-current="page"`; every tab is a stop for the Tab key. The search tab and the prominent tab are named by their label. Minimized, the selected tab that stays in the capsule has `aria-expanded="false"`: pressing it brings the other tabs back. When the search or the prominent tab is the selected one, the capsule keeps its first tab, and pressing that tab selects it.
+The bar is a `nav` named Tabs. Each tab is a button, or a link with `href`, and the selected one has `aria-current="page"`; every tab is a stop for the Tab key. The search tab and the prominent tab are named by their label, and a badge is read after the label, as in Calendar 3. The accessory is read where it stands: before the tabs, and minimized between the tab and the search or prominent circle. Minimized, the selected tab that stays in the capsule has `aria-expanded="false"`: pressing it brings the other tabs back. When the search or the prominent tab is the selected one, the capsule keeps its first tab, and pressing that tab selects it.
 
 ## Styling
 
@@ -137,10 +150,15 @@ TabBar reads these component tokens. Override them at any scope to restyle it:
 - `--tab-bar-padding-top`, `--tab-bar-padding-bottom`: space above and below the capsule (default `12px`, `21px` or the safe area)
 - `--tab-bar-minimized-padding-top`, `--tab-bar-minimized-gutter`, `--tab-bar-minimized-padding-bottom`: space around the minimized circles (default `19px`, `28px`, `28px` or the safe area)
 - `--tab-bar-capsule-padding-block`, `--tab-bar-capsule-padding-inline`: the capsule around the tabs (default `4px`, `10px`)
-- `--tab-bar-item-width`, `--tab-bar-item-height`, `--tab-bar-pill-outset`: the widest tab, its height and how far the pill reaches past it (default `94px`, `54px`, `6px`)
-- `--tab-bar-icon-box`, `--tab-bar-icon-size`: the line of the symbol and the icon (default `28px`, `24px`)
+- `--tab-bar-item-width`, `--tab-bar-item-height`, `--tab-bar-pill-outset`: the widest tab, its height and how far the pill reaches past it (default `85px`, `54px`, `6px`)
+- `--tab-bar-icon-box`, `--tab-bar-icon-size`: the line of the symbol and the icon (default `28px`, `28px`)
 - `--tab-bar-label-font-size`, `--tab-bar-label-line-height`, `--tab-bar-label-font-weight`: the label (default `10px`, `12px`, semibold)
 - `--tab-bar-search-size`, `--tab-bar-minimized-size`: the search or prominent circle and the minimized circles (default `62px`, `48px`)
 - `--tab-bar-item-color`, `--tab-bar-item-color-selected`, `--tab-bar-item-color-minimized`: tab colors (default `light-dark(var(--gray-750), var(--gray-850))`, `var(--color-text)`, `var(--color-text)`)
 - `--tab-bar-item-background-selected`: the selection pill (default `var(--alpha-08)`)
-- The capsule and the circles use the shared mobile glass: `--mobile-glass-background`, `--mobile-glass-sheen`, `--mobile-glass-shadow-raised` and `--mobile-glass-backdrop-filter`.
+- `--tab-bar-badge-size`, `--tab-bar-badge-padding-inline`, `--tab-bar-badge-font-size`, `--tab-bar-badge-font-weight`: the badge capsule and its text (default `18px`, `5px`, `12px`, normal)
+- `--tab-bar-badge-top`, `--tab-bar-badge-start`: where the badge sits, below the top of the tab and past its middle (default `2.33px`, `11.67px`)
+- `--tab-bar-minimized-badge-top`, `--tab-bar-minimized-badge-start`: the same on the minimized circle, from its top and its middle (default `2px`, `9.67px`)
+- `--tab-bar-badge-background`, `--tab-bar-badge-color`: badge colors (default `var(--color-background-danger-solid)`, `var(--color-text-danger-solid)`)
+- `--tab-bar-accessory-height`, `--tab-bar-accessory-gap`, `--tab-bar-minimized-accessory-gap`: the accessory, the space between it and the tabs, and minimized between it and the circles (default `48px`, `8px`, `13.33px`)
+- The capsule, the circles and the accessory use the shared mobile glass: `--mobile-glass-background`, `--mobile-glass-sheen`, `--mobile-glass-shadow-raised` and `--mobile-glass-backdrop-filter`.

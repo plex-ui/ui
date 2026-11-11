@@ -81,12 +81,25 @@
     &[data-minimized] {
       padding: var(--tab-bar-minimized-padding-top) var(--tab-bar-minimized-gutter) var(--tab-bar-minimized-padding-bottom);
     }
+
+    /* A bottom accessory stands above the capsule, so the bar grows by its height and gap (151 in all). */
+    &[data-accessory] {
+      padding-top: calc(var(--tab-bar-padding-top) + var(--tab-bar-accessory-height) + var(--tab-bar-accessory-gap));
+    }
+
+    /* Minimized, it moves between the circles and the bar keeps its height. */
+    &[data-accessory][data-minimized] {
+      gap: var(--tab-bar-minimized-accessory-gap);
+      padding-top: calc(var(--tab-bar-minimized-padding-top) + var(--tab-bar-accessory-height) + var(--tab-bar-accessory-gap));
+    }
   }
 
-  /* The glass capsule (Liquid Glass Regular, the shared mobile glass with its raised shadow). Tabs are 94px
-     apart at most and share the width when there are more: four or five fill 360px, three take 302. The search
-     and prominent circles name both classes to outrank the reset of `.Item`. */
+  /* The glass capsule (Liquid Glass Regular, the shared mobile glass with its raised shadow). Tabs are 85px
+     apart at most and share the width when there are more: four or five fill 360px, three take 275, as iOS 27.2
+     sets them. The search and prominent circles name both classes to outrank the reset of
+     `.Item`; the accessory is the same glass. */
   .Tabs,
+  .Accessory,
   .Item:is(.Search, .Prominent) {
     border-radius: var(--radius-full);
     background-color: var(--mobile-glass-background);
@@ -180,6 +193,38 @@
     }
   }
 
+  /* The bottom accessory: the app's own content, a now playing row or a status, in a capsule across the bar
+     above the tabs. */
+  .Accessory {
+    position: absolute;
+    top: var(--tab-bar-padding-top);
+    right: var(--tab-bar-gutter);
+    left: var(--tab-bar-gutter);
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    height: var(--tab-bar-accessory-height);
+  }
+
+  /* A count or a word on a tab: a red capsule over the symbol's trailing top corner, kept to the tab's middle. */
+  .Badge {
+    position: absolute;
+    top: var(--tab-bar-badge-top);
+    left: calc(50% + var(--tab-bar-badge-start));
+    min-width: var(--tab-bar-badge-size);
+    height: var(--tab-bar-badge-size);
+    padding: 0 var(--tab-bar-badge-padding-inline);
+    border-radius: var(--radius-full);
+    background: var(--tab-bar-badge-background);
+    color: var(--tab-bar-badge-color);
+    font-size: var(--tab-bar-badge-font-size);
+    font-weight: var(--tab-bar-badge-font-weight);
+    line-height: var(--tab-bar-badge-size);
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
   .Label {
     max-width: 100%;
     overflow: hidden;
@@ -231,6 +276,12 @@
       }
     }
 
+    /* The badge stays on the circle, measured from the circle rather than the tab inside it. */
+    & .Tabs .Badge {
+      top: calc(var(--tab-bar-minimized-badge-top) - var(--tab-bar-capsule-padding-block));
+      left: calc(50% + var(--tab-bar-minimized-badge-start));
+    }
+
     /* The label still names the tab for assistive technology. */
     & .Tabs .Label {
       position: absolute;
@@ -243,6 +294,13 @@
 
     & .Item:is(.Search, .Prominent) {
       width: var(--tab-bar-minimized-size);
+      height: var(--tab-bar-minimized-size);
+    }
+
+    /* The accessory between the circles, as tall as they are: the bar puts it there in its order. */
+    & .Accessory {
+      position: static;
+      flex: 1 1 0;
       height: var(--tab-bar-minimized-size);
     }
   }

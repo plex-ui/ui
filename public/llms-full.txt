@@ -8970,19 +8970,21 @@ Props:
   - defaultMinimized (boolean) default: false — Minimized state (uncontrolled)
   - onMinimizedChange ((minimized: boolean) => void) — Called when the bar minimizes or expands
   - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it, see Background
+  - accessory (ReactNode) — Content in a glass capsule above the tabs, as the iOS 27 bottom accessory
   - aria-label (string) default: "Tabs" — Name of the navigation
   - className (string) — CSS classes applied to the bar
   TabBar.Item:
     - value (string) — Value of the tab
     - label (string) — Label under the symbol and the name of the tab
     - icon (ReactNode) — The symbol, a PlexUI icon
+    - badge (ReactNode) — A count or a short word in a red capsule over the symbol; 0 shows none
     - href (string) — Makes the tab a link
     - disabled (boolean) default: false — The tab cannot be selected
     - onClick ((event: MouseEvent) => void) — Called when the tab is pressed, before it is selected
     - className (string) — CSS classes applied to the tab
 
 ### Overview
-Put the bar last in a Page: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are. With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does, and the capsule keeps to the leading end at the width of its tabs; show the search screen when its value is selected. With prominent one key destination, such as a cart or a library, takes that circle instead, as the prominent tab of iOS 27: it is still a tab, the circle shows its symbol only and label names it, and with both the search tab joins the capsule as its last tab. The bar holds five tabs at most, the search and prominent tabs counted, as in the kit's Tab Bar - iPhone: next to a circle the capsule keeps four, so the example disables the counts that would not fit. With minimizeBehavior="onScrollDown" the bar shrinks while the content scrolls down to a circle of the selected tab at the leading end, the search or prominent circle staying at the trailing end, as the minimized tab bar of the kit; it comes back when the content scrolls up, and a tap on the minimized tab brings the others back. background sets how the bar meets the content scrolled under it, as on a Toolbar: soft (the default) leaves the content clear around the capsule, as native iOS 26 does, glass lays a translucent, blurred band with a hairline under it, hard an opaque band with a line on top and solid an opaque band with no line. The top bar sets its own background, glass by default, so the example sets the two apart.
+Put the bar last in a Page: it reserves its height there. Up to three tabs sit in the middle, 85px apart, as iOS 27 sets them; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are. With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does, and the capsule keeps to the leading end at the width of its tabs; show the search screen when its value is selected. With prominent one key destination, such as a cart or a library, takes that circle instead, as the prominent tab of iOS 27: it is still a tab, the circle shows its symbol only and label names it, and with both the search tab joins the capsule as its last tab. The bar holds five tabs at most, the search and prominent tabs counted, as in the kit's Tab Bar - iPhone: next to a circle the capsule keeps four, so the example disables the counts that would not fit. With minimizeBehavior="onScrollDown" the bar shrinks while the content scrolls down to a circle of the selected tab at the leading end, the search or prominent circle staying at the trailing end, as the minimized tab bar of the kit; it comes back when the content scrolls up, and a tap on the minimized tab brings the others back. A tab's badge shows a count or a short word in a red capsule over its symbol, as an iOS tab badge, and the minimized circle keeps it; a count of 0 shows none. accessory puts the app's own content, a now playing row or a status, in a glass capsule above the tabs, as the bottom accessory of iOS 27: minimized, it moves between the two circles, and the bar keeps its height so the content does not move. background sets how the bar meets the content scrolled under it, as on a Toolbar: soft (the default) leaves the content clear around the capsule, as native iOS 26 does, glass lays a translucent, blurred band with a hairline under it, hard an opaque band with a line on top and solid an opaque band with no line. The top bar sets its own background, glass by default, so the example sets the two apart.
 ```tsx
 const [tab, setTab] = useState('home')
 
@@ -8998,9 +9000,10 @@ const [tab, setTab] = useState('home')
   prominent={{ value: 'bag', label: 'Bag', icon: <ShoppingBag /> }}
   minimizeBehavior="onScrollDown"
   background="soft"
+  accessory={<NowPlaying />}
 >
   <TabBar.Item value="home" label="Home" icon={<Home />} />
-  <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
+  <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} badge={3} />
   <TabBar.Item value="photos" label="Photos" icon={<Images />} />
 </TabBar>
 </Page>

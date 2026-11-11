@@ -14,11 +14,13 @@ import {
 } from "vue"
 import s from "@plexui/styles/components/TabBar/TabBar.module.css"
 import { Search as SearchIcon } from "../Icon/index.js"
+import { hasContent } from "../../lib/slotContent.js"
 import { TOOLBAR_HOST, type BarBackground } from "../Toolbar/Toolbar.js"
 
 // Vue port of packages/ui/src/components/TabBar/TabBar.tsx. Exports are flat (`TabBarItem` for `TabBar.Item`);
-// the symbol of an item is its `icon` slot. React's `value` + `onValueChange` become `value` + `update:value`
-// (`v-model:value`), `minimized` + `onMinimizedChange` become `minimized` + `update:minimized`.
+// the symbol of an item is its `icon` slot, and React's `accessory` is the bar's `accessory` slot. React's
+// `value` + `onValueChange` become `value` + `update:value` (`v-model:value`), `minimized` + `onMinimizedChange`
+// become `minimized` + `update:minimized`.
 
 /** A scroll of at least this many pixels in one direction minimizes or expands the bar. */
 const MINIMIZE_AFTER = 8
@@ -47,6 +49,9 @@ export type TabBarProminent = {
   label: string
 }
 
+/** A badge shows unless it is empty: no value, an empty text or a count of 0 (iOS hides `.badge(0)`). */
+const hasBadge = (badge: string | number | null | undefined) => badge != null && badge !== "" && badge !== 0
+
 const TabBarItemComponent = defineComponent({
   name: "TabBarItem",
   inheritAttrs: false,
@@ -57,6 +62,11 @@ const TabBarItemComponent = defineComponent({
     label: { type: String, required: true },
     /** Makes the tab a link to this URL. */
     href: String,
+    /**
+     * A count or a short word in a red capsule over the symbol, as an iOS tab badge; it is read after the label.
+     * A count of 0 shows none, as on iOS.
+     */
+    badge: { type: [String, Number], default: undefined },
     /** When `true`, the tab cannot be selected. */
     disabled: { type: Boolean, default: false },
     /** @internal The search and the prominent tab show their symbol only. */
@@ -85,6 +95,8 @@ const TabBarItemComponent = defineComponent({
       const content = [
         h("span", { "class": s.Icon, "aria-hidden": "true" }, slots.icon?.()),
         props.hideLabel ? null : h("span", { class: s.Label }, props.label),
+        // The space keeps the accessible name "Inbox 3", not "Inbox3".
+        ...(hasBadge(props.badge) ? [" ", h("span", { class: s.Badge }, props.badge)] : []),
       ]
       const shared = {
         "class": [s.Item, attrs.class],
@@ -209,30 +221,50 @@ const TabBarComponent = defineComponent({
       host?.setHeight?.("bottom", undefined)
     })
 
-    return () => h("nav", {
-      ...attrs,
-      "ref": element,
-      "aria-label": props.ariaLabel,
-      "class": [s.TabBar, attrs.class],
-      "data-host": host?.kind,
-      "data-background": props.background,
-      "data-content-below": host?.contentBelow?.value ? "" : undefined,
-      "data-minimized": minimized.value ? "" : undefined,
-      "data-search": props.search && !props.prominent ? "" : undefined,
-      "data-prominent": props.prominent ? "" : undefined,
-    }, [
-      h("div", { class: s.Tabs }, [
+    // Minimizing or expanding moves the accessory past the tabs. A keyed diff moves the DOM node, and a moved node
+    // that holds the focus sends it to the body (React restores it after its commit); the bar puts it back.
+    let focused: HTMLElement | null = null
+    watch(minimized, () => {
+      const active = document.activeElement
+      focused = active instanceof HTMLElement && element.value?.contains(active) ? active : null
+    }, { flush: "pre" })
+    watch(minimized, () => {
+      const target = focused
+      focused = null
+      if (target?.isConnected && document.activeElement !== target) target.focus({ preventScroll: true })
+    }, { flush: "post" })
+
+    return () => {
+      // An accessory slot that renders nothing (a `v-if` inside it) leaves no empty capsule, as React's `false`.
+      const accessory = slots.accessory?.()
+      const accessoryCapsule = hasContent(accessory) ? h("div", { key: "accessory", class: s.Accessory }, accessory) : null
+      const tabs = h("div", { key: "tabs", class: s.Tabs }, [
         slots.default?.(),
         props.search && props.prominent
           ? h(TabBarItem, { value: props.search.value, label: props.search.label ?? "Search" }, { icon: () => h(SearchIcon) })
           : null,
-      ]),
-      props.prominent
-        ? h(TabBarItem, { class: s.Prominent, value: props.prominent.value, label: props.prominent.label, hideLabel: true }, { icon: () => slots["prominent-icon"]?.() })
+      ])
+      const circle = props.prominent
+        ? h(TabBarItem, { key: "prominent", class: s.Prominent, value: props.prominent.value, label: props.prominent.label, hideLabel: true }, { icon: () => slots["prominent-icon"]?.() })
         : props.search
-          ? h(TabBarItem, { class: s.Search, value: props.search.value, label: props.search.label ?? "Search", hideLabel: true }, { icon: () => h(SearchIcon) })
-          : null,
-    ])
+          ? h(TabBarItem, { key: "search", class: s.Search, value: props.search.value, label: props.search.label ?? "Search", hideLabel: true }, { icon: () => h(SearchIcon) })
+          : null
+      // The accessory is read where it stands: above the tabs, and minimized between the two circles. The keys move
+      // it there without remounting its content.
+      return h("nav", {
+        ...attrs,
+        "ref": element,
+        "aria-label": props.ariaLabel,
+        "class": [s.TabBar, attrs.class],
+        "data-host": host?.kind,
+        "data-background": props.background,
+        "data-content-below": host?.contentBelow?.value ? "" : undefined,
+        "data-minimized": minimized.value ? "" : undefined,
+        "data-search": props.search && !props.prominent ? "" : undefined,
+        "data-prominent": props.prominent ? "" : undefined,
+        "data-accessory": accessoryCapsule ? "" : undefined,
+      }, minimized.value ? [tabs, accessoryCapsule, circle] : [accessoryCapsule, tabs, circle])
+    }
   },
 })
 

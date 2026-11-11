@@ -902,7 +902,11 @@
        circle 8px away; minimized, two 48px circles. The selection pill (237 burnt into the light glass, 18
        dodged into the dark one: about 8% either way) is alpha-08. The kit tints the selected tab systemBlue;
        PlexUI colors navigation as its Sidebar does: the selected tab in the primary text, the others
-       --gray-750 (dark --gray-850). Minimized, the symbol is the primary label, as in the kit. */
+       --gray-750 (dark --gray-850). Minimized, the symbol is the primary label, as in the kit.
+       iOS 27.2 (TabView in Xcode, ref-app tabs3, tabs4 and tabs5) keeps the capsule, the pill and the label,
+       and four or five tabs share the width as here (85 each). Three hug their tabs in a 275 capsule, centres
+       86 apart with 8.5 at the ends; PlexUI keeps its 10 and sets 85, the capsule exact and the centres 1 off,
+       where the kit's 94 made 302. The symbols draw larger: house.fill 27 x 24, gear 26, the magnifier 22.33. */
     --tab-bar-gutter: 21px;
     --tab-bar-gap: 8px;
     --tab-bar-padding-top: 12px;
@@ -914,11 +918,13 @@
     --tab-bar-minimized-padding-bottom: max(28px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 6px));
     --tab-bar-capsule-padding-block: 4px;
     --tab-bar-capsule-padding-inline: 10px;
-    --tab-bar-item-width: 94px;
+    --tab-bar-item-width: 85px;
     --tab-bar-item-height: 54px;
     --tab-bar-pill-outset: 6px;
     --tab-bar-icon-box: 28px;
-    --tab-bar-icon-size: 24px;
+    /* PlexUI icons draw their ink about 0.8 of the box (Search 19 of 24), so a 28 box draws the 22 of the
+       native magnifier; it was 24. */
+    --tab-bar-icon-size: 28px;
     --tab-bar-label-font-size: 10px;
     --tab-bar-label-line-height: 12px;
     --tab-bar-label-font-weight: var(--font-weight-semibold);
@@ -928,6 +934,27 @@
     --tab-bar-item-color-selected: var(--color-text);
     --tab-bar-item-color-minimized: var(--color-text);
     --tab-bar-item-background-selected: var(--alpha-08);
+    /* A badge on a tab (iOS 27.2 TabView .badge, ref-app tabs4-badge): an 18 red capsule, a count or a word in
+       12 regular 5 inside it ("New" 33.67 wide), its top 2.33 below the top of the tab and its leading edge
+       11.67 past the tab's middle. Native red (ff383c, dark ff4245) is the danger solid of PlexUI. */
+    --tab-bar-badge-size: 18px;
+    --tab-bar-badge-padding-inline: 5px;
+    --tab-bar-badge-font-size: 12px;
+    --tab-bar-badge-font-weight: var(--font-weight-normal);
+    --tab-bar-badge-top: 2.33px;
+    --tab-bar-badge-start: 11.67px;
+    --tab-bar-badge-background: var(--color-background-danger-solid);
+    --tab-bar-badge-color: var(--color-text-danger-solid);
+    /* Minimized, the circle of the selected tab keeps its badge, 2 below the circle's top and its leading edge 9.67
+       past the middle, so it reaches 4 past the circle (ref-app tabs-minimize-badge). */
+    --tab-bar-minimized-badge-top: 2px;
+    --tab-bar-minimized-badge-start: 9.67px;
+    /* The bottom accessory (iOS 27.2 tabViewBottomAccessory, ref-app tabs-accessory and tabs-minimize): a 48
+       glass capsule across the bar, 8 above the tabs; minimized, it stands between the two 48 circles, 13.33
+       from each. The bar keeps its height (151) in both states, so the Page under it does not move. */
+    --tab-bar-accessory-height: 48px;
+    --tab-bar-accessory-gap: 8px;
+    --tab-bar-minimized-accessory-gap: 13.33px;
 
     /* =============================================
       Tabs — Underline variant
