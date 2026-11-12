@@ -262,10 +262,10 @@
     --sortable-handle-color: var(--color-text-tertiary);
     --sortable-handle-color-hover: var(--color-text-secondary);
     --sortable-line-size: 2px;
-    --sortable-line-color: var(--color-background-info-solid);
+    --sortable-line-color: var(--color-background-accent-solid);
     --sortable-slot-inset: 8px;
     --sortable-slot-radius: 12px;
-    --sortable-slot-background: var(--color-background-info-soft);
+    --sortable-slot-background: var(--color-background-accent-soft);
     --sortable-slot-background-away: var(--color-surface-tertiary);
 
     /* =============================================
@@ -402,8 +402,8 @@
     --link-gap: spacing(0.5);
     --link-radius: var(--radius-sm);
     --link-underline-decoration-offset: 0.1em;
-    --link-primary-text-color: light-dark(var(--blue-500), var(--blue-300));
-    --link-primary-text-color-hover: light-dark(var(--blue-600), var(--blue-400));
+    --link-primary-text-color: light-dark(var(--accent-500), var(--accent-300));
+    --link-primary-text-color-hover: light-dark(var(--accent-600), var(--color-accent));
 
     /* =============================================
       Chat
@@ -589,15 +589,15 @@
     --toolbar-prominent-disabled-color: light-dark(var(--gray-0), var(--alpha-30));
     /* A prominent bar button (NavigationButton confirm, a solid primary or info Button) is tinted with the accent: the
        kit's Symbol and Text - Prominent (iOS 27 Buttons - 44pt, 5720:29596) lay accents/blue #08f under a
-       #f5f5f5 symbol or label, and native glass shows 0/133/251 (Photos checkmark, IMG_5453): the info solid
-       of PlexUI, blue-400, under white (owner, 08.11). Its edge is the glass's: the sides darkened (kit, 25
+       #f5f5f5 symbol or label, and native glass shows 0/133/251 (Photos checkmark, IMG_5453): --color-accent,
+       blue-400 by default, under white (owner, 08.11). Its edge is the glass's: the sides darkened (kit, 25
        levels; native, 0/113/217) and light along the top and the bottom (kit Glass Effect, a +40 dodge 10px
        deep at both; native 187 at the top and 205 at the bottom on 133, 152 on the diagonals, none at the sides).
        Set the background to --color-background-primary-solid to keep the PlexUI primary. */
-    --toolbar-prominent-background: var(--color-background-info-solid);
-    --toolbar-prominent-background-hover: var(--color-background-info-solid-hover);
-    --toolbar-prominent-background-active: var(--color-background-info-solid-active);
-    --toolbar-prominent-color: var(--color-text-info-solid);
+    --toolbar-prominent-background: var(--color-background-accent-solid);
+    --toolbar-prominent-background-hover: var(--color-background-accent-solid-hover);
+    --toolbar-prominent-background-active: var(--color-background-accent-solid-active);
+    --toolbar-prominent-color: var(--color-text-accent-solid);
     --toolbar-prominent-sheen: linear-gradient(rgb(255 255 255 / 16%), transparent 6px, transparent calc(100% - 8px), rgb(255 255 255 / 16%));
     --toolbar-prominent-shadow: 0 8px 15px light-dark(rgb(0 0 0 / 2%), transparent), 1.25px 0 0 -0.75px rgb(0 0 0 / 12%), -1.25px 0 0 -0.75px rgb(0 0 0 / 12%), inset 0 0.67px 0 rgb(255 255 255 / 35%), inset 0 -0.67px 0 rgb(255 255 255 / 35%);
 
@@ -852,7 +852,7 @@
        letters A to V carry the ink of native ones (515 against 515pt²; medium gave 453). In a 14.67px column each
        letter centres where its native one does (7.4px from the edge on average). The country list of a sheet
        (IMG_5491: 15pt apart, 10pt from the edge) is the exception. iOS tints them systemBlue (0088ff); PlexUI
-       draws that tint as info, as it does the prominent toolbar button. A drag along the letters highlights
+       draws that tint with --color-accent, as it does the prominent toolbar button. A drag along the letters highlights
        nothing, as on iOS. The target reaches 30px in from the edge (the native frames show no target). A list
        keeps its margins beside the index, whose letters sit in the trailing one (Contacts rows end 16pt from the
        edge). */
@@ -861,7 +861,7 @@
     --index-bar-font-size: 11px;
     --index-bar-line-height: 13.79px;
     --index-bar-font-weight: 590;
-    --index-bar-color: var(--color-text-info);
+    --index-bar-color: var(--color-text-accent);
     --index-bar-target-width: 30px;
 
     /* =============================================

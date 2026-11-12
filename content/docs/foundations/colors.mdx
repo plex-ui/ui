@@ -5,47 +5,45 @@ description: Plex UI color system reference. Primitive palettes, semantic tokens
 
 Plex UI defines a set of primitive color palettes that underpin every component. These palettes are exposed as CSS custom properties and are designed to work seamlessly with light and dark modes. Use semantic tokens (e.g. `text-primary`, `bg-surface`) in your own components rather than referencing specific palette values directly.
 
-## Shared application accent
+## Accent
 
-Configure an application accent once in your global stylesheet, after the Plex UI imports. React and Vue read the same CSS tokens. This opt-in recipe connects solid primary actions, `Switch color="accent"`, Checkbox, RadioGroup, Slider, primary TextLink and focus rings to one application palette. Other consumers of the same primary-solid or link tokens follow it too. The scope is these shared roles; other variants and status colors keep their existing tokens.
+The accent of the kit is one variable, `--color-accent`, `#0285ff` (`blue-400`) by default. Set it once, after the Plex UI stylesheet, and React and Vue follow on the desktop and on a phone:
 
 ```css
-/* Add after your Plex UI stylesheet imports. */
-:root,
-:where([data-theme]) {
-  /* Application palette: use separate fill, text and contrast roles. */
-  --app-accent: var(--blue-500);
-  --app-accent-hover: var(--blue-600);
-  --app-accent-text: light-dark(var(--blue-500), var(--blue-300));
-  --app-accent-text-hover: light-dark(var(--blue-600), var(--blue-400));
-  --app-accent-foreground: var(--white);
-
-  /* Solid primary actions; status colors keep their own semantic tokens. */
-  --color-background-primary-solid: var(--app-accent);
-  --color-background-primary-solid-hover: var(--app-accent-hover);
-  --color-background-primary-solid-active: var(--app-accent-hover);
-  --color-text-primary-solid: var(--app-accent-foreground);
-
-  /* Checked and selected controls. */
-  --switch-accent-color: var(--app-accent);
-  --checkbox-checked-background: var(--app-accent);
-  --checkbox-checkmark-color: var(--app-accent-foreground);
-  --checkbox-ghost-check-color: var(--app-accent-text);
-  --radio-group-indicator-background-color: var(--app-accent);
-  --radio-group-indicator-hole-background-color: var(--app-accent-foreground);
-  --radio-group-checkmark-color: var(--app-accent-text);
-  --slider-range-color: var(--app-accent);
-
-  /* Links and keyboard focus. */
-  --link-primary-text-color: var(--app-accent-text);
-  --link-primary-text-color-hover: var(--app-accent-text-hover);
-  --color-ring: var(--app-accent-text);
+:root {
+  --color-accent: #7c3aed;
 }
 ```
 
-The `--app-*` variables belong to your application; the remaining names are Plex UI tokens. Change the palette at the top to apply another accent. Put this recipe at each theme root, including nested `[data-theme]` roots, so the aliases resolve against that theme's values. Solid primary buttons and `ButtonLink` use the `primary` color; Switch opts in with `color="accent"`. Switch's default `primary` style is unchanged, and accent switches remain platform green when no override is supplied.
+It colors primary links (`TextLink`), keyboard focus rings and the iOS tint: the prominent bar button (`NavigationButton action="confirm"`, a solid primary action in a phone toolbar), the main action of a phone Dialog and the plain tinted action under it, an alert's preferred action, `IndexBar` letters and the `Sortable` drop line. Its lighter and darker steps are drawn from it in both themes as `--accent-50` to `--accent-700` and `--accent-a25` to `--accent-a75`, and the roles as `--color-text-accent`, `--color-background-accent-solid` and `--color-background-accent-soft`. The `info`, `success`, `warning`, `danger`, `discovery` and `caution` status families keep their own colors.
 
-The optional Checkbox tokens preserve the current defaults: `--checkbox-checked-background` falls back to `var(--gray-900)`, and `--checkbox-checkmark-color` to `var(--gray-0)`. The Phone RadioGroup checkmark reads `--radio-group-checkmark-color`, falling back to `var(--color-text)`. These hooks also work independently of the recipe.
+### Primary actions and checked controls
+
+Primary stays the neutral ink of Plex UI on the desktop. To draw solid primary actions, `Switch color="accent"`, Checkbox, RadioGroup and Slider in the accent too, add:
+
+```css
+/* After the Plex UI stylesheet; repeat at each nested [data-theme] root. */
+:root,
+:where([data-theme]) {
+  --color-background-primary-solid: var(--color-accent);
+  --color-background-primary-solid-hover: var(--accent-500);
+  --color-background-primary-solid-active: var(--accent-500);
+  --color-text-primary-solid: var(--white);
+
+  --switch-accent-color: var(--color-accent);
+  --checkbox-checked-background: var(--color-accent);
+  --checkbox-checkmark-color: var(--white);
+  --checkbox-ghost-check-color: var(--color-text-accent);
+  --radio-group-indicator-background-color: var(--color-accent);
+  --radio-group-indicator-hole-background-color: var(--white);
+  --radio-group-checkmark-color: var(--color-text-accent);
+  --slider-range-color: var(--color-accent);
+}
+```
+
+Solid primary buttons and `ButtonLink` use the `primary` color; Switch opts in with `color="accent"`. Switch's default `primary` style is unchanged, and accent switches remain platform green when no override is supplied.
+
+The optional Checkbox tokens preserve the current defaults: `--checkbox-checked-background` falls back to `var(--gray-900)`, and `--checkbox-checkmark-color` to `var(--gray-0)`. The Phone RadioGroup checkmark reads `--radio-group-checkmark-color`, falling back to `var(--color-text)`. These hooks also work independently of the accent.
 
 Disabled states keep each component's existing treatment. A disabled checked accent Switch retains a muted accent; a disabled unchecked Switch uses the neutral track, and the disabled thumb has no shadow. Checkbox and RadioGroup retain their disabled opacity. Buttons continue to use the shared disabled tokens. Invalid borders and fills retain their semantic tokens. The `success`, `warning`, `danger`, `info`, `discovery` and `caution` color families keep their existing values.
 

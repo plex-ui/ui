@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Delete } from 'lucide-react';
+import { ArrowBigUp, CornerDownLeft, Delete } from 'lucide-react';
 import { Button } from '@plexui/ui/components/Button';
 import { isPreviewKeyboardCommand, type PreviewKeyboardCommand, type PreviewKeyboardKind } from './previewKeyboardInput';
 import s from './PreviewKeyboard.module.css';
@@ -36,7 +36,7 @@ function TextKeyboard({ onKey }: { onKey: KeyHandler }) {
           {letters ? (
             <Button color="secondary" variant="soft" className={`${s.Key} ${s.TextKey} ${s.Modifier}`} aria-label="Shift" aria-pressed={uppercase}
               onPointerDown={(event) => event.preventDefault()} onClick={() => setUppercase((value) => !value)}>
-              <span className={`${s.Glyph} ${s.ShiftGlyph}`} aria-hidden="true" />
+              <ArrowBigUp className={s.Glyph} strokeWidth={1.75} fill={uppercase ? 'currentColor' : 'none'} aria-hidden="true" />
             </Button>
           ) : (
             <Button color="secondary" variant="soft" className={`${s.Key} ${s.TextKey} ${s.Modifier} ${s.SymbolSwitch}`}
@@ -48,7 +48,7 @@ function TextKeyboard({ onKey }: { onKey: KeyHandler }) {
           <div className={s.ThirdRowCharacters}>{rows[2].map(characterKey)}</div>
           <Button color="secondary" variant="soft" className={`${s.Key} ${s.TextKey} ${s.Modifier}`} aria-label="Backspace"
             onPointerDown={(event) => event.preventDefault()} onClick={() => onKey('Backspace')}>
-            <span className={`${s.Glyph} ${s.DeleteGlyph}`} aria-hidden="true" />
+            <Delete className={s.Glyph} strokeWidth={1.75} aria-hidden="true" />
           </Button>
         </div>
         <div className={s.TextRow}>
@@ -61,7 +61,7 @@ function TextKeyboard({ onKey }: { onKey: KeyHandler }) {
             onPointerDown={(event) => event.preventDefault()} onClick={() => onKey(' ')}><span aria-hidden="true">{'\u00a0'}</span></Button>
           <Button color="primary" variant="solid" className={`${s.Key} ${s.TextKey} ${s.Return}`} aria-label="Return"
             onPointerDown={(event) => event.preventDefault()} onClick={() => onKey('Enter')}>
-            <span className={`${s.Glyph} ${s.ReturnGlyph}`} aria-hidden="true" />
+            <CornerDownLeft className={s.Glyph} strokeWidth={1.75} aria-hidden="true" />
           </Button>
         </div>
       </div>

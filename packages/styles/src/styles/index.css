@@ -7,6 +7,8 @@
    Unlayered, they override the same names from Tailwind's theme layer,
    so the consumer's `rounded-*` and font utilities use the Plex values
    (see variables-tokens-root.css and /docs/installation). */
+/* Inter, the face of --font-sans, from the kit itself */
+@import "./inter";
 @import "./variables-tokens-root";
 /* Tier 1 tokens: Primitives */
 @import "./variables-primitive";

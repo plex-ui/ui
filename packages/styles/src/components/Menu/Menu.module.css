@@ -663,10 +663,10 @@
     backdrop-filter: var(--menu-mobile-backdrop-filter, none);
   }
 
-  /* No tracking of its own: the system font tracks the labels. Nine labels of native iOS 26 menus
-     (iOS2 IMG_5524, 5525, 17/400) measure within 2px at @3x without it and 7 to 16px short with -0.43px. */
+  /* No tracking of its own: the labels take the kit face's, --font-sans-tracking at 17px. In SF, nine labels of
+     native iOS 26 menus (iOS2 IMG_5524, 5525, 17/400) measured within 2px at @3x without it, 7 to 16px short with -0.43px. */
   .MenuList:not([data-layout="horizontal"]) :is(.MenuItem, .MenuItemContent):not(:where(.RadioGroup[data-layout="horizontal"] *)) {
-    letter-spacing: var(--menu-letter-spacing, normal);
+    letter-spacing: var(--menu-letter-spacing, var(--font-sans-tracking));
     overflow-wrap: anywhere;
   }
 
@@ -725,7 +725,7 @@
   .MenuList:not([data-layout="horizontal"]) .ItemDescription {
     font-size: var(--menu-description-font-size, 13px);
     line-height: var(--menu-description-line-height, 18px);
-    letter-spacing: normal;
+    letter-spacing: var(--font-sans-tracking);
     color: var(--menu-description-color, var(--color-text-secondary));
   }
 

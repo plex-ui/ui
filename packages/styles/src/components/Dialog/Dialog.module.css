@@ -941,14 +941,14 @@
      a plain tinted button, with no face (Wallet's Create a Pass, IMG_5432: Continue 53pt high and Create Pass
      Manually centred 35pt below it; owner 12.11, «нет такого в iOS»). A footer is written with its main action
      last, where a desktop row ends; Dialog.Footer turns the order in the page on a phone. Beside a solid action a
-     soft, outline or ghost one takes the iOS tint (info, as the prominent bar button) or red for danger, at the
+     soft, outline or ghost one takes the iOS tint (--color-accent, as the prominent bar button) or red for danger, at the
      regular weight; a disabled one keeps the Button's disabled color. */
   .Content[data-mobile-variant="sheet"] .Footer:not([data-mobile-layout="inline"]):has(> :where(button, a, [role="link"])[data-variant="solid"]) > :where(button, a, [role="link"]):not([data-variant="solid"]) {
     font-weight: var(--font-weight-normal);
 
     &:where(:not([data-disabled])) {
-      --button-text-color: var(--color-text-info);
-      --button-text-color-hover: var(--color-text-info);
+      --button-text-color: var(--color-text-accent);
+      --button-text-color-hover: var(--color-text-accent);
     }
 
     &:where([data-color="danger"]:not([data-disabled])) {

@@ -253,7 +253,7 @@ import { NavigationButton } from '@plexui/ui/components/Button';
 
 `action` is required: `"back" | "close" | "confirm"`. Accessible names default to Back, Close, and Confirm; override `aria-label` for the destination or operation. Other Button and native button props remain available, including `type`, `form`, disabled/loading state, event handlers, and refs. The component owns its glyph, `pill`, and `uniform` shape, so it does not accept children or an icon-size override.
 
-Back and Close default to secondary soft buttons with the mobile glass material. Confirm defaults to primary solid; an explicit `color` or `variant` still overrides it. Use the existing [shared application accent](/docs/foundations/colors#shared-application-accent) recipe to set the primary palette once in application CSS after the stylesheet imports. Semantic `info` remains available for informational states.
+Back and Close default to secondary soft buttons with the mobile glass material. Confirm defaults to primary solid; an explicit `color` or `variant` still overrides it. Use the [accent recipe](/docs/foundations/colors#primary-actions-and-checked-controls) to set the primary palette once in application CSS after the stylesheet imports. Semantic `info` remains available for informational states.
 
 Phone geometry uses `--navigation-button-size`, `--navigation-button-back-icon-size`, `--navigation-button-close-icon-size`, and `--navigation-button-confirm-icon-size`. Desktop retains Button sizing. Unrelated toolbar buttons keep their existing icon sizes.
 

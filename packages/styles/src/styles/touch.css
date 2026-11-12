@@ -362,7 +362,7 @@
     --card-padding-lg: 20px;
     --card-title-font-size: 17px;
     --card-title-line-height: 22px;
-    --card-title-letter-spacing: normal;
+    --card-title-letter-spacing: var(--font-sans-tracking);
     --card-description-font-size: 15px;
     --card-description-line-height: 20px;
     --card-description-color: var(--color-text-secondary);
@@ -577,8 +577,8 @@
     --empty-message-title-gap: 0px;
     --empty-message-title-only-gap: 0px;
     --empty-message-title-weight: var(--font-weight-semibold);
-    /* No tracking of its own: the system font tracks it (22/700 "Нет приглашений" 564 at @3x, native 563). */
-    --empty-message-title-tracking: normal;
+    /* The face's own tracking by size, as every text (iOS: 22/700 "Нет приглашений" 564 at @3x in SF). */
+    --empty-message-title-tracking: var(--font-sans-tracking);
     --empty-message-description-size: 22px;
     --empty-message-description-leading: 26px;
     --empty-message-description-weight: var(--font-weight-medium);
@@ -640,7 +640,7 @@
     --mobile-field-error-font-size: 15px;
     --mobile-field-error-line-height: 20px;
     --mobile-field-error-font-weight: var(--font-weight-normal);
-    --mobile-field-error-letter-spacing: normal;
+    --mobile-field-error-letter-spacing: var(--font-sans-tracking);
     --mobile-field-error-offset: 4px;
     --mobile-field-error-icon-size: 16px;
     --mobile-field-error-icon-gap: 4px;

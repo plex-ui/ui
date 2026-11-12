@@ -1,5 +1,5 @@
 /* Figma 106:60978: 402×308, 24 top, 74 bottom, 48px keys and 6px gaps.
-   System font and Plex/Lucide glyphs are web adaptations, not SF Compact outlines. */
+   The kit's face and Plex/Lucide glyphs are web adaptations, not SF Compact outlines. */
 .Keyboard {
   position: absolute;
   inset: auto 0 0;
@@ -165,22 +165,12 @@
   line-height: 28px;
 }
 
-/* Outlined SF glyph vectors exported from Figma 8615:2038 (shift), 8615:2046 (delete)
-   and 5511:69729 (return), used as alpha masks; currentColor follows the theme roles. */
+/* Lucide shift, delete and return, drawn by currentColor in the theme roles: Apple's keyboard symbols may not
+   ship on the web. */
 .Glyph {
   display: block;
-  width: 21px;
-  height: 18px;
-  background: currentColor;
-  mask-repeat: no-repeat;
-  mask-position: center;
-}
-
-.ShiftGlyph { mask-image: url('/preview-keyboard/shift.svg'); }
-.DeleteGlyph { mask-image: url('/preview-keyboard/delete.svg'); }
-.ReturnGlyph {
-  width: 20px;
-  mask-image: url('/preview-keyboard/return.svg');
+  width: 22px;
+  height: 22px;
 }
 
 .Return {

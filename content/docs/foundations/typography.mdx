@@ -3,27 +3,45 @@ title: Typography
 description: Plex UI typography system. Text scales, semantic color tokens, font weights, and line-height presets for consistent reading hierarchy
 ---
 
+## Typeface
+
+Every text of the kit, on the desktop and on a phone, is set in [Inter](https://rsms.me/inter/) 4, as in the Plex UI Figma kit. `@plexui/styles` ships it: its variable files with the optical-size axis, so text up to 14px takes Inter's text cut, text from 32px its display cut and the sizes between a blend of the two, and any weight from 100 to 900 (the phone's 510 and 590 included). The files are split by script, so a page downloads only the scripts it shows.
+
+Tracking follows the size, as Inter's own dynamic metrics ask: `-0.0223em + 0.185em × e^(-0.1745 × size)`. Plex UI sets it on every element through `--font-sans-tracking`, so each text tracks at its own size: +0.05px at 11px, -0.09px at 14px, -0.22px at 17px, -0.40px at 22px and -0.75px at 34px. Monospace text keeps its face's spacing.
+
+Change the typeface of the whole kit in one place, after the Plex UI stylesheet:
+
+```css
+:root {
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  /* Inter's tracking does not suit another face: use what it asks, normal for one that tracks itself. */
+  --font-sans-tracking: normal;
+}
+```
+
+React and Vue, every component and every Tailwind `font-sans` utility read these two. Load the new face yourself (with `@font-face`, `next/font` or a font service); Inter then stays unused and is not downloaded.
+
 ## Scales
 
 Scales include sizing for heading and text sizes, with combinations of `font-size`,`font-weight`, and `line-height`.
 
 | Name | Size | Weight | Tracking | Line |
 |------|------|--------|----------|------|
-| <span style={{ fontSize: 'var(--font-heading-5xl-size)', fontWeight: 'var(--font-heading-5xl-weight)', letterSpacing: 'var(--font-heading-5xl-tracking)', lineHeight: 'var(--font-heading-5xl-line-height)' }}>heading-5xl</span> | `72px` | `600` | `0em` | `72px` |
-| <span style={{ fontSize: 'var(--font-heading-4xl-size)', fontWeight: 'var(--font-heading-4xl-weight)', letterSpacing: 'var(--font-heading-4xl-tracking)', lineHeight: 'var(--font-heading-4xl-line-height)' }}>heading-4xl</span> | `60px` | `600` | `0em` | `60px` |
-| <span style={{ fontSize: 'var(--font-heading-3xl-size)', fontWeight: 'var(--font-heading-3xl-weight)', letterSpacing: 'var(--font-heading-3xl-tracking)', lineHeight: 'var(--font-heading-3xl-line-height)' }}>heading-3xl</span> | `48px` | `600` | `0em` | `48px` |
-| <span style={{ fontSize: 'var(--font-heading-2xl-size)', fontWeight: 'var(--font-heading-2xl-weight)', letterSpacing: 'var(--font-heading-2xl-tracking)', lineHeight: 'var(--font-heading-2xl-line-height)' }}>heading-2xl</span> | `36px` | `600` | `0em` | `42px` |
-| <span style={{ fontSize: 'var(--font-heading-xl-size)', fontWeight: 'var(--font-heading-xl-weight)', letterSpacing: 'var(--font-heading-xl-tracking)', lineHeight: 'var(--font-heading-xl-line-height)' }}>heading-xl</span> | `32px` | `600` | `0em` | `38px` |
-| <span style={{ fontSize: 'var(--font-heading-lg-size)', fontWeight: 'var(--font-heading-lg-weight)', letterSpacing: 'var(--font-heading-lg-tracking)', lineHeight: 'var(--font-heading-lg-line-height)' }}>heading-lg</span> | `24px` | `600` | `0em` | `28px` |
-| <span style={{ fontSize: 'var(--font-heading-md-size)', fontWeight: 'var(--font-heading-md-weight)', letterSpacing: 'var(--font-heading-md-tracking)', lineHeight: 'var(--font-heading-md-line-height)' }}>heading-md</span> | `20px` | `600` | `0em` | `26px` |
-| <span style={{ fontSize: 'var(--font-heading-sm-size)', fontWeight: 'var(--font-heading-sm-weight)', letterSpacing: 'var(--font-heading-sm-tracking)', lineHeight: 'var(--font-heading-sm-line-height)' }}>heading-sm</span> | `18px` | `600` | `0em` | `26px` |
-| <span style={{ fontSize: 'var(--font-heading-xs-size)', fontWeight: 'var(--font-heading-xs-weight)', letterSpacing: 'var(--font-heading-xs-tracking)', lineHeight: 'var(--font-heading-xs-line-height)' }}>heading-xs</span> | `16px` | `600` | `0em` | `24px` |
-| <span style={{ fontSize: 'var(--font-text-lg-size)', fontWeight: 'var(--font-text-lg-weight)', letterSpacing: 'var(--font-text-lg-tracking)', lineHeight: 'var(--font-text-lg-line-height)' }}>text-lg</span> | `18px` | `400` | `0em` | `29px` |
-| <span style={{ fontSize: 'var(--font-text-md-size)', fontWeight: 'var(--font-text-md-weight)', letterSpacing: 'var(--font-text-md-tracking)', lineHeight: 'var(--font-text-md-line-height)' }}>text-md</span> | `16px` | `400` | `0em` | `24px` |
-| <span style={{ fontSize: 'var(--font-text-sm-size)', fontWeight: 'var(--font-text-sm-weight)', letterSpacing: 'var(--font-text-sm-tracking)', lineHeight: 'var(--font-text-sm-line-height)' }}>text-sm</span> | `14px` | `400` | `0em` | `20px` |
-| <span style={{ fontSize: 'var(--font-text-xs-size)', fontWeight: 'var(--font-text-xs-weight)', letterSpacing: 'var(--font-text-xs-tracking)', lineHeight: 'var(--font-text-xs-line-height)' }}>text-xs</span> | `12px` | `400` | `0em` | `18px` |
-| <span style={{ fontSize: 'var(--font-text-2xs-size)', fontWeight: 'var(--font-text-2xs-weight)', letterSpacing: 'var(--font-text-2xs-tracking)', lineHeight: 'var(--font-text-2xs-line-height)' }}>text-2xs</span> | `10px` | `400` | `0em` | `14px` |
-| <span style={{ fontSize: 'var(--font-text-3xs-size)', fontWeight: 'var(--font-text-3xs-weight)', letterSpacing: 'var(--font-text-3xs-tracking)', lineHeight: 'var(--font-text-3xs-line-height)' }}>text-3xs</span> | `8px` | `400` | `0em` | `12px` |
+| <span style={{ fontSize: 'var(--font-heading-5xl-size)', fontWeight: 'var(--font-heading-5xl-weight)', letterSpacing: 'var(--font-heading-5xl-tracking)', lineHeight: 'var(--font-heading-5xl-line-height)' }}>heading-5xl</span> | `72px` | `600` | `-1.61px` | `72px` |
+| <span style={{ fontSize: 'var(--font-heading-4xl-size)', fontWeight: 'var(--font-heading-4xl-weight)', letterSpacing: 'var(--font-heading-4xl-tracking)', lineHeight: 'var(--font-heading-4xl-line-height)' }}>heading-4xl</span> | `60px` | `600` | `-1.34px` | `60px` |
+| <span style={{ fontSize: 'var(--font-heading-3xl-size)', fontWeight: 'var(--font-heading-3xl-weight)', letterSpacing: 'var(--font-heading-3xl-tracking)', lineHeight: 'var(--font-heading-3xl-line-height)' }}>heading-3xl</span> | `48px` | `600` | `-1.07px` | `48px` |
+| <span style={{ fontSize: 'var(--font-heading-2xl-size)', fontWeight: 'var(--font-heading-2xl-weight)', letterSpacing: 'var(--font-heading-2xl-tracking)', lineHeight: 'var(--font-heading-2xl-line-height)' }}>heading-2xl</span> | `36px` | `600` | `-0.80px` | `42px` |
+| <span style={{ fontSize: 'var(--font-heading-xl-size)', fontWeight: 'var(--font-heading-xl-weight)', letterSpacing: 'var(--font-heading-xl-tracking)', lineHeight: 'var(--font-heading-xl-line-height)' }}>heading-xl</span> | `32px` | `600` | `-0.69px` | `38px` |
+| <span style={{ fontSize: 'var(--font-heading-lg-size)', fontWeight: 'var(--font-heading-lg-weight)', letterSpacing: 'var(--font-heading-lg-tracking)', lineHeight: 'var(--font-heading-lg-line-height)' }}>heading-lg</span> | `24px` | `600` | `-0.46px` | `28px` |
+| <span style={{ fontSize: 'var(--font-heading-md-size)', fontWeight: 'var(--font-heading-md-weight)', letterSpacing: 'var(--font-heading-md-tracking)', lineHeight: 'var(--font-heading-md-line-height)' }}>heading-md</span> | `20px` | `600` | `-0.34px` | `26px` |
+| <span style={{ fontSize: 'var(--font-heading-sm-size)', fontWeight: 'var(--font-heading-sm-weight)', letterSpacing: 'var(--font-heading-sm-tracking)', lineHeight: 'var(--font-heading-sm-line-height)' }}>heading-sm</span> | `18px` | `600` | `-0.27px` | `26px` |
+| <span style={{ fontSize: 'var(--font-heading-xs-size)', fontWeight: 'var(--font-heading-xs-weight)', letterSpacing: 'var(--font-heading-xs-tracking)', lineHeight: 'var(--font-heading-xs-line-height)' }}>heading-xs</span> | `16px` | `600` | `-0.18px` | `24px` |
+| <span style={{ fontSize: 'var(--font-text-lg-size)', fontWeight: 'var(--font-text-lg-weight)', letterSpacing: 'var(--font-text-lg-tracking)', lineHeight: 'var(--font-text-lg-line-height)' }}>text-lg</span> | `18px` | `400` | `-0.27px` | `29px` |
+| <span style={{ fontSize: 'var(--font-text-md-size)', fontWeight: 'var(--font-text-md-weight)', letterSpacing: 'var(--font-text-md-tracking)', lineHeight: 'var(--font-text-md-line-height)' }}>text-md</span> | `16px` | `400` | `-0.18px` | `24px` |
+| <span style={{ fontSize: 'var(--font-text-sm-size)', fontWeight: 'var(--font-text-sm-weight)', letterSpacing: 'var(--font-text-sm-tracking)', lineHeight: 'var(--font-text-sm-line-height)' }}>text-sm</span> | `14px` | `400` | `-0.09px` | `20px` |
+| <span style={{ fontSize: 'var(--font-text-xs-size)', fontWeight: 'var(--font-text-xs-weight)', letterSpacing: 'var(--font-text-xs-tracking)', lineHeight: 'var(--font-text-xs-line-height)' }}>text-xs</span> | `12px` | `400` | `0px` | `18px` |
+| <span style={{ fontSize: 'var(--font-text-2xs-size)', fontWeight: 'var(--font-text-2xs-weight)', letterSpacing: 'var(--font-text-2xs-tracking)', lineHeight: 'var(--font-text-2xs-line-height)' }}>text-2xs</span> | `10px` | `400` | `+0.09px` | `14px` |
+| <span style={{ fontSize: 'var(--font-text-3xs-size)', fontWeight: 'var(--font-text-3xs-weight)', letterSpacing: 'var(--font-text-3xs-tracking)', lineHeight: 'var(--font-text-3xs-line-height)' }}>text-3xs</span> | `8px` | `400` | `+0.18px` | `12px` |
 
 All text sizes are exposed to Tailwind, with custom utilities for `heading-*` and `text-*` classes. The `text-md` scale is the `text-base` utility (Tailwind has no `text-md` class).
 

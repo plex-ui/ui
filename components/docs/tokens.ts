@@ -2263,7 +2263,12 @@ export const FONTS = [
   {
     type: "font-family",
     name: "font-sans",
-    value: "ui-sans-serif, -apple-system, system-ui, ..., sans-serif",
+    value: '"Inter Variable", "Inter", ui-sans-serif, system-ui, ..., sans-serif',
+  },
+  {
+    type: "font-tracking",
+    name: "font-sans-tracking",
+    value: "max(calc(0.543px - 0.045em), calc(0.245px - 0.0292em), -0.0223em)",
   },
   {
     type: "font-family",
@@ -2293,17 +2298,17 @@ export const FONTS = [
   {
     type: "font-tracking",
     name: "font-tracking-wide",
-    value: "0em",
+    value: "var(--font-sans-tracking)",
   },
   {
     type: "font-tracking",
     name: "font-tracking-normal",
-    value: "0em",
+    value: "var(--font-sans-tracking)",
   },
   {
     type: "font-tracking",
     name: "font-tracking-tight",
-    value: "0em",
+    value: "var(--font-sans-tracking)",
   },
   // Headings
   { type: "font", name: "font-heading-5xl-size", value: "4.5rem" },

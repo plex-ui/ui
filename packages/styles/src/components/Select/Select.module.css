@@ -447,7 +447,7 @@
   }
 
   .Option {
-    letter-spacing: var(--menu-letter-spacing, normal);
+    letter-spacing: var(--menu-letter-spacing, var(--font-sans-tracking));
   }
 
   /* The capsule is the press: Safari's gray tap rectangle would stack on it */
@@ -614,7 +614,7 @@
   .OptionDescription {
     font-size: var(--menu-description-font-size, 13px);
     line-height: var(--menu-description-line-height, 18px);
-    letter-spacing: normal;
+    letter-spacing: var(--font-sans-tracking);
     color: var(--menu-description-color, var(--color-text-secondary));
   }
 
@@ -629,7 +629,7 @@
     font-size: var(--menu-description-font-size, 13px);
     font-weight: var(--font-weight-normal);
     line-height: var(--menu-description-line-height, 18px);
-    letter-spacing: normal;
+    letter-spacing: var(--font-sans-tracking);
     color: var(--menu-description-color, var(--color-text-secondary));
   }
 

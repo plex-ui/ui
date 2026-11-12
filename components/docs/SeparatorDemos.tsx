@@ -49,7 +49,7 @@ export function SeparatorVerticalDemo() {
     >
       <div>MIT license</div>
       <Separator orientation="vertical" />
-      <div>12k weekly downloads</div>
+      <div>12k downloads</div>
       <Separator orientation="vertical" />
       <div>48 kB bundle</div>
     </div>

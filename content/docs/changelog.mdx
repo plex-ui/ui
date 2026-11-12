@@ -11,6 +11,9 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Changed
 
+- The kit is set in **Inter 4**, on the desktop as in the Plex UI Figma kit and on a phone too (owner 12.11): the system stack showed Apple's San Francisco on Apple devices only, and San Francisco may not be shipped on the web. `@plexui/styles` ships Inter's variable files with the optical-size axis (`inter.css`, 14 woff2 split by script, SIL Open Font License), imported by `@plexui/ui/css` and `@plexui/styles/css`. Tracking follows each text's size as Inter's dynamic metrics ask (`--font-sans-tracking`, set on every element in the base layer); monospace text keeps its face's spacing. `--font-tracking-wide`, `-normal` and `-tight` read it. Components that left tracking to the system font take it too.
+- `--font-sans` and `--font-mono` are declared once, in `variables-tokens-root.css`; `variables-tailwind-theme.css` no longer repeats them.
+- `DatePicker` month arrows on a phone and the docs' preview keyboard (shift, delete, return) are drawn with Plex UI and Lucide icons instead of outlines of Apple's symbols.
 - `Toast`: the close button stands at the trailing end of the toast, inside it, as the one trailing item of an iOS notification banner: centred on a toast without a description, level with the title beside one, 12px from the edge with 8px before it; on a touch screen its 44px target is the trailing top corner. A toast with a close button keeps 40px for it (56px on a touch screen). Vue's `closeButtonPosition` no longer moves it. The 8px before an action button is on its leading side in a right-to-left toaster too.
 - Vue `toast` takes `icon: null`, which leaves a typed toast's icon out, as React's does; its options are exported as `ToastOptions`.
 - `Dialog` on a phone (React and Vue) is always an iOS presentation: without `mobileVariant` it is a Sheet (it was a centred card of the web), and `mobilePlacement="center"` makes an Alert. A desktop is unchanged.
@@ -20,6 +23,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Added
 
+- `--color-accent`, the accent of the kit in one variable (`#0285ff` by default): primary links, focus rings and the iOS tint (the prominent bar button, a phone Dialog's main and tinted actions, an alert's preferred action, `IndexBar` letters, the `Sortable` drop line) follow it, with its steps drawn from it in both themes (`--accent-50` to `--accent-700`, `--accent-a25` to `--accent-a75`, `--color-text-accent`, `--color-background-accent-solid`, `--color-background-accent-soft`). Status colors keep theirs. See [Colors](/docs/foundations/colors#accent) and [Typography](/docs/foundations/typography#typeface).
 - `side` on `Dialog.HeaderAction` (`DialogHeaderAction` in Vue): `"leading"` puts the action at the start of the header, and on a phone in the Sheet's bar in place of Close, as the back button of a screen pushed inside an iOS sheet. `DialogHeaderActionProps` is exported.
 
 ---

@@ -5219,7 +5219,7 @@
         },
         {
           "name": "Vertical",
-          "code": "<div style={{ display: 'flex', height: 20, alignItems: 'center', gap: 16 }}>\n<div>MIT license</div>\n<Separator orientation=\"vertical\" />\n<div>12k weekly downloads</div>\n<Separator orientation=\"vertical\" />\n<div>48 kB bundle</div>\n</div>",
+          "code": "<div style={{ display: 'flex', height: 20, alignItems: 'center', gap: 16 }}>\n<div>MIT license</div>\n<Separator orientation=\"vertical\" />\n<div>12k downloads</div>\n<Separator orientation=\"vertical\" />\n<div>48 kB bundle</div>\n</div>",
           "details": "Use orientation=\"vertical\" between inline items. Works for meta-strips, breadcrumbs, and dot-less separators."
         },
         {
@@ -7608,5 +7608,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-12T18:02:41.538Z"
+  "generatedAt": "2026-11-12T19:01:37.112Z"
 }

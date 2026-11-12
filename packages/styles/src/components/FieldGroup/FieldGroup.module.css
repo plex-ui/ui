@@ -25,7 +25,7 @@
   font-size: var(--field-group-title-font-size);
   line-height: var(--field-group-title-line-height);
   font-weight: var(--field-group-title-font-weight);
-  letter-spacing: var(--field-group-title-letter-spacing, normal);
+  letter-spacing: var(--field-group-title-letter-spacing, var(--font-sans-tracking));
 }
 
 /* headerProminence="increased": the title leads its content, as a section of a page */
@@ -79,8 +79,8 @@
   }
 
   /* The kit's Prominent list header (Lists, Header 517:38042, Type=Prominent): Title 3 Semibold
-     20/25 in the primary label, 10pt above the rows. Its -0.45 tracking is the one the system font
-     applies itself at 20pt, so the title keeps normal tracking (system-font-tracking.test.ts). */
+     20/25 in the primary label, 10pt above the rows. Its -0.45 tracking is SF's own at 20pt; the title
+     takes the kit face's, --font-sans-tracking at 20px (font-tracking.test.ts). */
   .FieldGroup[data-header-prominence="increased"] {
     --field-group-title-color: var(--color-text);
     --field-group-title-font-size: 20px;

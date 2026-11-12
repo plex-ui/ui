@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+@import '../packages/styles/dist/es/styles/inter.css';
+@import '../packages/styles/dist/es/styles/variables-tokens-root.css';
 @import '../packages/styles/dist/es/styles/variables-primitive.css';
 @import '../packages/styles/dist/es/styles/variables-semantic.css';
 @import '../packages/styles/dist/es/styles/variables-components.css';
@@ -16,10 +18,6 @@
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
   --font-serif: initial;
-  --font-sans: ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica",
-    "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
-  --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", "Menlo", "Monaco", "Consolas",
-    "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
   --font-weight-*: initial;
   --font-weight-normal: 400;
   --font-weight-medium: 500;

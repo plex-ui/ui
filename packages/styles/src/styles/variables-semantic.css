@@ -12,9 +12,31 @@
     --color-text-inverse: var(--gray-0);
 
     /* =============================================
+      Accent: the steps of --color-accent (variables-tokens-root.css), lighter by white and darker by black
+      as the blue scale is drawn from blue-400, so the default accent keeps the blue of Plex UI
+    ============================================= */
+    --accent-50: color-mix(in srgb, var(--color-accent), white 90%);
+    --accent-75: color-mix(in srgb, var(--color-accent), white 80%);
+    --accent-200: color-mix(in srgb, var(--color-accent), white 40%);
+    --accent-300: color-mix(in srgb, var(--color-accent), white 20%);
+    --accent-500: color-mix(in srgb, var(--color-accent), black 20%);
+    --accent-600: color-mix(in srgb, var(--color-accent), black 40%);
+    --accent-700: color-mix(in srgb, var(--color-accent), black 52%);
+    --accent-a25: color-mix(in oklab, var(--color-accent) 4%, transparent);
+    --accent-a50: color-mix(in oklab, var(--color-accent) 13%, transparent);
+    --accent-a75: color-mix(in oklab, var(--color-accent) 25%, transparent);
+    /* Accent roles: the iOS tint and the kit's own accent uses read these; the info status keeps its blue. */
+    --color-background-accent-solid: var(--color-accent);
+    --color-background-accent-solid-hover: var(--accent-500);
+    --color-background-accent-solid-active: var(--accent-500);
+    --color-text-accent-solid: var(--white);
+    --color-text-accent: light-dark(var(--accent-500), var(--accent-200));
+    --color-background-accent-soft: light-dark(var(--accent-50), color-mix(in oklab, var(--color-accent) 25%, var(--gray-100)));
+
+    /* =============================================
       Ring colors
     ============================================= */
-    --color-ring: light-dark(var(--blue-500), var(--blue-400));
+    --color-ring: light-dark(var(--accent-500), var(--color-accent));
 
     /* =============================================
       Primary colors
@@ -366,9 +388,10 @@
       Typography
     ============================================= */
     /* Tracking */
-    --font-tracking-wide: 0em;
-    --font-tracking-normal: 0em;
-    --font-tracking-tight: 0em;
+    /* The tracking of --font-sans by size (variables-tokens-root.css), resolved at each text's own size. */
+    --font-tracking-wide: var(--font-sans-tracking);
+    --font-tracking-normal: var(--font-sans-tracking);
+    --font-tracking-tight: var(--font-sans-tracking);
     /* Sizes */
     --font-heading-5xl-size: 4.5rem; /* 72px  */
     --font-heading-5xl-line-height: 4.5rem; /* 72px  */

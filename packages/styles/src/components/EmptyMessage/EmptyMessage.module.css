@@ -68,7 +68,7 @@
       margin-bottom: spacing(1);
       font-size: var(--font-text-sm-size);
       line-height: var(--font-text-sm-line-height);
-      letter-spacing: normal;
+      letter-spacing: var(--font-sans-tracking);
       font-weight: var(--font-weight-semibold);
     }
 
@@ -77,7 +77,7 @@
       font-size: var(--empty-message-compact-description-size, var(--font-text-sm-size));
       font-weight: var(--font-weight-normal);
       line-height: var(--empty-message-compact-description-leading, var(--font-text-sm-line-height));
-      letter-spacing: normal;
+      letter-spacing: var(--font-sans-tracking);
     }
 
     .ActionRow {
@@ -171,7 +171,7 @@
   font-size: var(--empty-message-description-size, var(--font-text-sm-size));
   font-weight: var(--empty-message-description-weight, var(--font-weight-normal));
   line-height: var(--empty-message-description-leading, var(--font-text-sm-line-height));
-  letter-spacing: var(--empty-message-description-tracking, normal);
+  letter-spacing: var(--empty-message-description-tracking, var(--font-sans-tracking));
   text-align: center;
   text-wrap: pretty;
 }

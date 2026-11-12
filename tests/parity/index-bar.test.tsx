@@ -274,14 +274,14 @@ describe("IndexBar tokens follow the iOS 27.2 section index", () => {
   const tokens = read("packages/styles/src/styles/variables-components.css")
   const css = read("packages/styles/src/components/IndexBar/IndexBar.module.css")
 
-  test("11px semibold letters 13.79px apart, centred about 7.4px from the edge, in the info color", () => {
+  test("11px semibold letters 13.79px apart, centred about 7.4px from the edge, in the accent", () => {
     for (const token of [
       "--index-bar-width: 14.67px;",
       "--index-bar-inset-inline-end: 0px;",
       "--index-bar-font-size: 11px;",
       "--index-bar-line-height: 13.79px;",
       "--index-bar-font-weight: 590;",
-      "--index-bar-color: var(--color-text-info);",
+      "--index-bar-color: var(--color-text-accent);",
       "--index-bar-target-width: 30px;",
     ]) expect(tokens).toContain(token)
   })

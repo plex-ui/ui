@@ -138,7 +138,7 @@
   height: var(--cell-size);
   color: var(--color-text-secondary);
   font-size: 12px;
-  letter-spacing: normal;
+  letter-spacing: var(--font-sans-tracking);
   text-align: center;
 }
 

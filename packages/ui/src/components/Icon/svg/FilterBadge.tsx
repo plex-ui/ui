@@ -2,7 +2,7 @@ import type { SVGProps } from "react"
 const FilterBadge = (props: SVGProps<SVGSVGElement>) => (
   <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
     <path d="M15 16C15.5523 16 16 16.4477 16 17C16 17.5523 15.5523 18 15 18H9C8.44772 18 8 17.5523 8 17C8 16.4477 8.44772 16 9 16H15ZM18 11C18.5523 11 19 11.4477 19 12C19 12.5523 18.5523 13 18 13H6C5.44772 13 5 12.5523 5 12C5 11.4477 5.44772 11 6 11H18ZM13 6C13.5523 6 14 6.44772 14 7C14 7.55228 13.5523 8 13 8H3C2.44772 8 2 7.55228 2 7C2 6.44772 2.44772 6 3 6H13Z" fill="currentColor" />
-    <circle cx="20" cy="4" r="4" fill="var(--color-primary, #0285FF)" />
+    <circle cx="20" cy="4" r="4" fill="var(--color-accent, #0285FF)" />
   </svg>
 )
 FilterBadge.displayName = "FilterBadge"

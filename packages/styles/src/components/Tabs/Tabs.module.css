@@ -876,8 +876,8 @@
   /* The native segment already includes its final gutter; pill scaling is desktop-only. */
   /* The label keeps the base colors, the selected one primary and the others secondary, and touch.css makes the
      secondary role primary: iOS 27.2 draws every label of the control in the label color, in content and in a bar,
-     as Calendar does in its sheet header (IMG_5433). No tracking: the system font applies its own, as native text widths show
-     (17pt "All Inboxes" 241 at @3x in Mail, 242 in Chromium without it). */
+     as Calendar does in its sheet header (IMG_5433). No tracking of its own: the label takes --font-sans-tracking at its
+     size, as every text (native SF tracks itself: 17pt "All Inboxes" 241 at @3x in Mail). */
   .Tabs[data-orientation="horizontal"] .Tab {
     padding-inline: var(--segmented-control-option-gutter);
     border-radius: var(--segmented-control-option-radius);

@@ -1374,7 +1374,7 @@
       font-size: var(--sidebar-mobile-list-header-font-size, 20px);
       font-weight: var(--sidebar-mobile-list-header-font-weight, var(--font-weight-semibold));
       line-height: var(--sidebar-mobile-list-header-line-height, 25px);
-      letter-spacing: normal;
+      letter-spacing: var(--font-sans-tracking);
     }
 
     /* The card. The page's surface sets its color: white on a grouped page. */

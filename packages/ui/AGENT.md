@@ -627,7 +627,8 @@ Each semantic color (primary, secondary, danger, success, warning, info, discove
 Headings: --font-heading-{5xl..xs}-size (72px down to 16px)
 Text:     --font-text-{lg..3xs}-size (18px down to 8px)
 Weights:  --font-weight-normal (400), -medium (500), -semibold (600), -bold (700)
-Families: --font-sans (system stack), --font-mono
+Families: --font-sans (Inter, shipped), --font-mono; --font-sans-tracking (Inter by size)
+Accent:   --color-accent (one variable; links, rings, the iOS tint)
 ```
 
 ### Motion

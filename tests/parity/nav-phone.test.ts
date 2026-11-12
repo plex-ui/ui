@@ -184,7 +184,7 @@ describe("a toast on a phone", () => {
       gap: "10px !important",
       padding: "12px 14px !important",
       "border-radius": "24px !important",
-      "letter-spacing": "normal",
+      "letter-spacing": "var(--font-sans-tracking)",
     })
     expect(phoneRule(css, "& .Title,\n    & .Description")).toEqual({ "font-size": "15px", "line-height": "18px !important" })
     expect(phoneRule(css, "& .Title")).toEqual({ "line-height": "17px !important" })

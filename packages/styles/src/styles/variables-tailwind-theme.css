@@ -7,10 +7,8 @@
   --breakpoint-2xl: 1536px;
 
   --font-serif: initial;
-  --font-sans: ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica",
-    "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
-  --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", "Menlo", "Monaco", "Consolas",
-    "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
+  /* --font-sans and --font-mono are set once, in variables-tokens-root.css: outside any layer, they win over
+     Tailwind's theme, so font-sans and font-mono draw the Plex faces. */
 
   --font-weight-*: initial;
   --font-weight-normal: 400;

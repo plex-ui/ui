@@ -25,9 +25,26 @@
   --radius-4xl: 1.5rem; /* 24px */
   --radius-full: 9999px;
 
+  /* Theme. These three are the place to restyle the whole kit: override them on :root, after the Plex UI
+     stylesheet, and every component, React and Vue, desktop and phone, follows.
+
+     --font-sans: the typeface of every text. Inter 4 by default, shipped with the kit (inter.css), on the
+     desktop as in the Figma kit and on a phone too. Apple's San Francisco may not be shipped on the web, and
+     a system stack would show it only on Apple devices.
+     --font-sans-tracking: the letter-spacing of --font-sans by size, set on every element so it follows each
+     text's own size. Inter's own dynamic metrics, -0.0223em + 0.185em × e^(-0.1745 × size), drawn here as the
+     higher of two straight lines and its limit, within 0.015px of the curve from 10px to 72px: +0.05px at 11px,
+     -0.09px at 14px, -0.22px at 17px, -0.40px at 22px, -0.75px at 34px. With another typeface set what it asks,
+     normal for one that tracks itself.
+     --color-accent: the accent of the kit, the iOS tint: links, focus rings, info buttons, badges and alerts,
+     the prominent bar button and a phone sheet's tinted actions. Their lighter and darker steps are drawn
+     from it in both themes. Primary stays the neutral ink of Plex UI. */
+  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial",
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  --font-sans-tracking: max(calc(0.543px - 0.045em), calc(0.245px - 0.0292em), -0.0223em);
+  --color-accent: #0285ff;
+
   /* Font stacks */
-  --font-sans: ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica",
-    "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
   --font-serif: ui-serif, Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", "Menlo", "Monaco", "Consolas",
     "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
@@ -37,4 +54,35 @@
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+}
+
+/* Every element takes the tracking of --font-sans at its own size: letter-spacing inherits as a length, so a
+   value set once on the page would keep the page's size in a smaller label and a larger title. In the base
+   layer, so a component or a utility that sets its own wins. The form controls are named as well: Tailwind's
+   preflight gives them `letter-spacing: inherit` by their element names, which a zero-specificity rule would
+   not beat, and a 14px button inside 16px text would take the 16px tracking.
+   A tracking set on an element by a utility (`tracking-wide`) or a style reaches the text inside it, a Button's
+   label among it. A monospace text keeps its face's spacing, by its tag, a font-mono utility or a style. */
+@layer base {
+  :where(*, ::before, ::after),
+  button,
+  input,
+  select,
+  optgroup,
+  textarea,
+  ::file-selector-button {
+    letter-spacing: var(--font-sans-tracking);
+  }
+
+  :where([class*="tracking-"], [style*="letter-spacing"]) :where(*, ::before, ::after),
+  :where([class*="tracking-"], [style*="letter-spacing"]) :is(button, input, select, optgroup, textarea) {
+    letter-spacing: inherit;
+  }
+
+  :where(code, kbd, samp, pre, [class*="font-mono"], [style*="font-mono"]),
+  :where(code, kbd, samp, pre, [class*="font-mono"], [style*="font-mono"]) :where(*, ::before, ::after),
+  :where(code, kbd, samp, pre, [class*="font-mono"], [style*="font-mono"]) :is(button, input, select, optgroup, textarea),
+  :is(button, input, select, optgroup, textarea):where([class*="font-mono"], [style*="font-mono"]) {
+    letter-spacing: normal;
+  }
 }
