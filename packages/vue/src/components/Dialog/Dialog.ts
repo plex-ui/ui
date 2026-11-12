@@ -247,9 +247,16 @@ export const DialogContent = defineComponent({
      * @default "center"
      */
     placement: { type: String as PropType<DialogPlacement>, default: "center" },
-    /** Placement at 767px and below, such as a bottom sheet on phones. @default placement */
+    /**
+     * Where a phone sheet stands at 767px and below: `bottom`, or `fullscreen` for the whole screen. `center` is the
+     * alert's place: without `mobileVariant` it makes the dialog an alert. @default "fullscreen" for a fullscreen
+     * dialog, else "bottom"
+     */
     mobilePlacement: String as PropType<Extract<DialogPlacement, "center" | "bottom" | "fullscreen">>,
-    /** Mobile presentation at 767px and below. Sheets default to bottom placement. */
+    /**
+     * The iOS presentation at 767px and below. A phone has two modal views: the sheet, which iOS gives any view it
+     * presents, and the alert, a short question with its answers (UIAlertController). @default "sheet"
+     */
     mobileVariant: String as PropType<"alert" | "sheet">,
     /** Mobile panel palette; dark mode uses elevated surfaces. @default "plain" */
     surface: { type: String as PropType<"plain" | "grouped">, default: "plain" },
@@ -263,8 +270,9 @@ export const DialogContent = defineComponent({
      */
     onEscapeKeyDown: Function as PropType<(event: KeyboardEvent) => void>,
     /**
-     * Called on a press or a focus outside the dialog before it closes; `event.preventDefault()` keeps it open, such
-     * as for a press on a developer panel over the page.
+     * Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes;
+     * `event.preventDefault()` keeps it open, such as for a form with unsaved changes (the sheet then returns, as an
+     * iOS sheet does under `isModalInPresentation`), or for a press on a developer panel over the page.
      */
     onInteractOutside: Function as PropType<(event: DialogInteractOutsideEvent) => void>,
     /** Stack order of the overlay and the dialog. @default 50 */
@@ -287,14 +295,18 @@ export const DialogContent = defineComponent({
     const scroll: DialogScroll = { scrolled: ref(false), contentBelow: ref(false) }
     provide(DIALOG_SCROLL, scroll)
     provide(TOOLBAR_HOST, { kind: "dialog", scrolled: scroll.scrolled, contentBelow: scroll.contentBelow })
-    provide(DIALOG_SHEET, computed(() => (props.mobileVariant === "sheet" ? { showClose: props.showClose } : null)))
+    // A phone has no other modal view than the sheet and the alert (owner 12.11: «нет такого в iOS»): a centered
+    // dialog is an alert, any other a sheet, at the bottom or over the whole screen.
+    const mobileVariant = computed(() => props.mobileVariant ?? (props.mobilePlacement === "center" ? "alert" : "sheet"))
+    const phoneWindow = usePhoneLayout()
+    provide(DIALOG_SHEET, computed(() => (mobileVariant.value === "sheet" ? { showClose: props.showClose } : null)))
     // A dialog opened from a header action is not inside that header's bar
     provide(DIALOG_BAR, computed(() => false))
     provide(DIALOG_DESCRIPTION_SLOT, { body: shallowRef<HTMLElement | null>(null), own: shallowRef<HTMLElement | null>(null) })
     const mobilePlacement = computed(() =>
-      props.mobileVariant === "alert"
+      mobileVariant.value === "alert"
         ? "center"
-        : props.mobilePlacement ?? (props.mobileVariant === "sheet" ? "bottom" : undefined),
+        : (props.mobilePlacement ?? props.placement) === "fullscreen" ? "fullscreen" : "bottom",
     )
     const rootContext = injectDialogRootContext()
     // Radix's root makes the content id; Reka's trigger does, so a dialog
@@ -379,6 +391,14 @@ export const DialogContent = defineComponent({
       outsidePress.onFocusOutside(event)
       if (!event.defaultPrevented) props.onInteractOutside?.(event as DialogInteractOutsideEvent)
     }
+    // A sheet pulled down asks as a press outside does: an owner that keeps the dialog open on one, such as a form
+    // with unsaved changes, keeps it on the other, and the sheet returns.
+    const dismissByDrag = (originalEvent: TouchEvent) => {
+      const request: DialogInteractOutsideEvent = new CustomEvent("dialog.sheetDrag", { cancelable: true, detail: { originalEvent } })
+      if (ownerKeepsOpen(request)) return false
+      setOpen(false)
+      return true
+    }
     const handleInteractOutside = (event: Event) => {
       if (!open.value) event.preventDefault()
     }
@@ -430,14 +450,14 @@ export const DialogContent = defineComponent({
         barChildren.observe(element, { childList: true })
       }
       if (element && mobilePlacement.value === "bottom") {
-        detachDrag = attachSheetDrag(element, () => setOpen(false))
+        detachDrag = attachSheetDrag(element, dismissByDrag)
       }
     }
 
     watch(mobilePlacement, () => {
       detachDrag?.()
       detachDrag = panelElement && mobilePlacement.value === "bottom"
-        ? attachSheetDrag(panelElement, () => setOpen(false))
+        ? attachSheetDrag(panelElement, dismissByDrag)
         : undefined
     })
     onBeforeUnmount(() => { detachDrag?.(); barObserver?.disconnect(); barChildren?.disconnect() })
@@ -473,7 +493,7 @@ export const DialogContent = defineComponent({
             "style": [toCssVariables({ "dialog-width": props.width }), layerStyle(), props.rootProps?.style],
             "data-placement": props.placement === "center" ? undefined : props.placement,
             "data-mobile-placement": mobilePlacement.value,
-            "data-mobile-variant": props.mobileVariant,
+            "data-mobile-variant": mobileVariant.value,
             "data-surface": props.surface,
             "data-state": open.value ? "open" : "closed",
             "data-pill": props.pill ? "" : undefined,
@@ -520,8 +540,12 @@ export const DialogContent = defineComponent({
 
     return () => {
       const { placement } = props
+      // A sheet crosses the screen on a phone, and wherever its owner asked for one; a dialog left to its defaults
+      // stays the centred panel on a desktop, with that panel's timing.
+      const sheetCrosses = (phoneWindow.value || phoneLayout.value || props.mobileVariant === "sheet" || props.mobilePlacement !== undefined) &&
+        (mobilePlacement.value === "bottom" || mobilePlacement.value === "fullscreen")
       const crossesScreen =
-        placement === "bottom" || placement === "start" || placement === "end" || placement === "fullscreen" || mobilePlacement.value === "bottom" || mobilePlacement.value === "fullscreen"
+        placement === "bottom" || placement === "start" || placement === "end" || placement === "fullscreen" || sheetCrosses
       // Portaled out of any phone layout, a phone dialog carries its own scope, above its transition: the phone rules
       // of the style sheet start there.
       const scoped = (group: VNode) =>
@@ -554,6 +578,7 @@ const headerParts = (children: VNodeArrayChildren | undefined): VNodeArrayChildr
   (children ?? []).flatMap((part) =>
     isVNode(part) && part.type === FragmentVNode ? headerParts(part.children as VNodeArrayChildren) : Array.isArray(part) ? headerParts(part) : [part])
 const isHeaderAction = (part: unknown) => isVNode(part) && part.type === DialogHeaderAction
+const isLeadingAction = (part: unknown) => isHeaderAction(part) && (part as VNode).props?.side === "leading"
 const isDescription = (part: unknown) => isVNode(part) && part.type === DialogDescription
 
 // The parts it holds stand outside the header's bar, as React's descriptions stand outside the bar's provider
@@ -590,13 +615,15 @@ export const DialogHeader = defineComponent({
       // at the trailing edge, all on one 44px row 16px under the top edge.
       return [
         h(Toolbar, mergeProps({ "background": props.background, "data-dialog-bar": "" }, attrs), () => [
-          sheet?.value?.showClose
+          // A step's Back takes the leading place, as the back button of a screen pushed inside an iOS sheet
+          sheet?.value?.showClose && !parts.some(isLeadingAction)
             ? h(ToolbarLeading, { class: s.BarClose }, () => [
                 h(DialogClose, null, { default: () => [h(NavigationButton, { "action": "close", "variant": "ghost", "aria-label": "Close dialog" })] }),
               ])
             : null,
+          ...parts.filter(isLeadingAction),
           h("div", { class: [t.Heading, s.BarHeading] }, parts.filter((part) => !isHeaderAction(part) && !isDescription(part))),
-          ...parts.filter(isHeaderAction),
+          ...parts.filter((part) => isHeaderAction(part) && !isLeadingAction(part)),
         ]),
         // The description reads as the first text of the content, at the top of DialogBody when there is one
         descriptions.length > 0
@@ -609,9 +636,21 @@ export const DialogHeader = defineComponent({
 
 export const DialogHeaderAction = defineComponent({
   name: "DialogHeaderAction",
-  setup(_props, { slots }) {
+  props: {
+    /**
+     * `leading` puts the action before the title, such as the Back of a step in `DialogSteps`: on a phone Sheet it
+     * takes the place of Close, as the back button of a screen pushed inside an iOS sheet does.
+     * @default "trailing"
+     */
+    side: { type: String as PropType<"leading" | "trailing">, default: "trailing" },
+  },
+  setup(props, { slots }) {
     const bar = inject(DIALOG_BAR, null)
-    return () => (bar?.value ? h(ToolbarTrailing, null, () => slots.default?.()) : h("div", { class: s.HeaderAction }, slots.default?.()))
+    return () => {
+      if (bar?.value && props.side === "leading") return h(ToolbarLeading, { class: s.BarClose }, () => slots.default?.())
+      if (bar?.value) return h(ToolbarTrailing, null, () => slots.default?.())
+      return h("div", { "class": s.HeaderAction, "data-side": props.side === "leading" ? "leading" : undefined }, slots.default?.())
+    }
   },
 })
 
@@ -676,13 +715,22 @@ export const DialogFooter = defineComponent({
   setup(props, { slots }) {
     const boundary = useFloatingBoundaryRegistration()
     const scroll = inject(DIALOG_SCROLL, null)
-    return () => h("div", {
-      "ref": boundary?.setFooter,
-      "class": s.Footer,
-      "data-mobile-layout": props.mobileLayout,
-      "data-background": props.background,
-      "data-content-below": scroll?.contentBelow.value ? "" : undefined,
-    }, slots.default?.())
+    const sheet = inject(DIALOG_SHEET, null)
+    const phone = usePhoneLayout()
+    return () => {
+      const parts = slots.default?.()
+      // A phone Sheet stacks its main action on top, as an iOS setup sheet does. A footer is written with it last,
+      // where a desktop row ends, so the order is turned in the page itself: focus and a screen reader meet the
+      // actions in the order they are seen.
+      const turned = sheet?.value && phone.value && props.mobileLayout !== "inline"
+      return h("div", {
+        "ref": boundary?.setFooter,
+        "class": s.Footer,
+        "data-mobile-layout": props.mobileLayout,
+        "data-background": props.background,
+        "data-content-below": scroll?.contentBelow.value ? "" : undefined,
+      }, turned ? headerParts(parts).reverse() : parts)
+    }
   },
 })
 
@@ -773,8 +821,11 @@ export type DialogProps = InstanceType<typeof Dialog>["$props"]
 
 export type DialogPlacement = "center" | "top" | "bottom" | "start" | "end" | "fullscreen"
 
-/** A press or a focus outside the dialog; `event.detail.originalEvent` is the browser's event. */
-export type DialogInteractOutsideEvent = CustomEvent<{ originalEvent: PointerEvent | FocusEvent }>
+/**
+ * A press or a focus outside the dialog, or a phone sheet pulled down to close; `event.detail.originalEvent` is the
+ * browser's event (a TouchEvent for the sheet).
+ */
+export type DialogInteractOutsideEvent = CustomEvent<{ originalEvent: PointerEvent | FocusEvent | TouchEvent }>
 
 /** Class, style and data attributes for one of the dialog's layers. */
 export type DialogLayerProps = {
@@ -788,4 +839,5 @@ export type DialogContentProps = InstanceType<typeof DialogContent>["$props"] & 
 
 export type DialogHeaderProps = InstanceType<typeof DialogHeader>["$props"]
 export type DialogFooterProps = InstanceType<typeof DialogFooter>["$props"]
+export type DialogHeaderActionProps = InstanceType<typeof DialogHeaderAction>["$props"]
 export type DialogStepsProps = InstanceType<typeof DialogSteps>["$props"]

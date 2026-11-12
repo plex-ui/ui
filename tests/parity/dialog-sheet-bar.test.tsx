@@ -33,7 +33,8 @@ const ReactSheet = () => (
         <ReactDialog.HeaderAction>
           <ReactButton color="primary">Done</ReactButton>
           <ReactDialog open>
-            <ReactDialog.Content>
+            {/* On a phone a dialog is a sheet or an alert: an alert has no bar of its own */}
+            <ReactDialog.Content mobileVariant="alert">
               <ReactDialog.Header>
                 <ReactDialog.Title>Inner</ReactDialog.Title>
                 <ReactDialog.Description>Inner message</ReactDialog.Description>
@@ -52,7 +53,7 @@ const vueSheet = () => h(Dialog, { open: true }, () => h(DialogContent, { mobile
   h(DialogDescription, null, () => "Outer note"),
   h(DialogHeaderAction, null, () => [
     h(Button, { color: "primary" }, () => "Done"),
-    h(Dialog, { open: true }, () => h(DialogContent, null, () => h(DialogHeader, null, () => [
+    h(Dialog, { open: true }, () => h(DialogContent, { mobileVariant: "alert" }, () => h(DialogHeader, null, () => [
       h(DialogTitle, null, () => "Inner"),
       h(DialogDescription, null, () => "Inner message"),
       h(DialogHeaderAction, null, () => h(Button, { color: "secondary" }, () => "Inner action")),

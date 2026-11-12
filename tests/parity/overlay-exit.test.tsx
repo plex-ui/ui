@@ -222,7 +222,7 @@ describe.each(overlays)("%s exit", (name, reactApp, vueApp) => {
   })
 
   test("with reduced motion it leaves on the next frame", async () => {
-    vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("reduce"), media: query }))
+    vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("reduce"), media: query, addEventListener() {}, removeEventListener() {} }))
     const seen: boolean[] = []
     await walk(reactApp, vueApp, async (tools) => {
       await opened(tools)

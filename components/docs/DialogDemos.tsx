@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Button } from '@plexui/ui/components/Button';
+import { Button, NavigationButton } from '@plexui/ui/components/Button';
 import { Dialog, type DialogBarBackground } from '@plexui/ui/components/Dialog';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
@@ -55,121 +55,106 @@ function useDialogDemoState() {
   return [phonePreview || open, setOpen, phonePreview] as const;
 }
 
+const ALERT_ACTIONS = ['1', '2', '3'] as const;
+type AlertActions = (typeof ALERT_ACTIONS)[number];
+
+/** What the alert says for each kind: an alert's title, its message and the label of its main action. */
+export function alertText(field: boolean, actions: AlertActions, destructive: boolean) {
+  if (field) return { title: 'Rename document', message: 'Enter a new name for this document.', action: 'Rename' };
+  if (actions === '1') return { title: 'Unable to save', message: 'Check your connection and try again.', action: 'OK' };
+  if (destructive) return { title: 'Delete document?', message: 'This document will be deleted. You can’t undo this.', action: 'Delete' };
+  return { title: 'Save changes?', message: 'Do you want to save the changes you made to this document?', action: 'Save' };
+}
+
+/**
+ * The alert of iOS 27 with every setting (owner 12.11: «какие настройки должны быть согласно iOS 27 фигмы и xcode?»):
+ * one, two or three actions (Xcode 27.2: alert-1, alert-2, alert-3), the main one preferred, plain or destructive
+ * (kit Alerts _Buttons: Default, None, Destructive), with or without a message (alert-title), a text field
+ * (alert-field), and two actions side by side or stacked (kit Alert: Button Layout).
+ */
 export function DialogOverviewDemo() {
   const [open, setOpen, phonePreview] = useDialogDemoState();
   const heading = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const phone = usePhoneRows();
+  const [actions, setActions] = useState<AlertActions>('2');
+  const [destructiveValue, setDestructive] = useState(false);
+  const [preferredValue, setPreferred] = useState(true);
+  const [message, setMessage] = useState(true);
+  const [fieldValue, setField] = useState(false);
+  const [stackedValue, setStacked] = useState(false);
+  const [name, setName] = useState('Untitled');
+  // A setting shows only where it acts: a destructive action and a field stand with two actions, apart; a
+  // preferred action is not destructive; two actions stack on a phone only.
+  const destructive = actions === '2' && !fieldValue && destructiveValue;
+  const field = actions === '2' && !destructive && fieldValue;
+  const preferred = !destructive && preferredValue;
+  const stacked = phone && actions === '2' && stackedValue;
+  const text = alertText(field, actions, destructive);
 
-  return (
-    <div data-demo-stage className="py-10 flex justify-center">
-      <Dialog open={open} onOpenChange={setOpen}>
-        <Dialog.Trigger>
-          <Button color="secondary" variant="outline">Open dialog</Button>
-        </Dialog.Trigger>
-        <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }}>
-          <Dialog.Header>
-            <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Unsaved changes</Dialog.Title></div>
-            <Dialog.Description>You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</Dialog.Description>
-          </Dialog.Header>
-          <Dialog.Footer>
-            <Dialog.Close>
-              <Button color="primary" variant="soft">Cancel</Button>
-            </Dialog.Close>
-            <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog>
-    </div>
+  const main = (
+    <Button color={destructive ? 'danger' : 'primary'} variant={destructive || preferred ? 'solid' : 'soft'}
+      disabled={field && !name.trim()} onClick={() => setOpen(false)}>
+      {text.action}
+    </Button>
   );
-}
-
-export function DialogThreeActionsDemo() {
-  const [open, setOpen, phonePreview] = useDialogDemoState();
-  const heading = useRef<HTMLDivElement>(null);
-
-  return (
-    <div data-demo-stage className="py-10 flex justify-center">
-      <Dialog open={open} onOpenChange={setOpen}>
-        <Dialog.Trigger>
-          <Button color="secondary" variant="outline">Close document</Button>
-        </Dialog.Trigger>
-        <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }}>
-          <Dialog.Header>
-            <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Save changes?</Dialog.Title></div>
-            <Dialog.Description>Do you want to save the changes you made to this document?</Dialog.Description>
-          </Dialog.Header>
-          <Dialog.Footer>
-            <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
-            <Button color="danger" variant="soft" onClick={() => setOpen(false)}>Don’t save</Button>
-            <Dialog.Close>
-              <Button color="primary" variant="soft">Cancel</Button>
-            </Dialog.Close>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog>
-    </div>
+  const cancel = (
+    <Dialog.Close>
+      <Button color="primary" variant="soft">Cancel</Button>
+    </Dialog.Close>
   );
-}
-
-export function DialogDeleteConfirmDemo() {
-  const [open, setOpen, phonePreview] = useDialogDemoState();
-  const heading = useRef<HTMLDivElement>(null);
 
   return (
-    <div data-demo-stage className="py-10 flex justify-center">
-      <Dialog open={open} onOpenChange={setOpen}>
-        <Dialog.Trigger>
-          <Button color="danger" variant="outline">Delete</Button>
-        </Dialog.Trigger>
-        <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }}>
-          <Dialog.Header>
-            <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Delete assistant?</Dialog.Title></div>
-            {/* A phone alert's message is plain text (iOS): the ID stands out on a desktop only. */}
-            <Dialog.Description>
-              This change will affect all API integrations using{' '}
-              <span className="md:font-medium md:text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
-              It cannot be undone.
-            </Dialog.Description>
-          </Dialog.Header>
-          <Dialog.Footer>
-            <Dialog.Close>
-              <Button color="secondary" variant="soft">Cancel</Button>
-            </Dialog.Close>
-            <Button color="danger" onClick={() => setOpen(false)}>Delete</Button>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog>
-    </div>
-  );
-}
-
-export function DialogTextFieldDemo() {
-  const [open, setOpen, phonePreview] = useDialogDemoState();
-  const [name, setName] = useState('New folder');
-  const field = useRef<HTMLInputElement>(null);
-
-  return (
-    <div data-demo-stage className="py-10 flex justify-center">
-      <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (next) setName('New folder'); }}>
-        <Dialog.Trigger>
-          <Button color="secondary" variant="outline">New folder</Button>
-        </Dialog.Trigger>
-        <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) field.current?.select(); }}>
-          <Dialog.Header>
-            <Dialog.Title>New folder</Dialog.Title>
-            <Dialog.Description>Enter a name for this folder.</Dialog.Description>
-          </Dialog.Header>
-          <Dialog.Body>
-            <Input ref={field} aria-label="Folder name" variant="soft" size="3xl" pill value={name} onChange={(event) => setName(event.target.value)} onClear={() => setName('')} />
-          </Dialog.Body>
-          <Dialog.Footer>
-            <Dialog.Close>
-              <Button color="primary" variant="soft">Cancel</Button>
-            </Dialog.Close>
-            <Button color="primary" disabled={!name.trim()} onClick={() => setOpen(false)}>Create</Button>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog>
-    </div>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="actions">
+          <SegmentedControl<AlertActions> value={actions} onChange={setActions} aria-label="Actions" size="xs">
+            {ALERT_ACTIONS.map((value) => <SegmentedControl.Option key={value} value={value}>{value}</SegmentedControl.Option>)}
+          </SegmentedControl>
+        </DemoControlRow>
+        {actions === '2' && !fieldValue && <DemoControlBoolean name="destructive" value={destructiveValue} onChange={setDestructive} />}
+        {!destructive && <DemoControlBoolean name="preferred" value={preferredValue} onChange={setPreferred} />}
+        <DemoControlBoolean name="message" value={message} onChange={setMessage} />
+        {actions === '2' && !destructive && <DemoControlBoolean name="field" value={fieldValue} onChange={setField} />}
+        {actions === '2' && <DemoControlBoolean name="stacked" value={stackedValue} onChange={setStacked} phoneOnly />}
+      </div>
+      <div data-demo-stage className="py-10 flex justify-center">
+        <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (next) setName('Untitled'); }}>
+          <Dialog.Trigger>
+            <Button color="secondary" variant="outline">Open alert</Button>
+          </Dialog.Trigger>
+          <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => {
+            event.preventDefault();
+            if (phonePreview) return;
+            if (field) input.current?.select();
+            else heading.current?.focus({ preventScroll: true });
+          }}>
+            <Dialog.Header>
+              <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>{text.title}</Dialog.Title></div>
+              {message && <Dialog.Description>{text.message}</Dialog.Description>}
+            </Dialog.Header>
+            {field && (
+              <Dialog.Body>
+                <Input ref={input} aria-label="Document name" variant="soft" size="3xl" pill value={name}
+                  onChange={(event) => setName(event.target.value)} />
+              </Dialog.Body>
+            )}
+            {/* Two actions stand side by side, Cancel first; three stack with Cancel last, as iOS sets them */}
+            <Dialog.Footer mobileLayout={stacked ? 'stacked' : undefined}>
+              {actions === '1' && main}
+              {actions === '2' && <>{cancel}{main}</>}
+              {actions === '3' && (
+                <>
+                  {main}
+                  <Button color="danger" variant="soft" onClick={() => setOpen(false)}>Don’t Save</Button>
+                  {cancel}
+                </>
+              )}
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog>
+      </div>
+    </>
   );
 }
 
@@ -283,13 +268,16 @@ export function DialogPlacementDemo() {
   );
 }
 
-// Plan 176: a sign-in that asks for an email and then a code, each step pushed in the same sheet.
+// Plan 176: a sign-in that asks for an email and then a code, each step pushed in the same sheet. On a phone it is
+// Apple Account's Add Email Address (IMG_5501): the text, a soft capsule field and Continue under it, and the second
+// step's Back in the bar where Close was (owner 12.11: «поля десктопные»).
 export function DialogStepsDemo() {
   const [open, setOpen] = useDialogDemoState();
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [email, setEmail] = useState('');
   const go = (next: 'email' | 'code', to: 'forward' | 'back') => { setDirection(to); setStep(next); };
+  const note = 'flex flex-col gap-4 text-sm text-secondary max-md:gap-5 max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]';
 
   return (
     <div data-demo-stage className="py-10 flex justify-center">
@@ -299,23 +287,30 @@ export function DialogStepsDemo() {
         </Dialog.Trigger>
         <Dialog.Content mobileVariant="sheet" width={420}>
           <Dialog.Header>
+            {step === 'code' && (
+              <Dialog.HeaderAction side="leading">
+                <NavigationButton action="back" variant="ghost" onClick={() => go('email', 'back')} />
+              </Dialog.HeaderAction>
+            )}
             <Dialog.Title>Sign in</Dialog.Title>
           </Dialog.Header>
           <Dialog.Body>
             <Dialog.Steps step={step} direction={direction}>
               {step === 'email' ? (
-                <Field label="Email" description="We send a code to this address.">
-                  <Input type="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} />
-                </Field>
+                <div className={note}>
+                  <p>We send a code to this address.</p>
+                  <Input aria-label="Email" type="email" autoComplete="email" placeholder="Email address" variant="soft" size="3xl" pill
+                    value={email} onChange={(event) => setEmail(event.target.value)} />
+                </div>
               ) : (
-                <Field label="Code" description={`Enter the code we sent to ${email || 'your email'}.`}>
-                  <Input inputMode="numeric" autoComplete="one-time-code" placeholder="6-digit code" />
-                </Field>
+                <div className={note}>
+                  <p>Enter the code we sent to {email || 'your email'}.</p>
+                  <Input aria-label="Code" inputMode="numeric" autoComplete="one-time-code" placeholder="6-digit code" variant="soft" size="3xl" pill />
+                </div>
               )}
             </Dialog.Steps>
           </Dialog.Body>
           <Dialog.Footer>
-            {step === 'code' && <Button color="primary" variant="soft" onClick={() => go('email', 'back')}>Back</Button>}
             {step === 'email'
               ? <Button color="primary" onClick={() => go('code', 'forward')}>Continue</Button>
               : <Button color="primary" onClick={() => setOpen(false)}>Verify</Button>}
@@ -326,13 +321,18 @@ export function DialogStepsDemo() {
   );
 }
 
-// Plan 176: a form with unsaved changes stays open on Escape and on a press outside.
+// Plan 176: a form with unsaved changes stays open on Escape, on a press outside and, on a phone, when its sheet is
+// pulled down. On a phone it is a sheet as Photos' New Album (IMG_5454): Close discards, the bar's checkmark saves,
+// the name is a row of a grouped list (owner 12.11: «нет такого в iOS»).
 export function DialogKeepOpenDemo() {
   const [open, setOpen] = useDialogDemoState();
+  const phone = usePhoneRows();
   const [name, setName] = useState('Mia');
   const [held, setHeld] = useState(false);
   const dirty = name !== 'Mia';
   const hold = (event: Event) => { if (dirty) { event.preventDefault(); setHeld(true); } };
+  const how = phone ? 'Pulling it down or a tap above it closes it' : 'Escape or a press outside closes it';
+  const note = held ? 'Save or discard your changes to close.' : `${how} until you change the name.`;
 
   return (
     <div data-demo-stage className="py-10 flex justify-center">
@@ -340,20 +340,32 @@ export function DialogKeepOpenDemo() {
         <Dialog.Trigger>
           <Button color="secondary" variant="outline">Edit profile</Button>
         </Dialog.Trigger>
-        <Dialog.Content width={420} onEscapeKeyDown={hold} onInteractOutside={hold}>
+        <Dialog.Content mobileVariant="sheet" surface="grouped" width={420} onEscapeKeyDown={hold} onInteractOutside={hold}>
           <Dialog.Header>
             <Dialog.Title>Edit profile</Dialog.Title>
-            <Dialog.Description>{held ? 'Save or discard your changes to close.' : 'Escape and a press outside close it until you change the name.'}</Dialog.Description>
+            {/* On a phone the note stands under the field, as a list's footer */}
+            <Dialog.Description className={phone ? 'sr-only' : undefined}>{note}</Dialog.Description>
+            {phone && (
+              <Dialog.HeaderAction>
+                <NavigationButton action="confirm" aria-label="Save" onClick={() => setOpen(false)} />
+              </Dialog.HeaderAction>
+            )}
           </Dialog.Header>
-          <Field label="Name">
-            <Input value={name} onChange={(event) => { setName(event.target.value); setHeld(false); }} />
-          </Field>
-          <Dialog.Footer>
-            <Dialog.Close>
-              <Button color="primary" variant="soft">Discard</Button>
-            </Dialog.Close>
-            <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
-          </Dialog.Footer>
+          <Dialog.Body>
+            <FieldGroup footer={phone ? note : undefined}>
+              <Field row label="Name" hideLabel={phone}>
+                <Input value={name} placeholder="Name" onChange={(event) => { setName(event.target.value); setHeld(false); }} />
+              </Field>
+            </FieldGroup>
+          </Dialog.Body>
+          {!phone && (
+            <Dialog.Footer>
+              <Dialog.Close>
+                <Button color="primary" variant="soft">Discard</Button>
+              </Dialog.Close>
+              <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
+            </Dialog.Footer>
+          )}
         </Dialog.Content>
       </Dialog>
     </div>

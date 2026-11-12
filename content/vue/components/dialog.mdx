@@ -6,7 +6,6 @@ metaDescription: Accessible Vue 3 modal dialog component for confirmations, form
 
 import { VueSegmentedComposerDemo } from "@/components/docs/vue/VueSegmentedComposerDemo"
 import { VueDemo } from "@/components/docs/vue/VueDemo"
-import detailsStyles from "@/components/docs/DialogDetailsDemos.module.css"
 import { VueDialogDetailsDemo, VueDialogPlacementDemo, VueDialogSetupChoicesDemo, VueDialogViewOptionsDemo } from "@/components/docs/vue/VueDialogDemos"
 
 export const steps = `<Dialog v-model:open="open" @update:open="(next) => { if (!next) { step = 'email'; direction = 'forward' } }">
@@ -15,20 +14,24 @@ export const steps = `<Dialog v-model:open="open" @update:open="(next) => { if (
   </DialogTrigger>
   <DialogContent mobile-variant="sheet" :width="420">
     <DialogHeader>
+      <DialogHeaderAction v-if="step === 'code'" side="leading">
+        <NavigationButton action="back" variant="ghost" @click="direction = 'back'; step = 'email'" />
+      </DialogHeaderAction>
       <DialogTitle>Sign in</DialogTitle>
     </DialogHeader>
     <DialogBody>
       <DialogSteps :step="step" :direction="direction">
-        <Field v-if="step === 'email'" label="Email" description="We send a code to this address.">
-          <Input v-model:value="email" type="email" placeholder="you@example.com" />
-        </Field>
-        <Field v-else label="Code" :description="'Enter the code we sent to ' + (email || 'your email') + '.'">
-          <Input inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" />
-        </Field>
+        <div v-if="step === 'email'" class="flex flex-col gap-4 text-sm text-secondary max-md:gap-5 max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
+          <p>We send a code to this address.</p>
+          <Input v-model:value="email" aria-label="Email" type="email" autocomplete="email" placeholder="Email address" variant="soft" size="3xl" pill />
+        </div>
+        <div v-else class="flex flex-col gap-4 text-sm text-secondary max-md:gap-5 max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
+          <p>Enter the code we sent to {{ email || 'your email' }}.</p>
+          <Input aria-label="Code" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" variant="soft" size="3xl" pill />
+        </div>
       </DialogSteps>
     </DialogBody>
     <DialogFooter>
-      <Button v-if="step === 'code'" color="primary" variant="soft" @click="direction = 'back'; step = 'email'">Back</Button>
       <Button v-if="step === 'email'" color="primary" @click="direction = 'forward'; step = 'code'">Continue</Button>
       <Button v-else color="primary" @click="open = false">Verify</Button>
     </DialogFooter>
@@ -39,14 +42,18 @@ export const keepOpen = `<Dialog v-model:open="open" @update:open="(next) => { i
   <DialogTrigger>
     <Button color="secondary" variant="outline">Edit profile</Button>
   </DialogTrigger>
-  <DialogContent :width="420" @escape-key-down="(event) => { if (profileName !== 'Mia') { event.preventDefault(); held = true } }" @interact-outside="(event) => { if (profileName !== 'Mia') { event.preventDefault(); held = true } }">
+  <DialogContent mobile-variant="sheet" surface="grouped" :width="420" @escape-key-down="(event) => { if (profileName !== 'Mia') { event.preventDefault(); held = true } }" @interact-outside="(event) => { if (profileName !== 'Mia') { event.preventDefault(); held = true } }">
     <DialogHeader>
       <DialogTitle>Edit profile</DialogTitle>
-      <DialogDescription>{{ held ? 'Save or discard your changes to close.' : 'Escape and a press outside close it until you change the name.' }}</DialogDescription>
+      <DialogDescription>{{ held ? 'Save or discard your changes to close.' : 'Escape or a press outside closes it until you change the name.' }}</DialogDescription>
     </DialogHeader>
-    <Field label="Name">
-      <Input v-model:value="profileName" @update:value="held = false" />
-    </Field>
+    <DialogBody>
+      <FieldGroup>
+        <Field row label="Name">
+          <Input v-model:value="profileName" placeholder="Name" @update:value="held = false" />
+        </Field>
+      </FieldGroup>
+    </DialogBody>
     <DialogFooter>
       <DialogClose>
         <Button color="primary" variant="soft">Discard</Button>
@@ -56,85 +63,92 @@ export const keepOpen = `<Dialog v-model:open="open" @update:open="(next) => { i
   </DialogContent>
 </Dialog>`
 
-export const overview = `<Dialog v-model:open="open">
-  <DialogTrigger>
-    <Button color="secondary" variant="outline">Open dialog</Button>
-  </DialogTrigger>
-  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
-    <DialogHeader>
-      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Unsaved changes</DialogTitle></div>
-      <DialogDescription>You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</DialogDescription>
-    </DialogHeader>
-    <DialogFooter>
-      <DialogClose>
-        <Button color="primary" variant="soft">Cancel</Button>
-      </DialogClose>
-      <Button color="primary" @click="open = false">Save</Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>`
+{/* On a phone the form is a sheet as Photos' New Album: the name is the field alone with the note under it as the
+    list's footer, Close discards, the bar's checkmark saves (owner 12.11) */}
+export const keepOpenPhone = keepOpen
+  .replace('v-model:open="open"', ':open="true"')
+  .replace('<DialogDescription>', '<DialogDescription class="sr-only">')
+  .replace('Escape or a press outside closes it', 'Pulling it down or a tap above it closes it')
+  .replace('      </FieldGroup>', `        <template #footer>{{ held ? 'Save or discard your changes to close.' : 'Pulling it down or a tap above it closes it until you change the name.' }}</template>\n      </FieldGroup>`)
+  .replace('<Field row label="Name">', '<Field row label="Name" hide-label>')
+  .replace('    </DialogHeader>', '      <DialogHeaderAction>\n        <NavigationButton action="confirm" aria-label="Save" @click="open = false" />\n      </DialogHeaderAction>\n    </DialogHeader>')
+  .replace(/\n    <DialogFooter>[\s\S]*?<\/DialogFooter>/, '')
 
-export const destructive = `<Dialog v-model:open="open">
+export const overview = `<Dialog v-model:open="open" @update:open="(next) => { if (next) name = 'Untitled' }">
   <DialogTrigger>
-    <Button color="danger" variant="outline">Delete</Button>
+    <Button color="secondary" variant="outline">Open alert</Button>
   </DialogTrigger>
-  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
+  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); field ? $refs.input.$el.querySelector('input').select() : $refs.heading.focus({ preventScroll: true })">
     <DialogHeader>
-      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Delete assistant?</DialogTitle></div>
-      <DialogDescription>
-        This change will affect all API integrations using
-        <span class="md:font-medium md:text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
-        It cannot be undone.
-      </DialogDescription>
+      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>{{ texts[field ? 'rename' : actions === '1' ? 'notice' : destructive ? 'delete' : 'save'].title }}</DialogTitle></div>
+      <DialogDescription v-if="message">{{ texts[field ? 'rename' : actions === '1' ? 'notice' : destructive ? 'delete' : 'save'].message }}</DialogDescription>
     </DialogHeader>
-    <DialogFooter>
-      <DialogClose>
-        <Button color="secondary" variant="soft">Cancel</Button>
-      </DialogClose>
-      <Button color="danger" @click="open = false">Delete</Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>`
-
-export const threeActions = `<Dialog v-model:open="open">
-  <DialogTrigger>
-    <Button color="secondary" variant="outline">Close document</Button>
-  </DialogTrigger>
-  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
-    <DialogHeader>
-      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Save changes?</DialogTitle></div>
-      <DialogDescription>Do you want to save the changes you made to this document?</DialogDescription>
-    </DialogHeader>
-    <DialogFooter>
-      <Button color="primary" @click="open = false">Save</Button>
-      <Button color="danger" variant="soft" @click="open = false">Don’t save</Button>
-      <DialogClose>
-        <Button color="primary" variant="soft">Cancel</Button>
-      </DialogClose>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>`
-
-export const textField = `<Dialog v-model:open="open" @update:open="(next) => { if (next) folderName = 'New folder' }">
-  <DialogTrigger>
-    <Button color="secondary" variant="outline">New folder</Button>
-  </DialogTrigger>
-  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.field.$el.querySelector('input').select()">
-    <DialogHeader>
-      <DialogTitle>New folder</DialogTitle>
-      <DialogDescription>Enter a name for this folder.</DialogDescription>
-    </DialogHeader>
-    <DialogBody>
-      <Input ref="field" v-model:value="folderName" aria-label="Folder name" variant="soft" size="3xl" pill @clear="folderName = ''" />
+    <DialogBody v-if="field">
+      <Input ref="input" v-model:value="name" aria-label="Document name" variant="soft" size="3xl" pill />
     </DialogBody>
-    <DialogFooter>
-      <DialogClose>
+    <DialogFooter :mobile-layout="stacked ? 'stacked' : undefined">
+      <DialogClose v-if="actions === '2'">
         <Button color="primary" variant="soft">Cancel</Button>
       </DialogClose>
-      <Button color="primary" :disabled="!folderName.trim()" @click="open = false">Create</Button>
+      <Button :color="destructive ? 'danger' : 'primary'" :variant="destructive || preferred ? 'solid' : 'soft'" :disabled="field && !name.trim()" @click="open = false">
+        {{ texts[field ? 'rename' : actions === '1' ? 'notice' : destructive ? 'delete' : 'save'].action }}
+      </Button>
+      <template v-if="actions === '3'">
+        <Button color="danger" variant="soft" @click="open = false">Don’t Save</Button>
+        <DialogClose>
+          <Button color="primary" variant="soft">Cancel</Button>
+        </DialogClose>
+      </template>
     </DialogFooter>
   </DialogContent>
 </Dialog>`
+
+{/* What the alert says for each kind: its title, its message and the label of its main action */}
+export const texts = {
+  rename: { title: 'Rename document', message: 'Enter a new name for this document.', action: 'Rename' },
+  notice: { title: 'Unable to save', message: 'Check your connection and try again.', action: 'OK' },
+  delete: { title: 'Delete document?', message: 'This document will be deleted. You can’t undo this.', action: 'Delete' },
+  save: { title: 'Save changes?', message: 'Do you want to save the changes you made to this document?', action: 'Save' },
+}
+
+{/* The alert of iOS 27 with every setting (owner 12.11): Xcode 27.2 alert-1, -2, -3, -title, -field; kit Alerts
+    _Buttons (Default, None, Destructive) and Button Layout. A setting shows only where it acts. */}
+export const overviewControls = [
+  { name: "actions", type: "select", options: ["1", "2", "3"], default: "2" },
+  { name: "destructive", type: "boolean", default: false, when: { actions: "2", field: false } },
+  { name: "preferred", type: "boolean", default: true, when: { destructive: false } },
+  { name: "message", type: "boolean", default: true },
+  { name: "field", type: "boolean", default: false, when: { actions: "2", destructive: false } },
+  { name: "stacked", type: "boolean", default: false, phoneOnly: true, when: { actions: "2" } },
+]
+
+export const overviewCode = `<script setup>
+import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogClose } from '@plexui/vue/components/Dialog';
+import { Input } from '@plexui/vue/components/Input';
+
+const open = ref(false);
+const actions = ref('2'); // or '1', '3'
+const destructive = ref(false); // with two actions
+const preferred = ref(true); // the main action is filled
+const message = ref(true);
+const field = ref(false); // with two actions, not destructive
+const stacked = ref(false); // two actions, one under the other on a phone
+const name = ref('Untitled');
+
+// What the alert says for each kind: a field renames, one action tells, a destructive one deletes
+const texts = {
+  rename: { title: 'Rename document', message: 'Enter a new name for this document.', action: 'Rename' },
+  notice: { title: 'Unable to save', message: 'Check your connection and try again.', action: 'OK' },
+  delete: { title: 'Delete document?', message: 'This document will be deleted. You can’t undo this.', action: 'Delete' },
+  save: { title: 'Save changes?', message: 'Do you want to save the changes you made to this document?', action: 'Save' },
+};
+</script>
+
+<template>
+${overview}
+</template>`
 
 export const terms = [
   "Accounts. You are responsible for the activity on your account and for keeping its password safe.",
@@ -207,28 +221,22 @@ export const detailRows = [
 export const detailTemplate = `<div class="flex flex-col items-center gap-4">
   <Dialog v-model:open="open">
     <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">View details</Button></DialogTrigger>
-    <DialogContent mobile-variant="sheet" :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
+    <DialogContent mobile-variant="sheet" surface="grouped" :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
       <DialogHeader>
         <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
         <DialogDescription class="sr-only">Application metadata.</DialogDescription>
       </DialogHeader>
       <DialogBody>
-        <div class="${detailsStyles.Content} py-2">
-          <dl data-detail-list class="space-y-4 text-sm">
-            <div data-detail-row v-for="row in rows" :key="row.label" class="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
-              <dt class="text-secondary">{{ row.label }}</dt>
-              <dd class="min-w-0 sm:col-span-3">
-                <Badge v-if="row.label === 'Status'" color="success" size="sm">{{ row.value }}</Badge>
-                <CopyTooltip v-else-if="row.copy" :copy-value="row.value" :side-offset="wide ? 5 : 24" :align="wide ? 'center' : 'start'">
-                  <Button data-detail-copy color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 max-w-full" :aria-label="row.copy">
-                    <span data-detail-value class="flex min-w-0 font-mono text-xs"><span class="truncate">{{ row.value.slice(0, -6) }}</span><span class="shrink-0">{{ row.value.slice(-6) }}</span></span>
-                  </Button>
-                </CopyTooltip>
-                <template v-else>{{ row.value }}</template>
-              </dd>
-            </div>
-          </dl>
-        </div>
+        <FieldGroup>
+          <Field v-for="row in rows" :key="row.label" row :label="row.label" :orientation="row.copy && !wide ? 'vertical' : undefined">
+            <CopyTooltip v-if="row.copy" :copy-value="row.value" :side-offset="wide ? 5 : 24" :align="wide ? 'center' : 'start'">
+              <Button color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 min-w-0 max-w-full" :aria-label="row.copy">
+                <span class="flex min-w-0 md:font-mono md:text-xs"><span class="truncate">{{ row.value.slice(0, -6) }}</span><span class="shrink-0">{{ row.value.slice(-6) }}</span></span>
+              </Button>
+            </CopyTooltip>
+            <output v-else>{{ row.value }}</output>
+          </Field>
+        </FieldGroup>
       </DialogBody>
     </DialogContent>
   </Dialog>
@@ -237,9 +245,10 @@ export const detailTemplate = `<div class="flex flex-col items-center gap-4">
 
 export const detailCode = `<script setup>
 import { ref } from 'vue';
-import { Badge } from '@plexui/vue/components/Badge';
 import { Button } from '@plexui/vue/components/Button';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '@plexui/vue/components/Dialog';
+import { Field } from '@plexui/vue/components/Field';
+import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { CopyTooltip } from '@plexui/vue/components/Tooltip';
 import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
 
@@ -260,101 +269,29 @@ const rows = [
 <div class="flex flex-col items-center gap-4">
   <Dialog v-model:open="open">
     <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">View details</Button></DialogTrigger>
-    <DialogContent mobile-variant="sheet" :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
+    <DialogContent mobile-variant="sheet" surface="grouped" :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
       <DialogHeader>
         <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
         <DialogDescription class="sr-only">Application metadata.</DialogDescription>
       </DialogHeader>
       <DialogBody>
-        <div class="details-content py-2">
-          <dl data-detail-list class="space-y-4 text-sm">
-            <div data-detail-row v-for="row in rows" :key="row.label" class="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
-              <dt class="text-secondary">{{ row.label }}</dt>
-              <dd class="min-w-0 sm:col-span-3">
-                <Badge v-if="row.label === 'Status'" color="success" size="sm">{{ row.value }}</Badge>
-                <CopyTooltip v-else-if="row.copy" :copy-value="row.value" :side-offset="wide ? 5 : 24" :align="wide ? 'center' : 'start'">
-                  <Button data-detail-copy color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 max-w-full" :aria-label="row.copy">
-                    <span data-detail-value class="flex min-w-0 font-mono text-xs"><span class="truncate">{{ row.value.slice(0, -6) }}</span><span class="shrink-0">{{ row.value.slice(-6) }}</span></span>
-                  </Button>
-                </CopyTooltip>
-                <template v-else>{{ row.value }}</template>
-              </dd>
-            </div>
-          </dl>
-        </div>
+        <FieldGroup>
+          <Field v-for="row in rows" :key="row.label" row :label="row.label" :orientation="row.copy && !wide ? 'vertical' : undefined">
+            <CopyTooltip v-if="row.copy" :copy-value="row.value" :side-offset="wide ? 5 : 24" :align="wide ? 'center' : 'start'">
+              <Button color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 min-w-0 max-w-full" :aria-label="row.copy">
+                <span class="flex min-w-0 md:font-mono md:text-xs"><span class="truncate">{{ row.value.slice(0, -6) }}</span><span class="shrink-0">{{ row.value.slice(-6) }}</span></span>
+              </Button>
+            </CopyTooltip>
+            <output v-else>{{ row.value }}</output>
+          </Field>
+        </FieldGroup>
       </DialogBody>
     </DialogContent>
   </Dialog>
 </div>
 </template>
-
-<style>
-/* Read-only metadata uses native Body and Footnote roles on phones. */
-@media (max-width: 767px) {
-  .details-content [data-detail-list] {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    font-size: 17px;
-    line-height: 22px;
-  }
-
-  .details-content [data-detail-row] {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: 4px;
-    margin: 0;
-    padding-block-end: 20px;
-  }
-
-  /* A copy target includes its own space below the text; targets never overlap. */
-  .details-content [data-detail-row]:has([data-detail-copy]),
-  .details-content [data-detail-row]:last-child {
-    padding-block-end: 0;
-  }
-
-  .details-content [data-detail-row] > dt {
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 18px;
-  }
-
-  .details-content [data-detail-row] > dd {
-    grid-column: auto;
-    color: var(--color-text);
-  }
-
-  .details-content [data-detail-copy] {
-    --button-radius: 8px;
-    --button-gutter: 0px;
-    display: inline-flex;
-    align-items: flex-start;
-    height: 44px;
-    min-width: 0;
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
-    color: var(--color-text);
-    vertical-align: top;
-  }
-
-  .details-content [data-detail-copy] > span {
-    align-items: flex-start;
-    height: 22px;
-  }
-
-  .details-content [data-detail-copy]::before,
-  .details-content [data-detail-copy]::after {
-    inset-block-end: 22px;
-  }
-
-  .details-content [data-detail-value] {
-    font-size: 17px;
-    font-weight: 400;
-    line-height: 22px;
-  }
-}
-</style>
 `
+
 
 <UsageBlock>{`import {
   Dialog,
@@ -369,7 +306,7 @@ const rows = [
   DialogTrigger,
 } from "@plexui/vue/components/Dialog";`}</UsageBlock>
 
-At 767px and below, `mobile-variant="alert"` presents a compact centered glass alert, a confirmation or a request for one short value, with its actions side by side, or stacked from three, and no close icon. Use `mobile-variant="sheet"` for forms and details: it opens at the bottom with a leading Close button and a centered title, and without a grabber, as iOS 27.2 draws one only on a sheet that changes height. Both variants preserve the desktop appearance.
+At 767px and below a dialog is one of the two modal views of iOS. `mobile-variant="alert"` (or `mobile-placement="center"`) presents a compact centered glass alert, a confirmation or a request for one short value, with its actions side by side, or stacked from three, and no close icon. Any other dialog is a Sheet, the default, for forms and details: it opens at the bottom with a leading Close button and a centered title, and without a grabber, as iOS 27.2 draws one only on a sheet that changes height. Both variants preserve the desktop appearance.
 
 Two alert actions stand side by side and wrap onto separate rows when their labels need more space; three or more stack, as on iOS. Set `<DialogFooter mobile-layout="stacked">` when two actions should stack too. A title without a message stands centered. Put long sheet content in `DialogBody` to keep the header and actions visible while the body scrolls.
 
@@ -377,31 +314,17 @@ Two alert actions stand side by side and wrap onto separate rows when their labe
 
 ### Overview
 
-<ComponentPreview phonePresentation="screen" phoneDialog language="vue" code={overview} previewMinHeight={120}>
-  <VueDemo template={overview} phoneTemplate={overview.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
-</ComponentPreview>
+<span id="destructive-confirmation" />
+<span id="three-actions" />
+<span id="text-field" />
 
-### Destructive confirmation
-
-<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={destructive} previewMinHeight={120}>
-  <VueDemo template={destructive} phoneTemplate={destructive.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
-</ComponentPreview>
-
-### Three actions
-
-<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Three or more actions stack on a phone, in their order: put Cancel last, as iOS sets it at the bottom. Two stand side by side. On a desktop they stay in one row in that order.</>} code={threeActions} previewMinHeight={120}>
-  <VueDemo template={threeActions} phoneTemplate={threeActions.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
-</ComponentPreview>
-
-### Text field
-
-<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>An alert can ask for one short value. The field fills the alert like its actions, a 48px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.</>} code={textField} previewMinHeight={120}>
-  <VueDemo template={textField} phoneTemplate={textField.replace('v-model:open="open"', ':open="true"').replace("; $refs.field.$el.querySelector('input').select()", '')} phoneState={{ open: true, folderName: 'New folder' }} stageClassName="py-10 flex justify-center" state={{ open: false, folderName: 'New folder' }} />
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>On a phone a dialog is one of the two modal views of iOS: an Alert (<code>mobile-variant="alert"</code>), a short question with its answers, or a Sheet, which it is by default (see <a href="#placement">Placement</a>). The alert takes what the iOS 27 kit and UIAlertController offer. One, two or three actions: two stand side by side with Cancel first, and three or more stack in their order with Cancel last, as iOS sets them. <code>DialogFooter mobile-layout="stacked"</code> stacks two, for long labels. The main action is preferred (solid: the accent fill on a phone), plain (soft), or destructive (<code>color="danger"</code>: a red label on the alert's fill on a phone). A title without a message stands centered. A field asks for one short value: a 48px capsule on a phone, its text selected when the alert opens, and Rename unavailable while it is empty. Label actions in title case, as iOS does.</>} code={overviewCode} previewMinHeight={120}>
+  <VueDemo template={overview} phoneTemplate={overview.replace('v-model:open="open"', ':open="true"').replace(" field ? $refs.input.$el.querySelector('input').select() : $refs.heading.focus({ preventScroll: true })", '')} controls={overviewControls} phoneState={{ open: true, name: 'Untitled', texts }} stageClassName="py-10 flex justify-center" state={{ open: false, name: 'Untitled', texts }} />
 </ComponentPreview>
 
 ### Metadata details
 
-<ComponentPreview phonePresentation="screen" phoneDialog language="vue" code={detailCode} details={<>Use a definition list and CopyTooltip with a ghost Button. The full value is copied even when the visible ID is truncated. Focus starts at the heading; Tab reaches the controls.</>} previewMinHeight={160}>
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" code={detailCode} details={<>Put labels and values in the rows of a <a href="/vue/components/field#group">FieldGroup</a>, each value an <code>output</code>: on a phone the Sheet is grouped and the rows are the cells of an iOS list, as Settings' About. A value too long for its row goes under its label there, as iOS lays out a value cell. Use CopyTooltip with a ghost Button. The full value is copied even when the visible ID is truncated. Focus starts at the heading; Tab reaches the controls.</>} previewMinHeight={160}>
   <VueDialogDetailsDemo template={detailTemplate} phoneTemplate={detailTemplate.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} phoneState={{ open: true, initialOpen: true }} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, rows: detailRows }} />
 </ComponentPreview>
 
@@ -416,7 +339,7 @@ Two alert actions stand side by side and wrap onto separate rows when their labe
 
 ### Placement
 
-<ComponentPreview phonePresentation="screen" description="Phone offers a bottom Sheet or a fullscreen form. Desktop also includes center, top, start and end placements." phoneDialog language="vue" details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobile-placement</code> applies at 767px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<DialogContent mobile-placement="bottom">'}</code>.</>} code={placement} previewMinHeight={160}>
+<ComponentPreview phonePresentation="screen" description="Phone offers a bottom Sheet or a fullscreen form. Desktop also includes center, top, start and end placements." phoneDialog language="vue" details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. On a phone (767px and below) a dialog that is not an alert is a Sheet at the bottom: <code>mobile-placement="fullscreen"</code> fills the screen with it, as a fullscreen dialog does by itself.</>} code={placement} previewMinHeight={160}>
   <VueDialogPlacementDemo
     template={placement} phoneTemplate={placement.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '').replace('<DialogDescription>Narrow the list down.</DialogDescription>', '<DialogDescription class="sr-only">Narrow the list down.</DialogDescription>').replace('<FieldGroup columns>', '<FieldGroup columns>\n        <template #footer>Narrow the list down.</template>')}
     phoneState={{ open: true }}
@@ -478,14 +401,14 @@ const open = ref(false);
 
 ### Steps
 
-<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Put the steps of a flow in <code>DialogSteps</code>: a new <code>step</code> comes in from the trailing edge over the one before, which moves a third of the way out under it, as a push on iOS. <code>direction="back"</code> reverses it for a return to a step before. The new step starts at its top, the steps reach the panel's edges, and focus in the step that leaves moves to the one that comes in. With reduced motion the step changes at once.</>} code={steps} previewMinHeight={120}>
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Put the steps of a flow in <code>DialogSteps</code>: a new <code>step</code> comes in from the trailing edge over the one before, which moves a third of the way out under it, as a push on iOS. <code>direction="back"</code> reverses it for a return to a step before. The new step starts at its top, the steps reach the panel's edges, and focus in the step that leaves moves to the one that comes in. With reduced motion the step changes at once. A step's Back is a <code>DialogHeaderAction side="leading"</code>: on a phone it takes the place of Close in the Sheet's bar, as the back button of a screen pushed inside an iOS sheet. Each step is laid out as Apple Account asks for an address: its text, a soft capsule field and the action under it.</>} code={steps} previewMinHeight={120}>
   <VueDemo template={steps} phoneTemplate={steps.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true, step: 'email', direction: 'forward', email: '' }} stageClassName="py-10 flex justify-center" state={{ open: false, step: 'email', direction: 'forward', email: '' }} />
 </ComponentPreview>
 
 ### Keep it open
 
-<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Escape and a press or a focus outside ask <code>@escape-key-down</code> and <code>@interact-outside</code> first: <code>event.preventDefault()</code> keeps the dialog open, such as for a form with unsaved changes, or for a press on a developer panel over the page. The Close button and <code>DialogClose</code> still close it.</>} code={keepOpen} previewMinHeight={120}>
-  <VueDemo template={keepOpen} phoneTemplate={keepOpen.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true, profileName: 'Mia', held: false }} stageClassName="py-10 flex justify-center" state={{ open: false, profileName: 'Mia', held: false }} />
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Escape, a press or a focus outside and, on a phone, a Sheet pulled down ask <code>@escape-key-down</code> and <code>@interact-outside</code> first: <code>event.preventDefault()</code> keeps the dialog open, such as for a form with unsaved changes, or for a press on a developer panel over the page. A Sheet kept open returns to its place, as an iOS sheet under <code>isModalInPresentation</code>. The Close button and <code>DialogClose</code> still close it. On a phone the form is laid out as Photos' New Album: a grouped Sheet, the name a field alone in its list with the note under it, Close to discard and the bar's checkmark (a <code>DialogHeaderAction</code>) to save, in place of the footer.</>} code={keepOpen} previewMinHeight={120}>
+  <VueDemo template={keepOpen} phoneTemplate={keepOpenPhone} phoneState={{ open: true, profileName: 'Mia', held: false }} stageClassName="py-10 flex justify-center" state={{ open: false, profileName: 'Mia', held: false }} />
 </ComponentPreview>
 
 ## API
@@ -502,15 +425,15 @@ const open = ref(false);
 <PropsTable data={[
   { prop: "surface", type: '"plain" | "grouped"', default: '"plain"', description: "Mobile panel and field-group palette. Dark dialogs use elevated surface levels; desktop colors stay unchanged" },
   { prop: "width", type: "number | string", default: "480", description: "Panel width. Mobile alert uses its compact width; a bottom sheet fills the viewport width" },
-  { prop: "show-close", type: "boolean", default: "true", description: "Show the built-in close button. Mobile sheet places it at the leading edge; mobile alert hides it" },
+  { prop: "show-close", type: "boolean", default: "true", description: "Show the built-in close button. A mobile sheet places it at the leading edge, unless a leading DialogHeaderAction takes that place; a mobile alert hides it" },
   { prop: "class", type: "string", description: "Additional CSS class on the panel" },
   { prop: "placement", type: '"center" | "top" | "bottom" | "start" | "end" | "fullscreen"', default: '"center"', description: "Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen" },
-  { prop: "mobile-variant", type: '"alert" | "sheet"', description: "Mobile appearance at 767px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance" },
-  { prop: "mobile-placement", type: '"center" | "bottom" | "fullscreen"', description: "Placement at 767px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered" },
+  { prop: "mobile-variant", type: '"alert" | "sheet"', default: '"sheet"', description: "The iOS presentation at 767px and below. A phone has two modal views: a sheet, which iOS gives any view it presents, and an alert, a short question with its answers, compact and centered" },
+  { prop: "mobile-placement", type: '"center" | "bottom" | "fullscreen"', default: '"bottom"', description: "Where a phone sheet stands: at the bottom, or over the whole screen (the default for a fullscreen dialog). center is the alert's place: without mobile-variant it makes the dialog an alert" },
   { prop: "@open-auto-focus", type: "(event: Event) => void", description: "Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field" },
   { prop: "@close-auto-focus", type: "(event: Event) => void", description: "Called when focus returns on close; call event.preventDefault() to keep it elsewhere" },
   { prop: "@escape-key-down", type: "(event: KeyboardEvent) => void", description: "Called on Escape before the dialog closes; call event.preventDefault() to keep it open" },
-  { prop: "@interact-outside", type: "(event: DialogInteractOutsideEvent) => void", description: "Called on a press or a focus outside the dialog before it closes; call event.preventDefault() to keep it open. event.detail.originalEvent is the browser's event" },
+  { prop: "@interact-outside", type: "(event: DialogInteractOutsideEvent) => void", description: "Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes; call event.preventDefault() to keep it open (the sheet returns). event.detail.originalEvent is the browser's event, a TouchEvent for the sheet" },
   { prop: "z-index", type: "number", default: "50", description: "Stack order of the overlay and the dialog, for a page whose own layers sit above 50" },
   { prop: "root-props", type: "DialogLayerProps", description: "class, style and data attributes for the fixed layer that holds the panel. Data attributes on DialogContent land there too" },
   { prop: "overlay-props", type: "DialogLayerProps", description: "class, style and data attributes for the overlay" },
@@ -523,7 +446,11 @@ Over a phone keyboard the dialog covers the part of the window the keyboard leav
 
 **DialogHeader**: wrapper for title, description and an optional header action. In a phone Sheet the header is the Sheet's Toolbar: Close at the leading edge, the title alone, centered on the 44px row of controls, and the header action at the trailing edge, as in the iOS 27 kit. The description stands under the bar as the first text of the content, at the top of the body when there is one, in the label color of the sheet's text. If the Dialog has its own top Toolbar, that one replaces the header's bar. In a phone Sheet, `background` sets how the bar meets the body scrolled under it: `glass` (the default), `soft`, `hard` or `solid`, as on a [Toolbar](/vue/components/toolbar#background).
 
-**DialogHeaderAction**: positions one toolbar control beside Close on desktop and opposite Close in a mobile sheet. Place it directly inside DialogHeader (a fragment there is fine, a component of your own that returns it is not: a phone Sheet looks for it among the header's own parts to stand it at the trailing edge) and label icon-only controls. Mobile alerts hide this slot.
+**DialogHeaderAction**: positions one toolbar control beside Close on desktop and opposite Close in a mobile sheet. Place it directly inside DialogHeader (a fragment there is fine, a component of your own that returns it is not: a phone Sheet looks for it among the header's own parts to stand it at its edge) and label icon-only controls. Mobile alerts hide this slot.
+
+<PropsTable data={[
+  { prop: "side", type: '"leading" | "trailing"', default: '"trailing"', description: "leading puts the action before the title, such as the Back of a step: in a phone Sheet it takes the place of Close, as the back button of a screen pushed inside an iOS sheet" },
+]} />
 
 **DialogTitle**: accessible heading for the dialog.
 
@@ -533,11 +460,11 @@ Over a phone keyboard the dialog covers the part of the window the keyboard leav
 
 **DialogDescriptionSlot**: where a phone Sheet's description goes in content of your own that takes the place of `DialogBody`, such as a scroller inside a `form` so that Enter submits. Put it first in that content: the description starts it, as it starts `DialogBody`, and it comes before the body's place. Without either, the description stands under the bar in the flow of the Sheet, so keep the bar in flow there. It renders nothing outside a phone Sheet.
 
-**DialogFooter**: footer area for action buttons. Mobile alert actions are 48px pills: two in a wrapping row, three or more stacked. Mobile sheets use 50px pill actions, 24px side gutters and at least 24px below the actions, including the bottom safe area. Standard dialogs and sheets stack their mobile actions.
+**DialogFooter**: footer area for action buttons. Mobile alert actions are 48px pills: two in a wrapping row, three or more stacked. A mobile sheet stacks its actions as an iOS setup sheet: 53px pills, 16px side gutters and at least 16px below them, including the bottom safe area. Its last action, the main one, stands on top, and the order in the page turns with it, so focus and a screen reader meet the actions as they are seen; a soft, outline or ghost action beside a solid one is a plain tinted button under it (red for danger).
 
 <PropsTable data={[
   { prop: "background", type: '"soft" | "hard" | "glass" | "solid"', default: '"soft"', description: "How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged" },
-  { prop: "mobile-layout", type: '"inline" | "stacked"', description: "Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit" },
+  { prop: "mobile-layout", type: '"inline" | "stacked"', description: "Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit. A stacked alert keeps the written order; a stacked sheet puts its last action on top" },
 ]} />
 
 **DialogClose**: closes the dialog when its child is activated.
@@ -563,7 +490,7 @@ Dialog reads the shared semantic color, typography and spacing tokens listed in 
 - `--dialog-viewport-height`: the height the panel fits in (default `100dvh`; the dialog sets it over a phone keyboard and inside a PhoneLayout)
 - `--dialog-steps-background`: background of a step, which covers the one under it as it comes in (default the panel color)
 
-Standard mobile appearance uses these tokens:
+On a phone these tokens set what the Alert and Sheet tokens below leave to them:
 
 - `--dialog-mobile-close-size`: visible close-button circle (default `--control-size-md`, 32px)
 - `--dialog-mobile-close-icon-size`: close SVG box (default `--control-icon-size-2xl`, 24px; the glyph occupies about 12px)

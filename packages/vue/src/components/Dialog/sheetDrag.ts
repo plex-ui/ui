@@ -11,7 +11,8 @@ const INTERACTIVE = "a, button, input, select, textarea, [role='button']"
 const DRAG_TRANSFORM = "--dialog-panel-drag-transform"
 const EXITING = "[data-exiting], [data-exiting-active]"
 
-export const attachSheetDrag = (panel: HTMLElement, close: () => void) => {
+/** `close` returns false when the owner keeps the dialog open: the sheet then returns at once. */
+export const attachSheetDrag = (panel: HTMLElement, close: (event: TouchEvent) => boolean | void) => {
   const view = panel.ownerDocument.defaultView
   if (!view) return () => {}
   let startY: number | null = null
@@ -103,7 +104,7 @@ export const attachSheetDrag = (panel: HTMLElement, close: () => void) => {
         settleTimer = undefined
         if (panel.isConnected && !panel.closest(EXITING)) returnToRest()
       }, SETTLE)
-      close()
+      if (close(event) === false) returnToRest()
       return
     }
     returnToRest()

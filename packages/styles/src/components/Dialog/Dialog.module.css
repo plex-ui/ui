@@ -266,7 +266,8 @@
 .CloseButton {
   position: absolute;
   top: 0.75rem;
-  right: 0.75rem;
+  /* Logical, as the header actions, so a right-to-left dialog keeps it clear of a leading action */
+  inset-inline-end: 0.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -367,8 +368,17 @@
   }
 }
 
-.Panel:has(.HeaderAction) > .Header {
+.Panel:has(.HeaderAction:not([data-side="leading"])) > .Header {
   padding-inline-end: 4.75rem;
+}
+
+/* A leading action, such as a step's Back, stands before the title: 8px between them */
+.HeaderAction[data-side="leading"] {
+  inset-inline: 0.75rem auto;
+}
+
+.Panel:has(.HeaderAction[data-side="leading"]) > .Header {
+  padding-inline-start: 2rem;
 }
 
 .Title {
@@ -398,7 +408,7 @@
 
   .CloseButton {
     top: 0.5rem;
-    right: 0.5rem;
+    inset-inline-end: 0.5rem;
     width: var(--dialog-mobile-action-size);
     height: var(--dialog-mobile-action-size);
     border-radius: var(--radius-full);
@@ -477,7 +487,8 @@
   }
 }
 
-/* iOS presentations are opt-in; placement and all desktop styles remain independent. */
+/* On a phone every dialog is an iOS presentation: a sheet unless it is an alert (mobileVariant, owner 12.11). The
+   desktop placement and styles stay independent of it. */
 @media (width <= 767px) {
   /* A phone Sheet or Alert dims the page as iOS does: less than a desktop modal in light. */
   .Overlay:has(+ .Content:is([data-mobile-variant="sheet"], [data-mobile-variant="alert"])) {
@@ -911,8 +922,10 @@
 
   /* The prominent action of a sheet's footer takes the accent and the edge of the glass, as a bar's does (see
      the --toolbar-prominent tokens): native setup sheets draw Continue 0/135/254, lighter along its top and
-     bottom and darker at its sides (IMG_5432 Wallet, IMG_5509; owner 08.11). */
-  .Content[data-mobile-variant="sheet"] .Footer > :where(button, a)[data-variant="solid"]:where([data-color="primary"], [data-color="info"]):not([data-disabled]) {
+     bottom and darker at its sides (IMG_5432 Wallet, IMG_5509; owner 08.11). An alert's preferred action is the
+     same: the kit's Default role is the accent fill with a white label (iOS 27, Alerts _Buttons 5446:6658), as
+     native draws a preferredAction (0082f7, dark 13a3ff); owner 12.11. */
+  .Content:is([data-mobile-variant="sheet"], [data-mobile-variant="alert"]) .Footer > :where(button, a)[data-variant="solid"]:where([data-color="primary"], [data-color="info"]):not([data-disabled]) {
     --button-background-color: var(--toolbar-prominent-background);
     --button-background-color-hover: var(--toolbar-prominent-background-hover);
     --button-background-color-active: var(--toolbar-prominent-background-active);
@@ -921,6 +934,31 @@
     &::before {
       background-image: var(--toolbar-prominent-sheen);
       box-shadow: var(--toolbar-prominent-shadow);
+    }
+  }
+
+  /* A sheet's footer lays out its actions as an iOS setup sheet does: the main one on top and another under it as
+     a plain tinted button, with no face (Wallet's Create a Pass, IMG_5432: Continue 53pt high and Create Pass
+     Manually centred 35pt below it; owner 12.11, «нет такого в iOS»). A footer is written with its main action
+     last, where a desktop row ends; Dialog.Footer turns the order in the page on a phone. Beside a solid action a
+     soft, outline or ghost one takes the iOS tint (info, as the prominent bar button) or red for danger, at the
+     regular weight; a disabled one keeps the Button's disabled color. */
+  .Content[data-mobile-variant="sheet"] .Footer:not([data-mobile-layout="inline"]):has(> :where(button, a, [role="link"])[data-variant="solid"]) > :where(button, a, [role="link"]):not([data-variant="solid"]) {
+    font-weight: var(--font-weight-normal);
+
+    &:where(:not([data-disabled])) {
+      --button-text-color: var(--color-text-info);
+      --button-text-color-hover: var(--color-text-info);
+    }
+
+    &:where([data-color="danger"]:not([data-disabled])) {
+      --button-text-color: var(--color-text-danger);
+      --button-text-color-hover: var(--color-text-danger);
+    }
+
+    &::before {
+      background: none;
+      box-shadow: none;
     }
   }
 

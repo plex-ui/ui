@@ -396,28 +396,31 @@ Props:
   Dialog.Content:
     - surface ("plain" | "grouped") default: "plain" — Mobile panel and field-group palette. Dark dialogs use elevated surface levels; desktop colors stay unchanged
     - width (number | string) default: 480 — Panel width. Mobile alert uses its compact width; a bottom sheet fills the viewport width
-    - showClose (boolean) default: true — Show the built-in close button. Mobile sheet places it at the leading edge; mobile alert hides it
+    - showClose (boolean) default: true — Show the built-in close button. A mobile sheet places it at the leading edge, unless a leading HeaderAction takes that place; a mobile alert hides it
     - pill (boolean) default: false — Rounder panel and a round close button, for dialogs beside pill controls
     - className (string) — Additional CSS class on the panel
     - placement ("center" | "top" | "bottom" | "start" | "end" | "fullscreen") default: "center" — Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen
-    - mobileVariant ("alert" | "sheet") — Mobile appearance at 767px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance
-    - mobilePlacement ("center" | "bottom" | "fullscreen") — Placement at 767px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered
+    - mobileVariant ("alert" | "sheet") default: "sheet" — The iOS presentation at 767px and below. A phone has two modal views: a sheet, which iOS gives any view it presents, and an alert, a short question with its answers, compact and centered
+    - mobilePlacement ("center" | "bottom" | "fullscreen") default: "bottom" — Where a phone sheet stands: at the bottom, or over the whole screen (the default for a fullscreen dialog). center is the alert's place: without mobileVariant it makes the dialog an alert
     - onOpenAutoFocus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
     - onCloseAutoFocus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
     - onEscapeKeyDown ((event: KeyboardEvent) => void) — Called on Escape before the dialog closes; call event.preventDefault() to keep it open
-    - onInteractOutside ((event: DialogInteractOutsideEvent) => void) — Called on a press or a focus outside the dialog before it closes; call event.preventDefault() to keep it open. event.detail.originalEvent is the browser's event
+    - onInteractOutside ((event: DialogInteractOutsideEvent) => void) — Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes; call event.preventDefault() to keep it open (the sheet returns). event.detail.originalEvent is the browser's event, a TouchEvent for the sheet
     - zIndex (number) default: 50 — Stack order of the overlay and the dialog, for a page whose own layers sit above 50
     - rootProps (DialogLayerProps) — className, style and data attributes for the fixed layer that holds the panel. Data attributes on Dialog.Content land there too
     - overlayProps (DialogLayerProps) — className, style and data attributes for the overlay
     - layout ("auto" | "phone") default: "auto" — phone lays the dialog out as on a phone at any window width, with the dialogs it opens. Inside a PhoneLayout it always is
+  Dialog.HeaderAction:
+    - side ("leading" | "trailing") default: "trailing" — leading puts the action before the title, such as the Back of a step: in a phone Sheet it takes the place of Close, as the back button of a screen pushed inside an iOS sheet
+    - className (string) — Additional CSS class on the action's wrapper
   Dialog.Footer:
     - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged
-    - mobileLayout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit
+    - mobileLayout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit. A stacked alert keeps the written order; a stacked sheet puts its last action on top
   Dialog.Steps:
     - step (string | number) — The step on screen. A new value brings its content in
     - direction ("forward" | "back") default: "forward" — forward brings the new step in from the trailing edge over the one before; back returns to a step before it
     - className (string) — Additional CSS class on the steps
-Examples: Overview, Destructive confirmation, Three actions, Text field, Metadata details, Scrolling body, Placement, View options sheet, Segmented composer header, Setup choices, Steps, Keep it open
+Examples: Overview, Metadata details, Scrolling body, Placement, View options sheet, Segmented composer header, Setup choices, Steps, Keep it open
 
 ## Empty Message
 Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.

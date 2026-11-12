@@ -102,8 +102,11 @@ const Trigger = ({ children }: { children: ReactNode }) => {
 
 export type DialogPlacement = "center" | "top" | "bottom" | "start" | "end" | "fullscreen"
 
-/** A press or a focus outside the dialog; `event.detail.originalEvent` is the browser's event. */
-export type DialogInteractOutsideEvent = CustomEvent<{ originalEvent: PointerEvent | FocusEvent }>
+/**
+ * A press or a focus outside the dialog, or a phone sheet pulled down to close; `event.detail.originalEvent` is the
+ * browser's event (a TouchEvent for the sheet).
+ */
+export type DialogInteractOutsideEvent = CustomEvent<{ originalEvent: PointerEvent | FocusEvent | TouchEvent }>
 
 /** Class, style and data attributes for one of the dialog's layers. */
 export type DialogLayerProps = {
@@ -129,9 +132,16 @@ export type DialogContentProps = {
    * @default center
    */
   placement?: DialogPlacement
-  /** Placement at 767px and below, such as a bottom sheet on phones. @default placement */
+  /**
+   * Where a phone sheet stands at 767px and below: `bottom`, or `fullscreen` for the whole screen. `center` is the
+   * alert's place: without `mobileVariant` it makes the dialog an alert. @default "fullscreen" for a fullscreen
+   * dialog, else "bottom"
+   */
   mobilePlacement?: Extract<DialogPlacement, "center" | "bottom" | "fullscreen">
-  /** Mobile presentation at 767px and below. Sheets default to bottom placement. */
+  /**
+   * The iOS presentation at 767px and below. A phone has two modal views: the sheet, which iOS gives any view it
+   * presents, and the alert, a short question with its answers (UIAlertController). @default "sheet"
+   */
   mobileVariant?: "alert" | "sheet"
   /** Mobile panel palette; dark mode uses elevated surfaces. @default "plain" */
   surface?: "plain" | "grouped"
@@ -148,8 +158,9 @@ export type DialogContentProps = {
    */
   onEscapeKeyDown?: (event: KeyboardEvent) => void
   /**
-   * Called on a press or a focus outside the dialog before it closes. Call `event.preventDefault()` to keep it open,
-   * such as for a press on a developer panel over the page.
+   * Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes. Call
+   * `event.preventDefault()` to keep it open, such as for a form with unsaved changes (the sheet then returns, as an
+   * iOS sheet does under `isModalInPresentation`), or for a press on a developer panel over the page.
    */
   onInteractOutside?: (event: DialogInteractOutsideEvent) => void
   /** Stack order of the overlay and the dialog. @default 50 */
@@ -174,7 +185,7 @@ const Content = ({
   className,
   placement = "center",
   mobilePlacement: requestedMobilePlacement,
-  mobileVariant,
+  mobileVariant: requestedMobileVariant,
   surface = "plain",
   onOpenAutoFocus,
   onCloseAutoFocus,
@@ -197,10 +208,13 @@ const Content = ({
   const [content, setContent] = useState<HTMLDivElement | null>(null)
   useDialogViewport(content, outerPhoneLayout?.container ?? null)
   const overlaySurfaceRef = usePopoverDismissableSurface()
+  // A phone has no other modal view than the sheet and the alert (owner 12.11: «нет такого в iOS»): a centered
+  // dialog is an alert, any other a sheet, at the bottom or over the whole screen.
+  const mobileVariant = requestedMobileVariant ?? (requestedMobilePlacement === "center" ? "alert" : "sheet")
   const mobilePlacement =
     mobileVariant === "alert"
       ? "center"
-      : requestedMobilePlacement ?? (mobileVariant === "sheet" ? "bottom" : undefined)
+      : (requestedMobilePlacement ?? placement) === "fullscreen" ? "fullscreen" : "bottom"
   const [exitGuard] = useState(createExitGuard)
   const [panel, setPanel] = useState<HTMLDivElement | null>(null)
   // Dialog.Body reports where content lies under the bars: they show their lines with it.
@@ -221,8 +235,13 @@ const Content = ({
   const setRoot = boundary.setRoot
   const setPanelRef = useCallback((node: HTMLDivElement | null) => { setPanel(node); setRoot(node) }, [setRoot])
   const openedAt = useRef(0)
+  // A sheet crosses the screen on a phone, and wherever its owner asked for one; a dialog left to its defaults stays
+  // the centred panel on a desktop, with that panel's timing.
+  const phone = usePhoneLayout() || layout === "phone"
+  const sheetCrosses = (phone || requestedMobileVariant === "sheet" || requestedMobilePlacement !== undefined) &&
+    (mobilePlacement === "bottom" || mobilePlacement === "fullscreen")
   const crossesScreen =
-    placement === "bottom" || placement === "start" || placement === "end" || placement === "fullscreen" || mobilePlacement === "bottom" || mobilePlacement === "fullscreen"
+    placement === "bottom" || placement === "start" || placement === "end" || placement === "fullscreen" || sheetCrosses
 
   // The content of a closing dialog is frozen for its exit, so this reads the owner's latest
   // handler: state that changes together with the close decides where focus returns.
@@ -244,10 +263,22 @@ const Content = ({
     if (open) openedAt.current = performance.now()
   }, [open])
 
+  // A sheet pulled down asks as a press outside does: an owner that keeps the dialog open on one, such as a form
+  // with unsaved changes, keeps it on the other, and the sheet returns.
+  const dismissByDrag = useStableCallback((originalEvent: TouchEvent) => {
+    if (onInteractOutside) {
+      const request: DialogInteractOutsideEvent = new CustomEvent("dialog.sheetDrag", { cancelable: true, detail: { originalEvent } })
+      onInteractOutside(request)
+      if (request.defaultPrevented) return false
+    }
+    setOpen(false)
+    return true
+  })
+
   useEffect(() => {
     if (!panel || mobilePlacement !== "bottom") return undefined
-    return attachSheetDrag(panel, () => setOpen(false))
-  }, [panel, mobilePlacement, setOpen])
+    return attachSheetDrag(panel, dismissByDrag)
+  }, [panel, mobilePlacement, dismissByDrag])
 
   useLayoutEffect(() => {
     if (!panel) return
@@ -396,6 +427,8 @@ const headerParts = (children: ReactNode, prefix = ""): ReactNode[] =>
     return [prefix ? cloneElement(part, { key: `${prefix}${String(part.key)}` }) : part]
   })
 const isHeaderAction = (part: ReactNode): part is ReactElement => isValidElement(part) && part.type === HeaderAction
+const isLeadingAction = (part: ReactNode): part is ReactElement<DialogHeaderActionProps> =>
+  isHeaderAction(part) && (part.props as DialogHeaderActionProps).side === "leading"
 const isDescription = (part: ReactNode): part is ReactElement => isValidElement(part) && part.type === Description
 
 const Header = ({ children, className, background = "glass" }: DialogHeaderProps) => {
@@ -414,15 +447,17 @@ const Header = ({ children, className, background = "glass" }: DialogHeaderProps
       <>
         <Toolbar background={background} className={className} data-dialog-bar="">
           <DialogBarContext.Provider value={true}>
-            {sheet.showClose && (
+            {/* A step's Back takes the leading place, as the back button of a screen pushed inside an iOS sheet */}
+            {sheet.showClose && !parts.some(isLeadingAction) && (
               <Toolbar.Leading className={s.BarClose}>
                 <RadixDialog.Close asChild>
                   <NavigationButton action="close" variant="ghost" aria-label="Close dialog" />
                 </RadixDialog.Close>
               </Toolbar.Leading>
             )}
+            {parts.filter(isLeadingAction)}
             <div className={clsx(t.Heading, s.BarHeading)}>{parts.filter((part) => !isHeaderAction(part) && !isDescription(part))}</div>
-            {parts.filter(isHeaderAction)}
+            {parts.filter((part) => isHeaderAction(part) && !isLeadingAction(part))}
           </DialogBarContext.Provider>
         </Toolbar>
         {description && (sheet.descriptionSlot ? createPortal(description, sheet.descriptionSlot) : description)}
@@ -432,10 +467,20 @@ const Header = ({ children, className, background = "glass" }: DialogHeaderProps
   return <div className={clsx(s.Header, className)} data-background={background} data-scrolled={scrolled ? "" : undefined}>{children}</div>
 }
 
-const HeaderAction = ({ children, className }: DialogSlotProps) => {
+export type DialogHeaderActionProps = DialogSlotProps & {
+  /**
+   * `leading` puts the action before the title, such as the Back of a step in `Dialog.Steps`: on a phone Sheet it
+   * takes the place of Close, as the back button of a screen pushed inside an iOS sheet does.
+   * @default "trailing"
+   */
+  side?: "leading" | "trailing"
+}
+
+const HeaderAction = ({ children, className, side = "trailing" }: DialogHeaderActionProps) => {
   const bar = useContext(DialogBarContext)
+  if (bar && side === "leading") return <Toolbar.Leading className={clsx(s.BarClose, className)}>{children}</Toolbar.Leading>
   if (bar) return <Toolbar.Trailing className={className}>{children}</Toolbar.Trailing>
-  return <div className={clsx(s.HeaderAction, className)}>{children}</div>
+  return <div className={clsx(s.HeaderAction, className)} data-side={side === "leading" ? "leading" : undefined}>{children}</div>
 }
 
 /** The scrolling part between Header and Footer: with it, only the body scrolls */
@@ -482,6 +527,12 @@ export type DialogFooterProps = DialogSlotProps & {
 const Footer = ({ children, className, mobileLayout, background = "soft" }: DialogFooterProps) => {
   const setFooter = useFloatingBoundaryRegistration()?.setFooter
   const contentBelow = useContext(DialogScrollContext)?.edges.contentBelow
+  const sheet = useContext(DialogSheetContext)
+  const phone = usePhoneLayout()
+  // A phone Sheet stacks its main action on top, as an iOS setup sheet does. A footer is written with it last,
+  // where a desktop row ends, so the order is turned in the page itself: focus and a screen reader meet the
+  // actions in the order they are seen.
+  const parts = sheet && phone && mobileLayout !== "inline" ? headerParts(children).reverse() : children
   return (
     <div
       ref={setFooter}
@@ -490,7 +541,7 @@ const Footer = ({ children, className, mobileLayout, background = "soft" }: Dial
       data-background={background}
       data-content-below={contentBelow ? "" : undefined}
     >
-      {children}
+      {parts}
     </div>
   )
 }

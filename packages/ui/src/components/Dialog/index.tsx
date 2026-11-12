@@ -3,6 +3,7 @@ export {
   type DialogBarBackground,
   type DialogContentProps,
   type DialogFooterProps,
+  type DialogHeaderActionProps,
   type DialogHeaderProps,
   type DialogInteractOutsideEvent,
   type DialogLayerProps,

@@ -14,6 +14,7 @@ export {
   type DialogBarBackground,
   type DialogHeaderProps,
   type DialogFooterProps,
+  type DialogHeaderActionProps,
   type DialogContentProps,
   type DialogInteractOutsideEvent,
   type DialogLayerProps,

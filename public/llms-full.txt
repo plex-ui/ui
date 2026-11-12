@@ -2318,213 +2318,112 @@ Props:
   Dialog.Content:
     - surface ("plain" | "grouped") default: "plain" — Mobile panel and field-group palette. Dark dialogs use elevated surface levels; desktop colors stay unchanged
     - width (number | string) default: 480 — Panel width. Mobile alert uses its compact width; a bottom sheet fills the viewport width
-    - showClose (boolean) default: true — Show the built-in close button. Mobile sheet places it at the leading edge; mobile alert hides it
+    - showClose (boolean) default: true — Show the built-in close button. A mobile sheet places it at the leading edge, unless a leading HeaderAction takes that place; a mobile alert hides it
     - pill (boolean) default: false — Rounder panel and a round close button, for dialogs beside pill controls
     - className (string) — Additional CSS class on the panel
     - placement ("center" | "top" | "bottom" | "start" | "end" | "fullscreen") default: "center" — Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen
-    - mobileVariant ("alert" | "sheet") — Mobile appearance at 767px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance
-    - mobilePlacement ("center" | "bottom" | "fullscreen") — Placement at 767px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered
+    - mobileVariant ("alert" | "sheet") default: "sheet" — The iOS presentation at 767px and below. A phone has two modal views: a sheet, which iOS gives any view it presents, and an alert, a short question with its answers, compact and centered
+    - mobilePlacement ("center" | "bottom" | "fullscreen") default: "bottom" — Where a phone sheet stands: at the bottom, or over the whole screen (the default for a fullscreen dialog). center is the alert's place: without mobileVariant it makes the dialog an alert
     - onOpenAutoFocus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
     - onCloseAutoFocus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
     - onEscapeKeyDown ((event: KeyboardEvent) => void) — Called on Escape before the dialog closes; call event.preventDefault() to keep it open
-    - onInteractOutside ((event: DialogInteractOutsideEvent) => void) — Called on a press or a focus outside the dialog before it closes; call event.preventDefault() to keep it open. event.detail.originalEvent is the browser's event
+    - onInteractOutside ((event: DialogInteractOutsideEvent) => void) — Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes; call event.preventDefault() to keep it open (the sheet returns). event.detail.originalEvent is the browser's event, a TouchEvent for the sheet
     - zIndex (number) default: 50 — Stack order of the overlay and the dialog, for a page whose own layers sit above 50
     - rootProps (DialogLayerProps) — className, style and data attributes for the fixed layer that holds the panel. Data attributes on Dialog.Content land there too
     - overlayProps (DialogLayerProps) — className, style and data attributes for the overlay
     - layout ("auto" | "phone") default: "auto" — phone lays the dialog out as on a phone at any window width, with the dialogs it opens. Inside a PhoneLayout it always is
+  Dialog.HeaderAction:
+    - side ("leading" | "trailing") default: "trailing" — leading puts the action before the title, such as the Back of a step: in a phone Sheet it takes the place of Close, as the back button of a screen pushed inside an iOS sheet
+    - className (string) — Additional CSS class on the action's wrapper
   Dialog.Footer:
     - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged
-    - mobileLayout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit
+    - mobileLayout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit. A stacked alert keeps the written order; a stacked sheet puts its last action on top
   Dialog.Steps:
     - step (string | number) — The step on screen. A new value brings its content in
     - direction ("forward" | "back") default: "forward" — forward brings the new step in from the trailing edge over the one before; back returns to a step before it
     - className (string) — Additional CSS class on the steps
 
 ### Overview
+On a phone a dialog is one of the two modal views of iOS: an Alert (mobileVariant="alert"), a short question with its answers, or a Sheet, which it is by default (see Placement). The alert takes what the iOS 27 kit and UIAlertController offer. One, two or three actions: two stand side by side with Cancel first, and three or more stack in their order with Cancel last, as iOS sets them. Dialog.Footer mobileLayout="stacked" stacks two, for long labels. The main action is preferred (solid: the accent fill on a phone), plain (soft), or destructive (color="danger": a red label on the alert's fill on a phone). A title without a message stands centered. A field asks for one short value: a 48px capsule on a phone, its text selected when the alert opens, and Rename unavailable while it is empty. Label actions in title case, as iOS does.
 ```tsx
 const [open, setOpen] = useState(false)
+const [actions, setActions] = useState('2') // or '1', '3'
+const [destructive, setDestructive] = useState(false) // with two actions
+const [preferred, setPreferred] = useState(true) // the main action is filled
+const [message, setMessage] = useState(true)
+const [field, setField] = useState(false) // with two actions, not destructive
+const [stacked, setStacked] = useState(false) // two actions, one under the other on a phone
+const [name, setName] = useState('Untitled')
 const heading = useRef<HTMLDivElement>(null)
+const input = useRef<HTMLInputElement>(null)
+
+// What the alert says for each kind
+function alertText(field, actions, destructive) {
+if (field) return { title: 'Rename document', message: 'Enter a new name for this document.', action: 'Rename' }
+if (actions === '1') return { title: 'Unable to save', message: 'Check your connection and try again.', action: 'OK' }
+if (destructive) return { title: 'Delete document?', message: 'This document will be deleted. You can’t undo this.', action: 'Delete' }
+return { title: 'Save changes?', message: 'Do you want to save the changes you made to this document?', action: 'Save' }
+}
+const text = alertText(field, actions, destructive)
+
+const main = (
+<Button color={destructive ? 'danger' : 'primary'} variant={destructive || preferred ? 'solid' : 'soft'}
+  disabled={field && !name.trim()} onClick={() => setOpen(false)}>
+  {text.action}
+</Button>
+)
+const cancel = (
+<Dialog.Close>
+  <Button color="primary" variant="soft">Cancel</Button>
+</Dialog.Close>
+)
 
 <Dialog open={open} onOpenChange={setOpen}>
 <Dialog.Trigger>
-  <Button color="secondary" variant="outline">Open dialog</Button>
+  <Button color="secondary" variant="outline">Open alert</Button>
 </Dialog.Trigger>
-<Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
+<Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => {
+  event.preventDefault()
+  if (field) input.current?.select()
+  else heading.current?.focus({ preventScroll: true })
+}}>
   <Dialog.Header>
-    <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Unsaved changes</Dialog.Title></div>
-    <Dialog.Description>You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</Dialog.Description>
+    <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>{text.title}</Dialog.Title></div>
+    {message && <Dialog.Description>{text.message}</Dialog.Description>}
   </Dialog.Header>
-  <Dialog.Footer>
-    <Dialog.Close>
-      <Button color="primary" variant="soft">Cancel</Button>
-    </Dialog.Close>
-    <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
-  </Dialog.Footer>
-</Dialog.Content>
-</Dialog>
-```
-
-### Destructive confirmation
-Use color="danger" on the action button for destructive operations.
-```tsx
-const [open, setOpen] = useState(false)
-const heading = useRef<HTMLDivElement>(null)
-
-<Dialog open={open} onOpenChange={setOpen}>
-<Dialog.Trigger>
-  <Button color="danger" variant="outline">Delete</Button>
-</Dialog.Trigger>
-<Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
-  <Dialog.Header>
-    <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Delete assistant?</Dialog.Title></div>
-    <Dialog.Description>
-      This change will affect all API integrations using{" "}
-      <span className="md:font-medium md:text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
-      It cannot be undone.
-    </Dialog.Description>
-  </Dialog.Header>
-  <Dialog.Footer>
-    <Dialog.Close>
-      <Button color="secondary" variant="soft">Cancel</Button>
-    </Dialog.Close>
-    <Button color="danger" onClick={() => setOpen(false)}>Delete</Button>
-  </Dialog.Footer>
-</Dialog.Content>
-</Dialog>
-```
-
-### Three actions
-Three or more actions stack on a phone, in their order: put Cancel last, as iOS sets it at the bottom. Two stand side by side. On a desktop they stay in one row in that order.
-```tsx
-const [open, setOpen] = useState(false)
-const heading = useRef<HTMLDivElement>(null)
-
-<Dialog open={open} onOpenChange={setOpen}>
-<Dialog.Trigger>
-  <Button color="secondary" variant="outline">Close document</Button>
-</Dialog.Trigger>
-<Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
-  <Dialog.Header>
-    <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Save changes?</Dialog.Title></div>
-    <Dialog.Description>Do you want to save the changes you made to this document?</Dialog.Description>
-  </Dialog.Header>
-  <Dialog.Footer>
-    <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
-    <Button color="danger" variant="soft" onClick={() => setOpen(false)}>Don’t save</Button>
-    <Dialog.Close>
-      <Button color="primary" variant="soft">Cancel</Button>
-    </Dialog.Close>
-  </Dialog.Footer>
-</Dialog.Content>
-</Dialog>
-```
-
-### Text field
-An alert can ask for one short value. The field fills the alert like its actions, a 48px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.
-```tsx
-const [open, setOpen] = useState(false)
-const [name, setName] = useState("New folder")
-const field = useRef<HTMLInputElement>(null)
-
-<Dialog open={open} onOpenChange={(next) => { setOpen(next); if (next) setName("New folder"); }}>
-<Dialog.Trigger>
-  <Button color="secondary" variant="outline">New folder</Button>
-</Dialog.Trigger>
-<Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); field.current?.select(); }}>
-  <Dialog.Header>
-    <Dialog.Title>New folder</Dialog.Title>
-    <Dialog.Description>Enter a name for this folder.</Dialog.Description>
-  </Dialog.Header>
-  <Dialog.Body>
-    <Input ref={field} aria-label="Folder name" variant="soft" size="3xl" pill value={name} onChange={(event) => setName(event.target.value)} onClear={() => setName("")} />
-  </Dialog.Body>
-  <Dialog.Footer>
-    <Dialog.Close>
-      <Button color="primary" variant="soft">Cancel</Button>
-    </Dialog.Close>
-    <Button color="primary" disabled={!name.trim()} onClick={() => setOpen(false)}>Create</Button>
+  {field && (
+    <Dialog.Body>
+      <Input ref={input} aria-label="Document name" variant="soft" size="3xl" pill value={name}
+        onChange={(event) => setName(event.target.value)} />
+    </Dialog.Body>
+  )}
+  <Dialog.Footer mobileLayout={stacked ? 'stacked' : undefined}>
+    {actions === '1' && main}
+    {actions === '2' && <>{cancel}{main}</>}
+    {actions === '3' && (
+      <>
+        {main}
+        <Button color="danger" variant="soft" onClick={() => setOpen(false)}>Don’t Save</Button>
+        {cancel}
+      </>
+    )}
   </Dialog.Footer>
 </Dialog.Content>
 </Dialog>
 ```
 
 ### Metadata details
-Use a definition list for labels and values. CopyTooltip wraps a real ghost Button, so the value supports pointer and keyboard copying. The visible value truncates in the middle while the full value is copied. Focus starts at the heading, then Tab reaches the controls.
+Put labels and values in the rows of a FieldGroup, each value an output: on a phone the Sheet is grouped and the rows are the cells of an iOS list, as Settings' About. A value too long for its row goes under its label there, as iOS lays out a value cell. CopyTooltip wraps a real ghost Button, so the value supports pointer and keyboard copying. The visible value truncates in the middle while the full value is copied. Focus starts at the heading, then Tab reaches the controls.
 ```tsx
 'use client';
 
-import { useRef, useState, type ReactNode } from 'react';
-import { Badge } from '@plexui/ui/components/Badge';
+import { useRef, useState } from 'react';
 import { Button } from '@plexui/ui/components/Button';
 import { Dialog } from '@plexui/ui/components/Dialog';
+import { Field } from '@plexui/ui/components/Field';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { CopyTooltip } from '@plexui/ui/components/Tooltip';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-
-const detailsStyles = `/* Read-only metadata uses native Body and Footnote roles on phones. */
-@media (max-width: 767px) {
-  .details-content [data-detail-list] {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    font-size: 17px;
-    line-height: 22px;
-  }
-
-  .details-content [data-detail-row] {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: 4px;
-    margin: 0;
-    padding-block-end: 20px;
-  }
-
-  /* A copy target includes its own space below the text; targets never overlap. */
-  .details-content [data-detail-row]:has([data-detail-copy]),
-  .details-content [data-detail-row]:last-child {
-    padding-block-end: 0;
-  }
-
-  .details-content [data-detail-row] > dt {
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 18px;
-  }
-
-  .details-content [data-detail-row] > dd {
-    grid-column: auto;
-    color: var(--color-text);
-  }
-
-  .details-content [data-detail-copy] {
-    --button-radius: 8px;
-    --button-gutter: 0px;
-    display: inline-flex;
-    align-items: flex-start;
-    height: 44px;
-    min-width: 0;
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
-    color: var(--color-text);
-    vertical-align: top;
-  }
-
-  .details-content [data-detail-copy] > span {
-    align-items: flex-start;
-    height: 22px;
-  }
-
-  .details-content [data-detail-copy]::before,
-  .details-content [data-detail-copy]::after {
-    inset-block-end: 22px;
-  }
-
-  .details-content [data-detail-value] {
-    font-size: 17px;
-    font-weight: 400;
-    line-height: 22px;
-  }
-}
-`;
 
 const CLIENT_ID = 'client_76fb07f7-78e2-4656-abdf-e77b5d7b1ed1';
 
@@ -2532,8 +2431,8 @@ function CopyValue({ value, label }: { value: string; label: string }) {
   const wide = useBreakpoint('md');
   return (
     <CopyTooltip copyValue={value} sideOffset={wide ? 5 : 24} align={wide ? 'center' : 'start'}>
-      <Button data-detail-copy color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 max-w-full" aria-label={label}>
-        <span data-detail-value className="flex min-w-0 font-mono text-xs">
+      <Button color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 min-w-0 max-w-full" aria-label={label}>
+        <span className="flex min-w-0 md:font-mono md:text-xs">
           <span className="truncate">{value.slice(0, -6)}</span>
           <span className="shrink-0">{value.slice(-6)}</span>
         </span>
@@ -2542,45 +2441,33 @@ function CopyValue({ value, label }: { value: string; label: string }) {
   );
 }
 
-function DetailRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div data-detail-row className="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
-      <dt className="text-secondary">{label}</dt>
-      <dd className="min-w-0 sm:col-span-3">{children}</dd>
-    </div>
-  );
-}
-
 export function DetailsDialogExample() {
   const [open, setOpen] = useState(false);
   const heading = useRef<HTMLDivElement>(null);
+  const wide = useBreakpoint('md');
 
   return (
-    <div className="flex flex-col items-center gap-4 py-10">
-      <style>{detailsStyles}</style>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <Dialog.Trigger>
-          <Button color="secondary" variant="outline">View details</Button>
-        </Dialog.Trigger>
-        <Dialog.Content mobileVariant="sheet" width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
-          <Dialog.Header>
-            <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
-            <Dialog.Description className="sr-only">Application metadata.</Dialog.Description>
-          </Dialog.Header>
-          <Dialog.Body>
-            <div className="details-content py-2">
-              <dl data-detail-list className="space-y-4 text-sm">
-                <DetailRow label="Name">Plex application</DetailRow>
-                <DetailRow label="Client ID"><CopyValue value={CLIENT_ID} label="Copy client ID" /></DetailRow>
-                <DetailRow label="Status"><Badge color="success" size="sm">Active</Badge></DetailRow>
-                <DetailRow label="Created">Nov 3, 2026</DetailRow>
-                <DetailRow label="Last used">Nov 4, 2026</DetailRow>
-              </dl>
-            </div>
-          </Dialog.Body>
-        </Dialog.Content>
-      </Dialog>
-    </div>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger>
+        <Button color="secondary" variant="outline">View details</Button>
+      </Dialog.Trigger>
+      <Dialog.Content mobileVariant="sheet" surface="grouped" width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
+        <Dialog.Header>
+          <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
+          <Dialog.Description className="sr-only">Application metadata.</Dialog.Description>
+        </Dialog.Header>
+        <Dialog.Body>
+          <FieldGroup>
+            <Field row label="Name"><output>Plex application</output></Field>
+            {/* On a phone a value too long for the row goes under its label, as iOS lays out a value cell */}
+            <Field row label="Client ID" orientation={wide ? undefined : 'vertical'}><CopyValue value={CLIENT_ID} label="Copy client ID" /></Field>
+            <Field row label="Status"><output>Active</output></Field>
+            <Field row label="Created"><output>Nov 3, 2026</output></Field>
+            <Field row label="Last used"><output>Nov 4, 2026</output></Field>
+          </FieldGroup>
+        </Dialog.Body>
+      </Dialog.Content>
+    </Dialog>
   );
 }
 ```
@@ -2607,7 +2494,7 @@ const heading = useRef<HTMLDivElement>(null)
 ```
 
 ### Placement
-Use placement to move the panel: top for search and command lists, bottom for a sheet along the bottom edge, start and end for a full-height side panel, fullscreen for the whole screen. mobilePlacement applies at 767px and below, so a centered dialog can become a bottom sheet on phones: {''}.
+Use placement to move the panel: top for search and command lists, bottom for a sheet along the bottom edge, start and end for a full-height side panel, fullscreen for the whole screen. On a phone (767px and below) a dialog that is not an alert is a Sheet at the bottom: mobilePlacement="fullscreen" fills the screen with it, as a fullscreen dialog does by itself.
 ```tsx
 const heading = useRef<HTMLDivElement>(null)
 
@@ -2661,7 +2548,7 @@ return <SetupChoicesSheet open={open} onOpenChange={setOpen} layout="grouped" on
 ```
 
 ### Steps
-Put the steps of a flow in Dialog.Steps: a new step comes in from the trailing edge over the one before, which moves a third of the way out under it, as a push on iOS. direction="back" reverses it for a return to a step before. The new step starts at its top, the steps reach the panel's edges, and focus in the step that leaves moves to the one that comes in. With reduced motion the step changes at once.
+Put the steps of a flow in Dialog.Steps: a new step comes in from the trailing edge over the one before, which moves a third of the way out under it, as a push on iOS. direction="back" reverses it for a return to a step before. The new step starts at its top, the steps reach the panel's edges, and focus in the step that leaves moves to the one that comes in. With reduced motion the step changes at once. A step's Back is a Dialog.HeaderAction side="leading": on a phone it takes the place of Close in the Sheet's bar, as the back button of a screen pushed inside an iOS sheet. Each step is laid out as Apple Account asks for an address: its text, a soft capsule field and the action under it.
 ```tsx
 const [open, setOpen] = useState(false)
 const [step, setStep] = useState('email')
@@ -2674,23 +2561,29 @@ const go = (next, to) => { setDirection(to); setStep(next) }
 </Dialog.Trigger>
 <Dialog.Content mobileVariant="sheet" width={420}>
   <Dialog.Header>
+    {step === 'code' && (
+      <Dialog.HeaderAction side="leading">
+        <NavigationButton action="back" variant="ghost" onClick={() => go('email', 'back')} />
+      </Dialog.HeaderAction>
+    )}
     <Dialog.Title>Sign in</Dialog.Title>
   </Dialog.Header>
   <Dialog.Body>
     <Dialog.Steps step={step} direction={direction}>
       {step === 'email' ? (
-        <Field label="Email" description="We send a code to this address.">
-          <Input type="email" placeholder="you@example.com" />
-        </Field>
+        <div className="flex flex-col gap-4 text-sm text-secondary max-md:gap-5 max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
+          <p>We send a code to this address.</p>
+          <Input aria-label="Email" type="email" autoComplete="email" placeholder="Email address" variant="soft" size="3xl" pill />
+        </div>
       ) : (
-        <Field label="Code" description="Enter the code we sent to your email.">
-          <Input inputMode="numeric" autoComplete="one-time-code" placeholder="6-digit code" />
-        </Field>
+        <div className="flex flex-col gap-4 text-sm text-secondary max-md:gap-5 max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
+          <p>Enter the code we sent to your email.</p>
+          <Input aria-label="Code" inputMode="numeric" autoComplete="one-time-code" placeholder="6-digit code" variant="soft" size="3xl" pill />
+        </div>
       )}
     </Dialog.Steps>
   </Dialog.Body>
   <Dialog.Footer>
-    {step === 'code' && <Button color="primary" variant="soft" onClick={() => go('email', 'back')}>Back</Button>}
     {step === 'email'
       ? <Button color="primary" onClick={() => go('code', 'forward')}>Continue</Button>
       : <Button color="primary" onClick={() => setOpen(false)}>Verify</Button>}
@@ -2700,30 +2593,49 @@ const go = (next, to) => { setDirection(to); setStep(next) }
 ```
 
 ### Keep it open
-Escape and a press or a focus outside ask onEscapeKeyDown and onInteractOutside first: event.preventDefault() keeps the dialog open, such as for a form with unsaved changes, or for a press on a developer panel over the page. The Close button and Dialog.Close still close it.
+Escape, a press or a focus outside and, on a phone, a Sheet pulled down ask onEscapeKeyDown and onInteractOutside first: event.preventDefault() keeps the dialog open, such as for a form with unsaved changes, or for a press on a developer panel over the page. A Sheet kept open returns to its place, as an iOS sheet under isModalInPresentation. The Close button and Dialog.Close still close it. On a phone the form is laid out as Photos' New Album: a grouped Sheet, the name a field alone in its list with the note under it, Close to discard and the bar's checkmark to save.
 ```tsx
 const [open, setOpen] = useState(false)
 const [name, setName] = useState('Mia')
+const phone = !useBreakpoint('md')
 const dirty = name !== 'Mia'
 const hold = (event) => { if (dirty) event.preventDefault() }
+const note = phone
+? 'Pulling it down or a tap above it closes it until you change the name.'
+: 'Escape or a press outside closes it until you change the name.'
 
 <Dialog open={open} onOpenChange={setOpen}>
 <Dialog.Trigger>
   <Button color="secondary" variant="outline">Edit profile</Button>
 </Dialog.Trigger>
-<Dialog.Content width={420} onEscapeKeyDown={hold} onInteractOutside={hold}>
+<Dialog.Content mobileVariant="sheet" surface="grouped" width={420} onEscapeKeyDown={hold} onInteractOutside={hold}>
   <Dialog.Header>
     <Dialog.Title>Edit profile</Dialog.Title>
+    {/* On a phone the note stands under the field, as a list's footer */}
+    <Dialog.Description className={phone ? 'sr-only' : undefined}>{note}</Dialog.Description>
+    {/* On a phone Save is the bar's checkmark, opposite Close */}
+    {phone && (
+      <Dialog.HeaderAction>
+        <NavigationButton action="confirm" aria-label="Save" onClick={() => setOpen(false)} />
+      </Dialog.HeaderAction>
+    )}
   </Dialog.Header>
-  <Field label="Name">
-    <Input value={name} onChange={(event) => setName(event.target.value)} />
-  </Field>
-  <Dialog.Footer>
-    <Dialog.Close>
-      <Button color="primary" variant="soft">Discard</Button>
-    </Dialog.Close>
-    <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
-  </Dialog.Footer>
+  <Dialog.Body>
+    <FieldGroup footer={phone ? note : undefined}>
+      {/* On a phone the name is the field alone, as Photos' New Album */}
+      <Field row label="Name" hideLabel={phone}>
+        <Input value={name} placeholder="Name" onChange={(event) => setName(event.target.value)} />
+      </Field>
+    </FieldGroup>
+  </Dialog.Body>
+  {!phone && (
+    <Dialog.Footer>
+      <Dialog.Close>
+        <Button color="primary" variant="soft">Discard</Button>
+      </Dialog.Close>
+      <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
+    </Dialog.Footer>
+  )}
 </Dialog.Content>
 </Dialog>
 ```

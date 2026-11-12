@@ -703,16 +703,6 @@
     --field-group-description-line-height: 20px;
   }
 
-  html [data-mobile-placement="bottom"]:not([data-mobile-variant]) {
-    --dialog-panel-radius: 38px 38px 0 0;
-    --dialog-panel-max-height: calc(100dvh - 10px);
-  }
-
-  html [data-mobile-placement="center"]:not([data-mobile-variant]) {
-    --dialog-panel-width: 300px;
-    --dialog-panel-radius: 34px;
-  }
-
   /* In the kit's layer, so a component can give its own segmented control another look (the composer's sheet header). */
   @layer components {
     /* Horizontal tabs of either variant are the segmented control of iOS 27 (underline tabs have no iOS control of
