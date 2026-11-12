@@ -192,24 +192,34 @@ describe("a search field in the content and the large title above it (iOS 27.2 F
   })
 })
 
-describe("EmptyMessage on a phone (kit iOS 27 Empty States 5583:24408)", () => {
-  test("22/26 semibold message and 22/26 medium description with no gap, 36px insets and 16px more for the text", () => {
+describe("EmptyMessage on a phone (the Figma kit's Content Card 38808:585061 in Inter; buttons where iOS 27 puts them, owner 12.11)", () => {
+  test("64px symbol slot 24px above, 22/28 bold title, 4px, 17/22 regular description, 40px insets", () => {
     for (const token of [
-      "--empty-message-title-size: 22px;", "--empty-message-title-leading: 26px;", "--empty-message-title-gap: 0px;",
-      "--empty-message-title-weight: var(--font-weight-semibold);", "--empty-message-description-size: 22px;",
-      "--empty-message-description-leading: 26px;", "--empty-message-description-weight: var(--font-weight-medium);",
-      "--empty-message-padding-inline: 36px;", "--empty-message-text-inset: 16px;", "--empty-message-padding-bottom: 36px;",
-      "--empty-message-action-size: 52px;",
+      "--empty-message-icon-badge-size: 64px;", "--empty-message-icon-gap: 24px;",
+      "--empty-message-title-size: 22px;", "--empty-message-title-leading: 28px;", "--empty-message-title-gap: 4px;",
+      "--empty-message-title-weight: var(--font-weight-bold);", "--empty-message-description-size: 17px;",
+      "--empty-message-description-leading: 22px;", "--empty-message-description-weight: var(--font-weight-normal);",
+      "--empty-message-padding-inline: 40px;", "--empty-message-text-inset: 0px;", "--empty-message-padding-bottom: 40px;",
     ]) expect(touch).toContain(token)
   })
 
-  test("a message that fills its screen puts its buttons at the bottom, only in the phone layout", () => {
-    for (const token of ["--empty-message-fill-content-margin: auto;", "--empty-message-fill-action-margin: auto;", "--empty-message-fill-action-width: 100%;"]) expect(touch).toContain(token)
+  test("buttons 50px with a 17/22 Medium label; across a filled screen at its bottom, else 24px under the text", () => {
+    for (const token of [
+      "--empty-message-fill-content-margin: auto;", "--empty-message-fill-action-margin: auto;",
+      "--empty-message-fill-action-inset: 24px;", "--empty-message-fill-action-width: 100%;",
+      "--empty-message-action-spacing: 24px;", "--empty-message-multi-action-width: 100%;",
+      "--empty-message-multi-direction: column;", "--empty-message-action-gap: 12px;",
+      "--empty-message-action-size: 50px;", "--empty-message-action-font-size: 17px;",
+      "--empty-message-action-line-height: 22px;", "--empty-message-action-font-weight: 510;",
+    ]) expect(touch).toContain(token)
     const rules = phoneRules("packages/styles/src/components/EmptyMessage/EmptyMessage.module.css")
     const fill = rules.get("&:has(> .ActionRow > [data-variant])")
     expect(decls(fill)).toEqual({ "padding-top": "var(--empty-message-fill-action-inset, 0px)" })
     expect(decls(rules.get("> :first-child:not(.ActionRow)"))).toEqual({ "margin-top": "var(--empty-message-fill-content-margin, 0px)" })
     expect(decls(rules.get("> [data-variant]"))).toEqual({ width: "var(--empty-message-fill-action-width, auto)" })
+    // Every action, the plain (ghost) second one too, takes the kit's 17 Medium
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/EmptyMessage/EmptyMessage.module.css`, "utf8")
+    expect(css).toMatch(/\.EmptyMessage:not\(\[data-size="sm"\]\) \.ActionRow > \[data-variant\] \{\s*font-weight: var\(--empty-message-action-font-weight, var\(--button-font-weight\)\);/)
     // None of it applies from 768px up, where a caller's spacing and button widths stand
     expect(baseRules("packages/styles/src/components/EmptyMessage/EmptyMessage.module.css").has("&:has(> .ActionRow > [data-variant])")).toBe(false)
   })

@@ -91,7 +91,7 @@ export function EmptyMessageOverviewDemo() {
                 <Plus className="mr-[-2px]" />
                 New project
               </Button>
-              {actions === 'two' && <Button color="secondary" variant="outline" size={buttonSize}>Browse templates</Button>}
+              {actions === 'two' && <Button color="primary" variant="ghost" size={buttonSize}>Browse templates</Button>}
             </EmptyMessage.ActionRow>
           )}
         </EmptyMessage>

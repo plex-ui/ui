@@ -23,11 +23,11 @@
     padding-inline: var(--empty-message-padding-inline, 0px);
     padding-bottom: var(--empty-message-padding-bottom, 0px);
 
-    /* On a phone (touch.css, the iOS 27 empty state) the text keeps a further inset, and a message that fills
-       a screen can put its buttons at the bottom of the screen and centre the rest in the space above them:
-       auto margins above the content and above the buttons, with the same inset above both, so the buttons
-       keep their distance from the text. A text link stays under the text. Outside the phone layout these
-       rules do not apply, so a caller's own spacing and button widths stand. */
+    /* On a phone (touch.css, the kit's empty state) the text can keep a further inset, and a message that fills
+       a screen can place its buttons apart from the text: margins above the content and above the buttons and
+       an inset above both, so the buttons keep their distance from the text (touch.css sets them across the
+       screen at its bottom, as iOS 27 does, the text centred above). A text link stays under the text. Outside
+       the phone layout these rules do not apply, so a caller's own spacing and button widths stand. */
     @media (max-width: 767px) {
       > :is(.Title, .Description) {
         padding-inline: var(--empty-message-text-inset, 0px);
@@ -198,6 +198,13 @@
   --button-font-size-xl: var(--empty-message-action-font-size, var(--control-font-size-md));
   --button-line-height-xl: var(--empty-message-action-line-height, 1);
   --button-gutter-xl: var(--empty-message-action-gutter, var(--control-gutter-lg));
+}
+
+/* Every action button, a plain (ghost) one too, takes the message's label weight where it sets one (a phone: the
+   kit's 17 Medium for its Primary and its Tertiary). Set on the button, as touch.css sets a filled button's
+   Semibold on the button itself. */
+.EmptyMessage:not([data-size="sm"]) .ActionRow > [data-variant] {
+  font-weight: var(--empty-message-action-font-weight, var(--button-font-weight));
 }
 
 .EmptyMessage:not([data-size="sm"]) .ActionRow:has(> :nth-child(2)) {

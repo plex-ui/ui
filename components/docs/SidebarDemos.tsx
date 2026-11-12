@@ -751,7 +751,7 @@ const workflowSteps: WorkflowStep[] = [
   },
   {
     id: 'selfie-check',
-    label: 'Selfie verification',
+    label: 'Selfie check',
     type: 'selfie',
     children: [
       { id: 'capture-selfie', label: 'Capture selfie', type: 'action' },

@@ -2268,7 +2268,7 @@ export const FONTS = [
   {
     type: "font-tracking",
     name: "font-sans-tracking",
-    value: "max(calc(0.543px - 0.045em), calc(0.245px - 0.0292em), -0.0223em)",
+    value: "the Figma kit's Inter tracking by size: 0 to 12px, -0.10px at 14, -0.15px at 16–17, -0.20px at 28–48",
   },
   {
     type: "font-family",
