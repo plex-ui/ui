@@ -11,6 +11,7 @@ export const overview = `<Button
   color="secondary"
   variant="outline"
   @click="(type === 'default' ? toast : toast[type])(messages[type].title, {
+    icon: icon ? undefined : null,
     description: description === 'none' ? undefined : description === 'short' ? messages[type].description : longDescription,
     action: action === 'none' ? undefined : { label: messages[type].action, onClick: () => {} },
     cancel: action === 'cancel' ? { label: 'Cancel', onClick: () => {} } : undefined,
@@ -25,6 +26,7 @@ export const overview = `<Button
 {/* A persistent toast waits to be closed: it is offered with an action or a close button (owner 11.11) */}
 export const overviewControls = [
   { name: "type", type: "select", options: ["default", "success", "error", "warning", "info"], default: "default" },
+  { name: "icon", type: "boolean", default: true, when: { type: ["success", "error", "warning", "info"] } },
   { name: "description", type: "select", options: ["none", "short", "long"], default: "none" },
   { name: "action", type: "select", options: [{ value: "none", label: "none" }, { value: "action", label: "action" }, { value: "cancel", label: "action + cancel" }], default: "none" },
   { name: "closeButton", type: "boolean", default: false },
@@ -37,6 +39,7 @@ import { ref } from 'vue';
 import { compact as compactOptions, toast } from '@plexui/vue/components/Toast';
 
 const type = ref("default"); // or "success", "error", "warning", "info"
+const icon = ref(true); // the type's icon; false passes icon: null
 const description = ref("none"); // or "short", "long"
 const action = ref("none"); // or "action", "cancel" (an action and a cancel)
 const closeButton = ref(false);
@@ -89,7 +92,7 @@ Render `<Toaster />` once near the root of your app, then call `toast(...)` from
 ### Overview
 
 <ComponentPreview details={<>
-  <p>Call <code>toast</code> with a message, or <code>toast.success</code>, <code>.error</code>, <code>.warning</code> and <code>.info</code> for the semantic types, which map to PlexUI's success, danger, warning and info tokens. No <code>richColors</code> is passed, so the types retheme with <code>data-theme</code>. The options add a <code>description</code> under the message, an <code>action</code> button and a <code>cancel</code> one (either closes the toast after its <code>onClick</code>), and <code>closeButton</code>. Spread <code>compact</code> into the options for a centered toast: on a desktop a toast shrinks to its content anyway, and on a phone, where a toast fills the width, a compact one keeps the width of its content.</p>
+  <p>Call <code>toast</code> with a message, or <code>toast.success</code>, <code>.error</code>, <code>.warning</code> and <code>.info</code> for the semantic types, which map to PlexUI's success, danger, warning and info tokens. Each of them shows its icon; <code>icon: null</code> leaves it out, and <code>icon</code> takes a component of your own instead. No <code>richColors</code> is passed, so the types retheme with <code>data-theme</code>. The options add a <code>description</code> under the message, an <code>action</code> button and a <code>cancel</code> one (either closes the toast after its <code>onClick</code>), and <code>closeButton</code>. Spread <code>compact</code> into the options for a centered toast: on a desktop a toast shrinks to its content anyway, and on a phone, where a toast fills the width, a compact one keeps the width of its content.</p>
   <p><code>duration: Infinity</code> keeps a toast open until the user closes it, so give it a labelled action or a close button: a way to close it from the keyboard. An error that waits like this is an alert (see Screen readers).</p>
   <p>On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content). Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.</p>
 </>} language="vue" code={overviewCode} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
@@ -140,7 +143,7 @@ The region stays a layer of its own above a modal [Dialog](/vue/components/dialo
 
 ## Styling
 
-Toast reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there. The close button (`closeButton` on a toast) draws a 20px face in the text color with the ring of an outline Button, visible in both themes, inside a 26px target; on a touch screen its target is 44px. These variables move the toaster per page, set on `:root` or any ancestor of the Toaster (a page with its own top bar, say):
+Toast reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there. The close button (`closeButton` on a toast) stands at the trailing end of the toast, centred on a one-line message and level with the title beside a description, and draws a 20px face in the text color with the ring of an outline Button, visible in both themes, inside a 26px target; on a touch screen its target is 44px, at the trailing top corner. These variables move the toaster per page, set on `:root` or any ancestor of the Toaster (a page with its own top bar, say):
 
 - `--toast-offset-top`, `--toast-offset-bottom`: distance from the top and bottom of the window above 600px (default `32px`)
 - `--toast-mobile-offset-top`, `--toast-mobile-offset-bottom`: the same under 600px (default `16px` past the safe area)

@@ -15,11 +15,18 @@ const withDescriptionClass = <T extends ToastData | undefined>(data: T): T =>
 
 type Message = Parameters<typeof sonnerToast>[0]
 
-const withData =
-  (show: (message: Message, data?: ExternalToast) => string | number) => (message: Message, data?: ExternalToast) =>
-    show(message, withDescriptionClass(data))
+/** vue-sonner's options; `icon: null` leaves a typed toast's icon out, as sonner's React `icon: null` does. */
+export type ToastOptions = Omit<ExternalToast, "icon"> & { icon?: ExternalToast["icon"] | null }
+type Show = (message: Message, data?: ToastOptions) => string | number
+type Typed = "success" | "info" | "warning" | "error" | "message" | "loading"
+type PlexToast = Show & Omit<typeof sonnerToast, Typed> & Record<Typed, Show>
 
-export const toast: typeof sonnerToast = Object.assign(withData(sonnerToast), {
+const withData =
+  (show: (message: Message, data?: ExternalToast) => string | number): Show => (message, data) =>
+    // The renderer reads a null icon as none; vue-sonner passes the option through as it is
+    show(message, withDescriptionClass(data as ExternalToast | undefined))
+
+export const toast: PlexToast = Object.assign(withData(sonnerToast), {
   ...sonnerToast,
   success: withData(sonnerToast.success),
   info: withData(sonnerToast.info),

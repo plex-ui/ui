@@ -30,7 +30,7 @@
   right: 0 !important;
   margin-inline: auto !important;
   /* Tight gap between icon and content; action button gets extra breathing
-     room via its own margin-left below. */
+     room via its own margin-inline-start below. */
   gap: spacing(2) !important;
   padding: spacing(3) !important;
   font-size: var(--font-text-sm-size);
@@ -107,7 +107,8 @@
 }
 
 .ActionButton {
-  margin-left: spacing(2) !important;
+  /* Logical, so the gap stays between the message and the button in a right-to-left toaster */
+  margin-inline-start: spacing(2) !important;
   background: var(--color-background-primary-solid) !important;
   color: var(--color-text-primary-solid) !important;
   font-weight: var(--font-weight-medium);
@@ -124,7 +125,7 @@
   font-weight: var(--font-weight-medium);
 }
 
-/* The close face: 20 across at the toast's corner, its X in the text color and a
+/* The close face: 20 across at the toast's trailing end (below), its X in the text color and a
    ring an outline Button draws, which shows on the dark surface too (Sonner's
    dark ring takes --normal-border, transparent here). An invisible 4px rim
    around its 18px inner box makes the target 26, past the 24 of WCAG 2.5.8.
@@ -145,6 +146,32 @@
   inset: -4px;
   border-radius: 50%;
   content: "";
+}
+
+/* The close button stands at the trailing end of the toast, inside it, where the message's row ends, not over the
+   leading corner where Sonner puts it (owner 12.11: «зачем X тут слева»). The message keeps clear of it: the 12px
+   padding, the 20px face and 8px between them. Without a description it is centred on the toast, on a title of one
+   line or more; with a description it stays level with the title. Vue's `closeButtonPosition` no longer moves it. */
+.Toast[data-styled="true"]:has(> [data-close-button]) {
+  padding-inline-end: 40px !important;
+}
+
+.Toast[data-styled="true"] > [data-close-button] {
+  top: 50% !important;
+  right: 12px !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: translateY(-50%) !important;
+}
+
+.Toast[data-styled="true"]:where(:has(.Description)) > [data-close-button] {
+  top: 12px !important;
+  transform: none !important;
+}
+
+.Toaster[dir="rtl"] .Toast[data-styled="true"] > [data-close-button] {
+  right: auto !important;
+  left: 12px !important;
 }
 
 .Toast :is([data-button], [data-close-button]):disabled {
@@ -246,18 +273,20 @@
       overflow-wrap: anywhere;
     }
 
-    /* The 20px close face stays compact inside a separate 44px target. Reserve
-       the leading space so neither its target nor its ring covers the message. */
+    /* The 20px close face stays compact inside a separate 44px target at the
+       trailing top corner. Reserve the trailing space so neither its target nor
+       its ring covers the message or a button. */
     &:has([data-close-button]) {
       /* The 44px target inside the padding box and Sonner's 1px border above and below */
       min-height: 46px;
-      padding-inline-start: 56px !important;
+      padding-inline-end: 56px !important;
     }
 
     & > [data-close-button] {
       top: 0 !important;
-      left: 0 !important;
-      right: auto !important;
+      right: 0 !important;
+      bottom: auto !important;
+      left: auto !important;
       width: 44px !important;
       height: 44px !important;
       border: 0 !important;
@@ -289,8 +318,8 @@
   }
 
   .Toaster[dir="rtl"] .Toast[data-styled="true"] > [data-close-button] {
-    left: auto !important;
-    right: 0 !important;
+    right: auto !important;
+    left: 0 !important;
   }
 }
 

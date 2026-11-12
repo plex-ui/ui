@@ -7,6 +7,15 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Changed
+
+- `Toast`: the close button stands at the trailing end of the toast, inside it, as the one trailing item of an iOS notification banner: centred on a toast without a description, level with the title beside one, 12px from the edge with 8px before it; on a touch screen its 44px target is the trailing top corner. A toast with a close button keeps 40px for it (56px on a touch screen). Vue's `closeButtonPosition` no longer moves it. The 8px before an action button is on its leading side in a right-to-left toaster too.
+- Vue `toast` takes `icon: null`, which leaves a typed toast's icon out, as React's does; its options are exported as `ToastOptions`.
+
+---
+
 ## 0.43.0 (2026-11-11)
 
 Most of this release is the phone (with `touch.css`, under 768px or inside a `PhoneLayout`): about 25 components are measured again in the iOS 27.2 simulator on an iPhone 17 (402pt), against UIKit, SwiftUI and Apple's apps, and take its sizes. A desktop is unchanged unless an entry says so. `@plexui/styles` is 0.2.0, since it renames and removes tokens and the Stat Card stylesheet: `@plexui/ui` 0.43.0 and `@plexui/vue` 0.23.0 need `^0.2.0`, and earlier ui and vue versions keep the 0.1 styles they were built with.

@@ -248,14 +248,14 @@ describe("a toast on a phone", () => {
     expect(floors).toEqual(["&:not(.Compact):has(> .Content ~ *) > .Content"])
   })
 
-  test("a toast with a close button keeps the close button's room before the message", () => {
+  test("a toast with a close button keeps the close button's room after the message", () => {
     // The coarse-pointer rule (0,3,0) must keep beating the phone padding (0,2,0)
     const coarse: string[] = []
     postcss.parse(read(css)).walkAtRules("media", (media) => {
       if (media.params === "(max-width: 767px), (pointer: coarse)") media.walkRules((rule) => { if (rule.selector.includes(":has([data-close-button])")) rule.walkDecls((decl) => { coarse.push(`${rule.selector} ${decl.prop}: ${decl.value}${decl.important ? " !important" : ""}`) }) })
     })
     // A toast with only a line of text is not shorter than the 44px target and Sonner's two 1px borders (Codex r12)
-    expect(coarse).toEqual(["&:has([data-close-button]) min-height: 46px", "&:has([data-close-button]) padding-inline-start: 56px !important"])
+    expect(coarse).toEqual(["&:has([data-close-button]) min-height: 46px", "&:has([data-close-button]) padding-inline-end: 56px !important"])
   })
 })
 

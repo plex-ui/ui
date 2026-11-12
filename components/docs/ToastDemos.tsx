@@ -35,6 +35,7 @@ const ACTION_OPTIONS = [
  * close button; the button shows the toast with the settings chosen. */
 export function ToastOverviewDemo() {
   const [type, setType] = useState<(typeof TYPE_OPTIONS)[number]>('default');
+  const [icon, setIcon] = useState(true);
   const [description, setDescription] = useState<(typeof DESCRIPTION_OPTIONS)[number]>('none');
   const [action, setAction] = useState<(typeof ACTION_OPTIONS)[number]['value']>('none');
   const [closeButton, setCloseButton] = useState(false);
@@ -44,6 +45,8 @@ export function ToastOverviewDemo() {
   const message = TOAST_MESSAGES[type];
   const show = () =>
     (type === 'default' ? toast : toast[type])(message.title, {
+      // A typed toast's icon; null leaves it out (owner 12.11: «как отключить иконку?»)
+      icon: icon ? undefined : null,
       description: description === 'none' ? undefined : description === 'short' ? message.description : TOAST_LONG_DESCRIPTION,
       action: action === 'none' ? undefined : { label: message.action, onClick: () => {} },
       cancel: action === 'cancel' ? { label: 'Cancel', onClick: () => {} } : undefined,
@@ -55,6 +58,7 @@ export function ToastOverviewDemo() {
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <Segments name="type" options={TYPE_OPTIONS} value={type} onChange={setType} />
+        {type !== 'default' && <DemoControlBoolean name="icon" value={icon} onChange={setIcon} />}
         <Segments name="description" options={DESCRIPTION_OPTIONS} value={description} onChange={setDescription} />
         <Segments name="action" options={ACTION_OPTIONS} value={action} onChange={setAction} />
         <DemoControlBoolean name="closeButton" value={closeButton} onChange={setCloseButton} />
