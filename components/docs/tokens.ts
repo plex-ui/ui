@@ -2273,7 +2273,7 @@ export const FONTS = [
   {
     type: "font-family",
     name: "font-mono",
-    value: 'ui-monospace, "SFMono-Regular", "SF Mono", ..., monospace',
+    value: '"Geist Mono Variable", "Geist Mono", ui-monospace, ..., monospace',
   },
   {
     type: "font-weight",

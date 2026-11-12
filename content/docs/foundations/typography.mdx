@@ -7,7 +7,9 @@ description: Plex UI typography system. Text scales, semantic color tokens, font
 
 Every text of the kit, on the desktop and on a phone, is set in [Inter](https://rsms.me/inter/) 4, as in the Plex UI Figma kit. `@plexui/styles` ships it: its variable files with the optical-size axis, so text up to 14px takes Inter's text cut, text from 32px its display cut and the sizes between a blend of the two, and any weight from 100 to 900 (the phone's 510 and 590 included). The files are split by script, so a page downloads only the scripts it shows.
 
-Tracking follows the size, as Inter's own dynamic metrics ask: `-0.0223em + 0.185em × e^(-0.1745 × size)`. Plex UI sets it on every element through `--font-sans-tracking`, so each text tracks at its own size: +0.05px at 11px, -0.09px at 14px, -0.22px at 17px, -0.40px at 22px and -0.75px at 34px. Monospace text keeps its face's spacing.
+Tracking follows the size, as Inter's own dynamic metrics ask: `-0.0223em + 0.185em × e^(-0.1745 × size)`. Plex UI sets it on every element through `--font-sans-tracking`, so each text tracks at its own size: +0.05px at 11px, -0.09px at 14px, -0.22px at 17px, -0.40px at 22px and -0.75px at 34px.
+
+Code, ids and other monospace text are set in [Geist Mono](https://vercel.com/font), the code face of the Figma kit, shipped by `@plexui/styles` the same way (variable files, any weight, split by script) as `--font-mono`. It keeps its own spacing: no tracking is set on it.
 
 Change the typeface of the whole kit in one place, after the Plex UI stylesheet:
 
@@ -16,10 +18,11 @@ Change the typeface of the whole kit in one place, after the Plex UI stylesheet:
   --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
   /* Inter's tracking does not suit another face: use what it asks, normal for one that tracks itself. */
   --font-sans-tracking: normal;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 ```
 
-React and Vue, every component and every Tailwind `font-sans` utility read these two. Load the new face yourself (with `@font-face`, `next/font` or a font service); Inter then stays unused and is not downloaded.
+React and Vue, every component and every Tailwind `font-sans` and `font-mono` utility read these. Load the new face yourself (with `@font-face`, `next/font` or a font service); a shipped face you replace stays unused and is not downloaded.
 
 ## Scales
 

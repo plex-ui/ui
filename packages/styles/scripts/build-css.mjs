@@ -14,7 +14,7 @@ const PROJECT_ROOT = path.resolve(__dirname, "..")
 const SRC_DIR = path.join(PROJECT_ROOT, "src")
 const OUT_DIR = path.join(PROJECT_ROOT, "dist/es")
 /** Files the CSS refers to by url(), copied beside it as they are. */
-const ASSET_DIRS = ["styles/katex-fonts", "styles/inter-fonts"]
+const ASSET_DIRS = ["styles/katex-fonts", "styles/inter-fonts", "styles/geist-mono-fonts"]
 
 /**
  * Recursively collect every `.css` file within the provided directory.

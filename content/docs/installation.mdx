@@ -137,7 +137,7 @@ To make Tailwind's radius, font and breakpoint scales exactly Plex's (adds `roun
 @source "../node_modules/@plexui/ui";
 ```
 
-This file uses `@theme static` and resets Tailwind's `--radius-*`, `--font-serif`, `--font-weight-*`, and `--breakpoint-*` so they take Plex's values instead of Tailwind's defaults. `--font-sans` (Inter) and `--font-mono` come from `@plexui/ui/css` itself, which wins over Tailwind's theme. It also defines the `--breakpoint-*` variables that `useBreakpoint` reads. Use only if you actively want that. It's a project-wide decision, not a per-page one.
+This file uses `@theme static` and resets Tailwind's `--radius-*`, `--font-serif`, `--font-weight-*`, and `--breakpoint-*` so they take Plex's values instead of Tailwind's defaults. `--font-sans` (Inter) and `--font-mono` (Geist Mono) come from `@plexui/ui/css` itself, which wins over Tailwind's theme. It also defines the `--breakpoint-*` variables that `useBreakpoint` reads. Use only if you actively want that. It's a project-wide decision, not a per-page one.
 
 Then import your stylesheet *before* rendering any components:
 

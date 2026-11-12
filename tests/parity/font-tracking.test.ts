@@ -5,7 +5,8 @@ import { describe, expect, test } from "vitest"
 // Owner 12.11: the kit is set in Inter, not Apple's San Francisco, on the desktop and on a phone. Inter tracks by
 // size (its dynamic metrics, -0.0223em + 0.185em × e^(-0.1745 × size)); --font-sans-tracking draws that curve
 // and every element takes it at its own size, so no style sets a pixel tracking of its own. The face, its
-// tracking and the accent are each one variable in variables-tokens-root.css.
+// tracking and the accent are each one variable in variables-tokens-root.css. Code is set in Geist Mono, the Figma
+// kit's font/font-mono, shipped the same way; SF Mono is named nowhere.
 
 const root = `${process.cwd()}/packages/styles/src`
 const cssFiles = (dir: string): string[] => readdirSync(dir).flatMap((name) => {
@@ -14,6 +15,7 @@ const cssFiles = (dir: string): string[] => readdirSync(dir).flatMap((name) => {
 })
 const tokens = readFileSync(`${root}/styles/variables-tokens-root.css`, "utf8")
 const inter = readFileSync(`${root}/styles/inter.css`, "utf8")
+const geistMono = readFileSync(`${root}/styles/geist-mono.css`, "utf8")
 const parse = (value: string) => value.match(/^max\(calc\(([\d.]+)px - ([\d.]+)em\), calc\(([\d.]+)px - ([\d.]+)em\), -([\d.]+)em\)$/)
 
 describe("the kit face and its tracking", () => {
@@ -24,6 +26,16 @@ describe("the kit face and its tracking", () => {
     expect(sources).toHaveLength(14)
     for (const file of sources) expect(existsSync(join(root, "styles", file)), file).toBe(true)
     expect(existsSync(join(root, "styles/inter-fonts/LICENSE"))).toBe(true)
+  })
+
+  test("--font-mono starts with Geist Mono, shipped beside the CSS for every script it covers, and no SF Mono", () => {
+    expect(tokens).toMatch(/--font-mono: "Geist Mono Variable", "Geist Mono", /)
+    expect(tokens).not.toMatch(/SF ?Mono/)
+    const sources = [...geistMono.matchAll(/url\("\.\/(geist-mono-fonts\/[\w-]+\.woff2)"\) format\("woff2"\)/g)].map((match) => match[1])
+    expect(sources).toHaveLength(12)
+    for (const file of sources) expect(existsSync(join(root, "styles", file)), file).toBe(true)
+    expect(existsSync(join(root, "styles/geist-mono-fonts/LICENSE"))).toBe(true)
+    expect(readFileSync(`${root}/styles/index.css`, "utf8")).toMatch(/@import "\.\/inter";\n@import "\.\/geist-mono";/)
   })
 
   test("--font-sans-tracking stays within 0.015px of Inter's dynamic metrics from 10px to 72px", () => {

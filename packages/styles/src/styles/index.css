@@ -9,6 +9,7 @@
    (see variables-tokens-root.css and /docs/installation). */
 /* Inter, the face of --font-sans, from the kit itself */
 @import "./inter";
+@import "./geist-mono";
 @import "./variables-tokens-root";
 /* Tier 1 tokens: Primitives */
 @import "./variables-primitive";

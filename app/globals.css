@@ -2,6 +2,7 @@
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 @import '../packages/styles/dist/es/styles/inter.css';
+@import '../packages/styles/dist/es/styles/geist-mono.css';
 @import '../packages/styles/dist/es/styles/variables-tokens-root.css';
 @import '../packages/styles/dist/es/styles/variables-primitive.css';
 @import '../packages/styles/dist/es/styles/variables-semantic.css';
