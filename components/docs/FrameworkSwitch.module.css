@@ -1,36 +1,24 @@
-/* The framework switch is docs chrome, not a phone screen: on a phone it takes the phone size of tabs (the 32px row
-   and 13px labels of touch.css) but keeps the desktop look, flush underline tabs, instead of the capsule that
-   Tabs.module.css and touch.css make of horizontal tabs there. Inheriting gives back the root tokens: the label
-   weights and colors, and no outset of the selection. */
-@media (max-width: 767px) {
-  .Switch[data-variant="underline"] {
-    --segmented-control-thumb-outset: inherit;
-    --segmented-control-font-weight: inherit;
-    --segmented-control-active-font-weight: inherit;
-    --color-text-secondary: inherit;
+/* The marks keep their brand colors on the chosen side; on a desktop the other side's mark is grey, as its label is.
+   A phone shows the marks without labels (Tabs.module.css) and draws every segment in the primary color (touch.css):
+   there both marks keep their colors and the selection alone tells the chosen one. */
+.ReactMark {
+  color: #087ea4;
+}
 
-    display: inline-flex;
-    gap: var(--segmented-control-option-gutter);
-    padding: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
+:global(.dark) .ReactMark,
+:global([data-theme='dark']) .ReactMark {
+  color: #58c4dc;
+}
 
-  /* The selection is the 1px line under its tab, as a flush underline tab draws it on a desktop */
-  .Switch[data-variant="underline"] > div {
-    top: auto;
-    bottom: 0;
-    height: 1px;
-    border-radius: 0;
-    background: var(--tabs-underline-indicator-color);
-    box-shadow: none;
+@media (min-width: 768px) {
+  .Switch button[data-state='off'] :is(.ReactMark, .VueMark) {
+    filter: grayscale(1);
+    opacity: 0.55;
   }
+}
 
-  .Switch[data-variant="underline"][data-orientation="horizontal"] > button {
-    padding-inline: 0;
-    border-radius: 0;
-  }
+.Switch :is(.ReactMark, .VueMark) {
+  transition:
+    filter 200ms ease,
+    opacity 200ms ease;
 }
