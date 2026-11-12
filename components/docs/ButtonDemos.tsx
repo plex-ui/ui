@@ -116,6 +116,7 @@ function DemoChoiceMenu<T extends string>({ name, options, value, onChange }: { 
       aria-label={name}
       size="xs"
       variant="soft"
+      pill
       block={false}
     />
   );
