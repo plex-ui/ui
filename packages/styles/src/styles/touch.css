@@ -96,11 +96,13 @@
        start 20pt from the cell's edge at every width: iOS 27.2 on an iPhone 17 (402pt; SwiftUI Form and UIKit
        insetGrouped) and Settings at 430pt (IMG_5512) both measure 20, while the cell moves from 16 to 20pt off
        the screen's edge. Rows, separators, group titles and footers, vertical tabs and the phone Sidebar list
-       share it. */
-    --mobile-list-inset: 20px;
+       share it. --list-row-inset is the one token for every width (16px on a desktop, variables-components.css);
+       an app's own rows in a group take it. --mobile-list-inset stays as its alias. */
+    --list-row-inset: 20px;
+    --mobile-list-inset: var(--list-row-inset);
     --page-gutter: var(--mobile-layout-margin);
     --toolbar-gutter: var(--mobile-layout-margin);
-    --field-row-padding-inline: var(--mobile-list-inset);
+    --field-row-padding-inline: var(--list-row-inset);
     --control-size-sm: 44px;
     --control-size-md: 44px;
     --control-size-lg: 44px;
@@ -214,9 +216,9 @@
        the list inset, it reaches into that padding; after other content it starts where the content ends, so it
        never covers it. */
     --sortable-handle-order: 1;
-    --sortable-handle-margin-end: calc(var(--mobile-list-inset) - 9.83px);
+    --sortable-handle-margin-end: calc(var(--list-row-inset) - 9.83px);
     --sortable-handle-margin-start: 0px;
-    --sortable-handle-field-margin-start: calc(1px - var(--mobile-list-inset));
+    --sortable-handle-field-margin-start: calc(1px - var(--list-row-inset));
     --sortable-handle-color: var(--mobile-label-tertiary);
     --sortable-handle-color-hover: var(--mobile-label-tertiary);
 
@@ -684,7 +686,7 @@
     --badge-size-xl: 36px;
 
     --field-group-radius: 26px;
-    --field-group-separator-inset: var(--mobile-list-inset);
+    --field-group-separator-inset: var(--list-row-inset);
     --field-group-border-width: 0px;
     --field-group-background: var(--mobile-surface-plain-secondary, var(--color-background-secondary-soft-alpha));
     --field-group-title-color: var(--color-text-secondary);
@@ -701,8 +703,8 @@
        measures (5514: lines 16pt apart, paragraphs one empty line apart). */
     --field-group-footer-line-height: 16px;
     --field-group-footer-paragraph-gap: 16px;
-    --field-group-footer-padding: 8px var(--mobile-list-inset) 6px;
-    --field-group-title-padding-inline: var(--mobile-list-inset);
+    --field-group-footer-padding: 8px var(--list-row-inset) 6px;
+    --field-group-title-padding-inline: var(--list-row-inset);
     /* Kit iOS 27 Lists, Header 517:38042: the Subtitle under a header is Subheadline 15/20, secondary. */
     --field-group-description-font-size: 15px;
     --field-group-description-line-height: 20px;

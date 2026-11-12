@@ -479,7 +479,7 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     expect(bottom).toMatch(/&::before \{[^}]*inset: calc\(var\(--toolbar-bottom-item-top\) - 27px\) 0 0;[^}]*mask-image: linear-gradient\(to bottom, transparent, #000 27px\);/)
     expect(bottom).toMatch(/&:not\(\[data-background="soft"\]\)::before \{\s*inset: 0;\s*-webkit-mask-image: none;\s*mask-image: none;/)
     // A single wide action has more room above it, and the edge moves with it.
-    expect(css).toMatch(/:has\(> \.Content\[data-fill\] > :where\(button, a\)\) \{[^}]*--toolbar-bottom-item-top: var\(--toolbar-bottom-fill-padding-top\);/)
+    expect(css).toMatch(/:has\(> \.Content\[data-fill\] > :where\(button, a, \[role="link"\]\)\) \{[^}]*--toolbar-bottom-item-top: var\(--toolbar-bottom-fill-padding-top\);/)
   })
 
   test("a bottom bar on a page leaves the content clear, a sheet's keeps its edge, and glass stands out over content (plan 172)", () => {
@@ -544,6 +544,15 @@ describe("Phone bottom bar after iOS 26 Mail and Contacts (430 x 932)", () => {
       "--toolbar-search-placeholder-color: light-dark(var(--alpha-40), var(--alpha-60));",
       "--toolbar-icon-size-sm: 23.56px;",
     ]) expect(tokens).toContain(token)
+  })
+
+  test("on a band (glass, hard, solid) it is the top bar turned over: 10 above, the bar's gutter at the sides and below", () => {
+    // Owner 12.11 «паддинги явно не верные»: the soft bar's 4 and 28 are for rounds standing on the content.
+    const toolbar = read("components/Toolbar/Toolbar.module.css")
+    expect(toolbar).toMatch(/\.Toolbar\[data-placement="bottom"\]:not\(\[data-background="soft"\], \[data-host="dialog"\]\):not\(:has\(> \.Content\[data-fill\] > :where\(button, a, \[role="link"\]\)\)\) \{\s*--toolbar-bottom-gutter: var\(--toolbar-gutter\);\s*--toolbar-bottom-padding-top: var\(--toolbar-padding-bottom\);\s*--toolbar-bottom-padding-bottom: max\(var\(--toolbar-gutter\), calc\(var\(--safe-area-inset-bottom, env\(safe-area-inset-bottom, 0px\)\) - 6px\)\);\s*\}/)
+    const tokens = read("styles/variables-components.css")
+    expect(tokens).toContain("--toolbar-bottom-padding-top: 4px;")
+    expect(tokens).toContain("--toolbar-bottom-gutter: 28px;")
   })
 
   test("the search field and a button with iconSize=\"sm\" take them, in a Toolbar.Group and a ButtonGroup too", () => {

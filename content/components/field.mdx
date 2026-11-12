@@ -277,7 +277,8 @@ Field reads these component tokens. Override them at any scope to restyle it:
 - `--field-row-list-row-gap`: space above a list on its own line (default `8px`)
 - `--field-row-min-height`: row height (default `52px`)
 - `--field-row-padding-block`: row padding (default `10px`)
-- `--field-row-padding-inline`: row padding (default `16px`; on a phone `--mobile-list-inset`, 20px, where an iOS cell's text starts)
+- `--list-row-inset`: how far a row's content stands inside its group, on every width (`16px`; on a phone `20px`, where an iOS cell's text starts). Your own rows in a group take it, or the Tailwind utility `px-list-inset`, to line up with the kit's; the edge of a screen or a sheet is `--page-gutter` (`px-layout-margin`). It is set on the root, where the kit's rows, the lines between them and a group's title and footer take it: to change them all, override it on `:root`. `--mobile-list-inset` stays as its alias
+- `--field-row-padding-inline`: row padding (default `--list-row-inset`)
 - `--field-row-row-gap`: space above an error (default `2px`)
 - `--field-row-text-display`: `contents` runs the description under the control (default `flex`)
 - `--field-row-text-padding-block`: row padding with a description or an error (default `10px`)
@@ -296,7 +297,7 @@ FieldGroup reads these:
 - `--field-group-header-min-height`: header height (default `spacing(8)`)
 - `--field-group-header-padding-bottom`: space under the header (default `spacing(2)`)
 - `--field-group-radius`: block radius (default `1rem`)
-- `--field-group-separator-inset`: on a phone, how far the line between rows stands from both ends of the row (`--mobile-list-inset`, 20px, where the row's text starts)
+- `--field-group-separator-inset`: on a phone, how far the line between rows stands from both ends of the row (`--list-row-inset`, 20px, where the row's text starts)
 - `--field-group-separator-inset-start`: where the line starts (default `--field-group-separator-inset`). Set it on a row that leads with an icon to start the line after the icon, where its text starts, or on the group for every row
 - `--field-group-separator-inset-end`: where the line ends (default `--field-group-separator-inset`)
 - `--field-group-title-color`: title color (default `var(--color-text)`)

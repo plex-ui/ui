@@ -274,7 +274,12 @@
     --field-row-min-height: 52px;
     --field-row-padding-block: 10px;
     --field-row-text-padding-block: 10px;
-    --field-row-padding-inline: 16px;
+    /* The inset of a row's content from the edge of its group, on every width: 16px here, 20px on a phone
+       (touch.css, the iOS cell inset). An app's own rows in a FieldGroup take it, so they line up with the kit's;
+       the edge of a screen or a sheet is --page-gutter. Tailwind: px-list-inset, px-layout-margin. The tokens drawn
+       from it resolve here, on the root: override it on :root to move the kit's rows too. */
+    --list-row-inset: 16px;
+    --field-row-padding-inline: var(--list-row-inset);
     --field-row-gap: 24px;
     --field-row-control-width: 160px;
     --field-row-text-width: 240px;

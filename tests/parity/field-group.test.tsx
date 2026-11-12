@@ -271,13 +271,21 @@ describe("FieldGroup separators on a phone", () => {
       "inset-inline: var(--field-group-separator-inset-start, var(--field-group-separator-inset, 0px))\n      var(--field-group-separator-inset-end, var(--field-group-separator-inset, 0px));",
     )
     const touch = readFileSync(`${process.cwd()}/packages/styles/src/styles/touch.css`, "utf8")
-    expect(touch).toContain("--field-group-separator-inset: var(--mobile-list-inset);")
+    expect(touch).toContain("--field-group-separator-inset: var(--list-row-inset);")
     // Inside an inset grouped cell the text, the line, the title and the footer stand 20pt from its edge at every
     // width (iOS 27.2 at 402pt, Settings at 430pt); only the cell's margin from the screen changes.
-    expect(touch).toContain("--mobile-list-inset: 20px;")
-    expect(touch).toContain("--field-row-padding-inline: var(--mobile-list-inset);")
-    expect(touch).toContain("--field-group-title-padding-inline: var(--mobile-list-inset);")
-    expect(touch).toContain("--field-group-footer-padding: 8px var(--mobile-list-inset) 6px;")
+    expect(touch).toContain("--list-row-inset: 20px;")
+    expect(touch).toContain("--mobile-list-inset: var(--list-row-inset);")
+    expect(touch).toContain("--field-row-padding-inline: var(--list-row-inset);")
+    expect(touch).toContain("--field-group-title-padding-inline: var(--list-row-inset);")
+    expect(touch).toContain("--field-group-footer-padding: 8px var(--list-row-inset) 6px;")
+    // One token for every width: a desktop row stands 16px inside its group, and an app's own rows take the token
+    // (or px-list-inset) to line up with the kit's.
+    const components = readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")
+    expect(components).toContain("--list-row-inset: 16px;")
+    expect(components).toContain("--field-row-padding-inline: var(--list-row-inset);")
+    const utilities = readFileSync(`${process.cwd()}/packages/styles/src/styles/tailwind-utilities.css`, "utf8")
+    expect(utilities).toMatch(/@theme inline \{\s*--spacing-layout-margin: var\(--page-gutter\);\s*--spacing-list-inset: var\(--list-row-inset\);\s*\}/)
     // A row with a line under its label is 70pt, as a subtitle row of iOS 27.2 (SwiftUI 70.7, UIKit 70.3).
     expect(touch).toContain("--field-row-description-min-height: 70px;")
     // The composer's icon rows start the line under their titles through the token, not a rule of their own

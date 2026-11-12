@@ -236,6 +236,14 @@
   --ease-cubic-move: var(--cubic-move);
 }
 
+/* Insets, inline so a utility reads the token where it stands (a wide Page sets its own --page-gutter):
+   px-layout-margin is the edge of a screen or a sheet (16px, 20px on a phone from 414px), px-list-inset the
+   inside of a list row (16px, 20px on a phone). The spacing utilities take them: pl-, mx-, gap-, inset-. */
+@theme inline {
+  --spacing-layout-margin: var(--page-gutter);
+  --spacing-list-inset: var(--list-row-inset);
+}
+
 /* =============================================
   Heading utilities
 ============================================= */

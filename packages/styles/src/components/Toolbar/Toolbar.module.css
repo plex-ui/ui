@@ -134,8 +134,20 @@
     --mobile-glass-shadow: var(--mobile-glass-shadow-raised);
   }
 
-  /* A single wide action (Apps 2.4 Fullsize) leaves 12px above it. */
-  .Toolbar[data-placement="bottom"]:has(> .Content[data-fill] > :where(button, a)) {
+  /* A bottom bar on a band (glass, hard or solid) is the top bar turned over (owner 12.11 «паддинги явно не верные»):
+     above its items the top bar's air under them (10), its side items at the bar's gutter, where the top bar's
+     corner items and the edges of a grouped list's rows stand (16, 20 from 414), and under them that gutter or
+     the home indicator's inset less 6. The iOS 26 kit's 4 above and 28 at the sides are for rounds standing on
+     the content with no band: a soft bar keeps them, and so do a sheet's bar and a single wide action. */
+  .Toolbar[data-placement="bottom"]:not([data-background="soft"], [data-host="dialog"]):not(:has(> .Content[data-fill] > :where(button, a, [role="link"]))) {
+    --toolbar-bottom-gutter: var(--toolbar-gutter);
+    --toolbar-bottom-padding-top: var(--toolbar-padding-bottom);
+    --toolbar-bottom-padding-bottom: max(var(--toolbar-gutter), calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 6px));
+  }
+
+  /* A single wide action (Apps 2.4 Fullsize) leaves 12px above it. A disabled ButtonLink renders a span with the link
+     role. */
+  .Toolbar[data-placement="bottom"]:has(> .Content[data-fill] > :where(button, a, [role="link"])) {
     --toolbar-edge-blur: var(--toolbar-edge-blur-large);
     --toolbar-bottom-item-top: var(--toolbar-bottom-fill-padding-top);
   }
