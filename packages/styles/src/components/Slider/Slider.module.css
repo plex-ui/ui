@@ -172,8 +172,8 @@
   visibility: hidden;
 
   /* The 2xs ghost button stands as high as the value field beside it; its glyph is the reset arrow alone.
-     The data attribute wins over the Button's own size rules. */
-  &[data-size="2xs"] {
+     The data attribute wins over the Button's own size rules. A phone's reset is uniform, and the Button sizes it. */
+  &[data-size="2xs"]:not([data-uniform]) {
     width: var(--slider-reset-size, var(--control-size-2xs));
     height: var(--slider-reset-size, var(--control-size-2xs));
 
@@ -296,19 +296,22 @@
     margin-inline-end: 0;
   }
 
+  /* The value is as wide as its digits, so the reset stands 8px from them whatever their count; it stays 44px
+     tall, and the row's label focuses it too. */
   .ValueInput {
-    min-width: 44px;
     height: 44px;
   }
 
-  /* The reset is the row's accessory: its glyph alone on the 44px target in the secondary label, without the
-     button's face (three classes and the variant, over the Button's color rules in any sheet order). */
-  .SliderWrap .SliderLabel .Reset[data-variant="ghost"] {
-    color: var(--slider-reset-color, var(--color-text-secondary));
+  /* The reset, the kit's small round gray button (Slider.tsx), stands 8px before the value, its 44px target
+     reaching to the digits and no further. Hidden, it keeps its place, so the value does not move. */
+  .SliderLabel {
+    gap: 8px;
+  }
 
-    &::before {
-      visibility: hidden;
-    }
+  /* With touch.css the circle is 28px and its target reaches 8px past it, to the digits. A smaller circle (the
+     standard 24px without touch.css) stands farther off, so its target never takes a tap on the value. */
+  .Reset[data-uniform] {
+    margin-inline-end: max(0px, calc((44px - var(--button-uniform-size, 28px)) / 2 - 8px));
   }
 
   .SliderWrap[data-orientation="vertical"] .Slider {

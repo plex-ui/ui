@@ -250,15 +250,17 @@ describe("the Slider label row on a phone", () => {
     for (const token of [
       "--slider-label-font-size: 17px;", "--slider-value-font-size: 17px;",
       "--slider-value-color: var(--mobile-label-secondary, var(--color-text-secondary));",
-      "--slider-value-color-focus: var(--color-text);", "--slider-reset-icon-size: 20px;",
-      "--slider-reset-color: var(--mobile-label-secondary, var(--color-text-secondary));",
+      "--slider-value-color-focus: var(--color-text);",
       "--slider-thumb-background: var(--white);",
     ]) expect(touch).toContain(token)
+    // The reset is a Button sized by the Button (the kit's 28px circle), no longer a glyph the slider sizes
+    expect(touch).not.toMatch(/--slider-reset-(size|icon-size|color):/)
     const rules = phoneRules("packages/styles/src/components/Slider/Slider.module.css")
     expect(decls(rules.get(".SliderValue"))).toEqual({ height: "auto", "min-height": "44px", padding: "0", border: "0", "margin-inline-end": "0" })
-    const reset = rules.get('.SliderWrap .SliderLabel .Reset[data-variant="ghost"]')
-    expect(decls(reset)).toEqual({ color: "var(--slider-reset-color, var(--color-text-secondary))" })
-    expect(decls(reset?.nodes.find((n): n is postcss.Rule => n.type === "rule" && n.selector === "&::before"))).toEqual({ visibility: "hidden" })
+    // The value is as wide as its digits and the reset stands 8px before them
+    expect(decls(rules.get(".ValueInput"))).toEqual({ height: "44px" })
+    expect(decls(rules.get(".SliderLabel"))).toEqual({ gap: "8px" })
+    expect(rules.has('.SliderWrap .SliderLabel .Reset[data-variant="ghost"]')).toBe(false)
   })
 })
 

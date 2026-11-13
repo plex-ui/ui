@@ -1277,6 +1277,58 @@ describe("Slider pressed state", () => {
     }
   })
 
+  test.each(["React", "Vue"] as const)("%s: a phone's reset is the kit's small round gray button, a desktop one the bare glyph", async (framework) => {
+    for (const desktop of [true, false]) {
+      tabletAndUp = desktop
+      let unmount = () => {}
+      const props = { ...BASE, value: 500, resetValue: 1000 }
+      if (framework === "React") await act(async () => { render(createElement(RSlider as never, { ...props, onChange: () => {} })) })
+      else {
+        unmount = mountVue(() => h(Slider as never, toVue(props))).unmount
+        await flushVue()
+      }
+      const reset = document.querySelector<HTMLElement>(".Reset")!
+      expect(reset.getAttribute("data-variant")).toBe(desktop ? "ghost" : "soft")
+      expect(reset.hasAttribute("data-uniform")).toBe(!desktop)
+      expect(reset.getAttribute("data-size")).toBe("2xs")
+      if (framework === "React") cleanup()
+      else unmount()
+    }
+  })
+
+  // A sheet that a touch drags, or a scroll the browser takes over, takes the pointer away: the slider's own pointerup
+  // never comes, and the press must not stick (seen in a phone sheet).
+  test.each(["React", "Vue"] as const)("%s: a press ends when the finger lifts elsewhere or the slider loses the pointer", async (framework) => {
+    let unmount = () => {}
+    if (framework === "React") await act(async () => { render(createElement(RSlider as never, { ...BASE, onChange: () => {} })) })
+    else {
+      unmount = mountVue(() => h(Slider as never, toVue({ ...BASE }))).unmount
+      await flushVue()
+    }
+    const root = document.querySelector<HTMLElement>(".Slider")!
+    const outside = document.createElement("div")
+    document.body.append(outside)
+    for (const release of [
+      () => fireEvent.pointerUp(outside, { pointerId: 1 }),
+      () => fireEvent.pointerCancel(outside, { pointerId: 1 }),
+      () => fireEvent.lostPointerCapture(root, { pointerId: 1 }),
+    ]) {
+      await act(async () => { fireEvent.pointerDown(root, { pointerId: 1 }) })
+      await flushVue()
+      expect(root.hasAttribute("data-pressed")).toBe(true)
+      // Another finger lifting leaves the press on
+      await act(async () => { fireEvent.pointerUp(outside, { pointerId: 2 }) })
+      await flushVue()
+      expect(root.hasAttribute("data-pressed")).toBe(true)
+      await act(async () => { release() })
+      await flushVue()
+      expect(root.hasAttribute("data-pressed")).toBe(false)
+    }
+    outside.remove()
+    if (framework === "React") cleanup()
+    else unmount()
+  })
+
   test.each(["React", "Vue"] as const)("%s: a press on the track of a range focuses the thumb the primitive moves, also when the value stays", async (framework) => {
     // A 340px track from 0 to 10. Radix moves the thumb whose value lies nearest the pointer's value, not the
     // thumb drawn nearest it: its thumbs sit inset from the ends, so the two can differ.

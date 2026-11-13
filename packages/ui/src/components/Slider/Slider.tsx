@@ -226,6 +226,18 @@ export const Slider = memo((props: SliderProps) => {
     250,
   )
   const [pointerDown, setPointerDown] = useState(false)
+  // A phone's reset is a button of its own beside the value (below)
+  const tabletAndUp = useBreakpoint("md")
+  // A press ends where the finger lifts, even when something else takes the pointer away (a sheet that a touch
+  // drags, a scroll the browser takes over): the slider's own pointerup never comes then, so the window hears the
+  // lift and a lost capture ends the press too.
+  const releasePress = useRef<(() => void) | null>(null)
+  const endPress = useCallback(() => {
+    releasePress.current?.()
+    releasePress.current = null
+    setPointerDown(false)
+  }, [])
+  useEffect(() => () => releasePress.current?.(), [])
   const [resetPending, setResetPending] = useState(false)
   // Read the controlled owner after a reset request, including a refused request.
   useEffect(() => {
@@ -237,9 +249,9 @@ export const Slider = memo((props: SliderProps) => {
   useEffect(() => {
     if (!disabled) return
     debouncedOnChange.cancel()
-    setPointerDown(false)
+    endPress()
     if (!isRange) setInputValueNumber(singleValue)
-  }, [disabled, isRange, singleValue, setInputValueNumber, debouncedOnChange])
+  }, [disabled, isRange, singleValue, setInputValueNumber, debouncedOnChange, endPress])
   const isMounted = useIsMounted()
 
   // Used to position the input over the thumb
@@ -424,10 +436,15 @@ export const Slider = memo((props: SliderProps) => {
           </label>
           {!isRange && resetValue !== undefined && (
             <Tooltip content={resetTooltip!} compact>
+              {/* A phone draws the reset as the small round gray button of the iOS 27 kit beside the row's value:
+                  uniform and soft, touch.css makes it the 28px circle that takes touches 44px around it. A desktop
+                  one is the bare glyph that shows on hover. */}
               <Button
                 size="2xs"
-                variant="ghost"
+                variant={tabletAndUp ? "ghost" : "soft"}
                 color="secondary"
+                uniform={!tabletAndUp}
+                pill={!tabletAndUp}
                 className={s.Reset}
                 aria-label={resetTooltip}
                 disabled={disabled}
@@ -488,10 +505,22 @@ export const Slider = memo((props: SliderProps) => {
           onPointerDown={(event) => {
             if (disabled) return
             setPointerDown(true)
+            releasePress.current?.()
+            const { pointerId } = event
+            const end = (lift: PointerEvent) => {
+              if (lift.pointerId === pointerId) endPress()
+            }
+            window.addEventListener("pointerup", end, true)
+            window.addEventListener("pointercancel", end, true)
+            releasePress.current = () => {
+              window.removeEventListener("pointerup", end, true)
+              window.removeEventListener("pointercancel", end, true)
+            }
             if (isRange) focusThumbToMove(event.nativeEvent, event.currentTarget, radixValue, min, max, isVertical, direction === "rtl")
           }}
-          onPointerUp={() => setPointerDown(false)}
-          onPointerCancel={() => setPointerDown(false)}
+          onPointerUp={endPress}
+          onPointerCancel={endPress}
+          onLostPointerCapture={endPress}
           data-pressed={pointerDown ? "" : undefined}
           data-range={isRange ? "" : undefined}
           style={toCssVariables({

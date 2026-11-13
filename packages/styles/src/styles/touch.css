@@ -548,9 +548,8 @@
     --radio-group-dot-display: none;
     --radio-group-checkmark-display: block;
 
-    --slider-reset-size: 44px;
-    /* The label row reads as an iOS list row: 17px label, value and unit in the secondary label, a 20px reset
-       glyph (its arrow about 17px) on the 44px target, and no gap above the 52px slider row. */
+    /* The label row reads as an iOS list row: 17px label, value and unit in the secondary label, the reset the
+       kit's small round gray button (a uniform 2xs button, Slider.tsx), and no gap above the 52px slider row. */
     --slider-label-height: 44px;
     --slider-label-gap: 0px;
     --slider-label-font-size: 17px;
@@ -560,8 +559,6 @@
     --slider-value-color: var(--mobile-label-secondary, var(--color-text-secondary));
     --slider-value-color-focus: var(--color-text);
     --slider-unit-color: var(--mobile-label-secondary, var(--color-text-secondary));
-    --slider-reset-icon-size: 20px;
-    --slider-reset-color: var(--mobile-label-secondary, var(--color-text-secondary));
     --slider-control-height: 52px;
     --slider-padding-bottom: 0px;
     --slider-track-size: 6px;

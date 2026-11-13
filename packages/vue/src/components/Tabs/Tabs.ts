@@ -37,6 +37,7 @@ import ChevronDownMd from "../Icon/svg/ChevronDownMd.js"
 import { LoadingIndicator } from "../Indicator/index.js"
 import { Menu, MenuContent, MenuRadioGroup, MenuRadioItem, MenuTrigger } from "../Menu/index.js"
 import { visibleTabCount } from "./overflow.js"
+import { equalizeSegments, watchSegments } from "./segments.js"
 import s from "@plexui/styles/components/Tabs/Tabs.module.css"
 
 // Vue port of packages/ui/src/components/Tabs/Tabs.tsx. Props, defaults,
@@ -455,6 +456,9 @@ const TabsComponent = defineComponent({
         return
       }
 
+      // The segments take their width before the thumb measures (React's layout effect declared first)
+      equalizeSegments(root, thumb)
+
       const isVertical = props.orientation === "vertical"
       const transitionProperty = isVertical
         ? "height var(--tabs-thumb-transition-duration, 200ms) var(--tabs-thumb-transition-easing, var(--cubic-enter)), transform var(--tabs-thumb-transition-duration, 200ms) var(--tabs-thumb-transition-easing, var(--cubic-enter))"
@@ -538,6 +542,28 @@ const TabsComponent = defineComponent({
       })
       observer.observe(root, { box: "content-box" })
     })
+
+    // A phone's segmented control at its own width gives every segment the widest one's width, as UISegmentedControl
+    // does in iOS 27.2; where that does not fit, each segment takes its label and the same air around it, as
+    // apportionsSegmentWidthsByContent does (segments.ts). Measured after every render, when the room changes (the
+    // segments may fit one width now) and when the font loads and the labels widen.
+    onUpdated(() => equalizeSegments(rootRef.value, thumbRef.value))
+    let stopWatchingSegments: (() => void) | undefined
+    onMounted(() => {
+      const root = rootRef.value
+      if (!root) return
+      // The room, the breakpoint or the font changes. The segments can change without the control changing size, so
+      // the thumb follows them here, instantly
+      stopWatchingSegments = watchSegments(root, () => thumbRef.value, () => {
+        const thumb = thumbRef.value
+        if (!thumb) return
+        const currentTransition = thumb.style.transition
+        thumb.style.transition = ""
+        applyThumbSizing(props.orientation === "vertical", false)
+        thumb.style.transition = currentTransition
+      })
+    })
+    onBeforeUnmount(() => stopWatchingSegments?.())
 
     // Tabs added, removed, reordered or relabelled move the active tab without
     // resizing the group: measure again, instantly, like a resize

@@ -366,6 +366,18 @@ const SliderComponent = defineComponent({
     onBeforeUnmount(() => debouncedOnChange.cancel())
 
     const pointerDown = ref(false)
+    // A phone's reset is a button of its own beside the value (below)
+    const tabletAndUp = useBreakpoint("md")
+    // A press ends where the finger lifts, even when something else takes the pointer away (a sheet that a touch
+    // drags, a scroll the browser takes over): the slider's own pointerup never comes then, so the window hears the
+    // lift and a lost capture ends the press too.
+    let releasePress: (() => void) | null = null
+    const endPress = () => {
+      releasePress?.()
+      releasePress = null
+      pointerDown.value = false
+    }
+    onBeforeUnmount(() => releasePress?.())
     const resetPending = ref(false)
     // Read the controlled owner after a reset request, including a refused request.
     watch([resetPending, () => props.value, isRange], () => {
@@ -376,7 +388,7 @@ const SliderComponent = defineComponent({
     watch([() => props.disabled, isRange, () => props.value, precision], () => {
       if (!props.disabled) return
       debouncedOnChange.cancel()
-      pointerDown.value = false
+      endPress()
       // A sync watcher runs at each prop as Vue sets them one by one: a disabled range switched to one thumb has
       // range off here while its value is still the array, and the number comes with the next prop
       if (!isRange() && typeof props.value === "number") setInputValueNumber(props.value)
@@ -625,9 +637,14 @@ const SliderComponent = defineComponent({
                         h(
                           Button,
                           {
+                            // A phone draws the reset as the small round gray button of the iOS 27 kit beside the
+                            // row's value: uniform and soft, touch.css makes it the 28px circle that takes touches
+                            // 44px around it. A desktop one is the bare glyph that shows on hover.
                             "size": "2xs",
-                            "variant": "ghost",
+                            "variant": tabletAndUp.value ? "ghost" : "soft",
                             "color": "secondary",
+                            "uniform": !tabletAndUp.value,
+                            "pill": !tabletAndUp.value,
                             "class": s.Reset,
                             "aria-label": resetTooltip,
                             "disabled": disabled,
@@ -689,14 +706,22 @@ const SliderComponent = defineComponent({
               "onPointerdown": (event: PointerEvent) => {
                 if (disabled) return
                 pointerDown.value = true
+                releasePress?.()
+                const { pointerId } = event
+                const end = (lift: PointerEvent) => {
+                  if (lift.pointerId === pointerId) endPress()
+                }
+                window.addEventListener("pointerup", end, true)
+                window.addEventListener("pointercancel", end, true)
+                releasePress = () => {
+                  window.removeEventListener("pointerup", end, true)
+                  window.removeEventListener("pointercancel", end, true)
+                }
                 if (range) focusThumbToMove(event, event.currentTarget as HTMLElement, radixValue, props.min, props.max, isVertical, false)
               },
-              "onPointerup": () => {
-                pointerDown.value = false
-              },
-              "onPointercancel": () => {
-                pointerDown.value = false
-              },
+              "onPointerup": endPress,
+              "onPointercancel": endPress,
+              "onLostpointercapture": endPress,
               "data-pressed": isPointerDown ? "" : undefined,
               "data-range": range ? "" : undefined,
               "style": toCssVariables({

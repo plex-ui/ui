@@ -24,6 +24,7 @@ import { CheckMd, ChevronDownMd } from "../Icon"
 import { LoadingIndicator } from "../Indicator"
 import { Menu } from "../Menu"
 import { visibleTabCount } from "./overflow"
+import { equalizeSegments, watchSegments } from "./segments"
 import s from "@plexui/styles/components/Tabs/Tabs.module.css"
 
 export type SizeVariant = "2xs" | "xs" | "sm" | "md" | "lg" | "xl"
@@ -270,6 +271,29 @@ const TabsRoot = <T extends string>({
     })
     observer.observe(root, { childList: true, characterData: true, subtree: true })
     return () => observer.disconnect()
+  }, [applyThumbSizing])
+
+  // A phone's segmented control at its own width gives every segment the widest one's width, as UISegmentedControl
+  // does in iOS 27.2; where that does not fit, each segment takes its label and the same air around it, as
+  // apportionsSegmentWidthsByContent does (ref-app segmented-hug, 13.11). A grid that hugs its content cannot take the
+  // widest track for each by itself, so this measures it. Runs before the thumb measures (declared first).
+  useLayoutEffect(() => {
+    equalizeSegments(rootRef.current, thumbRef.current)
+  })
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    // The room, the breakpoint or the font changes. The segments can change without the control changing size, so the
+    // thumb follows them here, instantly, like a resize.
+    return watchSegments(root, () => thumbRef.current, () => {
+      const thumb = thumbRef.current
+      if (!thumb) return
+      const currentTransition = thumb.style.transition
+      thumb.style.transition = ""
+      applyThumbSizing(false)
+      thumb.style.transition = currentTransition
+    })
   }, [applyThumbSizing])
 
   const transitionProperty = isVertical

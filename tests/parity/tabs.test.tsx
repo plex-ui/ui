@@ -9,6 +9,7 @@ import { Tabs as ReactTabs } from "../../packages/ui/src/components/Tabs"
 import { Bell, Home } from "../../packages/vue/src/components/Icon"
 import { SegmentedControl, SegmentedControlOption, SegmentedControlTab } from "../../packages/vue/src/components/SegmentedControl"
 import { Tabs, TabsOption, TabsTab } from "../../packages/vue/src/components/Tabs"
+import { equalizeSegments, watchSegments } from "../../packages/vue/src/components/Tabs/segments"
 import { flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
 import { interact, renderPair, walkPairWithState } from "./pair"
@@ -1696,8 +1697,11 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
   test("horizontal tabs of either variant are the kit control: segments of one width, scrolling when they do not fit", () => {
     const css = read("components/Tabs/Tabs.module.css")
     const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
-    expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="horizontal"\]\) \{\s*display: inline-grid;\s*grid-auto-columns: minmax\(max-content, 1fr\);\s*grid-auto-flow: column;\s*\}/)
-    expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="horizontal"\]\[data-block\]\) \{\s*display: grid;\s*grid-auto-columns: minmax\(0, 1fr\);\s*\}/)
+    // One width is measured (segments.ts) and set as the track; without it each segment takes its label
+    expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="horizontal"\]\) \{\s*--tabs-equal-segments: 1;\s*display: inline-grid;\s*grid-auto-columns: var\(--tabs-segment-track, minmax\(max-content, auto\)\);\s*grid-auto-flow: column;\s*\}/)
+    expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="horizontal"\]\[data-block\]\) \{\s*--tabs-equal-segments: 0;\s*display: grid;\s*grid-auto-columns: minmax\(0, 1fr\);\s*\}/)
+    // Only a phone asks for it
+    expect(css.slice(0, css.indexOf("@media (max-width: 767px)"))).not.toContain("--tabs-equal-segments")
     const track = phone.match(/\.Tabs:where\(\[data-variant="underline"\]\[data-orientation="horizontal"\]\) \{([^}]*)\}/)?.[1] ?? ""
     expect(track).toContain("padding: var(--segmented-control-gutter);")
     expect(track).toContain("border: 0;")
@@ -1756,6 +1760,172 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
 })
 
 // The docs name the component by its iOS name, Segmented Control (owner 10.11), and Tabs stays findable.
+describe("Segmented Tabs on a phone take one width (segments.ts)", () => {
+  type Box = { width: number }
+  // jsdom has no layout: each element reports the box a test gives it
+  const control = ({ asked = "1", orientation = "horizontal", widths, drawn, offset, client, gap = 0, padding = 0, hidden = [], width = "" }: {
+    asked?: string, orientation?: string, widths: number[], drawn: number, offset: number, client: number,
+    gap?: number, padding?: number, hidden?: number[], width?: string
+  }) => {
+    const root = document.createElement("div")
+    root.setAttribute("data-orientation", orientation)
+    const thumb = document.createElement("div")
+    root.append(thumb)
+    const box = (element: HTMLElement, rect: Box) => { element.getBoundingClientRect = () => ({ width: rect.width } as DOMRect) }
+    box(thumb, { width: 999 })
+    const segments = widths.map((width) => {
+      const segment = document.createElement("button")
+      box(segment, { width })
+      root.append(segment)
+      return segment
+    })
+    box(root, { width: drawn })
+    Object.defineProperty(root, "offsetWidth", { get: () => offset })
+    // A thumb still standing where its segment was widens the scrolled area; the fit does not read it
+    Object.defineProperty(root, "scrollWidth", { get: () => 9999 })
+    Object.defineProperty(root, "clientWidth", { get: () => client })
+    const rootValues: Record<string, string> = {
+      "--tabs-equal-segments": asked, "column-gap": `${gap}px`, "padding-left": `${padding}px`, "padding-right": `${padding}px`,
+      "width": width, "box-sizing": "border-box",
+    }
+    vi.spyOn(window, "getComputedStyle").mockImplementation((element) => ({
+      getPropertyValue: (name: string) => {
+        if (element === root) return rootValues[name] ?? ""
+        return name === "display" && hidden.includes(segments.indexOf(element as HTMLButtonElement)) ? "none" : ""
+      },
+    }) as CSSStyleDeclaration)
+    return { root, thumb }
+  }
+  afterEach(() => vi.restoreAllMocks())
+
+  test("the React and Vue copies are the same", () => {
+    expect(readFileSync(`${process.cwd()}/packages/vue/src/components/Tabs/segments.ts`, "utf8"))
+      .toBe(readFileSync(`${process.cwd()}/packages/ui/src/components/Tabs/segments.ts`, "utf8"))
+  })
+
+  test("every segment takes the widest one's width where they fit, the thumb left out", () => {
+    const { root, thumb } = control({ widths: [40, 47.8, 53.3, 40], drawn: 221, offset: 221, client: 245 })
+    expect(equalizeSegments(root, thumb)).toBe(true)
+    expect(root.style.getPropertyValue("--tabs-segment-track")).toBe("minmax(53.3px, 1fr)")
+    // Measured again with nothing changed, the thumb has nothing to follow
+    expect(equalizeSegments(root, thumb)).toBe(false)
+  })
+
+  test("held, the control grows under the finger and the widths are read back at its own size", () => {
+    const { root, thumb } = control({ widths: [44, 52.58, 58.63, 44], drawn: 243.1, offset: 221, client: 245 })
+    equalizeSegments(root, thumb)
+    expect(Number.parseFloat(root.style.getPropertyValue("--tabs-segment-track").slice("minmax(".length))).toBeCloseTo(53.3, 1)
+  })
+
+  test("where one width does not fit, each segment keeps its label's width (by content)", () => {
+    // Waiters, Bar and Very long name at 375: three of 118 overflow the 343 of room
+    const { root, thumb } = control({ widths: [61, 40, 118], drawn: 243, offset: 243, client: 343 })
+    root.style.setProperty("--tabs-segment-track", "minmax(10px, 1fr)")
+    equalizeSegments(root, thumb)
+    expect(root.style.getPropertyValue("--tabs-segment-track")).toBe("")
+  })
+
+  test("the gaps and the padding count against the room, a tab that is not drawn does not", () => {
+    // 3 × 100 + 2 × 8 = 316 against 320 − 2 × 4 = 312: by content
+    const tight = control({ widths: [100, 90, 80], drawn: 312, offset: 312, client: 320, gap: 8, padding: 4 })
+    equalizeSegments(tight.root, tight.thumb)
+    expect(tight.root.style.getPropertyValue("--tabs-segment-track")).toBe("")
+    vi.restoreAllMocks()
+    // The fourth tab is in the overflow menu: 3 × 100 + 2 × 2 fits 312
+    const menu = control({ widths: [100, 90, 80, 100], drawn: 300, offset: 300, client: 320, gap: 2, padding: 4, hidden: [3] })
+    equalizeSegments(menu.root, menu.thumb)
+    expect(menu.root.style.getPropertyValue("--tabs-segment-track")).toBe("minmax(100px, 1fr)")
+  })
+
+  test("a control at a fraction of a pixel is read unrounded, so equal segments that just fit stay", () => {
+    // 4 × 150.59 + 3 × 8 = 626.375 in the 634.375 − 8 laid out; offsetWidth rounds the control to 303 at max-content
+    const { root, thumb } = control({ widths: [150.59375, 40, 40, 40], drawn: 302.59375, offset: 303, client: 634, gap: 8, padding: 4, width: "302.59375px" })
+    equalizeSegments(root, thumb)
+    expect(root.style.getPropertyValue("--tabs-segment-track")).toBe("minmax(150.59375px, 1fr)")
+  })
+
+  test("a desktop, block or vertical control is left as it is", () => {
+    for (const options of [{ asked: "" }, { asked: "0" }, { orientation: "vertical" }]) {
+      const { root, thumb } = control({ ...options, widths: [40, 60], drawn: 120, offset: 120, client: 120 })
+      root.style.setProperty("--tabs-segment-track", "minmax(60px, 1fr)")
+      equalizeSegments(root, thumb)
+      expect(root.style.getPropertyValue("--tabs-segment-track")).toBe("")
+      vi.restoreAllMocks()
+    }
+  })
+
+  test("crossing into the phone block measures again, its room unchanged, and the thumb follows", () => {
+    const { root, thumb } = control({ asked: "", widths: [40, 60], drawn: 100, offset: 100, client: 200 })
+    document.body.append(root)
+    const listeners = new Set<() => void>()
+    const phone = { addEventListener: (_: string, fn: () => void) => listeners.add(fn), removeEventListener: (_: string, fn: () => void) => listeners.delete(fn) }
+    const matchMedia = window.matchMedia
+    window.matchMedia = (() => phone) as unknown as typeof window.matchMedia
+    const moved = vi.fn()
+    const stop = watchSegments(root, () => thumb, moved)
+    window.matchMedia = matchMedia
+    expect(listeners.size).toBe(1)
+    // The screen narrows past 768: the control now asks for one width
+    vi.mocked(window.getComputedStyle).mockImplementation((element) => ({
+      getPropertyValue: (name: string) => (element === root && name === "--tabs-equal-segments" ? "1" : ""),
+    }) as CSSStyleDeclaration)
+    for (const listener of listeners) listener()
+    expect(root.style.getPropertyValue("--tabs-segment-track")).toBe("minmax(60px, 1fr)")
+    expect(moved).toHaveBeenCalledTimes(1)
+    stop()
+    expect(listeners.size).toBe(0)
+    root.remove()
+  })
+
+  test("an older browser's media query list is heard through addListener", () => {
+    const { root, thumb } = control({ asked: "", widths: [40, 60], drawn: 100, offset: 100, client: 200 })
+    document.body.append(root)
+    const listeners = new Set<() => void>()
+    const phone = { addListener: (fn: () => void) => listeners.add(fn), removeListener: (fn: () => void) => listeners.delete(fn) }
+    const matchMedia = window.matchMedia
+    window.matchMedia = (() => phone) as unknown as typeof window.matchMedia
+    const stop = watchSegments(root, () => thumb, vi.fn())
+    window.matchMedia = matchMedia
+    expect(listeners.size).toBe(1)
+    stop()
+    expect(listeners.size).toBe(0)
+    root.remove()
+  })
+
+  test("once the font has loaded the thumb follows, its track unchanged", async () => {
+    const { root, thumb } = control({ asked: "", widths: [40, 60], drawn: 100, offset: 100, client: 200 })
+    document.body.append(root)
+    const fonts = Object.getOwnPropertyDescriptor(document, "fonts")
+    Object.defineProperty(document, "fonts", { configurable: true, value: { ready: Promise.resolve() } })
+    const moved = vi.fn()
+    const stop = watchSegments(root, () => thumb, moved)
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(moved).toHaveBeenCalledTimes(1)
+    stop()
+    if (fonts) Object.defineProperty(document, "fonts", fonts)
+    else delete (document as { fonts?: unknown }).fonts
+    root.remove()
+  })
+
+  test("React and Vue measure before the thumb, on every render and when the room, the breakpoint or the font changes", () => {
+    const react = readFileSync(`${process.cwd()}/packages/ui/src/components/Tabs/Tabs.tsx`, "utf8")
+    expect(react.indexOf("equalizeSegments(rootRef.current, thumbRef.current)")).toBeGreaterThan(-1)
+    expect(react.indexOf("equalizeSegments(rootRef.current, thumbRef.current)")).toBeLessThan(react.indexOf("const sizeChanged = prevSizeRef.current !== size"))
+    expect(react).toContain("return watchSegments(root, () => thumbRef.current, () => {")
+    const vue = readFileSync(`${process.cwd()}/packages/vue/src/components/Tabs/Tabs.ts`, "utf8")
+    expect(vue).toMatch(/if \(!root \|\| !thumb\) \{\s*return\s*\}\s*\/\/ [^\n]*\n\s*equalizeSegments\(root, thumb\)/)
+    expect(vue).toContain("onUpdated(() => equalizeSegments(rootRef.value, thumbRef.value))")
+    expect(vue).toContain("stopWatchingSegments = watchSegments(root, () => thumbRef.value, () => {")
+    expect(vue).toContain("onBeforeUnmount(() => stopWatchingSegments?.())")
+    const shared = readFileSync(`${process.cwd()}/packages/ui/src/components/Tabs/segments.ts`, "utf8")
+    expect(shared).toContain("observer?.observe(box)")
+    expect(shared).toContain('window.matchMedia(PHONE_QUERY)')
+    expect(shared).toContain('const PHONE_QUERY = "(max-width: 767px)"')
+    expect(readFileSync(`${process.cwd()}/packages/styles/src/components/Tabs/Tabs.module.css`, "utf8")).toContain("@media (max-width: 767px)")
+  })
+})
+
 describe("docs name", () => {
   const file = (path: string) => readFileSync(`${process.cwd()}/${path}`, "utf8")
 

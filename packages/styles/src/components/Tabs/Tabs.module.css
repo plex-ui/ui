@@ -750,17 +750,25 @@
   it has no underline tabs and no vertical segments.
 ============================================= */
 @media (max-width: 767px) {
-  /* Horizontal tabs of either variant are the segmented control. Its segments share one width, as
-     UISegmentedControl divides its width (every kit example is 2 to 5 equal segments); a segment
-     never narrows below its content, so tabs that do not fit still scroll. A block control fills its
+  /* Horizontal tabs of either variant are the segmented control. Its segments share one width, the
+     widest label's, as UISegmentedControl at its own width (iOS 27.2, every kit example is 2 to 5 equal
+     segments): the script measures it (segments.ts, asked for by --tabs-equal-segments) and sets the
+     track. Where equal segments do not fit, each takes its label and the same air around it, as
+     apportionsSegmentWidthsByContent does (ref-app segmented-hug, owner 13.11: a long label 4px from its
+     selection beside short ones floating in wide segments read as broken padding). A segment never
+     narrows below its content, so tabs that do not fit still scroll. A block control fills its
      container, as the 370px kit examples do, and its labels shorten instead. */
   .Tabs:where([data-orientation="horizontal"]) {
+    --tabs-equal-segments: 1;
+
     display: inline-grid;
-    grid-auto-columns: minmax(max-content, 1fr);
+    grid-auto-columns: var(--tabs-segment-track, minmax(max-content, auto));
     grid-auto-flow: column;
   }
 
   .Tabs:where([data-orientation="horizontal"][data-block]) {
+    --tabs-equal-segments: 0;
+
     display: grid;
     grid-auto-columns: minmax(0, 1fr);
   }

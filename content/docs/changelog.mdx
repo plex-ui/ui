@@ -7,6 +7,26 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+The phone changes ship in `@plexui/styles` 0.5.0. `@plexui/ui` 0.46.0 and `@plexui/vue` 0.26.0 need `^0.5.0`, since the reset of a phone's `Slider` is now a kit button that the 0.4 styles would stretch to 44px; earlier ui and vue versions keep the 0.4 styles they were built with. `@plexui/mcp` is 0.2.21.
+
+### Added
+
+- `MinusLg` icon in React and Vue: the minus of `PlusLg`, its bar 18 of 24 wide with a 2px stroke. On a phone a plus is `PlusLg` and a minus `MinusLg`, with `iconSize="sm"` in a glass button, the plus of an iOS 27.2 bar (about 18px of ink).
+- `ButtonGroup` on a phone with `touch.css`: a group that holds a field comes apart, as iOS 27.2 never joins a field and its buttons. With `mobileMaterial="glass"`, floating over the content as the composer of Messages, the field is a 40px glass capsule (16px gutters, 17px text) and each button beside it a 40px glass circle, 12px apart; in a `Toolbar` or `Toolbar.Row` they take the bar's size and gap. A select among them is the glass capsule of a bar's pull-down button (17px Medium, 16px gutters). An invalid field or select keeps its red line over the glass, a button inside the field keeps its 44px target without growing it, and a group that holds an `InputGroup` stays joined. New tokens `--button-group-glass-field-size`, `--button-group-glass-field-gap` and `--button-group-glass-field-gutter` (`40px`, `12px`, `16px`). React and Vue.
+
+### Changed
+
+- A filled, tinted or gray button on a phone with `touch.css` sets its label in Medium (510) instead of Semibold, and a plain (`ghost`) one keeps Regular, as the iOS 27 kit draws its text buttons on glass and Apple's apps set the pair apart. Measured at @3x in the iOS 27.2 simulator, an Apple app's filled label strokes 1.93pt: Inter 510 strokes 1.85pt, 590 2.12pt. The actions of a phone `Alert` follow it. The round letters of a `ToggleGroup` (a clock's days) stay Semibold (`--toggle-group-round-font-weight`, `590`).
+- `Slider` on a phone (narrower than 768px): the reset is the kit's small round gray button, a soft secondary `uniform` `2xs` button, a 28px circle with an 18px glyph and a 44px target, 8px after the value, instead of a bare glyph on a 44px square. The value field is as wide as its digits, 44px high. A hidden reset keeps its place, so the value does not move. A desktop keeps the 24px ghost reset. `touch.css` no longer sets `--slider-reset-size`, `--slider-reset-icon-size` and `--slider-reset-color`; the first two still size a desktop reset. React and Vue.
+- `SegmentedControl` on a phone: the segments share one width, the widest label's, as iOS 27.2 draws a segmented control at its own width; where that does not fit, each segment takes its label with the same air around it, as iOS sizes segments by their content, and segments that still do not fit scroll inside the capsule. A `block` control keeps equal shares of its row. The widest label is measured by script and set as the grid track (`--tabs-segment-track`), since a grid that hugs its content sizes its tracks by the sum of its labels. React and Vue.
+
+### Fixed
+
+- `Slider` on a touch screen no longer stays pressed after the finger lifts: the press ends when the pointer is lifted or cancelled anywhere on the page and when the slider loses its pointer capture, as it does in a sheet that scrolls, not only when the slider hears it. React and Vue.
+- A vertical glass `ButtonGroup` on a phone (zoom controls over a canvas): each button takes its share of the gap and of the padding, so its pressed shape fills its part of the capsule and the first and last are as round as its ends, instead of a 48px circle 4px off the capsule's end. The symbols stay where they were.
+
 ## 0.45.0 (2026-11-13)
 
 The phone bars change in `@plexui/styles` 0.4.0: `Toolbar.Row`, the `blur` background, iOS 27.2's soft and hard edges and a large title that scrolls with the content. `@plexui/ui` 0.45.0 and `@plexui/vue` 0.25.0 need `^0.4.0`, and earlier ui and vue versions keep the 0.3 styles they were built with, since a large title is now laid out in `Page.Content`. `@plexui/mcp` is 0.2.20.
