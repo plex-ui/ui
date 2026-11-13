@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { Button, NavigationButton } from '@plexui/ui/components/Button';
-import { Dialog, type DialogBarBackground } from '@plexui/ui/components/Dialog';
+import { Dialog } from '@plexui/ui/components/Dialog';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Input } from '@plexui/ui/components/Input';
@@ -10,6 +10,7 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { usePhoneRows } from './PhoneRows';
 import { usePhoneViewport, usePreviewEmbed } from './PreviewEmbed';
+import type { BarBackground } from '@plexui/ui/components/Toolbar';
 import { BarBackgroundControls } from './ToolbarDemos';
 import { SetupChoicesSheet } from './SetupChoicesSheet';
 import setupStyles from './SetupChoicesSheet.module.css';
@@ -173,8 +174,8 @@ export function DialogBodyDemo() {
   const [open, setOpen, phonePreview] = useDialogDemoState();
   const heading = useRef<HTMLDivElement>(null);
   // The bars of a phone Sheet only: a desktop dialog keeps its own header and footer.
-  const [top, setTop] = useState<DialogBarBackground>('glass');
-  const [bottom, setBottom] = useState<DialogBarBackground>('soft');
+  const [top, setTop] = useState<BarBackground>('glass');
+  const [bottom, setBottom] = useState<BarBackground>('soft');
 
   return (
     <BarBackgroundControls phoneOnly top={top} onTopChange={setTop} bottom={bottom} onBottomChange={setBottom}>

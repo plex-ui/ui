@@ -3,10 +3,11 @@
 import { useState, type CSSProperties, type ReactNode } from 'react';
 import { Badge } from '@plexui/ui/components/Badge';
 import { Button, NavigationButton } from '@plexui/ui/components/Button';
-import { Page, type PageBarBackground, type PageWidth } from '@plexui/ui/components/Page';
+import { Page, type PageWidth } from '@plexui/ui/components/Page';
 import { DemoControlBoolean, controlsTableStyle, Segments } from './ButtonDemos';
 import { usePhoneRows } from './PhoneRows';
 import { DemoControlsBottom } from './PreviewEmbed';
+import type { BarBackground } from '@plexui/ui/components/Toolbar';
 import { BarBackgroundRow, Rows } from './ToolbarDemos';
 import s from './PageDemos.module.css';
 
@@ -31,14 +32,14 @@ const SURFACE_OPTIONS = ['plain', 'grouped'] as const;
 export function PageOverviewDemo() {
   const [width, setWidth] = useState<PageWidth>('full');
   const [surface, setSurface] = useState<(typeof SURFACE_OPTIONS)[number]>('plain');
-  const [top, setTop] = useState<PageBarBackground>('glass');
+  const [top, setTop] = useState<BarBackground>('glass');
   const [divider, setDivider] = useState(true);
   const [leading, setLeading] = useState(false);
   const [subtitle, setSubtitle] = useState(false);
   const [actions, setActions] = useState(true);
   const [fill, setFill] = useState(false);
   const [footer, setFooter] = useState(false);
-  const [bottom, setBottom] = useState<PageBarBackground>('soft');
+  const [bottom, setBottom] = useState<BarBackground>('soft');
   const phone = usePhoneRows();
   // On a phone a soft or blur header draws no line, so the divider is a desktop setting there; on a desktop a
   // filled page does not scroll under its header, so the line never comes and the divider is a phone setting
