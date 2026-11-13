@@ -120,9 +120,17 @@
   }
 }
 
+/* A soft secondary Button: the kit's quiet companion of a solid action */
 .CancelButton {
-  color: var(--color-text-secondary) !important;
+  background: var(--color-background-secondary-soft-alpha) !important;
+  color: var(--color-text-secondary-soft) !important;
   font-weight: var(--font-weight-medium);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:where(:not(:root[data-input="touch"] *)) {
+      background: var(--color-background-secondary-soft-alpha-hover) !important;
+    }
+  }
 }
 
 /* The close face: 20 across at the toast's trailing end (below), its X in the text color and a
@@ -172,6 +180,160 @@
 .Toaster[dir="rtl"] .Toast[data-styled="true"] > [data-close-button] {
   right: auto !important;
   left: 12px !important;
+}
+
+/* =============================================
+  Desktop: one row, or the buttons under a description
+============================================= */
+
+/* On a desktop a toast sets its message and its controls as one row of the kit (owner 13.11: «собрано по уродски»:
+   the buttons stood 8px from the text and 16 apart, and the close button was a ringed circle of another family). The
+   controls stand 16 after the message and 8 apart, a group set off from the text, all one small kit Button: 28px,
+   6px corners, a 14px medium label; the action solid, the cancel soft, the close button the same 28px button, plain
+   (ghost), last in the row. A description makes the message a block of its own: its buttons go under it at the end,
+   12 below, as Material's snackbar and Geist's toast set a longer message, and the close button stays on the title's
+   line. The row starts 16 before the message and ends 10 after the last control, whose own padding (or glyph) keeps
+   its ink as far from the edge; with nothing after the message it ends 16 after it too. */
+@media (min-width: 768px) and (pointer: fine) {
+  .Toast[data-styled="true"] {
+    --toast-control-size: var(--control-size-sm);
+    --toast-icon-room: 0px;
+    --toast-close-room: 0px;
+    align-items: center;
+    gap: 0 !important;
+    padding: 10px 10px 10px 16px !important;
+  }
+
+  .Toast[data-styled="true"]:has(> .Icon) {
+    --toast-icon-room: 30px;
+  }
+
+  .Toast[data-styled="true"]:has(> [data-close-button]) {
+    --toast-close-room: calc(var(--toast-control-size) + 8px);
+    padding-inline-end: 10px !important;
+  }
+
+  .Toast[data-styled="true"]:not(:has(> .Content ~ *, > [data-close-button])) {
+    padding-inline-end: 16px !important;
+  }
+
+  /* The icon, the message, its buttons, then the close button (Sonner puts the close button first) */
+  .Toast[data-styled="true"] > .Icon {
+    order: 1;
+    width: 20px !important;
+    height: 20px !important;
+    margin-inline: 0 10px !important;
+  }
+
+  .Toast[data-styled="true"] > .Content {
+    order: 2;
+    flex: 1 1 auto;
+    justify-content: center;
+    min-width: 0;
+    /* A line of text alone is as tall as a row of buttons */
+    min-height: var(--toast-control-size);
+  }
+
+  .Toast[data-styled="true"] > .Content ~ * {
+    order: 3;
+    margin-inline: 8px 0 !important;
+  }
+
+  .Toast[data-styled="true"] > .Content + * {
+    margin-inline-start: 16px !important;
+  }
+
+  .Toast[data-styled="true"] > :is(.ActionButton, .CancelButton) {
+    height: var(--toast-control-size) !important;
+    padding: 0 var(--control-gutter-sm) !important;
+    border-radius: var(--control-radius-sm) !important;
+    font-size: var(--control-font-size-md) !important;
+  }
+
+  .Toast[data-styled="true"] > [data-close-button] {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    flex: none;
+    order: 4;
+    width: var(--toast-control-size) !important;
+    height: var(--toast-control-size) !important;
+    margin-inline-start: 16px;
+    border: 0 !important;
+    border-radius: var(--control-radius-sm) !important;
+    transform: none !important;
+
+    & > svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* The 28px button is the target */
+    &::after {
+      content: none;
+    }
+  }
+
+  /* The right-to-left offset above would shift the button out of its place in the row */
+  .Toaster[dir="rtl"] .Toast[data-styled="true"] > [data-close-button] {
+    left: auto !important;
+  }
+
+  .Toast[data-styled="true"]:has(> .Content ~ *) > [data-close-button] {
+    margin-inline-start: 8px;
+  }
+
+  .Toast[data-styled="true"]:not([data-rich-colors="true"]) > [data-close-button] {
+    background: transparent !important;
+    color: var(--color-text-secondary-ghost) !important;
+
+    @media (hover: hover) {
+      &:hover {
+        background: var(--color-background-secondary-ghost-hover) !important;
+        color: var(--color-text-secondary-ghost-hover) !important;
+      }
+    }
+
+    &:active {
+      background: var(--color-background-secondary-ghost-active) !important;
+    }
+  }
+
+  /* With a description: the icon, the message and the close button on the first row, the title's line their middle;
+     the buttons under the message at the end */
+  .Toast[data-styled="true"]:has(> .Content > .Description) {
+    /* Sonner's unlayered stylesheet centres the row. Only here does the row wrap: a long title alone wraps in its
+       own column, beside its icon and its buttons */
+    flex-wrap: wrap;
+    align-items: flex-start !important;
+    row-gap: 12px !important;
+    padding-block: 14px 12px !important;
+
+    & > .Content {
+      flex: 1 1 0;
+      min-width: calc(100% - var(--toast-icon-room) - var(--toast-close-room));
+    }
+
+    & > [data-close-button] {
+      order: 3;
+      margin-block-start: -4px;
+      margin-inline-start: 8px;
+    }
+
+    & > .Content ~ * {
+      order: 4;
+    }
+
+    & > .Content + * {
+      margin-inline-start: auto !important;
+    }
+  }
+
+  .Toast[data-styled="true"]:has(> .Content > .Description):not(:has(> .Content ~ *)) {
+    padding-block-end: 14px !important;
+  }
 }
 
 .Toast :is([data-button], [data-close-button]):disabled {
@@ -293,14 +455,14 @@
       background: transparent !important;
       transform: none !important;
 
+      /* The face is filled as the cancel button is, a soft secondary circle, as iOS draws a close button
+         (xmark in a filled circle), not a ring of another family (owner 13.11) */
       &::before {
         position: absolute;
         z-index: -1;
         inset: 12px;
-        box-sizing: border-box;
-        border: 1px solid var(--color-border-secondary-outline);
         border-radius: 50%;
-        background: var(--normal-bg);
+        background: var(--color-background-secondary-soft-alpha);
         content: "";
         pointer-events: none;
       }
@@ -312,7 +474,7 @@
 
       /* Only the face answers a hover: the whole target stays clear */
       &:hover::before {
-        border-color: var(--color-border-secondary-outline-hover);
+        background: var(--color-background-secondary-soft-alpha-hover);
       }
     }
   }

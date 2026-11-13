@@ -7,6 +7,13 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Changed
+
+- `Toast` on a desktop: the message and its controls share a row, the buttons 16px after the message and 8px apart, each a small kit button (28px, 6px corners, a 14px medium label), and the close button the same 28px button, plain, at the end of the row instead of a ringed circle over it. With a description the buttons go under the message at the end, and the close button stays on the title's line. The cancel is a soft secondary button everywhere; on a phone the close button's face is filled as the cancel is. React and Vue.
+- Toast docs: `toast.promise` is a type of the Overview (`promise`: a loading state, then the default type's message) instead of an example of its own.
+
 ## 0.44.2 (2026-11-13)
 
 A fix in `@plexui/styles` 0.3.2; `@plexui/ui` 0.44.2 and `@plexui/vue` 0.24.2 need `^0.3.2`, so updating them brings it. `@plexui/mcp` is 0.2.18.

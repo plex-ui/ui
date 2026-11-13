@@ -751,6 +751,17 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
       expect(shown.classList.contains(compactClass)).toBe(true);
       // An error that waits to be closed is an alert
       expect(shown.querySelector('[role="alert"]')).not.toBeNull();
+      // A promise is one more type (owner 13.11: «что это и почему отдельно?»): loading, then the default type's message
+      await interact(() => { toast.dismiss(); });
+      await waitFor(() => expect(document.querySelector('[data-sonner-toast]')).toBeNull());
+      await choose('type', 'promise');
+      expect(offered('icon')).toBe(false);
+      const pending = await show();
+      expect(pending.querySelector('[data-title]')?.textContent).toBe('Saving…');
+      await waitFor(() => expect(document.querySelector('[data-sonner-toast] [data-title]')?.textContent).toBe('Profile saved'), { timeout: 4000 });
+      const saved = document.querySelector<HTMLElement>('[data-sonner-toast]')!;
+      expect(saved.querySelector('[data-description]')?.textContent).toBe(TOAST_MESSAGES.default.description);
+      expect([saved.querySelector('[data-action]')?.textContent, saved.querySelector('[data-cancel]')?.textContent]).toEqual(['Undo', 'Cancel']);
     } finally {
       await interact(() => { toast.dismiss(); });
     }

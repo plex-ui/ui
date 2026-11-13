@@ -1326,7 +1326,7 @@ Docs: https://plexui.com/vue/components/toast
     - offset (string | number | { top?; right?; bottom?; left? }) default: 32px — Distance from the viewport edge. Without a top or bottom edge here, the page's --toast-offset-top or --toast-offset-bottom sets it.
     - mobile-offset (string | number | { top?; right?; bottom?; left? }) default: 16px top and bottom, 14px at the sides, past the safe area — Gutter under 600px, where a toast fills the width between the side gutters. Explicit edges override their defaults; omitted edges keep them, and the page's --toast-mobile-offset-top or --toast-mobile-offset-bottom sets the top or bottom one.
     - gap (number) — Gap between stacked toasts in px
-Examples: Overview, Promise
+Examples: Overview
 
 ## Toggle Group
 A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.

@@ -279,12 +279,24 @@ describe("Toast CSS", () => {
     expect(phone).toMatch(/\.Toast\.Compact \{\s*width: max-content !important;/)
   })
 
-  test("the close face shows its ring in both themes and its target reaches past 24", () => {
-    const close = css.slice(css.indexOf('.Toast[data-styled="true"]:not([data-rich-colors="true"]) > [data-close-button] {'))
-    expect(close).toMatch(/^[^}]*border-color: var\(--color-border-secondary-outline\) !important;\s*color: var\(--color-text\) !important;/)
-    // 18px inside a 20px border-box face with a 1px ring, 4px each side: 26
-    expect(css).toMatch(/\.Toast\[data-styled="true"\] > \[data-close-button\]::after \{\s*position: absolute;\s*inset: -4px;/)
-    expect(css).toContain("border: 1px solid var(--color-border-secondary-outline);")
+  test("the close button is a kit button: plain 28px on a desktop, a soft filled circle in a 44px target on a phone (owner 13.11)", () => {
+    const desktop = css.slice(css.indexOf("@media (min-width: 768px) and (pointer: fine)"))
+    // The message, 16, the buttons 8 apart, 8, the close button: one 28px kit button size, 6px corners
+    expect(desktop).toMatch(/\.Toast\[data-styled="true"\] > \.Content ~ \* \{\s*order: 3;\s*margin-inline: 8px 0 !important;/)
+    expect(desktop).toMatch(/\.Toast\[data-styled="true"\] > \.Content \+ \* \{\s*margin-inline-start: 16px !important;/)
+    expect(desktop).toMatch(/> :is\(\.ActionButton, \.CancelButton\) \{\s*height: var\(--toast-control-size\) !important;\s*padding: 0 var\(--control-gutter-sm\) !important;\s*border-radius: var\(--control-radius-sm\) !important;/)
+    expect(desktop).toMatch(/> \[data-close-button\] \{\s*position: relative !important;[^}]*order: 4;\s*width: var\(--toast-control-size\) !important;\s*height: var\(--toast-control-size\) !important;/)
+    expect(desktop).toMatch(/:not\(\[data-rich-colors="true"\]\) > \[data-close-button\] \{\s*background: transparent !important;\s*color: var\(--color-text-secondary-ghost\) !important;/)
+    // A description puts the buttons under the message at the end; the close button stays on the title's line
+    expect(desktop).toMatch(/:has\(> \.Content > \.Description\) \{\s*\/\*[^*]*\*\/\s*flex-wrap: wrap;\s*align-items: flex-start !important;\s*row-gap: 12px !important;/)
+    // Only a toast with a description wraps: a long title alone keeps its icon and buttons on its row
+    expect(desktop).not.toMatch(/--toast-close-room: 0px;\s*flex-wrap: wrap;/)
+    expect(desktop).toContain("min-width: calc(100% - var(--toast-icon-room) - var(--toast-close-room));")
+    expect(desktop).toMatch(/& > \.Content \+ \* \{\s*margin-inline-start: auto !important;/)
+    // The cancel is a soft secondary button everywhere
+    expect(css).toMatch(/\.CancelButton \{\s*background: var\(--color-background-secondary-soft-alpha\) !important;\s*color: var\(--color-text-secondary-soft\) !important;/)
+    // On a phone the 20px face is filled as the cancel is, not ringed
+    expect(css).toMatch(/&::before \{\s*position: absolute;\s*z-index: -1;\s*inset: 12px;\s*border-radius: 50%;\s*background: var\(--color-background-secondary-soft-alpha\);/)
     expect(css).not.toContain("var(--gray4)")
   })
 })

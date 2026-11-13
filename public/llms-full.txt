@@ -8720,7 +8720,7 @@ Docs: https://plexui.com/components/toast
     - gap (number) — Gap between stacked toasts in px
 
 ### Overview
-Call toast with a message, or toast.success, .error, .warning and .info for the semantic types, which map to PlexUI's success, danger, warning and info tokens. Each of them shows its icon; icon: null leaves it out, and icon takes an element of your own instead. No richColors is passed, so the types retheme with data-theme. The options add a description under the message, an action button and a cancel one (either closes the toast after its onClick), and closeButton. Spread compact into the options for a centered toast: on a desktop a toast shrinks to its content anyway, and on a phone, where a toast fills the width, a compact one keeps the width of its content. duration: Infinity keeps a toast open until the user closes it, so give it a labelled action or a close button: a way to close it from the keyboard. An error that waits like this is an alert (see Screen readers). On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content). Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.
+Call toast with a message, or toast.success, .error, .warning and .info for the semantic types, which map to PlexUI's success, danger, warning and info tokens. Each of them shows its icon; icon: null leaves it out, and icon takes an element of your own instead. No richColors is passed, so the types retheme with data-theme. The options add a description under the message, an action button and a cancel one (either closes the toast after its onClick), and closeButton. toast.promise ties one toast to an async operation: it shows a loading state, then swaps to success or error, and takes the same options; here saveProfile() resolves with {"{ name: \"Profile\" }"} after 1.5 seconds. Spread compact into the options for a centered toast: on a desktop a toast shrinks to its content anyway, and on a phone, where a toast fills the width, a compact one keeps the width of its content. duration: Infinity keeps a toast open until the user closes it, so give it a labelled action or a close button: a way to close it from the keyboard. An error that waits like this is an alert (see Screen readers). On a desktop the message and its controls share a row: the buttons stand 16px after the message and 8px apart, small 28px buttons with 6px corners (the action solid, the cancel soft), and the close button is the same 28px button, plain, at the end. With a description the buttons go under the message, at the end, and the close button stays on the title's line. On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than half the row (8em in a toast as wide as its content). Under 600px it fills the width between 14px gutters past the safe area, as notifications do on an iOS phone; a compact toast keeps its own width. It stays a message of the page, with an opaque surface.
 ```tsx
 import { toast, compact as compactOptions } from "@plexui/ui/components/Toast"
 
@@ -8734,7 +8734,7 @@ info: { title: "New version available", description: "Reload to get the latest f
 }
 const longDescription = "This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly."
 
-const [type, setType] = useState("default") // or "success", "error", "warning", "info"
+const [type, setType] = useState("default") // or "success", "error", "warning", "info", "promise"
 const [icon, setIcon] = useState(true) // the type's icon; false passes icon: null
 const [description, setDescription] = useState("none") // or "short", "long"
 const [action, setAction] = useState("none") // or "action", "cancel" (an action and a cancel)
@@ -8742,36 +8742,33 @@ const [closeButton, setCloseButton] = useState(false)
 const [compact, setCompact] = useState(false)
 const [persistent, setPersistent] = useState(false) // with an action or a close button
 
-const message = messages[type]
+// Resolves with the saved profile after 1.5 seconds
+const saveProfile = () => new Promise((resolve) => setTimeout(() => resolve({ name: "Profile" }), 1500))
 
-<Button
-color="secondary"
-variant="outline"
-onClick={() =>
-  (type === "default" ? toast : toast[type])(message.title, {
-    icon: icon ? undefined : null,
-    description: description === "none" ? undefined : description === "short" ? message.description : longDescription,
-    action: action === "none" ? undefined : { label: message.action, onClick: () => {} },
-    cancel: action === "cancel" ? { label: "Cancel", onClick: () => {} } : undefined,
-    closeButton,
-    // Open until closed, once there is a button to close it
-    duration: persistent && (action !== "none" || closeButton) ? Infinity : undefined,
-    ...(compact ? compactOptions : {}),
-  })
+// A promise ends as the default type's message: "Profile saved", its description and its action
+const message = messages[type === "promise" ? "default" : type]
+
+const show = () => {
+const options = {
+  description: description === "none" ? undefined : description === "short" ? message.description : longDescription,
+  action: action === "none" ? undefined : { label: message.action, onClick: () => {} },
+  cancel: action === "cancel" ? { label: "Cancel", onClick: () => {} } : undefined,
+  closeButton,
+  // Open until closed, once there is a button to close it
+  duration: persistent && (action !== "none" || closeButton) ? Infinity : undefined,
+  ...(compact ? compactOptions : {}),
 }
->
+if (type === "promise") {
+  toast.promise(saveProfile(), { loading: "Saving…", success: (data) => `${data.name} saved`, error: "Save failed", ...options })
+} else {
+  // The type's icon; null leaves it out (a promise keeps its loader)
+  (type === "default" ? toast : toast[type])(message.title, { ...options, icon: icon ? undefined : null })
+}
+}
+
+<Button color="secondary" variant="outline" onClick={show}>
 Show toast
 </Button>
-```
-
-### Promise
-Use toast.promise to tie a single toast to an async operation. The toast shows a loading state, then swaps to success or error. Here saveProfile() resolves with {"{ name: \"Profile\" }"} after 1.5 seconds.
-```tsx
-toast.promise(saveProfile(), {
-loading: "Saving…",
-success: (data) => `${data.name} saved`,
-error: "Save failed",
-})
 ```
 
 ## Toggle Group
