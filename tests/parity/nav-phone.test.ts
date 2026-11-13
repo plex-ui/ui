@@ -287,7 +287,7 @@ describe("a Phone preview is a phone screen in a phone frame (plan 164)", () => 
   // Owner 08.11: a phone page always keeps the top bar of an app screen and names the example in it
   test("the phone page keeps a top bar under the status bar, titled by the example's section heading", () => {
     expect(source).toContain("{phonePage && (\n          <Toolbar className={s.PhonePageBar} aria-hidden=\"true\">\n            {previewTitle && <Toolbar.Title>{previewTitle}</Toolbar.Title>}")
-    expect(css).toContain(".PreviewContainer[data-preview-phone-page] > .PhonePageBar {\n  --toolbar-padding-top: var(--safe-area-inset-top, 0px);")
+    expect(css).toContain(".PreviewContainer[data-preview-phone-page] > .PhonePageBar {\n  --toolbar-padding-top: max(var(--toolbar-gutter, 16px), var(--safe-area-inset-top, 0px));")
     expect(css).toContain("  position: sticky;\n  top: 0;\n}")
     expect(css).toContain(".PreviewContainer[data-preview-phone-page]:has([data-phone-rows]) > .PhonePageBar {\n  --toolbar-background: var(--mobile-surface-grouped-primary);\n}")
     // An example with its own top bar keeps it alone and starts under the status bar

@@ -432,7 +432,7 @@ html.dark :is(.PreviewInner, .PhoneControls)>[data-demo-controls]>* {
    starts, under a bar with the example's name. The bar stays at the top as the page scrolls under it, over the
    surface of the page. An example that draws its own top bar keeps it alone. */
 .PreviewContainer[data-preview-phone-page] > .PhonePageBar {
-  --toolbar-padding-top: var(--safe-area-inset-top, 0px);
+  --toolbar-padding-top: max(var(--toolbar-gutter, 16px), var(--safe-area-inset-top, 0px));
   --toolbar-background: var(--mobile-surface-plain-primary, var(--color-fd-background));
   position: sticky;
   top: 0;

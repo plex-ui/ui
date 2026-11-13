@@ -7,6 +7,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Fixed
+
+- `Toolbar` and `Page` on a phone: a top bar keeps the gutter from the window's top where there is no top safe area (a page in a browser), 16px or 20px from 414px, as at its sides and as a bottom bar keeps from the bottom; its buttons touched the top edge. Under a status bar it stays below it. A full-screen dialog's top bar too. React and Vue.
+
 ## 0.44.1 (2026-11-13)
 
 A fix in `@plexui/styles` 0.3.1; `@plexui/ui` 0.44.1 and `@plexui/vue` 0.24.1 need `^0.3.1`, so updating them brings it. `@plexui/mcp` is 0.2.17.

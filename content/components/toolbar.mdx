@@ -193,7 +193,7 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
 
 A toolbar places itself by its parent:
 
-- In `Page`, the top bar covers the content below the device's top safe area, and `Page.Content` starts below it. The bottom bar stays below the content, which scrolls under it. Under 768px a top toolbar replaces `Page.Header` and a bottom toolbar replaces `Page.Footer`, so one page can keep its desktop header and its phone toolbar side by side.
+- In `Page`, the top bar covers the content below the device's top safe area, or the bar's gutter from the window's top where there is none (a page in a browser), and `Page.Content` starts below it. The bottom bar stays below the content, which scrolls under it. Under 768px a top toolbar replaces `Page.Header` and a bottom toolbar replaces `Page.Footer`, so one page can keep its desktop header and its phone toolbar side by side.
 - In a `Dialog` Sheet, the top bar sits 16px under the top edge, hides the Sheet's own bar and Close button, and leaves `Dialog.Header` to name the dialog. Its title is hidden from assistive technology there. A bottom bar replaces `Dialog.Footer`.
 
 Put the Back button of a phone screen in the toolbar only. A desktop layout shows its own navigation, such as a sidebar or breadcrumbs.
