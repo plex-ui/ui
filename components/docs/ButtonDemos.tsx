@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useId, useMemo, useState } from 'react';
-import { Button } from '@plexui/ui/components/Button';
+import { Button, ButtonLink } from '@plexui/ui/components/Button';
 import { Switch } from '@plexui/ui/components/Switch';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Select } from '@plexui/ui/components/Select';
-import { Mail, ArrowRight } from '@plexui/ui/components/Icon';
+import { Mail, ArrowRight, ArrowUpRight } from '@plexui/ui/components/Icon';
 import { useDemoControlSync } from './PreviewEmbed';
 import { useDesktopOnlyState, usePhoneRows } from './PhoneRows';
 
@@ -270,6 +270,39 @@ export function ButtonOverviewDemo() {
         // Desktop: a block button fills the width of a 290px column
         <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
           <div className="flex w-[290px] justify-center">{button}</div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/**
+ * A link styled as a button: ButtonLink, for an action that goes somewhere where Button does something in place. It
+ * takes the Overview's settings but uniform, loading and selected, so the example offers only what a link adds:
+ * `external`, which opens it in a new tab (the arrow then points up and out), and `disabled`, which renders a
+ * span[role="link"]. The Button Link page is this section now (owner 13.11: «должен быть отдельной страницей? не очень
+ * понятно назначение»).
+ */
+export function ButtonLinkDemo() {
+  const [external, setExternal] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  const link = (
+    <ButtonLink href="#" external={external} disabled={disabled}>
+      View API Keys {external ? <ArrowUpRight /> : <ArrowRight />}
+    </ButtonLink>
+  );
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="external" value={external} onChange={setExternal} />
+        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+      </div>
+      {usePhoneRows() ? (
+        // Phone: at the top of the screen, next to the controls, as the Overview's button
+        <PhoneActions>{link}</PhoneActions>
+      ) : (
+        <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
+          {link}
         </div>
       )}
     </>

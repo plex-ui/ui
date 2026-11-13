@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 63
+Components: 62
 
 ## Setup
 
@@ -126,8 +126,8 @@ Props:
 Examples: Overview, Separator, Long trails, Sizes
 
 ## Button
-Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.
-Import: import { Button } from "@plexui/vue/components/Button"
+Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.
+Import: import { Button, ButtonLink } from "@plexui/vue/components/Button"
 Docs: https://plexui.com/vue/components/button
 Props:
   - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color scheme
@@ -147,7 +147,25 @@ Props:
   - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in the slot; defaults from size
   - type ("button" | "submit" | "reset") default: "button" — Native button type
   - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
-Examples: Overview, Optical alignment
+  ButtonLink:
+    - default slot (VNode[]) — Content inside the link button
+    - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color
+    - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Style variant
+    - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and typography scale
+    - gutter-size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Override horizontal padding
+    - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Override icon size
+    - href (string) — Link URL
+    - to (string | RouteLocationRaw) — Router link destination (internal)
+    - as (Component) — Link component override (e.g. RouterLink, NuxtLink)
+    - external (boolean) — Force external-link behavior
+    - optically-align ("start" | "end") — Apply optical negative margin alignment
+    - block (boolean) default: false — Full width
+    - mobileMaterial ("glass" | "flat") — Phone surface for neutral soft/ghost buttons
+    - pill (boolean) default: false — Fully rounded
+    - disabled (boolean) default: false — Disable link
+    - disabled-tone ("relaxed") — Use relaxed visual tone for disabled state
+    - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
+Examples: Overview, Link, Optical alignment
 
 ## Button Group
 Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
@@ -161,30 +179,6 @@ Props:
     - as-child (boolean) default: false — Render the slotted child (e.g. a <label> tied to an input) instead of a <div>
     - class (string) — Applied to the wrapper
 Examples: Overview, Orientation, Input group, Nested, Separator, Split, Input, Dropdown menu, Select, Popover
-
-## Button Link
-A semantic anchor with full button styling, for internal and external links with icons and block layout.
-Import: import { ButtonLink } from "@plexui/vue/components/Button"
-Docs: https://plexui.com/vue/components/button-link
-Props:
-  - default slot (VNode[]) — Content inside the link button
-  - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color
-  - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Style variant
-  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and typography scale
-  - gutter-size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Override horizontal padding
-  - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Override icon size
-  - href (string) — Link URL
-  - to (string | RouteLocationRaw) — Router link destination (internal)
-  - as (Component) — Link component override (e.g. RouterLink, NuxtLink)
-  - external (boolean) — Force external-link behavior
-  - optically-align ("start" | "end") — Apply optical negative margin alignment
-  - block (boolean) default: false — Full width
-  - mobileMaterial ("glass" | "flat") — Phone surface for neutral soft/ghost buttons
-  - pill (boolean) default: false — Fully rounded
-  - disabled (boolean) default: false — Disable link
-  - disabled-tone ("relaxed") — Use relaxed visual tone for disabled state
-  - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
-Examples: Overview, Internal link, External link, Colors & variants, Sizing & roundness, Icons, Block, Disabled
 
 ## Card
 Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.

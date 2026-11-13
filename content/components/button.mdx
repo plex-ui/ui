@@ -1,11 +1,12 @@
 ---
 title: Button
-description: Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.
-metaDescription: React button component with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout
+description: Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.
+metaDescription: React button component with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button for internal and external links
 ---
 
 import {
   ButtonOverviewDemo,
+  ButtonLinkDemo,
   ButtonOpticalAlignmentDemo,
 } from "@/components/docs/ButtonDemos"
 
@@ -41,7 +42,14 @@ const [selected, setSelected] = useState(false)
   {icon === "end" && <ArrowRight />}
 </Button>`
 
-<UsageBlock>{`import { Button } from "@plexui/ui/components/Button";`}</UsageBlock>
+export const linkCode = `const [external, setExternal] = useState(false)
+const [disabled, setDisabled] = useState(false)
+
+<ButtonLink href="#" external={external} disabled={disabled}>
+  View API Keys {external ? <ArrowUpRight /> : <ArrowRight />}
+</ButtonLink>`
+
+<UsageBlock>{`import { Button, ButtonLink } from "@plexui/ui/components/Button";`}</UsageBlock>
 
 ## Examples
 
@@ -68,6 +76,18 @@ const [selected, setSelected] = useState(false)
   <p><code>selected</code> shows that a button is open or selected; each <code>variant</code> shows it its own way. Menu and Popover set it on their trigger while open, through <code>[aria-expanded="true"]</code> or <code>[data-state="open"]</code>. iOS buttons show no selected state, so the Phone preview does not offer it; the prop still applies there.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <ButtonOverviewDemo />
+</ComponentPreview>
+
+<span id="button-link" />
+
+### Link
+
+<ComponentPreview details={<>
+  <p><code>ButtonLink</code> is a link styled as a button: an <code>&lt;a&gt;</code>, or your router's link, for an action that goes somewhere, such as another page, where a Button does something in place. A link opens in a new tab with a modifier click, shows its address, and is announced as a link. It takes the settings of the Overview but <code>uniform</code>, <code>loading</code> and <code>selected</code>, and on a phone it is the same iOS button.</p>
+  <p>A relative <code>href</code> or <code>to</code> goes through the <code>LinkComponent</code> configured on <code>PlexUIProvider</code>, so your router handles navigation and prefetching (see <a href="#buttonlink">ButtonLink</a> below). An absolute URL, or <code>external</code>, renders an <code>&lt;a&gt;</code> with <code>target="_blank"</code> and <code>rel="noopener noreferrer"</code>; set <code>external</code> when a link is not identified on its own. The example's arrow then points up and out, as an external link's does.</p>
+  <p><code>disabled</code> disables the link visually and accessibly: it renders a <code>span[role="link"]</code>, and <code>onClick</code> handlers are not bound.</p>
+</>} code={linkCode} previewMinHeight={168}>
+  <ButtonLinkDemo />
 </ComponentPreview>
 
 ### Optical alignment
@@ -110,6 +130,54 @@ Back and Close default to secondary soft buttons with the mobile glass material.
 
 Phone geometry uses `--navigation-button-size`, `--navigation-button-back-icon-size`, `--navigation-button-close-icon-size`, and `--navigation-button-confirm-icon-size`. Desktop retains Button sizing. Unrelated toolbar buttons keep their existing icon sizes.
 
+## ButtonLink
+
+`ButtonLink` renders a link with the look of a Button: an `<a>`, or the router's link for a relative `href` or `to`. It takes Button's `color`, `variant`, `size`, `pill`, `block`, `gutterSize`, `iconSize`, `opticallyAlign` and `mobileMaterial`, and the same component tokens; it has no `uniform`, `loading`, `selected` or `type`. Use it for an action that goes somewhere, and Button for one that does something in place.
+
+### Configure your Router
+
+#### Provider
+
+```tsx
+// In the root of your app
+import { PlexUIProvider } from "@plexui/ui/components/PlexUIProvider"
+import { Link } from "react-router"
+
+// Set up types
+
+declare global {
+  interface PlexUIConfig {
+    LinkComponent: typeof Link
+  }
+}
+
+// Wrap your app in PlexUIProvider and pass in your router's Link component.
+export function App() {
+  return (
+    <PlexUIProvider linkComponent={Link}>
+      {/* other providers... */}
+    </PlexUIProvider>
+  )
+}
+
+// elsewhere - everything just works!
+<ButtonLink to={{ pathname: "/help" }} prefetch="intent">
+  Get Help
+</ButtonLink>
+```
+
+#### Component-level
+
+You can also pass your Link component to the `as` prop.
+
+```tsx
+import Link from "next/link"
+
+<ButtonLink as={Link} href="/dashboard">
+  View Dashboard
+</ButtonLink>
+```
+
 ## API
 
 For neutral `soft` or `ghost` buttons, `mobileMaterial="glass"` applies the mobile toolbar surface below 768px with `touch.css`. Its label is the Liquid Glass text button's of the iOS 27 kit: Medium, 17px from `md` up (`--button-glass-font-weight`, `--button-glass-font-size`). Page toolbar icon buttons use it automatically. Use `mobileMaterial="flat"` to keep the original variant in a toolbar. Desktop appearance is unchanged.
@@ -131,6 +199,31 @@ For neutral `soft` or `ghost` buttons, `mobileMaterial="glass"` applies the mobi
   { prop: "gutterSize", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding size; defaults from size" },
   { prop: "iconSize", type: '"sm" | "md" | "lg" | "xl" | "2xl"', description: "Size of icons in children; defaults from size" },
   { prop: "type", type: '"button" | "submit" | "reset"', default: '"button"', description: "Native button type" },
+  { prop: "onClick", type: "(event: MouseEvent) => void", description: "Called on click, unless disabled" },
+]} />
+
+### ButtonLink
+
+A link with Button's look; a relative `href` or `to` goes through the `LinkComponent` of `PlexUIProvider`, an absolute URL or `external` opens a new tab.
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "Content inside the link button" },
+  { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Visual color" },
+  { prop: "variant", type: '"solid" | "soft" | "outline" | "ghost"', default: '"solid"', description: "Style variant" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height and typography scale" },
+  { prop: "gutterSize", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Override horizontal padding" },
+  { prop: "iconSize", type: '"sm" | "md" | "lg" | "xl" | "2xl"', description: "Override icon size" },
+  { prop: "href", type: "string", description: "Link URL" },
+  { prop: "to", type: "string | object", description: "Router link destination (internal)" },
+  { prop: "as", type: "ComponentType", description: "Link component override (e.g. Next Link)" },
+  { prop: "external", type: "boolean", description: "Force external-link behavior" },
+  { prop: "opticallyAlign", type: '"start" | "end"', description: "Apply optical negative margin alignment" },
+  { prop: "block", type: "boolean", default: "false", description: "Full width" },
+  { prop: "mobileMaterial", type: '"glass" | "flat"', description: "Phone surface for neutral soft/ghost buttons" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable link" },
+  { prop: "disabledTone", type: '"relaxed"', description: "Use relaxed visual tone for disabled state" },
+  { prop: "className", type: "string", description: "Custom classes for the root element" },
   { prop: "onClick", type: "(event: MouseEvent) => void", description: "Called on click, unless disabled" },
 ]} />
 

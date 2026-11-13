@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 63,
+  "componentCount": 62,
   "components": [
     {
       "slug": "accordion",
@@ -613,161 +613,13 @@
       "docsUrl": "https://plexui.com/components/button-group"
     },
     {
-      "slug": "button-link",
-      "name": "Button Link",
-      "description": "A semantic anchor with full button styling, for internal and external links with icons and block layout.",
-      "importPath": "@plexui/ui/components/Button",
-      "exports": [
-        "ButtonLink"
-      ],
-      "props": [
-        {
-          "name": "children",
-          "type": "ReactNode",
-          "description": "Content inside the link button"
-        },
-        {
-          "name": "color",
-          "type": "\"primary\" | \"secondary\" | \"danger\" | \"success\" | \"info\" | \"discovery\" | \"caution\" | \"warning\"",
-          "default": "\"primary\"",
-          "description": "Visual color"
-        },
-        {
-          "name": "variant",
-          "type": "\"solid\" | \"soft\" | \"outline\" | \"ghost\"",
-          "default": "\"solid\"",
-          "description": "Style variant"
-        },
-        {
-          "name": "size",
-          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
-          "default": "\"md\"",
-          "description": "Control height and typography scale"
-        },
-        {
-          "name": "gutterSize",
-          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
-          "description": "Override horizontal padding"
-        },
-        {
-          "name": "iconSize",
-          "type": "\"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\"",
-          "description": "Override icon size"
-        },
-        {
-          "name": "href",
-          "type": "string",
-          "description": "Link URL"
-        },
-        {
-          "name": "to",
-          "type": "string | object",
-          "description": "Router link destination (internal)"
-        },
-        {
-          "name": "as",
-          "type": "ComponentType",
-          "description": "Link component override (e.g. Next Link)"
-        },
-        {
-          "name": "external",
-          "type": "boolean",
-          "description": "Force external-link behavior"
-        },
-        {
-          "name": "opticallyAlign",
-          "type": "\"start\" | \"end\"",
-          "description": "Apply optical negative margin alignment"
-        },
-        {
-          "name": "block",
-          "type": "boolean",
-          "default": "false",
-          "description": "Full width"
-        },
-        {
-          "name": "mobileMaterial",
-          "type": "\"glass\" | \"flat\"",
-          "description": "Phone surface for neutral soft/ghost buttons"
-        },
-        {
-          "name": "pill",
-          "type": "boolean",
-          "default": "false",
-          "description": "Fully rounded"
-        },
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false",
-          "description": "Disable link"
-        },
-        {
-          "name": "disabledTone",
-          "type": "\"relaxed\"",
-          "description": "Use relaxed visual tone for disabled state"
-        },
-        {
-          "name": "className",
-          "type": "string",
-          "description": "Custom classes for the root element"
-        },
-        {
-          "name": "onClick",
-          "type": "(event: MouseEvent) => void",
-          "description": "Called on click, unless disabled"
-        }
-      ],
-      "examples": [
-        {
-          "name": "Overview",
-          "code": "<ButtonLink color=\"primary\" pill={false} href=\"#\">View API Keys <ArrowRight /></ButtonLink>"
-        },
-        {
-          "name": "Internal link",
-          "code": "<ButtonLink href=\"/components/button\" color=\"primary\">\nInternal link <ArrowRight />\n</ButtonLink>",
-          "details": "When a relative href or to is provided, ButtonLink automatically uses the configured LinkComponent from PlexUIProvider so your router handles navigation and prefetching."
-        },
-        {
-          "name": "External link",
-          "code": "<ButtonLink href=\"#\" color=\"primary\">\nExternal link <ArrowUpRight />\n</ButtonLink>",
-          "details": "When linking to an external URL (or when external is set), &lt;a&gt; is used with target=\"_blank\" and rel=\"noopener noreferrer\" added automatically. If your link is not being automatically identified, you can force external link behavior with the external prop."
-        },
-        {
-          "name": "Colors & variants",
-          "code": "// Desktop\nconst colors = [\"primary\", \"secondary\", \"danger\", \"info\", \"discovery\", \"success\", \"caution\", \"warning\"] as const\nconst variants = [\"soft\", \"solid\", \"outline\", \"ghost\"] as const\n\n<div className=\"w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden\">\n<div className=\"pt-1 pb-6 px-8 w-fit min-w-full\">\n  <div className=\"grid gap-6 items-center justify-center\" style={{ gridTemplateColumns: \"auto repeat(8, min-content)\" }}>\n    <div />\n    {colors.map((color) => (\n      <div key={color} className=\"text-center text-sm mb-1 text-tertiary\">{color}</div>\n    ))}\n    {variants.map((variant) => (\n      <Fragment key={variant}>\n        <div className=\"text-right text-sm mr-3 text-tertiary\">{variant}</div>\n        {colors.map((color) => (\n          <div key={color} className=\"text-center\">\n            <ButtonLink href=\"#\" size=\"lg\" color={color} variant={variant} className=\"whitespace-nowrap\">\n              Button\n            </ButtonLink>\n          </div>\n        ))}\n      </Fragment>\n    ))}\n  </div>\n</div>\n</div>\n\n// Phone: the two colors of iOS buttons, accent (primary) and destructive (danger)\n<div className=\"grid gap-6 items-center justify-center pt-1 pb-6\" style={{ gridTemplateColumns: \"auto repeat(2, min-content)\" }}>\n<div />\n{([\"primary\", \"danger\"] as const).map((color) => (\n  <div key={color} className=\"text-center text-sm mb-1 text-tertiary\">{color}</div>\n))}\n{variants.map((variant) => (\n  <Fragment key={variant}>\n    <div className=\"text-right text-sm mr-3 text-tertiary\">{variant}</div>\n    {([\"primary\", \"danger\"] as const).map((color) => (\n      <div key={color} className=\"text-center\">\n        <ButtonLink href=\"#\" size=\"lg\" color={color} variant={variant} className=\"whitespace-nowrap\">\n          Button\n        </ButtonLink>\n      </div>\n    ))}\n  </Fragment>\n))}\n</div>",
-          "details": "Stylize the link with color and variant props. On a phone the table shows the two colors of iOS buttons, accent (primary) and destructive (danger)."
-        },
-        {
-          "name": "Sizing & roundness",
-          "code": "// Desktop\n<div className=\"flex flex-col gap-2 justify-start items-start\">\n<ButtonLink color=\"primary\" size=\"lg\" href=\"#\" className=\"whitespace-nowrap\">\n  View account <ArrowRight />\n</ButtonLink>\n<ButtonLink color=\"primary\" size=\"lg\" href=\"#\" className=\"whitespace-nowrap\">\n  View account\n</ButtonLink>\n</div>\n\n// Phone: the three sizes of iOS buttons, small 28, medium 34 and large 50\n<div className=\"flex flex-col gap-4 items-center\">\n<ButtonLink color=\"primary\" size=\"sm\" href=\"#\" className=\"whitespace-nowrap\">View account <ArrowRight /></ButtonLink>\n<ButtonLink color=\"primary\" size=\"md\" href=\"#\" className=\"whitespace-nowrap\">View account <ArrowRight /></ButtonLink>\n<ButtonLink color=\"primary\" size=\"xl\" href=\"#\" className=\"whitespace-nowrap\">View account <ArrowRight /></ButtonLink>\n</div>",
-          "details": "Sizing of the link is controlled with size and gutterSize props. size sets the control height, and gutterSize sets the horizontal padding. Create fully rounded links with the pill prop. When pill is set, extra horizontal gutter is dynamically applied to the link. On a phone with touch.css a link takes one of the three heights of iOS buttons, small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule; the Phone example shows the three."
-        },
-        {
-          "name": "Icons",
-          "code": "// Desktop\n<ButtonLink color=\"info\" size=\"lg\" iconSize=\"lg\" variant=\"soft\" href=\"#\" className=\"whitespace-nowrap\">\n<Globe /> View website\n</ButtonLink>\n\n// Phone: the three sizes of iOS buttons, each with the icon of its size\n<div className=\"flex flex-col gap-4 items-center\">\n<ButtonLink color=\"info\" size=\"sm\" variant=\"soft\" href=\"#\" className=\"whitespace-nowrap\"><Globe /> View website</ButtonLink>\n<ButtonLink color=\"info\" size=\"md\" variant=\"soft\" href=\"#\" className=\"whitespace-nowrap\"><Globe /> View website</ButtonLink>\n<ButtonLink color=\"info\" size=\"xl\" variant=\"soft\" href=\"#\" className=\"whitespace-nowrap\"><Globe /> View website</ButtonLink>\n</div>",
-          "details": "Icon sizing is controlled by the iconSize prop, which makes it easy to add icons as children without additional props. size will provide a default value for iconSize, but setting the prop will force the specified size. On a phone with touch.css the icon follows the three iOS sizes unless iconSize is set."
-        },
-        {
-          "name": "Block",
-          "code": "// Desktop\n<div className=\"w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md\">\n<ButtonLink block size=\"lg\" href=\"#\" className=\"whitespace-nowrap\">Continue to dashboard</ButtonLink>\n</div>\n\n// Phone: the large iOS button\n<div className=\"w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md\">\n<ButtonLink block size=\"xl\" href=\"#\" className=\"whitespace-nowrap\">Continue to dashboard</ButtonLink>\n</div>",
-          "details": "Create full-width links with the block prop. On a phone the main action of a screen is the large iOS button, xl (50px)."
-        },
-        {
-          "name": "Disabled",
-          "code": "<ButtonLink href=\"#\" color=\"primary\" disabled className=\"whitespace-nowrap\">\n<Key /> View API Keys\n</ButtonLink>",
-          "details": "Use disabled to both visually and accessibly disable a link. The component renders as a span[role=\"link\"], and onClick handlers are not bound."
-        }
-      ],
-      "docsUrl": "https://plexui.com/components/button-link"
-    },
-    {
       "slug": "button",
       "name": "Button",
-      "description": "Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.",
+      "description": "Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.",
       "importPath": "@plexui/ui/components/Button",
       "exports": [
-        "Button"
+        "Button",
+        "ButtonLink"
       ],
       "props": [
         {
@@ -874,9 +726,118 @@
           "details": "One button with every setting. color and variant style it: eight semantic colors, each solid, soft, outline or ghost. On a phone with touch.css iOS draws solid as Filled, soft as Tinted, or Gray in secondary, and ghost as Plain; outline is Plex UI's own. The Phone preview offers the colors of iOS buttons: accent (primary), gray (secondary) and destructive (danger). size sets the control height, and gutterSize the horizontal padding. Each size provides default values for gutterSize and iconSize, as well as font-size; each can be overridden on its own. pill rounds the corners fully and adds horizontal gutter. Button shares the unified 9-step size scale with Input, Select, SelectControl and SegmentedControl. On a phone with touch.css a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule: the small one with a 15px label and 10px gutters, the medium and large ones with a 17px label and 12 and 20px gutters, as iOS 27.2 sets them, so the Phone preview offers sm, md and xl and neither pill nor gutterSize. Without size a button is md, the medium one; a screen's actions take xl. The label is Medium (510) and Regular on a ghost button, as the iOS 27 kit sets its buttons on glass and its plain ones, and as Apple's apps set a filled action apart from a plain one. Icons are children: icon here puts one before the label, after it, or alone, when the button needs an aria-label. Their size is automatic, from size, unless iconSize sets it. For a button of an icon alone, uniform makes it square and ignores gutterSize; with pill it is a circle. On a desktop a smaller gutterSize than size makes a well-sized icon button that is not exactly square. On a phone with touch.css the icon follows the three iOS sizes unless iconSize is set: 3xs to sm show the 18px icon and md to 3xl the 20px one, as iOS sets a button's symbol at the size of its label (15 and 17px). A button of an icon alone is the kit's symbol button, a circle as tall as a text button of its size, 28, 34 or 50px, with or without uniform, and gutterSize does not change it, so the Phone preview does not offer uniform. A toolbar, the bars of Page and Dialog, a ButtonGroup of uniform buttons alone and a button beside a field keep the 44px circle of a bar button in the kit (50px at 3xl). Between an icon and a label a button leaves 8px at every size, as iOS 27.2 does. block makes the button as wide as its container, a 290px column here. On a phone a screen's main action is the large button as wide as the screen, xl and block; the example stands at the top of the screen, next to its controls. disabled disables the button visually and accessibly. loading shows a spinner and prevents interaction through its default inert state; the controls show these props and start no asynchronous action. inert blocks a button without any visual change: it applies disabled for accessibility, and the look of a disabled button comes only from [data-disabled]. On a phone a disabled button labels in the tertiary label of iOS on the gray of a gray button, as iOS 27.2 draws a disabled filled or gray button; a ghost one has no fill, an outline one keeps its border with no fill, and a glass one keeps the glass. A loading button shows the iOS spinner there, 18px in the small button and 20px in the medium and large ones. selected shows that a button is open or selected; each variant shows it its own way. Menu and Popover set it on their trigger while open, through [aria-expanded=\"true\"] or [data-state=\"open\"]. iOS buttons show no selected state, so the Phone preview does not offer it; the prop still applies there."
         },
         {
+          "name": "Link",
+          "code": "const [external, setExternal] = useState(false)\nconst [disabled, setDisabled] = useState(false)\n\n<ButtonLink href=\"#\" external={external} disabled={disabled}>\n  View API Keys {external ? <ArrowUpRight /> : <ArrowRight />}\n</ButtonLink>",
+          "details": "ButtonLink is a link styled as a button: an &lt;a&gt;, or your router's link, for an action that goes somewhere, such as another page, where a Button does something in place. A link opens in a new tab with a modifier click, shows its address, and is announced as a link. It takes the settings of the Overview but uniform, loading and selected, and on a phone it is the same iOS button. A relative href or to goes through the LinkComponent configured on PlexUIProvider, so your router handles navigation and prefetching (see ButtonLink below). An absolute URL, or external, renders an &lt;a&gt; with target=\"_blank\" and rel=\"noopener noreferrer\"; set external when a link is not identified on its own. The example's arrow then points up and out, as an external link's does. disabled disables the link visually and accessibly: it renders a span[role=\"link\"], and onClick handlers are not bound."
+        },
+        {
           "name": "Optical alignment",
           "code": "// Desktop\n<div className=\"flex flex-col gap-3\">\n<div className=\"border border-dashed border-alpha/20 rounded-md py-4 px-6\">\n  <div className=\"mb-2 text-secondary text-sm\">Default gutters</div>\n  <Button variant=\"ghost\">Ghost button</Button>\n</div>\n<div className=\"border border-dashed border-alpha/20 rounded-md py-4 px-6\">\n  <div className=\"mb-2 text-secondary text-sm\">opticallyAlign=\"start\"</div>\n  <Button variant=\"ghost\" opticallyAlign=\"start\">Ghost button</Button>\n</div>\n</div>\n\n// Phone: the label starts where the text above it does, 40px from the screen's edge\n<div className=\"flex w-full flex-col items-start gap-4 px-6\">\n<p className=\"text-[17px] leading-[22px] text-secondary\">Sign in with your email or phone number to continue.</p>\n<Button color=\"secondary\" variant=\"soft\" size=\"xl\" opticallyAlign=\"start\">Forgot your password?</Button>\n</div>",
           "details": "Use opticallyAlign with either \"start\" or \"end\" to offset the gutter of the button. On a phone a button under text starts its label where the text does, as Forgot your password? under the Apple Account sign-in, whose text starts 40px from the screen's edge; a soft button shows its capsule reaching past the text. The button is as wide as its label: a full-width button centers its label, which leaves nothing to align."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "ButtonLink",
+          "description": "A link with Button's look; a relative href or to goes through the LinkComponent of PlexUIProvider, an absolute URL or external opens a new tab.",
+          "props": [
+            {
+              "name": "children",
+              "type": "ReactNode",
+              "description": "Content inside the link button"
+            },
+            {
+              "name": "color",
+              "type": "\"primary\" | \"secondary\" | \"danger\" | \"success\" | \"info\" | \"discovery\" | \"caution\" | \"warning\"",
+              "default": "\"primary\"",
+              "description": "Visual color"
+            },
+            {
+              "name": "variant",
+              "type": "\"solid\" | \"soft\" | \"outline\" | \"ghost\"",
+              "default": "\"solid\"",
+              "description": "Style variant"
+            },
+            {
+              "name": "size",
+              "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
+              "default": "\"md\"",
+              "description": "Control height and typography scale"
+            },
+            {
+              "name": "gutterSize",
+              "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+              "description": "Override horizontal padding"
+            },
+            {
+              "name": "iconSize",
+              "type": "\"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\"",
+              "description": "Override icon size"
+            },
+            {
+              "name": "href",
+              "type": "string",
+              "description": "Link URL"
+            },
+            {
+              "name": "to",
+              "type": "string | object",
+              "description": "Router link destination (internal)"
+            },
+            {
+              "name": "as",
+              "type": "ComponentType",
+              "description": "Link component override (e.g. Next Link)"
+            },
+            {
+              "name": "external",
+              "type": "boolean",
+              "description": "Force external-link behavior"
+            },
+            {
+              "name": "opticallyAlign",
+              "type": "\"start\" | \"end\"",
+              "description": "Apply optical negative margin alignment"
+            },
+            {
+              "name": "block",
+              "type": "boolean",
+              "default": "false",
+              "description": "Full width"
+            },
+            {
+              "name": "mobileMaterial",
+              "type": "\"glass\" | \"flat\"",
+              "description": "Phone surface for neutral soft/ghost buttons"
+            },
+            {
+              "name": "pill",
+              "type": "boolean",
+              "default": "false",
+              "description": "Fully rounded"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disable link"
+            },
+            {
+              "name": "disabledTone",
+              "type": "\"relaxed\"",
+              "description": "Use relaxed visual tone for disabled state"
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "description": "Custom classes for the root element"
+            },
+            {
+              "name": "onClick",
+              "type": "(event: MouseEvent) => void",
+              "description": "Called on click, unless disabled"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/components/button"
@@ -7545,5 +7506,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-13T17:53:55.802Z"
+  "generatedAt": "2026-11-13T18:02:28.255Z"
 }

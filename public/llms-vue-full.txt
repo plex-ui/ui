@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 63
+Components: 62
 
 ## Setup
 
@@ -398,8 +398,8 @@ Use size="sm" for a trail above a compact header; the default md sits above a pa
 ```
 
 ## Button
-Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.
-Import: import { Button } from "@plexui/vue/components/Button"
+Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.
+Import: import { Button, ButtonLink } from "@plexui/vue/components/Button"
 Docs: https://plexui.com/vue/components/button
 Props:
   - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color scheme
@@ -419,6 +419,24 @@ Props:
   - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in the slot; defaults from size
   - type ("button" | "submit" | "reset") default: "button" — Native button type
   - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
+  ButtonLink:
+    - default slot (VNode[]) — Content inside the link button
+    - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color
+    - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Style variant
+    - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and typography scale
+    - gutter-size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Override horizontal padding
+    - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Override icon size
+    - href (string) — Link URL
+    - to (string | RouteLocationRaw) — Router link destination (internal)
+    - as (Component) — Link component override (e.g. RouterLink, NuxtLink)
+    - external (boolean) — Force external-link behavior
+    - optically-align ("start" | "end") — Apply optical negative margin alignment
+    - block (boolean) default: false — Full width
+    - mobileMaterial ("glass" | "flat") — Phone surface for neutral soft/ghost buttons
+    - pill (boolean) default: false — Fully rounded
+    - disabled (boolean) default: false — Disable link
+    - disabled-tone ("relaxed") — Use relaxed visual tone for disabled state
+    - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
 
 ### Overview
 One button with every setting. color and variant style it: eight semantic colors, each solid, soft, outline or ghost. On a phone with touch.css iOS draws solid as Filled, soft as Tinted, or Gray in secondary, and ghost as Plain; outline is Plex UI's own. The Phone preview offers the colors of iOS buttons: accent (primary), gray (secondary) and destructive (danger). size sets the control height, and gutter-size the horizontal padding. Each size provides default values for gutter-size and icon-size, as well as font-size; each can be overridden on its own. pill rounds the corners fully and adds horizontal gutter. Button shares the unified 9-step size scale with Input, Select, SelectControl and SegmentedControl. On a phone with touch.css a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule: the small one with a 15px label and 10px gutters, the medium and large ones with a 17px label and 12 and 20px gutters, as iOS 27.2 sets them, so the Phone preview offers sm, md and xl and neither pill nor gutter-size. Without size a button is md, the medium one; a screen's actions take xl. The label is Medium (510) and Regular on a ghost button, as the iOS 27 kit sets its buttons on glass and its plain ones, and as Apple's apps set a filled action apart from a plain one. Icons go in the default slot: icon here puts one before the label, after it, or alone, when the button needs an aria-label. Their size is automatic, from size, unless icon-size sets it. For a button of an icon alone, uniform makes it square and ignores gutter-size; with pill it is a circle. On a desktop a smaller gutter-size than size makes a well-sized icon button that is not exactly square. On a phone with touch.css the icon follows the three iOS sizes unless icon-size is set: 3xs to sm show the 18px icon and md to 3xl the 20px one, as iOS sets a button's symbol at the size of its label (15 and 17px). A button of an icon alone is the kit's symbol button, a circle as tall as a text button of its size, 28, 34 or 50px, with or without uniform, and gutter-size does not change it, so the Phone preview does not offer uniform. A toolbar, the bars of Page and Dialog, a ButtonGroup of uniform buttons alone and a button beside a field keep the 44px circle of a bar button in the kit (50px at 3xl). Between an icon and a label a button leaves 8px at every size, as iOS 27.2 does. block makes the button as wide as its container, a 290px column here. On a phone a screen's main action is the large button as wide as the screen, xl and block; the example stands at the top of the screen, next to its controls. disabled disables the button visually and accessibly. loading shows a spinner and prevents interaction through its default inert state; the controls show these props and start no asynchronous action. inert blocks a button without any visual change: it applies disabled for accessibility, and the look of a disabled button comes only from [data-disabled]. On a phone a disabled button labels in the tertiary label of iOS on the gray of a gray button, as iOS 27.2 draws a disabled filled or gray button; a ghost one has no fill, an outline one keeps its border with no fill, and a glass one keeps the glass. A loading button shows the iOS spinner there, 18px in the small button and 20px in the medium and large ones. selected shows that a button is open or selected; each variant shows it its own way. Menu and Popover set it on their trigger while open, through [aria-expanded="true"] or [data-state="open"]. iOS buttons show no selected state, so the Phone preview does not offer it; the prop still applies there.
@@ -461,6 +479,27 @@ const selected = ref(false);
     <span v-if="icon !== 'only'">Send</span>
     <ArrowRight v-if="icon === 'end'" />
   </Button>
+</template>
+```
+
+### Link
+ButtonLink is a link styled as a button: an &lt;a&gt;, or your router's link, for an action that goes somewhere, such as another page, where a Button does something in place. A link opens in a new tab with a modifier click, shows its address, and is announced as a link. It takes the settings of the Overview but uniform, loading and selected, and on a phone it is the same iOS button. A relative href or to goes through the link component configured on PlexUIProvider, so your router handles navigation (see ButtonLink below). An absolute URL, or external, renders an &lt;a&gt; with target="_blank" and rel="noopener noreferrer"; set external when a link is not identified on its own. The example's arrow then points up and out, as an external link's does. disabled disables the link visually and accessibly: it renders a span[role="link"], and click is not emitted.
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { ButtonLink } from '@plexui/vue/components/Button';
+import { ArrowRight, ArrowUpRight } from '@plexui/vue/components/Icon';
+
+const external = ref(false);
+const disabled = ref(false);
+</script>
+
+<template>
+  <ButtonLink href="#" :external="external" :disabled="disabled">
+    View API Keys
+    <ArrowUpRight v-if="external" />
+    <ArrowRight v-else />
+  </ButtonLink>
 </template>
 ```
 
@@ -729,149 +768,6 @@ Same split-button shape, but the trailing trigger opens a Popover instead of a m
     </PopoverContent>
   </Popover>
 </ButtonGroup>
-```
-
-## Button Link
-A semantic anchor with full button styling, for internal and external links with icons and block layout.
-Import: import { ButtonLink } from "@plexui/vue/components/Button"
-Docs: https://plexui.com/vue/components/button-link
-Props:
-  - default slot (VNode[]) — Content inside the link button
-  - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color
-  - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Style variant
-  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and typography scale
-  - gutter-size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Override horizontal padding
-  - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Override icon size
-  - href (string) — Link URL
-  - to (string | RouteLocationRaw) — Router link destination (internal)
-  - as (Component) — Link component override (e.g. RouterLink, NuxtLink)
-  - external (boolean) — Force external-link behavior
-  - optically-align ("start" | "end") — Apply optical negative margin alignment
-  - block (boolean) default: false — Full width
-  - mobileMaterial ("glass" | "flat") — Phone surface for neutral soft/ghost buttons
-  - pill (boolean) default: false — Fully rounded
-  - disabled (boolean) default: false — Disable link
-  - disabled-tone ("relaxed") — Use relaxed visual tone for disabled state
-  - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
-
-### Overview
-```vue
-<ButtonLink color="primary" :pill="false" href="#">View API Keys <ArrowRight /></ButtonLink>
-```
-
-### Internal link
-When a relative href or to is provided, ButtonLink uses the link component configured on PlexUIProvider, so your router handles navigation.
-```vue
-<ButtonLink href="/vue/components/button" color="primary">
-  Internal link <ArrowRight />
-</ButtonLink>
-```
-
-### External link
-When linking to an external URL (or when external is set), &lt;a&gt; is used with target="_blank" and rel="noopener noreferrer" added automatically. If your link is not being automatically identified, you can force external link behavior with the external prop.
-```vue
-<ButtonLink href="#" color="primary">
-  External link <ArrowUpRight />
-</ButtonLink>
-```
-
-### Colors & variants
-Stylize the link with color and variant props. On a phone the table shows the two colors of iOS buttons, accent (primary) and destructive (danger).
-```vue
-<!-- Desktop -->
-<div class="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-  <div class="pt-1 pb-6 px-8 w-fit min-w-full">
-    <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(8, min-content)">
-      <div />
-      <div
-        v-for="color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']"
-        :key="color"
-        class="text-center text-sm mb-1 text-tertiary"
-      >{{ color }}</div>
-      <template v-for="variant in ['soft', 'solid', 'outline', 'ghost']" :key="variant">
-        <div class="text-right text-sm mr-3 text-tertiary">{{ variant }}</div>
-        <div
-          v-for="color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']"
-          :key="color"
-          class="text-center"
-        >
-          <ButtonLink href="#" size="lg" :color="color" :variant="variant" class="whitespace-nowrap">Button</ButtonLink>
-        </div>
-      </template>
-    </div>
-  </div>
-</div>
-
-<!-- Phone: the two colors of iOS buttons, accent (primary) and destructive (danger) -->
-<div class="grid gap-6 items-center justify-center pt-1 pb-6" style="grid-template-columns: auto repeat(2, min-content)">
-  <div />
-  <div v-for="color in ['primary', 'danger']" :key="color" class="text-center text-sm mb-1 text-tertiary">{{ color }}</div>
-  <template v-for="variant in ['soft', 'solid', 'outline', 'ghost']" :key="variant">
-    <div class="text-right text-sm mr-3 text-tertiary">{{ variant }}</div>
-    <div v-for="color in ['primary', 'danger']" :key="color" class="text-center">
-      <ButtonLink href="#" size="lg" :color="color" :variant="variant" class="whitespace-nowrap">Button</ButtonLink>
-    </div>
-  </template>
-</div>
-```
-
-### Sizing & roundness
-Sizing of the link is controlled with size and gutter-size. size sets the control height, and gutter-size sets the horizontal padding. Create fully rounded links with the pill prop. When pill is set, extra horizontal gutter is dynamically applied to the link. On a phone with touch.css a link takes one of the three heights of iOS buttons, small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule; the Phone example shows the three.
-```vue
-<!-- Desktop -->
-<div class="flex flex-col gap-2 justify-start items-start">
-  <ButtonLink color="primary" :size="size" :pill="pill" href="#" class="whitespace-nowrap">
-    View account <ArrowRight />
-  </ButtonLink>
-  <ButtonLink color="primary" :size="size" :pill="pill" href="#" class="whitespace-nowrap">
-    View account
-  </ButtonLink>
-</div>
-
-<!-- Phone: the three sizes of iOS buttons, small 28, medium 34 and large 50 -->
-<div class="flex flex-col gap-4 items-center">
-  <ButtonLink v-for="phoneSize in ['sm', 'md', 'xl']" :key="phoneSize" color="primary" :size="phoneSize" href="#" class="whitespace-nowrap">
-    View account <ArrowRight />
-  </ButtonLink>
-</div>
-```
-
-### Icons
-Icon sizing is controlled by the icon-size prop, which makes it easy to add icons to the slot without additional props. size provides a default value for icon-size, but setting the prop forces the specified size. On a phone with touch.css the icon follows the three iOS sizes unless icon-size is set.
-```vue
-<!-- Desktop -->
-<ButtonLink color="info" :size="size" :icon-size="iconSize" variant="soft" href="#" class="whitespace-nowrap">
-  <Globe /> View website
-</ButtonLink>
-
-<!-- Phone: the three sizes of iOS buttons, each with the icon of its size -->
-<div class="flex flex-col gap-4 items-center">
-  <ButtonLink v-for="phoneSize in ['sm', 'md', 'xl']" :key="phoneSize" color="info" :size="phoneSize" variant="soft" href="#" class="whitespace-nowrap">
-    <Globe /> View website
-  </ButtonLink>
-</div>
-```
-
-### Block
-Create full-width links with the block prop. On a phone the main action of a screen is the large iOS button, xl (50px).
-```vue
-<!-- Desktop -->
-<div class="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
-  <ButtonLink :block="block" size="lg" href="#" class="whitespace-nowrap">Continue to dashboard</ButtonLink>
-</div>
-
-<!-- Phone: the large iOS button -->
-<div class="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
-  <ButtonLink :block="block" size="xl" href="#" class="whitespace-nowrap">Continue to dashboard</ButtonLink>
-</div>
-```
-
-### Disabled
-Use disabled to both visually and accessibly disable a link. The component renders as a span[role="link"], and click is not emitted.
-```vue
-<ButtonLink href="#" color="primary" :disabled="disabled" class="whitespace-nowrap">
-  <Key /> View API Keys
-</ButtonLink>
 ```
 
 ## Card

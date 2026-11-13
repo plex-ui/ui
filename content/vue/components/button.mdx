@@ -1,7 +1,7 @@
 ---
 title: Button
-description: Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.
-metaDescription: Vue 3 button component with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout. Same props and markup as the React Button.
+description: Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.
+metaDescription: Vue 3 button component with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button for internal and external links. Same props and markup as the React Button.
 ---
 
 import { VuePreview } from "@/components/docs/VuePreview"
@@ -106,6 +106,42 @@ const selected = ref(false);
   </Button>
 </template>`
 
+export const link = `<ButtonLink href="#" :external="external" :disabled="disabled">
+  View API Keys
+  <ArrowUpRight v-if="external" />
+  <ArrowRight v-else />
+</ButtonLink>`
+
+export const linkPhone = `<div class="flex w-full flex-col items-center gap-[11px]">
+  <ButtonLink href="#" :external="external" :disabled="disabled">
+    View API Keys
+    <ArrowUpRight v-if="external" />
+    <ArrowRight v-else />
+  </ButtonLink>
+</div>`
+
+export const linkControls = [
+  { name: "external", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+]
+
+export const linkCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { ButtonLink } from '@plexui/vue/components/Button';
+import { ArrowRight, ArrowUpRight } from '@plexui/vue/components/Icon';
+
+const external = ref(false);
+const disabled = ref(false);
+</script>
+
+<template>
+  <ButtonLink href="#" :external="external" :disabled="disabled">
+    View API Keys
+    <ArrowUpRight v-if="external" />
+    <ArrowRight v-else />
+  </ButtonLink>
+</template>`
+
 export const opticalAlignment = `<div class="flex flex-col gap-3">
   <div class="border border-dashed border-alpha/20 rounded-md py-4 px-6">
     <div class="mb-2 text-secondary text-sm">Default gutters</div>
@@ -122,7 +158,7 @@ export const opticalAlignmentPhone = `<div class="flex w-full flex-col items-sta
   <Button color="secondary" variant="soft" size="xl" :optically-align="opticallyAlign === 'start' ? 'start' : undefined">Forgot your password?</Button>
 </div>`
 
-<UsageBlock>{`import { Button } from "@plexui/vue/components/Button";`}</UsageBlock>
+<UsageBlock>{`import { Button, ButtonLink } from "@plexui/vue/components/Button";`}</UsageBlock>
 
 ## Examples
 
@@ -157,6 +193,24 @@ export const opticalAlignmentPhone = `<div class="flex w-full flex-col items-sta
   />
 </ComponentPreview>
 
+<span id="button-link" />
+
+### Link
+
+<ComponentPreview language="vue" details={<>
+  <p><code>ButtonLink</code> is a link styled as a button: an <code>&lt;a&gt;</code>, or your router's link, for an action that goes somewhere, such as another page, where a Button does something in place. A link opens in a new tab with a modifier click, shows its address, and is announced as a link. It takes the settings of the Overview but <code>uniform</code>, <code>loading</code> and <code>selected</code>, and on a phone it is the same iOS button.</p>
+  <p>A relative <code>href</code> or <code>to</code> goes through the link component configured on <code>PlexUIProvider</code>, so your router handles navigation (see <a href="#buttonlink">ButtonLink</a> below). An absolute URL, or <code>external</code>, renders an <code>&lt;a&gt;</code> with <code>target="_blank"</code> and <code>rel="noopener noreferrer"</code>; set <code>external</code> when a link is not identified on its own. The example's arrow then points up and out, as an external link's does.</p>
+  <p><code>disabled</code> disables the link visually and accessibly: it renders a <code>span[role="link"]</code>, and <code>click</code> is not emitted.</p>
+</>} code={linkCode} previewMinHeight={168}>
+  <VuePhoneRowsDemo
+    template={link}
+    phoneTemplate={linkPhone}
+    controls={linkControls}
+    stageClassName="flex-1 flex items-center justify-center py-12 w-full"
+    phoneStageClassName="flex-1 flex flex-col w-full"
+  />
+</ComponentPreview>
+
 ### Optical alignment
 
 <ComponentPreview language="vue" details={<>Use <code>optically-align</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the button. On a phone a button under text starts its label where the text does, as Forgot your password? under the Apple Account sign-in, whose text starts 40px from the screen's edge; a soft button shows its capsule reaching past the text. The button is as wide as its label: a full-width button centers its label, which leaves nothing to align.</>} code={withPhone(opticalAlignment, opticalAlignmentPhone, "the label starts where the text above it does, 40px from the screen's edge")} previewMinHeight={168}>
@@ -181,6 +235,41 @@ Back and Close default to secondary soft buttons with the mobile glass material.
 
 Phone geometry uses `--navigation-button-size`, `--navigation-button-back-icon-size`, `--navigation-button-close-icon-size`, and `--navigation-button-confirm-icon-size`. Desktop retains Button sizing. Unrelated toolbar buttons keep their existing icon sizes.
 
+## ButtonLink
+
+`ButtonLink` renders a link with the look of a Button: an `<a>`, or the router's link for a relative `href` or `to`. It takes Button's `color`, `variant`, `size`, `pill`, `block`, `gutter-size`, `icon-size`, `optically-align` and `mobileMaterial`, and the same component tokens; it has no `uniform`, `loading`, `selected` or `type`. Use it for an action that goes somewhere, and Button for one that does something in place.
+
+### Configure your Router
+
+#### Provider
+
+```vue
+<script setup lang="ts">
+import { RouterLink, RouterView } from "vue-router"
+import { PlexUIProvider } from "@plexui/vue/components/PlexUIProvider"
+</script>
+
+<template>
+  <PlexUIProvider :link-component="RouterLink">
+    <RouterView />
+  </PlexUIProvider>
+</template>
+```
+
+A link component that declares a `to` prop, such as `RouterLink` or `NuxtLink`, receives the `href` as `to`. Elsewhere, internal links go through the router:
+
+```vue
+<ButtonLink to="/help">Get Help</ButtonLink>
+```
+
+#### Component-level
+
+You can also pass your link component to the `as` prop:
+
+```vue
+<ButtonLink :as="NuxtLink" to="/dashboard">Open dashboard</ButtonLink>
+```
+
 ## API
 
 For neutral `soft` or `ghost` buttons, `mobileMaterial="glass"` applies the mobile toolbar surface below 768px with `touch.css`. Its label is the Liquid Glass text button's of the iOS 27 kit: Medium, 17px from `md` up (`--button-glass-font-weight`, `--button-glass-font-size`). Page toolbar icon buttons use it automatically. Use `mobileMaterial="flat"` to keep the original variant in a toolbar. Desktop appearance is unchanged.
@@ -204,6 +293,30 @@ Props mirror the React Button. In Vue, pass classes with `class` (React's `class
   { prop: "gutter-size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding size; defaults from size" },
   { prop: "icon-size", type: '"sm" | "md" | "lg" | "xl" | "2xl"', description: "Size of icons in the slot; defaults from size" },
   { prop: "type", type: '"button" | "submit" | "reset"', default: '"button"', description: "Native button type" },
+  { prop: "@click", type: "(event: MouseEvent) => void", description: "Emitted on click, unless disabled" },
+]} />
+
+### ButtonLink
+
+A link with Button's look; a relative `href` or `to` goes through the link component of `PlexUIProvider`, an absolute URL or `external` opens a new tab.
+
+<PropsTable data={[
+  { prop: "default slot", type: "VNode[]", description: "Content inside the link button" },
+  { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Visual color" },
+  { prop: "variant", type: '"solid" | "soft" | "outline" | "ghost"', default: '"solid"', description: "Style variant" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height and typography scale" },
+  { prop: "gutter-size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Override horizontal padding" },
+  { prop: "icon-size", type: '"sm" | "md" | "lg" | "xl" | "2xl"', description: "Override icon size" },
+  { prop: "href", type: "string", description: "Link URL" },
+  { prop: "to", type: "string | RouteLocationRaw", description: "Router link destination (internal)" },
+  { prop: "as", type: "Component", description: "Link component override (e.g. RouterLink, NuxtLink)" },
+  { prop: "external", type: "boolean", description: "Force external-link behavior" },
+  { prop: "optically-align", type: '"start" | "end"', description: "Apply optical negative margin alignment" },
+  { prop: "block", type: "boolean", default: "false", description: "Full width" },
+  { prop: "mobileMaterial", type: '"glass" | "flat"', description: "Phone surface for neutral soft/ghost buttons" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable link" },
+  { prop: "disabled-tone", type: '"relaxed"', description: "Use relaxed visual tone for disabled state" },
   { prop: "@click", type: "(event: MouseEvent) => void", description: "Emitted on click, unless disabled" },
 ]} />
 

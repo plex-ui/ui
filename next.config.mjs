@@ -132,6 +132,24 @@ const config = {
         destination: '/r/vue/stats-card.json',
         permanent: true,
       },
+      // Button Link is a section of the Button page: a link styled as a
+      // button, with Button's settings (owner 13.11). The Vue registry's
+      // Button item exports ButtonLink.
+      {
+        source: '/components/button-link',
+        destination: '/components/button#link',
+        permanent: true,
+      },
+      {
+        source: '/vue/components/button-link',
+        destination: '/vue/components/button#link',
+        permanent: true,
+      },
+      {
+        source: '/r/vue/button-link.json',
+        destination: '/r/vue/button.json',
+        permanent: true,
+      },
       // /docs/components/* and /docs/icons/* moved out of /docs to be
       // top-level peers of /docs and /blog (matches the top-nav
       // structure where Components / Icons are siblings of Docs).

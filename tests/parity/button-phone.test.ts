@@ -236,6 +236,22 @@ describe("Button docs on a phone", () => {
     expect(vue).toContain('{ name: "opticallyAlign", type: "select", options: ["none", "start"], default: "start", phoneOnly: true }')
   })
 
+  test("Button Link is the Button page's Link section: its old pages are gone and their addresses lead there", () => {
+    // Owner 13.11: «должен быть отдельной страницей? не очень понятно назначение» → «Да, влить в Button»
+    for (const [page, framework] of [[pages[0], "ui"], [vue, "vue"]] as const) {
+      expect(page).toContain(`import { Button, ButtonLink } from "@plexui/${framework}/components/Button";`)
+      expect(page).toContain("\n### Link\n")
+      expect(page).toContain("\n## ButtonLink\n")
+      // The API's ButtonLink table makes it a subcomponent in the MCP manifest
+      expect(page.split("\n## API\n")[1]).toContain("\n### ButtonLink\n")
+    }
+    for (const meta of ["content/components/meta.json", "content/vue/components/meta.json"]) expect(read(meta)).not.toContain('"button-link"')
+    const config = read("next.config.mjs")
+    for (const [from, to] of [["/components/button-link", "/components/button#link"], ["/vue/components/button-link", "/vue/components/button#link"], ["/r/vue/button-link.json", "/r/vue/button.json"]]) {
+      expect(config).toContain(`source: '${from}',\n        destination: '${to}',`)
+    }
+  })
+
   test("a screen's action stands at its top, next to the controls, in React and Vue", () => {
     for (const source of [react, vue]) expect(source).toContain('flex w-full flex-col items-center gap-[11px]')
     // Owner 08.11: the buttons stand up near the example's toggles, not at the foot of the screen

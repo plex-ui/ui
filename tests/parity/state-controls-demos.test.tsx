@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { act, cleanup, fireEvent, render, waitFor, within } from '@testing-library/react';
 import { DateTime, Settings } from 'luxon';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { ButtonOverviewDemo } from '../../components/docs/ButtonDemos';
+import { ButtonLinkDemo, ButtonOverviewDemo } from '../../components/docs/ButtonDemos';
 import { DateInputOverviewDemo } from '../../components/docs/DateInputDemos';
 import { DatePickerOverviewDemo } from '../../components/docs/DatePickerDemos';
 import { VueDemo, type VueDemoControl, type VueDemoOption, type VueDemoWhen } from '../../components/docs/vue/VueDemo';
@@ -57,6 +57,12 @@ const button = {
   template: pageExport('button', 'overview') as string,
   phoneTemplate: pageExport('button', 'overviewPhone') as string,
   controls: pageExport('button', 'overviewControls') as VueDemoControl[],
+};
+// The Button page's Link example: ButtonLink, a link styled as a button (the Button Link page was folded into it)
+const buttonLink = {
+  template: pageExport('button', 'link') as string,
+  phoneTemplate: pageExport('button', 'linkPhone') as string,
+  controls: pageExport('button', 'linkControls') as VueDemoControl[],
 };
 const dateInput = example('date-input', 'overview');
 // The Date Picker Overview as its page mounts it: its phone row, and the controls it keeps on desktop
@@ -156,6 +162,31 @@ describe.each(['React', 'Vue'])('%s state-only demo consolidation', (framework) 
     expect(send().getAttribute('aria-label')).toBe('Send');
     await show('desktop');
     expect(look()).toEqual(['soft', 'md', '', '', '', '']);
+  });
+
+  test('button link: a link styled as a button; external opens a new tab, disabled is a span with the link role', async () => {
+    const show = viewport();
+    const view = render(framework === 'React' ? <ButtonLinkDemo /> : <VuePhoneRowsDemo {...buttonLink} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const link = () => view.container.querySelector<HTMLElement>('[data-demo-stage] [data-variant]')!;
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    // An anchor with Button's look, its label then an arrow
+    expect([link().tagName, link().textContent?.trim(), link().dataset.variant, link().dataset.size]).toEqual(['A', 'View API Keys', 'solid', 'md']);
+    expect(link().innerHTML.indexOf('<svg')).toBeGreaterThan(link().innerHTML.indexOf('View API Keys'));
+    expect(link().hasAttribute('target')).toBe(false);
+    const arrow = link().querySelector('svg')!.innerHTML;
+    // external: a new tab, safely, and the arrow points up and out
+    await toggle('external');
+    expect([link().getAttribute('target'), link().getAttribute('rel')]).toEqual(['_blank', 'noopener noreferrer']);
+    expect(link().querySelector('svg')!.innerHTML).not.toBe(arrow);
+    // The same link on a phone, at the top of the screen
+    await show('phone');
+    expect([link().tagName, link().getAttribute('target')]).toEqual(['A', '_blank']);
+    await show('desktop');
+    // disabled: a span with the link role, not an anchor
+    await toggle('disabled');
+    expect([link().tagName, link().getAttribute('role'), link().getAttribute('aria-disabled')]).toEqual(['SPAN', 'link', 'true']);
   });
 
   test('date input preserves a typed date through disabled and accepts edits after re-enabling', async () => {

@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 63
+Components: 62
 
 ## Setup
 
@@ -138,34 +138,9 @@ Props:
     - className (string) default: — — Applied to the wrapper
 Examples: Overview, Orientation, Input group, Nested, Separator, Split, Input, Dropdown menu, Select, Popover
 
-## Button Link
-A semantic anchor with full button styling, for internal and external links with icons and block layout.
-Import: import { ButtonLink } from "@plexui/ui/components/Button"
-Docs: https://plexui.com/components/button-link
-Props:
-  - children (ReactNode) — Content inside the link button
-  - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color
-  - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Style variant
-  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and typography scale
-  - gutterSize ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Override horizontal padding
-  - iconSize ("sm" | "md" | "lg" | "xl" | "2xl") — Override icon size
-  - href (string) — Link URL
-  - to (string | object) — Router link destination (internal)
-  - as (ComponentType) — Link component override (e.g. Next Link)
-  - external (boolean) — Force external-link behavior
-  - opticallyAlign ("start" | "end") — Apply optical negative margin alignment
-  - block (boolean) default: false — Full width
-  - mobileMaterial ("glass" | "flat") — Phone surface for neutral soft/ghost buttons
-  - pill (boolean) default: false — Fully rounded
-  - disabled (boolean) default: false — Disable link
-  - disabledTone ("relaxed") — Use relaxed visual tone for disabled state
-  - className (string) — Custom classes for the root element
-  - onClick ((event: MouseEvent) => void) — Called on click, unless disabled
-Examples: Overview, Internal link, External link, Colors & variants, Sizing & roundness, Icons, Block, Disabled
-
 ## Button
-Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.
-Import: import { Button } from "@plexui/ui/components/Button"
+Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.
+Import: import { Button, ButtonLink } from "@plexui/ui/components/Button"
 Docs: https://plexui.com/components/button
 Props:
   - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color scheme
@@ -185,7 +160,26 @@ Props:
   - iconSize ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in children; defaults from size
   - type ("button" | "submit" | "reset") default: "button" — Native button type
   - onClick ((event: MouseEvent) => void) — Called on click, unless disabled
-Examples: Overview, Optical alignment
+  ButtonLink:
+    - children (ReactNode) — Content inside the link button
+    - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color
+    - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Style variant
+    - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and typography scale
+    - gutterSize ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Override horizontal padding
+    - iconSize ("sm" | "md" | "lg" | "xl" | "2xl") — Override icon size
+    - href (string) — Link URL
+    - to (string | object) — Router link destination (internal)
+    - as (ComponentType) — Link component override (e.g. Next Link)
+    - external (boolean) — Force external-link behavior
+    - opticallyAlign ("start" | "end") — Apply optical negative margin alignment
+    - block (boolean) default: false — Full width
+    - mobileMaterial ("glass" | "flat") — Phone surface for neutral soft/ghost buttons
+    - pill (boolean) default: false — Fully rounded
+    - disabled (boolean) default: false — Disable link
+    - disabledTone ("relaxed") — Use relaxed visual tone for disabled state
+    - className (string) — Custom classes for the root element
+    - onClick ((event: MouseEvent) => void) — Called on click, unless disabled
+Examples: Overview, Link, Optical alignment
 
 ## Card
 Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.

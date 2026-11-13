@@ -13,7 +13,6 @@ const componentLinks: FooterLink[] = [
   { label: 'Breadcrumb', href: '/components/breadcrumb' },
   { label: 'Button', href: '/components/button' },
   { label: 'Button Group', href: '/components/button-group' },
-  { label: 'Button Link', href: '/components/button-link' },
   { label: 'Card', href: '/components/card' },
   { label: 'Checkbox', href: '/components/checkbox' },
   { label: 'Code Block', href: '/components/code-block' },

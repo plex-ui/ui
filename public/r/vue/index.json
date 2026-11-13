@@ -65,7 +65,7 @@
     {
       "name": "button",
       "type": "registry:ui",
-      "description": "Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.",
+      "description": "Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -74,14 +74,6 @@
       "name": "button-group",
       "type": "registry:ui",
       "description": "Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.",
-      "dependencies": [
-        "@plexui/vue"
-      ]
-    },
-    {
-      "name": "button-link",
-      "type": "registry:ui",
-      "description": "A semantic anchor with full button styling, for internal and external links with icons and block layout.",
       "dependencies": [
         "@plexui/vue"
       ]
