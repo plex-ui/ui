@@ -12,7 +12,7 @@ export const week = [1, 2, 3, 4, 5, 6, 7].map((day) => {
   return { value: String(day), letter: format("narrow"), short: format("short"), name: format("long") }
 })
 
-export const overview = `<div class="flex w-full max-w-[350px] flex-col gap-4">
+export const overview = `<div class="flex w-full min-w-fit max-w-[350px] flex-col gap-4">
   <div class="flex items-baseline justify-between gap-4">
     <span id="repeat-label">Repeat</span>
     <span class="text-secondary">{{
@@ -21,12 +21,30 @@ export const overview = `<div class="flex w-full max-w-[350px] flex-col gap-4">
         : new Intl.ListFormat('en-US').format(week.filter((day) => days.includes(day.value)).map((day) => day.short))
     }}</span>
   </div>
-  <ToggleGroup aria-labelledby="repeat-label" v-model:value="days" pill uniform block>
+  <ToggleGroup
+    aria-labelledby="repeat-label"
+    v-model:value="days"
+    :color="color"
+    :size="size"
+    :pill="pill"
+    uniform
+    :block="block"
+    :disabled="disabled"
+  >
     <ToggleGroupItem v-for="day in week" :key="day.value" :value="day.value" :aria-label="day.name">
       {{ day.letter }}
     </ToggleGroupItem>
   </ToggleGroup>
 </div>`
+
+export const overviewControls = [
+  { name: "color", type: "select", options: ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"], default: "primary", menu: true },
+  // On a phone the items are always round, and a round item is the Clock app's 35pt circle at every size
+  { name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "md", menu: true, desktopOnly: true },
+  { name: "pill", type: "boolean", default: true, desktopOnly: true },
+  { name: "block", type: "boolean", default: true },
+  { name: "disabled", type: "boolean", default: false },
+]
 
 export const overviewCode = `<script setup lang="ts">
 import { ref } from 'vue';
@@ -41,11 +59,25 @@ const week = [1, 2, 3, 4, 5, 6, 7].map((day) => {
 });
 
 const days = ref(['3', '4', '5']);
+const color = ref<'primary' | 'secondary' | 'danger' | 'info' | 'discovery' | 'success' | 'caution' | 'warning'>('primary');
+const size = ref<'3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'>('md');
+const pill = ref(true);
+const block = ref(true);
+const disabled = ref(false);
 </script>
 
 <template>
   <span id="repeat-label">Repeat</span>
-  <ToggleGroup aria-labelledby="repeat-label" v-model:value="days" pill uniform block>
+  <ToggleGroup
+    aria-labelledby="repeat-label"
+    v-model:value="days"
+    :color="color"
+    :size="size"
+    :pill="pill"
+    uniform
+    :block="block"
+    :disabled="disabled"
+  >
     <ToggleGroupItem v-for="day in week" :key="day.value" :value="day.value" :aria-label="day.name">
       {{ day.letter }}
     </ToggleGroupItem>
@@ -58,22 +90,9 @@ export const text = `<ToggleGroup aria-label="Show" :default-value="['unread']">
   <ToggleGroupItem value="mentions">Mentions</ToggleGroupItem>
 </ToggleGroup>`
 
-export const color = `<ToggleGroup aria-label="Toppings" :color="color" :size="size" :pill="pill" :default-value="['olives', 'basil']">
-  <ToggleGroupItem value="olives">Olives</ToggleGroupItem>
-  <ToggleGroupItem value="basil">Basil</ToggleGroupItem>
-  <ToggleGroupItem value="onion">Onion</ToggleGroupItem>
-  <ToggleGroupItem value="peppers">Peppers</ToggleGroupItem>
-</ToggleGroup>`
-
-export const colorControls = [
-  { name: "color", type: "select", options: ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"], default: "info" },
-  { name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "lg" },
-  { name: "pill", type: "boolean", default: true },
-]
-
 export const disabled = `<div class="flex flex-col items-start gap-3">
   <span id="notify-label">Notify me by</span>
-  <ToggleGroup aria-labelledby="notify-label" :disabled="disabled" :default-value="['email', 'push']">
+  <ToggleGroup aria-labelledby="notify-label" :default-value="['email', 'push']">
     <ToggleGroupItem value="email" disabled>Email</ToggleGroupItem>
     <ToggleGroupItem value="push">Push</ToggleGroupItem>
     <ToggleGroupItem value="sms" disabled>SMS</ToggleGroupItem>
@@ -87,10 +106,16 @@ A toggle group sets several on or off choices that belong together, where any nu
 
 ## Examples
 
+<span id="color-and-size" />
+
 ### Overview
 
-<ComponentPreview language="vue" details={<>Round items spread across their row are the weekday buttons of the iOS Clock app's Repeat row, as in Add Alarm. On a phone with <code>touch.css</code> each is a 35pt circle with its letter at 17pt Semibold, as the native ones are. A narrow letter alone does not name a day: give each item the day's full name with <code>aria-label</code>. The summary beside the label is the app's to write; the example reads as the Clock app's does.</>} code={overviewCode} previewMinHeight={180}>
-  <VueDemo template={overview} state={{ days: ["3", "4", "5"], week }} />
+<ComponentPreview language="vue" details={<>
+  <p>Round items spread across their row are the weekday buttons of the iOS Clock app's Repeat row, as in Add Alarm. On a phone with <code>touch.css</code> each is a 35pt circle with its letter at 17pt Semibold, as the native ones are. A narrow letter alone does not name a day: give each item the day's full name with <code>aria-label</code>. The summary beside the label is the app's to write; the example reads as the Clock app's does.</p>
+  <p>The group's <code>color</code> fills a pressed item, a solid button; an item that is not pressed stays a soft secondary button whatever the color. <code>size</code> sizes every item as it sizes a Button, from <code>3xs</code> (22px) to <code>3xl</code> (48px). <code>pill</code> rounds the items fully, circles here, as <code>uniform</code> makes them as wide as they are tall, for a letter or an icon. <code>block</code> spreads them across the width of their container; without it the group is as wide as its items, 8px apart. <code>disabled</code> disables the whole group.</p>
+  <p>On a phone with <code>touch.css</code> every item is fully rounded, as iOS draws its buttons, and a letter is the Clock app's 35pt circle at every size, so the Phone preview offers neither <code>pill</code> nor <code>size</code>. Items of text there take the three iOS button heights.</p>
+</>} code={overviewCode} previewMinHeight={220}>
+  <VueDemo template={overview} controls={overviewControls} state={{ days: ["3", "4", "5"], week }} />
 </ComponentPreview>
 
 ### Text
@@ -99,16 +124,10 @@ A toggle group sets several on or off choices that belong together, where any nu
   <VueDemo template={text} />
 </ComponentPreview>
 
-### Color and size
-
-<ComponentPreview language="vue" details={<>Change <code>color</code>, <code>size</code> and <code>pill</code> above. The group's <code>color</code> fills a pressed item, a solid button; an item that is not pressed stays a soft secondary button whatever the color. <code>size</code> sizes every item as it sizes a Button, from <code>3xs</code> (22px) to <code>3xl</code> (48px); on a phone with <code>touch.css</code> the items take the three iOS button heights. <code>pill</code> rounds them fully.</>} code={color} previewMinHeight={180}>
-  <VueDemo template={color} controls={colorControls} />
-</ComponentPreview>
-
 ### Disabled
 
-<ComponentPreview language="vue" details={<><code>disabled</code> on an item keeps it as it is: Email stays pressed, as account emails cannot be turned off, and SMS stays released until there is a phone number. Turn on <code>disabled</code> above to disable the whole group. A disabled item shows at half opacity, pressed or not, as iOS dims a disabled segmented control, and it can be neither pressed nor reached with the arrow keys.</>} code={disabled} previewMinHeight={180}>
-  <VueDemo template={disabled} controls={[{ name: "disabled", type: "boolean", default: false }]} />
+<ComponentPreview language="vue" details={<><code>disabled</code> on an item keeps it as it is: Email stays pressed, as account emails cannot be turned off, and SMS stays released until there is a phone number. A disabled item shows at half opacity, pressed or not, as iOS dims a disabled segmented control, and it can be neither pressed nor reached with the arrow keys.</>} code={disabled} previewMinHeight={180}>
+  <VueDemo template={disabled} />
 </ComponentPreview>
 
 ## API

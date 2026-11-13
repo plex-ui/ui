@@ -2,13 +2,12 @@
 
 import { useState, type ReactNode } from 'react';
 import { Switch } from '@plexui/ui/components/Switch';
-import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { FormScreen } from './FormRowsDemos';
 import { phoneRowsClassName, usePhoneRows } from './PhoneRows';
 
-import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { DemoControlBoolean, Segments, controlsTableStyle } from './ButtonDemos';
 
 function PhoneSwitchGroup({ children, title, footer }: { children: ReactNode; title?: string; footer?: string }) {
   return (
@@ -18,89 +17,55 @@ function PhoneSwitchGroup({ children, title, footer }: { children: ReactNode; ti
   );
 }
 
-export function SwitchStatesDemo() {
+const COLORS = ['primary', 'accent'] as const;
+const LABEL_POSITIONS = ['start', 'end'] as const;
+// Two settings, one on and one off, so every setting shows on both states
+const OVERVIEW_SWITCHES = [
+  { name: 'notifications', label: 'Notifications', description: 'Messages and mentions.', defaultChecked: true },
+  { name: 'summary', label: 'Weekly summary', description: 'Sent on Mondays.', defaultChecked: false },
+] as const;
+
+/** The Overview, with every setting of a switch on two of them, one on and one off: what the page's examples Overview
+ * (off and on, enabled and disabled) and Label and description showed are its settings (owner 11.11: «в первом примере
+ * можно сразу показать все со всеми настройками»). On a phone each switch is the trailing control of a row, which
+ * holds its label and description; the label stays at the start there, so labelPosition is a desktop setting. */
+export function SwitchOverviewDemo() {
   const phone = usePhoneRows();
-  const [color, setColor] = useState<'primary' | 'accent'>('accent');
+  const [color, setColor] = useState<(typeof COLORS)[number]>('accent');
+  const [description, setDescription] = useState(false);
+  const [labelPosition, setLabelPosition] = useState<(typeof LABEL_POSITIONS)[number]>('start');
+  const [disabled, setDisabled] = useState(false);
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="color">
-          <SegmentedControl<'primary' | 'accent'> value={color} onChange={setColor} aria-label="color" size="xs">
-            <SegmentedControl.Option value="primary">primary</SegmentedControl.Option>
-            <SegmentedControl.Option value="accent">accent</SegmentedControl.Option>
-          </SegmentedControl>
-        </DemoControlRow>
+        <Segments name="color" options={COLORS} value={color} onChange={setColor} />
+        <DemoControlBoolean name="description" value={description} onChange={setDescription} />
+        <Segments name="labelPosition" options={LABEL_POSITIONS} value={labelPosition} onChange={setLabelPosition} desktopOnly />
+        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
-      <div data-demo-stage className={phone ? 'w-full' : 'flex w-full flex-1 items-center justify-center py-8'}>
-        {phone ? (
-          <div data-phone-rows className={phoneRowsClassName}>
-            {[false, true].map((disabled) => (
-              <FieldGroup key={String(disabled)} title={disabled ? 'Disabled' : 'Enabled'}>
-                {[false, true].map((checked) => (
-                  <Field key={String(checked)} row label={checked ? 'Initially on' : 'Initially off'}>
-                    <Switch color={color} disabled={disabled} defaultChecked={checked} />
-                  </Field>
-                ))}
-              </FieldGroup>
-            ))}
-          </div>
-        ) : (
-          <table className="w-full max-w-sm border-separate border-spacing-x-4 border-spacing-y-4 text-sm">
-            <caption className="sr-only">Initial switch states. Enabled switches are interactive.</caption>
-            <thead>
-              <tr>
-                <th scope="col" className="text-left font-normal text-secondary">State</th>
-                <th scope="col" className="text-center font-normal text-secondary">Off</th>
-                <th scope="col" className="text-center font-normal text-secondary">On</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[false, true].map((disabled) => (
-                <tr key={String(disabled)}>
-                  <th scope="row" className="text-left font-normal">{disabled ? 'Disabled' : 'Enabled'}</th>
-                  {[false, true].map((checked) => (
-                    <td key={String(checked)}>
-                      <div className="flex justify-center">
-                        <Switch color={color} disabled={disabled} defaultChecked={checked} aria-label={(disabled ? 'Disabled' : 'Enabled') + ', initially ' + (checked ? 'on' : 'off')} />
-                      </div>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </>
-  );
-}
-
-
-export function SwitchLabelsDemo() {
-  const phone = usePhoneRows();
-  const [labelPosition, setLabelPosition] = useState<'start' | 'end'>('start');
-  return (
-    <>
-      {!phone && (
-        <div data-demo-controls style={controlsTableStyle}>
-          <DemoControlRow name="labelPosition">
-            <SegmentedControl<'start' | 'end'> value={labelPosition} onChange={setLabelPosition} aria-label="labelPosition" size="xs">
-              <SegmentedControl.Option value="start">start</SegmentedControl.Option>
-              <SegmentedControl.Option value="end">end</SegmentedControl.Option>
-            </SegmentedControl>
-          </DemoControlRow>
-        </div>
-      )}
       <div data-demo-stage className={phone ? 'w-full' : 'flex w-full flex-1 items-center justify-center py-8'}>
         {phone ? (
           <PhoneSwitchGroup>
-            <Field row label="Notifications"><Switch color="accent" name="notifications" defaultChecked /></Field>
-            <Field row label="Weekly summary" description="Sent on Mondays."><Switch color="accent" name="summary" /></Field>
+            {OVERVIEW_SWITCHES.map((item) => (
+              <Field key={item.name} row label={item.label} description={description ? item.description : undefined}>
+                <Switch color={color} name={item.name} defaultChecked={item.defaultChecked} disabled={disabled} />
+              </Field>
+            ))}
           </PhoneSwitchGroup>
         ) : (
           <div className="flex w-full max-w-sm flex-col gap-6">
-            <Switch color="accent" name="notifications" label="Notifications" labelPosition={labelPosition} defaultChecked />
-            <Switch color="accent" name="summary" label="Weekly summary" description="Sent on Mondays." labelPosition={labelPosition} />
+            {OVERVIEW_SWITCHES.map((item) => (
+              <Switch
+                key={item.name}
+                color={color}
+                name={item.name}
+                label={item.label}
+                description={description ? item.description : undefined}
+                labelPosition={labelPosition}
+                defaultChecked={item.defaultChecked}
+                disabled={disabled}
+              />
+            ))}
           </div>
         )}
       </div>

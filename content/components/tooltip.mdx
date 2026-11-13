@@ -4,12 +4,35 @@ description: Brief informative text shown on hover or focus, for any trigger ele
 metaDescription: React tooltip component for brief informative hover text, with any trigger element, conditional enabling, and a compact variant.
 ---
 
-import {
-  TooltipCompactDemo,
-  TooltipConditionalDemo,
-  TooltipOverviewDemo,
-  TooltipTriggersDemo,
-} from "@/components/docs/TooltipDemos"
+import { TooltipOverviewDemo } from "@/components/docs/TooltipDemos"
+
+export const overviewCode = `const [trigger, setTrigger] = useState<"text" | "button" | "icon">("text")
+const [compact, setCompact] = useState(false)
+const [side, setSide] = useState<"top" | "right" | "bottom" | "left">("top")
+const [disabled, setDisabled] = useState(false)
+
+<>
+  {trigger === "text" && (
+    // Tooltip.TriggerDecorator makes text a trigger
+    <Tooltip content="This is additional context that appears when the trigger is hovered or focused" compact={compact} side={side}>
+      <Tooltip.TriggerDecorator>Simple text with tooltip</Tooltip.TriggerDecorator>
+    </Tooltip>
+  )}
+  {trigger === "button" && (
+    <Tooltip content={disabled ? "This action is disabled for reasons" : "Tooltip on button"} compact={compact} side={side}>
+      <Button color="primary" size="lg" disabled={disabled}>
+        Sample button
+      </Button>
+    </Tooltip>
+  )}
+  {trigger === "icon" && (
+    <Tooltip content={disabled ? "This action is disabled for reasons" : "Copy to clipboard"} compact={compact} side={side}>
+      <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard" disabled={disabled}>
+        <Copy />
+      </Button>
+    </Tooltip>
+  )}
+</>`
 
 <UsageBlock>{`import { Tooltip } from "@plexui/ui/components/Tooltip";`}</UsageBlock>
 
@@ -17,46 +40,18 @@ import {
 
 Tooltips provide supplementary information on hover or keyboard focus. Touch-only users need visible helper text or a tap-triggered [Popover](/components/popover). These examples use pointer and keyboard interactions, so they do not have a separate Phone preview. For copying, [Copy Tooltip](/components/copy-tooltip) confirms the action after a successful tap.
 
+<span id="different-triggers" />
+<span id="conditionally-enabled" />
+<span id="compact-tooltips" />
+
 ### Overview
 
-<ComponentPreview phonePresentation="none" code={`<Tooltip content="This is additional context that appears when the trigger is hovered or focused">
-  <Tooltip.TriggerDecorator>Simple text with tooltip</Tooltip.TriggerDecorator>
-</Tooltip>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" details={<>
+  <p>Any element can be the trigger: <code>trigger</code> shows text, a button and an icon button. Text is no tab stop of its own, so wrap it in <code>Tooltip.TriggerDecorator</code>, which makes it one and marks it with a dotted underline; a plain <code>span</code> shows its tooltip on hover only, and a keyboard never reaches it. An icon button names itself with <code>aria-label</code>, and its tooltip says the same in words.</p>
+  <p><code>compact</code> is for short tooltips of one to three words: little padding (2px by 8px) and inverted colors, a dark fill with light text in the light theme and the other way round in the dark one. <code>side</code> is the side the tooltip prefers; it turns to the other side when there is no room.</p>
+  <p>A disabled button can tell why in its tooltip on hover (a disabled button is no tab stop): pass the reason as <code>content</code> while it is disabled. To show a tooltip only under a condition, pass <code>null</code> otherwise.</p>
+</>} code={overviewCode} previewMinHeight={200}>
   <TooltipOverviewDemo />
-</ComponentPreview>
-
-### Different triggers
-
-<ComponentPreview phonePresentation="none" details={<><code>Tooltip</code> provides an optional component, <code>Tooltip.TriggerDecorator</code>, to help create accessible tooltip triggers. However, any component can be used as a trigger.</>} code={`<div className="flex items-center gap-4">
-  <Tooltip content="Tooltip on button">
-    <Button color="primary" size="lg">Sample button</Button>
-  </Tooltip>
-  <Tooltip content="Tooltip on span">
-    <span>Inaccessible trigger</span>
-  </Tooltip>
-</div>`} previewMinHeight={168}>
-  <TooltipTriggersDemo />
-</ComponentPreview>
-
-### Conditionally enabled
-
-<ComponentPreview phonePresentation="none" details={<>Sometimes a tooltip should only be disabled under certain conditions, such as when a component is disabled, providing more context as to why that is. Below is an example of how to do this by conditionally passing in <code>null</code> content.</>} code={`<Tooltip
-  content={disabled ? "This action is disabled for reasons" : null}
->
-  <Button color="primary" size="lg" disabled={disabled}>
-    Sample button
-  </Button>
-</Tooltip>
-`} previewMinHeight={168}>
-  <TooltipConditionalDemo />
-</ComponentPreview>
-
-### Compact tooltips
-
-<ComponentPreview phonePresentation="none" details={<>Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use <code>{'compact={true}'}</code> for brief status messages.</>} code={`<Tooltip content="Copy to clipboard" compact>
-  <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard"><Copy /></Button>
-</Tooltip>`} previewMinHeight={168}>
-  <TooltipCompactDemo />
 </ComponentPreview>
 
 ## API

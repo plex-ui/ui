@@ -333,7 +333,6 @@
   .Alert:where(:not([data-mobile-actions="own"])) .Actions > :where(button, a, [role="link"]) {
     --button-size: var(--button-size-xl, 50px);
     --button-font-size: var(--button-font-size-xl, 17px);
-    --button-font-weight: var(--font-weight-semibold);
     --button-gutter: var(--button-gutter-xl, 20px);
     --button-radius: var(--radius-full);
     flex: 1 0 auto;

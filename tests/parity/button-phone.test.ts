@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs"
 import postcss, { type Rule } from "postcss"
 import { describe, expect, test } from "vitest"
 
-// Plan 169g: Button on a phone. A solid, soft or outline label is Semibold and a ghost one Regular, as iOS 26
-// screens set them (IMG_5432, IMG_5516, IMG_5437, IMG_5494, IMG_5453; the kit draws them all Regular); an icon-only
+// Plan 169g: Button on a phone. A solid, soft or outline label is Medium (510) and a ghost one Regular, as the iOS 27
+// kit's glass and Borderless buttons and Apple's apps set them apart (owner 13.11; SwiftUI draws all Regular); an icon-only
 // button is the kit's symbol button, a circle as tall as a text button of its size, with or without `uniform`
 // (Button - Content Area 40:58696; owner 08.11: uniform made every size 44). The docs pages show a phone as screens of
 // these buttons, the same in React and Vue.
@@ -34,9 +34,17 @@ describe("Button on a phone", () => {
 
   const steps = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
 
-  test("a filled, tinted or gray button is Semibold, on the button itself with no specificity, a disabled link too", () => {
+  test("a filled, tinted or gray button is Medium (510), on the button itself with no specificity, a disabled link too", () => {
+    // The kit's glass text buttons are Medium; an Apple app's filled label strokes 1.93pt at 17pt, Inter 510 1.85
+    // and 590 2.12 (owner 13.11: Semibold «толще чем должны быть»)
     expect(declsOf(touch, ':where(:is(button, a, [role="link"])[data-variant]:not([data-variant="ghost"])[data-color][data-size])', true))
-      .toEqual({ "--button-font-weight": "var(--font-weight-semibold)" })
+      .toEqual({ "--button-font-weight": "510" })
+  })
+
+  test("a round Toggle Group item keeps the Clock's Semibold letters past it", () => {
+    expect(read(touch)).toMatch(/--toggle-group-round-font-weight: 590;/)
+    expect(declsOf(touch, ':where([data-slot="toggle-group"]) > :where([data-pill][data-uniform])', true))
+      .toMatchObject({ "--button-font-weight": "var(--toggle-group-round-font-weight)" })
   })
 
   test("the root keeps Regular for ghost buttons and drops the gutters of an icon-only button; uniform takes no size of its own", () => {

@@ -75,29 +75,3 @@ export function StepperRangeDemo() {
     </>
   );
 }
-
-export function StepperStatesDemo() {
-  const [disabled, setDisabled] = useState(false);
-  const [pill, setPill, shownPill] = useDesktopOnlyState(true);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
-      </div>
-      <Rows>
-        <FieldGroup className={GROUP}>
-          <Field row label="At the lowest value">
-            <Stepper defaultValue={0} min={0} max={10} disabled={disabled} pill={shownPill} />
-          </Field>
-          <Field row label="In the range">
-            <Stepper defaultValue={5} min={0} max={10} disabled={disabled} pill={shownPill} />
-          </Field>
-          <Field row label="At the highest value">
-            <Stepper defaultValue={10} min={0} max={10} disabled={disabled} pill={shownPill} />
-          </Field>
-        </FieldGroup>
-      </Rows>
-    </>
-  );
-}

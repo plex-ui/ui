@@ -84,7 +84,7 @@ function OAuthButton({
       pill
       block
       onClick={onClick}
-      className="h-[3.25rem] font-medium"
+      className="h-[3.25rem]"
     >
       {icon}
       {children}

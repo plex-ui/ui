@@ -155,10 +155,10 @@ export const oauth = `<component :is="AuthFormStage" :title="mode === 'log-in' ?
   </div>
 
   <div class="flex flex-col gap-3">
-    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="GoogleLogo" />Continue with Google</Button>
-    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="AppleLogo" />Continue with Apple</Button>
-    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="MicrosoftLogo" />Continue with Microsoft</Button>
-    <Button v-if="mode === 'log-in'" color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="PhoneLogo" />Continue with phone</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="GoogleLogo" />Continue with Google</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="AppleLogo" />Continue with Apple</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="MicrosoftLogo" />Continue with Microsoft</Button>
+    <Button v-if="mode === 'log-in'" color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="PhoneLogo" />Continue with phone</Button>
   </div>
 
   <div class="mt-8"><component :is="AuthLegalNotice" /></div>

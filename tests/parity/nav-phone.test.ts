@@ -152,10 +152,11 @@ describe("an inline Alert on a phone takes the shape and text of an iOS tip (Tip
     expect(phoneRule(css, '.Alert:where(:not([data-mobile-actions="own"])) .Actions > :where(button, a, [role="link"])')).toMatchObject({
       "--button-size": "var(--button-size-xl, 50px)",
       "--button-gutter": "var(--button-gutter-xl, 20px)",
-      "--button-font-weight": "var(--font-weight-semibold)",
       "--button-radius": "var(--radius-full)",
       "min-width": "calc(50% - 4px)",
     })
+    // The weight is a phone button's own: Medium filled, Regular ghost (touch.css)
+    expect(phoneRule(css, '.Alert:where(:not([data-mobile-actions="own"])) .Actions > :where(button, a, [role="link"])')).not.toHaveProperty("--button-font-weight")
     expect(phoneRule(css, ".Alert .Actions > .DismissButton")).toEqual({ display: "none" })
     // A 44px target whose background and focus ring draw the 26px circle 14 from the edges, the first line of text short of it
     expect(phoneRule(css, ".Alert > .CloseButton")).toMatchObject({ "--button-uniform-size": "44px", "--button-icon-size": "19px", position: "absolute", top: "5px", "inset-inline-end": "5px", display: "inline-flex" })

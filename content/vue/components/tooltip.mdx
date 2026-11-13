@@ -6,28 +6,60 @@ metaDescription: Vue 3 tooltip component for brief informative hover text, with 
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
-export const base = `<Tooltip content="This is additional context that appears when the trigger is hovered or focused">
+export const overview = `<!-- Text: TooltipTriggerDecorator makes it a trigger -->
+<Tooltip v-if="trigger === 'text'" content="This is additional context that appears when the trigger is hovered or focused" :compact="compact" :side="side">
   <TooltipTriggerDecorator>Simple text with tooltip</TooltipTriggerDecorator>
-</Tooltip>`
-
-export const triggers = `<div class="flex items-center gap-4">
-  <Tooltip content="Tooltip on button">
-    <Button color="primary" size="lg">Sample button</Button>
-  </Tooltip>
-  <Tooltip content="Tooltip on span">
-    <span>Inaccessible trigger</span>
-  </Tooltip>
-</div>`
-
-export const conditional = `<Tooltip :content="disabled ? 'This action is disabled for reasons' : null">
+</Tooltip>
+<!-- A button -->
+<Tooltip v-else-if="trigger === 'button'" :content="disabled ? 'This action is disabled for reasons' : 'Tooltip on button'" :compact="compact" :side="side">
   <Button color="primary" size="lg" :disabled="disabled">
     Sample button
   </Button>
+</Tooltip>
+<!-- An icon button -->
+<Tooltip v-else :content="disabled ? 'This action is disabled for reasons' : 'Copy to clipboard'" :compact="compact" :side="side">
+  <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard" :disabled="disabled">
+    <Copy />
+  </Button>
 </Tooltip>`
 
-export const compact = `<Tooltip content="Copy to clipboard" compact>
-  <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard"><Copy /></Button>
-</Tooltip>`
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+import { Copy } from '@plexui/vue/components/Icon';
+import { Tooltip, TooltipTriggerDecorator } from '@plexui/vue/components/Tooltip';
+
+const trigger = ref<'text' | 'button' | 'icon'>('text');
+const compact = ref(false);
+const side = ref<'top' | 'right' | 'bottom' | 'left'>('top');
+const disabled = ref(false);
+</script>
+
+<template>
+  <!-- Text: TooltipTriggerDecorator makes it a trigger -->
+  <Tooltip v-if="trigger === 'text'" content="This is additional context that appears when the trigger is hovered or focused" :compact="compact" :side="side">
+    <TooltipTriggerDecorator>Simple text with tooltip</TooltipTriggerDecorator>
+  </Tooltip>
+  <!-- A button -->
+  <Tooltip v-else-if="trigger === 'button'" :content="disabled ? 'This action is disabled for reasons' : 'Tooltip on button'" :compact="compact" :side="side">
+    <Button color="primary" size="lg" :disabled="disabled">
+      Sample button
+    </Button>
+  </Tooltip>
+  <!-- An icon button -->
+  <Tooltip v-else :content="disabled ? 'This action is disabled for reasons' : 'Copy to clipboard'" :compact="compact" :side="side">
+    <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard" :disabled="disabled">
+      <Copy />
+    </Button>
+  </Tooltip>
+</template>`
+
+export const overviewControls = [
+  { name: "trigger", type: "select", options: ["text", "button", "icon"], default: "text" },
+  { name: "compact", type: "boolean", default: false },
+  { name: "side", type: "select", options: ["top", "right", "bottom", "left"], default: "top" },
+  { name: "disabled", type: "boolean", default: false, when: { trigger: ["button", "icon"] } },
+]
 
 <UsageBlock>{`import { Tooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip";`}</UsageBlock>
 
@@ -35,28 +67,18 @@ export const compact = `<Tooltip content="Copy to clipboard" compact>
 
 Tooltips provide supplementary information on hover or keyboard focus. Touch-only users need visible helper text or a tap-triggered [Popover](/vue/components/popover). These examples use pointer and keyboard interactions, so they do not have a separate Phone preview. For copying, [Copy Tooltip](/vue/components/copy-tooltip) confirms the action after a successful tap.
 
+<span id="different-triggers" />
+<span id="conditionally-enabled" />
+<span id="compact-tooltips" />
+
 ### Overview
 
-<ComponentPreview phonePresentation="none" language="vue" code={base} previewMinHeight={168}>
-  <VueDemo template={base} />
-</ComponentPreview>
-
-### Different triggers
-
-<ComponentPreview phonePresentation="none" language="vue" details={<><code>Tooltip</code> provides an optional component, <code>TooltipTriggerDecorator</code>, to help create accessible tooltip triggers. However, any component can be used as a trigger.</>} code={triggers} previewMinHeight={168}>
-  <VueDemo template={triggers} />
-</ComponentPreview>
-
-### Conditionally enabled
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Sometimes a tooltip should only be disabled under certain conditions, such as when a component is disabled, providing more context as to why that is. Below is an example of how to do this by conditionally passing in <code>null</code> content.</>} code={conditional} previewMinHeight={168}>
-  <VueDemo template={conditional} controls={[{ name: "disabled", type: "boolean", default: true }]} />
-</ComponentPreview>
-
-### Compact tooltips
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use <code>compact</code> for brief status messages.</>} code={compact} previewMinHeight={168}>
-  <VueDemo template={compact} />
+<ComponentPreview phonePresentation="none" language="vue" details={<>
+  <p>Any element can be the trigger: <code>trigger</code> shows text, a button and an icon button. Text is no tab stop of its own, so wrap it in <code>TooltipTriggerDecorator</code>, which makes it one and marks it with a dotted underline; a plain <code>span</code> shows its tooltip on hover only, and a keyboard never reaches it. An icon button names itself with <code>aria-label</code>, and its tooltip says the same in words.</p>
+  <p><code>compact</code> is for short tooltips of one to three words: little padding (2px by 8px) and inverted colors, a dark fill with light text in the light theme and the other way round in the dark one. <code>side</code> is the side the tooltip prefers; it turns to the other side when there is no room.</p>
+  <p>A disabled button can tell why in its tooltip on hover (a disabled button is no tab stop): pass the reason as <code>content</code> while it is disabled. To show a tooltip only under a condition, pass <code>null</code> otherwise.</p>
+</>} code={overviewCode} previewMinHeight={200}>
+  <VueDemo template={overview} controls={overviewControls} />
 </ComponentPreview>
 
 ## API

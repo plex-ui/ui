@@ -12,6 +12,9 @@ import { TabsOverviewDemo } from '../../components/docs/TabsDemos';
 import { TableVariantDemo } from '../../components/docs/TableDemos';
 import { TextareaOverviewDemo } from '../../components/docs/TextareaDemos';
 import { TextLinkOverviewDemo } from '../../components/docs/TextLinkDemos';
+import { TooltipOverviewDemo } from '../../components/docs/TooltipDemos';
+import { ToggleGroupOverviewDemo } from '../../components/docs/ToggleGroupDemos';
+import { SwitchOverviewDemo } from '../../components/docs/SwitchDemos';
 import { EmptyMessageOverviewDemo } from '../../components/docs/EmptyMessageDemos';
 import { DateInputOverviewDemo } from '../../components/docs/DateInputDemos';
 import { SelectControlOverviewDemo } from '../../components/docs/SelectControlDemos';
@@ -117,6 +120,17 @@ const checkbox = example('checkbox', 'overview');
 const avatar = example('avatar', 'overview');
 const alert = example('alert', 'overview');
 const textLink = example('text-link', 'overview');
+const tooltip = example('tooltip', 'overview');
+const switchOverview = example('switch', 'overview');
+/** The Toggle Group Overview as its page mounts it, with the days and the week it reads */
+const toggleGroup = (() => {
+  const week = [1, 2, 3, 4, 5, 6, 7].map((day) => {
+    const date = Date.UTC(2024, 0, day);
+    const format = (weekday: 'narrow' | 'short' | 'long') => new Intl.DateTimeFormat('en-US', { weekday, timeZone: 'UTC' }).format(date);
+    return { value: String(day), letter: format('narrow'), short: format('short'), name: format('long') };
+  });
+  return { ...example('toggle-group', 'overview'), state: { days: ['3', '4', '5'], week } };
+})();
 const emptyMessage = example('empty-message', 'overview');
 /** The Indicators Overview as its page mounts it, with the loop that restarts its simulated ring */
 const indicators = (() => {
@@ -505,6 +519,124 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(links().every((link) => link.classList.contains('font-semibold'))).toBe(true);
     await choose('weight', 'normal');
     expect(links().some((link) => /font-/.test(link.className))).toBe(false);
+  });
+
+  test('tooltip: one Overview carries the trigger, compact, side and disabled (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <TooltipOverviewDemo /> : <VueDemo {...tooltip} stageClassName="flex" />);
+    await interact(() => {});
+    const page = within(view.container);
+    const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const offered = (name: string) => page.queryByRole('switch', { name, exact: true }) !== null;
+    const options = (name: string) => within(page.getByRole('radiogroup', { name })).getAllByRole('radio').map((option) => option.textContent);
+    expect(options('trigger')).toEqual(['text', 'button', 'icon']);
+    expect(options('side')).toEqual(['top', 'right', 'bottom', 'left']);
+    // Text is a trigger through the decorator, a tab stop; disabling it means nothing, so disabled is not offered
+    expect(stage().textContent).toContain('Simple text with tooltip');
+    expect(stage().querySelector('[tabindex="0"]')?.textContent).toBe('Simple text with tooltip');
+    expect(offered('compact')).toBe(true);
+    expect(offered('disabled')).toBe(false);
+    // compact and side reach the tooltip: focus the trigger and read the open tooltip
+    await toggle('compact');
+    await choose('side', 'left');
+    const trigger = stage().querySelector<HTMLElement>('[tabindex="0"]')!;
+    await interact(() => trigger.focus());
+    // Unpositioned in jsdom, the popper keeps the tooltip hidden
+    const tip = (await within(document.body).findAllByRole('tooltip', { hidden: true }))[0];
+    const content = (tip.closest<HTMLElement>('[data-compact]') ?? tip.querySelector<HTMLElement>('[data-compact]'))!;
+    expect(content.dataset.compact).toBe('true');
+    expect(content.dataset.side).toBe('left');
+    expect(tip.textContent).toContain('This is additional context');
+    await interact(() => trigger.blur());
+    // A button can be disabled; text gives a disabled button back, and the setting returns with its control
+    await choose('trigger', 'button');
+    const button = () => within(stage()).getByRole('button');
+    expect(button().textContent?.trim()).toBe('Sample button');
+    expect(offered('disabled')).toBe(true);
+    await toggle('disabled');
+    expect(button().hasAttribute('disabled') || button().getAttribute('aria-disabled') === 'true').toBe(true);
+    await choose('trigger', 'icon');
+    expect(button().getAttribute('aria-label')).toBe('Copy to clipboard');
+    expect(button().hasAttribute('disabled') || button().getAttribute('aria-disabled') === 'true').toBe(true);
+    await choose('trigger', 'text');
+    expect(stage().querySelector('button')).toBeNull();
+    await choose('trigger', 'button');
+    expect(page.getByRole('switch', { name: 'disabled', exact: true }).getAttribute('aria-checked')).toBe('true');
+    await toggle('disabled');
+    expect(button().hasAttribute('disabled')).toBe(false);
+  });
+
+  test('toggle group: one Overview on the Repeat row carries every setting of the group (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <ToggleGroupOverviewDemo /> : <VueDemo {...toggleGroup} stageClassName="flex" />);
+    await interact(() => {});
+    const page = within(view.container);
+    const group = () => view.container.querySelector<HTMLElement>('[data-demo-stage] [role="toolbar"]')!;
+    const items = () => [...group().querySelectorAll<HTMLButtonElement>('button')];
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const pick = async (name: string, option: string) => {
+      await interact(() => fireEvent.click(page.getByRole('button', { name: new RegExp(`^${name}`) })));
+      const list = await within(document.body).findByRole('listbox');
+      await interact(() => fireEvent.click(within(list).getByRole('option', { name: option, exact: true })));
+    };
+    // The Clock app's Repeat row: seven letters named in full, Wednesday to Friday pressed
+    expect(items().map((item) => item.textContent?.trim())).toEqual(['M', 'T', 'W', 'T', 'F', 'S', 'S']);
+    expect(items()[0].getAttribute('aria-label')).toBe('Monday');
+    expect(items().map((item) => item.getAttribute('aria-pressed'))).toEqual(['false', 'false', 'true', 'true', 'true', 'false', 'false']);
+    expect(view.container.textContent).toContain('Wed, Thu, and Fri');
+    // color and size, of eight and nine options, are menus
+    expect(page.queryByRole('radiogroup', { name: 'color' })).toBeNull();
+    expect([items()[2].dataset.color, items()[2].dataset.size]).toEqual(['primary', 'md']);
+    await pick('color', 'info');
+    await pick('size', 'lg');
+    expect([items()[2].dataset.color, items()[2].dataset.size]).toEqual(['info', 'lg']);
+    // Round letters: pill and uniform; pill and block can go
+    expect([group().hasAttribute('data-block'), items()[0].hasAttribute('data-pill'), items()[0].hasAttribute('data-uniform')]).toEqual([true, true, true]);
+    expect(page.queryByRole('switch', { name: 'uniform', exact: true })).toBeNull();
+    await toggle('pill');
+    await toggle('block');
+    expect([group().hasAttribute('data-block'), items()[0].hasAttribute('data-pill')]).toEqual([false, false]);
+    // Pressing works, and disabled stops it
+    await interact(() => fireEvent.click(items()[0]));
+    expect(items()[0].getAttribute('aria-pressed')).toBe('true');
+    await toggle('disabled');
+    await interact(() => fireEvent.click(items()[1]));
+    expect(items()[1].getAttribute('aria-pressed')).toBe('false');
+    expect(items().every((item) => item.disabled || item.hasAttribute('data-disabled'))).toBe(true);
+  });
+
+  test('switch: one Overview on a switch that is on and one that is off carries every setting (owner 11.11)', async () => {
+    const view = render(framework === 'React' ? <SwitchOverviewDemo /> : <VueDemo {...switchOverview} stageClassName="flex" />);
+    await interact(() => {});
+    const page = within(view.container);
+    const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+    const switches = () => within(stage()).getAllByRole('switch');
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const disabled = (element: HTMLElement) => element.hasAttribute('disabled') || element.hasAttribute('data-disabled');
+    // Two labelled switches, one on and one off, named for a form
+    expect(switches().map((element) => element.getAttribute('aria-checked'))).toEqual(['true', 'false']);
+    expect(stage().textContent).toContain('Notifications');
+    expect(stage().textContent).toContain('Weekly summary');
+    expect(stage().textContent).not.toContain('Sent on Mondays.');
+    expect(within(page.getByRole('radiogroup', { name: 'color' })).getAllByRole('radio').map((option) => option.textContent)).toEqual(['primary', 'accent']);
+    const colors = () => switches().map((element) => element.closest<HTMLElement>('[data-color]')?.dataset.color);
+    expect(colors()).toEqual(['accent', 'accent']);
+    await choose('color', 'primary');
+    expect(colors()).toEqual(['primary', 'primary']);
+    // A description is linked to its switch
+    await toggle('description');
+    expect(stage().textContent).toContain('Messages and mentions.');
+    const describedBy = switches()[1].getAttribute('aria-describedby');
+    expect(describedBy && document.getElementById(describedBy.split(' ').pop()!)?.textContent).toContain('Sent on Mondays.');
+    // The label before or after the switch
+    const positions = () => switches().map((element) => element.closest<HTMLElement>('[data-label-position]')?.dataset.labelPosition);
+    expect(positions()).toEqual(['start', 'start']);
+    await choose('labelPosition', 'end');
+    expect(positions()).toEqual(['end', 'end']);
+    // Disabled keeps each switch as it is
+    await toggle('disabled');
+    expect(switches().map((element) => [element.getAttribute('aria-checked'), disabled(element)])).toEqual([['true', true], ['false', true]]);
   });
 
   test('empty message: one Overview carries every setting, each where it acts (owner 11.11)', async () => {

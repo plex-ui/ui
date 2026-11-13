@@ -1129,7 +1129,7 @@ Props:
   - aria-labelledby (string) — The id of the visible label of the value
   - aria-describedby (string) — The id of an element that describes the stepper
   - id (string) — The id of the stepper
-Examples: Overview, Range, step and wrap, States
+Examples: Overview, Range, step and wrap
 
 ## Swipe Actions
 "Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys."
@@ -1170,7 +1170,7 @@ Props:
   - @update:checked ((next: boolean) => void) — Emitted with the next state when toggled
   - @focus ((event: FocusEvent) => void) — Emitted when the switch gains focus
   - @blur ((event: FocusEvent) => void) — Emitted when the switch loses focus
-Examples: Overview, Label and description, Controlled state, Grouped settings
+Examples: Overview, Controlled state, Grouped settings
 
 ## Tab Bar
 "The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
@@ -1349,7 +1349,7 @@ Props:
     - value (string) — Value of the item, in the group's value while it is pressed
     - disabled (boolean) default: false — Disables the item
     - aria-label (string) — Name of the item, when its content does not say it in full, such as a weekday's letter
-Examples: Overview, Text, Color and size, Disabled
+Examples: Overview, Text, Disabled
 
 ## Toolbar
 "The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up."
@@ -1386,4 +1386,4 @@ Props:
   - force-open (boolean) — Force open or closed
   - prevent-unintentional-click-to-close (boolean) default: false — Keeps the tooltip open when the trigger is clicked right after it opened
   - content slot (VNode[]) — Rich tooltip content; takes precedence over content
-Examples: Overview, Different triggers, Conditionally enabled, Compact tooltips
+Examples: Overview

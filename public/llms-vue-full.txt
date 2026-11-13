@@ -474,7 +474,7 @@ You can stylize the display of the button using the color and variant props. On 
 ```
 
 ### Sizing & roundness
-Control height with size and horizontal padding with gutter-size. Use pill for fully rounded corners. size sets the button to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size and icon-size props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button. On a phone with touch.css a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule: the small one with a 15px label and 10px gutters, the medium and large ones with a 17px label and 12 and 20px gutters, as iOS 27.2 sets them. Without size a button is md, the medium one; a screen's actions take xl. The Phone example shows the three as the kit's Button - Content Area does: a symbol with a label, a label alone, and a symbol alone, a circle. The label is Semibold, and Regular on a ghost button, as on iOS 26 screens.
+Control height with size and horizontal padding with gutter-size. Use pill for fully rounded corners. size sets the button to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size and icon-size props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button. On a phone with touch.css a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule: the small one with a 15px label and 10px gutters, the medium and large ones with a 17px label and 12 and 20px gutters, as iOS 27.2 sets them. Without size a button is md, the medium one; a screen's actions take xl. The Phone example shows the three as the kit's Button - Content Area does: a symbol with a label, a label alone, and a symbol alone, a circle. The label is Medium (510) and Regular on a ghost button, as the iOS 27 kit sets its buttons on glass and its plain ones, and as Apple's apps set a filled action apart from a plain one.
 ```vue
 <!-- Desktop -->
 <div class="grid gap-3 items-center" style="grid-template-columns: auto auto auto">
@@ -8576,7 +8576,7 @@ Props:
   - id (string) — The id of the stepper
 
 ### Overview
-Put a stepper in a Field row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. A segment at the end of the range turns tertiary and stops stepping. Holding a segment keeps stepping, as a native stepper does. On a phone the rows sit on the grouped background of an iOS settings screen.
+Put a stepper in a Field row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set :pill="false" for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.
 ```vue
 <FieldGroup class="w-full max-w-[400px]">
   <template #footer>Up to 20 copies and 14 nights.</template>
@@ -8606,22 +8606,6 @@ Decimal steps add without rounding drift. With wrap a step past max continues fr
     </Field>
   </FieldGroup>
 </div>
-```
-
-### States
-At the lowest value the minus is tertiary, at the highest the plus; the segment keeps its fill, as in iOS. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set :pill="false" for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS.
-```vue
-<FieldGroup class="w-full max-w-[400px]">
-  <Field row label="At the lowest value">
-    <Stepper :default-value="0" :min="0" :max="10" :disabled="disabled" :pill="pill" />
-  </Field>
-  <Field row label="In the range">
-    <Stepper :default-value="5" :min="0" :max="10" :disabled="disabled" :pill="pill" />
-  </Field>
-  <Field row label="At the highest value">
-    <Stepper :default-value="10" :min="0" :max="10" :disabled="disabled" :pill="pill" />
-  </Field>
-</FieldGroup>
 ```
 
 ## Swipe Actions
@@ -8715,58 +8699,23 @@ Props:
   - @blur ((event: FocusEvent) => void) — Emitted when the switch loses focus
 
 ### Overview
-Compare off and on across enabled and disabled states. Enabled controls are interactive. Choose accent for the configured application accent (platform green by default), or primary for the default Switch style. Disabled on retains a muted accent; disabled off uses the neutral track.
-```vue
-<!-- Desktop -->
-<table class="w-full max-w-sm border-separate border-spacing-x-4 border-spacing-y-4 text-sm">
-  <caption class="sr-only">Initial switch states. Enabled switches are interactive.</caption>
-  <thead>
-    <tr>
-      <th scope="col" class="text-left font-normal text-secondary">State</th>
-      <th scope="col" class="text-center font-normal text-secondary">Off</th>
-      <th scope="col" class="text-center font-normal text-secondary">On</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr v-for="disabled in [false, true]" :key="String(disabled)">
-      <th scope="row" class="text-left font-normal">{{ disabled ? 'Disabled' : 'Enabled' }}</th>
-      <td v-for="checked in [false, true]" :key="String(checked)">
-        <div class="flex justify-center">
-          <Switch
-            :color="color"
-            :disabled="disabled"
-            :default-checked="checked"
-            :aria-label="(disabled ? 'Disabled' : 'Enabled') + ', initially ' + (checked ? 'on' : 'off')"
-          />
-        </div>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- Phone -->
-<div data-phone-rows class="flex w-full grow flex-col gap-6 bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
-  <FieldGroup v-for="disabled in [false, true]" :key="String(disabled)" :title="disabled ? 'Disabled' : 'Enabled'">
-    <Field row label="Initially off"><Switch :color="color" :disabled="disabled" /></Field>
-    <Field row label="Initially on"><Switch :color="color" :disabled="disabled" default-checked /></Field>
-  </FieldGroup>
-</div>
-```
-
-### Label and description
-Click either the label or the control. Descriptions are linked with aria-describedby. Desktop supports both label positions; Phone keeps the label on the left. Use default-checked for an initial value and name for form submission.
+One setting on and one off. Click either the label or the control. Choose accent for the configured application accent (platform green by default), or primary for the default Switch style. A description is linked with aria-describedby. On a desktop label-position sets the label before or after the switch; on a phone the label stays at the start of its row and the switch trails it, so the Phone preview does not offer it. disabled keeps a switch as it is: on retains a muted accent, off uses the neutral track. Use default-checked for an initial value and name for form submission.
 ```vue
 <!-- Desktop -->
 <div class="flex w-full max-w-sm flex-col gap-6">
-  <Switch color="accent" label="Notifications" :label-position="labelPosition" name="notifications" default-checked />
-  <Switch color="accent" label="Weekly summary" description="Sent on Mondays." :label-position="labelPosition" name="summary" />
+  <Switch :color="color" name="notifications" label="Notifications" :description="description ? 'Messages and mentions.' : undefined" :label-position="labelPosition" default-checked :disabled="disabled" />
+  <Switch :color="color" name="summary" label="Weekly summary" :description="description ? 'Sent on Mondays.' : undefined" :label-position="labelPosition" :disabled="disabled" />
 </div>
 
-<!-- Phone: Field associates the external label and description with the switch. -->
+<!-- Phone: each switch is the trailing control of a row; Field associates its label and description with it -->
 <div data-phone-rows class="w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
   <FieldGroup>
-    <Field row label="Notifications"><Switch color="accent" name="notifications" default-checked /></Field>
-    <Field row label="Weekly summary" description="Sent on Mondays."><Switch color="accent" name="summary" /></Field>
+    <Field row label="Notifications" :description="description ? 'Messages and mentions.' : undefined">
+      <Switch :color="color" name="notifications" default-checked :disabled="disabled" />
+    </Field>
+    <Field row label="Weekly summary" :description="description ? 'Sent on Mondays.' : undefined">
+      <Switch :color="color" name="summary" :disabled="disabled" />
+    </Field>
   </FieldGroup>
 </div>
 ```
@@ -9696,7 +9645,7 @@ Props:
     - aria-label (string) — Name of the item, when its content does not say it in full, such as a weekday's letter
 
 ### Overview
-Round items spread across their row are the weekday buttons of the iOS Clock app's Repeat row, as in Add Alarm. On a phone with touch.css each is a 35pt circle with its letter at 17pt Semibold, as the native ones are. A narrow letter alone does not name a day: give each item the day's full name with aria-label. The summary beside the label is the app's to write; the example reads as the Clock app's does.
+Round items spread across their row are the weekday buttons of the iOS Clock app's Repeat row, as in Add Alarm. On a phone with touch.css each is a 35pt circle with its letter at 17pt Semibold, as the native ones are. A narrow letter alone does not name a day: give each item the day's full name with aria-label. The summary beside the label is the app's to write; the example reads as the Clock app's does. The group's color fills a pressed item, a solid button; an item that is not pressed stays a soft secondary button whatever the color. size sizes every item as it sizes a Button, from 3xs (22px) to 3xl (48px). pill rounds the items fully, circles here, as uniform makes them as wide as they are tall, for a letter or an icon. block spreads them across the width of their container; without it the group is as wide as its items, 8px apart. disabled disables the whole group. On a phone with touch.css every item is fully rounded, as iOS draws its buttons, and a letter is the Clock app's 35pt circle at every size, so the Phone preview offers neither pill nor size. Items of text there take the three iOS button heights.
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
@@ -9711,11 +9660,25 @@ const week = [1, 2, 3, 4, 5, 6, 7].map((day) => {
 });
 
 const days = ref(['3', '4', '5']);
+const color = ref<'primary' | 'secondary' | 'danger' | 'info' | 'discovery' | 'success' | 'caution' | 'warning'>('primary');
+const size = ref<'3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'>('md');
+const pill = ref(true);
+const block = ref(true);
+const disabled = ref(false);
 </script>
 
 <template>
   <span id="repeat-label">Repeat</span>
-  <ToggleGroup aria-labelledby="repeat-label" v-model:value="days" pill uniform block>
+  <ToggleGroup
+    aria-labelledby="repeat-label"
+    v-model:value="days"
+    :color="color"
+    :size="size"
+    :pill="pill"
+    uniform
+    :block="block"
+    :disabled="disabled"
+  >
     <ToggleGroupItem v-for="day in week" :key="day.value" :value="day.value" :aria-label="day.name">
       {{ day.letter }}
     </ToggleGroupItem>
@@ -9733,23 +9696,12 @@ Items of text take the width of their label, here filters that can be on togethe
 </ToggleGroup>
 ```
 
-### Color and size
-Change color, size and pill above. The group's color fills a pressed item, a solid button; an item that is not pressed stays a soft secondary button whatever the color. size sizes every item as it sizes a Button, from 3xs (22px) to 3xl (48px); on a phone with touch.css the items take the three iOS button heights. pill rounds them fully.
-```vue
-<ToggleGroup aria-label="Toppings" :color="color" :size="size" :pill="pill" :default-value="['olives', 'basil']">
-  <ToggleGroupItem value="olives">Olives</ToggleGroupItem>
-  <ToggleGroupItem value="basil">Basil</ToggleGroupItem>
-  <ToggleGroupItem value="onion">Onion</ToggleGroupItem>
-  <ToggleGroupItem value="peppers">Peppers</ToggleGroupItem>
-</ToggleGroup>
-```
-
 ### Disabled
-disabled on an item keeps it as it is: Email stays pressed, as account emails cannot be turned off, and SMS stays released until there is a phone number. Turn on disabled above to disable the whole group. A disabled item shows at half opacity, pressed or not, as iOS dims a disabled segmented control, and it can be neither pressed nor reached with the arrow keys.
+disabled on an item keeps it as it is: Email stays pressed, as account emails cannot be turned off, and SMS stays released until there is a phone number. A disabled item shows at half opacity, pressed or not, as iOS dims a disabled segmented control, and it can be neither pressed nor reached with the arrow keys.
 ```vue
 <div class="flex flex-col items-start gap-3">
   <span id="notify-label">Notify me by</span>
-  <ToggleGroup aria-labelledby="notify-label" :disabled="disabled" :default-value="['email', 'push']">
+  <ToggleGroup aria-labelledby="notify-label" :default-value="['email', 'push']">
     <ToggleGroupItem value="email" disabled>Email</ToggleGroupItem>
     <ToggleGroupItem value="push">Push</ToggleGroupItem>
     <ToggleGroupItem value="sms" disabled>SMS</ToggleGroupItem>
@@ -9988,39 +9940,36 @@ Props:
   - content slot (VNode[]) — Rich tooltip content; takes precedence over content
 
 ### Overview
+Any element can be the trigger: trigger shows text, a button and an icon button. Text is no tab stop of its own, so wrap it in TooltipTriggerDecorator, which makes it one and marks it with a dotted underline; a plain span shows its tooltip on hover only, and a keyboard never reaches it. An icon button names itself with aria-label, and its tooltip says the same in words. compact is for short tooltips of one to three words: little padding (2px by 8px) and inverted colors, a dark fill with light text in the light theme and the other way round in the dark one. side is the side the tooltip prefers; it turns to the other side when there is no room. A disabled button can tell why in its tooltip on hover (a disabled button is no tab stop): pass the reason as content while it is disabled. To show a tooltip only under a condition, pass null otherwise.
 ```vue
-<Tooltip content="This is additional context that appears when the trigger is hovered or focused">
-  <TooltipTriggerDecorator>Simple text with tooltip</TooltipTriggerDecorator>
-</Tooltip>
-```
+<script setup lang="ts">
+import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+import { Copy } from '@plexui/vue/components/Icon';
+import { Tooltip, TooltipTriggerDecorator } from '@plexui/vue/components/Tooltip';
 
-### Different triggers
-Tooltip provides an optional component, TooltipTriggerDecorator, to help create accessible tooltip triggers. However, any component can be used as a trigger.
-```vue
-<div class="flex items-center gap-4">
-  <Tooltip content="Tooltip on button">
-    <Button color="primary" size="lg">Sample button</Button>
+const trigger = ref<'text' | 'button' | 'icon'>('text');
+const compact = ref(false);
+const side = ref<'top' | 'right' | 'bottom' | 'left'>('top');
+const disabled = ref(false);
+</script>
+
+<template>
+  <!-- Text: TooltipTriggerDecorator makes it a trigger -->
+  <Tooltip v-if="trigger === 'text'" content="This is additional context that appears when the trigger is hovered or focused" :compact="compact" :side="side">
+    <TooltipTriggerDecorator>Simple text with tooltip</TooltipTriggerDecorator>
   </Tooltip>
-  <Tooltip content="Tooltip on span">
-    <span>Inaccessible trigger</span>
+  <!-- A button -->
+  <Tooltip v-else-if="trigger === 'button'" :content="disabled ? 'This action is disabled for reasons' : 'Tooltip on button'" :compact="compact" :side="side">
+    <Button color="primary" size="lg" :disabled="disabled">
+      Sample button
+    </Button>
   </Tooltip>
-</div>
-```
-
-### Conditionally enabled
-Sometimes a tooltip should only be disabled under certain conditions, such as when a component is disabled, providing more context as to why that is. Below is an example of how to do this by conditionally passing in null content.
-```vue
-<Tooltip :content="disabled ? 'This action is disabled for reasons' : null">
-  <Button color="primary" size="lg" :disabled="disabled">
-    Sample button
-  </Button>
-</Tooltip>
-```
-
-### Compact tooltips
-Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use compact for brief status messages.
-```vue
-<Tooltip content="Copy to clipboard" compact>
-  <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard"><Copy /></Button>
-</Tooltip>
+  <!-- An icon button -->
+  <Tooltip v-else :content="disabled ? 'This action is disabled for reasons' : 'Copy to clipboard'" :compact="compact" :side="side">
+    <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard" :disabled="disabled">
+      <Copy />
+    </Button>
+  </Tooltip>
+</template>
 ```

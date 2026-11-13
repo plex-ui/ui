@@ -863,7 +863,7 @@ const variants = ["solid", "soft", "outline", "ghost"] as const
 ```
 
 ### Sizing & roundness
-Control height with size and horizontal padding with gutterSize. Use pill for fully rounded corners. size sets the button to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize and iconSize props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button. On a phone with touch.css a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule: the small one with a 15px label and 10px gutters, the medium and large ones with a 17px label and 12 and 20px gutters, as iOS 27.2 sets them. Without size a button is md, the medium one; a screen's actions take xl. The Phone example shows the three as the kit's Button - Content Area does: a symbol with a label, a label alone, and a symbol alone, a circle. The label is Semibold, and Regular on a ghost button, as on iOS 26 screens.
+Control height with size and horizontal padding with gutterSize. Use pill for fully rounded corners. size sets the button to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize and iconSize props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button. On a phone with touch.css a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule: the small one with a 15px label and 10px gutters, the medium and large ones with a 17px label and 12 and 20px gutters, as iOS 27.2 sets them. Without size a button is md, the medium one; a screen's actions take xl. The Phone example shows the three as the kit's Button - Content Area does: a symbol with a label, a label alone, and a symbol alone, a circle. The label is Medium (510) and Regular on a ghost button, as the iOS 27 kit sets its buttons on glass and its plain ones, and as Apple's apps set a filled action apart from a plain one.
 ```tsx
 // Desktop
 const sizes = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"] as const
@@ -7664,8 +7664,10 @@ Props:
   - className (string) — CSS classes applied to the stepper
 
 ### Overview
-Put a stepper in a Field row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. A segment at the end of the range turns tertiary and stops stepping. Holding a segment keeps stepping, as a native stepper does. On a phone the rows sit on the grouped background of an iOS settings screen.
+Put a stepper in a Field row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set pill to false for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.
 ```tsx
+const [disabled, setDisabled] = useState(false)
+const [pill, setPill] = useState(true) // a desktop setting: on a phone the stepper is always a capsule
 const [copies, setCopies] = useState(1)
 const [nights, setNights] = useState(3)
 
@@ -7690,22 +7692,6 @@ Decimal steps add without rounding drift. With wrap a step past max continues fr
 <FieldGroup footer={wrap ? 'Past 23:00 the hour goes on from 00:00, and neither segment stops.' : 'The hour stops at 00:00 and 23:00, where a segment turns tertiary.'}>
 <Field row label={`Hour: ${String(hour).padStart(2, '0')}:00`}>
   <Stepper value={hour} onChange={setHour} min={0} max={23} wrap={wrap} />
-</Field>
-</FieldGroup>
-```
-
-### States
-At the lowest value the minus is tertiary, at the highest the plus; the segment keeps its fill, as in iOS. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set pill to false for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS.
-```tsx
-<FieldGroup>
-<Field row label="At the lowest value">
-  <Stepper defaultValue={0} min={0} max={10} disabled={disabled} pill={pill} />
-</Field>
-<Field row label="In the range">
-  <Stepper defaultValue={5} min={0} max={10} disabled={disabled} pill={pill} />
-</Field>
-<Field row label="At the highest value">
-  <Stepper defaultValue={10} min={0} max={10} disabled={disabled} pill={pill} />
 </Field>
 </FieldGroup>
 ```
@@ -7802,34 +7788,25 @@ Props:
   - onBlur (FocusEventHandler<HTMLButtonElement>) — Called when the switch loses focus
 
 ### Overview
-Compare off and on across enabled and disabled states. Enabled controls are interactive. Choose accent for the configured application accent (platform green by default), or primary for the default Switch style. Disabled on retains a muted accent; disabled off uses the neutral track.
+One setting on and one off. Click either the label or the control. Choose accent for the configured application accent (platform green by default), or primary for the default Switch style. A description is linked with aria-describedby. On a desktop labelPosition sets the label before or after the switch; on a phone the label stays at the start of its row and the switch trails it, so the Phone preview does not offer it. disabled keeps a switch as it is: on retains a muted accent, off uses the neutral track. Use defaultChecked for an initial value and name for form submission.
 ```tsx
-// Desktop: four states, shown together.
-<Switch color="accent" aria-label="Enabled, initially off" />
-<Switch color="accent" defaultChecked aria-label="Enabled, initially on" />
-<Switch color="accent" disabled aria-label="Disabled, off" />
-<Switch color="accent" disabled defaultChecked aria-label="Disabled, on" />
+const [color, setColor] = useState<"primary" | "accent">("accent")
+const [description, setDescription] = useState(false)
+const [labelPosition, setLabelPosition] = useState<"start" | "end">("start")
+const [disabled, setDisabled] = useState(false)
 
-// Phone: keep each switch inside a labelled row.
-{[false, true].map((disabled) => (
-<FieldGroup key={String(disabled)} title={disabled ? "Disabled" : "Enabled"}>
-  <Field row label="Initially off"><Switch color="accent" disabled={disabled} /></Field>
-  <Field row label="Initially on"><Switch color="accent" disabled={disabled} defaultChecked /></Field>
-</FieldGroup>
-))}
-```
-
-### Label and description
-Click either the label or the control. Descriptions are linked with aria-describedby. Desktop supports both label positions; Phone keeps the label on the left. Use defaultChecked for an initial value and name for form submission.
-```tsx
 // Desktop
-<Switch color="accent" label="Notifications" labelPosition="start" name="notifications" defaultChecked />
-<Switch color="accent" label="Weekly summary" description="Sent on Mondays." labelPosition="start" name="summary" />
+<Switch color={color} name="notifications" label="Notifications" description={description ? "Messages and mentions." : undefined} labelPosition={labelPosition} defaultChecked disabled={disabled} />
+<Switch color={color} name="summary" label="Weekly summary" description={description ? "Sent on Mondays." : undefined} labelPosition={labelPosition} disabled={disabled} />
 
-// Phone: Field associates the external label and description with the switch.
+// Phone: each switch is the trailing control of a row; Field associates its label and description with it
 <FieldGroup>
-<Field row label="Notifications"><Switch color="accent" name="notifications" defaultChecked /></Field>
-<Field row label="Weekly summary" description="Sent on Mondays."><Switch color="accent" name="summary" /></Field>
+  <Field row label="Notifications" description={description ? "Messages and mentions." : undefined}>
+    <Switch color={color} name="notifications" defaultChecked disabled={disabled} />
+  </Field>
+  <Field row label="Weekly summary" description={description ? "Sent on Mondays." : undefined}>
+    <Switch color={color} name="summary" disabled={disabled} />
+  </Field>
 </FieldGroup>
 ```
 
@@ -8799,25 +8776,40 @@ Props:
     - children (ReactNode) — Content of the item: a label, a letter or an icon
 
 ### Overview
-Round items spread across their row are the weekday buttons of the iOS Clock app's Repeat row, as in Add Alarm. On a phone with touch.css each is a 35pt circle with its letter at 17pt Semibold, as the native ones are. A narrow letter alone does not name a day: give each item the day's full name with aria-label. The summary beside the label is the app's to write; here it reads as the Clock app's does.
+Round items spread across their row are the weekday buttons of the iOS Clock app's Repeat row, as in Add Alarm. On a phone with touch.css each is a 35pt circle with its letter at 17pt Semibold, as the native ones are. A narrow letter alone does not name a day: give each item the day's full name with aria-label. The summary beside the label is the app's to write; here it reads as the Clock app's does. The group's color fills a pressed item, a solid button; an item that is not pressed stays a soft secondary button whatever the color. size sizes every item as it sizes a Button, from 3xs (22px) to 3xl (48px). pill rounds the items fully, circles here, as uniform makes them as wide as they are tall, for a letter or an icon. block spreads them across the width of their container; without it the group is as wide as its items, 8px apart. disabled disables the whole group. On a phone with touch.css every item is fully rounded, as iOS draws its buttons, and a letter is the Clock app's 35pt circle at every size, so the Phone preview offers neither pill nor size. Items of text there take the three iOS button heights.
 ```tsx
 const week = [1, 2, 3, 4, 5, 6, 7].map((day) => {
-// 1 January 2024 is a Monday
-const date = Date.UTC(2024, 0, day)
-const format = (weekday: 'narrow' | 'long') =>
-  new Intl.DateTimeFormat('en-US', { weekday, timeZone: 'UTC' }).format(date)
-return { value: String(day), letter: format('narrow'), name: format('long') }
+  // 1 January 2024 is a Monday
+  const date = Date.UTC(2024, 0, day)
+  const format = (weekday: 'narrow' | 'long') =>
+    new Intl.DateTimeFormat('en-US', { weekday, timeZone: 'UTC' }).format(date)
+  return { value: String(day), letter: format('narrow'), name: format('long') }
 })
 
 const [days, setDays] = useState(['3', '4', '5'])
+const [color, setColor] = useState<"primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning">("primary")
+const [size, setSize] = useState<"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl">("md")
+const [pill, setPill] = useState(true)
+const [block, setBlock] = useState(true)
+const [disabled, setDisabled] = useState(false)
 
 <span id="repeat-label">Repeat</span>
-<ToggleGroup aria-labelledby="repeat-label" value={days} onChange={setDays} pill uniform block>
-{week.map((day) => (
-  <ToggleGroup.Item key={day.value} value={day.value} aria-label={day.name}>
-    {day.letter}
-  </ToggleGroup.Item>
-))}
+<ToggleGroup
+  aria-labelledby="repeat-label"
+  value={days}
+  onChange={setDays}
+  color={color}
+  size={size}
+  pill={pill}
+  uniform
+  block={block}
+  disabled={disabled}
+>
+  {week.map((day) => (
+    <ToggleGroup.Item key={day.value} value={day.value} aria-label={day.name}>
+      {day.letter}
+    </ToggleGroup.Item>
+  ))}
 </ToggleGroup>
 ```
 
@@ -8831,19 +8823,8 @@ Items of text take the width of their label, here filters that can be on togethe
 </ToggleGroup>
 ```
 
-### Color and size
-Change color, size and pill above. The group's color fills a pressed item, a solid button; an item that is not pressed stays a soft secondary button whatever the color. size sizes every item as it sizes a Button, from 3xs (22px) to 3xl (48px); on a phone with touch.css the items take the three iOS button heights. pill rounds them fully.
-```tsx
-<ToggleGroup aria-label="Toppings" color="info" size="lg" pill defaultValue={['olives', 'basil']}>
-<ToggleGroup.Item value="olives">Olives</ToggleGroup.Item>
-<ToggleGroup.Item value="basil">Basil</ToggleGroup.Item>
-<ToggleGroup.Item value="onion">Onion</ToggleGroup.Item>
-<ToggleGroup.Item value="peppers">Peppers</ToggleGroup.Item>
-</ToggleGroup>
-```
-
 ### Disabled
-disabled on an item keeps it as it is: Email stays pressed, as account emails cannot be turned off, and SMS stays released until there is a phone number. Turn on disabled above to disable the whole group. A disabled item shows at half opacity, pressed or not, as iOS dims a disabled segmented control, and it can be neither pressed nor reached with the arrow keys.
+disabled on an item keeps it as it is: Email stays pressed, as account emails cannot be turned off, and SMS stays released until there is a phone number. A disabled item shows at half opacity, pressed or not, as iOS dims a disabled segmented control, and it can be neither pressed nor reached with the arrow keys.
 ```tsx
 <span id="notify-label">Notify me by</span>
 <ToggleGroup aria-labelledby="notify-label" defaultValue={['email', 'push']}>
@@ -9103,41 +9084,33 @@ Props:
   - preventUnintentionalClickToClose (true) — Keeps the tooltip open when the trigger is clicked right after it opened
 
 ### Overview
+Any element can be the trigger: trigger shows text, a button and an icon button. Text is no tab stop of its own, so wrap it in Tooltip.TriggerDecorator, which makes it one and marks it with a dotted underline; a plain span shows its tooltip on hover only, and a keyboard never reaches it. An icon button names itself with aria-label, and its tooltip says the same in words. compact is for short tooltips of one to three words: little padding (2px by 8px) and inverted colors, a dark fill with light text in the light theme and the other way round in the dark one. side is the side the tooltip prefers; it turns to the other side when there is no room. A disabled button can tell why in its tooltip on hover (a disabled button is no tab stop): pass the reason as content while it is disabled. To show a tooltip only under a condition, pass null otherwise.
 ```tsx
-<Tooltip content="This is additional context that appears when the trigger is hovered or focused">
-<Tooltip.TriggerDecorator>Simple text with tooltip</Tooltip.TriggerDecorator>
-</Tooltip>
-```
+const [trigger, setTrigger] = useState<"text" | "button" | "icon">("text")
+const [compact, setCompact] = useState(false)
+const [side, setSide] = useState<"top" | "right" | "bottom" | "left">("top")
+const [disabled, setDisabled] = useState(false)
 
-### Different triggers
-Tooltip provides an optional component, Tooltip.TriggerDecorator, to help create accessible tooltip triggers. However, any component can be used as a trigger.
-```tsx
-<div className="flex items-center gap-4">
-<Tooltip content="Tooltip on button">
-  <Button color="primary" size="lg">Sample button</Button>
-</Tooltip>
-<Tooltip content="Tooltip on span">
-  <span>Inaccessible trigger</span>
-</Tooltip>
-</div>
-```
-
-### Conditionally enabled
-Sometimes a tooltip should only be disabled under certain conditions, such as when a component is disabled, providing more context as to why that is. Below is an example of how to do this by conditionally passing in null content.
-```tsx
-<Tooltip
-content={disabled ? "This action is disabled for reasons" : null}
->
-<Button color="primary" size="lg" disabled={disabled}>
-  Sample button
-</Button>
-</Tooltip>
-```
-
-### Compact tooltips
-Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use {'compact={true}'} for brief status messages.
-```tsx
-<Tooltip content="Copy to clipboard" compact>
-<Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard"><Copy /></Button>
-</Tooltip>
+<>
+  {trigger === "text" && (
+    // Tooltip.TriggerDecorator makes text a trigger
+    <Tooltip content="This is additional context that appears when the trigger is hovered or focused" compact={compact} side={side}>
+      <Tooltip.TriggerDecorator>Simple text with tooltip</Tooltip.TriggerDecorator>
+    </Tooltip>
+  )}
+  {trigger === "button" && (
+    <Tooltip content={disabled ? "This action is disabled for reasons" : "Tooltip on button"} compact={compact} side={side}>
+      <Button color="primary" size="lg" disabled={disabled}>
+        Sample button
+      </Button>
+    </Tooltip>
+  )}
+  {trigger === "icon" && (
+    <Tooltip content={disabled ? "This action is disabled for reasons" : "Copy to clipboard"} compact={compact} side={side}>
+      <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard" disabled={disabled}>
+        <Copy />
+      </Button>
+    </Tooltip>
+  )}
+</>
 ```

@@ -33,18 +33,6 @@ export const range = `<div class="flex w-full flex-col items-center gap-6">
   </FieldGroup>
 </div>`
 
-export const states = `<FieldGroup class="w-full max-w-[400px]">
-  <Field row label="At the lowest value">
-    <Stepper :default-value="0" :min="0" :max="10" :disabled="disabled" :pill="pill" />
-  </Field>
-  <Field row label="In the range">
-    <Stepper :default-value="5" :min="0" :max="10" :disabled="disabled" :pill="pill" />
-  </Field>
-  <Field row label="At the highest value">
-    <Stepper :default-value="10" :min="0" :max="10" :disabled="disabled" :pill="pill" />
-  </Field>
-</FieldGroup>`
-
 export const disabledControl = [{ name: "disabled", type: "boolean", default: false }]
 export const pillControl = [{ name: "pill", type: "boolean", default: true, desktopOnly: true }]
 
@@ -54,9 +42,11 @@ A stepper changes a value by small amounts and shows no value of its own. Show t
 
 ## Examples
 
+<span id="states" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Put a stepper in a <code>Field</code> row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. A segment at the end of the range turns tertiary and stops stepping. Holding a segment keeps stepping, as a native stepper does. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={overview} previewMinHeight={240}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Put a stepper in a <code>Field</code> row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set <code>:pill="false"</code> for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={overview} previewMinHeight={240}>
   <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" controls={disabledControl} desktopControls={pillControl} state={{ copies: 1, nights: 3 }} />
 </ComponentPreview>
 
@@ -64,12 +54,6 @@ A stepper changes a value by small amounts and shows no value of its own. Show t
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Decimal steps add without rounding drift. With <code>wrap</code> a step past <code>max</code> continues from <code>min</code>, so the hour goes from 23 to 0, and neither segment stops; turn it off and the plus stops at 23.</>} code={range} previewMinHeight={280}>
   <VuePhoneRowsDemo template={range} phoneTemplate={phoneRows(range)} phoneStageClassName="w-full" controls={[{ name: "wrap", type: "boolean", default: true }]} state={{ opacity: 0.5, hour: 23 }} />
-</ComponentPreview>
-
-### States
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>At the lowest value the minus is tertiary, at the highest the plus; the segment keeps its fill, as in iOS. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set <code>:pill="false"</code> for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS.</>} code={states} previewMinHeight={240}>
-  <VuePhoneRowsDemo template={states} phoneTemplate={phoneRows(states)} phoneStageClassName="w-full" controls={disabledControl} desktopControls={pillControl} />
 </ComponentPreview>
 
 ## API

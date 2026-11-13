@@ -5,7 +5,26 @@ metaDescription: React switch component for toggling settings on or off, with op
 ---
 
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
-import { SwitchStatesDemo, SwitchLabelsDemo, SwitchControlledDemo, SwitchSettingsDemo } from "@/components/docs/SwitchDemos"
+import { SwitchOverviewDemo, SwitchControlledDemo, SwitchSettingsDemo } from "@/components/docs/SwitchDemos"
+
+export const overviewCode = `const [color, setColor] = useState<"primary" | "accent">("accent")
+const [description, setDescription] = useState(false)
+const [labelPosition, setLabelPosition] = useState<"start" | "end">("start")
+const [disabled, setDisabled] = useState(false)
+
+// Desktop
+<Switch color={color} name="notifications" label="Notifications" description={description ? "Messages and mentions." : undefined} labelPosition={labelPosition} defaultChecked disabled={disabled} />
+<Switch color={color} name="summary" label="Weekly summary" description={description ? "Sent on Mondays." : undefined} labelPosition={labelPosition} disabled={disabled} />
+
+// Phone: each switch is the trailing control of a row; Field associates its label and description with it
+<FieldGroup>
+  <Field row label="Notifications" description={description ? "Messages and mentions." : undefined}>
+    <Switch color={color} name="notifications" defaultChecked disabled={disabled} />
+  </Field>
+  <Field row label="Weekly summary" description={description ? "Sent on Mondays." : undefined}>
+    <Switch color={color} name="summary" disabled={disabled} />
+  </Field>
+</FieldGroup>`
 
 <UsageBlock>{`import { Switch } from "@plexui/ui/components/Switch";`}</UsageBlock>
 
@@ -13,36 +32,15 @@ On Phone, put switches in labelled rows with a trailing control. Use compact pre
 
 ## Examples
 
+<span id="label-and-description" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Compare off and on across enabled and disabled states. Enabled controls are interactive. Choose <code>accent</code> for the configured application accent (platform green by default), or <code>primary</code> for the default Switch style. Disabled on retains a muted accent; disabled off uses the neutral track.</>} code={`// Desktop: four states, shown together.
-<Switch color="accent" aria-label="Enabled, initially off" />
-<Switch color="accent" defaultChecked aria-label="Enabled, initially on" />
-<Switch color="accent" disabled aria-label="Disabled, off" />
-<Switch color="accent" disabled defaultChecked aria-label="Disabled, on" />
-
-// Phone: keep each switch inside a labelled row.
-{[false, true].map((disabled) => (
-  <FieldGroup key={String(disabled)} title={disabled ? "Disabled" : "Enabled"}>
-    <Field row label="Initially off"><Switch color="accent" disabled={disabled} /></Field>
-    <Field row label="Initially on"><Switch color="accent" disabled={disabled} defaultChecked /></Field>
-  </FieldGroup>
-))}`} previewMinHeight={240}>
-  <SwitchStatesDemo />
-</ComponentPreview>
-
-### Label and description
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Click either the label or the control. Descriptions are linked with <code>aria-describedby</code>. Desktop supports both label positions; Phone keeps the label on the left. Use <code>defaultChecked</code> for an initial value and <code>name</code> for form submission.</>} code={`// Desktop
-<Switch color="accent" label="Notifications" labelPosition="start" name="notifications" defaultChecked />
-<Switch color="accent" label="Weekly summary" description="Sent on Mondays." labelPosition="start" name="summary" />
-
-// Phone: Field associates the external label and description with the switch.
-<FieldGroup>
-  <Field row label="Notifications"><Switch color="accent" name="notifications" defaultChecked /></Field>
-  <Field row label="Weekly summary" description="Sent on Mondays."><Switch color="accent" name="summary" /></Field>
-</FieldGroup>`} previewMinHeight={200}>
-  <SwitchLabelsDemo />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>One setting on and one off. Click either the label or the control. Choose <code>accent</code> for the configured application accent (platform green by default), or <code>primary</code> for the default Switch style. A <code>description</code> is linked with <code>aria-describedby</code>. On a desktop <code>labelPosition</code> sets the label before or after the switch; on a phone the label stays at the start of its row and the switch trails it, so the Phone preview does not offer it. <code>disabled</code> keeps a switch as it is: on retains a muted accent, off uses the neutral track.</p>
+  <p>Use <code>defaultChecked</code> for an initial value and <code>name</code> for form submission.</p>
+</>} code={overviewCode} previewMinHeight={220}>
+  <SwitchOverviewDemo />
 </ComponentPreview>
 
 ### Controlled state

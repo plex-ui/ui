@@ -7,7 +7,6 @@ metaDescription: React stepper component with minus and plus segments for small 
 import {
   StepperOverviewDemo,
   StepperRangeDemo,
-  StepperStatesDemo,
 } from "@/components/docs/StepperDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
@@ -17,9 +16,13 @@ A stepper changes a value by small amounts and shows no value of its own. Show t
 
 ## Examples
 
+<span id="states" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Put a stepper in a <code>Field</code> row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. A segment at the end of the range turns tertiary and stops stepping. Holding a segment keeps stepping, as a native stepper does. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={`const [copies, setCopies] = useState(1)
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Put a stepper in a <code>Field</code> row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set <code>pill</code> to <code>false</code> for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={`const [disabled, setDisabled] = useState(false)
+const [pill, setPill] = useState(true) // a desktop setting: on a phone the stepper is always a capsule
+const [copies, setCopies] = useState(1)
 const [nights, setNights] = useState(3)
 
 <FieldGroup footer="Up to 20 copies and 14 nights.">
@@ -46,22 +49,6 @@ const [nights, setNights] = useState(3)
   </Field>
 </FieldGroup>`} previewMinHeight={280}>
   <StepperRangeDemo />
-</ComponentPreview>
-
-### States
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>At the lowest value the minus is tertiary, at the highest the plus; the segment keeps its fill, as in iOS. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set <code>pill</code> to <code>false</code> for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS.</>} code={`<FieldGroup>
-  <Field row label="At the lowest value">
-    <Stepper defaultValue={0} min={0} max={10} disabled={disabled} pill={pill} />
-  </Field>
-  <Field row label="In the range">
-    <Stepper defaultValue={5} min={0} max={10} disabled={disabled} pill={pill} />
-  </Field>
-  <Field row label="At the highest value">
-    <Stepper defaultValue={10} min={0} max={10} disabled={disabled} pill={pill} />
-  </Field>
-</FieldGroup>`} previewMinHeight={240}>
-  <StepperStatesDemo />
 </ComponentPreview>
 
 ## API
