@@ -7,7 +7,9 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
-## Unreleased
+## 0.45.0 (2026-11-13)
+
+The phone bars change in `@plexui/styles` 0.4.0: `Toolbar.Row`, the `blur` background, iOS 27.2's soft and hard edges and a large title that scrolls with the content. `@plexui/ui` 0.45.0 and `@plexui/vue` 0.25.0 need `^0.4.0`, and earlier ui and vue versions keep the 0.3 styles they were built with, since a large title is now laid out in `Page.Content`. `@plexui/mcp` is 0.2.20.
 
 ### Added
 
@@ -24,7 +26,6 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - A bottom `Toolbar` keeps its items in place whatever its `background`: with `glass` or `hard` they no longer move out to the bar's gutter (16px, 20px from 414px) and stay 28px from the sides; the band only starts 10px above them. iOS 27.2 stands them at the same place over a soft and a hard edge (28px from the sides and above the home indicator). React and Vue.
 - `background="soft"` on a bottom `Toolbar` and on `Page.Footer` of a page draws iOS 27.2's bottom scroll edge instead of nothing: once content runs on under the bar, a blur hides it under the controls behind a veil of the canvas color, none 34px above the items, 15% at their top and 46% from 43px into them down to the screen's edge. New tokens `--page-bar-soft-bottom-reach`, `--page-bar-soft-bottom-veil` and `--page-bar-soft-bottom-blur-mask`. A Sheet's bottom bar keeps its own edge, and `TabBar` keeps none, as iOS 27.2 runs the content clear under a tab bar. React and Vue.
 - The line of a `hard` bar is a hairline, as iOS 27.2 draws it: one device pixel, black 10% in light, instead of 1px at 12%, three times as thick on an iPhone. `--page-bar-hard-line` is now `var(--page-bar-line)`.
-
 - `Toolbar`, `Page.Header` and the header of a Sheet on a phone: `background="soft"` at the top is the soft scroll edge of iOS 27.2 instead of an opaque band of the canvas color. Once content is under the bar, a blur hides it under the row of controls and lets go of it past the bar, under a thin veil of the canvas color: 55% at the top, 20% at the bar's bottom, none 24px below. At rest it draws nothing, so the first rows and a large title stand clear. New tokens `--page-bar-soft-veil`, `--page-bar-soft-blur` and `--page-bar-soft-blur-mask`. React and Vue.
 - `Toolbar` with `titleStyle="large"` on a page: the title stands at the top of `Page.Content` and scrolls with the content, overscroll included, instead of being moved by script a frame or two behind it. Once it has gone under the bar, the inline title comes in over 0.3s (`--toolbar-large-title-swap-duration`), and a hard or glass bar shows its line with it, as iOS 27.2 swaps them; the swap no longer follows the scroll. `Page` no longer writes `--page-scroll-y`, and `--page-top` ends under the row of controls. React and Vue.
 - A large title with a subtitle on a phone stands where it stands without one: a subtitle that comes or goes no longer moves the title 3px, only the content under it.
