@@ -550,6 +550,10 @@
        under it, as at 168 on iOS 27.2: the part of the 41px line below the baseline, and of a subtitle's 20px. */
     --toolbar-large-title-descent: 8.3px;
     --toolbar-large-subtitle-descent: 4.6px;
+    /* Once a large title has gone under the bar, the bar's inline title comes in over this time, as iOS 27.2 swaps
+       them (a swipe recorded in the simulator: a crossfade of about 0.3s once the title is under the row, not tied
+       to the scroll). */
+    --toolbar-large-title-swap-duration: 300ms;
     /* A bar symbol, sized by its drawn glyph (plan 162): the kit's 44pt bar button holds a 29pt symbol box
        that draws about 22pt (Apps 2.4, Toolbar button top 39972:316665: a check of 21.75 × 15.7, a heart of
        22 × 20), and native Freeform draws its ellipsis 19.7pt wide with 4pt dots (IMG_5684). A PlexUI icon
@@ -622,10 +626,17 @@
     /* A glass bar: thin enough that what scrolls under it reads through the blur (owner 08.11: 72% was too
        opaque); the Thin material of the iOS kit (Materials 224:56302) is white 40% under a 50px blur. */
     --page-bar-veil-opacity: light-dark(55%, 50%);
-    /* The soft scroll edge covers content fully down to the bottom of the bar, as native iOS 26 bars do
-       (IMG_5503: the cover holds at 249 to 252 over white to 10pt under the row of controls, the bar's bottom),
-       then fades out over this tail past the bar (owner 08.11: 16px read too short). */
+    /* The soft scroll edge of iOS 26 (UIScrollEdgeEffect soft), as iOS 27.2 draws it over a scrolled list (ref-app
+       edge-uikit-soft-grouped, light and dark; owner 13.11): no band and no line, a blur that grows toward the top
+       under a thin veil of the canvas color. The veil holds 55% of the canvas color to 56pt above the bar's bottom,
+       then thins out: 38% 32 above it, 31% 16 above, 20% at the bottom, 8% 12 below, none 24 below. The blur hides
+       the text under the row of controls and lets go of it by 12pt under the bar. Both lie over the bar and this
+       tail past it; the veil is the mask of a layer of the canvas color, so one gradient serves every canvas. The
+       hard edge of iOS 26 (Settings, IMG_5503: an opaque cover to the bar's bottom) is `"hard"`. */
     --page-bar-soft-tail: 32px;
+    --page-bar-soft-veil: linear-gradient(to bottom, rgb(0 0 0 / 55%) calc(100% - var(--page-bar-soft-tail) - 56px), rgb(0 0 0 / 38%) calc(100% - var(--page-bar-soft-tail) - 32px), rgb(0 0 0 / 31%) calc(100% - var(--page-bar-soft-tail) - 16px), rgb(0 0 0 / 20%) calc(100% - var(--page-bar-soft-tail)), rgb(0 0 0 / 8%) calc(100% - var(--page-bar-soft-tail) + 12px), transparent calc(100% - var(--page-bar-soft-tail) + 24px));
+    --page-bar-soft-blur: 10px;
+    --page-bar-soft-blur-mask: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail) - 16px), transparent calc(100% - var(--page-bar-soft-tail) + 12px));
     --page-bar-veil: light-dark(rgb(255 255 255 / 55%), rgb(0 0 0 / 50%));
     /* The blur of a glass bar: light enough that the lines scrolled under it still read as smudged text
        (owner 08.11: at 20px the 17px text of a sheet vanished and the bar read as opaque white; 10px still

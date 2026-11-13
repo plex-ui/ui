@@ -30,10 +30,11 @@ type PageContextValue = {
   setEdges: (edges: ScrollEdges) => void
   setFooterHeight: (height: number) => void
   setHeaderHeight: (height: number | undefined) => void
-  /** Writes the content's scroll offset to the page as `--page-scroll-y`, which a large Toolbar title follows. */
-  setScrollY: (scrollY: number) => void
-  /** Tells the bars that follow the scroll, such as a minimizing TabBar, the content's scroll offset. */
+  /** Tells the bars that follow the scroll, such as a minimizing TabBar or a large title, the content's scroll offset. */
   notifyScroll: (scrollY: number) => void
+  /** A large Toolbar title asks for a place at the top of the content, where it scrolls with the content. */
+  largeTitle: boolean
+  setLargeTitleSlot: (slot: HTMLDivElement | null) => void
 }
 
 const PageContext = createContext<PageContextValue | null>(null)
@@ -69,13 +70,11 @@ export type PageProps = HTMLAttributes<HTMLDivElement> & {
 function PageRoot({ width = "full", surface = "plain", className, children, style, ref, ...restProps }: PageProps) {
   const boundary = useFloatingBoundaryScope()
   const setRoot = boundary.setRoot
-  const root = useRef<HTMLDivElement | null>(null)
   const setRef = useCallback((node: HTMLDivElement | null) => {
-    root.current = node
     setRoot(node)
     if (typeof ref === "function") {
       const cleanup = ref(node)
-      if (typeof cleanup === "function") return () => { root.current = null; setRoot(null); cleanup() }
+      if (typeof cleanup === "function") return () => { setRoot(null); cleanup() }
       return
     }
     if (ref) ref.current = node
@@ -84,8 +83,6 @@ function PageRoot({ width = "full", surface = "plain", className, children, styl
   const setEdges = useCallback((next: ScrollEdges) => setEdgesState((current) => sameScrollEdges(current, next) ? current : next), [])
   const [footerHeight, setFooterHeight] = useState(0)
   const [headerHeight, setHeaderHeight] = useState<number>()
-  // Written straight to the element: a scroll frame must not render the page again.
-  const setScrollY = useCallback((scrollY: number) => root.current?.style.setProperty("--page-scroll-y", String(Math.max(0, scrollY))), [])
   const scrollListeners = useRef(new Set<(scrollTop: number) => void>())
   const notifyScroll = useCallback((scrollY: number) => scrollListeners.current.forEach((listener) => listener(scrollY)), [])
   const subscribeScroll = useCallback((listener: (scrollTop: number) => void) => {
@@ -93,12 +90,29 @@ function PageRoot({ width = "full", surface = "plain", className, children, styl
     listeners.add(listener)
     return () => { listeners.delete(listener) }
   }, [])
-  const context = useMemo(() => ({ edges, setEdges, setFooterHeight, setHeaderHeight, setScrollY, notifyScroll }), [edges, setEdges, setScrollY, notifyScroll])
+  // A large Toolbar title lives in the content, where the browser scrolls it with the content and its overscroll;
+  // Page.Content keeps a place for it at its top while a title asks for one.
+  const [largeTitleRequests, setLargeTitleRequests] = useState(0)
+  const [largeTitleSlot, setLargeTitleSlot] = useState<HTMLDivElement | null>(null)
+  const requestLargeTitleSlot = useCallback(() => {
+    setLargeTitleRequests((count) => count + 1)
+    return () => setLargeTitleRequests((count) => count - 1)
+  }, [])
+  const largeTitle = largeTitleRequests > 0
+  const context = useMemo(() => ({ edges, setEdges, setFooterHeight, setHeaderHeight, notifyScroll, largeTitle, setLargeTitleSlot }), [edges, setEdges, notifyScroll, largeTitle])
   // A phone Toolbar replaces the header and footer bars; it reports its own heights.
   const [toolbarTop, setToolbarTop] = useState<number>()
   const [toolbarBottom, setToolbarBottom] = useState<number>()
   const setToolbarHeight = useCallback((placement: ToolbarPlacement, height: number | undefined) => (placement === "top" ? setToolbarTop : setToolbarBottom)(height), [])
-  const toolbarHost = useMemo<ToolbarHost>(() => ({ kind: "page", setHeight: setToolbarHeight, scrolled: edges.scrolled, contentBelow: edges.contentBelow, subscribeScroll }), [setToolbarHeight, edges, subscribeScroll])
+  const toolbarHost = useMemo<ToolbarHost>(() => ({
+    kind: "page",
+    setHeight: setToolbarHeight,
+    scrolled: edges.scrolled,
+    contentBelow: edges.contentBelow,
+    subscribeScroll,
+    requestLargeTitleSlot,
+    largeTitleSlot: largeTitle ? largeTitleSlot : null,
+  }), [setToolbarHeight, edges, subscribeScroll, requestLargeTitleSlot, largeTitle, largeTitleSlot])
   const pageStyle = {
     "--page-footer-height": `${footerHeight}px`,
     ...(headerHeight !== undefined ? { "--page-header-height": `${headerHeight}px` } : {}),
@@ -246,7 +260,7 @@ export type PageContentProps = HTMLAttributes<HTMLDivElement> & {
 }
 
 function PageContent({ fill = false, className, children, onScroll, ref, ...restProps }: PageContentProps) {
-  const { setEdges, setScrollY, notifyScroll } = usePageContext("Content")
+  const { setEdges, notifyScroll, largeTitle, setLargeTitleSlot } = usePageContext("Content")
   const element = useRef<HTMLDivElement | null>(null)
   const setRef = useCallback((node: HTMLDivElement | null) => {
     element.current = node
@@ -261,7 +275,6 @@ function PageContent({ fill = false, className, children, onScroll, ref, ...rest
   }, [setEdges])
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
-    setScrollY(event.currentTarget.scrollTop)
     notifyScroll(event.currentTarget.scrollTop)
     onScroll?.(event)
   }
@@ -274,7 +287,10 @@ function PageContent({ fill = false, className, children, onScroll, ref, ...rest
       onScroll={handleScroll}
       {...restProps}
     >
-      <div className={s.Column}>{children}</div>
+      <div className={s.Column}>
+        {largeTitle && <div ref={setLargeTitleSlot} className={s.LargeTitle} />}
+        {children}
+      </div>
     </div>
   )
 }

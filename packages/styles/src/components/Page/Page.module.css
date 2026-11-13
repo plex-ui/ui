@@ -89,6 +89,12 @@
   gap: 8px;
 }
 
+/* The place of a large Toolbar title at the top of the content. It holds the title's margins, so they never merge
+   with the margins of the content after it. */
+.LargeTitle {
+  display: flow-root;
+}
+
 .Content {
   position: relative;
   flex: 1 1 0;
@@ -194,8 +200,8 @@
     /* Under the status bar, or the gutter from the window's top without one, as a top Toolbar */
     padding-block: max(var(--page-gutter), var(--safe-area-inset-top, env(safe-area-inset-top, 0px))) 10px;
 
-    /* Soft: the canvas covers content under the bar and fades out past it, as the soft edge of a top
-       Toolbar does. */
+    /* Soft: the scroll edge of a top Toolbar (--page-bar-soft-veil): the canvas color through the veil over a light
+       blur, and on `::after` the stronger blur that hides the content under the bar, once content is under it. */
     &::before {
       position: absolute;
       z-index: -1;
@@ -204,10 +210,28 @@
       -webkit-backdrop-filter: blur(var(--toolbar-edge-blur-small));
       backdrop-filter: blur(var(--toolbar-edge-blur-small));
       content: "";
-      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);
-      mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);
+      -webkit-mask-image: var(--page-bar-soft-veil);
+      mask-image: var(--page-bar-soft-veil);
       pointer-events: none;
       transition: opacity var(--transition-duration-basic), border-color var(--transition-duration-basic);
+    }
+
+    &[data-background="soft"]::after {
+      position: absolute;
+      z-index: -1;
+      inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));
+      -webkit-backdrop-filter: blur(var(--page-bar-soft-blur));
+      backdrop-filter: blur(var(--page-bar-soft-blur));
+      content: "";
+      -webkit-mask-image: var(--page-bar-soft-blur-mask);
+      mask-image: var(--page-bar-soft-blur-mask);
+      pointer-events: none;
+      transition: opacity var(--transition-duration-basic);
+    }
+
+    &[data-background="soft"]:not([data-scrolled])::before,
+    &[data-background="soft"]:not([data-scrolled])::after {
+      opacity: 0;
     }
 
     /* A bar of controls alone covers only the status bar and leaves the content clear under its controls, as a
@@ -217,6 +241,10 @@
       height: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
       -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
       mask-image: linear-gradient(to bottom, #000, transparent);
+    }
+
+    &[data-background="soft"]:not([data-mobile-variant="sheet"] *):not(:has(:is(.Heading, .Title)))::after {
+      display: none;
     }
 
     /* Hard and solid are opaque, glass is translucent and shows itself once content is under the bar.

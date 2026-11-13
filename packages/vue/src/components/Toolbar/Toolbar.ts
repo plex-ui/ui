@@ -7,6 +7,8 @@ import {
   onMounted,
   provide,
   ref,
+  Teleport,
+  watch,
   type ComputedRef,
   type HTMLAttributes,
   type InjectionKey,
@@ -24,9 +26,9 @@ export type ToolbarTitleStyle = "inline" | "large" | "compact-large" | "compact-
 export type ToolbarTitleAlign = "center" | "start"
 /**
  * How a bar meets the content scrolled under it, after the scroll edge effect of iOS 26:
- * - `"soft"` (the default of a bottom bar): at the top, the canvas color covers the content under the bar's controls and fades out past them, over a
- *   light blur; at the bottom of a page the content stays clear under and around the controls, as on native iOS 26,
- *   and a Sheet's bottom bar fades its content into the panel
+ * - `"soft"` (the default of a bottom bar): at the top, once content is under the bar, a blur that grows toward the top under a
+ *   thin veil of the canvas color, with no line, which lets go past the bar; at the bottom of a page the content stays clear
+ *   under and around the controls, as on native iOS 26, and a Sheet's bottom bar fades its content into the panel
  * - `"hard"`: an opaque bar of the canvas color with a line once content is under it
  * - `"glass"` (the default of a top bar): a translucent, blurred bar with a hairline, shown once content is under it
  * - `"solid"`: an opaque bar of the canvas color without a line
@@ -48,24 +50,57 @@ export type ToolbarHost = {
   contentBelow?: Ref<boolean>
   /** Calls the listener with the content's scroll offset on every scroll; returns the unsubscribe. A TabBar minimizes with it. */
   subscribeScroll?: (listener: (scrollTop: number) => void) => () => void
+  /** A large title asks for a place in the content; returns the release. */
+  requestLargeTitleSlot?: () => () => void
+  /** The place at the top of the content where a large title scrolls with it, once the content has made one. */
+  largeTitleSlot?: Ref<HTMLElement | null>
 }
 
 export const TOOLBAR_HOST: InjectionKey<ToolbarHost> = Symbol("ToolbarHost")
 
 // The title style of the top bar, which a large title on a page needs to show itself inline once scrolled.
 const TOOLBAR_TITLE_STYLE: InjectionKey<ComputedRef<ToolbarTitleStyle | undefined>> = Symbol("ToolbarTitleStyle")
+// The bar itself, which a large title in the content marks once it has gone under the bar.
+const TOOLBAR_ELEMENT: InjectionKey<Ref<HTMLElement | null>> = Symbol("ToolbarElement")
+
+// The tokens of a large title a bar can set for itself, which the title in the content no longer inherits from it.
+const LARGE_TITLE_TOKENS = [
+  "--toolbar-padding-bottom",
+  "--toolbar-large-title-gap",
+  "--toolbar-large-title-font-size",
+  "--toolbar-large-title-line-height",
+  "--toolbar-large-title-descent",
+  "--toolbar-large-subtitle-font-size",
+  "--toolbar-large-subtitle-line-height",
+  "--toolbar-large-subtitle-descent",
+]
 
 /**
- * A large title on a page scrolls up with the content under the row of controls; the row shows the
- * title inline once it has gone. The distance it travels (the gap above it and its height) goes to
- * `--toolbar-large-title-travel`, in pixels as a number, as the page's `--page-scroll-y` is.
+ * Follows a large title in the content: it takes the bar's own large title tokens, and once its last line is at the
+ * bar's bottom the bar shows it inline. Scrolling moves it; a change of layout (a wide window turning into a phone's,
+ * which shows the bar and the title) measures it again. A hidden title has not gone under anything.
  */
-function measureLargeTitle(bar: HTMLElement) {
-  if (bar.dataset.titleStyle !== "large") return
-  const heading = Array.from(bar.children).find((child): child is HTMLElement => child instanceof HTMLElement && child.classList.contains(s.Heading))
-  if (!heading) return
-  const gap = Number.parseFloat(getComputedStyle(bar).rowGap) || 0
-  bar.style.setProperty("--toolbar-large-title-travel", String(heading.offsetHeight + gap))
+function followLargeTitle(bar: HTMLElement, heading: HTMLElement, subscribeScroll: (listener: () => void) => () => void) {
+  const collapse = () => {
+    const box = heading.getBoundingClientRect()
+    bar.toggleAttribute("data-title-collapsed", box.height > 0 && box.bottom <= bar.getBoundingClientRect().bottom)
+  }
+  const layout = () => {
+    const style = getComputedStyle(bar)
+    for (const token of LARGE_TITLE_TOKENS) heading.style.setProperty(token, style.getPropertyValue(token).trim() || null)
+    collapse()
+  }
+  layout()
+  const unsubscribe = subscribeScroll(collapse)
+  const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(layout) : undefined
+  observer?.observe(bar)
+  observer?.observe(heading)
+  return () => {
+    unsubscribe()
+    observer?.disconnect()
+    bar.removeAttribute("data-title-collapsed")
+    for (const token of LARGE_TITLE_TOKENS) heading.style.removeProperty(token)
+  }
 }
 
 const ToolbarComponent = defineComponent({
@@ -84,6 +119,7 @@ const ToolbarComponent = defineComponent({
     const host = inject(TOOLBAR_HOST, null)
     provide(TOOLBAR_TITLE_STYLE, computed(() => (props.placement === "top" ? props.titleStyle : undefined)))
     const element = ref<HTMLElement | null>(null)
+    provide(TOOLBAR_ELEMENT, element)
     let observer: ResizeObserver | undefined
     let reported: ToolbarPlacement | undefined
     onMounted(() => {
@@ -95,7 +131,6 @@ const ToolbarComponent = defineComponent({
         if (reported && reported !== props.placement) setHeight(reported, undefined)
         reported = props.placement
         setHeight(props.placement, bar.offsetHeight || undefined)
-        measureLargeTitle(bar)
       }
       update()
       observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
@@ -177,22 +212,49 @@ export const ToolbarTitle = defineComponent({
   setup(props, { slots, attrs }) {
     const host = inject(TOOLBAR_HOST, null)
     const titleStyle = inject(TOOLBAR_TITLE_STYLE, null)
+    const bar = inject(TOOLBAR_ELEMENT, null)
+    const heading = ref<HTMLElement | null>(null)
+    const large = computed(() => titleStyle?.value === "large" && host?.kind === "page")
+    const slot = computed(() => (large.value ? host?.largeTitleSlot?.value ?? null : null))
+    let release: (() => void) | undefined
+    onMounted(() => { if (large.value) release = host?.requestLargeTitleSlot?.() })
+    watch(large, (value) => {
+      release?.()
+      release = value ? host?.requestLargeTitleSlot?.() : undefined
+    })
+    // In the content the title scrolls with it, on the compositor and through the overscroll, as on iOS 26. Once it has
+    // gone under the bar (its last line at the bar's bottom), the bar shows it inline and a hard or glass bar its line.
+    // It starts once mounted too: a bar replaced under a page that keeps its content finds the place already there.
+    let stopFollowing: (() => void) | undefined
+    const follow = () => {
+      stopFollowing?.()
+      stopFollowing = undefined
+      const element = bar?.value
+      const title = heading.value
+      if (!slot.value || !element || !title || !host?.subscribeScroll) return
+      stopFollowing = followLargeTitle(element, title, host.subscribeScroll)
+    }
+    onMounted(follow)
+    watch([slot, () => bar?.value], follow, { flush: "post" })
+    onBeforeUnmount(() => { stopFollowing?.(); release?.() })
     return () => {
       // An empty subtitle, from the prop or a slot that renders nothing, leaves the title on one line, as in React.
       const present = (value: unknown) => (Array.isArray(value) ? value.length > 0 : value != null && value !== "")
       const subtitle = slots.subtitle?.() ?? props.subtitle
-      const heading = h("div", { "class": s.Heading, "aria-hidden": host?.kind === "dialog" ? "true" : undefined }, [
+      const place = slot.value
+      const title = h("div", { "ref": heading, "class": s.Heading, "aria-hidden": host?.kind === "dialog" ? "true" : undefined, "data-in-content": place ? "" : undefined }, [
         h(props.as, { ...attrs, class: [s.Title, attrs.class] }, slots.default?.()),
         present(subtitle) ? h("p", { class: s.Subtitle }, subtitle) : null,
       ])
-      if (titleStyle?.value !== "large" || host?.kind !== "page") return heading
-      // The inline copy the row of controls shows once the large title has scrolled under it. A subtitle stays
-      // as a second line, as in the inline title (iOS 26 kit Toolbar - Top - iPhone, Title 2 Line).
+      if (!large.value) return title
+      // Until the content has made its place (a server-rendered page before it hydrates), the title stands in the bar
+      // where it will stand in the content. The inline copy the row of controls shows once the large title has gone
+      // under it keeps a subtitle as a second line, as in the inline title (iOS 26 kit Toolbar - Top - iPhone, Title 2 Line).
       const copySubtitle = slots.subtitle?.() ?? props.subtitle
       const copy = present(copySubtitle)
         ? [h("span", { class: s.CollapsedLine }, slots.default?.()), h("span", { class: s.CollapsedSubtitle }, copySubtitle)]
         : slots.default?.()
-      return [heading, h("span", { "class": s.CollapsedTitle, "aria-hidden": "true" }, copy)]
+      return [h(Teleport, { to: place ?? "body", disabled: !place }, [title]), h("span", { "class": s.CollapsedTitle, "aria-hidden": "true" }, copy)]
     }
   },
 })

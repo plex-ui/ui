@@ -213,20 +213,26 @@ describe("Bar background styles", () => {
 
   test("a soft header fades out past its bar and a soft footer starts 27px above its actions and covers fully from their top, as a Toolbar's edges", () => {
     // Full cover down to the bottom of the bar, then a 32px fade past it (owner 08.11; plan 170)
-    expect(page).toMatch(/\.Header \{[\s\S]*?&::before \{[^}]*inset: 0 0 calc\(-1 \* var\(--page-bar-soft-tail, 32px\)\);[^}]*mask-image: linear-gradient\(to bottom, #000 calc\(100% - var\(--page-bar-soft-tail, 32px\)\), transparent\);/)
+    expect(page).toMatch(/\.Header \{[\s\S]*?&::before \{[^}]*inset: 0 0 calc\(-1 \* var\(--page-bar-soft-tail, 32px\)\);[^}]*mask-image: var\(--page-bar-soft-veil\);/)
+    expect(page).toMatch(/&\[data-background="soft"\]::after \{[^}]*backdrop-filter: blur\(var\(--page-bar-soft-blur\)\);[^}]*mask-image: var\(--page-bar-soft-blur-mask\);/)
+    expect(page).toMatch(/&\[data-background="soft"\]:not\(\[data-scrolled\]\)::before,\s*&\[data-background="soft"\]:not\(\[data-scrolled\]\)::after \{\s*opacity: 0;/)
+    expect(dialog).toMatch(/\.Header::after \{\s*inset: 0 0 calc\(-1 \* var\(--page-bar-soft-tail, 32px\)\);[^}]*mask-image: var\(--page-bar-soft-veil\);/)
+    expect(dialog).toMatch(/\.Header\[data-background="soft"\]::before \{[^}]*backdrop-filter: blur\(var\(--page-bar-soft-blur\)\);[^}]*mask-image: var\(--page-bar-soft-blur-mask\);/)
     expect(page).toMatch(/\.Footer \{[^}]*background: none;\s*&::before \{[^}]*inset: calc\(var\(--page-footer-padding-top\) - 27px\) 0 0;[^}]*mask-image: linear-gradient\(to bottom, transparent, #000 27px\);/)
     expect(dialog).toMatch(/\.Footer::before \{\s*inset: -15px 0 0;[^}]*mask-image: linear-gradient\(to bottom, transparent, #000 27px\);/)
   })
 
   test("a top bar of controls alone covers only the status bar, as in Notes; a bar with a title covers its row, as in Contacts", () => {
-    expect(toolbar).toMatch(/\.Toolbar\[data-host="page"\]\[data-placement="top"\]\[data-background="soft"\]:not\(\[data-mobile-variant="sheet"\] \*\):not\(:has\(> \.Heading, > \.Content\[data-fill\]\)\)::before \{\s*inset: 0 0 auto;\s*height: var\(--toolbar-padding-top, 0px\);\s*-webkit-mask-image: linear-gradient\(to bottom, #000, transparent\);\s*mask-image: linear-gradient\(to bottom, #000, transparent\);/)
+    expect(toolbar).toMatch(/\.Toolbar\[data-host="page"\]\[data-placement="top"\]\[data-background="soft"\]:not\(\[data-mobile-variant="sheet"\] \*\):not\(:has\(> \.Heading, > \.CollapsedTitle, > \.Content\[data-fill\]\)\) \{\s*&::before \{\s*inset: 0 0 auto;\s*height: var\(--toolbar-padding-top, 0px\);\s*-webkit-mask-image: linear-gradient\(to bottom, #000, transparent\);\s*mask-image: linear-gradient\(to bottom, #000, transparent\);/)
     expect(page).toMatch(/&\[data-background="soft"\]:not\(\[data-mobile-variant="sheet"\] \*\):not\(:has\(:is\(\.Heading, \.Title\)\)\)::before \{\s*inset: 0 0 auto;\s*height: var\(--safe-area-inset-top, env\(safe-area-inset-top, 0px\)\);\s*-webkit-mask-image: linear-gradient\(to bottom, #000, transparent\);\s*mask-image: linear-gradient\(to bottom, #000, transparent\);/)
+    expect(page).toMatch(/&\[data-background="soft"\]:not\(\[data-mobile-variant="sheet"\] \*\):not\(:has\(:is\(\.Heading, \.Title\)\)\)::after \{\s*display: none;/)
     // A titled bar keeps the full cover and the fade past it.
     expect(toolbar).toMatch(/&::before \{[^}]*inset: 0 0 calc\(-1 \* var\(--page-bar-soft-tail, 32px\)\);/)
   })
 
   test("a large title is the content under the row until the inline title comes in", () => {
     const large = toolbar.slice(toolbar.indexOf('.Toolbar[data-host="page"][data-title-style="large"] {'))
-    expect(large).toMatch(/&\[data-scrolled\]\[data-background="glass"\]::before \{\s*opacity: clamp\(0, \(var\(--page-scroll-y, 0\) - var\(--toolbar-large-title-travel, 0\) \+ 8\) \/ 8, 1\);/)
+    expect(large).toMatch(/&\[data-scrolled\]:not\(\[data-title-collapsed\]\)\[data-background="glass"\]::before \{\s*opacity: 0;/)
+    expect(large).toMatch(/&\[data-scrolled\]:not\(\[data-title-collapsed\]\)\[data-background="hard"\]::before \{\s*border-bottom-color: transparent;/)
   })
 })

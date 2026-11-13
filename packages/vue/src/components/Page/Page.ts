@@ -1,4 +1,5 @@
 import {
+  computed,
   defineComponent,
   h,
   inject,
@@ -7,6 +8,7 @@ import {
   onBeforeUnmount,
   provide,
   ref,
+  shallowRef,
   type HTMLAttributes,
   type InjectionKey,
   type PropType,
@@ -33,10 +35,11 @@ type PageContext = {
   contentBelow: Ref<boolean>
   footerHeight: Ref<number>
   headerHeight: Ref<number | undefined>
-  /** Writes the content's scroll offset to the page as `--page-scroll-y`, which a large Toolbar title follows. */
-  setScrollY: (scrollY: number) => void
-  /** Tells the bars that follow the scroll, such as a minimizing TabBar, the content's scroll offset. */
+  /** Tells the bars that follow the scroll, such as a minimizing TabBar or a large title, the content's scroll offset. */
   notifyScroll: (scrollY: number) => void
+  /** A large Toolbar title asks for a place at the top of the content, where it scrolls with the content. */
+  largeTitle: Ref<boolean>
+  setLargeTitleSlot: (slot: unknown) => void
 }
 const PAGE_CONTEXT: InjectionKey<PageContext> = Symbol("Page")
 
@@ -64,20 +67,24 @@ const PageComponent = defineComponent({
   },
   setup(props, { slots }) {
     const boundary = provideFloatingBoundaryScope()
-    let root: HTMLElement | null = null
-    const setRoot = (node: unknown) => {
-      root = node instanceof HTMLElement ? node : null
-      boundary.setRoot(node)
-    }
-    // Written straight to the element: a scroll frame must not render the page again.
-    const setScrollY = (scrollY: number) => root?.style.setProperty("--page-scroll-y", String(Math.max(0, scrollY)))
+    const setRoot = (node: unknown) => boundary.setRoot(node)
     const scrollListeners = new Set<(scrollTop: number) => void>()
     const notifyScroll = (scrollY: number) => scrollListeners.forEach((listener) => listener(scrollY))
     const subscribeScroll = (listener: (scrollTop: number) => void) => {
       scrollListeners.add(listener)
       return () => { scrollListeners.delete(listener) }
     }
-    const context = { scrolled: ref(false), contentBelow: ref(false), footerHeight: ref(0), headerHeight: ref<number>(), setScrollY, notifyScroll }
+    // A large Toolbar title lives in the content, where the browser scrolls it with the content and its overscroll;
+    // PageContent keeps a place for it at its top while a title asks for one.
+    const largeTitleRequests = ref(0)
+    const largeTitle = computed(() => largeTitleRequests.value > 0)
+    const largeTitleSlot = shallowRef<HTMLElement | null>(null)
+    const setLargeTitleSlot = (slot: unknown) => { largeTitleSlot.value = slot instanceof HTMLElement ? slot : null }
+    const requestLargeTitleSlot = () => {
+      largeTitleRequests.value += 1
+      return () => { largeTitleRequests.value -= 1 }
+    }
+    const context = { scrolled: ref(false), contentBelow: ref(false), footerHeight: ref(0), headerHeight: ref<number>(), notifyScroll, largeTitle, setLargeTitleSlot }
     provide(PAGE_CONTEXT, context)
     // A phone Toolbar replaces the header and footer bars; it reports its own heights.
     const toolbarTop = ref<number>()
@@ -87,6 +94,8 @@ const PageComponent = defineComponent({
       scrolled: context.scrolled,
       contentBelow: context.contentBelow,
       subscribeScroll,
+      requestLargeTitleSlot,
+      largeTitleSlot: computed(() => (largeTitle.value ? largeTitleSlot.value : null)),
       setHeight: (placement: ToolbarPlacement, height: number | undefined) => { (placement === "top" ? toolbarTop : toolbarBottom).value = height },
     })
     return () => h("div", { "ref": setRoot, "class": s.Page, "data-width": props.width, "data-surface": props.surface,
@@ -198,7 +207,7 @@ export const PageContent = defineComponent({
     fill: { type: Boolean, default: false },
   },
   setup(props, { attrs, slots }) {
-    const { scrolled, contentBelow, setScrollY, notifyScroll } = injectPageContext("PageContent")
+    const { scrolled, contentBelow, notifyScroll, largeTitle, setLargeTitleSlot } = injectPageContext("PageContent")
     const element = ref<HTMLElement | null>(null)
     let stop: (() => void) | undefined
     onMounted(() => {
@@ -211,9 +220,7 @@ export const PageContent = defineComponent({
     onBeforeUnmount(() => { stop?.(); scrolled.value = false; contentBelow.value = false })
 
     const onScroll = (event: Event) => {
-      const top = (event.currentTarget as HTMLElement).scrollTop
-      setScrollY(top)
-      notifyScroll(top)
+      notifyScroll((event.currentTarget as HTMLElement).scrollTop)
     }
 
     return () =>
@@ -223,7 +230,7 @@ export const PageContent = defineComponent({
           { "ref": element, "class": s.Content, "data-fill": props.fill ? "" : undefined, onScroll },
           attrs,
         ),
-        [h("div", { class: s.Column }, slots.default?.())],
+        [h("div", { class: s.Column }, [largeTitle.value ? h("div", { ref: setLargeTitleSlot, class: s.LargeTitle }) : null, slots.default?.()])],
       )
   },
 })

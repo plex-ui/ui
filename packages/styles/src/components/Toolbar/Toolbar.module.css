@@ -1,5 +1,7 @@
-/* A phone toolbar. A desktop layout has its own composition, so the toolbar never renders there. */
-.Toolbar {
+/* A phone toolbar. A desktop layout has its own composition, so the toolbar never renders there, nor the large title
+   it keeps at the top of a page's content. */
+.Toolbar,
+.Heading[data-in-content] {
   display: none;
 }
 
@@ -20,10 +22,9 @@
     padding: var(--toolbar-padding-top, 0px) var(--toolbar-gutter) var(--toolbar-padding-bottom) var(--toolbar-gutter);
     color: var(--color-text);
 
-    /* Soft scroll edge: the canvas color covers content scrolled under the bar down to its bottom and fades
-       out past it over --page-bar-soft-tail. Native iOS 26 bars hide content under the row almost entirely
-       (IMG_5484, 5503: text behind the title at 7-10% of its contrast) and keep that cover through the bar's
-       bottom padding (IMG_5503). */
+    /* Soft scroll edge: the canvas color over the bar and --page-bar-soft-tail past it, over a light blur. A top bar
+       thins it to the veil of iOS 27.2 and adds the blur that hides the content under it; a bottom bar covers its
+       content from the items down. */
     &::before {
       position: absolute;
       z-index: -1;
@@ -58,8 +59,40 @@
     }
   }
 
-  /* The line of a hard or glass bar faces the content: under a top bar, above a bottom one. */
+  /* The soft edge of a top bar is iOS 27.2's (--page-bar-soft-veil): the canvas color through the veil, over a light
+     blur, and on `::after` the stronger blur that hides the content under the bar and lets go past it. It shows once
+     content is under the bar: native's edge meets only content scrolled under it, and a large title at rest stands
+     clear under the row (ref-app nav-large-s0). The line of a hard or glass bar faces the content: under a top bar,
+     above a bottom one. */
   .Toolbar[data-placement="top"] {
+    &[data-background="soft"]::before {
+      -webkit-mask-image: var(--page-bar-soft-veil);
+      mask-image: var(--page-bar-soft-veil);
+    }
+
+    &[data-background="soft"]::after {
+      position: absolute;
+      z-index: -1;
+      inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));
+      border-radius: inherit;
+      -webkit-backdrop-filter: blur(var(--page-bar-soft-blur));
+      backdrop-filter: blur(var(--page-bar-soft-blur));
+      content: "";
+      -webkit-mask-image: var(--page-bar-soft-blur-mask);
+      mask-image: var(--page-bar-soft-blur-mask);
+      pointer-events: none;
+    }
+
+    &[data-background="soft"]::before,
+    &[data-background="soft"]::after {
+      transition: opacity var(--transition-duration-basic);
+    }
+
+    &[data-background="soft"]:not([data-scrolled])::before,
+    &[data-background="soft"]:not([data-scrolled])::after {
+      opacity: 0;
+    }
+
     &[data-background="hard"]::before {
       border-bottom: 1px solid transparent;
     }
@@ -164,19 +197,29 @@
       -webkit-mask-image: none;
       mask-image: none;
     }
+
+    &[data-background="soft"]::after {
+      display: none;
+    }
   }
 
   /* A top bar of controls alone, with no title, leaves the content clear under its controls: on a page the soft
      edge covers only the status bar and fades out to its bottom, as in Notes (IMG_5734, 5736: text at 18% of its
      contrast at the top and at 44%, blurred, 37pt down, clear from 53pt; a top safe area of 59pt). Each glass
-     control stands out by itself, as on a bottom bar. With a title the edge covers the row, as in Contacts
-     (IMG_5737) and Settings (IMG_5484, 5503): the title needs it. A Page laid out inside a Sheet keeps the full
-     edge, as its bottom bar does: the frames show no sheet without a title. */
-  .Toolbar[data-host="page"][data-placement="top"][data-background="soft"]:not([data-mobile-variant="sheet"] *):not(:has(> .Heading, > .Content[data-fill]))::before {
-    inset: 0 0 auto;
-    height: var(--toolbar-padding-top, 0px);
-    -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
-    mask-image: linear-gradient(to bottom, #000, transparent);
+     control stands out by itself, as on a bottom bar. With a title, a large one in the content too, the edge lies
+     over the row, as in Contacts (IMG_5737): the title needs it. A Page laid out inside a Sheet keeps the full edge,
+     as its bottom bar does: the frames show no sheet without a title. */
+  .Toolbar[data-host="page"][data-placement="top"][data-background="soft"]:not([data-mobile-variant="sheet"] *):not(:has(> .Heading, > .CollapsedTitle, > .Content[data-fill])) {
+    &::before {
+      inset: 0 0 auto;
+      height: var(--toolbar-padding-top, 0px);
+      -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+      mask-image: linear-gradient(to bottom, #000, transparent);
+    }
+
+    &::after {
+      display: none;
+    }
   }
 
   /* Leading alignment, compact titles and filled content share one row from the start edge. */
@@ -543,64 +586,51 @@
     inset: 0 0 auto;
   }
 
-  /* A large title on a page sits at the top of the content and scrolls up with it under the row of
-     controls, which then shows the title inline, as UIKit does in iOS 26 (WWDC25 "Build a UIKit app
-     with the new design": large titles scroll with the content underneath the bar). Page.Content
-     writes its scroll offset to --page-scroll-y and the Toolbar measures how far the title travels.
-     The title fades out over 8px as it passes under the row; the soft edge then covers the row only,
-     as it does for an inline title. */
+  /* A large title on a page lives at the top of the content (Page.Content keeps a place for it), so the browser
+     scrolls it with the content, overscroll included, as UIKit does in iOS 26 (WWDC25 "Build a UIKit app with the
+     new design": large titles scroll with the content underneath the bar; iOS 27.2 in the simulator moves it with
+     the list through the bounce). The bar keeps the row of controls. Once the title has gone under the bar, the row
+     shows it inline: the two swap over --toolbar-large-title-swap-duration, not with the scroll, as iOS 27.2 does,
+     and a hard or glass bar shows its line with the inline title: until then the large title is the content under
+     the row. */
   .Toolbar[data-host="page"][data-title-style="large"] {
-    /* Until the Toolbar has measured how far the title travels (a server-rendered page before it hydrates), the
-       title has not gone: the large title shows, and the row's inline copy and the bar's line stay hidden. A
-       travel of 0 showed the inline title in the row for the first frames, then swapped it for the large one. */
-    --toolbar-large-title-travel: 100000;
     --toolbar-edge-blur: var(--toolbar-edge-blur-small);
-    --toolbar-large-title-scroll: calc(min(var(--page-scroll-y, 0), var(--toolbar-large-title-travel, 0) + 16) * 1px);
-    grid-template-areas:
-      "leading collapsed trailing"
-      "heading heading heading";
+    grid-template-areas: "leading collapsed trailing";
     grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr);
-    /* Content scrolled into the place of the title stays under the pointer. */
-    pointer-events: none;
+    grid-template-rows: minmax(var(--toolbar-item-size), auto);
 
-    &::before {
-      inset: 0 0 auto;
-      height: calc(var(--toolbar-padding-top, 0px) + var(--toolbar-item-size) + var(--toolbar-padding-bottom) + 16px);
+    /* Until the content has made its place (a server-rendered page before it hydrates), the title stands in the
+       bar's second row, where it will stand in the content. */
+    &:has(> .Heading) {
+      grid-template-areas:
+        "leading collapsed trailing"
+        "heading heading heading";
+      grid-template-rows: minmax(var(--toolbar-item-size), auto) auto;
     }
 
-    &:not([data-background="soft"])::before {
-      height: calc(var(--toolbar-padding-top, 0px) + var(--toolbar-item-size) + var(--toolbar-padding-bottom));
+    &[data-background="hard"]::before,
+    &[data-background="glass"]::before {
+      transition: opacity var(--toolbar-large-title-swap-duration), border-color var(--toolbar-large-title-swap-duration);
     }
 
-    /* The large title is the content under the row until it has gone: a hard or glass bar shows its line
-       with the inline title, over the same last 8px. */
-    &[data-scrolled][data-background="hard"]::before {
-      border-bottom-color: color-mix(in srgb, var(--page-bar-hard-line) calc(clamp(0, (var(--page-scroll-y, 0) - var(--toolbar-large-title-travel, 0) + 8) / 8, 1) * 100%), transparent);
+    &[data-scrolled]:not([data-title-collapsed])[data-background="hard"]::before {
+      border-bottom-color: transparent;
     }
 
-    &[data-scrolled][data-background="glass"]::before {
-      opacity: clamp(0, (var(--page-scroll-y, 0) - var(--toolbar-large-title-travel, 0) + 8) / 8, 1);
+    &[data-scrolled]:not([data-title-collapsed])[data-background="glass"]::before {
+      opacity: 0;
     }
 
-    & > :is(.Leading, .Trailing, .Content),
-    &:not([data-scrolled]) > .Heading {
-      pointer-events: auto;
-    }
-
-    /* The bar ends at the title's last baseline: the content starts 16pt under it (iOS 27.2: baseline 152,
-       content 168, in Files, Settings, UIKit and SwiftUI; with a subtitle, 16.6 under the subtitle's). */
+    /* The bar ends at the title's last baseline: the content starts 16pt under it (iOS 27.2: baseline 152, content
+       168, in Files, Settings, UIKit and SwiftUI; with a subtitle, 16.6 under the subtitle's). */
     & > .Heading {
       margin-bottom: calc(-1 * (var(--toolbar-padding-bottom) + var(--toolbar-large-title-descent)));
-      transform: translateY(calc(-1 * var(--toolbar-large-title-scroll)));
-      -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-row-gap)), #000 calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-row-gap) + 8px));
-      mask-image: linear-gradient(to bottom, transparent calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-row-gap)), #000 calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-row-gap) + 8px));
     }
 
     & > .Heading:has(> .Subtitle) {
       margin-bottom: calc(-1 * (var(--toolbar-padding-bottom) + var(--toolbar-large-subtitle-descent)));
     }
 
-    /* The inline title fades in over the last 8px of the large title's way. */
     & > .CollapsedTitle {
       grid-area: collapsed;
       min-width: 0;
@@ -612,7 +642,12 @@
       text-align: center;
       text-overflow: ellipsis;
       white-space: nowrap;
-      opacity: clamp(0, (var(--page-scroll-y, 0) - var(--toolbar-large-title-travel, 0) + 8) / 8, 1);
+      opacity: 0;
+      transition: opacity var(--toolbar-large-title-swap-duration);
+    }
+
+    &[data-title-collapsed] > .CollapsedTitle {
+      opacity: 1;
     }
 
     /* With a subtitle the inline copy takes two lines, as the inline title does: 15/20 and 12/16 in the
@@ -641,6 +676,36 @@
       font-weight: var(--toolbar-subtitle-font-weight);
       line-height: var(--toolbar-subtitle-line-height);
     }
+  }
+
+  /* The large title in the content stands where it stood in the bar: its capitals 22pt under the row of controls
+     (--toolbar-large-title-gap under the row, which ends --toolbar-padding-bottom above the content's padding), and
+     the content 16pt under its last baseline. */
+  .Heading[data-in-content] {
+    display: flex;
+    align-items: flex-start;
+    min-height: 0;
+    margin: calc(var(--toolbar-large-title-gap) - var(--toolbar-padding-bottom) - var(--page-content-padding-top, 16px)) 0 calc(var(--page-content-padding-top, 16px) - var(--toolbar-large-title-descent));
+    text-align: start;
+    transform: none;
+
+    & > .Title {
+      font-size: var(--toolbar-large-title-font-size);
+      font-weight: var(--font-weight-bold);
+      line-height: var(--toolbar-large-title-line-height);
+    }
+
+    & > .Subtitle {
+      margin: 0;
+      font-size: var(--toolbar-large-subtitle-font-size);
+      font-weight: var(--font-weight-normal);
+      line-height: var(--toolbar-large-subtitle-line-height);
+    }
+  }
+
+  .Heading[data-in-content]:has(> .Subtitle) {
+    margin-top: calc(var(--toolbar-large-title-gap) + 3px - var(--toolbar-padding-bottom) - var(--page-content-padding-top, 16px));
+    margin-bottom: calc(var(--page-content-padding-top, 16px) - var(--toolbar-large-subtitle-descent));
   }
 
   .Toolbar[data-host="dialog"][data-placement="top"] {

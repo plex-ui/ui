@@ -423,26 +423,121 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     return () => { view?.unmount(); vue?.unmount() }
   }
 
-  test.each(["React", "Vue"] as const)("%s: the page writes its scroll, the bar measures the title's way and holds an inline copy", async (framework) => {
-    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(function (this: HTMLElement) {
-      if (this.hasAttribute("data-toolbar")) return 168
-      return this.classList.contains("Heading") ? 41 : 0
+  test.each(["React", "Vue"] as const)("%s: the title moves into the content, scrolls with it, and the bar shows it inline once it has gone", async (framework) => {
+    // The bar ends at 70; the title's box ends at headingBottom, which the scroll moves.
+    let headingBottom = 120
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      const bottom = this.hasAttribute("data-toolbar") ? 70 : this.classList.contains("Heading") ? headingBottom : 0
+      return { x: 0, y: 0, top: 0, left: 0, right: 0, width: 0, height: bottom, bottom, toJSON: () => ({}) } as DOMRect
     })
     const unmount = await mount(framework, "large")
     const bar = document.querySelector<HTMLElement>('[data-toolbar][data-title-style="large"]')
-    expect(bar?.style.getPropertyValue("--toolbar-large-title-travel")).toBe("41")
+    // One h1, at the top of the content, where the browser scrolls it with the content and its overscroll.
+    expect(document.querySelectorAll("h1")).toHaveLength(1)
+    const heading = document.querySelector(".Page > .Content > .Column > .LargeTitle:first-child > .Heading[data-in-content]")
+    expect(heading?.querySelector("h1")?.textContent).toBe("Orders")
+    expect(bar?.querySelector(":scope > .Heading")).toBeNull()
+    expect(bar?.style.getPropertyValue("--toolbar-large-title-travel")).toBe("")
     const copy = bar?.querySelector(":scope > .CollapsedTitle")
     expect(copy?.getAttribute("aria-hidden")).toBe("true")
     expect(copy?.textContent).toBe("Orders")
-    expect(bar?.querySelectorAll("h1")).toHaveLength(1)
+    expect(bar?.hasAttribute("data-title-collapsed")).toBe(false)
     const content = document.querySelector<HTMLElement>(".Page > .Content")
     if (!content) throw new Error("Page.Content is missing")
-    content.scrollTop = 60
+    const scrollTo = async (top: number, bottom: number) => {
+      headingBottom = bottom
+      content.scrollTop = top
+      if (framework === "React") await act(async () => { fireEvent.scroll(content) })
+      else { content.dispatchEvent(new Event("scroll")); await flushVue() }
+    }
+    // Under the row but not gone: no inline title yet.
+    await scrollTo(30, 90)
+    expect(bar?.hasAttribute("data-scrolled")).toBe(true)
+    expect(bar?.hasAttribute("data-title-collapsed")).toBe(false)
+    await scrollTo(60, 70)
+    expect(bar?.hasAttribute("data-title-collapsed")).toBe(true)
+    await scrollTo(10, 110)
+    expect(bar?.hasAttribute("data-title-collapsed")).toBe(false)
+    // The page writes no scroll offset of its own any more.
+    expect(document.querySelector<HTMLElement>(".Page")?.getAttribute("style") ?? "").not.toContain("--page-scroll-y")
+    unmount()
+  })
+
+  // The bar ends at 70; a heading's box ends at headingBottom and is headingHeight tall (0 while it is hidden).
+  const measure = (geometry: { bottom: number; height: number }) =>
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      const bar = this.hasAttribute("data-toolbar")
+      const heading = this.classList.contains("Heading")
+      const bottom = bar ? 70 : heading ? geometry.bottom : 0
+      const height = bar ? 70 : heading ? geometry.height : 0
+      return { x: 0, y: 0, top: bottom - height, left: 0, right: 0, width: 0, height, bottom, toJSON: () => ({}) } as DOMRect
+    })
+  const scroll = async (framework: "React" | "Vue") => {
+    const content = document.querySelector<HTMLElement>(".Page > .Content")
+    if (!content) throw new Error("Page.Content is missing")
     if (framework === "React") await act(async () => { fireEvent.scroll(content) })
     else { content.dispatchEvent(new Event("scroll")); await flushVue() }
-    expect(pageStyle()).toContain("--page-scroll-y: 60")
-    expect(bar?.hasAttribute("data-scrolled")).toBe(true)
+  }
+
+  test.each(["React", "Vue"] as const)("%s: a bar replaced under the same page and content still shows its title inline once it has gone", async (framework) => {
+    const geometry = { bottom: 120, height: 41 }
+    measure(geometry)
+    const reactPage = (key: string) => createElement(
+      RPage as unknown as AnyComponent,
+      null,
+      createElement(RToolbar as unknown as AnyComponent, { key, titleStyle: "large" }, createElement(RToolbar.Title as unknown as AnyComponent, null, `Orders ${key}`)),
+      createElement(RPage.Content, null, "Body"),
+    )
+    const vueKey = reactive({ value: "a" })
+    const view = framework === "React" ? render(reactPage("a")) : null
+    if (framework === "Vue") mountVue(() => h(Page as never, null, () => [h(Toolbar as never, { key: vueKey.value, titleStyle: "large" }, () => [h(ToolbarTitle as never, null, () => `Orders ${vueKey.value}`)]), h(PageContent, null, () => "Body")]))
+    await (framework === "React" ? act(async () => {}) : flushVue())
+    if (framework === "React") await act(async () => { view?.rerender(reactPage("b")) })
+    else { vueKey.value = "b"; await flushVue() }
+    expect(document.querySelector(".LargeTitle > .Heading[data-in-content] h1")?.textContent).toBe("Orders b")
+    geometry.bottom = 70
+    await scroll(framework)
+    expect(document.querySelector("[data-toolbar]")?.hasAttribute("data-title-collapsed")).toBe(true)
+  })
+
+  test.each(["React", "Vue"] as const)("%s: a hidden title has not gone, and a change of layout measures it again", async (framework) => {
+    // A wide window hides the bar and the title: both boxes are empty.
+    const geometry = { bottom: 0, height: 0 }
+    measure(geometry)
+    const observers: Array<() => void> = []
+    vi.stubGlobal("ResizeObserver", class {
+      constructor(private callback: () => void) { observers.push(() => this.callback()) }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    })
+    const unmount = await mount(framework, "large")
+    const bar = document.querySelector<HTMLElement>('[data-toolbar][data-title-style="large"]')
+    expect(bar?.hasAttribute("data-title-collapsed")).toBe(false)
+    // The window narrows to a phone's, already scrolled past the title: no scroll event, only the new layout.
+    Object.assign(geometry, { bottom: 60, height: 41 })
+    await (framework === "React" ? act(async () => { observers.forEach((notify) => notify()) }) : (observers.forEach((notify) => notify()), flushVue()))
+    expect(bar?.hasAttribute("data-title-collapsed")).toBe(true)
     unmount()
+    vi.unstubAllGlobals()
+  })
+
+  test.each(["React", "Vue"] as const)("%s: the title in the content keeps the large title tokens its bar sets for itself", async (framework) => {
+    const root = { titleStyle: "large", style: framework === "React" ? { "--toolbar-large-title-gap": "24px", "--toolbar-large-title-font-size": "40px" } : "--toolbar-large-title-gap: 24px; --toolbar-large-title-font-size: 40px" }
+    if (framework === "React") render(createElement(RPage as unknown as AnyComponent, null, reactBar({ root, title: {} }), createElement(RPage.Content, null, "Body")))
+    else mountVue(() => h(Page as never, null, () => [vueBar({ root, title: {} }), h(PageContent, null, () => "Body")]))
+    await (framework === "React" ? act(async () => {}) : flushVue())
+    const heading = document.querySelector<HTMLElement>(".LargeTitle > .Heading[data-in-content]")
+    expect(heading?.style.getPropertyValue("--toolbar-large-title-gap")).toBe("24px")
+    expect(heading?.style.getPropertyValue("--toolbar-large-title-font-size")).toBe("40px")
+  })
+
+  test.each(["React", "Vue"] as const)("%s: a large title in a bar without a page's content stays in the bar", async (framework) => {
+    if (framework === "React") render(createElement(RPage as unknown as AnyComponent, null, reactBar({ root: { titleStyle: "large" }, title: {} })))
+    else mountVue(() => h(Page as never, null, () => [vueBar({ root: { titleStyle: "large" }, title: {} })]))
+    await (framework === "React" ? act(async () => {}) : flushVue())
+    expect(document.querySelector("[data-toolbar] > .Heading:not([data-in-content]) > h1")?.textContent).toBe("Orders")
+    expect(document.querySelectorAll("h1")).toHaveLength(1)
   })
 
   test.each(["React", "Vue"] as const)("%s: a subtitle stays as the second line of the inline copy (kit Title 2 Line)", async (framework) => {
@@ -500,34 +595,53 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     expect(materials).not.toContain("light-dark(var(--gray-100), transparent)")
   })
 
-  test("the title moves with the scroll, fades under the row of controls and shows inline at the end of its way", () => {
+  test("the bar keeps the row of controls and swaps the large title for the inline one in time, not with the scroll", () => {
     const start = css.indexOf('.Toolbar[data-host="page"][data-title-style="large"] {')
     expect(start).toBeGreaterThan(-1)
     const block = css.slice(start, css.indexOf("\n  }\n", start))
     for (const declaration of [
-      "--toolbar-large-title-scroll: calc(min(var(--page-scroll-y, 0), var(--toolbar-large-title-travel, 0) + 16) * 1px);",
-      '"leading collapsed trailing"',
+      'grid-template-areas: "leading collapsed trailing";',
       "grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr);",
-      "pointer-events: none;",
-      "height: calc(var(--toolbar-padding-top, 0px) + var(--toolbar-item-size) + var(--toolbar-padding-bottom) + 16px);",
-      "transform: translateY(calc(-1 * var(--toolbar-large-title-scroll)));",
-      "mask-image: linear-gradient(to bottom, transparent calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-row-gap)), #000 calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-row-gap) + 8px));",
+      "grid-template-rows: minmax(var(--toolbar-item-size), auto);",
+      // Until the content has made its place, the title stands in the bar's second row
+      '"heading heading heading";',
       // The bar ends at the title's last baseline, so the content starts 16pt under it (iOS 27.2: baseline 152, content 168)
       "margin-bottom: calc(-1 * (var(--toolbar-padding-bottom) + var(--toolbar-large-title-descent)));",
       "margin-bottom: calc(-1 * (var(--toolbar-padding-bottom) + var(--toolbar-large-subtitle-descent)));",
       "grid-area: collapsed;",
-      "opacity: clamp(0, (var(--page-scroll-y, 0) - var(--toolbar-large-title-travel, 0) + 8) / 8, 1);",
+      "transition: opacity var(--toolbar-large-title-swap-duration);",
     ]) expect(block).toContain(declaration)
+    expect(block).toMatch(/& > \.CollapsedTitle \{[^}]*opacity: 0;/)
+    expect(block).toMatch(/&\[data-title-collapsed\] > \.CollapsedTitle \{\s*opacity: 1;/)
+    expect(block).toMatch(/&\[data-scrolled\]:not\(\[data-title-collapsed\]\)\[data-background="glass"\]::before \{\s*opacity: 0;/)
+    expect(block).toMatch(/&\[data-scrolled\]:not\(\[data-title-collapsed\]\)\[data-background="hard"\]::before \{\s*border-bottom-color: transparent;/)
+    expect(css).not.toMatch(/page-scroll-y|large-title-travel|large-title-scroll/)
+    const tokens = readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")
+    expect(tokens).toContain("--toolbar-large-title-swap-duration: 300ms;")
   })
 
-  test("the soft edge of a top bar covers the row of controls and fades below it (native IMG_5484, 5503)", () => {
-    // Full cover down to the bottom of the bar, then a 32px fade past it (owner 08.11: 16px read too short; plan 170)
-    expect(css).toContain("inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));")
-    expect(css).toContain("mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);")
+  test("the title in the content stands where it stood in the bar, and never on a desktop layout", () => {
+    expect(css).toMatch(/^\.Toolbar,\n\.Heading\[data-in-content\] \{\s*display: none;/m)
+    expect(css).toMatch(/\.Heading\[data-in-content\] \{\s*display: flex;[^}]*margin: calc\(var\(--toolbar-large-title-gap\) - var\(--toolbar-padding-bottom\) - var\(--page-content-padding-top, 16px\)\) 0 calc\(var\(--page-content-padding-top, 16px\) - var\(--toolbar-large-title-descent\)\);/)
+    expect(css).toMatch(/\.Heading\[data-in-content\]:has\(> \.Subtitle\) \{\s*margin-top: calc\(var\(--toolbar-large-title-gap\) \+ 3px - var\(--toolbar-padding-bottom\) - var\(--page-content-padding-top, 16px\)\);\s*margin-bottom: calc\(var\(--page-content-padding-top, 16px\) - var\(--toolbar-large-subtitle-descent\)\);/)
+    // The place holds the title's margins, so they never merge with the content's.
+    expect(readFileSync(`${process.cwd()}/packages/styles/src/components/Page/Page.module.css`, "utf8")).toMatch(/\.LargeTitle \{\s*display: flow-root;/)
+  })
+
+  test("the soft edge of a top bar is iOS 27.2's: a veil of the canvas color and a blur that lets go past the bar, once content is under it", () => {
+    const tokens = readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")
+    // ref-app edge-uikit-soft-grouped: 55% to 56 above the bar's bottom, 38, 31, 20 at the bottom, 8 12 below, none 24 below
+    expect(tokens).toContain("--page-bar-soft-veil: linear-gradient(to bottom, rgb(0 0 0 / 55%) calc(100% - var(--page-bar-soft-tail) - 56px), rgb(0 0 0 / 38%) calc(100% - var(--page-bar-soft-tail) - 32px), rgb(0 0 0 / 31%) calc(100% - var(--page-bar-soft-tail) - 16px), rgb(0 0 0 / 20%) calc(100% - var(--page-bar-soft-tail)), rgb(0 0 0 / 8%) calc(100% - var(--page-bar-soft-tail) + 12px), transparent calc(100% - var(--page-bar-soft-tail) + 24px));")
+    expect(tokens).toContain("--page-bar-soft-blur: 10px;")
+    expect(tokens).toContain("--page-bar-soft-blur-mask: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail) - 16px), transparent calc(100% - var(--page-bar-soft-tail) + 12px));")
+    const top = css.slice(css.indexOf('.Toolbar[data-placement="top"] {'))
+    expect(top).toMatch(/&\[data-background="soft"\]::before \{\s*-webkit-mask-image: var\(--page-bar-soft-veil\);\s*mask-image: var\(--page-bar-soft-veil\);/)
+    expect(top).toMatch(/&\[data-background="soft"\]::after \{[^}]*inset: 0 0 calc\(-1 \* var\(--page-bar-soft-tail, 32px\)\);[^}]*backdrop-filter: blur\(var\(--page-bar-soft-blur\)\);[^}]*mask-image: var\(--page-bar-soft-blur-mask\);/)
+    expect(top).toMatch(/&\[data-background="soft"\]:not\(\[data-scrolled\]\)::before,\s*&\[data-background="soft"\]:not\(\[data-scrolled\]\)::after \{\s*opacity: 0;/)
     // The plain fade over the whole height is left to a bar of controls alone, which covers only the status bar (Notes).
-    const plain = css.split("mask-image: linear-gradient(to bottom, #000, transparent);").length - 1
-    expect(plain).toBe(2)
-    expect(css).toMatch(/:not\(:has\(> \.Heading, > \.Content\[data-fill\]\)\)::before \{\s*inset: 0 0 auto;\s*height: var\(--toolbar-padding-top, 0px\);\s*-webkit-mask-image: linear-gradient\(to bottom, #000, transparent\);\s*mask-image: linear-gradient\(to bottom, #000, transparent\);\s*\}/)
+    expect(css).toMatch(/:not\(:has\(> \.Heading, > \.CollapsedTitle, > \.Content\[data-fill\]\)\) \{\s*&::before \{\s*inset: 0 0 auto;\s*height: var\(--toolbar-padding-top, 0px\);\s*-webkit-mask-image: linear-gradient\(to bottom, #000, transparent\);\s*mask-image: linear-gradient\(to bottom, #000, transparent\);\s*\}\s*&::after \{\s*display: none;/)
+    // The search bar stays flat.
+    expect(css).toMatch(/\.Toolbar\[data-placement="top"\]:has\(> \.Content\[data-fill\]\) \{[\s\S]*?&\[data-background="soft"\]::after \{\s*display: none;/)
   })
 })
 

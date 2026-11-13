@@ -831,8 +831,8 @@
   /* The bars of a Sheet meet the content scrolled under them by their `background`, as the bars of a
      phone Toolbar do: by default the soft scroll edge of iOS 26. The material sits on a pseudo-element, so
      Header does not become a backdrop root: HeaderAction and the sibling Close sample the same content.
-     Soft: under the header the panel color covers the content to its bottom and fades out past it, as a
-     Toolbar's soft edge does; over the
+     Soft: under the header the scroll edge of a top Toolbar (--page-bar-soft-veil): the panel color through the
+     veil over a light blur, and on `::before` the stronger blur that hides the content under the bar; over the
      footer it starts 27px above the actions (IMG_5491) and covers the content fully from their top, so no text
      shows through a soft action such as Decline (owner 07.11). */
   .Content[data-mobile-variant="sheet"] .Header::after,
@@ -850,8 +850,21 @@
   .Content[data-mobile-variant="sheet"] .Header::after {
     inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));
     border-radius: var(--dialog-panel-radius);
-    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail, 32px)), transparent);
+    -webkit-mask-image: var(--page-bar-soft-veil);
+    mask-image: var(--page-bar-soft-veil);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header[data-background="soft"]::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));
+    border-radius: var(--dialog-panel-radius);
+    -webkit-backdrop-filter: blur(var(--page-bar-soft-blur));
+    backdrop-filter: blur(var(--page-bar-soft-blur));
+    content: "";
+    -webkit-mask-image: var(--page-bar-soft-blur-mask);
+    mask-image: var(--page-bar-soft-blur-mask);
+    pointer-events: none;
   }
 
   .Content[data-mobile-variant="sheet"] .Footer::before {
