@@ -58,7 +58,7 @@ export type VueDemoControl = {
    * `limit`: numeric options stay at most `total` less the boolean controls named in `taken` that are on;
    * the others are disabled, and a value over the limit shows as the largest option that fits.
    */
-  | { type: 'select'; options: readonly VueDemoOption[]; phoneOptions?: readonly VueDemoOption[]; default: string | boolean; phoneDefault?: string | boolean; limit?: { total: number; taken: readonly string[] };
+  | { type: 'select'; options: readonly VueDemoOption[]; phoneOptions?: readonly VueDemoOption[]; default: string | boolean; phoneDefault?: string | boolean | null; limit?: { total: number; taken: readonly string[] };
       /** A menu rather than a row of segments: more options than the row shows whole (eight colors), as React's DemoControlSelect */
       menu?: boolean }
   /** `phoneDefault: null`: on a phone the template gets no value, and the component takes its own */
@@ -206,10 +206,11 @@ function VueDemoView({
       ...(reactiveControlDefaults ? Object.fromEntries(controls
         .filter((control) => !modifiedControls.has(control.name) && control.name !== loop?.name)
         .map((control) => [control.name, control.default])) : {}),
-      // A value chosen on a desktop that a phone does not offer (a color) shows as the default there
+      // A value chosen on a desktop that a phone does not offer (a color, or an option its `when` rules out there)
+      // shows as the default there
       ...(phone ? Object.fromEntries(controls
         .filter((control) => control.type === 'select' && control.phoneOptions
-          && !optionsOf(control.phoneOptions).some((option) => option.value === values[control.name]))
+          && !optionsOf(control.phoneOptions).some((option) => option.value === values[control.name] && holds(option.when, values)))
         .map((control) => [control.name, control.default])) : {}),
       ...context,
     };

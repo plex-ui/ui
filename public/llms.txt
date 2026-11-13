@@ -878,6 +878,7 @@ Props:
   - flush (boolean) default: false — Text-width indicator, no border, gap spacing (underline variant only)
   - block (boolean) default: false — Full-width control with equal-width tabs
   - mobileMaterial ("glass" | "flat") default: "glass" at md and larger, "flat" at sm and smaller — Phone surface of horizontal tabs, as for Button: flat makes the large control plain (49px), glass puts the small one under Liquid Glass
+  - mobileSegmentWidth ("equal" | "content") default: "equal" — Phone widths of horizontal segments, as UISegmentedControl sets them: equal gives every segment the widest one's width, content gives each its label and the same air around it (apportionsSegmentWidthsByContent). Equal segments that do not fit take their labels' widths; where those still do not fit, the air beside each label narrows, to 4px, and what still does not fit scrolls; a block control fills its row
   - disabled (boolean) default: false — Disable all tabs
   - aria-label (string) — Accessible name (required)
   - overflow ("scroll" | "menu") default: "scroll" — Options that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)

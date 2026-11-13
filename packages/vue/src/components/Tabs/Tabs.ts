@@ -140,6 +140,14 @@ const tabsProps = {
    * chosen variant. @default "glass" at md and larger, "flat" at sm and smaller
    */
   mobileMaterial: { type: String as PropType<"glass" | "flat">, default: undefined },
+  /**
+   * Widths of the segments of horizontal tabs on a phone, as UISegmentedControl sets them. `equal` gives every
+   * segment the widest one's width, its default; `content` gives each its label and the same air around it, as
+   * `apportionsSegmentWidthsByContent` does, for a compact control. Equal segments that do not fit take their labels'
+   * widths anyway; where those still do not fit, the air beside each label narrows, to 4px, and what still does not
+   * fit scrolls. A `block` control fills its row either way. Desktop tabs always take their labels' widths. @default "equal"
+   */
+  mobileSegmentWidth: { type: String as PropType<"equal" | "content">, default: undefined },
 }
 
 const tabsEmits = {
@@ -445,7 +453,7 @@ const TabsComponent = defineComponent({
       }
     }
 
-    // React's useLayoutEffect on [value, size, gutterSize, pill, flush, isVertical].
+    // React's useLayoutEffect on [value, size, gutterSize, pill, flush, isVertical, mobileSegmentWidth].
     // `value` is the prop, so an uncontrolled selection does not move the thumb
     // until the next resize, exactly as in React.
     const syncThumb = () => {
@@ -504,6 +512,8 @@ const TabsComponent = defineComponent({
         () => props.pill,
         () => props.flush,
         () => props.orientation === "vertical",
+        // mobileSegmentWidth moves the segments with nothing else changing: the thumb follows them
+        () => props.mobileSegmentWidth,
       ],
       syncThumb,
       { flush: "post" },
@@ -637,6 +647,7 @@ const TabsComponent = defineComponent({
                 "data-size": props.size,
                 "data-gutter-size": props.gutterSize,
                 "data-mobile-material": props.mobileMaterial,
+                "data-mobile-segment-width": props.mobileSegmentWidth,
                 "data-disabled": props.disabled ? "" : undefined,
                 ...restAttrs,
               },
@@ -1034,7 +1045,7 @@ const TabsPublic = defineComponent({
 
       const items = tabVNodes(slots.default?.() as VNodeArrayChildren | undefined)
       // The strip's own props size the tabs and the menu button too
-      const signature = [overflowLabel, props.size, props.variant, props.gutterSize, props.pill, props.flush, props.mobileMaterial, tabsSignature(items)].join(
+      const signature = [overflowLabel, props.size, props.variant, props.gutterSize, props.pill, props.flush, props.mobileMaterial, props.mobileSegmentWidth, tabsSignature(items)].join(
         "\u0002",
       )
       const activeIndex = items.findIndex((item) => tabProps(item).value === current.value)

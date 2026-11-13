@@ -16,12 +16,16 @@ const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] 
 const VARIANT_OPTIONS = ['segmented', 'underline'] as const;
 const ORIENTATION_OPTIONS = ['horizontal', 'vertical'] as const;
 const MATERIAL_OPTIONS = ['flat', 'glass'] as const;
+const SEGMENT_WIDTH_OPTIONS = ['equal', 'content'] as const;
 // `start`: an icon before the label; `only`: the icon alone, the label its accessible name
 const ICON_OPTIONS = ['none', 'start', 'only'] as const;
 // Vertical tabs are a list (a sidebar; on a phone an inset grouped list), and a list row always has a title, so an
 // icon stands alone only in a horizontal control (owner 11.11 on icon-only vertical tabs: «зачем это на мобиле?»,
 // «зачем это вообще?»)
 const VERTICAL_ICON_OPTIONS = ['none', 'start'] as const;
+// A phone's segment carries a symbol or a label, not both: UISegmentedControl draws an action with both as its symbol
+// (owner 13.11 on icon start: «такого нет»)
+const PHONE_ICON_OPTIONS = ['none', 'only'] as const;
 // On a phone the control has the two sizes of iOS 27.2: sm and smaller the small 32px one, md and larger the large
 // 48px one
 const PHONE_SIZE_OPTIONS = ['sm', 'md'] as const;
@@ -119,9 +123,15 @@ export function TabsOverviewDemo() {
   const [monthDisabled, setMonthDisabled] = useState(false);
   // The docs open on glass, the default of the large control (owner 10.11: «Нужно стекло», «Как и для кнопок»)
   const [material, setMaterial] = useState<(typeof MATERIAL_OPTIONS)[number]>('glass');
+  // Equal segments or each by its label, the two widths of UISegmentedControl (owner 13.11: «компактно/не компактно? у
+  // нас будут?»)
+  const [segmentWidth, setSegmentWidth] = useState<(typeof SEGMENT_WIDTH_OPTIONS)[number]>('equal');
   const horizontal = orientation === 'horizontal';
-  const iconOptions: readonly (typeof ICON_OPTIONS)[number][] = horizontal ? ICON_OPTIONS : VERTICAL_ICON_OPTIONS;
-  // An icon only chosen on a horizontal control shows as none on a vertical one, as a setting a phone does not offer
+  const iconOptions: readonly (typeof ICON_OPTIONS)[number][] = !horizontal
+    ? VERTICAL_ICON_OPTIONS
+    : phone ? PHONE_ICON_OPTIONS : ICON_OPTIONS;
+  // A choice this view does not offer shows as none: icon only on a vertical control, an icon before the label on a
+  // phone's segment
   const shownIcon = iconOptions.includes(icon) ? icon : 'none';
   const labelled = shownIcon !== 'only';
   // In a phone Toolbar every control is the large glass one, so its size and material are settings of a control in
@@ -140,6 +150,7 @@ export function TabsOverviewDemo() {
       block={shownBlock}
       disabled={disabled}
       mobileMaterial={material}
+      mobileSegmentWidth={segmentWidth}
       aria-label="Calendar view"
     >
       {VIEWS.map((view) => (
@@ -169,6 +180,7 @@ export function TabsOverviewDemo() {
         {variant === 'underline' && <DemoControlBoolean name="flush" desktopOnly value={shownFlush} onChange={setFlush} />}
         <DemoControlBoolean name="block" desktopOnly value={shownBlock} onChange={setBlock} />
         {inContent && <Segments name="mobileMaterial" options={MATERIAL_OPTIONS} value={material} onChange={setMaterial} phoneOnly />}
+        {horizontal && <Segments name="mobileSegmentWidth" options={SEGMENT_WIDTH_OPTIONS} value={segmentWidth} onChange={setSegmentWidth} phoneOnly />}
         <Segments name="icon" options={iconOptions} value={shownIcon} syncValue={icon} onChange={setIcon} />
         {labelled && <DemoControlBoolean name="badge" desktopOnly value={shownBadge} onChange={setBadge} />}
         {labelled && shownBadge && <DemoControlBoolean name="badgePill" desktopOnly value={badgePill} onChange={setBadgePill} />}
@@ -221,21 +233,21 @@ export function TabsOverflowDemo() {
   const [tab, setTab] = useState('code');
   const [overflow, setOverflow] = useState<(typeof OVERFLOW_OPTIONS)[number]>('menu');
   const [variant, setVariant, shownVariant] = useDesktopOnlyState<(typeof VARIANT_OPTIONS)[number]>('underline');
-  const [chosenWidth, setWidth] = useState<(typeof OVERFLOW_WIDTHS)[number]>('360');
-  // A phone screen is narrower than 560px, so a phone offers the widths it can show
+  // A narrow column is a desktop's: on a phone the control fills the screen's row, as iOS lays it out (owner 13.11 on
+  // the container width there: «зачем?»)
+  const [width, setWidth] = useState<(typeof OVERFLOW_WIDTHS)[number]>('360');
   const phone = usePhoneRows();
-  const widths = phone ? OVERFLOW_WIDTHS.filter((w) => w !== '560') : OVERFLOW_WIDTHS;
-  const width = phone && chosenWidth === '560' ? '360' : chosenWidth;
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <Segments name="overflow" options={OVERFLOW_OPTIONS} value={overflow} onChange={setOverflow} />
         <Segments name="variant" options={VARIANT_OPTIONS} value={variant} onChange={setVariant} desktopOnly />
-        <Segments name="width" label="container width" options={widths} format={(w) => `${w}px`} value={width} syncValue={chosenWidth} onChange={setWidth} />
+        {/* A phone gives the code no width, as its preview has none */}
+        <Segments<(typeof OVERFLOW_WIDTHS)[number] | ''> name="width" label="container width" options={OVERFLOW_WIDTHS} format={(w) => `${w}px`} value={phone ? '' : width} onChange={(w) => w && setWidth(w)} desktopOnly />
       </div>
       <TabsStage>
-        <div className="flex min-w-0 max-w-full" style={{ width: Number(width) }}>
+        <div className="flex min-w-0 max-w-full" style={phone ? undefined : { width: Number(width) }}>
           <SegmentedControl
             value={tab}
             onChange={setTab}

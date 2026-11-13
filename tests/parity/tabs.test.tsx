@@ -335,6 +335,29 @@ describe("Tabs renders the same DOM as React", () => {
     }
   })
 
+  test("mobileSegmentWidth marks the group in both frameworks, the overflow menu one too; left out it adds nothing", async () => {
+    for (const width of ["equal", "content", undefined] as const) {
+      for (const overflow of ["scroll", "menu"] as const) {
+        const pair = await renderPair(
+          <ReactSegmentedControl value="a" mobileSegmentWidth={width} overflow={overflow} aria-label="View">
+            <ReactSegmentedControl.Option value="a">A</ReactSegmentedControl.Option>
+            <ReactSegmentedControl.Option value="b">B</ReactSegmentedControl.Option>
+          </ReactSegmentedControl>,
+          () =>
+            h(SegmentedControl, { "value": "a", "mobileSegmentWidth": width, "overflow": overflow, "aria-label": "View" }, {
+              default: () => [
+                h(SegmentedControlOption, { value: "a" }, { default: () => "A" }),
+                h(SegmentedControlOption, { value: "b" }, { default: () => "B" }),
+              ],
+            }),
+        )
+        expect(pair.vue).toBe(pair.react)
+        if (width) expect(pair.react).toContain(`data-mobile-segment-width="${width}"`)
+        else expect(pair.react).not.toContain("data-mobile-segment-width")
+      }
+    }
+  })
+
   test("a text icon stands in an element, from the prop and from the Vue slot, so a phone can hide it beside a label", async () => {
     const react = (
       <ReactSegmentedControl value="day" aria-label="Time">
@@ -1608,7 +1631,8 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
   test("the selected label is the primary color and the others the secondary role, which a phone makes primary in content and in a bar, untracked: the system font tracks it", () => {
     const css = read("components/Tabs/Tabs.module.css")
     const phone = css.slice(css.indexOf("@media (max-width: 767px)")).match(/\.Tabs\[data-orientation="horizontal"\] \.Tab \{([^}]*)\}/)?.[1] ?? ""
-    expect(phone).toContain("padding-inline: var(--segmented-control-option-gutter);")
+    // The air beside a label, which a squeezed control narrows (segments.ts)
+    expect(phone).toContain("padding-inline: var(--tabs-segment-gutter, var(--segmented-control-option-gutter));")
     // No color of its own: the base colors apply, secondary off (the phone role, touch.css) and primary on.
     expect(phone).not.toMatch(/(^|[^-])color:/)
     expect(css).toMatch(/\.Tab \{\s*position: relative;[^}]*color: var\(--color-text-secondary\);/)
@@ -1698,10 +1722,11 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     const css = read("components/Tabs/Tabs.module.css")
     const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
     // One width is measured (segments.ts) and set as the track; without it each segment takes its label
-    expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="horizontal"\]\) \{\s*--tabs-equal-segments: 1;\s*display: inline-grid;\s*grid-auto-columns: var\(--tabs-segment-track, minmax\(max-content, auto\)\);\s*grid-auto-flow: column;\s*\}/)
-    expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="horizontal"\]\[data-block\]\) \{\s*--tabs-equal-segments: 0;\s*display: grid;\s*grid-auto-columns: minmax\(0, 1fr\);\s*\}/)
+    expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="horizontal"\]\) \{\s*--tabs-equal-segments: 1;\s*\/\*[^*]*\*\/\s*--tabs-fit-segments: 1;\s*display: inline-grid;\s*grid-auto-columns: var\(--tabs-segment-track, minmax\(max-content, auto\)\);\s*grid-auto-flow: column;\s*\}/)
+    expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="horizontal"\]\[data-block\]\) \{\s*--tabs-equal-segments: 0;\s*--tabs-fit-segments: 0;\s*display: grid;\s*grid-auto-columns: minmax\(0, 1fr\);\s*\}/)
     // Only a phone asks for it
     expect(css.slice(0, css.indexOf("@media (max-width: 767px)"))).not.toContain("--tabs-equal-segments")
+    expect(css.slice(0, css.indexOf("@media (max-width: 767px)"))).not.toContain("--tabs-fit-segments")
     const track = phone.match(/\.Tabs:where\(\[data-variant="underline"\]\[data-orientation="horizontal"\]\) \{([^}]*)\}/)?.[1] ?? ""
     expect(track).toContain("padding: var(--segmented-control-gutter);")
     expect(track).toContain("border: 0;")
@@ -1763,9 +1788,9 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
 describe("Segmented Tabs on a phone take one width (segments.ts)", () => {
   type Box = { width: number }
   // jsdom has no layout: each element reports the box a test gives it
-  const control = ({ asked = "1", orientation = "horizontal", widths, drawn, offset, client, gap = 0, padding = 0, hidden = [], width = "" }: {
-    asked?: string, orientation?: string, widths: number[], drawn: number, offset: number, client: number,
-    gap?: number, padding?: number, hidden?: number[], width?: string
+  const control = ({ asked = "1", fit = asked, gutter = 9, floors = [], orientation = "horizontal", widths, drawn, offset, client, gap = 0, padding = 0, hidden = [], width = "" }: {
+    asked?: string, fit?: string, gutter?: number, floors?: number[], orientation?: string, widths: number[], drawn: number,
+    offset: number, client: number, gap?: number, padding?: number, hidden?: number[], width?: string
   }) => {
     const root = document.createElement("div")
     root.setAttribute("data-orientation", orientation)
@@ -1785,13 +1810,17 @@ describe("Segmented Tabs on a phone take one width (segments.ts)", () => {
     Object.defineProperty(root, "scrollWidth", { get: () => 9999 })
     Object.defineProperty(root, "clientWidth", { get: () => client })
     const rootValues: Record<string, string> = {
-      "--tabs-equal-segments": asked, "column-gap": `${gap}px`, "padding-left": `${padding}px`, "padding-right": `${padding}px`,
+      // The token as written, in rem without touch.css; the air is read from a segment, laid out
+      "--tabs-equal-segments": asked, "--tabs-fit-segments": fit, "--segmented-control-option-gutter": "0.75rem", "column-gap": `${gap}px`, "padding-left": `${padding}px`, "padding-right": `${padding}px`,
       "width": width, "box-sizing": "border-box",
     }
     vi.spyOn(window, "getComputedStyle").mockImplementation((element) => ({
       getPropertyValue: (name: string) => {
         if (element === root) return rootValues[name] ?? ""
-        return name === "display" && hidden.includes(segments.indexOf(element as HTMLButtonElement)) ? "none" : ""
+        const index = segments.indexOf(element as HTMLButtonElement)
+        if (name === "min-width") return floors[index] === undefined ? "auto" : `${floors[index]}px`
+        if (name === "padding-left") return `${gutter}px`
+        return name === "display" && hidden.includes(index) ? "none" : ""
       },
     }) as CSSStyleDeclaration)
     return { root, thumb }
@@ -1846,12 +1875,69 @@ describe("Segmented Tabs on a phone take one width (segments.ts)", () => {
 
   test("a desktop, block or vertical control is left as it is", () => {
     for (const options of [{ asked: "" }, { asked: "0" }, { orientation: "vertical" }]) {
-      const { root, thumb } = control({ ...options, widths: [40, 60], drawn: 120, offset: 120, client: 120 })
+      const { root, thumb } = control({ ...options, widths: [40, 60], drawn: 120, offset: 120, client: 80 })
       root.style.setProperty("--tabs-segment-track", "minmax(60px, 1fr)")
+      root.style.setProperty("--tabs-segment-gutter", "4px")
       equalizeSegments(root, thumb)
       expect(root.style.getPropertyValue("--tabs-segment-track")).toBe("")
+      expect(root.style.getPropertyValue("--tabs-segment-gutter")).toBe("")
       vi.restoreAllMocks()
     }
+  })
+
+  test("where labels by their widths still overflow, the air beside each narrows by its share, and the thumb follows", () => {
+    // 4 × 60 + 3 × 4 = 252 against 220: 32 over, 8 a segment, 4 on each side of its label, so 9 − 4 = 5
+    const { root, thumb } = control({ widths: [60, 60, 60, 60], drawn: 252, offset: 252, client: 220, gap: 4 })
+    expect(equalizeSegments(root, thumb)).toBe(true)
+    expect(root.style.getPropertyValue("--tabs-segment-track")).toBe("")
+    expect(root.style.getPropertyValue("--tabs-segment-gutter")).toBe("5px")
+    // Measured again at the narrowed air, nothing changes
+    expect(equalizeSegments(root, thumb)).toBe(false)
+  })
+
+  test("the air is read laid out, so a token set in rem narrows too", () => {
+    // Without touch.css the token is 0.75rem, 12px: 3 × 80 + 2 × 2 = 244 in 224, 20 over, 12 − 20 / 6
+    const { root, thumb } = control({ widths: [80, 80, 80], drawn: 244, offset: 244, client: 224, gap: 2, gutter: 12 })
+    equalizeSegments(root, thumb)
+    expect(Number.parseFloat(root.style.getPropertyValue("--tabs-segment-gutter"))).toBeCloseTo(8.667, 2)
+  })
+
+  test("a segment held at its least width gives up no more air, so the others narrow further", () => {
+    // A short label in a 28px pill segment: [28, 98, 98] with 4px gaps in 216. Shared by three, the air would be 6.33
+    // and the first segment would stay 28, 221.33 in all; the two others narrow to 5 and the row fits
+    const { root, thumb } = control({ widths: [28, 98, 98], floors: [28, 0, 0], drawn: 232, offset: 232, client: 216, gap: 4 })
+    equalizeSegments(root, thumb)
+    expect(root.style.getPropertyValue("--tabs-segment-gutter")).toBe("5px")
+    vi.restoreAllMocks()
+    // Every segment at its least width: nothing narrows, the row scrolls at the least air
+    const held = control({ widths: [40, 40, 40], floors: [40, 40, 40], drawn: 120, offset: 120, client: 100 })
+    equalizeSegments(held.root, held.thumb)
+    expect(held.root.style.getPropertyValue("--tabs-segment-gutter")).toBe("4px")
+  })
+
+  test("the air narrows to 4px at least, the large control's own, and what still does not fit scrolls", () => {
+    // 52 over: 9 − 52 / 8 = 2.5, held at 4
+    const { root, thumb } = control({ widths: [60, 60, 60, 60], drawn: 252, offset: 252, client: 200, gap: 4 })
+    equalizeSegments(root, thumb)
+    expect(root.style.getPropertyValue("--tabs-segment-gutter")).toBe("4px")
+    vi.restoreAllMocks()
+    // The large control's air is 4px already: nothing narrows
+    const large = control({ widths: [60, 60, 60, 60], drawn: 252, offset: 252, client: 200, gap: 4, gutter: 4 })
+    equalizeSegments(large.root, large.thumb)
+    expect(large.root.style.getPropertyValue("--tabs-segment-gutter")).toBe("")
+  })
+
+  test("labels that fit by their widths keep their air, and a compact control narrows where it overflows", () => {
+    // mobileSegmentWidth="content" asks for no one width but for the fit
+    const fits = control({ asked: "0", fit: "1", widths: [61, 40, 118], drawn: 243, offset: 243, client: 343 })
+    equalizeSegments(fits.root, fits.thumb)
+    expect(fits.root.style.getPropertyValue("--tabs-segment-track")).toBe("")
+    expect(fits.root.style.getPropertyValue("--tabs-segment-gutter")).toBe("")
+    vi.restoreAllMocks()
+    // 12 over: 2 on each side of a label, 9 − 2 = 7
+    const over = control({ asked: "0", fit: "1", widths: [100, 100, 100], drawn: 300, offset: 300, client: 288 })
+    equalizeSegments(over.root, over.thumb)
+    expect(over.root.style.getPropertyValue("--tabs-segment-gutter")).toBe("7px")
   })
 
   test("crossing into the phone block measures again, its room unchanged, and the thumb follows", () => {
@@ -1908,6 +1994,16 @@ describe("Segmented Tabs on a phone take one width (segments.ts)", () => {
     root.remove()
   })
 
+  test("a compact control asks for no one width, a phone draws no badge, and the small control's label stands 9px in", () => {
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Tabs/Tabs.module.css`, "utf8")
+    const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
+    expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="horizontal"\]\[data-mobile-segment-width="content"\]\) \{\s*--tabs-equal-segments: 0;\s*\}/)
+    expect(phone).toMatch(/\.Tabs\[data-orientation="horizontal"\] \.TabBadge \{[^}]*position: absolute;[^}]*clip-path: inset\(50%\);/)
+    const touch = readFileSync(`${process.cwd()}/packages/styles/src/styles/touch.css`, "utf8")
+    const small = touch.slice(touch.indexOf('html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {'))
+    expect(small.slice(0, small.indexOf("}"))).toContain("--segmented-control-option-gutter: 9px;")
+  })
+
   test("React and Vue measure before the thumb, on every render and when the room, the breakpoint or the font changes", () => {
     const react = readFileSync(`${process.cwd()}/packages/ui/src/components/Tabs/Tabs.tsx`, "utf8")
     expect(react.indexOf("equalizeSegments(rootRef.current, thumbRef.current)")).toBeGreaterThan(-1)
@@ -1918,6 +2014,9 @@ describe("Segmented Tabs on a phone take one width (segments.ts)", () => {
     expect(vue).toContain("onUpdated(() => equalizeSegments(rootRef.value, thumbRef.value))")
     expect(vue).toContain("stopWatchingSegments = watchSegments(root, () => thumbRef.value, () => {")
     expect(vue).toContain("onBeforeUnmount(() => stopWatchingSegments?.())")
+    // mobileSegmentWidth moves the segments with nothing else changing, so the thumb follows it
+    expect(react).toContain("[applyThumbSizing, value, size, gutterSize, pill, flush, mobileSegmentWidth, transitionProperty]")
+    expect(vue).toMatch(/\(\) => props\.orientation === "vertical",\s*\/\/[^\n]*\n\s*\(\) => props\.mobileSegmentWidth,\s*\],\s*syncThumb,/)
     const shared = readFileSync(`${process.cwd()}/packages/ui/src/components/Tabs/segments.ts`, "utf8")
     expect(shared).toContain("observer?.observe(box)")
     expect(shared).toContain('window.matchMedia(PHONE_QUERY)')

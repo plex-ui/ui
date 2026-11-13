@@ -760,6 +760,9 @@
      container, as the 370px kit examples do, and its labels shorten instead. */
   .Tabs:where([data-orientation="horizontal"]) {
     --tabs-equal-segments: 1;
+    /* Where labels by their widths still overflow, the air beside each narrows (segments.ts), as UIKit narrows a
+       squeezed control's to 4pt, before the segments scroll */
+    --tabs-fit-segments: 1;
 
     display: inline-grid;
     grid-auto-columns: var(--tabs-segment-track, minmax(max-content, auto));
@@ -768,9 +771,30 @@
 
   .Tabs:where([data-orientation="horizontal"][data-block]) {
     --tabs-equal-segments: 0;
+    --tabs-fit-segments: 0;
 
     display: grid;
     grid-auto-columns: minmax(0, 1fr);
+  }
+
+  /* mobileSegmentWidth="content": each segment its label and the same air around it, the compact control of
+     apportionsSegmentWidthsByContent (owner 13.11, ref-app segmented-hug: «компактно/не компактно? у нас будут?»). */
+  .Tabs:where([data-orientation="horizontal"][data-mobile-segment-width="content"]) {
+    --tabs-equal-segments: 0;
+  }
+
+  /* iOS segments carry a title or a symbol and no badge (owner 13.11: «я с бейджами не встречал сегментед контролов
+     на ios»). On a phone a badge is not drawn; its count stays in the segment's name for assistive technology. */
+  .Tabs[data-orientation="horizontal"] .TabBadge {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   /* Disabled as a whole, the control shows at half opacity, its capsule, selection and labels alike, as native
@@ -887,7 +911,7 @@
      as Calendar does in its sheet header (IMG_5433). No tracking of its own: the label takes --font-sans-tracking at its
      size, as every text (native SF tracks itself: 17pt "All Inboxes" 241 at @3x in Mail). */
   .Tabs[data-orientation="horizontal"] .Tab {
-    padding-inline: var(--segmented-control-option-gutter);
+    padding-inline: var(--tabs-segment-gutter, var(--segmented-control-option-gutter));
     border-radius: var(--segmented-control-option-radius);
   }
 

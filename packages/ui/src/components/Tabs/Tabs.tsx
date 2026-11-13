@@ -121,6 +121,15 @@ export type TabsProps<T extends string> = {
    * @default "glass" at md and larger, "flat" at sm and smaller
    */
   "mobileMaterial"?: "glass" | "flat"
+  /**
+   * Widths of the segments of horizontal tabs on a phone, as UISegmentedControl sets them. `equal` gives every
+   * segment the widest one's width, its default; `content` gives each its label and the same air around it, as
+   * `apportionsSegmentWidthsByContent` does, for a compact control. Equal segments that do not fit take their labels'
+   * widths anyway; where those still do not fit, the air beside each label narrows, to 4px, and what still does not
+   * fit scrolls. A `block` control fills its row either way. Desktop tabs always take their labels' widths.
+   * @default "equal"
+   */
+  "mobileSegmentWidth"?: "equal" | "content"
   "className"?: string
   "children": React.ReactNode
 }
@@ -147,6 +156,7 @@ const TabsRoot = <T extends string>({
   size = "md",
   gutterSize,
   mobileMaterial,
+  mobileSegmentWidth,
   className,
   onClick,
   ...restProps
@@ -338,7 +348,8 @@ const TabsRoot = <T extends string>({
         })
       })
     }
-  }, [applyThumbSizing, value, size, gutterSize, pill, flush, transitionProperty])
+    // mobileSegmentWidth moves the segments with nothing else changing: the thumb follows them
+  }, [applyThumbSizing, value, size, gutterSize, pill, flush, mobileSegmentWidth, transitionProperty])
 
   const handleValueChange = (nextValue: T) => {
     // Only trigger onChange when a value exists
@@ -368,6 +379,7 @@ const TabsRoot = <T extends string>({
       data-size={size}
       data-gutter-size={gutterSize}
       data-mobile-material={mobileMaterial}
+      data-mobile-segment-width={mobileSegmentWidth}
       data-disabled={restProps.disabled ? "" : undefined}
       {...restProps}
     >
@@ -704,8 +716,8 @@ const OverflowTabs = <T extends string>({
 }: Omit<TabsProps<T>, "overflow"> & { overflowLabel: string }) => {
   const items = tabElements(children)
   // The strip's own props size the tabs and the menu button too
-  const { size, variant, gutterSize, pill, flush, mobileMaterial } = restProps
-  const signature = [overflowLabel, size, variant, gutterSize, pill, flush, mobileMaterial, tabsSignature(items)].join("\u0002")
+  const { size, variant, gutterSize, pill, flush, mobileMaterial, mobileSegmentWidth } = restProps
+  const signature = [overflowLabel, size, variant, gutterSize, pill, flush, mobileMaterial, mobileSegmentWidth, tabsSignature(items)].join("\u0002")
   const activeIndex = items.findIndex((item) => item.props.value === value)
 
   // null while the measuring pass renders every tab and the menu button

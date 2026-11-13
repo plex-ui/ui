@@ -7,6 +7,17 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `mobileSegmentWidth` on `SegmentedControl` (Vue `mobile-segment-width`): the widths of a phone's segments, as UISegmentedControl sets them. `equal`, the default, gives every segment the widest one's width, and `content` gives each its label and the same air around it, a compact control. Either way, segments that do not fit take their labels' widths. React and Vue.
+
+### Changed
+
+- `SegmentedControl` on a phone draws no badges, as iOS segments carry none. A badge's count stays in the segment's accessible name, so write it into the label to show it. React and Vue.
+- The small phone segmented control (`sm` and smaller, with `touch.css`) sets its labels 9px inside their segments instead of 6px, as iOS 27.2 sets the widest label of a 32pt control at its own width (9–10pt). Where labels at their widths still do not fit, the air beside each narrows by its share, to 4px, before the segments scroll, as UIKit narrows a squeezed control's (`--tabs-segment-gutter`, set by script). The large control keeps 4px. React and Vue.
+
 ## 0.46.0 (2026-11-13)
 
 The phone changes ship in `@plexui/styles` 0.5.0. `@plexui/ui` 0.46.0 and `@plexui/vue` 0.26.0 need `^0.5.0`, since the reset of a phone's `Slider` is now a kit button that the 0.4 styles would stretch to 44px; earlier ui and vue versions keep the 0.4 styles they were built with. `@plexui/mcp` is 0.2.21.

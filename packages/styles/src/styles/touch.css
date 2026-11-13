@@ -725,7 +725,10 @@
        The small control is plain, as SwiftUI's Picker .segmented draws it in content in iOS 27.2 on an iPhone 17
        (402pt) and Safari its bookmarks switch (IMG_5561 at 430pt, «примеры мелких»): a 32pt capsule of the tertiary
        fill, the thumb 2pt inside it and its segments 4pt apart, no sheen, rim, shadow or blur; every label is 13pt
-       and primary, Semibold when selected and Medium otherwise. */
+       and primary, Semibold when selected and Medium otherwise. At the control's own width the widest label stands
+       9pt inside its segment (UISegmentedControl: Very long name 9.3; SwiftUI's fixedSize Picker: Night 9 to 10, ref-app
+       segmented-hug and segmented-sizes; owner 13.11 «паддинги точно такие? впритык прямо?»); the large control keeps
+       4pt (below). */
     html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
       --segmented-control-size: 32px;
       --segmented-control-gutter: 2px;
@@ -733,7 +736,7 @@
       --segmented-control-thumb-outset: 0px;
       --segmented-control-radius: 100px;
       --segmented-control-option-radius: calc(var(--segmented-control-size) / 2 - var(--segmented-control-gutter));
-      --segmented-control-option-gutter: 6px;
+      --segmented-control-option-gutter: 9px;
       --segmented-control-font-size: 13px;
       --segmented-control-line-height: 18px;
       --segmented-control-font-weight: 510;
