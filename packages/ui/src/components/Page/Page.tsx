@@ -35,6 +35,40 @@ type PageContextValue = {
   /** A large Toolbar title asks for a place at the top of the content, where it scrolls with the content. */
   largeTitle: boolean
   setLargeTitleSlot: (slot: HTMLDivElement | null) => void
+  /** The place of the bar's rows under a large title, which pins them under the bar. */
+  largeTitleRowSlot: HTMLDivElement | null
+  setLargeTitleRowSlot: (slot: HTMLDivElement | null) => void
+  setTitleRows: (pinned: boolean, height: number) => void
+}
+
+/**
+ * Follows the rows of a large title's bar (Toolbar.Row) in the content. They stand under the title and, scrolled up to
+ * the bar, stay under its controls (`position: sticky`): they are pinned once the sticky offset moves them off the
+ * title's bottom, where they would stand. It reports that and their height, which the bar's background takes in.
+ */
+function followTitleRows(content: HTMLElement, rows: HTMLElement, report: (pinned: boolean, height: number) => void) {
+  let last = ""
+  const update = () => {
+    const height = rows.offsetHeight
+    const title = rows.previousElementSibling
+    const pinned = height > 0 && !!title && rows.getBoundingClientRect().top - title.getBoundingClientRect().bottom > 0.5
+    if (`${pinned} ${height}` === last) return
+    last = `${pinned} ${height}`
+    report(pinned, height)
+  }
+  update()
+  content.addEventListener("scroll", update, { passive: true })
+  const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
+  observer?.observe(rows)
+  observer?.observe(content)
+  // The title changing its height (a subtitle shown or gone) moves the rows with no scroll (Codex #7).
+  const title = rows.previousElementSibling
+  if (title) observer?.observe(title)
+  return () => {
+    content.removeEventListener("scroll", update)
+    observer?.disconnect()
+    report(false, 0)
+  }
 }
 
 const PageContext = createContext<PageContextValue | null>(null)
@@ -99,7 +133,14 @@ function PageRoot({ width = "full", surface = "plain", className, children, styl
     return () => setLargeTitleRequests((count) => count - 1)
   }, [])
   const largeTitle = largeTitleRequests > 0
-  const context = useMemo(() => ({ edges, setEdges, setFooterHeight, setHeaderHeight, notifyScroll, largeTitle, setLargeTitleSlot }), [edges, setEdges, notifyScroll, largeTitle])
+  // The bar's rows under a large title have a place of their own under it, which pins them under the bar once scrolled.
+  const [largeTitleRowSlot, setLargeTitleRowSlot] = useState<HTMLDivElement | null>(null)
+  const [titleRows, setTitleRowsState] = useState({ pinned: false, height: 0 })
+  const setTitleRows = useCallback((pinned: boolean, height: number) => setTitleRowsState((current) => (current.pinned === pinned && current.height === height ? current : { pinned, height })), [])
+  const context = useMemo(
+    () => ({ edges, setEdges, setFooterHeight, setHeaderHeight, notifyScroll, largeTitle, setLargeTitleSlot, largeTitleRowSlot, setLargeTitleRowSlot, setTitleRows }),
+    [edges, setEdges, notifyScroll, largeTitle, largeTitleRowSlot, setTitleRows],
+  )
   // A phone Toolbar replaces the header and footer bars; it reports its own heights.
   const [toolbarTop, setToolbarTop] = useState<number>()
   const [toolbarBottom, setToolbarBottom] = useState<number>()
@@ -112,12 +153,15 @@ function PageRoot({ width = "full", surface = "plain", className, children, styl
     subscribeScroll,
     requestLargeTitleSlot,
     largeTitleSlot: largeTitle ? largeTitleSlot : null,
-  }), [setToolbarHeight, edges, subscribeScroll, requestLargeTitleSlot, largeTitle, largeTitleSlot])
+    largeTitleRowSlot: largeTitle ? largeTitleRowSlot : null,
+    rowsPinned: largeTitle && titleRows.pinned,
+  }), [setToolbarHeight, edges, subscribeScroll, requestLargeTitleSlot, largeTitle, largeTitleSlot, largeTitleRowSlot, titleRows.pinned])
   const pageStyle = {
     "--page-footer-height": `${footerHeight}px`,
     ...(headerHeight !== undefined ? { "--page-header-height": `${headerHeight}px` } : {}),
     ...(toolbarTop !== undefined ? { "--page-toolbar-height": `${toolbarTop}px` } : {}),
     ...(toolbarBottom !== undefined ? { "--page-toolbar-bottom-height": `${toolbarBottom}px` } : {}),
+    ...(titleRows.height > 0 ? { "--page-toolbar-rows-height": `${titleRows.height}px` } : {}),
     ...style,
   } as CSSProperties
 
@@ -260,7 +304,7 @@ export type PageContentProps = HTMLAttributes<HTMLDivElement> & {
 }
 
 function PageContent({ fill = false, className, children, onScroll, ref, ...restProps }: PageContentProps) {
-  const { setEdges, notifyScroll, largeTitle, setLargeTitleSlot } = usePageContext("Content")
+  const { setEdges, notifyScroll, largeTitle, setLargeTitleSlot, largeTitleRowSlot, setLargeTitleRowSlot, setTitleRows } = usePageContext("Content")
   const element = useRef<HTMLDivElement | null>(null)
   const setRef = useCallback((node: HTMLDivElement | null) => {
     element.current = node
@@ -273,6 +317,11 @@ function PageContent({ fill = false, className, children, onScroll, ref, ...rest
     const stop = observeScrollEdges(content, setEdges)
     return () => { stop(); setEdges(NO_SCROLL_EDGES) }
   }, [setEdges])
+  useLayoutEffect(() => {
+    const content = element.current
+    if (!content || !largeTitleRowSlot) return
+    return followTitleRows(content, largeTitleRowSlot, setTitleRows)
+  }, [largeTitleRowSlot, setTitleRows])
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     notifyScroll(event.currentTarget.scrollTop)
@@ -289,6 +338,7 @@ function PageContent({ fill = false, className, children, onScroll, ref, ...rest
     >
       <div className={s.Column}>
         {largeTitle && <div ref={setLargeTitleSlot} className={s.LargeTitle} />}
+        {largeTitle && <div ref={setLargeTitleRowSlot} className={s.LargeTitleRows} />}
         {children}
       </div>
     </div>

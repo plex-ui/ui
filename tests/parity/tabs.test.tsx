@@ -1560,9 +1560,10 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
 
   test("the large control and every control in a bar are the glass one of iOS 27.2, Calendar and the sheet's Picker: 48px, a 40px thumb 4px in, 8px apart", () => {
     const touch = read("styles/touch.css")
-    const block = touch.match(/html \[data-toolbar\] :is\(\[data-variant="segmented"\], \[data-variant="underline"\]\)\[data-orientation="horizontal"\] \{([^}]*)\}/)?.[1] ?? ""
-    // One block for the default large control (md and larger, unless flat) and for every control in a bar
-    expect(touch).toContain('html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"])),\n    html [data-toolbar] :is(')
+    const block = touch.match(/html \[data-toolbar\] :is\(\[data-variant="segmented"\], \[data-variant="underline"\]\)\[data-orientation="horizontal"\]:not\(\[data-toolbar-row\] \*\) \{([^}]*)\}/)?.[1] ?? ""
+    // One block for the default large control (md and larger, unless flat; in a row of a bar lg and larger) and for
+    // every control in a bar but its rows (owner 13.11: a row's control is native's small one)
+    expect(touch).toContain('html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"], [data-toolbar-row] [data-size="md"])),\n    html [data-toolbar] :is(')
     for (const declaration of [
       "--segmented-control-size: 48px;",
       "--segmented-control-gutter: 4px;",
@@ -1641,14 +1642,15 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
 
   test("a small glass control keeps its size and fill under the shared mobile glass, a large flat one is 49px; the large glass block and the bar come last", () => {
     const touch = read("styles/touch.css")
-    const small = '[data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"]'
+    // In a row of a bar md is the small control too (Toolbar.Row, owner 13.11)
+    const small = '[data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"], [data-toolbar-row] [data-size="md"]'
     const tabs = ':is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]'
     const plainStart = touch.indexOf(`html ${tabs} {`)
     const glassSelector = `html [data-mobile-material="glass"]${tabs}:where([data-mobile-size="small"], ${small}) {`
     const flatSelector = `html [data-mobile-material="flat"]${tabs}:where(:not([data-mobile-size="small"], ${small})) {`
     // A control a component asks to keep small (ColorPicker's Mode) stays out of both large blocks
     const largeStart = touch.indexOf(`html ${tabs}:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], ${small})),`)
-    const barSelector = `html [data-toolbar] ${tabs} {`
+    const barSelector = `html [data-toolbar] ${tabs}:not([data-toolbar-row] *) {`
     const start = touch.indexOf(glassSelector)
     expect(start).toBeGreaterThan(plainStart)
     const glass = touch.slice(start, touch.indexOf("}", start))

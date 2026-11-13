@@ -565,9 +565,11 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
   test.each(["React", "Vue"] as const)("%s: a row under a large title stands under it in the content, and the bar keeps its controls", async (framework) => {
     const unmount = await mount(framework, "large", {}, true)
     const place = document.querySelector(".LargeTitle")
-    // The title, then the row, at the top of the content: the content starts under the row, and both scroll away.
-    expect(Array.from(place?.children ?? [], (child) => child.className.split(" ")[0])).toEqual(["Heading", "Row"])
-    const row = place?.querySelector(".Row")
+    // The title, then the rows in a place of their own, at the top of the content: the content starts under the rows,
+    // the title scrolls away and the rows pin under the bar.
+    expect(Array.from(place?.parentElement?.children ?? [], (child) => child.className.split(" ")[0])).toEqual(["LargeTitle", "LargeTitleRows"])
+    expect(Array.from(place?.children ?? [], (child) => child.className.split(" ")[0])).toEqual(["Heading"])
+    const row = document.querySelector(".LargeTitleRows > .Row")
     expect([row?.hasAttribute("data-in-content"), row?.hasAttribute("data-toolbar-row"), row?.classList.contains("views")]).toEqual([true, true, true])
     expect(row?.querySelector('[role="radiogroup"]')?.textContent).toBe("All")
     expect(document.querySelector("[data-toolbar] > .Row")).toBeNull()
@@ -609,8 +611,173 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     expect([document.querySelectorAll(".Row").length, mounts]).toEqual([0, 0])
     if (framework === "React") await act(async () => { rerender(true) })
     else { rerender(true); await flushVue() }
-    expect(document.querySelector(".LargeTitle > .Row[data-in-content] > span")?.textContent).toBe("views")
+    expect(document.querySelector(".LargeTitleRows > .Row[data-in-content] > span")?.textContent).toBe("views")
     expect(mounts).toBe(1)
+  })
+
+  test.each(["React", "Vue"] as const)("%s: several rows stand in their order, in the bar and under a large title (owner 13.11)", async (framework) => {
+    // Buttons and the title, a search field, then a segmented control, as iOS 27.2 sets a safeAreaBar under the search
+    // field of the bar's drawer.
+    const rowsOf = (selector: string) => Array.from(document.querySelectorAll(selector), (row) => row.classList[1])
+    // Under a large title the rows stand in the order of their anchors in the bar (followRowOrder).
+    // The DOM order, which the keyboard and a screen reader follow, not a CSS order (Codex #7).
+    const orderOf = () => Array.from(document.querySelectorAll<HTMLElement>(".LargeTitleRows > .Row[data-in-content]"), (row) => {
+      expect(row.style.order).toBe("")
+      return row.classList[1]
+    })
+    for (const titleStyle of ["inline", "large"]) {
+      const view = framework === "React"
+        ? render(createElement(RPage as unknown as AnyComponent, null,
+          createElement(RToolbar as unknown as AnyComponent, { titleStyle },
+            createElement(RToolbar.Title, null, "Orders"),
+            createElement(RToolbar.Row, { className: "search" }, "Search"),
+            createElement(RToolbar.Row, { className: "views" }, "Views")),
+          createElement(RPage.Content, null, "Body")))
+        : null
+      const vue = framework === "Vue"
+        ? mountVue(() => h(Page as never, null, () => [
+          h(Toolbar as never, { titleStyle }, () => [
+            h(ToolbarTitle, null, () => "Orders"),
+            h(ToolbarRow, { class: "search" }, () => "Search"),
+            h(ToolbarRow, { class: "views" }, () => "Views"),
+          ]),
+          h(PageContent, null, () => "Body"),
+        ]))
+        : null
+      await (framework === "React" ? act(async () => {}) : flushVue())
+      if (titleStyle === "inline") {
+        expect(rowsOf("[data-toolbar] > .Row:not([data-in-content])")).toEqual(["search", "views"])
+        expect(document.querySelector(".LargeTitleRows")).toBeNull()
+      } else {
+        expect(orderOf()).toEqual(["search", "views"])
+        expect(document.querySelector("[data-toolbar] > .Row")).toBeNull()
+      }
+      view?.unmount()
+      vue?.unmount()
+    }
+  })
+
+  test.each(["React", "Vue"] as const)("%s: under a large title a row shown later keeps its place among the rows", async (framework) => {
+    // A search field shown over a segmented control already in the content stands over it, not after it (the Vue
+    // Overview showed it under the control: each row is portaled as it mounts).
+    // The DOM order, which the keyboard and a screen reader follow, not a CSS order (Codex #7).
+    const orderOf = () => Array.from(document.querySelectorAll<HTMLElement>(".LargeTitleRows > .Row[data-in-content]"), (row) => {
+      expect(row.style.order).toBe("")
+      return row.classList[1]
+    })
+    const search = ref(false)
+    let show = async (_on: boolean) => {}
+    if (framework === "React") {
+      const tree = (on: boolean) => createElement(RPage as unknown as AnyComponent, null,
+        createElement(RToolbar as unknown as AnyComponent, { titleStyle: "large" },
+          createElement(RToolbar.Title, null, "Orders"),
+          on && createElement(RToolbar.Row, { className: "search" }, "Search"),
+          createElement(RToolbar.Row, { className: "views" }, "Views")),
+        createElement(RPage.Content, null, "Body"))
+      const view = render(tree(false))
+      show = async (on) => { await act(async () => { view.rerender(tree(on)) }) }
+    } else {
+      mountVue(() => h(Page as never, null, () => [
+        h(Toolbar as never, { titleStyle: "large" }, () => [
+          h(ToolbarTitle, null, () => "Orders"),
+          search.value ? h(ToolbarRow, { class: "search" }, () => "Search") : null,
+          h(ToolbarRow, { class: "views" }, () => "Views"),
+        ]),
+        h(PageContent, null, () => "Body"),
+      ]))
+      show = async (on) => { search.value = on; await flushVue() }
+    }
+    await (framework === "React" ? act(async () => {}) : flushVue())
+    expect(orderOf()).toEqual(["views"])
+    // A field focused in the row already there keeps its focus: only the row that came later moves (Codex #8).
+    const field = document.createElement("input")
+    document.querySelector(".LargeTitleRows > .views")?.appendChild(field)
+    field.focus()
+    await show(true)
+    await Promise.resolve()
+    expect(orderOf()).toEqual(["search", "views"])
+    expect(document.activeElement).toBe(field)
+    field.remove()
+    await show(false)
+    await Promise.resolve()
+    expect(orderOf()).toEqual(["views"])
+    expect(document.querySelectorAll("[data-toolbar-row-anchor]")).toHaveLength(1)
+  })
+
+  test.each(["React", "Vue"] as const)("%s: rows under a large title pin under the bar once scrolled up to it, and the bar's background reaches under them (owner 13.11)", async (framework) => {
+    // The rows' place is 42 tall and stands right under the title's (its bottom at 150 less the scroll), until the
+    // sticky offset holds it at 70, under the bar's controls: then it stands off the title's bottom.
+    let scrolled = 0
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      const titleBottom = 150 - scrolled
+      const top = this.classList.contains("LargeTitleRows") ? Math.max(titleBottom, 70) : this.classList.contains("LargeTitle") ? titleBottom - 40 : 0
+      const bottom = this.classList.contains("LargeTitle") ? titleBottom : top
+      return { x: 0, y: top, top, left: 0, right: 0, width: 0, height: bottom - top, bottom, toJSON: () => ({}) } as DOMRect
+    })
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(function (this: HTMLElement) {
+      // An empty place is display: none (Page.module.css), so it has no height.
+      return this.classList.contains("LargeTitleRows") && this.childElementCount > 0 ? 42 : 0
+    })
+    const unmount = await mount(framework, "large", {}, true)
+    const content = document.querySelector<HTMLElement>(".Page > .Content")
+    const page = document.querySelector<HTMLElement>(".Page")
+    const bar = document.querySelector<HTMLElement>('[data-toolbar][data-placement="top"]')
+    if (!content || !page || !bar) throw new Error("the page is missing")
+    const scrollTo = async (top: number) => {
+      scrolled = top
+      if (framework === "React") await act(async () => { content.dispatchEvent(new Event("scroll")) })
+      else { content.dispatchEvent(new Event("scroll")); await flushVue() }
+    }
+    // Under the title: not pinned, the bar keeps its own background.
+    expect(bar.hasAttribute("data-rows-pinned")).toBe(false)
+    expect(page.style.getPropertyValue("--page-toolbar-rows-height")).toBe("42px")
+    await scrollTo(80)
+    expect(bar.hasAttribute("data-rows-pinned")).toBe(false)
+    // Stuck under the controls: the bar takes them in.
+    await scrollTo(120)
+    expect(bar.hasAttribute("data-rows-pinned")).toBe(true)
+    // Back down with the title: free again.
+    await scrollTo(40)
+    expect(bar.hasAttribute("data-rows-pinned")).toBe(false)
+    await scrollTo(200)
+    unmount()
+    // Without rows nothing pins, and an inline bar never does.
+    const plain = await mount(framework, "large")
+    expect(document.querySelector("[data-toolbar]")?.hasAttribute("data-rows-pinned")).toBe(false)
+    expect(document.querySelector<HTMLElement>(".Page")?.style.getPropertyValue("--page-toolbar-rows-height")).toBe("")
+    plain()
+  })
+
+  test.each(["React", "Vue"] as const)("%s: the title changing its height pins the rows with no scroll (Codex #7)", async (framework) => {
+    // Scrolled just short of pinning, the subtitle goes: the title's bottom rises and the rows stick, with no scroll
+    // and no change to the rows' or the content's size. Only the title's own box says so.
+    let shrunk = 0
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      const titleBottom = 70 - shrunk
+      const top = this.classList.contains("LargeTitleRows") ? Math.max(titleBottom, 70) : this.classList.contains("LargeTitle") ? titleBottom - 40 : 0
+      const bottom = this.classList.contains("LargeTitle") ? titleBottom : top
+      return { x: 0, y: top, top, left: 0, right: 0, width: 0, height: bottom - top, bottom, toJSON: () => ({}) } as DOMRect
+    })
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(function (this: HTMLElement) {
+      return this.classList.contains("LargeTitleRows") && this.childElementCount > 0 ? 42 : 0
+    })
+    const watched: Array<{ target: Element; notify: () => void }> = []
+    vi.stubGlobal("ResizeObserver", class {
+      constructor(private callback: () => void) {}
+      observe(target: Element) { watched.push({ target, notify: () => this.callback() }) }
+      unobserve() {}
+      disconnect() {}
+    })
+    const unmount = await mount(framework, "large", {}, true)
+    const bar = document.querySelector<HTMLElement>('[data-toolbar][data-placement="top"]')
+    expect(bar?.hasAttribute("data-rows-pinned")).toBe(false)
+    shrunk = 22
+    const title = watched.filter(({ target }) => target.classList.contains("LargeTitle"))
+    expect(title.length).toBeGreaterThan(0)
+    await (framework === "React" ? act(async () => { title.forEach(({ notify }) => notify()) }) : (title.forEach(({ notify }) => notify()), flushVue()))
+    expect(bar?.hasAttribute("data-rows-pinned")).toBe(true)
+    unmount()
+    vi.unstubAllGlobals()
   })
 
   test.each(["React", "Vue"] as const)("%s: a large title in a bar without a page's content stays in the bar", async (framework) => {
@@ -709,19 +876,31 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     expect(tokens).toContain("--toolbar-large-title-swap-duration: 300ms;")
   })
 
-  test("a row is the bar's last row across its width, and under a large title the first thing of the content (owner 13.11)", () => {
-    // Under every row the bar has, between its gutters, 8 under the controls; it never widens the bar.
-    expect(css).toMatch(/\.Row \{\s*display: flex;\s*grid-row: -1;\s*grid-column: 1 \/ -1;[^}]*contain: inline-size;/)
+  test("rows stand across the bar under its controls in their order, and under a large title in a place of their own that pins them under the bar (owner 13.11)", () => {
+    // Between the bar's gutters, 10 under the controls and 10 apart, in their order (auto-placed, no row of their
+    // own); they never widen the bar.
+    expect(css).toMatch(/\.Row \{\s*display: flex;\s*grid-column: 1 \/ -1;[^}]*contain: inline-size;/)
+    expect(css).not.toMatch(/\.Row \{[^}]*grid-row/)
     expect(css).toMatch(/\.Toolbar:not\(\[data-title-style="large"\]\):has\(> \.Row\) \{\s*row-gap: var\(--toolbar-row-gap\);/)
-    expect(readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")).toContain("--toolbar-row-gap: 8px;")
-    // In the content: after the title whichever mounted first, 16 under its baseline, and the content 16 under it.
-    expect(css).toMatch(/\.Row\[data-in-content\] \{\s*display: flex;\s*order: 1;\s*margin-bottom: var\(--page-content-padding-top, 16px\);/)
-    expect(readFileSync(`${process.cwd()}/packages/styles/src/components/Page/Page.module.css`, "utf8")).toMatch(/\.LargeTitle:has\(> \[data-toolbar-row\]\) \{\s*display: flex;\s*flex-direction: column;/)
-    // In the content a control of the row is still the bar's: the glass segmented control (48) and capsule groups,
-    // whatever size it was given (Codex #5).
+    expect(readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")).toContain("--toolbar-row-gap: 10px;")
+    // In the content: a place of their own after the title's, 16 under its baseline and 16 above the content, sticky
+    // under the controls, 10 under them as in the bar, over the content (iOS 27.2 segrow-large-scrolled).
+    const page = readFileSync(`${process.cwd()}/packages/styles/src/components/Page/Page.module.css`, "utf8")
+    expect(page).toMatch(/\.LargeTitleRows \{\s*position: sticky;\s*z-index: 6;\s*top: calc\(var\(--toolbar-row-gap\) - var\(--toolbar-padding-bottom\) - var\(--page-content-padding-top, 16px\)\);\s*display: flex;\s*flex-direction: column;\s*gap: var\(--toolbar-row-gap\);\s*margin-bottom: var\(--page-content-padding-top, 16px\);/)
+    // A target scrolled into view lands under the pinned rows, where the bar's background ends (Codex #7).
+    expect(page).toMatch(/\.Content:has\(> \.Column > \.LargeTitleRows > \*\) \{\s*scroll-padding-top: calc\(\s*var\(--page-top\) \+ var\(--page-content-padding-top\) \+ var\(--toolbar-row-gap\) \+ var\(--page-toolbar-rows-height, 0px\)\s*\);/)
+    expect(page).not.toContain(".LargeTitle:has(")
+    expect(css).toMatch(/\.Row\[data-in-content\] \{\s*--toolbar-item-size: var\(--toolbar-top-item-size\);\s*display: flex;\s*\}/)
+    // Pinned, the bar's background, edge and line reach under them, its bottom padding under the last one.
+    expect(css).toMatch(/&\[data-rows-pinned\]::before,\s*&\[data-rows-pinned\]::after \{\s*margin-bottom: calc\(-1 \* \(var\(--toolbar-row-gap\) \+ var\(--page-toolbar-rows-height, 0px\)\)\);/)
+    // A search field in a row is the bar's (44 of glass), in the bar and in the content.
+    expect(css).toContain(':is(.Toolbar :is(.Leading, .Trailing, .Content), .Row) > [data-slot="input"][data-variant] {')
+    // A row's segmented control keeps its own size, in the bar and in the content alike: native's small one at md (32),
+    // the large glass one from lg (owner 13.11 «маленький будет - верно?»). Its button groups are the bar's capsules.
     const touch = readFileSync(`${process.cwd()}/packages/styles/src/styles/touch.css`, "utf8")
-    expect(touch.split('html :is([data-toolbar], [data-toolbar-row]) :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]')).toHaveLength(4)
-    expect(touch).not.toContain('html [data-toolbar] :is([data-variant="segmented"]')
+    expect(touch.split('html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:not([data-toolbar-row] *)')).toHaveLength(4)
+    expect(touch.split('[data-size="sm"], [data-toolbar-row] [data-size="md"])')).toHaveLength(6)
+    expect(touch).not.toContain('[data-toolbar-row]) :is(')
     const group = readFileSync(`${process.cwd()}/packages/styles/src/components/ButtonGroup/ButtonGroup.module.css`, "utf8")
     expect(group.split('[data-toolbar] *, [data-toolbar-row] *)')).toHaveLength(3)
   })

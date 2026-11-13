@@ -530,10 +530,10 @@
        viewport-fit=cover) they keep 16 to the window's edge. */
     --toolbar-bottom-padding-bottom: max(16px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 6px));
     --toolbar-search-padding-bottom: 14px;
-    /* A row under the controls, part of the bar (Toolbar.Row, owner 13.11): 8 under them, as a chat list sets its folders
-       under its bar (a reference screen: 8.3pt); iOS 27.2 sets a safeAreaBar 10pt under a bar's row (ref-app
-       segrow-inline). */
-    --toolbar-row-gap: 8px;
+    /* A row under the controls, part of the bar (Toolbar.Row, owner 13.11): 10 under them, and 10 between two rows, as
+       iOS 27.2 sets a safeAreaBar under a bar's controls and under the search field of its drawer (ref-app segrow-inline,
+       segsearch-inline). */
+    --toolbar-row-gap: 10px;
     /* The search field of those bars: the magnifier draws 16.33 of ink with a stroke of 2, 14.0 from the field's
        edge, and "Search" starts at 41.67, set in Regular in the secondary label color (rgb 148 to 150 on the
        glass). SearchSm in a 23.75px box draws that ink: 3.46 of the box lies before it, so the gutter is 10.54. The

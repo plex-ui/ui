@@ -95,12 +95,6 @@
   display: flow-root;
 }
 
-/* With a Toolbar row under the title, the two stand in that order whichever mounted first. */
-.LargeTitle:has(> [data-toolbar-row]) {
-  display: flex;
-  flex-direction: column;
-}
-
 .Content {
   position: relative;
   flex: 1 1 0;
@@ -556,6 +550,26 @@
     }
   }
 
+  /* The rows of a large title's bar (Toolbar.Row) stand under the title, where the content would start, and the
+     content starts as far under them (iOS 27.2 sets a safeAreaBar 16 under a large title's baseline, ref-app
+     segrow-large). Scrolled up to the bar they stay under its controls, 10 under them as in the bar, over the content,
+     and the bar's background reaches under them (Toolbar data-rows-pinned), as iOS 27.2 pins a safeAreaBar under a
+     large title's bar (ref-app segrow-large-scrolled; owner 13.11 «Да, закрепить»). A sticky box keeps clear of the
+     scroller's padding, which here ends --page-content-padding-top under the bar: `top` is counted from there. */
+  .LargeTitleRows {
+    position: sticky;
+    z-index: 6;
+    top: calc(var(--toolbar-row-gap) - var(--toolbar-padding-bottom) - var(--page-content-padding-top, 16px));
+    display: flex;
+    flex-direction: column;
+    gap: var(--toolbar-row-gap);
+    margin-bottom: var(--page-content-padding-top, 16px);
+
+    &:empty {
+      display: none;
+    }
+  }
+
   .Content {
     scrollbar-width: none;
 
@@ -568,5 +582,13 @@
     scroll-padding-bottom: calc(var(--page-content-padding-bottom) + var(--page-bottom));
     padding-top: calc(var(--page-top) + var(--page-content-padding-top));
     scroll-padding-top: calc(var(--page-top) + var(--page-content-padding-top));
+  }
+
+  /* With a large title's rows a target scrolled into view lands under them, pinned, where the bar's background ends,
+     not behind them (Codex #7). */
+  .Content:has(> .Column > .LargeTitleRows > *) {
+    scroll-padding-top: calc(
+      var(--page-top) + var(--page-content-padding-top) + var(--toolbar-row-gap) + var(--page-toolbar-rows-height, 0px)
+    );
   }
 }

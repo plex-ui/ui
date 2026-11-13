@@ -9,6 +9,7 @@ import {
   provide,
   ref,
   shallowRef,
+  watch,
   type HTMLAttributes,
   type InjectionKey,
   type PropType,
@@ -40,6 +41,43 @@ type PageContext = {
   /** A large Toolbar title asks for a place at the top of the content, where it scrolls with the content. */
   largeTitle: Ref<boolean>
   setLargeTitleSlot: (slot: unknown) => void
+  /** The place of the bar's rows under a large title, which pins them under the bar. */
+  largeTitleRowSlot: Ref<HTMLElement | null>
+  setLargeTitleRowSlot: (slot: unknown) => void
+  /** The rows under a large title are pinned under the bar, and their height, which the bar's background takes in. */
+  titleRowsPinned: Ref<boolean>
+  titleRowsHeight: Ref<number>
+}
+
+/**
+ * Follows the rows of a large title's bar (Toolbar.Row) in the content. They stand under the title and, scrolled up to
+ * the bar, stay under its controls (`position: sticky`): they are pinned once the sticky offset moves them off the
+ * title's bottom, where they would stand. It reports that and their height, which the bar's background takes in. React's
+ * twin.
+ */
+function followTitleRows(content: HTMLElement, rows: HTMLElement, report: (pinned: boolean, height: number) => void) {
+  let last = ""
+  const update = () => {
+    const height = rows.offsetHeight
+    const title = rows.previousElementSibling
+    const pinned = height > 0 && !!title && rows.getBoundingClientRect().top - title.getBoundingClientRect().bottom > 0.5
+    if (`${pinned} ${height}` === last) return
+    last = `${pinned} ${height}`
+    report(pinned, height)
+  }
+  update()
+  content.addEventListener("scroll", update, { passive: true })
+  const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
+  observer?.observe(rows)
+  observer?.observe(content)
+  // The title changing its height (a subtitle shown or gone) moves the rows with no scroll (Codex #7).
+  const title = rows.previousElementSibling
+  if (title) observer?.observe(title)
+  return () => {
+    content.removeEventListener("scroll", update)
+    observer?.disconnect()
+    report(false, 0)
+  }
 }
 const PAGE_CONTEXT: InjectionKey<PageContext> = Symbol("Page")
 
@@ -84,7 +122,15 @@ const PageComponent = defineComponent({
       largeTitleRequests.value += 1
       return () => { largeTitleRequests.value -= 1 }
     }
-    const context = { scrolled: ref(false), contentBelow: ref(false), footerHeight: ref(0), headerHeight: ref<number>(), notifyScroll, largeTitle, setLargeTitleSlot }
+    // The bar's rows under a large title have a place of their own under it, which pins them under the bar once scrolled.
+    const largeTitleRowSlot = shallowRef<HTMLElement | null>(null)
+    const setLargeTitleRowSlot = (slot: unknown) => { largeTitleRowSlot.value = slot instanceof HTMLElement ? slot : null }
+    const titleRowsPinned = ref(false)
+    const titleRowsHeight = ref(0)
+    const context = {
+      scrolled: ref(false), contentBelow: ref(false), footerHeight: ref(0), headerHeight: ref<number>(), notifyScroll, largeTitle,
+      setLargeTitleSlot, largeTitleRowSlot, setLargeTitleRowSlot, titleRowsPinned, titleRowsHeight,
+    }
     provide(PAGE_CONTEXT, context)
     // A phone Toolbar replaces the header and footer bars; it reports its own heights.
     const toolbarTop = ref<number>()
@@ -96,6 +142,8 @@ const PageComponent = defineComponent({
       subscribeScroll,
       requestLargeTitleSlot,
       largeTitleSlot: computed(() => (largeTitle.value ? largeTitleSlot.value : null)),
+      largeTitleRowSlot: computed(() => (largeTitle.value ? largeTitleRowSlot.value : null)),
+      rowsPinned: computed(() => largeTitle.value && titleRowsPinned.value),
       setHeight: (placement: ToolbarPlacement, height: number | undefined) => { (placement === "top" ? toolbarTop : toolbarBottom).value = height },
     })
     return () => h("div", { "ref": setRoot, "class": s.Page, "data-width": props.width, "data-surface": props.surface,
@@ -104,6 +152,7 @@ const PageComponent = defineComponent({
         ...(context.headerHeight.value !== undefined ? { "--page-header-height": `${context.headerHeight.value}px` } : {}),
         ...(toolbarTop.value !== undefined ? { "--page-toolbar-height": `${toolbarTop.value}px` } : {}),
         ...(toolbarBottom.value !== undefined ? { "--page-toolbar-bottom-height": `${toolbarBottom.value}px` } : {}),
+        ...(titleRowsHeight.value > 0 ? { "--page-toolbar-rows-height": `${titleRowsHeight.value}px` } : {}),
       } }, slots.default?.())
   },
 })
@@ -207,7 +256,7 @@ export const PageContent = defineComponent({
     fill: { type: Boolean, default: false },
   },
   setup(props, { attrs, slots }) {
-    const { scrolled, contentBelow, notifyScroll, largeTitle, setLargeTitleSlot } = injectPageContext("PageContent")
+    const { scrolled, contentBelow, notifyScroll, largeTitle, setLargeTitleSlot, largeTitleRowSlot, setLargeTitleRowSlot, titleRowsPinned, titleRowsHeight } = injectPageContext("PageContent")
     const element = ref<HTMLElement | null>(null)
     let stop: (() => void) | undefined
     onMounted(() => {
@@ -218,6 +267,15 @@ export const PageContent = defineComponent({
       })
     })
     onBeforeUnmount(() => { stop?.(); scrolled.value = false; contentBelow.value = false })
+    // The rows of a large title's bar pin under it once scrolled up to it.
+    let stopRows: (() => void) | undefined
+    watch([element, largeTitleRowSlot], ([content, rows]) => {
+      stopRows?.()
+      stopRows = content && rows
+        ? followTitleRows(content, rows, (pinned, height) => { titleRowsPinned.value = pinned; titleRowsHeight.value = height })
+        : undefined
+    }, { flush: "post" })
+    onBeforeUnmount(() => { stopRows?.(); stopRows = undefined })
 
     const onScroll = (event: Event) => {
       notifyScroll((event.currentTarget as HTMLElement).scrollTop)
@@ -230,7 +288,11 @@ export const PageContent = defineComponent({
           { "ref": element, "class": s.Content, "data-fill": props.fill ? "" : undefined, onScroll },
           attrs,
         ),
-        [h("div", { class: s.Column }, [largeTitle.value ? h("div", { ref: setLargeTitleSlot, class: s.LargeTitle }) : null, slots.default?.()])],
+        [h("div", { class: s.Column }, [
+          largeTitle.value ? h("div", { ref: setLargeTitleSlot, class: s.LargeTitle }) : null,
+          largeTitle.value ? h("div", { ref: setLargeTitleRowSlot, class: s.LargeTitleRows }) : null,
+          slots.default?.(),
+        ])],
       )
   },
 })

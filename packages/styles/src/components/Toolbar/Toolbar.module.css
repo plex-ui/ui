@@ -414,13 +414,14 @@
   }
 
   /* A row under the controls, part of the bar (owner 13.11): a segmented control that switches the screen's views, as
-     a chat list shows its folders under its bar, or a scope bar under a search field. It spans the bar between its
-     gutters, under every row the bar has, so the bar's background, edge and line take it in. A SegmentedControl in it
-     is the bar's glass one and fills the row (its segments share the width, and scroll when they do not fit; a block
-     one shortens its labels instead). */
+     a chat list shows its folders under its bar, or a search field. It spans the bar between its gutters, under the
+     bar's controls, so the bar's background, edge and line take it in. Several rows stand in their order, 10 apart: a
+     search field over a segmented control, as iOS 27.2 sets a safeAreaBar under the search field of the bar's drawer
+     (ref-app segsearch-inline; owner 13.11 «первый ряд - кнопки и тайтл, второй ряд поиск, третий ряд - сегментед
+     контрол»). A SegmentedControl in it is the small plain one at its default size, as native's (touch.css), and fills
+     the row (its segments share the width, and scroll when they do not fit; a block one shortens its labels instead). */
   .Row {
     display: flex;
-    grid-row: -1;
     grid-column: 1 / -1;
     align-items: center;
     min-width: 0;
@@ -437,13 +438,11 @@
     row-gap: var(--toolbar-row-gap);
   }
 
-  /* Under a large title on a page the row stands under it at the top of the content, where the content would start
-     (16pt under the title's baseline, as iOS 27.2 sets a safeAreaBar under a large title: ref-app segrow-large), and
-     the content starts as far under the row. It scrolls away with the title. */
+  /* Under a large title on a page the rows stand under it at the top of the content (Page.Content keeps their place
+     and pins them under the bar). A search field there keeps the bar's size. */
   .Row[data-in-content] {
+    --toolbar-item-size: var(--toolbar-top-item-size);
     display: flex;
-    order: 1;
-    margin-bottom: var(--page-content-padding-top, 16px);
   }
 
   /* Several buttons in one capsule, as iOS 27.2 groups a bar's symbols: 10 apart with 1 at the ends on top, 8 apart
@@ -569,9 +568,11 @@
     }
   }
 
-  /* A search field (iOS 26 kit Search Top and Bottom): the row height and the glass of the bar buttons.
-     The extra attribute outweighs the field's own focus and hover outlines, which a bar does not draw. */
-  .Toolbar :is(.Leading, .Trailing, .Content) > [data-slot="input"][data-variant] {
+  /* A search field (iOS 26 kit Search Top and Bottom): the row height and the glass of the bar buttons, in the bar
+     and in a row of it (iOS 27.2 draws the search field of a bar's drawer as the bar's: 44pt of glass, 16 from the
+     sides, ref-app segsearch-inline). The extra attribute outweighs the field's own focus and hover outlines, which a
+     bar does not draw. */
+  :is(.Toolbar :is(.Leading, .Trailing, .Content), .Row) > [data-slot="input"][data-variant] {
     --input-size: var(--toolbar-item-size);
     --input-font-size: var(--toolbar-label-font-size);
     --input-gutter: var(--toolbar-search-gutter);
@@ -737,6 +738,15 @@
 
     &[data-scrolled]:not([data-title-collapsed])[data-background="glass"]::before {
       opacity: 0;
+    }
+
+    /* Rows pinned under the controls (Toolbar.Row: Page.Content keeps them there once scrolled up to the bar, owner
+       13.11 «Да, закрепить»): the background, edge and line reach under them as under a row in the bar, the bar's
+       bottom padding under the last one, as iOS 27.2 draws its edge under a pinned safeAreaBar (ref-app
+       segrow-large-scrolled). */
+    &[data-rows-pinned]::before,
+    &[data-rows-pinned]::after {
+      margin-bottom: calc(-1 * (var(--toolbar-row-gap) + var(--page-toolbar-rows-height, 0px)));
     }
 
     /* The bar ends at the title's last baseline: the content starts 16pt under it (iOS 27.2: baseline 152, content

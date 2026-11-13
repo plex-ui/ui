@@ -61,6 +61,10 @@ export type ToolbarHost = {
   requestLargeTitleSlot?: () => () => void
   /** The place at the top of the content where a large title scrolls with it, once the content has made one. */
   largeTitleSlot?: HTMLElement | null
+  /** The place under a large title where the bar's rows stand, pinned under the bar once scrolled up to it. */
+  largeTitleRowSlot?: HTMLElement | null
+  /** The rows under a large title are pinned under the bar, so its background reaches under them. */
+  rowsPinned?: boolean
 }
 
 export const ToolbarHostContext = createContext<ToolbarHost | null>(null)
@@ -183,6 +187,7 @@ function ToolbarRoot({
       data-host={host?.kind}
       data-scrolled={placement === "top" && host?.scrolled ? "" : undefined}
       data-content-below={placement === "bottom" && host?.contentBelow ? "" : undefined}
+      data-rows-pinned={placement === "top" && host?.rowsPinned ? "" : undefined}
       {...restProps}
     >
       <ToolbarElementContext.Provider value={barElement}>
@@ -226,24 +231,81 @@ function ToolbarGroup({ className, ...restProps }: ToolbarSlotProps) {
 }
 ToolbarGroup.displayName = "Toolbar.Group"
 
+const rowOfAnchor = new WeakMap<Element, HTMLElement>()
+
+/**
+ * Under a large title each row is portaled into the rows' place as it mounts, so a row that comes later (a search field
+ * shown over a segmented control already there) would stand last. An empty anchor in the bar keeps the row's place among
+ * the bar's rows, and the rows are moved into that order in the content, so the keyboard and a screen reader meet them
+ * as they stand (Codex #7); a row added or removed in the bar orders them again.
+ */
+function followRowOrder(anchor: HTMLElement, row: HTMLElement) {
+  const bar = anchor.closest("[data-toolbar]") ?? anchor.parentElement
+  if (!bar) return () => {}
+  rowOfAnchor.set(anchor, row)
+  const place = () => {
+    const slot = row.parentElement
+    if (!slot) return
+    const rows = Array.from(bar.querySelectorAll("[data-toolbar-row-anchor]"), (mark) => rowOfAnchor.get(mark))
+      .filter((each): each is HTMLElement => each?.parentElement === slot)
+    // From the last row back, a row that does not stand before the next one goes right before it: only a row out of
+    // place moves (the one that came later), so a field focused in another row keeps its focus (Codex #8); moveBefore,
+    // where the browser has it, keeps it even in the row that moves.
+    const move = (slot as HTMLElement & { moveBefore?: (node: Node, child: Node | null) => void }).moveBefore
+    for (let index = rows.length - 2; index >= 0; index--) {
+      const each = rows[index]
+      const next = rows[index + 1]
+      if (each.compareDocumentPosition(next) & Node.DOCUMENT_POSITION_FOLLOWING) continue
+      try {
+        if (move) {
+          move.call(slot, each, next)
+          continue
+        }
+      } catch {
+        // falls back to a plain move
+      }
+      slot.insertBefore(each, next)
+    }
+  }
+  place()
+  const observer = typeof MutationObserver !== "undefined" ? new MutationObserver(place) : undefined
+  observer?.observe(bar, { childList: true, subtree: true })
+  return () => {
+    observer?.disconnect()
+    rowOfAnchor.delete(anchor)
+  }
+}
+
 /**
  * A row under the controls, part of the bar: a segmented control that switches the screen's views (a chat list's
- * folders under its bar), or a scope bar under a search field. It spans the bar, and a control in it fills the row.
- * Under a large title on a page it stands under the title, at the top of the content, and scrolls away with it, as
- * the drawer of a UIKit bar under a large title does.
+ * folders under its bar), or a search field. It spans the bar, and a control in it fills the row; several rows stand in
+ * their order (a search field over a segmented control). Under a large title on a page the rows stand under the title,
+ * at the top of the content, and once scrolled up to the bar they stay pinned under its controls, as iOS 27.2 pins a
+ * safeAreaBar under a large title's bar.
  */
-function ToolbarRow({ className, ...restProps }: ToolbarSlotProps) {
+function ToolbarRow({ className, ref, ...restProps }: ToolbarSlotProps) {
   const host = useContext(ToolbarHostContext)
   const titleStyle = useContext(ToolbarTitleStyleContext)
   const large = titleStyle === "large" && host?.kind === "page"
   const requestSlot = large ? host?.requestLargeTitleSlot : undefined
-  const slot = large ? host?.largeTitleSlot ?? null : null
+  const slot = large ? host?.largeTitleRowSlot ?? null : null
   useLayoutEffect(() => requestSlot?.(), [requestSlot])
-  const row = <div className={clsx(s.Row, className)} data-toolbar-row="" data-in-content={slot ? "" : undefined} {...restProps} />
+  const element = useRef<HTMLDivElement | null>(null)
+  const anchor = useRef<HTMLSpanElement | null>(null)
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    element.current = node
+    if (typeof ref === "function") return ref(node)
+    if (ref) ref.current = node
+  }, [ref])
+  useLayoutEffect(() => {
+    if (!slot || !anchor.current || !element.current) return
+    return followRowOrder(anchor.current, element.current)
+  }, [slot])
+  const row = <div ref={setRef} className={clsx(s.Row, className)} data-toolbar-row="" data-in-content={slot ? "" : undefined} {...restProps} />
   // Under a large title the row waits for its place in the content (it comes before the first paint) and never stands
   // in the bar first: moving it from the bar into the portal would mount its children again, and a switcher that holds
   // its own selection would lose it (Codex #5).
-  if (large) return slot ? createPortal(row, slot) : null
+  if (large) return slot ? <>{createPortal(row, slot)}<span ref={anchor} data-toolbar-row-anchor="" hidden /></> : null
   return row
 }
 ToolbarRow.displayName = "Toolbar.Row"

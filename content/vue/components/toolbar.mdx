@@ -44,8 +44,15 @@ export const overview = `<Page surface="grouped">
       </ToolbarGroup>
       <NavigationButton v-else :action="title && titleStyle === 'large' ? 'confirm' : 'close'" />
     </ToolbarTrailing>
-    <ToolbarRow v-if="row">
-      <SegmentedControl v-model:value="view" aria-label="Orders">
+    <ToolbarRow v-if="barRows === 'search' && !search">
+      <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
+        <template #startAdornment>
+          <SearchSm />
+        </template>
+      </Input>
+    </ToolbarRow>
+    <ToolbarRow v-if="barRows !== 'none'">
+      <SegmentedControl v-model:value="view" :size="rowSize" aria-label="Orders">
         <SegmentedControlOption value="all">All</SegmentedControlOption>
         <SegmentedControlOption value="paid">Paid</SegmentedControlOption>
         <SegmentedControlOption value="unpaid" :badge="{ content: 3, pill: true }">Unpaid</SegmentedControlOption>
@@ -56,7 +63,7 @@ export const overview = `<Page surface="grouped">
   <PageContent>
     ${list}
   </PageContent>
-  <Toolbar v-if="bottom !== 'none' && !(search && bottom === 'search')" placement="bottom" :background="bottomBackground">
+  <Toolbar v-if="bottom !== 'none' && !((search || barRows === 'search') && bottom === 'search')" placement="bottom" :background="bottomBackground">
     <template v-if="bottom === 'buttons'">
       <ToolbarLeading>
         <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
@@ -64,7 +71,7 @@ export const overview = `<Page surface="grouped">
       <ToolbarContent>
         <Button color="primary" pill>New order</Button>
       </ToolbarContent>
-      <ToolbarTrailing v-if="!search">
+      <ToolbarTrailing v-if="!search && barRows !== 'search'">
         <Button color="secondary" variant="soft" uniform pill aria-label="Search"><Search /></Button>
       </ToolbarTrailing>
     </template>
@@ -93,9 +100,10 @@ export const overviewControls = [
   { name: "titleAlign", type: "select", options: ["center", "start"], default: "center", when: { search: false, title: true, titleStyle: "inline" } },
   { name: "subtitle", type: "boolean", default: false, when: { search: false, title: true, titleStyle: ["inline", "large"] } },
   { name: "group", type: "boolean", default: false, when: { search: false } },
-  { name: "row", type: "boolean", default: false },
+  { name: "barRows", label: "rows", type: "select", options: ["none", "segmented", { value: "search", label: "search + segmented", when: { search: false } }], default: "none" },
+  { name: "rowSize", label: "size (row)", type: "select", options: ["md", "lg"], default: "md", when: { barRows: ["segmented", "search"] } },
   { name: "topBackground", label: "background (top)", type: "select", options: ["soft", "hard", "glass", "blur"], default: "glass" },
-  { name: "bottom", type: "select", options: ["none", "buttons", { value: "search", label: "search", when: { search: false } }, "action"], default: "none", placement: "bottom" },
+  { name: "bottom", type: "select", options: ["none", "buttons", { value: "search", label: "search", when: { search: false, barRows: ["none", "segmented"] } }, "action"], default: "none", placement: "bottom" },
   { name: "bottomBackground", label: "background (bottom)", type: "select", options: ["soft", "hard", "glass", "blur"], default: "soft", when: { bottom: ["buttons", "search", "action"] }, placement: "bottom" },
 ]
 
@@ -114,7 +122,8 @@ const titleStyle = ref<"inline" | "large" | "compact-large" | "compact-medium">(
 const titleAlign = ref<"center" | "start">("center"); // an inline title only
 const subtitle = ref(false); // not with a compact title
 const group = ref(false);
-const row = ref(false); // a row of the bar under its controls
+const barRows = ref<"none" | "segmented" | "search">("none"); // rows of the bar under its controls; "search": a search field over the segmented control
+const rowSize = ref<"md" | "lg">("md"); // "lg": the large glass control
 const view = ref("all");
 const topBackground = ref<"soft" | "hard" | "glass" | "blur">("glass");
 const bottom = ref<"none" | "buttons" | "search" | "action">("none"); // "search": one search field to a screen
@@ -210,7 +219,7 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
 <ComponentPreview phoneOnly language="vue" details={<>
   <p>Leading and trailing items take 44px targets; an inline title is centered across the whole width. <code>title-style</code> sets the size and place of the title: <code>inline</code> in the row of controls, <code>large</code> on a row of its own below them (on a page it stands at the top of the content and scrolls with it, overscroll included; once it has gone under the controls, they show it inline), and <code>compact-large</code> or <code>compact-medium</code> at the leading edge of the row, on a screen with no Back button. <code>subtitle</code> adds a second line under an inline or large title. <code>title-align="start"</code> puts an inline title after the leading items. Scroll the content: the bar's background meets the rows under it, and the glass starts to cast a shadow.</p>
   <p><code>ToolbarGroup</code> puts related actions in one capsule; a single action, as Back or Close, keeps a capsule of its own. Without <code>ToolbarTitle</code> the bar holds its controls alone. A <a href="/vue/components/button-group"><code>ButtonGroup</code></a> in a toolbar is the same capsule. Name each icon button with <code>aria-label</code>. <code>ToolbarContent fill</code> stretches a search field across the row in the place of the title, up to the trailing items; the field takes the row height and the material of the bar buttons.</p>
-  <p><code>ToolbarRow</code> adds a row under the controls, part of the bar: a <a href="/vue/components/segmented-control"><code>SegmentedControl</code></a> that switches the screen's views, as a chat list shows its folders under its bar, or a scope bar under a search field. It spans the bar between its gutters, 8px under the controls, and the bar's background and line take it in. A segmented control in it is the bar's glass one (48px, a 40px selection) and fills the row: its segments share the width and scroll when they do not fit, and a badge counts what a view holds. Under a large title on a page the row stands under the title at the top of the content, 16px under its baseline, and scrolls away with it, as the drawer of a UIKit bar does.</p>
+  <p><code>ToolbarRow</code> adds a row under the controls, part of the bar: a <a href="/vue/components/segmented-control"><code>SegmentedControl</code></a> that switches the screen's views, as a chat list shows its folders under its bar, or a search field. It spans the bar between its gutters, 10px under the controls, and the bar's background and line take it in. Several rows stand in their order, 10px apart: a search field over a segmented control, as iOS 27.2 sets them under the search field of a bar's drawer. A segmented control in it is the small plain one at its default size (32px, as iOS 27.2 draws a segmented Picker under a bar) and fills the row: its segments share the width and scroll when they do not fit, and a badge counts what a view holds; <code>size="lg"</code> gives the large glass one (48px). A search field in it is the bar's: 44px of glass. Under a large title on a page the rows stand under the title at the top of the content, 16px under its baseline; scrolled up to the bar they stay pinned under its controls, and the bar's background, edge and line reach under them, as iOS 27.2 pins them.</p>
   <p><code>placement="bottom"</code> sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. <code>ToolbarContent</code> centers a main action; with <code>fill</code> a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, whatever the background: iOS 27.2 keeps them in place over every scroll edge, and a band (<code>glass</code> or <code>hard</code>) only starts 10px above them. A search field holds <code>SearchSm</code>, set in Regular; a plus next to it takes <code>icon-size="sm"</code>, as Contacts draws it smaller than the other symbols. The page content scrolls under both bars. A screen holds one search field, so with one in the top bar the bottom bar offers neither its own field nor its Search button.</p>
   <p><code>background</code> sets how a bar meets the content scrolled under it. <code>glass</code>, the default of a top bar, is a translucent, blurred bar with a hairline. <code>soft</code>, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: once content is under a top bar with a title, a blur hides it under the controls and lets go of it past the bar, under a thin veil of the canvas color (iOS 27.2: 55% at the top, 20% at the bar's bottom, none 24px below), while a top bar of controls alone on a page covers only the status bar, and once content runs on under a bottom bar on a page, a blur hides it under the controls behind a veil of the canvas color that grows toward the screen's edge, with no band and no line (iOS 27.2: none 34px above the items, 15% at their top, 46% from 43px into them); each glass control stands out over it. A Sheet's bottom bar fades its content into the panel. <code>hard</code> is an opaque bar of the canvas color with a hairline. <code>blur</code> has no fill and no line: the content under the bar is blurred a little over the bar and past it, and heavily toward the screen's edge. Glass, hard and blur show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. <code>PageHeader</code>, <code>PageFooter</code>, the bars of a Sheet and <code>TabBar</code> take the same values. The top and the bottom bar each take their own; the bottom bar's controls stand under the preview.</p>
 </>} code={overviewCode}>
@@ -318,7 +327,7 @@ All other attributes fall through to the bar.
 | `ToolbarContent` | `<div>` | Middle content: a search field, a main action or a segmented control. `fill` stretches it across the row |
 | `ToolbarGroup` | `<div role="group">` | Related buttons in one capsule |
 | `ToolbarTrailing` | `<div>` | Actions at the trailing edge |
-| `ToolbarRow` | `<div>` | A row under the controls, part of the bar: a segmented control or a scope bar across its width. Under a large title on a page it stands under the title in the content |
+| `ToolbarRow` | `<div>` | A row under the controls, part of the bar: a segmented control or a search field across its width; several stand in their order. Under a large title on a page they stand under the title in the content and pin under the bar once scrolled up to it |
 
 ## Styling
 
@@ -332,7 +341,7 @@ Toolbar reads these component tokens. Override them at any scope to restyle it:
 - `--toolbar-group-padding`, `--toolbar-group-gap`: inner padding and spacing of a capsule in the top bar (default `1px` and `10px`, as iOS 27.2 sets two symbols in a 100px capsule; `2px` and `8px` in the bottom bar)
 - `--toolbar-label-gutter`, `--toolbar-label-font-weight`, `--toolbar-label-prominent-font-weight`: space from a text button's edge to its label in the top bar and the label's weight, a solid button's apart (default `16px`, `510` and `590`, as iOS 27.2 sets Cancel and a prominent Done; `--toolbar-bottom-label-gutter` is the bottom bar's, also `16px`)
 - `--toolbar-padding-bottom`: space below the top row (default `10px`)
-- `--toolbar-row-gap`: space between the controls and a row under them (default `8px`)
+- `--toolbar-row-gap`: space between the controls and a row under them, and between two rows (default `10px`)
 - `--toolbar-sheet-padding-top`: space above the bar in a Sheet, which sets its controls 38px below the top edge as iOS 27.2 does (default `16px`)
 - `--toolbar-bottom-padding-top`, `--toolbar-bottom-padding-bottom`: padding of the bottom bar (default `4px`, and the bottom safe area less `6px`, at least `16px`: the 48px items stand 28px above the screen's edge over the 34px home indicator inset, as in iOS 26 Mail and Contacts)
 - `--mobile-glass-background`, `--mobile-glass-sheen`, `--mobile-glass-shadow`, `--mobile-glass-shadow-raised`, `--mobile-glass-backdrop-filter`: glass of the buttons, capsules and search field, at rest and with content under the bar

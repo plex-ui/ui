@@ -220,7 +220,8 @@ const toolbarOverview = (() => {
   const styles = { Row: 'Row', Value: 'Value', Frame: 'Frame', Stage: 'Stage' };
   const frame = read('frame', { pageStyles: styles }) as (body: string) => string;
   const template = frame(read('overview', { list: read('list', { toolbarStyles: styles }) }) as string);
-  return { template, stageClassName: 'Stage', state: { rows: read('rows') }, controls: read('overviewControls') as VueDemoControl[] };
+  // The page's own state: the orders and the selected view of a row's segmented control
+  return { template, stageClassName: 'Stage', state: { rows: read('rows'), view: 'all' }, controls: read('overviewControls') as VueDemoControl[] };
 })();
 /** A viewport a test can narrow to a phone and widen again, telling the demos' media queries */
 function viewport() {
@@ -1667,9 +1668,26 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect([bar('bottom'), offered('background (bottom)')]).toEqual([null, false]);
     await toggle('search');
     expect(within(bar('bottom')!).getByRole('textbox', { name: 'Search orders' })).toBeTruthy();
+    // Rows of the bar under its controls (owner 13.11): a segmented control, native's small one at md and the large one
+    // at lg, and a search field over it; one search field to a screen, so the bottom bar's goes while a row holds one
+    const rowsOf = () => Array.from(top().querySelectorAll<HTMLElement>(':scope > [data-toolbar-row]'))
+      .map((row) => (row.querySelector('[data-slot="input"]') ? 'search' : row.querySelector('[data-variant="segmented"]')?.getAttribute('data-size')));
+    expect(options('rows')).toEqual(['none', 'segmented', 'search + segmented']);
+    expect([rowsOf(), offered('size (row)')]).toEqual([[], false]);
+    await choose('rows', 'segmented');
+    expect(rowsOf()).toEqual(['md']);
+    await choose('size (row)', 'lg');
+    expect(rowsOf()).toEqual(['lg']);
+    await choose('rows', 'search + segmented');
+    expect(rowsOf()).toEqual(['search', 'lg']);
+    expect([bar('bottom'), options('bottom')]).toEqual([null, ['none', 'buttons', 'action']]);
+    // A search field in place of the title leaves no row for a second one
+    await toggle('search');
+    expect([rowsOf(), options('rows')]).toEqual([[], ['none', 'segmented']]);
     // The code sample keeps one search field to a screen too
     const code = readFileSync(framework === 'React' ? 'content/components/toolbar.mdx' : 'content/vue/components/toolbar.mdx', 'utf8');
-    expect(code).toContain(framework === 'React' ? 'const shownBottom = search && bottom === "search" ? "none" : bottom' : `v-if="bottom !== 'none' && !(search && bottom === 'search')"`);
+    expect(code).toContain(framework === 'React' ? 'const shownBottom = topSearch && bottom === "search" ? "none" : bottom' : `v-if="bottom !== 'none' && !((search || barRows === 'search') && bottom === 'search')"`);
+    expect(code).toContain(framework === 'React' ? 'const shownRows = search && barRows === "search" ? "none" : barRows' : `<ToolbarRow v-if="barRows === 'search' && !search">`);
   });
 
   test('DataTable restores the sorted rows after empty, with default, text and rich message modes', async () => {

@@ -66,6 +66,10 @@ export type ToolbarHost = {
   requestLargeTitleSlot?: () => () => void
   /** The place at the top of the content where a large title scrolls with it, once the content has made one. */
   largeTitleSlot?: Ref<HTMLElement | null>
+  /** The place under a large title where the bar's rows stand, pinned under the bar once scrolled up to it. */
+  largeTitleRowSlot?: Ref<HTMLElement | null>
+  /** The rows under a large title are pinned under the bar, so its background reaches under them. */
+  rowsPinned?: Ref<boolean>
 }
 
 export const TOOLBAR_HOST: InjectionKey<ToolbarHost> = Symbol("ToolbarHost")
@@ -176,6 +180,7 @@ const ToolbarComponent = defineComponent({
       "data-host": host?.kind,
       "data-scrolled": props.placement === "top" && host?.scrolled?.value ? "" : undefined,
       "data-content-below": props.placement === "bottom" && host?.contentBelow?.value ? "" : undefined,
+      "data-rows-pinned": props.placement === "top" && host?.rowsPinned?.value ? "" : undefined,
     }, slots.default?.())
   },
 })
@@ -207,11 +212,58 @@ export const ToolbarLeading = part("ToolbarLeading", s.Leading)
 export const ToolbarTrailing = part("ToolbarTrailing", s.Trailing)
 /** Buttons that share one capsule (React `Toolbar.Group`). */
 export const ToolbarGroup = part("ToolbarGroup", s.Group, "group")
+const rowOfAnchor = new WeakMap<Element, HTMLElement>()
+
+/**
+ * Under a large title each row is portaled into the rows' place as it mounts, so a row that comes later (a search field
+ * shown over a segmented control already there) would stand last. An empty anchor in the bar keeps the row's place among
+ * the bar's rows, and the rows are moved into that order in the content, so the keyboard and a screen reader meet them
+ * as they stand (Codex #7); a row added or removed in the bar orders them again.
+ * (React's twin)
+ */
+function followRowOrder(anchor: HTMLElement, row: HTMLElement) {
+  const bar = anchor.closest("[data-toolbar]") ?? anchor.parentElement
+  if (!bar) return () => {}
+  rowOfAnchor.set(anchor, row)
+  const place = () => {
+    const slot = row.parentElement
+    if (!slot) return
+    const rows = Array.from(bar.querySelectorAll("[data-toolbar-row-anchor]"), (mark) => rowOfAnchor.get(mark))
+      .filter((each): each is HTMLElement => each?.parentElement === slot)
+    // From the last row back, a row that does not stand before the next one goes right before it: only a row out of
+    // place moves (the one that came later), so a field focused in another row keeps its focus (Codex #8); moveBefore,
+    // where the browser has it, keeps it even in the row that moves.
+    const move = (slot as HTMLElement & { moveBefore?: (node: Node, child: Node | null) => void }).moveBefore
+    for (let index = rows.length - 2; index >= 0; index--) {
+      const each = rows[index]
+      const next = rows[index + 1]
+      if (each.compareDocumentPosition(next) & Node.DOCUMENT_POSITION_FOLLOWING) continue
+      try {
+        if (move) {
+          move.call(slot, each, next)
+          continue
+        }
+      } catch {
+        // falls back to a plain move
+      }
+      slot.insertBefore(each, next)
+    }
+  }
+  place()
+  const observer = typeof MutationObserver !== "undefined" ? new MutationObserver(place) : undefined
+  observer?.observe(bar, { childList: true, subtree: true })
+  return () => {
+    observer?.disconnect()
+    rowOfAnchor.delete(anchor)
+  }
+}
+
 /**
  * A row under the controls, part of the bar: a segmented control that switches the screen's views (a chat list's
- * folders under its bar), or a scope bar under a search field. It spans the bar, and a control in it fills the row.
- * Under a large title on a page it stands under the title, at the top of the content, and scrolls away with it, as
- * the drawer of a UIKit bar under a large title does (React `Toolbar.Row`).
+ * folders under its bar), or a search field. It spans the bar, and a control in it fills the row; several rows stand in
+ * their order (a search field over a segmented control). Under a large title on a page the rows stand under the title,
+ * at the top of the content, and once scrolled up to the bar they stay pinned under its controls, as iOS 27.2 pins a
+ * safeAreaBar under a large title's bar (React `Toolbar.Row`).
  */
 export const ToolbarRow = defineComponent({
   name: "ToolbarRow",
@@ -220,7 +272,7 @@ export const ToolbarRow = defineComponent({
     const host = inject(TOOLBAR_HOST, null)
     const titleStyle = inject(TOOLBAR_TITLE_STYLE, null)
     const large = computed(() => titleStyle?.value === "large" && host?.kind === "page")
-    const slot = computed(() => (large.value ? host?.largeTitleSlot?.value ?? null : null))
+    const slot = computed(() => (large.value ? host?.largeTitleRowSlot?.value ?? null : null))
     let release: (() => void) | undefined
     onMounted(() => { if (large.value) release = host?.requestLargeTitleSlot?.() })
     watch(large, (value) => {
@@ -228,11 +280,19 @@ export const ToolbarRow = defineComponent({
       release = value ? host?.requestLargeTitleSlot?.() : undefined
     })
     onBeforeUnmount(() => release?.())
+    const element = ref<HTMLElement | null>(null)
+    const anchor = ref<HTMLElement | null>(null)
+    let stopOrder: (() => void) | undefined
+    watch([slot, element, anchor], ([place, row, mark]) => {
+      stopOrder?.()
+      stopOrder = place && row && mark ? followRowOrder(mark, row) : undefined
+    }, { flush: "post" })
+    onBeforeUnmount(() => { stopOrder?.(); stopOrder = undefined })
     return () => {
       const place = slot.value
-      const row = h("div", { ...attrs, "class": [s.Row, attrs.class], "data-toolbar-row": "", "data-in-content": place ? "" : undefined }, slots.default?.())
+      const row = h("div", { ...attrs, "ref": element, "class": [s.Row, attrs.class], "data-toolbar-row": "", "data-in-content": place ? "" : undefined }, slots.default?.())
       // Under a large title the row waits for its place in the content, as React's does.
-      if (large.value) return place ? h(Teleport, { to: place }, [row]) : null
+      if (large.value) return place ? [h(Teleport, { to: place }, [row]), h("span", { "ref": anchor, "data-toolbar-row-anchor": "", "hidden": true })] : null
       return row
     }
   },

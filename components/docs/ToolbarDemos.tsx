@@ -36,8 +36,11 @@ export function Rows() {
 
 const TITLE_STYLES = ['inline', 'large', 'compact-large', 'compact-medium'] as const satisfies readonly ToolbarTitleStyle[];
 const TITLE_ALIGNS = ['center', 'start'] as const satisfies readonly ToolbarTitleAlign[];
-// A row of the bar: the views of the orders, as a chat list shows its folders under its bar (owner 13.11)
+// A row of the bar: the views of the orders, as a chat list shows its folders under its bar, and a search field over
+// it, as iOS 27.2 sets a safeAreaBar under the search field of the bar's drawer (owner 13.11)
 const VIEWS = ['all', 'paid', 'unpaid', 'refunds'] as const;
+const BAR_ROWS = ['none', 'segmented', 'search'] as const;
+const ROW_SIZES = ['md', 'lg'] as const;
 // What the bottom bar holds: buttons round a main action, a search field and a plus, one action across the row
 const BOTTOM = ['none', 'buttons', 'search', 'action'] as const;
 
@@ -55,7 +58,8 @@ export function ToolbarOverviewDemo() {
   const [titleAlign, setTitleAlign] = useState<ToolbarTitleAlign>('center');
   const [subtitle, setSubtitle] = useState(false);
   const [group, setGroup] = useState(false);
-  const [row, setRow] = useState(false);
+  const [barRows, setBarRows] = useState<(typeof BAR_ROWS)[number]>('none');
+  const [rowSize, setRowSize] = useState<(typeof ROW_SIZES)[number]>('md');
   const [view, setView] = useState<(typeof VIEWS)[number]>('all');
   const [topBackground, setTopBackground] = useState<BarBackground>('glass');
   const [bottom, setBottom] = useState<(typeof BOTTOM)[number]>('none');
@@ -63,9 +67,13 @@ export function ToolbarOverviewDemo() {
   // A title, unless a search field takes its place or the bar holds its controls alone
   const named = !search && title;
   const compact = named && (titleStyle === 'compact-large' || titleStyle === 'compact-medium');
-  // One search field to a screen: with one in the top bar, the bottom bar does not offer its own (and falls back)
-  const bottomOptions = search ? BOTTOM.filter((option) => option !== 'search') : BOTTOM;
-  const shownBottom = search && bottom === 'search' ? 'none' : bottom;
+  // One search field to a screen: with one in the top bar (in place of the title or in a row), the other places do not
+  // offer their own (and fall back)
+  const rowOptions = search ? BAR_ROWS.filter((option) => option !== 'search') : BAR_ROWS;
+  const shownRows = search && barRows === 'search' ? 'none' : barRows;
+  const topSearch = search || shownRows === 'search';
+  const bottomOptions = topSearch ? BOTTOM.filter((option) => option !== 'search') : BOTTOM;
+  const shownBottom = topSearch && bottom === 'search' ? 'none' : bottom;
 
   return (
     <>
@@ -76,7 +84,8 @@ export function ToolbarOverviewDemo() {
         {named && titleStyle === 'inline' && <Segments name="titleAlign" options={TITLE_ALIGNS} value={titleAlign} onChange={setTitleAlign} />}
         {named && !compact && <DemoControlBoolean name="subtitle" value={subtitle} onChange={setSubtitle} />}
         {!search && <DemoControlBoolean name="group" value={group} onChange={setGroup} />}
-        <DemoControlBoolean name="row" value={row} onChange={setRow} />
+        <Segments name="rows" options={rowOptions.map((option) => (option === 'search' ? { value: option, label: 'search + segmented' } : option))} value={shownRows} onChange={setBarRows} />
+        {shownRows !== 'none' && <Segments name="size (row)" options={ROW_SIZES} value={rowSize} onChange={setRowSize} />}
         <BarBackgroundRow name="background (top)" value={topBackground} onChange={setTopBackground} />
       </div>
       <Frame>
@@ -108,9 +117,14 @@ export function ToolbarOverviewDemo() {
                 <NavigationButton action={named && titleStyle === 'large' ? 'confirm' : 'close'} />
               )}
             </Toolbar.Trailing>
-            {row && (
+            {shownRows === 'search' && (
               <Toolbar.Row>
-                <SegmentedControl aria-label="Orders" value={view} onChange={setView}>
+                <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+              </Toolbar.Row>
+            )}
+            {shownRows !== 'none' && (
+              <Toolbar.Row>
+                <SegmentedControl aria-label="Orders" size={rowSize} value={view} onChange={setView}>
                   <SegmentedControl.Option value="all">All</SegmentedControl.Option>
                   <SegmentedControl.Option value="paid">Paid</SegmentedControl.Option>
                   <SegmentedControl.Option value="unpaid" badge={{ content: 3, pill: true }}>Unpaid</SegmentedControl.Option>
@@ -133,7 +147,7 @@ export function ToolbarOverviewDemo() {
                     <Button color="primary" pill>New order</Button>
                   </Toolbar.Content>
                   {/* With a search field in the top bar, no second way to search */}
-                  {!search && (
+                  {!topSearch && (
                     <Toolbar.Trailing>
                       <Button color="secondary" variant="soft" uniform pill aria-label="Search"><Search /></Button>
                     </Toolbar.Trailing>
