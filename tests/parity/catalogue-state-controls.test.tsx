@@ -1654,8 +1654,31 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Close search' })));
     expect([within(top()).queryAllByText('Orders').length > 0, buttons(top()), field()]).toEqual([true, ['Back', 'Search', 'Translate', 'More'], null]);
     expect(document.activeElement?.getAttribute('aria-label')).toBe('Search');
+    // Or the button opens its field at the bottom (owner 13.11 «нужно поддержать оба варианта настройкой»), as SwiftUI's
+    // search button does: the field and Close in a bottom bar, the top bar without its title and buttons, and a
+    // segmented row moved up in their place (ref-app search-topbutton-seg-active)
+    const labels = (element: HTMLElement) => within(element).queryAllByRole('button').map((button) => button.getAttribute('aria-label'));
+    const below = () => (bar('bottom') ? within(bar('bottom')!).queryByRole('textbox', { name: 'Search orders' }) : null);
+    expect(options('field (search)')).toEqual(['top', 'bottom']);
+    await choose('field (search)', 'bottom');
+    await toggle('segmented');
+    await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Search' })));
+    expect([labels(top()), within(top()).queryAllByText('Orders').length, rowsOf(), field(), !!below(), labels(bar('bottom')!)]).toEqual([[], 0, ['md'], null, true, ['Close search']]);
+    // With no bottom bar on the screen its bar takes the soft edge (Codex #13)
+    expect([bar('bottom')!.dataset.background, offered('background (bottom)')]).toEqual(['soft', false]);
+    // Close puts the bar back and gives the focus back to the Search button
+    await interact(() => fireEvent.click(within(bar('bottom')!).getByRole('button', { name: 'Close search' })));
+    expect([bar('bottom'), labels(top()), rowsOf(), document.activeElement?.getAttribute('aria-label')]).toEqual([null, ['Back', 'Search', 'Translate', 'More'], ['md'], 'Search']);
+    // A field moved back to the top waits again
+    await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Search' })));
+    await choose('field (search)', 'top');
+    expect([bar('bottom'), labels(top())]).toEqual([null, ['Back', 'Search', 'Translate', 'More']]);
+    await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Search' })));
+    expect([labels(top()), bar('bottom')]).toEqual([['Close search'], null]);
+    await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Close search' })));
+    await toggle('segmented');
     await choose('search', 'row');
-    expect([rowsOf(), buttons(top())]).toEqual([['search'], ['Back', 'Translate', 'More']]);
+    expect([rowsOf(), buttons(top()), offered('field (search)')]).toEqual([['search'], ['Back', 'Translate', 'More'], false]);
     await openFrom(field()!);
     expect([rowsOf(), buttons(top()), within(top()).queryAllByText('Orders').length]).toEqual([[], ['Close search'], 0]);
     // and to the row's field, which stays closed until a click opens it again
@@ -1700,6 +1723,15 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(page.getByRole('radiogroup', { name: 'background (bottom)' }).closest('[data-demo-controls="bottom"]')).toBeTruthy();
     await choose('background (bottom)', 'glass');
     expect(bar('bottom')!.dataset.background).toBe('glass');
+    // The field a Search button opens at the bottom takes the bottom bar's place and background (Codex #13)
+    await choose('search', 'button');
+    await choose('field (search)', 'bottom');
+    await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Search' })));
+    expect([labels(bar('bottom')!), bar('bottom')!.dataset.background, offered('background (bottom)')]).toEqual([['Close search'], 'glass', true]);
+    await interact(() => fireEvent.click(within(bar('bottom')!).getByRole('button', { name: 'Close search' })));
+    expect(buttons(bar('bottom')!)).toEqual(['Filter', 'New order']);
+    await choose('field (search)', 'top');
+    await choose('search', 'row');
     await choose('bottom', 'action');
     expect(buttons(bar('bottom')!)).toEqual(['New order']);
     await choose('search', 'none');
@@ -1718,10 +1750,13 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(within(bar('bottom')!).getByRole('textbox', { name: 'Search orders' })).toBeTruthy();
     // The code sample opens the search the same way and keeps one search to a screen
     const code = readFileSync(framework === 'React' ? 'content/components/toolbar.mdx' : 'content/vue/components/toolbar.mdx', 'utf8');
-    expect(code).toContain(framework === 'React' ? 'const shownBottom = topSearch && bottom === "search" ? "none" : bottom' : `v-if="bottom !== 'none' && !(search !== 'none' && bottom === 'search')"`);
+    expect(code).toContain(framework === 'React' ? 'const shownBottom = topSearch && bottom === "search" ? "none" : bottom' : `v-else-if="bottom !== 'none' && !(search !== 'none' && bottom === 'search')"`);
     expect(code).toContain(framework === 'React' ? '<Toolbar.Row ref={searchRow} onFocus={(event) => "restoring" in event.target.dataset || setSearching(true)} onClick={() => setSearching(true)}>' : `<ToolbarRow v-if="search === 'row' && !searching" @focusin="'restoring' in $event.target.dataset || (searching = true)" @click="searching = true">`);
     expect(code).toContain(framework === 'React' ? 'onClick={closeSearch}' : '@click="searching = false; $nextTick(');
     if (framework === 'Vue') expect(code).toContain('{ name: "search", type: "select", options: ["none", "row", "button"], default: "none", resets: { searching: false } }');
+    expect(code).toContain(framework === 'React' ? 'const below = open && search === "button" && field === "bottom"' : `<Toolbar v-if="searching && search === 'button' && field === 'bottom'" placement="bottom" :background="bottom === 'none' || bottom === 'search' ? 'soft' : bottomBackground">`);
+    if (framework === 'React') expect(code).toContain('<Toolbar placement="bottom" background={shownBottom === "none" ? "soft" : bottomBackground}>');
+    if (framework === 'Vue') expect(code).toContain('{ name: "field", label: "field (search)", type: "select", options: ["top", "bottom"], default: "top", when: { search: "button" }, resets: { searching: false } }');
   });
 
   test('DataTable restores the sorted rows after empty, with default, text and rich message modes', async () => {

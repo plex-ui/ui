@@ -149,7 +149,7 @@ describe("a search field in the content and the large title above it (iOS 27.2 F
     expect(indent(lines[input])).toBe(indent(lines[container]) + 2)
   })
 
-  test("on a phone it takes the magnifier, gaps, weight and placeholder of the bar's search field", () => {
+  test("on a phone it takes the magnifier, gaps, weight, placeholder and glass of the bar's search field (owner 13.11)", () => {
     const root = postcss.parse(read("packages/styles/src/components/Input/Input.module.css"))
     let rule: postcss.Rule | undefined
     root.walkAtRules("media", (media) => {
@@ -157,7 +157,7 @@ describe("a search field in the content and the large title above it (iOS 27.2 F
     })
     expect(decls(rule)).toEqual({
       "--input-gutter": "var(--toolbar-search-gutter)",
-      "--input-gap": "calc(var(--toolbar-search-icon-gap) - 1px)",
+      "--input-gap": "var(--toolbar-search-icon-gap)",
       "--input-adornment-offset": "0px",
       "--control-gutter-pill-scaling": "1",
       "--input-placeholder-text-color": "var(--toolbar-search-placeholder-color)",
@@ -165,6 +165,25 @@ describe("a search field in the content and the large title above it (iOS 27.2 F
     })
     const svg = rule?.nodes?.find((node): node is postcss.Rule => node.type === "rule" && node.selector === "& > svg")
     expect(decls(svg)).toEqual({ flex: "none", width: "var(--toolbar-search-icon-size)", height: "var(--toolbar-search-icon-size)" })
+    // One look wherever it stands: with touch.css a soft one takes the glass of the bar's field, as the bar gives its
+    // own, outside the kit's layer (over the focus outline); an invalid one keeps its red outline (Codex #13)
+    const touch = postcss.parse(read("packages/styles/src/styles/touch.css"))
+    let soft: postcss.Rule | undefined
+    touch.walkRules('html [data-slot="input"][data-variant="soft"]:has(> input[type="search"]):not(:where([data-row] *))', (found) => { soft = found })
+    expect(soft?.parent?.type === "atrule" && (soft.parent as postcss.AtRule).name).toBe("media")
+    const valid = soft?.nodes?.find((node): node is postcss.Rule => node.type === "rule" && node.selector === "&:not([data-invalid])")
+    const glass = { ...decls(soft), ...decls(valid) }
+    expect(glass).toEqual({
+      "--input-soft-background-color": "var(--mobile-glass-background)",
+      "background-image": "var(--mobile-glass-sheen)",
+      "-webkit-backdrop-filter": "var(--mobile-glass-backdrop-filter)",
+      "backdrop-filter": "var(--mobile-glass-backdrop-filter)",
+      "box-shadow": "var(--mobile-glass-shadow)",
+    })
+    const bar = read("packages/styles/src/components/Toolbar/Toolbar.module.css")
+    for (const [name, value] of Object.entries(glass)) expect(bar).toContain(`${name}: ${value};`)
+    // Without touch.css nothing changes: the Input's own rule keeps the soft fill
+    expect(read("packages/styles/src/components/Input/Input.module.css")).not.toContain("--mobile-glass")
   })
 
   test("a row keeps its value column for a search Input, and a drawer's search field keeps the kit's 11px inset", () => {

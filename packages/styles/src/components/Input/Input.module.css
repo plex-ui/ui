@@ -558,15 +558,15 @@
 }
 
 @media (max-width: 767px) {
-  /* A search field (type="search") is the search field of iOS 27.2 that stands in the content: under a large title
-     (Files, a search tab, UIKit's stacked placement) or at the top of a sheet (Settings, IMG_5834). It takes the
-     magnifier of a Toolbar's search field (from 14px, as native) and sets its text 1px nearer (from 40.67px:
-     native 40.7 here, 42.3 in the bar's glass field), Regular, with the placeholder in the secondary label;
-     `variant="soft" pill` gives it the fill and the capsule. A Toolbar gives its own field the glass of its buttons,
-     and a row keeps its own value column and placeholder for a search Input in it. */
+  /* A search field (type="search") that stands in the content: under a large title or at the top of a sheet. It is
+     the search field of a Toolbar, one look wherever it stands (owner 13.11 «почему разный стиль? должно быть
+     одинаково везде же так? стекло»): the bar's magnifier (from 14px), its text where the bar's starts, Regular,
+     with the placeholder in the secondary label; `variant="soft" pill` gives it the capsule, and touch.css the glass
+     of the bar's field in place of the soft fill (iOS 27 draws a flat gray field there, in Files and a search tab:
+     the owner chose one look). A row keeps its own value column and placeholder for a search Input in it. */
   .Container:has(> .Input[type="search"]):not(:where([data-row] *)) {
     --input-gutter: var(--toolbar-search-gutter);
-    --input-gap: calc(var(--toolbar-search-icon-gap) - 1px);
+    --input-gap: var(--toolbar-search-icon-gap);
     --input-adornment-offset: 0px;
     --control-gutter-pill-scaling: 1;
     --input-placeholder-text-color: var(--toolbar-search-placeholder-color);

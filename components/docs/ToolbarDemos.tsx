@@ -40,6 +40,9 @@ const TITLE_ALIGNS = ['center', 'start'] as const satisfies readonly ToolbarTitl
 // Where the search waits until a tap opens it: a field in a row under the controls, as iOS 27.2 draws the bar's drawer,
 // or a button in the bar (owner 13.11: «поле поиска второй строкой на всю ширину, либо кнопка поиска в топбаре»)
 const SEARCH = ['none', 'row', 'button'] as const;
+// Where a Search button in the bar opens its field (owner 13.11 «нужно поддержать оба варианта настройкой»): in the
+// bar, as the drawer's field rises into it, or at the bottom, as SwiftUI's search button opens it over the keyboard
+const FIELDS = ['top', 'bottom'] as const;
 // A row of the bar: the views of the orders, as a chat list shows its folders under its bar; under the search field,
 // as iOS 27.2 sets a safeAreaBar under the field of the bar's drawer (owner 13.11)
 const VIEWS = ['all', 'paid', 'unpaid', 'refunds'] as const;
@@ -57,6 +60,7 @@ const BOTTOM = ['none', 'buttons', 'search', 'action'] as const;
 export function ToolbarOverviewDemo() {
   const [search, setSearch] = useState<(typeof SEARCH)[number]>('none');
   const [searching, setSearching] = useState(false);
+  const [field, setField] = useState<(typeof FIELDS)[number]>('top');
   const [title, setTitle] = useState(true);
   const [titleStyle, setTitleStyle] = useState<ToolbarTitleStyle>('inline');
   const [titleAlign, setTitleAlign] = useState<ToolbarTitleAlign>('center');
@@ -71,6 +75,9 @@ export function ToolbarOverviewDemo() {
   // The open search: its field takes the place of the title and the bar's buttons, with Close next to it, as iOS 27.2
   // raises the drawer's field into the bar (ref-app segsearch-active); a segmented row stays under it
   const open = searching && search !== 'none';
+  // Or a field at the bottom with Close, as SwiftUI's search button opens it: the top bar's buttons and title go and a
+  // segmented row moves up in their place (ref-app search-topbutton-seg-active)
+  const below = open && search === 'button' && field === 'bottom';
   // A title, unless the open search takes its place or the bar holds its controls alone
   const named = !open && title;
   const compact = title && (titleStyle === 'compact-large' || titleStyle === 'compact-medium');
@@ -95,11 +102,16 @@ export function ToolbarOverviewDemo() {
     setSearch(value);
     setSearching(false);
   };
+  const chooseField = (value: (typeof FIELDS)[number]) => {
+    setField(value);
+    setSearching(false);
+  };
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <Segments name="search" options={SEARCH} value={search} onChange={chooseSearch} />
+        {search === 'button' && <Segments name="field (search)" options={FIELDS} value={field} onChange={chooseField} />}
         <DemoControlBoolean name="title" value={title} onChange={setTitle} />
         {title && <Segments name="titleStyle" options={TITLE_STYLES} value={titleStyle} onChange={setTitleStyle} />}
         {title && titleStyle === 'inline' && <Segments name="titleAlign" options={TITLE_ALIGNS} value={titleAlign} onChange={setTitleAlign} />}
@@ -113,9 +125,11 @@ export function ToolbarOverviewDemo() {
         <Page surface="grouped">
           <Toolbar titleStyle={named ? titleStyle : undefined} titleAlign={named && titleStyle === 'inline' ? titleAlign : undefined} background={topBackground}>
             {open ? (
-              <Toolbar.Content fill>
-                <Input variant="soft" pill autoSelect placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
-              </Toolbar.Content>
+              !below && (
+                <Toolbar.Content fill>
+                  <Input variant="soft" pill autoSelect placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+                </Toolbar.Content>
+              )
             ) : (
               <>
                 {!compact && (
@@ -126,25 +140,27 @@ export function ToolbarOverviewDemo() {
                 {named && <Toolbar.Title subtitle={subtitle && !compact ? '24 orders' : undefined}>Orders</Toolbar.Title>}
               </>
             )}
-            <Toolbar.Trailing>
-              {open ? (
-                <NavigationButton action="close" aria-label="Close search" onClick={closeSearch} />
-              ) : (
-                <>
-                  {search === 'button' && (
-                    <Button ref={searchButton} color="secondary" variant="soft" uniform pill aria-label="Search" onClick={() => setSearching(true)}><Search /></Button>
-                  )}
-                  {group ? (
-                    <Toolbar.Group aria-label="Order actions">
-                      <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
-                      <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
-                    </Toolbar.Group>
-                  ) : (
-                    <NavigationButton action={named && titleStyle === 'large' ? 'confirm' : 'close'} />
-                  )}
-                </>
-              )}
-            </Toolbar.Trailing>
+            {!below && (
+              <Toolbar.Trailing>
+                {open ? (
+                  <NavigationButton action="close" aria-label="Close search" onClick={closeSearch} />
+                ) : (
+                  <>
+                    {search === 'button' && (
+                      <Button ref={searchButton} color="secondary" variant="soft" uniform pill aria-label="Search" onClick={() => setSearching(true)}><Search /></Button>
+                    )}
+                    {group ? (
+                      <Toolbar.Group aria-label="Order actions">
+                        <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
+                        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+                      </Toolbar.Group>
+                    ) : (
+                      <NavigationButton action={named && titleStyle === 'large' ? 'confirm' : 'close'} />
+                    )}
+                  </>
+                )}
+              </Toolbar.Trailing>
+            )}
             {/* A tap on the field opens the search */}
             {search === 'row' && !open && (
               <Toolbar.Row ref={searchRow} onFocus={(event) => 'restoring' in event.target.dataset || setSearching(true)} onClick={() => setSearching(true)}>
@@ -165,7 +181,17 @@ export function ToolbarOverviewDemo() {
           <Page.Content>
             <Rows />
           </Page.Content>
-          {shownBottom !== 'none' && (
+          {below ? (
+            // The bottom bar's background, or the soft edge when the screen has no bottom bar (Codex #13)
+            <Toolbar placement="bottom" background={shownBottom === 'none' ? 'soft' : bottomBackground}>
+              <Toolbar.Content fill>
+                <Input variant="soft" pill autoSelect placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+              </Toolbar.Content>
+              <Toolbar.Trailing>
+                <NavigationButton action="close" aria-label="Close search" onClick={closeSearch} />
+              </Toolbar.Trailing>
+            </Toolbar>
+          ) : shownBottom !== 'none' && (
             <Toolbar placement="bottom" background={bottomBackground}>
               {shownBottom === 'buttons' ? (
                 <>

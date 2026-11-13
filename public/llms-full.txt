@@ -3880,7 +3880,7 @@ Use variant to stylize the input. ghost has no border and no fill, for a field i
 ```
 
 ### Adornments
-Add arbitrary content to the beginning of an input with startAdornment, like a search icon, or to its end with endAdornment, like a character counter or custom icon; position switches between the two. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutterSize determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutterSize, use a negative margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes. On Phone an Input in a Toolbar takes the bar's search field, and one with type="search" at the top of the content is the flat search field under a large title; in a row a start adornment is a prefix of the value, such as a currency, and trailing text-secondary text takes the row's accessory color.
+Add arbitrary content to the beginning of an input with startAdornment, like a search icon, or to its end with endAdornment, like a character counter or custom icon; position switches between the two. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutterSize determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutterSize, use a negative margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes. On Phone an Input in a Toolbar takes the bar's search field, and one with type="search" at the top of the content is the same glass field under a large title; in a row a start adornment is a prefix of the value, such as a currency, and trailing text-secondary text takes the row's accessory color.
 ```tsx
 // Desktop
 <Input
@@ -8869,10 +8869,11 @@ Props:
     - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
 
 ### Overview
-Leading and trailing items take 44px targets; an inline title is centered across the whole width. titleStyle sets the size and place of the title: inline in the row of controls, large on a row of its own below them (on a page it stands at the top of the content and scrolls with it, overscroll included; once it has gone under the controls, they show it inline), and compact-large or compact-medium at the leading edge of the row, on a screen with no Back button. subtitle adds a second line under an inline or large title. titleAlign="start" puts an inline title after the leading items. Scroll the content: the bar's background meets the rows under it, and the glass starts to cast a shadow. Toolbar.Group puts related actions in one capsule; a single action, as Back or Close, keeps a capsule of its own. Without Toolbar.Title the bar holds its controls alone. A ButtonGroup in a toolbar is the same capsule. Name each icon button with aria-label. Toolbar.Content fill stretches a search field across the row in the place of the title, up to the trailing items; the field takes the row height and the material of the bar buttons. That is the open search: until a tap opens it, the search waits in a field across a row under the controls (search row) or behind a Search button in the bar (search button), and Close puts it back, as iOS 27.2 raises the field of the bar's drawer into the bar and hides the title and the buttons; a segmented row stays under the open field. Toolbar.Row adds a row under the controls, part of the bar: a SegmentedControl that switches the screen's views, as a chat list shows its folders under its bar, or a search field. It spans the bar between its gutters, 10px under the controls, and the bar's background and line take it in. Several rows stand in their order, 10px apart: a search field over a segmented control, as iOS 27.2 sets them under the search field of a bar's drawer. A segmented control in it is the small plain one at its default size (32px, as iOS 27.2 draws a segmented Picker under a bar) and fills the row: its segments share the width and scroll when they do not fit, and a badge counts what a view holds; size="lg" gives the large glass one (48px). A search field in it is the bar's: 44px of glass. Under a large title on a page the rows stand under the title at the top of the content, 16px under its baseline; scrolled up to the bar they stay pinned under its controls, and the bar's background, edge and line reach under them, as iOS 27.2 pins them. placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, whatever the background: iOS 27.2 keeps them in place over every scroll edge, and a band (glass or hard) only starts 10px above them. A search field holds SearchSm, set in Regular; a plus next to it takes iconSize="sm", as Contacts draws it smaller than the other symbols. The page content scrolls under both bars. A screen holds one search field, so with one in the top bar the bottom bar offers neither its own field nor its Search button. background sets how a bar meets the content scrolled under it. glass, the default of a top bar, is a translucent, blurred bar with a hairline. soft, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: once content is under a top bar with a title, a blur hides it under the controls and lets go of it past the bar, under a thin veil of the canvas color (iOS 27.2: 55% at the top, 20% at the bar's bottom, none 24px below), while a top bar of controls alone on a page covers only the status bar, and once content runs on under a bottom bar on a page, a blur hides it under the controls behind a veil of the canvas color that grows toward the screen's edge, with no band and no line (iOS 27.2: none 34px above the items, 15% at their top, 46% from 43px into them); each glass control stands out over it. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a hairline. blur has no fill and no line: the content under the bar is blurred a little over the bar and past it, and heavily toward the screen's edge. Glass, hard and blur show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values. The top and the bottom bar each take their own; the bottom bar's controls stand under the preview.
+Leading and trailing items take 44px targets; an inline title is centered across the whole width. titleStyle sets the size and place of the title: inline in the row of controls, large on a row of its own below them (on a page it stands at the top of the content and scrolls with it, overscroll included; once it has gone under the controls, they show it inline), and compact-large or compact-medium at the leading edge of the row, on a screen with no Back button. subtitle adds a second line under an inline or large title. titleAlign="start" puts an inline title after the leading items. Scroll the content: the bar's background meets the rows under it, and the glass starts to cast a shadow. Toolbar.Group puts related actions in one capsule; a single action, as Back or Close, keeps a capsule of its own. Without Toolbar.Title the bar holds its controls alone. A ButtonGroup in a toolbar is the same capsule. Name each icon button with aria-label. Toolbar.Content fill stretches a search field across the row in the place of the title, up to the trailing items; the field takes the row height and the material of the bar buttons. That is the open search: until a tap opens it, the search waits in a field across a row under the controls (search row) or behind a Search button in the bar (search button), and Close puts it back, as iOS 27.2 raises the field of the bar's drawer into the bar and hides the title and the buttons; a segmented row stays under the open field. A Search button can open its field at the bottom instead (field bottom), as SwiftUI's search button opens it over the keyboard: the field and Close take a bottom bar of their own, the top bar's title and buttons go, and a segmented row moves up in their place. Toolbar.Row adds a row under the controls, part of the bar: a SegmentedControl that switches the screen's views, as a chat list shows its folders under its bar, or a search field. It spans the bar between its gutters, 10px under the controls, and the bar's background and line take it in. Several rows stand in their order, 10px apart: a search field over a segmented control, as iOS 27.2 sets them under the search field of a bar's drawer. A segmented control in it is the small plain one at its default size (32px, as iOS 27.2 draws a segmented Picker under a bar) and fills the row: its segments share the width and scroll when they do not fit, and a badge counts what a view holds; size="lg" gives the large glass one (48px). A search field in it is the bar's: 44px of glass. Under a large title on a page the rows stand under the title at the top of the content, 16px under its baseline; scrolled up to the bar they stay pinned under its controls, and the bar's background, edge and line reach under them, as iOS 27.2 pins them. placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, whatever the background: iOS 27.2 keeps them in place over every scroll edge, and a band (glass or hard) only starts 10px above them. A search field holds SearchSm, set in Regular; a plus next to it takes iconSize="sm", as Contacts draws it smaller than the other symbols. The page content scrolls under both bars. A screen holds one search field, so with one in the top bar the bottom bar offers neither its own field nor its Search button. background sets how a bar meets the content scrolled under it. glass, the default of a top bar, is a translucent, blurred bar with a hairline. soft, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: once content is under a top bar with a title, a blur hides it under the controls and lets go of it past the bar, under a thin veil of the canvas color (iOS 27.2: 55% at the top, 20% at the bar's bottom, none 24px below), while a top bar of controls alone on a page covers only the status bar, and once content runs on under a bottom bar on a page, a blur hides it under the controls behind a veil of the canvas color that grows toward the screen's edge, with no band and no line (iOS 27.2: none 34px above the items, 15% at their top, 46% from 43px into them); each glass control stands out over it. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a hairline. blur has no fill and no line: the content under the bar is blurred a little over the bar and past it, and heavily toward the screen's edge. Glass, hard and blur show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values. The top and the bottom bar each take their own; the bottom bar's controls stand under the preview.
 ```tsx
 const [search, setSearch] = useState("none") // where the search waits: "row" (a field under the controls) or "button" (in the bar)
 const [searching, setSearching] = useState(false) // a tap opens it: its field in place of the title, with Close
+const [field, setField] = useState("top") // where a Search button opens its field: "top" (in the bar) or "bottom"
 const [title, setTitle] = useState(true) // false: the bar holds its controls alone
 const [titleStyle, setTitleStyle] = useState("inline") // or "large", "compact-large", "compact-medium"
 const [titleAlign, setTitleAlign] = useState("center") // or "start"; an inline title only
@@ -8885,6 +8886,7 @@ const [topBackground, setTopBackground] = useState("glass") // or "soft", "hard"
 const [bottom, setBottom] = useState("none") // or "buttons", "search" (one search field to a screen), "action"
 const [bottomBackground, setBottomBackground] = useState("soft") // or "hard", "glass", "blur"
 const open = searching && search !== "none"
+const below = open && search === "button" && field === "bottom" // the field at the bottom; the top bar keeps its rows alone
 const named = !open && title
 const compact = title && titleStyle.startsWith("compact")
 const topSearch = search !== "none" // one search to a screen
@@ -8904,9 +8906,11 @@ const closeSearch = () => {
 <Page surface="grouped">
   <Toolbar titleStyle={named ? titleStyle : undefined} titleAlign={named && titleStyle === "inline" ? titleAlign : undefined} background={topBackground}>
     {open ? (
-      <Toolbar.Content fill>
-        <Input variant="soft" pill autoSelect placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
-      </Toolbar.Content>
+      !below && (
+        <Toolbar.Content fill>
+          <Input variant="soft" pill autoSelect placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+        </Toolbar.Content>
+      )
     ) : (
       <>
         {!compact && (
@@ -8917,25 +8921,27 @@ const closeSearch = () => {
         {named && <Toolbar.Title subtitle={subtitle && !compact ? "24 orders" : undefined}>Orders</Toolbar.Title>}
       </>
     )}
-    <Toolbar.Trailing>
-      {open ? (
-        <NavigationButton action="close" aria-label="Close search" onClick={closeSearch} />
-      ) : (
-        <>
-          {search === "button" && (
-            <Button ref={searchButton} color="secondary" variant="soft" uniform pill aria-label="Search" onClick={() => setSearching(true)}><Search /></Button>
-          )}
-          {group ? (
-            <Toolbar.Group aria-label="Order actions">
-              <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
-              <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
-            </Toolbar.Group>
-          ) : (
-            <NavigationButton action={named && titleStyle === "large" ? "confirm" : "close"} />
-          )}
-        </>
-      )}
-    </Toolbar.Trailing>
+    {!below && (
+      <Toolbar.Trailing>
+        {open ? (
+          <NavigationButton action="close" aria-label="Close search" onClick={closeSearch} />
+        ) : (
+          <>
+            {search === "button" && (
+              <Button ref={searchButton} color="secondary" variant="soft" uniform pill aria-label="Search" onClick={() => setSearching(true)}><Search /></Button>
+            )}
+            {group ? (
+              <Toolbar.Group aria-label="Order actions">
+                <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
+                <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+              </Toolbar.Group>
+            ) : (
+              <NavigationButton action={named && titleStyle === "large" ? "confirm" : "close"} />
+            )}
+          </>
+        )}
+      </Toolbar.Trailing>
+    )}
     {search === "row" && !open && (
       <Toolbar.Row ref={searchRow} onFocus={(event) => "restoring" in event.target.dataset || setSearching(true)} onClick={() => setSearching(true)}>
         <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
@@ -8953,7 +8959,17 @@ const closeSearch = () => {
     )}
   </Toolbar>
   <Page.Content>...</Page.Content>
-  {shownBottom === "buttons" && (
+  {below && (
+    <Toolbar placement="bottom" background={shownBottom === "none" ? "soft" : bottomBackground}>
+      <Toolbar.Content fill>
+        <Input variant="soft" pill autoSelect placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+      </Toolbar.Content>
+      <Toolbar.Trailing>
+        <NavigationButton action="close" aria-label="Close search" onClick={closeSearch} />
+      </Toolbar.Trailing>
+    </Toolbar>
+  )}
+  {!below && shownBottom === "buttons" && (
     <Toolbar placement="bottom" background={bottomBackground}>
       <Toolbar.Leading>
         <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
@@ -8968,7 +8984,7 @@ const closeSearch = () => {
       )}
     </Toolbar>
   )}
-  {shownBottom === "search" && (
+  {!below && shownBottom === "search" && (
     <Toolbar placement="bottom" background={bottomBackground}>
       <Toolbar.Content fill>
         <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
@@ -8978,7 +8994,7 @@ const closeSearch = () => {
       </Toolbar.Trailing>
     </Toolbar>
   )}
-  {shownBottom === "action" && (
+  {!below && shownBottom === "action" && (
     <Toolbar placement="bottom" background={bottomBackground}>
       <Toolbar.Content fill>
         <Button color="primary" pill block><Plus /> New order</Button>
@@ -8989,7 +9005,7 @@ const closeSearch = () => {
 ```
 
 ### Search in the content
-A search field in the content, under a large title or at the top of a sheet, is an Input with type="search": on Phone its magnifier stands where it does in the bar's field and its text 1px nearer, and variant="soft" pill gives it the flat fill of iOS 27, as in Files and a search tab. It stands at the top of Page.Content and scrolls up with the title; the content starts 16px under the title's baseline, and a list 10px under the field. With onClear it shows the filled clear circle of iOS while it holds text, in place of the browser's own clear button.
+A search field in the content, under a large title or at the top of a sheet, is an Input with type="search": on Phone it is the bar's search field wherever it stands: the same magnifier, text and placeholder, and with variant="soft" pill the same glass capsule. It stands at the top of Page.Content and scrolls up with the title; the content starts 16px under the title's baseline, and a list 10px under the field. With onClear it shows the filled clear circle of iOS while it holds text, in place of the browser's own clear button.
 ```tsx
 <Page surface="grouped">
 <Toolbar titleStyle="large">

@@ -16,6 +16,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Changed
 
+- An `Input` with `type="search"` and `variant="soft"` in the content of a phone screen, under a large title or at the top of a sheet, is the bar's search field: the same magnifier and text position and, with `touch.css`, the same glass capsule (`--mobile-glass-*`), so a search field looks the same wherever it stands, instead of the flat gray fill (iOS 27 draws that one flat; one look was chosen). An invalid one keeps its red outline. React and Vue.
 - `background="solid"` is the earlier name of `"hard"` on every bar: iOS 27.2 has two scroll edges, soft and hard, and no opaque bar without a line, and a hard bar draws its line only once content is under it, so at rest the two look the same. The four backgrounds are `soft`, `hard`, `glass` and `blur`; `BarBackground` lists them, and `"solid"` stays accepted (`BarBackgroundAlias`). A bottom `Toolbar` with `blur` stands on the content as a soft one does, with no band.
 
 ### Fixed

@@ -908,6 +908,21 @@
     }
   }
 
+  /* A soft search field in the content (under a large title, at the top of a sheet) takes the glass of the bar's
+     search field, one look wherever it stands (owner 13.11 «должно быть одинаково везде же так? стекло»), as the
+     Toolbar gives its own field. Outside the kit's layer it beats the soft field's focus outline, which the bar's
+     field does not draw; an invalid field keeps its red outline. A row keeps its own field. */
+  html [data-slot="input"][data-variant="soft"]:has(> input[type="search"]):not(:where([data-row] *)) {
+    --input-soft-background-color: var(--mobile-glass-background);
+    background-image: var(--mobile-glass-sheen);
+    -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    backdrop-filter: var(--mobile-glass-backdrop-filter);
+
+    &:not([data-invalid]) {
+      box-shadow: var(--mobile-glass-shadow);
+    }
+  }
+
   /* The icon's drawing keeps its own size inside the wider native leading
      slot. Selection indicators, trailing submenu chevrons and the round action of a header (a Button) are excluded. */
   html [role="menu"]:not([data-layout="horizontal"]) [role="menuitem"]:not(:where([role="group"][data-layout="horizontal"] *, [data-menu-header] *)) > :is(div, span) > svg:first-child:not([class*="SubTriggerIcon"]) {
