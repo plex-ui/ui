@@ -7,6 +7,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Fixed
+
+- `Alert` on a phone: a description without a title stands its first line on the middle of the icon, as a title alone does; the line sat 6px above it. React and Vue.
+
 ## 0.44.0 (2026-11-12)
 
 The kit is set in Inter, with Geist Mono for code, on the desktop and on a phone, both shipped with `@plexui/styles`; text tracks by the Plex UI Figma kit's table. `@plexui/styles` is 0.3.0, since the face and its tracking change how every text sets: `@plexui/ui` 0.44.0 and `@plexui/vue` 0.24.0 need `^0.3.0` (they import its font stylesheets), and earlier ui and vue versions keep the 0.2 styles they were built with. `@plexui/mcp` is 0.2.16.

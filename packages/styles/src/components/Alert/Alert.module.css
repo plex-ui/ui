@@ -269,6 +269,8 @@
   .Indicator {
     padding-inline: 6px 4px;
     margin-block: 5px;
+    /* A smaller custom indicator stands on the middle of the icon's place */
+    min-height: var(--alert-indicator-size);
 
     &::before {
       content: none;
@@ -278,6 +280,13 @@
   /* A title alone stands on the middle of the image, as TipKit centres it, 20 from the top and the bottom */
   .Indicator + .Content > .Message:not(:has(> .Description)) {
     align-self: center;
+  }
+
+  /* A description alone (a tip always has a title, so TipKit has no such card) stands its first line on the middle
+     of the image, as a title alone does: one line centred on the icon, more lines going on under it (owner 13.11:
+     the line sat 6px above the icon's middle) */
+  .Indicator + .Content > .Message:not(:has(> .Title)) {
+    margin-top: calc(5px + var(--alert-indicator-size) / 2 - 0.5lh);
   }
 
   .Message {
