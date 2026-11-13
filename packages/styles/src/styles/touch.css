@@ -717,9 +717,10 @@
        their own, Tabs.module.css gives them the track). iOS 27.2 draws it at two sizes and `size` picks one, as it
        picks a button's height: sm and smaller are the small control, md and larger the large one, the default
        (owner 10.11: «почему не дефолтный большой размер?», «это дефолтные»). In a row of a bar (Toolbar.Row) md is
-       the small one: iOS 27.2 sets SwiftUI's Picker .segmented in a safeAreaBar under the bar small and plain, 32pt,
+       a glass one between the two, 40pt (below; owner 13.11 «Да, стекло» on a chat list's folders, IMG_5550), sm and
+       smaller the small plain one, as iOS 27.2 sets SwiftUI's Picker .segmented in a safeAreaBar under the bar, 32pt,
        16 from the sides and 10 under the buttons, and pins it under the bar (ref-app segrow-inline, segrow-large-
-       scrolled; owner 13.11 «маленький будет - верно?»); lg and larger give the large glass one there. A control a component keeps at its
+       scrolled), and lg and larger the large glass one. A control a component keeps at its
        desktop size but draws small on a phone carries data-mobile-size="small" (ColorPicker's Mode, the kit's
        Size=Small). Vertical tabs are list rows there.
        The small control is plain, as SwiftUI's Picker .segmented draws it in content in iOS 27.2 on an iPhone 17
@@ -790,7 +791,8 @@
        it (Page, Dialog). Last, so the bar's control wins over a small or flat one. A row of the bar is not the bar's
        own row: its control keeps its own size, in the bar and under a large title in the content alike. */
     html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"], [data-toolbar-row] [data-size="md"])),
-    html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:not([data-toolbar-row] *) {
+    html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:not([data-toolbar-row] *),
+    html [data-toolbar-row] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"][data-size="md"]:not([data-mobile-material="flat"], [data-mobile-size="small"]) {
       --segmented-control-size: 48px;
       --segmented-control-gutter: 4px;
       --segmented-control-gap: 8px;
@@ -816,18 +818,32 @@
       --segmented-control-thumb-lens-shadow: var(--segmented-control-mobile-thumb-lens-shadow);
     }
 
+    /* A row of a bar (Toolbar.Row) holds the glass of the large control at its default size, smaller: a 40pt capsule,
+       the gray selection 34pt and 3pt inside it, each label 12pt from its segment's ends, as a chat list draws its
+       folders under its bar in iOS 27 (IMG_5550 at @3x: a 120px capsule 16pt from the screen's sides, lighter than
+       the bar, 248 to 255 on 247; a 102px selection 9px inside it, 230 to 234; labels with an 11pt cap height, the
+       15px of the large control) (owner 13.11: «тут тоже стекло», «Да, стекло»). sm and smaller keep the small plain
+       control and lg the large one; flat gives the small plain one. */
+    html [data-toolbar-row] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"][data-size="md"]:not([data-mobile-material="flat"], [data-mobile-size="small"]) {
+      --segmented-control-size: 40px;
+      --segmented-control-gutter: 3px;
+      --segmented-control-option-gutter: 12px;
+    }
+
     /* The lens travels as iOS 27.2 moves it (ref-app segmented-bar-symbols, 11.11, Day to Month, 87pt): a quarter of
        the way in 12ms, three quarters by 97ms, 94% by 214ms and landed by 400ms, each point of the curve a frame of
        the recording. A browser without linear() keeps the kit's curve over the same time. */
     @media (prefers-reduced-motion: no-preference) {
       html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"], [data-toolbar-row] [data-size="md"])),
-      html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:not([data-toolbar-row] *) {
+      html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:not([data-toolbar-row] *),
+      html [data-toolbar-row] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"][data-size="md"]:not([data-mobile-material="flat"], [data-mobile-size="small"]) {
         --tabs-thumb-transition-duration: 400ms;
       }
 
       @supports (transition-timing-function: linear(0, 1)) {
         html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"], [data-toolbar-row] [data-size="md"])),
-        html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:not([data-toolbar-row] *) {
+        html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:not([data-toolbar-row] *),
+        html [data-toolbar-row] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"][data-size="md"]:not([data-mobile-material="flat"], [data-mobile-size="small"]) {
           --tabs-thumb-transition-easing: linear(0, 0.2 3%, 0.33 6.25%, 0.45 10%, 0.538 12.25%, 0.623 16.25%, 0.69 20%, 0.747 24.25%, 0.793 28.75%, 0.83 32.5%, 0.862 36.75%, 0.887 41%, 0.908 45%, 0.925 49.25%, 0.943 53.5%, 0.956 58%, 0.975 66%, 0.981 70%, 0.989 74.75%, 0.994 82.5%, 1);
         }
       }

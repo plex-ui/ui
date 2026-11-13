@@ -1584,9 +1584,10 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
 
   test("the large control and every control in a bar are the glass one of iOS 27.2, Calendar and the sheet's Picker: 48px, a 40px thumb 4px in, 8px apart", () => {
     const touch = read("styles/touch.css")
-    const block = touch.match(/html \[data-toolbar\] :is\(\[data-variant="segmented"\], \[data-variant="underline"\]\)\[data-orientation="horizontal"\]:not\(\[data-toolbar-row\] \*\) \{([^}]*)\}/)?.[1] ?? ""
-    // One block for the default large control (md and larger, unless flat; in a row of a bar lg and larger) and for
-    // every control in a bar but its rows (owner 13.11: a row's control is native's small one)
+    const block = touch.match(/html \[data-toolbar\] :is\(\[data-variant="segmented"\], \[data-variant="underline"\]\)\[data-orientation="horizontal"\]:not\(\[data-toolbar-row\] \*\),\s*html \[data-toolbar-row\] [^{]*\{([^}]*)\}/)?.[1] ?? ""
+    // One block for the default large control (md and larger, unless flat; in a row of a bar lg and larger), for
+    // every control in a bar but its rows and for a row's own glass one (owner 13.11 «Да, стекло»), which a later
+    // rule sizes 40
     expect(touch).toContain('html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"], [data-toolbar-row] [data-size="md"])),\n    html [data-toolbar] :is(')
     for (const declaration of [
       "--segmented-control-size: 48px;",
@@ -1675,7 +1676,7 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     const flatSelector = `html [data-mobile-material="flat"]${tabs}:where(:not([data-mobile-size="small"], ${small})) {`
     // A control a component asks to keep small (ColorPicker's Mode) stays out of both large blocks
     const largeStart = touch.indexOf(`html ${tabs}:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], ${small})),`)
-    const barSelector = `html [data-toolbar] ${tabs}:not([data-toolbar-row] *) {`
+    const barSelector = `html [data-toolbar] ${tabs}:not([data-toolbar-row] *),`
     const start = touch.indexOf(glassSelector)
     expect(start).toBeGreaterThan(plainStart)
     const glass = touch.slice(start, touch.indexOf("}", start))

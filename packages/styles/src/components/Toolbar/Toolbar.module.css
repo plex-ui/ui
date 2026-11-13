@@ -413,8 +413,8 @@
      bar's controls, so the bar's background, edge and line take it in. Several rows stand in their order, 10 apart: a
      search field over a segmented control, as iOS 27.2 sets a safeAreaBar under the search field of the bar's drawer
      (ref-app segsearch-inline; owner 13.11 «первый ряд - кнопки и тайтл, второй ряд поиск, третий ряд - сегментед
-     контрол»). A SegmentedControl in it is the small plain one at its default size, as native's (touch.css), and fills
-     the row (its segments share the width, and scroll when they do not fit; a block one shortens its labels instead). */
+     контрол»). A SegmentedControl in it is a 40px glass one at its default size, as a chat list draws its folders under
+     its bar (touch.css, IMG_5550; owner 13.11 «Да, стекло»), and fills the row (its segments share the width, and scroll when they do not fit; a block one shortens its labels instead). */
   .Row {
     display: flex;
     grid-column: 1 / -1;

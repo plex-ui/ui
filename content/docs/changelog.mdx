@@ -7,6 +7,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Changed
+
+- A `SegmentedControl` in a phone `Toolbar.Row` (Vue `ToolbarRow`) is glass at its default size, as a chat list draws its folders under its bar in iOS 27: a 40px capsule of the large control's glass, the gray selection 34px and 3px inside it, 15px Medium labels 12px from their segments' ends. `size="sm"` gives the small plain control (32px) it was before, `size="lg"` the large glass one (48px), and `mobileMaterial="flat"` the small plain one. React and Vue.
+
 ## 0.47.0 (2026-11-13)
 
 The phone segmented control changes in `@plexui/styles` 0.6.0. `@plexui/ui` 0.47.0 and `@plexui/vue` 0.27.0 need `^0.6.0`, since `mobileSegmentWidth` and the narrowing air are set by the 0.6 styles; earlier ui and vue versions keep the 0.5 styles they were built with. `@plexui/mcp` is 0.2.22.

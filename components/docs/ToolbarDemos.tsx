@@ -46,7 +46,8 @@ const FIELDS = ['top', 'bottom'] as const;
 // A row of the bar: the views of the orders, as a chat list shows its folders under its bar; under the search field,
 // as iOS 27.2 sets a safeAreaBar under the field of the bar's drawer (owner 13.11)
 const VIEWS = ['all', 'paid', 'unpaid', 'refunds'] as const;
-const ROW_SIZES = ['md', 'lg'] as const;
+// The row's three controls: the small plain one, the glass one of a row (owner 13.11 «Да, стекло») and the large glass one
+const ROW_SIZES = ['sm', 'md', 'lg'] as const;
 // What the bottom bar holds: buttons round a main action, a search field and a plus, one action across the row
 const BOTTOM = ['none', 'buttons', 'search', 'action'] as const;
 

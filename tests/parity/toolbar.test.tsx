@@ -901,6 +901,12 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     expect(touch.split('html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:not([data-toolbar-row] *)')).toHaveLength(4)
     expect(touch.split('[data-size="sm"], [data-toolbar-row] [data-size="md"])')).toHaveLength(6)
     expect(touch).not.toContain('[data-toolbar-row]) :is(')
+    // A row's control at its default size is glass, 40 with a 34 selection 3 inside it (IMG_5550; owner 13.11 «Да,
+    // стекло»), in the large control's rule and its motion; sm keeps the small plain one, flat too
+    const row = 'html [data-toolbar-row] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"][data-size="md"]:not([data-mobile-material="flat"], [data-mobile-size="small"])'
+    expect(touch.split(row)).toHaveLength(5)
+    expect(touch).toContain(`${row} {\n      --segmented-control-size: 40px;\n      --segmented-control-gutter: 3px;\n      --segmented-control-option-gutter: 12px;\n    }`)
+    expect(touch.indexOf(`${row} {\n      --segmented-control-size: 40px;`)).toBeGreaterThan(touch.indexOf("--segmented-control-size: 48px;"))
     const group = readFileSync(`${process.cwd()}/packages/styles/src/components/ButtonGroup/ButtonGroup.module.css`, "utf8")
     // The glass context, the capsule, a field among glass buttons, and the floating field group (not in a bar)
     expect(group.split('[data-toolbar] *, [data-toolbar-row] *)')).toHaveLength(5)
