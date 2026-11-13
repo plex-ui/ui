@@ -212,21 +212,22 @@ describe("Button docs on a phone", () => {
   const vue = read("content/vue/components/button.mdx")
   const pages = [read("content/components/button.mdx"), vue]
 
-  test("Selected is desktop only in React and Vue, Inert is told in States; Optical alignment has a phone view", () => {
+  test("one Overview carries every setting; the old sections' anchors lead to it; Optical alignment has a phone view", () => {
     for (const page of pages) {
-      expect(page).not.toContain("\n### Inert\n")
-      // The old #inert link leads to States, where inert is told
-      expect(page.indexOf('<span id="inert" />')).toBeGreaterThan(-1)
-      expect(page.indexOf('<span id="inert" />')).toBeLessThan(page.indexOf("\n### States\n"))
-      for (const title of ["Selected", "Optical alignment"]) {
-        const section = page.split(`\n### ${title}\n`)[1]
-        expect(section, title).toBeDefined()
-        const preview = section.match(/<ComponentPreview\b[^\n]*/)?.[0]
-        if (title === "Optical alignment") expect(preview, title).not.toContain('phonePresentation="none"')
-        else expect(preview, title).toContain('phonePresentation="none"')
+      // Owner 11.11 (plan 178 row 33): variants of one button are settings of one preview
+      for (const title of ["Colors & variants", "Sizing & roundness", "Icons", "Block", "States", "Selected", "Inert"]) {
+        expect(page, title).not.toContain(`\n### ${title}\n`)
       }
+      const overview = page.indexOf("\n### Overview\n")
+      for (const id of ["colors--variants", "sizing--roundness", "icons", "block", "states", "disabled", "loading", "inert", "selected"]) {
+        const anchor = page.indexOf(`<span id="${id}" />`)
+        expect(anchor, id).toBeGreaterThan(-1)
+        expect(anchor, id).toBeLessThan(overview)
+      }
+      const section = page.split("\n### Optical alignment\n")[1]
+      expect(section).toBeDefined()
+      expect(section.match(/<ComponentPreview\b[^\n]*/)?.[0]).not.toContain('phonePresentation="none"')
     }
-    expect(react).not.toContain("ButtonInertDemo")
     // A soft button under text starts its label where the text does, 40px in, as Forgot your password? under a
     // sign-in (IMG_5505); a phone-only control turns the offset off
     expect(react).toContain("<Button color=\"secondary\" variant=\"soft\" size=\"xl\" opticallyAlign={align === 'start' ? 'start' : undefined}>")
@@ -235,21 +236,23 @@ describe("Button docs on a phone", () => {
     expect(vue).toContain('{ name: "opticallyAlign", type: "select", options: ["none", "start"], default: "start", phoneOnly: true }')
   })
 
-  test("the actions of a screen are a stack 11px apart at its top, next to the controls, in React and Vue", () => {
-    for (const source of [react, vue]) {
-      expect(source).toContain('flex w-full flex-col items-center gap-[11px]')
-      for (const label of ["Other Options", "Not Now"]) expect(source).toContain(label)
-    }
+  test("a screen's action stands at its top, next to the controls, in React and Vue", () => {
+    for (const source of [react, vue]) expect(source).toContain('flex w-full flex-col items-center gap-[11px]')
     // Owner 08.11: the buttons stand up near the example's toggles, not at the foot of the screen
     expect(read("components/docs/ComponentPreview.module.css")).not.toContain("data-phone-actions")
     expect(react).not.toContain("data-phone-actions")
     expect(vue).not.toContain("data-phone-actions")
   })
 
-  test("Sizing shows the three phone sizes with the same names in React and Vue", () => {
-    for (const [size, name, height] of [["sm", "Small", 28], ["md", "Medium", 34], ["xl", "Large", 50]] as const) {
-      expect(react).toContain(`{ size: '${size}', name: '${name}', height: ${height} }`)
-      expect(vue).toContain(`{ size: '${size}', name: '${name}', height: ${height} }`)
+  test("the phone offers the three sizes and the colors of iOS buttons, and no desktop-only setting, in React and Vue", () => {
+    expect(react).toContain("const PHONE_SIZE_OPTIONS: readonly (typeof SIZE_OPTIONS)[number][] = ['sm', 'md', 'xl'];")
+    expect(react).toContain("const PHONE_COLOR_OPTIONS: readonly (typeof COLOR_OPTIONS)[number][] = ['primary', 'secondary', 'danger'];")
+    expect(vue).toContain('phoneOptions: ["sm", "md", "xl"], default: "md"')
+    expect(vue).toContain('phoneOptions: ["primary", "secondary", "danger"], default: "primary"')
+    // A phone button is always a capsule, an icon alone always a circle, its gutters iOS's, and it has no selected look
+    for (const name of ["pill", "uniform", "gutterSize", "selected"]) {
+      expect(react).toMatch(new RegExp(`<DemoControl(Boolean|Select) name="${name}"[^\n]*desktopOnly />`))
+      expect(vue).toMatch(new RegExp(`\\{ name: "${name}", [^\n]*desktopOnly: true`))
     }
   })
 })

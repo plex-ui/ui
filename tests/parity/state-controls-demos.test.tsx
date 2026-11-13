@@ -2,10 +2,11 @@ import { readFileSync } from 'node:fs';
 import { act, cleanup, fireEvent, render, waitFor, within } from '@testing-library/react';
 import { DateTime, Settings } from 'luxon';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { ButtonStatesDemo } from '../../components/docs/ButtonDemos';
+import { ButtonOverviewDemo } from '../../components/docs/ButtonDemos';
 import { DateInputOverviewDemo } from '../../components/docs/DateInputDemos';
 import { DatePickerOverviewDemo } from '../../components/docs/DatePickerDemos';
 import { VueDemo, type VueDemoControl, type VueDemoOption, type VueDemoWhen } from '../../components/docs/vue/VueDemo';
+import { VuePhoneRowsDemo } from '../../components/docs/vue/VuePhoneRowsDemo';
 import { VueDateInputDemo } from '../../components/docs/vue/VueDateInputDemos';
 import { VueDatePickerDemo } from '../../components/docs/vue/VueDatePickerDemos';
 import { phoneRows } from '../../components/docs/phoneRowsTemplate';
@@ -51,7 +52,12 @@ function example(page: string, name: string) {
   });
   return { template, controls };
 }
-const button = example('button', 'states');
+// The Button Overview as its page mounts it: its phone template, and its controls as the page gives them
+const button = {
+  template: pageExport('button', 'overview') as string,
+  phoneTemplate: pageExport('button', 'overviewPhone') as string,
+  controls: pageExport('button', 'overviewControls') as VueDemoControl[],
+};
 const dateInput = example('date-input', 'overview');
 // The Date Picker Overview as its page mounts it: its phone row, and the controls it keeps on desktop
 const datePicker = {
@@ -90,31 +96,66 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); document.documentElement.style.removeProperty('--breakpoint-md'); Settings.now = () => Date.now(); });
 
 describe.each(['React', 'Vue'])('%s state-only demo consolidation', (framework) => {
-  test('loading blocks the same buttons without visual disablement; disabled remains independent', async () => {
-    const view = render(framework === 'React' ? <ButtonStatesDemo /> : <VueDemo {...button} />);
+  test('button: loading blocks the button without visual disablement; disabled remains independent', async () => {
+    const view = render(framework === 'React' ? <ButtonOverviewDemo /> : <VuePhoneRowsDemo {...button} />);
     await interact(() => {});
     const page = within(view.container);
-    // Every variant takes the states (owner 08.11), so the example shows all four
-    const names = ['Solid', 'Soft', 'Outline', 'Ghost'];
-    const buttons = names.map((name) => page.getByRole<HTMLButtonElement>('button', { name }));
-    expect(buttons.map((b) => b.dataset.variant)).toEqual(['solid', 'soft', 'outline', 'ghost']);
-    for (const b of buttons) expect(b.disabled).toBe(false);
+    const send = page.getByRole<HTMLButtonElement>('button', { name: 'Send' });
+    expect(send.disabled).toBe(false);
     await interact(() => fireEvent.click(page.getByRole('switch', { name: 'loading' })));
-    for (const b of buttons) {
-      expect(b.disabled).toBe(true);
-      expect(b.hasAttribute('data-loading')).toBe(true);
-      expect(b.hasAttribute('data-disabled')).toBe(false);
-    }
+    expect(send.disabled).toBe(true);
+    expect(send.hasAttribute('data-loading')).toBe(true);
+    expect(send.hasAttribute('data-disabled')).toBe(false);
     await interact(() => fireEvent.click(page.getByRole('switch', { name: 'disabled' })));
-    for (const b of buttons) expect(b.hasAttribute('data-disabled')).toBe(true);
+    expect(send.hasAttribute('data-disabled')).toBe(true);
     await interact(() => fireEvent.click(page.getByRole('switch', { name: 'loading' })));
-    for (const b of buttons) {
-      expect(b.disabled).toBe(true);
-      expect(b.hasAttribute('data-loading')).toBe(false);
-    }
+    expect(send.disabled).toBe(true);
+    expect(send.hasAttribute('data-loading')).toBe(false);
     await interact(() => fireEvent.click(page.getByRole('switch', { name: 'disabled' })));
-    for (const b of buttons) expect(b.disabled).toBe(false);
-    names.forEach((name, i) => expect(page.getByRole('button', { name })).toBe(buttons[i]));
+    expect(send.disabled).toBe(false);
+    expect(page.getByRole('button', { name: 'Send' })).toBe(send);
+  });
+
+  test('button: one Overview carries every setting, each offered where it acts, desktop ones off the phone (owner 11.11)', async () => {
+    const show = viewport();
+    const view = render(framework === 'React' ? <ButtonOverviewDemo /> : <VuePhoneRowsDemo {...button} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const send = () => view.container.querySelector<HTMLButtonElement>('[data-demo-stage] button')!;
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const offered = (name: string) => view.container.querySelector(`[data-demo-controls] [aria-label="${name}"]`) !== null;
+    // Where the icon stands: before the label, after it, or none
+    const iconAt = () => { const html = send().innerHTML; const icon = html.indexOf('<svg'); return icon < 0 ? 'none' : icon < html.indexOf('Send') ? 'start' : 'end'; };
+    const look = () => ['data-variant', 'data-size', 'data-pill', 'data-uniform', 'data-selected', 'data-block'].map((name) => send().getAttribute(name));
+    expect([iconAt(), send().textContent]).toEqual(['none', 'Send']);
+    expect(look()).toEqual(['solid', 'md', null, null, null, null]);
+    // An icon size with an icon, uniform with an icon alone, a gutter where uniform does not replace it
+    expect([offered('iconSize'), offered('uniform'), offered('gutterSize')]).toEqual([false, false, true]);
+    await choose('icon', 'start');
+    expect([iconAt(), send().textContent]).toEqual(['start', 'Send']);
+    // The label is an element beside the icon, so the icon is not a button's only child (an icon-only button's look)
+    expect(send().querySelector('svg')?.matches(':only-child')).toBe(false);
+    expect([offered('iconSize'), offered('uniform')]).toEqual([true, false]);
+    await choose('icon', 'end');
+    expect(iconAt()).toBe('end');
+    expect(send().querySelector('svg')?.matches(':only-child')).toBe(false);
+    await choose('icon', 'only');
+    expect([send().textContent, send().getAttribute('aria-label')]).toEqual(['', 'Send']);
+    expect(offered('uniform')).toBe(true);
+    await toggle('uniform');
+    expect(offered('gutterSize')).toBe(false);
+    await choose('variant', 'soft');
+    await toggle('pill');
+    await toggle('selected');
+    await toggle('block');
+    expect(look()).toEqual(['soft', 'md', '', '', '', '']);
+    // A phone button is always a capsule and has no selected look: those settings give their defaults there
+    await show('phone');
+    expect(look()).toEqual(['soft', 'md', null, null, null, '']);
+    expect(send().getAttribute('aria-label')).toBe('Send');
+    await show('desktop');
+    expect(look()).toEqual(['soft', 'md', '', '', '', '']);
   });
 
   test('date input preserves a typed date through disabled and accepts edits after re-enabling', async () => {

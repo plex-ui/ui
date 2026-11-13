@@ -147,7 +147,7 @@ Props:
   - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in the slot; defaults from size
   - type ("button" | "submit" | "reset") default: "button" — Native button type
   - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
-Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, States, Optical alignment, Selected
+Examples: Overview, Optical alignment
 
 ## Button Group
 Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.

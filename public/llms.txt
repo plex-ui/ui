@@ -185,7 +185,7 @@ Props:
   - iconSize ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in children; defaults from size
   - type ("button" | "submit" | "reset") default: "button" — Native button type
   - onClick ((event: MouseEvent) => void) — Called on click, unless disabled
-Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, States, Optical alignment, Selected
+Examples: Overview, Optical alignment
 
 ## Card
 Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.

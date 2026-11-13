@@ -4,199 +4,70 @@ description: Button with four variants (solid, soft, outline, ghost), eight sema
 metaDescription: React button component with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout
 ---
 
-import { Button } from "@plexui/ui/components/Button"
-import { ArrowRight, Delete, Clear, CompareArrows, Mail, PlusLg } from "@plexui/ui/components/Icon"
-import { Popover } from "@plexui/ui/components/Popover"
 import {
   ButtonOverviewDemo,
-  ButtonColorsDemo,
-  ButtonSizingDemo,
-  ButtonIconDemo,
-  ButtonBlockDemo,
-  ButtonStatesDemo,
-  ButtonSelectedDemoWithControls,
   ButtonOpticalAlignmentDemo,
 } from "@/components/docs/ButtonDemos"
 
-export const statesCode = `import { useState } from 'react';
-import { Button } from '@plexui/ui/components/Button';
+export const overviewCode = `const [color, setColor] = useState<"primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning">("primary")
+const [variant, setVariant] = useState<"solid" | "soft" | "outline" | "ghost">("solid")
+const [size, setSize] = useState<"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl">("md")
+const [pill, setPill] = useState(false)
+const [icon, setIcon] = useState<"none" | "start" | "end" | "only">("none")
+const [uniform, setUniform] = useState(false)
+const [iconSize, setIconSize] = useState<"sm" | "md" | "lg" | "xl" | "2xl">()
+const [gutterSize, setGutterSize] = useState<"2xs" | "xs" | "sm" | "md" | "lg" | "xl">()
+const [block, setBlock] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [loading, setLoading] = useState(false)
+const [selected, setSelected] = useState(false)
 
-export default function ButtonStatesExample() {
-  const [disabled] = useState(false);
-  const [loading] = useState(false);
-  const variants = ['solid', 'soft', 'outline', 'ghost'] as const;
-
-  return (
-    <>
-      {/* Desktop: a row of the default size */}
-      <div className="flex flex-wrap gap-3">
-        {variants.map((variant) => (
-          <Button key={variant} color="primary" variant={variant} disabled={disabled} loading={loading}>
-            {variant.charAt(0).toUpperCase() + variant.slice(1)}
-          </Button>
-        ))}
-      </div>
-
-      {/* Phone: a screen's actions, as wide as the screen */}
-      <div className="flex w-full flex-col items-center gap-[11px]">
-        {variants.map((variant) => (
-          <Button key={variant} color="primary" variant={variant} size="xl" block disabled={disabled} loading={loading}>
-            {variant.charAt(0).toUpperCase() + variant.slice(1)}
-          </Button>
-        ))}
-      </div>
-    </>
-  );
-}`
+<Button
+  color={color}
+  variant={variant}
+  size={size}
+  pill={pill}
+  uniform={uniform}
+  gutterSize={gutterSize}
+  iconSize={iconSize}
+  block={block}
+  disabled={disabled}
+  loading={loading}
+  selected={selected}
+  aria-label={icon === "only" ? "Send" : undefined}
+>
+  {(icon === "start" || icon === "only") && <Mail />}
+  {icon !== "only" && "Send"}
+  {icon === "end" && <ArrowRight />}
+</Button>`
 
 <UsageBlock>{`import { Button } from "@plexui/ui/components/Button";`}</UsageBlock>
 
 ## Examples
 
-### Overview
-
-<ComponentPreview details={<>A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only. On a phone the example is a screen's actions as iOS 26 sets them: large buttons as wide as the screen, 11px apart, solid, soft and ghost. They stand at the top of the screen, next to the example's controls.</>} code={`// Desktop
-<div className="flex flex-wrap gap-3">
-  <Button color="primary">Submit</Button>
-  <Button variant="soft"><CompareArrows /> Compare</Button>
-  <Button color="danger" gutterSize="sm" pill={false} aria-label="Delete"><Delete /></Button>
-  <Button variant="outline">Next <ArrowRight /></Button>
-  <Button variant="ghost" color="secondary" uniform aria-label="Clear"><Clear /></Button>
-</div>
-
-// Phone: the actions of a screen
-<div className="flex w-full flex-col items-center gap-[11px]">
-  <Button color="primary" size="xl" block>Continue</Button>
-  <Button color="secondary" variant="soft" size="xl" block>Other Options</Button>
-  <Button color="primary" variant="ghost" size="xl" block>Not Now</Button>
-</div>`} previewMinHeight={168}>
-  <ButtonOverviewDemo />
-</ComponentPreview>
-
-### Colors & variants
-
-<ComponentPreview details={<>You can stylize the display of the button using the <code>color</code> and <code>variant</code> props. On a phone each variant is a screen's action in the two colors of iOS buttons, accent (<code>primary</code>) and destructive (<code>danger</code>): iOS draws <code>solid</code> as Filled, <code>soft</code> as Tinted or Gray and <code>ghost</code> as Plain; <code>outline</code> is Plex UI's own.</>} code={`// Desktop
-const colors = ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"] as const
-const variants = ["solid", "soft", "outline", "ghost"] as const
-
-<div className="grid gap-x-6 gap-y-4 items-center" style={{ gridTemplateColumns: "auto repeat(4, min-content)" }}>
-  <div />
-  {variants.map((variant) => (
-    <div key={variant} className="text-center text-sm text-tertiary">{variant}</div>
-  ))}
-  {colors.map((color) => (
-    <Fragment key={color}>
-      <div className="text-right text-sm text-tertiary">{color}</div>
-      {variants.map((variant) => (
-        <Button key={variant} color={color} variant={variant}>Submit</Button>
-      ))}
-    </Fragment>
-  ))}
-</div>
-
-// Phone: each variant as a screen's action, primary or danger
-<div className="flex w-full flex-col items-center gap-[11px]">
-  {variants.map((variant) => (
-    <Button key={variant} color="primary" variant={variant} size="xl" block>
-      {variant.charAt(0).toUpperCase() + variant.slice(1)}
-    </Button>
-  ))}
-</div>`} previewMinHeight={168}>
-  <ButtonColorsDemo />
-</ComponentPreview>
-
-### Sizing & roundness
-
-<ComponentPreview details={<>
-  <p>Control height with <code>size</code> and horizontal padding with <code>gutterSize</code>. Use <code>pill</code> for fully rounded corners.</p>
-  <p><code>size</code> sets the button to a specific control height, and <code>gutterSize</code> sets the horizontal padding. Each <code>size</code> provides default values for <code>gutterSize</code> and <code>iconSize</code> props, as well as <code>font-size</code>. Each of these values can be overridden independently.</p>
-  <p>When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the button.</p>
-  <p>On a phone with <code>touch.css</code> a button takes one of the three heights of iOS buttons: small 28 (<code>3xs</code> to <code>sm</code>), medium 34 (<code>md</code>, <code>lg</code>) and large 50 (<code>xl</code> to <code>3xl</code>), always a capsule: the small one with a 15px label and 10px gutters, the medium and large ones with a 17px label and 12 and 20px gutters, as iOS 27.2 sets them. Without <code>size</code> a button is <code>md</code>, the medium one; a screen's actions take <code>xl</code>. The Phone example shows the three as the kit's Button - Content Area does: a symbol with a label, a label alone, and a symbol alone, a circle. The label is Medium (510) and Regular on a <code>ghost</code> button, as the iOS 27 kit sets its buttons on glass and its plain ones, and as Apple's apps set a filled action apart from a plain one.</p>
-</>} code={`// Desktop
-const sizes = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"] as const
-
-<div className="grid gap-3 items-center" style={{ gridTemplateColumns: "auto auto auto" }}>
-  {sizes.map((size) => (
-    <Fragment key={size}>
-      <div className="text-right text-sm font-mono text-tertiary mr-3">{size}</div>
-      <div><Button color="primary" size={size}><Mail /> Button</Button></div>
-      <div><Button color="primary" size={size}>Button</Button></div>
-    </Fragment>
-  ))}
-</div>
-
-// Phone: the three sizes of iOS buttons, small 28, medium 34 and large 50
-const phoneSizes = [
-  { size: "sm", name: "Small", height: 28 },
-  { size: "md", name: "Medium", height: 34 },
-  { size: "xl", name: "Large", height: 50 },
-] as const
-
-<div className="flex flex-col items-center gap-8">
-  {phoneSizes.map(({ size, name, height }) => (
-    <div key={size} className="flex flex-col items-center gap-3">
-      <div className="text-sm text-tertiary">{name} · {size} · {height}px</div>
-      <div className="flex gap-2 items-center">
-        <Button color="primary" size={size}><Mail /> Button</Button>
-        <Button color="primary" size={size}>Button</Button>
-        <Button color="primary" size={size} aria-label="Add"><PlusLg /></Button>
-      </div>
-    </div>
-  ))}
-</div>`} previewMinHeight={296}>
-  <ButtonSizingDemo />
-</ComponentPreview>
-
-### Icons
-
-<ComponentPreview details={<>
-  <p>Add icons as children. Sizing is automatic via the <code>iconSize</code> prop.</p>
-  <p>Default values for <code>iconSize</code> are provided through the <code>size</code> prop, but you can pass the prop directly to change the defaults.</p>
-  <p>For icon-only buttons, there are two common approaches:</p>
-  <p><strong>Square</strong>: create perfect square icon buttons with the <code>uniform</code> prop. When <code>uniform</code> is passed, <code>gutterSize</code> is ignored. Combine with <code>pill</code> to make circular icons.</p>
-  <p><strong>Tighter gutters</strong>: on a desktop, applying a smaller <code>gutterSize</code> than <code>size</code> can create well-sized, but not exactly square, icon buttons.</p>
-  <p>On a phone with <code>touch.css</code> the icon follows the three iOS sizes unless <code>iconSize</code> is set: <code>3xs</code> to <code>sm</code> show the 18px icon and <code>md</code> to <code>3xl</code> the 20px one, as iOS sets a button's symbol at the size of its label (15 and 17px). An icon-only button is the kit's symbol button, a circle as tall as a text button of its size, 28, 34 or 50px, with or without <code>uniform</code>, and <code>gutterSize</code> does not change it. A toolbar, the bars of Page and Dialog, a ButtonGroup of uniform buttons alone and a button beside a field keep the 44px circle of a bar button in the kit (50px at <code>3xl</code>). Between an icon and a label a button leaves 8px at every size, as iOS 27.2 does; a loading button shows the iOS spinner, 18px in the small button and 20px in the medium and large ones.</p>
-</>} code={`// Desktop
-<Button color="primary" size="lg" aria-label="Add">
-  <PlusLg />
-</Button>
-
-// Phone: icon-only buttons are circles of the three iOS sizes, 28, 34 and 50
-<div className="flex gap-8 items-end">
-  {([["sm", 28], ["md", 34], ["xl", 50]] as const).map(([size, height]) => (
-    <div key={size} className="flex flex-col items-center gap-3">
-      <Button color="primary" size={size} aria-label="Add"><PlusLg /></Button>
-      <div className="text-sm text-tertiary">{size} · {height}px</div>
-    </div>
-  ))}
-</div>`} previewMinHeight={216}>
-  <ButtonIconDemo />
-</ComponentPreview>
-
-### Block
-
-<ComponentPreview details={<>Create full-width buttons with the <code>block</code> prop. On a phone a screen's main action is the large button as wide as the screen (<code>xl</code>, 50px).</>} code={`// Desktop
-<div className="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
-  <Button color="primary" size="lg" block>Continue</Button>
-</div>
-
-// Phone: the main action of a screen
-<div className="flex w-full flex-col items-center gap-[11px]">
-  <Button color="primary" size="xl" block>Continue</Button>
-</div>`} previewMinHeight={168} resizable>
-  <ButtonBlockDemo />
-</ComponentPreview>
-
+<span id="colors--variants" />
+<span id="sizing--roundness" />
+<span id="icons" />
+<span id="block" />
+<span id="states" />
 <span id="disabled" />
 <span id="loading" />
 <span id="inert" />
+<span id="selected" />
 
-### States
+### Overview
 
-Use disabled to visually and accessibly disable the button. Loading shows a spinner and prevents interaction through its default inert state. The controls demonstrate these props; they do not start an asynchronous action. Every variant takes both states. On a phone the buttons are a screen's actions, the large ones as wide as the screen. A disabled button there labels in the tertiary label of iOS on the gray of a gray button, as iOS 27.2 draws a disabled filled or gray button; a ghost one has no fill, an outline one keeps its border with no fill, and a glass one keeps the glass. `inert` blocks a button without any visual change: it applies `disabled` for accessibility, and the look of a disabled button comes only from `[data-disabled]`.
-
-<ComponentPreview code={statesCode} previewMinHeight={168}>
-  <ButtonStatesDemo />
+<ComponentPreview details={<>
+  <p>One button with every setting. <code>color</code> and <code>variant</code> style it: eight semantic colors, each <code>solid</code>, <code>soft</code>, <code>outline</code> or <code>ghost</code>. On a phone with <code>touch.css</code> iOS draws <code>solid</code> as Filled, <code>soft</code> as Tinted, or Gray in <code>secondary</code>, and <code>ghost</code> as Plain; <code>outline</code> is Plex UI's own. The Phone preview offers the colors of iOS buttons: accent (<code>primary</code>), gray (<code>secondary</code>) and destructive (<code>danger</code>).</p>
+  <p><code>size</code> sets the control height, and <code>gutterSize</code> the horizontal padding. Each <code>size</code> provides default values for <code>gutterSize</code> and <code>iconSize</code>, as well as <code>font-size</code>; each can be overridden on its own. <code>pill</code> rounds the corners fully and adds horizontal gutter. Button shares the unified 9-step size scale with Input, Select, SelectControl and SegmentedControl.</p>
+  <p>On a phone with <code>touch.css</code> a button takes one of the three heights of iOS buttons: small 28 (<code>3xs</code> to <code>sm</code>), medium 34 (<code>md</code>, <code>lg</code>) and large 50 (<code>xl</code> to <code>3xl</code>), always a capsule: the small one with a 15px label and 10px gutters, the medium and large ones with a 17px label and 12 and 20px gutters, as iOS 27.2 sets them, so the Phone preview offers <code>sm</code>, <code>md</code> and <code>xl</code> and neither <code>pill</code> nor <code>gutterSize</code>. Without <code>size</code> a button is <code>md</code>, the medium one; a screen's actions take <code>xl</code>. The label is Medium (510) and Regular on a <code>ghost</code> button, as the iOS 27 kit sets its buttons on glass and its plain ones, and as Apple's apps set a filled action apart from a plain one.</p>
+  <p>Icons are children: <code>icon</code> here puts one before the label, after it, or alone, when the button needs an <code>aria-label</code>. Their size is automatic, from <code>size</code>, unless <code>iconSize</code> sets it. For a button of an icon alone, <code>uniform</code> makes it square and ignores <code>gutterSize</code>; with <code>pill</code> it is a circle. On a desktop a smaller <code>gutterSize</code> than <code>size</code> makes a well-sized icon button that is not exactly square.</p>
+  <p>On a phone with <code>touch.css</code> the icon follows the three iOS sizes unless <code>iconSize</code> is set: <code>3xs</code> to <code>sm</code> show the 18px icon and <code>md</code> to <code>3xl</code> the 20px one, as iOS sets a button's symbol at the size of its label (15 and 17px). A button of an icon alone is the kit's symbol button, a circle as tall as a text button of its size, 28, 34 or 50px, with or without <code>uniform</code>, and <code>gutterSize</code> does not change it, so the Phone preview does not offer <code>uniform</code>. A toolbar, the bars of Page and Dialog, a ButtonGroup of uniform buttons alone and a button beside a field keep the 44px circle of a bar button in the kit (50px at <code>3xl</code>). Between an icon and a label a button leaves 8px at every size, as iOS 27.2 does.</p>
+  <p><code>block</code> makes the button as wide as its container, a 290px column here. On a phone a screen's main action is the large button as wide as the screen, <code>xl</code> and <code>block</code>; the example stands at the top of the screen, next to its controls.</p>
+  <p><code>disabled</code> disables the button visually and accessibly. <code>loading</code> shows a spinner and prevents interaction through its default <code>inert</code> state; the controls show these props and start no asynchronous action. <code>inert</code> blocks a button without any visual change: it applies <code>disabled</code> for accessibility, and the look of a disabled button comes only from <code>[data-disabled]</code>. On a phone a disabled button labels in the tertiary label of iOS on the gray of a gray button, as iOS 27.2 draws a disabled filled or gray button; a ghost one has no fill, an outline one keeps its border with no fill, and a glass one keeps the glass. A loading button shows the iOS spinner there, 18px in the small button and 20px in the medium and large ones.</p>
+  <p><code>selected</code> shows that a button is open or selected; each <code>variant</code> shows it its own way. Menu and Popover set it on their trigger while open, through <code>[aria-expanded="true"]</code> or <code>[data-state="open"]</code>. iOS buttons show no selected state, so the Phone preview does not offer it; the prop still applies there.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <ButtonOverviewDemo />
 </ComponentPreview>
 
 ### Optical alignment
@@ -219,24 +90,6 @@ Use disabled to visually and accessibly disable the button. Loading shows a spin
   <Button color="secondary" variant="soft" size="xl" opticallyAlign="start">Forgot your password?</Button>
 </div>`} previewMinHeight={168}>
   <ButtonOpticalAlignmentDemo />
-</ComponentPreview>
-
-Button shares the unified 9-step size scale with Input, Select, SelectControl, and SegmentedControl.
-
-### Selected
-
-<ComponentPreview phonePresentation="none" details={<>
-  <p>Use <code>selected</code> to show that a button is in an open or selected state. The exact visual behavior differs across each <code>variant</code>.</p>
-  <p>This behavior is automatically configured with components like <code>Menu</code> that apply <code>[aria-expanded="true"]</code> or <code>[data-state="open"]</code> attributes.</p>
-</>} code={`<Popover>
-  <Popover.Trigger>
-    <Button color="primary" selected variant="solid">Click to open</Button>
-  </Popover.Trigger>
-  <Popover.Content minWidth="auto" className="p-4 text-sm">
-    Button should look selected
-  </Popover.Content>
-</Popover>`} previewMinHeight={168}>
-  <ButtonSelectedDemoWithControls />
 </ComponentPreview>
 
 ## NavigationButton
