@@ -530,6 +530,10 @@
        viewport-fit=cover) they keep 16 to the window's edge. */
     --toolbar-bottom-padding-bottom: max(16px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 6px));
     --toolbar-search-padding-bottom: 14px;
+    /* A row under the controls, part of the bar (Toolbar.Row, owner 13.11): 8 under them, as a chat list sets its folders
+       under its bar (a reference screen: 8.3pt); iOS 27.2 sets a safeAreaBar 10pt under a bar's row (ref-app
+       segrow-inline). */
+    --toolbar-row-gap: 8px;
     /* The search field of those bars: the magnifier draws 16.33 of ink with a stroke of 2, 14.0 from the field's
        edge, and "Search" starts at 41.67, set in Regular in the secondary label color (rgb 148 to 150 on the
        glass). SearchSm in a 23.75px box draws that ink: 3.46 of the box lies before it, so the gutter is 10.54. The
@@ -638,6 +642,16 @@
     --page-bar-soft-veil: linear-gradient(to bottom, rgb(0 0 0 / 55%) calc(100% - var(--page-bar-soft-tail) - 56px), rgb(0 0 0 / 38%) calc(100% - var(--page-bar-soft-tail) - 32px), rgb(0 0 0 / 31%) calc(100% - var(--page-bar-soft-tail) - 16px), rgb(0 0 0 / 20%) calc(100% - var(--page-bar-soft-tail)), rgb(0 0 0 / 8%) calc(100% - var(--page-bar-soft-tail) + 12px), transparent calc(100% - var(--page-bar-soft-tail) + 24px));
     --page-bar-soft-blur: 10px;
     --page-bar-soft-blur-mask: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail) - 16px), transparent calc(100% - var(--page-bar-soft-tail) + 12px));
+    /* The soft edge of a bottom bar (a bottom Toolbar, Page.Footer), as iOS 27.2 draws it over a scrolled list
+       (ref-app bottomedge-soft, owner 13.11): the top bar's, turned over and measured from the top of the bar's
+       items. It reaches 34pt above them; the veil holds 8% of the canvas color 25 above them, 15% from 9 above to 3
+       into them, 23% 11 in, 31% 23 in and 46% from 43 in down to the screen's edge. The blur lets go of the content
+       22 above the items (a row's text a little soft 27 above them, a separator 6 above them smeared) and hides it
+       from 6 into them. The stops are measured from the top of the layer, --page-bar-soft-bottom-reach above the
+       items. */
+    --page-bar-soft-bottom-reach: 34px;
+    --page-bar-soft-bottom-veil: linear-gradient(to bottom, transparent, rgb(0 0 0 / 8%) 9px, rgb(0 0 0 / 15%) 25px, rgb(0 0 0 / 15%) 37px, rgb(0 0 0 / 23%) 45px, rgb(0 0 0 / 31%) 57px, rgb(0 0 0 / 46%) 77px);
+    --page-bar-soft-bottom-blur-mask: linear-gradient(to bottom, transparent 12px, #000 40px);
     /* The blur background of a bar (owner 13.11, the top bar of a third-party app): no veil and no line, only the
        content under the bar blurred, the more the nearer the screen's edge. Measured on the owner's screenshot: text
        under the row of controls smeared out from 40px above the bar's edge, a few pixels of blur 13 above it, about

@@ -176,7 +176,7 @@
    Without touch.css the glass tokens are unset and the capsule has no fill. */
 @media (max-width: 767.98px) {
   /* Every group in a glass context, the row of capsules around nested groups included: no joined edges. */
-  .Root:is([data-mobile-material="glass"], [data-mobile-material="glass"] *, [data-toolbar] *):not([data-mobile-material="flat"], [data-mobile-material="flat"] *):not(:has(> :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"]), > [data-slot="button-group"] > :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"]))) {
+  .Root:is([data-mobile-material="glass"], [data-mobile-material="glass"] *, [data-toolbar] *, [data-toolbar-row] *):not([data-mobile-material="flat"], [data-mobile-material="flat"] *):not(:has(> :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"]), > [data-slot="button-group"] > :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"]))) {
     --button-group-joined-radius: var(--radius-full);
     --button-group-joined-overlap: 0px;
     --button-group-joined-clip: none;
@@ -192,7 +192,7 @@
   }
 
   /* The capsule: a group of buttons alone. */
-  .Root:is([data-mobile-material="glass"], [data-mobile-material="glass"] *, [data-toolbar] *):not([data-mobile-material="flat"], [data-mobile-material="flat"] *):not(:has(> [data-slot="button-group"], > :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"]))) {
+  .Root:is([data-mobile-material="glass"], [data-mobile-material="glass"] *, [data-toolbar] *, [data-toolbar-row] *):not([data-mobile-material="flat"], [data-mobile-material="flat"] *):not(:has(> [data-slot="button-group"], > :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"]))) {
     gap: var(--button-group-glass-gap);
     padding: 0 var(--button-group-glass-padding);
     border-radius: var(--radius-full);

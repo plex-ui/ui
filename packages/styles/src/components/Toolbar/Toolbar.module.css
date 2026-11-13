@@ -1,7 +1,8 @@
 /* A phone toolbar. A desktop layout has its own composition, so the toolbar never renders there, nor the large title
    it keeps at the top of a page's content. */
 .Toolbar,
-.Heading[data-in-content] {
+.Heading[data-in-content],
+.Row[data-in-content] {
   display: none;
 }
 
@@ -212,13 +213,39 @@
     }
   }
 
-  /* On a page the soft edge of a bottom bar is no band at all (plan 172, owner 08.11 «ios по дефолту разве
-     добавляет фон? внизу»): native iOS 26 lets content run under and around the bottom controls, at full
-     contrast down to the screen's edge (Mail IMG_5534 and 5551, Phone IMG_5615); each glass control stands
-     out by itself. A sheet keeps its soft edge: its list fades into the panel above a bottom search field
-     (Country or region, IMG_5491), and so does a Page laid out inside one. */
-  .Toolbar[data-placement="bottom"][data-background="soft"]:not([data-host="dialog"], [data-mobile-variant="sheet"] *)::before {
-    display: none;
+  /* On a page the soft edge of a bottom bar is iOS 27.2's (owner 13.11 «soft правильный? выглядит как none»; ref-app
+     bottomedge-soft): no band, the top bar's veil and blur turned over (--page-bar-soft-bottom-*), from 34pt above the
+     items to the screen's edge, once content runs on under the bar. Plan 172 had none (iOS 26 Mail, IMG_5534; owner
+     08.11 «ios по дефолту разве добавляет фон? внизу»): 27.2 draws no band either, only this edge. A sheet keeps its
+     own soft edge: its list fades into the panel above a bottom search field (Country or region, IMG_5491), and so
+     does a Page laid out inside one. */
+  .Toolbar[data-placement="bottom"][data-background="soft"]:not([data-host="dialog"], [data-mobile-variant="sheet"] *) {
+    &::before,
+    &::after {
+      inset: calc(var(--toolbar-bottom-item-top) - var(--page-bar-soft-bottom-reach)) 0 0;
+      transition: opacity var(--transition-duration-basic);
+    }
+
+    &::before {
+      -webkit-mask-image: var(--page-bar-soft-bottom-veil);
+      mask-image: var(--page-bar-soft-bottom-veil);
+    }
+
+    &::after {
+      position: absolute;
+      z-index: -1;
+      -webkit-backdrop-filter: blur(var(--page-bar-soft-blur));
+      backdrop-filter: blur(var(--page-bar-soft-blur));
+      content: "";
+      -webkit-mask-image: var(--page-bar-soft-bottom-blur-mask);
+      mask-image: var(--page-bar-soft-bottom-blur-mask);
+      pointer-events: none;
+    }
+
+    &:not([data-content-below])::before,
+    &:not([data-content-below])::after {
+      opacity: 0;
+    }
   }
 
   /* With content under it, a bottom bar's glass casts the raised shadow, as a top bar's does once scrolled.
@@ -227,15 +254,13 @@
     --mobile-glass-shadow: var(--mobile-glass-shadow-raised);
   }
 
-  /* A bottom bar on a band (glass or hard) is the top bar turned over (owner 12.11 «паддинги явно не верные»):
-     above its items the top bar's air under them (10), its side items at the bar's gutter, where the top bar's
-     corner items and the edges of a grouped list's rows stand (16, 20 from 414), and under them that gutter or
-     the home indicator's inset less 6. The iOS 26 kit's 4 above and 28 at the sides are for rounds standing on
-     the content with no band: a soft or blur bar keeps them, and so do a sheet's bar and a single wide action. */
+  /* The background never moves a bottom bar's items (owner 13.11 «фон влияет на позицию кнопок - это ок?»): iOS
+     27.2 stands them at the same place over a soft and a hard edge (ref-app bottomedge-soft and bottomedge-hard: the
+     round 27.3pt from the side, the items 28 above the screen's edge). A band (glass or hard) only starts higher:
+     the hard edge's hairline lies 9.3 above the items, the top bar's air under its own (10, owner 12.11 «паддинги
+     явно не верные»), and the bar stands on the screen's bottom, so its items stay put. */
   .Toolbar[data-placement="bottom"]:not([data-background="soft"], [data-background="blur"], [data-host="dialog"]):not(:has(> .Content[data-fill] > :where(button, a, [role="link"]))) {
-    --toolbar-bottom-gutter: var(--toolbar-gutter);
     --toolbar-bottom-padding-top: var(--toolbar-padding-bottom);
-    --toolbar-bottom-padding-bottom: max(var(--toolbar-gutter), calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 6px));
   }
 
   /* A single wide action (Apps 2.4 Fullsize) leaves 12px above it. A disabled ButtonLink renders a span with the link
@@ -386,6 +411,39 @@
 
   .Toolbar[data-placement="bottom"] > .Content:not([data-fill]) {
     grid-area: content;
+  }
+
+  /* A row under the controls, part of the bar (owner 13.11): a segmented control that switches the screen's views, as
+     a chat list shows its folders under its bar, or a scope bar under a search field. It spans the bar between its
+     gutters, under every row the bar has, so the bar's background, edge and line take it in. A SegmentedControl in it
+     is the bar's glass one and fills the row (its segments share the width, and scroll when they do not fit; a block
+     one shortens its labels instead). */
+  .Row {
+    display: flex;
+    grid-row: -1;
+    grid-column: 1 / -1;
+    align-items: center;
+    min-width: 0;
+    /* The row takes the bar's width, never its content's: segments wider than the bar scroll in it. */
+    contain: inline-size;
+
+    & > * {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+  }
+
+  .Toolbar:not([data-title-style="large"]):has(> .Row) {
+    row-gap: var(--toolbar-row-gap);
+  }
+
+  /* Under a large title on a page the row stands under it at the top of the content, where the content would start
+     (16pt under the title's baseline, as iOS 27.2 sets a safeAreaBar under a large title: ref-app segrow-large), and
+     the content starts as far under the row. It scrolls away with the title. */
+  .Row[data-in-content] {
+    display: flex;
+    order: 1;
+    margin-bottom: var(--page-content-padding-top, 16px);
   }
 
   /* Several buttons in one capsule, as iOS 27.2 groups a bar's symbols: 10 apart with 1 at the ends on top, 8 apart

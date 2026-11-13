@@ -226,6 +226,28 @@ function ToolbarGroup({ className, ...restProps }: ToolbarSlotProps) {
 }
 ToolbarGroup.displayName = "Toolbar.Group"
 
+/**
+ * A row under the controls, part of the bar: a segmented control that switches the screen's views (a chat list's
+ * folders under its bar), or a scope bar under a search field. It spans the bar, and a control in it fills the row.
+ * Under a large title on a page it stands under the title, at the top of the content, and scrolls away with it, as
+ * the drawer of a UIKit bar under a large title does.
+ */
+function ToolbarRow({ className, ...restProps }: ToolbarSlotProps) {
+  const host = useContext(ToolbarHostContext)
+  const titleStyle = useContext(ToolbarTitleStyleContext)
+  const large = titleStyle === "large" && host?.kind === "page"
+  const requestSlot = large ? host?.requestLargeTitleSlot : undefined
+  const slot = large ? host?.largeTitleSlot ?? null : null
+  useLayoutEffect(() => requestSlot?.(), [requestSlot])
+  const row = <div className={clsx(s.Row, className)} data-toolbar-row="" data-in-content={slot ? "" : undefined} {...restProps} />
+  // Under a large title the row waits for its place in the content (it comes before the first paint) and never stands
+  // in the bar first: moving it from the bar into the portal would mount its children again, and a switcher that holds
+  // its own selection would lose it (Codex #5).
+  if (large) return slot ? createPortal(row, slot) : null
+  return row
+}
+ToolbarRow.displayName = "Toolbar.Row"
+
 export type ToolbarTitleProps = Omit<HTMLAttributes<HTMLHeadingElement>, "children"> & {
   children: ReactNode
   /** A second, smaller line below the title. */
@@ -289,6 +311,7 @@ export const Toolbar = ToolbarRoot as typeof ToolbarRoot & {
   Content: typeof ToolbarContent
   Group: typeof ToolbarGroup
   Trailing: typeof ToolbarTrailing
+  Row: typeof ToolbarRow
 }
 
 Toolbar.Leading = ToolbarLeading
@@ -296,3 +319,4 @@ Toolbar.Title = ToolbarTitle
 Toolbar.Content = ToolbarContent
 Toolbar.Group = ToolbarGroup
 Toolbar.Trailing = ToolbarTrailing
+Toolbar.Row = ToolbarRow

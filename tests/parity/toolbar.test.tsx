@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
-import { createElement, type ComponentType, type ReactNode } from "react"
+import { createElement, useEffect, type ComponentType, type ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vitest"
-import { h, reactive, type VNode } from "vue"
+import { defineComponent, h, onMounted, reactive, ref, type VNode } from "vue"
 import { Button as RButton, NavigationButton as RNavigationButton } from "../../packages/ui/src/components/Button"
 import { Dialog as RDialog } from "../../packages/ui/src/components/Dialog"
 import { Page as RPage } from "../../packages/ui/src/components/Page"
@@ -15,6 +15,7 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarLeading,
+  ToolbarRow,
   ToolbarTitle,
   ToolbarTrailing,
 } from "../../packages/vue/src/components/Toolbar"
@@ -30,9 +31,9 @@ type AnyComponent = ComponentType<Props>
 
 const vueProps = ({ className, ...props }: Props) => (className ? { ...props, class: className } : props)
 
-type Case = { root?: Props; title?: Props; leading?: boolean; group?: boolean; search?: boolean }
+type Case = { root?: Props; title?: Props; leading?: boolean; group?: boolean; search?: boolean; row?: boolean }
 
-const reactBar = ({ root = {}, title, leading = true, group = false, search = false }: Case) =>
+const reactBar = ({ root = {}, title, leading = true, group = false, search = false, row = false }: Case) =>
   createElement(
     RToolbar as unknown as AnyComponent,
     root,
@@ -51,9 +52,10 @@ const reactBar = ({ root = {}, title, leading = true, group = false, search = fa
         )
         : createElement(RNavigationButton, { action: "close" }),
     ),
+    row && createElement(RToolbar.Row, { className: "views" }, createElement("div", { role: "radiogroup", "aria-label": "Orders" }, "All")),
   )
 
-const vueBar = ({ root = {}, title, leading = true, group = false, search = false }: Case) =>
+const vueBar = ({ root = {}, title, leading = true, group = false, search = false, row = false }: Case) =>
   h(Toolbar as never, vueProps(root), () => [
     leading ? h(ToolbarLeading, null, () => h(NavigationButton, { action: "back" })) : null,
     title ? h(ToolbarTitle, vueProps(title), () => "Orders") : null,
@@ -65,6 +67,7 @@ const vueBar = ({ root = {}, title, leading = true, group = false, search = fals
           h(Button, { color: "secondary", variant: "soft", uniform: true, pill: true, "aria-label": "More" }, () => "M"),
         ])
         : h(NavigationButton, { action: "close" })),
+    row ? h(ToolbarRow, { class: "views" }, () => h("div", { role: "radiogroup", "aria-label": "Orders" }, "All")) : null,
   ])
 
 afterEach(() => {
@@ -85,6 +88,9 @@ describe("Toolbar parity", () => {
     ["search", { search: true, leading: false }],
     ["hard", { root: { background: "hard" }, title: {} }],
     ["bottom", { root: { placement: "bottom", titleStyle: "large" }, search: true }],
+    ["row", { title: {}, row: true }],
+    ["row under a search field", { search: true, leading: false, row: true }],
+    ["row under a compact title", { root: { titleStyle: "compact-large" }, title: {}, leading: false, row: true }],
   ])("%s", async (_name, bar) => {
     const { react, vue } = await renderPair(reactBar(bar) as never, () => vueBar(bar))
     expect(vue).toBe(react)
@@ -262,15 +268,15 @@ describe("Toolbar in a Sheet", () => {
     return dom
   }
 
-  test.each(["React", "Vue"] as const)("%s: a bottom bar in a Sheet, or in a Page laid out inside one, keeps its soft edge; on a page it has none (plan 172)", async (framework) => {
+  test.each(["React", "Vue"] as const)("%s: a bottom bar in a Sheet, or in a Page laid out inside one, keeps its soft edge; on a page it has iOS 27.2's (owner 13.11)", async (framework) => {
     const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Toolbar/Toolbar.module.css`, "utf8")
     const pageCss = readFileSync(`${process.cwd()}/packages/styles/src/components/Page/Page.module.css`, "utf8")
-    const toolbarRule = css.match(/(\.Toolbar\[data-placement="bottom"\]\[data-background="soft"\][^{]*)::before \{\s*display: none;/)?.[1]
+    const toolbarRule = css.match(/(\.Toolbar\[data-placement="bottom"\]\[data-background="soft"\][^{]*) \{\s*&::before,\s*&::after \{\s*inset: calc\(var\(--toolbar-bottom-item-top\) - var\(--page-bar-soft-bottom-reach\)\) 0 0;/)?.[1]
     const footerBlock = pageCss.slice(pageCss.indexOf("  .Footer {"))
-    const footerRule = footerBlock.match(/&(\[data-background="soft"\][^{]*)::before \{\s*display: none;/)?.[1]
+    const footerRule = footerBlock.match(/&(\[data-background="soft"\][^{]*) \{\s*&::before,\s*&::after \{\s*inset: calc\(var\(--page-footer-padding-top\) - var\(--page-bar-soft-bottom-reach\)\) 0 0;/)?.[1]
     if (!toolbarRule || !footerRule) throw new Error("the soft bottom rules are missing")
-    const hidesToolbar = (el: Element | null) => Boolean(el?.matches(toolbarRule))
-    const hidesFooter = (el: Element | null) => Boolean(el?.matches(`.Footer${footerRule}`))
+    const drawsPageEdge = (el: Element | null) => Boolean(el?.matches(toolbarRule))
+    const drawsFooterEdge = (el: Element | null) => Boolean(el?.matches(`.Footer${footerRule}`))
     const bottom = { placement: "bottom", leading: false, background: "soft" }
     const reactTree = (
       <>
@@ -323,8 +329,8 @@ describe("Toolbar in a Sheet", () => {
     const footers = [...document.querySelectorAll(".Footer")]
     expect(bars).toHaveLength(3)
     expect(footers).toHaveLength(2)
-    for (const bar of bars) expect(hidesToolbar(bar)).toBe(!sheet?.contains(bar))
-    for (const footer of footers) expect(hidesFooter(footer)).toBe(!sheet?.contains(footer))
+    for (const bar of bars) expect(drawsPageEdge(bar)).toBe(!sheet?.contains(bar))
+    for (const footer of footers) expect(drawsFooterEdge(footer)).toBe(!sheet?.contains(footer))
     expect(bars.filter((bar) => sheet?.contains(bar)).map((bar) => bar.getAttribute("data-host")).sort()).toEqual(["dialog", "page"])
     unmount()
   })
@@ -409,16 +415,16 @@ describe("Toolbar disabled buttons", () => {
 
 describe("A large title on a page scrolls with the content (iOS 26)", () => {
   const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Toolbar/Toolbar.module.css`, "utf8")
-  const reactLarge = (titleStyle: string, title: Record<string, unknown> = {}) => createElement(
+  const reactLarge = (titleStyle: string, title: Record<string, unknown> = {}, row = false) => createElement(
     RPage as unknown as AnyComponent,
     null,
-    reactBar({ root: { titleStyle }, title }),
+    reactBar({ root: { titleStyle }, title, row }),
     createElement(RPage.Content, null, "Body"),
   )
-  const vueLarge = (titleStyle: string, title: Record<string, unknown> = {}) => () => h(Page as never, null, () => [vueBar({ root: { titleStyle }, title }), h(PageContent, null, () => "Body")])
-  const mount = async (framework: "React" | "Vue", titleStyle: string, title: Record<string, unknown> = {}) => {
-    const view = framework === "React" ? render(reactLarge(titleStyle, title)) : null
-    const vue = framework === "Vue" ? mountVue(vueLarge(titleStyle, title) as () => VNode) : null
+  const vueLarge = (titleStyle: string, title: Record<string, unknown> = {}, row = false) => () => h(Page as never, null, () => [vueBar({ root: { titleStyle }, title, row }), h(PageContent, null, () => "Body")])
+  const mount = async (framework: "React" | "Vue", titleStyle: string, title: Record<string, unknown> = {}, row = false) => {
+    const view = framework === "React" ? render(reactLarge(titleStyle, title, row)) : null
+    const vue = framework === "Vue" ? mountVue(vueLarge(titleStyle, title, row) as () => VNode) : null
     await (framework === "React" ? act(async () => {}) : flushVue())
     return () => { view?.unmount(); vue?.unmount() }
   }
@@ -556,6 +562,57 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     expect(heading()?.style.getPropertyValue("--toolbar-large-title-gap")).toBe("24px")
   })
 
+  test.each(["React", "Vue"] as const)("%s: a row under a large title stands under it in the content, and the bar keeps its controls", async (framework) => {
+    const unmount = await mount(framework, "large", {}, true)
+    const place = document.querySelector(".LargeTitle")
+    // The title, then the row, at the top of the content: the content starts under the row, and both scroll away.
+    expect(Array.from(place?.children ?? [], (child) => child.className.split(" ")[0])).toEqual(["Heading", "Row"])
+    const row = place?.querySelector(".Row")
+    expect([row?.hasAttribute("data-in-content"), row?.hasAttribute("data-toolbar-row"), row?.classList.contains("views")]).toEqual([true, true, true])
+    expect(row?.querySelector('[role="radiogroup"]')?.textContent).toBe("All")
+    expect(document.querySelector("[data-toolbar] > .Row")).toBeNull()
+    unmount()
+    // Without a large title the row is the bar's own, under its controls.
+    const inline = await mount(framework, "inline", {}, true)
+    expect(document.querySelector("[data-toolbar] > .Row:not([data-in-content])")).not.toBeNull()
+    expect(document.querySelector(".LargeTitle")).toBeNull()
+    inline()
+  })
+
+  test.each(["React", "Vue"] as const)("%s: under a large title a row waits for its place in the content and mounts its children once (Codex #5)", async (framework) => {
+    // A switcher that holds its own selection keeps it when the content comes later: the row never stands in the bar
+    // first, so it is never moved into the content.
+    let mounts = 0
+    const content = ref(false)
+    let rerender = (_content: boolean) => {}
+    if (framework === "React") {
+      function Views() { useEffect(() => { mounts += 1 }, []); return createElement("span", null, "views") }
+      const tree = (withContent: boolean) => createElement(
+        RPage as unknown as AnyComponent,
+        null,
+        createElement(RToolbar as unknown as AnyComponent, { titleStyle: "large" },
+          createElement(RToolbar.Title, null, "Orders"),
+          createElement(RToolbar.Row, null, createElement(Views))),
+        withContent ? createElement(RPage.Content, null, "Body") : null,
+      )
+      const view = render(tree(false))
+      rerender = (withContent) => view.rerender(tree(withContent))
+    } else {
+      const Views = defineComponent({ setup() { onMounted(() => { mounts += 1 }); return () => h("span", null, "views") } })
+      mountVue(() => h(Page as never, null, () => [
+        h(Toolbar, { titleStyle: "large" }, () => [h(ToolbarTitle, null, () => "Orders"), h(ToolbarRow, null, () => h(Views))]),
+        content.value ? h(PageContent, null, () => "Body") : null,
+      ]))
+      rerender = (withContent) => { content.value = withContent }
+    }
+    await (framework === "React" ? act(async () => {}) : flushVue())
+    expect([document.querySelectorAll(".Row").length, mounts]).toEqual([0, 0])
+    if (framework === "React") await act(async () => { rerender(true) })
+    else { rerender(true); await flushVue() }
+    expect(document.querySelector(".LargeTitle > .Row[data-in-content] > span")?.textContent).toBe("views")
+    expect(mounts).toBe(1)
+  })
+
   test.each(["React", "Vue"] as const)("%s: a large title in a bar without a page's content stays in the bar", async (framework) => {
     if (framework === "React") render(createElement(RPage as unknown as AnyComponent, null, reactBar({ root: { titleStyle: "large" }, title: {} })))
     else mountVue(() => h(Page as never, null, () => [vueBar({ root: { titleStyle: "large" }, title: {} })]))
@@ -601,13 +658,21 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     expect(css).toMatch(/:has\(> \.Content\[data-fill\] > :where\(button, a, \[role="link"\]\)\) \{[^}]*--toolbar-bottom-item-top: var\(--toolbar-bottom-fill-padding-top\);/)
   })
 
-  test("a bottom bar on a page leaves the content clear, a sheet's keeps its edge, and glass stands out over content (plan 172)", () => {
+  test("a bottom bar on a page draws iOS 27.2's soft edge once content runs on under it, a sheet's keeps its own, and glass stands out over content (owner 13.11)", () => {
     const read = (path: string) => readFileSync(`${process.cwd()}/packages/styles/src/${path}`, "utf8")
-    // Native iOS 26 draws no band under the bottom controls of a page (Mail, Phone); a sheet fades its list (IMG_5491).
-    expect(css).toMatch(/\.Toolbar\[data-placement="bottom"\]\[data-background="soft"\]:not\(\[data-host="dialog"\], \[data-mobile-variant="sheet"\] \*\)::before \{\s*display: none;/)
+    // ref-app bottomedge-soft: no band, the top bar's veil and blur turned over, from 34pt above the items; a sheet
+    // fades its list (IMG_5491).
+    const pageSoft = css.slice(css.indexOf('.Toolbar[data-placement="bottom"][data-background="soft"]:not([data-host="dialog"], [data-mobile-variant="sheet"] *) {'))
+    expect(pageSoft).toMatch(/^[^]*?&::before \{\s*-webkit-mask-image: var\(--page-bar-soft-bottom-veil\);/)
+    expect(pageSoft).toMatch(/^[^]*?&::after \{[^}]*backdrop-filter: blur\(var\(--page-bar-soft-blur\)\);[^}]*mask-image: var\(--page-bar-soft-bottom-blur-mask\);/)
+    expect(pageSoft).toMatch(/^[^]*?&:not\(\[data-content-below\]\)::before,\s*&:not\(\[data-content-below\]\)::after \{\s*opacity: 0;/)
     // A sheet's bar keeps the glass of the sheet, so the raised shadow no longer ties with Dialog's rule.
     expect(css).toMatch(/\.Toolbar\[data-placement="bottom"\]\[data-content-below\]:not\(\[data-mobile-variant="sheet"\] \*\) \{\s*--mobile-glass-shadow: var\(--mobile-glass-shadow-raised\);/)
-    expect(read("components/Page/Page.module.css")).toMatch(/&\[data-background="soft"\]:not\(\[data-mobile-variant="sheet"\] \*\)::before \{\s*display: none;/)
+    expect(read("components/Page/Page.module.css")).toMatch(/&\[data-background="soft"\]:not\(\[data-mobile-variant="sheet"\] \*\) \{\s*&::before,\s*&::after \{\s*inset: calc\(var\(--page-footer-padding-top\) - var\(--page-bar-soft-bottom-reach\)\) 0 0;/)
+    const tokens = read("styles/variables-components.css")
+    expect(tokens).toContain("--page-bar-soft-bottom-reach: 34px;")
+    expect(tokens).toContain("--page-bar-soft-bottom-veil: linear-gradient(to bottom, transparent, rgb(0 0 0 / 8%) 9px, rgb(0 0 0 / 15%) 25px, rgb(0 0 0 / 15%) 37px, rgb(0 0 0 / 23%) 45px, rgb(0 0 0 / 31%) 57px, rgb(0 0 0 / 46%) 77px);")
+    expect(tokens).toContain("--page-bar-soft-bottom-blur-mask: linear-gradient(to bottom, transparent 12px, #000 40px);")
     expect(read("components/TabBar/TabBar.module.css")).toMatch(/&\[data-background="soft"\]::before \{\s*display: none;/)
     expect(read("components/Dialog/Dialog.module.css")).toContain('.Content[data-mobile-variant="sheet"] .Footer::before {\n    inset: -15px 0 0;')
     // The outline darkens what lies under it, as the kit's linear burn does, and the frost turns content into a smudge.
@@ -644,8 +709,25 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     expect(tokens).toContain("--toolbar-large-title-swap-duration: 300ms;")
   })
 
+  test("a row is the bar's last row across its width, and under a large title the first thing of the content (owner 13.11)", () => {
+    // Under every row the bar has, between its gutters, 8 under the controls; it never widens the bar.
+    expect(css).toMatch(/\.Row \{\s*display: flex;\s*grid-row: -1;\s*grid-column: 1 \/ -1;[^}]*contain: inline-size;/)
+    expect(css).toMatch(/\.Toolbar:not\(\[data-title-style="large"\]\):has\(> \.Row\) \{\s*row-gap: var\(--toolbar-row-gap\);/)
+    expect(readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")).toContain("--toolbar-row-gap: 8px;")
+    // In the content: after the title whichever mounted first, 16 under its baseline, and the content 16 under it.
+    expect(css).toMatch(/\.Row\[data-in-content\] \{\s*display: flex;\s*order: 1;\s*margin-bottom: var\(--page-content-padding-top, 16px\);/)
+    expect(readFileSync(`${process.cwd()}/packages/styles/src/components/Page/Page.module.css`, "utf8")).toMatch(/\.LargeTitle:has\(> \[data-toolbar-row\]\) \{\s*display: flex;\s*flex-direction: column;/)
+    // In the content a control of the row is still the bar's: the glass segmented control (48) and capsule groups,
+    // whatever size it was given (Codex #5).
+    const touch = readFileSync(`${process.cwd()}/packages/styles/src/styles/touch.css`, "utf8")
+    expect(touch.split('html :is([data-toolbar], [data-toolbar-row]) :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]')).toHaveLength(4)
+    expect(touch).not.toContain('html [data-toolbar] :is([data-variant="segmented"]')
+    const group = readFileSync(`${process.cwd()}/packages/styles/src/components/ButtonGroup/ButtonGroup.module.css`, "utf8")
+    expect(group.split('[data-toolbar] *, [data-toolbar-row] *)')).toHaveLength(3)
+  })
+
   test("the title in the content stands where it stood in the bar, and never on a desktop layout", () => {
-    expect(css).toMatch(/^\.Toolbar,\n\.Heading\[data-in-content\] \{\s*display: none;/m)
+    expect(css).toMatch(/^\.Toolbar,\n\.Heading\[data-in-content\],\n\.Row\[data-in-content\] \{\s*display: none;/m)
     expect(css).toMatch(/\.Heading\[data-in-content\] \{\s*display: flex;[^}]*margin: calc\(var\(--toolbar-large-title-gap\) - var\(--toolbar-padding-bottom\) - var\(--page-content-padding-top, 16px\)\) 0 calc\(var\(--page-content-padding-top, 16px\) - var\(--toolbar-large-title-descent\)\);/)
     expect(css).toMatch(/\.Heading\[data-in-content\]:has\(> \.Subtitle\) \{\s*margin-top: calc\(var\(--toolbar-large-title-gap\) \+ 3px - var\(--toolbar-padding-bottom\) - var\(--page-content-padding-top, 16px\)\);\s*margin-bottom: calc\(var\(--page-content-padding-top, 16px\) - var\(--toolbar-large-subtitle-descent\)\);/)
     // The place holds the title's margins, so they never merge with the content's.
@@ -684,11 +766,14 @@ describe("Phone bottom bar after iOS 26 Mail and Contacts (430 x 932)", () => {
     ]) expect(tokens).toContain(token)
   })
 
-  test("on a band (glass, hard) it is the top bar turned over: 10 above, the bar's gutter at the sides and below", () => {
-    // Owner 12.11 «паддинги явно не верные»: the soft bar's 4 and 28 are for rounds standing on the content, and so
-    // are a blur bar's, which has no band either.
+  test("the background never moves the items: a band (glass, hard) only starts 10 above them (owner 13.11)", () => {
+    // ref-app bottomedge-soft and bottomedge-hard: the items stand at the same place over both edges, the round 27.3pt
+    // from the side and 28 above the screen's edge; the hard edge's hairline lies 9.3 above them (owner 12.11
+    // «паддинги явно не верные»: the band starts 10 above, as the top bar's air under its items).
     const toolbar = read("components/Toolbar/Toolbar.module.css")
-    expect(toolbar).toMatch(/\.Toolbar\[data-placement="bottom"\]:not\(\[data-background="soft"\], \[data-background="blur"\], \[data-host="dialog"\]\):not\(:has\(> \.Content\[data-fill\] > :where\(button, a, \[role="link"\]\)\)\) \{\s*--toolbar-bottom-gutter: var\(--toolbar-gutter\);\s*--toolbar-bottom-padding-top: var\(--toolbar-padding-bottom\);\s*--toolbar-bottom-padding-bottom: max\(var\(--toolbar-gutter\), calc\(var\(--safe-area-inset-bottom, env\(safe-area-inset-bottom, 0px\)\) - 6px\)\);\s*\}/)
+    expect(toolbar).toMatch(/\.Toolbar\[data-placement="bottom"\]:not\(\[data-background="soft"\], \[data-background="blur"\], \[data-host="dialog"\]\):not\(:has\(> \.Content\[data-fill\] > :where\(button, a, \[role="link"\]\)\)\) \{\s*--toolbar-bottom-padding-top: var\(--toolbar-padding-bottom\);\s*\}/)
+    // Only the top: no background sets the sides or the bottom of a bottom bar.
+    expect(toolbar).not.toMatch(/\[data-background[^{]*\{[^}]*--toolbar-bottom-(gutter|padding-bottom):/)
     const tokens = read("styles/variables-components.css")
     expect(tokens).toContain("--toolbar-bottom-padding-top: 4px;")
     expect(tokens).toContain("--toolbar-bottom-gutter: 28px;")

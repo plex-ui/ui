@@ -36,6 +36,8 @@ export function Rows() {
 
 const TITLE_STYLES = ['inline', 'large', 'compact-large', 'compact-medium'] as const satisfies readonly ToolbarTitleStyle[];
 const TITLE_ALIGNS = ['center', 'start'] as const satisfies readonly ToolbarTitleAlign[];
+// A row of the bar: the views of the orders, as a chat list shows its folders under its bar (owner 13.11)
+const VIEWS = ['all', 'paid', 'unpaid', 'refunds'] as const;
 // What the bottom bar holds: buttons round a main action, a search field and a plus, one action across the row
 const BOTTOM = ['none', 'buttons', 'search', 'action'] as const;
 
@@ -53,6 +55,8 @@ export function ToolbarOverviewDemo() {
   const [titleAlign, setTitleAlign] = useState<ToolbarTitleAlign>('center');
   const [subtitle, setSubtitle] = useState(false);
   const [group, setGroup] = useState(false);
+  const [row, setRow] = useState(false);
+  const [view, setView] = useState<(typeof VIEWS)[number]>('all');
   const [topBackground, setTopBackground] = useState<BarBackground>('glass');
   const [bottom, setBottom] = useState<(typeof BOTTOM)[number]>('none');
   const [bottomBackground, setBottomBackground] = useState<BarBackground>('soft');
@@ -72,6 +76,7 @@ export function ToolbarOverviewDemo() {
         {named && titleStyle === 'inline' && <Segments name="titleAlign" options={TITLE_ALIGNS} value={titleAlign} onChange={setTitleAlign} />}
         {named && !compact && <DemoControlBoolean name="subtitle" value={subtitle} onChange={setSubtitle} />}
         {!search && <DemoControlBoolean name="group" value={group} onChange={setGroup} />}
+        <DemoControlBoolean name="row" value={row} onChange={setRow} />
         <BarBackgroundRow name="background (top)" value={topBackground} onChange={setTopBackground} />
       </div>
       <Frame>
@@ -103,6 +108,16 @@ export function ToolbarOverviewDemo() {
                 <NavigationButton action={named && titleStyle === 'large' ? 'confirm' : 'close'} />
               )}
             </Toolbar.Trailing>
+            {row && (
+              <Toolbar.Row>
+                <SegmentedControl aria-label="Orders" value={view} onChange={setView}>
+                  <SegmentedControl.Option value="all">All</SegmentedControl.Option>
+                  <SegmentedControl.Option value="paid">Paid</SegmentedControl.Option>
+                  <SegmentedControl.Option value="unpaid" badge={{ content: 3, pill: true }}>Unpaid</SegmentedControl.Option>
+                  <SegmentedControl.Option value="refunds">Refunds</SegmentedControl.Option>
+                </SegmentedControl>
+              </Toolbar.Row>
+            )}
           </Toolbar>
           <Page.Content>
             <Rows />

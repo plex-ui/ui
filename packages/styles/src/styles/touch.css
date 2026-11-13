@@ -780,9 +780,10 @@
        label 15pt Medium and primary, selected or not. The glass is even and lighter than the screen under it (247 on a
        242 sheet), without the sheen of the buttons (owner
        10.11: no vertical gradient on the control); it resolves on the control, under the bar or sheet that may tune
-       it (Page, Dialog). Last, so the bar's control wins over a small or flat one. */
+       it (Page, Dialog). Last, so the bar's control wins over a small or flat one; a row of the bar keeps it when it
+       stands under a large title in the content (Toolbar.Row). */
     html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"])),
-    html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
+    html :is([data-toolbar], [data-toolbar-row]) :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
       --segmented-control-size: 48px;
       --segmented-control-gutter: 4px;
       --segmented-control-gap: 8px;
@@ -813,13 +814,13 @@
        the recording. A browser without linear() keeps the kit's curve over the same time. */
     @media (prefers-reduced-motion: no-preference) {
       html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"])),
-      html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
+      html :is([data-toolbar], [data-toolbar-row]) :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
         --tabs-thumb-transition-duration: 400ms;
       }
 
       @supports (transition-timing-function: linear(0, 1)) {
         html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"]:where(:not([data-mobile-material="flat"], [data-mobile-size="small"], [data-size="3xs"], [data-size="2xs"], [data-size="xs"], [data-size="sm"])),
-        html [data-toolbar] :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
+        html :is([data-toolbar], [data-toolbar-row]) :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
           --tabs-thumb-transition-easing: linear(0, 0.2 3%, 0.33 6.25%, 0.45 10%, 0.538 12.25%, 0.623 16.25%, 0.69 20%, 0.747 24.25%, 0.793 28.75%, 0.83 32.5%, 0.862 36.75%, 0.887 41%, 0.908 45%, 0.925 49.25%, 0.943 53.5%, 0.956 58%, 0.975 66%, 0.981 70%, 0.989 74.75%, 0.994 82.5%, 1);
         }
       }

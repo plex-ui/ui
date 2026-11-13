@@ -3,6 +3,7 @@ export {
   ToolbarContent,
   ToolbarGroup,
   ToolbarLeading,
+  ToolbarRow,
   ToolbarTitle,
   ToolbarTrailing,
   TOOLBAR_HOST,

@@ -207,6 +207,36 @@ export const ToolbarLeading = part("ToolbarLeading", s.Leading)
 export const ToolbarTrailing = part("ToolbarTrailing", s.Trailing)
 /** Buttons that share one capsule (React `Toolbar.Group`). */
 export const ToolbarGroup = part("ToolbarGroup", s.Group, "group")
+/**
+ * A row under the controls, part of the bar: a segmented control that switches the screen's views (a chat list's
+ * folders under its bar), or a scope bar under a search field. It spans the bar, and a control in it fills the row.
+ * Under a large title on a page it stands under the title, at the top of the content, and scrolls away with it, as
+ * the drawer of a UIKit bar under a large title does (React `Toolbar.Row`).
+ */
+export const ToolbarRow = defineComponent({
+  name: "ToolbarRow",
+  inheritAttrs: false,
+  setup(_, { slots, attrs }) {
+    const host = inject(TOOLBAR_HOST, null)
+    const titleStyle = inject(TOOLBAR_TITLE_STYLE, null)
+    const large = computed(() => titleStyle?.value === "large" && host?.kind === "page")
+    const slot = computed(() => (large.value ? host?.largeTitleSlot?.value ?? null : null))
+    let release: (() => void) | undefined
+    onMounted(() => { if (large.value) release = host?.requestLargeTitleSlot?.() })
+    watch(large, (value) => {
+      release?.()
+      release = value ? host?.requestLargeTitleSlot?.() : undefined
+    })
+    onBeforeUnmount(() => release?.())
+    return () => {
+      const place = slot.value
+      const row = h("div", { ...attrs, "class": [s.Row, attrs.class], "data-toolbar-row": "", "data-in-content": place ? "" : undefined }, slots.default?.())
+      // Under a large title the row waits for its place in the content, as React's does.
+      if (large.value) return place ? h(Teleport, { to: place }, [row]) : null
+      return row
+    }
+  },
+})
 
 /** Custom middle content: a search field, a segmented control or a single centered action (React `Toolbar.Content`). */
 export const ToolbarContent = defineComponent({

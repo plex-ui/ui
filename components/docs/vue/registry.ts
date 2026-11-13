@@ -197,7 +197,7 @@ import {
   TooltipTrigger,
   TooltipTriggerDecorator,
 } from '@plexui/vue/components/Tooltip';
-import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarLeading, ToolbarTitle, ToolbarTrailing } from '@plexui/vue/components/Toolbar';
+import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarLeading, ToolbarRow, ToolbarTitle, ToolbarTrailing } from '@plexui/vue/components/Toolbar';
 import {
   Animate,
   AnimateLayout,
@@ -446,6 +446,7 @@ const components: Record<string, Component> = {
   ToolbarContent,
   ToolbarGroup,
   ToolbarLeading,
+  ToolbarRow,
   ToolbarTitle,
   ToolbarTrailing,
   Tooltip,

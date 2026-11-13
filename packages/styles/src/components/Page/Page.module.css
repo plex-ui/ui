@@ -95,6 +95,12 @@
   display: flow-root;
 }
 
+/* With a Toolbar row under the title, the two stand in that order whichever mounted first. */
+.LargeTitle:has(> [data-toolbar-row]) {
+  display: flex;
+  flex-direction: column;
+}
+
 .Content {
   position: relative;
   flex: 1 1 0;
@@ -518,8 +524,35 @@
       opacity: 0;
     }
 
-    &[data-background="soft"]:not([data-mobile-variant="sheet"] *)::before {
-      display: none;
+    /* Soft: iOS 27.2's bottom edge, as a bottom Toolbar's (Toolbar.module.css), from 34pt above the footer's
+       content to the screen's edge, once content runs on under it. */
+    &[data-background="soft"]:not([data-mobile-variant="sheet"] *) {
+      &::before,
+      &::after {
+        inset: calc(var(--page-footer-padding-top) - var(--page-bar-soft-bottom-reach)) 0 0;
+        transition: opacity var(--transition-duration-basic);
+      }
+
+      &::before {
+        -webkit-mask-image: var(--page-bar-soft-bottom-veil);
+        mask-image: var(--page-bar-soft-bottom-veil);
+      }
+
+      &::after {
+        position: absolute;
+        z-index: -1;
+        -webkit-backdrop-filter: blur(var(--page-bar-soft-blur));
+        backdrop-filter: blur(var(--page-bar-soft-blur));
+        content: "";
+        -webkit-mask-image: var(--page-bar-soft-bottom-blur-mask);
+        mask-image: var(--page-bar-soft-bottom-blur-mask);
+        pointer-events: none;
+      }
+
+      &:not([data-content-below])::before,
+      &:not([data-content-below])::after {
+        opacity: 0;
+      }
     }
   }
 
