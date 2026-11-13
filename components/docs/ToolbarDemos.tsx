@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import { Button, NavigationButton } from '@plexui/ui/components/Button';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
@@ -36,10 +37,12 @@ export function Rows() {
 
 const TITLE_STYLES = ['inline', 'large', 'compact-large', 'compact-medium'] as const satisfies readonly ToolbarTitleStyle[];
 const TITLE_ALIGNS = ['center', 'start'] as const satisfies readonly ToolbarTitleAlign[];
-// A row of the bar: the views of the orders, as a chat list shows its folders under its bar, and a search field over
-// it, as iOS 27.2 sets a safeAreaBar under the search field of the bar's drawer (owner 13.11)
+// Where the search waits until a tap opens it: a field in a row under the controls, as iOS 27.2 draws the bar's drawer,
+// or a button in the bar (owner 13.11: «поле поиска второй строкой на всю ширину, либо кнопка поиска в топбаре»)
+const SEARCH = ['none', 'row', 'button'] as const;
+// A row of the bar: the views of the orders, as a chat list shows its folders under its bar; under the search field,
+// as iOS 27.2 sets a safeAreaBar under the field of the bar's drawer (owner 13.11)
 const VIEWS = ['all', 'paid', 'unpaid', 'refunds'] as const;
-const BAR_ROWS = ['none', 'segmented', 'search'] as const;
 const ROW_SIZES = ['md', 'lg'] as const;
 // What the bottom bar holds: buttons round a main action, a search field and a plus, one action across the row
 const BOTTOM = ['none', 'buttons', 'search', 'action'] as const;
@@ -52,48 +55,66 @@ const BOTTOM = ['none', 'buttons', 'search', 'action'] as const;
  * examples of their own: other content.
  */
 export function ToolbarOverviewDemo() {
-  const [search, setSearch] = useState(false);
+  const [search, setSearch] = useState<(typeof SEARCH)[number]>('none');
+  const [searching, setSearching] = useState(false);
   const [title, setTitle] = useState(true);
   const [titleStyle, setTitleStyle] = useState<ToolbarTitleStyle>('inline');
   const [titleAlign, setTitleAlign] = useState<ToolbarTitleAlign>('center');
   const [subtitle, setSubtitle] = useState(false);
   const [group, setGroup] = useState(false);
-  const [barRows, setBarRows] = useState<(typeof BAR_ROWS)[number]>('none');
+  const [segmented, setSegmented] = useState(false);
   const [rowSize, setRowSize] = useState<(typeof ROW_SIZES)[number]>('md');
   const [view, setView] = useState<(typeof VIEWS)[number]>('all');
   const [topBackground, setTopBackground] = useState<BarBackground>('glass');
   const [bottom, setBottom] = useState<(typeof BOTTOM)[number]>('none');
   const [bottomBackground, setBottomBackground] = useState<BarBackground>('soft');
-  // A title, unless a search field takes its place or the bar holds its controls alone
-  const named = !search && title;
-  const compact = named && (titleStyle === 'compact-large' || titleStyle === 'compact-medium');
-  // One search field to a screen: with one in the top bar (in place of the title or in a row), the other places do not
-  // offer their own (and fall back)
-  const rowOptions = search ? BAR_ROWS.filter((option) => option !== 'search') : BAR_ROWS;
-  const shownRows = search && barRows === 'search' ? 'none' : barRows;
-  const topSearch = search || shownRows === 'search';
+  // The open search: its field takes the place of the title and the bar's buttons, with Close next to it, as iOS 27.2
+  // raises the drawer's field into the bar (ref-app segsearch-active); a segmented row stays under it
+  const open = searching && search !== 'none';
+  // A title, unless the open search takes its place or the bar holds its controls alone
+  const named = !open && title;
+  const compact = title && (titleStyle === 'compact-large' || titleStyle === 'compact-medium');
+  // One search to a screen: with one in the top bar, the bottom bar offers neither its own field nor its Search button
+  const topSearch = search !== 'none';
   const bottomOptions = topSearch ? BOTTOM.filter((option) => option !== 'search') : BOTTOM;
   const shownBottom = topSearch && bottom === 'search' ? 'none' : bottom;
+  // Close gives the focus back to what opened the search: the Search button, or the row's field, which stays closed
+  // then (focus would open it again); a click opens it (Codex #10)
+  const searchButton = useRef<HTMLButtonElement>(null);
+  const searchRow = useRef<HTMLDivElement>(null);
+  const closeSearch = () => {
+    flushSync(() => setSearching(false));
+    const opener = search === 'button' ? searchButton.current : searchRow.current?.querySelector('input');
+    if (!opener) return;
+    opener.dataset.restoring = '';
+    opener.focus();
+    delete opener.dataset.restoring;
+  };
+  // A search moved elsewhere waits there again (Codex #10)
+  const chooseSearch = (value: (typeof SEARCH)[number]) => {
+    setSearch(value);
+    setSearching(false);
+  };
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="search" value={search} onChange={setSearch} />
-        {!search && <DemoControlBoolean name="title" value={title} onChange={setTitle} />}
-        {named && <Segments name="titleStyle" options={TITLE_STYLES} value={titleStyle} onChange={setTitleStyle} />}
-        {named && titleStyle === 'inline' && <Segments name="titleAlign" options={TITLE_ALIGNS} value={titleAlign} onChange={setTitleAlign} />}
-        {named && !compact && <DemoControlBoolean name="subtitle" value={subtitle} onChange={setSubtitle} />}
-        {!search && <DemoControlBoolean name="group" value={group} onChange={setGroup} />}
-        <Segments name="rows" options={rowOptions.map((option) => (option === 'search' ? { value: option, label: 'search + segmented' } : option))} value={shownRows} onChange={setBarRows} />
-        {shownRows !== 'none' && <Segments name="size (row)" options={ROW_SIZES} value={rowSize} onChange={setRowSize} />}
+        <Segments name="search" options={SEARCH} value={search} onChange={chooseSearch} />
+        <DemoControlBoolean name="title" value={title} onChange={setTitle} />
+        {title && <Segments name="titleStyle" options={TITLE_STYLES} value={titleStyle} onChange={setTitleStyle} />}
+        {title && titleStyle === 'inline' && <Segments name="titleAlign" options={TITLE_ALIGNS} value={titleAlign} onChange={setTitleAlign} />}
+        {title && !compact && <DemoControlBoolean name="subtitle" value={subtitle} onChange={setSubtitle} />}
+        <DemoControlBoolean name="group" value={group} onChange={setGroup} />
+        <DemoControlBoolean name="segmented" value={segmented} onChange={setSegmented} />
+        {segmented && <Segments name="size (row)" options={ROW_SIZES} value={rowSize} onChange={setRowSize} />}
         <BarBackgroundRow name="background (top)" value={topBackground} onChange={setTopBackground} />
       </div>
       <Frame>
         <Page surface="grouped">
           <Toolbar titleStyle={named ? titleStyle : undefined} titleAlign={named && titleStyle === 'inline' ? titleAlign : undefined} background={topBackground}>
-            {search ? (
+            {open ? (
               <Toolbar.Content fill>
-                <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+                <Input variant="soft" pill autoSelect placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
               </Toolbar.Content>
             ) : (
               <>
@@ -106,23 +127,31 @@ export function ToolbarOverviewDemo() {
               </>
             )}
             <Toolbar.Trailing>
-              {search ? (
-                <NavigationButton action="close" aria-label="Close search" />
-              ) : group ? (
-                <Toolbar.Group aria-label="Order actions">
-                  <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
-                  <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
-                </Toolbar.Group>
+              {open ? (
+                <NavigationButton action="close" aria-label="Close search" onClick={closeSearch} />
               ) : (
-                <NavigationButton action={named && titleStyle === 'large' ? 'confirm' : 'close'} />
+                <>
+                  {search === 'button' && (
+                    <Button ref={searchButton} color="secondary" variant="soft" uniform pill aria-label="Search" onClick={() => setSearching(true)}><Search /></Button>
+                  )}
+                  {group ? (
+                    <Toolbar.Group aria-label="Order actions">
+                      <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
+                      <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+                    </Toolbar.Group>
+                  ) : (
+                    <NavigationButton action={named && titleStyle === 'large' ? 'confirm' : 'close'} />
+                  )}
+                </>
               )}
             </Toolbar.Trailing>
-            {shownRows === 'search' && (
-              <Toolbar.Row>
+            {/* A tap on the field opens the search */}
+            {search === 'row' && !open && (
+              <Toolbar.Row ref={searchRow} onFocus={(event) => 'restoring' in event.target.dataset || setSearching(true)} onClick={() => setSearching(true)}>
                 <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
               </Toolbar.Row>
             )}
-            {shownRows !== 'none' && (
+            {segmented && (
               <Toolbar.Row>
                 <SegmentedControl aria-label="Orders" size={rowSize} value={view} onChange={setView}>
                   <SegmentedControl.Option value="all">All</SegmentedControl.Option>

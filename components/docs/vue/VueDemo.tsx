@@ -46,6 +46,11 @@ export type VueDemoControl = {
    * template gets its `default`.
    */
   when?: VueDemoWhen;
+  /**
+   * State the template keeps that this control sets back when it changes (an open search goes back to waiting when
+   * the search moves elsewhere), as React's demo sets it in the control's `onChange`
+   */
+  resets?: Record<string, unknown>;
 } & (
   | { type: 'boolean'; default: boolean; phoneDefault?: boolean }
   /**
@@ -231,7 +236,8 @@ function VueDemoView({
       .map((control) => [control.name, control.default])),
   }), [controls, phone, props]);
   const set = (name: string) => (value: unknown) => {
-    setValues((current) => ({ ...current, [name]: value }));
+    const resets = controls.find((control) => control.name === name)?.resets;
+    setValues((current) => (current[name] === value ? current : { ...current, ...resets, [name]: value }));
     if (reactiveControlDefaults) {
       setModifiedControls((current) => current.has(name) ? current : new Set([...current, name]));
     }
@@ -297,7 +303,9 @@ function VueDemoView({
       template={filledTemplate}
       props={templateProps}
       onPropChange={(name, value) => {
-        if (controls.some((control) => control.name === name)) set(name)(value);
+        // A control follows the template, and so does state a control resets: the reset reaches the template only as a
+        // change of the value the demo holds
+        if (controls.some((control) => control.name === name || (control.resets && name in control.resets))) set(name)(value);
       }}
     />
   );

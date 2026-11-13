@@ -221,7 +221,7 @@ const toolbarOverview = (() => {
   const frame = read('frame', { pageStyles: styles }) as (body: string) => string;
   const template = frame(read('overview', { list: read('list', { toolbarStyles: styles }) }) as string);
   // The page's own state: the orders and the selected view of a row's segmented control
-  return { template, stageClassName: 'Stage', state: { rows: read('rows'), view: 'all' }, controls: read('overviewControls') as VueDemoControl[] };
+  return { template, stageClassName: 'Stage', state: { rows: read('rows'), view: 'all', searching: false }, controls: read('overviewControls') as VueDemoControl[] };
 })();
 /** A viewport a test can narrow to a phone and widen again, telling the demos' media queries */
 function viewport() {
@@ -1636,17 +1636,63 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await toggle('group');
     expect(buttons(top())).toEqual(['Back', 'Translate', 'More']);
     expect(within(top()).getByRole('group', { name: 'Order actions' })).toBeTruthy();
-    // A search field in place of the title: the title's settings and the group go
-    await toggle('search');
-    expect(within(top()).getByRole('textbox', { name: 'Search orders' })).toBeTruthy();
-    expect([within(top()).queryAllByText('Orders').length, buttons(top())]).toEqual([0, ['Close search']]);
-    expect(['title', 'titleStyle', 'titleAlign', 'subtitle', 'group'].map(offered)).toEqual([false, false, false, false, false]);
+    // The search waits in a row under the controls or behind a button in the bar, and a tap opens it: its field in
+    // place of the title and the buttons, with Close (owner 13.11: «это уже включенное состояние поиска»)
+    const rowsOf = () => Array.from(top().querySelectorAll<HTMLElement>(':scope > [data-toolbar-row]'))
+      .map((row) => (row.querySelector('[data-slot="input"]') ? 'search' : row.querySelector('[data-variant="segmented"]')?.getAttribute('data-size')));
+    const field = () => within(top()).queryByRole('textbox', { name: 'Search orders' });
+    const openFrom = (element: HTMLElement) => interact(() => fireEvent.focusIn(element));
+    expect(options('search')).toEqual(['none', 'row', 'button']);
+    expect([field(), rowsOf()]).toEqual([null, []]);
+    await choose('search', 'button');
+    expect([buttons(top()), field()]).toEqual([['Back', 'Search', 'Translate', 'More'], null]);
+    await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Search' })));
+    expect([within(top()).queryAllByText('Orders').length, buttons(top()), !!field()?.closest('[data-toolbar] > *:not([data-toolbar-row])')]).toEqual([0, ['Close search'], true]);
+    // The title's settings stay: they hold for the bar the search goes back to
+    expect(['title', 'titleStyle', 'titleAlign', 'subtitle', 'group'].map(offered)).toEqual([true, true, true, true, true]);
+    // Close gives the focus back to the Search button (Codex #10)
+    await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Close search' })));
+    expect([within(top()).queryAllByText('Orders').length > 0, buttons(top()), field()]).toEqual([true, ['Back', 'Search', 'Translate', 'More'], null]);
+    expect(document.activeElement?.getAttribute('aria-label')).toBe('Search');
+    await choose('search', 'row');
+    expect([rowsOf(), buttons(top())]).toEqual([['search'], ['Back', 'Translate', 'More']]);
+    await openFrom(field()!);
+    expect([rowsOf(), buttons(top()), within(top()).queryAllByText('Orders').length]).toEqual([[], ['Close search'], 0]);
+    // and to the row's field, which stays closed until a click opens it again
+    await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Close search' })));
+    expect([rowsOf(), buttons(top()), document.activeElement === field()]).toEqual([['search'], ['Back', 'Translate', 'More'], true]);
+    await interact(() => fireEvent.click(field()!));
+    expect(buttons(top())).toEqual(['Close search']);
+    // A search moved elsewhere and back waits again (Codex #10)
+    await choose('search', 'none');
+    await choose('search', 'row');
+    expect([rowsOf(), buttons(top())]).toEqual([['search'], ['Back', 'Translate', 'More']]);
+    // Under a large title the row stands in the content, and Close gives its field the focus back there too (Codex #11)
+    await choose('titleStyle', 'large');
+    const waiting = () => view.container.querySelector<HTMLInputElement>('.LargeTitleRows input[aria-label="Search orders"]');
+    expect(waiting()).toBeTruthy();
+    await openFrom(waiting()!);
+    expect([buttons(top()), top().dataset.titleStyle]).toEqual([['Close search'], 'inline']);
+    await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Close search' })));
+    expect([top().dataset.titleStyle, !!waiting(), document.activeElement === waiting()]).toEqual(['large', true, true]);
+    await choose('titleStyle', 'inline');
+    // A segmented row under the field, native's small one at md and the large one at lg; it stays under the open
+    // field, as iOS 27.2 keeps a safeAreaBar under the raised field (ref-app segsearch-active)
+    expect(offered('size (row)')).toBe(false);
+    await toggle('segmented');
+    expect(rowsOf()).toEqual(['search', 'md']);
+    await choose('size (row)', 'lg');
+    expect(rowsOf()).toEqual(['search', 'lg']);
+    await openFrom(field()!);
+    expect([rowsOf(), !!within(top()).queryByRole('button', { name: 'Close search' }), !!field()]).toEqual([['lg'], true, true]);
+    await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Close search' })));
+    await toggle('segmented');
     // The top bar's background, the flat soft edge too
     await choose('background (top)', 'hard');
     expect(top().dataset.background).toBe('hard');
     await choose('background (top)', 'soft');
     expect(top().dataset.background).toBe('soft');
-    // The bottom bar: one search field to a screen, so not a second one while the top bar holds it
+    // The bottom bar: one search to a screen, so not a second one while the top bar holds it
     expect(options('bottom')).toEqual(['none', 'buttons', 'action']);
     await choose('bottom', 'buttons');
     // No second way to search: the bottom bar leaves out its Search button
@@ -1656,38 +1702,26 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(bar('bottom')!.dataset.background).toBe('glass');
     await choose('bottom', 'action');
     expect(buttons(bar('bottom')!)).toEqual(['New order']);
-    await toggle('search');
+    await choose('search', 'none');
     await choose('bottom', 'buttons');
     expect(buttons(bar('bottom')!)).toEqual(['Filter', 'New order', 'Search']);
     expect(options('bottom')).toEqual(['none', 'buttons', 'search', 'action']);
     await choose('bottom', 'search');
     expect(buttons(bar('bottom')!)).toEqual(['New order']);
     expect(within(bar('bottom')!).getByRole('textbox', { name: 'Search orders' })).toBeTruthy();
-    // A search field turned on in the top bar sends the bottom bar's back to none, and off again brings it back
-    await toggle('search');
+    // A search in the top bar sends the bottom bar's back to none, and none again brings it back
+    await choose('search', 'row');
     expect([bar('bottom'), offered('background (bottom)')]).toEqual([null, false]);
-    await toggle('search');
+    await choose('search', 'button');
+    expect([bar('bottom'), offered('background (bottom)')]).toEqual([null, false]);
+    await choose('search', 'none');
     expect(within(bar('bottom')!).getByRole('textbox', { name: 'Search orders' })).toBeTruthy();
-    // Rows of the bar under its controls (owner 13.11): a segmented control, native's small one at md and the large one
-    // at lg, and a search field over it; one search field to a screen, so the bottom bar's goes while a row holds one
-    const rowsOf = () => Array.from(top().querySelectorAll<HTMLElement>(':scope > [data-toolbar-row]'))
-      .map((row) => (row.querySelector('[data-slot="input"]') ? 'search' : row.querySelector('[data-variant="segmented"]')?.getAttribute('data-size')));
-    expect(options('rows')).toEqual(['none', 'segmented', 'search + segmented']);
-    expect([rowsOf(), offered('size (row)')]).toEqual([[], false]);
-    await choose('rows', 'segmented');
-    expect(rowsOf()).toEqual(['md']);
-    await choose('size (row)', 'lg');
-    expect(rowsOf()).toEqual(['lg']);
-    await choose('rows', 'search + segmented');
-    expect(rowsOf()).toEqual(['search', 'lg']);
-    expect([bar('bottom'), options('bottom')]).toEqual([null, ['none', 'buttons', 'action']]);
-    // A search field in place of the title leaves no row for a second one
-    await toggle('search');
-    expect([rowsOf(), options('rows')]).toEqual([[], ['none', 'segmented']]);
-    // The code sample keeps one search field to a screen too
+    // The code sample opens the search the same way and keeps one search to a screen
     const code = readFileSync(framework === 'React' ? 'content/components/toolbar.mdx' : 'content/vue/components/toolbar.mdx', 'utf8');
-    expect(code).toContain(framework === 'React' ? 'const shownBottom = topSearch && bottom === "search" ? "none" : bottom' : `v-if="bottom !== 'none' && !((search || barRows === 'search') && bottom === 'search')"`);
-    expect(code).toContain(framework === 'React' ? 'const shownRows = search && barRows === "search" ? "none" : barRows' : `<ToolbarRow v-if="barRows === 'search' && !search">`);
+    expect(code).toContain(framework === 'React' ? 'const shownBottom = topSearch && bottom === "search" ? "none" : bottom' : `v-if="bottom !== 'none' && !(search !== 'none' && bottom === 'search')"`);
+    expect(code).toContain(framework === 'React' ? '<Toolbar.Row ref={searchRow} onFocus={(event) => "restoring" in event.target.dataset || setSearching(true)} onClick={() => setSearching(true)}>' : `<ToolbarRow v-if="search === 'row' && !searching" @focusin="'restoring' in $event.target.dataset || (searching = true)" @click="searching = true">`);
+    expect(code).toContain(framework === 'React' ? 'onClick={closeSearch}' : '@click="searching = false; $nextTick(');
+    if (framework === 'Vue') expect(code).toContain('{ name: "search", type: "select", options: ["none", "row", "button"], default: "none", resets: { searching: false } }');
   });
 
   test('DataTable restores the sorted rows after empty, with default, text and rich message modes', async () => {

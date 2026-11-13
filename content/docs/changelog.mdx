@@ -26,6 +26,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 - `Toolbar`, `Page.Header` and the header of a Sheet on a phone: `background="soft"` at the top is the soft scroll edge of iOS 27.2 instead of an opaque band of the canvas color. Once content is under the bar, a blur hides it under the row of controls and lets go of it past the bar, under a thin veil of the canvas color: 55% at the top, 20% at the bar's bottom, none 24px below. At rest it draws nothing, so the first rows and a large title stand clear. New tokens `--page-bar-soft-veil`, `--page-bar-soft-blur` and `--page-bar-soft-blur-mask`. React and Vue.
 - `Toolbar` with `titleStyle="large"` on a page: the title stands at the top of `Page.Content` and scrolls with the content, overscroll included, instead of being moved by script a frame or two behind it. Once it has gone under the bar, the inline title comes in over 0.3s (`--toolbar-large-title-swap-duration`), and a hard or glass bar shows its line with it, as iOS 27.2 swaps them; the swap no longer follows the scroll. `Page` no longer writes `--page-scroll-y`, and `--page-top` ends under the row of controls. React and Vue.
+- A large title with a subtitle on a phone stands where it stands without one: a subtitle that comes or goes no longer moves the title 3px, only the content under it.
 
 ## 0.44.3 (2026-11-13)
 

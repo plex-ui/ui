@@ -345,22 +345,17 @@
   }
 
   /* Large title: the controls stay in their own row and the title sits below it. The row keeps the controls'
-     height with none in it, as Settings' title stands where Files' does under its buttons. With a subtitle the
-     title stands 3pt lower, as UIKit sets one with navigationItem.subtitle on iOS 27.2 (title-uikit-subtitle:
-     «F» from 130). */
+     height with none in it, as Settings' title stands where Files' does under its buttons. A subtitle goes under
+     the title, which stays where it stands without one: the title does not move when a subtitle comes or goes
+     (owner 13.11 «позиция не должна прыгать»; UIKit on iOS 27.2 sets it 3pt lower, title-uikit-subtitle). */
   .Toolbar[data-title-style="large"] {
     --toolbar-edge-blur: var(--toolbar-edge-blur-large);
-    --toolbar-large-title-row-gap: var(--toolbar-large-title-gap);
     grid-template-areas:
       "leading . trailing"
       "heading heading heading";
     grid-template-columns: max-content minmax(0, 1fr) max-content;
     grid-template-rows: minmax(var(--toolbar-item-size), auto) auto;
-    row-gap: var(--toolbar-large-title-row-gap);
-  }
-
-  .Toolbar[data-title-style="large"]:has(> .Heading > .Subtitle) {
-    --toolbar-large-title-row-gap: calc(var(--toolbar-large-title-gap) + 3px);
+    row-gap: var(--toolbar-large-title-gap);
   }
 
   .Toolbar:is([data-title-style="compact-large"], [data-title-style="compact-medium"]),
@@ -831,8 +826,8 @@
     }
   }
 
+  /* With a subtitle the title stays put and the content starts 16pt under the subtitle's baseline. */
   .Heading[data-in-content]:has(> .Subtitle) {
-    margin-top: calc(var(--toolbar-large-title-gap) + 3px - var(--toolbar-padding-bottom) - var(--page-content-padding-top, 16px));
     margin-bottom: calc(var(--page-content-padding-top, 16px) - var(--toolbar-large-subtitle-descent));
   }
 

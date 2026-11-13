@@ -116,6 +116,6 @@ describe('demo controls by the part of the screen they change', () => {
       expect(mdx).toMatch(/\{ name: "bottomBackground", label: "background \(bottom\)", [^\n]*default: "soft"[^\n]*placement: "bottom" \}/);
     }
     // The bottom bar of the Toolbar Overview, its own control under the preview, with no second search field
-    expect(readFileSync('content/vue/components/toolbar.mdx', 'utf8')).toContain('{ name: "bottom", type: "select", options: ["none", "buttons", { value: "search", label: "search", when: { search: false, barRows: ["none", "segmented"] } }, "action"], default: "none", placement: "bottom" }');
+    expect(readFileSync('content/vue/components/toolbar.mdx', 'utf8')).toContain('{ name: "bottom", type: "select", options: ["none", "buttons", { value: "search", label: "search", when: { search: "none" } }, "action"], default: "none", placement: "bottom" }');
   });
 });

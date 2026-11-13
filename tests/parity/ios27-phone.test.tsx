@@ -180,13 +180,14 @@ describe("a search field in the content and the large title above it (iOS 27.2 F
     expect(css).not.toMatch(/-webkit-search-decoration,/)
   })
 
-  test("the large title: capitals 22pt under the row, 3pt lower with a subtitle, the content 16pt under the last baseline", () => {
+  test("the large title: capitals 22pt under the row, the same with a subtitle (owner 13.11), the content 16pt under the last baseline", () => {
     const tokens = read("packages/styles/src/styles/variables-components.css")
     for (const token of ["--toolbar-large-title-gap: 13.3px;", "--toolbar-large-title-descent: 8.3px;", "--toolbar-large-subtitle-descent: 4.6px;"]) expect(tokens).toContain(token)
     const toolbar = read("packages/styles/src/components/Toolbar/Toolbar.module.css")
-    expect(toolbar).toMatch(/\.Toolbar\[data-title-style="large"\]:has\(> \.Heading > \.Subtitle\) \{\s*--toolbar-large-title-row-gap: calc\(var\(--toolbar-large-title-gap\) \+ 3px\);\s*\}/)
-    expect(toolbar).toContain("row-gap: var(--toolbar-large-title-row-gap);")
-    expect(toolbar).not.toMatch(/^\s*row-gap: var\(--toolbar-large-title-gap\)/m)
+    // A subtitle coming or going never moves the title (owner 13.11 «позиция не должна прыгать»).
+    expect(toolbar).toMatch(/\.Toolbar\[data-title-style="large"\] \{[^}]*row-gap: var\(--toolbar-large-title-gap\);/)
+    expect(toolbar).not.toContain("--toolbar-large-title-row-gap")
+    expect(toolbar).not.toContain("+ 3px")
     // The row of controls keeps its height with none in it (Settings has no bar buttons).
     expect(toolbar).toContain("grid-template-rows: minmax(var(--toolbar-item-size), auto) auto;")
   })

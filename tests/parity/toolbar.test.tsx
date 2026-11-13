@@ -908,7 +908,8 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
   test("the title in the content stands where it stood in the bar, and never on a desktop layout", () => {
     expect(css).toMatch(/^\.Toolbar,\n\.Heading\[data-in-content\],\n\.Row\[data-in-content\] \{\s*display: none;/m)
     expect(css).toMatch(/\.Heading\[data-in-content\] \{\s*display: flex;[^}]*margin: calc\(var\(--toolbar-large-title-gap\) - var\(--toolbar-padding-bottom\) - var\(--page-content-padding-top, 16px\)\) 0 calc\(var\(--page-content-padding-top, 16px\) - var\(--toolbar-large-title-descent\)\);/)
-    expect(css).toMatch(/\.Heading\[data-in-content\]:has\(> \.Subtitle\) \{\s*margin-top: calc\(var\(--toolbar-large-title-gap\) \+ 3px - var\(--toolbar-padding-bottom\) - var\(--page-content-padding-top, 16px\)\);\s*margin-bottom: calc\(var\(--page-content-padding-top, 16px\) - var\(--toolbar-large-subtitle-descent\)\);/)
+    // With a subtitle only the content moves: the title keeps its top (owner 13.11).
+    expect(css).toMatch(/\.Heading\[data-in-content\]:has\(> \.Subtitle\) \{\s*margin-bottom: calc\(var\(--page-content-padding-top, 16px\) - var\(--toolbar-large-subtitle-descent\)\);\s*\}/)
     // The place holds the title's margins, so they never merge with the content's.
     expect(readFileSync(`${process.cwd()}/packages/styles/src/components/Page/Page.module.css`, "utf8")).toMatch(/\.LargeTitle \{\s*display: flow-root;/)
   })

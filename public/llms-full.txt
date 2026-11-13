@@ -8869,31 +8869,43 @@ Props:
     - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
 
 ### Overview
-Leading and trailing items take 44px targets; an inline title is centered across the whole width. titleStyle sets the size and place of the title: inline in the row of controls, large on a row of its own below them (on a page it stands at the top of the content and scrolls with it, overscroll included; once it has gone under the controls, they show it inline), and compact-large or compact-medium at the leading edge of the row, on a screen with no Back button. subtitle adds a second line under an inline or large title. titleAlign="start" puts an inline title after the leading items. Scroll the content: the bar's background meets the rows under it, and the glass starts to cast a shadow. Toolbar.Group puts related actions in one capsule; a single action, as Back or Close, keeps a capsule of its own. Without Toolbar.Title the bar holds its controls alone. A ButtonGroup in a toolbar is the same capsule. Name each icon button with aria-label. Toolbar.Content fill stretches a search field across the row in the place of the title, up to the trailing items; the field takes the row height and the material of the bar buttons. Toolbar.Row adds a row under the controls, part of the bar: a SegmentedControl that switches the screen's views, as a chat list shows its folders under its bar, or a search field. It spans the bar between its gutters, 10px under the controls, and the bar's background and line take it in. Several rows stand in their order, 10px apart: a search field over a segmented control, as iOS 27.2 sets them under the search field of a bar's drawer. A segmented control in it is the small plain one at its default size (32px, as iOS 27.2 draws a segmented Picker under a bar) and fills the row: its segments share the width and scroll when they do not fit, and a badge counts what a view holds; size="lg" gives the large glass one (48px). A search field in it is the bar's: 44px of glass. Under a large title on a page the rows stand under the title at the top of the content, 16px under its baseline; scrolled up to the bar they stay pinned under its controls, and the bar's background, edge and line reach under them, as iOS 27.2 pins them. placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, whatever the background: iOS 27.2 keeps them in place over every scroll edge, and a band (glass or hard) only starts 10px above them. A search field holds SearchSm, set in Regular; a plus next to it takes iconSize="sm", as Contacts draws it smaller than the other symbols. The page content scrolls under both bars. A screen holds one search field, so with one in the top bar the bottom bar offers neither its own field nor its Search button. background sets how a bar meets the content scrolled under it. glass, the default of a top bar, is a translucent, blurred bar with a hairline. soft, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: once content is under a top bar with a title, a blur hides it under the controls and lets go of it past the bar, under a thin veil of the canvas color (iOS 27.2: 55% at the top, 20% at the bar's bottom, none 24px below), while a top bar of controls alone on a page covers only the status bar, and once content runs on under a bottom bar on a page, a blur hides it under the controls behind a veil of the canvas color that grows toward the screen's edge, with no band and no line (iOS 27.2: none 34px above the items, 15% at their top, 46% from 43px into them); each glass control stands out over it. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a hairline. blur has no fill and no line: the content under the bar is blurred a little over the bar and past it, and heavily toward the screen's edge. Glass, hard and blur show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values. The top and the bottom bar each take their own; the bottom bar's controls stand under the preview.
+Leading and trailing items take 44px targets; an inline title is centered across the whole width. titleStyle sets the size and place of the title: inline in the row of controls, large on a row of its own below them (on a page it stands at the top of the content and scrolls with it, overscroll included; once it has gone under the controls, they show it inline), and compact-large or compact-medium at the leading edge of the row, on a screen with no Back button. subtitle adds a second line under an inline or large title. titleAlign="start" puts an inline title after the leading items. Scroll the content: the bar's background meets the rows under it, and the glass starts to cast a shadow. Toolbar.Group puts related actions in one capsule; a single action, as Back or Close, keeps a capsule of its own. Without Toolbar.Title the bar holds its controls alone. A ButtonGroup in a toolbar is the same capsule. Name each icon button with aria-label. Toolbar.Content fill stretches a search field across the row in the place of the title, up to the trailing items; the field takes the row height and the material of the bar buttons. That is the open search: until a tap opens it, the search waits in a field across a row under the controls (search row) or behind a Search button in the bar (search button), and Close puts it back, as iOS 27.2 raises the field of the bar's drawer into the bar and hides the title and the buttons; a segmented row stays under the open field. Toolbar.Row adds a row under the controls, part of the bar: a SegmentedControl that switches the screen's views, as a chat list shows its folders under its bar, or a search field. It spans the bar between its gutters, 10px under the controls, and the bar's background and line take it in. Several rows stand in their order, 10px apart: a search field over a segmented control, as iOS 27.2 sets them under the search field of a bar's drawer. A segmented control in it is the small plain one at its default size (32px, as iOS 27.2 draws a segmented Picker under a bar) and fills the row: its segments share the width and scroll when they do not fit, and a badge counts what a view holds; size="lg" gives the large glass one (48px). A search field in it is the bar's: 44px of glass. Under a large title on a page the rows stand under the title at the top of the content, 16px under its baseline; scrolled up to the bar they stay pinned under its controls, and the bar's background, edge and line reach under them, as iOS 27.2 pins them. placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, whatever the background: iOS 27.2 keeps them in place over every scroll edge, and a band (glass or hard) only starts 10px above them. A search field holds SearchSm, set in Regular; a plus next to it takes iconSize="sm", as Contacts draws it smaller than the other symbols. The page content scrolls under both bars. A screen holds one search field, so with one in the top bar the bottom bar offers neither its own field nor its Search button. background sets how a bar meets the content scrolled under it. glass, the default of a top bar, is a translucent, blurred bar with a hairline. soft, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: once content is under a top bar with a title, a blur hides it under the controls and lets go of it past the bar, under a thin veil of the canvas color (iOS 27.2: 55% at the top, 20% at the bar's bottom, none 24px below), while a top bar of controls alone on a page covers only the status bar, and once content runs on under a bottom bar on a page, a blur hides it under the controls behind a veil of the canvas color that grows toward the screen's edge, with no band and no line (iOS 27.2: none 34px above the items, 15% at their top, 46% from 43px into them); each glass control stands out over it. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a hairline. blur has no fill and no line: the content under the bar is blurred a little over the bar and past it, and heavily toward the screen's edge. Glass, hard and blur show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values. The top and the bottom bar each take their own; the bottom bar's controls stand under the preview.
 ```tsx
-const [search, setSearch] = useState(false) // a search field in place of the title
+const [search, setSearch] = useState("none") // where the search waits: "row" (a field under the controls) or "button" (in the bar)
+const [searching, setSearching] = useState(false) // a tap opens it: its field in place of the title, with Close
 const [title, setTitle] = useState(true) // false: the bar holds its controls alone
 const [titleStyle, setTitleStyle] = useState("inline") // or "large", "compact-large", "compact-medium"
 const [titleAlign, setTitleAlign] = useState("center") // or "start"; an inline title only
 const [subtitle, setSubtitle] = useState(false) // not with a compact title
 const [group, setGroup] = useState(false)
-const [barRows, setBarRows] = useState("none") // rows of the bar under its controls: or "segmented", "search" (a search field over the segmented control)
+const [segmented, setSegmented] = useState(false) // a row of the bar with the views, under the search field
 const [rowSize, setRowSize] = useState("md") // "lg": the large glass control
 const [view, setView] = useState("all")
 const [topBackground, setTopBackground] = useState("glass") // or "soft", "hard", "blur"
 const [bottom, setBottom] = useState("none") // or "buttons", "search" (one search field to a screen), "action"
 const [bottomBackground, setBottomBackground] = useState("soft") // or "hard", "glass", "blur"
-const named = !search && title
-const compact = named && titleStyle.startsWith("compact")
-const shownRows = search && barRows === "search" ? "none" : barRows // one search field to a screen
-const topSearch = search || shownRows === "search"
+const open = searching && search !== "none"
+const named = !open && title
+const compact = title && titleStyle.startsWith("compact")
+const topSearch = search !== "none" // one search to a screen
 const shownBottom = topSearch && bottom === "search" ? "none" : bottom
+const searchButton = useRef(null)
+const searchRow = useRef(null)
+// Close gives the focus back to what opened the search; the row's field stays closed then (focus would open it again)
+const closeSearch = () => {
+  flushSync(() => setSearching(false))
+  const opener = search === "button" ? searchButton.current : searchRow.current?.querySelector("input")
+  if (!opener) return
+  opener.dataset.restoring = ""
+  opener.focus()
+  delete opener.dataset.restoring
+}
 
 <Page surface="grouped">
   <Toolbar titleStyle={named ? titleStyle : undefined} titleAlign={named && titleStyle === "inline" ? titleAlign : undefined} background={topBackground}>
-    {search ? (
+    {open ? (
       <Toolbar.Content fill>
-        <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+        <Input variant="soft" pill autoSelect placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
       </Toolbar.Content>
     ) : (
       <>
@@ -8906,23 +8918,30 @@ const shownBottom = topSearch && bottom === "search" ? "none" : bottom
       </>
     )}
     <Toolbar.Trailing>
-      {search ? (
-        <NavigationButton action="close" aria-label="Close search" />
-      ) : group ? (
-        <Toolbar.Group aria-label="Order actions">
-          <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
-          <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
-        </Toolbar.Group>
+      {open ? (
+        <NavigationButton action="close" aria-label="Close search" onClick={closeSearch} />
       ) : (
-        <NavigationButton action={named && titleStyle === "large" ? "confirm" : "close"} />
+        <>
+          {search === "button" && (
+            <Button ref={searchButton} color="secondary" variant="soft" uniform pill aria-label="Search" onClick={() => setSearching(true)}><Search /></Button>
+          )}
+          {group ? (
+            <Toolbar.Group aria-label="Order actions">
+              <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
+              <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+            </Toolbar.Group>
+          ) : (
+            <NavigationButton action={named && titleStyle === "large" ? "confirm" : "close"} />
+          )}
+        </>
       )}
     </Toolbar.Trailing>
-    {shownRows === "search" && (
-      <Toolbar.Row>
+    {search === "row" && !open && (
+      <Toolbar.Row ref={searchRow} onFocus={(event) => "restoring" in event.target.dataset || setSearching(true)} onClick={() => setSearching(true)}>
         <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
       </Toolbar.Row>
     )}
-    {shownRows !== "none" && (
+    {segmented && (
       <Toolbar.Row>
         <SegmentedControl aria-label="Orders" size={rowSize} value={view} onChange={setView}>
           <SegmentedControl.Option value="all">All</SegmentedControl.Option>
