@@ -50,7 +50,7 @@ import { PHONE_LAYOUT as PHONE_LAYOUT_SCOPE, type PhoneLayoutValue } from "../Ph
 import { overlayTiming, overlayTimingLarge } from "../Transition/shared.js"
 import { provideFloatingBoundaryScope, useFloatingBoundaryRegistration } from "../../composables/useFloatingBoundary.js"
 import { NavigationButton } from "../Button/NavigationButton.js"
-import { TOOLBAR_HOST, Toolbar, ToolbarLeading, ToolbarTrailing, type BarBackground } from "../Toolbar/Toolbar.js"
+import { barBackground, TOOLBAR_HOST, Toolbar, ToolbarLeading, ToolbarTrailing, type BarBackground, type BarBackgroundAlias } from "../Toolbar/Toolbar.js"
 import { observeScrollEdges } from "../../lib/scrollEdges.js"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
 import t from "@plexui/styles/components/Toolbar/Toolbar.module.css"
@@ -570,8 +570,8 @@ export const DialogContent = defineComponent({
   },
 })
 
-/** How a Sheet's bar meets the content scrolled under it; see `BarBackground`. */
-export type DialogBarBackground = BarBackground
+/** How a Sheet's bar meets the content scrolled under it; see `BarBackground`. `"solid"` is the earlier name of `"hard"`. */
+export type DialogBarBackground = BarBackground | BarBackgroundAlias
 
 // The header's own parts, fragments opened up, so its actions can stand at the end of the bar
 const headerParts = (children: VNodeArrayChildren | undefined): VNodeArrayChildren =>
@@ -606,7 +606,7 @@ export const DialogHeader = defineComponent({
     const bar = computed(() => !!sheet?.value && phone.value)
     provide(DIALOG_BAR, bar)
     return () => {
-      if (!bar.value) return h("div", mergeProps({ "class": s.Header, "data-background": props.background, "data-scrolled": scroll?.scrolled.value ? "" : undefined }, attrs), slots.default?.())
+      if (!bar.value) return h("div", mergeProps({ "class": s.Header, "data-background": barBackground(props.background), "data-scrolled": scroll?.scrolled.value ? "" : undefined }, attrs), slots.default?.())
       const parts = headerParts(slots.default?.())
       const descriptions = parts.filter(isDescription)
       const slot = descriptionSlot ? descriptionSlot.own.value ?? descriptionSlot.body.value : null
@@ -727,7 +727,7 @@ export const DialogFooter = defineComponent({
         "ref": boundary?.setFooter,
         "class": s.Footer,
         "data-mobile-layout": props.mobileLayout,
-        "data-background": props.background,
+        "data-background": barBackground(props.background),
         "data-content-below": scroll?.contentBelow.value ? "" : undefined,
       }, turned ? headerParts(parts).reverse() : parts)
     }

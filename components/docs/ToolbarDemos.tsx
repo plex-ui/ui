@@ -183,9 +183,9 @@ export function ToolbarSearchLargeTitleDemo() {
   );
 }
 
-export const BAR_BACKGROUNDS = ['soft', 'hard', 'glass', 'solid'] as const satisfies readonly BarBackground[];
+export const BAR_BACKGROUNDS = ['soft', 'hard', 'glass', 'blur'] as const satisfies readonly BarBackground[];
 
-/** One `background` row of the bar demos: a SegmentedControl over the four scroll edge styles. */
+/** One `background` row of the bar demos: a SegmentedControl over the bar backgrounds. */
 export function BarBackgroundRow({ name, value, onChange, phoneOnly = false }: { name: string; value: BarBackground; onChange: (value: BarBackground) => void; phoneOnly?: boolean }) {
   return (
     <DemoControlRow name={name} phoneOnly={phoneOnly}>

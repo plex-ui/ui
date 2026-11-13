@@ -893,7 +893,7 @@
   }
 
   .Content[data-mobile-variant="sheet"] .Header[data-background="hard"]::after {
-    border-bottom: 1px solid transparent;
+    border-bottom: 0.5px solid transparent;
   }
 
   .Content[data-mobile-variant="sheet"] .Header[data-background="glass"]::after {
@@ -901,7 +901,7 @@
   }
 
   .Content[data-mobile-variant="sheet"] .Footer[data-background="hard"]::before {
-    border-top: 1px solid transparent;
+    border-top: 0.5px solid transparent;
   }
 
   .Content[data-mobile-variant="sheet"] .Footer[data-background="glass"]::before {
@@ -919,6 +919,58 @@
   .Content[data-mobile-variant="sheet"] .Header[data-scrolled][data-background="glass"]::after,
   .Content[data-mobile-variant="sheet"] .Footer[data-content-below][data-background="glass"]::before {
     opacity: 1;
+  }
+
+  /* Blur: the blur background of a Toolbar (--page-bar-blur-*), the light blur on the bar's own layer and the heavy
+     one on the other, once the body is under the header or continues below the footer. */
+  .Content[data-mobile-variant="sheet"] .Header[data-background="blur"]::after,
+  .Content[data-mobile-variant="sheet"] .Footer[data-background="blur"]::before {
+    background: none;
+    -webkit-backdrop-filter: blur(var(--page-bar-blur-light));
+    backdrop-filter: blur(var(--page-bar-blur-light));
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header[data-background="blur"]::after {
+    inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));
+    -webkit-mask-image: var(--page-bar-blur-top-mask);
+    mask-image: var(--page-bar-blur-top-mask);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Footer[data-background="blur"]::before {
+    inset: calc(-1 * var(--page-bar-soft-tail, 32px)) 0 0;
+    -webkit-mask-image: var(--page-bar-blur-bottom-mask);
+    mask-image: var(--page-bar-blur-bottom-mask);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header[data-background="blur"]::before,
+  .Content[data-mobile-variant="sheet"] .Footer[data-background="blur"]::after {
+    position: absolute;
+    z-index: -1;
+    -webkit-backdrop-filter: blur(var(--page-bar-blur-heavy));
+    backdrop-filter: blur(var(--page-bar-blur-heavy));
+    content: "";
+    pointer-events: none;
+    transition: opacity var(--transition-duration-basic);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header[data-background="blur"]::before {
+    inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));
+    border-radius: var(--dialog-panel-radius);
+    -webkit-mask-image: var(--page-bar-blur-top-heavy-mask);
+    mask-image: var(--page-bar-blur-top-heavy-mask);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Footer[data-background="blur"]::after {
+    inset: calc(-1 * var(--page-bar-soft-tail, 32px)) 0 0;
+    -webkit-mask-image: var(--page-bar-blur-bottom-heavy-mask);
+    mask-image: var(--page-bar-blur-bottom-heavy-mask);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header[data-background="blur"]:not([data-scrolled])::before,
+  .Content[data-mobile-variant="sheet"] .Header[data-background="blur"]:not([data-scrolled])::after,
+  .Content[data-mobile-variant="sheet"] .Footer[data-background="blur"]:not([data-content-below])::before,
+  .Content[data-mobile-variant="sheet"] .Footer[data-background="blur"]:not([data-content-below])::after {
+    opacity: 0;
   }
 
   .Content[data-mobile-variant="sheet"] .Footer {

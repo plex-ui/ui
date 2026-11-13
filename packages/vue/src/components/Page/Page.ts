@@ -15,7 +15,7 @@ import {
   type Ref,
 } from "vue"
 import { provideFloatingBoundaryScope, useFloatingBoundaryRegistration } from "../../composables/useFloatingBoundary.js"
-import { TOOLBAR_HOST, type BarBackground, type ToolbarPlacement } from "../Toolbar/Toolbar.js"
+import { barBackground, TOOLBAR_HOST, type BarBackground, type BarBackgroundAlias, type ToolbarPlacement } from "../Toolbar/Toolbar.js"
 import { observeScrollEdges } from "../../lib/scrollEdges.js"
 import s from "@plexui/styles/components/Page/Page.module.css"
 
@@ -23,8 +23,8 @@ import s from "@plexui/styles/components/Page/Page.module.css"
 // (`PageHeader` for `Page.Header`, ...). As in React, caller attributes are
 // applied after the page's own (`class` is merged), so they win.
 
-/** How a phone bar of the page meets the content scrolled under it; see `BarBackground`. */
-export type PageBarBackground = BarBackground
+/** How a phone bar of the page meets the content scrolled under it; see `BarBackground`. `"solid"` is the earlier name of `"hard"`. */
+export type PageBarBackground = BarBackground | BarBackgroundAlias
 
 export type PageWidth = "full" | "wide" | "column"
 
@@ -143,7 +143,7 @@ export const PageHeader = defineComponent({
     onBeforeUnmount(() => { observer?.disconnect(); headerHeight.value = undefined })
 
     return () =>
-      h("div", { "ref": element, "class": s.Header, "data-background": props.background, "data-scrolled": scrolled.value ? "" : undefined, "data-divider": props.divider ? "" : undefined }, [
+      h("div", { "ref": element, "class": s.Header, "data-background": barBackground(props.background), "data-scrolled": scrolled.value ? "" : undefined, "data-divider": props.divider ? "" : undefined }, [
         h("div", { class: s.Head }, slots.default?.()),
       ])
   },
@@ -261,7 +261,7 @@ export const PageFooter = defineComponent({
       observer.observe(footer, { box: "border-box" })
     })
     onBeforeUnmount(() => { observer?.disconnect(); footerHeight.value = 0 })
-    return () => h("div", { ref: setFooter, class: s.Footer, "data-background": props.background, "data-content-below": contentBelow.value ? "" : undefined }, [
+    return () => h("div", { ref: setFooter, class: s.Footer, "data-background": barBackground(props.background), "data-content-below": contentBelow.value ? "" : undefined }, [
       h("div", { class: s.FooterContent }, slots.default?.()),
     ])
   },

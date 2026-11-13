@@ -15,12 +15,12 @@ import {
   type UIEvent,
 } from "react"
 import { FloatingBoundaryProvider, useFloatingBoundaryRegistration, useFloatingBoundaryScope } from "../../hooks/useFloatingBoundary"
-import { ToolbarHostContext, type BarBackground, type ToolbarHost, type ToolbarPlacement } from "../Toolbar/Toolbar"
+import { barBackground, ToolbarHostContext, type BarBackground, type BarBackgroundAlias, type ToolbarHost, type ToolbarPlacement } from "../Toolbar/Toolbar"
 import { NO_SCROLL_EDGES, observeScrollEdges, sameScrollEdges, type ScrollEdges } from "../../lib/scrollEdges"
 import s from "@plexui/styles/components/Page/Page.module.css"
 
-/** How a phone bar of the page meets the content scrolled under it; see `BarBackground`. */
-export type PageBarBackground = BarBackground
+/** How a phone bar of the page meets the content scrolled under it; see `BarBackground`. `"solid"` is the earlier name of `"hard"`. */
+export type PageBarBackground = BarBackground | BarBackgroundAlias
 
 export type PageWidth = "full" | "wide" | "column"
 
@@ -174,7 +174,7 @@ function PageHeader({ divider = true, background = "glass", className, children,
     <div
       ref={setRef}
       className={clsx(s.Header, className)}
-      data-background={background}
+      data-background={barBackground(background)}
       data-scrolled={scrolled ? "" : undefined}
       data-divider={divider ? "" : undefined}
       {...restProps}
@@ -329,7 +329,7 @@ function PageFooter({ className, children, background = "soft", ref, ...restProp
     <div
       ref={setRef}
       className={clsx(s.Footer, className)}
-      data-background={background}
+      data-background={barBackground(background)}
       data-content-below={contentBelow ? "" : undefined}
       {...restProps}
     >

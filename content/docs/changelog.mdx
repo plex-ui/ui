@@ -9,7 +9,17 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ## Unreleased
 
+### Added
+
+- `background="blur"` for every bar of a phone screen (`Toolbar` at the top and the bottom, `Page.Header`, `Page.Footer`, the bars of a Sheet and `TabBar`), in React and Vue: no fill and no line, only the content under the bar blurred, a little over the bar and 32px past it and heavily toward the screen's edge (measured on a reference screen: text smeared out 40px inside the bar's edge and clear 27px past it). It shows once content is under the bar, as hard and glass do. Tokens `--page-bar-blur-light` and `--page-bar-blur-heavy` (`3px`, `12px`), placed by `--page-bar-blur-top-mask`, `--page-bar-blur-top-heavy-mask`, `--page-bar-blur-bottom-mask` and `--page-bar-blur-bottom-heavy-mask`. The `background` controls of the Toolbar, Page, Dialog and Tab Bar pages offer it.
+
+### Changed
+
+- `background="solid"` is the earlier name of `"hard"` on every bar: iOS 27.2 has two scroll edges, soft and hard, and no opaque bar without a line, and a hard bar draws its line only once content is under it, so at rest the two look the same. The four backgrounds are `soft`, `hard`, `glass` and `blur`; `BarBackground` lists them, and `"solid"` stays accepted (`BarBackgroundAlias`). A bottom `Toolbar` with `blur` stands on the content as a soft one does, with no band.
+
 ### Fixed
+
+- The line of a `hard` bar is a hairline, as iOS 27.2 draws it: one device pixel, black 10% in light, instead of 1px at 12%, three times as thick on an iPhone. `--page-bar-hard-line` is now `var(--page-bar-line)`.
 
 - `Toolbar`, `Page.Header` and the header of a Sheet on a phone: `background="soft"` at the top is the soft scroll edge of iOS 27.2 instead of an opaque band of the canvas color. Once content is under the bar, a blur hides it under the row of controls and lets go of it past the bar, under a thin veil of the canvas color: 55% at the top, 20% at the bar's bottom, none 24px below. At rest it draws nothing, so the first rows and a large title stand clear. New tokens `--page-bar-soft-veil`, `--page-bar-soft-blur` and `--page-bar-soft-blur-mask`. React and Vue.
 - `Toolbar` with `titleStyle="large"` on a page: the title stands at the top of `Page.Content` and scrolls with the content, overscroll included, instead of being moved by script a frame or two behind it. Once it has gone under the bar, the inline title comes in over 0.3s (`--toolbar-large-title-swap-duration`), and a hard or glass bar shows its line with it, as iOS 27.2 swaps them; the swap no longer follows the scroll. `Page` no longer writes `--page-scroll-y`, and `--page-top` ends under the row of controls. React and Vue.

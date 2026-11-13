@@ -164,7 +164,7 @@ const cancel = (
 
 ### Scrolling body
 
-<ComponentPreview phonePresentation="screen" phoneDialog details={<>Put long content in <code>Dialog.Body</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, <code>background</code> on <code>Dialog.Header</code> and <code>Dialog.Footer</code> sets how the Sheet's bars meet the body scrolled under them, as a <a href="/components/toolbar#background">Toolbar</a>'s do: by default <code>glass</code> on the header and <code>soft</code> on the footer, or <code>hard</code> or <code>solid</code>.</>} code={`const heading = useRef<HTMLDivElement>(null)
+<ComponentPreview phonePresentation="screen" phoneDialog details={<>Put long content in <code>Dialog.Body</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, <code>background</code> on <code>Dialog.Header</code> and <code>Dialog.Footer</code> sets how the Sheet's bars meet the body scrolled under them, as a <a href="/components/toolbar#background">Toolbar</a>'s do: by default <code>glass</code> on the header and <code>soft</code> on the footer, or <code>hard</code> or <code>blur</code>.</>} code={`const heading = useRef<HTMLDivElement>(null)
 
 <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
   <Dialog.Header>
@@ -379,7 +379,7 @@ Over a phone keyboard the dialog covers the part of the window the keyboard leav
 
 **Dialog.Trigger**: opens the dialog; renders its child element (Radix `asChild`).
 
-**Dialog.Header**: wrapper for title, description and an optional header action. In a phone Sheet the header is the Sheet's Toolbar: Close at the leading edge, the title alone, centered on the 44px row of controls, and the header action at the trailing edge, as in the iOS 27 kit. The description stands under the bar as the first text of the content, at the top of the body when there is one, in the label color of the sheet's text. If the Dialog has its own top Toolbar, that one replaces the header's bar. In a phone Sheet, `background` sets how the bar meets the body scrolled under it: `glass` (the default), `soft`, `hard` or `solid`, as on a [Toolbar](/components/toolbar#background).
+**Dialog.Header**: wrapper for title, description and an optional header action. In a phone Sheet the header is the Sheet's Toolbar: Close at the leading edge, the title alone, centered on the 44px row of controls, and the header action at the trailing edge, as in the iOS 27 kit. The description stands under the bar as the first text of the content, at the top of the body when there is one, in the label color of the sheet's text. If the Dialog has its own top Toolbar, that one replaces the header's bar. In a phone Sheet, `background` sets how the bar meets the body scrolled under it: `glass` (the default), `soft`, `hard` or `blur`, as on a [Toolbar](/components/toolbar#background).
 
 **Dialog.HeaderAction**: positions one toolbar control beside Close on desktop and opposite Close in a mobile sheet. Place it directly inside Dialog.Header (a fragment there is fine, a component of your own that returns it is not: a phone Sheet looks for it among the header's own parts to stand it at its edge) and label icon-only controls. Mobile alerts hide this slot.
 
@@ -399,7 +399,7 @@ Over a phone keyboard the dialog covers the part of the window the keyboard leav
 **Dialog.Footer**: footer area for action buttons. Mobile alert actions are 48px pills: two in a wrapping row, three or more stacked. A mobile sheet stacks its actions as an iOS setup sheet: 53px pills, 16px side gutters and at least 16px below them, including the bottom safe area. Its last action, the main one, stands on top, and the order in the page turns with it, so focus and a screen reader meet the actions as they are seen; a soft, outline or ghost action beside a solid one is a plain tinted button under it (red for danger).
 
 <PropsTable data={[
-  { prop: "background", type: '"soft" | "hard" | "glass" | "solid"', default: '"soft"', description: "How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged" },
+  { prop: "background", type: '"soft" | "hard" | "glass" | "blur"', default: '"soft"', description: "How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged. solid is the earlier name of hard" },
   { prop: "mobileLayout", type: '"inline" | "stacked"', description: "Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit. A stacked alert keeps the written order; a stacked sheet puts its last action on top" },
 ]} />
 
@@ -419,7 +419,7 @@ Use `surface="grouped"` on dialog content for grouped forms. The default `surfac
 
 Dialog reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there. Override these Dialog tokens at any scope:
 
-- `--dialog-panel-background`: panel color, and the color of a Sheet's soft, hard and solid bars; mobile follows the selected elevated surface role
+- `--dialog-panel-background`: panel color, and the color of a Sheet's soft and hard bars; mobile follows the selected elevated surface role
 - `--dialog-close-background`: close button background (default `transparent`)
 - `--dialog-close-background-hover`: close button background on hover
 - `--dialog-z-index`: stack order of the overlay and the dialog (default `50`; `zIndex` sets it)

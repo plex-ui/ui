@@ -94,7 +94,7 @@
     }
 
     &[data-background="hard"]::before {
-      border-bottom: 1px solid transparent;
+      border-bottom: 0.5px solid transparent;
     }
 
     &[data-background="glass"]::before {
@@ -107,6 +107,36 @@
 
     &[data-scrolled][data-background="glass"]::before {
       opacity: 1;
+    }
+
+    /* Blur (--page-bar-blur-*): no fill and no line, the content under the bar blurred a little over the bar and its
+       tail, and heavily toward the screen's edge, once content is under the bar. */
+    &[data-background="blur"]::before {
+      inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));
+      background: none;
+      -webkit-backdrop-filter: blur(var(--page-bar-blur-light));
+      backdrop-filter: blur(var(--page-bar-blur-light));
+      -webkit-mask-image: var(--page-bar-blur-top-mask);
+      mask-image: var(--page-bar-blur-top-mask);
+    }
+
+    &[data-background="blur"]::after {
+      position: absolute;
+      z-index: -1;
+      inset: 0 0 calc(-1 * var(--page-bar-soft-tail, 32px));
+      border-radius: inherit;
+      -webkit-backdrop-filter: blur(var(--page-bar-blur-heavy));
+      backdrop-filter: blur(var(--page-bar-blur-heavy));
+      content: "";
+      -webkit-mask-image: var(--page-bar-blur-top-heavy-mask);
+      mask-image: var(--page-bar-blur-top-heavy-mask);
+      pointer-events: none;
+      transition: opacity var(--transition-duration-basic);
+    }
+
+    &[data-background="blur"]:not([data-scrolled])::before,
+    &[data-background="blur"]:not([data-scrolled])::after {
+      opacity: 0;
     }
   }
 
@@ -136,7 +166,7 @@
     }
 
     &[data-background="hard"]::before {
-      border-top: 1px solid transparent;
+      border-top: 0.5px solid transparent;
     }
 
     &[data-background="glass"]::before {
@@ -149,6 +179,36 @@
 
     &[data-content-below][data-background="glass"]::before {
       opacity: 1;
+    }
+
+    /* Blur, turned: heavy toward the screen's bottom edge, light over the bar and its tail above it, while content
+       continues below. */
+    &[data-background="blur"]::before {
+      inset: calc(-1 * var(--page-bar-soft-tail, 32px)) 0 0;
+      background: none;
+      -webkit-backdrop-filter: blur(var(--page-bar-blur-light));
+      backdrop-filter: blur(var(--page-bar-blur-light));
+      -webkit-mask-image: var(--page-bar-blur-bottom-mask);
+      mask-image: var(--page-bar-blur-bottom-mask);
+    }
+
+    &[data-background="blur"]::after {
+      position: absolute;
+      z-index: -1;
+      inset: calc(-1 * var(--page-bar-soft-tail, 32px)) 0 0;
+      border-radius: inherit;
+      -webkit-backdrop-filter: blur(var(--page-bar-blur-heavy));
+      backdrop-filter: blur(var(--page-bar-blur-heavy));
+      content: "";
+      -webkit-mask-image: var(--page-bar-blur-bottom-heavy-mask);
+      mask-image: var(--page-bar-blur-bottom-heavy-mask);
+      pointer-events: none;
+      transition: opacity var(--transition-duration-basic);
+    }
+
+    &[data-background="blur"]:not([data-content-below])::before,
+    &[data-background="blur"]:not([data-content-below])::after {
+      opacity: 0;
     }
   }
 
@@ -167,12 +227,12 @@
     --mobile-glass-shadow: var(--mobile-glass-shadow-raised);
   }
 
-  /* A bottom bar on a band (glass, hard or solid) is the top bar turned over (owner 12.11 «паддинги явно не верные»):
+  /* A bottom bar on a band (glass or hard) is the top bar turned over (owner 12.11 «паддинги явно не верные»):
      above its items the top bar's air under them (10), its side items at the bar's gutter, where the top bar's
      corner items and the edges of a grouped list's rows stand (16, 20 from 414), and under them that gutter or
      the home indicator's inset less 6. The iOS 26 kit's 4 above and 28 at the sides are for rounds standing on
-     the content with no band: a soft bar keeps them, and so do a sheet's bar and a single wide action. */
-  .Toolbar[data-placement="bottom"]:not([data-background="soft"], [data-host="dialog"]):not(:has(> .Content[data-fill] > :where(button, a, [role="link"]))) {
+     the content with no band: a soft or blur bar keeps them, and so do a sheet's bar and a single wide action. */
+  .Toolbar[data-placement="bottom"]:not([data-background="soft"], [data-background="blur"], [data-host="dialog"]):not(:has(> .Content[data-fill] > :where(button, a, [role="link"]))) {
     --toolbar-bottom-gutter: var(--toolbar-gutter);
     --toolbar-bottom-padding-top: var(--toolbar-padding-bottom);
     --toolbar-bottom-padding-bottom: max(var(--toolbar-gutter), calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 6px));

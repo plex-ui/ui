@@ -412,7 +412,7 @@ Props:
   DialogHeaderAction:
     - side ("leading" | "trailing") default: "trailing" — leading puts the action before the title, such as the Back of a step: in a phone Sheet it takes the place of Close, as the back button of a screen pushed inside an iOS sheet
   DialogFooter:
-    - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged
+    - background ("soft" | "hard" | "glass" | "blur") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged. solid is the earlier name of hard
     - mobile-layout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit. A stacked alert keeps the written order; a stacked sheet puts its last action on top
   DialogSteps:
     - step (string | number) — The step on screen. A new value brings its content in
@@ -743,7 +743,7 @@ Props:
   - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
   - class (string) — Class of the root element
   PageHeader:
-    - background ("soft" | "hard" | "glass" | "solid") default: "glass" — How the bar meets the content scrolled under it on a phone, see Background
+    - background ("soft" | "hard" | "glass" | "blur") default: "glass" — How the bar meets the content scrolled under it on a phone, see Background. solid is the earlier name of hard
     - divider (boolean) default: true — Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background
     - class (string) — Class of the band
   PageContent:
@@ -1184,7 +1184,7 @@ Props:
   - minimize-behavior ("never" | "onScrollDown") default: "never" — Minimize to the selected tab while the Page content scrolls down
   - minimized (boolean) — Controlled minimized state; bind with v-model:minimized
   - default-minimized (boolean) default: false — Minimized state (uncontrolled)
-  - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it, see Background
+  - background ("soft" | "hard" | "glass" | "blur") default: "soft" — How the bar meets the content scrolled under it, see Background. solid is the earlier name of hard
   - aria-label (string) default: "Tabs" — Name of the navigation
   TabBarItem:
     - value (string) — Value of the tab
@@ -1359,7 +1359,7 @@ Props:
   - placement ("top" | "bottom") default: "top" — Top bar with 44px targets, or bottom bar with 48px targets
   - titleStyle ("inline" | "large" | "compact-large" | "compact-medium") default: "inline" — Size and place of ToolbarTitle in a top bar
   - titleAlign ("center" | "start") default: "center" — Alignment of an inline title. Large and compact titles always start at the leading edge
-  - background ("soft" | "hard" | "glass" | "solid") default: "glass" at the top, "soft" at the bottom — How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft
+  - background ("soft" | "hard" | "glass" | "blur") default: "glass" at the top, "soft" at the bottom — How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft and solid of hard
   - class (string) — Class of the bar
   ToolbarTitle:
     - subtitle (string) — Second, smaller line below the title. The subtitle slot takes precedence

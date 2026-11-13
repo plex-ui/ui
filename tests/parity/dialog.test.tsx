@@ -243,14 +243,16 @@ describe("Dialog parity", () => {
     }
   })
 
-  test.each(["soft", "hard", "glass", "solid"] as const)("%s bar surfaces have identical React and Vue markup", async (background) => {
+  test.each(["soft", "hard", "glass", "blur", "solid"] as const)("%s bar surfaces have identical React and Vue markup", async (background) => {
     render(<div><ReactDialog.Header background={background}>Title</ReactDialog.Header><ReactDialog.Footer background={background}>Actions</ReactDialog.Footer></div>)
     const react = serializeDom()
     cleanup()
     const { unmount } = mountVue(() => h("div", [h(DialogHeader, { background }, () => "Title"), h(DialogFooter, { background }, () => "Actions")]))
     await flushVue()
-    expect(document.querySelector(".Header")?.getAttribute("data-background")).toBe(background)
-    expect(document.querySelector(".Footer")?.getAttribute("data-background")).toBe(background)
+    // The earlier `solid` is hard.
+    const drawn = background === "solid" ? "hard" : background
+    expect(document.querySelector(".Header")?.getAttribute("data-background")).toBe(drawn)
+    expect(document.querySelector(".Footer")?.getAttribute("data-background")).toBe(drawn)
     expect(serializeDom()).toBe(react)
     unmount()
   })

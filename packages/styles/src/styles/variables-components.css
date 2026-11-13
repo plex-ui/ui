@@ -632,19 +632,34 @@
        then thins out: 38% 32 above it, 31% 16 above, 20% at the bottom, 8% 12 below, none 24 below. The blur hides
        the text under the row of controls and lets go of it by 12pt under the bar. Both lie over the bar and this
        tail past it; the veil is the mask of a layer of the canvas color, so one gradient serves every canvas. The
-       hard edge of iOS 26 (Settings, IMG_5503: an opaque cover to the bar's bottom) is `"hard"`. */
+       hard edge (Settings, IMG_5503; ref-app edge-uikit-hard-plain: a nearly opaque cover to the bar's bottom and a
+       hairline) is `"hard"`. */
     --page-bar-soft-tail: 32px;
     --page-bar-soft-veil: linear-gradient(to bottom, rgb(0 0 0 / 55%) calc(100% - var(--page-bar-soft-tail) - 56px), rgb(0 0 0 / 38%) calc(100% - var(--page-bar-soft-tail) - 32px), rgb(0 0 0 / 31%) calc(100% - var(--page-bar-soft-tail) - 16px), rgb(0 0 0 / 20%) calc(100% - var(--page-bar-soft-tail)), rgb(0 0 0 / 8%) calc(100% - var(--page-bar-soft-tail) + 12px), transparent calc(100% - var(--page-bar-soft-tail) + 24px));
     --page-bar-soft-blur: 10px;
     --page-bar-soft-blur-mask: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail) - 16px), transparent calc(100% - var(--page-bar-soft-tail) + 12px));
+    /* The blur background of a bar (owner 13.11, the top bar of a third-party app): no veil and no line, only the
+       content under the bar blurred, the more the nearer the screen's edge. Measured on the owner's screenshot: text
+       under the row of controls smeared out from 40px above the bar's edge, a few pixels of blur 13 above it, about
+       one 14 past it, and clear 27 past it. A light blur covers the bar and fades out over --page-bar-soft-tail past
+       it; a heavy one lies over it toward the screen's edge. The masks run from the edge of a top bar down and of
+       a bottom bar up. */
+    --page-bar-blur-light: 3px;
+    --page-bar-blur-heavy: 12px;
+    --page-bar-blur-top-mask: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail) - 16px), transparent);
+    --page-bar-blur-top-heavy-mask: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail) - 40px), transparent calc(100% - var(--page-bar-soft-tail) - 8px));
+    --page-bar-blur-bottom-mask: linear-gradient(to top, #000 calc(100% - var(--page-bar-soft-tail) - 16px), transparent);
+    --page-bar-blur-bottom-heavy-mask: linear-gradient(to top, #000 calc(100% - var(--page-bar-soft-tail) - 40px), transparent calc(100% - var(--page-bar-soft-tail) - 8px));
     --page-bar-veil: light-dark(rgb(255 255 255 / 55%), rgb(0 0 0 / 50%));
     /* The blur of a glass bar: light enough that the lines scrolled under it still read as smudged text
        (owner 08.11: at 20px the 17px text of a sheet vanished and the bar read as opaque white; 10px still
        nearly hides it, 6px shows it). The saturation is Apple's bar material (180%). */
     --page-bar-glass-filter: blur(6px) saturate(180%);
     --page-bar-line: light-dark(rgb(0 0 0 / 10%), var(--color-border));
-    /* The line of a hard scroll edge: iOS 26 kit Materials, Scroll Edge Effect - Hard (5661:26978), 1pt black 12%. */
-    --page-bar-hard-line: light-dark(rgb(0 0 0 / 12%), var(--color-border));
+    /* The line of a hard scroll edge, a hairline as iOS 27.2 draws it (ref-app edge-uikit-hard-plain, owner 13.11):
+       one device pixel, black 10% in light and white about 10% over the bar in dark, the line of a glass bar. The
+       kit's 1pt black 12% (Materials 5661:26978) drew it three times as thick on an iPhone. */
+    --page-bar-hard-line: var(--page-bar-line);
     --page-title-font-size: 20px;
     --page-title-line-height: 26px;
     --page-content-padding-top: 16px;

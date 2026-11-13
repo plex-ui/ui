@@ -16,7 +16,7 @@ import {
 import s from "@plexui/styles/components/TabBar/TabBar.module.css"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { Search as SearchIcon } from "../Icon"
-import { ToolbarHostContext, type BarBackground } from "../Toolbar/Toolbar"
+import { barBackground, ToolbarHostContext, type BarBackground, type BarBackgroundAlias } from "../Toolbar/Toolbar"
 
 /** A scroll of at least this many pixels in one direction minimizes or expands the bar. */
 const MINIMIZE_AFTER = 8
@@ -78,8 +78,8 @@ export type TabBarProps = {
   defaultMinimized?: boolean
   /** Called when the bar minimizes or expands. */
   onMinimizedChange?: (minimized: boolean) => void
-  /** How the bar meets the content scrolled under it; see `BarBackground`. @default "soft" */
-  background?: BarBackground
+  /** How the bar meets the content scrolled under it; see `BarBackground` (`"solid"` is the earlier name of `"hard"`). @default "soft" */
+  background?: BarBackground | BarBackgroundAlias
   /**
    * Content in a glass capsule above the tabs, a now playing row or a status, as the iOS 27 bottom accessory;
    * minimized, it stands between the two circles. The bar grows by its height.
@@ -207,7 +207,7 @@ function TabBarRoot({
       aria-label={ariaLabel}
       className={clsx(s.TabBar, className)}
       data-host={host?.kind}
-      data-background={background}
+      data-background={barBackground(background)}
       data-content-below={host?.contentBelow ? "" : undefined}
       data-minimized={minimized ? "" : undefined}
       data-search={search && !prominent ? "" : undefined}

@@ -16,10 +16,11 @@ import { flushVue, mountVue } from "./harness"
 
 // One `background` vocabulary on every bar of a phone screen, after the scroll edge styles of iOS 26 (kit
 // Materials, Scroll Edge Effect - Soft 5661:26943 and - Hard 5661:26978): soft (the default), hard, glass and
-// solid. Hard and glass show their line only while content is under the bar: under a top bar once the content
-// has scrolled, above a bottom bar while the content continues below it.
+// blur (owner 13.11); solid is the earlier name of hard (owner 13.11 «делай как в iOS»). Hard and glass show their
+// line only while content is under the bar: under a top bar once the content has scrolled, above a bottom bar while
+// the content continues below it; blur shows only then.
 
-const BACKGROUNDS = ["soft", "hard", "glass", "solid"] as const
+const BACKGROUNDS = ["soft", "hard", "glass", "blur"] as const
 type Background = (typeof BACKGROUNDS)[number]
 type Framework = "React" | "Vue"
 const FRAMEWORKS = ["React", "Vue"] as const
@@ -120,6 +121,19 @@ describe("Bar background", () => {
     await mountPage(framework, "edge", "toolbars")
     expect(backgrounds("[data-toolbar]")).toEqual(["soft", "soft"])
   })
+
+  test.each(FRAMEWORKS)("%s: the earlier `solid` is hard on every bar", async (framework) => {
+    await mountPage(framework, "solid" as Background)
+    expect(backgrounds(".Header, .Footer")).toEqual(["hard", "hard"])
+    cleanup()
+    document.body.innerHTML = ""
+    await mountPage(framework, "solid" as Background, "toolbars")
+    expect(backgrounds("[data-toolbar], nav")).toEqual(["hard", "hard", "hard"])
+    cleanup()
+    document.body.innerHTML = ""
+    await mountSheet(framework, "solid" as Background)
+    expect(backgrounds(".Header, .Footer")).toEqual(["hard", "hard"])
+  })
 })
 
 describe("Bar lines follow the content under the bars", () => {
@@ -177,8 +191,39 @@ describe("Bar background styles", () => {
   const tabBar = read("components/TabBar/TabBar.module.css")
   const sheet = '.Content[data-mobile-variant="sheet"]'
 
-  test("the hard line is the kit's Hard edge: 1pt black 12% in light", () => {
-    expect(tokens).toContain("--page-bar-hard-line: light-dark(rgb(0 0 0 / 12%), var(--color-border));")
+  test("the hard line is a hairline, as iOS 27.2 draws it: the line of a glass bar", () => {
+    expect(tokens).toContain("--page-bar-hard-line: var(--page-bar-line);")
+    for (const css of [toolbar, page, tabBar, dialog]) {
+      expect(css).not.toMatch(/data-background="hard"\]::(before|after) \{\s*border-(top|bottom): 1px/)
+      expect(css).toMatch(/data-background="hard"\]::(before|after) \{\s*border-(top|bottom): 0\.5px solid transparent;/)
+    }
+  })
+
+  test("blur has no fill and no line: a light blur over the bar and past it, a heavy one toward the screen's edge, once content is under the bar", () => {
+    expect(tokens).toContain("--page-bar-blur-light: 3px;")
+    expect(tokens).toContain("--page-bar-blur-heavy: 12px;")
+    expect(tokens).toContain("--page-bar-blur-top-mask: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail) - 16px), transparent);")
+    expect(tokens).toContain("--page-bar-blur-top-heavy-mask: linear-gradient(to bottom, #000 calc(100% - var(--page-bar-soft-tail) - 40px), transparent calc(100% - var(--page-bar-soft-tail) - 8px));")
+    expect(tokens).toContain("--page-bar-blur-bottom-mask: linear-gradient(to top,")
+    expect(tokens).toContain("--page-bar-blur-bottom-heavy-mask: linear-gradient(to top,")
+    // A top bar: the Toolbar and the Page header, light on ::before and heavy on ::after, hidden until scrolled.
+    for (const css of [toolbar, page]) {
+      expect(css).toMatch(/&\[data-background="blur"\]::before \{\s*inset: 0 0 calc\(-1 \* var\(--page-bar-soft-tail, 32px\)\);\s*background: none;[^}]*backdrop-filter: blur\(var\(--page-bar-blur-light\)\);[^}]*mask-image: var\(--page-bar-blur-top-mask\);/)
+      expect(css).toMatch(/&\[data-background="blur"\]::after \{[^}]*backdrop-filter: blur\(var\(--page-bar-blur-heavy\)\);[^}]*mask-image: var\(--page-bar-blur-top-heavy-mask\);/)
+      expect(css).toContain('&[data-background="blur"]:not([data-scrolled])::before,\n    &[data-background="blur"]:not([data-scrolled])::after {\n      opacity: 0;')
+    }
+    // A bottom bar: the Toolbar, the Page footer and the tab bar, turned, hidden while nothing continues below.
+    for (const css of [toolbar, page, tabBar]) {
+      expect(css).toMatch(/&\[data-background="blur"\]::before \{\s*inset: calc\(-1 \* var\(--page-bar-soft-tail, 32px\)\) 0 0;\s*background: none;[^}]*mask-image: var\(--page-bar-blur-bottom-mask\);/)
+      expect(css).toMatch(/&\[data-background="blur"\]::after \{[^}]*mask-image: var\(--page-bar-blur-bottom-heavy-mask\);/)
+      expect(css).toContain('&[data-background="blur"]:not([data-content-below])::before,\n    &[data-background="blur"]:not([data-content-below])::after {\n      opacity: 0;')
+    }
+    // A Sheet: the light blur on each bar's own layer, the heavy one on the other.
+    expect(dialog).toContain(`${sheet} .Header[data-background="blur"]::after,\n  ${sheet} .Footer[data-background="blur"]::before {\n    background: none;`)
+    expect(dialog).toMatch(/\.Header\[data-background="blur"\]::before \{[^}]*border-radius: var\(--dialog-panel-radius\);[^}]*mask-image: var\(--page-bar-blur-top-heavy-mask\);/)
+    expect(dialog).toMatch(/\.Footer\[data-background="blur"\]::after \{[^}]*mask-image: var\(--page-bar-blur-bottom-heavy-mask\);/)
+    expect(dialog).toContain(`${sheet} .Header[data-background="blur"]:not([data-scrolled])::before,`)
+    expect(dialog).toContain(`${sheet} .Footer[data-background="blur"]:not([data-content-below])::after {\n    opacity: 0;`)
   })
 
   test("every bar other than soft fills itself without the edge's mask or blur", () => {

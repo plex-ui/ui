@@ -40,9 +40,9 @@ export function PageOverviewDemo() {
   const [footer, setFooter] = useState(false);
   const [bottom, setBottom] = useState<PageBarBackground>('soft');
   const phone = usePhoneRows();
-  // On a phone a soft or solid header draws no line, so the divider is a desktop setting there; on a desktop a
+  // On a phone a soft or blur header draws no line, so the divider is a desktop setting there; on a desktop a
   // filled page does not scroll under its header, so the line never comes and the divider is a phone setting
-  const unlined = top === 'soft' || top === 'solid';
+  const unlined = top === 'soft' || top === 'blur';
   const shownFill = !phone && fill;
   const title = <Page.Title>Orders</Page.Title>;
   return (

@@ -86,7 +86,7 @@ describe("Page parity", () => {
     ["wide", { width: "wide" }, {}, {}],
     ["column", { width: "column" }, {}, {}],
     ["fill", {}, {}, { fill: true }],
-    ["solid bar", {}, { background: "solid" }, {}],
+    ["hard bar", {}, { background: "hard" }, {}],
     ["class and attributes", { className: "app", id: "orders" }, { className: "top" }, { className: "body", id: "scroll" }],
     ["own width", { width: "column", style: { "--page-width": "860px" } }, {}, {}],
   ])("%s", async (_name, root, header, content) => {
@@ -295,11 +295,11 @@ describe.each(["React", "Vue"])("%s Page footer measurement", (framework) => {
       return this.classList.contains("Footer") ? height : 0
     })
     try {
-      if (framework === "React") render(<RPage><RPage.Content>Form</RPage.Content><RPage.Footer background="solid">Save</RPage.Footer></RPage>)
-      else mountVue(() => h(Page, null, () => [h(PageContent, null, () => "Form"), h(PageFooter, { background: "solid" }, () => "Save")]))
+      if (framework === "React") render(<RPage><RPage.Content>Form</RPage.Content><RPage.Footer background="hard">Save</RPage.Footer></RPage>)
+      else mountVue(() => h(Page, null, () => [h(PageContent, null, () => "Form"), h(PageFooter, { background: "hard" }, () => "Save")]))
       await flushVue()
       expect(document.querySelector<HTMLElement>(".Page")?.style.getPropertyValue("--page-footer-height")).toBe("90px")
-      expect(document.querySelector(".Footer")?.getAttribute("data-background")).toBe("solid")
+      expect(document.querySelector(".Footer")?.getAttribute("data-background")).toBe("hard")
       // Padding and safe-area changes alter the border box without changing the content box. (The content
       // is observed too, for the scroll edges of the bars.)
       const footer = document.querySelector(".Footer")

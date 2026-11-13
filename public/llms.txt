@@ -414,7 +414,7 @@ Props:
     - side ("leading" | "trailing") default: "trailing" — leading puts the action before the title, such as the Back of a step: in a phone Sheet it takes the place of Close, as the back button of a screen pushed inside an iOS sheet
     - className (string) — Additional CSS class on the action's wrapper
   Dialog.Footer:
-    - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged
+    - background ("soft" | "hard" | "glass" | "blur") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged. solid is the earlier name of hard
     - mobileLayout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit. A stacked alert keeps the written order; a stacked sheet puts its last action on top
   Dialog.Steps:
     - step (string | number) — The step on screen. A new value brings its content in
@@ -771,7 +771,7 @@ Props:
   - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
   - className (string) default: — — Applied to the root element
   Page.Header:
-    - background ("soft" | "hard" | "glass" | "solid") default: "glass" — How the bar meets the content scrolled under it on a phone, see Overview
+    - background ("soft" | "hard" | "glass" | "blur") default: "glass" — How the bar meets the content scrolled under it on a phone, see Overview. "solid" is the earlier name of "hard"
     - divider (boolean) default: true — Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background
     - className (string) default: — — Applied to the band
   Page.Content:
@@ -1196,7 +1196,7 @@ Props:
   - minimized (boolean) — Controlled minimized state
   - defaultMinimized (boolean) default: false — Minimized state (uncontrolled)
   - onMinimizedChange ((minimized: boolean) => void) — Called when the bar minimizes or expands
-  - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it, see Background
+  - background ("soft" | "hard" | "glass" | "blur") default: "soft" — How the bar meets the content scrolled under it, see Background. solid is the earlier name of hard
   - accessory (ReactNode) — Content in a glass capsule above the tabs, as the iOS 27 bottom accessory
   - aria-label (string) default: "Tabs" — Name of the navigation
   - className (string) — CSS classes applied to the bar
@@ -1387,7 +1387,7 @@ Props:
   - placement ("top" | "bottom") default: "top" — Top bar with 44px targets, or bottom bar with 48px targets
   - titleStyle ("inline" | "large" | "compact-large" | "compact-medium") default: "inline" — Size and place of Toolbar.Title in a top bar
   - titleAlign ("center" | "start") default: "center" — Alignment of an inline title. Large and compact titles always start at the leading edge
-  - background ("soft" | "hard" | "glass" | "solid") default: "glass" at the top, "soft" at the bottom — How the bar meets the content scrolled under it, see Background. "edge" is the earlier name of "soft"
+  - background ("soft" | "hard" | "glass" | "blur") default: "glass" at the top, "soft" at the bottom — How the bar meets the content scrolled under it, see Background. "edge" is the earlier name of "soft" and "solid" of "hard"
   - className (string) default: — — Applied to the bar
   Toolbar.Title:
     - subtitle (ReactNode) default: — — Second, smaller line below the title

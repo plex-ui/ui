@@ -24,13 +24,25 @@ export type ToolbarTitleAlign = "center" | "start"
  * - `"soft"` (the default of a bottom bar): at the top, once content is under the bar, a blur that grows toward the top under a
  *   thin veil of the canvas color, with no line, which lets go past the bar; at the bottom of a page the content stays clear
  *   under and around the controls, as on native iOS 26, and a Sheet's bottom bar fades its content into the panel
- * - `"hard"`: an opaque bar of the canvas color with a line once content is under it
+ * - `"hard"`: an opaque bar of the canvas color with a hairline once content is under it
  * - `"glass"` (the default of a top bar): a translucent, blurred bar with a hairline, shown once content is under it
- * - `"solid"`: an opaque bar of the canvas color without a line
+ * - `"blur"`: no fill and no line, once content is under the bar: the content blurred a little over the bar and past it,
+ *   and heavily toward the screen's edge
+ *
+ * iOS 27.2 has two scroll edges, soft and hard; glass is the bar of earlier iOS and blur an app's own.
  */
-export type BarBackground = "soft" | "hard" | "glass" | "solid"
-/** `"edge"` is the earlier name of `"soft"`. */
-export type ToolbarBackground = BarBackground | "edge"
+export type BarBackground = "soft" | "hard" | "glass" | "blur"
+/**
+ * `"solid"` is the earlier name of `"hard"`: iOS has no opaque bar without a line, and it draws the line of a hard edge
+ * only once content is under the bar, so at rest the two look the same.
+ */
+export type BarBackgroundAlias = "solid"
+/** `"edge"` is the earlier name of `"soft"`, `"solid"` of `"hard"`. */
+export type ToolbarBackground = BarBackground | BarBackgroundAlias | "edge"
+
+/** The background a bar draws, from its current name or an earlier one. */
+export const barBackground = (background: ToolbarBackground | undefined): BarBackground | undefined =>
+  background === "edge" ? "soft" : background === "solid" ? "hard" : background
 
 /**
  * A surface that places phone toolbars: `Page` puts the top bar over its content
@@ -72,9 +84,11 @@ const LARGE_TITLE_TOKENS = [
 ]
 
 /**
- * Follows a large title in the content: it takes the bar's own large title tokens, and once its last line is at the
- * bar's bottom the bar shows it inline. Scrolling moves it; a change of layout (a wide window turning into a phone's,
- * which shows the bar and the title) measures it again. A hidden title has not gone under anything.
+ * Follows a large title in the content: it takes the large title tokens the bar sets for itself, and once its last line
+ * is at the bar's bottom the bar shows it inline. Scrolling moves it; a change of layout (a wide window turning into a
+ * phone's, which shows the bar and the title) or of a class or style on the bar, the content or around them measures it
+ * again. A token the bar shares with the content stays inherited, so it follows the page's changes. A hidden title has
+ * not gone under anything.
  */
 function followLargeTitle(bar: HTMLElement, heading: HTMLElement, subscribeScroll: (listener: () => void) => () => void) {
   const collapse = () => {
@@ -82,8 +96,13 @@ function followLargeTitle(bar: HTMLElement, heading: HTMLElement, subscribeScrol
     bar.toggleAttribute("data-title-collapsed", box.height > 0 && box.bottom <= bar.getBoundingClientRect().bottom)
   }
   const layout = () => {
-    const style = getComputedStyle(bar)
-    for (const token of LARGE_TITLE_TOKENS) heading.style.setProperty(token, style.getPropertyValue(token).trim() || null)
+    const own = getComputedStyle(bar)
+    const place = heading.parentElement ? getComputedStyle(heading.parentElement) : undefined
+    for (const token of LARGE_TITLE_TOKENS) {
+      const value = own.getPropertyValue(token).trim()
+      if (value && value !== place?.getPropertyValue(token).trim()) heading.style.setProperty(token, value)
+      else heading.style.removeProperty(token)
+    }
     collapse()
   }
   layout()
@@ -91,9 +110,15 @@ function followLargeTitle(bar: HTMLElement, heading: HTMLElement, subscribeScrol
   const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(layout) : undefined
   observer?.observe(bar)
   observer?.observe(heading)
+  const mutations = typeof MutationObserver !== "undefined" ? new MutationObserver(layout) : undefined
+  // A token reaches the bar or the content from the class or style of either or of anything around them.
+  for (const start of [bar, heading.parentElement]) {
+    for (let node = start; node; node = node.parentElement) mutations?.observe(node, { attributes: true, attributeFilter: ["class", "style"] })
+  }
   return () => {
     unsubscribe()
     observer?.disconnect()
+    mutations?.disconnect()
     bar.removeAttribute("data-title-collapsed")
     for (const token of LARGE_TITLE_TOKENS) heading.style.removeProperty(token)
   }
@@ -154,7 +179,7 @@ function ToolbarRoot({
       data-placement={placement}
       data-title-style={placement === "top" ? titleStyle : undefined}
       data-title-align={placement === "top" ? titleAlign : undefined}
-      data-background={background === "edge" ? "soft" : background}
+      data-background={barBackground(background)}
       data-host={host?.kind}
       data-scrolled={placement === "top" && host?.scrolled ? "" : undefined}
       data-content-below={placement === "bottom" && host?.contentBelow ? "" : undefined}

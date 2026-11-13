@@ -1358,13 +1358,13 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await toggle('footer');
     expect([text('Export orders'), bars().map((bar) => bar.dataset.background)]).toEqual([true, ['hard', 'soft']]);
     expect(where(group('background (bottom)'))).toBe('phone');
-    await choose('background (bottom)', 'solid');
-    expect(bars().map((bar) => bar.dataset.background)).toEqual(['hard', 'solid']);
+    await choose('background (bottom)', 'blur');
+    expect(bars().map((bar) => bar.dataset.background)).toEqual(['hard', 'blur']);
     await toggle('footer');
     expect([text('Export orders'), group('background (bottom)')]).toEqual([false, null]);
   });
 
-  test('page on a phone: the desktop settings give their defaults; the divider goes under a soft or solid header', async () => {
+  test('page on a phone: the desktop settings give their defaults; the divider goes under a soft or blur header', async () => {
     vi.stubGlobal('matchMedia', (media: string) => ({ matches: !media.includes('min-width'), media, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }));
     const view = render(framework === 'React' ? <PageOverviewDemo /> : <VueDemo {...pageOverview} />);
     await interact(() => {});
@@ -1384,8 +1384,8 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(pageControlPlace(divider())).toBe('phone');
     await toggle('divider');
     expect(header().hasAttribute('data-divider')).toBe(false);
-    await choose('background (top)', 'solid');
-    expect([pageControlPlace(divider()), header().dataset.background, header().hasAttribute('data-divider')]).toEqual(['neither', 'solid', true]);
+    await choose('background (top)', 'blur');
+    expect([pageControlPlace(divider()), header().dataset.background, header().hasAttribute('data-divider')]).toEqual(['neither', 'blur', true]);
   });
 
   test('slider: one Overview carries every setting on one scale, each where it acts (owner 11.11)', async () => {

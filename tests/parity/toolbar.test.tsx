@@ -83,7 +83,7 @@ describe("Toolbar parity", () => {
     ["heading level and class", { root: { className: "bar", id: "orders-bar" }, title: { as: "h2", className: "name" } }],
     ["group", { group: true }],
     ["search", { search: true, leading: false }],
-    ["solid", { root: { background: "solid" }, title: {} }],
+    ["hard", { root: { background: "hard" }, title: {} }],
     ["bottom", { root: { placement: "bottom", titleStyle: "large" }, search: true }],
   ])("%s", async (_name, bar) => {
     const { react, vue } = await renderPair(reactBar(bar) as never, () => vueBar(bar))
@@ -522,14 +522,38 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     vi.unstubAllGlobals()
   })
 
-  test.each(["React", "Vue"] as const)("%s: the title in the content keeps the large title tokens its bar sets for itself", async (framework) => {
-    const root = { titleStyle: "large", style: framework === "React" ? { "--toolbar-large-title-gap": "24px", "--toolbar-large-title-font-size": "40px" } : "--toolbar-large-title-gap: 24px; --toolbar-large-title-font-size: 40px" }
-    if (framework === "React") render(createElement(RPage as unknown as AnyComponent, null, reactBar({ root, title: {} }), createElement(RPage.Content, null, "Body")))
-    else mountVue(() => h(Page as never, null, () => [vueBar({ root, title: {} }), h(PageContent, null, () => "Body")]))
+  test.each(["React", "Vue"] as const)("%s: the title in the content keeps the large title tokens its bar sets for itself, and their changes", async (framework) => {
+    const style = (size: string) => (framework === "React" ? { "--toolbar-large-title-gap": "24px", "--toolbar-large-title-font-size": size } : `--toolbar-large-title-gap: 24px; --toolbar-large-title-font-size: ${size}`)
+    const vueRoot = reactive({ titleStyle: "large", style: style("40px") as unknown })
+    const reactPage = (size: string) => createElement(RPage as unknown as AnyComponent, null, reactBar({ root: { titleStyle: "large", style: style(size) }, title: {} }), createElement(RPage.Content, null, "Body"))
+    const view = framework === "React" ? render(reactPage("40px")) : null
+    if (framework === "Vue") mountVue(() => h(Page as never, null, () => [vueBar({ root: { ...vueRoot }, title: {} }), h(PageContent, null, () => "Body")]))
     await (framework === "React" ? act(async () => {}) : flushVue())
-    const heading = document.querySelector<HTMLElement>(".LargeTitle > .Heading[data-in-content]")
-    expect(heading?.style.getPropertyValue("--toolbar-large-title-gap")).toBe("24px")
-    expect(heading?.style.getPropertyValue("--toolbar-large-title-font-size")).toBe("40px")
+    const heading = () => document.querySelector<HTMLElement>(".LargeTitle > .Heading[data-in-content]")
+    expect(heading()?.style.getPropertyValue("--toolbar-large-title-gap")).toBe("24px")
+    expect(heading()?.style.getPropertyValue("--toolbar-large-title-font-size")).toBe("40px")
+    // A token that only the page sets stays inherited.
+    expect(heading()?.style.getPropertyValue("--toolbar-large-title-line-height")).toBe("")
+    // The bar's own token changes after it has mounted, with no change of size.
+    if (framework === "React") await act(async () => { view?.rerender(reactPage("48px")) })
+    else { vueRoot.style = style("48px"); await flushVue() }
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(heading()?.style.getPropertyValue("--toolbar-large-title-font-size")).toBe("48px")
+  })
+
+  test.each(["React", "Vue"] as const)("%s: a token the bar and the page both set stays the bar's when the page changes it", async (framework) => {
+    const gap = (value: string) => (framework === "React" ? { "--toolbar-large-title-gap": value } : `--toolbar-large-title-gap: ${value}`)
+    const vuePage = reactive({ style: gap("24px") as unknown })
+    const reactPage = (value: string) => createElement(RPage as unknown as AnyComponent, { style: gap(value) }, reactBar({ root: { titleStyle: "large", style: gap("24px") }, title: {} }), createElement(RPage.Content, null, "Body"))
+    const view = framework === "React" ? render(reactPage("24px")) : null
+    if (framework === "Vue") mountVue(() => h(Page as never, { ...vuePage }, () => [vueBar({ root: { titleStyle: "large", style: gap("24px") }, title: {} }), h(PageContent, null, () => "Body")]))
+    await (framework === "React" ? act(async () => {}) : flushVue())
+    const heading = () => document.querySelector<HTMLElement>(".LargeTitle > .Heading[data-in-content]")
+    expect(heading()?.style.getPropertyValue("--toolbar-large-title-gap")).toBe("")
+    if (framework === "React") await act(async () => { view?.rerender(reactPage("40px")) })
+    else { vuePage.style = gap("40px"); await flushVue() }
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(heading()?.style.getPropertyValue("--toolbar-large-title-gap")).toBe("24px")
   })
 
   test.each(["React", "Vue"] as const)("%s: a large title in a bar without a page's content stays in the bar", async (framework) => {
@@ -660,10 +684,11 @@ describe("Phone bottom bar after iOS 26 Mail and Contacts (430 x 932)", () => {
     ]) expect(tokens).toContain(token)
   })
 
-  test("on a band (glass, hard, solid) it is the top bar turned over: 10 above, the bar's gutter at the sides and below", () => {
-    // Owner 12.11 «паддинги явно не верные»: the soft bar's 4 and 28 are for rounds standing on the content.
+  test("on a band (glass, hard) it is the top bar turned over: 10 above, the bar's gutter at the sides and below", () => {
+    // Owner 12.11 «паддинги явно не верные»: the soft bar's 4 and 28 are for rounds standing on the content, and so
+    // are a blur bar's, which has no band either.
     const toolbar = read("components/Toolbar/Toolbar.module.css")
-    expect(toolbar).toMatch(/\.Toolbar\[data-placement="bottom"\]:not\(\[data-background="soft"\], \[data-host="dialog"\]\):not\(:has\(> \.Content\[data-fill\] > :where\(button, a, \[role="link"\]\)\)\) \{\s*--toolbar-bottom-gutter: var\(--toolbar-gutter\);\s*--toolbar-bottom-padding-top: var\(--toolbar-padding-bottom\);\s*--toolbar-bottom-padding-bottom: max\(var\(--toolbar-gutter\), calc\(var\(--safe-area-inset-bottom, env\(safe-area-inset-bottom, 0px\)\) - 6px\)\);\s*\}/)
+    expect(toolbar).toMatch(/\.Toolbar\[data-placement="bottom"\]:not\(\[data-background="soft"\], \[data-background="blur"\], \[data-host="dialog"\]\):not\(:has\(> \.Content\[data-fill\] > :where\(button, a, \[role="link"\]\)\)\) \{\s*--toolbar-bottom-gutter: var\(--toolbar-gutter\);\s*--toolbar-bottom-padding-top: var\(--toolbar-padding-bottom\);\s*--toolbar-bottom-padding-bottom: max\(var\(--toolbar-gutter\), calc\(var\(--safe-area-inset-bottom, env\(safe-area-inset-bottom, 0px\)\) - 6px\)\);\s*\}/)
     const tokens = read("styles/variables-components.css")
     expect(tokens).toContain("--toolbar-bottom-padding-top: 4px;")
     expect(tokens).toContain("--toolbar-bottom-gutter: 28px;")

@@ -26,7 +26,7 @@ import { inToastRegion } from "../../lib/toastRegion"
 import { cancelableKeyCopy, dataAttributes, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { useStableCallback } from "../../hooks/useStableCallback"
 import { NavigationButton } from "../Button/NavigationButton"
-import { Toolbar, ToolbarHostContext, type BarBackground, type ToolbarHost } from "../Toolbar/Toolbar"
+import { barBackground, Toolbar, ToolbarHostContext, type BarBackground, type BarBackgroundAlias, type ToolbarHost } from "../Toolbar/Toolbar"
 import { NO_SCROLL_EDGES, observeScrollEdges, sameScrollEdges, type ScrollEdges } from "../../lib/scrollEdges"
 import { TransitionGroup } from "../Transition"
 import { createExitGuard, overlayTiming, overlayTimingLarge } from "../Transition/shared"
@@ -412,7 +412,7 @@ type DialogSlotProps = {
 }
 
 /** How a Sheet's bar meets the content scrolled under it; see `BarBackground`. */
-export type DialogBarBackground = BarBackground
+export type DialogBarBackground = BarBackground | BarBackgroundAlias
 export type DialogHeaderProps = DialogSlotProps & {
   /** How the bar meets the content scrolled under it in a phone Sheet. @default "glass" */
   background?: DialogBarBackground
@@ -464,7 +464,7 @@ const Header = ({ children, className, background = "glass" }: DialogHeaderProps
       </>
     )
   }
-  return <div className={clsx(s.Header, className)} data-background={background} data-scrolled={scrolled ? "" : undefined}>{children}</div>
+  return <div className={clsx(s.Header, className)} data-background={barBackground(background)} data-scrolled={scrolled ? "" : undefined}>{children}</div>
 }
 
 export type DialogHeaderActionProps = DialogSlotProps & {
@@ -538,7 +538,7 @@ const Footer = ({ children, className, mobileLayout, background = "soft" }: Dial
       ref={setFooter}
       className={clsx(s.Footer, className)}
       data-mobile-layout={mobileLayout}
-      data-background={background}
+      data-background={barBackground(background)}
       data-content-below={contentBelow ? "" : undefined}
     >
       {parts}

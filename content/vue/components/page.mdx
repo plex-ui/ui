@@ -59,14 +59,14 @@ export const overview = frame(`  <Page :width="width" :surface="surface" style="
 export const overviewControls = [
   { name: "width", type: "select", options: ["full", "wide", "column"], default: "full", desktopOnly: true },
   { name: "surface", type: "select", options: ["plain", "grouped"], default: "plain", phoneOnly: true },
-  { name: "topBackground", label: "background (top)", type: "select", options: ["soft", "hard", "glass", "solid"], default: "glass", phoneOnly: true },
-  { name: "divider", type: "boolean", default: true, phoneOnly: { fill: true }, desktopOnly: { topBackground: ["soft", "solid"] } },
+  { name: "topBackground", label: "background (top)", type: "select", options: ["soft", "hard", "glass", "blur"], default: "glass", phoneOnly: true },
+  { name: "divider", type: "boolean", default: true, phoneOnly: { fill: true }, desktopOnly: { topBackground: ["soft", "blur"] } },
   { name: "leading", type: "boolean", default: false },
   { name: "subtitle", type: "boolean", default: false },
   { name: "actions", type: "boolean", default: true },
   { name: "fill", type: "boolean", default: false, desktopOnly: true },
   { name: "footer", type: "boolean", default: false, placement: "bottom" },
-  { name: "bottomBackground", label: "background (bottom)", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft", phoneOnly: true, when: { footer: true }, placement: "bottom" },
+  { name: "bottomBackground", label: "background (bottom)", type: "select", options: ["soft", "hard", "glass", "blur"], default: "soft", phoneOnly: true, when: { footer: true }, placement: "bottom" },
 ]
 
 export const overviewCode = `<script setup lang="ts">
@@ -74,14 +74,14 @@ import { ref } from 'vue';
 
 const width = ref("full"); // or "wide", "column"; from 768px up
 const surface = ref("plain"); // or "grouped"; on a phone
-const topBackground = ref("glass"); // or "soft", "hard", "solid"; on a phone
+const topBackground = ref("glass"); // or "soft", "hard", "blur"; on a phone
 const divider = ref(true); // on desktop without fill; on a phone, under a glass or hard header
 const leading = ref(false);
 const subtitle = ref(false);
 const actions = ref(true);
 const fill = ref(false); // from 768px up
 const footer = ref(false);
-const bottomBackground = ref("soft"); // or "hard", "glass", "solid"; on a phone
+const bottomBackground = ref("soft"); // or "hard", "glass", "blur"; on a phone
 </script>
 
 <template>
@@ -142,7 +142,7 @@ const bottomBackground = ref("soft"); // or "hard", "glass", "solid"; on a phone
   <p>The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top. Turn <code>divider</code> off to keep the header without it. A page with <code>fill</code> does not scroll under its header, so on desktop the line does not come and the divider is offered without <code>fill</code>; on a phone only a glass or hard header draws the line, so there the divider is offered with those.</p>
   <p><code>width</code> belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms; for any other width set <code>--page-width</code> on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. <code>fill</code> stops the page scrolling from 768px up, so a table can scroll inside itself. On a phone a page takes the width of the screen at every width and scrolls as a whole, so the phone has neither setting.</p>
   <p><code>PageHeading</code> groups the title with metadata in <code>PageSubtitle</code>. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it. <code>PageLeading</code> holds a Back button or the menu button of a sidebar, before the title; on a phone the title stays centred between it and the actions.</p>
-  <p>On a phone <code>background</code> sets how the header and the footer meet the content scrolled under them, as a <a href="/vue/components/toolbar#background">Toolbar</a> does: <code>glass</code>, the header's default, is a translucent, blurred bar with a hairline, <code>soft</code>, the footer's default, blurs the content under a header behind a thin veil of the canvas color and leaves the content clear under the footer's actions, as native iOS 26 does, <code>hard</code> is an opaque bar with a line, and <code>solid</code> an opaque bar with no line. Glass and hard show themselves once content is under the bar. <code>surface="grouped"</code> gives the phone canvas the gray of grouped rows; desktop colors stay. The footer and its background stand under the preview, as what sits at the bottom of the screen.</p>
+  <p>On a phone <code>background</code> sets how the header and the footer meet the content scrolled under them, as a <a href="/vue/components/toolbar#background">Toolbar</a> does: <code>glass</code>, the header's default, is a translucent, blurred bar with a hairline, <code>soft</code>, the footer's default, blurs the content under a header behind a thin veil of the canvas color and leaves the content clear under the footer's actions, as native iOS 26 does, <code>hard</code> is an opaque bar with a hairline, and <code>blur</code> blurs the content under the bar, the more toward the screen's edge, with no fill and no line. Glass, hard and blur show themselves once content is under the bar. <code>surface="grouped"</code> gives the phone canvas the gray of grouped rows; desktop colors stay. The footer and its background stand under the preview, as what sits at the bottom of the screen.</p>
 </>} code={overviewCode}>
   <VueDemo stageClassName={STAGE} state={{ rows }} controls={overviewControls} template={overview} />
 </ComponentPreview>
@@ -188,7 +188,7 @@ All other attributes fall through to the root.
 ### PageHeader
 
 <PropsTable data={[
-  { prop: "background", type: '"soft" | "hard" | "glass" | "solid"', default: '"glass"', description: "How the bar meets the content scrolled under it on a phone, see Background" },
+  { prop: "background", type: '"soft" | "hard" | "glass" | "blur"', default: '"glass"', description: "How the bar meets the content scrolled under it on a phone, see Background. solid is the earlier name of hard" },
   { prop: "divider", type: "boolean", default: "true", description: "Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background" },
   { prop: "class", type: "string", description: "Class of the band" },
 ]} />
@@ -223,7 +223,7 @@ Actions stay below the scrolling `PageContent`. `background` sets how the footer
 
 `surface="plain"` is the default mobile canvas. Use `surface="grouped"` for screens of related field groups: light mode uses a gray canvas with white groups; dark mode uses the corresponding base surface levels. This palette is separate from the bars' `background` and leaves desktop colors unchanged.
 
-`PageHeader` and `PageFooter` take `background`: `glass` (the header's default), `soft` (the footer's default), `hard` or `solid`, see [Overview](#overview). Use hard or solid bars when the content should not show through them on phones.
+`PageHeader` and `PageFooter` take `background`: `glass` (the header's default), `soft` (the footer's default), `hard` or `blur`, see [Overview](#overview). Use a hard bar when the content should not show through it on phones.
 
 Page reads these component tokens. Override them at any scope to restyle it:
 
@@ -232,7 +232,8 @@ Page reads these component tokens. Override them at any scope to restyle it:
 - `--page-bar-gap`: gap between title and actions (default `24px`)
 - `--page-bar-height`: bar height (default `36px`)
 - `--page-bar-height-phone`: bar height on a phone (default `44px`)
-- `--page-bar-hard-line`: line of a hard bar (default `light-dark(rgb(0 0 0 / 12%), var(--color-border))`, the iOS 26 kit's Hard edge)
+- `--page-bar-hard-line`: hairline of a hard bar (default `var(--page-bar-line)`, as iOS 27.2 draws it)
+- `--page-bar-blur-light`, `--page-bar-blur-heavy`: blurs of a blur bar, over the bar and past it, and toward the screen's edge (default `3px`, `12px`); `--page-bar-blur-top-mask`, `--page-bar-blur-top-heavy-mask` and their `-bottom-` pair place them
 - `--page-bar-line`: hairline of a glass bar (default `light-dark(rgb(0 0 0 / 10%), var(--color-border))`)
 - `--page-bar-veil`: translucent fill of a glass bar, derived from the current mobile canvas
 - `--page-content-padding-bottom`: bottom of the content (default `48px`)
