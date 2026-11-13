@@ -131,12 +131,12 @@ Import: import { ButtonGroup } from "@plexui/ui/components/ButtonGroup"
 Docs: https://plexui.com/components/button-group
 Props:
   - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the joined items
-  - mobileMaterial ("glass" | "flat") default: — — Phone surface with touch.css: "glass" makes the group one glass capsule outside a Toolbar, "flat" keeps the joined buttons in one
+  - mobileMaterial ("glass" | "flat") default: — — Phone surface with touch.css: "glass" makes the group one glass capsule outside a Toolbar, and a group that holds a field comes apart into glass shapes; "flat" keeps the joined buttons in one
   - className (string) default: — — Applied to the root <div>
   ButtonGroup.Text:
     - asChild (boolean) default: false — Render as the passed child (e.g. a <label> tied to an input)
     - className (string) default: — — Applied to the wrapper
-Examples: Overview, Orientation, Input group, Nested, Separator, Split, Input, Dropdown menu, Select, Popover
+Examples: Overview, Orientation, Input group, Separator, Input, Dropdown menu, Select, Popover
 
 ## Button
 Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.

@@ -16,7 +16,8 @@ import { flushVue, mountVue } from "./harness"
 // row as iOS 27.2 groups a bar's symbols (plan 178 blocks 15 and 16), as a column the iOS 27 kit's Button Group
 // (Toolbars 507:25993, _Buttons - 48pt). A group in a
 // Toolbar is one by itself; `mobileMaterial="glass"` asks for it elsewhere; "flat" keeps the joined look; a group
-// in the content, or of a field and buttons, stays joined.
+// in the content stays joined. A field among glass buttons comes apart, each a glass shape of its own, as the
+// composer of Messages (40pt, 12 apart) and the bottom bar of Contacts (the bar's 48pt, 12 apart) draw them.
 
 const read = (path: string) => readFileSync(`${process.cwd()}/packages/styles/src/${path}`, "utf8")
 const css = read("components/ButtonGroup/ButtonGroup.module.css")
@@ -33,6 +34,8 @@ const selectorBefore = (marker: string) => {
 
 const CONTEXT = selectorBefore("--button-group-joined-radius: var(--radius-full);")
 const CAPSULE = selectorBefore("gap: var(--button-group-glass-gap);")
+const FIELD = selectorBefore("gap: var(--button-group-glass-field-gap);")
+const FLOATING = selectorBefore("--button-group-glass-item-size: var(--button-group-glass-field-size);")
 
 afterEach(() => cleanup())
 
@@ -57,7 +60,9 @@ describe("ButtonGroup glass on a phone", () => {
     expect(phone).toMatch(/& > \[data-slot="button-group-separator"\] \{\s*display: none;/)
     expect(phone).toMatch(/--button-size: var\(--button-group-glass-item-size\);/)
     // Every item rule takes a disabled ButtonLink, a span with the link role, too
-    expect(phone.match(/& > :where\(button, a, \[role="link"\]\)/g)).toHaveLength(7)
+    expect(phone.match(/& > :where\(button, a, \[role="link"\]\)/g)).toHaveLength(16)
+    // A column's buttons fill their share of the capsule, so a pressed one is as round as its end: 1 + 54 + 54 + 1
+    expect(phone).toMatch(/gap: 0;\s*padding: calc\(var\(--button-group-glass-vertical-padding\) - var\(--button-group-glass-vertical-gap\) \/ 2\) 0;\s*& > :where\(button, a, \[role="link"\]\) \{\s*height: calc\(var\(--button-group-glass-vertical-item-size\) \+ var\(--button-group-glass-vertical-gap\)\);/)
     expect(phone).not.toMatch(/:where\(button, a\)/)
     expect(phone).toMatch(/--button-mobile-material-background: transparent;/)
     expect(phone).toMatch(/--button-border-color: transparent;/)
@@ -86,6 +91,25 @@ describe("ButtonGroup glass on a phone", () => {
     expect(toolbar).not.toMatch(/\.Toolbar\[data-placement="bottom"\] \.Group \{/)
   })
 
+  test("a field among glass buttons comes apart: 40 x 40, 12 apart, the text 16 in, floating; the bar's own in a bar", () => {
+    const tokens = read("styles/variables-components.css")
+    expect(tokens).toMatch(/--button-group-glass-field-size: 40px;\s*--button-group-glass-field-gap: 12px;\s*--button-group-glass-field-gutter: 16px;/)
+    expect(phone).toMatch(/:is\(\[data-toolbar\], \[data-toolbar-row\]\) \.Root \{\s*--button-group-glass-field-gap: var\(--toolbar-item-gap, var\(--toolbar-top-item-gap\)\);/)
+    // An invalid field or select keeps its error line over the glass; a ghost select shows its glass at rest
+    expect(phone).toMatch(/&\[data-invalid\] \{\s*box-shadow: 0 0 0 1px var\(--input-border-color-invalid\) inset, var\(--mobile-glass-shadow\);/)
+    expect(phone).toMatch(/&\[data-invalid\]::before \{\s*box-shadow: 0 0 0 1px var\(--input-border-color-invalid\) inset, var\(--mobile-glass-shadow\);/)
+    expect(phone).toMatch(/box-shadow: var\(--mobile-glass-shadow\);\s*opacity: 1;/)
+    // The field is the glass capsule of a bar's search field; its button keeps a 44px target without growing it
+    expect(phone).toMatch(/--input-size: var\(--button-group-glass-item-size\);/)
+    expect(phone).toMatch(/--input-gutter: var\(--button-group-glass-field-gutter\);/)
+    expect(phone).toMatch(/& > button \{\s*margin-block: calc\(\(var\(--input-size\) - var\(--input-adornment-hit-size, 44px\)\) \/ 2\);/)
+    // A select is the glass capsule of a bar's pull-down button
+    expect(phone).toMatch(/--select-control-size: var\(--button-group-glass-item-size\);/)
+    // A field group is no capsule and joins nothing
+    expect(FIELD).not.toBe(CAPSULE)
+    expect(CONTEXT).toMatch(/:not\(:has\(/)
+  })
+
   const expectations = (root: ParentNode) => {
     const group = (label: string) => root.querySelector<HTMLElement>(`[aria-label="${label}"]`)!
     // In a bar: a capsule; a row of groups is a glass context but not a capsule
@@ -93,9 +117,36 @@ describe("ButtonGroup glass on a phone", () => {
     expect(group("Row").matches(CONTEXT)).toBe(true)
     expect(group("Row").matches(CAPSULE)).toBe(false)
     expect(group("Back").matches(CAPSULE)).toBe(true)
-    // Flat keeps the joined group in a bar; a field keeps it joined anywhere
+    // Flat keeps the joined group in a bar; a field among glass buttons comes apart, in a bar at the bar's sizes
     expect(group("Flat").matches(CONTEXT)).toBe(false)
     expect(group("Search").matches(CONTEXT)).toBe(false)
+    expect(group("Search").matches(CAPSULE)).toBe(false)
+    expect(group("Search").matches(FIELD)).toBe(true)
+    expect(group("Search").matches(FLOATING)).toBe(false)
+    // Floating, the composer: the outer group and the field's group come apart, the plus's group is a circle
+    expect(group("Composer").matches(FIELD)).toBe(true)
+    expect(group("Composer").matches(FLOATING)).toBe(true)
+    expect(group("Composer field").matches(FIELD)).toBe(true)
+    expect(group("Composer plus").matches(CAPSULE)).toBe(true)
+    expect(group("Composer plus").matches(FIELD)).toBe(false)
+    // A field group never takes the plain glass context or the capsule, nested or not
+    for (const label of ["Composer", "Composer field"]) {
+      expect(group(label).matches(CONTEXT)).toBe(false)
+      expect(group(label).matches(CAPSULE)).toBe(false)
+    }
+    // A field in the content stays joined, and so does an InputGroup, which frames its own addons
+    expect(group("Content field").matches(FIELD)).toBe(false)
+    expect(group("Content field").matches(CONTEXT)).toBe(false)
+    expect(group("Input group").matches(FIELD)).toBe(false)
+    expect(group("Input group").matches(CONTEXT)).toBe(false)
+    expect(group("Input group").matches(CAPSULE)).toBe(false)
+    // A bare <input> has no field of its own, and an InputGroup beside an Input keeps the whole group joined
+    for (const label of ["Raw input", "Mixed"]) {
+      expect(group(label).matches(FIELD)).toBe(false)
+      expect(group(label).matches(FLOATING)).toBe(false)
+      expect(group(label).matches(CONTEXT)).toBe(false)
+      expect(group(label).matches(CAPSULE)).toBe(false)
+    }
     // In the content only on request
     expect(group("Content").matches(CONTEXT)).toBe(false)
     expect(group("Zoom").matches(CAPSULE)).toBe(true)
@@ -130,6 +181,14 @@ describe("ButtonGroup glass on a phone", () => {
           <RButtonLink href="/a" variant="soft" color="secondary">Open</RButtonLink>
           <RButtonLink href="/b" variant="soft" color="secondary" disabled>Share</RButtonLink>
         </RButtonGroup>
+        <RButtonGroup aria-label="Composer" mobileMaterial="glass">
+          <RButtonGroup aria-label="Composer plus"><RButton uniform aria-label="Add">+</RButton></RButtonGroup>
+          <RButtonGroup aria-label="Composer field"><RInput pill aria-label="Message" /></RButtonGroup>
+        </RButtonGroup>
+        <RButtonGroup aria-label="Content field"><RInput aria-label="Docs" /><RButton>Go</RButton></RButtonGroup>
+        <RButtonGroup aria-label="Input group" mobileMaterial="glass"><div data-slot="input-group" /><RButton>Go</RButton></RButtonGroup>
+        <RButtonGroup aria-label="Raw input" mobileMaterial="glass"><input aria-label="Raw" /><RButton>Go</RButton></RButtonGroup>
+        <RButtonGroup aria-label="Mixed" mobileMaterial="glass"><RInput aria-label="Amount" /><div data-slot="input-group" /><RButton>Go</RButton></RButtonGroup>
       </div>,
     )
     expect(container.querySelector('[aria-label="Zoom"]')!.getAttribute("data-mobile-material")).toBe("glass")
@@ -161,6 +220,14 @@ describe("ButtonGroup glass on a phone", () => {
             h(ButtonLink, { href: "/a", variant: "soft", color: "secondary" }, () => "Open"),
             h(ButtonLink, { href: "/b", variant: "soft", color: "secondary", disabled: true }, () => "Share"),
           ]),
+          h(ButtonGroup, { "aria-label": "Composer", mobileMaterial: "glass" }, () => [
+            h(ButtonGroup, { "aria-label": "Composer plus" }, () => h(Button, { uniform: true, "aria-label": "Add" }, () => "+")),
+            h(ButtonGroup, { "aria-label": "Composer field" }, () => h(Input, { pill: true, "aria-label": "Message" })),
+          ]),
+          h(ButtonGroup, { "aria-label": "Content field" }, () => [h(Input, { "aria-label": "Docs" }), h(Button, null, () => "Go")]),
+          h(ButtonGroup, { "aria-label": "Input group", mobileMaterial: "glass" }, () => [h("div", { "data-slot": "input-group" }), h(Button, null, () => "Go")]),
+          h(ButtonGroup, { "aria-label": "Raw input", mobileMaterial: "glass" }, () => [h("input", { "aria-label": "Raw" }), h(Button, null, () => "Go")]),
+          h(ButtonGroup, { "aria-label": "Mixed", mobileMaterial: "glass" }, () => [h(Input, { "aria-label": "Amount" }), h("div", { "data-slot": "input-group" }), h(Button, null, () => "Go")]),
         ]),
     )
     await flushVue()

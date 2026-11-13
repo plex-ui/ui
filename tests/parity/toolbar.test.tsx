@@ -902,7 +902,8 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     expect(touch.split('[data-size="sm"], [data-toolbar-row] [data-size="md"])')).toHaveLength(6)
     expect(touch).not.toContain('[data-toolbar-row]) :is(')
     const group = readFileSync(`${process.cwd()}/packages/styles/src/components/ButtonGroup/ButtonGroup.module.css`, "utf8")
-    expect(group.split('[data-toolbar] *, [data-toolbar-row] *)')).toHaveLength(3)
+    // The glass context, the capsule, a field among glass buttons, and the floating field group (not in a bar)
+    expect(group.split('[data-toolbar] *, [data-toolbar-row] *)')).toHaveLength(5)
   })
 
   test("the title in the content stands where it stood in the bar, and never on a desktop layout", () => {

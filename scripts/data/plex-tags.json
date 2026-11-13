@@ -2191,5 +2191,10 @@
     "x",
     "xs",
     "close"
+  ],
+  "MinusLg": [
+    "minus",
+    "subtract",
+    "remove"
   ]
 }

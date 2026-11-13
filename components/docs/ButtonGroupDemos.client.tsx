@@ -9,9 +9,7 @@
 export {
   ButtonGroupOverviewDemo,
   ButtonGroupOrientationDemo,
-  ButtonGroupNestedDemo,
   ButtonGroupSeparatorDemo,
-  ButtonGroupSplitDemo,
   ButtonGroupInputDemo,
   ButtonGroupInputGroupDemo,
   ButtonGroupDropdownMenuDemo,

@@ -173,6 +173,12 @@
     --button-group-glass-vertical-padding: 4px;
     --button-group-glass-nested-gap: var(--toolbar-top-item-gap);
     --button-group-glass-label-gutter: var(--toolbar-label-gutter);
+    /* A field among glass buttons floating over the content, the composer of iOS 27.2 Messages (New Message, @3x in the
+       simulator): a 40pt circle of the plus and a 40pt field, their edges drawn 0.67 outside, 12 apart, the caret
+       15.67 inside the field. In a Toolbar the field and its buttons take the bar's size and gap. */
+    --button-group-glass-field-size: 40px;
+    --button-group-glass-field-gap: 12px;
+    --button-group-glass-field-gutter: 16px;
 
     /* =============================================
       Accordion

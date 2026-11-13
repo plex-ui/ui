@@ -172,7 +172,7 @@
    Notes hold their symbols (IMG_5734, 5736: Back alone, then one capsule of three symbols). A group in a Toolbar is one by itself, the same capsule as Toolbar.Group;
    elsewhere `mobileMaterial="glass"` asks for it, for controls that float over the content, as the column of map
    controls. Liquid Glass belongs to the controls over the content, so a group in the content keeps its joined
-   look, and `mobileMaterial="flat"` keeps it in a Toolbar. A group of a field and buttons stays joined anywhere.
+   look, and `mobileMaterial="flat"` keeps it in a Toolbar. A field among glass buttons comes apart from them (below).
    Without touch.css the glass tokens are unset and the capsule has no fill. */
 @media (max-width: 767.98px) {
   /* Every group in a glass context, the row of capsules around nested groups included: no joined edges. */
@@ -207,14 +207,25 @@
       padding: 0;
     }
 
+    /* A column: each button takes its half of the gaps beside it, so its pressed shape fills its share of the capsule
+       and the first and last are as round as the capsule's ends (owner 13.11: a 48px circle 4px under the top read
+       as shifted). The symbols stand where the kit puts them: 4 + 48 + 6 + 48 + 4. */
     &[data-orientation="vertical"] {
       --button-group-glass-item-size: var(--button-group-glass-vertical-item-size);
-      gap: var(--button-group-glass-vertical-gap);
-      padding: var(--button-group-glass-vertical-padding) 0;
+      gap: 0;
+      padding: calc(var(--button-group-glass-vertical-padding) - var(--button-group-glass-vertical-gap) / 2) 0;
+
+      & > :where(button, a, [role="link"]) {
+        height: calc(var(--button-group-glass-vertical-item-size) + var(--button-group-glass-vertical-gap));
+      }
     }
 
     &[data-orientation="vertical"]:not(:has(> * + *)) {
       padding: 0;
+
+      & > :where(button, a, [role="link"]) {
+        height: var(--button-size);
+      }
     }
 
     /* The kit's capsule draws no line between its buttons. */
@@ -277,5 +288,150 @@
 
   [data-toolbar][data-placement="bottom"] .Root {
     --button-group-glass-label-gutter: var(--toolbar-bottom-label-gutter);
+  }
+
+  /* A field among glass buttons. iOS 27.2 never joins a field and its buttons: each is a glass shape of its own, side
+     by side, as the composer of Messages (a 40pt circle of the plus, 12 from a 40pt field, both 16 from the screen's
+     sides) and the bottom bar of Contacts (the search field and New Contact, 48pt, 12 apart) draw them. A group of
+     buttons beside the field is a capsule (above), a button alone a circle. Floating (`mobileMaterial="glass"`) the
+     group takes the composer's sizes, in a Toolbar the bar's. The field is a Plex Input or Select: an InputGroup frames
+     its own addons and a bare <input> has no field of its own, so a group with either keeps its joined look (the
+     context and capsule rules above leave it out). */
+  .Root:is([data-mobile-material="glass"], [data-mobile-material="glass"] *, [data-toolbar] *, [data-toolbar-row] *):not([data-mobile-material="flat"], [data-mobile-material="flat"] *):has(> :is([data-slot="input"], [data-slot="select-control"]), > [data-slot="button-group"] > :is([data-slot="input"], [data-slot="select-control"])):not(:has(> [data-slot="input-group"], > [data-slot="button-group"] > [data-slot="input-group"])) {
+    --button-group-joined-radius: var(--radius-full);
+    --button-group-joined-overlap: 0px;
+    --button-group-joined-clip: none;
+    align-items: center;
+    gap: var(--button-group-glass-field-gap);
+
+    /* The outer group spans its row, the field takes what the buttons leave. */
+    &:not([data-slot="button-group"] > *) {
+      width: 100%;
+    }
+
+    & > [data-slot="button-group"]:not(:has(> [data-slot="input"])),
+    & > :where(button, a, [role="link"]) {
+      flex: none;
+    }
+
+    & > [data-slot="button-group"]:has(> [data-slot="input"]) {
+      min-width: 0;
+    }
+
+    /* The field: the glass capsule of a bar's search field, its text 17pt Regular 16 from the edge, as the composer
+       of Messages sets it (the caret 15.67 inside). A magnifier first makes it the bar's search field. The extra
+       attribute outweighs the field's own outline, hover and focus. */
+    & > [data-slot="input"][data-variant] {
+      --input-size: var(--button-group-glass-item-size);
+      --input-font-size: var(--toolbar-label-font-size);
+      --input-gutter: var(--button-group-glass-field-gutter);
+      --input-adornment-offset: 0px;
+      --control-gutter-pill-scaling: 1;
+      --input-placeholder-text-color: var(--toolbar-search-placeholder-color);
+      flex: 1 1 auto;
+      min-width: 0;
+      border-radius: var(--radius-full);
+      background-color: var(--mobile-glass-background);
+      background-image: var(--mobile-glass-sheen);
+      box-shadow: var(--mobile-glass-shadow);
+      font-weight: var(--toolbar-search-font-weight);
+      -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+      backdrop-filter: var(--mobile-glass-backdrop-filter);
+
+      &:has(> svg:first-child) {
+        --input-gutter: var(--toolbar-search-gutter);
+        --input-gap: var(--toolbar-search-icon-gap);
+      }
+
+      & > svg:first-child {
+        flex: none;
+        width: var(--toolbar-search-icon-size);
+        height: var(--toolbar-search-icon-size);
+      }
+
+      /* An invalid field keeps the Input's error line over the glass. */
+      &[data-invalid] {
+        box-shadow: 0 0 0 1px var(--input-border-color-invalid) inset, var(--mobile-glass-shadow);
+      }
+
+      /* A button in the field (the microphone of the composer) keeps its 44px target around the field's line
+         without growing the 40px field, as in a row of a list. */
+      & > button {
+        margin-block: calc((var(--input-size) - var(--input-adornment-hit-size, 44px)) / 2);
+      }
+    }
+
+    /* A select: the glass capsule of a bar's pull-down button, its label 17pt Medium 16 from the edge. */
+    & > [data-slot="select-control"] {
+      --select-control-size: var(--button-group-glass-item-size);
+      --select-control-gutter: var(--button-group-glass-label-gutter);
+      --select-control-radius: var(--radius-full);
+      --select-control-font-size: var(--toolbar-label-font-size);
+      --select-control-font-weight: var(--toolbar-label-font-weight);
+      --control-gutter-pill-scaling: 1;
+      -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+      backdrop-filter: var(--mobile-glass-backdrop-filter);
+
+      /* The glass shows at rest, a ghost select's too; an invalid one keeps its error line over it. */
+      &::before {
+        background-color: var(--mobile-glass-background);
+        background-image: var(--mobile-glass-sheen);
+        box-shadow: var(--mobile-glass-shadow);
+        opacity: 1;
+      }
+
+      &[data-invalid]::before {
+        box-shadow: 0 0 0 1px var(--input-border-color-invalid) inset, var(--mobile-glass-shadow);
+      }
+    }
+
+    /* A button beside the field: a glass circle of its own, the bar's symbol in it. */
+    & > :where(button, a, [role="link"]) {
+      --button-size: var(--button-group-glass-item-size);
+      --button-uniform-size: var(--button-group-glass-item-size);
+      --button-radius: var(--radius-full);
+      --button-font-size: var(--toolbar-label-font-size);
+      --button-line-height: var(--toolbar-label-line-height);
+      --button-font-weight: var(--toolbar-label-font-weight);
+      font-weight: var(--toolbar-label-font-weight);
+    }
+
+    & > :where(button, a, [role="link"]):where(:not([data-navigation-action])) {
+      --button-icon-size: var(--toolbar-icon-size);
+    }
+
+    & > :where(button, a, [role="link"])[data-icon-size="sm"]:where(:not([data-navigation-action])) {
+      --button-icon-size: var(--toolbar-icon-size-sm);
+    }
+
+    & > :where(button, a, [role="link"]):where(:not([data-navigation-action], [data-uniform])) {
+      --button-gutter: var(--button-group-glass-label-gutter);
+    }
+
+    & > :where(button, a, [role="link"]):where(:not([data-disabled])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
+      --button-mobile-material-background: var(--mobile-glass-background);
+      --button-mobile-material-sheen: var(--mobile-glass-sheen);
+      --button-mobile-material-shadow: var(--mobile-glass-shadow);
+      --button-mobile-material-backdrop-filter: var(--mobile-glass-backdrop-filter);
+      --button-mobile-material-opacity: 1;
+      --button-mobile-material-scale: 1;
+      --button-mobile-material-hover: var(--mobile-glass-background-hover);
+      --button-mobile-material-active: var(--mobile-glass-background-active);
+    }
+
+    & > :where(button, a, [role="link"])[data-color="secondary"]:where(:not([data-disabled], [data-variant="solid"])) {
+      --button-text-color: var(--color-text);
+      --button-text-color-hover: var(--color-text);
+    }
+  }
+
+  /* Floating over the content, the composer of Messages: 40pt shapes 12 apart. In a bar the bar's sizes stand. */
+  .Root[data-mobile-material="glass"]:not([data-toolbar] *, [data-toolbar-row] *):has(> :is([data-slot="input"], [data-slot="select-control"]), > [data-slot="button-group"] > :is([data-slot="input"], [data-slot="select-control"])):not(:has(> [data-slot="input-group"], > [data-slot="button-group"] > [data-slot="input-group"])) {
+    --button-group-glass-item-size: var(--button-group-glass-field-size);
+  }
+
+  /* A bar's row keeps the bar's gap, under a large title too, where it stands in the content (the top bar's 10). */
+  :is([data-toolbar], [data-toolbar-row]) .Root {
+    --button-group-glass-field-gap: var(--toolbar-item-gap, var(--toolbar-top-item-gap));
   }
 }

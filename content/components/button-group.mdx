@@ -8,9 +8,7 @@ import { ButtonGroup } from "@plexui/ui/components/ButtonGroup"
 import {
   ButtonGroupOverviewDemo,
   ButtonGroupOrientationDemo,
-  ButtonGroupNestedDemo,
   ButtonGroupSeparatorDemo,
-  ButtonGroupSplitDemo,
   ButtonGroupInputDemo,
   ButtonGroupInputGroupDemo,
   ButtonGroupDropdownMenuDemo,
@@ -22,18 +20,21 @@ import {
 
 Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and removes the shared border so they read as one unit. Nest `ButtonGroup` inside itself to create visually separated sub-groups (the outer group automatically spaces them).
 
-On a phone with `touch.css` a group of buttons in a [`Toolbar`](/components/toolbar) is the Button Group of iOS: one glass capsule holding its buttons, the same as `Toolbar.Group`. `mobileMaterial="glass"` asks for the capsule outside a toolbar, for controls that float over the content. iOS has no joined buttons in the content, so a group there keeps its joined look at the touch sizes, and the examples that only join buttons show the desktop view.
+On a phone with `touch.css` a group of buttons in a [`Toolbar`](/components/toolbar) is the Button Group of iOS: one glass capsule holding its buttons, the same as `Toolbar.Group`. `mobileMaterial="glass"` asks for the capsule outside a toolbar, for controls that float over the content. iOS has no joined buttons in the content, so a group there keeps its joined look at the touch sizes. A field among glass buttons comes apart from them, each a glass shape of its own, as the composer of iOS Messages. The Phone view of each example shows the group where iOS puts it, in a bar or floating at the bottom of the screen, or the screen iOS builds where it has no such group.
 
 ## Examples
 
 {/* The Size example is the size setting of the Overview (owner 11.11: the first example shows everything with every
-    setting); its anchor stays */}
+    setting), and the Overview's groups are nested groups (the Nested example, row 33: one example per content); their
+    anchors stay */}
 <span id="size" />
+<span id="nested" />
 
 ### Overview
 
 <ComponentPreview phonePresentation="screen" details={<>
   <p>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match; the size setting here sets all of them. Mix icon-only (<code>uniform</code>) with text buttons; each child keeps its own padding.</p>
+  <p>Place a <code>ButtonGroup</code> inside a <code>ButtonGroup</code> to make sub-groups, as Back, Pin and Tag, Bookmark and More here, or a pager's pages beside its arrows: the outer group sets a gap between them (<code>--button-group-nested-gap</code>, 8px) and each sub-group stays joined.</p>
   <p>On a phone with <code>touch.css</code> a group in the content keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, <code>sm</code>) and medium (34px, <code>md</code> and <code>lg</code>) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own.</p>
   <p>On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A <code>ButtonGroup</code> in a <code>Toolbar</code> is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 8px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do. The bar sets its buttons' size, so the phone view leaves out the size control.</p>
 </>} code={`const [size, setSize] = useState("sm")
@@ -92,7 +93,7 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/components/tool
 
 <ComponentPreview phonePresentation="screen" details={<>
   <p>Pass <code>orientation="vertical"</code> to stack the buttons, useful for <code>+</code> / <code>−</code> steppers, zoom controls, or any vertical toolbar.</p>
-  <p>On a phone the example is zoom controls floating over a canvas, as map controls do: with <code>mobileMaterial="glass"</code> the group is the vertical Button Group of the iOS 27 kit, a 48px wide capsule of 48px buttons 6px apart. In the content a group of icon-only buttons keeps their 44px at each size, so the phone view leaves out the size control.</p>
+  <p>On a phone the example is zoom controls floating over a canvas, as map controls do: with <code>mobileMaterial="glass"</code> the group is the vertical Button Group of the iOS 27 kit, a 48px wide capsule of 48px buttons 6px apart. Each button takes its share of the gap and the padding, so its pressed shape fills its part of the capsule and the first and last are as round as its ends. A phone takes the large plus and minus (<code>PlusLg</code>, <code>MinusLg</code>) with <code>iconSize="sm"</code>, the plus of an iOS 27.2 bar: about 18px of ink with a 2px stroke. In the content a group of icon-only buttons keeps their 44px at each size, so the phone view leaves out the size control.</p>
 </>} code={`const [size, setSize] = useState("sm")
 
 // Desktop
@@ -107,20 +108,21 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/components/tool
 
 // Phone: zoom controls over a canvas
 <ButtonGroup orientation="vertical" mobileMaterial="glass" aria-label="Zoom controls" className="absolute top-2 right-4">
-  <Button color="secondary" variant="soft" uniform pill aria-label="Zoom in"><Plus /></Button>
-  <Button color="secondary" variant="soft" uniform pill aria-label="Zoom out"><Minus /></Button>
+  <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="Zoom in"><PlusLg /></Button>
+  <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="Zoom out"><MinusLg /></Button>
 </ButtonGroup>`}>
   <ButtonGroupOrientationDemo />
 </ComponentPreview>
 
 ### Input group
 
-<ComponentPreview details={<>
+<ComponentPreview phonePresentation="screen" details={<>
   <p>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via <code>endAdornment</code>. Use <code>Input.AdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</p>
-  <p>On a phone with <code>touch.css</code> the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.</p>
+  <p>On a phone the example is the composer of iOS Messages at the bottom of the screen. With <code>mobileMaterial="glass"</code> a group that holds a field comes apart: the plus is a 40px glass circle with the large plus (<code>PlusLg</code>, <code>iconSize="sm"</code>) and the field a 40px glass capsule with 16px gutters and 17px text, 12px apart, as iOS 27.2 sets them. The voice button inside the field keeps its 44px target without growing the field. The group sets the sizes, so the phone view leaves out the size control.</p>
 </>} code={`const [size, setSize] = useState("sm")
 const [voiceEnabled, setVoiceEnabled] = useState(false)
 
+// Desktop
 <ButtonGroup style={{ width: "100%", maxWidth: 280 }}>
   <ButtonGroup>
     <Button variant="outline" color="secondary" pill size={size} uniform aria-label="Add attachment">
@@ -145,78 +147,113 @@ const [voiceEnabled, setVoiceEnabled] = useState(false)
       }
     />
   </ButtonGroup>
-</ButtonGroup>`}>
+</ButtonGroup>
+
+// Phone: the composer at the bottom of the screen
+<Page>
+  <Toolbar>
+    <Toolbar.Title>New Message</Toolbar.Title>
+    <Toolbar.Trailing>
+      <NavigationButton action="close" />
+    </Toolbar.Trailing>
+  </Toolbar>
+  <Page.Content>…</Page.Content>
+  <Page.Footer>
+    <ButtonGroup mobileMaterial="glass" aria-label="Message">
+      <ButtonGroup>
+        <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="Add attachment"><PlusLg /></Button>
+      </ButtonGroup>
+      <ButtonGroup>
+        <Input pill aria-label="Message" placeholder="Text Message" endAdornment={…} />
+      </ButtonGroup>
+    </ButtonGroup>
+  </Page.Footer>
+</Page>`}>
   <ButtonGroupInputGroupDemo />
 </ComponentPreview>
 
-### Nested
-
-<ComponentPreview phonePresentation="none" details={<>Place <code>ButtonGroup</code> inside <code>ButtonGroup</code> to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern.</>} code={`const [size, setSize] = useState("sm")
-
-<ButtonGroup aria-label="Pager">
-  <ButtonGroup>
-    {[1, 2, 3, 4, 5].map((page) => (
-      <Button key={page} variant="outline" color="secondary" size={size}>{page}</Button>
-    ))}
-  </ButtonGroup>
-  <ButtonGroup>
-    <Button variant="outline" color="secondary" size={size} uniform aria-label="Previous page">
-      <ArrowLeftSm />
-    </Button>
-    <Button variant="outline" color="secondary" size={size} uniform aria-label="Next page">
-      <ArrowRightSm />
-    </Button>
-  </ButtonGroup>
-</ButtonGroup>`}>
-  <ButtonGroupNestedDemo />
-</ComponentPreview>
+{/* The Split example is a separator between an action and its affordance (row 33: one example per content); its
+    anchor stays */}
+<span id="split" />
 
 ### Separator
 
-<ComponentPreview phonePresentation="none" details={<>Drop a <code>ButtonGroup.Separator</code> between items to add a visible divider, commonly used for Undo / Redo pairs or any "two related actions" toolbar. A glass group on a phone draws no line, as the capsule of iOS has none.</>} code={`const [size, setSize] = useState("sm")
+<ComponentPreview phonePresentation="screen" details={<>
+  <p>Drop a <code>ButtonGroup.Separator</code> between items to add a visible divider, commonly used for Undo / Redo pairs or any "two related actions" toolbar. The same divider makes the classic split button: an action joined to a secondary affordance, as Save / Save As, Filter / Add filter or Delete / Undo.</p>
+  <p>On a phone the example is Undo and Redo in the top bar of a drawing, as iOS 27.2 sets a document's bar: Back, the title, and the group as one glass capsule. The capsule of iOS draws no line between its buttons, so in a glass group the separator draws nothing. The bar sets its buttons' size, so the phone view leaves out the size control.</p>
+</>} code={`const [size, setSize] = useState("sm")
 
+// Desktop
 <ButtonGroup>
   <Button variant="soft" color="secondary" size={size}><Undo /> Undo</Button>
   <ButtonGroup.Separator />
   <Button variant="soft" color="secondary" size={size}>Redo <Redo /></Button>
-</ButtonGroup>`}>
+</ButtonGroup>
+
+// Phone: the top bar of a drawing
+<Page>
+  <Toolbar>
+    <Toolbar.Leading>
+      <NavigationButton action="back" />
+    </Toolbar.Leading>
+    <Toolbar.Title>Sketch</Toolbar.Title>
+    <Toolbar.Trailing>
+      <ButtonGroup aria-label="History">
+        <Button color="secondary" variant="soft" uniform pill aria-label="Undo"><Undo /></Button>
+        <ButtonGroup.Separator />
+        <Button color="secondary" variant="soft" uniform pill aria-label="Redo"><Redo /></Button>
+      </ButtonGroup>
+    </Toolbar.Trailing>
+  </Toolbar>
+  <Page.Content>…</Page.Content>
+</Page>`}>
   <ButtonGroupSeparatorDemo />
-</ComponentPreview>
-
-### Split
-
-<ComponentPreview phonePresentation="none" details={<>The classic split button: an action joined to a secondary affordance via <code>ButtonGroup.Separator</code>. Useful for Save / Save-As, Filter / Add-filter, Delete / Undo.</>} code={`const [size, setSize] = useState("sm")
-
-<ButtonGroup>
-  <Button variant="soft" color="secondary" size={size}><Filter /> Filter</Button>
-  <ButtonGroup.Separator />
-  <Button variant="soft" color="secondary" size={size} uniform aria-label="Add filter">
-    <Plus />
-  </Button>
-</ButtonGroup>`}>
-  <ButtonGroupSplitDemo />
 </ComponentPreview>
 
 ### Input
 
-<ComponentPreview phonePresentation="none" details={<>
+<ComponentPreview phonePresentation="screen" details={<>
   <p>Join an <code>Input</code> to a trailing <code>Button</code> for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content.</p>
-  <p>On a phone with <code>touch.css</code> the button takes the field's 44px at each size shown, so the phone view leaves out the size control.</p>
+  <p>On a phone the example is the bottom bar of a list, as iOS 27.2 Contacts holds its search field and New Contact. In a <code>Toolbar</code> a group that holds a field comes apart: the field is a glass capsule and the button a glass circle, both the bar's 48px and 12px apart, as the bar's items. A phone searches as you type, so the button beside the field is an action of its own; <code>iconSize="sm"</code> draws the large plus of iOS. The bar sets the sizes, so the phone view leaves out the size control.</p>
 </>} code={`const [size, setSize] = useState("sm")
 
+// Desktop
 <ButtonGroup>
   <Input placeholder="Search docs..." size={size} />
   <Button variant="outline" color="secondary" size={size} aria-label="Search">
     <SearchSm />
   </Button>
-</ButtonGroup>`}>
+</ButtonGroup>
+
+// Phone: the bottom bar of a list
+<Page>
+  <Toolbar>
+    <Toolbar.Leading>
+      <NavigationButton action="back" />
+    </Toolbar.Leading>
+    <Toolbar.Title>Orders</Toolbar.Title>
+  </Toolbar>
+  <Page.Content>…</Page.Content>
+  <Toolbar placement="bottom">
+    <Toolbar.Content fill>
+      <ButtonGroup aria-label="Search orders">
+        <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
+        <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="New order"><PlusLg /></Button>
+      </ButtonGroup>
+    </Toolbar.Content>
+  </Toolbar>
+</Page>`}>
   <ButtonGroupInputDemo />
 </ComponentPreview>
 
 ### Dropdown menu
 
-<ComponentPreview phonePresentation="none" details={<>Compose a primary action with a <a href="/components/menu"><code>Menu</code></a> trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….</>} code={`const [size, setSize] = useState("sm")
+<ComponentPreview phonePresentation="screen" details={<>
+  <p>Compose a primary action with a <a href="/components/menu"><code>Menu</code></a> trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….</p>
+  <p>On a phone the action and its menu are symbols in one glass capsule of the top bar, as iOS 27.2 groups a bar's symbols (Add, Share and More in one glass). iOS never puts a label and a symbol in one capsule, and a bar opens a menu from More (…), not from a chevron: here Share exports, More opens the formats. The bar sets its buttons' size, so the phone view leaves out the size control.</p>
+</>} code={`const [size, setSize] = useState("sm")
 
+// Desktop
 <ButtonGroup>
   <Button variant="outline" color="secondary" pill={false} size={size}>Export</Button>
   <Menu>
@@ -234,15 +271,34 @@ const [voiceEnabled, setVoiceEnabled] = useState(false)
       <Menu.Item onSelect={() => {}}><Link /> Copy share link</Menu.Item>
     </Menu.Content>
   </Menu>
-</ButtonGroup>`}>
+</ButtonGroup>
+
+// Phone: in the top bar of a report
+<Toolbar>
+  <Toolbar.Leading>
+    <NavigationButton action="back" />
+  </Toolbar.Leading>
+  <Toolbar.Title>Report</Toolbar.Title>
+  <Toolbar.Trailing>
+    <ButtonGroup aria-label="Export">
+      <Button color="secondary" variant="soft" uniform pill aria-label="Export"><Share /></Button>
+      <Menu>
+        <Menu.Trigger>
+          <Button color="secondary" variant="soft" uniform pill aria-label="More export options"><DotsHorizontal /></Button>
+        </Menu.Trigger>
+        <Menu.Content align="end" minWidth={200}>…</Menu.Content>
+      </Menu>
+    </ButtonGroup>
+  </Toolbar.Trailing>
+</Toolbar>`}>
   <ButtonGroupDropdownMenuDemo />
 </ComponentPreview>
 
 ### Select
 
-<ComponentPreview phonePresentation="none" details={<>
+<ComponentPreview phonePresentation="screen" details={<>
   <p>Mix a <a href="/components/select"><code>Select</code></a> and an <code>Input</code> inside one <code>ButtonGroup</code> for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested <code>ButtonGroup</code> to get a gap between the compound field and the send affordance.</p>
-  <p>On a phone with <code>touch.css</code> the button takes the height of the 44px fields at each size shown, so the phone view leaves out the size control.</p>
+  <p>iOS has no group of a menu, a field and a button, in a bar or in the content. A phone form sets a value and its qualifier as rows of a grouped list: the field is the value of its <a href="/components/field"><code>Field</code></a> row, the unit is the pop-up at the end of its row, as on the <a href="/components/select">Select</a> page, and the bar's confirm takes the place of the send button. The rows set the sizes, so the phone view leaves out the size control.</p>
 </>} code={`const [size, setSize] = useState("sm")
 const [unit, setUnit] = useState("kg")
 const units = [
@@ -250,7 +306,14 @@ const units = [
   { value: "lb", label: "lb · Pound" },
   { value: "oz", label: "oz · Ounce" },
 ]
+// A phone row's value is the whole word
+const unitNames = [
+  { value: "kg", label: "Kilograms" },
+  { value: "lb", label: "Pounds" },
+  { value: "oz", label: "Ounces" },
+]
 
+// Desktop
 <ButtonGroup>
   <ButtonGroup>
     <Select
@@ -268,14 +331,41 @@ const units = [
       <ArrowRight />
     </Button>
   </ButtonGroup>
-</ButtonGroup>`}>
+</ButtonGroup>
+
+// Phone: a form of rows; the bar's confirm logs the weight
+<Page surface="grouped">
+  <Toolbar>
+    <Toolbar.Leading>
+      <NavigationButton action="close" />
+    </Toolbar.Leading>
+    <Toolbar.Title>Weight</Toolbar.Title>
+    <Toolbar.Trailing>
+      <NavigationButton action="confirm" aria-label="Log weight" />
+    </Toolbar.Trailing>
+  </Toolbar>
+  <Page.Content>
+    <FieldGroup>
+      <Field row label="Weight">
+        <Input placeholder="2.50" inputMode="decimal" />
+      </Field>
+      <Field row label="Unit">
+        <Select options={unitNames} value={unit} onChange={(option) => setUnit(option.value)} block={false} align="end" />
+      </Field>
+    </FieldGroup>
+  </Page.Content>
+</Page>`}>
   <ButtonGroupSelectDemo />
 </ComponentPreview>
 
 ### Popover
 
-<ComponentPreview phonePresentation="none" details={<>Same split-button shape, but the trailing trigger opens a <a href="/components/popover"><code>Popover</code></a> instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).</>} code={`const [size, setSize] = useState("sm")
+<ComponentPreview phonePresentation="screen" details={<>
+  <p>Same split-button shape, but the trailing trigger opens a <a href="/components/popover"><code>Popover</code></a> instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).</p>
+  <p>On a phone, as the Dropdown menu, the action and More are symbols in one glass capsule of the top bar. A panel of fields from a bar button is a sheet on a phone (<a href="/components/dialog"><code>Dialog</code></a> with <code>mobileVariant="sheet"</code>), as the <a href="/components/popover#column-configuration">Column configuration</a> of Popover opens: its header and body set the insets, and the title takes focus so no keyboard comes up. Its field is a row of a grouped list, as the <a href="/components/dialog">Edit profile</a> sheet of Dialog: the text area is a vertical <code>Field</code> row with a ghost <a href="/components/textarea"><code>Textarea</code></a>, the note is the list's footer and the header's confirm runs it. The bar sets its buttons' size, so the phone view leaves out the size control.</p>
+</>} code={`const [size, setSize] = useState("sm")
 
+// Desktop
 <ButtonGroup>
   <Button variant="outline" color="secondary" pill={false} size={size}><Sparkles /> Generate</Button>
   <Popover>
@@ -299,7 +389,44 @@ const units = [
       </Card>
     </Popover.Content>
   </Popover>
-</ButtonGroup>`}>
+</ButtonGroup>
+
+// Phone: in the top bar of a draft; More opens a sheet
+const [open, setOpen] = useState(false)
+const heading = useRef<HTMLDivElement>(null)
+
+<Toolbar>
+  <Toolbar.Leading>
+    <NavigationButton action="back" />
+  </Toolbar.Leading>
+  <Toolbar.Title>Draft</Toolbar.Title>
+  <Toolbar.Trailing>
+    <ButtonGroup aria-label="Generate">
+      <Button color="secondary" variant="soft" uniform pill aria-label="Generate"><Sparkles /></Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog.Trigger>
+          <Button color="secondary" variant="soft" uniform pill aria-label="More generate options"><DotsHorizontal /></Button>
+        </Dialog.Trigger>
+        <Dialog.Content mobileVariant="sheet" surface="grouped" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
+          <Dialog.Header>
+            <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Generate a component</Dialog.Title></div>
+            <Dialog.Description className="sr-only">Describe what to build in plain English.</Dialog.Description>
+            <Dialog.HeaderAction>
+              <NavigationButton action="confirm" aria-label="Generate" onClick={() => setOpen(false)} />
+            </Dialog.HeaderAction>
+          </Dialog.Header>
+          <Dialog.Body>
+            <FieldGroup footer="Describe what to build in plain English.">
+              <Field row orientation="vertical" label="Component" hideLabel>
+                <Textarea variant="ghost" placeholder="A login form with email and password…" rows={3} />
+              </Field>
+            </FieldGroup>
+          </Dialog.Body>
+        </Dialog.Content>
+      </Dialog>
+    </ButtonGroup>
+  </Toolbar.Trailing>
+</Toolbar>`}>
   <ButtonGroupPopoverDemo />
 </ComponentPreview>
 
@@ -310,7 +437,7 @@ const units = [
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Direction of the joined items |
-| `mobileMaterial` | `"glass" \| "flat"` | — | Phone surface with `touch.css`: `"glass"` makes the group one glass capsule outside a `Toolbar`, `"flat"` keeps the joined buttons in one |
+| `mobileMaterial` | `"glass" \| "flat"` | — | Phone surface with `touch.css`: `"glass"` makes the group one glass capsule outside a `Toolbar`, and a group that holds a field comes apart into glass shapes; `"flat"` keeps the joined buttons in one |
 | `className` | `string` | — | Applied to the root `<div>` |
 
 Renders a `<div role="group">`. All other `<div>` attributes are forwarded.
@@ -339,5 +466,6 @@ Nesting `ButtonGroup` inside a parent `ButtonGroup` automatically introduces a g
 - `--button-group-glass-item-size`, `--button-group-glass-gap`, `--button-group-glass-padding`: a glass group on a phone, its buttons, the space between them and at the ends (default `44px`, `10px`, `1px`; in a `Toolbar` the bar's own)
 - `--button-group-glass-vertical-item-size`, `--button-group-glass-vertical-gap`, `--button-group-glass-vertical-padding`: a vertical glass group (default `48px`, `6px`, `4px`)
 - `--button-group-glass-nested-gap`, `--button-group-glass-label-gutter`: between glass groups side by side, and the gutter of a label in one (default `10px`, `16px`)
+- `--button-group-glass-field-size`, `--button-group-glass-field-gap`, `--button-group-glass-field-gutter`: a glass group that holds a field and floats over the content, its field and buttons, the space between them and the field's text gutter (default `40px`, `12px`, `16px`; in a `Toolbar` the bar's size and gap)
 
 Radius, border, and focus styles of joined buttons come from each child control's own tokens (`--button-radius`, `--input-radius`, etc.). The group only strips the shared edge radii so joined items align.

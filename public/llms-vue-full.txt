@@ -531,14 +531,14 @@ Import: import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@ple
 Docs: https://plexui.com/vue/components/button-group
 Props:
   - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the joined items
-  - mobile-material ("glass" | "flat") — Phone surface with touch.css: "glass" makes the group one glass capsule outside a Toolbar, "flat" keeps the joined buttons in one
+  - mobile-material ("glass" | "flat") — Phone surface with touch.css: "glass" makes the group one glass capsule outside a Toolbar, and a group that holds a field comes apart into glass shapes; "flat" keeps the joined buttons in one
   - class (string) — Applied to the root <div>
   ButtonGroupText:
     - as-child (boolean) default: false — Render the slotted child (e.g. a <label> tied to an input) instead of a <div>
     - class (string) — Applied to the wrapper
 
 ### Overview
-Set size on every Button inside the group so corner radii match; the size setting here sets all of them. Mix icon-only (uniform) with text buttons; each child keeps its own padding. On a phone with touch.css a group in the content keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, sm) and medium (34px, md and lg) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own. On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 8px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do. The bar sets its buttons' size, so the phone view leaves out the size control.
+Set size on every Button inside the group so corner radii match; the size setting here sets all of them. Mix icon-only (uniform) with text buttons; each child keeps its own padding. Place a ButtonGroup inside a ButtonGroup to make sub-groups, as Back, Pin and Tag, Bookmark and More here, or a pager's pages beside its arrows: the outer group sets a gap between them (--button-group-nested-gap, 8px) and each sub-group stays joined. On a phone with touch.css a group in the content keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, sm) and medium (34px, md and lg) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own. On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 8px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do. The bar sets its buttons' size, so the phone view leaves out the size control.
 ```vue
 <!-- Desktop -->
 <ButtonGroup>
@@ -595,7 +595,7 @@ Set size on every Button inside the group so corner radii match; the size settin
 ```
 
 ### Orientation
-Pass orientation="vertical" to stack the buttons, useful for + / − steppers, zoom controls, or any vertical toolbar. On a phone the example is zoom controls floating over a canvas, as map controls do: with mobile-material="glass" the group is the vertical Button Group of the iOS 27 kit, a 48px wide capsule of 48px buttons 6px apart. In the content a group of icon-only buttons keeps their 44px at each size, so the phone view leaves out the size control.
+Pass orientation="vertical" to stack the buttons, useful for + / − steppers, zoom controls, or any vertical toolbar. On a phone the example is zoom controls floating over a canvas, as map controls do: with mobile-material="glass" the group is the vertical Button Group of the iOS 27 kit, a 48px wide capsule of 48px buttons 6px apart. Each button takes its share of the gap and the padding, so its pressed shape fills its part of the capsule and the first and last are as round as its ends. A phone takes the large plus and minus (PlusLg, MinusLg) with icon-size="sm", the plus of an iOS 27.2 bar: about 18px of ink with a 2px stroke. In the content a group of icon-only buttons keeps their 44px at each size, so the phone view leaves out the size control.
 ```vue
 <!-- Desktop -->
 <ButtonGroup orientation="vertical" aria-label="Zoom controls">
@@ -609,14 +609,15 @@ Pass orientation="vertical" to stack the buttons, useful for + / − steppers, z
 
 <!-- Phone: zoom controls over a canvas -->
 <ButtonGroup orientation="vertical" mobile-material="glass" aria-label="Zoom controls" class="absolute top-2 right-4">
-  <Button color="secondary" variant="soft" uniform pill aria-label="Zoom in"><Plus /></Button>
-  <Button color="secondary" variant="soft" uniform pill aria-label="Zoom out"><Minus /></Button>
+  <Button color="secondary" variant="soft" uniform pill icon-size="sm" aria-label="Zoom in"><PlusLg /></Button>
+  <Button color="secondary" variant="soft" uniform pill icon-size="sm" aria-label="Zoom out"><MinusLg /></Button>
 </ButtonGroup>
 ```
 
 ### Input group
-Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via the endAdornment slot. Use InputAdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size. On a phone with touch.css the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.
+Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via the endAdornment slot. Use InputAdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size. On a phone the example is the composer of iOS Messages at the bottom of the screen. With mobile-material="glass" a group that holds a field comes apart: the plus is a 40px glass circle with the large plus (PlusLg, icon-size="sm") and the field a 40px glass capsule with 16px gutters and 17px text, 12px apart, as iOS 27.2 sets them. The voice button inside the field keeps its 44px target without growing the field. The group sets the sizes, so the phone view leaves out the size control.
 ```vue
+<!-- Desktop -->
 <ButtonGroup style="width: 100%; max-width: 280px">
   <ButtonGroup>
     <Button variant="outline" color="secondary" pill :size="size" uniform aria-label="Add attachment">
@@ -643,62 +644,113 @@ Richer composition for message composers: wrap each slot (leading action, flexib
     </Input>
   </ButtonGroup>
 </ButtonGroup>
-```
 
-### Nested
-Place ButtonGroup inside ButtonGroup to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern.
-```vue
-<ButtonGroup aria-label="Pager">
-  <ButtonGroup>
-    <Button v-for="page in 5" :key="page" variant="outline" color="secondary" :size="size">{{ page }}</Button>
-  </ButtonGroup>
-  <ButtonGroup>
-    <Button variant="outline" color="secondary" :size="size" uniform aria-label="Previous page">
-      <ArrowLeftSm />
-    </Button>
-    <Button variant="outline" color="secondary" :size="size" uniform aria-label="Next page">
-      <ArrowRightSm />
-    </Button>
-  </ButtonGroup>
-</ButtonGroup>
+<!-- Phone: the composer at the bottom of the screen -->
+<Page>
+  <Toolbar>
+    <ToolbarTitle>New Message</ToolbarTitle>
+    <ToolbarTrailing>
+      <NavigationButton action="close" />
+    </ToolbarTrailing>
+  </Toolbar>
+  <PageContent>…</PageContent>
+  <PageFooter>
+    <ButtonGroup mobile-material="glass" aria-label="Message">
+      <ButtonGroup>
+        <Button color="secondary" variant="soft" uniform pill icon-size="sm" aria-label="Add attachment"><PlusLg /></Button>
+      </ButtonGroup>
+      <ButtonGroup>
+        <Input
+          pill
+          aria-label="Message"
+          :placeholder="voiceEnabled ? 'Listening…' : 'Text Message'"
+          :disabled="voiceEnabled"
+        >
+          <template #endAdornment>
+            <InputAdornmentButton
+              :color="voiceEnabled ? 'caution' : undefined"
+              aria-label="Toggle voice mode"
+              :aria-pressed="voiceEnabled"
+              @click="voiceEnabled = !voiceEnabled"
+            >
+              <Mic />
+            </InputAdornmentButton>
+          </template>
+        </Input>
+      </ButtonGroup>
+    </ButtonGroup>
+  </PageFooter>
+</Page>
 ```
 
 ### Separator
-Drop a ButtonGroupSeparator between items to add a visible divider, commonly used for Undo / Redo pairs or any "two related actions" toolbar. A glass group on a phone draws no line, as the capsule of iOS has none.
+Drop a ButtonGroupSeparator between items to add a visible divider, commonly used for Undo / Redo pairs or any "two related actions" toolbar. The same divider makes the classic split button: an action joined to a secondary affordance, as Save / Save As, Filter / Add filter or Delete / Undo. On a phone the example is Undo and Redo in the top bar of a drawing, as iOS 27.2 sets a document's bar: Back, the title, and the group as one glass capsule. The capsule of iOS draws no line between its buttons, so in a glass group the separator draws nothing. The bar sets its buttons' size, so the phone view leaves out the size control.
 ```vue
+<!-- Desktop -->
 <ButtonGroup>
   <Button variant="soft" color="secondary" :size="size"><Undo /> Undo</Button>
   <ButtonGroupSeparator />
   <Button variant="soft" color="secondary" :size="size">Redo <Redo /></Button>
 </ButtonGroup>
-```
 
-### Split
-The classic split button: an action joined to a secondary affordance via ButtonGroupSeparator. Useful for Save / Save-As, Filter / Add-filter, Delete / Undo.
-```vue
-<ButtonGroup>
-  <Button variant="soft" color="secondary" :size="size"><Filter /> Filter</Button>
-  <ButtonGroupSeparator />
-  <Button variant="soft" color="secondary" :size="size" uniform aria-label="Add filter">
-    <Plus />
-  </Button>
-</ButtonGroup>
+<!-- Phone: the top bar of a drawing -->
+<Page>
+  <Toolbar>
+    <ToolbarLeading>
+      <NavigationButton action="back" />
+    </ToolbarLeading>
+    <ToolbarTitle>Sketch</ToolbarTitle>
+    <ToolbarTrailing>
+      <ButtonGroup aria-label="History">
+        <Button color="secondary" variant="soft" uniform pill aria-label="Undo"><Undo /></Button>
+        <ButtonGroupSeparator />
+        <Button color="secondary" variant="soft" uniform pill aria-label="Redo"><Redo /></Button>
+      </ButtonGroup>
+    </ToolbarTrailing>
+  </Toolbar>
+  <PageContent>…</PageContent>
+</Page>
 ```
 
 ### Input
-Join an Input to a trailing Button for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content. On a phone with touch.css the button takes the field's 44px at each size shown, so the phone view leaves out the size control.
+Join an Input to a trailing Button for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content. On a phone the example is the bottom bar of a list, as iOS 27.2 Contacts holds its search field and New Contact. In a Toolbar a group that holds a field comes apart: the field is a glass capsule and the button a glass circle, both the bar's 48px and 12px apart, as the bar's items. A phone searches as you type, so the button beside the field is an action of its own; icon-size="sm" draws the large plus of iOS. The bar sets the sizes, so the phone view leaves out the size control.
 ```vue
+<!-- Desktop -->
 <ButtonGroup>
   <Input placeholder="Search docs..." :size="size" />
   <Button variant="outline" color="secondary" :size="size" aria-label="Search">
     <SearchSm />
   </Button>
 </ButtonGroup>
+
+<!-- Phone: the bottom bar of a list -->
+<Page>
+  <Toolbar>
+    <ToolbarLeading>
+      <NavigationButton action="back" />
+    </ToolbarLeading>
+    <ToolbarTitle>Orders</ToolbarTitle>
+  </Toolbar>
+  <PageContent>…</PageContent>
+  <Toolbar placement="bottom">
+    <ToolbarContent fill>
+      <ButtonGroup aria-label="Search orders">
+        <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
+          <template #startAdornment>
+            <SearchSm />
+          </template>
+        </Input>
+        <Button color="secondary" variant="soft" uniform pill icon-size="sm" aria-label="New order"><PlusLg /></Button>
+      </ButtonGroup>
+    </ToolbarContent>
+  </Toolbar>
+</Page>
 ```
 
 ### Dropdown menu
-Compose a primary action with a Menu trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….
+Compose a primary action with a Menu trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / …. On a phone the action and its menu are symbols in one glass capsule of the top bar, as iOS 27.2 groups a bar's symbols (Add, Share and More in one glass). iOS never puts a label and a symbol in one capsule, and a bar opens a menu from More (…), not from a chevron: here Share exports, More opens the formats. The bar sets its buttons' size, so the phone view leaves out the size control.
 ```vue
+<!-- Desktop -->
 <ButtonGroup>
   <Button variant="outline" color="secondary" :pill="false" :size="size">Export</Button>
   <Menu>
@@ -717,11 +769,41 @@ Compose a primary action with a Menu trigger for follow-up options. Common for E
     </MenuContent>
   </Menu>
 </ButtonGroup>
+
+<!-- Phone: in the top bar of a report -->
+<Page>
+  <Toolbar>
+    <ToolbarLeading>
+      <NavigationButton action="back" />
+    </ToolbarLeading>
+    <ToolbarTitle>Report</ToolbarTitle>
+    <ToolbarTrailing>
+      <ButtonGroup aria-label="Export">
+        <Button color="secondary" variant="soft" uniform pill aria-label="Export"><Share /></Button>
+        <Menu>
+          <MenuTrigger>
+            <Button color="secondary" variant="soft" uniform pill aria-label="More export options"><DotsHorizontal /></Button>
+          </MenuTrigger>
+          <MenuContent align="end" :min-width="200">
+            <MenuItem @select="() => {}"><FileImage /> PNG image</MenuItem>
+            <MenuItem @select="() => {}"><FileCode /> SVG vector</MenuItem>
+            <MenuItem @select="() => {}"><FileDocument /> PDF document</MenuItem>
+            <MenuSeparator />
+            <MenuItem @select="() => {}"><Copy /> Copy as code</MenuItem>
+            <MenuItem @select="() => {}"><Link /> Copy share link</MenuItem>
+          </MenuContent>
+        </Menu>
+      </ButtonGroup>
+    </ToolbarTrailing>
+  </Toolbar>
+  <PageContent>…</PageContent>
+</Page>
 ```
 
 ### Select
-Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested ButtonGroup to get a gap between the compound field and the send affordance. On a phone with touch.css the button takes the height of the 44px fields at each size shown, so the phone view leaves out the size control.
+Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested ButtonGroup to get a gap between the compound field and the send affordance. iOS has no group of a menu, a field and a button, in a bar or in the content. A phone form sets a value and its qualifier as rows of a grouped list: the field is the value of its Field row, the unit is the pop-up at the end of its row, as on the Select page, and the bar's confirm takes the place of the send button. The rows set the sizes, so the phone view leaves out the size control.
 ```vue
+<!-- Desktop -->
 <ButtonGroup>
   <ButtonGroup>
     <Select
@@ -739,11 +821,35 @@ Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entr
     </Button>
   </ButtonGroup>
 </ButtonGroup>
+
+<!-- Phone: a form of rows; the bar's confirm logs the weight -->
+<Page surface="grouped">
+  <Toolbar>
+    <ToolbarLeading>
+      <NavigationButton action="close" />
+    </ToolbarLeading>
+    <ToolbarTitle>Weight</ToolbarTitle>
+    <ToolbarTrailing>
+      <NavigationButton action="confirm" aria-label="Log weight" />
+    </ToolbarTrailing>
+  </Toolbar>
+  <PageContent>
+    <FieldGroup>
+      <Field row label="Weight">
+        <Input placeholder="2.50" inputmode="decimal" />
+      </Field>
+      <Field row label="Unit">
+        <Select :options="unitNames" v-model:value="unit" :block="false" align="end" />
+      </Field>
+    </FieldGroup>
+  </PageContent>
+</Page>
 ```
 
 ### Popover
-Same split-button shape, but the trailing trigger opens a Popover instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).
+Same split-button shape, but the trailing trigger opens a Popover instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews). On a phone, as the Dropdown menu, the action and More are symbols in one glass capsule of the top bar. A panel of fields from a bar button is a sheet on a phone (Dialog with mobile-variant="sheet"), as the Column configuration of Popover opens: its header and body set the insets, and the title takes focus so no keyboard comes up. Its field is a row of a grouped list, as the Edit profile sheet of Dialog: the text area is a vertical Field row with a ghost Textarea, the note is the list's footer and the header's confirm runs it. The bar sets its buttons' size, so the phone view leaves out the size control.
 ```vue
+<!-- Desktop -->
 <ButtonGroup>
   <Button variant="outline" color="secondary" :pill="false" :size="size"><Sparkles /> Generate</Button>
   <Popover>
@@ -768,6 +874,44 @@ Same split-button shape, but the trailing trigger opens a Popover instead of a m
     </PopoverContent>
   </Popover>
 </ButtonGroup>
+
+<!-- Phone: in the top bar of a draft; More opens a sheet -->
+<Page>
+  <Toolbar>
+    <ToolbarLeading>
+      <NavigationButton action="back" />
+    </ToolbarLeading>
+    <ToolbarTitle>Draft</ToolbarTitle>
+    <ToolbarTrailing>
+      <ButtonGroup aria-label="Generate">
+        <Button color="secondary" variant="soft" uniform pill aria-label="Generate"><Sparkles /></Button>
+        <Dialog v-model:open="open">
+          <DialogTrigger>
+            <Button color="secondary" variant="soft" uniform pill aria-label="More generate options"><DotsHorizontal /></Button>
+          </DialogTrigger>
+          <DialogContent mobile-variant="sheet" surface="grouped" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
+            <DialogHeader>
+              <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Generate a component</DialogTitle></div>
+              <DialogDescription class="sr-only">Describe what to build in plain English.</DialogDescription>
+              <DialogHeaderAction>
+                <NavigationButton action="confirm" aria-label="Generate" @click="open = false" />
+              </DialogHeaderAction>
+            </DialogHeader>
+            <DialogBody>
+              <FieldGroup>
+                <Field row orientation="vertical" label="Component" hide-label>
+                  <Textarea variant="ghost" placeholder="A login form with email and password…" :rows="3" />
+                </Field>
+                <template #footer>Describe what to build in plain English.</template>
+              </FieldGroup>
+            </DialogBody>
+          </DialogContent>
+        </Dialog>
+      </ButtonGroup>
+    </ToolbarTrailing>
+  </Toolbar>
+  <PageContent>…</PageContent>
+</Page>
 ```
 
 ## Card
