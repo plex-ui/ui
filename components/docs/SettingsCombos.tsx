@@ -7,7 +7,7 @@ import { ColorWell } from '@plexui/ui/components/ColorPicker';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { BellFilled, CameraPhotoFilled, Disclosure, GlobeFilled, HeartFilled, InfoCircle, MicFilled, SoundOffSpeaker, SoundOnSpeaker, StarFilled } from '@plexui/ui/components/Icon';
+import { Bell, CameraPhoto, Disclosure, Globe, Heart, InfoCircle, Mic, SoundOffSpeaker, SoundOnSpeaker, Star } from '@plexui/ui/components/Icon';
 import { Input } from '@plexui/ui/components/Input';
 import { RadioGroup } from '@plexui/ui/components/RadioGroup';
 import { Select } from '@plexui/ui/components/Select';
@@ -234,8 +234,8 @@ export function OrderCombos({ value, onChange, handles = true, handlePlacement }
   </>;
 }
 
-// Settings draws an app's tile with a filled glyph in white (IMG_5952) or black on a light tile (IMG_5963): the kit's filled icons
-const symbols = { bell: BellFilled, globe: GlobeFilled, star: StarFilled, heart: HeartFilled, mic: MicFilled, camera: CameraPhotoFilled };
+// The kit's outlined icons, as everywhere in the kit (owner 14.11: «у нас везде outlined»), at a size Settings draws a tile's glyph
+const symbols = { bell: Bell, globe: Globe, star: Star, heart: Heart, mic: Mic, camera: CameraPhoto };
 
 export type IconStyle = 'tile' | 'outline' | 'plain';
 

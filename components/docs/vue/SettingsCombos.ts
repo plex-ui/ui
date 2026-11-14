@@ -5,7 +5,7 @@ import { ColorWell } from '@plexui/vue/components/ColorPicker';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@plexui/vue/components/Dialog';
 import { Field } from '@plexui/vue/components/Field';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
-import { BellFilled, CameraPhotoFilled, Disclosure, GlobeFilled, HeartFilled, InfoCircle, MicFilled, SoundOffSpeaker, SoundOnSpeaker, StarFilled } from '@plexui/vue/components/Icon';
+import { Bell, CameraPhoto, Disclosure, Globe, Heart, InfoCircle, Mic, SoundOffSpeaker, SoundOnSpeaker, Star } from '@plexui/vue/components/Icon';
 import { Input } from '@plexui/vue/components/Input';
 import { RadioGroup, RadioGroupItem } from '@plexui/vue/components/RadioGroup';
 import { Select } from '@plexui/vue/components/Select';
@@ -199,8 +199,8 @@ export const OrderCombos = defineComponent({
   },
 });
 
-// Settings draws an app's tile with a filled glyph in white (IMG_5952) or black on a light tile (IMG_5963): the kit's filled icons
-const symbols = { bell: BellFilled, globe: GlobeFilled, star: StarFilled, heart: HeartFilled, mic: MicFilled, camera: CameraPhotoFilled };
+// The kit's outlined icons, as everywhere in the kit (owner 14.11: «у нас везде outlined»), at a size Settings draws a tile's glyph
+const symbols = { bell: Bell, globe: Globe, star: Star, heart: Heart, mic: Mic, camera: CameraPhoto };
 type IconStyle = 'tile' | 'outline' | 'plain';
 /** A picture in a row, which Field's `icon` slot sets in the row's image column */
 const picture = (row: PictureRow, style: IconStyle) =>

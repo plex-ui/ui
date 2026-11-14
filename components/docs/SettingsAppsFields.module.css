@@ -2,8 +2,9 @@
    tile — the app's color with its symbol in white, as Settings lists apps (IMG_5952);
    outline — a light tile with a hairline edge and the symbol in the label color (IMG_5963);
    plain — the symbol alone.
-   The glyph is one of the kit's filled icons at 72% of the tile, so its ink is about 17 of 28 as Settings draws an
-   app's glyph (IMG_5952, IMG_5963: 15 to 20pt); alone it takes the column, as a symbol row's 24pt (owner 14.11). */
+   The glyph is one of the kit's outlined icons, as everywhere in the kit, at 72% of the tile, so its ink is about 17
+   of 28 as Settings draws a tile's glyph (IMG_5952, IMG_6016: 15 to 20pt); alone it takes the column, as a symbol
+   row's 24pt (owner 14.11). */
 .Picture {
   display: flex;
   align-items: center;
