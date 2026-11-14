@@ -806,6 +806,7 @@ const TabComponent = defineComponent({
                           "span",
                           {
                             "class": s.TabBadge,
+                            "data-slot": "tab-badge",
                             "data-color": badgeProps.color ?? "secondary",
                             "data-variant": badgeProps.variant ?? "soft",
                             "data-pill": badgeProps.pill ? "" : undefined,

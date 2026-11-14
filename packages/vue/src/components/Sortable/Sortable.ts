@@ -12,7 +12,7 @@ import {
   type VNodeArrayChildren,
   type VNodeChild,
 } from "vue"
-import { moveItem, sortableKeyDown, sortablePointerDown, type SortableLayout, type SortableMove } from "../../lib/sortable.js"
+import { moveItem, sortableKeyDown, sortablePointerDown, type SortableLayout, type SortableMove, type SortableReach } from "../../lib/sortable.js"
 import { GripVertical, Hamburger } from "../Icon/index.js"
 import s from "@plexui/styles/components/Sortable/Sortable.module.css"
 
@@ -40,6 +40,8 @@ const SortableComponent = defineComponent({
     handles: { type: Boolean, default: undefined },
     /** Lists of one group trade items, and a `SortableTarget` of that group takes them. Give each list a `name`. */
     group: { type: String, default: undefined },
+    /** Where a drag goes: `group` to the lists of the group and its `SortableTarget`s, `list` within this list and onto the targets, `targets` only onto a target, with no line or parting and the arrow keys leaving the order. A list that is not `group` neither gives items to the other lists nor takes theirs. @default "group" */
+    reach: { type: String as PropType<SortableReach>, default: undefined },
     /** Names the list in `move`. */
     name: { type: String, default: undefined },
   },
@@ -102,6 +104,7 @@ const SortableComponent = defineComponent({
           "data-disabled": props.disabled ? "" : undefined,
           "data-handles": props.handles?.toString(),
           "data-group": props.group,
+          "data-reach": props.reach,
           "data-name": props.name,
           onPointerdown,
           onKeydown,
@@ -181,4 +184,4 @@ export const Sortable = SortableComponent
 export const SortableHandle = SortableHandleComponent
 /** A place outside the lists that takes an item whole: a folder, a category in a side list. */
 export const SortableTarget = SortableTargetComponent
-export type { SortableLayout, SortableMove }
+export type { SortableLayout, SortableMove, SortableReach }

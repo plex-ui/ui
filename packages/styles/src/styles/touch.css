@@ -760,6 +760,22 @@
       --segmented-control-option-disabled-color: var(--alpha-20);
     }
 
+    /* iOS segments carry a title or a symbol and no badge (owner 13.11: «я с бейджами не встречал сегментед
+       контролов на ios»), so a phone's horizontal tabs, the segmented control, draw none; the count stays in the
+       segment's name for assistive technology. It is here and not in Tabs.module.css, so a page that is only narrow
+       and has not asked for the phone's sizes keeps its counts. */
+    html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] [data-slot="tab-badge"] {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      border: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
     /* The small control with mobileMaterial="glass" takes the Liquid Glass of iOS 27 at its own size, as SwiftUI's
        .glassEffect() draws a segmented Picker in iOS 27.2: the 32pt capsule keeps its fill under the glass, 233 to
        239 over white and 52 over black against the plain 238 and 28, with the rim along its top, a darker outline at

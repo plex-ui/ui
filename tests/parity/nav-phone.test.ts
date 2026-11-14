@@ -173,7 +173,7 @@ describe("an inline Alert on a phone takes the shape and text of an iOS tip (Tip
     // A 44px target whose background and focus ring draw the 26px circle 14 from the edges, the first line of text short of it
     expect(phoneRule(css, ".Alert > .CloseButton")).toMatchObject({ "--button-uniform-size": "44px", "--button-icon-size": "19px", position: "absolute", top: "5px", "inset-inline-end": "5px", display: "inline-flex" })
     expect(phoneRule(css, "&::before,\n    &::after")).toEqual({ inset: "9px" })
-    expect(phoneRule(css, ".Alert:has(> .CloseButton) .Message > :first-child")).toEqual({ "padding-inline-end": "34px" })
+    expect(phoneRule(css, ".Alert:has(> .CloseButton) .Message > :first-child:where(.Title, .Description)")).toEqual({ "padding-inline-end": "34px" })
     for (const path of ["packages/ui/src/components/Alert/Alert.tsx", "packages/vue/src/components/Alert/Alert.ts"]) {
       const source = read(path)
       expect(source, path).toMatch(/aria-label"?[:=] ?"Dismiss"/)

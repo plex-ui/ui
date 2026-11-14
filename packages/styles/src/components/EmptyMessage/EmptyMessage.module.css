@@ -33,12 +33,14 @@
         padding-inline: var(--empty-message-text-inset, 0px);
       }
 
+      /* The first part above the buttons, found from its own side: a :has() left of a subject of no class or
+         attribute makes every change to the page restyle all of it */
+      > :first-child:not(.ActionRow):has(~ .ActionRow > [data-variant]) {
+        margin-top: var(--empty-message-fill-content-margin, 0px);
+      }
+
       &:has(> .ActionRow > [data-variant]) {
         padding-top: var(--empty-message-fill-action-inset, 0px);
-
-        > :first-child:not(.ActionRow) {
-          margin-top: var(--empty-message-fill-content-margin, 0px);
-        }
 
         > .ActionRow {
           align-self: var(--empty-message-fill-action-align, auto);
@@ -210,8 +212,10 @@
 .EmptyMessage:not([data-size="sm"]) .ActionRow:has(> :nth-child(2)) {
   flex-direction: var(--empty-message-multi-direction, row);
   align-self: var(--empty-message-multi-align, auto);
+}
 
-  & > :where(button, a) {
-    width: var(--empty-message-multi-action-width, auto);
-  }
+/* One of two or more buttons is not an only child: a :has() on the row left of a subject of tags alone makes every
+   change to the page restyle much of it */
+.EmptyMessage:not([data-size="sm"]) .ActionRow > :where(button, a):not(:only-child) {
+  width: var(--empty-message-multi-action-width, auto);
 }

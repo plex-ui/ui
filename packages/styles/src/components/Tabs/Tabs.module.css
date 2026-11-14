@@ -744,6 +744,22 @@
   display: none;
 }
 
+/* iOS segments carry a title or a symbol and no badge (owner 13.11: «я с бейджами не встречал сегментед контролов
+   на ios»): in a phone layout (PhoneLayout, a dialog laid out as on a phone) horizontal tabs draw no badge, and its
+   count stays in the segment's name for assistive technology. A page that is only narrow keeps its counts; below
+   768px touch.css hides them, where the page asks for the phone's sizes. */
+:where([data-plex-layout="phone"]) .Tabs[data-orientation="horizontal"] .TabBadge {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* =============================================
   Phone (iOS 27). iOS switches the views of a screen with one control, the segmented control: plain
   in content (SwiftUI Picker .segmented, iOS 27.2) and on glass in a bar (iOS 27.2, Calendar IMG_5433);
@@ -781,20 +797,6 @@
      apportionsSegmentWidthsByContent (owner 13.11, ref-app segmented-hug: «компактно/не компактно? у нас будут?»). */
   .Tabs:where([data-orientation="horizontal"][data-mobile-segment-width="content"]) {
     --tabs-equal-segments: 0;
-  }
-
-  /* iOS segments carry a title or a symbol and no badge (owner 13.11: «я с бейджами не встречал сегментед контролов
-     на ios»). On a phone a badge is not drawn; its count stays in the segment's name for assistive technology. */
-  .Tabs[data-orientation="horizontal"] .TabBadge {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    border: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
   }
 
   /* Disabled as a whole, the control shows at half opacity, its capsule, selection and labels alike, as native

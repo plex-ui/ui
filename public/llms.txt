@@ -1079,12 +1079,13 @@ Props:
   - disabled (boolean) default: false — Turns dragging off
   - handles (boolean) default: true in a table, otherwise false — Shows the grips of Sortable.Handle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control
   - group (string) — Lists of one group trade items, and a Sortable.Target of that group takes them. Give each list a name
+  - reach ('group' | 'list' | 'targets') default: group — Where a drag goes: group to the lists of the group and its targets, list within this list and onto the targets, targets only onto a target, with no line or parting and the arrow keys leaving the order. A list that is not group neither gives items to the other lists nor takes theirs
   - name (string) — Names the list in onMove
   - onMove ((move: SortableMove<T>) => void) — An item moved, inside this list or out of it, with { item, from, fromIndex, to, toIndex }. Out of it the app updates both lists: onChange is for a move inside one
   - onHold ((name: string) => void) — A drag rests on a Sortable.Target of the group for half a second
   - children (ReactNode) — The items: one direct child per entry of value, keyed by the entry and not by its index
   - aria-label (string) default: Reorder — Name of the handle for assistive technology
-Examples: Overview, Stacked rows, Different controls, Table, Images, Tags, Cards, Between lists
+Examples: Overview, Stacked rows, Different controls, Table, Images, Tags, Cards, Between lists, Onto a folder
 
 ## Stats Card
 Stats card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.

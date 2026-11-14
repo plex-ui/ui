@@ -5,7 +5,7 @@ metaDescription: "Drag to reorder for Vue 3: Sortable reorders rows, table rows,
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
-import { VueSortableGroupDemo, VueSortableTableDemo } from "@/components/docs/vue/VueSortableDemos"
+import { VueSortableGroupDemo, VueSortableTableDemo, VueSortableTargetsDemo } from "@/components/docs/vue/VueSortableDemos"
 import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import { phoneRows } from "@/components/docs/phoneRowsTemplate"
@@ -183,12 +183,34 @@ export const cardsDemo = `<Sortable v-model:value="cards" layout="grid" class="g
 export const groupDemo = `<div class="grid w-[640px] max-w-full gap-4 sm:grid-cols-3">
   <div v-for="(tasks, name) in lists" :key="name">
     <p class="mb-2 text-sm font-medium text-primary">{{ name }}</p>
-    <Sortable group="tasks" :name="name" :value="tasks" class="rounded-xl border border-default" @move="move">
+    <Sortable group="tasks" :name="name" :value="tasks" class="rounded-xl border border-default" @move="move(lists, $event)">
       <div v-for="task in tasks" :key="task" class="px-4 py-3 text-sm text-primary">{{ task }}</div>
       <p v-if="!tasks.length" class="px-4 py-3 text-sm text-secondary" data-sortable-static>Nothing here</p>
     </Sortable>
   </div>
 </div>`
+
+export const targetsDemo = `<div class="flex w-[640px] max-w-full gap-4">
+  <nav aria-label="Folders" class="flex w-44 shrink-0 flex-col gap-0.5">
+    <SortableTarget
+      v-for="(files, name) in folders" :key="name" as="button" group="files" :name="name"
+      :aria-current="name === view.open ? 'page' : undefined"
+      :class="['flex items-center justify-between rounded-lg px-3 py-2 text-left text-sm text-primary', name === view.open && 'bg-[var(--color-surface-tertiary)] font-medium']"
+      @click="view.open = name"
+    >
+      {{ name }}
+      <span class="text-secondary">{{ files.length }}</span>
+    </SortableTarget>
+  </nav>
+  <Sortable :key="view.open" group="files" :name="view.open" :reach="reach" :value="folders[view.open]" class="min-w-0 flex-1 rounded-xl border border-default" @move="move(folders, $event)">
+    <div v-for="file in folders[view.open]" :key="file" class="px-4 py-3 text-sm text-primary">{{ file }}</div>
+    <p v-if="!folders[view.open].length" class="px-4 py-3 text-sm text-secondary" data-sortable-static>No files</p>
+  </Sortable>
+</div>`
+
+export const targetsControls = [
+  { name: "reach", type: "select", options: ["targets", "list"], default: "targets" },
+]
 
 ## Examples
 
@@ -256,6 +278,12 @@ export const groupDemo = `<div class="grid w-[640px] max-w-full gap-4 sm:grid-co
   <VueSortableGroupDemo template={groupDemo} stageClassName={STAGE} />
 </ComponentPreview>
 
+### Onto a folder
+
+<ComponentPreview language="vue" details={<><code>reach="targets"</code> hands an item only to a <code>SortableTarget</code> of its group, such as a folder in a side list: the order stays as it is, so no line shows and nothing parts, a drop anywhere else puts the item back, and the arrow keys leave it. <code>reach="list"</code> also lets the list be ordered by hand. Either way the list takes no items from the other lists of the group. A drop on a folder moves the file with <code>toIndex</code> undefined; pressing a folder opens it.</>} code={targetsDemo} previewMinHeight={300}>
+  <VueSortableTargetsDemo template={targetsDemo} stageClassName={STAGE} controls={targetsControls} />
+</ComponentPreview>
+
 ## API
 
 <PropsTable data={[
@@ -265,6 +293,7 @@ export const groupDemo = `<div class="grid w-[640px] max-w-full gap-4 sm:grid-co
   { prop: "disabled", type: "boolean", default: "false", description: "Turns dragging off" },
   { prop: "handles", type: "boolean", default: "true in a table, otherwise false", description: "Shows the grips of SortableHandle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control" },
   { prop: "group", type: "string", description: "Lists of one group trade items, and a SortableTarget of that group takes them. Give each list a name" },
+  { prop: "reach", type: "'group' | 'list' | 'targets'", default: "group", description: "Where a drag goes: group to the lists of the group and its targets, list within this list and onto the targets, targets only onto a target, with no line or parting and the arrow keys leaving the order. A list that is not group neither gives items to the other lists nor takes theirs" },
   { prop: "name", type: "string", description: "Names the list in move" },
 ]} />
 

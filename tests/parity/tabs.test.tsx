@@ -1995,12 +1995,16 @@ describe("Segmented Tabs on a phone take one width (segments.ts)", () => {
     root.remove()
   })
 
-  test("a compact control asks for no one width, a phone draws no badge, and the small control's label stands 9px in", () => {
+  test("a compact control asks for no one width, a phone draws no badge but a narrow page does, and the small control's label stands 9px in", () => {
     const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Tabs/Tabs.module.css`, "utf8")
     const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
     expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="horizontal"\]\[data-mobile-segment-width="content"\]\) \{\s*--tabs-equal-segments: 0;\s*\}/)
-    expect(phone).toMatch(/\.Tabs\[data-orientation="horizontal"\] \.TabBadge \{[^}]*position: absolute;[^}]*clip-path: inset\(50%\);/)
+    // A page that is only narrow keeps its counts: the module hides a badge only in a phone layout, touch.css below
+    // 768px, where the page asks for the phone's sizes
+    expect(phone).not.toContain("TabBadge {")
+    expect(css).toMatch(/:where\(\[data-plex-layout="phone"\]\) \.Tabs\[data-orientation="horizontal"\] \.TabBadge \{[^}]*position: absolute;[^}]*clip-path: inset\(50%\);/)
     const touch = readFileSync(`${process.cwd()}/packages/styles/src/styles/touch.css`, "utf8")
+    expect(touch).toMatch(/html :is\(\[data-variant="segmented"\], \[data-variant="underline"\]\)\[data-orientation="horizontal"\] \[data-slot="tab-badge"\] \{[^}]*position: absolute;[^}]*clip-path: inset\(50%\);/)
     const small = touch.slice(touch.indexOf('html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {'))
     expect(small.slice(0, small.indexOf("}"))).toContain("--segmented-control-option-gutter: 9px;")
   })

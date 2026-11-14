@@ -400,9 +400,9 @@ describe("Sortable group", () => {
   })
 
   /** Two plain lists of one group */
-  const twoLists = (one: string, two: string, attributes = "") => {
+  const twoLists = (one: string, two: string, attributes = "", firstAttributes = "") => {
     document.body.innerHTML = `
-      <div data-sortable data-group="dishes" data-name="one">${one}</div>
+      <div data-sortable data-group="dishes" data-name="one" ${firstAttributes}>${one}</div>
       <div data-sortable data-group="dishes" data-name="two" ${attributes}>${two}</div>
     `
     const [first, second] = document.querySelectorAll<HTMLElement>("[data-sortable]")
@@ -551,6 +551,96 @@ describe("Sortable group", () => {
       await key(first, "ArrowUp", commit, move)
       expect(move).not.toHaveBeenCalled()
     })
+  })
+
+  // Only onto a target (reach "targets"), or the list itself and the targets (reach "list")
+  describe("reach", () => {
+    const reaching = (reach: string, firstAttributes = `data-reach="${reach}"`, attributes = "") => {
+      const lists = twoLists("<div><button data-sortable-handle></button>a</div><div>b</div><div>c</div>", "<div>d</div>", attributes, firstAttributes)
+      const target = document.createElement("button")
+      target.dataset.sortableTarget = "dishes"
+      target.dataset.name = "far"
+      document.body.append(target)
+      return { ...lists, target }
+    }
+    const key = (list: HTMLElement, code: string, commit: () => void, move: () => void) => {
+      const handle = list.querySelector("[data-sortable-handle]") as HTMLElement
+      const event = new KeyboardEvent("keydown", { key: code, bubbles: true, cancelable: true })
+      Object.defineProperty(event, "target", { value: handle })
+      return { event, done: sortableKeyDown(event, list, commit, { move }) }
+    }
+
+    test("targets: a drop on a target takes the item whole", async () => {
+      const { first, move, target } = reaching("targets")
+      document.elementFromPoint = () => target
+      await dragTo(first.children[0], 400)
+      expect(move).toHaveBeenCalledWith(0, "far")
+    })
+
+    test("targets: no line, nothing parts, and a drop in the list or another list puts the item back", async () => {
+      const { first, commit, move } = reaching("targets")
+      press(first.children[0], 20)
+      moveTo(30)
+      moveTo(80)
+      await frame()
+      expect((document.querySelector('[class*="Line"]') as HTMLElement).hidden).toBe(true)
+      expect((first.children[2] as HTMLElement).style.transform).toBe("")
+      moveTo(240)
+      await frame()
+      expect((document.querySelector('[class*="Line"]') as HTMLElement).hidden).toBe(true)
+      lift()
+      await frame()
+      expect(commit).not.toHaveBeenCalled()
+      expect(move).not.toHaveBeenCalled()
+      expect(first.hasAttribute("data-dragging")).toBe(false)
+    })
+
+    test("targets: the arrow keys leave the order", async () => {
+      const { first, commit, move } = reaching("targets")
+      const down = key(first, "ArrowDown", commit, move)
+      await down.done
+      const up = key(first, "ArrowUp", commit, move)
+      await up.done
+      expect(commit).not.toHaveBeenCalled()
+      expect(move).not.toHaveBeenCalled()
+      expect(down.event.defaultPrevented).toBe(false)
+    })
+
+    test("list: reorders itself and drops on a target, but gives nothing to another list", async () => {
+      const { first, commit, move, target } = reaching("list")
+      await dragTo(first.children[0], 80)
+      expect(commit).toHaveBeenCalledWith(0, 1)
+      await dragTo(first.children[0], 240)
+      expect(move).not.toHaveBeenCalled()
+      document.elementFromPoint = () => target
+      await dragTo(first.children[0], 400)
+      expect(move).toHaveBeenCalledWith(0, "far")
+    })
+
+    test("list: past its end the arrow keys stop", async () => {
+      const { first, commit, move } = reaching("list")
+      await key(first, "ArrowUp", commit, move).done
+      expect(move).not.toHaveBeenCalled()
+      expect(commit).not.toHaveBeenCalled()
+    })
+
+    test("a list of the group takes nothing from a list that keeps to itself", async () => {
+      // The first list trades as a group; the second keeps its items to itself
+      const { first, commit, move } = reaching("group", "", 'data-reach="list"')
+      await dragTo(first.children[0], 240)
+      expect(move).not.toHaveBeenCalled()
+      expect(commit).not.toHaveBeenCalled()
+    })
+  })
+
+  test.each(["react", "vue"])("%s passes reach to the list", async (port) => {
+    if (port === "react") {
+      render(createElement(RSortable, { value: ["a"], group: "dishes", name: "one", reach: "targets" }, createElement("div", null, "a")))
+    } else {
+      mountVue(() => h(Sortable, { value: ["a"], group: "dishes", name: "one", reach: "targets" }, () => h("div", "a")))
+      await flushVue()
+    }
+    expect((document.querySelector("[data-sortable]") as HTMLElement).dataset.reach).toBe("targets")
   })
 
   test.each(["react", "vue"])("%s says what moved and where", async (port) => {

@@ -14,6 +14,7 @@ import {
   SortableTagsDemo,
   SortableCardsDemo,
   SortableGroupDemo,
+  SortableTargetsDemo,
 } from "@/components/docs/SortableDemos"
 
 ## Examples
@@ -157,6 +158,30 @@ const [disabled, setDisabled] = useState(false)
   <SortableGroupDemo />
 </ComponentPreview>
 
+### Onto a folder
+
+<ComponentPreview details={<><code>reach="targets"</code> hands an item only to a <code>Sortable.Target</code> of its group, such as a folder in a side list: the order stays as it is, so no line shows and nothing parts, a drop anywhere else puts the item back, and the arrow keys leave it. <code>reach="list"</code> also lets the list be ordered by hand. Either way the list takes no items from the other lists of the group. A drop on a folder moves the file with <code>toIndex</code> undefined; pressing a folder opens it.</>} code={`const move = ({ item, from, to, toIndex }) =>
+  setFolders((current) => {
+    const left = { ...current, [from]: current[from].filter((file) => file !== item) }
+    const target = [...left[to]]
+    target.splice(toIndex ?? target.length, 0, item)
+    return { ...left, [to]: target }
+  })
+
+<nav aria-label="Folders">
+  {Object.entries(folders).map(([name, files]) => (
+    <Sortable.Target key={name} as="button" group="files" name={name} onClick={() => setOpen(name)}>
+      {name} {files.length}
+    </Sortable.Target>
+  ))}
+</nav>
+<Sortable key={open} group="files" name={open} reach={reach} value={folders[open]} onMove={move}>
+  {folders[open].map((file) => <div key={file}>{file}</div>)}
+  {!folders[open].length && <p data-sortable-static>No files</p>}
+</Sortable>`} previewMinHeight={300}>
+  <SortableTargetsDemo />
+</ComponentPreview>
+
 ## API
 
 <PropsTable data={[
@@ -167,6 +192,7 @@ const [disabled, setDisabled] = useState(false)
   { prop: "disabled", type: "boolean", default: "false", description: "Turns dragging off" },
   { prop: "handles", type: "boolean", default: "true in a table, otherwise false", description: "Shows the grips of Sortable.Handle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control" },
   { prop: "group", type: "string", description: "Lists of one group trade items, and a Sortable.Target of that group takes them. Give each list a name" },
+  { prop: "reach", type: "'group' | 'list' | 'targets'", default: "group", description: "Where a drag goes: group to the lists of the group and its targets, list within this list and onto the targets, targets only onto a target, with no line or parting and the arrow keys leaving the order. A list that is not group neither gives items to the other lists nor takes theirs" },
   { prop: "name", type: "string", description: "Names the list in onMove" },
   { prop: "onMove", type: "(move: SortableMove<T>) => void", description: "An item moved, inside this list or out of it, with { item, from, fromIndex, to, toIndex }. Out of it the app updates both lists: onChange is for a move inside one" },
   { prop: "onHold", type: "(name: string) => void", description: "A drag rests on a Sortable.Target of the group for half a second" },

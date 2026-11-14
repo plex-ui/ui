@@ -134,7 +134,7 @@
   font-feature-settings: "liga" 0;
   font-variant-ligatures: none;
 
-  > * + * {
+  > :where(:not(:first-child)) {
     margin-top: 8px;
   }
 

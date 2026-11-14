@@ -192,6 +192,8 @@
   }
 
   /* The capsule: a group of buttons alone. */
+  /* The buttons under these rules are named by their variant too (:where keeps the weight): with a :has() on the
+     group to their left, a subject of tags alone makes every change to the page restyle much of it */
   .Root:is([data-mobile-material="glass"], [data-mobile-material="glass"] *, [data-toolbar] *, [data-toolbar-row] *):not([data-mobile-material="flat"], [data-mobile-material="flat"] *):not(:has(> [data-slot="button-group"], > :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"]))) {
     gap: var(--button-group-glass-gap);
     padding: 0 var(--button-group-glass-padding);
@@ -203,7 +205,7 @@
     backdrop-filter: var(--mobile-glass-backdrop-filter);
 
     /* One button is a capsule of its own, as Back beside a group. */
-    &:not(:has(> * + *)) {
+    &:not(:has(> :not(:first-child))) {
       padding: 0;
     }
 
@@ -215,15 +217,15 @@
       gap: 0;
       padding: calc(var(--button-group-glass-vertical-padding) - var(--button-group-glass-vertical-gap) / 2) 0;
 
-      & > :where(button, a, [role="link"]) {
+      & > :where(button, a, [role="link"]):where([data-variant]) {
         height: calc(var(--button-group-glass-vertical-item-size) + var(--button-group-glass-vertical-gap));
       }
     }
 
-    &[data-orientation="vertical"]:not(:has(> * + *)) {
+    &[data-orientation="vertical"]:not(:has(> :not(:first-child))) {
       padding: 0;
 
-      & > :where(button, a, [role="link"]) {
+      & > :where(button, a, [role="link"]):where([data-variant]) {
         height: var(--button-size);
       }
     }
@@ -235,7 +237,7 @@
 
     /* Each button is a bar button with no surface of its own: the capsule is its glass, and a press tints it. A
        disabled ButtonLink renders a span with the link role. */
-    & > :where(button, a, [role="link"]) {
+    & > :where(button, a, [role="link"]):where([data-variant]) {
       --button-size: var(--button-group-glass-item-size);
       --button-uniform-size: var(--button-group-glass-item-size);
       --button-radius: var(--radius-full);
@@ -246,24 +248,24 @@
       font-weight: var(--toolbar-label-font-weight);
     }
 
-    & > :where(button, a, [role="link"])[data-variant="solid"] {
+    & > :where(button, a, [role="link"]):where([data-variant])[data-variant="solid"] {
       font-weight: var(--toolbar-label-prominent-font-weight);
     }
 
-    & > :where(button, a, [role="link"]):where(:not([data-navigation-action])) {
+    & > :where(button, a, [role="link"]):where([data-variant]):where(:not([data-navigation-action])) {
       --button-icon-size: var(--toolbar-icon-size);
     }
 
     /* A symbol with less ink takes the bar's smaller box, as in Toolbar.Group (see --toolbar-icon-size-sm). */
-    & > :where(button, a, [role="link"])[data-icon-size="sm"]:where(:not([data-navigation-action])) {
+    & > :where(button, a, [role="link"]):where([data-variant])[data-icon-size="sm"]:where(:not([data-navigation-action])) {
       --button-icon-size: var(--toolbar-icon-size-sm);
     }
 
-    & > :where(button, a, [role="link"]):where(:not([data-navigation-action], [data-uniform])) {
+    & > :where(button, a, [role="link"]):where([data-variant]):where(:not([data-navigation-action], [data-uniform])) {
       --button-gutter: var(--button-group-glass-label-gutter);
     }
 
-    & > :where(button, a, [role="link"]):where(:not([data-variant="solid"])) {
+    & > :where(button, a, [role="link"]):where([data-variant]):where(:not([data-variant="solid"])) {
       --button-mobile-material-background: transparent;
       --button-mobile-material-sheen: none;
       --button-mobile-material-shadow: 0 0 #00000000;
@@ -280,7 +282,7 @@
     }
 
     /* A neutral symbol or label is the primary label, as the kit draws it; a disabled one keeps the tertiary. */
-    & > :where(button, a, [role="link"])[data-color="secondary"]:where(:not([data-disabled], [data-variant="solid"])) {
+    & > :where(button, a, [role="link"]):where([data-variant])[data-color="secondary"]:where(:not([data-disabled], [data-variant="solid"])) {
       --button-text-color: var(--color-text);
       --button-text-color-hover: var(--color-text);
     }
@@ -310,7 +312,7 @@
     }
 
     & > [data-slot="button-group"]:not(:has(> [data-slot="input"])),
-    & > :where(button, a, [role="link"]) {
+    & > :where(button, a, [role="link"]):where([data-variant]) {
       flex: none;
     }
 
@@ -386,7 +388,7 @@
     }
 
     /* A button beside the field: a glass circle of its own, the bar's symbol in it. */
-    & > :where(button, a, [role="link"]) {
+    & > :where(button, a, [role="link"]):where([data-variant]) {
       --button-size: var(--button-group-glass-item-size);
       --button-uniform-size: var(--button-group-glass-item-size);
       --button-radius: var(--radius-full);
@@ -396,19 +398,19 @@
       font-weight: var(--toolbar-label-font-weight);
     }
 
-    & > :where(button, a, [role="link"]):where(:not([data-navigation-action])) {
+    & > :where(button, a, [role="link"]):where([data-variant]):where(:not([data-navigation-action])) {
       --button-icon-size: var(--toolbar-icon-size);
     }
 
-    & > :where(button, a, [role="link"])[data-icon-size="sm"]:where(:not([data-navigation-action])) {
+    & > :where(button, a, [role="link"]):where([data-variant])[data-icon-size="sm"]:where(:not([data-navigation-action])) {
       --button-icon-size: var(--toolbar-icon-size-sm);
     }
 
-    & > :where(button, a, [role="link"]):where(:not([data-navigation-action], [data-uniform])) {
+    & > :where(button, a, [role="link"]):where([data-variant]):where(:not([data-navigation-action], [data-uniform])) {
       --button-gutter: var(--button-group-glass-label-gutter);
     }
 
-    & > :where(button, a, [role="link"]):where(:not([data-disabled])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
+    & > :where(button, a, [role="link"]):where([data-variant]):where(:not([data-disabled])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
       --button-mobile-material-background: var(--mobile-glass-background);
       --button-mobile-material-sheen: var(--mobile-glass-sheen);
       --button-mobile-material-shadow: var(--mobile-glass-shadow);
@@ -419,7 +421,7 @@
       --button-mobile-material-active: var(--mobile-glass-background-active);
     }
 
-    & > :where(button, a, [role="link"])[data-color="secondary"]:where(:not([data-disabled], [data-variant="solid"])) {
+    & > :where(button, a, [role="link"]):where([data-variant])[data-color="secondary"]:where(:not([data-disabled], [data-variant="solid"])) {
       --button-text-color: var(--color-text);
       --button-text-color-hover: var(--color-text);
     }

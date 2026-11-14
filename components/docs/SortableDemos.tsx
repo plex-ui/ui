@@ -14,7 +14,7 @@ import { StatsCard } from '@plexui/ui/components/StatsCard';
 import { Switch } from '@plexui/ui/components/Switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@plexui/ui/components/Table';
 import { Textarea } from '@plexui/ui/components/Textarea';
-import { controlsTableStyle, DemoControlBoolean } from './ButtonDemos';
+import { controlsTableStyle, DemoControlBoolean, Segments } from './ButtonDemos';
 import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 
 const SECTIONS = [
@@ -300,5 +300,72 @@ export function SortableGroupDemo() {
         ))}
       </div>
     </div>
+  );
+}
+
+const FOLDERS = {
+  Inbox: ['Lease agreement.pdf', 'Electricity bill.pdf', 'Passport scan.jpg', 'Tax return 2025.pdf'],
+  Contracts: ['Employment contract.pdf'],
+  Invoices: [],
+  Archive: ['Old insurance policy.pdf'],
+} as Record<string, string[]>;
+// A list that only hands its documents to a folder, or one whose order is the user's own as well
+const REACHES = ['targets', 'list'] as const;
+
+/** Files dragged onto a folder of the side list: `reach="targets"` keeps the order of the list as it is, so nothing
+ * parts and no line shows; a drop beside a folder puts the file back. `reach="list"` also lets the user order the
+ * list by hand. Pressing a folder opens it. */
+export function SortableTargetsDemo() {
+  const [folders, setFolders] = useState(FOLDERS);
+  const [open, setOpen] = useState('Inbox');
+  const [reach, setReach] = useState<(typeof REACHES)[number]>('targets');
+
+  const move = ({ item, from, to, toIndex }: SortableMove<string>) =>
+    setFolders((current) => {
+      const left = { ...current, [from]: current[from].filter((file) => file !== item) };
+      const target = [...left[to]];
+      target.splice(toIndex ?? target.length, 0, item);
+      return { ...left, [to]: target };
+    });
+
+  const files = folders[open];
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <Segments name="reach" options={REACHES} value={reach} onChange={setReach} />
+      </div>
+      <div data-demo-stage className={STAGE}>
+        <div className="flex w-[640px] max-w-full gap-4">
+          <nav aria-label="Folders" className="flex w-44 shrink-0 flex-col gap-0.5">
+            {Object.entries(folders).map(([name, items]) => (
+              <Sortable.Target
+                key={name}
+                as="button"
+                group="files"
+                name={name}
+                aria-current={name === open ? 'page' : undefined}
+                onClick={() => setOpen(name)}
+                className={`flex items-center justify-between rounded-lg px-3 py-2 text-left text-sm text-primary ${name === open ? 'bg-[var(--color-surface-tertiary)] font-medium' : ''}`}
+              >
+                {name}
+                <span className="text-secondary">{items.length}</span>
+              </Sortable.Target>
+            ))}
+          </nav>
+          <Sortable key={open} group="files" name={open} reach={reach} value={files} onMove={move} className="min-w-0 flex-1 rounded-xl border border-default">
+            {files.map((file) => (
+              <div key={file} className="px-4 py-3 text-sm text-primary">
+                {file}
+              </div>
+            ))}
+            {!files.length && (
+              <p data-sortable-static className="px-4 py-3 text-sm text-secondary">
+                No files
+              </p>
+            )}
+          </Sortable>
+        </div>
+      </div>
+    </>
   );
 }

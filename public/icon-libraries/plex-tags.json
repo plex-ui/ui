@@ -2196,5 +2196,23 @@
     "minus",
     "subtract",
     "remove"
+  ],
+  "ZoomIn": [
+    "zoom",
+    "magnify",
+    "magnifier",
+    "enlarge",
+    "larger",
+    "plus",
+    "scale up"
+  ],
+  "ZoomOut": [
+    "zoom",
+    "magnify",
+    "magnifier",
+    "reduce",
+    "smaller",
+    "minus",
+    "scale down"
   ]
 }

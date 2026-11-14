@@ -1,7 +1,7 @@
 .Group {
   display: flex;
 
-  > * ~ * {
+  > :where(:not(:first-child)) {
     box-shadow: 0 0 0 var(--avatar-group-cutout-width) var(--avatar-group-cutout-color);
 
     /*
@@ -15,13 +15,13 @@
   &[data-stack="start"] {
     flex-direction: row-reverse;
 
-    > * ~ * {
+    > :where(:not(:first-child)) {
       margin-inline-end: var(--avatar-group-spacing);
     }
   }
 
   &[data-stack="end"] {
-    > * ~ * {
+    > :where(:not(:first-child)) {
       margin-inline-start: var(--avatar-group-spacing);
     }
   }

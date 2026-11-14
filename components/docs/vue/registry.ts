@@ -165,7 +165,7 @@ import {
 } from '@plexui/vue/components/Sidebar';
 import { Skeleton } from '@plexui/vue/components/Skeleton';
 import { Slider } from '@plexui/vue/components/Slider';
-import { Sortable, SortableHandle } from '@plexui/vue/components/Sortable';
+import { Sortable, SortableHandle, SortableTarget } from '@plexui/vue/components/Sortable';
 import { StatsCard } from '@plexui/vue/components/StatsCard';
 import { Stepper } from '@plexui/vue/components/Stepper';
 import { SwipeActions } from '@plexui/vue/components/SwipeActions';
@@ -416,6 +416,7 @@ const components: Record<string, Component> = {
   SlotTransitionGroup,
   Sortable,
   SortableHandle,
+  SortableTarget,
   StatsCard,
   Stepper,
   SwipeActions,

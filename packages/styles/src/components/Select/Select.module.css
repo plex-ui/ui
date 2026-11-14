@@ -521,8 +521,11 @@
     margin-inline: var(--menu-check-icon-offset, 2px) 0;
   }
 
+  /* An iOS list draws no scroller as it opens: a browser flashes its overlay scrollbar on a scroller that appears,
+     for a second on every open. The list still scrolls by touch, wheel and keys. */
   .OptionsList {
     min-height: 0;
+    scrollbar-width: none;
   }
 
   /* A row is 42pt, as a menu row is (Menu.module.css) and the rows of a picker's pop-up menu are (ref-app pickers,

@@ -297,7 +297,8 @@
     padding-inline-start: 0;
   }
 
-  .Alert:has(> .CloseButton) .Message > :first-child {
+  /* The message holds a title or a description, named here: a :has() left of a subject of no class or attribute makes every change to the page restyle all of it */
+  .Alert:has(> .CloseButton) .Message > :first-child:where(.Title, .Description) {
     padding-inline-end: 34px;
   }
 

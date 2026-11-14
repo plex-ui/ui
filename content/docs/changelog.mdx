@@ -9,7 +9,16 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ## Unreleased
 
+### Added
+
+- `reach` on `Sortable`: where a drag from the list goes. `group`, the default, is as before: the lists of the group and its targets. `list` keeps the items in the list, ordered by hand, and hands them to a `Sortable.Target` (Vue `SortableTarget`) of the group. `targets` hands them only to a target: the order stays, so no line shows and nothing parts, a drop anywhere else puts the item back, and the arrow keys leave it. A list that is not `group` neither gives items to the other lists of the group nor takes theirs. The docs show it in "Onto a folder". React and Vue.
+- `ZoomIn` and `ZoomOut` icons: the magnifier of `Search` with a plus or a minus inside, both 7 of 24 long and 2 thick. React and Vue.
+
 ### Fixed
+
+- A `Tabs` badge is hidden only on a phone: with `touch.css` below 768px for segments and underline tabs, or in a phone layout (`data-plex-layout="phone"`). A page that is only narrow, without `touch.css`, keeps its badges; 0.47.0 hid them on any page under 768px. React and Vue.
+- On a phone the lists of `Select` and `Menu` draw no scrollbar, as an iOS list draws none as it opens: a browser flashed its overlay scrollbar along the list's edge for a second on every open. They still scroll.
+- Opening a menu or a dialog no longer restyles the whole page twice. Selectors that reached any element after a `:has()` or through `* ~ *` and `* + *` made each node added to the page, such as a focus guard, restyle every element; they now name what they style (`ButtonGroup`, `AvatarGroup`, `MarkdownEditor`, `Toast`, `Dialog`, `Alert`, `Sortable`, `Badge`, `Sidebar`, `EmptyMessage`). The styles they give are the same, but for one: a glass `ButtonGroup` on a phone sizes the kit's buttons (`Button`, `ButtonLink`, `CopyButton`, which carry `data-variant`), not a plain `<button>` put in it.
 
 - `Toolbar` and `Page` on a phone: without a top safe area (a page in a browser) a top bar keeps above its row the air it keeps below it, so its controls stand in the middle of the bar: 10px and a 64px bar, or 14px and 72px when the bar holds a search field; it kept the 16px gutter. Under a status bar it stays below it, and a Sheet's top bar keeps its 16px. A full-screen dialog's top bar too. React and Vue.
 

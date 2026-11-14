@@ -103,7 +103,7 @@ describe.each<Framework>(["React", "Vue"])("%s Settings checklist pages", (frame
     expect(page.queryByRole("heading", { level: 1 })).toBeNull()
     expect(page.queryByRole("button", { name: "Back to previous example" })).toBeNull()
     expect(page.getByRole("button", { name: "Delivery: Email" })).toBeTruthy()
-    expect(page.getByRole("button", { name: "Security alerts: New sign-ins, Password changes, Recovery requests" })).toBeTruthy()
+    expect(page.getByRole("button", { name: "Security alerts: New sign-ins, Password changes, and Recovery requests" })).toBeTruthy()
     const unavailable = page.getByRole("button", { name: "Weekly digest: Unavailable" })
     expect(unavailable).toHaveProperty("disabled", true)
     await click(unavailable)
@@ -247,7 +247,7 @@ describe.each<Framework>(["React", "Vue"])("%s Settings checklist pages", (frame
     expect(page.queryByRole("checkbox")).toBeNull()
     expect(page.queryByRole("button", { name: "Back to notifications" })).toBeNull()
     expect(page.getByRole("heading", { name: "Notifications", level: 2 })).toBeTruthy()
-    expect(page.getByRole("button", { name: "Delivery: Email, Push notifications" }).getAttribute("aria-haspopup")).toBe("menu")
+    expect(page.getByRole("button", { name: "Delivery: Email and Push notifications" }).getAttribute("aria-haspopup")).toBe("menu")
     expect(page.queryByRole("button", { name: "Back to previous example" })).toBeNull()
     // Back on a phone the selection page is where the person left it.
     await resize(false)
@@ -255,7 +255,7 @@ describe.each<Framework>(["React", "Vue"])("%s Settings checklist pages", (frame
     expect(page.getByRole("checkbox", { name: "Push notifications", exact: true }).getAttribute("aria-checked")).toBe("true")
     await click(page.getByRole("button", { name: "Back to notifications" }))
     expect(page.getByRole("button", { name: "Back to previous example" })).toBeTruthy()
-    expect(page.getByRole("button", { name: "Delivery: Email, Push notifications" })).toBeTruthy()
+    expect(page.getByRole("button", { name: "Delivery: Email and Push notifications" })).toBeTruthy()
   })
 
   test("from 768px up a row opens a checkbox Menu that stays open and updates the row summary", async () => {
@@ -268,7 +268,7 @@ describe.each<Framework>(["React", "Vue"])("%s Settings checklist pages", (frame
     await press(within(menu).getByRole("menuitemcheckbox", { name: "Push notifications" }))
     expect(page.getByRole("menu")).toBe(menu)
     expect(within(menu).getByRole("menuitemcheckbox", { name: "Push notifications" }).getAttribute("aria-checked")).toBe("true")
-    expect(page.getByRole("button", { name: "Delivery: Email, Push notifications" })).toBeTruthy()
+    expect(page.getByRole("button", { name: "Delivery: Email and Push notifications" })).toBeTruthy()
     expect(page.queryByRole("button", { name: "Back to notifications" })).toBeNull()
     assertPageOnly()
   })
@@ -315,7 +315,7 @@ describe.each<Framework>(["React", "Vue"])("%s Settings checklist pages", (frame
     await click(page.getByRole("checkbox", { name: "Push notifications", exact: true }))
     // Return before the previous screen has finished exiting.
     await click(page.getByRole("button", { name: "Back to notifications" }))
-    const returned = page.getByRole("button", { name: "Delivery: Email, Push notifications" })
+    const returned = page.getByRole("button", { name: "Delivery: Email and Push notifications" })
     await waitFor(() => expect(document.activeElement).toBe(returned))
     expect(pageContent().scrollTop).toBe(137)
     expect(page.queryByRole("checkbox")).toBeNull()
@@ -336,12 +336,12 @@ describe.each<Framework>(["React", "Vue"])("%s Settings checklist pages", (frame
     await click(page.getByRole("checkbox", { name: "New devices", exact: true }))
     await click(page.getByRole("checkbox", { name: "Password changes", exact: true }))
     await click(page.getByRole("button", { name: "Back to notifications" }))
-    const summary = "Security alerts: New sign-ins, Password changes, Recovery requests, New devices"
+    const summary = "Security alerts: New sign-ins, Password changes, Recovery requests, and New devices"
     expect(page.getByRole("button", { name: summary })).toBeTruthy()
     await click(page.getByRole("button", { name: "Delivery: Email" }))
     await click(page.getByRole("checkbox", { name: "In-app inbox", exact: true }))
     await click(page.getByRole("button", { name: "Back to notifications" }))
-    expect(page.getByRole("button", { name: "Delivery: Email, In-app inbox" })).toBeTruthy()
+    expect(page.getByRole("button", { name: "Delivery: Email and In-app inbox" })).toBeTruthy()
     await click(page.getByRole("button", { name: summary }))
     expect(page.getAllByRole("checkbox", { checked: true })).toHaveLength(4)
     expect(document.activeElement).toBe(page.getByRole("heading", { name: "Security alerts" }))

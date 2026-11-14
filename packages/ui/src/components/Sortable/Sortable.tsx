@@ -5,7 +5,7 @@ import { useEffect, useRef, type ComponentProps, type DragEvent, type ElementTyp
 import { flushSync } from "react-dom"
 
 import { useLatestValue } from "../../hooks/useLatestValue"
-import { moveItem, sortableKeyDown, sortablePointerDown, type SortableLayout, type SortableMove } from "../../lib/sortable"
+import { moveItem, sortableKeyDown, sortablePointerDown, type SortableLayout, type SortableMove, type SortableReach } from "../../lib/sortable"
 import { GripVertical, Hamburger } from "../Icon"
 
 import s from "@plexui/styles/components/Sortable/Sortable.module.css"
@@ -44,6 +44,11 @@ export type SortableProps<T> = {
    */
   group?: string
   /**
+   * Where a drag goes: `group` to the lists of the group and its `Sortable.Target`s, `list` within this list and onto the targets, `targets` only onto a target, with no line or parting and the arrow keys leaving the order. A list that is not `group` neither gives items to the other lists nor takes theirs.
+   * @default group
+   */
+  reach?: SortableReach
+  /**
    * Names the list in `onMove`
    */
   name?: string
@@ -72,6 +77,7 @@ export function Sortable<T>({
   disabled = false,
   handles,
   group,
+  reach,
   name,
   onMove,
   onHold,
@@ -128,6 +134,7 @@ export function Sortable<T>({
       data-disabled={disabled ? "" : undefined}
       data-handles={handles?.toString()}
       data-group={group}
+      data-reach={reach}
       data-name={name}
       onPointerDown={handlePointerDown}
       onKeyDown={handleKeyDown}

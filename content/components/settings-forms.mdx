@@ -788,7 +788,7 @@ const [files, setFiles] = useState<File[]>([]);
 
 ## Settings with selection pages
 
-Short values sit beside the label. Longer values wrap below it, and the disclosure stays centered. The entire row opens a selection page; Back returns to the updated summary. A page with several choices has a checkbox in each row; a page with one choice checks one row, and a tap moves the checkmark while the page stays open, as iOS Settings does. The disabled row shows an unavailable setting.
+Short values sit beside the label. Longer values wrap below it, and the disclosure stays centered. Several values read as a list with "and", as Settings writes them (`Intl.ListFormat`). The entire row opens a selection page; Back returns to the updated summary. A page with several choices has a checkbox in each row; a page with one choice checks one row, and a tap moves the checkmark while the page stays open, as iOS Settings does. The disabled row shows an unavailable setting.
 
 This example uses the [SettingsChecklistDemo helper](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsChecklistDemo.tsx), [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsChecklistData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsChecklistDemo.module.css), alongside the existing DemoBackButton helper.
 

@@ -236,6 +236,12 @@
 /* On a phone an action takes the 44px target of iOS around its face; the negative margin keeps the
    row's layout and the glyph where they were. */
 @media (max-width: 767px) {
+  /* An iOS menu draws no scroller as it opens: a browser flashes its overlay scrollbar on a scroller that appears,
+     for a second on every open. The menu still scrolls by touch, wheel and keys. */
+  .MenuList {
+    scrollbar-width: none;
+  }
+
   .ItemActions > button {
     min-width: 44px;
     min-height: 44px;

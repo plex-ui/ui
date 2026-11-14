@@ -6,8 +6,14 @@ import { CONTEXT_MENU_HOLD, CONTEXT_MENU_LONG_PRESS_SLOP, heldContextMenu, type 
 // nearest gap, and only the drop changes the order. Items that stand apart part
 // at the gap. Rows that touch hold still: their text would run over the hairlines.
 // Lists of one group trade items, and a target outside them takes an item whole.
+// A list may keep its items to itself (reach "list") or only hand them to targets
+// (reach "targets"): then nothing parts, no line shows and the keys leave the order.
 
 export type SortableLayout = "list" | "grid"
+
+/** Where a drag from the list may go: the lists of its group and their targets, the list itself and the targets, or
+ * the targets only */
+export type SortableReach = "group" | "list" | "targets"
 
 /** Applies a move to the list. Resolves once the DOM shows the new order. */
 export type SortableCommit = (from: number, to: number) => void | Promise<void>
@@ -102,11 +108,18 @@ const lineInset = (list: HTMLElement) => {
 /** A head row or an empty message stands among the items and is not one of them */
 const itemsOf = (list: HTMLElement) => ([...list.children] as HTMLElement[]).filter((item) => !item.hasAttribute(STATIC))
 
-/** The lists a drag from this one can reach, in the order of the page */
+const reachOf = (list: HTMLElement): SortableReach => {
+  const { reach } = list.dataset
+  return reach === "list" || reach === "targets" ? reach : "group"
+}
+
+/** The lists a drag from this one can reach, in the order of the page. A list that keeps its items to itself or only
+ * hands them to targets takes none from the others either. */
 const listsOf = (list: HTMLElement) => {
   const { group } = list.dataset
-  if (!group) return [list]
+  if (!group || reachOf(list) !== "group") return [list]
   return [...document.querySelectorAll<HTMLElement>(`[data-sortable][data-group="${CSS.escape(group)}"]:not([data-disabled])`)]
+    .filter((entry) => entry === list || reachOf(entry) === "group")
 }
 
 /** Grips stand in a table, elsewhere only when the list asks for them */
@@ -389,13 +402,17 @@ function startDrag(
     window.removeEventListener("touchmove", blockScroll)
   }
 
+  // Only onto a target: the list has no gaps to drop in, so nothing parts, no line shows and a drop elsewhere puts
+  // the item back
+  const onlyTargets = reachOf(list) === "targets"
+
   function measure() {
     return listsOf(list).map((entry) => {
       const items = itemsOf(entry)
       entry.setAttribute("data-dragging", "")
       return {
         list: entry, items,
-        slots: layout === "grid" ? gridSlots(entry, items) : listSlots(entry, items),
+        slots: onlyTargets ? [] : layout === "grid" ? gridSlots(entry, items) : listSlots(entry, items),
         scrollLeft: entry.scrollLeft, scrollTop: entry.scrollTop,
       }
     })
@@ -671,6 +688,8 @@ export async function sortableKeyDown(event: KeyboardEvent, list: HTMLElement, c
   if (!step || event.defaultPrevented || list.hasAttribute("data-disabled") || target.closest("[data-sortable]") !== list) return
   const source = itemOf(list, target)
   if (!source || source.hasAttribute(STATIC) || (target !== source && !target.closest(HANDLE))) return
+  // A list that only hands its items to targets has no order to change
+  if (reachOf(list) === "targets") return
   const items = itemsOf(list)
   const from = items.indexOf(source)
   const to = from + step

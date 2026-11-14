@@ -982,7 +982,7 @@ describe("Phone bottom bar after iOS 26 Mail and Contacts (430 x 932)", () => {
     const toolbar = read("components/Toolbar/Toolbar.module.css")
     expect(toolbar).toMatch(/\[data-slot="input"\]\[data-variant\] \{[^}]*--input-placeholder-text-color: var\(--toolbar-search-placeholder-color\);[^}]*font-weight: var\(--toolbar-search-font-weight\);/)
     expect(toolbar).toMatch(/\.Toolbar :is\(\.Leading, \.Trailing, \.Content, \.Group\) > :where\(button, a\)\[data-icon-size="sm"\]:not\(\[data-navigation-action\]\) \{\s*--button-icon-size: var\(--toolbar-icon-size-sm\);/)
-    expect(read("components/ButtonGroup/ButtonGroup.module.css")).toMatch(/& > :where\(button, a, \[role="link"\]\)\[data-icon-size="sm"\]:where\(:not\(\[data-navigation-action\]\)\) \{\s*--button-icon-size: var\(--toolbar-icon-size-sm\);/)
+    expect(read("components/ButtonGroup/ButtonGroup.module.css")).toMatch(/& > :where\(button, a, \[role="link"\]\):where\(\[data-variant\]\)\[data-icon-size="sm"\]:where\(:not\(\[data-navigation-action\]\)\) \{\s*--button-icon-size: var\(--toolbar-icon-size-sm\);/)
   })
 })
 

@@ -45,7 +45,11 @@ export const initialChecklistSelection = (): Record<SettingId, string[]> => ({
   digest: [],
 });
 
+// Several values read as a sentence's list, as Settings writes them under a row: "Play Sound and Braille", "Speak,
+// Change Pitch, and Braille" (iOS 26 Settings › Accessibility › VoiceOver › Verbosity)
+const valueList = new Intl.ListFormat('en', { type: 'conjunction' });
+
 export const checklistSummary = (setting: ChecklistSetting, values: string[]): string =>
-  setting.disabled ? 'Unavailable' : setting.options
+  setting.disabled ? 'Unavailable' : valueList.format(setting.options
     .filter((option) => values.includes(option.value))
-    .map((option) => option.label).join(', ') || 'None';
+    .map((option) => option.label)) || 'None';

@@ -209,7 +209,8 @@
 /* =============================================
   Remove
 ============================================= */
-.Badge:has(> .Remove) > span:not(.Remove) {
+/* The text before the remove button (it comes last), found from the text's side: a :has() left of a subject of a tag alone makes every change to the page restyle much of it */
+.Badge > span:not(.Remove):has(~ .Remove) {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -653,6 +653,8 @@ export { default as XCircleSmFilled } from "./svg/XCircleSmFilled"
 export { default as XSquare } from "./svg/XSquare"
 export { default as XSquareFilled } from "./svg/XSquareFilled"
 export { default as XXs } from "./svg/XXs"
+export { default as ZoomIn } from "./svg/ZoomIn"
+export { default as ZoomOut } from "./svg/ZoomOut"
 
 // Backward compatibility aliases for renamed/removed icons
 export * from "./aliases"

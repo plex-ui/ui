@@ -4,4 +4,4 @@ export {
   type SortableProps,
   type SortableTargetProps,
 } from "./Sortable"
-export type { SortableMove } from "../../lib/sortable"
+export type { SortableMove, SortableReach } from "../../lib/sortable"

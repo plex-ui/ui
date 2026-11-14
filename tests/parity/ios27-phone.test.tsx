@@ -235,7 +235,7 @@ describe("EmptyMessage on a phone (the Figma kit's Content Card 38808:585061 in 
     const rules = phoneRules("packages/styles/src/components/EmptyMessage/EmptyMessage.module.css")
     const fill = rules.get("&:has(> .ActionRow > [data-variant])")
     expect(decls(fill)).toEqual({ "padding-top": "var(--empty-message-fill-action-inset, 0px)" })
-    expect(decls(rules.get("> :first-child:not(.ActionRow)"))).toEqual({ "margin-top": "var(--empty-message-fill-content-margin, 0px)" })
+    expect(decls(rules.get("> :first-child:not(.ActionRow):has(~ .ActionRow > [data-variant])"))).toEqual({ "margin-top": "var(--empty-message-fill-content-margin, 0px)" })
     expect(decls(rules.get("> [data-variant]"))).toEqual({ width: "var(--empty-message-fill-action-width, auto)" })
     // Every action, the plain (ghost) second one too, takes the kit's 17 Medium
     const css = readFileSync(`${process.cwd()}/packages/styles/src/components/EmptyMessage/EmptyMessage.module.css`, "utf8")

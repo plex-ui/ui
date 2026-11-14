@@ -84,7 +84,10 @@
   flex-shrink: 0;
 }
 
-:global([data-sidebar="collapsed"]) .Header > div:not(:has(.Trigger)) > span {
+/* The logo's text, in a wrapper that holds no trigger. The span asks its own siblings (:has on the subject is cheap):
+   a :has() on the wrapper, left of a subject of a tag alone, makes every change to the page restyle much of it. A
+   title keeps its own rule (.HeaderTitle). */
+:global([data-sidebar="collapsed"]) .Header > div > span:not(.HeaderTitle, .Trigger ~ *, :has(~ .Trigger, ~ * .Trigger)) {
   opacity: 0;
   pointer-events: none;
 }

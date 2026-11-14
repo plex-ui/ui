@@ -645,6 +645,7 @@ const Tab = ({ children, icon, badge, ...restProps }: TabProps) => {
         {badgeProps && (
           <span
             className={s.TabBadge}
+            data-slot="tab-badge"
             data-color={badgeProps.color ?? "secondary"}
             data-variant={badgeProps.variant ?? "soft"}
             data-pill={badgeProps.pill ? "" : undefined}

@@ -234,13 +234,15 @@
     min-height: var(--toast-control-size);
   }
 
+  /* What follows the message reads its place from the toast (below, with a description), so no rule needs a :has()
+     on the toast to reach a child of any kind: such a rule makes every change to the page restyle all of it */
   .Toast[data-styled="true"] > .Content ~ * {
-    order: 3;
+    order: var(--toast-trailing-order, 3);
     margin-inline: 8px 0 !important;
   }
 
   .Toast[data-styled="true"] > .Content + * {
-    margin-inline-start: 16px !important;
+    margin-inline-start: var(--toast-trailing-start, 16px) !important;
   }
 
   .Toast[data-styled="true"] > :is(.ActionButton, .CancelButton) {
@@ -322,13 +324,9 @@
       margin-inline-start: 8px;
     }
 
-    & > .Content ~ * {
-      order: 4;
-    }
-
-    & > .Content + * {
-      margin-inline-start: auto !important;
-    }
+    /* Its buttons go under the message at the end (the rules after .Content above) */
+    --toast-trailing-order: 4;
+    --toast-trailing-start: auto;
   }
 
   .Toast[data-styled="true"]:has(> .Content > .Description):not(:has(> .Content ~ *)) {

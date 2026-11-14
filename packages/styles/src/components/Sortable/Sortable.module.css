@@ -31,7 +31,9 @@
   align-items: center;
 }
 
-.Sortable > :has(> .Handle) > :not(.Handle) {
+/* The row beside its handle, found from the handle's side (before it or after it): a :has() left of a subject of no class or attribute makes every change to the page restyle all of it */
+.Sortable > * > .Handle ~ :not(.Handle),
+.Sortable > * > :not(.Handle):has(~ .Handle) {
   flex: 1;
   min-width: 0;
 }

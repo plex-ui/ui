@@ -62,7 +62,7 @@ describe("ButtonGroup glass on a phone", () => {
     // Every item rule takes a disabled ButtonLink, a span with the link role, too
     expect(phone.match(/& > :where\(button, a, \[role="link"\]\)/g)).toHaveLength(16)
     // A column's buttons fill their share of the capsule, so a pressed one is as round as its end: 1 + 54 + 54 + 1
-    expect(phone).toMatch(/gap: 0;\s*padding: calc\(var\(--button-group-glass-vertical-padding\) - var\(--button-group-glass-vertical-gap\) \/ 2\) 0;\s*& > :where\(button, a, \[role="link"\]\) \{\s*height: calc\(var\(--button-group-glass-vertical-item-size\) \+ var\(--button-group-glass-vertical-gap\)\);/)
+    expect(phone).toMatch(/gap: 0;\s*padding: calc\(var\(--button-group-glass-vertical-padding\) - var\(--button-group-glass-vertical-gap\) \/ 2\) 0;\s*& > :where\(button, a, \[role="link"\]\):where\(\[data-variant\]\) \{\s*height: calc\(var\(--button-group-glass-vertical-item-size\) \+ var\(--button-group-glass-vertical-gap\)\);/)
     expect(phone).not.toMatch(/:where\(button, a\)/)
     expect(phone).toMatch(/--button-mobile-material-background: transparent;/)
     expect(phone).toMatch(/--button-border-color: transparent;/)
@@ -71,7 +71,7 @@ describe("ButtonGroup glass on a phone", () => {
     expect(phone).toMatch(/\[data-toolbar\]\[data-placement="bottom"\] \.Root \{\s*--button-group-glass-label-gutter: var\(--toolbar-bottom-label-gutter\);/)
     // The label's weight on the button itself, past touch.css's semibold: medium, a solid one semibold, as Toolbar.Group
     expect(phone).toMatch(/--button-font-weight: var\(--toolbar-label-font-weight\);\s*\/\*[^*]*\*\/\s*font-weight: var\(--toolbar-label-font-weight\);/)
-    expect(phone).toMatch(/& > :where\(button, a, \[role="link"\]\)\[data-variant="solid"\] \{\s*font-weight: var\(--toolbar-label-prominent-font-weight\);/)
+    expect(phone).toMatch(/& > :where\(button, a, \[role="link"\]\):where\(\[data-variant\]\)\[data-variant="solid"\] \{\s*font-weight: var\(--toolbar-label-prominent-font-weight\);/)
   })
 
   test("the tokens are the capsules: 154 x 44 on top and 164 x 48 at the bottom (iOS 27.2), 48 x 164 as a column (the kit)", () => {
@@ -153,7 +153,8 @@ describe("ButtonGroup glass on a phone", () => {
     // A disabled link in a capsule is one of its buttons
     const link = group("Links").querySelector<HTMLElement>('[role="link"]')!
     expect(link.tagName).toBe("SPAN")
-    expect(link.matches(`${CAPSULE} > :where(button, a, [role="link"])`)).toBe(true)
+    // The glass rules ask for a button of the kit too, one with a variant (ButtonGroup.module.css)
+    expect(link.matches(`${CAPSULE} > :where(button, a, [role="link"]):where([data-variant])`)).toBe(true)
   }
 
   test("React: which groups are capsules", () => {
