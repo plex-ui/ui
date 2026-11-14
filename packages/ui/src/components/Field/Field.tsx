@@ -57,6 +57,12 @@ export type FieldProps = {
    */
   action?: React.ReactNode
   /**
+   * On a `row`, a symbol or an app's picture before the label, as an iOS cell's image: the label, its
+   * description and the line above the row start after it. An `img` fills the column with the corners of an
+   * app icon; an icon takes the symbol size.
+   */
+  icon?: React.ReactNode
+  /**
    * Controls the font size of the label to visually match the child control's size.
    * Matches the ControlSize scale used by Input, Select, etc.
    * @default the child control's `size`, else "md"
@@ -125,6 +131,7 @@ export function Field({
   errorMessage,
   labelAction,
   action,
+  icon,
   size: sizeProp,
   required = false,
   orientation: orientationProp,
@@ -248,6 +255,7 @@ export function Field({
         data-fill={fill ? "" : undefined}
         data-label-hidden={hideLabel ? "" : undefined}
       >
+        {row && icon ? <div className={s.Icon} aria-hidden="true">{icon}</div> : null}
         <div className={s.LabelGroup}>
           {labelAction ? (
             <div className={s.LabelRow}>

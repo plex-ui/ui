@@ -5,8 +5,8 @@ metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account act
 ---
 
 import { VueSettingsSliderDemo } from "@/components/docs/vue/VueSettingsSliderDemo"
-import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode, settingsRegionVueCode } from "@/components/docs/settingsSliderCode"
-import { VueSettingsQuickDemo, VueSettingsLanguagesDemo, VueSettingsRegionDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
+import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode, settingsRegionVueCode, settingsAutofillVueCode, settingsHapticsVueCode } from "@/components/docs/settingsSliderCode"
+import { VueSettingsQuickDemo, VueSettingsLanguagesDemo, VueSettingsRegionDemo, VueSettingsAutofillDemo, VueSettingsHapticsDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
 import { VueSettingsVoiceDemo } from "@/components/docs/vue/VueSettingsVoiceDemo"
 import { VueImageAlbumDemo } from "@/components/docs/vue/VueImageAlbumDemo"
 import { imageAlbumVueCode } from "@/components/docs/imageAlbumCode"
@@ -811,4 +811,22 @@ Copy the [SettingsRegionFields helper](https://github.com/plex-ui/ui/blob/master
 
 <ComponentPreview phonePresentation="screen" language="vue" code={settingsRegionVueCode} previewMinHeight={300}>
   <VueSettingsRegionDemo />
+</ComponentPreview>
+
+## Apps in rows
+
+Apps in rows, each with a switch, as AutoFill & Passwords lists the apps that fill passwords: a switch for the whole feature with a footer, then the apps under a header, each with its picture, its name and what it fills under it. The picture goes in Field's `#icon` slot: a 28 column with 8 to the text on a phone, so the name, the line under it and the line above the row start at 56. An app that may not fill reads quieter. Turning the feature off hides the apps.
+
+Copy the [SettingsAppsFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsAppsFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsAppsData.ts).
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsAutofillVueCode} previewMinHeight={420}>
+  <VueSettingsAutofillDemo />
+</ComponentPreview>
+
+## Glyph rows with a link in the footer
+
+A switch whose footer ends with a link, and a list of the apps it works in, as Music Haptics: each app a glyph in the image column and a name, with nothing to set; the footer under the list says what it holds. The link is a primary `TextLink` in the footer's text.
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsHapticsVueCode} previewMinHeight={300}>
+  <VueSettingsHapticsDemo />
 </ComponentPreview>

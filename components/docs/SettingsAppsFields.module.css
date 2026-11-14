@@ -1,0 +1,39 @@
+/* An app's picture in a row, in Field's image column, in three styles (the demos' `iconStyle`):
+   tile — the app's color with its symbol in white, as Settings lists apps (IMG_5952);
+   outline — a light tile with a hairline edge and the symbol in the label color (IMG_5963);
+   plain — the symbol alone.
+   The symbol takes 60% of the column, as iOS draws a glyph in a 29pt tile, in the kit's outline weight. */
+.Picture {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--field-row-icon-radius);
+  color: var(--color-text);
+}
+
+.Picture > svg {
+  width: 60%;
+  height: 60%;
+}
+
+.Picture[data-style="tile"] {
+  background: var(--app-tile);
+  color: #fff;
+}
+
+.Picture[data-style="outline"] {
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong, var(--color-border));
+}
+
+.Picture[data-style="plain"] > svg {
+  width: 75%;
+  height: 75%;
+}
+
+/* An app that may not fill reads quieter, its name in the secondary label (IMG_5952) */
+.Off label {
+  color: var(--color-text-secondary);
+}

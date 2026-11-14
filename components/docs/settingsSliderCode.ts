@@ -135,3 +135,57 @@ const region = ref(initialRegion);
     <SettingsRegionFields v-model:value="region" />
   </FormScreen>
 </template>`;
+
+export const settingsAutofillReactCode = `import { useState } from 'react';
+import { FormScreen } from './FormRowsDemos';
+import { AutofillFields } from './SettingsAppsFields';
+import { initialAutofill } from './settingsAppsData';
+
+export function AutofillSettings() {
+  const [settings, setSettings] = useState(initialAutofill);
+  return (
+    <FormScreen title="AutoFill & Passwords" surface="grouped">
+      <AutofillFields value={settings} onChange={setSettings} />
+    </FormScreen>
+  );
+}`;
+
+export const settingsAutofillVueCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FormScreen } from './FormScreen';
+import { AutofillFields } from './SettingsAppsFields';
+import { initialAutofill } from './settingsAppsData';
+const settings = ref(structuredClone(initialAutofill));
+</script>
+
+<template>
+  <FormScreen title="AutoFill & Passwords" surface="grouped">
+    <AutofillFields v-model:value="settings" />
+  </FormScreen>
+</template>`;
+
+export const settingsHapticsReactCode = `import { useState } from 'react';
+import { FormScreen } from './FormRowsDemos';
+import { HapticsFields } from './SettingsAppsFields';
+
+export function HapticsSettings() {
+  const [haptics, setHaptics] = useState(false);
+  return (
+    <FormScreen title="Music Haptics" surface="grouped">
+      <HapticsFields value={haptics} onChange={setHaptics} />
+    </FormScreen>
+  );
+}`;
+
+export const settingsHapticsVueCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FormScreen } from './FormScreen';
+import { HapticsFields } from './SettingsAppsFields';
+const haptics = ref(false);
+</script>
+
+<template>
+  <FormScreen title="Music Haptics" surface="grouped">
+    <HapticsFields v-model:value="haptics" />
+  </FormScreen>
+</template>`;

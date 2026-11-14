@@ -11,11 +11,15 @@ import s from '../SettingsVoiceDemo.module.css';
 /** Vue port of QuickSettingsFields in SettingsOrderFields.tsx (IMG_5946). */
 export const QuickSettingsFields = defineComponent({
   name: 'QuickSettingsFields',
-  props: { value: { type: Array as PropType<QuickSetting[]>, required: true } },
+  props: {
+    value: { type: Array as PropType<QuickSetting[]>, required: true },
+    handles: { type: Boolean, default: true },
+    handlePlacement: { type: String as PropType<'start' | 'end'>, default: undefined },
+  },
   emits: { 'update:value': (value: QuickSetting[]) => Array.isArray(value) },
   setup(props, { emit }) {
     return () => h(FieldGroup, { 'aria-label': 'Quick Settings' }, {
-      default: () => h(Sortable, { value: props.value, handles: true, 'onUpdate:value': (value: unknown[]) => emit('update:value', value as QuickSetting[]) }, () =>
+      default: () => h(Sortable, { value: props.value, handles: props.handles, handlePlacement: props.handlePlacement, 'onUpdate:value': (value: unknown[]) => emit('update:value', value as QuickSetting[]) }, () =>
         props.value.map((item) => h('div', { key: item.id, 'data-row': '' }, [
           h(SortableHandle, { ariaLabel: `Reorder ${item.label}` }),
           h('div', { class: s.CheckRow }, [
@@ -31,7 +35,11 @@ export const QuickSettingsFields = defineComponent({
 /** Vue port of LanguagesFields in SettingsOrderFields.tsx (IMG_5951). */
 export const LanguagesFields = defineComponent({
   name: 'LanguagesFields',
-  props: { value: { type: Array as PropType<string[]>, required: true } },
+  props: {
+    value: { type: Array as PropType<string[]>, required: true },
+    handles: { type: Boolean, default: true },
+    handlePlacement: { type: String as PropType<'start' | 'end'>, default: undefined },
+  },
   emits: { 'update:value': (value: string[]) => Array.isArray(value) },
   setup(props, { emit }) {
     const adding = ref(false);
@@ -39,7 +47,7 @@ export const LanguagesFields = defineComponent({
       const rest = allLanguages.filter((language) => !props.value.includes(language.id));
       return h(FieldGroup, { title: 'Preferred Languages' }, {
         default: () => [
-          h(Sortable, { value: props.value, handles: true, 'onUpdate:value': (value: unknown[]) => emit('update:value', value as string[]) }, () =>
+          h(Sortable, { value: props.value, handles: props.handles, handlePlacement: props.handlePlacement, 'onUpdate:value': (value: unknown[]) => emit('update:value', value as string[]) }, () =>
             props.value.map((id, index) => {
               const language = allLanguages.find((item) => item.id === id)!;
               return h('div', { key: id, 'data-row': '' }, [

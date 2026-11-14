@@ -49,6 +49,23 @@
   margin-inline-start: var(--sortable-handle-field-margin-start, var(--sortable-handle-margin-start, var(--sortable-handle-inset)));
 }
 
+/* `handlePlacement` sets the side on every width, after the rules above so it wins beside a Field row too. Its margins
+   are tokens: on a desktop each side mirrors the other (the grip reaches into the row's padding), and touch.css sets
+   iOS's own: an end grip 10.17 inside the card, a start grip mirrored. */
+.Sortable[data-handle-placement="end"] > :has(> .Handle) > .Handle,
+.Sortable[data-handle-placement="end"][data-handles="true"] > :has(> .Handle) > .Handle:has(+ [data-slot="field"][data-row]) {
+  order: 1;
+  margin-inline-start: var(--sortable-handle-end-margin-start, calc(var(--sortable-handle-inset) * -1));
+  margin-inline-end: var(--sortable-handle-end-margin-end, var(--sortable-handle-inset));
+}
+
+.Sortable[data-handle-placement="start"] > :has(> .Handle) > .Handle,
+.Sortable[data-handle-placement="start"][data-handles="true"] > :has(> .Handle) > .Handle:has(+ [data-slot="field"][data-row]) {
+  order: -1;
+  margin-inline-start: var(--sortable-handle-start-margin-start, var(--sortable-handle-inset));
+  margin-inline-end: var(--sortable-handle-start-margin-end, calc(var(--sortable-handle-inset) * -1));
+}
+
 /* =============================================
    Slot  (the place a dragged item left, until the drop)
 ============================================= */

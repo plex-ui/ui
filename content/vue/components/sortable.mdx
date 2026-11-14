@@ -292,6 +292,7 @@ export const targetsControls = [
   { prop: "as", type: "string | Component", default: "div", description: "Element to render, such as TableBody for table rows" },
   { prop: "disabled", type: "boolean", default: "false", description: "Turns dragging off" },
   { prop: "handles", type: "boolean", default: "true in a table, otherwise false", description: "Shows the grips of SortableHandle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control" },
+  { prop: "handle-placement", type: "'start' | 'end'", default: "start on a desktop, end on a phone", description: "Where a shown grip stands in its row: start before the content, end after it, as iOS ends a row with its reorder control" },
   { prop: "group", type: "string", description: "Lists of one group trade items, and a SortableTarget of that group takes them. Give each list a name" },
   { prop: "reach", type: "'group' | 'list' | 'targets'", default: "group", description: "Where a drag goes: group to the lists of the group and its targets, list within this list and onto the targets, targets only onto a target, with no line or parting and the arrow keys leaving the order. A list that is not group neither gives items to the other lists nor takes theirs" },
   { prop: "name", type: "string", description: "Names the list in move" },

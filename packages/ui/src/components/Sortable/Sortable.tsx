@@ -40,6 +40,12 @@ export type SortableProps<T> = {
    */
   handles?: boolean
   /**
+   * Where a shown grip stands in its row: `start` before the content, `end` after it, as iOS ends a row with its
+   * reorder control.
+   * @default start on a desktop, end on a phone (touch.css)
+   */
+  handlePlacement?: "start" | "end"
+  /**
    * Lists of one group trade items, and a `Sortable.Target` of that group takes them. Give each list a `name`.
    */
   group?: string
@@ -76,6 +82,7 @@ export function Sortable<T>({
   as: Tag = "div",
   disabled = false,
   handles,
+  handlePlacement,
   group,
   reach,
   name,
@@ -133,6 +140,7 @@ export function Sortable<T>({
       data-layout={layout}
       data-disabled={disabled ? "" : undefined}
       data-handles={handles?.toString()}
+      data-handle-placement={handlePlacement}
       data-group={group}
       data-reach={reach}
       data-name={name}

@@ -66,6 +66,60 @@
   border-end-end-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
 }
 
+/* A full-row action's hover and press fill the row and keep the card's corners on the first and last rows: inside
+   the card's border, so its radius less the border (owner 14.11: «hover/pressed должно иметь скругления фона»).
+   The phone takes the card's own radius below. */
+.Body > [data-row]:first-child > button[data-block][data-variant="ghost"]::before,
+.Body > [data-sortable]:first-child > [data-row]:first-child > button[data-block][data-variant="ghost"]::before,
+.Body > [data-row]:first-child > [data-swipe-content] > button[data-block][data-variant="ghost"]::before {
+  border-start-start-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
+  border-start-end-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
+}
+
+.Body > [data-row]:last-child > button[data-block][data-variant="ghost"]::before,
+.Body > [data-sortable]:last-child > [data-row]:last-child > button[data-block][data-variant="ghost"]::before,
+.Body > [data-row]:last-child > [data-swipe-content] > button[data-block][data-variant="ghost"]::before {
+  border-end-start-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
+  border-end-end-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
+}
+
+/* A full-row action is the cell itself: a press fills it to the cell's edges and does not shrink, on every width
+   (owner 14.11: «уменьшается по ширине появляются просветы»). */
+.Body > [data-row] > button[data-block][data-variant="ghost"],
+.Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"],
+.Body > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"],
+.Body > [data-sortable] > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"] {
+  --button-mobile-material-scale: 1;
+}
+
+/* With a mouse a row action hovers as a choice row does, in the row's light fill */
+@media (hover: hover) and (min-width: 768px) {
+  .Body > [data-row] > button[data-block][data-variant="ghost"],
+  .Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"],
+  .Body > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"],
+  .Body > [data-sortable] > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"] {
+    --color-background-secondary-ghost-hover: var(--field-row-hover-background);
+  }
+}
+
+/* A row that fills on hover (a choice row with a mouse) keeps the card's corners too */
+.Body > [data-row]:first-child,
+.Body > [data-sortable]:first-child > [data-row]:first-child {
+  border-start-start-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
+  border-start-end-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
+}
+
+.Body > [data-row]:last-child,
+.Body > [data-sortable]:last-child > [data-row]:last-child {
+  border-end-start-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
+  border-end-end-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
+}
+
+/* A Field inside a sorted row fills with the row's corners */
+.Body > [data-sortable] > [data-row] > [data-row] {
+  border-radius: inherit;
+}
+
 /* Desktop separators remain part of the row border. */
 /* A sorted list and a plain row beside it (Add Language… after the languages, IMG_5951) part with the same line. */
 .Body > [data-row] + [data-row],

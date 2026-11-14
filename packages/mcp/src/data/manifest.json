@@ -2266,6 +2266,11 @@
           "description": "On a row, the control takes the rest of the line after the label"
         },
         {
+          "name": "icon",
+          "type": "ReactNode",
+          "description": "On a row, a symbol or an app's picture before the label, as an iOS cell's image: the label, its description and the line above the row start after it. An img takes an app icon's corners, an icon the symbol size"
+        },
+        {
           "name": "action",
           "type": "ReactNode",
           "description": "On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it"
@@ -5707,6 +5712,12 @@
           "description": "Shows the grips of Sortable.Handle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control"
         },
         {
+          "name": "handlePlacement",
+          "type": "'start' | 'end'",
+          "default": "start on a desktop, end on a phone",
+          "description": "Where a shown grip stands in its row: start before the content, end after it, as iOS ends a row with its reorder control"
+        },
+        {
           "name": "group",
           "type": "string",
           "description": "Lists of one group trade items, and a Sortable.Target of that group takes them. Give each list a name"
@@ -7437,5 +7448,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-14T11:59:35.219Z"
+  "generatedAt": "2026-11-14T12:43:40.777Z"
 }

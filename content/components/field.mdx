@@ -217,6 +217,7 @@ For whole forms, on the web and on a phone, see [Settings Forms](/components/set
   { prop: "orientation", type: '"vertical" | "horizontal"', default: '"horizontal" on a row with a visible label, else "vertical"', description: "Layout direction of label and control" },
   { prop: "row", type: "boolean", default: "false", description: "One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other div props reach the root only on a row" },
   { prop: "fill", type: "boolean", default: "false", description: "On a row, the control takes the rest of the line after the label" },
+  { prop: "icon", type: "ReactNode", description: "On a row, a symbol or an app's picture before the label, as an iOS cell's image: the label, its description and the line above the row start after it. An img takes an app icon's corners, an icon the symbol size" },
   { prop: "action", type: "ReactNode", description: "On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Applies optical alignment to the child control via negative margin using its gutter" },
   { prop: "id", type: "string", description: "Override the auto-generated id used for htmlFor/aria linking. A child's own id wins: it stays, and htmlFor follows it" },
@@ -267,6 +268,12 @@ Field reads these component tokens. Override them at any scope to restyle it:
 - `--field-row-control-width`: width of a framed number in a row (default `160px`)
 - `--field-row-description-font-size`: description size on a row (default `var(--font-text-sm-size)`)
 - `--field-row-description-line-height`: description line height on a row (default `var(--font-text-sm-line-height)`)
+- `--field-row-hover-background`: a choice or action row's fill under a mouse (default `light-dark(var(--alpha-03), var(--alpha-05))`)
+- `--field-row-icon-color`: color of a symbol in the image column (default `var(--color-text)`)
+- `--field-row-icon-gap`: space from the image column to the text (default `12px`, `8px` on a phone)
+- `--field-row-icon-radius`: corners of an app's picture (default `7px`)
+- `--field-row-icon-size`: the image column of a row with an `icon` (default `32px`, `28px` on a phone)
+- `--field-row-icon-symbol-size`: a symbol's size in the column (default `20px`, `24px` on a phone)
 - `--field-row-gap`: space between label and control (default `24px`, `16px` on a `fill` row)
 - `--field-row-label-font-size`: label size on a row (default `var(--font-text-sm-size)`)
 - `--field-row-label-font-weight`: label weight on a row (default `var(--font-weight-medium)`)

@@ -36,6 +36,7 @@
     --alpha-base: light-dark(#0d0d0d, #ffffff);
     --alpha-0: alpha(var(--alpha-base), 0%);
     --alpha-02: alpha(var(--alpha-base), 2%);
+    --alpha-03: alpha(var(--alpha-base), 3%);
     --alpha-04: alpha(var(--alpha-base), 4%);
     --alpha-05: alpha(var(--alpha-base), 5%);
     --alpha-06: alpha(var(--alpha-base), 6%);

@@ -222,6 +222,11 @@
     --sortable-handle-margin-end: calc(var(--list-row-inset) - 9.83px);
     --sortable-handle-margin-start: 0px;
     --sortable-handle-field-margin-start: calc(1px - var(--list-row-inset));
+    /* An explicit handlePlacement: the end as iOS places it, the start mirrored */
+    --sortable-handle-end-margin-start: 0px;
+    --sortable-handle-end-margin-end: calc(var(--list-row-inset) - 9.83px);
+    --sortable-handle-start-margin-start: calc(var(--list-row-inset) - 9.83px);
+    --sortable-handle-start-margin-end: 0px;
     --sortable-handle-color: var(--mobile-label-tertiary);
     --sortable-handle-color-hover: var(--mobile-label-tertiary);
 
@@ -663,6 +668,12 @@
     --field-row-text-padding-block: 12px;
     --field-row-gap: 16px;
     --field-row-disclosure-gap: 8px;
+    /* An iOS cell's image: a 28 column and 8 to the text (kit Lists Row 550:50430), the text at 56 (IMG_5952);
+       a symbol drawn as SF at 22pt, an app picture with the corners of a 28pt icon. */
+    --field-row-icon-size: 28px;
+    --field-row-icon-gap: 8px;
+    --field-row-icon-symbol-size: 24px;
+    --field-row-icon-radius: 7px;
     --field-row-text-display: flex;
     --field-row-label-font-size: 17px;
     --field-row-label-line-height: 22px;

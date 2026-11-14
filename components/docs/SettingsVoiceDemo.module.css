@@ -109,6 +109,13 @@
   position: relative;
 }
 
+/* The letter sections stand apart as the groups of a form do (24, FormScreen), not at a radio group's 10: the space
+   before a letter is wider than the letter's own space to its rows (owner 14.11: «перед заголовком всегда больше
+   чем между заголовком и секцией»). */
+.ChoiceList > [role="radiogroup"] {
+  gap: 24px;
+}
+
 .ChoiceSearch {
   margin-bottom: 16px;
 }

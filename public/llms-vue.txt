@@ -448,6 +448,7 @@ Props:
   - orientation ("vertical" | "horizontal") default: "horizontal" on a row with a visible label, else "vertical" — Layout direction of label and control
   - row (boolean) default: false — One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other attributes reach the root only on a row
   - fill (boolean) default: false — On a row, the control takes the rest of the line after the label
+  - #icon (slot) — On a row, a symbol or an app's picture before the label, as an iOS cell's image: the label, its description and the line above the row start after it. An img takes an app icon's corners, an icon the symbol size
   - #action (slot) — On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it
   - optically-align ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
   - id (string) — Override the generated id used for the label's for and aria linking. A child's own id wins: it stays, and the label's for follows it
@@ -1076,6 +1077,7 @@ Props:
   - as (string | Component) default: div — Element to render, such as TableBody for table rows
   - disabled (boolean) default: false — Turns dragging off
   - handles (boolean) default: true in a table, otherwise false — Shows the grips of SortableHandle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control
+  - handle-placement ('start' | 'end') default: start on a desktop, end on a phone — Where a shown grip stands in its row: start before the content, end after it, as iOS ends a row with its reorder control
   - group (string) — Lists of one group trade items, and a SortableTarget of that group takes them. Give each list a name
   - reach ('group' | 'list' | 'targets') default: group — Where a drag goes: group to the lists of the group and its targets, list within this list and onto the targets, targets only onto a target, with no line or parting and the arrow keys leaving the order. A list that is not group neither gives items to the other lists nor takes theirs
   - name (string) — Names the list in move

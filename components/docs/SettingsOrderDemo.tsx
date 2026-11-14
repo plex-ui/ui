@@ -1,32 +1,44 @@
 'use client';
 
 import { useState } from 'react';
-import { controlsTableStyle } from './ButtonDemos';
+import { controlsTableStyle, DemoControlBoolean, DemoControlSelect } from './ButtonDemos';
 import { FormScreen } from './FormRowsDemos';
 import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
 import { LanguagesFields, QuickSettingsFields } from './SettingsOrderFields';
 import { initialLanguages, initialQuickSettings } from './settingsOrderData';
 import { SettingsRegionFields } from './SettingsRegionFields';
 import { initialRegion } from './settingsRegionData';
+import { AutofillFields, HapticsFields, type IconStyle } from './SettingsAppsFields';
+import { initialAutofill } from './settingsAppsData';
 
 export function SettingsQuickDemo() {
   const presentation = useScreenPresentation();
+  const [handles, setHandles] = useState(true);
+  const [placement, setPlacement] = useState<'start' | 'end'>('end');
   const [value, setValue] = useState(initialQuickSettings);
   return <>
-    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} />
+      <DemoControlBoolean name="handles" value={handles} onChange={setHandles} />
+      <DemoControlSelect name="handlePlacement" options={['start', 'end'] as const} value={placement} onChange={setPlacement} />
+    </div>
     <FormScreen title="Quick Settings" {...presentation} onDialogChange={presentation.setDialog}>
-      <QuickSettingsFields value={value} onChange={setValue} />
+      <QuickSettingsFields value={value} onChange={setValue} handles={handles} handlePlacement={placement} />
     </FormScreen>
   </>;
 }
 
 export function SettingsLanguagesDemo() {
   const presentation = useScreenPresentation();
+  const [handles, setHandles] = useState(true);
+  const [placement, setPlacement] = useState<'start' | 'end'>('end');
   const [value, setValue] = useState(initialLanguages);
   return <>
-    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} />
+      <DemoControlBoolean name="handles" value={handles} onChange={setHandles} />
+      <DemoControlSelect name="handlePlacement" options={['start', 'end'] as const} value={placement} onChange={setPlacement} />
+    </div>
     <FormScreen title="Language & Region" {...presentation} onDialogChange={presentation.setDialog}>
-      <LanguagesFields value={value} onChange={setValue} />
+      <LanguagesFields value={value} onChange={setValue} handles={handles} handlePlacement={placement} />
     </FormScreen>
   </>;
 }
@@ -38,6 +50,34 @@ export function SettingsRegionDemo() {
     <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
     <FormScreen title="Language & Region" {...presentation} onDialogChange={presentation.setDialog}>
       <SettingsRegionFields value={value} onChange={setValue} />
+    </FormScreen>
+  </>;
+}
+
+export function SettingsAutofillDemo() {
+  const presentation = useScreenPresentation();
+  const [iconStyle, setIconStyle] = useState<IconStyle>('tile');
+  const [value, setValue] = useState(initialAutofill);
+  return <>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} />
+      <DemoControlSelect name="iconStyle" options={['tile', 'outline', 'plain'] as const} value={iconStyle} onChange={setIconStyle} />
+    </div>
+    <FormScreen title="AutoFill & Passwords" {...presentation} onDialogChange={presentation.setDialog}>
+      <AutofillFields value={value} onChange={setValue} iconStyle={iconStyle} />
+    </FormScreen>
+  </>;
+}
+
+export function SettingsHapticsDemo() {
+  const presentation = useScreenPresentation();
+  const [iconStyle, setIconStyle] = useState<IconStyle>('outline');
+  const [value, setValue] = useState(false);
+  return <>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} />
+      <DemoControlSelect name="iconStyle" options={['tile', 'outline', 'plain'] as const} value={iconStyle} onChange={setIconStyle} />
+    </div>
+    <FormScreen title="Music Haptics" {...presentation} onDialogChange={presentation.setDialog}>
+      <HapticsFields value={value} onChange={setValue} iconStyle={iconStyle} />
     </FormScreen>
   </>;
 }

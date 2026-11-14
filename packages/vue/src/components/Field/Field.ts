@@ -205,6 +205,8 @@ const FieldComponent = defineComponent({
     labelAction?: () => VNodeChild
     /** On a `fill` row, a control at the end of the row, such as a button that adds to a list. */
     action?: () => VNodeChild
+    /** On a `row`, a symbol or an app's picture before the label, as an iOS cell's image (React's `icon`). */
+    icon?: () => VNodeChild
     description?: () => VNodeChild
     errorMessage?: () => VNodeChild
   }>,
@@ -255,6 +257,7 @@ const FieldComponent = defineComponent({
       }
       const size = props.size ?? (CONTROL_SIZES.has(childSize) ? (childSize as ControlSize) : "md")
 
+      const icon = row && slots.icon ? slots.icon() : null
       const labelAction = slots.labelAction ? slots.labelAction() : props.labelAction
       const hasLabelAction = slots.labelAction ? hasContent(labelAction as VNodeArrayChildren) : !!labelAction
       const labelElement = h("label", { class: s.Label, id: labelId, for: controlId }, [
@@ -319,6 +322,7 @@ const FieldComponent = defineComponent({
           },
         } : {}),
         [
+          icon && hasContent(icon as VNodeArrayChildren) ? h("div", { class: s.Icon, "aria-hidden": "true" }, [icon as VNodeChild]) : null,
           h("div", { class: s.LabelGroup }, [
             hasLabelAction
               ? h("div", { class: s.LabelRow }, [labelElement, h("div", { class: s.LabelAction }, [labelAction as VNodeChild])])

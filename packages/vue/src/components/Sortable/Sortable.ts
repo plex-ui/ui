@@ -38,6 +38,8 @@ const SortableComponent = defineComponent({
     disabled: { type: Boolean, default: false },
     /** Shows the grips of `SortableHandle`. A hidden grip still takes the keyboard, and the item drags from anywhere but a control. @default true in a table, otherwise false */
     handles: { type: Boolean, default: undefined },
+    /** Where a shown grip stands in its row: `start` before the content, `end` after it, as iOS ends a row with its reorder control. @default start on a desktop, end on a phone (touch.css) */
+    handlePlacement: { type: String as PropType<"start" | "end">, default: undefined },
     /** Lists of one group trade items, and a `SortableTarget` of that group takes them. Give each list a `name`. */
     group: { type: String, default: undefined },
     /** Where a drag goes: `group` to the lists of the group and its `SortableTarget`s, `list` within this list and onto the targets, `targets` only onto a target, with no line or parting and the arrow keys leaving the order. A list that is not `group` neither gives items to the other lists nor takes theirs. @default "group" */
@@ -103,6 +105,7 @@ const SortableComponent = defineComponent({
           "data-layout": props.layout,
           "data-disabled": props.disabled ? "" : undefined,
           "data-handles": props.handles?.toString(),
+          "data-handle-placement": props.handlePlacement,
           "data-group": props.group,
           "data-reach": props.reach,
           "data-name": props.name,

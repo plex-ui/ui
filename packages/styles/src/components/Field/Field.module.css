@@ -274,6 +274,48 @@
   max-width: 100%;
 }
 
+/* A row that leads with a symbol or an app's picture (`icon`), as an iOS cell's image (kit Lists Row 550:50430: a 28
+   column and 8 to the text, so the text and the line above the row start at 56 on a phone, IMG_5952). The column
+   stands at the row's inset, centred in the row's height; the text moves past it. */
+.Field:where([data-row]):has(> .Icon) {
+  --field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-size) + var(--field-row-icon-gap));
+
+  position: relative;
+  padding-inline-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-size) + var(--field-row-icon-gap));
+}
+
+/* A row of a Sortable wraps the Field with its grip: the wrapper draws the line, so it takes the inset too (not with
+   the grip placed before the row, where the text starts after the grip as well) */
+:where(:not([data-handle-placement="start"]) > [data-row]):has(> .Field:where([data-row]) > .Icon) {
+  --field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-size) + var(--field-row-icon-gap));
+}
+
+.Icon {
+  position: absolute;
+  inset-inline-start: var(--field-row-padding-inline);
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--field-row-icon-size);
+  height: var(--field-row-icon-size);
+  color: var(--field-row-icon-color);
+  translate: 0 -50%;
+  pointer-events: none;
+}
+
+.Icon > img {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--field-row-icon-radius);
+  object-fit: cover;
+}
+
+.Icon > svg {
+  width: var(--field-row-icon-symbol-size);
+  height: var(--field-row-icon-symbol-size);
+}
+
 /* A control that needs the width takes its own line, the label goes quiet above it */
 .Field:where([data-row][data-orientation="vertical"]) {
   --field-label-font-size: var(--field-row-above-font-size);
@@ -449,6 +491,21 @@
 /* On a phone a list takes the width of its own line under the label and the action.
    The row is the frame of every field, as on iOS: the framed and the filled (soft) fields
    of the web read as the ghost above, with nothing for the author to change. */
+/* Choice and popup rows forward non-interactive clicks to their control: the whole row is its target, on every
+   width (owner 14.11: «кликабельная вся строка должна быть»). With a mouse the row fills on hover as a row action
+   does; the group gives the first and last rows its corners. */
+.Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Content > .Control [data-row]))):has(> .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"]):not([disabled], [data-disabled], [aria-disabled="true"], [aria-hidden="true"])),
+.Field:where([data-row]:not([data-orientation="vertical"])):has(> .Content > .Control > :is(button, [role="button"])[aria-haspopup]:not([aria-haspopup="false"], [disabled], [data-disabled], [aria-disabled="true"], [data-loading], [aria-busy="true"])) {
+  cursor: pointer;
+}
+
+@media (hover: hover) and (min-width: 768px) {
+  .Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Content > .Control [data-row]))):has(> .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"]):not([disabled], [data-disabled], [aria-disabled="true"], [aria-hidden="true"])):hover,
+  .Field:where([data-row]:not([data-orientation="vertical"])):has(> .Content > .Control > :is(button, [role="button"])[aria-haspopup]:not([aria-haspopup="false"], [disabled], [data-disabled], [aria-disabled="true"], [data-loading], [aria-busy="true"])):hover {
+    background: var(--field-row-hover-background);
+  }
+}
+
 @media (max-width: 767px) {
   .Field:where([data-row]) {
     --field-description-color: var(--mobile-label-secondary, var(--color-text-secondary));
@@ -459,12 +516,6 @@
 
   .Field:where([data-row]):has(> .Content > [role="alert"]) {
     row-gap: var(--mobile-field-error-offset, var(--field-row-row-gap));
-  }
-
-  /* Choice and popup rows forward non-interactive clicks to their control. */
-  .Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Content > .Control [data-row]))):has(> .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"]):not([disabled], [data-disabled], [aria-disabled="true"], [aria-hidden="true"])),
-  .Field:where([data-row]:not([data-orientation="vertical"])):has(> .Content > .Control > :is(button, [role="button"])[aria-haspopup]:not([aria-haspopup="false"], [disabled], [data-disabled], [aria-disabled="true"], [data-loading], [aria-busy="true"])) {
-    cursor: pointer;
   }
 
   /* The same rows, with their control disabled, read as disabled: the row is that control's
