@@ -298,6 +298,10 @@ const contentProps = {
   alignOffset: Number,
   /** Translucent popover surface. @default false */
   translucent: { type: Boolean, default: undefined },
+  /** Stack order of the popover, for one over a layer above 50, such as a dialog with its own `zIndex`. @default 50 */
+  zIndex: Number,
+  /** The id of the element that names the popover, such as the question of a confirmation */
+  ariaLabelledby: String,
   /** Moves focus into the popover when it opens. @default true */
   autoFocus: { type: Boolean, default: true },
 }
@@ -318,7 +322,11 @@ const PopoverContentElement = markRaw(defineComponent({
     return () => {
       const { style, ...rest } = attrs
       delete rest.dir
+      // Reka names the content by its trigger, which Radix does not; a name the owner gives comes back
       delete rest["aria-labelledby"]
+      const labelledBy = rest["data-plex-labelledby"]
+      delete rest["data-plex-labelledby"]
+      if (labelledBy) rest["aria-labelledby"] = labelledBy
       delete rest.forceMount
       return h(
         "div",
@@ -417,7 +425,9 @@ const PopoverContentImpl = defineComponent({
             "popover-width": props.width,
             "popover-min-width": props.minWidth,
             "popover-max-width": props.maxWidth,
+            "popover-z-index": props.zIndex === undefined ? undefined : String(props.zIndex),
           }),
+          "data-plex-labelledby": props.ariaLabelledby,
           "onCloseAutoFocus": handleCloseAutoFocus,
           "onPointerDownOutside": outsidePress.onPointerDownOutside,
           "onFocusOutside": outsidePress.onFocusOutside,
@@ -583,15 +593,48 @@ export const PopoverContent = defineComponent({
   },
 })
 
+/**
+ * Anchors the popover to an element that is not its trigger, such as a bar button that keeps its own action: the
+ * popover stands at it, a press on it is not outside, and focus returns to it on close. Open the popover with `open`.
+ */
+export const PopoverAnchor = defineComponent({
+  name: "PopoverAnchor",
+  props: {
+    /** The element the popover stands at */
+    element: { type: Object as PropType<HTMLElement | null>, default: null },
+  },
+  setup(props) {
+    const { triggerRef } = usePopoverContext()
+    // Reka returns focus to its trigger element and leaves a press on it alone: the anchor takes that place too
+    const rootContext = injectPopoverRootContext()
+    watch(
+      () => props.element,
+      (element, _previous, onCleanup) => {
+        if (!element) return
+        triggerRef.value = element
+        rootContext.triggerElement.value = element
+        onCleanup(() => {
+          if (triggerRef.value === element) triggerRef.value = null
+          if (rootContext.triggerElement.value === element) rootContext.triggerElement.value = undefined
+        })
+      },
+      { immediate: true },
+    )
+    return () => (props.element ? h(RekaPopoverAnchor, { reference: props.element, asChild: true }) : null)
+  },
+})
+
 /** Popover root. Uncontrolled by default; bind `v-model:open` to control it. */
 // Typed explicitly so the published declaration refers to the parts instead of
 // expanding them (an expanded component type fails consumers' type checks)
 export const Popover: typeof PopoverComponent & {
   Trigger: typeof PopoverTrigger
   Content: typeof PopoverContent
+  Anchor: typeof PopoverAnchor
 } = Object.assign(PopoverComponent, {
   Trigger: PopoverTrigger,
   Content: PopoverContent,
+  Anchor: PopoverAnchor,
 })
 
 export type PopoverProps = InstanceType<typeof PopoverComponent>["$props"]

@@ -399,6 +399,7 @@ Props:
     - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
     - @escape-key-down ((event: KeyboardEvent) => void) — Called on Escape before the dialog closes; call event.preventDefault() to keep it open
     - @interact-outside ((event: DialogInteractOutsideEvent) => void) — Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes; call event.preventDefault() to keep it open (the sheet returns). event.detail.originalEvent is the browser's event, a TouchEvent for the sheet
+    - confirm-close ({ message: string; confirmLabel?: string; cancelLabel?: string } | false | null) — Asks before the dialog closes, for a form with unsaved changes: Close, DialogClose, Escape, a press outside and a pulled-down phone sheet ask first. On a phone Sheet the question is a glass popover at the bar's Close (iOS confirmation); elsewhere an alert. confirmLabel defaults to "Discard Changes", cancelLabel (the alert's other answer) to "Keep Editing". Setting open to false yourself closes at once
     - z-index (number) default: 50 — Stack order of the overlay and the dialog, for a page whose own layers sit above 50
     - root-props (DialogLayerProps) — class, style and data attributes for the fixed layer that holds the panel. Data attributes on DialogContent land there too
     - overlay-props (DialogLayerProps) — class, style and data attributes for the overlay
@@ -412,7 +413,7 @@ Props:
     - step (string | number) — The step on screen. A new value brings its content in
     - direction ("forward" | "back") default: "forward" — forward brings the new step in from the trailing edge over the one before; back returns to a step before it
     - class (string) — Additional CSS class on the steps
-Examples: Overview, Metadata details, Scrolling body, Placement, View options sheet, Segmented composer header, Setup choices, Steps, Keep it open
+Examples: Overview, Metadata details, Scrolling body, Placement, View options sheet, Segmented composer header, Setup choices, Steps, Keep it open, Ask before discarding
 
 ## Empty Message
 Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
@@ -791,6 +792,8 @@ Props:
     - avoid-collisions (boolean) default: true — Reposition to stay inside the viewport and scroll containers
     - collision-padding (number | { top?, right?, bottom?, left? }) default: 20 — Space in px to keep from viewport and scroll container boundaries; an object such as `{ top: 16, right: 32, bottom: 16, left: 32 }` sets it per side, and a side it leaves out gets 0
     - translucent (boolean) default: false — Translucent, blurred surface
+    - z-index (number) default: 50 — Stack order, for a popover over a layer above 50, such as a dialog with its own zIndex
+    - aria-labelledby (string) — The id of the element that names the popover, such as the question of a confirmation
     - auto-focus (boolean) default: true — Move focus into the panel when it opens (hover popovers never take focus)
     - data-* (string) — Data attributes land on the panel
     - class (string) — Applied to the panel

@@ -255,6 +255,22 @@ const Trigger = ({
   )
 }
 
+/**
+ * Anchors the popover to an element that is not its trigger, such as a bar button that keeps its own action: the
+ * popover stands at it, a press on it is not outside, and focus returns to it on close. Open the popover with `open`.
+ */
+const Anchor = ({ element }: { element: HTMLElement | null }) => {
+  const { triggerRef } = usePopoverContext()
+  const virtualRef = useMemo(() => ({ current: element }), [element])
+  useEffect(() => {
+    if (!element) return undefined
+    const ref = triggerRef as { current: HTMLElement | null }
+    ref.current = element
+    return () => { if (ref.current === element) ref.current = null }
+  }, [element, triggerRef])
+  return element ? <Popper.Anchor virtualRef={virtualRef as { current: HTMLElement }} /> : null
+}
+
 export type PopoverContentProps = {
   children: ReactNode
   /**
@@ -312,6 +328,10 @@ export type PopoverContentProps = {
   translucent?: boolean
   /** Additional class name to apply to the popover content, you usually don't want to set this, but ag-grid needs it to render a custom editor properly */
   className?: string
+  /** Stack order of the popover, for one over a layer above 50, such as a dialog with its own `zIndex`. @default 50 */
+  zIndex?: number
+  /** The id of the element that names the popover, such as the question of a confirmation */
+  "aria-labelledby"?: string
   /**
    * Auto focus the popover content when it is opened.
    * @default true
@@ -335,6 +355,8 @@ const ContentImpl = ({
   translucent,
   className,
   autoFocus = true,
+  zIndex,
+  "aria-labelledby": labelledBy,
   ...restProps
 }: PopoverContentProps) => {
   const { showOnHover, shake, contentRef, contentId, triggerRef, setOpen, open } = usePopoverContext()
@@ -417,6 +439,7 @@ const ContentImpl = ({
         <Popper.Content
           id={contentId}
           role="dialog"
+          aria-labelledby={labelledBy}
           data-state={open ? "open" : "closed"}
           {...dataAttributes(restProps)}
           ref={contentMergedRef}
@@ -425,6 +448,7 @@ const ContentImpl = ({
             "popover-width": width,
             "popover-min-width": minWidth,
             "popover-max-width": maxWidth,
+            "popover-z-index": zIndex === undefined ? undefined : String(zIndex),
             "radix-popover-content-transform-origin": "var(--radix-popper-transform-origin)",
             "radix-popover-content-available-width": "var(--radix-popper-available-width)",
             "radix-popover-content-available-height": "var(--radix-popper-available-height)",
@@ -581,3 +605,4 @@ const Content = (props: PopoverContentProps) => {
 
 Popover.Trigger = Trigger
 Popover.Content = Content
+Popover.Anchor = Anchor

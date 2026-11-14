@@ -1174,3 +1174,36 @@
     visibility: hidden;
   }
 }
+
+/* The question before a close with changes (`confirmClose`) at a phone Sheet's Close: an iOS confirmation over the
+   sheet, measured on the iOS 27.2 simulator (a sheet's Close with confirmationDialog, iPhone 17): a glass popover
+   240 wide over the Close, its corner 6 before the button's, 10 from the screen's edge (width, offsets and
+   collision padding are Dialog's props on the Popover); the question 17/22 regular, 21 under the top and 29 from
+   the sides; 17 under it a full-width 48px pill, 16 from the edges, the fill of an alert's actions with a red
+   label. The glass, the shadow and the 34px corner are the phone popover's own. */
+.ConfirmClose {
+  --button-size-md: 48px;
+  --button-font-size-md: 17px;
+  --button-line-height-md: 22px;
+  --button-gutter-md: 16px;
+
+  padding: 21px 16px 16px;
+}
+
+.ConfirmCloseMessage {
+  margin: 0 13px 17px;
+  color: var(--color-text);
+  font-size: 17px;
+  font-weight: var(--font-weight-normal);
+  line-height: 22px;
+}
+
+.ConfirmClose .ConfirmCloseAction[data-color="danger"] {
+  --button-background-color: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));
+  --button-background-color-hover: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));
+  --button-background-color-active: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));
+  --button-text-color: var(--color-text-danger);
+  --button-text-color-hover: var(--color-text-danger);
+
+  font-weight: var(--dialog-alert-action-font-weight, 510);
+}

@@ -1952,6 +1952,11 @@
           "name": "Keep it open",
           "code": "const [open, setOpen] = useState(false)\nconst [name, setName] = useState('Mia')\nconst phone = !useBreakpoint('md')\nconst dirty = name !== 'Mia'\nconst hold = (event) => { if (dirty) event.preventDefault() }\nconst note = phone\n? 'Pulling it down or a tap above it closes it until you change the name.'\n: 'Escape or a press outside closes it until you change the name.'\n\n<Dialog open={open} onOpenChange={setOpen}>\n<Dialog.Trigger>\n  <Button color=\"secondary\" variant=\"outline\">Edit profile</Button>\n</Dialog.Trigger>\n<Dialog.Content mobileVariant=\"sheet\" surface=\"grouped\" width={420} onEscapeKeyDown={hold} onInteractOutside={hold}>\n  <Dialog.Header>\n    <Dialog.Title>Edit profile</Dialog.Title>\n    {/* On a phone the note stands under the field, as a list's footer */}\n    <Dialog.Description className={phone ? 'sr-only' : undefined}>{note}</Dialog.Description>\n    {/* On a phone Save is the bar's checkmark, opposite Close */}\n    {phone && (\n      <Dialog.HeaderAction>\n        <NavigationButton action=\"confirm\" aria-label=\"Save\" onClick={() => setOpen(false)} />\n      </Dialog.HeaderAction>\n    )}\n  </Dialog.Header>\n  <Dialog.Body>\n    <FieldGroup footer={phone ? note : undefined}>\n      {/* On a phone the name is the field alone, as Photos' New Album */}\n      <Field row label=\"Name\" hideLabel={phone}>\n        <Input value={name} placeholder=\"Name\" onChange={(event) => setName(event.target.value)} />\n      </Field>\n    </FieldGroup>\n  </Dialog.Body>\n  {!phone && (\n    <Dialog.Footer>\n      <Dialog.Close>\n        <Button color=\"primary\" variant=\"soft\">Discard</Button>\n      </Dialog.Close>\n      <Button color=\"primary\" onClick={() => setOpen(false)}>Save</Button>\n    </Dialog.Footer>\n  )}\n</Dialog.Content>\n</Dialog>",
           "details": "Escape, a press or a focus outside and, on a phone, a Sheet pulled down ask onEscapeKeyDown and onInteractOutside first: event.preventDefault() keeps the dialog open, such as for a form with unsaved changes, or for a press on a developer panel over the page. A Sheet kept open returns to its place, as an iOS sheet under isModalInPresentation. The Close button and Dialog.Close still close it. On a phone the form is laid out as Photos' New Album: a grouped Sheet, the name a field alone in its list with the note under it, Close to discard and the bar's checkmark to save."
+        },
+        {
+          "name": "Ask before discarding",
+          "code": "const [open, setOpen] = useState(false)\nconst [note, setNote] = useState('')\nconst phone = !useBreakpoint('md')\nconst dirty = note.trim() !== ''\n\n<Dialog open={open} onOpenChange={setOpen}>\n<Dialog.Trigger>\n  <Button color=\"secondary\" variant=\"outline\">New note</Button>\n</Dialog.Trigger>\n<Dialog.Content\n  mobileVariant=\"sheet\"\n  surface=\"grouped\"\n  width={420}\n  confirmClose={dirty && { message: 'Are you sure you want to discard this new note?' }}\n>\n  <Dialog.Header>\n    <Dialog.Title>New Note</Dialog.Title>\n    {phone && (\n      <Dialog.HeaderAction>\n        <NavigationButton action=\"confirm\" aria-label=\"Save\" disabled={!dirty} onClick={() => setOpen(false)} />\n      </Dialog.HeaderAction>\n    )}\n  </Dialog.Header>\n  <Dialog.Body>\n    <FieldGroup footer=\"Type a note, then close: the sheet asks before it loses it.\">\n      <Field row label=\"Note\" hideLabel={phone}>\n        <Input value={note} placeholder=\"Note\" onChange={(event) => setNote(event.target.value)} />\n      </Field>\n    </FieldGroup>\n  </Dialog.Body>\n  {!phone && (\n    <Dialog.Footer>\n      <Dialog.Close>\n        <Button color=\"primary\" variant=\"soft\">Cancel</Button>\n      </Dialog.Close>\n      <Button color=\"primary\" disabled={!dirty} onClick={() => setOpen(false)}>Save</Button>\n    </Dialog.Footer>\n  )}\n</Dialog.Content>\n</Dialog>",
+          "details": "Pass confirmClose while the form has changes: Close, Dialog.Close, Escape, a press outside and, on a phone, a Sheet pulled down ask first, and only the answer that discards closes the dialog. On a phone Sheet the question stands at the bar's Close as an iOS confirmation: a glass popover over the sheet, with no dimming, the question over a full-width red action, and a tap outside it keeps editing. On a desktop, and on a phone dialog with no Close in a bar, it is an alert whose other answer keeps editing. Set open to false yourself, as Save does, to close at once. confirmLabel and cancelLabel name the answers."
         }
       ],
       "subComponents": [
@@ -2024,6 +2029,11 @@
               "name": "onInteractOutside",
               "type": "(event: DialogInteractOutsideEvent) => void",
               "description": "Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes; call event.preventDefault() to keep it open (the sheet returns). event.detail.originalEvent is the browser's event, a TouchEvent for the sheet"
+            },
+            {
+              "name": "confirmClose",
+              "type": "{ message: ReactNode; confirmLabel?: ReactNode; cancelLabel?: ReactNode } | false | null",
+              "description": "Asks before the dialog closes, for a form with unsaved changes: Close, Dialog.Close, Escape, a press outside and a pulled-down phone sheet ask first. On a phone Sheet the question is a glass popover at the bar's Close (iOS confirmation); elsewhere an alert. confirmLabel defaults to \"Discard Changes\", cancelLabel (the alert's other answer) to \"Keep Editing\". Setting open to false yourself closes at once"
             },
             {
               "name": "zIndex",
@@ -4175,6 +4185,17 @@
               "type": "boolean",
               "default": "false",
               "description": "Translucent, blurred surface"
+            },
+            {
+              "name": "zIndex",
+              "type": "number",
+              "default": "50",
+              "description": "Stack order, for a popover over a layer above 50, such as a dialog with its own zIndex"
+            },
+            {
+              "name": "aria-labelledby",
+              "type": "string",
+              "description": "The id of the element that names the popover, such as the question of a confirmation"
             },
             {
               "name": "autoFocus",
@@ -7448,5 +7469,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-14T13:18:53.634Z"
+  "generatedAt": "2026-11-14T14:10:10.512Z"
 }

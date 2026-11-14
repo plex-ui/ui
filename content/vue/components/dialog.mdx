@@ -74,6 +74,43 @@ export const keepOpenPhone = keepOpen
   .replace('    </DialogHeader>', '      <DialogHeaderAction>\n        <NavigationButton action="confirm" aria-label="Save" @click="open = false" />\n      </DialogHeaderAction>\n    </DialogHeader>')
   .replace(/\n    <DialogFooter>[\s\S]*?<\/DialogFooter>/, '')
 
+export const confirmClose = `<Dialog v-model:open="open" @update:open="(next) => { if (!next) note = '' }">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">New note</Button>
+  </DialogTrigger>
+  <DialogContent
+    mobile-variant="sheet"
+    surface="grouped"
+    :width="420"
+    :confirm-close="note.trim() !== '' && { message: 'Are you sure you want to discard this new note?' }"
+  >
+    <DialogHeader>
+      <DialogTitle>New Note</DialogTitle>
+    </DialogHeader>
+    <DialogBody>
+      <FieldGroup>
+        <Field row label="Note">
+          <Input v-model:value="note" placeholder="Note" />
+        </Field>
+        <template #footer>Type a note, then close: the sheet asks before it loses it.</template>
+      </FieldGroup>
+    </DialogBody>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="primary" variant="soft">Cancel</Button>
+      </DialogClose>
+      <Button color="primary" :disabled="note.trim() === ''" @click="open = false">Save</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>`
+
+{/* On a phone Save is the bar's checkmark, opposite Close, and the note is the field alone */}
+export const confirmClosePhone = confirmClose
+  .replace('v-model:open="open"', ':open="true"')
+  .replace('<Field row label="Note">', '<Field row label="Note" hide-label>')
+  .replace('    </DialogHeader>', `      <DialogHeaderAction>\n        <NavigationButton action="confirm" aria-label="Save" :disabled="note.trim() === ''" @click="open = false" />\n      </DialogHeaderAction>\n    </DialogHeader>`)
+  .replace(/\n    <DialogFooter>[\s\S]*?<\/DialogFooter>/, '')
+
 export const overview = `<Dialog v-model:open="open" @update:open="(next) => { if (next) name = 'Untitled' }">
   <DialogTrigger>
     <Button color="secondary" variant="outline">Open alert</Button>
@@ -411,6 +448,12 @@ const open = ref(false);
   <VueDemo template={keepOpen} phoneTemplate={keepOpenPhone} phoneState={{ open: true, profileName: 'Mia', held: false }} stageClassName="py-10 flex justify-center" state={{ open: false, profileName: 'Mia', held: false }} />
 </ComponentPreview>
 
+### Ask before discarding
+
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Pass <code>confirm-close</code> while the form has changes: Close, <code>DialogClose</code>, Escape, a press outside and, on a phone, a Sheet pulled down ask first, and only the answer that discards closes the dialog. On a phone Sheet the question stands at the bar's Close as an iOS confirmation: a glass popover over the sheet, with no dimming, the question over a full-width red action, and a tap outside it keeps editing. On a desktop, and on a phone dialog with no Close in a bar, it is an alert whose other answer keeps editing. Set <code>open</code> to false yourself, as Save does, to close at once. <code>confirmLabel</code> and <code>cancelLabel</code> name the answers.</>} code={confirmClose} previewMinHeight={120}>
+  <VueDemo template={confirmClose} phoneTemplate={confirmClosePhone} phoneState={{ open: true, note: '' }} stageClassName="py-10 flex justify-center" state={{ open: false, note: '' }} />
+</ComponentPreview>
+
 ## API
 
 **Dialog** (root)
@@ -434,6 +477,7 @@ const open = ref(false);
   { prop: "@close-auto-focus", type: "(event: Event) => void", description: "Called when focus returns on close; call event.preventDefault() to keep it elsewhere" },
   { prop: "@escape-key-down", type: "(event: KeyboardEvent) => void", description: "Called on Escape before the dialog closes; call event.preventDefault() to keep it open" },
   { prop: "@interact-outside", type: "(event: DialogInteractOutsideEvent) => void", description: "Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes; call event.preventDefault() to keep it open (the sheet returns). event.detail.originalEvent is the browser's event, a TouchEvent for the sheet" },
+  { prop: "confirm-close", type: "{ message: string; confirmLabel?: string; cancelLabel?: string } | false | null", description: "Asks before the dialog closes, for a form with unsaved changes: Close, DialogClose, Escape, a press outside and a pulled-down phone sheet ask first. On a phone Sheet the question is a glass popover at the bar's Close (iOS confirmation); elsewhere an alert. confirmLabel defaults to \"Discard Changes\", cancelLabel (the alert's other answer) to \"Keep Editing\". Setting open to false yourself closes at once" },
   { prop: "z-index", type: "number", default: "50", description: "Stack order of the overlay and the dialog, for a page whose own layers sit above 50" },
   { prop: "root-props", type: "DialogLayerProps", description: "class, style and data attributes for the fixed layer that holds the panel. Data attributes on DialogContent land there too" },
   { prop: "overlay-props", type: "DialogLayerProps", description: "class, style and data attributes for the overlay" },

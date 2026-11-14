@@ -12,6 +12,7 @@ import {
   DialogSetupChoicesDemo,
   DialogStepsDemo,
   DialogKeepOpenDemo,
+  DialogConfirmCloseDemo,
 } from "@/components/docs/DialogDemos"
 
 import { DialogSegmentedComposerDemo } from "@/components/docs/DialogSegmentedComposerDemo"
@@ -345,6 +346,51 @@ const note = phone
   <DialogKeepOpenDemo />
 </ComponentPreview>
 
+### Ask before discarding
+
+<ComponentPreview phonePresentation="screen" phoneDialog details={<>Pass <code>confirmClose</code> while the form has changes: Close, <code>Dialog.Close</code>, Escape, a press outside and, on a phone, a Sheet pulled down ask first, and only the answer that discards closes the dialog. On a phone Sheet the question stands at the bar's Close as an iOS confirmation: a glass popover over the sheet, with no dimming, the question over a full-width red action, and a tap outside it keeps editing. On a desktop, and on a phone dialog with no Close in a bar, it is an alert whose other answer keeps editing. Set <code>open</code> to false yourself, as Save does, to close at once. <code>confirmLabel</code> and <code>cancelLabel</code> name the answers.</>} code={`const [open, setOpen] = useState(false)
+const [note, setNote] = useState('')
+const phone = !useBreakpoint('md')
+const dirty = note.trim() !== ''
+
+<Dialog open={open} onOpenChange={setOpen}>
+  <Dialog.Trigger>
+    <Button color="secondary" variant="outline">New note</Button>
+  </Dialog.Trigger>
+  <Dialog.Content
+    mobileVariant="sheet"
+    surface="grouped"
+    width={420}
+    confirmClose={dirty && { message: 'Are you sure you want to discard this new note?' }}
+  >
+    <Dialog.Header>
+      <Dialog.Title>New Note</Dialog.Title>
+      {phone && (
+        <Dialog.HeaderAction>
+          <NavigationButton action="confirm" aria-label="Save" disabled={!dirty} onClick={() => setOpen(false)} />
+        </Dialog.HeaderAction>
+      )}
+    </Dialog.Header>
+    <Dialog.Body>
+      <FieldGroup footer="Type a note, then close: the sheet asks before it loses it.">
+        <Field row label="Note" hideLabel={phone}>
+          <Input value={note} placeholder="Note" onChange={(event) => setNote(event.target.value)} />
+        </Field>
+      </FieldGroup>
+    </Dialog.Body>
+    {!phone && (
+      <Dialog.Footer>
+        <Dialog.Close>
+          <Button color="primary" variant="soft">Cancel</Button>
+        </Dialog.Close>
+        <Button color="primary" disabled={!dirty} onClick={() => setOpen(false)}>Save</Button>
+      </Dialog.Footer>
+    )}
+  </Dialog.Content>
+</Dialog>`}>
+  <DialogConfirmCloseDemo />
+</ComponentPreview>
+
 ## API
 
 **Dialog** (root)
@@ -369,6 +415,7 @@ const note = phone
   { prop: "onCloseAutoFocus", type: "(event: Event) => void", description: "Called when focus returns on close; call event.preventDefault() to keep it elsewhere" },
   { prop: "onEscapeKeyDown", type: "(event: KeyboardEvent) => void", description: "Called on Escape before the dialog closes; call event.preventDefault() to keep it open" },
   { prop: "onInteractOutside", type: "(event: DialogInteractOutsideEvent) => void", description: "Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes; call event.preventDefault() to keep it open (the sheet returns). event.detail.originalEvent is the browser's event, a TouchEvent for the sheet" },
+  { prop: "confirmClose", type: "{ message: ReactNode; confirmLabel?: ReactNode; cancelLabel?: ReactNode } | false | null", description: "Asks before the dialog closes, for a form with unsaved changes: Close, Dialog.Close, Escape, a press outside and a pulled-down phone sheet ask first. On a phone Sheet the question is a glass popover at the bar's Close (iOS confirmation); elsewhere an alert. confirmLabel defaults to \"Discard Changes\", cancelLabel (the alert's other answer) to \"Keep Editing\". Setting open to false yourself closes at once" },
   { prop: "zIndex", type: "number", default: "50", description: "Stack order of the overlay and the dialog, for a page whose own layers sit above 50" },
   { prop: "rootProps", type: "DialogLayerProps", description: "className, style and data attributes for the fixed layer that holds the panel. Data attributes on Dialog.Content land there too" },
   { prop: "overlayProps", type: "DialogLayerProps", description: "className, style and data attributes for the overlay" },

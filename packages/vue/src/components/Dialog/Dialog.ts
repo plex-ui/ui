@@ -49,7 +49,9 @@ import { enterStep, leaveStep, releaseStepHeight, settleStepHeight, STEP_TIMING 
 import { PHONE_LAYOUT as PHONE_LAYOUT_SCOPE, type PhoneLayoutValue } from "../PhoneLayout/PhoneLayout.js"
 import { overlayTiming, overlayTimingLarge } from "../Transition/shared.js"
 import { provideFloatingBoundaryScope, useFloatingBoundaryRegistration } from "../../composables/useFloatingBoundary.js"
+import { Button } from "../Button/Button.js"
 import { NavigationButton } from "../Button/NavigationButton.js"
+import { Popover, PopoverAnchor, PopoverContent } from "../Popover/Popover.js"
 import { barBackground, TOOLBAR_HOST, Toolbar, ToolbarLeading, ToolbarTrailing, type BarBackground, type BarBackgroundAlias } from "../Toolbar/Toolbar.js"
 import { observeScrollEdges } from "../../lib/scrollEdges.js"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
@@ -61,10 +63,32 @@ const DOUBLE_CLICK = 300
 type DialogScroll = { scrolled: Ref<boolean>; contentBelow: Ref<boolean> }
 const DIALOG_SCROLL: InjectionKey<DialogScroll> = Symbol("DialogScroll")
 // What the header of a Sheet needs from its content to become the Sheet's bar on a phone
-type DialogSheet = { showClose: boolean }
+type DialogSheet = {
+  showClose: boolean
+  /** The bar's Close asks first (`confirmClose`) */
+  asksToClose: boolean
+  requestClose: () => void
+  setCloseButton: (button: HTMLElement | null) => void
+}
 const DIALOG_SHEET: InjectionKey<ComputedRef<DialogSheet | null>> = Symbol("DialogSheet")
 // Inside that bar: the title, the description and the header actions take the Toolbar's parts
 const DIALOG_BAR: InjectionKey<ComputedRef<boolean>> = Symbol("DialogBar")
+// A close that asks first (`confirmClose`): DialogClose inside the content asks as the Close button does
+const DIALOG_REQUEST_CLOSE: InjectionKey<ComputedRef<(() => void) | null>> = Symbol("DialogRequestClose")
+
+/**
+ * What a dialog asks before it closes with unsaved changes: the question and its destructive answer. On a phone
+ * Sheet it stands at the bar's Close as an iOS confirmation (a glass popover over the sheet, no dimming; a press
+ * outside it keeps editing); elsewhere it is an alert with a second answer that keeps editing.
+ */
+export type DialogConfirmClose = {
+  /** The question, such as "Are you sure you want to discard this new note?" */
+  message: string
+  /** The answer that closes and loses the changes. @default "Discard Changes" */
+  confirmLabel?: string
+  /** The alert's answer that keeps the dialog open. @default "Keep Editing" */
+  cancelLabel?: string
+}
 // Where DialogBody takes a phone Sheet's description: the first text of the content, under the bar
 // Where a phone Sheet's description goes: the top of DialogBody, or first a DialogDescriptionSlot of the content's own
 type DialogDescriptionSlots = { body: Ref<HTMLElement | null>; own: Ref<HTMLElement | null> }
@@ -275,6 +299,12 @@ export const DialogContent = defineComponent({
      * iOS sheet does under `isModalInPresentation`), or for a press on a developer panel over the page.
      */
     onInteractOutside: Function as PropType<(event: DialogInteractOutsideEvent) => void>,
+    /**
+     * Asks before the dialog closes, as a form with unsaved changes does: Close, DialogClose, Escape, a press outside
+     * and a phone sheet pulled down all ask first. Pass it while there are changes and leave it out (or `false`) when
+     * there are none. Setting `open` to false yourself, such as after Save, closes at once.
+     */
+    confirmClose: { type: [Object, Boolean] as PropType<DialogConfirmClose | false | null>, default: undefined },
     /** Stack order of the overlay and the dialog. @default 50 */
     zIndex: Number,
     /** Class, style and data attributes for the fixed layer that holds the panel. Data attributes of DialogContent land here too. */
@@ -299,7 +329,42 @@ export const DialogContent = defineComponent({
     // dialog is an alert, any other a sheet, at the bottom or over the whole screen.
     const mobileVariant = computed(() => props.mobileVariant ?? (props.mobilePlacement === "center" ? "alert" : "sheet"))
     const phoneWindow = usePhoneLayout()
-    provide(DIALOG_SHEET, computed(() => (mobileVariant.value === "sheet" ? { showClose: props.showClose } : null)))
+    // A close asked for while there are changes waits for the answer (`confirmClose`). A press that dismisses the
+    // question itself does not ask again: one just after the question closed is that press.
+    const confirming = ref(false)
+    let confirmClosedAt = 0
+    const setConfirming = (next: boolean) => {
+      if (confirming.value && !next) confirmClosedAt = performance.now()
+      confirming.value = next
+    }
+    watch([open, () => props.confirmClose], ([isOpen, confirm]) => { if (!isOpen || !confirm) setConfirming(false) })
+    const closeButton = shallowRef<HTMLElement | null>(null)
+    // Where focus returns when the question is dismissed: the field or button that asked to close
+    let returnFocus: HTMLElement | null = null
+    const requestClose = () => {
+      // A press on a dialog that is already leaving asks nothing
+      if (!open.value) return
+      if (!props.confirmClose) return setOpen(false)
+      if (confirming.value || performance.now() - confirmClosedAt < DOUBLE_CLICK) return
+      returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
+      setConfirming(true)
+    }
+    const setCloseButton = (button: HTMLElement | null) => { closeButton.value = button }
+    // The answer that discards: the question leaves first, then the dialog, as iOS dismisses the confirmation before
+    // the sheet; together, the question would stand still over the sheet as it leaves.
+    let confirmTimer: ReturnType<typeof setTimeout> | undefined
+    onBeforeUnmount(() => clearTimeout(confirmTimer))
+    // A close from outside, or a new opening, ends a discard that is still waiting for the question to leave
+    watch(open, () => clearTimeout(confirmTimer))
+    const confirmAndClose = () => {
+      setConfirming(false)
+      clearTimeout(confirmTimer)
+      confirmTimer = setTimeout(() => setOpen(false), overlayTiming.exitDuration)
+    }
+    provide(DIALOG_REQUEST_CLOSE, computed(() => (props.confirmClose ? requestClose : null)))
+    provide(DIALOG_SHEET, computed(() => (mobileVariant.value === "sheet"
+      ? { showClose: props.showClose, asksToClose: Boolean(props.confirmClose), requestClose, setCloseButton }
+      : null)))
     // A dialog opened from a header action is not inside that header's bar
     provide(DIALOG_BAR, computed(() => false))
     provide(DIALOG_DESCRIPTION_SLOT, { body: shallowRef<HTMLElement | null>(null), own: shallowRef<HTMLElement | null>(null) })
@@ -355,7 +420,7 @@ export const DialogContent = defineComponent({
         props.onEscapeKeyDown(request)
         if (request.defaultPrevented) return
       }
-      setOpen(false)
+      requestClose()
     })
 
     // The second click of a double click lands on the overlay: it must not undo the first
@@ -371,18 +436,28 @@ export const DialogContent = defineComponent({
     const outsidePress = useDeferredPointerDownOutside((originalEvent) => {
       const request = new CustomEvent("dismissableLayer.pointerDownOutside", { cancelable: true, detail: { originalEvent } })
       if (ownerKeepsOpen(request)) return
-      if (!originalEvent.ctrlKey && performance.now() - openedAt >= DOUBLE_CLICK) setOpen(false)
+      if (!originalEvent.ctrlKey && performance.now() - openedAt >= DOUBLE_CLICK) requestClose()
     }, () => rootContext.contentElement.value)
     const handlePointerDownOutside = (event: Parameters<typeof outsidePress.onPointerDownOutside>[0]) => {
       // The native modal owner outlives logical open. An exiting layer must not
       // start a deferred dismissal that closes a trigger-driven reopen.
       if (!open.value) return event.preventDefault()
+      // A press that dismisses the question before a close keeps editing
+      if (confirming.value) return event.preventDefault()
       // A press in a toast is not outside: the toast region is a layer above the dialog. The Toaster stops it
       // before Reka sees it; this holds when the Toaster mounted after the dialog.
       if (inToastRegion(event.detail.originalEvent.target)) return event.preventDefault()
       // A primary mouse or pen press waits for its click; a touch or another button dismisses now, as Reka does
       const { originalEvent } = event.detail
       if (originalEvent.button === 0 && originalEvent.pointerType !== "touch") return outsidePress.onPointerDownOutside(event)
+      // With changes a touch or another button asks too, and Reka does not close on it
+      if (props.confirmClose) {
+        // The owner's veto first: it reads the event's own defaultPrevented
+        const kept = ownerKeepsOpen(event as DialogInteractOutsideEvent)
+        event.preventDefault()
+        if (!kept && !originalEvent.ctrlKey) requestClose()
+        return
+      }
       if (!ownerKeepsOpen(event as DialogInteractOutsideEvent)) outsidePress.onPointerDownOutside(event)
     }
     // Focus moving out while a press waits for its click is that press, as on Radix: the owner hears of it once
@@ -390,12 +465,21 @@ export const DialogContent = defineComponent({
       if (inToastRegion((event as DialogInteractOutsideEvent).detail?.originalEvent.target)) return event.preventDefault()
       outsidePress.onFocusOutside(event)
       if (!event.defaultPrevented) props.onInteractOutside?.(event as DialogInteractOutsideEvent)
+      // With changes focus leaving asks, as React's interact-outside does; Reka does not close on it
+      if (!event.defaultPrevented && props.confirmClose) {
+        event.preventDefault()
+        requestClose()
+      }
     }
     // A sheet pulled down asks as a press outside does: an owner that keeps the dialog open on one, such as a form
     // with unsaved changes, keeps it on the other, and the sheet returns.
     const dismissByDrag = (originalEvent: TouchEvent) => {
       const request: DialogInteractOutsideEvent = new CustomEvent("dialog.sheetDrag", { cancelable: true, detail: { originalEvent } })
       if (ownerKeepsOpen(request)) return false
+      if (props.confirmClose) {
+        requestClose()
+        return false
+      }
       setOpen(false)
       return true
     }
@@ -530,6 +614,17 @@ export const DialogContent = defineComponent({
                     })
                   : null,
                 slots.default?.(),
+                props.confirmClose
+                  ? h(ConfirmClose, {
+                      ...props.confirmClose,
+                      open: confirming.value,
+                      anchor: (phoneWindow.value || phoneLayout.value) && mobileVariant.value === "sheet" ? closeButton.value : null,
+                      returnFocus: () => returnFocus,
+                      "onUpdate:open": setConfirming,
+                      onConfirm: confirmAndClose,
+                      zIndex: props.zIndex,
+                    })
+                  : null,
               ])),
             ],
           },
@@ -618,7 +713,15 @@ export const DialogHeader = defineComponent({
           // A step's Back takes the leading place, as the back button of a screen pushed inside an iOS sheet
           sheet?.value?.showClose && !parts.some(isLeadingAction)
             ? h(ToolbarLeading, { class: s.BarClose }, () => [
-                h(DialogClose, null, { default: () => [h(NavigationButton, { "action": "close", "variant": "ghost", "aria-label": "Close dialog" })] }),
+                sheet.value?.asksToClose
+                  ? h(NavigationButton, {
+                      "ref": (instance: unknown) => sheet.value?.setCloseButton(elementOf(instance)),
+                      "action": "close",
+                      "variant": "ghost",
+                      "aria-label": "Close dialog",
+                      "onClick": () => sheet.value?.requestClose(),
+                    })
+                  : h(DialogClose, null, { default: () => [h(NavigationButton, { "action": "close", "variant": "ghost", "aria-label": "Close dialog" })] }),
               ])
             : null,
           ...parts.filter(isLeadingAction),
@@ -777,10 +880,93 @@ export const DialogClose = defineComponent({
   name: "DialogClose",
   setup(_props, { slots }) {
     const rootContext = injectDialogRootContext()
+    const requestClose = inject(DIALOG_REQUEST_CLOSE, null)
     const onClick = (event: Event) => {
-      if (!event.defaultPrevented) rootContext.onOpenChange(false)
+      if (event.defaultPrevented) return
+      const request = requestClose?.value
+      if (request) request()
+      else rootContext.onOpenChange(false)
     }
     return () => withDialogProps(firstElementChild(slots.default?.()), { type: "button" }, onClick)
+  },
+})
+
+const elementOf = (instance: unknown): HTMLElement | null =>
+  instance instanceof HTMLElement ? instance : ((instance as { $el?: unknown } | null)?.$el instanceof HTMLElement ? (instance as { $el: HTMLElement }).$el : null)
+
+// iOS asks at the button that closes (a confirmation dialog presented from the sheet's Close on iOS 27: a glass
+// popover over it, no dimming, the question in 17 regular over a full-width destructive pill); with no such button,
+// and on a desktop, the question is an alert.
+const ConfirmClose = defineComponent({
+  name: "DialogConfirmClose",
+  props: {
+    message: { type: String, required: true },
+    confirmLabel: { type: String, default: "Discard Changes" },
+    cancelLabel: { type: String, default: "Keep Editing" },
+    open: { type: Boolean, default: false },
+    /** The phone Sheet's Close: the question stands at it. Without one it is an alert. */
+    anchor: { type: Object as PropType<HTMLElement | null>, default: null },
+    returnFocus: { type: Function as PropType<() => HTMLElement | null>, required: true },
+    /** The owner dialog's stack order: the question stands over it */
+    zIndex: Number,
+  },
+  emits: {
+    "update:open": (open: boolean) => typeof open === "boolean",
+    confirm: () => true,
+  },
+  setup(props, { emit }) {
+    const setOpen = (next: boolean) => emit("update:open", next)
+    const confirm = () => emit("confirm")
+    const messageId = useId(undefined, "plex-confirm-close")
+    return () => {
+      const anchor = props.anchor
+      if (anchor) {
+        return h(Popover, { "open": props.open, "onUpdate:open": setOpen }, () => [
+          h(PopoverAnchor, { element: anchor }),
+          // Over the Close, its corner 6 before the button's, as the native confirmation grows out of it
+          h(PopoverContent, {
+            "side": "bottom",
+            "align": "start",
+            "sideOffset": -anchor.offsetHeight,
+            "alignOffset": -6,
+            "collisionPadding": 10,
+            "width": 240,
+            "minWidth": 240,
+            "zIndex": props.zIndex,
+            "ariaLabelledby": messageId,
+            "class": s.ConfirmClose,
+            "data-dialog-confirm-close": "",
+          }, () => [
+            h("p", { id: messageId, class: s.ConfirmCloseMessage }, props.message),
+            h(Button, { block: true, pill: true, color: "danger", variant: "soft", class: s.ConfirmCloseAction, onClick: confirm }, () => props.confirmLabel),
+          ]),
+        ])
+      }
+      return h(Dialog, { "open": props.open, "onUpdate:open": setOpen }, () => [
+        h(DialogContent, {
+          "mobileVariant": "alert",
+          "surface": "plain",
+          "width": 360,
+          "showClose": false,
+          "zIndex": props.zIndex,
+          "data-dialog-confirm-close": "",
+          "onCloseAutoFocus": (event: Event) => {
+            const target = props.returnFocus()
+            if (target?.isConnected) {
+              event.preventDefault()
+              target.focus({ preventScroll: true })
+            }
+          },
+        }, () => [
+          // The question names the alert, as an alert's title does
+          h(DialogHeader, null, () => [h(DialogTitle, null, () => props.message)]),
+          h(DialogFooter, null, () => [
+            h(DialogClose, null, () => [h(Button, { color: "secondary", variant: "soft" }, () => props.cancelLabel)]),
+            h(Button, { color: "danger", onClick: confirm }, () => props.confirmLabel),
+          ]),
+        ]),
+      ])
+    }
   },
 })
 

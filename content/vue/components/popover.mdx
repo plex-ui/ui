@@ -287,6 +287,8 @@ Additionally, `esc` keypresses are handled independently as a stacking order.
 
 **PopoverTrigger**: Renders the element that toggles the popover. The trigger should be the user's point of interaction for revealing the popup. No specific props.
 
+**PopoverAnchor**: Stands the popover at an element that is not its trigger, such as a bar button that keeps its own action; open the popover with `v-model:open`. A press on the element is not outside the popover, and focus returns to it on close. Prop: `element` (`HTMLElement | null`). `DialogContent`'s `confirm-close` uses it to ask at a phone Sheet's Close.
+
 **PopoverContent**
 
 <PropsTable data={[
@@ -300,6 +302,8 @@ Additionally, `esc` keypresses are handled independently as a stacking order.
   { prop: "avoid-collisions", type: "boolean", default: "true", description: "Reposition to stay inside the viewport and scroll containers" },
   { prop: "collision-padding", type: "number | { top?, right?, bottom?, left? }", default: "20", description: "Space in px to keep from viewport and scroll container boundaries; an object such as `{ top: 16, right: 32, bottom: 16, left: 32 }` sets it per side, and a side it leaves out gets 0" },
   { prop: "translucent", type: "boolean", default: "false", description: "Translucent, blurred surface" },
+  { prop: "z-index", type: "number", default: "50", description: "Stack order, for a popover over a layer above 50, such as a dialog with its own zIndex" },
+  { prop: "aria-labelledby", type: "string", description: "The id of the element that names the popover, such as the question of a confirmation" },
   { prop: "auto-focus", type: "boolean", default: "true", description: "Move focus into the panel when it opens (hover popovers never take focus)" },
   { prop: "data-*", type: "string", description: "Data attributes land on the panel" },
   { prop: "class", type: "string", description: "Applied to the panel" },

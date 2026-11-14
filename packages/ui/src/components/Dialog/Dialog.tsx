@@ -1,7 +1,7 @@
 "use client"
 
 import clsx from "clsx"
-import { Dialog as RadixDialog } from "radix-ui"
+import { Dialog as RadixDialog, Slot } from "radix-ui"
 import {
   Children,
   cloneElement,
@@ -11,6 +11,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useId,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -25,7 +26,9 @@ import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { inToastRegion } from "../../lib/toastRegion"
 import { cancelableKeyCopy, dataAttributes, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { useStableCallback } from "../../hooks/useStableCallback"
+import { Button } from "../Button"
 import { NavigationButton } from "../Button/NavigationButton"
+import { Popover } from "../Popover"
 import { barBackground, Toolbar, ToolbarHostContext, type BarBackground, type BarBackgroundAlias, type ToolbarHost } from "../Toolbar/Toolbar"
 import { NO_SCROLL_EDGES, observeScrollEdges, sameScrollEdges, type ScrollEdges } from "../../lib/scrollEdges"
 import { TransitionGroup } from "../Transition"
@@ -108,6 +111,20 @@ export type DialogPlacement = "center" | "top" | "bottom" | "start" | "end" | "f
  */
 export type DialogInteractOutsideEvent = CustomEvent<{ originalEvent: PointerEvent | FocusEvent | TouchEvent }>
 
+/**
+ * What a dialog asks before it closes with unsaved changes: the question and its destructive answer. On a phone
+ * Sheet it stands at the bar's Close as an iOS confirmation (a glass popover over the sheet, no dimming; a press
+ * outside it keeps editing); elsewhere it is an alert with a second answer that keeps editing.
+ */
+export type DialogConfirmClose = {
+  /** The question, such as "Are you sure you want to discard this new note?" */
+  message: ReactNode
+  /** The answer that closes and loses the changes. @default "Discard Changes" */
+  confirmLabel?: ReactNode
+  /** The alert's answer that keeps the dialog open. @default "Keep Editing" */
+  cancelLabel?: ReactNode
+}
+
 /** Class, style and data attributes for one of the dialog's layers. */
 export type DialogLayerProps = {
   className?: string
@@ -163,6 +180,12 @@ export type DialogContentProps = {
    * iOS sheet does under `isModalInPresentation`), or for a press on a developer panel over the page.
    */
   onInteractOutside?: (event: DialogInteractOutsideEvent) => void
+  /**
+   * Asks before the dialog closes, as a form with unsaved changes does: Close, Escape, a press outside and a phone
+   * sheet pulled down all ask first. Pass it while there are changes and leave it out (or `false`) when there are
+   * none. Setting `open` to false yourself, such as after Save, closes at once.
+   */
+  confirmClose?: DialogConfirmClose | false | null
   /** Stack order of the overlay and the dialog. @default 50 */
   zIndex?: number
   /** Class, style and data attributes for the fixed layer that holds the panel. Data attributes of Content land here too. */
@@ -191,6 +214,7 @@ const Content = ({
   onCloseAutoFocus,
   onEscapeKeyDown,
   onInteractOutside,
+  confirmClose,
   zIndex,
   rootProps,
   overlayProps,
@@ -227,9 +251,46 @@ const Content = ({
   const [bodySlot, setBodySlot] = useState<HTMLElement | null>(null)
   const [ownSlot, setOwnSlot] = useState<HTMLElement | null>(null)
   const descriptionSlot = ownSlot ?? bodySlot
+  // A close asked for while there are changes waits for the answer (`confirmClose`); the ref answers at once for
+  // the press that dismisses the question itself, so it does not ask again, nor does one just after it closed.
+  const [confirming, setConfirmingState] = useState(false)
+  const confirmingRef = useRef(false)
+  const confirmClosedAt = useRef(0)
+  const setConfirming = useCallback((next: boolean) => {
+    if (confirmingRef.current && !next) confirmClosedAt.current = performance.now()
+    confirmingRef.current = next
+    setConfirmingState(next)
+  }, [])
+  useEffect(() => { if (!open || !confirmClose) setConfirming(false) }, [open, confirmClose, setConfirming])
+  const [closeButton, setCloseButton] = useState<HTMLElement | null>(null)
+  // Where focus returns when the question is dismissed: the field or button that asked to close
+  const returnFocus = useRef<HTMLElement | null>(null)
+  const requestClose = useStableCallback(() => {
+    // A press on a dialog that is already leaving (closed from outside, its exit still on screen) asks nothing
+    if (!open) return
+    if (!confirmClose) return setOpen(false)
+    // A press that dismissed the question (its pointer-down or click lands here too) keeps editing
+    if (confirmingRef.current || performance.now() - confirmClosedAt.current < DOUBLE_CLICK) return
+    returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    setConfirming(true)
+  })
+  // The answer that discards: the question leaves first, then the dialog, as iOS dismisses the confirmation before
+  // the sheet. Together, the question would stand still over the sheet as it leaves: a closing dialog holds what
+  // it shows, the transitions inside it too.
+  const confirmTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  // A close from outside, or a new opening, ends a discard that is still waiting for the question to leave
+  useEffect(() => () => clearTimeout(confirmTimer.current), [open])
+  const confirmAndClose = useStableCallback(() => {
+    setConfirming(false)
+    clearTimeout(confirmTimer.current)
+    confirmTimer.current = setTimeout(() => setOpen(false), overlayTiming.exitDuration)
+  })
+  const asksToClose = Boolean(confirmClose)
   const sheet = useMemo<DialogSheetValue | null>(
-    () => (mobileVariant === "sheet" ? { showClose, descriptionSlot, setBodySlot, setOwnSlot } : null),
-    [mobileVariant, showClose, descriptionSlot],
+    () => (mobileVariant === "sheet"
+      ? { showClose, descriptionSlot, setBodySlot, setOwnSlot, asksToClose, requestClose, setCloseButton }
+      : null),
+    [mobileVariant, showClose, descriptionSlot, asksToClose, requestClose],
   )
   const boundary = useFloatingBoundaryScope()
   const setRoot = boundary.setRoot
@@ -256,7 +317,7 @@ const Content = ({
       onEscapeKeyDown(request)
       if (request.defaultPrevented) return
     }
-    setOpen(false)
+    requestClose()
   })
 
   useEffect(() => {
@@ -270,6 +331,10 @@ const Content = ({
       const request: DialogInteractOutsideEvent = new CustomEvent("dialog.sheetDrag", { cancelable: true, detail: { originalEvent } })
       onInteractOutside(request)
       if (request.defaultPrevented) return false
+    }
+    if (confirmClose) {
+      requestClose()
+      return false
     }
     setOpen(false)
     return true
@@ -351,6 +416,12 @@ const Content = ({
                 if (inToastRegion(event.detail.originalEvent.target)) return event.preventDefault()
                 onInteractOutside?.(event)
                 if (event.defaultPrevented) return
+                // With changes a press outside asks first; one that dismisses the question keeps editing
+                if (confirmClose) {
+                  event.preventDefault()
+                  requestClose()
+                  return
+                }
                 // The second click of a double click lands on the overlay: it must not undo the first
                 if (performance.now() - openedAt.current < DOUBLE_CLICK) event.preventDefault()
                 else exitGuard.onInteractOutside(event)
@@ -359,11 +430,14 @@ const Content = ({
               onCloseAutoFocus={handleCloseAutoFocus}
             >
               <div ref={setPanelRef} className={clsx(s.Panel, className)}>
-                {showClose && (
+                {showClose && (confirmClose ? (
+                  <NavigationButton action="close" variant="ghost" className={s.CloseButton} aria-label="Close dialog" onClick={requestClose} />
+                ) : (
                   <RadixDialog.Close asChild>
                     <NavigationButton action="close" variant="ghost" className={s.CloseButton} aria-label="Close dialog" />
                   </RadixDialog.Close>
-                )}
+                ))}
+                <DialogRequestCloseContext.Provider value={confirmClose ? requestClose : null}>
                 <DialogScrollContext.Provider value={scroll}>
                   <DialogSheetContext.Provider value={sheet}>
                     {/* A dialog opened from a header action is not inside that header's bar */}
@@ -372,6 +446,18 @@ const Content = ({
                     </DialogBarContext.Provider>
                   </DialogSheetContext.Provider>
                 </DialogScrollContext.Provider>
+                </DialogRequestCloseContext.Provider>
+                {confirmClose && (
+                  <ConfirmClose
+                    {...confirmClose}
+                    open={confirming}
+                    anchor={phone && mobileVariant === "sheet" ? closeButton : null}
+                    onOpenChange={setConfirming}
+                    returnFocus={returnFocus}
+                    onConfirm={confirmAndClose}
+                    zIndex={zIndex}
+                  />
+                )}
               </div>
             </RadixDialog.Content>
           </div>
@@ -392,8 +478,14 @@ type DialogSheetValue = {
   descriptionSlot: HTMLElement | null
   setBodySlot: (slot: HTMLElement | null) => void
   setOwnSlot: (slot: HTMLElement | null) => void
+  /** The bar's Close asks first (`confirmClose`) */
+  asksToClose: boolean
+  requestClose: () => void
+  setCloseButton: (button: HTMLElement | null) => void
 }
 const DialogSheetContext = createContext<DialogSheetValue | null>(null)
+// A close that asks first (`confirmClose`): Dialog.Close inside the content asks as the Close button does
+const DialogRequestCloseContext = createContext<(() => void) | null>(null)
 // Inside that bar: the title, the description and the header actions take the Toolbar's parts
 const DialogBarContext = createContext(false)
 
@@ -450,9 +542,13 @@ const Header = ({ children, className, background = "glass" }: DialogHeaderProps
             {/* A step's Back takes the leading place, as the back button of a screen pushed inside an iOS sheet */}
             {sheet.showClose && !parts.some(isLeadingAction) && (
               <Toolbar.Leading className={s.BarClose}>
-                <RadixDialog.Close asChild>
-                  <NavigationButton action="close" variant="ghost" aria-label="Close dialog" />
-                </RadixDialog.Close>
+                {sheet.asksToClose ? (
+                  <NavigationButton ref={sheet.setCloseButton} action="close" variant="ghost" aria-label="Close dialog" onClick={sheet.requestClose} />
+                ) : (
+                  <RadixDialog.Close asChild>
+                    <NavigationButton action="close" variant="ghost" aria-label="Close dialog" />
+                  </RadixDialog.Close>
+                )}
               </Toolbar.Leading>
             )}
             {parts.filter(isLeadingAction)}
@@ -593,7 +689,85 @@ const Steps = ({ step, direction = "forward", children, className }: DialogSteps
   </div>
 )
 
+type ConfirmCloseProps = DialogConfirmClose & {
+  open: boolean
+  /** The phone Sheet's Close: the question stands at it. Without one it is an alert. */
+  anchor: HTMLElement | null
+  onOpenChange: (open: boolean) => void
+  onConfirm: () => void
+  returnFocus: { current: HTMLElement | null }
+  /** The owner dialog's stack order: the question stands over it */
+  zIndex?: number
+}
+
+// iOS asks at the button that closes (a confirmation dialog presented from the sheet's Close on iOS 27: a glass
+// popover under it, no dimming, the question in 17 regular over a full-width destructive pill); with no such button,
+// and on a desktop, the question is an alert.
+const ConfirmClose = ({
+  message,
+  confirmLabel = "Discard Changes",
+  cancelLabel = "Keep Editing",
+  open,
+  anchor,
+  onOpenChange,
+  onConfirm,
+  returnFocus,
+  zIndex,
+}: ConfirmCloseProps) => {
+  const messageId = useId()
+  if (anchor) {
+    return (
+      <Popover open={open} onOpenChange={onOpenChange}>
+        <Popover.Anchor element={anchor} />
+        {/* Over the Close, its corner 6 before the button's, as the native confirmation grows out of it */}
+        <Popover.Content side="bottom" align="start" sideOffset={-anchor.offsetHeight} alignOffset={-6} collisionPadding={10} width={240} minWidth={240} zIndex={zIndex} aria-labelledby={messageId} className={s.ConfirmClose} data-dialog-confirm-close="">
+          <p id={messageId} className={s.ConfirmCloseMessage}>{message}</p>
+          <Button block pill color="danger" variant="soft" className={s.ConfirmCloseAction} onClick={onConfirm}>{confirmLabel}</Button>
+        </Popover.Content>
+      </Popover>
+    )
+  }
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <Content
+        mobileVariant="alert"
+        surface="plain"
+        width={360}
+        showClose={false}
+        zIndex={zIndex}
+        data-dialog-confirm-close=""
+        onCloseAutoFocus={(event) => {
+          const target = returnFocus.current
+          if (target?.isConnected) {
+            event.preventDefault()
+            target.focus({ preventScroll: true })
+          }
+        }}
+      >
+        {/* The question names the alert, as an alert's title does */}
+        <Header>
+          <Title>{message}</Title>
+        </Header>
+        <Footer>
+          <Close><Button color="secondary" variant="soft">{cancelLabel}</Button></Close>
+          <Button color="danger" onClick={onConfirm}>{confirmLabel}</Button>
+        </Footer>
+      </Content>
+    </Dialog>
+  )
+}
+
 const Close = ({ children }: { children: ReactNode }) => {
+  const requestClose = useContext(DialogRequestCloseContext)
+  // A button that does not submit the form around it, and a child that prevented its click keeps the dialog, as
+  // Radix's Close does
+  if (requestClose) {
+    return (
+      <Slot.Root {...{ type: "button" }} onClick={(event: { defaultPrevented: boolean }) => { if (!event.defaultPrevented) requestClose() }}>
+        {children}
+      </Slot.Root>
+    )
+  }
   return <RadixDialog.Close asChild>{children}</RadixDialog.Close>
 }
 

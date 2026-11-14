@@ -2051,6 +2051,7 @@ Props:
     - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
     - @escape-key-down ((event: KeyboardEvent) => void) — Called on Escape before the dialog closes; call event.preventDefault() to keep it open
     - @interact-outside ((event: DialogInteractOutsideEvent) => void) — Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes; call event.preventDefault() to keep it open (the sheet returns). event.detail.originalEvent is the browser's event, a TouchEvent for the sheet
+    - confirm-close ({ message: string; confirmLabel?: string; cancelLabel?: string } | false | null) — Asks before the dialog closes, for a form with unsaved changes: Close, DialogClose, Escape, a press outside and a pulled-down phone sheet ask first. On a phone Sheet the question is a glass popover at the bar's Close (iOS confirmation); elsewhere an alert. confirmLabel defaults to "Discard Changes", cancelLabel (the alert's other answer) to "Keep Editing". Setting open to false yourself closes at once
     - z-index (number) default: 50 — Stack order of the overlay and the dialog, for a page whose own layers sit above 50
     - root-props (DialogLayerProps) — class, style and data attributes for the fixed layer that holds the panel. Data attributes on DialogContent land there too
     - overlay-props (DialogLayerProps) — class, style and data attributes for the overlay
@@ -2325,6 +2326,40 @@ Escape, a press or a focus outside and, on a phone, a Sheet pulled down ask @esc
         <Button color="primary" variant="soft">Discard</Button>
       </DialogClose>
       <Button color="primary" @click="open = false">Save</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+### Ask before discarding
+Pass confirm-close while the form has changes: Close, DialogClose, Escape, a press outside and, on a phone, a Sheet pulled down ask first, and only the answer that discards closes the dialog. On a phone Sheet the question stands at the bar's Close as an iOS confirmation: a glass popover over the sheet, with no dimming, the question over a full-width red action, and a tap outside it keeps editing. On a desktop, and on a phone dialog with no Close in a bar, it is an alert whose other answer keeps editing. Set open to false yourself, as Save does, to close at once. confirmLabel and cancelLabel name the answers.
+```vue
+<Dialog v-model:open="open" @update:open="(next) => { if (!next) note = '' }">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">New note</Button>
+  </DialogTrigger>
+  <DialogContent
+    mobile-variant="sheet"
+    surface="grouped"
+    :width="420"
+    :confirm-close="note.trim() !== '' && { message: 'Are you sure you want to discard this new note?' }"
+  >
+    <DialogHeader>
+      <DialogTitle>New Note</DialogTitle>
+    </DialogHeader>
+    <DialogBody>
+      <FieldGroup>
+        <Field row label="Note">
+          <Input v-model:value="note" placeholder="Note" />
+        </Field>
+        <template #footer>Type a note, then close: the sheet asks before it loses it.</template>
+      </FieldGroup>
+    </DialogBody>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="primary" variant="soft">Cancel</Button>
+      </DialogClose>
+      <Button color="primary" :disabled="note.trim() === ''" @click="open = false">Save</Button>
     </DialogFooter>
   </DialogContent>
 </Dialog>
@@ -4825,6 +4860,8 @@ Props:
     - avoid-collisions (boolean) default: true — Reposition to stay inside the viewport and scroll containers
     - collision-padding (number | { top?, right?, bottom?, left? }) default: 20 — Space in px to keep from viewport and scroll container boundaries; an object such as `{ top: 16, right: 32, bottom: 16, left: 32 }` sets it per side, and a side it leaves out gets 0
     - translucent (boolean) default: false — Translucent, blurred surface
+    - z-index (number) default: 50 — Stack order, for a popover over a layer above 50, such as a dialog with its own zIndex
+    - aria-labelledby (string) — The id of the element that names the popover, such as the question of a confirmation
     - auto-focus (boolean) default: true — Move focus into the panel when it opens (hover popovers never take focus)
     - data-* (string) — Data attributes land on the panel
     - class (string) — Applied to the panel

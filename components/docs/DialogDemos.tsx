@@ -372,3 +372,52 @@ export function DialogKeepOpenDemo() {
     </div>
   );
 }
+
+// R11: a sheet with changes asks before it closes. On a phone the question stands at the bar's Close, as iOS 27
+// presents a confirmation from the sheet's Close (measured on the 27.2 simulator); on a desktop it is an alert.
+export function DialogConfirmCloseDemo() {
+  const [open, setOpen] = useDialogDemoState();
+  const phone = usePhoneRows();
+  const [note, setNote] = useState('');
+  const dirty = note.trim() !== '';
+
+  return (
+    <div data-demo-stage className="py-10 flex justify-center">
+      <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (!next) setNote(''); }}>
+        <Dialog.Trigger>
+          <Button color="secondary" variant="outline">New note</Button>
+        </Dialog.Trigger>
+        <Dialog.Content
+          mobileVariant="sheet"
+          surface="grouped"
+          width={420}
+          confirmClose={dirty && { message: 'Are you sure you want to discard this new note?' }}
+        >
+          <Dialog.Header>
+            <Dialog.Title>New Note</Dialog.Title>
+            {phone && (
+              <Dialog.HeaderAction>
+                <NavigationButton action="confirm" aria-label="Save" disabled={!dirty} onClick={() => setOpen(false)} />
+              </Dialog.HeaderAction>
+            )}
+          </Dialog.Header>
+          <Dialog.Body>
+            <FieldGroup footer="Type a note, then close: the sheet asks before it loses it.">
+              <Field row label="Note" hideLabel={phone}>
+                <Input value={note} placeholder="Note" onChange={(event) => setNote(event.target.value)} />
+              </Field>
+            </FieldGroup>
+          </Dialog.Body>
+          {!phone && (
+            <Dialog.Footer>
+              <Dialog.Close>
+                <Button color="primary" variant="soft">Cancel</Button>
+              </Dialog.Close>
+              <Button color="primary" disabled={!dirty} onClick={() => setOpen(false)}>Save</Button>
+            </Dialog.Footer>
+          )}
+        </Dialog.Content>
+      </Dialog>
+    </div>
+  );
+}

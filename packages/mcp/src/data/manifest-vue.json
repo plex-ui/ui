@@ -1972,6 +1972,11 @@
           "name": "Keep it open",
           "code": "<Dialog v-model:open=\"open\" @update:open=\"(next) => { if (!next) { profileName = 'Mia'; held = false } }\">\n  <DialogTrigger>\n    <Button color=\"secondary\" variant=\"outline\">Edit profile</Button>\n  </DialogTrigger>\n  <DialogContent mobile-variant=\"sheet\" surface=\"grouped\" :width=\"420\" @escape-key-down=\"(event) => { if (profileName !== 'Mia') { event.preventDefault(); held = true } }\" @interact-outside=\"(event) => { if (profileName !== 'Mia') { event.preventDefault(); held = true } }\">\n    <DialogHeader>\n      <DialogTitle>Edit profile</DialogTitle>\n      <DialogDescription>{{ held ? 'Save or discard your changes to close.' : 'Escape or a press outside closes it until you change the name.' }}</DialogDescription>\n    </DialogHeader>\n    <DialogBody>\n      <FieldGroup>\n        <Field row label=\"Name\">\n          <Input v-model:value=\"profileName\" placeholder=\"Name\" @update:value=\"held = false\" />\n        </Field>\n      </FieldGroup>\n    </DialogBody>\n    <DialogFooter>\n      <DialogClose>\n        <Button color=\"primary\" variant=\"soft\">Discard</Button>\n      </DialogClose>\n      <Button color=\"primary\" @click=\"open = false\">Save</Button>\n    </DialogFooter>\n  </DialogContent>\n</Dialog>",
           "details": "Escape, a press or a focus outside and, on a phone, a Sheet pulled down ask @escape-key-down and @interact-outside first: event.preventDefault() keeps the dialog open, such as for a form with unsaved changes, or for a press on a developer panel over the page. A Sheet kept open returns to its place, as an iOS sheet under isModalInPresentation. The Close button and DialogClose still close it. On a phone the form is laid out as Photos' New Album: a grouped Sheet, the name a field alone in its list with the note under it, Close to discard and the bar's checkmark (a DialogHeaderAction) to save, in place of the footer."
+        },
+        {
+          "name": "Ask before discarding",
+          "code": "<Dialog v-model:open=\"open\" @update:open=\"(next) => { if (!next) note = '' }\">\n  <DialogTrigger>\n    <Button color=\"secondary\" variant=\"outline\">New note</Button>\n  </DialogTrigger>\n  <DialogContent\n    mobile-variant=\"sheet\"\n    surface=\"grouped\"\n    :width=\"420\"\n    :confirm-close=\"note.trim() !== '' && { message: 'Are you sure you want to discard this new note?' }\"\n  >\n    <DialogHeader>\n      <DialogTitle>New Note</DialogTitle>\n    </DialogHeader>\n    <DialogBody>\n      <FieldGroup>\n        <Field row label=\"Note\">\n          <Input v-model:value=\"note\" placeholder=\"Note\" />\n        </Field>\n        <template #footer>Type a note, then close: the sheet asks before it loses it.</template>\n      </FieldGroup>\n    </DialogBody>\n    <DialogFooter>\n      <DialogClose>\n        <Button color=\"primary\" variant=\"soft\">Cancel</Button>\n      </DialogClose>\n      <Button color=\"primary\" :disabled=\"note.trim() === ''\" @click=\"open = false\">Save</Button>\n    </DialogFooter>\n  </DialogContent>\n</Dialog>",
+          "details": "Pass confirm-close while the form has changes: Close, DialogClose, Escape, a press outside and, on a phone, a Sheet pulled down ask first, and only the answer that discards closes the dialog. On a phone Sheet the question stands at the bar's Close as an iOS confirmation: a glass popover over the sheet, with no dimming, the question over a full-width red action, and a tap outside it keeps editing. On a desktop, and on a phone dialog with no Close in a bar, it is an alert whose other answer keeps editing. Set open to false yourself, as Save does, to close at once. confirmLabel and cancelLabel name the answers."
         }
       ],
       "subComponents": [
@@ -2038,6 +2043,11 @@
               "name": "@interact-outside",
               "type": "(event: DialogInteractOutsideEvent) => void",
               "description": "Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes; call event.preventDefault() to keep it open (the sheet returns). event.detail.originalEvent is the browser's event, a TouchEvent for the sheet"
+            },
+            {
+              "name": "confirm-close",
+              "type": "{ message: string; confirmLabel?: string; cancelLabel?: string } | false | null",
+              "description": "Asks before the dialog closes, for a form with unsaved changes: Close, DialogClose, Escape, a press outside and a pulled-down phone sheet ask first. On a phone Sheet the question is a glass popover at the bar's Close (iOS confirmation); elsewhere an alert. confirmLabel defaults to \"Discard Changes\", cancelLabel (the alert's other answer) to \"Keep Editing\". Setting open to false yourself closes at once"
             },
             {
               "name": "z-index",
@@ -4152,6 +4162,17 @@
               "type": "boolean",
               "default": "false",
               "description": "Translucent, blurred surface"
+            },
+            {
+              "name": "z-index",
+              "type": "number",
+              "default": "50",
+              "description": "Stack order, for a popover over a layer above 50, such as a dialog with its own zIndex"
+            },
+            {
+              "name": "aria-labelledby",
+              "type": "string",
+              "description": "The id of the element that names the popover, such as the question of a confirmation"
             },
             {
               "name": "auto-focus",
@@ -7363,5 +7384,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-14T13:18:54.970Z"
+  "generatedAt": "2026-11-14T14:10:11.863Z"
 }
