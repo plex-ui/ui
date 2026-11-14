@@ -246,7 +246,7 @@ export function ImageAlbumEditor({
                 </Page>
             ) : (
                 <div ref={bindPage} tabIndex={-1} role="region" aria-label="New Album" className={s.Desktop}>
-                    <FieldGroup title="New Album" description="Choose a cover photo and name.">
+                    <FieldGroup title="New Album" description="Choose a cover photo and name." bodyClassName={s.DesktopBody}>
                         {form}
                     </FieldGroup>
                 </div>

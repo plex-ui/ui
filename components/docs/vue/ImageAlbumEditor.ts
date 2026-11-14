@@ -239,7 +239,7 @@ export const ImageAlbumEditor = defineComponent({
                           bar(),
                           h(PageContent, { class: s.Content }, form),
                       ]) : h('div', { ref: presence.pageRef, tabindex: -1, role: 'region', 'aria-label': 'New Album', class: s.Desktop }, [
-                          h(FieldGroup, { title: 'New Album', description: 'Choose a cover photo and name.' }, form),
+                          h(FieldGroup, { title: 'New Album', description: 'Choose a cover photo and name.', bodyClass: s.DesktopBody }, form),
                       ]),
             );
     },

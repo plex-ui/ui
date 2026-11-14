@@ -340,3 +340,12 @@ describe.each<Framework>(['React', 'Vue'])('%s image album composition', (framew
         expect(await page().findByAltText('Album cover preview')).toBeTruthy();
     });
 });
+
+test('on a desktop the form stands inside its card with padding, React and Vue (owner 14.11: «разломано все»)', async () => {
+  // The group's card holds rows and keeps no padding of its own: the form's card gives it the row's inset
+  const { readFileSync } = await import('node:fs');
+  const css = readFileSync(`${process.cwd()}/components/docs/ImageAlbumDemo.module.css`, 'utf8');
+  expect(css).toMatch(/\.DesktopBody \{\s*padding: var\(--field-row-padding-inline\);/);
+  expect(readFileSync(`${process.cwd()}/components/docs/ImageAlbumEditor.tsx`, 'utf8')).toContain('description="Choose a cover photo and name." bodyClassName={s.DesktopBody}');
+  expect(readFileSync(`${process.cwd()}/components/docs/vue/ImageAlbumEditor.ts`, 'utf8')).toContain("description: 'Choose a cover photo and name.', bodyClass: s.DesktopBody");
+});

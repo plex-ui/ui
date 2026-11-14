@@ -9,6 +9,12 @@
     width: min(360px, 100%);
 }
 
+/* The group's card holds rows, which keep their own padding: the form in it stands as far from its edges as a
+   row's text does */
+.DesktopBody {
+    padding: var(--field-row-padding-inline);
+}
+
 .Photo.DesktopPhoto {
     align-items: flex-start;
     gap: 12px;
