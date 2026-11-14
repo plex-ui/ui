@@ -1,0 +1,41 @@
+/* A slider alone in its cell, the track filling it, as Settings draws Rate and Pitch in Spoken Content › Voice
+   (IMG_5944); the symbols at its ends are the Slider's adornments. */
+.Row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: var(--field-row-min-height, 52px);
+  padding-inline: var(--field-row-padding-inline, 16px);
+}
+
+.Slider {
+  flex: 1;
+  min-width: 0;
+}
+
+/* A row that is an action: its label in the accent (Use Default Speech Rate, IMG_5949) or red (Reset Voice Settings,
+   IMG_5944) at the start of the row, as a row's label stands, a line of description under it */
+.Action {
+  justify-content: flex-start;
+  text-align: start;
+}
+
+.ActionText {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.ActionDescription {
+  font-size: var(--field-row-description-font-size, 12px);
+  line-height: var(--field-row-description-line-height, 16px);
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+/* With a description the row grows to two lines, as a row with a description does */
+.Action[data-described] {
+  height: auto;
+  min-height: var(--field-row-description-min-height, var(--field-row-min-height, 52px));
+  padding-block: 10px;
+}

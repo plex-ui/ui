@@ -5,7 +5,8 @@ metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account act
 ---
 
 import { VueSettingsSliderDemo } from "@/components/docs/vue/VueSettingsSliderDemo"
-import { settingsSliderVueCode } from "@/components/docs/settingsSliderCode"
+import { settingsSliderVueCode, settingsVoiceVueCode } from "@/components/docs/settingsSliderCode"
+import { VueSettingsVoiceDemo } from "@/components/docs/vue/VueSettingsVoiceDemo"
 import { VueImageAlbumDemo } from "@/components/docs/vue/VueImageAlbumDemo"
 import { imageAlbumVueCode } from "@/components/docs/imageAlbumCode"
 import { VueFileUploadDemo } from "@/components/docs/vue/VueFileUploadDemos"
@@ -771,4 +772,14 @@ Copy the [SettingsSliderFields helper](https://github.com/plex-ui/ui/blob/master
 
 <ComponentPreview phonePresentation="screen" language="vue" code={settingsSliderVueCode} previewMinHeight={380}>
   <VueSettingsSliderDemo />
+</ComponentPreview>
+
+## Voice settings
+
+Spoken voice settings: the voice in a menu, Rate, Pitch and Speech Volume each a slider alone in its titled group with words or speakers at its ends (`startAdornment`, `endAdornment`), and under each a row in the accent that brings back the default, as Settings lays out Spoken Content › Voice and VoiceOver's speech settings. Timbre and Sentence Pause show their number under the label and change it with a `Stepper`. Reset Voice Settings is a red row with its description and asks first. These settings affect this example only.
+
+Copy the [SettingsVoiceFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsVoiceFields.ts) with its [shared data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsVoiceData.ts), [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsVoiceDemo.module.css) and the FormScreen helper above.
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsVoiceVueCode} previewMinHeight={560}>
+  <VueSettingsVoiceDemo />
 </ComponentPreview>

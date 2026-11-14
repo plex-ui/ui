@@ -23,3 +23,31 @@ const preferences = ref({ sound: true, volume: 52, normalize: false });
     <SettingsSliderFields v-model:value="preferences" />
   </FormScreen>
 </template>`;
+
+export const settingsVoiceReactCode = `import { useState } from 'react';
+import { FormScreen } from './FormRowsDemos';
+import { SettingsVoiceFields } from './SettingsVoiceFields';
+import { defaultVoicePreferences } from './settingsVoiceData';
+
+export function VoiceSettings() {
+  const [preferences, setPreferences] = useState(defaultVoicePreferences);
+  return (
+    <FormScreen title="Voice" surface="grouped">
+      <SettingsVoiceFields value={preferences} onChange={setPreferences} />
+    </FormScreen>
+  );
+}`;
+
+export const settingsVoiceVueCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FormScreen } from './FormScreen';
+import { SettingsVoiceFields } from './SettingsVoiceFields';
+import { defaultVoicePreferences } from './settingsVoiceData';
+const preferences = ref({ ...defaultVoicePreferences });
+</script>
+
+<template>
+  <FormScreen title="Voice" surface="grouped">
+    <SettingsVoiceFields v-model:value="preferences" />
+  </FormScreen>
+</template>`;
