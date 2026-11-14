@@ -206,7 +206,7 @@ test('a full row takes the pointer on every width and fills on hover; a row acti
   const group = readFileSync('packages/styles/src/components/FieldGroup/FieldGroup.module.css', 'utf8');
   const desktop = group.slice(0, group.indexOf('@media'));
   expect(desktop).toContain('--button-mobile-material-scale: 1;');
-  expect(desktop).toContain('.Body > [data-row]:first-child > button[data-block][data-variant="ghost"]::before');
+  expect(desktop).toContain('.Body > [data-row]:first-child > :is(button, a)[data-block][data-variant="ghost"]::before');
 });
 
 test('Sortable handlePlacement marks the list in React and Vue, and the styles place the grip at either end', async () => {
@@ -226,6 +226,22 @@ test('FieldGroup draws the row line between a sorted list and a plain row on eit
   for (const selector of ['.Body > [data-sortable] + [data-row]', '.Body > [data-row] + [data-sortable] > [data-row]:first-child']) {
     expect(css.split(selector).length - 1).toBeGreaterThanOrEqual(3);
   }
-  expect(css).toContain('.Body > [data-sortable]:first-child > [data-row]:first-child > button');
-  expect(css).toContain('.Body > [data-sortable]:last-child > [data-row]:last-child > button');
+  expect(css).toContain('.Body > [data-sortable]:first-child > [data-row]:first-child > :is(button, a)');
+  expect(css).toContain('.Body > [data-sortable]:last-child > [data-row]:last-child > :is(button, a)');
+});
+
+test('a ghost ButtonLink with block in a row is an action row too, and stays a link', async () => {
+  const { ButtonLink: ReactLink } = await import('../../packages/ui/src/components/Button');
+  const { ButtonLink: VueLink } = await import('../../packages/vue/src/components/Button');
+  render(<div data-row><ReactLink href="mailto:help@example.com" block color="primary" variant="ghost">React mail</ReactLink></div>);
+  mountVue(() => h('div', { 'data-row': '' }, [h(VueLink, { href: 'mailto:help@example.com', block: true, color: 'primary', variant: 'ghost' }, () => 'Vue mail')]));
+  await flushVue();
+  for (const name of ['React mail', 'Vue mail']) {
+    const link = within(document.body).getByRole('link', { name });
+    expect(link.tagName).toBe('A');
+    expect(link.matches('[data-row] > :is(button, a)[data-block][data-variant="ghost"]')).toBe(true);
+  }
+  const css = readFileSync('packages/styles/src/components/FieldGroup/FieldGroup.module.css', 'utf8');
+  expect(css).not.toMatch(/> button\[data-block\]/);
+  expect(css).toContain('.Body > [data-row] > :is(button, a)[data-block][data-variant="ghost"]');
 });

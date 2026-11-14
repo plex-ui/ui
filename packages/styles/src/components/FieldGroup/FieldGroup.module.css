@@ -69,26 +69,26 @@
 /* A full-row action's hover and press fill the row and keep the card's corners on the first and last rows: inside
    the card's border, so its radius less the border (owner 14.11: «hover/pressed должно иметь скругления фона»).
    The phone takes the card's own radius below. */
-.Body > [data-row]:first-child > button[data-block][data-variant="ghost"]::before,
-.Body > [data-sortable]:first-child > [data-row]:first-child > button[data-block][data-variant="ghost"]::before,
-.Body > [data-row]:first-child > [data-swipe-content] > button[data-block][data-variant="ghost"]::before {
+.Body > [data-row]:first-child > :is(button, a)[data-block][data-variant="ghost"]::before,
+.Body > [data-sortable]:first-child > [data-row]:first-child > :is(button, a)[data-block][data-variant="ghost"]::before,
+.Body > [data-row]:first-child > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"]::before {
   border-start-start-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
   border-start-end-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
 }
 
-.Body > [data-row]:last-child > button[data-block][data-variant="ghost"]::before,
-.Body > [data-sortable]:last-child > [data-row]:last-child > button[data-block][data-variant="ghost"]::before,
-.Body > [data-row]:last-child > [data-swipe-content] > button[data-block][data-variant="ghost"]::before {
+.Body > [data-row]:last-child > :is(button, a)[data-block][data-variant="ghost"]::before,
+.Body > [data-sortable]:last-child > [data-row]:last-child > :is(button, a)[data-block][data-variant="ghost"]::before,
+.Body > [data-row]:last-child > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"]::before {
   border-end-start-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
   border-end-end-radius: calc(var(--field-group-radius) - var(--field-group-border-width));
 }
 
 /* A full-row action is the cell itself: a press fills it to the cell's edges and does not shrink, on every width
    (owner 14.11: «уменьшается по ширине появляются просветы»). */
-.Body > [data-row] > button[data-block][data-variant="ghost"],
-.Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"],
-.Body > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"],
-.Body > [data-sortable] > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"] {
+.Body > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
+.Body > [data-sortable] > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
+.Body > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"],
+.Body > [data-sortable] > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"] {
   --button-mobile-material-scale: 1;
 }
 
@@ -98,10 +98,10 @@
    danger for a destructive row, secondary for a row that opens a choice. An icon after the words stands at the row's
    trailing edge (arrow.up.right of a link that leaves the app, a 12pt glyph 20 from the edge). A row with
    data-align="center" centres its words, as Settings puts "Reset to Default" in a group of its own. */
-.Body > [data-row] > button[data-block][data-variant="ghost"],
-.Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"],
-.Body > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"],
-.Body > [data-sortable] > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"] {
+.Body > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
+.Body > [data-sortable] > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
+.Body > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"],
+.Body > [data-sortable] > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"] {
   --button-size-md: var(--field-row-min-height);
   --button-font-size-md: var(--field-row-label-font-size);
   --button-line-height-md: var(--field-row-label-line-height);
@@ -117,10 +117,10 @@
   }
 }
 
-.Body > [data-row][data-align="center"] > button[data-block][data-variant="ghost"],
-.Body > [data-sortable] > [data-row][data-align="center"] > button[data-block][data-variant="ghost"],
-.Body > [data-row][data-align="center"] > [data-swipe-content] > button[data-block][data-variant="ghost"],
-.Body > [data-sortable] > [data-row][data-align="center"] > [data-swipe-content] > button[data-block][data-variant="ghost"] {
+.Body > [data-row][data-align="center"] > :is(button, a)[data-block][data-variant="ghost"],
+.Body > [data-sortable] > [data-row][data-align="center"] > :is(button, a)[data-block][data-variant="ghost"],
+.Body > [data-row][data-align="center"] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"],
+.Body > [data-sortable] > [data-row][data-align="center"] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"] {
   --button-justify-content: center;
   text-align: center;
 
@@ -132,10 +132,10 @@
 
 /* With a mouse a row action hovers as a choice row does, in the row's light fill */
 @media (hover: hover) and (min-width: 768px) {
-  .Body > [data-row] > button[data-block][data-variant="ghost"],
-  .Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"],
-  .Body > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"],
-  .Body > [data-sortable] > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"] {
+  .Body > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
+  .Body > [data-sortable] > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
+  .Body > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"],
+  .Body > [data-sortable] > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"] {
     --color-background-secondary-ghost-hover: var(--field-row-hover-background);
   }
 }
@@ -266,31 +266,31 @@
 
   /* Full-row actions share the cell's bounds. Only their text and accessories
      sit inside the row padding; the pressed surface must not shrink inward. */
-  .Body > [data-row] > button[data-block][data-variant="ghost"],
-  .Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"],
-  .Body > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"],
-  .Body > [data-sortable] > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"] {
+  .Body > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
+  .Body > [data-sortable] > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
+  .Body > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"],
+  .Body > [data-sortable] > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"] {
     --button-mobile-material-scale: 1;
   }
 
-  .Body > [data-row]:first-child > button[data-block][data-variant="ghost"]::before,
-  .Body > [data-sortable]:first-child > [data-row]:first-child > button[data-block][data-variant="ghost"]::before {
+  .Body > [data-row]:first-child > :is(button, a)[data-block][data-variant="ghost"]::before,
+  .Body > [data-sortable]:first-child > [data-row]:first-child > :is(button, a)[data-block][data-variant="ghost"]::before {
     border-start-start-radius: var(--field-group-radius);
     border-start-end-radius: var(--field-group-radius);
   }
 
-  .Body > [data-row]:last-child > button[data-block][data-variant="ghost"]::before,
-  .Body > [data-sortable]:last-child > [data-row]:last-child > button[data-block][data-variant="ghost"]::before {
+  .Body > [data-row]:last-child > :is(button, a)[data-block][data-variant="ghost"]::before,
+  .Body > [data-sortable]:last-child > [data-row]:last-child > :is(button, a)[data-block][data-variant="ghost"]::before {
     border-end-start-radius: var(--field-group-radius);
     border-end-end-radius: var(--field-group-radius);
   }
 
   /* An open popup is not a held press. Keep selection and explicit glass
      surfaces independent; the trigger remains focusable and expanded. */
-  .Body > [data-row] > button[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before,
-  .Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before,
-  .Body > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before,
-  .Body > [data-sortable] > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before {
+  .Body > [data-row] > :is(button, a)[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before,
+  .Body > [data-sortable] > [data-row] > :is(button, a)[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before,
+  .Body > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before,
+  .Body > [data-sortable] > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before {
     opacity: 0;
   }
 

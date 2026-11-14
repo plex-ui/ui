@@ -592,6 +592,6 @@ describe("SwipeActions CSS", () => {
     expect(group).toContain(".Body > [data-swipe-actions]:first-child")
     expect(group).toContain(".Body > [data-swipe-actions]:last-child")
     expect(group).toContain(".Body > [data-swipe-actions][data-revealed] + [data-row]::after")
-    expect(group).toContain('.Body > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"])')
+    expect(group).toContain('.Body > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"])')
   })
 })

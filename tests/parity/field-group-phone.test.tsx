@@ -19,7 +19,7 @@ const css = readFileSync(`${process.cwd()}/packages/styles/src/components/FieldG
 
 describe("FieldGroup action rows", () => {
   test("a row's button takes the row's size, type and inset and starts its words at the label", () => {
-    const rule = css.match(/\.Body > \[data-row\] > button\[data-block\]\[data-variant="ghost"\],[^{]*\{([^}]*--button-size-md[^}]*)\}/)
+    const rule = css.match(/\.Body > \[data-row\] > :is\(button, a\)\[data-block\]\[data-variant="ghost"\],[^{]*\{([^}]*--button-size-md[^}]*)\}/)
     expect(rule).not.toBeNull()
     for (const declaration of [
       "--button-size-md: var(--field-row-min-height);",
@@ -31,7 +31,7 @@ describe("FieldGroup action rows", () => {
       "--button-justify-content: flex-start;",
     ]) expect(rule![1]).toContain(declaration)
     expect(css).toMatch(/& > span > svg:last-child:not\(:first-child\) \{\s*margin-inline-start: auto;/)
-    expect(css).toMatch(/\[data-row\]\[data-align="center"\] > button\[data-block\]\[data-variant="ghost"\][^{]*\{\s*--button-justify-content: center;/)
+    expect(css).toMatch(/\[data-row\]\[data-align="center"\] > :is\(button, a\)\[data-block\]\[data-variant="ghost"\][^{]*\{\s*--button-justify-content: center;/)
     // A centred row keeps its icon beside the words (Codex #37)
     expect(css).toMatch(/--button-justify-content: center;\s*text-align: center;[^}]*svg:last-child:not\(:first-child\) \{\s*margin-inline-start: 0;/)
   })
