@@ -12,7 +12,6 @@ import { RadioGroup } from '@plexui/ui/components/RadioGroup';
 import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import { usePhoneViewport } from './PreviewEmbed';
-import { rowButtonClassName } from './phoneRowsTemplate';
 import { filterRegions, jumpToRegion } from './settingsRegionData';
 import s from './SettingsVoiceDemo.module.css';
 
@@ -41,7 +40,7 @@ export function SettingsRegionFields({ value, onChange }: { value: string; onCha
       <div data-row>
         <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (!next) setQuery(''); }}>
           <Dialog.Trigger>
-            <Button block color="secondary" variant="ghost" className={`${rowButtonClassName} ${s.Action}`} aria-label={`Region: ${value}`}>
+            <Button block color="secondary" variant="ghost" className={s.Action} aria-label={`Region: ${value}`}>
               <span className={s.ValueRowContent}>
                 Region
                 <span className={s.ValueRowValue}>{value}</span>

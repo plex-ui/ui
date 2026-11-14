@@ -9,7 +9,6 @@ import { SoundOffSpeaker, SoundOnSpeaker } from '@plexui/ui/components/Icon';
 import { Select } from '@plexui/ui/components/Select';
 import { Slider } from '@plexui/ui/components/Slider';
 import { Stepper } from '@plexui/ui/components/Stepper';
-import { rowButtonClassName } from './phoneRowsTemplate';
 import { defaultVoicePreferences, pauseText, voiceOptions, voiceSliders, type VoicePreferences } from './settingsVoiceData';
 import s from './SettingsVoiceDemo.module.css';
 
@@ -36,7 +35,7 @@ export function SettingsVoiceFields({ value, onChange }: {
             endAdornment={'end' in slider ? slider.end : <SoundOnSpeaker />} />
         </div>
         <div data-row>
-          <Button block color="info" variant="ghost" className={`${rowButtonClassName} ${s.Action}`}
+          <Button block color="info" variant="ghost" className={s.Action}
             onClick={() => onChange({ ...value, [slider.key]: defaultVoicePreferences[slider.key] })}>
             <span className={s.ActionText}>{slider.reset}</span>
           </Button>
@@ -59,7 +58,7 @@ export function SettingsVoiceFields({ value, onChange }: {
         {/* The row is the dialog's trigger, so closing the alert returns focus to it */}
         <Dialog open={confirm} onOpenChange={setConfirm}>
           <Dialog.Trigger>
-            <Button block color="danger" variant="ghost" className={`${rowButtonClassName} ${s.Action}`} data-described="">
+            <Button block color="danger" variant="ghost" className={s.Action} data-described="">
               <span className={s.ActionText}>
                 Reset Voice Settings
                 <span className={s.ActionDescription}>Reverts all voice changes to defaults.</span>

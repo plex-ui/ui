@@ -33,11 +33,6 @@ export const sliderCellValueDisabledClassName = 'text-[var(--mobile-label-tertia
 export const sliderCellStackedClassName = 'flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]';
 export const sliderCellValueBelowClassName = 'text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums';
 
-/** A row that is a button: its label centred in the accent (`color="info"`, `variant="ghost"`, `block`), at the
- * row's height and type, as Settings puts "Reset Font Size to Default" in a group of its own under Hover Text's size
- * slider (owner 14.11, IMG_5940 at 430pt: a 53pt cell, 35pt under the slider's, 17pt text). FieldGroup gives a
- * full-row button its pressed surface and the group's corners; these set the Button's own size hooks. */
-export const rowButtonClassName = '[--button-size-md:var(--field-row-min-height)] [--button-font-size-md:var(--field-row-label-font-size)] [--button-line-height-md:var(--field-row-label-line-height)] [--button-font-weight:var(--field-row-label-font-weight)] [--button-touch-radius:0px]';
 
 /** A section of an iOS inset grouped list on a phone screen, the shape and fill of a FieldGroup, with row insets. */
 export const phoneSectionClassName = 'rounded-[var(--field-group-radius)] bg-[var(--field-group-background)] px-[var(--mobile-list-inset,20px)]';

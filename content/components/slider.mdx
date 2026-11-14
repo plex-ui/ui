@@ -6,7 +6,7 @@ metaDescription: React slider component for fine-tuning numeric values with sing
 
 import { SliderOverviewDemo, SliderSettingDemo } from '@/components/docs/SliderDemos'
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
-import { rowButtonClassName, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName } from "@/components/docs/phoneRowsTemplate"
+import { sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName } from "@/components/docs/phoneRowsTemplate"
 
 export const overviewCode = `const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) }))
 
@@ -112,8 +112,8 @@ const commitTyped = () => {
 </FieldGroup>
 {thumbs === "one" && resetValue && (
   <FieldGroup>
-    <div data-row>
-      <Button block color="info" variant="ghost" className="${rowButtonClassName}" disabled={disabled} onClick={() => setValue(50)}>Reset to Default</Button>
+    <div data-row data-align="center">
+      <Button block color="info" variant="ghost" disabled={disabled} onClick={() => setValue(50)}>Reset to Default</Button>
     </div>
   </FieldGroup>
 )}`

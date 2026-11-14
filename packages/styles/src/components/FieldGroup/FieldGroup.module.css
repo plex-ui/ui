@@ -92,6 +92,44 @@
   --button-mobile-material-scale: 1;
 }
 
+/* A row that is an action is the row itself, as an iOS 27.2 List draws a Button (owner 14.11: «без шеврона кнопки»,
+   «в PlexUI такого нет же?»): the row's height (52) and label type (17/22 on a phone), its words where a row's label
+   starts (the row inset, 20 on a phone) and no chevron. The Button's color tints the words: info for the accent,
+   danger for a destructive row, secondary for a row that opens a choice. An icon after the words stands at the row's
+   trailing edge (arrow.up.right of a link that leaves the app, a 12pt glyph 20 from the edge). A row with
+   data-align="center" centres its words, as Settings puts "Reset to Default" in a group of its own. */
+.Body > [data-row] > button[data-block][data-variant="ghost"],
+.Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"],
+.Body > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"],
+.Body > [data-sortable] > [data-row] > [data-swipe-content] > button[data-block][data-variant="ghost"] {
+  --button-size-md: var(--field-row-min-height);
+  --button-font-size-md: var(--field-row-label-font-size);
+  --button-line-height-md: var(--field-row-label-line-height);
+  --button-font-weight: var(--field-row-label-font-weight);
+  --button-gutter-md: var(--field-row-padding-inline);
+  --button-icon-size-md: var(--field-row-icon-symbol-size);
+  --button-touch-radius: 0px;
+  --button-justify-content: flex-start;
+  text-align: start;
+
+  & > span > svg:last-child:not(:first-child) {
+    margin-inline-start: auto;
+  }
+}
+
+.Body > [data-row][data-align="center"] > button[data-block][data-variant="ghost"],
+.Body > [data-sortable] > [data-row][data-align="center"] > button[data-block][data-variant="ghost"],
+.Body > [data-row][data-align="center"] > [data-swipe-content] > button[data-block][data-variant="ghost"],
+.Body > [data-sortable] > [data-row][data-align="center"] > [data-swipe-content] > button[data-block][data-variant="ghost"] {
+  --button-justify-content: center;
+  text-align: center;
+
+  /* Centred words keep their icon beside them, not at the edge */
+  & > span > svg:last-child:not(:first-child) {
+    margin-inline-start: 0;
+  }
+}
+
 /* With a mouse a row action hovers as a choice row does, in the row's light fill */
 @media (hover: hover) and (min-width: 768px) {
   .Body > [data-row] > button[data-block][data-variant="ghost"],

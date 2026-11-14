@@ -4,7 +4,6 @@ import { Checkbox } from '@plexui/vue/components/Checkbox';
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@plexui/vue/components/Dialog';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { Sortable, SortableHandle } from '@plexui/vue/components/Sortable';
-import { rowButtonClassName } from '../phoneRowsTemplate';
 import { allLanguages, languageDetail, type QuickSetting } from '../settingsOrderData';
 import s from '../SettingsVoiceDemo.module.css';
 
@@ -57,7 +56,7 @@ export const LanguagesFields = defineComponent({
             })),
           h('div', { 'data-row': '' }, [
             h(Dialog, { open: adding.value, 'onUpdate:open': (open: boolean) => { adding.value = open; } }, () => [
-              h(DialogTrigger, null, () => h(Button, { block: true, color: 'info', variant: 'ghost', class: `${rowButtonClassName} ${s.Action}` }, () =>
+              h(DialogTrigger, null, () => h(Button, { block: true, color: 'info', variant: 'ghost', class: s.Action }, () =>
                 h('span', { class: s.ActionText }, 'Add Language…'))),
               h(DialogContent, { mobileVariant: 'sheet', width: 400 }, () => [
                 h(DialogHeader, null, () => [
@@ -68,7 +67,7 @@ export const LanguagesFields = defineComponent({
                 h(DialogBody, null, () => h(FieldGroup, { 'aria-label': 'Languages' }, {
                   default: () => rest.map((language) =>
                     h('div', { key: language.id, 'data-row': '' }, [
-                      h(Button, { block: true, color: 'secondary', variant: 'ghost', class: `${rowButtonClassName} ${s.Action}`,
+                      h(Button, { block: true, color: 'secondary', variant: 'ghost', class: s.Action,
                         onClick: () => { emit('update:value', [...props.value, language.id]); adding.value = false; } }, () =>
                         h('span', { class: s.ActionText }, [language.label, h('span', { class: s.ActionDescription }, language.english)])),
                     ])),

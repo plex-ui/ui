@@ -6,7 +6,6 @@ import { Checkbox } from '@plexui/ui/components/Checkbox';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Sortable } from '@plexui/ui/components/Sortable';
-import { rowButtonClassName } from './phoneRowsTemplate';
 import { allLanguages, languageDetail, type QuickSetting } from './settingsOrderData';
 import s from './SettingsVoiceDemo.module.css';
 
@@ -66,7 +65,7 @@ export function LanguagesFields({ value, onChange, handles = true, handlePlaceme
       <div data-row>
         <Dialog open={adding} onOpenChange={setAdding}>
           <Dialog.Trigger>
-            <Button block color="info" variant="ghost" className={`${rowButtonClassName} ${s.Action}`}>
+            <Button block color="info" variant="ghost" className={s.Action}>
               <span className={s.ActionText}>Add Language…</span>
             </Button>
           </Dialog.Trigger>
@@ -80,7 +79,7 @@ export function LanguagesFields({ value, onChange, handles = true, handlePlaceme
               <FieldGroup aria-label="Languages" footer={rest.length === 0 ? 'Every language is in the list.' : undefined}>
                 {rest.map((language) => (
                   <div key={language.id} data-row>
-                    <Button block color="secondary" variant="ghost" className={`${rowButtonClassName} ${s.Action}`}
+                    <Button block color="secondary" variant="ghost" className={s.Action}
                       onClick={() => { onChange([...value, language.id]); setAdding(false); }}>
                       <span className={s.ActionText}>
                         {language.label}

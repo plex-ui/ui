@@ -6,7 +6,7 @@ metaDescription: Vue 3 slider component for fine-tuning numeric values with sing
 
 import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
-import { phoneRows, rowButtonClassName, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName, withPhone } from "@/components/docs/phoneRowsTemplate"
+import { phoneRows, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const stage = "flex-1 flex flex-col items-center justify-center py-12 w-full"
 
@@ -97,8 +97,8 @@ export const overviewPhone = `<FieldGroup title="Example field">
   </div>
 </FieldGroup>
 <FieldGroup v-if="thumbs === 'one' && resetValue">
-  <div data-row>
-    <Button block color="info" variant="ghost" class="${rowButtonClassName}" :disabled="disabled" @click="values.one = 50">Reset to Default</Button>
+  <div data-row data-align="center">
+    <Button block color="info" variant="ghost" :disabled="disabled" @click="values.one = 50">Reset to Default</Button>
   </div>
 </FieldGroup>`
 

@@ -7,7 +7,6 @@ import { SoundOffSpeaker, SoundOnSpeaker } from '@plexui/vue/components/Icon';
 import { Select } from '@plexui/vue/components/Select';
 import { Slider } from '@plexui/vue/components/Slider';
 import { Stepper } from '@plexui/vue/components/Stepper';
-import { rowButtonClassName } from '../phoneRowsTemplate';
 import { defaultVoicePreferences, pauseText, voiceOptions, voiceSliders, type VoicePreferences } from '../settingsVoiceData';
 import s from '../SettingsVoiceDemo.module.css';
 
@@ -35,7 +34,7 @@ export const SettingsVoiceFields = defineComponent({
             }),
           ]),
           h('div', { 'data-row': '' }, [
-            h(Button, { block: true, color: 'info', variant: 'ghost', class: `${rowButtonClassName} ${s.Action}`,
+            h(Button, { block: true, color: 'info', variant: 'ghost', class: s.Action,
               onClick: () => update({ [slider.key]: defaultVoicePreferences[slider.key] }) }, () => h('span', { class: s.ActionText }, slider.reset)),
           ]),
         ])),
@@ -51,7 +50,7 @@ export const SettingsVoiceFields = defineComponent({
         // The row is the dialog's trigger, so closing the alert returns focus to it
         h(FieldGroup, { 'aria-label': 'Reset' }, () => h('div', { 'data-row': '' }, [
           h(Dialog, { open: confirm.value, 'onUpdate:open': (open: boolean) => { confirm.value = open; } }, () => [
-            h(DialogTrigger, null, () => h(Button, { block: true, color: 'danger', variant: 'ghost', class: `${rowButtonClassName} ${s.Action}`, 'data-described': '' }, () =>
+            h(DialogTrigger, null, () => h(Button, { block: true, color: 'danger', variant: 'ghost', class: s.Action, 'data-described': '' }, () =>
               h('span', { class: s.ActionText }, ['Reset Voice Settings', h('span', { class: s.ActionDescription }, 'Reverts all voice changes to defaults.')]))),
             h(DialogContent, { mobileVariant: 'alert', surface: 'plain' }, () => [
               h(DialogHeader, null, () => [

@@ -8,6 +8,7 @@ import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import {
   FieldOverviewDemo,
   FieldGroupDemo,
+  FieldActionRowsDemo,
   FieldControlsDemo,
   FieldLabelActionDemo,
   FieldSeveralControlsDemo,
@@ -84,6 +85,33 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
   </Field>
 </FieldGroup>`} previewMinHeight={168}>
   <FieldGroupDemo />
+</ComponentPreview>
+
+### Action rows
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>A row that is an action is a ghost <code>Button</code> with <code>block</code> in a row of a <code>FieldGroup</code>, as an iOS list draws a button. The row gives it its height and type, 52 high with 17pt words on a phone. The words start where a row's label does, with no chevron. Its pressed state fills the row to the group's corners, and the hairlines are the group's.</p>
+  <p>The Button's <code>color</code> tints the words: <code>info</code> for the accent, <code>danger</code> for a destructive row. An icon after the words stands at the row's trailing edge, such as an arrow for a link that leaves the app. A row with <code>data-align="center"</code> centres its words, as Settings puts Reset to Default in a group of its own.</p>
+</>} code={`<FieldGroup>
+  <div data-row>
+    <Button block color="info" variant="ghost">Edit Menu</Button>
+  </div>
+  <div data-row>
+    <Button block color="info" variant="ghost">
+      Privacy Policy
+      <ArrowUpRight />
+    </Button>
+  </div>
+  <div data-row>
+    <Button block color="danger" variant="ghost">Delete Account</Button>
+  </div>
+</FieldGroup>
+<FieldGroup>
+  <div data-row data-align="center">
+    <Button block color="info" variant="ghost">Reset to Default</Button>
+  </div>
+</FieldGroup>`} previewMinHeight={240}>
+  <FieldActionRowsDemo />
 </ComponentPreview>
 
 ### Other controls

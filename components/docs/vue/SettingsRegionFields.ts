@@ -9,7 +9,6 @@ import { Input } from '@plexui/vue/components/Input';
 import { RadioGroup, RadioGroupItem } from '@plexui/vue/components/RadioGroup';
 import { Toolbar, ToolbarContent, ToolbarLeading, ToolbarTitle } from '@plexui/vue/components/Toolbar';
 import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
-import { rowButtonClassName } from '../phoneRowsTemplate';
 import { filterRegions, jumpToRegion } from '../settingsRegionData';
 import s from '../SettingsVoiceDemo.module.css';
 
@@ -40,7 +39,7 @@ export const SettingsRegionFields = defineComponent({
       const phone = props.phonePreview || props.phoneHost || !wide.value;
       return h(FieldGroup, { 'aria-label': 'Region' }, () => h('div', { 'data-row': '' }, [
         h(Dialog, { open: open.value, 'onUpdate:open': (next: boolean) => { open.value = next; if (!next) query.value = ''; } }, () => [
-          h(DialogTrigger, null, () => h(Button, { block: true, color: 'secondary', variant: 'ghost', class: `${rowButtonClassName} ${s.Action}`, 'aria-label': `Region: ${props.value}` }, () =>
+          h(DialogTrigger, null, () => h(Button, { block: true, color: 'secondary', variant: 'ghost', class: s.Action, 'aria-label': `Region: ${props.value}` }, () =>
             h('span', { class: s.ValueRowContent }, ['Region', h('span', { class: s.ValueRowValue }, props.value), h(Disclosure, { 'data-no-autosize': '' })]))),
           h(DialogContent, { mobileVariant: 'sheet', surface: 'plain', width: 420 }, () => [
             phone ? h(Toolbar, null, () => [

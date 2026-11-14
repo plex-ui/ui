@@ -8,7 +8,7 @@ import { Tooltip } from '@plexui/ui/components/Tooltip';
 
 import { controlsTableStyle, DemoControlBoolean, DemoControlRow, Segments } from './ButtonDemos';
 import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
-import { sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName, rowButtonClassName } from './phoneRowsTemplate';
+import { sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName } from './phoneRowsTemplate';
 import { SliderValueControl } from './SliderValueControl';
 
 const THUMBS = ['one', 'two', 'three'] as const;
@@ -133,8 +133,8 @@ export function SliderOverviewDemo() {
           </FieldGroup>
           {thumbs === 'one' && resetValue && (
             <FieldGroup>
-              <div data-row>
-                <Button block color="info" variant="ghost" className={rowButtonClassName} disabled={disabled} onClick={() => setValue(50)}>Reset to Default</Button>
+              <div data-row data-align="center">
+                <Button block color="info" variant="ghost" disabled={disabled} onClick={() => setValue(50)}>Reset to Default</Button>
               </div>
             </FieldGroup>
           )}

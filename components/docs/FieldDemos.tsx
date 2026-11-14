@@ -10,6 +10,7 @@ import { Select } from '@plexui/ui/components/Select';
 import { DatePicker } from '@plexui/ui/components/DatePicker';
 import { Button } from '@plexui/ui/components/Button';
 import { TextLink } from '@plexui/ui/components/TextLink';
+import { ArrowUpRight } from '@plexui/ui/components/Icon';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 import { PhoneRowsStage, phoneCalendarSecondRowStageClassName, usePhoneRows } from './PhoneRows';
@@ -148,6 +149,50 @@ export function FieldGroupDemo() {
       {phone ? <PhoneRowsStage>{group}</PhoneRowsStage> : (
         <div data-demo-stage className="py-10">
           <div className="w-full max-w-[480px]">{group}</div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Action rows: a row that is a Button, as an iOS List draws one (simulator, iOS 27.2): tinted words where a row's
+// label starts, red for a destructive one, an arrow at the trailing edge for a link out, no chevron
+// ---------------------------------------------------------------------------
+
+export function FieldActionRowsDemo() {
+  const [trailingIcon, setTrailingIcon] = useState(true);
+  const [destructive, setDestructive] = useState(true);
+  const [centered, setCentered] = useState(true);
+  const phone = usePhoneRows();
+
+  const groups = (
+    <>
+      <FieldGroup>
+        <div data-row><Button block color="info" variant="ghost">Edit Menu</Button></div>
+        <div data-row>
+          <Button block color="info" variant="ghost">Privacy Policy{trailingIcon && <ArrowUpRight />}</Button>
+        </div>
+        {destructive && <div data-row><Button block color="danger" variant="ghost">Delete Account</Button></div>}
+      </FieldGroup>
+      {centered && (
+        <FieldGroup>
+          <div data-row data-align="center"><Button block color="info" variant="ghost">Reset to Default</Button></div>
+        </FieldGroup>
+      )}
+    </>
+  );
+
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="trailingIcon" value={trailingIcon} onChange={setTrailingIcon} />
+        <DemoControlBoolean name="destructive" value={destructive} onChange={setDestructive} />
+        <DemoControlBoolean name="centered" value={centered} onChange={setCentered} />
+      </div>
+      {phone ? <PhoneRowsStage>{groups}</PhoneRowsStage> : (
+        <div data-demo-stage className="py-10">
+          <div className="flex w-full max-w-[480px] flex-col gap-6">{groups}</div>
         </div>
       )}
     </>
