@@ -13,7 +13,7 @@ function Rows({ children }: { children: ReactNode }) {
   return usePhoneRows() ? (
     <PhoneRowsStage>{children}</PhoneRowsStage>
   ) : (
-    <div data-demo-stage className="flex w-full flex-1 flex-col items-center justify-center gap-6 px-6 py-12 [--field-group-gap:13px]">
+    <div data-demo-stage className="flex w-full flex-1 flex-col items-center justify-center gap-6 px-6 py-12 [--field-group-gap:11px]">
       {children}
     </div>
   );

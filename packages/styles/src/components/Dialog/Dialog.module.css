@@ -1207,3 +1207,17 @@
 
   font-weight: var(--dialog-alert-action-font-weight, 510);
 }
+
+/* A quieter line under the question (`detail`), such as what a save left behind: it takes the question's space to the
+   answer, 4 under the question, as a confirmation's message stands under its title */
+.ConfirmCloseMessage:has(+ .ConfirmCloseDetail) {
+  margin-bottom: 4px;
+}
+
+.ConfirmCloseDetail {
+  margin: 0 13px 17px;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  font-weight: var(--font-weight-normal);
+  line-height: 20px;
+}

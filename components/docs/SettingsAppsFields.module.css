@@ -2,7 +2,8 @@
    tile — the app's color with its symbol in white, as Settings lists apps (IMG_5952);
    outline — a light tile with a hairline edge and the symbol in the label color (IMG_5963);
    plain — the symbol alone.
-   The symbol takes 60% of the column, as iOS draws a glyph in a 29pt tile, in the kit's outline weight. */
+   The glyph is one of the kit's filled icons at 72% of the tile, so its ink is about 17 of 28 as Settings draws an
+   app's glyph (IMG_5952, IMG_5963: 15 to 20pt); alone it takes the column, as a symbol row's 24pt (owner 14.11). */
 .Picture {
   display: flex;
   align-items: center;
@@ -14,8 +15,8 @@
 }
 
 .Picture > svg {
-  width: 60%;
-  height: 60%;
+  width: 72%;
+  height: 72%;
 }
 
 .Picture[data-style="tile"] {
@@ -29,8 +30,8 @@
 }
 
 .Picture[data-style="plain"] > svg {
-  width: 75%;
-  height: 75%;
+  width: 100%;
+  height: 100%;
 }
 
 /* An app that may not fill reads quieter, its name in the secondary label (IMG_5952) */

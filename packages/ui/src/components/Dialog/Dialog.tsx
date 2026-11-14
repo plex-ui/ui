@@ -119,11 +119,20 @@ export type DialogInteractOutsideEvent = CustomEvent<{ originalEvent: PointerEve
 export type DialogConfirmClose = {
   /** The question, such as "Are you sure you want to discard this new note?" */
   message: ReactNode
+  /** A quieter line under the question, such as what a save left behind */
+  detail?: ReactNode
   /** The answer that closes and loses the changes. @default "Discard Changes" */
   confirmLabel?: ReactNode
   /** The alert's answer that keeps the dialog open. @default "Keep Editing" */
   cancelLabel?: ReactNode
 }
+
+/**
+ * `confirmClose` as a value, or as a function the dialog calls at each close attempt (Close, Dialog.Close, Escape, a
+ * press outside, a sheet pulled down) before it decides: it returns the question, or nothing to close at once. An
+ * owner that commits typed words only on blur commits them there, then compares.
+ */
+export type DialogConfirmCloseProp = DialogConfirmClose | (() => DialogConfirmClose | false | null | undefined) | false | null
 
 /** Class, style and data attributes for one of the dialog's layers. */
 export type DialogLayerProps = {
@@ -183,9 +192,10 @@ export type DialogContentProps = {
   /**
    * Asks before the dialog closes, as a form with unsaved changes does: Close, Escape, a press outside and a phone
    * sheet pulled down all ask first. Pass it while there are changes and leave it out (or `false`) when there are
-   * none. Setting `open` to false yourself, such as after Save, closes at once.
+   * none, or pass a function the dialog calls at each close attempt, returning the question or nothing to close at
+   * once. Setting `open` to false yourself, such as after Save, closes at once.
    */
-  confirmClose?: DialogConfirmClose | false | null
+  confirmClose?: DialogConfirmCloseProp
   /** Stack order of the overlay and the dialog. @default 50 */
   zIndex?: number
   /** Class, style and data attributes for the fixed layer that holds the panel. Data attributes of Content land here too. */
@@ -265,15 +275,26 @@ const Content = ({
   const [closeButton, setCloseButton] = useState<HTMLElement | null>(null)
   // Where focus returns when the question is dismissed: the field or button that asked to close
   const returnFocus = useRef<HTMLElement | null>(null)
-  const requestClose = useStableCallback(() => {
+  // The question a function `confirmClose` returned at the last close attempt
+  const [asked, setAsked] = useState<DialogConfirmClose | null>(null)
+  // Whether the dialog closed at once (no question to ask)
+  const requestClose = useStableCallback((): boolean => {
     // A press on a dialog that is already leaving (closed from outside, its exit still on screen) asks nothing
-    if (!open) return
-    if (!confirmClose) return setOpen(false)
+    if (!open) return false
+    if (!confirmClose) { setOpen(false); return true }
     // A press that dismissed the question (its pointer-down or click lands here too) keeps editing
-    if (confirmingRef.current || performance.now() - confirmClosedAt.current < DOUBLE_CLICK) return
+    if (confirmingRef.current || performance.now() - confirmClosedAt.current < DOUBLE_CLICK) return false
+    // A function decides at the attempt: the owner commits what is typed, then compares
+    if (typeof confirmClose === "function") {
+      const question = confirmClose()
+      if (!question) { setOpen(false); return true }
+      setAsked(question)
+    }
     returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
     setConfirming(true)
+    return false
   })
+  const question = typeof confirmClose === "function" ? asked : confirmClose || null
   // The answer that discards: the question leaves first, then the dialog, as iOS dismisses the confirmation before
   // the sheet. Together, the question would stand still over the sheet as it leaves: a closing dialog holds what
   // it shows, the transitions inside it too.
@@ -332,10 +353,7 @@ const Content = ({
       onInteractOutside(request)
       if (request.defaultPrevented) return false
     }
-    if (confirmClose) {
-      requestClose()
-      return false
-    }
+    if (confirmClose) return requestClose()
     setOpen(false)
     return true
   })
@@ -419,7 +437,8 @@ const Content = ({
                 // With changes a press outside asks first; one that dismisses the question keeps editing
                 if (confirmClose) {
                   event.preventDefault()
-                  requestClose()
+                  // The second click of a double click that opened the dialog asks nothing, nor closes it (Codex #64)
+                  if (performance.now() - openedAt.current >= DOUBLE_CLICK) requestClose()
                   return
                 }
                 // The second click of a double click lands on the overlay: it must not undo the first
@@ -449,7 +468,7 @@ const Content = ({
                 </DialogRequestCloseContext.Provider>
                 {confirmClose && (
                   <ConfirmClose
-                    {...confirmClose}
+                    {...(question ?? { message: null })}
                     open={confirming}
                     anchor={phone && mobileVariant === "sheet" ? closeButton : null}
                     onOpenChange={setConfirming}
@@ -480,12 +499,12 @@ type DialogSheetValue = {
   setOwnSlot: (slot: HTMLElement | null) => void
   /** The bar's Close asks first (`confirmClose`) */
   asksToClose: boolean
-  requestClose: () => void
+  requestClose: () => boolean | void
   setCloseButton: (button: HTMLElement | null) => void
 }
 const DialogSheetContext = createContext<DialogSheetValue | null>(null)
 // A close that asks first (`confirmClose`): Dialog.Close inside the content asks as the Close button does
-const DialogRequestCloseContext = createContext<(() => void) | null>(null)
+const DialogRequestCloseContext = createContext<(() => boolean | void) | null>(null)
 // Inside that bar: the title, the description and the header actions take the Toolbar's parts
 const DialogBarContext = createContext(false)
 
@@ -705,6 +724,7 @@ type ConfirmCloseProps = DialogConfirmClose & {
 // and on a desktop, the question is an alert.
 const ConfirmClose = ({
   message,
+  detail,
   confirmLabel = "Discard Changes",
   cancelLabel = "Keep Editing",
   open,
@@ -722,6 +742,7 @@ const ConfirmClose = ({
         {/* Over the Close, its corner 6 before the button's, as the native confirmation grows out of it */}
         <Popover.Content side="bottom" align="start" sideOffset={-anchor.offsetHeight} alignOffset={-6} collisionPadding={10} width={240} minWidth={240} zIndex={zIndex} aria-labelledby={messageId} className={s.ConfirmClose} data-dialog-confirm-close="">
           <p id={messageId} className={s.ConfirmCloseMessage}>{message}</p>
+          {detail != null && detail !== false && <p className={s.ConfirmCloseDetail}>{detail}</p>}
           <Button block pill color="danger" variant="soft" className={s.ConfirmCloseAction} onClick={onConfirm}>{confirmLabel}</Button>
         </Popover.Content>
       </Popover>
@@ -747,6 +768,7 @@ const ConfirmClose = ({
         {/* The question names the alert, as an alert's title does */}
         <Header>
           <Title>{message}</Title>
+          {detail != null && detail !== false && <Description>{detail}</Description>}
         </Header>
         <Footer>
           <Close><Button color="secondary" variant="soft">{cancelLabel}</Button></Close>

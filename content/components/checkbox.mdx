@@ -190,7 +190,7 @@ const toggle = (key: keyof typeof settings) => () =>
 <Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
   <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Notifications</Page.Title></Page.Bar></Page.Header>
   <Page.Content>
-    <div className="flex flex-col gap-6 [--field-group-gap:13px]">
+    <div className="flex flex-col gap-6 [--field-group-gap:11px]">
       <FieldGroup title="Email notifications" description="Configure which emails you receive.">
         <Field row label="Marketing" description="Receive emails about new products and features."><Checkbox checked={settings.emailMarketing} onCheckedChange={toggle('emailMarketing')} /></Field>
         <Field row label="Security" description="Receive emails about account activity and security."><Checkbox checked={settings.emailSecurity} onCheckedChange={toggle('emailSecurity')} /></Field>
@@ -219,7 +219,7 @@ const topics = [
   { label: "Community", description: "Events, meetups, and discussions.", checked: false },
 ]
 
-<div className="flex flex-col gap-6 [--field-group-gap:13px] w-full max-w-md">
+<div className="flex flex-col gap-6 [--field-group-gap:11px] w-full max-w-md">
   <Field label="Notification channel" description="Choose how you'd like to be notified.">
     {() => (
       <RadioGroup direction="col" defaultValue="email" aria-label="Notification channel">

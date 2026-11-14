@@ -40,7 +40,7 @@ export const overviewControls = [
   { name: "orientation", type: "select", options: ["left", "right"], default: "left", when: { label: true } },
   { name: "disabled", type: "boolean", default: false },
 ]
-export const withRadioGroup = `<div class="flex flex-col gap-6 [--field-group-gap:13px] w-full max-w-md">
+export const withRadioGroup = `<div class="flex flex-col gap-6 [--field-group-gap:11px] w-full max-w-md">
   <Field label="Notification channel" description="Choose how you'd like to be notified." v-slot="{ id }">
     <RadioGroup :direction="direction" default-value="email" aria-label="Notification channel">
       <RadioGroupItem

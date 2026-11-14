@@ -208,3 +208,80 @@ describe("the question at a phone Sheet's Close (iOS 27.2 simulator)", () => {
       expect(vue).toContain(option)
   })
 })
+
+// The console's ask: an owner that commits typed words only on blur decides at the close attempt, so `confirmClose`
+// takes a function the dialog calls then; it returns the question, with an optional quieter `detail`, or nothing.
+type FnMount = (decide: () => { message: string; detail?: string } | null, onOpenChange: (open: boolean) => void) => Promise<void>
+
+const mountReactFn: FnMount = async (decide, onOpenChange) => {
+  await act(async () => {
+    render(
+      <ReactDialog open onOpenChange={onOpenChange}>
+        <ReactDialog.Content confirmClose={decide}>
+          <ReactDialog.Header><ReactDialog.Title>New Note</ReactDialog.Title></ReactDialog.Header>
+          <ReactDialog.Footer>
+            <ReactDialog.Close><ReactButton color="primary" variant="soft">Cancel</ReactButton></ReactDialog.Close>
+          </ReactDialog.Footer>
+        </ReactDialog.Content>
+      </ReactDialog>,
+    )
+  })
+}
+
+const mountVueFn: FnMount = async (decide, onOpenChange) => {
+  const state = reactive({ open: true })
+  mountVue(() =>
+    h(Dialog, { "open": state.open, "onUpdate:open": (open: boolean) => { state.open = open; onOpenChange(open) } }, () =>
+      h(DialogContent, { confirmClose: decide }, () => [
+        h(DialogHeader, null, () => h(DialogTitle, null, () => "New Note")),
+        h(DialogFooter, null, () => h(DialogClose, null, () => h(VueButton, { color: "primary", variant: "soft" }, () => "Cancel"))),
+      ])))
+  await flushVue()
+}
+
+describe.each([
+  ["React", mountReactFn],
+  ["Vue", mountVueFn],
+] as const)("%s Dialog confirmClose as a function", (_name, mount) => {
+  test("called at the attempt: nothing to ask closes at once", async () => {
+    const changes: boolean[] = []
+    let calls = 0
+    await mount(() => { calls += 1; return null }, (open) => changes.push(open))
+    expect(calls).toBe(0)
+    await click(document.querySelector('button[aria-label="Close dialog"]'))
+    expect(calls).toBe(1)
+    expect(asking()).toBe(false)
+    expect(changes).toEqual([false])
+  })
+
+  test("words committed at the attempt make it ask, with the detail under the question", async () => {
+    const changes: boolean[] = []
+    let typed = false
+    await mount(() => { typed = true; return typed ? { message, detail: "Sizes stay in the draft." } : null }, (open) => changes.push(open))
+    await click(buttonNamed("Cancel"))
+    expect(asking()).toBe(true)
+    expect(document.body.textContent).toContain("Sizes stay in the draft.")
+    expect(changes).toEqual([])
+    await click(buttonNamed("Discard Changes"))
+    await act(async () => { await wait(400) })
+    await flushVue()
+    expect(changes).toEqual([false])
+  })
+
+  test("Escape calls it too", async () => {
+    let calls = 0
+    await mount(() => { calls += 1; return { message } }, () => {})
+    await act(async () => { fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" }) })
+    await settle()
+    expect(calls).toBe(1)
+    expect(asking()).toBe(true)
+  })
+})
+
+describe("the detail line's styles", () => {
+  test("15/20 secondary under the question, 4 below it", () => {
+    const css = readFileSync("packages/styles/src/components/Dialog/Dialog.module.css", "utf8")
+    expect(css).toMatch(/\.ConfirmCloseMessage:has\(\+ \.ConfirmCloseDetail\) \{\s*margin-bottom: 4px;/)
+    expect(css).toMatch(/\.ConfirmCloseDetail \{\s*margin: 0 13px 17px;\s*color: var\(--color-text-secondary\);\s*font-size: 15px;/)
+  })
+})

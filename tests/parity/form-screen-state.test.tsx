@@ -49,30 +49,29 @@ describe('form presentation state', () => {
     expect(restoredPage.getAttribute('data-surface')).toBe('plain');
   });
 
-  test('product and its custom tag catalogue survive parent presentation switches', async () => {
+  test('product and its tag selection survive parent presentation switches', async () => {
     render(<FormRowsGroupsDemo />);
     const page = within(document.body);
     const dialog = page.getByRole('switch', { name: 'dialog' });
     await change(page.getByRole('textbox', { name: 'Name', exact: true }), 'Cedar table');
     await click(page.getByRole('button', { name: 'Materials: Oak, Steel' }));
     let editor = within(await page.findByRole('dialog', { name: 'Materials' }));
-    await change(editor.getByRole('textbox', { name: 'New material' }), 'Cedar');
-    await click(editor.getByRole('button', { name: 'Add', exact: true }));
+    await click(editor.getByRole('checkbox', { name: 'Linen', exact: true }));
     await click(editor.getByRole('button', { name: 'Apply materials' }));
-    await page.findByRole('button', { name: 'Materials: Oak, Steel, Cedar', exact: true });
+    await page.findByRole('button', { name: 'Materials: Oak, Steel, Linen', exact: true });
     await click(dialog);
     expect(page.getByRole('textbox', { name: 'Name', exact: true })).toHaveProperty('value', 'Cedar table');
-    await click(page.getByRole('button', { name: 'Materials: Oak, Steel, Cedar' }));
+    await click(page.getByRole('button', { name: 'Materials: Oak, Steel, Linen' }));
     editor = within(await page.findByRole('dialog', { name: 'Materials' }));
-    expect(editor.getByRole('checkbox', { name: 'Cedar', exact: true }).getAttribute('aria-checked')).toBe('true');
-    await click(editor.getByRole('checkbox', { name: 'Cedar', exact: true }));
+    expect(editor.getByRole('checkbox', { name: 'Linen', exact: true }).getAttribute('aria-checked')).toBe('true');
+    await click(editor.getByRole('checkbox', { name: 'Linen', exact: true }));
     await click(editor.getByRole('button', { name: 'Close dialog', exact: true }));
-    expect(await page.findByRole('button', { name: 'Materials: Oak, Steel, Cedar', exact: true })).toBeTruthy();
+    expect(await page.findByRole('button', { name: 'Materials: Oak, Steel, Linen', exact: true })).toBeTruthy();
     // On a phone the Sheet's action is in its bottom Toolbar; Dialog.Footer is the desktop one.
     const sheet = page.getByRole('dialog', { name: 'Edit product' });
     await click(within(sheet.querySelector<HTMLElement>('[data-toolbar][data-placement="bottom"]')!).getByRole('button', { name: 'Save changes' }));
     const restoredPage = within(await page.findByRole('region', { name: 'Edit product', exact: true }));
-    expect(restoredPage.getByRole('button', { name: 'Materials: Oak, Steel, Cedar', exact: true })).toBeTruthy();
+    expect(restoredPage.getByRole('button', { name: 'Materials: Oak, Steel, Linen', exact: true })).toBeTruthy();
     expect(restoredPage.getByRole('textbox', { name: 'Name', exact: true })).toHaveProperty('value', 'Cedar table');
   });
 

@@ -66,12 +66,16 @@ describe("FieldGroup spacing on a phone", () => {
   test("the rules give back the header's and the footer's blocks, a group in a wrapper of its own too", () => {
     const group = ":is(.FieldGroup, [role=\"radiogroup\"]:has(> .FieldGroup:only-child))"
     expect(phone).toContain(`${group} + ${group} {`)
-    expect(phone).toContain("margin-top: calc(var(--field-group-stack-spacing, 0) * (var(--field-group-gap, 37px) - var(--field-group-gap-footer-offset, 0px) - var(--field-group-gap-header-offset, 0px)));")
+    expect(phone).toContain("margin-top: calc(var(--field-group-stack-spacing, 0) * (var(--field-group-gap, 35px) - var(--field-group-gap-footer-offset, 0px) - var(--field-group-gap-header-offset, 0px)));")
     // Only with touch.css: without it a page keeps its layout's own gaps (Codex #58)
     expect(readFileSync(`${process.cwd()}/packages/styles/src/styles/touch.css`, "utf8")).toMatch(/:root \{\n    --field-group-stack-spacing: 1;/)
-    expect(phone).toContain(`:is(.FieldGroup:has(> .Footer), [role="radiogroup"]:has(> .FieldGroup:only-child > .Footer)) + ${group} {\n    --field-group-gap-footer-offset: 17.5px;`)
-    expect(phone).toContain(`${group} + :is(.FieldGroup:has(> .Header), [role="radiogroup"]:has(> .FieldGroup:only-child > .Header)) {\n    --field-group-gap-header-offset: 16px;`)
-    expect(phone).toMatch(/:has\(> \.FieldGroup\[data-header-prominence="increased"\]:only-child > \.Header\)\) \{\s*--field-group-gap-header-offset: 18\.3px;/)
+    expect(phone).toContain(`:is(.FieldGroup:has(> .Footer), [role="radiogroup"]:has(> .FieldGroup:only-child > .Footer)) + ${group} {\n    --field-group-gap-footer-offset: 17.33px;`)
+    expect(phone).toContain(`${group} + :is(.FieldGroup:has(> .Header), [role="radiogroup"]:has(> .FieldGroup:only-child > .Header)) {\n    --field-group-gap-header-offset: 18.67px;`)
+    // Settings keeps a footer's space apart from the next header's (5962, 5964: 75.33 between the cards)
+    expect(phone).toMatch(/:not\(\[data-header-prominence="increased"\]\):only-child > \.Header\)\) \{\s*--field-group-gap-header-offset: 11\.33px;/)
+    // A header keeps 11 above its text at any length (ref-app headfoot)
+    expect(phone).toContain('--field-group-header-padding-top: 10px;')
+    expect(phone).toMatch(/:has\(> \.FieldGroup\[data-header-prominence="increased"\]:only-child > \.Header\)\) \{\s*--field-group-gap-header-offset: 18px;/)
     expect(phone).toMatch(/:has\(> \.FieldGroup:only-child\) \{\s*--field-group-gap-footer-offset: 0px;\s*--field-group-gap-header-offset: 0px;/)
   })
 

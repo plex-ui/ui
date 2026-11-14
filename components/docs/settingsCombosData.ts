@@ -39,17 +39,17 @@ export type OrderValue = { checked: CheckedRow[]; ordered: string[] };
 export const initialOrder: OrderValue = { checked: initialChecked, ordered: ['Row A', 'Row B'] };
 
 /** Rows with pictures: a tile color for each, so a tile style never draws a white symbol on nothing */
-export type PictureRow = { id: string; label: string; symbol: 'key' | 'shield' | 'globe' | 'compass' | 'book' | 'music'; tile: string };
+export type PictureRow = { id: string; label: string; symbol: 'bell' | 'globe' | 'star' | 'heart' | 'mic' | 'camera'; tile: string };
 export const switchPictures: PictureRow[] = [
-  { id: 'one', label: 'Row 1', symbol: 'key', tile: '#3478f6' },
-  { id: 'two', label: 'Row 2', symbol: 'shield', tile: '#34c759' },
+  { id: 'one', label: 'Row 1', symbol: 'bell', tile: '#3478f6' },
+  { id: 'two', label: 'Row 2', symbol: 'globe', tile: '#34c759' },
 ];
 export const describedPictures: PictureRow[] = [
-  { id: 'three', label: 'Row 3', symbol: 'globe', tile: '#ff9f0a' },
-  { id: 'four', label: 'Row 4', symbol: 'compass', tile: '#5e5ce6' },
+  { id: 'three', label: 'Row 3', symbol: 'star', tile: '#ff9f0a' },
+  { id: 'four', label: 'Row 4', symbol: 'heart', tile: '#5e5ce6' },
 ];
 export const plainPictures: PictureRow[] = [
-  { id: 'five', label: 'Row 5', symbol: 'book', tile: '#af52de' },
-  { id: 'six', label: 'Row 6', symbol: 'music', tile: '#ff2d55' },
+  { id: 'five', label: 'Row 5', symbol: 'mic', tile: '#af52de' },
+  { id: 'six', label: 'Row 6', symbol: 'camera', tile: '#ff2d55' },
 ];
 export const initialPictures: Record<string, boolean> = { one: true, two: false, three: true, four: false };

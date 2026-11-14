@@ -32,10 +32,10 @@ const reactRow = (onInfo = () => {}, value = "office", onChange: (value: string)
 describe("a choice with an action at its end", () => {
   test("the radio leads in the icon column and the action takes its column", () => {
     const radio = '> .Content > .Control > :only-child > label:only-child:not([data-has-label]) [role="radio"]'
-    expect(field).toContain(`.Field:where([data-row]:not([data-fill], [data-orientation="vertical"])):has(> .Action):not(:has(> .Icon)):has(${radio}) {\n  --field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-size) + var(--field-row-icon-gap));`)
-    expect(field).toMatch(/padding-inline-start: calc\(var\(--field-row-padding-inline\) \+ var\(--field-row-icon-size\) \+ var\(--field-row-icon-gap\)\);\n\}\n\n\/\* The action takes/)
+    expect(field).toContain(`.Field:where([data-row]:not([data-fill], [data-orientation="vertical"])):has(> .Action):not(:has(> .Icon)):has(${radio}) {\n  --field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-offset) + var(--field-row-icon-size) + var(--field-row-icon-gap));`)
+    expect(field).toMatch(/padding-inline-start: calc\(var\(--field-row-padding-inline\) \+ var\(--field-row-icon-offset\) \+ var\(--field-row-icon-size\) \+ var\(--field-row-icon-gap\)\);\n\}\n\n\/\* The action takes/)
     expect(field).toMatch(/> \.Action \{\s*\/\*[^*]*\*\/\s*--button-icon-size-md: var\(--field-row-icon-symbol-size\);\s*\/\*[^*]*\*\/\s*grid-column: -2;/)
-    expect(field).toContain(':not(:has(> .Icon)) > .Content > .Control:has(> :only-child > label:only-child:not([data-has-label]) [role="radio"]) {\n  position: absolute;\n  grid-area: auto;\n  inset-inline-start: var(--field-row-padding-inline);')
+    expect(field).toContain(':not(:has(> .Icon)) > .Content > .Control:has(> :only-child > label:only-child:not([data-has-label]) [role="radio"]) {\n  position: absolute;\n  grid-area: auto;\n  inset-inline-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-offset));')
     // On a phone only a fill row puts its action in the second column (Codex #45)
     expect(field).toMatch(/\.Field:where\(\[data-row\]\[data-fill\]\) > \.Action \{\s*grid-column: 2;/)
     expect(field).not.toMatch(/\n  \.Action \{\s*grid-column: 2;/)

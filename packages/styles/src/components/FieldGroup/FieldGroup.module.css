@@ -11,6 +11,7 @@
   justify-content: space-between;
   gap: spacing(4);
   min-height: var(--field-group-header-min-height, spacing(8));
+  padding-top: var(--field-group-header-padding-top, 0px);
   padding-bottom: var(--field-group-header-padding-bottom, spacing(2));
 }
 
@@ -176,13 +177,15 @@
     --field-group-gap-header-offset: 0px;
   }
 
-  /* With touch.css, groups one after another space themselves as an iOS 27.2 inset list (SwiftUI List on the simulator, 402pt):
-     rows to rows 37 (--field-group-gap); a header 60, a prominent header 64; a footer of one line 49.5 and 16 more
-     for each further line; a footer and a header 72, a footer and a prominent header 75.6. The header's block (39,
-     or 45 when prominent) and the footer's (8 + 16 a line + 6) stand in the gap, so the margin gives back what they
-     take beyond the native step: 16 for a header, 18.3 for a prominent one, 17.5 for a footer. Stack the groups in
-     a block without a gap of its own; where a parent's gap stands between them, set --field-group-gap to 37px less
-     that gap. */
+  /* With touch.css, groups one after another space themselves as Settings does in iOS 27 (IMG_5944–5966, 430pt; checked
+     against a SwiftUI Form on the simulator, ref-app hfpairs-a/-b, owner 14.11): rows to rows 35 (--field-group-gap;
+     SwiftUI 35.33); a footer of one line 47.67 and 16 more for each further line (SwiftUI 47.33); a header 55.33 (SwiftUI
+     58.33), each further line of it 22; a footer and a header 75.33 (5962, 5964; SwiftUI 70.33): Settings does not let the
+     footer's space and the header's run together. Settings shows no prominent header; it keeps SwiftUI's steps, 62 after
+     rows and 74 after a footer. The header's block (39, or 45 when prominent, and its further lines) and the footer's
+     (8 + 16 a line + 6) stand in the gap, so the margin gives back what they take beyond the native step: 18.67 for a
+     header (11.33 after a footer), 18 for a prominent one, 17.33 for a footer. Stack the groups in a block without a gap
+     of its own; where a parent's gap stands between them, set --field-group-gap to 35px less that gap. */
   /* A group may stand in a RadioGroup of its own, around the group of its choices: that radio group spaces as the
      group. Only a radio group: a layout cell holding one group (a column of a grid) keeps its place (Codex #43). */
   [role="radiogroup"]:has(> .FieldGroup:only-child) {
@@ -193,19 +196,23 @@
   :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) + :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) {
     /* Only with touch.css, which turns --field-group-stack-spacing on: a page without it keeps its own layout's
        gaps, a grid's columns level (Codex #58) */
-    margin-top: calc(var(--field-group-stack-spacing, 0) * (var(--field-group-gap, 37px) - var(--field-group-gap-footer-offset, 0px) - var(--field-group-gap-header-offset, 0px)));
+    margin-top: calc(var(--field-group-stack-spacing, 0) * (var(--field-group-gap, 35px) - var(--field-group-gap-footer-offset, 0px) - var(--field-group-gap-header-offset, 0px)));
   }
 
   :is(.FieldGroup:has(> .Footer), [role="radiogroup"]:has(> .FieldGroup:only-child > .Footer)) + :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) {
-    --field-group-gap-footer-offset: 17.5px;
+    --field-group-gap-footer-offset: 17.33px;
   }
 
   :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) + :is(.FieldGroup:has(> .Header), [role="radiogroup"]:has(> .FieldGroup:only-child > .Header)) {
-    --field-group-gap-header-offset: 16px;
+    --field-group-gap-header-offset: 18.67px;
   }
 
   :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) + :is(.FieldGroup[data-header-prominence="increased"]:has(> .Header), [role="radiogroup"]:has(> .FieldGroup[data-header-prominence="increased"]:only-child > .Header)) {
-    --field-group-gap-header-offset: 18.3px;
+    --field-group-gap-header-offset: 18px;
+  }
+
+  :is(.FieldGroup:has(> .Footer), [role="radiogroup"]:has(> .FieldGroup:only-child > .Footer)) + :is(.FieldGroup:not([data-header-prominence="increased"]):has(> .Header), [role="radiogroup"]:has(> .FieldGroup:not([data-header-prominence="increased"]):only-child > .Header)) {
+    --field-group-gap-header-offset: 11.33px;
   }
 
   /* The kit's Prominent list header (Lists, Header 517:38042, Type=Prominent): Title 3 Semibold
@@ -217,6 +224,7 @@
     --field-group-title-line-height: 25px;
     --field-group-title-font-weight: 590;
     --field-group-header-min-height: 45px;
+    --field-group-header-padding-top: 10px;
     --field-group-header-padding-bottom: 10px;
   }
 

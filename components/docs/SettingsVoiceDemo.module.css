@@ -114,7 +114,7 @@
    чем между заголовком и секцией»). */
 .ChoiceList > [role="radiogroup"] {
   /* On a phone the groups add the rest of an iOS list's 37 (60 to a letter) */
-  --field-group-gap: 13px;
+  --field-group-gap: 11px;
 
   gap: 24px;
 }

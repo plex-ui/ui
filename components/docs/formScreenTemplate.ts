@@ -6,7 +6,7 @@ export function formScreenTemplate(title: string, content: string, submitLabel?:
     <ToolbarTitle>${title}</ToolbarTitle>
   </Toolbar>
   <PageContent data-form-content>
-    <form ref="screenForm" class="flex flex-col gap-6 [--field-group-gap:13px]" @submit.prevent="${submit}" ${noValidate ? 'novalidate' : ''}>
+    <form ref="screenForm" class="flex flex-col gap-6 [--field-group-gap:11px]" @submit.prevent="${submit}" ${noValidate ? 'novalidate' : ''}>
       ${content}
     </form>
   </PageContent>

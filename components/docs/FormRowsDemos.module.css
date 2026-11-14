@@ -156,29 +156,17 @@
     height: calc(var(--dialog-panel-max-height) - 16px);
   }
 
-  .TagAddInput {
-    --input-size: var(--field-row-min-height);
-    --input-gutter: var(--field-row-padding-inline);
-    --input-adornment-offset: 0px;
-    --input-font-size: var(--field-row-label-font-size);
-    line-height: var(--field-row-label-line-height);
+  /* A row picked carries the checkmark in the tint, as iOS marks a list's choices */
+  .TagEditor {
+    --checkbox-ghost-check-color: var(--color-text-info);
   }
 
-  .TagAddAction[data-variant="ghost"]:not([data-uniform]) {
-    --button-size: var(--field-row-text-action-size);
-    --button-gutter: 0px;
-    --button-font-size: var(--field-row-label-font-size);
-    --button-line-height: var(--field-row-label-line-height);
-    --button-font-weight: var(--field-row-label-font-weight);
-    --button-justify-content: flex-end;
-    --button-background-color: transparent;
-    --button-background-color-active: transparent;
-    --button-mobile-material-background: transparent;
-    --button-mobile-material-hover: transparent;
-    --button-mobile-material-active: transparent;
-    --button-mobile-material-shadow: none;
-    --button-mobile-material-backdrop-filter: none;
-    min-width: var(--field-row-text-action-size);
+  .TagNoMatches {
+    margin: 0;
+    padding-block: 24px;
+    color: var(--color-text-secondary);
+    font-size: 17px;
+    text-align: center;
   }
 
   /* The Sheet presentation is portaled outside the stage; it keeps the same rows. */

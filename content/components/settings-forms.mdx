@@ -125,9 +125,9 @@ Settings and editing forms composed from [Field](/components/field), [Input](/co
 
 The screen examples share [FormScreen](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.tsx), [AuthFormStage](https://github.com/plex-ui/ui/blob/master/components/docs/AuthFormStage.tsx), and [presentation controls](https://github.com/plex-ui/ui/blob/master/components/docs/ScreenPresentationControls.tsx). Copy their styles and helpers with the example. Grouped is the default mobile surface; Plain is optional. Page uses base colors and Dialog uses elevated colors. Keep field values, selections and custom options in the owner above the presentation wrapper so switching Page/Dialog preserves them. The error control demonstrates a visual state; it does not validate a payout account.
 
-Phone tag rows use the [MobileTagRow helper](https://github.com/plex-ui/ui/blob/master/components/docs/MobileTagRow.tsx) and its [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css). Copy both files with the examples. The row opens a draft editor with a list of options and trailing checkmarks. Tap anywhere on a row to select it, or use the separate field to add an option. Apply saves the draft; Close discards it. Desktop keeps removable badges.
+Phone tag rows use the [MobileTagRow helper](https://github.com/plex-ui/ui/blob/master/components/docs/MobileTagRow.tsx) and its [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css). Copy both files with the examples. The row opens a draft editor with a list of options and trailing checkmarks in the tint. Tap anywhere on a row to select it; search from the bar at the bottom; Clear all ends the list while something is selected. Apply saves the draft; Close discards it. Desktop keeps removable badges.
 
-Keep both `options` and the selected `value` in the form's state, updating them through `onOptionsChange` and `onChange`. The desktop fields use the same options, so newly added labels survive switching between Phone and Desktop.
+Keep both `options` and the selected `value` in the form's state, updating them through `onOptionsChange` and `onChange`. The desktop fields use the same options, so labels added there survive switching between Phone and Desktop.
 
 Grouped editors use `surface="grouped"`. Choose one surface for the screens of a flow; the palette adapts to light and dark mode on phones without changing the screen layout.
 
@@ -137,7 +137,7 @@ Grouped editors use `surface="grouped"`. Choose one surface for the screens of a
 
 Variants uses the [ProductVariants helper](https://github.com/plex-ui/ui/blob/master/components/docs/ProductVariants.tsx), [shared name validation](https://github.com/plex-ui/ui/blob/master/components/docs/productVariantData.ts), and the linked FormRowsDemos styles. Add opens a name draft; Edit changes a saved variant. Save applies the draft, Cancel discards it, and Remove variant deletes the edited choice. The parent form owns the saved values.
 
-<ComponentPreview phonePresentation="screen" details={<>One form in several blocks, each with one kind of row. On a phone, a <code>Toolbar</code> provides the top bar and a bottom <code>Toolbar</code> keeps Save changes over the bottom safe area, with 28px side insets. Only Page.Content scrolls, with 16px side gutters. From 768px up, Page.Footer keeps the action under the form. Text stands under its label, short editable values start at a shared column by default on phones, a tag row opens a draft editor on phones and keeps its round Add action on desktop. A unit is a <code>Menu</code> on an <code>InputGroup.Button</code>, as in <a href="/components/input-group#dropdown">Input Group</a>, the Variants explanation stays visible in the group footer on phones. With <code>columns</code> on a <code>FieldGroup</code> every value starts at one column, <code>--field-row-column-width</code> into the row, as in an iOS form of typed details; without it every value ends at the row's edge, as in iOS Settings. On the web a field keeps its frame and width, on a phone the value takes the rest of the row and its unit or mark ends at the edge; a switch and an action stay at the end. Pick one way for a whole form, and keep descriptions out of a group in columns: under the label they narrow the column.</>} code={withFormScreenStyles(`const wide = useBreakpoint("md");
+<ComponentPreview phonePresentation="screen" details={<>One form in several blocks, each with one kind of row. On a phone, a <code>Toolbar</code> provides the top bar and a bottom <code>Toolbar</code> keeps Save changes over the bottom safe area, with 28px side insets. Only Page.Content scrolls, with 16px side gutters. From 768px up, Page.Footer keeps the action under the form. Text stands under its label, short editable values start at a shared column by default on phones, a tag row opens a draft editor on phones and keeps its round Add action on desktop. A unit is a <code>Menu</code> on an <code>InputGroup.Button</code>, as in <a href="/components/input-group#dropdown">Input Group</a>, Variants is a row with a chevron on phones that opens its own list, with the explanation as that list's footer. With <code>columns</code> on a <code>FieldGroup</code> every value starts at one column, <code>--field-row-column-width</code> into the row, as in an iOS form of typed details; without it every value ends at the row's edge, as in iOS Settings. On the web a field keeps its frame and width, on a phone the value takes the rest of the row and its unit or mark ends at the edge; a switch and an action stay at the end. Pick one way for a whole form, and keep descriptions out of a group in columns: under the label they narrow the column.</>} code={withFormScreenStyles(`const wide = useBreakpoint("md");
 const [columnsOverride, setColumns] = useState<boolean>();
 const columns = columnsOverride ?? !wide;
 const formId = useId();
@@ -161,7 +161,7 @@ const [labels, setLabels] = useState(["new"]);
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={handleSubmit}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:11px]" onSubmit={handleSubmit}>
       <img src={photo} alt="Product" className="mx-auto block size-28 rounded-3xl object-cover" />
       <FieldGroup>
         <Field row orientation="vertical" label="Name"><Input variant="ghost" value={name} onChange={(event) => setName(event.target.value)} /></Field>
@@ -199,7 +199,7 @@ const [labels, setLabels] = useState(["new"]);
           )}
         </Field>
       </FieldGroup>
-      <FieldGroup footer={wide ? undefined : "Sizes and finishes a buyer can choose."}>
+      <FieldGroup>
         <ProductVariants value={variants} onChange={setVariants} wide={wide} />
       </FieldGroup>
       <FieldGroup columns={columns}>
@@ -229,7 +229,7 @@ const update = (key: keyof typeof contact) => (event: React.ChangeEvent<HTMLInpu
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={(event) => event.preventDefault()}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:11px]" onSubmit={(event) => event.preventDefault()}>
       <FieldGroup title="Contact details" columns>
         <Field row label="First name"><Input value={contact.first} onChange={update("first")} /></Field>
         <Field row label="Last name"><Input value={contact.last} onChange={update("last")} /></Field>
@@ -271,7 +271,7 @@ const [summary, setSummary] = useState(true);
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={(event) => event.preventDefault()}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:11px]" onSubmit={(event) => event.preventDefault()}>
       <FieldGroup
         title="Preferences"
         footer="Saved for every device you sign in on."
@@ -321,7 +321,7 @@ const [news, setNews] = useState(false);
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={(event) => event.preventDefault()}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:11px]" onSubmit={(event) => event.preventDefault()}>
       <RadioGroup value={plan} onChange={setPlan} direction="col" aria-label="Plan" className="w-full">
         <FieldGroup title="Plan" className="w-full">
           <Field row label="Starter" description="For one person.">
@@ -384,7 +384,7 @@ const [tags, setTags] = useState(["new", "sale"]);
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={(event) => event.preventDefault()}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:11px]" onSubmit={(event) => event.preventDefault()}>
       <FieldGroup title="Product" columns={!wide}>
         <Field row orientation="vertical" label="Name"><Input variant="ghost" value={name} onChange={(event) => setName(event.target.value)} /></Field>
         <Field row orientation="vertical" label="Description"><Textarea variant="ghost" rows={2} autoResize value={description} onChange={(event) => setDescription(event.target.value)} /></Field>
@@ -408,7 +408,7 @@ ${tagRowCode("Tags", "tag", "labelOptions", "tags", "setTags", "setLabelOptions"
 
 ## Tags in rows
 
-<ComponentPreview phonePresentation="screen" details={<>On phones, the summary shows the selected names: short values stay at the trailing edge, and long values wrap below the label outside column layouts. Column layouts keep the summary in their value column. The row opens a grouped Sheet with a list of options. Each whole row toggles its selection, shown by a trailing checkmark; multiple options can be selected. A separate field adds a new option. Apply saves the draft, while Close discards every change, including new options. Desktop retains removable Badge tags and the Select Add action. <code>wide</code> comes from <code>useBreakpoint("md")</code>; import the linked MobileTagRow helper for the mobile composition.</>} code={withFormScreenStyles(`const wide = useBreakpoint("md");
+<ComponentPreview phonePresentation="screen" details={<>On phones, the summary shows the selected names: short values stay at the trailing edge, and long values wrap below the label outside column layouts. Column layouts keep the summary in their value column. The row opens a grouped Sheet with a list of options. Each whole row toggles its selection, shown by a trailing checkmark in the tint; multiple options can be selected. The search stands in the bar at the bottom, and Clear all ends the list while something is selected. Apply saves the draft, while Close discards every change. Desktop retains removable Badge tags and the Select Add action. <code>wide</code> comes from <code>useBreakpoint("md")</code>; import the linked MobileTagRow helper for the mobile composition.</>} code={withFormScreenStyles(`const wide = useBreakpoint("md");
 const formId = useId();
 ${materialOptionsCode}
 ${labelOptionsCode}
@@ -423,7 +423,7 @@ const [labels, setLabels] = useState(["new"]);
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={(event) => event.preventDefault()}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:11px]" onSubmit={(event) => event.preventDefault()}>
       <FieldGroup>
 ${tagRowCode("Materials", "material", "materialOptions", "materials", "setMaterials", "setMaterialOptions", 8)}
 ${tagRowCode("Labels", "label", "labelOptions", "labels", "setLabels", "setLabelOptions", 8)}
@@ -509,7 +509,7 @@ function AccountSettings() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
-<FormScreen title="Account settings" {...presentation} onDialogChange={presentation.setDialog} fill={deleted}><div className={deleted ? "flex flex-1 flex-col" : "flex flex-col gap-6 [--field-group-gap:13px]"}>
+<FormScreen title="Account settings" {...presentation} onDialogChange={presentation.setDialog} fill={deleted}><div className={deleted ? "flex flex-1 flex-col" : "flex flex-col gap-6 [--field-group-gap:11px]"}>
         {deleted ? (
           <EmptyMessage>
             <EmptyMessage.Title>No sample account</EmptyMessage.Title>
@@ -628,7 +628,7 @@ const [reference, setReference] = useState("Monthly payout for the spring collec
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={(event) => event.preventDefault()}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:11px]" onSubmit={(event) => event.preventDefault()}>
       <FieldGroup title="Payout details">
         <Field row orientation={wide ? undefined : "vertical"} label="Account holder"><Input variant={wide ? undefined : "ghost"} value={holder} onChange={(event) => setHolder(event.target.value)} /></Field>
         <Field row orientation={wide ? undefined : "vertical"} label="IBAN" errorMessage={error ? 'Enter a valid IBAN.' : undefined}>
@@ -732,7 +732,7 @@ Copy the [SettingsRegionFields helper](https://github.com/plex-ui/ui/blob/master
 
 ## Rows with pictures
 
-Rows with a picture in Field's `icon`: a 28 column with 8 to the text on a phone, so the label, the line under it and the line above the row start at 56. Rows with a switch, where a row turned off reads quieter; the same with a description under the label; and rows with nothing to set. Use the control to show each picture as a tile, an outline or the symbol alone.
+Rows with a picture in Field's `icon`: a 28 tile 18 from the group's edge and 14 before the text on a phone, as in Settings, so the label, the line under it and the line above the row start at 60 (an app's picture as an image stands at 20 and 56, as in AutoFill). Rows with a switch, where a row turned off reads quieter; the same with a description under the label; and rows with nothing to set. Use the control to show each picture as a tile, an outline or the symbol alone.
 
 <ComponentPreview phonePresentation="screen" code={settingsPicturesReactCode} previewMinHeight={620}>
   <SettingsPicturesDemo />

@@ -92,8 +92,8 @@ const mountRow = async (framework: Framework, initial = ["oak"], nested = false,
 }
 
 const click = async (element: HTMLElement) => interact(() => fireEvent.click(element))
-const typeName = async (editor: HTMLElement, value: string) => {
-  const input = within(editor).getByRole("textbox", { name: "New material" })
+const typeName = async (content: ReturnType<typeof within>, value: string) => {
+  const input = content.getByRole("textbox", { name: "Search materials" })
   await interact(() => {
     fireEvent.input(input, { target: { value } })
     fireEvent.change(input, { target: { value } })
@@ -188,43 +188,35 @@ describe.each<Framework>(["React", "Vue"])("%s Phone tag draft editor", (framewo
     expect(changes).toHaveBeenLastCalledWith([])
   })
 
-  test("new names are trimmed, remain local until Apply, and remain available after reopening", async () => {
-    const { changes, optionChanges } = await mountRow(framework)
-    const { summary, editor, content } = await openEditor()
-    const input = await typeName(editor, "  Linen  ")
-    await click(content.getByRole("button", { name: "Add", exact: true }))
-    expect(content.getByRole("checkbox", { name: "Linen", exact: true }).getAttribute("aria-checked")).toBe("true")
-    expect(input).toHaveProperty("value", "")
-    expect(changes).not.toHaveBeenCalled()
-    expect(optionChanges).not.toHaveBeenCalled()
+  test("the bottom search narrows the rows, keeps the draft, and hides Clear all; no match says so", async () => {
+    const { changes } = await mountRow(framework)
+    const { content } = await openEditor()
+    expect(content.getByRole("button", { name: "Clear all", exact: true })).toBeTruthy()
+    const search = await typeName(content, "ste")
+    expect(content.getAllByRole("checkbox")).toHaveLength(1)
+    expect(content.getByRole("checkbox", { name: "Steel", exact: true })).toBeTruthy()
+    expect(content.queryByRole("button", { name: "Clear all", exact: true })).toBeNull()
+    await click(content.getByRole("checkbox", { name: "Steel", exact: true }))
+    await typeName(content, "cedar")
+    expect(content.queryAllByRole("checkbox")).toHaveLength(0)
+    expect(content.getByText("No materials match “cedar”.")).toBeTruthy()
+    await typeName(content, "")
+    expect(search).toHaveProperty("value", "")
+    expect(content.getAllByRole("checkbox", { checked: true })).toHaveLength(2)
     await click(content.getByRole("button", { name: "Apply materials" }))
-    await expectClosed(summary)
-    expect(changes).toHaveBeenCalledTimes(1)
-    expect(optionChanges).toHaveBeenCalledTimes(1)
-    expect(optionChanges.mock.calls[0]?.[0].map((option) => option.label)).toEqual(["Oak", "Steel", "Linen"])
-    expect(changes.mock.calls[0]?.[0]).toHaveLength(2)
-    const reopened = await openEditor()
-    expect(reopened.content.getByRole("checkbox", { name: "Linen", exact: true }).getAttribute("aria-checked")).toBe("true")
-    await click(reopened.content.getByRole("checkbox", { name: "Linen", exact: true }))
-    await click(reopened.content.getByRole("button", { name: "Apply materials" }))
-    await expectClosed(summary)
-    const third = await openEditor()
-    expect(third.content.getByRole("checkbox", { name: "Linen", exact: true }).getAttribute("aria-checked")).toBe("false")
+    expect(changes.mock.calls).toEqual([[["oak", "steel"]]])
   })
 
-  test("cancel discards newly created options as well as their selection", async () => {
-    const { changes, optionChanges } = await mountRow(framework)
-    const { summary, editor, content } = await openEditor()
-    await typeName(editor, "Cedar")
-    await click(content.getByRole("button", { name: "Add", exact: true }))
-    expect(content.getByRole("checkbox", { name: "Cedar", exact: true })).toBeTruthy()
+  test("Clear all empties only the draft; Close keeps the committed selection", async () => {
+    const { changes } = await mountRow(framework, ["oak", "steel"])
+    const { summary, content } = await openEditor()
+    await click(content.getByRole("button", { name: "Clear all", exact: true }))
+    expect(content.getAllByRole("checkbox", { checked: false })).toHaveLength(2)
+    expect(content.queryByRole("button", { name: "Clear all", exact: true })).toBeNull()
     await click(content.getByRole("button", { name: "Close dialog" }))
     await expectClosed(summary)
-    const reopened = await openEditor()
-    expect(reopened.content.queryByRole("checkbox", { name: "Cedar", exact: true })).toBeNull()
-    expect(reopened.content.getByRole("textbox", { name: "New material" })).toHaveProperty("value", "")
     expect(changes).not.toHaveBeenCalled()
-    expect(optionChanges).not.toHaveBeenCalled()
+    expect(summary.getAttribute("aria-label")).toBe("Materials: Oak, Steel")
   })
 
   test("external option updates refresh the summary and the next editor", async () => {
@@ -242,36 +234,15 @@ describe.each<Framework>(["React", "Vue"])("%s Phone tag draft editor", (framewo
     expect(reopened.content.getByRole("checkbox", { name: "Solid oak", exact: true }).getAttribute("aria-checked")).toBe("true")
   })
 
-  test("submitting the new-name field does not submit the enclosing form or commit the draft", async () => {
+  test("Enter in the search does not submit the enclosing form or commit the draft", async () => {
     const { changes, parentChanges, formSubmits } = await mountRow(framework, ["oak"], true, true)
     const { editor, content } = await openEditor()
-    const input = await typeName(editor, "Cedar")
-    const form = input.closest("form")
-    expect(form).not.toBeNull()
-    if (!form) throw new Error("The new-name field must belong to its own form")
-    await interact(() => fireEvent.submit(form))
-    expect(content.getByRole("checkbox", { name: "Cedar", exact: true }).getAttribute("aria-checked")).toBe("true")
+    const input = await typeName(content, "oak")
+    await interact(() => fireEvent.keyDown(input, { key: "Enter" }))
     expect(formSubmits).not.toHaveBeenCalled()
     expect(parentChanges).not.toHaveBeenCalled()
     expect(changes).not.toHaveBeenCalled()
     expect(editor.isConnected).toBe(true)
-  })
-
-  test("case-insensitive duplicates select an existing option without duplicating its name or value", async () => {
-    const { changes } = await mountRow(framework)
-    const { summary, editor, content } = await openEditor()
-    await typeName(editor, "  oAK  ")
-    await click(content.getByRole("button", { name: "Add", exact: true }))
-    await typeName(editor, " sTEEL ")
-    await click(content.getByRole("button", { name: "Add", exact: true }))
-    expect(content.getAllByRole("checkbox", { checked: true })).toHaveLength(2)
-    expect(content.getAllByRole("checkbox", { name: "Oak", exact: true })).toHaveLength(1)
-    expect(content.getAllByRole("checkbox", { name: "Steel", exact: true })).toHaveLength(1)
-    await typeName(editor, "   ")
-    expect(content.getByRole("button", { name: "Add", exact: true })).toHaveProperty("disabled", true)
-    await click(content.getByRole("button", { name: "Apply materials" }))
-    await expectClosed(summary)
-    expect(changes.mock.calls).toEqual([[["oak", "steel"]]])
   })
 
   test.each(["Close", "Escape", "outside", "Apply"] as const)("a nested editor handles %s without closing the parent Sheet", async (method) => {

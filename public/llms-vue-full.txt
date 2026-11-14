@@ -1260,7 +1260,7 @@ Use dividers to separate checkbox groups into logical sections. Each section can
     <ToolbarTitle>Notifications</ToolbarTitle>
   </Toolbar>
   <PageContent data-form-content>
-    <form ref="screenForm" class="flex flex-col gap-6 [--field-group-gap:13px]" @submit.prevent="" >
+    <form ref="screenForm" class="flex flex-col gap-6 [--field-group-gap:11px]" @submit.prevent="" >
       <FieldGroup title="Email notifications" description="Configure which emails you receive.">
         <Field row label="Marketing" description="Receive emails about new products and features."><Checkbox v-model:checked="settings.emailMarketing" /></Field>
         <Field row label="Security" description="Receive emails about account activity and security."><Checkbox v-model:checked="settings.emailSecurity" /></Field>
@@ -1279,7 +1279,7 @@ Use dividers to separate checkbox groups into logical sections. Each section can
 ### With Radio Group
 Place Checkbox alongside RadioGroup controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.
 ```vue
-<div class="flex flex-col gap-6 [--field-group-gap:13px] w-full max-w-md">
+<div class="flex flex-col gap-6 [--field-group-gap:11px] w-full max-w-md">
   <Field label="Notification channel" description="Choose how you'd like to be notified." v-slot="{ id }">
     <RadioGroup :direction="direction" default-value="email" aria-label="Notification channel">
       <RadioGroupItem
@@ -2051,7 +2051,7 @@ Props:
     - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
     - @escape-key-down ((event: KeyboardEvent) => void) — Called on Escape before the dialog closes; call event.preventDefault() to keep it open
     - @interact-outside ((event: DialogInteractOutsideEvent) => void) — Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes; call event.preventDefault() to keep it open (the sheet returns). event.detail.originalEvent is the browser's event, a TouchEvent for the sheet
-    - confirm-close ({ message: string; confirmLabel?: string; cancelLabel?: string } | false | null) — Asks before the dialog closes, for a form with unsaved changes: Close, DialogClose, Escape, a press outside and a pulled-down phone sheet ask first. On a phone Sheet the question is a glass popover at the bar's Close (iOS confirmation); elsewhere an alert. confirmLabel defaults to "Discard Changes", cancelLabel (the alert's other answer) to "Keep Editing". Setting open to false yourself closes at once
+    - confirm-close ({ message: string; detail?: string; confirmLabel?: string; cancelLabel?: string } | (() => { message: string; detail?: string; confirmLabel?: string; cancelLabel?: string } | false | null) | false | null) — Asks before the dialog closes, for a form with unsaved changes: Close, DialogClose, Escape, a press outside and a pulled-down phone sheet ask first. On a phone Sheet the question is a glass popover at the bar's Close (iOS confirmation); elsewhere an alert. confirmLabel defaults to "Discard Changes", cancelLabel (the alert's other answer) to "Keep Editing". detail is a quieter line under the question, such as what a save left behind. A function is called at each close attempt, before the dialog decides: commit what is typed there, then return the question, or nothing to close at once. Setting open to false yourself closes at once
     - z-index (number) default: 50 — Stack order of the overlay and the dialog, for a page whose own layers sit above 50
     - root-props (DialogLayerProps) — class, style and data attributes for the fixed layer that holds the panel. Data attributes on DialogContent land there too
     - overlay-props (DialogLayerProps) — class, style and data attributes for the overlay
@@ -2523,7 +2523,7 @@ A row that is an action is a ghost Button with block in a row of a FieldGroup, a
 ```
 
 ### Spacing between groups
-On a phone, groups one after another space themselves as an iOS 27.2 inset list, measured on the simulator: 37 from rows to rows, 60 to rows under a header (64 under a prominent one), 49.5 past a footer of one line and 16 more for each further line, 72 past a footer to rows under a header. The header and the footer stand inside that space, and a RadioGroup around a group of its own spaces as that group. Stack the groups in a block with no gap of its own. Where a parent's gap stands between them, set --field-group-gap to 37px less that gap. On a desktop the parent's gap spaces them, as before.
+On a phone, groups one after another space themselves as Settings in iOS 27 does: 35 from rows to rows, 55.33 to rows under a header and 22 more for each further line of it, 47.67 past a footer of one line and 16 more for each further line, 75.33 past a footer to rows under a header. A prominent header keeps a SwiftUI Form's steps: 62 after rows, 74 after a footer. The header and the footer stand inside that space, and a RadioGroup around a group of its own spaces as that group. Stack the groups in a block with no gap of its own. Where a parent's gap stands between them, set --field-group-gap to 35px less that gap. On a desktop the parent's gap spaces them, as before.
 ```vue
 <div>
   <FieldGroup>
@@ -5435,7 +5435,7 @@ Use dividers to separate radio groups into logical sections. Each section can be
     <ToolbarTitle>Preferences</ToolbarTitle>
   </Toolbar>
   <PageContent data-form-content>
-    <form ref="screenForm" class="flex flex-col gap-6 [--field-group-gap:13px]" @submit.prevent="" >
+    <form ref="screenForm" class="flex flex-col gap-6 [--field-group-gap:11px]" @submit.prevent="" >
       <RadioGroup direction="col" class="w-full" v-model:value="visibility" aria-label="Visibility">
         <FieldGroup title="Visibility" description="Control who can see project resources.">
           <Field row label="Hidden"><RadioGroupItem value="hidden" /></Field>
@@ -5459,7 +5459,7 @@ Use dividers to separate radio groups into logical sections. Each section can be
 ### With Checkbox
 Place RadioGroup alongside Checkbox controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.
 ```vue
-<div class="flex flex-col gap-6 [--field-group-gap:13px] w-full max-w-md">
+<div class="flex flex-col gap-6 [--field-group-gap:11px] w-full max-w-md">
   <Field label="Notification channel" description="Choose how you'd like to be notified." v-slot="{ id }">
     <RadioGroup :direction="direction" default-value="email" aria-label="Notification channel">
       <RadioGroupItem
@@ -6179,7 +6179,7 @@ Country selector with flag icons and phone input composed into a form. Selecting
     <ToolbarTitle>Phone number</ToolbarTitle>
   </Toolbar>
   <PageContent data-form-content>
-    <form ref="screenForm" class="flex flex-col gap-6 [--field-group-gap:13px]" @submit.prevent="submitted = true" novalidate>
+    <form ref="screenForm" class="flex flex-col gap-6 [--field-group-gap:11px]" @submit.prevent="submitted = true" novalidate>
       <FieldGroup title="Phone number" description="Choose your country and enter the number you want to use." columns>
   <Field row label="Country">
     <Select v-model:value="country" :options="countryOptions" search-placeholder="Search countries..."
@@ -8255,7 +8255,7 @@ Put a stepper in a Field row and name its value in the row's label, such as 3 co
 ### Range, step and wrap
 Decimal steps add without rounding drift. With wrap a step past max continues from min, so the hour goes from 23 to 0, and neither segment stops; turn it off and the plus stops at 23.
 ```vue
-<div class="flex w-full flex-col items-center gap-6 [--field-group-gap:13px]">
+<div class="flex w-full flex-col items-center gap-6 [--field-group-gap:11px]">
   <FieldGroup class="w-full max-w-[400px]">
     <template #footer>Steps of 10% from 0% to 100%.</template>
     <Field row :label="'Opacity: ' + Math.round(opacity * 100) + '%'">
@@ -8365,7 +8365,7 @@ Props:
 One setting on and one off. Click either the label or the control. Choose accent for the configured application accent (platform green by default), or primary for the default Switch style. A description is linked with aria-describedby. On a desktop label-position sets the label before or after the switch; on a phone the label stays at the start of its row and the switch trails it, so the Phone preview does not offer it. disabled keeps a switch as it is: on retains a muted accent, off uses the neutral track. Use default-checked for an initial value and name for form submission.
 ```vue
 <!-- Desktop -->
-<div class="flex w-full max-w-sm flex-col gap-6 [--field-group-gap:13px]">
+<div class="flex w-full max-w-sm flex-col gap-6 [--field-group-gap:11px]">
   <Switch :color="color" name="notifications" label="Notifications" :description="description ? 'Messages and mentions.' : undefined" :label-position="labelPosition" default-checked :disabled="disabled" />
   <Switch :color="color" name="summary" label="Weekly summary" :description="description ? 'Sent on Mondays.' : undefined" :label-position="labelPosition" :disabled="disabled" />
 </div>
@@ -8404,7 +8404,7 @@ const checked = ref(false)
 Group related settings with FieldGroup. Use a row description to explain a locked setting and a footer for help that applies to the group. Phone shows the same groups in a full Page with navigation.
 ```vue
 <!-- Place these groups inside PageContent on Phone. -->
-<div class="flex w-full max-w-lg flex-col gap-6 [--field-group-gap:13px]"><FieldGroup title="Notifications">
+<div class="flex w-full max-w-lg flex-col gap-6 [--field-group-gap:11px]"><FieldGroup title="Notifications">
   <Field row label="Push notifications"><Switch color="accent" default-checked /></Field>
   <Field row label="Product updates" description="A few emails a month."><Switch color="accent" /></Field>
 </FieldGroup>

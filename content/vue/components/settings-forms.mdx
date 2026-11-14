@@ -251,7 +251,6 @@ export const rowGroups = formScreen("Edit product", `      <img src="/demo/pictu
         </Field>
       </FieldGroup>
       <FieldGroup :columns="columns">
-        <template v-if="!wide" #footer>Sizes and finishes a buyer can choose.</template>
         <component :is="ProductVariants" v-model="variants" :wide="wide" />
       </FieldGroup>
       <FieldGroup :columns="columns">
@@ -505,9 +504,9 @@ Settings and editing forms composed from [Field](/vue/components/field), [Input]
 
 Row forms use the [FormScreen helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/FormScreen.ts) and [shared form styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css) for Page and Dialog. The form owner holds every value above that presentation boundary.
 
-Phone tag rows use the [MobileTagRow helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/MobileTagRow.ts) and its [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css). Copy both files with the examples. The row opens a draft editor with a list of options and trailing checkmarks. Tap anywhere on a row to select it, or use the separate field to add an option. Apply saves the draft; Close discards it. Desktop keeps removable badges.
+Phone tag rows use the [MobileTagRow helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/MobileTagRow.ts) and its [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css). Copy both files with the examples. The row opens a draft editor with a list of options and trailing checkmarks in the tint. Tap anywhere on a row to select it; search from the bar at the bottom; Clear all ends the list while something is selected. Apply saves the draft; Close discards it. Desktop keeps removable badges.
 
-Keep both the options and selected values in the form's state, bound with `v-model:options` and `v-model`. The desktop fields use the same options, so newly added labels survive switching between Phone and Desktop.
+Keep both the options and selected values in the form's state, bound with `v-model:options` and `v-model`. The desktop fields use the same options, so labels added there survive switching between Phone and Desktop.
 
 Screens default to Grouped. The `surface` control switches to Plain without changing fields or values. Page uses base colors; Dialog uses elevated colors. Changes to presentation preserve entered values and selections.
 
@@ -517,7 +516,7 @@ Screens default to Grouped. The `surface` control switches to Plain without chan
 
 Variants uses the [ProductVariants helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/ProductVariants.ts), [shared name validation](https://github.com/plex-ui/ui/blob/master/components/docs/productVariantData.ts), and the linked FormRowsDemos styles. Add opens a name draft; Edit changes a saved variant. Save applies the draft, Cancel discards it, and Remove variant deletes the edited choice. The parent form owns the saved values.
 
-<ComponentPreview phonePresentation="screen" language="vue" details={<>One form in several blocks, each with one kind of row. On a phone, a <code>Toolbar</code> provides the top bar and a bottom <code>Toolbar</code> keeps Save changes over the bottom safe area, with 28px side insets. Only PageContent scrolls, with 16px side gutters. From 768px up, PageFooter keeps the action under the form. Text stands under its label, short editable values start at a shared column by default on phones, a tag row opens a draft editor on phones and keeps its round Add action on desktop. A unit is a <code>Menu</code> on an <code>InputGroupButton</code>, as in <a href="/vue/components/input-group#dropdown">Input Group</a>, the Variants explanation stays visible in the group footer on phones. With <code>columns</code> on a <code>FieldGroup</code> every value starts at one column, <code>--field-row-column-width</code> into the row, as in an iOS form of typed details; without it every value ends at the row's edge, as in iOS Settings. On the web a field keeps its frame and width, on a phone the value takes the rest of the row and its unit or mark ends at the edge; a switch and an action stay at the end. Pick one way for a whole form, and keep descriptions out of a group in columns: under the label they narrow the column.</>} code={rowGroupsCode} previewMinHeight={760}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<>One form in several blocks, each with one kind of row. On a phone, a <code>Toolbar</code> provides the top bar and a bottom <code>Toolbar</code> keeps Save changes over the bottom safe area, with 28px side insets. Only PageContent scrolls, with 16px side gutters. From 768px up, PageFooter keeps the action under the form. Text stands under its label, short editable values start at a shared column by default on phones, a tag row opens a draft editor on phones and keeps its round Add action on desktop. A unit is a <code>Menu</code> on an <code>InputGroupButton</code>, as in <a href="/vue/components/input-group#dropdown">Input Group</a>, Variants is a row with a chevron on phones that opens its own list, with the explanation as that list's footer. With <code>columns</code> on a <code>FieldGroup</code> every value starts at one column, <code>--field-row-column-width</code> into the row, as in an iOS form of typed details; without it every value ends at the row's edge, as in iOS Settings. On the web a field keeps its frame and width, on a phone the value takes the rest of the row and its unit or mark ends at the edge; a switch and an action stay at the end. Pick one way for a whole form, and keep descriptions out of a group in columns: under the label they narrow the column.</>} code={rowGroupsCode} previewMinHeight={760}>
   <VueFormExampleDemo template={rowGroups} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={rowState} controls={[{ name: "columns", type: "boolean", default: false }]} phoneControls={[{ name: "columns", type: "boolean", default: true }]} />
 </ComponentPreview>
 
@@ -547,7 +546,7 @@ Variants uses the [ProductVariants helper](https://github.com/plex-ui/ui/blob/ma
 
 ## Tags in rows
 
-<ComponentPreview phonePresentation="screen" language="vue" details={<>On phones, the summary shows the selected names: short values stay at the trailing edge, and long values wrap below the label outside column layouts. Column layouts keep the summary in their value column. The row opens a grouped Sheet with a list of options. Each whole row toggles its selection, shown by a trailing checkmark; multiple options can be selected. A separate field adds a new option. Apply saves the draft, while Close discards every change, including new options. Desktop retains removable Badge tags and the Select Add action. <code>wide</code> comes from <code>useBreakpoint("md")</code>; import the linked MobileTagRow helper for the mobile composition.</>} code={withFormScreenStyles(formScreenCode(rowTags))} previewMinHeight={200}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<>On phones, the summary shows the selected names: short values stay at the trailing edge, and long values wrap below the label outside column layouts. Column layouts keep the summary in their value column. The row opens a grouped Sheet with a list of options. Each whole row toggles its selection, shown by a trailing checkmark in the tint; multiple options can be selected. The search stands in the bar at the bottom, and Clear all ends the list while something is selected. Apply saves the draft, while Close discards every change. Desktop retains removable Badge tags and the Select Add action. <code>wide</code> comes from <code>useBreakpoint("md")</code>; import the linked MobileTagRow helper for the mobile composition.</>} code={withFormScreenStyles(formScreenCode(rowTags))} previewMinHeight={200}>
   <VueFormExampleDemo template={rowTags} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={{ ...rowState, materials: ["oak", "steel", "linen", "glass", "wool"] }} />
 </ComponentPreview>
 
@@ -705,7 +704,7 @@ Copy the [SettingsRegionFields helper](https://github.com/plex-ui/ui/blob/master
 
 ## Rows with pictures
 
-Rows with a picture in Field's `#icon` slot: a 28 column with 8 to the text on a phone, so the label, the line under it and the line above the row start at 56. Rows with a switch, where a row turned off reads quieter; the same with a description under the label; and rows with nothing to set. Use the control to show each picture as a tile, an outline or the symbol alone.
+Rows with a picture in Field's `#icon` slot: a 28 tile 18 from the group's edge and 14 before the text on a phone, as in Settings, so the label, the line under it and the line above the row start at 60 (an app's picture as an image stands at 20 and 56, as in AutoFill). Rows with a switch, where a row turned off reads quieter; the same with a description under the label; and rows with nothing to set. Use the control to show each picture as a tile, an outline or the symbol alone.
 
 <ComponentPreview phonePresentation="screen" language="vue" code={settingsPicturesVueCode} previewMinHeight={620}>
   <VueSettingsPicturesDemo />

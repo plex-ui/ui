@@ -274,25 +274,34 @@
   max-width: 100%;
 }
 
-/* A row that leads with a symbol or an app's picture (`icon`), as an iOS cell's image (kit Lists Row 550:50430: a 28
-   column and 8 to the text, so the text and the line above the row start at 56 on a phone, IMG_5952). The column
-   stands at the row's inset, centred in the row's height; the text moves past it. */
+/* A row that leads with a symbol or an app's picture (`icon`), as an iOS cell's image. On a phone a symbol's 28
+   tile stands 2 before the row's inset and the text 14 after it, so the text and the line above the row start at 60
+   (Settings, General and Accessibility, IMG_6016-6019: the tile at 18 from the group's edge); an app's picture
+   keeps a cell's own image, at the inset and 8 before the text at 56 (AutoFill, IMG_5952). The column is centred in
+   the row's height; the text moves past it. */
 .Field:where([data-row]):has(> .Icon) {
-  --field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-size) + var(--field-row-icon-gap));
+  --field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-offset) + var(--field-row-icon-size) + var(--field-row-icon-gap));
 
   position: relative;
-  padding-inline-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-size) + var(--field-row-icon-gap));
+  padding-inline-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-offset) + var(--field-row-icon-size) + var(--field-row-icon-gap));
 }
 
 /* A row of a Sortable wraps the Field with its grip: the wrapper draws the line, so it takes the inset too (not with
    the grip placed before the row, where the text starts after the grip as well) */
 :where(:not([data-handle-placement="start"]) > [data-row]):has(> .Field:where([data-row]) > .Icon) {
-  --field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-size) + var(--field-row-icon-gap));
+  --field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-offset) + var(--field-row-icon-size) + var(--field-row-icon-gap));
+}
+
+/* An app's picture (an image) keeps a cell's own image place */
+.Field:where([data-row]):has(> .Icon > img),
+:where(:not([data-handle-placement="start"]) > [data-row]):has(> .Field:where([data-row]) > .Icon > img) {
+  --field-row-icon-offset: var(--field-row-picture-offset);
+  --field-row-icon-gap: var(--field-row-picture-gap);
 }
 
 .Icon {
   position: absolute;
-  inset-inline-start: var(--field-row-padding-inline);
+  inset-inline-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-offset));
   top: 50%;
   display: flex;
   align-items: center;
@@ -402,13 +411,13 @@
 
 /* A choice with an action at its end, such as the info button of a VPN or a network, leads with its mark in the
    icon column, so the action alone stands at the end (Settings › VPN, IMG_5959: the check at 32 from the group's
-   edge, the words at 60, the info symbol at the row's inset; the kit's icon column puts them at 34 and 56). Only a single radio without a label of its own: a RadioGroup of
+   edge, the words at 60, the info symbol at the row's inset, as the kit's icon column puts them). Only a single radio without a label of its own: a RadioGroup of
    several choices keeps its place (Codex #46), a row with an `icon` keeps its icon there (Codex #47), and a vertical row its own layout (Codex #48). */
 .Field:where([data-row]:not([data-fill], [data-orientation="vertical"])):has(> .Action):not(:has(> .Icon)):has(> .Content > .Control > :only-child > label:only-child:not([data-has-label]) [role="radio"]) {
-  --field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-size) + var(--field-row-icon-gap));
+  --field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-offset) + var(--field-row-icon-size) + var(--field-row-icon-gap));
 
   position: relative;
-  padding-inline-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-size) + var(--field-row-icon-gap));
+  padding-inline-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-offset) + var(--field-row-icon-size) + var(--field-row-icon-gap));
 }
 
 /* The action takes the control's column; the control leaves the grid for the row's padding box (a grid area would
@@ -424,7 +433,7 @@
 .Field:where([data-row]:not([data-fill], [data-orientation="vertical"])):has(> .Action):not(:has(> .Icon)) > .Content > .Control:has(> :only-child > label:only-child:not([data-has-label]) [role="radio"]) {
   position: absolute;
   grid-area: auto;
-  inset-inline-start: var(--field-row-padding-inline);
+  inset-inline-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-offset));
   top: 50%;
   display: flex;
   justify-content: center;

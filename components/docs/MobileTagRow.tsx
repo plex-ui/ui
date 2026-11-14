@@ -6,7 +6,8 @@ import { Checkbox } from '@plexui/ui/components/Checkbox';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { Disclosure } from '@plexui/ui/components/Icon';
+import { Disclosure, SearchSm } from '@plexui/ui/components/Icon';
+import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { Input } from '@plexui/ui/components/Input';
 import styles from './FormRowsDemos.module.css';
 
@@ -16,31 +17,33 @@ export type MobileTagOption = {
   color?: 'discovery' | 'danger' | 'warning';
 };
 
-/** The row shows committed values; the Sheet owns a draft until Apply. */
-export function MobileTagRow({ label, one, options, onOptionsChange, value, onChange }: {
+/** The row shows committed values; the Sheet owns a draft until Apply. The sheet picks as iOS does from a row with a
+ * chevron: a checkmark in the tint at the end of each row picked, Clear all as the list's own action, and the search in the
+ * bar at the bottom, in reach of the thumb (owner 14.11). */
+export function MobileTagRow({ label, one, options, value, onChange }: {
   label: string;
   one: string;
   options: MobileTagOption[];
-  onOptionsChange: (options: MobileTagOption[]) => void;
+  onOptionsChange?: (options: MobileTagOption[]) => void;
   value: string[];
   onChange: (value: string[]) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [nested, setNested] = useState(false);
-  const [draftCatalog, setDraftCatalog] = useState<MobileTagOption[]>([]);
   const [draft, setDraft] = useState<string[]>([]);
-  const [newLabel, setNewLabel] = useState('');
+  const [query, setQuery] = useState('');
   const heading = useRef<HTMLDivElement>(null);
   const summary = useRef<HTMLButtonElement>(null);
   const selectedLabels = value.map((selected) => options.find((option) => option.value === selected)?.label ?? selected);
   const selectedText = selectedLabels.join(', ');
+  const needle = query.trim().toLowerCase();
+  const shown = needle ? options.filter((option) => option.label.toLowerCase().includes(needle)) : options;
 
   const show = (event: MouseEvent<HTMLButtonElement>) => {
     summary.current = event.currentTarget;
     setNested(Boolean(event.currentTarget.closest('[data-plex-dialog][data-mobile-variant="sheet"][data-mobile-placement="bottom"]')));
-    setDraftCatalog([...options]);
     setDraft([...value]);
-    setNewLabel('');
+    setQuery('');
     setOpen(true);
   };
   const toggle = (selected: string) => {
@@ -48,24 +51,8 @@ export function MobileTagRow({ label, one, options, onOptionsChange, value, onCh
       ? current.filter((item) => item !== selected)
       : [...current, selected]);
   };
-  const add = () => {
-    const label = newLabel.trim();
-    if (!label) return;
-    const duplicate = draftCatalog.find((option) => option.label.trim().toLowerCase() === label.toLowerCase());
-    if (duplicate) {
-      setDraft((current) => current.includes(duplicate.value) ? current : [...current, duplicate.value]);
-    } else {
-      let index = 1;
-      while (draftCatalog.some((option) => option.value === `custom-${index}`) || draft.includes(`custom-${index}`)) index++;
-      const option = { value: `custom-${index}`, label };
-      setDraftCatalog((current) => [...current, option]);
-      setDraft((current) => [...current, option.value]);
-    }
-    setNewLabel('');
-  };
   const apply = () => {
-    onOptionsChange(draftCatalog);
-    onChange([...draft]);
+    onChange(options.filter((option) => draft.includes(option.value)).map((option) => option.value));
     setOpen(false);
   };
 
@@ -96,30 +83,31 @@ export function MobileTagRow({ label, one, options, onOptionsChange, value, onCh
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>{label}</Dialog.Title></div>
             <Dialog.Description className="sr-only">
-              Select {label.toLowerCase()} or add a new {one}. Apply to save your changes.
+              Select {label.toLowerCase()}, or search for one {one}. Apply to save your changes.
             </Dialog.Description>
             <Dialog.HeaderAction>
               <NavigationButton action="confirm" aria-label={`Apply ${label.toLowerCase()}`} onClick={apply} />
             </Dialog.HeaderAction>
           </Dialog.Header>
-          <Dialog.Body className="flex flex-col gap-6 [--field-group-gap:13px]">
-            <FieldGroup aria-label={label} data-tag-options>
-              {draftCatalog.map((option) => (
+          <Dialog.Body className="flex flex-col gap-6 [--field-group-gap:11px]">
+            {shown.length > 0 && <FieldGroup aria-label={label} data-tag-options>
+              {shown.map((option) => (
                 <Field key={option.value} row label={option.label} data-tag-option>
                   <Checkbox variant="ghost" checked={draft.includes(option.value)} onCheckedChange={() => toggle(option.value)} />
                 </Field>
               ))}
-            </FieldGroup>
-            <form onSubmit={(event) => { event.preventDefault(); event.stopPropagation(); add(); }}>
-              <FieldGroup>
-                <Input className={styles.TagAddInput} variant="ghost" aria-label={`New ${one}`}
-                  value={newLabel} onChange={(event) => setNewLabel(event.target.value)}
-                  placeholder={`Add new ${one}…`} autoComplete="off" endAdornment={
-                    <Button className={styles.TagAddAction} type="submit" color="info" variant="ghost" disabled={!newLabel.trim()}>Add</Button>
-                  } />
-              </FieldGroup>
-            </form>
+            </FieldGroup>}
+            {shown.length === 0 && <p className={styles.TagNoMatches}>No {label.toLowerCase()} match “{query.trim()}”.</p>}
+            {draft.length > 0 && !needle && <FieldGroup>
+              <div data-row><Button block color="info" variant="ghost" onClick={() => setDraft([])}>Clear all</Button></div>
+            </FieldGroup>}
           </Dialog.Body>
+          <Toolbar placement="bottom">
+            <Toolbar.Content fill>
+              <Input variant="soft" pill placeholder={`Search ${label.toLowerCase()}`} aria-label={`Search ${label.toLowerCase()}`}
+                startAdornment={<SearchSm />} value={query} onChange={(event) => setQuery(event.target.value)} />
+            </Toolbar.Content>
+          </Toolbar>
         </Dialog.Content>
       </Dialog>
     </>

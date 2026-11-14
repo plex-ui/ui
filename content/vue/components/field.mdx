@@ -303,15 +303,15 @@ import { FieldGroup } from "@plexui/vue/components/FieldGroup";`}</UsageBlock>
   <p>A row that is an action is a ghost <code>Button</code> with <code>block</code> in a row of a <code>FieldGroup</code>, as an iOS list draws a button. The row gives it its height and type, 52 high with 17pt words on a phone. The words start where a row's label does, with no chevron. Its pressed state fills the row to the group's corners, and the hairlines are the group's.</p>
   <p>The Button's <code>color</code> tints the words: <code>info</code> for the accent, <code>danger</code> for a destructive row. An icon after the words stands at the row's trailing edge, such as an arrow for a link that leaves the app. A row with <code>data-align="center"</code> centres its words, as Settings puts Reset to Default in a group of its own.</p>
 </>} code={actionRows} previewMinHeight={240}>
-  <VuePhoneRowsDemo template={`<div class="flex w-full max-w-[480px] flex-col gap-6 [--field-group-gap:13px]">${actionRows}</div>`} phoneTemplate={phoneRows(actionRows)} phoneStageClassName="w-full" stageClassName="py-10" controls={actionRowsControls} />
+  <VuePhoneRowsDemo template={`<div class="flex w-full max-w-[480px] flex-col gap-6 [--field-group-gap:11px]">${actionRows}</div>`} phoneTemplate={phoneRows(actionRows)} phoneStageClassName="w-full" stageClassName="py-10" controls={actionRowsControls} />
 </ComponentPreview>
 
 ### Spacing between groups
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
-  <p>On a phone, groups one after another space themselves as an iOS 27.2 inset list, measured on the simulator: 37 from rows to rows, 60 to rows under a header (64 under a prominent one), 49.5 past a footer of one line and 16 more for each further line, 72 past a footer to rows under a header. The header and the footer stand inside that space, and a <code>RadioGroup</code> around a group of its own spaces as that group. Stack the groups in a block with no gap of its own. Where a parent's gap stands between them, set <code>--field-group-gap</code> to 37px less that gap. On a desktop the parent's gap spaces them, as before.</p>
+  <p>On a phone, groups one after another space themselves as Settings in iOS 27 does: 35 from rows to rows, 55.33 to rows under a header and 22 more for each further line of it, 47.67 past a footer of one line and 16 more for each further line, 75.33 past a footer to rows under a header. A prominent header keeps a SwiftUI Form's steps: 62 after rows, 74 after a footer. The header and the footer stand inside that space, and a <code>RadioGroup</code> around a group of its own spaces as that group. Stack the groups in a block with no gap of its own. Where a parent's gap stands between them, set <code>--field-group-gap</code> to 35px less that gap. On a desktop the parent's gap spaces them, as before.</p>
 </>} code={spacing} previewMinHeight={760}>
-  <VuePhoneRowsDemo template={`<div class="w-full max-w-[480px] [&>div]:flex [&>div]:flex-col [&>div]:gap-6 [--field-group-gap:13px]">${spacing}</div>`} phoneTemplate={phoneRows(spacing.replace("<div>", '<div class="contents">'))} phoneStageClassName="w-full" stageClassName="py-10" />
+  <VuePhoneRowsDemo template={`<div class="w-full max-w-[480px] [&>div]:flex [&>div]:flex-col [&>div]:gap-6 [--field-group-gap:11px]">${spacing}</div>`} phoneTemplate={phoneRows(spacing.replace("<div>", '<div class="contents">'))} phoneStageClassName="w-full" stageClassName="py-10" />
 </ComponentPreview>
 
 ### Other controls

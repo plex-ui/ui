@@ -85,11 +85,19 @@ const DIALOG_REQUEST_CLOSE: InjectionKey<ComputedRef<(() => void) | null>> = Sym
 export type DialogConfirmClose = {
   /** The question, such as "Are you sure you want to discard this new note?"; text or vnodes, as React takes a node */
   message: VNodeChild
+  /** A quieter line under the question, such as what a save left behind */
+  detail?: VNodeChild
   /** The answer that closes and loses the changes. @default "Discard Changes" */
   confirmLabel?: VNodeChild
   /** The alert's answer that keeps the dialog open. @default "Keep Editing" */
   cancelLabel?: VNodeChild
 }
+/**
+ * `confirmClose` as a value, or as a function the dialog calls at each close attempt (Close, DialogClose, Escape, a
+ * press outside, a sheet pulled down) before it decides: it returns the question, or nothing to close at once. An
+ * owner that commits typed words only on blur commits them there, then compares.
+ */
+export type DialogConfirmCloseProp = DialogConfirmClose | (() => DialogConfirmClose | false | null | undefined) | false | null
 // Where DialogBody takes a phone Sheet's description: the first text of the content, under the bar
 // Where a phone Sheet's description goes: the top of DialogBody, or first a DialogDescriptionSlot of the content's own
 type DialogDescriptionSlots = { body: Ref<HTMLElement | null>; own: Ref<HTMLElement | null> }
@@ -305,7 +313,7 @@ export const DialogContent = defineComponent({
      * and a phone sheet pulled down all ask first. Pass it while there are changes and leave it out (or `false`) when
      * there are none. Setting `open` to false yourself, such as after Save, closes at once.
      */
-    confirmClose: { type: [Object, Boolean] as PropType<DialogConfirmClose | false | null>, default: undefined },
+    confirmClose: { type: [Object, Boolean, Function] as PropType<DialogConfirmCloseProp>, default: undefined },
     /** Stack order of the overlay and the dialog. @default 50 */
     zIndex: Number,
     /** Class, style and data attributes for the fixed layer that holds the panel. Data attributes of DialogContent land here too. */
@@ -342,14 +350,26 @@ export const DialogContent = defineComponent({
     const closeButton = shallowRef<HTMLElement | null>(null)
     // Where focus returns when the question is dismissed: the field or button that asked to close
     let returnFocus: HTMLElement | null = null
-    const requestClose = () => {
+    // The question a function `confirmClose` returned at the last close attempt
+    const asked = shallowRef<DialogConfirmClose | null>(null)
+    // Whether the dialog closed at once (no question to ask)
+    const requestClose = (): boolean => {
       // A press on a dialog that is already leaving asks nothing
-      if (!open.value) return
-      if (!props.confirmClose) return setOpen(false)
-      if (confirming.value || performance.now() - confirmClosedAt < DOUBLE_CLICK) return
+      if (!open.value) return false
+      const confirm = props.confirmClose
+      if (!confirm) { setOpen(false); return true }
+      if (confirming.value || performance.now() - confirmClosedAt < DOUBLE_CLICK) return false
+      // A function decides at the attempt: the owner commits what is typed, then compares
+      if (typeof confirm === "function") {
+        const question = confirm()
+        if (!question) { setOpen(false); return true }
+        asked.value = question
+      }
       returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
       setConfirming(true)
+      return false
     }
+    const question = () => (typeof props.confirmClose === "function" ? asked.value : props.confirmClose || null)
     const setCloseButton = (button: HTMLElement | null) => { closeButton.value = button }
     // The answer that discards: the question leaves first, then the dialog, as iOS dismisses the confirmation before
     // the sheet; together, the question would stand still over the sheet as it leaves.
@@ -478,10 +498,7 @@ export const DialogContent = defineComponent({
     const dismissByDrag = (originalEvent: TouchEvent) => {
       const request: DialogInteractOutsideEvent = new CustomEvent("dialog.sheetDrag", { cancelable: true, detail: { originalEvent } })
       if (ownerKeepsOpen(request)) return false
-      if (props.confirmClose) {
-        requestClose()
-        return false
-      }
+      if (props.confirmClose) return requestClose()
       setOpen(false)
       return true
     }
@@ -618,7 +635,7 @@ export const DialogContent = defineComponent({
                 slots.default?.(),
                 props.confirmClose
                   ? h(ConfirmClose, {
-                      ...props.confirmClose,
+                      ...(question() ?? { message: null }),
                       open: confirming.value,
                       anchor: (phoneWindow.value || phoneLayout.value) && mobileVariant.value === "sheet" ? closeButton.value : null,
                       returnFocus: () => returnFocus,
@@ -903,6 +920,7 @@ const ConfirmClose = defineComponent({
   name: "DialogConfirmClose",
   props: {
     message: { type: null as unknown as PropType<VNodeChild>, required: true },
+    detail: { type: null as unknown as PropType<VNodeChild>, default: undefined },
     confirmLabel: { type: null as unknown as PropType<VNodeChild>, default: "Discard Changes" },
     cancelLabel: { type: null as unknown as PropType<VNodeChild>, default: "Keep Editing" },
     open: { type: Boolean, default: false },
@@ -920,6 +938,7 @@ const ConfirmClose = defineComponent({
     const setOpen = (next: boolean) => emit("update:open", next)
     const confirm = () => emit("confirm")
     const messageId = useId(undefined, "plex-confirm-close")
+    const hasDetail = () => props.detail != null && props.detail !== false
     return () => {
       const anchor = props.anchor
       if (anchor) {
@@ -940,6 +959,7 @@ const ConfirmClose = defineComponent({
             "data-dialog-confirm-close": "",
           }, () => [
             h("p", { id: messageId, class: s.ConfirmCloseMessage }, [props.message as VNodeArrayChildren[number]]),
+            hasDetail() ? h("p", { class: s.ConfirmCloseDetail }, [props.detail as VNodeArrayChildren[number]]) : null,
             h(Button, { block: true, pill: true, color: "danger", variant: "soft", class: s.ConfirmCloseAction, onClick: confirm }, () => props.confirmLabel),
           ]),
         ])
@@ -961,7 +981,10 @@ const ConfirmClose = defineComponent({
           },
         }, () => [
           // The question names the alert, as an alert's title does
-          h(DialogHeader, null, () => [h(DialogTitle, null, () => props.message)]),
+          h(DialogHeader, null, () => [
+            h(DialogTitle, null, () => props.message),
+            hasDetail() ? h(DialogDescription, null, () => props.detail) : null,
+          ]),
           h(DialogFooter, null, () => [
             h(DialogClose, null, () => [h(Button, { color: "secondary", variant: "soft" }, () => props.cancelLabel)]),
             h(Button, { color: "danger", onClick: confirm }, () => props.confirmLabel),

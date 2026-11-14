@@ -193,7 +193,7 @@ export function FieldActionRowsDemo() {
       </div>
       {phone ? <PhoneRowsStage>{groups}</PhoneRowsStage> : (
         <div data-demo-stage className="py-10">
-          <div className="flex w-full max-w-[480px] flex-col gap-6 [--field-group-gap:13px]">{groups}</div>
+          <div className="flex w-full max-w-[480px] flex-col gap-6 [--field-group-gap:11px]">{groups}</div>
         </div>
       )}
     </>
@@ -223,7 +223,7 @@ export function FieldGroupSpacingDemo() {
 
   return phone ? <PhoneRowsStage>{groups}</PhoneRowsStage> : (
     <div data-demo-stage className="py-10">
-      <div className="flex w-full max-w-[480px] flex-col gap-6 [--field-group-gap:13px]">{groups}</div>
+      <div className="flex w-full max-w-[480px] flex-col gap-6 [--field-group-gap:11px]">{groups}</div>
     </div>
   );
 }

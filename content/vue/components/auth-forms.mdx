@@ -591,7 +591,7 @@ export const verification = `<component :is="VerificationFlow" v-model:cooldown=
           <h3 data-auth-title class="text-2xl font-semibold tracking-tight">{{ channel === 'email' ? 'Verify your email address' : 'Confirm phone' }}</h3>
           <p data-auth-description class="text-secondary text-sm mt-1">Enter the code sent to {{ channel === 'email' ? 'alex.johnson@example.com' : '+1 555 123 4567' }}</p>
         </div>
-        <form :id="formId" class="flex flex-col gap-6 [--field-group-gap:13px]" novalidate :aria-busy="verifying"
+        <form :id="formId" class="flex flex-col gap-6 [--field-group-gap:11px]" novalidate :aria-busy="verifying"
           @submit.prevent="submit(input, code)">
           <div class="flex flex-col gap-2" data-verification-code>
             <div v-if="input === 'per-digit'" class="flex justify-center">
@@ -731,7 +731,7 @@ export const createPassword = `<component :is="AuthFormStage" title="Create Pass
       <div class="mb-6 text-center">
         <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Create Password</h3>
       </div>
-      <form :id="formId" class="flex flex-col gap-6 [--field-group-gap:13px]" novalidate @submit.prevent="() => {
+      <form :id="formId" class="flex flex-col gap-6 [--field-group-gap:11px]" novalidate @submit.prevent="() => {
         if (completed) return;
         submitted = true;
         const invalid = passwordErrors(password, confirmation);
@@ -820,7 +820,7 @@ export const storageLocation = `<component :is="AuthFormStage" title="Choose Sto
         <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Choose Storage Location</h3>
         <p data-auth-description class="text-secondary text-sm mt-2">Select where your documents will be stored. This cannot be changed later.</p>
       </div>
-      <form :id="formId" class="flex flex-col gap-6 [--field-group-gap:13px]" novalidate @submit.prevent="() => { if (region && !completed) completed = true }">
+      <form :id="formId" class="flex flex-col gap-6 [--field-group-gap:11px]" novalidate @submit.prevent="() => { if (region && !completed) completed = true }">
         <RadioGroup :name="formId + '-storage-region'" aria-label="Storage location" v-model:value="region" :disabled="completed" direction="col" class="w-full">
           <FieldGroup class="w-full">
             <Field v-for="option in storageRegions" :key="option.value" row :label="option.label"><RadioGroupItem :value="option.value" /></Field>

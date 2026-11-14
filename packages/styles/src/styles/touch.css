@@ -673,10 +673,15 @@
     --field-row-text-padding-block: 12px;
     --field-row-gap: 16px;
     --field-row-disclosure-gap: 8px;
-    /* An iOS cell's image: a 28 column and 8 to the text (kit Lists Row 550:50430), the text at 56 (IMG_5952);
-       a symbol drawn as SF at 22pt, an app picture with the corners of a 28pt icon. */
+    /* An iOS cell's image, a 28 column. A symbol's tile stands 2 before the row's inset and 14 before the text, at
+       60 (Settings, IMG_6016-6019: the tile at 18 from the group's edge); an app's picture at the inset and 8
+       before the text, at 56 (AutoFill, IMG_5952; kit Lists Row 550:50430). A symbol drawn as SF at 22pt, an app
+       picture with the corners of a 28pt icon. */
     --field-row-icon-size: 28px;
-    --field-row-icon-gap: 8px;
+    --field-row-icon-gap: 14px;
+    --field-row-icon-offset: -2px;
+    --field-row-picture-offset: 0px;
+    --field-row-picture-gap: 8px;
     --field-row-icon-symbol-size: 24px;
     --field-row-icon-radius: 7px;
     --field-row-text-display: flex;
@@ -715,6 +720,9 @@
     /* Native iOS 26 Settings and Calendar (08.11): a header's cap height stands 23pt above its cells
        (Search 22.67 and 23, Display 23.33), so its 22px line ends 6 above them. */
     --field-group-header-padding-bottom: 6px;
+    /* Above its text a header keeps 11 at any length: one of three lines stands 44 taller than one of one, not 33
+       (SwiftUI Form, ref-app headfoot, owner 14.11) */
+    --field-group-header-padding-top: 11px;
     --field-group-footer-font-size: 13px;
     /* Kit iOS 27 Lists, Grouped Table Footer 35:55757: Tight Leading Footnote 13/16, as a Settings footer
        measures (5514: lines 16pt apart, paragraphs one empty line apart). */

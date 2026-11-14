@@ -4,7 +4,8 @@ import { Checkbox } from '@plexui/vue/components/Checkbox';
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogHeaderAction, DialogTitle } from '@plexui/vue/components/Dialog';
 import { Field } from '@plexui/vue/components/Field';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
-import { Disclosure } from '@plexui/vue/components/Icon';
+import { Disclosure, SearchSm } from '@plexui/vue/components/Icon';
+import { Toolbar, ToolbarContent } from '@plexui/vue/components/Toolbar';
 import { Input } from '@plexui/vue/components/Input';
 import styles from '../FormRowsDemos.module.css';
 
@@ -14,7 +15,9 @@ export type MobileTagOption = {
   color?: 'discovery' | 'danger' | 'warning';
 };
 
-/** A Phone summary row whose Sheet edits a draft until Apply is pressed. */
+/** A Phone summary row whose Sheet edits a draft until Apply is pressed. The sheet picks as iOS does from a row with a
+ * chevron: a checkmark in the tint at the end of each row picked, Clear all as the list's own action, and the search in the
+ * bar at the bottom, in reach of the thumb (owner 14.11). */
 export const MobileTagRow = defineComponent({
   name: 'MobileTagRow',
   props: {
@@ -30,21 +33,21 @@ export const MobileTagRow = defineComponent({
   setup(props, { emit }) {
     const open = ref(false);
     const nested = ref(false);
-    const draftCatalog = ref<MobileTagOption[]>([]);
     const draft = ref<string[]>([]);
-    const newLabel = ref('');
+    const query = ref('');
     const heading = ref<HTMLElement | null>(null);
     let summary: HTMLButtonElement | null = null;
     const selectedText = computed(() => props.modelValue.map((selected) => props.options.find((option) => option.value === selected)?.label ?? selected).join(', '));
+    const needle = computed(() => query.value.trim().toLowerCase());
+    const shown = computed(() => needle.value ? props.options.filter((option) => option.label.toLowerCase().includes(needle.value)) : props.options);
 
     const show = (event: MouseEvent) => {
       if (event.currentTarget instanceof HTMLButtonElement) {
         summary = event.currentTarget;
         nested.value = Boolean(summary.closest('[data-plex-dialog][data-mobile-variant="sheet"][data-mobile-placement="bottom"]'));
       }
-      draftCatalog.value = props.options.map((option) => ({ ...option }));
       draft.value = [...props.modelValue];
-      newLabel.value = '';
+      query.value = '';
       open.value = true;
     };
     const toggle = (value: string) => {
@@ -52,24 +55,8 @@ export const MobileTagRow = defineComponent({
         ? draft.value.filter((item) => item !== value)
         : [...draft.value, value];
     };
-    const add = () => {
-      const label = newLabel.value.trim();
-      if (!label) return;
-      const duplicate = draftCatalog.value.find((option) => option.label.trim().toLowerCase() === label.toLowerCase());
-      if (duplicate) {
-        if (!draft.value.includes(duplicate.value)) draft.value = [...draft.value, duplicate.value];
-      } else {
-        let index = 1;
-        while (draftCatalog.value.some((option) => option.value === `custom-${index}`) || draft.value.includes(`custom-${index}`)) index++;
-        const option = { value: `custom-${index}`, label };
-        draftCatalog.value = [...draftCatalog.value, option];
-        draft.value = [...draft.value, option.value];
-      }
-      newLabel.value = '';
-    };
     const apply = () => {
-      emit('update:options', draftCatalog.value.map((option) => ({ ...option })));
-      emit('update:modelValue', [...draft.value]);
+      emit('update:modelValue', props.options.filter((option) => draft.value.includes(option.value)).map((option) => option.value));
       open.value = false;
     };
 
@@ -110,38 +97,32 @@ export const MobileTagRow = defineComponent({
                 h('div', { ref: heading, tabindex: -1, class: 'outline-none' }, [
                   h(DialogTitle, null, () => props.label),
                 ]),
-                h(DialogDescription, { class: 'sr-only' }, () => `Select ${props.label.toLowerCase()} or add a new ${props.one}. Apply to save your changes.`),
+                h(DialogDescription, { class: 'sr-only' }, () => `Select ${props.label.toLowerCase()}, or search for one ${props.one}. Apply to save your changes.`),
                 h(DialogHeaderAction, null, {
                   default: () => h(NavigationButton, { action: 'confirm', 'aria-label': `Apply ${props.label.toLowerCase()}`, onClick: apply }),
                 }),
               ],
             }),
-            h(DialogBody, { class: 'flex flex-col gap-6 [--field-group-gap:13px]' }, {
+            h(DialogBody, { class: 'flex flex-col gap-6 [--field-group-gap:11px]' }, {
               default: () => [
-                h(FieldGroup, { 'aria-label': props.label, 'data-tag-options': '' }, {
-                  default: () => draftCatalog.value.map((option) => h(Field, {
+                shown.value.length > 0 && h(FieldGroup, { 'aria-label': props.label, 'data-tag-options': '' }, {
+                  default: () => shown.value.map((option) => h(Field, {
                     key: option.value, row: true, label: option.label, 'data-tag-option': '',
                   }, () => h(Checkbox, {
                     variant: 'ghost', checked: draft.value.includes(option.value),
                     'onUpdate:checked': () => toggle(option.value),
                   }))),
                 }),
-                h('form', { onSubmit: (event: Event) => { event.preventDefault(); add(); } }, [
-                  h(FieldGroup, null, {
-                    default: () => h(Input, {
-                      'class': styles.TagAddInput, 'variant': 'ghost', 'aria-label': `New ${props.one}`,
-                      'value': newLabel.value,
-                      'onUpdate:value': (value: string) => { newLabel.value = value; },
-                      'placeholder': `Add new ${props.one}…`, 'autoComplete': 'off',
-                    }, {
-                      endAdornment: () => h(Button, {
-                        class: styles.TagAddAction, type: 'submit', color: 'info', variant: 'ghost', disabled: !newLabel.value.trim(),
-                      }, () => 'Add'),
-                    }),
-                  }),
-                ]),
+                shown.value.length === 0 && h('p', { class: styles.TagNoMatches }, `No ${props.label.toLowerCase()} match “${query.value.trim()}”.`),
+                draft.value.length > 0 && !needle.value && h(FieldGroup, null, {
+                  default: () => h('div', { 'data-row': '' }, h(Button, { block: true, color: 'info', variant: 'ghost', onClick: () => { draft.value = []; } }, () => 'Clear all')),
+                }),
               ],
             }),
+            h(Toolbar, { placement: 'bottom' }, () => h(ToolbarContent, { fill: true }, () => h(Input, {
+              variant: 'soft', pill: true, placeholder: `Search ${props.label.toLowerCase()}`, 'aria-label': `Search ${props.label.toLowerCase()}`,
+              value: query.value, 'onUpdate:value': (value: string) => { query.value = value; },
+            }, { startAdornment: () => h(SearchSm) }))),
           ],
         }),
       }),

@@ -117,7 +117,7 @@ export function FormScreen({
   const hiddenPhoneHost = usePhoneViewport() && !phonePreview;
   const { open: dialogOpen, present: dialogPresent, onOpenAutoFocus: onDialogScopeOpen, onCloseAutoFocus: onDialogScopeClose, pageRef: bindPage } = useDialogStagePresence(dialog, !hiddenPhoneHost);
   const showDialog = dialogPresent;
-  const form = <form id={formId} data-form-content={showDialog || undefined} className={`flex flex-col gap-6 [--field-group-gap:13px]${fill ? ` ${s.FillForm}` : ''}`} onSubmit={(event) => {
+  const form = <form id={formId} data-form-content={showDialog || undefined} className={`flex flex-col gap-6 [--field-group-gap:11px]${fill ? ` ${s.FillForm}` : ''}`} onSubmit={(event) => {
     onSubmit(event);
     if (showDialog && !phonePreview) onDialogChange?.(false);
   }} noValidate={noValidate}>{children}</form>;
@@ -481,7 +481,7 @@ function ProductFields({ columns: columnsOverride, state }: { columns?: boolean;
           )}
         </Field>
       </FieldGroup>
-      <FieldGroup columns={columns} footer={wide ? undefined : 'Sizes and finishes a buyer can choose.'}>
+      <FieldGroup columns={columns}>
         <ProductVariants value={variants} onChange={setVariants} wide={wide} />
       </FieldGroup>
       <FieldGroup columns={columns}>

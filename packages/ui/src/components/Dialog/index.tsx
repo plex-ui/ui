@@ -2,6 +2,7 @@ export {
   Dialog,
   type DialogBarBackground,
   type DialogConfirmClose,
+  type DialogConfirmCloseProp,
   type DialogContentProps,
   type DialogFooterProps,
   type DialogHeaderActionProps,

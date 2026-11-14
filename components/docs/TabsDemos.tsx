@@ -203,7 +203,7 @@ export function TabsOverviewDemo() {
                 </Toolbar>
               )}
               <Page.Content>
-                <div className="flex flex-col gap-6 [--field-group-gap:13px]">
+                <div className="flex flex-col gap-6 [--field-group-gap:11px]">
                   {placement === 'content' && control}
                   <Agenda />
                 </div>

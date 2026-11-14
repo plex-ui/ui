@@ -17,7 +17,7 @@
 
 .Form {
   /* The groups space themselves on a phone as an iOS list; the gap stands for 24 of the 37 */
-  --field-group-gap: 13px;
+  --field-group-gap: 11px;
 
   display: flex;
   flex-direction: column;

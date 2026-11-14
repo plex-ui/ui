@@ -1,7 +1,7 @@
 // Plain module (no 'use client'), so MDX pages can call these while rendering on the server.
 
 /** A compact slice of a grouped settings screen at the phone's width; it fills the preview's height. */
-export const phoneRowsClassName = 'flex w-full grow flex-col gap-6 [--field-group-gap:13px] bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]';
+export const phoneRowsClassName = 'flex w-full grow flex-col gap-6 [--field-group-gap:11px] bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]';
 
 /** A phone stage whose row opens our calendar keeps room for its tallest, six-week month under the first row, on the
  * same grouped surface, so opening the calendar neither grows the preview nor shows another background. At 402×812 a

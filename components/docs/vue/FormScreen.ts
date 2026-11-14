@@ -27,7 +27,7 @@ export const FormScreen = defineComponent({
     const presence = createDialogStagePresence(() => props.dialog, () => !props.phoneHost);
     const close = () => { if (!props.phonePreview) emit('update:dialog', false); };
     const form = () => h('form', {
-      id: formId, class: ['flex flex-col gap-6 [--field-group-gap:13px]', props.fill && s.FillForm],
+      id: formId, class: ['flex flex-col gap-6 [--field-group-gap:11px]', props.fill && s.FillForm],
       onSubmit: (event: Event) => { event.preventDefault(); if (props.dialog) close(); },
     }, slots.default);
     const submit = () => h(Button, {

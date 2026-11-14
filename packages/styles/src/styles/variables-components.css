@@ -293,12 +293,16 @@
     --field-row-column-width: 40%;
     --field-row-row-gap: 2px;
     /* A row's leading image (Field `icon`): the column, the space to the text, a symbol's size in it, an app
-       picture's corners and the symbol's color. 28 and 8 on a phone (touch.css). */
+       picture's corners and the symbol's color, and where a symbol and an app's picture stand. 28 and 14 on a phone,
+       an app's picture 8 (touch.css). */
     /* A full row's hover with a mouse: the light fill of a table row, not a button's (owner 14.11: «цвет hover
        слишком темный») */
     --field-row-hover-background: light-dark(var(--alpha-03), var(--alpha-05));
     --field-row-icon-size: 32px;
     --field-row-icon-gap: 12px;
+    --field-row-icon-offset: 0px;
+    --field-row-picture-offset: 0px;
+    --field-row-picture-gap: 12px;
     --field-row-icon-symbol-size: 20px;
     --field-row-icon-radius: 7px;
     --field-row-icon-color: var(--color-text);

@@ -5,7 +5,7 @@ import { ColorWell } from '@plexui/vue/components/ColorPicker';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@plexui/vue/components/Dialog';
 import { Field } from '@plexui/vue/components/Field';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
-import { Book, Compass, Disclosure, Globe, InfoCircle, Key, Music, ShieldCheck, SoundOffSpeaker, SoundOnSpeaker } from '@plexui/vue/components/Icon';
+import { BellFilled, CameraPhotoFilled, Disclosure, GlobeFilled, HeartFilled, InfoCircle, MicFilled, SoundOffSpeaker, SoundOnSpeaker, StarFilled } from '@plexui/vue/components/Icon';
 import { Input } from '@plexui/vue/components/Input';
 import { RadioGroup, RadioGroupItem } from '@plexui/vue/components/RadioGroup';
 import { Select } from '@plexui/vue/components/Select';
@@ -199,7 +199,8 @@ export const OrderCombos = defineComponent({
   },
 });
 
-const symbols = { key: Key, shield: ShieldCheck, globe: Globe, compass: Compass, book: Book, music: Music };
+// Settings draws an app's tile with a filled glyph in white (IMG_5952) or black on a light tile (IMG_5963): the kit's filled icons
+const symbols = { bell: BellFilled, globe: GlobeFilled, star: StarFilled, heart: HeartFilled, mic: MicFilled, camera: CameraPhotoFilled };
 type IconStyle = 'tile' | 'outline' | 'plain';
 /** A picture in a row, which Field's `icon` slot sets in the row's image column */
 const picture = (row: PictureRow, style: IconStyle) =>

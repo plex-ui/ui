@@ -67,7 +67,7 @@ export function CreatePasswordDemo() {
           <div className="mb-6 text-center">
             <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Create Password</h3>
           </div>
-          <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" noValidate onSubmit={submit}>
+          <form id={formId} className="flex flex-col gap-6 [--field-group-gap:11px]" noValidate onSubmit={submit}>
             <AuthFields className="flex flex-col gap-2" footer={<span id={`${formId}-password-hint`}>{PASSWORD_HINT}</span>}>
               <AuthInput label="Password" type="password"
                 value={password} autoComplete="off" allowAutofillExtensions={false} disabled={completed}
@@ -117,7 +117,7 @@ export function StorageLocationDemo() {
             <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Choose Storage Location</h3>
             <p data-auth-description className="text-secondary text-sm mt-2">Select where your documents will be stored. This cannot be changed later.</p>
           </div>
-          <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" noValidate onSubmit={submit}>
+          <form id={formId} className="flex flex-col gap-6 [--field-group-gap:11px]" noValidate onSubmit={submit}>
             <RadioGroup name={`${formId}-storage-region`} aria-label="Storage location" value={region} disabled={completed} direction="col"
               onChange={(value: StorageRegion) => setRegion(value)} className="w-full">
               <FieldGroup className="w-full">

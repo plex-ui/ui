@@ -7,6 +7,20 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+Group spacing and a row's leading symbol on a phone measured again, against Settings in iOS 27 and a SwiftUI Form.
+
+### Added
+
+- `confirmClose` on a Dialog's content (Vue `confirm-close`) also takes a function, called at each close attempt (Close, Dialog.Close, Escape, a press outside, a sheet pulled down) before the dialog decides: it returns the question, or nothing to close at once, so an owner that commits typed words on blur can commit them and compare there. The question takes a `detail`, a quieter 15/20 line under it (the alert's description).
+
+### Changed
+
+- Groups on a phone space themselves as Settings in iOS 27 does: 35 from rows to rows (was 37), 47.67 to rows under a one-line footer (was 49.5), 55.33 to rows under a header (was 60), 75.33 from a footer to rows under a header (was 72; Settings keeps the footer's space apart from the header's). A prominent header keeps a SwiftUI Form's steps, 62 after rows and 74 after a footer. Where a parent's gap stands between groups, set `--field-group-gap` to 35px less that gap.
+- A header of several lines keeps 11 above its text on a phone (`--field-group-header-padding-top`), so each further line adds its own 22.
+- A row's leading symbol stands as Settings' tiles on a phone: 18 from the group's edge and 14 before the text, which starts at 60 (was 20 and 8, at 56), with `--field-row-icon-offset`. An app's picture (an image) keeps a cell's own place, 20 and 8 (`--field-row-picture-offset`, `--field-row-picture-gap`). A single choice with an action at its end now leads at 32 and 60 as well.
+
 ## 0.49.1 (2026-11-14)
 
 A ghost `ButtonLink` row in `@plexui/styles` 0.8.1; `@plexui/ui` 0.49.1 and `@plexui/vue` 0.29.1 need `^0.8.1`, so updating them brings it. `@plexui/mcp` is 0.2.25.

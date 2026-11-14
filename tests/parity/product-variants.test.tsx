@@ -122,7 +122,20 @@ async function mountOwner(framework: Framework, { initial = [], accept = true, p
   }
 }
 
+// On a phone Variants is a row with a chevron: its screen lists the variants and Add variant (owner 14.11).
+async function openList() {
+  if (page().queryByRole("button", { name: "Add variant", exact: true })) return
+  await click(page().getByRole("button", { name: /^Variants/ }))
+  await settle()
+}
+
+async function closeList() {
+  await click(page().getByRole("dialog", { name: "Variants", exact: true }).querySelector<HTMLElement>('button[aria-label="Close dialog"]')!)
+  await settle()
+}
+
 async function openEditor(action = "Add variant") {
+  await openList()
   const trigger = page().getByRole("button", { name: action, exact: true })
   await click(trigger)
   await settle()
@@ -177,6 +190,8 @@ describe.each<Framework>(["React", "Vue"])("%s product variant editor", (framewo
     expect(owner.value.map((item) => item.name)).toEqual(["Small / natural", "Large / walnut"])
     expect(owner.value[0]).toEqual(seed[0])
     expect(page().getByRole("button", { name: "Edit Large / walnut", exact: true })).toBeTruthy()
+    await closeList()
+    expect(page().getByRole("button", { name: "Variants: Small / natural, Large / walnut", exact: true })).toBeTruthy()
     expect(page().getByRole("textbox", { name: "Product name", exact: true })).toBe(product)
     expect(product).toHaveProperty("value", "Cedar table")
     expect(owner.outerSubmits).not.toHaveBeenCalled()
@@ -223,6 +238,7 @@ describe.each<Framework>(["React", "Vue"])("%s product variant editor", (framewo
     { label: "Add", initial: [seed[0]], source: seed[0], destination: "Add variant" },
   ])("Remove restores $label after detachment", async ({ initial, source, destination }) => {
     const owner = await mountOwner(framework, { initial })
+    await openList()
     const target = page().getByRole("button", { name: destination, exact: true })
     const { editor, content, trigger } = await openEditor(`Edit ${source.name}`)
     await closeAfterExit(editor, () => click(content.getByRole("button", { name: "Remove variant", exact: true })), target)
@@ -281,6 +297,7 @@ describe.each<Framework>(["React", "Vue"])("%s product variant editor", (framewo
     let current = await openEditor()
     await change(current.input, "Small / walnut")
     await closeAfterExit(current.editor, () => click(current.content.getByRole("button", { name: "Save variant", exact: true })), current.trigger)
+    await closeList()
     await interact(() => owner.setPresentation(true, "plain"))
     await settle()
     const parent = page().getByRole("dialog", { name: "Edit product", exact: true })
@@ -288,15 +305,16 @@ describe.each<Framework>(["React", "Vue"])("%s product variant editor", (framewo
     current = await openEditor("Edit Small / walnut")
     await change(current.input, "Small / dark walnut")
     await closeAfterExit(current.editor, () => click(current.content.getByRole("button", { name: "Save variant", exact: true })), current.trigger)
+    await closeList()
     expect(parent.isConnected).toBe(true)
     expect(page().getByRole("dialog", { name: "Edit product", exact: true })).toBe(parent)
-    expect(within(parent).getByRole("button", { name: "Edit Small / dark walnut", exact: true })).toBeTruthy()
+    expect(within(parent).getByRole("button", { name: "Variants: Small / dark walnut", exact: true })).toBeTruthy()
     await interact(() => owner.setPresentation(false))
     await settle()
     expect(parent.isConnected).toBe(false)
     const restoredPage = page().getByRole("region", { name: "Edit product", exact: true })
     expect(within(restoredPage).getByRole("textbox", { name: "Product name", exact: true })).toHaveProperty("value", "Cedar table")
-    expect(within(restoredPage).getByRole("button", { name: "Edit Small / dark walnut", exact: true })).toBeTruthy()
+    expect(within(restoredPage).getByRole("button", { name: "Variants: Small / dark walnut", exact: true })).toBeTruthy()
     expect(restoredPage.getAttribute("data-surface")).toBe("plain")
     expect(document.querySelectorAll('input[aria-label="Product name"]')).toHaveLength(1)
   })

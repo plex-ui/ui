@@ -189,11 +189,13 @@ describe('Field icon', () => {
   test('the column moves the text and the line above the row, with tokens for a phone and a desktop', () => {
     const css = readFileSync('packages/styles/src/components/Field/Field.module.css', 'utf8');
     expect(css).toContain('.Field:where([data-row]):has(> .Icon)');
-    expect(css).toContain('--field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-size) + var(--field-row-icon-gap))');
+    expect(css).toContain('--field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-offset) + var(--field-row-icon-size) + var(--field-row-icon-gap))');
     const desktop = readFileSync('packages/styles/src/styles/variables-components.css', 'utf8');
     const phone = readFileSync('packages/styles/src/styles/touch.css', 'utf8');
     expect(desktop).toMatch(/--field-row-icon-size: 32px;[\s\S]*--field-row-icon-gap: 12px;/);
-    expect(phone).toMatch(/--field-row-icon-size: 28px;\s*--field-row-icon-gap: 8px;/);
+    expect(phone).toMatch(/--field-row-icon-size: 28px;\s*--field-row-icon-gap: 14px;\s*--field-row-icon-offset: -2px;\s*--field-row-picture-offset: 0px;\s*--field-row-picture-gap: 8px;/);
+    // An app's picture keeps a cell's own image place (AutoFill, IMG_5952); a symbol's tile stands as Settings' (IMG_6016)
+    expect(css).toMatch(/\.Field:where\(\[data-row\]\):has\(> \.Icon > img\),[\s\S]*?--field-row-icon-offset: var\(--field-row-picture-offset\);\s*--field-row-icon-gap: var\(--field-row-picture-gap\);/);
   });
 });
 
