@@ -4,110 +4,45 @@ description: Code block with syntax highlighting, a copy button, and collapsible
 metaDescription: React code block component with syntax highlighting, copy button, and collapsible long snippets with configurable expanded height limits
 ---
 
-import { CodeBlock, CodeBlockBase } from "@plexui/ui/components/CodeBlock"
-import { CollapsibleCodeBlock } from "@plexui/ui/components/CodeBlock"
-import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
+import { CodeBlockOverviewDemo } from "@/components/docs/CodeBlockDemos"
+
+export const overviewCode = `const [language, setLanguage] = useState<"javascript" | "typescript" | "tsx" | "python" | "json" | "shell" | "css" | "sql" | "go">("javascript")
+const [collapsible, setCollapsible] = useState(false)
+const [defaultExpanded, setDefaultExpanded] = useState(false)
+const [collapsedHeight, setCollapsedHeight] = useState(140)
+const [maxExpandedHeight, setMaxExpandedHeight] = useState<number | undefined>(undefined)
+const [copyable, setCopyable] = useState(true)
+
+// code: the snippet, a string
+<>
+  {collapsible ? (
+    // The block reads defaultExpanded once: a new key mounts it again, folded or not as the settings ask
+    <CollapsibleCodeBlock key={language + defaultExpanded + collapsedHeight} language={language} defaultExpanded={defaultExpanded} collapsedHeight={collapsedHeight} maxExpandedHeight={maxExpandedHeight} copyable={copyable}>
+      {code}
+    </CollapsibleCodeBlock>
+  ) : (
+    <CodeBlock language={language}>{code}</CodeBlock>
+  )}
+</>`
 
 <UsageBlock>{`import { CodeBlock } from "@plexui/ui/components/CodeBlock";`}</UsageBlock>
 
 ## Examples
 
+<span id="collapsible" />
+<span id="expanded-by-default" />
+<span id="custom-collapsed-height" />
+<span id="max-expanded-height" />
+<span id="without-copy-button" />
+<span id="supported-languages" />
+
 ### Overview
 
-<ComponentPreview phonePresentation="none" code={`<CodeBlock language="javascript">{codeSnippet}</CodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CodeBlock language="javascript">{CODE_BLOCK_SAMPLES.base}</CodeBlock>
-  </div>
-</ComponentPreview>
-
-### Collapsible
-
-<ComponentPreview phonePresentation="none" details={<>Use <code>CollapsibleCodeBlock</code> to display code in a compact view with gradient overlay and an expand action.</>} code={`<CollapsibleCodeBlock language="tsx">{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CollapsibleCodeBlock language="tsx">{CODE_BLOCK_SAMPLES.tsx}</CollapsibleCodeBlock>
-  </div>
-</ComponentPreview>
-
-### Expanded by default
-
-<ComponentPreview phonePresentation="none" code={`<CollapsibleCodeBlock language="tsx" defaultExpanded>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CollapsibleCodeBlock language="tsx" defaultExpanded>{CODE_BLOCK_SAMPLES.tsx}</CollapsibleCodeBlock>
-  </div>
-</ComponentPreview>
-
-### Custom collapsed height
-
-<ComponentPreview phonePresentation="none" code={`<CollapsibleCodeBlock language="typescript" collapsedHeight={60}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CollapsibleCodeBlock language="typescript" collapsedHeight={60}>{CODE_BLOCK_SAMPLES.typescript}</CollapsibleCodeBlock>
-  </div>
-</ComponentPreview>
-
-### Max expanded height
-
-<ComponentPreview phonePresentation="none" code={`<CollapsibleCodeBlock language="typescript" defaultExpanded maxExpandedHeight={200}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CollapsibleCodeBlock language="typescript" defaultExpanded maxExpandedHeight={200}>{CODE_BLOCK_SAMPLES.typescript}</CollapsibleCodeBlock>
-  </div>
-</ComponentPreview>
-
-### Without copy button
-
-<ComponentPreview phonePresentation="none" code={`<CollapsibleCodeBlock language="python" defaultExpanded copyable={false}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CollapsibleCodeBlock language="python" defaultExpanded copyable={false}>{CODE_BLOCK_SAMPLES.python}</CollapsibleCodeBlock>
-  </div>
-</ComponentPreview>
-
-### Supported languages
-
-<ComponentPreview phonePresentation="none" details={<>A pragmatic set of Prism grammars are pre-registered out of the box.</>} code={`<CodeBlock language="javascript">{code}</CodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CodeBlock language="javascript">{CODE_BLOCK_SAMPLES.base}</CodeBlock>
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" code={`<CodeBlock language="typescript">{code}</CodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CodeBlock language="typescript">{CODE_BLOCK_SAMPLES.typescript}</CodeBlock>
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" code={`<CodeBlock language="python">{code}</CodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CodeBlock language="python">{CODE_BLOCK_SAMPLES.python}</CodeBlock>
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" code={`<CodeBlock language="json">{code}</CodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CodeBlock language="json">{CODE_BLOCK_SAMPLES.json}</CodeBlock>
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" code={`<CodeBlock language="shell">{code}</CodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CodeBlock language="shell">{CODE_BLOCK_SAMPLES.bash}</CodeBlock>
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" code={`<CodeBlock language="css">{code}</CodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CodeBlock language="css">{CODE_BLOCK_SAMPLES.css}</CodeBlock>
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" code={`<CodeBlock language="sql">{code}</CodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CodeBlock language="sql">{CODE_BLOCK_SAMPLES.sql}</CodeBlock>
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" code={`<CodeBlock language="go">{code}</CodeBlock>`} previewMinHeight={168}>
-  <div className="w-full">
-    <CodeBlock language="go">{CODE_BLOCK_SAMPLES.go}</CodeBlock>
-  </div>
+<ComponentPreview phonePresentation="none" details={<>
+  <p><code>CodeBlock</code> highlights its code with Prism and carries a copy button. <code>language</code> names the grammar: the menu offers the ones a page shows most, and <code>jsx</code>, <code>scss</code>, <code>c</code>, <code>diff</code>, <code>markdown</code>, <code>yaml</code>, <code>toml</code>, <code>docker</code>, <code>java</code>, <code>php</code>, <code>ruby</code> and <code>kotlin</code> are registered as well.</p>
+  <p><code>collapsible</code> swaps it for <code>CollapsibleCodeBlock</code>, for a long snippet: the block stands at <code>collapsedHeight</code> (140px by default) under a gradient, and View Code expands it. <code>defaultExpanded</code> starts it expanded; the block reads it once, when it mounts. <code>maxExpandedHeight</code> caps the expanded block, and taller code scrolls inside it. An expanded block shows the copy button, and <code>{"copyable={false}"}</code> hides it.</p>
+</>} code={overviewCode} previewMinHeight={240}>
+  <CodeBlockOverviewDemo />
 </ComponentPreview>
 
 ## API

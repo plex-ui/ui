@@ -1423,40 +1423,26 @@ Props:
     - className (string) — Additional wrapper class
 
 ### Overview
+CodeBlock highlights its code with Prism and carries a copy button. language names the grammar: the menu offers the ones a page shows most, and jsx, scss, c, diff, markdown, yaml, toml, docker, java, php, ruby and kotlin are registered as well. collapsible swaps it for CollapsibleCodeBlock, for a long snippet: the block stands at collapsedHeight (140px by default) under a gradient, and View Code expands it. defaultExpanded starts it expanded; the block reads it once, when it mounts. maxExpandedHeight caps the expanded block, and taller code scrolls inside it. An expanded block shows the copy button, and {"copyable={false}"} hides it.
 ```tsx
-<CodeBlock language="javascript">{codeSnippet}</CodeBlock>
-```
+const [language, setLanguage] = useState<"javascript" | "typescript" | "tsx" | "python" | "json" | "shell" | "css" | "sql" | "go">("javascript")
+const [collapsible, setCollapsible] = useState(false)
+const [defaultExpanded, setDefaultExpanded] = useState(false)
+const [collapsedHeight, setCollapsedHeight] = useState(140)
+const [maxExpandedHeight, setMaxExpandedHeight] = useState<number | undefined>(undefined)
+const [copyable, setCopyable] = useState(true)
 
-### Collapsible
-Use CollapsibleCodeBlock to display code in a compact view with gradient overlay and an expand action.
-```tsx
-<CollapsibleCodeBlock language="tsx">{code}</CollapsibleCodeBlock>
-```
-
-### Expanded by default
-```tsx
-<CollapsibleCodeBlock language="tsx" defaultExpanded>{code}</CollapsibleCodeBlock>
-```
-
-### Custom collapsed height
-```tsx
-<CollapsibleCodeBlock language="typescript" collapsedHeight={60}>{code}</CollapsibleCodeBlock>
-```
-
-### Max expanded height
-```tsx
-<CollapsibleCodeBlock language="typescript" defaultExpanded maxExpandedHeight={200}>{code}</CollapsibleCodeBlock>
-```
-
-### Without copy button
-```tsx
-<CollapsibleCodeBlock language="python" defaultExpanded copyable={false}>{code}</CollapsibleCodeBlock>
-```
-
-### Supported languages
-A pragmatic set of Prism grammars are pre-registered out of the box.
-```tsx
-<CodeBlock language="javascript">{code}</CodeBlock>
+// code: the snippet, a string
+<>
+  {collapsible ? (
+    // The block reads defaultExpanded once: a new key mounts it again, folded or not as the settings ask
+    <CollapsibleCodeBlock key={language + defaultExpanded + collapsedHeight} language={language} defaultExpanded={defaultExpanded} collapsedHeight={collapsedHeight} maxExpandedHeight={maxExpandedHeight} copyable={copyable}>
+      {code}
+    </CollapsibleCodeBlock>
+  ) : (
+    <CodeBlock language={language}>{code}</CodeBlock>
+  )}
+</>
 ```
 
 ## Color Picker

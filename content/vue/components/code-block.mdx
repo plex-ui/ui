@@ -5,136 +5,59 @@ metaDescription: Vue 3 code block component with syntax highlighting, a copy but
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
-import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
+import { CODE_BLOCK_LANGUAGE_SAMPLES } from "@/components/docs/CodeBlockSamples"
 
-export const overview = `<CodeBlock language="javascript">{{ codeSnippet }}</CodeBlock>`
+export const overview = `<CollapsibleCodeBlock v-if="collapsible" :key="language + defaultExpanded + collapsedHeight" :language="language" :default-expanded="defaultExpanded" :collapsed-height="Number(collapsedHeight)" :max-expanded-height="maxExpandedHeight === 'none' ? undefined : Number(maxExpandedHeight)" :copyable="copyable">{{ samples[language] }}</CollapsibleCodeBlock>
+<CodeBlock v-else :language="language">{{ samples[language] }}</CodeBlock>`
 
-export const collapsible = `<CollapsibleCodeBlock language="tsx">{{ code }}</CollapsibleCodeBlock>`
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { CodeBlock, CollapsibleCodeBlock } from '@plexui/vue/components/CodeBlock';
 
-export const expandedByDefault = `<CollapsibleCodeBlock language="tsx" default-expanded>{{ code }}</CollapsibleCodeBlock>`
+// code: the snippet, a string
+defineProps<{ code: string }>();
 
-export const collapsedHeight = `<CollapsibleCodeBlock language="typescript" :collapsed-height="60">{{ code }}</CollapsibleCodeBlock>`
+const language = ref<'javascript' | 'typescript' | 'tsx' | 'python' | 'json' | 'shell' | 'css' | 'sql' | 'go'>('javascript');
+const collapsible = ref(false);
+const defaultExpanded = ref(false);
+const collapsedHeight = ref(140);
+const maxExpandedHeight = ref<number | undefined>(undefined);
+const copyable = ref(true);
+</script>
 
-export const maxExpandedHeight = `<CollapsibleCodeBlock language="typescript" default-expanded :max-expanded-height="200">{{ code }}</CollapsibleCodeBlock>`
+<template>
+  <!-- The block reads default-expanded once: a new key mounts it again, folded or not as the settings ask -->
+  <CollapsibleCodeBlock v-if="collapsible" :key="language + defaultExpanded + collapsedHeight" :language="language" :default-expanded="defaultExpanded" :collapsed-height="collapsedHeight" :max-expanded-height="maxExpandedHeight" :copyable="copyable">{{ code }}</CollapsibleCodeBlock>
+  <CodeBlock v-else :language="language">{{ code }}</CodeBlock>
+</template>`
 
-export const withoutCopy = `<CollapsibleCodeBlock language="python" default-expanded :copyable="false">{{ code }}</CollapsibleCodeBlock>`
-
-export const javascript = `<CodeBlock language="javascript">{{ code }}</CodeBlock>`
-
-export const typescript = `<CodeBlock language="typescript">{{ code }}</CodeBlock>`
-
-export const python = `<CodeBlock language="python">{{ code }}</CodeBlock>`
-
-export const json = `<CodeBlock language="json">{{ code }}</CodeBlock>`
-
-export const shell = `<CodeBlock language="shell">{{ code }}</CodeBlock>`
-
-export const css = `<CodeBlock language="css">{{ code }}</CodeBlock>`
-
-export const sql = `<CodeBlock language="sql">{{ code }}</CodeBlock>`
-
-export const go = `<CodeBlock language="go">{{ code }}</CodeBlock>`
+export const overviewControls = [
+  { name: "language", type: "select", options: ["javascript", "typescript", "tsx", "python", "json", "shell", "css", "sql", "go"], default: "javascript", menu: true },
+  { name: "collapsible", type: "boolean", default: false },
+  { name: "defaultExpanded", type: "boolean", default: false, when: { collapsible: true } },
+  { name: "collapsedHeight", type: "select", options: ["60", "140"], default: "140", when: { collapsible: true, defaultExpanded: false } },
+  { name: "maxExpandedHeight", type: "select", options: ["none", "200"], default: "none", when: { collapsible: true } },
+  { name: "copyable", type: "boolean", default: true, when: { collapsible: true } },
+]
 
 <UsageBlock>{`import { CodeBlock } from "@plexui/vue/components/CodeBlock";`}</UsageBlock>
 
 ## Examples
 
+<span id="collapsible" />
+<span id="expanded-by-default" />
+<span id="custom-collapsed-height" />
+<span id="max-expanded-height" />
+<span id="without-copy-button" />
+<span id="supported-languages" />
+
 ### Overview
 
-<ComponentPreview phonePresentation="none" language="vue" details={<>The code is the text of the default slot. Interpolate a string (<code>{"{{ code }}"}</code>) so its whitespace is kept, or pass it with the <code>code</code> prop.</>} code={overview} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={overview} state={{ codeSnippet: CODE_BLOCK_SAMPLES.base }} />
-  </div>
-</ComponentPreview>
-
-### Collapsible
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>CollapsibleCodeBlock</code> to display code in a compact view with gradient overlay and an expand action.</>} code={collapsible} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={collapsible} state={{ code: CODE_BLOCK_SAMPLES.tsx }} />
-  </div>
-</ComponentPreview>
-
-### Expanded by default
-
-<ComponentPreview phonePresentation="none" language="vue" code={expandedByDefault} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={expandedByDefault} state={{ code: CODE_BLOCK_SAMPLES.tsx }} />
-  </div>
-</ComponentPreview>
-
-### Custom collapsed height
-
-<ComponentPreview phonePresentation="none" language="vue" code={collapsedHeight} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={collapsedHeight} state={{ code: CODE_BLOCK_SAMPLES.typescript }} />
-  </div>
-</ComponentPreview>
-
-### Max expanded height
-
-<ComponentPreview phonePresentation="none" language="vue" code={maxExpandedHeight} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={maxExpandedHeight} state={{ code: CODE_BLOCK_SAMPLES.typescript }} />
-  </div>
-</ComponentPreview>
-
-### Without copy button
-
-<ComponentPreview phonePresentation="none" language="vue" code={withoutCopy} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={withoutCopy} state={{ code: CODE_BLOCK_SAMPLES.python }} />
-  </div>
-</ComponentPreview>
-
-### Supported languages
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>A pragmatic set of Prism grammars are pre-registered out of the box.</>} code={javascript} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={javascript} state={{ code: CODE_BLOCK_SAMPLES.base }} />
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" language="vue" code={typescript} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={typescript} state={{ code: CODE_BLOCK_SAMPLES.typescript }} />
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" language="vue" code={python} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={python} state={{ code: CODE_BLOCK_SAMPLES.python }} />
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" language="vue" code={json} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={json} state={{ code: CODE_BLOCK_SAMPLES.json }} />
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" language="vue" code={shell} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={shell} state={{ code: CODE_BLOCK_SAMPLES.bash }} />
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" language="vue" code={css} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={css} state={{ code: CODE_BLOCK_SAMPLES.css }} />
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" language="vue" code={sql} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={sql} state={{ code: CODE_BLOCK_SAMPLES.sql }} />
-  </div>
-</ComponentPreview>
-
-<ComponentPreview phonePresentation="none" language="vue" code={go} previewMinHeight={168}>
-  <div className="w-full">
-    <VueDemo template={go} state={{ code: CODE_BLOCK_SAMPLES.go }} />
-  </div>
+<ComponentPreview phonePresentation="none" language="vue" details={<>
+  <p><code>CodeBlock</code> highlights its code with Prism and carries a copy button. The code is the text of the default slot: interpolate a string (<code>{"{{ code }}"}</code>) so its whitespace is kept, or pass it with the <code>code</code> prop. <code>language</code> names the grammar: the menu offers the ones a page shows most, and <code>jsx</code>, <code>scss</code>, <code>c</code>, <code>diff</code>, <code>markdown</code>, <code>yaml</code>, <code>toml</code>, <code>docker</code>, <code>java</code>, <code>php</code>, <code>ruby</code> and <code>kotlin</code> are registered as well.</p>
+  <p><code>collapsible</code> swaps it for <code>CollapsibleCodeBlock</code>, for a long snippet: the block stands at <code>collapsed-height</code> (140px by default) under a gradient, and View Code expands it. <code>default-expanded</code> starts it expanded; the block reads it once, when it mounts. <code>max-expanded-height</code> caps the expanded block, and taller code scrolls inside it. An expanded block shows the copy button, and <code>:copyable="false"</code> hides it.</p>
+</>} code={overviewCode} previewMinHeight={240}>
+  <VueDemo template={overview} controls={overviewControls} state={{ samples: CODE_BLOCK_LANGUAGE_SAMPLES }} stageClassName="flex-1 flex flex-col justify-center w-full p-6" />
 </ComponentPreview>
 
 ## API

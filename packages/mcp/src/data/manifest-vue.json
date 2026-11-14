@@ -1088,34 +1088,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<CodeBlock language=\"javascript\">{{ codeSnippet }}</CodeBlock>",
-          "details": "The code is the text of the default slot. Interpolate a string ({\"{{ code }}\"}) so its whitespace is kept, or pass it with the code prop."
-        },
-        {
-          "name": "Collapsible",
-          "code": "<CollapsibleCodeBlock language=\"tsx\">{{ code }}</CollapsibleCodeBlock>",
-          "details": "Use CollapsibleCodeBlock to display code in a compact view with gradient overlay and an expand action."
-        },
-        {
-          "name": "Expanded by default",
-          "code": "<CollapsibleCodeBlock language=\"tsx\" default-expanded>{{ code }}</CollapsibleCodeBlock>"
-        },
-        {
-          "name": "Custom collapsed height",
-          "code": "<CollapsibleCodeBlock language=\"typescript\" :collapsed-height=\"60\">{{ code }}</CollapsibleCodeBlock>"
-        },
-        {
-          "name": "Max expanded height",
-          "code": "<CollapsibleCodeBlock language=\"typescript\" default-expanded :max-expanded-height=\"200\">{{ code }}</CollapsibleCodeBlock>"
-        },
-        {
-          "name": "Without copy button",
-          "code": "<CollapsibleCodeBlock language=\"python\" default-expanded :copyable=\"false\">{{ code }}</CollapsibleCodeBlock>"
-        },
-        {
-          "name": "Supported languages",
-          "code": "<CodeBlock language=\"javascript\">{{ code }}</CodeBlock>",
-          "details": "A pragmatic set of Prism grammars are pre-registered out of the box."
+          "code": "<script setup lang=\"ts\">\nimport { ref } from 'vue';\nimport { CodeBlock, CollapsibleCodeBlock } from '@plexui/vue/components/CodeBlock';\n\n// code: the snippet, a string\ndefineProps<{ code: string }>();\n\nconst language = ref<'javascript' | 'typescript' | 'tsx' | 'python' | 'json' | 'shell' | 'css' | 'sql' | 'go'>('javascript');\nconst collapsible = ref(false);\nconst defaultExpanded = ref(false);\nconst collapsedHeight = ref(140);\nconst maxExpandedHeight = ref<number | undefined>(undefined);\nconst copyable = ref(true);\n</script>\n\n<template>\n  <!-- The block reads default-expanded once: a new key mounts it again, folded or not as the settings ask -->\n  <CollapsibleCodeBlock v-if=\"collapsible\" :key=\"language + defaultExpanded + collapsedHeight\" :language=\"language\" :default-expanded=\"defaultExpanded\" :collapsed-height=\"collapsedHeight\" :max-expanded-height=\"maxExpandedHeight\" :copyable=\"copyable\">{{ code }}</CollapsibleCodeBlock>\n  <CodeBlock v-else :language=\"language\">{{ code }}</CodeBlock>\n</template>",
+          "details": "CodeBlock highlights its code with Prism and carries a copy button. The code is the text of the default slot: interpolate a string ({\"{{ code }}\"}) so its whitespace is kept, or pass it with the code prop. language names the grammar: the menu offers the ones a page shows most, and jsx, scss, c, diff, markdown, yaml, toml, docker, java, php, ruby and kotlin are registered as well. collapsible swaps it for CollapsibleCodeBlock, for a long snippet: the block stands at collapsed-height (140px by default) under a gradient, and View Code expands it. default-expanded starts it expanded; the block reads it once, when it mounts. max-expanded-height caps the expanded block, and taller code scrolls inside it. An expanded block shows the copy button, and :copyable=\"false\" hides it."
         }
       ],
       "subComponents": [
@@ -7418,5 +7392,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-14T07:58:18.096Z"
+  "generatedAt": "2026-11-14T08:09:24.916Z"
 }

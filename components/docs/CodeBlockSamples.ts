@@ -184,3 +184,19 @@ export function ProgressDemo() {
   return <Progress value={progress} />
 }`,
 } as const;
+
+/** The languages the Code Block Overview offers, each with its sample: the grammars a page shows most, of the set
+ * CodeBlock registers (React and Vue alike). JavaScript takes the longest sample, the one the page opens with. */
+export const CODE_BLOCK_LANGUAGES = ['javascript', 'typescript', 'tsx', 'python', 'json', 'shell', 'css', 'sql', 'go'] as const;
+
+export const CODE_BLOCK_LANGUAGE_SAMPLES: Record<(typeof CODE_BLOCK_LANGUAGES)[number], string> = {
+  javascript: CODE_BLOCK_SAMPLES.base,
+  typescript: CODE_BLOCK_SAMPLES.typescript,
+  tsx: CODE_BLOCK_SAMPLES.tsx,
+  python: CODE_BLOCK_SAMPLES.python,
+  json: CODE_BLOCK_SAMPLES.json,
+  shell: CODE_BLOCK_SAMPLES.bash,
+  css: CODE_BLOCK_SAMPLES.css,
+  sql: CODE_BLOCK_SAMPLES.sql,
+  go: CODE_BLOCK_SAMPLES.go,
+};

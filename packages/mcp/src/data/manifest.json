@@ -1089,33 +1089,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<CodeBlock language=\"javascript\">{codeSnippet}</CodeBlock>"
-        },
-        {
-          "name": "Collapsible",
-          "code": "<CollapsibleCodeBlock language=\"tsx\">{code}</CollapsibleCodeBlock>",
-          "details": "Use CollapsibleCodeBlock to display code in a compact view with gradient overlay and an expand action."
-        },
-        {
-          "name": "Expanded by default",
-          "code": "<CollapsibleCodeBlock language=\"tsx\" defaultExpanded>{code}</CollapsibleCodeBlock>"
-        },
-        {
-          "name": "Custom collapsed height",
-          "code": "<CollapsibleCodeBlock language=\"typescript\" collapsedHeight={60}>{code}</CollapsibleCodeBlock>"
-        },
-        {
-          "name": "Max expanded height",
-          "code": "<CollapsibleCodeBlock language=\"typescript\" defaultExpanded maxExpandedHeight={200}>{code}</CollapsibleCodeBlock>"
-        },
-        {
-          "name": "Without copy button",
-          "code": "<CollapsibleCodeBlock language=\"python\" defaultExpanded copyable={false}>{code}</CollapsibleCodeBlock>"
-        },
-        {
-          "name": "Supported languages",
-          "code": "<CodeBlock language=\"javascript\">{code}</CodeBlock>",
-          "details": "A pragmatic set of Prism grammars are pre-registered out of the box."
+          "code": "const [language, setLanguage] = useState<\"javascript\" | \"typescript\" | \"tsx\" | \"python\" | \"json\" | \"shell\" | \"css\" | \"sql\" | \"go\">(\"javascript\")\nconst [collapsible, setCollapsible] = useState(false)\nconst [defaultExpanded, setDefaultExpanded] = useState(false)\nconst [collapsedHeight, setCollapsedHeight] = useState(140)\nconst [maxExpandedHeight, setMaxExpandedHeight] = useState<number | undefined>(undefined)\nconst [copyable, setCopyable] = useState(true)\n\n// code: the snippet, a string\n<>\n  {collapsible ? (\n    // The block reads defaultExpanded once: a new key mounts it again, folded or not as the settings ask\n    <CollapsibleCodeBlock key={language + defaultExpanded + collapsedHeight} language={language} defaultExpanded={defaultExpanded} collapsedHeight={collapsedHeight} maxExpandedHeight={maxExpandedHeight} copyable={copyable}>\n      {code}\n    </CollapsibleCodeBlock>\n  ) : (\n    <CodeBlock language={language}>{code}</CodeBlock>\n  )}\n</>",
+          "details": "CodeBlock highlights its code with Prism and carries a copy button. language names the grammar: the menu offers the ones a page shows most, and jsx, scss, c, diff, markdown, yaml, toml, docker, java, php, ruby and kotlin are registered as well. collapsible swaps it for CollapsibleCodeBlock, for a long snippet: the block stands at collapsedHeight (140px by default) under a gradient, and View Code expands it. defaultExpanded starts it expanded; the block reads it once, when it mounts. maxExpandedHeight caps the expanded block, and taller code scrolls inside it. An expanded block shows the copy button, and {\"copyable={false}\"} hides it."
         }
       ],
       "subComponents": [
@@ -7502,5 +7477,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-14T07:58:16.747Z"
+  "generatedAt": "2026-11-14T08:09:22.339Z"
 }

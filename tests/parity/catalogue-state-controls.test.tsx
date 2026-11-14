@@ -13,6 +13,8 @@ import { TableVariantDemo } from '../../components/docs/TableDemos';
 import { TextareaOverviewDemo } from '../../components/docs/TextareaDemos';
 import { TextLinkOverviewDemo } from '../../components/docs/TextLinkDemos';
 import { TooltipOverviewDemo } from '../../components/docs/TooltipDemos';
+import { CodeBlockOverviewDemo } from '../../components/docs/CodeBlockDemos';
+import { CODE_BLOCK_LANGUAGE_SAMPLES } from '../../components/docs/CodeBlockSamples';
 import { ToggleGroupOverviewDemo } from '../../components/docs/ToggleGroupDemos';
 import { SwitchOverviewDemo } from '../../components/docs/SwitchDemos';
 import { EmptyMessageOverviewDemo } from '../../components/docs/EmptyMessageDemos';
@@ -74,6 +76,8 @@ vi.mock('@plexui/ui/components/Select', async () => import('../../packages/ui/sr
 vi.mock('@plexui/vue/components/Select', async () => import('../../packages/vue/src/components/Select'));
 vi.mock('@plexui/ui/components/RadioGroup', async () => import('../../packages/ui/src/components/RadioGroup'));
 vi.mock('@plexui/vue/components/RadioGroup', async () => import('../../packages/vue/src/components/RadioGroup'));
+vi.mock('@plexui/ui/components/CodeBlock', async () => import('../../packages/ui/src/components/CodeBlock'));
+vi.mock('@plexui/vue/components/CodeBlock', async () => import('../../packages/vue/src/components/CodeBlock'));
 
 function example(page: string, name: string, references: string[] = []) {
   const mdx = readFileSync(`content/vue/components/${page}.mdx`, 'utf8');
@@ -121,6 +125,7 @@ const avatar = example('avatar', 'overview');
 const alert = example('alert', 'overview');
 const textLink = example('text-link', 'overview');
 const tooltip = example('tooltip', 'overview');
+const codeBlock = { ...example('code-block', 'overview'), state: { samples: CODE_BLOCK_LANGUAGE_SAMPLES } };
 const switchOverview = example('switch', 'overview');
 /** The Toggle Group Overview as its page mounts it, with the days and the week it reads */
 const toggleGroup = (() => {
@@ -565,6 +570,67 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(page.getByRole('switch', { name: 'disabled', exact: true }).getAttribute('aria-checked')).toBe('true');
     await toggle('disabled');
     expect(button().hasAttribute('disabled')).toBe(false);
+  });
+
+  test('code block: one Overview carries the language and every setting of a collapsible block (row 33)', async () => {
+    // The copied code mounts the block again as the demo does, since the block reads defaultExpanded once
+    const copied = readFileSync(framework === 'React' ? 'content/components/code-block.mdx' : 'content/vue/components/code-block.mdx', 'utf8');
+    expect(copied).toContain(framework === 'React' ? 'key={language + defaultExpanded + collapsedHeight}' : ':key="language + defaultExpanded + collapsedHeight"');
+    const view = render(framework === 'React' ? <CodeBlockOverviewDemo /> : <VueDemo {...codeBlock} stageClassName="flex" />);
+    await interact(() => {});
+    const page = within(view.container);
+    const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+    const block = () => stage().querySelector<HTMLElement>('pre')!.parentElement!;
+    const code = () => stage().querySelector('code')!;
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const offered = (name: string) => page.queryByRole('switch', { name, exact: true }) !== null || page.queryByRole('radiogroup', { name }) !== null;
+    const pick = async (name: string, option: string) => {
+      await interact(() => fireEvent.click(page.getByRole('button', { name: new RegExp(`^${name}`) })));
+      const list = await within(document.body).findByRole('listbox');
+      await interact(() => fireEvent.click(within(list).getByRole('option', { name: option, exact: true })));
+    };
+    const buttons = () => within(stage()).queryAllByRole('button').map((button) => button.getAttribute('aria-label') ?? button.textContent?.trim());
+    // A plain block: JavaScript, the page's opening sample, with its copy button; nothing to collapse is offered
+    expect(code().className).toContain('language-javascript');
+    expect(code().textContent).toBe(CODE_BLOCK_LANGUAGE_SAMPLES.javascript);
+    expect(block().hasAttribute('data-collapsed')).toBe(false);
+    expect(buttons()).toEqual(['Copy']);
+    for (const name of ['defaultExpanded', 'collapsedHeight', 'maxExpandedHeight', 'copyable']) expect(offered(name), name).toBe(false);
+    // language picks the grammar and its sample
+    await pick('language', 'python');
+    expect(code().className).toContain('language-python');
+    expect(code().textContent).toBe(CODE_BLOCK_LANGUAGE_SAMPLES.python);
+    await pick('language', 'javascript');
+    // collapsible: a block at 140px under View Code, its settings shown with it
+    await toggle('collapsible');
+    for (const name of ['defaultExpanded', 'collapsedHeight', 'maxExpandedHeight', 'copyable']) expect(offered(name), name).toBe(true);
+    expect(block().hasAttribute('data-collapsed')).toBe(true);
+    expect(block().style.maxHeight).toBe('140px');
+    expect(buttons()).toEqual(['View Code']);
+    await choose('collapsedHeight', '60');
+    expect(block().style.maxHeight).toBe('60px');
+    // defaultExpanded mounts the block expanded, where collapsedHeight does not act, so it is not offered
+    await toggle('defaultExpanded');
+    expect(block().hasAttribute('data-collapsed')).toBe(false);
+    expect(block().style.maxHeight).toBe('');
+    expect(offered('collapsedHeight')).toBe(false);
+    expect(buttons()).toEqual(['Copy']);
+    await choose('maxExpandedHeight', '200');
+    expect(block().style.maxHeight).toBe('200px');
+    await toggle('copyable');
+    expect(buttons()).toEqual([]);
+    // Folded again, the block keeps the height its control still shows
+    await toggle('defaultExpanded');
+    expect(block().hasAttribute('data-collapsed')).toBe(true);
+    expect(block().style.maxHeight).toBe('60px');
+    // View Code expands the folded block
+    await interact(() => fireEvent.click(within(stage()).getByRole('button', { name: 'View Code' })));
+    expect(block().hasAttribute('data-collapsed')).toBe(false);
+    // Off, the plain block comes back with its copy button whatever the collapsible settings were
+    await toggle('collapsible');
+    expect(block().hasAttribute('data-collapsed')).toBe(false);
+    expect(buttons()).toEqual(['Copy']);
   });
 
   test('toggle group: one Overview on the Repeat row carries every setting of the group (owner 11.11)', async () => {

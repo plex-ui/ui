@@ -1401,41 +1401,28 @@ Props:
     - class (string) — Additional wrapper class
 
 ### Overview
-The code is the text of the default slot. Interpolate a string ({"{{ code }}"}) so its whitespace is kept, or pass it with the code prop.
+CodeBlock highlights its code with Prism and carries a copy button. The code is the text of the default slot: interpolate a string ({"{{ code }}"}) so its whitespace is kept, or pass it with the code prop. language names the grammar: the menu offers the ones a page shows most, and jsx, scss, c, diff, markdown, yaml, toml, docker, java, php, ruby and kotlin are registered as well. collapsible swaps it for CollapsibleCodeBlock, for a long snippet: the block stands at collapsed-height (140px by default) under a gradient, and View Code expands it. default-expanded starts it expanded; the block reads it once, when it mounts. max-expanded-height caps the expanded block, and taller code scrolls inside it. An expanded block shows the copy button, and :copyable="false" hides it.
 ```vue
-<CodeBlock language="javascript">{{ codeSnippet }}</CodeBlock>
-```
+<script setup lang="ts">
+import { ref } from 'vue';
+import { CodeBlock, CollapsibleCodeBlock } from '@plexui/vue/components/CodeBlock';
 
-### Collapsible
-Use CollapsibleCodeBlock to display code in a compact view with gradient overlay and an expand action.
-```vue
-<CollapsibleCodeBlock language="tsx">{{ code }}</CollapsibleCodeBlock>
-```
+// code: the snippet, a string
+defineProps<{ code: string }>();
 
-### Expanded by default
-```vue
-<CollapsibleCodeBlock language="tsx" default-expanded>{{ code }}</CollapsibleCodeBlock>
-```
+const language = ref<'javascript' | 'typescript' | 'tsx' | 'python' | 'json' | 'shell' | 'css' | 'sql' | 'go'>('javascript');
+const collapsible = ref(false);
+const defaultExpanded = ref(false);
+const collapsedHeight = ref(140);
+const maxExpandedHeight = ref<number | undefined>(undefined);
+const copyable = ref(true);
+</script>
 
-### Custom collapsed height
-```vue
-<CollapsibleCodeBlock language="typescript" :collapsed-height="60">{{ code }}</CollapsibleCodeBlock>
-```
-
-### Max expanded height
-```vue
-<CollapsibleCodeBlock language="typescript" default-expanded :max-expanded-height="200">{{ code }}</CollapsibleCodeBlock>
-```
-
-### Without copy button
-```vue
-<CollapsibleCodeBlock language="python" default-expanded :copyable="false">{{ code }}</CollapsibleCodeBlock>
-```
-
-### Supported languages
-A pragmatic set of Prism grammars are pre-registered out of the box.
-```vue
-<CodeBlock language="javascript">{{ code }}</CodeBlock>
+<template>
+  <!-- The block reads default-expanded once: a new key mounts it again, folded or not as the settings ask -->
+  <CollapsibleCodeBlock v-if="collapsible" :key="language + defaultExpanded + collapsedHeight" :language="language" :default-expanded="defaultExpanded" :collapsed-height="collapsedHeight" :max-expanded-height="maxExpandedHeight" :copyable="copyable">{{ code }}</CollapsibleCodeBlock>
+  <CodeBlock v-else :language="language">{{ code }}</CodeBlock>
+</template>
 ```
 
 ## Color Picker

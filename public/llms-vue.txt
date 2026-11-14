@@ -235,7 +235,7 @@ Props:
     - max-expanded-height (number) — Max height when expanded (px); taller code scrolls
     - copyable (boolean) default: true — Show copy button
     - class (string) — Additional wrapper class
-Examples: Overview, Collapsible, Expanded by default, Custom collapsed height, Max expanded height, Without copy button, Supported languages
+Examples: Overview
 
 ## Color Picker
 "The iOS 27.2 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
