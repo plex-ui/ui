@@ -163,6 +163,38 @@ describe("Vue: a touch outside a dialog with changes asks", () => {
   })
 })
 
+describe("Vue: a right click outside a dialog with changes neither asks nor closes (Codex #58)", () => {
+  test("a secondary mouse press on the overlay", async () => {
+    const changes: boolean[] = []
+    await mountVueDialog(true, (open) => changes.push(open))
+    const overlay = document.querySelector('[class~="Overlay"]') ?? document.body
+    await act(async () => {
+      fireEvent.pointerDown(overlay, { pointerType: "mouse", button: 2 })
+      fireEvent.pointerUp(overlay, { pointerType: "mouse", button: 2 })
+    })
+    await settle()
+    await act(async () => { await wait(50) })
+    await flushVue()
+    expect(asking()).toBe(false)
+    expect(changes).toEqual([])
+  })
+})
+
+describe("Vue: the question and its answers take vnodes, as React takes nodes (Codex #58)", () => {
+  test("a message with a bold file name", async () => {
+    mountVue(() =>
+      h(Dialog, { open: true }, () =>
+        h(DialogContent, { confirmClose: { message: ["Discard ", h("strong", "notes.txt"), "?"], confirmLabel: h("span", "Discard") } }, () => [
+          h(DialogHeader, null, () => h(DialogTitle, null, () => "Edit")),
+          h(DialogFooter, null, () => h(DialogClose, null, () => h(VueButton, { color: "primary", variant: "soft" }, () => "Cancel"))),
+        ])))
+    await flushVue()
+    await click(buttonNamed("Cancel"))
+    expect(document.querySelector("strong")?.textContent).toBe("notes.txt")
+    expect(buttonNamed("Discard")).toBeTruthy()
+  })
+})
+
 describe("the question at a phone Sheet's Close (iOS 27.2 simulator)", () => {
   const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Dialog/Dialog.module.css`, "utf8")
   const react = readFileSync(`${process.cwd()}/packages/ui/src/components/Dialog/Dialog.tsx`, "utf8")

@@ -82,7 +82,7 @@ export const HeadTrackingFields = defineComponent({
         select(props.value.actions[name], actionOptions, (next) => set({ actions: { ...props.value.actions, [name]: next } }))))),
       h(FieldGroup, { title: 'Pointer' }, () => h(Field, { row: true, label: 'Tracking Mode' }, () => select(props.value.mode, trackingModes, (mode) => set({ mode })))),
       h(FieldGroup, { title: 'Pointer Speed' }, () => h('div', { class: s.NumberRow, 'data-row': '' }, [
-        h(Input, { 'size': 'sm', 'inputmode': 'numeric', 'class': s.NumberField, 'aria-label': 'Pointer Speed', 'value': draft.value ?? String(props.value.speed),
+        h(Input, { 'size': 'sm', 'variant': 'ghost', 'inputmode': 'numeric', 'class': s.NumberField, 'aria-label': 'Pointer Speed', 'value': draft.value ?? String(props.value.speed),
           'onUpdate:value': (text: string) => { draft.value = text; }, 'onBlur': commit,
           'onKeydown': (event: KeyboardEvent) => { if (event.key === 'Enter') { event.preventDefault(); commit(); } } }),
         h(Stepper, { 'aria-label': 'Adjust Pointer Speed', 'value': Math.min(100, Math.max(0, typedOr(props.value.speed))), 'min': 0, 'max': 100, 'step': 10, 'decrementLabel': 'Slower', 'incrementLabel': 'Faster',

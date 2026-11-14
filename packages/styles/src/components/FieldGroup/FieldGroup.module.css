@@ -176,7 +176,7 @@
     --field-group-gap-header-offset: 0px;
   }
 
-  /* Groups one after another space themselves as an iOS 27.2 inset list (SwiftUI List on the simulator, 402pt):
+  /* With touch.css, groups one after another space themselves as an iOS 27.2 inset list (SwiftUI List on the simulator, 402pt):
      rows to rows 37 (--field-group-gap); a header 60, a prominent header 64; a footer of one line 49.5 and 16 more
      for each further line; a footer and a header 72, a footer and a prominent header 75.6. The header's block (39,
      or 45 when prominent) and the footer's (8 + 16 a line + 6) stand in the gap, so the margin gives back what they
@@ -191,7 +191,9 @@
   }
 
   :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) + :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) {
-    margin-top: calc(var(--field-group-gap, 37px) - var(--field-group-gap-footer-offset, 0px) - var(--field-group-gap-header-offset, 0px));
+    /* Only with touch.css, which turns --field-group-stack-spacing on: a page without it keeps its own layout's
+       gaps, a grid's columns level (Codex #58) */
+    margin-top: calc(var(--field-group-stack-spacing, 0) * (var(--field-group-gap, 37px) - var(--field-group-gap-footer-offset, 0px) - var(--field-group-gap-header-offset, 0px)));
   }
 
   :is(.FieldGroup:has(> .Footer), [role="radiogroup"]:has(> .FieldGroup:only-child > .Footer)) + :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) {

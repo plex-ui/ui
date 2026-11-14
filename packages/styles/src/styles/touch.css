@@ -20,6 +20,12 @@
     visibility: hidden;
   }
 
+  /* Groups one after another space themselves as an iOS 27.2 inset list (FieldGroup.module.css): on only with this
+     file, so a page without it keeps its layout's own gaps */
+  :root {
+    --field-group-stack-spacing: 1;
+  }
+
   /* Secondary row values and accessories share the native label role, including
      explicit text-secondary currency and unit labels. */
   :where([data-row]) {

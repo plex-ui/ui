@@ -12,6 +12,7 @@ export {
   DialogTitle,
   DialogTrigger,
   type DialogBarBackground,
+  type DialogConfirmClose,
   type DialogHeaderProps,
   type DialogFooterProps,
   type DialogHeaderActionProps,

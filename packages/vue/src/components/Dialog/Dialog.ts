@@ -22,6 +22,7 @@ import {
   type Ref,
   type VNode,
   type VNodeArrayChildren,
+  type VNodeChild,
   isVNode,
   mergeProps,
 } from "vue"
@@ -82,12 +83,12 @@ const DIALOG_REQUEST_CLOSE: InjectionKey<ComputedRef<(() => void) | null>> = Sym
  * outside it keeps editing); elsewhere it is an alert with a second answer that keeps editing.
  */
 export type DialogConfirmClose = {
-  /** The question, such as "Are you sure you want to discard this new note?" */
-  message: string
+  /** The question, such as "Are you sure you want to discard this new note?"; text or vnodes, as React takes a node */
+  message: VNodeChild
   /** The answer that closes and loses the changes. @default "Discard Changes" */
-  confirmLabel?: string
+  confirmLabel?: VNodeChild
   /** The alert's answer that keeps the dialog open. @default "Keep Editing" */
-  cancelLabel?: string
+  cancelLabel?: VNodeChild
 }
 // Where DialogBody takes a phone Sheet's description: the first text of the content, under the bar
 // Where a phone Sheet's description goes: the top of DialogBody, or first a DialogDescriptionSlot of the content's own
@@ -455,7 +456,8 @@ export const DialogContent = defineComponent({
         // The owner's veto first: it reads the event's own defaultPrevented
         const kept = ownerKeepsOpen(event as DialogInteractOutsideEvent)
         event.preventDefault()
-        if (!kept && !originalEvent.ctrlKey) requestClose()
+        // A right click (button 2, or Control and a click on a Mac) is not a dismissal, as Reka and React hold (Codex #58)
+        if (!kept && !originalEvent.ctrlKey && originalEvent.button !== 2) requestClose()
         return
       }
       if (!ownerKeepsOpen(event as DialogInteractOutsideEvent)) outsidePress.onPointerDownOutside(event)
@@ -900,9 +902,9 @@ const elementOf = (instance: unknown): HTMLElement | null =>
 const ConfirmClose = defineComponent({
   name: "DialogConfirmClose",
   props: {
-    message: { type: String, required: true },
-    confirmLabel: { type: String, default: "Discard Changes" },
-    cancelLabel: { type: String, default: "Keep Editing" },
+    message: { type: null as unknown as PropType<VNodeChild>, required: true },
+    confirmLabel: { type: null as unknown as PropType<VNodeChild>, default: "Discard Changes" },
+    cancelLabel: { type: null as unknown as PropType<VNodeChild>, default: "Keep Editing" },
     open: { type: Boolean, default: false },
     /** The phone Sheet's Close: the question stands at it. Without one it is an alert. */
     anchor: { type: Object as PropType<HTMLElement | null>, default: null },
@@ -937,7 +939,7 @@ const ConfirmClose = defineComponent({
             "class": s.ConfirmClose,
             "data-dialog-confirm-close": "",
           }, () => [
-            h("p", { id: messageId, class: s.ConfirmCloseMessage }, props.message),
+            h("p", { id: messageId, class: s.ConfirmCloseMessage }, [props.message as VNodeArrayChildren[number]]),
             h(Button, { block: true, pill: true, color: "danger", variant: "soft", class: s.ConfirmCloseAction, onClick: confirm }, () => props.confirmLabel),
           ]),
         ])

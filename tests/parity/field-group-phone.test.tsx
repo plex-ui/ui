@@ -65,7 +65,10 @@ describe("FieldGroup spacing on a phone", () => {
 
   test("the rules give back the header's and the footer's blocks, a group in a wrapper of its own too", () => {
     const group = ":is(.FieldGroup, [role=\"radiogroup\"]:has(> .FieldGroup:only-child))"
-    expect(phone).toContain(`${group} + ${group} {\n    margin-top: calc(var(--field-group-gap, 37px) - var(--field-group-gap-footer-offset, 0px) - var(--field-group-gap-header-offset, 0px));`)
+    expect(phone).toContain(`${group} + ${group} {`)
+    expect(phone).toContain("margin-top: calc(var(--field-group-stack-spacing, 0) * (var(--field-group-gap, 37px) - var(--field-group-gap-footer-offset, 0px) - var(--field-group-gap-header-offset, 0px)));")
+    // Only with touch.css: without it a page keeps its layout's own gaps (Codex #58)
+    expect(readFileSync(`${process.cwd()}/packages/styles/src/styles/touch.css`, "utf8")).toMatch(/:root \{\n    --field-group-stack-spacing: 1;/)
     expect(phone).toContain(`:is(.FieldGroup:has(> .Footer), [role="radiogroup"]:has(> .FieldGroup:only-child > .Footer)) + ${group} {\n    --field-group-gap-footer-offset: 17.5px;`)
     expect(phone).toContain(`${group} + :is(.FieldGroup:has(> .Header), [role="radiogroup"]:has(> .FieldGroup:only-child > .Header)) {\n    --field-group-gap-header-offset: 16px;`)
     expect(phone).toMatch(/:has\(> \.FieldGroup\[data-header-prominence="increased"\]:only-child > \.Header\)\) \{\s*--field-group-gap-header-offset: 18\.3px;/)

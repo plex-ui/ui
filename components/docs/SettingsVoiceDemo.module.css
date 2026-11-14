@@ -159,14 +159,15 @@
 }
 
 .NumberField {
-  /* As high as the stepper beside it, 32 (the field of IMG_5965 is 31) */
+  /* As high as the stepper beside it, 32 */
   --control-size-sm: 32px;
 
   width: 49px;
   flex: none;
 }
 
-/* The number 7 in from the frame, as in IMG_5965, so 100 fits the 49 (Codex #54). Weighs over the size's own gutter. */
+/* A ghost field, without a frame (owner 14.11 «поле слева должно быть без бордеров»): its number starts at the row's
+   inset, where a row's label starts. Weighs over the size's own gutter. */
 .NumberRow > .NumberField[data-size] {
-  --input-gutter: 7px;
+  --input-gutter: 0px;
 }

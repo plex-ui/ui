@@ -89,7 +89,7 @@ export function HeadTrackingFields({ value, onChange }: { value: HeadTrackingSet
     </FieldGroup>
     <FieldGroup title="Pointer Speed">
       <div className={s.NumberRow} data-row>
-        <Input size="sm" inputMode="numeric" className={s.NumberField} aria-label="Pointer Speed" value={draft ?? String(value.speed)}
+        <Input size="sm" variant="ghost" inputMode="numeric" className={s.NumberField} aria-label="Pointer Speed" value={draft ?? String(value.speed)}
           onChange={(event) => setDraft(event.target.value)} onBlur={commit}
           onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); commit(); } }} />
         <Stepper aria-label="Adjust Pointer Speed" value={Math.min(100, Math.max(0, typedOr(value.speed)))} min={0} max={100} step={10}
