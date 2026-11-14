@@ -430,6 +430,23 @@ describe("Compact Phone viewport", () => {
     expect(frame.style.height).toBe("")
   })
 
+  // Owner 14.11: «после выбора mobile контролов нет на экране около минуты БАГ». A blank phone read as broken while
+  // the phone page loaded; the screen says it is loading until the example reports it has mounted.
+  test.each(["screen", "component"] as const)("a %s phone shows a loading indicator until its example is ready", (presentation) => {
+    const view = render(<PhonePage>
+      <ComponentPreview previewId="loading" phonePresentation={presentation}><span>Loading example</span></ComponentPreview>
+    </PhonePage>)
+    fireEvent.click(view.getByLabelText("Phone"))
+    const frame = view.container.querySelector("iframe")!
+    expect(view.getByRole("status", { name: "Loading the phone preview" })).toBeTruthy()
+    expect(frame.parentElement!.getAttribute("aria-busy")).toBe("true")
+    act(() => window.dispatchEvent(new MessageEvent("message", {
+      source: frame.contentWindow, origin: window.location.origin, data: { previewKey: "loading", demoReady: true },
+    })))
+    expect(view.queryByRole("status", { name: "Loading the phone preview" })).toBeNull()
+    expect(frame.parentElement!.hasAttribute("aria-busy")).toBe(false)
+  })
+
   test("choosing Phone waits for the iframe bridge and the mounted keyboard field before focusing", () => {
     const view = render(<PhonePage>
       <ComponentPreview previewId="active" phonePresentation="screen"><span>Active example</span></ComponentPreview>

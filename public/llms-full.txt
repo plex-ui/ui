@@ -183,35 +183,24 @@ Props:
   - className (string) — Applied to the group container; other props are not forwarded
 
 ### Overview
+Put Avatars inside an AvatarGroup: they overlap, each cut out by a ring of the surface color, and an overflowCount avatar counts the rest. stack says which avatar lies on top: the first ("start", the default) or the last ("end"). size on the AvatarGroup sets the size of every avatar in the group, so the avatars need no size of their own.
 ```tsx
-<AvatarGroup size={42}>
-<Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" />
-<Avatar name="Jane" color="primary" variant="solid" />
-<Avatar name="Tech support" Icon={Robot} variant="solid" />
-<Avatar overflowCount={5} />
-</AvatarGroup>
-```
+import { useState } from 'react';
+import { Avatar, AvatarGroup } from '@plexui/ui/components/Avatar';
+import { Robot } from '@plexui/ui/components/Icon';
 
-### Stacking direction
-You can control the stacking direction using the stack prop, as either "start" or "end".
-```tsx
-<AvatarGroup stack="end" size={42}>
-<Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" />
-<Avatar name="Will" />
-<Avatar name="Tech support" Icon={Robot} variant="solid" />
-<Avatar overflowCount={5} variant="soft" />
-</AvatarGroup>
-```
-
-### Group sizing
-You can control the size of all avatars in the group by passing size directly to the &lt;AvatarGroup&gt; component.
-```tsx
-<AvatarGroup size={48}>
-<Avatar name="Tyler" color="info" />
-<Avatar name="Jane" color="discovery" />
-<Avatar name="Will" color="danger" />
-<Avatar overflowCount={5} />
-</AvatarGroup>
+export function Example() {
+  const [stack, setStack] = useState<'start' | 'end'>('start');
+  const [size, setSize] = useState(42);
+  return (
+    <AvatarGroup stack={stack} size={size}>
+      <Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" />
+      <Avatar name="Jane" color="primary" variant="solid" />
+      <Avatar name="Tech support" Icon={Robot} variant="solid" />
+      <Avatar overflowCount={5} />
+    </AvatarGroup>
+  );
+}
 ```
 
 ## Avatar
@@ -4871,27 +4860,34 @@ Props:
     - className (string) — Applied to the panel
 
 ### Overview
+Put a Popover.Trigger and a Popover.Content inside a Popover. side places the panel (bottom by default; it flips when it collides) and align lines it up with the start, center or end of the trigger. On a phone there is no room beside the trigger, so the panel opens below it, centered. Size the panel with any combination of width, minWidth and maxWidth. All popovers default to a minWidth of 300px and a maxWidth of 700px, capped by the space available in the viewport; {'minWidth="auto"'} lets the panel hug its content. translucent gives it a translucent, blurred surface, which it keeps on a phone instead of the glass of the phone menus. showOnHover opens the popover on hover and focus. Use it sparingly and with clear intention. A phone has no hover: a tap opens it, so the setting stays on the desktop. By default, hover popovers do not move focus, nor restore it to the trigger on close; when tab moves into interactive content of the popover, focus returns to the trigger on close.
 ```tsx
+import { useState } from 'react';
+import { Button } from '@plexui/ui/components/Button';
+import { Popover } from '@plexui/ui/components/Popover';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 
-function Example() {
-const wide = useBreakpoint('md');
-return (
-  <Popover>
-    <Popover.Trigger><Button color="primary">Generate</Button></Popover.Trigger>
-    <Popover.Content side={wide ? 'right' : 'bottom'}>...</Popover.Content>
-  </Popover>
-);
+export function Example() {
+  // A phone has no room beside the trigger and no hover: there the panel opens below it, centered, on a tap
+  const wide = useBreakpoint('md');
+  const [side, setSide] = useState<'top' | 'right' | 'bottom' | 'left'>('right');
+  const [align, setAlign] = useState<'start' | 'center' | 'end'>('center');
+  const [minWidth, setMinWidth] = useState<number | 'auto'>(300);
+  const [showOnHover, setShowOnHover] = useState(false);
+  const [translucent, setTranslucent] = useState(false);
+  return (
+    <Popover showOnHover={wide && showOnHover}>
+      <Popover.Trigger>
+        <Button color="primary" pill={false}>Generate</Button>
+      </Popover.Trigger>
+      <Popover.Content side={wide ? side : 'bottom'} align={wide ? align : 'center'} minWidth={minWidth} translucent={translucent}>
+        <div className="p-4">
+          <p className="text-sm text-secondary">Use with any floating UI.</p>
+        </div>
+      </Popover.Content>
+    </Popover>
+  );
 }
-```
-
-### Sizing the popover
-The popover can be sized with any combination of width, minWidth, or maxWidth. All popovers default to a minWidth of 300px, and a maxWidth of 700px, capped by the space available in the viewport.
-```tsx
-<Popover>
-<Popover.Trigger>...</Popover.Trigger>
-<Popover.Content minWidth="auto" side="top">...</Popover.Content>
-</Popover>
 ```
 
 ### Using the controller
@@ -5135,22 +5131,6 @@ const hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))
   </Toolbar.Trailing>
 </Toolbar>
 </Page>
-```
-
-### Open on hover
-Use showOnHover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close.
-```tsx
-import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-
-function Example() {
-const wide = useBreakpoint('md');
-return (
-  <Popover showOnHover>
-    <Popover.Trigger>...</Popover.Trigger>
-    <Popover.Content side={wide ? 'right' : 'bottom'}>...</Popover.Content>
-  </Popover>
-);
-}
 ```
 
 ## Progress Steps

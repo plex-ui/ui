@@ -8,81 +8,55 @@ import { VueSelectDemo } from "@/components/docs/vue/VueSelectDemos"
 import pageStyles from "@/components/docs/PageDemos.module.css"
 import { withPhone } from "@/components/docs/phoneRowsTemplate"
 
-import { VueDemo } from "@/components/docs/vue/VueDemo"
 import { VuePopoverConfirmationDemo, VuePopoverDemo } from "@/components/docs/vue/VuePopoverDemos"
 import { PopoverConfirmationStage } from "@/components/docs/PopoverDemos"
 
-export const overview = `<Popover>
+export const overview = `<Popover :show-on-hover="showOnHover">
   <PopoverTrigger>
     <Button color="primary" :pill="false">Generate</Button>
   </PopoverTrigger>
-  <PopoverContent :side="wide ? 'right' : 'bottom'">
+  <PopoverContent :side="side" :align="align" :min-width="minWidth === 'auto' ? 'auto' : 300" :translucent="translucent">
     <div class="p-4">
-      <p class="text-sm text-secondary">Popover content. Use with any floating UI.</p>
+      <p class="text-sm text-secondary">Use with any floating UI.</p>
     </div>
   </PopoverContent>
 </Popover>`
 
-export const sizing = `<Popover>
-  <PopoverTrigger>
-    <Button color="primary" size="sm" variant="ghost" :pill="false" gutter-size="xs" class="gap-1.5">
-      <Bolt /> Actions
-    </Button>
-  </PopoverTrigger>
-  <PopoverContent class="flex p-1.5" min-width="auto" side="top">
-    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
-      <Functions :height="18" :width="18" />
-    </Button>
-    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
-      <Search :height="18" :width="18" />
-    </Button>
-    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
-      <Globe :height="18" :width="18" />
-    </Button>
-    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
-      <Code :height="18" :width="18" />
-    </Button>
-    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
-      <ImageSquare :height="18" :width="18" />
-    </Button>
-  </PopoverContent>
-</Popover>`
+export const overviewControls = [
+  { name: "side", type: "select", options: ["top", "right", "bottom", "left"], default: "right", desktopOnly: true, phoneDefault: "bottom" },
+  { name: "align", type: "select", options: ["start", "center", "end"], default: "center", desktopOnly: true },
+  { name: "minWidth", type: "select", options: ["300", "auto"], default: "300" },
+  { name: "showOnHover", type: "boolean", default: false, desktopOnly: true },
+  { name: "translucent", type: "boolean", default: false },
+]
 
-export const hover = `<div class="flex flex-col gap-4">
-  <Popover show-on-hover>
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
+import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
+
+// A phone has no room beside the trigger and no hover: there the panel opens below it, centered, on a tap
+const wide = useBreakpoint('md');
+const side = ref<'top' | 'right' | 'bottom' | 'left'>('right');
+const align = ref<'start' | 'center' | 'end'>('center');
+const minWidth = ref<number | 'auto'>(300);
+const showOnHover = ref(false);
+const translucent = ref(false);
+</script>
+
+<template>
+  <Popover :show-on-hover="wide && showOnHover">
     <PopoverTrigger>
-      <Button color="primary" :pill="false">Static content</Button>
+      <Button color="primary" :pill="false">Generate</Button>
     </PopoverTrigger>
-    <PopoverContent :width="320" :side="wide ? 'right' : 'bottom'">
-      <div class="p-3">
-        <h3 class="mb-0.5 font-semibold">Popover Title</h3>
-        <p class="text-sm text-secondary">
-          This is an example of a hoverable popover containing presentational content.
-        </p>
-        <footer class="mt-2 text-xs text-tertiary">Last updated June 20, 2025</footer>
+    <PopoverContent :side="wide ? side : 'bottom'" :align="wide ? align : 'center'" :min-width="minWidth" :translucent="translucent">
+      <div class="p-4">
+        <p class="text-sm text-secondary">Use with any floating UI.</p>
       </div>
     </PopoverContent>
   </Popover>
-  <Popover show-on-hover>
-    <PopoverTrigger>
-      <Button color="primary" :pill="false">Interactive content</Button>
-    </PopoverTrigger>
-    <PopoverContent :min-width="230" :side="wide ? 'right' : 'bottom'" v-slot="{ close }">
-      <div class="p-3">
-        <h3 class="mb-0.5 text-sm font-semibold">Popover with actions</h3>
-        <p class="text-sm text-secondary">Try using tab to navigate</p>
-        <div class="mt-3 flex gap-2">
-          <Button color="secondary" variant="soft" :pill="false" @click="close">
-            Cancel
-          </Button>
-          <Button color="primary" :pill="false" @click="close">
-            Confirm
-          </Button>
-        </div>
-      </div>
-    </PopoverContent>
-  </Popover>
-</div>`
+</template>`
 
 export const controller = `<Popover :open="open" @update:open="setOpen">
   <PopoverTrigger>
@@ -138,18 +112,6 @@ const wide = useBreakpoint('md');
 
 <template>
 ${confirmation}
-</template>`
-
-export const responsiveCode = (template) => `<script setup lang="ts">
-import { Button } from '@plexui/vue/components/Button';
-import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
-import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
-
-const wide = useBreakpoint('md');
-</script>
-
-<template>
-${template}
 </template>`
 
 export const controllerCode = `<script setup lang="ts">
@@ -268,18 +230,19 @@ export const columnConfigPhone = `<Page>
 
 ## Examples
 
+{/* The examples Sizing the popover and Open on hover are settings of the Overview (owner 11.11: the first example
+    shows everything with every setting); their anchors stay */}
+<span id="sizing-the-popover" />
+<span id="open-on-hover" />
+
 ### Overview
 
-These examples keep the panel beside the trigger on desktop and below it on phones, where space beside the trigger is limited.
-
-<ComponentPreview language="vue" code={responsiveCode(overview)} previewMinHeight={168}>
-  <VuePopoverDemo template={overview} />
-</ComponentPreview>
-
-### Sizing the popover
-
-<ComponentPreview language="vue" details={<>The popover can be sized with any combination of <code>width</code>, <code>min-width</code>, or <code>max-width</code>. All popovers default to a <code>min-width</code> of <code>300px</code>, and a <code>max-width</code> of <code>700px</code>, capped by the space available in the viewport.</>} code={sizing} previewMinHeight={168}>
-  <VueDemo template={sizing} />
+<ComponentPreview language="vue" details={<>
+  <p>Put a <code>PopoverTrigger</code> and a <code>PopoverContent</code> inside a <code>Popover</code>. <code>side</code> places the panel (<code>bottom</code> by default; it flips when it collides) and <code>align</code> lines it up with the start, center or end of the trigger. On a phone there is no room beside the trigger, so the panel opens below it, centered.</p>
+  <p>Size the panel with any combination of <code>width</code>, <code>min-width</code> and <code>max-width</code>. All popovers default to a <code>min-width</code> of <code>300px</code> and a <code>max-width</code> of <code>700px</code>, capped by the space available in the viewport; <code>{'min-width="auto"'}</code> lets the panel hug its content. <code>translucent</code> gives it a translucent, blurred surface, which it keeps on a phone instead of the glass of the phone menus.</p>
+  <p><code>show-on-hover</code> opens the popover on hover and focus. Use it sparingly and with clear intention. A phone has no hover: a tap opens it, so the setting stays on the desktop. By default, hover popovers do not move focus, nor restore it to the trigger on close; when <code>tab</code> moves into interactive content of the popover, focus returns to the trigger on close.</p>
+</>} code={overviewCode} previewMinHeight={240}>
+  <VuePopoverDemo template={overview} controls={overviewControls} stageClassName="flex-1 flex items-center justify-center w-full py-10" />
 </ComponentPreview>
 
 ### Using the controller
@@ -310,12 +273,6 @@ These examples keep the panel beside the trigger on desktop and below it on phon
 All floating UI components in Plex UI can be infinitely nested by relying on `z-index: auto;` and natural stacking order.
 
 Additionally, `esc` keypresses are handled independently as a stacking order.
-
-### Open on hover
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>show-on-hover</code> to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.<br/><br/>By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and <code>tab</code> is used to navigate into the popover, focus will be restored to the trigger on close.</>} code={responsiveCode(hover)} previewMinHeight={168}>
-  <VuePopoverDemo template={hover} />
-</ComponentPreview>
 
 ## API
 

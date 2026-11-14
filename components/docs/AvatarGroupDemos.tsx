@@ -4,8 +4,7 @@ import type { SVGProps } from 'react';
 import { useState } from 'react';
 import { Avatar, AvatarGroup } from '@plexui/ui/components/Avatar';
 import { Robot } from '@plexui/ui/components/Icon';
-import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { DemoControlRow, Segments, controlsTableStyle } from './ButtonDemos';
 import { SliderValueControl } from './SliderValueControl';
 
 const IconRobot = Robot as React.ComponentType<SVGProps<SVGSVGElement>>;
@@ -26,74 +25,30 @@ export function AvatarGroupHeroContent() {
   );
 }
 
-export function AvatarGroupBaseDemo() {
-  return (
-    <AvatarGroup size={42}>
-      <Avatar
-        name="Tyler"
-        imageUrl={AVATAR_IMAGE_URL}
-      />
-      <Avatar name="Jane" color="primary" variant="solid" />
-      <Avatar name="Tech support" Icon={IconRobot} variant="solid" />
-      <Avatar overflowCount={5} />
-    </AvatarGroup>
-  );
-}
+const STACKS = ['start', 'end'] as const;
 
-export function AvatarGroupDirectionDemo() {
-  const [stack, setStack] = useState<'start' | 'end'>('end');
+/**
+ * The Overview, one group with every setting: what the page's examples once showed one by one (Stacking direction,
+ * Group sizing) are its settings (owner 11.11: «в первом примере можно сразу показать все со всеми настройками»).
+ * `stack` says which avatar lies on top: the first (`start`) or the last (`end`); `size` sets every avatar of the group.
+ * A group has no phone presentation of its own: on a phone it is the same group.
+ */
+export function AvatarGroupOverviewDemo() {
+  const [stack, setStack] = useState<(typeof STACKS)[number]>('start');
+  const [size, setSize] = useState(42);
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="stack">
-          <SegmentedControl<'start' | 'end'>
-            value={stack}
-            onChange={setStack}
-            aria-label="stack"
-            size="xs"
-          >
-            <SegmentedControl.Option value="start">start</SegmentedControl.Option>
-            <SegmentedControl.Option value="end">end</SegmentedControl.Option>
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
-      <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-        <AvatarGroup stack={stack} size={42}>
-          <Avatar
-            name="Tyler"
-            imageUrl={AVATAR_IMAGE_URL}
-          />
-          <Avatar name="Will" />
-          <Avatar name="Tech support" Icon={IconRobot} variant="solid" />
-          <Avatar overflowCount={5} variant="soft" />
-        </AvatarGroup>
-      </div>
-    </>
-  );
-}
-
-export function AvatarGroupSizingDemo() {
-  const [size, setSize] = useState(48);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
+        <Segments name="stack" options={STACKS} value={stack} onChange={setStack} />
         <DemoControlRow name="size">
-          <SliderValueControl
-            ariaLabel="size"
-            min={14}
-            max={80}
-            step={2}
-            value={size}
-            onChange={setSize}
-            width="min(42vw, 340px)"
-          />
+          <SliderValueControl ariaLabel="size" min={14} max={80} step={2} value={size} onChange={setSize} width="min(42vw, 340px)" />
         </DemoControlRow>
       </div>
       <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-        <AvatarGroup size={size}>
-          <Avatar name="Tyler" color="info" />
-          <Avatar name="Jane" color="discovery" />
-          <Avatar name="Will" color="danger" />
+        <AvatarGroup stack={stack} size={size}>
+          <Avatar name="Tyler" imageUrl={AVATAR_IMAGE_URL} />
+          <Avatar name="Jane" color="primary" variant="solid" />
+          <Avatar name="Tech support" Icon={IconRobot} variant="solid" />
           <Avatar overflowCount={5} />
         </AvatarGroup>
       </div>

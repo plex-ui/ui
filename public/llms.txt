@@ -73,7 +73,7 @@ Props:
   - size (number) — Size of all avatars in the group
   - stack ("start" | "end") default: "start" — Stacking direction
   - className (string) — Applied to the group container; other props are not forwarded
-Examples: Overview, Stacking direction, Group sizing
+Examples: Overview
 
 ## Avatar
 An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.
@@ -806,7 +806,7 @@ Props:
     - autoFocus (boolean) default: true — Move focus into the panel when it opens (hover popovers never take focus)
     - data-* (string) — Data attributes land on the panel
     - className (string) — Applied to the panel
-Examples: Overview, Sizing the popover, Using the controller, Confirmation, Column configuration, Open on hover
+Examples: Overview, Using the controller, Confirmation, Column configuration
 
 ## Progress Steps
 Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.

@@ -966,15 +966,16 @@ describe("Phone bottom bar after iOS 26 Mail and Contacts (430 x 932)", () => {
     expect(tokens).toContain("--toolbar-bottom-gutter: 28px;")
   })
 
-  test("a top bar stands under the status bar, or the gutter from the window's top without one (a page in a browser)", () => {
-    // Owner 13.11 «кнопки в тулбаре без паддинга прилипают прямо к верхней границе»: the inset is 0 in a browser
+  test("a top bar stands under the status bar, or without one keeps the air above its row that it keeps below it (a page in a browser)", () => {
+    // Owner 13.11 «кнопки в тулбаре без паддинга прилипают прямо к верхней границе»: the inset is 0 in a browser; owner
+    // 14.11 «паддинг над топбаром больше чем должен быть»: the 16 of the gutter, so 10 above as below
     const inset = "var(--safe-area-inset-top, env(safe-area-inset-top, 0px))"
     const toolbar = read("components/Toolbar/Toolbar.module.css")
-    expect(toolbar).toContain(`.Toolbar[data-host="page"][data-placement="top"] {\n    --toolbar-padding-top: max(var(--toolbar-gutter), ${inset});`)
-    expect(toolbar).toContain(`:where([data-mobile-placement="fullscreen"]) .Toolbar[data-host="dialog"][data-placement="top"] {\n    --toolbar-padding-top: max(var(--toolbar-gutter), ${inset});`)
+    expect(toolbar).toContain(`.Toolbar[data-host="page"][data-placement="top"] {\n    --toolbar-padding-top: max(var(--toolbar-padding-bottom), ${inset});`)
+    expect(toolbar).toContain(`:where([data-mobile-placement="fullscreen"]) .Toolbar[data-host="dialog"][data-placement="top"] {\n    --toolbar-padding-top: max(var(--toolbar-padding-bottom), ${inset});`)
     const page = read("components/Page/Page.module.css")
-    expect(page).toContain(`padding-block: max(var(--page-gutter), ${inset}) 10px;`)
-    expect(page).toContain(`calc(max(var(--page-gutter), ${inset}) + var(--page-bar-height-phone) + 10px)`)
+    expect(page).toContain(`padding-block: max(10px, ${inset}) 10px;`)
+    expect(page).toContain(`calc(max(10px, ${inset}) + var(--page-bar-height-phone) + 10px)`)
   })
 
   test("the search field and a button with iconSize=\"sm\" take them, in a Toolbar.Group and a ButtonGroup too", () => {

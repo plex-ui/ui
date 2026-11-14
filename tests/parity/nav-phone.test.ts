@@ -32,7 +32,6 @@ const phoneRule = (path: string, selector: string) => {
 }
 
 describe.each([
-  ["popover", ["Open on hover"]],
   ["breadcrumb", ["Sizes"]],
 ])("%s on a phone", (page, desktop) => {
   test("leaves out the examples a phone cannot show, in React and Vue, and says why", () => {
@@ -42,6 +41,19 @@ describe.each([
       expect(section.slice(0, section.indexOf("</>}")), path).toMatch(/so this example is desktop only\./)
     }
   })
+})
+
+// Popover: Open on hover, once a desktop-only example, is showOnHover of the one Overview (row 33), a desktop setting
+// as side and align are: a phone has no hover and no room beside the trigger
+test("Popover: side, align and showOnHover are desktop controls of the Overview, and the page says why", () => {
+  for (const name of ["side", "align", "showOnHover"]) {
+    expect(read("components/docs/PopoverDemos.tsx")).toMatch(new RegExp(`name="${name}"[^\\n]*desktopOnly`))
+    expect(read("content/vue/components/popover.mdx")).toMatch(new RegExp(`\\{ name: "${name}"[^\\n]*desktopOnly: true`))
+  }
+  for (const path of both("popover")) {
+    expect(desktopOnly(path), path).toEqual([])
+    expect(read(path), path).toContain("A phone has no hover: a tap opens it, so the setting stays on the desktop.")
+  }
 })
 
 // Progress steps: Vertical, once a desktop-only example, is the orientation of the one Overview (owner 11.11), a
@@ -288,7 +300,7 @@ describe("a Phone preview is a phone screen in a phone frame (plan 164)", () => 
   // Owner 08.11: a phone page always keeps the top bar of an app screen and names the example in it
   test("the phone page keeps a top bar under the status bar, titled by the example's section heading", () => {
     expect(source).toContain("{phonePage && (\n          <Toolbar className={s.PhonePageBar} aria-hidden=\"true\">\n            {previewTitle && <Toolbar.Title>{previewTitle}</Toolbar.Title>}")
-    expect(css).toContain(".PreviewContainer[data-preview-phone-page] > .PhonePageBar {\n  --toolbar-padding-top: max(var(--toolbar-gutter, 16px), var(--safe-area-inset-top, 0px));")
+    expect(css).toContain(".PreviewContainer[data-preview-phone-page] > .PhonePageBar {\n  --toolbar-padding-top: max(var(--toolbar-padding-bottom, 10px), var(--safe-area-inset-top, 0px));")
     expect(css).toContain("  position: sticky;\n  top: 0;\n}")
     expect(css).toContain(".PreviewContainer[data-preview-phone-page]:has([data-phone-rows]) > .PhonePageBar {\n  --toolbar-background: var(--mobile-surface-grouped-primary);\n}")
     // An example with its own top bar keeps it alone and starts under the status bar

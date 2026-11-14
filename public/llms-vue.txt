@@ -90,7 +90,7 @@ Props:
   - size (number) — Size of all avatars in the group
   - stack ("start" | "end") default: "start" — Stacking direction
   - class (string) — Applied to the group container; other attributes are not forwarded
-Examples: Overview, Stacking direction, Group sizing
+Examples: Overview
 
 ## Badge
 Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.
@@ -794,7 +794,7 @@ Props:
     - data-* (string) — Data attributes land on the panel
     - class (string) — Applied to the panel
     - default slot ({ close, shake }) — Panel content; receives the controller functions
-Examples: Overview, Sizing the popover, Using the controller, Confirmation, Column configuration, Open on hover
+Examples: Overview, Using the controller, Confirmation, Column configuration
 
 ## Progress
 A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.

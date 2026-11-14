@@ -15,6 +15,7 @@ import { usePreviewViewport } from './PreviewViewport';
 import { goToPreviousExample } from './previewNavigation';
 import { isPreviewScrollDelta, scrollPreviewParent } from './previewScroll';
 import { Switch } from '@plexui/ui/components/Switch';
+import { LoadingIndicator } from '@plexui/ui/components/Indicator';
 import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { PreviewKeyboard, NUMERIC_KEYBOARD_HEIGHT, TEXT_KEYBOARD_HEIGHT } from './PreviewKeyboard';
 import { canSimulatePreviewKeyboard, type PreviewKeyboardCommand, type PreviewKeyboardState } from './previewKeyboardInput';
@@ -355,11 +356,20 @@ function PhonePreview({
     />
   );
 
+  // Until the example reports it has mounted, the screen says it is loading: a first visit compiles the phone page
+  // in development, and a blank phone read as broken (owner 14.11: «контролов нет на экране около минуты БАГ»).
+  const loading = !loaded && (
+    <span className={s.PhoneLoading} role="status" aria-label="Loading the phone preview">
+      <LoadingIndicator size={20} />
+    </span>
+  );
+
   if (!screen) {
     return (
       <div className={s.ComponentPhoneContainer}>
-        <div ref={deviceRef} className={s.ComponentPhoneViewport} style={{ height: contentHeight }}>
+        <div ref={deviceRef} className={s.ComponentPhoneViewport} style={{ height: contentHeight }} aria-busy={!loaded || undefined}>
           {frame}
+          {loading}
         </div>
       </div>
     );
@@ -374,7 +384,7 @@ function PhonePreview({
     <div className={s.PhoneContainer} data-dialog-open={(dialogOpen || !ready) || undefined} data-status-bar-scrim={(statusBarScrim || !ready) || undefined} style={{ minHeight: previewMinHeight ?? 168 }}>
       <div ref={deviceRef} className={s.PhoneDevice}>
         <div className={s.PhoneCanvas}>
-          <div className={s.PhoneScreen} style={{ '--phone-screen-background': screenBackground } as React.CSSProperties}>
+          <div className={s.PhoneScreen} style={{ '--phone-screen-background': screenBackground } as React.CSSProperties} aria-busy={!loaded || undefined}>
             <div className={s.PhoneStatusBar} aria-hidden="true">
               <span className={s.PhoneTime}>9:41</span>
               <span className={s.PhoneStatusIcons}>
@@ -384,6 +394,7 @@ function PhonePreview({
               </span>
             </div>
             {frame}
+            {loading}
             {keyboard.open && keyboard.kind && <PreviewKeyboard kind={keyboard.kind} onKey={sendKeyboard} />}
           </div>
           <Image className={s.PhoneBezel} src="/images/devices/iphone-17-pro/silver-portrait.png" alt="" width={450} height={920} unoptimized loading="eager" aria-hidden="true" />

@@ -158,7 +158,7 @@
    The first column keeps the place of a sidebar's menu button. */
 @media (max-width: 767.98px) {
   .Page {
-    --page-top: var(--page-toolbar-height, var(--page-header-height, calc(max(var(--page-gutter), var(--safe-area-inset-top, env(safe-area-inset-top, 0px))) + var(--page-bar-height-phone) + 10px)));
+    --page-top: var(--page-toolbar-height, var(--page-header-height, calc(max(10px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px))) + var(--page-bar-height-phone) + 10px)));
     --page-bottom: var(--page-toolbar-bottom-height, var(--page-footer-height, 0px));
     --mobile-surface-primary: var(--mobile-surface-plain-primary, var(--color-surface));
     --mobile-surface-secondary: var(--mobile-surface-plain-secondary, var(--color-background-secondary-soft-alpha));
@@ -197,8 +197,8 @@
     position: absolute;
     z-index: 5;
     inset: 0 0 auto;
-    /* Under the status bar, or the gutter from the window's top without one, as a top Toolbar */
-    padding-block: max(var(--page-gutter), var(--safe-area-inset-top, env(safe-area-inset-top, 0px))) 10px;
+    /* Under the status bar, or without one the air it keeps below its row, as a top Toolbar */
+    padding-block: max(10px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px))) 10px;
 
     /* Soft: the scroll edge of a top Toolbar (--page-bar-soft-veil): the canvas color through the veil over a light
        blur, and on `::after` the stronger blur that hides the content under the bar, once content is under it. */

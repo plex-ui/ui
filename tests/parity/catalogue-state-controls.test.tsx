@@ -17,6 +17,9 @@ import { CodeBlockOverviewDemo } from '../../components/docs/CodeBlockDemos';
 import { InputOverviewDemo } from '../../components/docs/InputDemos';
 import { VueInputDemo } from '../../components/docs/vue/VueInputDemos';
 import { InputGroupOverviewDemo } from '../../components/docs/InputGroupDemos';
+import { PopoverOverviewDemo } from '../../components/docs/PopoverDemos';
+import { AvatarGroupOverviewDemo } from '../../components/docs/AvatarGroupDemos';
+import { VuePopoverDemo } from '../../components/docs/vue/VuePopoverDemos';
 import { CODE_BLOCK_LANGUAGE_SAMPLES } from '../../components/docs/CodeBlockSamples';
 import { ToggleGroupOverviewDemo } from '../../components/docs/ToggleGroupDemos';
 import { SwitchOverviewDemo } from '../../components/docs/SwitchDemos';
@@ -294,6 +297,10 @@ const inputGroupOverview = (() => {
   const phone = new Function(`return ${rest.slice(0, rest.search(/\nexport const /)).trim()}`)() as string;
   return { ...example('input-group', 'overview', ['sizeOptions']), phoneTemplate: phoneRows(phone), phoneStageClassName: 'w-full', desktopControlNames: ['size', 'variant', 'pill', 'align'], stageClassName: 'py-10' };
 })();
+/** The Popover Overview as its page mounts it */
+const popoverOverview = { ...example('popover', 'overview'), stageClassName: 'flex-1 flex items-center justify-center w-full py-10' };
+/** The Avatar Group Overview as its page mounts it */
+const avatarGroupOverview = { ...example('avatar-group', 'overview'), stageClassName: 'flex-1 flex items-center justify-center py-12 w-full' };
 const progressSteps = [
   { title: 'Your details', description: 'Please provide your name and email', icon: 'Email' },
   { title: 'Company details', description: 'A few details about your company', icon: 'Globe' },
@@ -808,6 +815,80 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(row('Website').textContent).toContain('Enter a valid address.');
     await toggle('disabled');
     expect(rows().every((field) => field.querySelector('input')?.disabled)).toBe(true);
+  });
+
+  test('popover: one Overview carries every setting; side, align and showOnHover stay on the desktop (row 33)', async () => {
+    const view = render(framework === 'React' ? <PopoverOverviewDemo /> : <VuePopoverDemo {...popoverOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const trigger = () => within(view.container.querySelector<HTMLElement>('[data-demo-stage]')!).getByRole('button', { name: 'Generate' });
+    const panel = () => document.body.querySelector<HTMLElement>('[role="dialog"][data-state="open"]');
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const control = (name: string) => page.queryByRole('radiogroup', { name }) ?? page.queryByRole('switch', { name, exact: true });
+    const offered = (name: string) => !!control(name) && !control(name)!.closest('[data-demo-phone-only]');
+    const open = async () => {
+      await interact(() => fireEvent.click(trigger()));
+      expect(panel()).not.toBeNull();
+      const shown = { side: panel()!.dataset.side, align: panel()!.dataset.align, minWidth: panel()!.style.getPropertyValue('--popover-min-width'), translucent: panel()!.dataset.translucent === 'true', text: panel()!.textContent };
+      await interact(() => fireEvent.keyDown(panel()!, { key: 'Escape' }));
+      return shown;
+    };
+    for (const name of ['side', 'align', 'minWidth', 'showOnHover', 'translucent']) expect(offered(name), name).toBe(true);
+    // Beside the trigger, centered, at least 300px wide
+    expect(await open()).toEqual({ side: 'right', align: 'center', minWidth: '300px', translucent: false, text: 'Use with any floating UI.' });
+    await choose('side', 'top');
+    await choose('align', 'start');
+    await choose('minWidth', 'auto');
+    await toggle('translucent');
+    expect(await open()).toEqual({ side: 'top', align: 'start', minWidth: 'auto', translucent: true, text: 'Use with any floating UI.' });
+    // showOnHover: the pointer over the trigger opens it, without a click
+    expect(panel()).toBeNull();
+    await toggle('showOnHover');
+    await interact(() => fireEvent.pointerMove(trigger(), { pointerType: 'mouse' }));
+    await waitFor(() => expect(panel()).not.toBeNull());
+  });
+
+  test('popover on a phone: the panel opens below the trigger, centered, on a tap; minWidth and translucent stay (row 33)', async () => {
+    vi.stubGlobal('matchMedia', (media: string) => ({ matches: !media.includes('min-width'), media, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }));
+    const view = render(framework === 'React' ? <PopoverOverviewDemo /> : <VuePopoverDemo {...popoverOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const trigger = () => within(view.container.querySelector<HTMLElement>('[data-demo-stage]')!).getByRole('button', { name: 'Generate' });
+    const panel = () => document.body.querySelector<HTMLElement>('[role="dialog"][data-state="open"]');
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const control = (name: string) => page.queryByRole('radiogroup', { name }) ?? page.queryByRole('switch', { name, exact: true });
+    const offered = (name: string) => !!control(name) && !control(name)!.closest('[data-demo-desktop-only]');
+    for (const name of ['side', 'align', 'showOnHover']) expect(offered(name), name).toBe(false);
+    for (const name of ['minWidth', 'translucent']) expect(offered(name), name).toBe(true);
+    await choose('minWidth', 'auto');
+    await interact(() => fireEvent.click(trigger()));
+    expect([panel()?.dataset.side, panel()?.dataset.align, panel()?.style.getPropertyValue('--popover-min-width')]).toEqual(['bottom', 'center', 'auto']);
+  });
+
+  test('avatar group: one Overview carries stack and size (row 33)', async () => {
+    const view = render(framework === 'React' ? <AvatarGroupOverviewDemo /> : <VueAvatarDemo {...avatarGroupOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const group = () => view.container.querySelector<HTMLElement>('[data-demo-stage] [data-stack]')!;
+    const avatars = () => [...group().children] as HTMLElement[];
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    // A photo, an initial, an icon and a count of the rest; the first lies on top (last in the DOM, drawn last)
+    expect(group().dataset.stack).toBe('start');
+    expect(avatars()).toHaveLength(4);
+    expect(avatars()[3].querySelector('img')?.getAttribute('src')).toContain('gravatar.com');
+    expect(avatars()[0].textContent).toBe('+5');
+    await choose('stack', 'end');
+    expect(group().dataset.stack).toBe('end');
+    expect(avatars()[0].querySelector('img')).not.toBeNull();
+    expect(avatars()[3].textContent).toBe('+5');
+    // size sets every avatar of the group: the group's --avatar-size, which no avatar sets for itself
+    expect(group().style.getPropertyValue('--avatar-size')).toBe('42px');
+    expect(avatars().map((avatar) => avatar.style.getPropertyValue('--avatar-size'))).toEqual(['', '', '', '']);
+    const size = page.getByRole('slider', { name: 'size' });
+    expect([size.getAttribute('aria-valuemin'), size.getAttribute('aria-valuemax')]).toEqual(['14', '80']);
+    await interact(() => { fireEvent.keyDown(size, { key: 'ArrowRight' }); });
+    expect(group().style.getPropertyValue('--avatar-size')).toBe('44px');
   });
 
   test('toggle group: one Overview on the Repeat row carries every setting of the group (owner 11.11)', async () => {

@@ -7,6 +7,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Fixed
+
+- `Toolbar` and `Page` on a phone: without a top safe area (a page in a browser) a top bar keeps above its row the air it keeps below it, so its controls stand in the middle of the bar: 10px and a 64px bar, or 14px and 72px when the bar holds a search field; it kept the 16px gutter. Under a status bar it stays below it, and a Sheet's top bar keeps its 16px. A full-screen dialog's top bar too. React and Vue.
+
 ## 0.48.0 (2026-11-14)
 
 The glass row control ships in `@plexui/styles` 0.7.0. `@plexui/ui` 0.48.0 and `@plexui/vue` 0.28.0 need `^0.7.0`, since the row's 40px glass control is set by the 0.7 styles; earlier ui and vue versions keep the 0.6 styles they were built with. `@plexui/mcp` is 0.2.23.

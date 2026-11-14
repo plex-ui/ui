@@ -4,109 +4,57 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { Button } from '@plexui/ui/components/Button';
 import { Textarea } from '@plexui/ui/components/Textarea';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import {
-  Bolt,
-  Code,
-  Functions,
-  Globe,
-  ImageSquare,
-  Search,
-  Sparkles,
-} from '@plexui/ui/components/Icon';
+import { Sparkles } from '@plexui/ui/components/Icon';
 import { Popover, usePopoverController } from '@plexui/ui/components/Popover';
 import confirmationStyles from './PopoverConfirmation.module.css';
 import demoStyles from './PopoverDemos.module.css';
+import { DemoControlBoolean, Segments, controlsTableStyle } from './ButtonDemos';
+import { usePhoneRows } from './PhoneRows';
 
-export function PopoverBaseDemo() {
-  const wide = useBreakpoint('md');
-  return (
-    <Popover>
-      <Popover.Trigger>
-        <Button color="primary" pill={false}>Generate</Button>
-      </Popover.Trigger>
-      <Popover.Content side={wide ? 'right' : 'bottom'}>
-        <div className="p-4">
-          <p className="text-sm text-secondary">Popover content. Use with any floating UI.</p>
-        </div>
-      </Popover.Content>
-    </Popover>
-  );
-}
+const SIDES = ['top', 'right', 'bottom', 'left'] as const;
+const ALIGNS = ['start', 'center', 'end'] as const;
+const MIN_WIDTHS = ['300', 'auto'] as const;
 
-export function PopoverNaturalSizingDemo() {
+/**
+ * The Overview, one popover with every setting: what the page's examples once showed one by one (Sizing the popover,
+ * Open on hover) are its settings (owner 11.11: «в первом примере можно сразу показать все со всеми настройками»);
+ * the controller, the confirmation, the column configuration and nesting stay, each other content. `side` and `align`
+ * place the panel beside the trigger on a desktop; a phone has no room beside it, so the panel opens below, centered,
+ * and a phone has no hover, so `showOnHover` stays on the desktop too. `minWidth` is 300 by default: `auto` lets the
+ * panel hug its content. A setting that is not offered gives its default, as the Vue demo's hidden controls do.
+ */
+export function PopoverOverviewDemo() {
+  const phone = usePhoneRows();
+  const [shownSide, setSide] = useState<(typeof SIDES)[number]>('right');
+  const [shownAlign, setAlign] = useState<(typeof ALIGNS)[number]>('center');
+  const [minWidth, setMinWidth] = useState<(typeof MIN_WIDTHS)[number]>('300');
+  const [shownShowOnHover, setShowOnHover] = useState(false);
+  const [translucent, setTranslucent] = useState(false);
+  const side = phone ? 'bottom' : shownSide;
+  const align = phone ? 'center' : shownAlign;
+  const showOnHover = !phone && shownShowOnHover;
   return (
-    <Popover>
-      <Popover.Trigger>
-        <Button color="primary" size="sm" variant="ghost" pill={false} gutterSize="xs" className="gap-1.5">
-          <Bolt /> Actions
-        </Button>
-      </Popover.Trigger>
-      <Popover.Content className="flex p-1.5" minWidth="auto" side="top">
-        <Button color="primary" variant="ghost" pill={false} size="sm" gutterSize="2xs">
-          <Functions height={18} width={18} />
-        </Button>
-        <Button color="primary" variant="ghost" pill={false} size="sm" gutterSize="2xs">
-          <Search height={18} width={18} />
-        </Button>
-        <Button color="primary" variant="ghost" pill={false} size="sm" gutterSize="2xs">
-          <Globe height={18} width={18} />
-        </Button>
-        <Button color="primary" variant="ghost" pill={false} size="sm" gutterSize="2xs">
-          <Code height={18} width={18} />
-        </Button>
-        <Button color="primary" variant="ghost" pill={false} size="sm" gutterSize="2xs">
-          <ImageSquare height={18} width={18} />
-        </Button>
-      </Popover.Content>
-    </Popover>
-  );
-}
-
-function InteractiveContent() {
-  const { close } = usePopoverController();
-  return (
-    <div className="p-3">
-      <h3 className="mb-0.5 text-sm font-semibold">Popover with actions</h3>
-      <p className="text-sm text-secondary">Try using tab to navigate</p>
-      <div className="mt-3 flex gap-2">
-        <Button color="secondary" variant="soft" pill={false} onClick={close}>
-          Cancel
-        </Button>
-        <Button color="primary" pill={false} onClick={close}>
-          Confirm
-        </Button>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <Segments name="side" options={SIDES} value={shownSide} onChange={setSide} desktopOnly />
+        <Segments name="align" options={ALIGNS} value={shownAlign} onChange={setAlign} desktopOnly />
+        <Segments name="minWidth" options={MIN_WIDTHS} value={minWidth} onChange={setMinWidth} />
+        <DemoControlBoolean name="showOnHover" value={shownShowOnHover} onChange={setShowOnHover} desktopOnly />
+        <DemoControlBoolean name="translucent" value={translucent} onChange={setTranslucent} />
       </div>
-    </div>
-  );
-}
-
-export function PopoverHoverDemo() {
-  const wide = useBreakpoint('md');
-  return (
-    <div className="flex flex-col gap-4">
-      <Popover showOnHover>
-        <Popover.Trigger>
-          <Button color="primary" pill={false}>Static content</Button>
-        </Popover.Trigger>
-        <Popover.Content width={320} side={wide ? 'right' : 'bottom'}>
-          <div className="p-3">
-            <h3 className="mb-0.5 font-semibold">Popover Title</h3>
-            <p className="text-sm text-secondary">
-              This is an example of a hoverable popover containing presentational content.
-            </p>
-            <footer className="mt-2 text-xs text-tertiary">Last updated June 20, 2025</footer>
-          </div>
-        </Popover.Content>
-      </Popover>
-      <Popover showOnHover>
-        <Popover.Trigger>
-          <Button color="primary" pill={false}>Interactive content</Button>
-        </Popover.Trigger>
-        <Popover.Content minWidth={230} side={wide ? 'right' : 'bottom'}>
-          <InteractiveContent />
-        </Popover.Content>
-      </Popover>
-    </div>
+      <div data-demo-stage className="flex-1 flex items-center justify-center w-full py-10">
+        <Popover showOnHover={showOnHover}>
+          <Popover.Trigger>
+            <Button color="primary" pill={false}>Generate</Button>
+          </Popover.Trigger>
+          <Popover.Content side={side} align={align} minWidth={minWidth === 'auto' ? 'auto' : 300} translucent={translucent}>
+            <div className="p-4">
+              <p className="text-sm text-secondary">Use with any floating UI.</p>
+            </div>
+          </Popover.Content>
+        </Popover>
+      </div>
+    </>
   );
 }
 

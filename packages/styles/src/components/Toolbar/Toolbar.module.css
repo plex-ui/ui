@@ -689,13 +689,14 @@
   }
 
   /* Hosts: a Page puts the top bar over its content under the status bar, a Sheet 16 below its top edge. Without a
-     status bar (a page in a browser, where the top inset is 0) the row keeps the gutter from the window's top, as
-     its sides do and as a bottom bar keeps from the bottom (owner 13.11: the buttons touched the top). iOS 27.2
+     status bar (a page in a browser, where the top inset is 0) the row keeps the air above it that it keeps below
+     it, so its controls stand in the middle of the bar (owner 13.11: the buttons touched the top; owner 14.11: the
+     16 of the gutter was more than it should be). iOS 27.2
      sets a sheet's row of controls there, its centre 38 below the edge, and draws no grabber over it: a grabber
      (60 by 4, 6 down) shows only on a sheet that changes height (prefersGrabberVisible, measures/sheets.md), and a
      PlexUI Sheet keeps one height. */
   .Toolbar[data-host="page"][data-placement="top"] {
-    --toolbar-padding-top: max(var(--toolbar-gutter), var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+    --toolbar-padding-top: max(var(--toolbar-padding-bottom), var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
     position: absolute;
     inset: 0 0 auto;
   }
@@ -844,7 +845,7 @@
   }
 
   :where([data-mobile-placement="fullscreen"]) .Toolbar[data-host="dialog"][data-placement="top"] {
-    --toolbar-padding-top: max(var(--toolbar-gutter), var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+    --toolbar-padding-top: max(var(--toolbar-padding-bottom), var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
   }
 
   .Toolbar[data-host="dialog"][data-placement="bottom"] {

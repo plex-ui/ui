@@ -264,17 +264,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<AvatarGroup size={42}>\n<Avatar name=\"Tyler\" imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" />\n<Avatar name=\"Jane\" color=\"primary\" variant=\"solid\" />\n<Avatar name=\"Tech support\" Icon={Robot} variant=\"solid\" />\n<Avatar overflowCount={5} />\n</AvatarGroup>"
-        },
-        {
-          "name": "Stacking direction",
-          "code": "<AvatarGroup stack=\"end\" size={42}>\n<Avatar name=\"Tyler\" imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" />\n<Avatar name=\"Will\" />\n<Avatar name=\"Tech support\" Icon={Robot} variant=\"solid\" />\n<Avatar overflowCount={5} variant=\"soft\" />\n</AvatarGroup>",
-          "details": "You can control the stacking direction using the stack prop, as either \"start\" or \"end\"."
-        },
-        {
-          "name": "Group sizing",
-          "code": "<AvatarGroup size={48}>\n<Avatar name=\"Tyler\" color=\"info\" />\n<Avatar name=\"Jane\" color=\"discovery\" />\n<Avatar name=\"Will\" color=\"danger\" />\n<Avatar overflowCount={5} />\n</AvatarGroup>",
-          "details": "You can control the size of all avatars in the group by passing size directly to the &lt;AvatarGroup&gt; component."
+          "code": "import { useState } from 'react';\nimport { Avatar, AvatarGroup } from '@plexui/ui/components/Avatar';\nimport { Robot } from '@plexui/ui/components/Icon';\n\nexport function Example() {\n  const [stack, setStack] = useState<'start' | 'end'>('start');\n  const [size, setSize] = useState(42);\n  return (\n    <AvatarGroup stack={stack} size={size}>\n      <Avatar name=\"Tyler\" imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" />\n      <Avatar name=\"Jane\" color=\"primary\" variant=\"solid\" />\n      <Avatar name=\"Tech support\" Icon={Robot} variant=\"solid\" />\n      <Avatar overflowCount={5} />\n    </AvatarGroup>\n  );\n}",
+          "details": "Put Avatars inside an AvatarGroup: they overlap, each cut out by a ring of the surface color, and an overflowCount avatar counts the rest. stack says which avatar lies on top: the first (\"start\", the default) or the last (\"end\"). size on the AvatarGroup sets the size of every avatar in the group, so the avatars need no size of their own."
         }
       ],
       "docsUrl": "https://plexui.com/components/avatar-group"
@@ -4097,12 +4088,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';\n\nfunction Example() {\nconst wide = useBreakpoint('md');\nreturn (\n  <Popover>\n    <Popover.Trigger><Button color=\"primary\">Generate</Button></Popover.Trigger>\n    <Popover.Content side={wide ? 'right' : 'bottom'}>...</Popover.Content>\n  </Popover>\n);\n}"
-        },
-        {
-          "name": "Sizing the popover",
-          "code": "<Popover>\n<Popover.Trigger>...</Popover.Trigger>\n<Popover.Content minWidth=\"auto\" side=\"top\">...</Popover.Content>\n</Popover>",
-          "details": "The popover can be sized with any combination of width, minWidth, or maxWidth. All popovers default to a minWidth of 300px, and a maxWidth of 700px, capped by the space available in the viewport."
+          "code": "import { useState } from 'react';\nimport { Button } from '@plexui/ui/components/Button';\nimport { Popover } from '@plexui/ui/components/Popover';\nimport { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';\n\nexport function Example() {\n  // A phone has no room beside the trigger and no hover: there the panel opens below it, centered, on a tap\n  const wide = useBreakpoint('md');\n  const [side, setSide] = useState<'top' | 'right' | 'bottom' | 'left'>('right');\n  const [align, setAlign] = useState<'start' | 'center' | 'end'>('center');\n  const [minWidth, setMinWidth] = useState<number | 'auto'>(300);\n  const [showOnHover, setShowOnHover] = useState(false);\n  const [translucent, setTranslucent] = useState(false);\n  return (\n    <Popover showOnHover={wide && showOnHover}>\n      <Popover.Trigger>\n        <Button color=\"primary\" pill={false}>Generate</Button>\n      </Popover.Trigger>\n      <Popover.Content side={wide ? side : 'bottom'} align={wide ? align : 'center'} minWidth={minWidth} translucent={translucent}>\n        <div className=\"p-4\">\n          <p className=\"text-sm text-secondary\">Use with any floating UI.</p>\n        </div>\n      </Popover.Content>\n    </Popover>\n  );\n}",
+          "details": "Put a Popover.Trigger and a Popover.Content inside a Popover. side places the panel (bottom by default; it flips when it collides) and align lines it up with the start, center or end of the trigger. On a phone there is no room beside the trigger, so the panel opens below it, centered. Size the panel with any combination of width, minWidth and maxWidth. All popovers default to a minWidth of 300px and a maxWidth of 700px, capped by the space available in the viewport; {'minWidth=\"auto\"'} lets the panel hug its content. translucent gives it a translucent, blurred surface, which it keeps on a phone instead of the glass of the phone menus. showOnHover opens the popover on hover and focus. Use it sparingly and with clear intention. A phone has no hover: a tap opens it, so the setting stays on the desktop. By default, hover popovers do not move focus, nor restore it to the trigger on close; when tab moves into interactive content of the popover, focus returns to the trigger on close."
         },
         {
           "name": "Using the controller",
@@ -4118,11 +4105,6 @@
           "name": "Column configuration",
           "code": "const allColumns = [\n{ id: \"name\", label: \"Name\" },\n{ id: \"email\", label: \"Email\" },\n{ id: \"role\", label: \"Role\" },\n{ id: \"status\", label: \"Status\" },\n{ id: \"created\", label: \"Created at\" },\n{ id: \"lastLogin\", label: \"Last login\" },\n{ id: \"avatar\", label: \"Avatar\" },\n{ id: \"phone\", label: \"Phone\" },\n]\nconst [shown, setShown] = useState([\"name\", \"email\", \"role\", \"status\"])\nconst heading = useRef<HTMLDivElement>(null)\nconst toggle = (id: string) => {\nsetShown((prev) =>\n  prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]\n)\n}\nconst shownColumns = allColumns.filter((c) => shown.includes(c.id))\nconst hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))\n\n// Desktop: a popover; a switch moves its column between the shown and hidden lists\n<Popover>\n<Popover.Trigger>\n  <Button color=\"secondary\" variant=\"outline\" size=\"sm\">\n    <SettingsSlider width={15} height={15} /> Columns\n  </Button>\n</Popover.Trigger>\n<Popover.Content minWidth={240} side=\"bottom\" align=\"start\">\n  <div className=\"py-1.5\">\n    {shownColumns.map((col) => (\n      <div\n        key={col.id}\n        className=\"flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5\"\n        onClick={() => toggle(col.id)}\n      >\n        <span className=\"text-sm\">{col.label}</span>\n        <Switch checked aria-label={col.label} />\n      </div>\n    ))}\n    {hiddenColumns.map((col) => (\n      <div\n        key={col.id}\n        className=\"flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5\"\n        onClick={() => toggle(col.id)}\n      >\n        <span className=\"text-sm text-tertiary\">{col.label}</span>\n        <Switch checked={false} aria-label={col.label} />\n      </div>\n    ))}\n  </div>\n</Popover.Content>\n</Popover>\n\n// Phone: a bar button of the top bar opens a sheet of switch rows in a fixed order\n<Page>\n<Toolbar>\n  <Toolbar.Title>Members</Toolbar.Title>\n  <Toolbar.Trailing>\n    <Dialog>\n      <Dialog.Trigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Columns\">\n          <DotsHorizontal />\n        </Button>\n      </Dialog.Trigger>\n      <Dialog.Content mobileVariant=\"sheet\" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>\n        <Dialog.Header>\n          <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Columns</Dialog.Title></div>\n        </Dialog.Header>\n        <Dialog.Body>\n          <FieldGroup>\n            {allColumns.map((col) => (\n              <Field row key={col.id} label={col.label}>\n                <Switch color=\"accent\" checked={shown.includes(col.id)} onCheckedChange={() => toggle(col.id)} />\n              </Field>\n            ))}\n          </FieldGroup>\n        </Dialog.Body>\n      </Dialog.Content>\n    </Dialog>\n  </Toolbar.Trailing>\n</Toolbar>\n</Page>",
           "details": "A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups. For a DataTable, turn the shown ids into its columnVisibility, an object of column id to shown (Table › Column visibility). On a phone the panel is a sheet (Dialog with mobileVariant=\"sheet\") of Field rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More bar button of the screen's Toolbar, three dots on glass, as iOS apps open their view options."
-        },
-        {
-          "name": "Open on hover",
-          "code": "import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';\n\nfunction Example() {\nconst wide = useBreakpoint('md');\nreturn (\n  <Popover showOnHover>\n    <Popover.Trigger>...</Popover.Trigger>\n    <Popover.Content side={wide ? 'right' : 'bottom'}>...</Popover.Content>\n  </Popover>\n);\n}",
-          "details": "Use showOnHover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close."
         }
       ],
       "subComponents": [
@@ -7429,5 +7411,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-14T08:28:04.571Z"
+  "generatedAt": "2026-11-14T08:59:16.723Z"
 }
