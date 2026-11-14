@@ -1,6 +1,9 @@
 /* A slider alone in its cell, the track filling it, as Settings draws Rate and Pitch in Spoken Content › Voice
    (IMG_5944); the symbols at its ends are the Slider's adornments. */
 .Row {
+  /* A slider alone in its cell has no marks to keep room for: the track stands in the middle of the row, with
+     the same space above and below it */
+  --slider-padding-bottom: 0px;
   display: flex;
   align-items: center;
   min-width: 0;
@@ -69,6 +72,7 @@
 /* The checkbox and its label fill the row, so a tap anywhere left of the grip toggles it */
 .CheckRow > * {
   flex: 1;
+  align-items: center;
   min-width: 0;
 }
 
@@ -77,4 +81,30 @@
   align-self: stretch;
   display: flex;
   align-items: center;
+}
+
+/* A row that opens a choice: its label, the current value in the secondary color at the end, a chevron after it
+   (Region › Spain, Language & Region, IMG_5951) */
+.ValueRowContent {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.ValueRowValue {
+  margin-inline-start: auto;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.ValueRowContent > svg {
+  flex: none;
+  color: var(--color-text-tertiary);
+}
+
+/* The long list of a choice: the index runs down the sheet's trailing edge over the scrolling list */
+.ChoiceList {
+  position: relative;
 }
