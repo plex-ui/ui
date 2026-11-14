@@ -16,6 +16,8 @@ import { TvProviderFields, VpnFields } from './SettingsVpnFields';
 import { initialVpn } from './settingsVpnData';
 import { CaptionsAppearanceFields, CaptionsFields } from './SettingsCaptionsFields';
 import { initialAppearance, initialCaptions } from './settingsCaptionsData';
+import { AudioFields, HeadTrackingFields } from './SettingsAudioFields';
+import { initialAudio, initialHeadTracking } from './settingsAudioData';
 
 export function SettingsQuickDemo() {
   const presentation = useScreenPresentation();
@@ -138,6 +140,28 @@ export function SettingsCaptionsAppearanceDemo() {
     <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
     <FormScreen title="Appearance" {...presentation} onDialogChange={presentation.setDialog}>
       <CaptionsAppearanceFields value={value} onChange={setValue} />
+    </FormScreen>
+  </>;
+}
+
+export function SettingsAudioDemo() {
+  const presentation = useScreenPresentation();
+  const [value, setValue] = useState(initialAudio);
+  return <>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+    <FormScreen title="Audio & Visual" {...presentation} onDialogChange={presentation.setDialog}>
+      <AudioFields value={value} onChange={setValue} />
+    </FormScreen>
+  </>;
+}
+
+export function SettingsHeadTrackingDemo() {
+  const presentation = useScreenPresentation();
+  const [value, setValue] = useState(initialHeadTracking);
+  return <>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+    <FormScreen title="Head Tracking" {...presentation} onDialogChange={presentation.setDialog}>
+      <HeadTrackingFields value={value} onChange={setValue} />
     </FormScreen>
   </>;
 }

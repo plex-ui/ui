@@ -323,3 +323,59 @@ const appearance = ref({ ...initialAppearance });
     <CaptionsAppearanceFields v-model:value="appearance" />
   </FormScreen>
 </template>`;
+
+export const settingsAudioReactCode = `import { useState } from 'react';
+import { FormScreen } from './FormRowsDemos';
+import { AudioFields } from './SettingsAudioFields';
+import { initialAudio } from './settingsAudioData';
+
+export function AudioSettings() {
+  const [audio, setAudio] = useState(initialAudio);
+  return (
+    <FormScreen title="Audio & Visual" surface="grouped">
+      <AudioFields value={audio} onChange={setAudio} />
+    </FormScreen>
+  );
+}`;
+
+export const settingsAudioVueCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FormScreen } from './FormScreen';
+import { AudioFields } from './SettingsAudioFields';
+import { initialAudio } from './settingsAudioData';
+const audio = ref({ ...initialAudio });
+</script>
+
+<template>
+  <FormScreen title="Audio & Visual" surface="grouped">
+    <AudioFields v-model:value="audio" />
+  </FormScreen>
+</template>`;
+
+export const settingsHeadTrackingReactCode = `import { useState } from 'react';
+import { FormScreen } from './FormRowsDemos';
+import { HeadTrackingFields } from './SettingsAudioFields';
+import { initialHeadTracking } from './settingsAudioData';
+
+export function HeadTrackingSettings() {
+  const [tracking, setTracking] = useState(initialHeadTracking);
+  return (
+    <FormScreen title="Head Tracking" surface="grouped">
+      <HeadTrackingFields value={tracking} onChange={setTracking} />
+    </FormScreen>
+  );
+}`;
+
+export const settingsHeadTrackingVueCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FormScreen } from './FormScreen';
+import { HeadTrackingFields } from './SettingsAudioFields';
+import { initialHeadTracking } from './settingsAudioData';
+const tracking = ref(structuredClone(initialHeadTracking));
+</script>
+
+<template>
+  <FormScreen title="Head Tracking" surface="grouped">
+    <HeadTrackingFields v-model:value="tracking" />
+  </FormScreen>
+</template>`;

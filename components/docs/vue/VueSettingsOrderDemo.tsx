@@ -15,6 +15,8 @@ import { TvProviderFields, VpnFields } from './SettingsVpnFields';
 import { initialVpn } from '../settingsVpnData';
 import { CaptionsAppearanceFields, CaptionsFields } from './SettingsCaptionsFields';
 import { initialAppearance, initialCaptions } from '../settingsCaptionsData';
+import { AudioFields, HeadTrackingFields } from './SettingsAudioFields';
+import { initialAudio, initialHeadTracking } from '../settingsAudioData';
 import { initialAutofill } from '../settingsAppsData';
 import formStyles from '../FormRowsDemos.module.css';
 
@@ -153,6 +155,30 @@ export function VueSettingsCaptionsAppearanceDemo() {
     </component>`}
     stageClassName={`${formStyles.ScreenStage} flex justify-center py-10 w-full`}
     state={{ FormScreen: markRaw(FormScreen), CaptionsAppearanceFields: markRaw(CaptionsAppearanceFields), appearance: { ...initialAppearance } }}
+    context={useHosts()}
+    controls={[...controls]}
+  />;
+}
+
+export function VueSettingsAudioDemo() {
+  return <VueDemo
+    template={`<component :is="FormScreen" title="Audio &amp; Visual" v-model:dialog="dialog" :surface="surface" :phone-preview="phonePreview" :phone-host="phoneHost">
+      <component :is="AudioFields" v-model:value="audio" />
+    </component>`}
+    stageClassName={`${formStyles.ScreenStage} flex justify-center py-10 w-full`}
+    state={{ FormScreen: markRaw(FormScreen), AudioFields: markRaw(AudioFields), audio: { ...initialAudio } }}
+    context={useHosts()}
+    controls={[...controls]}
+  />;
+}
+
+export function VueSettingsHeadTrackingDemo() {
+  return <VueDemo
+    template={`<component :is="FormScreen" title="Head Tracking" v-model:dialog="dialog" :surface="surface" :phone-preview="phonePreview" :phone-host="phoneHost">
+      <component :is="HeadTrackingFields" v-model:value="tracking" />
+    </component>`}
+    stageClassName={`${formStyles.ScreenStage} flex justify-center py-10 w-full`}
+    state={{ FormScreen: markRaw(FormScreen), HeadTrackingFields: markRaw(HeadTrackingFields), tracking: structuredClone(initialHeadTracking) }}
     context={useHosts()}
     controls={[...controls]}
   />;

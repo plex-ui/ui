@@ -450,7 +450,7 @@ Props:
   - row (boolean) default: false — One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other attributes reach the root only on a row
   - fill (boolean) default: false — On a row, the control takes the rest of the line after the label
   - #icon (slot) — On a row, a symbol or an app's picture before the label, as an iOS cell's image: the label, its description and the line above the row start after it. An img takes an app icon's corners, an icon the symbol size
-  - #action (slot) — On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it
+  - #action (slot) — On a row, a control at the end of the row after the row's own control. On a fill row, such as a button that adds to a list, it stays on the list's first line, and on a phone it stands beside the label with the list under it. On a row whose control is a radio, such as an info button after a VPN, the radio's mark leads in the icon column and the action alone stands at the end
   - optically-align ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
   - id (string) — Override the generated id used for the label's for and aria linking. A child's own id wins: it stays, and the label's for follows it
   - class (string) — CSS classes applied to the root element

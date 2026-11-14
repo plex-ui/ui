@@ -5,8 +5,8 @@ metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account act
 ---
 
 import { VueSettingsSliderDemo } from "@/components/docs/vue/VueSettingsSliderDemo"
-import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode, settingsRegionVueCode, settingsAutofillVueCode, settingsHapticsVueCode, settingsSharingVueCode, settingsVpnVueCode, settingsTvProviderVueCode, settingsCaptionsVueCode, settingsCaptionsAppearanceVueCode } from "@/components/docs/settingsSliderCode"
-import { VueSettingsQuickDemo, VueSettingsLanguagesDemo, VueSettingsRegionDemo, VueSettingsAutofillDemo, VueSettingsHapticsDemo, VueSettingsSharingDemo, VueSettingsVpnDemo, VueSettingsTvProviderDemo, VueSettingsCaptionsDemo, VueSettingsCaptionsAppearanceDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
+import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode, settingsRegionVueCode, settingsAutofillVueCode, settingsHapticsVueCode, settingsSharingVueCode, settingsVpnVueCode, settingsTvProviderVueCode, settingsCaptionsVueCode, settingsCaptionsAppearanceVueCode, settingsAudioVueCode, settingsHeadTrackingVueCode } from "@/components/docs/settingsSliderCode"
+import { VueSettingsQuickDemo, VueSettingsLanguagesDemo, VueSettingsRegionDemo, VueSettingsAutofillDemo, VueSettingsHapticsDemo, VueSettingsSharingDemo, VueSettingsVpnDemo, VueSettingsTvProviderDemo, VueSettingsCaptionsDemo, VueSettingsCaptionsAppearanceDemo, VueSettingsAudioDemo, VueSettingsHeadTrackingDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
 import { VueSettingsVoiceDemo } from "@/components/docs/vue/VueSettingsVoiceDemo"
 import { VueImageAlbumDemo } from "@/components/docs/vue/VueImageAlbumDemo"
 import { imageAlbumVueCode } from "@/components/docs/imageAlbumCode"
@@ -879,4 +879,24 @@ Copy the [SettingsCaptionsFields helper](https://github.com/plex-ui/ui/blob/mast
 
 <ComponentPreview phonePresentation="screen" language="vue" code={settingsCaptionsAppearanceVueCode} previewMinHeight={620}>
   <VueSettingsCaptionsAppearanceDemo />
+</ComponentPreview>
+
+## Audio and Visual
+
+Rows each in a group of their own with a footer that ends with a link, a row that opens a page, a switch, and the balance between the channels, as Settings › Accessibility › Audio & Visual lays them out. Each footer ends with a primary `TextLink` in its text. Live Listen is a ghost `Button` with `block` in a row with a chevron at its end; it opens its page through `@live-listen`, left out here. The balance is a `Slider` from −1 to 1 under its ends and its value, L, 0.00 and R in a row of their own over the track.
+
+Copy the [SettingsAudioFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsAudioFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsAudioData.ts) and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsVoiceDemo.module.css).
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsAudioVueCode} previewMinHeight={720}>
+  <VueSettingsAudioDemo />
+</ComponentPreview>
+
+## Head Tracking
+
+A switch with a footer, actions chosen in menus, and a number typed in a field or stepped, as Settings › Accessibility › Head Tracking lays them out. Each action is a `Select` menu at the end of its row. Pointer Speed is an `Input` at the start of the row, 49 wide, with a `Stepper` at its end; both change the same number, kept between 0 and 100. What is typed applies on blur or Return; an empty field goes back to the number.
+
+Copy the [SettingsAudioFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsAudioFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsAudioData.ts) and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsVoiceDemo.module.css).
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsHeadTrackingVueCode} previewMinHeight={720}>
+  <VueSettingsHeadTrackingDemo />
 </ComponentPreview>

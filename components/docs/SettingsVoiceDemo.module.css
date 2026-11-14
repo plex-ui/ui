@@ -122,3 +122,51 @@
 .ChoiceSearch {
   margin-bottom: 16px;
 }
+
+/* The balance between the channels: its ends and its value over the track, the slider under them (Audio & Visual ›
+   Balance, IMG_5962: L, 0.00 and R in 15/20 over the track, a 78pt cell) */
+.BalanceRow {
+  --slider-padding-bottom: 0px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: var(--field-row-min-height, 52px);
+  padding: 6px var(--field-row-padding-inline, 16px) 0;
+}
+
+.BalanceLabels {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  font-size: 15px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.BalanceLabels > :last-child {
+  text-align: end;
+}
+
+/* A number typed in a field at the start of the row, stepped at its end (Head Tracking › Pointer Speed, IMG_5965:
+   a 49pt field at the row's inset, the stepper at the end) */
+.NumberRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--field-row-gap, 12px);
+  min-height: var(--field-row-min-height, 52px);
+  padding-inline: var(--field-row-padding-inline, 16px);
+}
+
+.NumberField {
+  /* As high as the stepper beside it, 32 (the field of IMG_5965 is 31) */
+  --control-size-sm: 32px;
+
+  width: 49px;
+  flex: none;
+}
+
+/* The number 7 in from the frame, as in IMG_5965, so 100 fits the 49 (Codex #54). Weighs over the size's own gutter. */
+.NumberRow > .NumberField[data-size] {
+  --input-gutter: 7px;
+}
