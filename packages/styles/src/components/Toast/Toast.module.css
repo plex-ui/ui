@@ -41,21 +41,16 @@
   box-shadow: var(--shadow), var(--shadow-hairline) !important;
 }
 
-/* On a phone Sonner makes the toaster as wide as the screen and shifts it by
-   the inset, so part of it is off screen: the toast fills the rest, between the
-   side gutters, as a notification banner fills a phone's width (iOS 27 kit,
-   Notification - Collapsed - List 135:73247: 374 of 402, 14 each side, the
-   Toaster's default mobile gutters). A compact toast keeps its own width. */
+/* On a phone Sonner makes the toaster as wide as the screen and shifts it by the inset, so part of it is off screen:
+   the toast keeps to the rest, between the side gutters, and stands in its middle as wide as its message, as the
+   system's own capsule at the top of an iPhone (owner 14.11: «не по размеру контента», «на мобиле они не такие»; a
+   notification banner fills the width, shots/banner-*.png of the iOS 27.2 simulator, but it is another app's message, not this
+   page's). A long message wraps at the gutters. */
 @media (width <= 600px) {
   .Toast {
-    width: auto !important;
-    max-width: none !important;
-    right: calc(var(--mobile-offset-left, 14px) + var(--mobile-offset-right, 14px)) !important;
-  }
-
-  .Toast.Compact {
     width: max-content !important;
     max-width: calc(100vw - var(--mobile-offset-left, 14px) - var(--mobile-offset-right, 14px)) !important;
+    right: calc(var(--mobile-offset-left, 14px) + var(--mobile-offset-right, 14px)) !important;
   }
 
   .Toaster[dir="rtl"] .Toast {
@@ -389,9 +384,8 @@
    One button stands at the trailing end of the message's row, where the kit's banner keeps its
    one trailing item, the time (Notification - Collapsed Stack=1 0:11292), and the message wraps in
    its own column. Beside a button the message keeps some room, and a button that would leave it
-   less wraps under it: half the row where the toast fills the width (a phone, below); 8em in a
-   toast as wide as its content, as half of a width the message itself sets would push a short
-   message off its row. Neither floor passes the row but the icon's 28px, so the message never
+   less wraps under it: 8em, as a toast is as wide as its content and half of a width the message
+   itself sets would push a short message off its row. Neither floor passes the row but the icon's 28px, so the message never
    leaves the icon alone. Two buttons stand together under the message, as the banner keeps one
    item at its end and Sonner draws them as two separate children. A button is whatever follows
    the message: the renderers put only the cancel and the action there, theirs or the caller's own
@@ -407,12 +401,6 @@
 
     &:has(> .Content ~ *) > .Content {
       min-width: min(8em, 100% - 28px);
-    }
-
-    @media (width <= 600px) {
-      &:not(.Compact):has(> .Content ~ *) > .Content {
-        min-width: 50%;
-      }
     }
 
     &:has(> .Content ~ * ~ *) > .Content {
@@ -487,8 +475,8 @@
    system's own message at the top of the screen (kit iOS 27, Notifications, Notification - Collapsed
    Stack=1 0:11292): corners 24, padding 12 above and below and 14 at the sides, a 10px gap, the
    title at 15/17 semibold and the description at 15/18. The kit's -0.23 tracking of 15pt SF text gives
-   way to the kit face's own, --font-sans-tracking at each size. It keeps its own width and opaque surface, not
-   the banner's glass and width. Its buttons are the 34px capsule of a medium phone Button (touch.css) with
+   way to the kit face's own, --font-sans-tracking at each size. It is as wide as its message (above) and takes the
+   glass of the system's messages (mobile-materials.css); a toast with rich colors keeps its color. Its buttons are the 34px capsule of a medium phone Button (touch.css) with
    the banner's 15/20 regular label and a 14px gutter (a medium Button's 17pt label would outsize the
    banner's text), its 44px target reaching 5px past it into the padding, so a one-line toast with a
    button is 58 high. */
@@ -498,6 +486,20 @@
     padding: 12px 14px !important;
     border-radius: 24px !important;
     letter-spacing: var(--font-sans-tracking);
+
+    /* A message of one line is a capsule, as the system's own at the top of the screen: half its 43px, so a title
+       that wraps keeps its text inside the corners (Codex #65); with a description it keeps the banner's 24 */
+    &:not(:has(> .Content > .Description)) {
+      border-radius: 21.5px !important;
+    }
+
+    &:not([data-rich-colors="true"]) {
+      background: var(--toast-mobile-background, var(--normal-bg)) !important;
+      border-color: transparent !important;
+      box-shadow: var(--toast-mobile-shadow, var(--shadow), var(--shadow-hairline)) !important;
+      -webkit-backdrop-filter: var(--toast-mobile-backdrop-filter, none);
+      backdrop-filter: var(--toast-mobile-backdrop-filter, none);
+    }
 
     & .Title,
     & .Description {

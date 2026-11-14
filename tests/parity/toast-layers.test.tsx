@@ -273,10 +273,15 @@ describe("Toast CSS", () => {
     expect(css).toMatch(/\.Toaster:where\(\[data-sonner-toaster\]\) \{[^}]*pointer-events: auto;/)
   })
 
-  test("on a phone a toast fills the width between the gutters; a compact one keeps its own", () => {
+  test("on a phone a toast is as wide as its message, in the middle, a glass capsule (owner 14.11)", () => {
     const phone = css.slice(css.indexOf("@media (width <= 600px)"))
-    expect(phone).toMatch(/\.Toast \{\s*width: auto !important;\s*max-width: none !important;/)
-    expect(phone).toMatch(/\.Toast\.Compact \{\s*width: max-content !important;/)
+    expect(phone).toMatch(/\.Toast \{\s*width: max-content !important;\s*max-width: calc\(100vw - var\(--mobile-offset-left, 14px\) - var\(--mobile-offset-right, 14px\)\) !important;/)
+    expect(phone).not.toMatch(/width: auto !important;/)
+    const mobile = css.slice(css.indexOf("@media (max-width: 767px) {"))
+    expect(mobile).toMatch(/&:not\(:has\(> \.Content > \.Description\)\) \{\s*border-radius: 21\.5px !important;/)
+    expect(mobile).toMatch(/background: var\(--toast-mobile-background, var\(--normal-bg\)\) !important;/)
+    const materials = readFileSync("packages/styles/src/styles/mobile-materials.css", "utf8")
+    expect(materials).toContain("--toast-mobile-background: light-dark(rgb(255 255 255 / 65%), var(--alpha-12));")
   })
 
   test("the close button is a kit button: plain 28px on a desktop, a soft filled circle in a 44px target on a phone (owner 13.11)", () => {

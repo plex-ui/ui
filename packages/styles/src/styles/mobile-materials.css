@@ -74,6 +74,12 @@
        under the panel on a white cell, gone within 38pt. */
     --popover-mobile-background: light-dark(rgb(255 255 255 / 65%), var(--alpha-12));
     --popover-mobile-backdrop-filter: var(--menu-mobile-backdrop-filter);
+    /* A toast is glass as the system's own messages at the top of the screen are (ref-app banner-*, iOS 27.2
+       simulator, @3x): in light 247 to 248 over the grouped 242, in dark 37 to 41 over black and the cells, about
+       what the menus' glass comes to; the raised glass shadow, as it stands over the page. Written out, as above. */
+    --toast-mobile-background: light-dark(rgb(255 255 255 / 65%), var(--alpha-12));
+    --toast-mobile-backdrop-filter: var(--menu-mobile-backdrop-filter);
+    --toast-mobile-shadow: var(--mobile-glass-shadow-raised);
     /* An Alert is glass in both themes, as native iOS alerts are. Light: Files (iOS-menu, Screenshot 18.22.08,
        08.11) shows 237 over a page dimmed to 204, as white at 65% does; kit iOS 27 (Alerts 65:57149) comes to
        235, an older frame to 233 (iOS2 IMG_5533). Dark: 34 to 45 over a page dimmed to 0 to 14 (IMG_5532). The

@@ -17,6 +17,7 @@ Group spacing and a row's leading symbol on a phone measured again, against Sett
 
 ### Changed
 
+- `Toast` on a phone (under 600px) is as wide as its message and stands in the middle of the top, as the system's own capsule on an iPhone, instead of filling the width: a capsule with one line (21.5px corners, half its height, so a wrapped title stays inside), 24px corners with a description, on the glass of the menus (`--toast-mobile-background`, `--toast-mobile-backdrop-filter`, `--toast-mobile-shadow`); a toast with rich colors keeps its color.
 - Groups on a phone space themselves as Settings in iOS 27 does: 35 from rows to rows (was 37), 47.67 to rows under a one-line footer (was 49.5), 55.33 to rows under a header (was 60), 75.33 from a footer to rows under a header (was 72; Settings keeps the footer's space apart from the header's). A prominent header keeps a SwiftUI Form's steps, 62 after rows and 74 after a footer. Where a parent's gap stands between groups, set `--field-group-gap` to 35px less that gap.
 - A header of several lines keeps 11 above its text on a phone (`--field-group-header-padding-top`), so each further line adds its own 22.
 - A row's leading symbol stands as Settings' tiles on a phone: 18 from the group's edge and 14 before the text, which starts at 60 (was 20 and 8, at 56), with `--field-row-icon-offset`. An app's picture (an image) keeps a cell's own place, 20 and 8 (`--field-row-picture-offset`, `--field-row-picture-gap`). A single choice with an action at its end now leads at 32 and 60 as well.
