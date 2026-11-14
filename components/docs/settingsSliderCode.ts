@@ -267,3 +267,59 @@ import { TvProviderFields } from './SettingsVpnFields';
     <TvProviderFields />
   </FormScreen>
 </template>`;
+
+export const settingsCaptionsReactCode = `import { useState } from 'react';
+import { FormScreen } from './FormRowsDemos';
+import { CaptionsFields } from './SettingsCaptionsFields';
+import { initialCaptions } from './settingsCaptionsData';
+
+export function CaptionsSettings() {
+  const [captions, setCaptions] = useState(initialCaptions);
+  return (
+    <FormScreen title="Live Captions" surface="grouped">
+      <CaptionsFields value={captions} onChange={setCaptions} />
+    </FormScreen>
+  );
+}`;
+
+export const settingsCaptionsVueCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FormScreen } from './FormScreen';
+import { CaptionsFields } from './SettingsCaptionsFields';
+import { initialCaptions } from './settingsCaptionsData';
+const captions = ref({ ...initialCaptions });
+</script>
+
+<template>
+  <FormScreen title="Live Captions" surface="grouped">
+    <CaptionsFields v-model:value="captions" />
+  </FormScreen>
+</template>`;
+
+export const settingsCaptionsAppearanceReactCode = `import { useState } from 'react';
+import { FormScreen } from './FormRowsDemos';
+import { CaptionsAppearanceFields } from './SettingsCaptionsFields';
+import { initialAppearance } from './settingsCaptionsData';
+
+export function CaptionsAppearanceSettings() {
+  const [appearance, setAppearance] = useState(initialAppearance);
+  return (
+    <FormScreen title="Appearance" surface="grouped">
+      <CaptionsAppearanceFields value={appearance} onChange={setAppearance} />
+    </FormScreen>
+  );
+}`;
+
+export const settingsCaptionsAppearanceVueCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FormScreen } from './FormScreen';
+import { CaptionsAppearanceFields } from './SettingsCaptionsFields';
+import { initialAppearance } from './settingsCaptionsData';
+const appearance = ref({ ...initialAppearance });
+</script>
+
+<template>
+  <FormScreen title="Appearance" surface="grouped">
+    <CaptionsAppearanceFields v-model:value="appearance" />
+  </FormScreen>
+</template>`;

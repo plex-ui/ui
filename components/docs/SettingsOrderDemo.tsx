@@ -14,6 +14,8 @@ import { SharingFields } from './SettingsSharingFields';
 import { initialSharing } from './settingsSharingData';
 import { TvProviderFields, VpnFields } from './SettingsVpnFields';
 import { initialVpn } from './settingsVpnData';
+import { CaptionsAppearanceFields, CaptionsFields } from './SettingsCaptionsFields';
+import { initialAppearance, initialCaptions } from './settingsCaptionsData';
 
 export function SettingsQuickDemo() {
   const presentation = useScreenPresentation();
@@ -114,6 +116,28 @@ export function SettingsTvProviderDemo() {
     <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
     <FormScreen title="TV Provider" {...presentation} onDialogChange={presentation.setDialog}>
       <TvProviderFields />
+    </FormScreen>
+  </>;
+}
+
+export function SettingsCaptionsDemo() {
+  const presentation = useScreenPresentation();
+  const [value, setValue] = useState(initialCaptions);
+  return <>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+    <FormScreen title="Live Captions" {...presentation} onDialogChange={presentation.setDialog}>
+      <CaptionsFields value={value} onChange={setValue} />
+    </FormScreen>
+  </>;
+}
+
+export function SettingsCaptionsAppearanceDemo() {
+  const presentation = useScreenPresentation();
+  const [value, setValue] = useState(initialAppearance);
+  return <>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+    <FormScreen title="Appearance" {...presentation} onDialogChange={presentation.setDialog}>
+      <CaptionsAppearanceFields value={value} onChange={setValue} />
     </FormScreen>
   </>;
 }

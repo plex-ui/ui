@@ -337,4 +337,30 @@
   & > p + p {
     margin-top: var(--field-group-footer-paragraph-gap, spacing(2));
   }
+
+  /* A list reads as Settings writes one in a footer: each item a line that starts with a bullet, wrapping back to the
+     footer's edge (Live Captions, IMG_5960) */
+  & > :is(ul, ol) {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* An ordered list keeps its numbers, inside the line as the bullets are (Codex #50) */
+  & > ul {
+    list-style: none;
+  }
+
+  & > ol {
+    list-style: decimal inside;
+  }
+
+  & > :is(p, ul, ol) + :is(ul, ol),
+  & > :is(ul, ol) + p {
+    margin-top: var(--field-group-footer-paragraph-gap, spacing(2));
+  }
+
+  & > ul > li::before {
+    content: "•";
+    margin-inline-end: 0.6em;
+  }
 }

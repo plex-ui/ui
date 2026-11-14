@@ -13,6 +13,8 @@ import { SharingFields } from './SettingsSharingFields';
 import { initialSharing } from '../settingsSharingData';
 import { TvProviderFields, VpnFields } from './SettingsVpnFields';
 import { initialVpn } from '../settingsVpnData';
+import { CaptionsAppearanceFields, CaptionsFields } from './SettingsCaptionsFields';
+import { initialAppearance, initialCaptions } from '../settingsCaptionsData';
 import { initialAutofill } from '../settingsAppsData';
 import formStyles from '../FormRowsDemos.module.css';
 
@@ -127,6 +129,30 @@ export function VueSettingsTvProviderDemo() {
     </component>`}
     stageClassName={`${formStyles.ScreenStage} flex justify-center py-10 w-full`}
     state={{ FormScreen: markRaw(FormScreen), TvProviderFields: markRaw(TvProviderFields) }}
+    context={useHosts()}
+    controls={[...controls]}
+  />;
+}
+
+export function VueSettingsCaptionsDemo() {
+  return <VueDemo
+    template={`<component :is="FormScreen" title="Live Captions" v-model:dialog="dialog" :surface="surface" :phone-preview="phonePreview" :phone-host="phoneHost">
+      <component :is="CaptionsFields" v-model:value="captions" />
+    </component>`}
+    stageClassName={`${formStyles.ScreenStage} flex justify-center py-10 w-full`}
+    state={{ FormScreen: markRaw(FormScreen), CaptionsFields: markRaw(CaptionsFields), captions: { ...initialCaptions } }}
+    context={useHosts()}
+    controls={[...controls]}
+  />;
+}
+
+export function VueSettingsCaptionsAppearanceDemo() {
+  return <VueDemo
+    template={`<component :is="FormScreen" title="Appearance" v-model:dialog="dialog" :surface="surface" :phone-preview="phonePreview" :phone-host="phoneHost">
+      <component :is="CaptionsAppearanceFields" v-model:value="appearance" />
+    </component>`}
+    stageClassName={`${formStyles.ScreenStage} flex justify-center py-10 w-full`}
+    state={{ FormScreen: markRaw(FormScreen), CaptionsAppearanceFields: markRaw(CaptionsAppearanceFields), appearance: { ...initialAppearance } }}
     context={useHosts()}
     controls={[...controls]}
   />;

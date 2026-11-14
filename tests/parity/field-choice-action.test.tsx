@@ -83,3 +83,16 @@ describe("a choice with an action at its end", () => {
     expect(chosen).toEqual(["office"])
   })
 })
+
+// R9: a list in a footer, as Live Captions (IMG_5960): bullets inline, wrapping back to the edge, a paragraph's gap apart
+describe("a list in a FieldGroup footer", () => {
+  const group = readFileSync(`${process.cwd()}/packages/styles/src/components/FieldGroup/FieldGroup.module.css`, "utf8")
+  test("no indent, a bullet before each item, a paragraph's gap", () => {
+    expect(group).toMatch(/& > :is\(ul, ol\) \{\s*margin: 0;\s*padding: 0;\s*\}/)
+    expect(group).toMatch(/& > ul \{\s*list-style: none;/)
+    // An ordered list keeps its numbers (Codex #50)
+    expect(group).toMatch(/& > ol \{\s*list-style: decimal inside;/)
+    expect(group).toMatch(/& > :is\(p, ul, ol\) \+ :is\(ul, ol\),\s*& > :is\(ul, ol\) \+ p \{\s*margin-top: var\(--field-group-footer-paragraph-gap, spacing\(2\)\);/)
+    expect(group).toMatch(/& > ul > li::before \{\s*content: "•";\s*margin-inline-end: 0\.6em;/)
+  })
+})

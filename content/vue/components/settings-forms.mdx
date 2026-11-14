@@ -5,8 +5,8 @@ metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account act
 ---
 
 import { VueSettingsSliderDemo } from "@/components/docs/vue/VueSettingsSliderDemo"
-import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode, settingsRegionVueCode, settingsAutofillVueCode, settingsHapticsVueCode, settingsSharingVueCode, settingsVpnVueCode, settingsTvProviderVueCode } from "@/components/docs/settingsSliderCode"
-import { VueSettingsQuickDemo, VueSettingsLanguagesDemo, VueSettingsRegionDemo, VueSettingsAutofillDemo, VueSettingsHapticsDemo, VueSettingsSharingDemo, VueSettingsVpnDemo, VueSettingsTvProviderDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
+import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode, settingsRegionVueCode, settingsAutofillVueCode, settingsHapticsVueCode, settingsSharingVueCode, settingsVpnVueCode, settingsTvProviderVueCode, settingsCaptionsVueCode, settingsCaptionsAppearanceVueCode } from "@/components/docs/settingsSliderCode"
+import { VueSettingsQuickDemo, VueSettingsLanguagesDemo, VueSettingsRegionDemo, VueSettingsAutofillDemo, VueSettingsHapticsDemo, VueSettingsSharingDemo, VueSettingsVpnDemo, VueSettingsTvProviderDemo, VueSettingsCaptionsDemo, VueSettingsCaptionsAppearanceDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
 import { VueSettingsVoiceDemo } from "@/components/docs/vue/VueSettingsVoiceDemo"
 import { VueImageAlbumDemo } from "@/components/docs/vue/VueImageAlbumDemo"
 import { imageAlbumVueCode } from "@/components/docs/imageAlbumCode"
@@ -859,4 +859,24 @@ Copy the [TvProviderFields helper](https://github.com/plex-ui/ui/blob/master/com
 
 <ComponentPreview phonePresentation="screen" language="vue" code={settingsTvProviderVueCode} previewMinHeight={480}>
   <VueSettingsTvProviderDemo />
+</ComponentPreview>
+
+## Live Captions
+
+A switch and a row that opens a page over a footer with a list, then choices in menus, as Settings › Accessibility › Live Captions lays them out. The footer holds a paragraph and a `ul`: in a `FieldGroup` footer a list reads as Settings writes one, each item a line that starts with a bullet and wraps back to the footer's edge, a line apart from the paragraph. Appearance is a ghost `Button` with `block` in a row with a chevron at its end; its page is the next example, Caption appearance. Keep Call Captions and Current Language are `Select` menus at the end of their rows.
+
+Copy the [SettingsCaptionsFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsCaptionsFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsCaptionsData.ts).
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsCaptionsVueCode} previewMinHeight={560}>
+  <VueSettingsCaptionsDemo />
+</ComponentPreview>
+
+## Caption appearance
+
+Choices in menus, two colors with a row that resets them, and a slider with its value at its end, as Live Captions › Appearance lays them out. Each color is a `ColorWell` at the end of its row; with no color it shows the empty well. Reset Colors is a row in the accent that brings both back. Idle Opacity is a `Slider` alone in its titled group, its value as the `endAdornment`, with a footer that says what it does.
+
+Copy the [SettingsCaptionsFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsCaptionsFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsCaptionsData.ts).
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsCaptionsAppearanceVueCode} previewMinHeight={620}>
+  <VueSettingsCaptionsAppearanceDemo />
 </ComponentPreview>

@@ -22,11 +22,12 @@ export const VpnFields = defineComponent({
       const chosen = vpnConfigurations.find((item) => item.id === props.value.chosen);
       return [
         h(FieldGroup, null, {
-          default: () => h(Field, { row: true, label: 'VPN Status' }, (control: Record<string, unknown>) =>
-            h('span', { class: s.StatusControl }, [
+          default: () => h(Field, { row: true, label: 'VPN Status' }, {
+            default: (control: Record<string, unknown>) => h('span', { class: s.StatusControl }, [
               h('span', { class: s.ValueRowValue }, props.value.connected ? 'Connected' : 'Not Connected'),
               h(Switch, { ...control, color: 'accent', checked: props.value.connected, 'onUpdate:checked': (connected: boolean) => set({ connected }) }),
-            ])),
+            ]),
+          }),
           footer: () => `To connect without this switch, use the “${chosen?.type ?? 'VPN'}” app.`,
         }),
         h(RadioGroup, {
