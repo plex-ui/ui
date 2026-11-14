@@ -5,7 +5,8 @@ metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account act
 ---
 
 import { VueSettingsSliderDemo } from "@/components/docs/vue/VueSettingsSliderDemo"
-import { settingsSliderVueCode, settingsVoiceVueCode } from "@/components/docs/settingsSliderCode"
+import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode } from "@/components/docs/settingsSliderCode"
+import { VueSettingsQuickDemo, VueSettingsLanguagesDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
 import { VueSettingsVoiceDemo } from "@/components/docs/vue/VueSettingsVoiceDemo"
 import { VueImageAlbumDemo } from "@/components/docs/vue/VueImageAlbumDemo"
 import { imageAlbumVueCode } from "@/components/docs/imageAlbumCode"
@@ -782,4 +783,22 @@ Copy the [SettingsVoiceFields helper](https://github.com/plex-ui/ui/blob/master/
 
 <ComponentPreview phonePresentation="screen" language="vue" code={settingsVoiceVueCode} previewMinHeight={560}>
   <VueSettingsVoiceDemo />
+</ComponentPreview>
+
+## Pick and order
+
+Pick and order in one list, as Quick Settings of VoiceOver: the check leads the row and turns the setting on, the grip ends the row and moves it (`Sortable` with `handles`). A row keeps its check when it moves.
+
+These examples use the [SettingsOrderFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsOrderFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsOrderData.ts) and the [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsVoiceDemo.module.css) of Voice settings.
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsQuickVueCode} previewMinHeight={480}>
+  <VueSettingsQuickDemo />
+</ComponentPreview>
+
+## Preferred languages
+
+Preferred languages in the order of preference, as Language & Region lists them: each language in its own words with the English name under it, the first one marked as the app's language. Drag a grip to change the order. Add Language… in the accent ends the group and opens the languages not yet in the list; the footer says what the order does.
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsLanguagesVueCode} previewMinHeight={380}>
+  <VueSettingsLanguagesDemo />
 </ComponentPreview>

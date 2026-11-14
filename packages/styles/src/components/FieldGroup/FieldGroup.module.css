@@ -67,8 +67,11 @@
 }
 
 /* Desktop separators remain part of the row border. */
+/* A sorted list and a plain row beside it (Add Language… after the languages, IMG_5951) part with the same line. */
 .Body > [data-row] + [data-row],
-.Body > [data-sortable] > [data-row] + [data-row] {
+.Body > [data-sortable] > [data-row] + [data-row],
+.Body > [data-sortable] + [data-row],
+.Body > [data-row] + [data-sortable] > [data-row]:first-child {
   border-top: 1px solid var(--color-border);
 }
 
@@ -127,7 +130,9 @@
   }
 
   .Body > [data-row] + [data-row],
-  .Body > [data-sortable] > [data-row] + [data-row] {
+  .Body > [data-sortable] > [data-row] + [data-row],
+  .Body > [data-sortable] + [data-row],
+  .Body > [data-row] + [data-sortable] > [data-row]:first-child {
     position: relative;
     border-top-width: 0;
   }
@@ -142,13 +147,13 @@
   }
 
   .Body > [data-row]:first-child > button[data-block][data-variant="ghost"]::before,
-  .Body > [data-sortable] > [data-row]:first-child > button[data-block][data-variant="ghost"]::before {
+  .Body > [data-sortable]:first-child > [data-row]:first-child > button[data-block][data-variant="ghost"]::before {
     border-start-start-radius: var(--field-group-radius);
     border-start-end-radius: var(--field-group-radius);
   }
 
   .Body > [data-row]:last-child > button[data-block][data-variant="ghost"]::before,
-  .Body > [data-sortable] > [data-row]:last-child > button[data-block][data-variant="ghost"]::before {
+  .Body > [data-sortable]:last-child > [data-row]:last-child > button[data-block][data-variant="ghost"]::before {
     border-end-start-radius: var(--field-group-radius);
     border-end-end-radius: var(--field-group-radius);
   }
@@ -168,7 +173,9 @@
      leads with an icon starts it after the icon, where its text starts (kit Lists Row 550:50430: a 28 symbol column
      and 8 to the text): set --field-group-separator-inset-start on that row, or on the group for every row. */
   .Body > [data-row] + [data-row]::after,
-  .Body > [data-sortable] > [data-row] + [data-row]::after {
+  .Body > [data-sortable] > [data-row] + [data-row]::after,
+  .Body > [data-sortable] + [data-row]::after,
+  .Body > [data-row] + [data-sortable] > [data-row]:first-child::after {
     content: "";
     position: absolute;
     inset-inline: var(--field-group-separator-inset-start, var(--field-group-separator-inset, 0px))
@@ -183,7 +190,9 @@
   .Body > [data-swipe-actions][data-revealed]::after,
   .Body > [data-swipe-actions][data-revealed] + [data-row]::after,
   .Body > [data-sortable] > [data-swipe-actions][data-revealed]::after,
-  .Body > [data-sortable] > [data-swipe-actions][data-revealed] + [data-row]::after {
+  .Body > [data-sortable] > [data-swipe-actions][data-revealed] + [data-row]::after,
+  .Body > [data-swipe-actions][data-revealed] + [data-sortable] > [data-row]:first-child::after,
+  .Body > [data-sortable]:has(> [data-swipe-actions][data-revealed]:last-child) + [data-row]::after {
     opacity: 0;
   }
 }

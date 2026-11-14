@@ -16,6 +16,8 @@
 /* A row that is an action: its label in the accent (Use Default Speech Rate, IMG_5949) or red (Reset Voice Settings,
    IMG_5944) at the start of the row, as a row's label stands, a line of description under it */
 .Action {
+  /* The label starts where a row's label does, not at the button's own gutter */
+  --button-gutter-md: var(--field-row-padding-inline, 16px);
   justify-content: flex-start;
   text-align: start;
 }
@@ -38,4 +40,41 @@
   height: auto;
   min-height: var(--field-row-description-min-height, var(--field-row-min-height, 52px));
   padding-block: 10px;
+}
+
+/* A row that is only words, a label and a line under it (a preferred language, IMG_5951), or a check and its label
+   (Quick Settings, IMG_5946): the row's padding and height, the label filling the row so all of it takes a tap */
+.TextRow,
+.CheckRow {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: var(--field-row-min-height, 52px);
+  padding-inline: var(--field-row-padding-inline, 16px);
+}
+
+.TextRow {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  padding-block: 10px;
+  font-size: var(--field-row-label-font-size, 14px);
+  line-height: var(--field-row-label-line-height, 20px);
+}
+
+.CheckRow {
+  align-items: stretch;
+}
+
+/* The checkbox and its label fill the row, so a tap anywhere left of the grip toggles it */
+.CheckRow > * {
+  flex: 1;
+  min-width: 0;
+}
+
+.CheckRow > * > label {
+  flex: 1;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
 }

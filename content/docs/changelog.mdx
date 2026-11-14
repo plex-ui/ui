@@ -17,6 +17,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Fixed
 
+- `FieldGroup`: a row right after a `Sortable` list, or a list right after a row, is parted from it by the row line, on a phone and a desktop alike (an "Add …" row at the end of a sorted list stood without one). A full-row button in the first or last row of a list that is not at the card's edge no longer rounds its pressed surface.
 - A `Tabs` badge is hidden only on a phone: with `touch.css` below 768px for segments and underline tabs, or in a phone layout (`data-plex-layout="phone"`). A page that is only narrow, without `touch.css`, keeps its badges; 0.47.0 hid them on any page under 768px. React and Vue.
 - On a phone the lists of `Select` and `Menu` draw no scrollbar, as an iOS list draws none as it opens: a browser flashed its overlay scrollbar along the list's edge for a second on every open. They still scroll.
 - Opening a menu or a dialog no longer restyles the whole page twice. Selectors that reached any element after a `:has()` or through `* ~ *` and `* + *` made each node added to the page, such as a focus guard, restyle every element; they now name what they style (`ButtonGroup`, `AvatarGroup`, `MarkdownEditor`, `Toast`, `Dialog`, `Alert`, `Sortable`, `Badge`, `Sidebar`, `EmptyMessage`). The styles they give are the same, but for one: a glass `ButtonGroup` on a phone sizes the kit's buttons (`Button`, `ButtonLink`, `CopyButton`, which carry `data-variant`), not a plain `<button>` put in it.

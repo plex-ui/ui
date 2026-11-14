@@ -5,7 +5,8 @@ metaDescription: "Production-ready React settings forms: grouped rows, choices, 
 ---
 
 import { SettingsSliderDemo } from "@/components/docs/SettingsSliderDemo"
-import { settingsSliderReactCode, settingsVoiceReactCode } from "@/components/docs/settingsSliderCode"
+import { settingsSliderReactCode, settingsVoiceReactCode, settingsQuickReactCode, settingsLanguagesReactCode } from "@/components/docs/settingsSliderCode"
+import { SettingsQuickDemo, SettingsLanguagesDemo } from "@/components/docs/SettingsOrderDemo"
 import { SettingsVoiceDemo } from "@/components/docs/SettingsVoiceDemo"
 import { ImageAlbumDemo } from "@/components/docs/ImageAlbumDemo"
 import { imageAlbumReactCode } from "@/components/docs/imageAlbumCode"
@@ -829,4 +830,22 @@ Copy the [SettingsVoiceFields helper](https://github.com/plex-ui/ui/blob/master/
 
 <ComponentPreview phonePresentation="screen" code={settingsVoiceReactCode} previewMinHeight={560}>
   <SettingsVoiceDemo />
+</ComponentPreview>
+
+## Pick and order
+
+Pick and order in one list, as Quick Settings of VoiceOver: the check leads the row and turns the setting on, the grip ends the row and moves it (`Sortable` with `handles`). A row keeps its check when it moves.
+
+These examples use the [SettingsOrderFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsOrderFields.tsx) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsOrderData.ts) and the [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsVoiceDemo.module.css) of Voice settings.
+
+<ComponentPreview phonePresentation="screen" code={settingsQuickReactCode} previewMinHeight={480}>
+  <SettingsQuickDemo />
+</ComponentPreview>
+
+## Preferred languages
+
+Preferred languages in the order of preference, as Language & Region lists them: each language in its own words with the English name under it, the first one marked as the app's language. Drag a grip to change the order. Add Language… in the accent ends the group and opens the languages not yet in the list; the footer says what the order does.
+
+<ComponentPreview phonePresentation="screen" code={settingsLanguagesReactCode} previewMinHeight={380}>
+  <SettingsLanguagesDemo />
 </ComponentPreview>

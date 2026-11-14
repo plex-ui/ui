@@ -51,3 +51,59 @@ const preferences = ref({ ...defaultVoicePreferences });
     <SettingsVoiceFields v-model:value="preferences" />
   </FormScreen>
 </template>`;
+
+export const settingsQuickReactCode = `import { useState } from 'react';
+import { FormScreen } from './FormRowsDemos';
+import { QuickSettingsFields } from './SettingsOrderFields';
+import { initialQuickSettings } from './settingsOrderData';
+
+export function QuickSettings() {
+  const [settings, setSettings] = useState(initialQuickSettings);
+  return (
+    <FormScreen title="Quick Settings" surface="grouped">
+      <QuickSettingsFields value={settings} onChange={setSettings} />
+    </FormScreen>
+  );
+}`;
+
+export const settingsQuickVueCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FormScreen } from './FormScreen';
+import { QuickSettingsFields } from './SettingsOrderFields';
+import { initialQuickSettings } from './settingsOrderData';
+const settings = ref(initialQuickSettings.map((item) => ({ ...item })));
+</script>
+
+<template>
+  <FormScreen title="Quick Settings" surface="grouped">
+    <QuickSettingsFields v-model:value="settings" />
+  </FormScreen>
+</template>`;
+
+export const settingsLanguagesReactCode = `import { useState } from 'react';
+import { FormScreen } from './FormRowsDemos';
+import { LanguagesFields } from './SettingsOrderFields';
+import { initialLanguages } from './settingsOrderData';
+
+export function LanguageSettings() {
+  const [languages, setLanguages] = useState(initialLanguages);
+  return (
+    <FormScreen title="Language & Region" surface="grouped">
+      <LanguagesFields value={languages} onChange={setLanguages} />
+    </FormScreen>
+  );
+}`;
+
+export const settingsLanguagesVueCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FormScreen } from './FormScreen';
+import { LanguagesFields } from './SettingsOrderFields';
+import { initialLanguages } from './settingsOrderData';
+const languages = ref([...initialLanguages]);
+</script>
+
+<template>
+  <FormScreen title="Language & Region" surface="grouped">
+    <LanguagesFields v-model:value="languages" />
+  </FormScreen>
+</template>`;
