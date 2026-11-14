@@ -20,6 +20,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Fixed
 
+- `EmptyMessage` on a phone (`touch.css`) is iOS's ContentUnavailableView, measured on the iOS 27.2 simulator: the symbol bare, without its circle, 48px in the secondary label, 19px above a 20/25 bold title, the description 17/25 right under it, 32px insets, the block centred in the free space. Actions stand 28px under the text at their own width, a 28px capsule with a 15px label and 12px gutters, the next 14px below, instead of 50px buttons across the bottom of a filled screen. New tokens `--empty-message-icon-background` and `--empty-message-icon-secondary-color`.
 - `FieldGroup` on a desktop: a full-row action (a ghost `block` button in a row) fills the row to its edges when pressed instead of shrinking with gaps at its sides, and its hover and press keep the card's corners on the first and last rows.
 - `Field` choice and popup rows take the pointer on every width, not only on a phone, and with a mouse the row fills on hover with the card's corners at the ends: the whole row is the control's target, as it was already for clicks.
 - `FieldGroup`: a row right after a `Sortable` list, or a list right after a row, is parted from it by the row line, on a phone and a desktop alike (an "Add …" row at the end of a sorted list stood without one). A full-row button in the first or last row of a list that is not at the card's edge no longer rounds its pressed surface.

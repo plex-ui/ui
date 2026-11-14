@@ -575,51 +575,50 @@
     --slider-thumb-background: var(--white);
     --slider-thumb-shadow: 0 0.5px 4px rgb(0 0 0 / 12%), 0 6px 13px rgb(0 0 0 / 12%);
 
-    /* Full empty states take the Plex UI Figma kit's empty state in Inter (Apps 2.4, Content Card 38808:585061 and
-       its screens Payment successful 33462:399233 and Full refund 52032:67335, typography mode Android & Web;
-       owner 12.11 «все не верно» against the iOS 27 kit's SF sizes): the symbol in a 64px slot 24px above the
-       text, the title 22/28 Bold, 4px, the description 17/22 Regular in the secondary label, 40px screen insets.
-       Buttons are the kit's 50px ones with a 17/22 Medium label and a 16px gutter. Under a message in a list or a
-       card they follow 24px under the text, one at its own width, two across the width one under the other 12px
-       apart. A message that fills a screen puts them where iOS 27 does (Empty States 12740:24438, owner 12.11
-       «подумай где лучше быть кнопкам»): across the screen at its bottom, 40px above its edge, the main one on top,
-       within reach of the thumb and in the same place on every such screen; the text stands centred in the space
-       above them, at least 24px off. Compact panels remain smaller. */
-    --empty-message-title-size: 22px;
-    --empty-message-title-leading: 28px;
-    --empty-message-title-gap: 4px;
+    /* Full empty states are iOS's ContentUnavailableView (owner 14.11 «по 5973», replacing the Apps 2.4 card of 12.11;
+       measured on the iOS 27.2 simulator, iPhone 17, SwiftUI): the symbol bare, with no circle, drawn about 41pt in
+       the secondary label (a 48px icon), 19 above the title; the title 20/25 Bold right over the description, 17/25
+       in the secondary label; 32 screen insets; the block centred in the free space. Its actions stand under the
+       text, 28 below it, each at its own width: a 28px capsule with a 15px label and 12 gutters, the next 14 under
+       it. An add action belongs in the bar, not in the empty view. Compact panels remain smaller. */
+    --empty-message-title-size: 20px;
+    --empty-message-title-leading: 25px;
+    --empty-message-title-gap: 1px;
     --empty-message-title-only-gap: 0px;
     --empty-message-title-weight: var(--font-weight-bold);
     --empty-message-title-tracking: var(--font-sans-tracking);
     --empty-message-description-size: 17px;
-    --empty-message-description-leading: 22px;
+    --empty-message-description-leading: 25px;
     --empty-message-description-weight: var(--font-weight-normal);
     --empty-message-description-color: var(--mobile-label-secondary, var(--color-text-secondary));
     --empty-message-compact-description-size: 15px;
     --empty-message-compact-description-leading: 20px;
-    --empty-message-padding-inline: 40px;
+    --empty-message-padding-inline: 32px;
     --empty-message-text-inset: 0px;
-    --empty-message-padding-bottom: 40px;
-    --empty-message-action-spacing: 24px;
-    --empty-message-action-gap: 12px;
-    --empty-message-fill-action-inset: 24px;
-    --empty-message-fill-content-margin: auto;
-    --empty-message-fill-action-margin: auto;
-    --empty-message-fill-action-align: stretch;
-    --empty-message-fill-action-width: 100%;
+    --empty-message-padding-bottom: 0px;
+    --empty-message-action-spacing: 28px;
+    --empty-message-action-gap: 14px;
+    --empty-message-fill-action-inset: 0px;
+    --empty-message-fill-content-margin: 0px;
+    --empty-message-fill-action-margin: var(--empty-message-action-spacing);
+    --empty-message-fill-action-align: center;
+    --empty-message-fill-action-width: auto;
     --empty-message-multi-direction: column;
-    --empty-message-multi-align: stretch;
-    --empty-message-multi-action-width: 100%;
-    --empty-message-action-size: 50px;
-    --empty-message-action-font-size: 17px;
-    --empty-message-action-line-height: 22px;
-    --empty-message-action-font-weight: 510;
-    --empty-message-action-gutter: 16px;
-    /* Icon remains the existing badge API, its circle filling the kit's 64px symbol slot. */
-    --empty-message-icon-badge-size: 64px;
-    --empty-message-icon-size: 28px;
-    --empty-message-icon-radius: var(--radius-full);
-    --empty-message-icon-gap: 24px;
+    --empty-message-multi-align: center;
+    --empty-message-multi-items: center;
+    --empty-message-multi-action-width: auto;
+    --empty-message-action-size: 28px;
+    --empty-message-action-font-size: 15px;
+    --empty-message-action-line-height: 20px;
+    --empty-message-action-font-weight: var(--font-weight-normal);
+    --empty-message-action-gutter: 12px;
+    /* The symbol stands bare: no circle behind it, the secondary label for a secondary message */
+    --empty-message-icon-badge-size: 48px;
+    --empty-message-icon-size: 48px;
+    --empty-message-icon-radius: 0px;
+    --empty-message-icon-gap: 19px;
+    --empty-message-icon-background: transparent;
+    --empty-message-icon-secondary-color: var(--mobile-label-secondary, var(--color-text-secondary));
 
     /* Native 8-spoke progress indicator at the iOS 27 kit's Regular 20 (Spinner 5425:3431; the UIKit medium
        indicator). Caller sizes, colors and durations win. */

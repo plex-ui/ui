@@ -115,7 +115,7 @@
   height: var(--badge-size);
   border-radius: var(--empty-message-icon-radius, var(--radius-md));
   margin: 0 0 var(--empty-message-icon-gap, 12px);
-  background: var(--badge-background-color);
+  background: var(--empty-message-icon-background, var(--badge-background-color));
   color: var(--badge-text-color);
 
   svg {
@@ -123,14 +123,22 @@
     height: var(--icon-size);
   }
 
-  &[data-size="sm"] {
+  /* A compact badge stays a tinted badge on every width (a phone's bare ContentUnavailableView symbol is for the
+     default size only) */
+  &[data-size="sm"],
+  :where(.EmptyMessage[data-size="sm"]) & {
     --badge-size: 32px;
     --icon-size: 20px;
+
+    --empty-message-icon-secondary-color: var(--color-text-secondary-soft);
+
+    border-radius: var(--radius-md);
+    background: var(--badge-background-color);
   }
 
   &[data-color="secondary"] {
     --badge-background-color: var(--color-background-secondary-soft);
-    --badge-text-color: var(--color-text-secondary-soft);
+    --badge-text-color: var(--empty-message-icon-secondary-color, var(--color-text-secondary-soft));
   }
 
   &[data-color="warning"] {
@@ -200,6 +208,14 @@
   --button-font-size-xl: var(--empty-message-action-font-size, var(--control-font-size-md));
   --button-line-height-xl: var(--empty-message-action-line-height, 1);
   --button-gutter-xl: var(--empty-message-action-gutter, var(--control-gutter-lg));
+  --button-size-2xl: var(--empty-message-action-size, var(--control-size-2xl));
+  --button-font-size-2xl: var(--empty-message-action-font-size, var(--control-font-size-lg));
+  --button-line-height-2xl: var(--empty-message-action-line-height, 1);
+  --button-gutter-2xl: var(--empty-message-action-gutter, var(--control-gutter-lg));
+  --button-size-3xl: var(--empty-message-action-size, var(--control-size-3xl));
+  --button-font-size-3xl: var(--empty-message-action-font-size, var(--control-font-size-lg));
+  --button-line-height-3xl: var(--empty-message-action-line-height, 1);
+  --button-gutter-3xl: var(--empty-message-action-gutter, var(--control-gutter-xl));
 }
 
 /* Every action button, a plain (ghost) one too, takes the message's label weight where it sets one (a phone: the
@@ -212,6 +228,8 @@
 .EmptyMessage:not([data-size="sm"]) .ActionRow:has(> :nth-child(2)) {
   flex-direction: var(--empty-message-multi-direction, row);
   align-self: var(--empty-message-multi-align, auto);
+  /* In a column each button keeps its own width (a phone), instead of stretching to the longest label */
+  align-items: var(--empty-message-multi-items, normal);
 }
 
 /* One of two or more buttons is not an only child: a :has() on the row left of a subject of tags alone makes every

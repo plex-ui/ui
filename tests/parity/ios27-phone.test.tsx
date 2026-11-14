@@ -212,35 +212,42 @@ describe("a search field in the content and the large title above it (iOS 27.2 F
   })
 })
 
-describe("EmptyMessage on a phone (the Figma kit's Content Card 38808:585061 in Inter; buttons where iOS 27 puts them, owner 12.11)", () => {
-  test("64px symbol slot 24px above, 22/28 bold title, 4px, 17/22 regular description, 40px insets", () => {
+describe("EmptyMessage on a phone (iOS ContentUnavailableView on the iOS 27.2 simulator; owner 14.11 «по 5973»)", () => {
+  test("a bare 48px symbol 19px above, 20/25 bold title, 1px, 17/25 regular description, 32px insets", () => {
     for (const token of [
-      "--empty-message-icon-badge-size: 64px;", "--empty-message-icon-gap: 24px;",
-      "--empty-message-title-size: 22px;", "--empty-message-title-leading: 28px;", "--empty-message-title-gap: 4px;",
+      "--empty-message-icon-badge-size: 48px;", "--empty-message-icon-size: 48px;", "--empty-message-icon-gap: 19px;",
+      "--empty-message-icon-background: transparent;",
+      "--empty-message-icon-secondary-color: var(--mobile-label-secondary, var(--color-text-secondary));",
+      "--empty-message-title-size: 20px;", "--empty-message-title-leading: 25px;", "--empty-message-title-gap: 1px;",
       "--empty-message-title-weight: var(--font-weight-bold);", "--empty-message-description-size: 17px;",
-      "--empty-message-description-leading: 22px;", "--empty-message-description-weight: var(--font-weight-normal);",
-      "--empty-message-padding-inline: 40px;", "--empty-message-text-inset: 0px;", "--empty-message-padding-bottom: 40px;",
+      "--empty-message-description-leading: 25px;", "--empty-message-description-weight: var(--font-weight-normal);",
+      "--empty-message-padding-inline: 32px;", "--empty-message-text-inset: 0px;", "--empty-message-padding-bottom: 0px;",
     ]) expect(touch).toContain(token)
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/EmptyMessage/EmptyMessage.module.css`, "utf8")
+    expect(css).toContain("background: var(--empty-message-icon-background, var(--badge-background-color));")
   })
 
-  test("buttons 50px with a 17/22 Medium label; across a filled screen at its bottom, else 24px under the text", () => {
+  test("actions under the text at their own width, a 28px capsule with a 15px label, 14px apart, never across the bottom", () => {
     for (const token of [
-      "--empty-message-fill-content-margin: auto;", "--empty-message-fill-action-margin: auto;",
-      "--empty-message-fill-action-inset: 24px;", "--empty-message-fill-action-width: 100%;",
-      "--empty-message-action-spacing: 24px;", "--empty-message-multi-action-width: 100%;",
-      "--empty-message-multi-direction: column;", "--empty-message-action-gap: 12px;",
-      "--empty-message-action-size: 50px;", "--empty-message-action-font-size: 17px;",
-      "--empty-message-action-line-height: 22px;", "--empty-message-action-font-weight: 510;",
+      "--empty-message-fill-content-margin: 0px;", "--empty-message-fill-action-margin: var(--empty-message-action-spacing);",
+      "--empty-message-fill-action-inset: 0px;", "--empty-message-fill-action-width: auto;",
+      "--empty-message-fill-action-align: center;", "--empty-message-action-spacing: 28px;",
+      "--empty-message-multi-action-width: auto;", "--empty-message-multi-align: center;",
+      "--empty-message-multi-direction: column;", "--empty-message-action-gap: 14px;",
+      "--empty-message-action-size: 28px;", "--empty-message-action-font-size: 15px;",
+      "--empty-message-action-line-height: 20px;", "--empty-message-action-font-weight: var(--font-weight-normal);",
+      "--empty-message-action-gutter: 12px;",
     ]) expect(touch).toContain(token)
-    const rules = phoneRules("packages/styles/src/components/EmptyMessage/EmptyMessage.module.css")
-    const fill = rules.get("&:has(> .ActionRow > [data-variant])")
-    expect(decls(fill)).toEqual({ "padding-top": "var(--empty-message-fill-action-inset, 0px)" })
-    expect(decls(rules.get("> :first-child:not(.ActionRow):has(~ .ActionRow > [data-variant])"))).toEqual({ "margin-top": "var(--empty-message-fill-content-margin, 0px)" })
-    expect(decls(rules.get("> [data-variant]"))).toEqual({ width: "var(--empty-message-fill-action-width, auto)" })
-    // Every action, the plain (ghost) second one too, takes the kit's 17 Medium
-    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/EmptyMessage/EmptyMessage.module.css`, "utf8")
-    expect(css).toMatch(/\.EmptyMessage:not\(\[data-size="sm"\]\) \.ActionRow > \[data-variant\] \{\s*font-weight: var\(--empty-message-action-font-weight, var\(--button-font-weight\)\);/)
-    // None of it applies from 768px up, where a caller's spacing and button widths stand
+    expect(touch).toContain("--empty-message-multi-items: center;")
+    expect(touch).not.toContain("--empty-message-fill-action-width: 100%;")
+    const em = readFileSync(`${process.cwd()}/packages/styles/src/components/EmptyMessage/EmptyMessage.module.css`, "utf8")
+    // A column of actions keeps each button at its own width; 2xl and 3xl buttons take the same metrics
+    expect(em).toContain("align-items: var(--empty-message-multi-items, normal);")
+    expect(em).toContain("--button-size-2xl: var(--empty-message-action-size, var(--control-size-2xl));")
+    expect(em).toContain("--button-size-3xl: var(--empty-message-action-size, var(--control-size-3xl));")
+    // A compact badge stays tinted on a phone
+    expect(em).toMatch(/:where\(\.EmptyMessage\[data-size="sm"\]\) & \{[^}]*background: var\(--badge-background-color\);/)
+    // None of the phone rules apply from 768px up, where a caller's spacing and button widths stand
     expect(baseRules("packages/styles/src/components/EmptyMessage/EmptyMessage.module.css").has("&:has(> .ActionRow > [data-variant])")).toBe(false)
   })
 })
