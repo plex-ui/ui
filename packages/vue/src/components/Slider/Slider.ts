@@ -15,6 +15,7 @@ import {
 } from "vue"
 import { useBreakpoint } from "../../composables/useBreakpoints.js"
 import { toCssVariables } from "../../lib/helpers.js"
+import { hasContent as hasSlotContent } from "../../lib/slotContent.js"
 import { Button } from "../Button/index.js"
 import { Reload } from "../Icon/index.js"
 import { Tooltip } from "../Tooltip/index.js"
@@ -26,6 +27,7 @@ import s from "@plexui/styles/components/Slider/Slider.module.css"
 // - `value` + `update:value` (also `change`, as React calls it `onChange`)
 //   support `v-model:value`; the value is a number, or an array with `range`.
 // - `label` is a prop or the `label` slot (rich content, e.g. a tooltip).
+// - React's `startAdornment` / `endAdornment` are the slots of those names.
 // - `aria-label` / `aria-labelledby` are the `ariaLabel` / `ariaLabelledby` props.
 // - React's `onFocus` / `onBlur` become the `focus` / `blur` emits: from the
 //   value input, and from the thumbs (React's bubbling focus events, so
@@ -623,6 +625,22 @@ const SliderComponent = defineComponent({
       const nameId = props.ariaLabelledby ?? (labelContent ? labelId : undefined)
       const { ariaLabel } = props
 
+      // With a symbol at either end the container is the middle column of a grid (Slider.module.css), left to right
+      // as the primitive slides, so the start symbol stays at the minimum
+      const startAdornment = isVertical ? undefined : slots.startAdornment?.()
+      const endAdornment = isVertical ? undefined : slots.endAdornment?.()
+      // An empty string is no symbol either, as in React
+      const hasStart = hasSlotContent(startAdornment)
+      const hasEnd = hasSlotContent(endAdornment)
+      const wrapAdorned = (container: VNode) =>
+        hasStart || hasEnd
+          ? h("div", { "class": s.SliderAdorned, "dir": "ltr", "data-disabled": disabled ? "" : undefined }, [
+              hasStart ? h("span", { "class": s.Adornment, "data-side": "start", "aria-hidden": "true" }, startAdornment) : null,
+              container,
+              hasEnd ? h("span", { "class": s.Adornment, "data-side": "end", "aria-hidden": "true" }, endAdornment) : null,
+            ])
+          : container
+
       return h("div", { "class": [s.SliderWrap, attrs.class], "data-orientation": orientation }, [
         labelContent
           ? h("div", { class: s.SliderLabel }, [
@@ -686,7 +704,7 @@ const SliderComponent = defineComponent({
                   ]),
             ])
           : null,
-        h("div", { class: s.SliderContainer }, [
+        wrapAdorned(h("div", { class: s.SliderContainer }, [
           h(
             SliderRoot,
             {
@@ -764,7 +782,7 @@ const SliderComponent = defineComponent({
             },
           ),
           showMarks ? h(SliderMarks, { marks, getThumb, min, max }) : null,
-        ]),
+        ])),
       ])
     }
   },

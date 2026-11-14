@@ -88,6 +88,15 @@ type SliderBaseProps = {
    * @default "horizontal"
    */
   orientation?: "horizontal" | "vertical"
+  /**
+   * A symbol at the start of the track, for its least value: a small letter, a quieter speaker. Decorative: the label
+   * names the slider. Horizontal only.
+   */
+  startAdornment?: ReactNode
+  /**
+   * A symbol at the end of the track, for its greatest value: a large letter, a louder speaker. Horizontal only.
+   */
+  endAdornment?: ReactNode
   onBlur?: FocusEventHandler<HTMLInputElement>
   onFocus?: FocusEventHandler<HTMLInputElement>
   ref?: React.Ref<ElementRef<typeof RadixSlider.Root> | null>
@@ -189,6 +198,8 @@ export const Slider = memo((props: SliderProps) => {
     trackColor,
     rangeColor,
     orientation = "horizontal",
+    startAdornment,
+    endAdornment,
     ref: forwardedRef,
   } = props
 
@@ -423,6 +434,20 @@ export const Slider = memo((props: SliderProps) => {
         .join(" – ")
     : ""
 
+  // `show && <Icon />` leaves false: no symbol, and no gutter for one. The grid takes the slider's direction, so the
+  // start symbol stays at the minimum
+  const shows = (node: ReactNode) => node != null && typeof node !== "boolean" && node !== ""
+  const hasStart = !isVertical && shows(startAdornment)
+  const hasEnd = !isVertical && shows(endAdornment)
+  const wrapAdorned = (container: ReactNode) =>
+    hasStart || hasEnd ? (
+      <div className={s.SliderAdorned} dir={direction} data-disabled={disabled ? "" : undefined}>
+        {hasStart && <span className={s.Adornment} data-side="start" aria-hidden="true">{startAdornment}</span>}
+        {container}
+        {hasEnd && <span className={s.Adornment} data-side="end" aria-hidden="true">{endAdornment}</span>}
+      </div>
+    ) : container
+
   return (
     <div
       className={clsx(s.SliderWrap, className)}
@@ -488,6 +513,8 @@ export const Slider = memo((props: SliderProps) => {
           )}
         </div>
       )}
+      {/* With a symbol at either end the container is the middle column of a grid (Slider.module.css) */}
+      {wrapAdorned(
       <div className={s.SliderContainer}>
         <RadixSlider.Root
           ref={forwardedRef}
@@ -565,7 +592,8 @@ export const Slider = memo((props: SliderProps) => {
           )}
         </RadixSlider.Root>
         {showMarks && <SliderMarks marks={marks} thumbRef={thumbRef} min={min} max={max} />}
-      </div>
+      </div>,
+      )}
     </div>
   )
 })

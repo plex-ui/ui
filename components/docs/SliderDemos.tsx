@@ -22,6 +22,12 @@ const STEPS = ['1', '5', '10', '25'] as const;
 const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) }));
 // The colours the kit's own marks example gave the track and its fill
 const colorProps = { trackColor: '#61C454', rangeColor: '#EF4146' };
+// A small and a large letter at the ends of the track, as Settings draws a text size slider (iOS 26 Settings ›
+// Accessibility › Hover Text › Size, IMG_5940: 16 and 22pt); text, not a symbol font
+const adornmentProps = {
+  startAdornment: <span className="text-[15px]">A</span>,
+  endAdornment: <span className="text-[22px]">A</span>,
+};
 
 /**
  * The Overview, with every setting of a slider on one scale from 0 to 100: what the page's examples once showed one
@@ -45,6 +51,7 @@ export function SliderOverviewDemo() {
   const [unit, setUnit] = useState<(typeof UNITS)[number]>('unit');
   const [marks, setMarks] = useState(false);
   const [colors, setColors] = useState(false);
+  const [adornments, setAdornments] = useState(false);
   const [tooltip, setTooltip] = useState(false);
   const [orientation, setOrientation] = useState<(typeof ORIENTATIONS)[number]>('horizontal');
   const [disabled, setDisabled] = useState(false);
@@ -61,6 +68,7 @@ export function SliderOverviewDemo() {
     step: thumbs === 'one' ? Number(step) : 1,
     marks: shownMarks ? scaleMarks : undefined,
     ...(colors ? colorProps : {}),
+    ...(adornments && !vertical ? adornmentProps : {}),
     disabled,
   };
   const desktop = {
@@ -92,6 +100,7 @@ export function SliderOverviewDemo() {
         {!(phone && marks) && <Segments name="unit" options={UNITS} value={unit} onChange={setUnit} />}
         {!vertical && <DemoControlBoolean name="marks" value={marks} onChange={setMarks} />}
         <DemoControlBoolean name="colors" value={colors} onChange={setColors} />
+        {!vertical && <DemoControlBoolean name="adornments" value={adornments} onChange={setAdornments} />}
         {!phone && (
           <>
             <DemoControlBoolean name="tooltip" value={tooltip} onChange={setTooltip} />
@@ -106,7 +115,8 @@ export function SliderOverviewDemo() {
             {thumbs === 'one' && !shownMarks ? (
               <div data-row className={sliderCellClassName}>
                 <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} className="min-w-0 flex-1" />
-                <SliderCellValue label="Example field" value={values.one} onChange={setValue} min={0} max={100} prefix={prefix} suffix={suffix} disabled={disabled} />
+                {/* The letters stand where the value would: Settings shows none beside them */}
+                {!adornments && <SliderCellValue label="Example field" value={values.one} onChange={setValue} min={0} max={100} prefix={prefix} suffix={suffix} disabled={disabled} />}
               </div>
             ) : (
               <div data-row className={sliderCellStackedClassName}>

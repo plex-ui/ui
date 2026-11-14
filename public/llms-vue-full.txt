@@ -7705,6 +7705,8 @@ Props:
   - prefix-unit (string) — Unit displayed before the value (e.g. $)
   - label (string) — Label text. Also names the slider thumbs for assistive technology
   - label slot (VNode[]) — Rich label content (e.g. a tooltip); takes precedence over the label prop
+  - startAdornment slot (VNode[]) — Text or an icon before the track, such as a small letter (horizontal only; hidden from assistive technology)
+  - endAdornment slot (VNode[]) — Text or an icon after the track, such as a large letter (horizontal only; hidden from assistive technology)
   - aria-label (string) — Accessible name when there is no visible label. Range thumbs add Minimum / Maximum (or Value n of m)
   - aria-labelledby (string) — Id of an element that names the slider; takes precedence over label
   - marks (Array<{ value: number, label: string }>) — Marks below the track (horizontal only)
@@ -7719,7 +7721,7 @@ Props:
   - @blur ((event: FocusEvent) => void) — Emitted when the value input or a thumb loses focus
 
 ### Overview
-Set range and bind an array of two numbers with v-model:value for a range, or three or more for several thumbs. step is how far a drag or a key moves the value at a time: 25 here stops it on the marks. A typed number is taken as it is, whole and within the scale. min-steps-between-thumbs keeps the thumbs that many steps apart. reset-value, with one thumb, adds a button to the label that brings the value back; a disabled slider leaves that button out. unit follows the value and prefix-unit comes before it. marks label points of the scale under the track, horizontal only. track-color and range-color color the track and its fill. The label slot can carry a tooltip, and orientation="vertical" stands the slider up. On a phone the slider is horizontal, as a list of iOS settings has no vertical slider, and a tooltip opens on hover, which a phone does not have, so the Phone preview leaves out those controls. The value at the end of the cell is a field: a tap brings up the number pad and the typed number moves the slider, taken as the slider's own field takes it, as Keynote for iPhone takes a value in the field next to its slider. The cell has no label row for a reset button, so the reset is a row of its own under the slider's group, its label centered in the accent, as Settings resets Hover Text's size; a disabled slider dims the row with it. A slider with a label of its own keeps the reset beside its value on a phone, as the small round gray button of the iOS 27 kit: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.
+Set range and bind an array of two numbers with v-model:value for a range, or three or more for several thumbs. step is how far a drag or a key moves the value at a time: 25 here stops it on the marks. A typed number is taken as it is, whole and within the scale. min-steps-between-thumbs keeps the thumbs that many steps apart. reset-value, with one thumb, adds a button to the label that brings the value back; a disabled slider leaves that button out. unit follows the value and prefix-unit comes before it. marks label points of the scale under the track, horizontal only. track-color and range-color color the track and its fill. The startAdornment and endAdornment slots stand at the ends of a horizontal track, as Settings puts a small and a large letter at the ends of a text size slider; on a phone they take the place of the value. They are decoration, so the slider's name has to say what it sets. The label slot can carry a tooltip, and orientation="vertical" stands the slider up. On a phone the slider is horizontal, as a list of iOS settings has no vertical slider, and a tooltip opens on hover, which a phone does not have, so the Phone preview leaves out those controls. The value at the end of the cell is a field: a tap brings up the number pad and the typed number moves the slider, taken as the slider's own field takes it, as Keynote for iPhone takes a value in the field next to its slider. The cell has no label row for a reset button, so the reset is a row of its own under the slider's group, its label centered in the accent, as Settings resets Hover Text's size; a disabled slider dims the row with it. A slider with a label of its own keeps the reset beside its value on a phone, as the small round gray button of the iOS 27 kit: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
@@ -7737,6 +7739,7 @@ const resetValue = ref(true); // with one thumb
 const unit = ref<"none" | "unit" | "prefixUnit">("unit");
 const marks = ref(false); // horizontal only
 const colors = ref(false);
+const adornments = ref(false); // horizontal only
 const tooltip = ref(false);
 const orientation = ref<"horizontal" | "vertical">("horizontal");
 const disabled = ref(false);
@@ -7762,6 +7765,9 @@ const disabled = ref(false);
     :orientation="orientation"
     :disabled="disabled"
   >
+    <!-- A small and a large letter at the ends, as Settings draws a text size slider; a vertical slider draws none -->
+    <template v-if="adornments" #startAdornment><span class="text-[15px]">A</span></template>
+    <template v-if="adornments" #endAdornment><span class="text-[22px]">A</span></template>
     <template v-if="tooltip" #label>
       <Tooltip content="More details about this field">
         <TooltipTriggerDecorator>Example field</TooltipTriggerDecorator>
@@ -7783,8 +7789,12 @@ const disabled = ref(false);
       :range-color="colors ? '#EF4146' : undefined"
       :disabled="disabled"
       class="min-w-0 flex-1"
-    />
-    <label :class="['min-w-[4ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums inline-flex items-center justify-end cursor-text', disabled ? 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]' : 'text-secondary']">{{ unit === 'prefixUnit' ? '$' : '' }}<input
+    >
+      <template v-if="adornments" #startAdornment><span class="text-[15px]">A</span></template>
+      <template v-if="adornments" #endAdornment><span class="text-[22px]">A</span></template>
+    </Slider>
+    <!-- The letters stand where the value would: Settings shows none beside them -->
+    <label v-if="!adornments" :class="['min-w-[4ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums inline-flex items-center justify-end cursor-text', disabled ? 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]' : 'text-secondary']">{{ unit === 'prefixUnit' ? '$' : '' }}<input
       aria-label="Example field value"
       inputmode="numeric"
       enterkeyhint="done"
@@ -7812,7 +7822,10 @@ const disabled = ref(false);
       :track-color="colors ? '#61C454' : undefined"
       :range-color="colors ? '#EF4146' : undefined"
       :disabled="disabled"
-    />
+    >
+      <template v-if="adornments" #startAdornment><span class="text-[15px]">A</span></template>
+      <template v-if="adornments" #endAdornment><span class="text-[22px]">A</span></template>
+    </Slider>
     <span v-if="!marks" :class="['text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums', disabled ? 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]' : '']">{{ [values[thumbs]].flat().map((value) => (unit === 'prefixUnit' ? '$' : '') + value + (unit === 'unit' ? '%' : '')).join(' – ') }}</span>
   </div>
 </FieldGroup>

@@ -243,6 +243,62 @@
   width: 100%;
 }
 
+/* Symbols at the ends of the track, as a slider of iOS Settings draws its minimum and maximum images (a small and a
+   large A, a speaker and a louder one): they stand beside the track, centred on it, and the marks run under the track
+   alone. The container becomes the middle column of a grid whose first row the slider sets. With no box of its own
+   it can't be the query container the phone thumb measures the track against (a subgrid can't be one either: a
+   size container is laid out on its own), so there the slider is that container (below). Horizontal only. */
+.SliderAdorned {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  column-gap: var(--slider-adornment-gap, 10px);
+  width: 100%;
+
+  & > .SliderContainer {
+    display: contents;
+  }
+
+  & .Slider {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  & .MarksContainer {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+.Adornment {
+  display: inline-flex;
+  grid-row: 1;
+  align-items: center;
+  justify-content: center;
+  /* The slider holds its padding under the track: the symbols stand level with the track, not the box */
+  padding-bottom: var(--slider-padding-bottom, 6px);
+  color: var(--slider-adornment-color, var(--color-text-secondary));
+  font-size: var(--slider-adornment-font-size, var(--font-text-sm-size));
+  line-height: 1;
+  user-select: none;
+
+  & > svg {
+    width: var(--slider-adornment-icon-size, 20px);
+    height: var(--slider-adornment-icon-size, 20px);
+  }
+
+  &[data-side="start"] {
+    grid-column: 1;
+  }
+
+  &[data-side="end"] {
+    grid-column: 3;
+  }
+
+  .SliderAdorned[data-disabled] & {
+    color: var(--slider-adornment-color-disabled, var(--color-text-disabled));
+  }
+}
+
 .MarksContainer {
   position: relative;
   width: 100%;
@@ -328,6 +384,11 @@
      Radix moves it. The container gives the track's width (cqw); the marks read --slider-thumb-travel to stand
      under the knob. A vertical slider keeps Radix's travel. */
   .SliderWrap[data-orientation="horizontal"] .SliderContainer {
+    container-type: inline-size;
+  }
+
+  /* Between symbols the container has no box (.SliderAdorned): the slider, as wide as the track, measures it */
+  .SliderAdorned .Slider[data-orientation="horizontal"] {
     container-type: inline-size;
   }
 

@@ -177,6 +177,62 @@ describe("Slider markup parity", () => {
     expect(react).toContain(`width: calc(${width} + 1px)`)
   })
 
+  test.each([
+    ["both ends", true, true],
+    ["the start only", true, false],
+    ["the end only", false, true],
+  ])("adornments at %s stand in a grid around the track, hidden from assistive technology", async (_name, start, end) => {
+    const { react, vue } = await renderPair(
+      reactSlider({
+        ...BASE,
+        marks: [{ value: 0, label: "0" }, { value: 1000, label: "1000" }],
+        startAdornment: start ? <span>A</span> : undefined,
+        endAdornment: end ? <span>B</span> : undefined,
+      }),
+      () =>
+        h(Slider, { ...BASE, marks: [{ value: 0, label: "0" }, { value: 1000, label: "1000" }] }, {
+          ...(start ? { startAdornment: () => h("span", null, "A") } : {}),
+          ...(end ? { endAdornment: () => h("span", null, "B") } : {}),
+        }),
+    )
+    expect(vue).toBe(react)
+    expect(react).toContain('class="SliderAdorned"')
+    expect(react.includes('aria-hidden="true" class="Adornment" data-side="start"')).toBe(start)
+    expect(react.includes('aria-hidden="true" class="Adornment" data-side="end"')).toBe(end)
+  })
+
+  test("a vertical slider and a disabled one: no adornments when vertical, the wrapper marks disabled", async () => {
+    const vertical = await renderPair(
+      reactSlider({ ...BASE, orientation: "vertical", startAdornment: <span>A</span> }),
+      () => h(Slider, { ...BASE, orientation: "vertical" }, { startAdornment: () => h("span", null, "A") }),
+    )
+    expect(vertical.vue).toBe(vertical.react)
+    expect(vertical.react).not.toContain("SliderAdorned")
+    const disabled = await renderPair(
+      reactSlider({ ...BASE, disabled: true, endAdornment: <span>B</span> }),
+      () => h(Slider, { ...BASE, disabled: true }, { endAdornment: () => h("span", null, "B") }),
+    )
+    expect(disabled.vue).toBe(disabled.react)
+    expect(disabled.react).toMatch(/class="SliderAdorned" data-disabled="" dir="ltr"/)
+  })
+
+  test("React: under a right-to-left DirectionProvider the grid turns with the slider", () => {
+    const { container } = render(
+      <Direction.Provider dir="rtl">{reactSlider({ ...BASE, startAdornment: <span>A</span> })}</Direction.Provider>,
+    )
+    expect(container.querySelector(".SliderAdorned")?.getAttribute("dir")).toBe("rtl")
+    expect(container.querySelector(".Slider")?.getAttribute("dir")).toBe("rtl")
+  })
+
+  test("an adornment given as false or empty draws nothing, as an empty Vue slot does", async () => {
+    const { react, vue } = await renderPair(
+      reactSlider({ ...BASE, startAdornment: false, endAdornment: "" }),
+      () => h(Slider, { ...BASE }, { startAdornment: () => [], endAdornment: () => "" }),
+    )
+    expect(vue).toBe(react)
+    expect(react).not.toContain("SliderAdorned")
+  })
+
   test("a rich label: a tooltip on the label text", async () => {
     const { react, vue } = await renderPair(
       reactSlider({

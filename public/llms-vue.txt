@@ -1051,6 +1051,8 @@ Props:
   - prefix-unit (string) — Unit displayed before the value (e.g. $)
   - label (string) — Label text. Also names the slider thumbs for assistive technology
   - label slot (VNode[]) — Rich label content (e.g. a tooltip); takes precedence over the label prop
+  - startAdornment slot (VNode[]) — Text or an icon before the track, such as a small letter (horizontal only; hidden from assistive technology)
+  - endAdornment slot (VNode[]) — Text or an icon after the track, such as a large letter (horizontal only; hidden from assistive technology)
   - aria-label (string) — Accessible name when there is no visible label. Range thumbs add Minimum / Maximum (or Value n of m)
   - aria-labelledby (string) — Id of an element that names the slider; takes precedence over label
   - marks (Array<{ value: number, label: string }>) — Marks below the track (horizontal only)

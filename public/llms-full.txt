@@ -6996,6 +6996,8 @@ Props:
   - aria-label (string) — Accessible name when there is no visible label. Range thumbs add Minimum / Maximum (or Value n of m)
   - aria-labelledby (string) — Id of an element that names the slider; takes precedence over label
   - marks (Array<{ value: number, label: string }>) — Marks below track (horizontal only)
+  - startAdornment (ReactNode) — Text or an icon before the track, such as a small letter (horizontal only; hidden from assistive technology)
+  - endAdornment (ReactNode) — Text or an icon after the track, such as a large letter (horizontal only; hidden from assistive technology)
   - onChange ((value: number | number[]) => void) — Required. Change handler; receives array when range is true
   - minStepsBetweenThumbs (number) — Minimum steps between thumbs (range mode only)
   - disabled (boolean) default: false — Disable slider
@@ -7006,7 +7008,7 @@ Props:
   - onBlur ((event: FocusEvent) => void) — Called when the value input or a thumb loses focus
 
 ### Overview
-Set range and give value two numbers for a range, or three or more for several thumbs; onChange then receives an array. step is how far a drag or a key moves the value at a time: 25 here stops it on the marks. A typed number is taken as it is, whole and within the scale. minStepsBetweenThumbs keeps the thumbs that many steps apart. resetValue, with one thumb, adds a button to the label that brings the value back; a disabled slider leaves that button out. unit follows the value and prefixUnit comes before it. marks label points of the scale under the track, horizontal only. trackColor and rangeColor color the track and its fill. A label given as JSX can carry a tooltip, and orientation="vertical" stands the slider up. On a phone the slider is horizontal, as a list of iOS settings has no vertical slider, and a tooltip opens on hover, which a phone does not have, so the Phone preview leaves out those controls. The value at the end of the cell is a field: a tap brings up the number pad and the typed number moves the slider, taken as the slider's own field takes it, as Keynote for iPhone takes a value in the field next to its slider. The cell has no label row for a reset button, so the reset is a row of its own under the slider's group, its label centered in the accent, as Settings resets Hover Text's size; a disabled slider dims the row with it. A slider with a label of its own keeps the reset beside its value on a phone, as the small round gray button of the iOS 27 kit: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.
+Set range and give value two numbers for a range, or three or more for several thumbs; onChange then receives an array. step is how far a drag or a key moves the value at a time: 25 here stops it on the marks. A typed number is taken as it is, whole and within the scale. minStepsBetweenThumbs keeps the thumbs that many steps apart. resetValue, with one thumb, adds a button to the label that brings the value back; a disabled slider leaves that button out. unit follows the value and prefixUnit comes before it. marks label points of the scale under the track, horizontal only. trackColor and rangeColor color the track and its fill. startAdornment and endAdornment stand at the ends of a horizontal track, as Settings puts a small and a large letter at the ends of a text size slider; on a phone they take the place of the value. They are decoration, so the slider's name has to say what it sets. A label given as JSX can carry a tooltip, and orientation="vertical" stands the slider up. On a phone the slider is horizontal, as a list of iOS settings has no vertical slider, and a tooltip opens on hover, which a phone does not have, so the Phone preview leaves out those controls. The value at the end of the cell is a field: a tap brings up the number pad and the typed number moves the slider, taken as the slider's own field takes it, as Keynote for iPhone takes a value in the field next to its slider. The cell has no label row for a reset button, so the reset is a row of its own under the slider's group, its label centered in the accent, as Settings resets Hover Text's size; a disabled slider dims the row with it. A slider with a label of its own keeps the reset beside its value on a phone, as the small round gray button of the iOS 27 kit: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.
 ```tsx
 const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) }))
 
@@ -7018,6 +7020,7 @@ const [resetValue, setResetValue] = useState(true) // with one thumb
 const [unit, setUnit] = useState("unit") // or "none", "prefixUnit"
 const [marks, setMarks] = useState(false) // horizontal only
 const [colors, setColors] = useState(false)
+const [adornments, setAdornments] = useState(false) // horizontal only
 const [tooltip, setTooltip] = useState(false)
 const [orientation, setOrientation] = useState("horizontal") // or "vertical"
 const [disabled, setDisabled] = useState(false)
@@ -7031,6 +7034,9 @@ const shared = {
   marks: marks ? scaleMarks : undefined, // a vertical slider draws none
   trackColor: colors ? "#61C454" : undefined,
   rangeColor: colors ? "#EF4146" : undefined,
+  // A small and a large letter at the ends, as Settings draws a text size slider; a vertical slider draws none
+  startAdornment: adornments ? <span className="text-[15px]">A</span> : undefined,
+  endAdornment: adornments ? <span className="text-[22px]">A</span> : undefined,
   disabled,
 }
 
@@ -7071,7 +7077,8 @@ const commitTyped = () => {
   {thumbs === "one" && !marks ? (
     <div data-row className="flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]">
       <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} className="min-w-0 flex-1" />
-      <label className={`min-w-[4ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums inline-flex items-center justify-end cursor-text ${disabled ? "text-[var(--mobile-label-tertiary,var(--color-text-disabled))]" : "text-secondary"}`}>
+      {/* The letters stand where the value would: Settings shows none beside them */}
+      {!adornments && <label className={`min-w-[4ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums inline-flex items-center justify-end cursor-text ${disabled ? "text-[var(--mobile-label-tertiary,var(--color-text-disabled))]" : "text-secondary"}`}>
         {unit === "prefixUnit" && "$"}
         <input
           aria-label="Example field value"
@@ -7090,7 +7097,7 @@ const commitTyped = () => {
           onBlur={commitTyped}
         />
         {unit === "unit" && "%"}
-      </label>
+      </label>}
     </div>
   ) : (
     <div data-row className="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">

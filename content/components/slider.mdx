@@ -18,6 +18,7 @@ const [resetValue, setResetValue] = useState(true) // with one thumb
 const [unit, setUnit] = useState("unit") // or "none", "prefixUnit"
 const [marks, setMarks] = useState(false) // horizontal only
 const [colors, setColors] = useState(false)
+const [adornments, setAdornments] = useState(false) // horizontal only
 const [tooltip, setTooltip] = useState(false)
 const [orientation, setOrientation] = useState("horizontal") // or "vertical"
 const [disabled, setDisabled] = useState(false)
@@ -31,6 +32,9 @@ const shared = {
   marks: marks ? scaleMarks : undefined, // a vertical slider draws none
   trackColor: colors ? "#61C454" : undefined,
   rangeColor: colors ? "#EF4146" : undefined,
+  // A small and a large letter at the ends, as Settings draws a text size slider; a vertical slider draws none
+  startAdornment: adornments ? <span className="text-[15px]">A</span> : undefined,
+  endAdornment: adornments ? <span className="text-[22px]">A</span> : undefined,
   disabled,
 }
 
@@ -71,7 +75,8 @@ const commitTyped = () => {
   {thumbs === "one" && !marks ? (
     <div data-row className="${sliderCellClassName}">
       <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} className="min-w-0 flex-1" />
-      <label className={\`min-w-[4ch] ${sliderCellValueClassName} ${sliderCellValueFieldClassName} \${disabled ? "${sliderCellValueDisabledClassName}" : "text-secondary"}\`}>
+      {/* The letters stand where the value would: Settings shows none beside them */}
+      {!adornments && <label className={\`min-w-[4ch] ${sliderCellValueClassName} ${sliderCellValueFieldClassName} \${disabled ? "${sliderCellValueDisabledClassName}" : "text-secondary"}\`}>
         {unit === "prefixUnit" && "$"}
         <input
           aria-label="Example field value"
@@ -90,7 +95,7 @@ const commitTyped = () => {
           onBlur={commitTyped}
         />
         {unit === "unit" && "%"}
-      </label>
+      </label>}
     </div>
   ) : (
     <div data-row className="${sliderCellStackedClassName}">
@@ -182,7 +187,7 @@ On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: th
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
   <p>Set <code>range</code> and give <code>value</code> two numbers for a range, or three or more for several thumbs; <code>onChange</code> then receives an array. <code>step</code> is how far a drag or a key moves the value at a time: 25 here stops it on the marks. A typed number is taken as it is, whole and within the scale. <code>minStepsBetweenThumbs</code> keeps the thumbs that many steps apart. <code>resetValue</code>, with one thumb, adds a button to the label that brings the value back; a disabled slider leaves that button out.</p>
-  <p><code>unit</code> follows the value and <code>prefixUnit</code> comes before it. <code>marks</code> label points of the scale under the track, horizontal only. <code>trackColor</code> and <code>rangeColor</code> color the track and its fill. A label given as JSX can carry a tooltip, and <code>orientation="vertical"</code> stands the slider up.</p>
+  <p><code>unit</code> follows the value and <code>prefixUnit</code> comes before it. <code>marks</code> label points of the scale under the track, horizontal only. <code>trackColor</code> and <code>rangeColor</code> color the track and its fill. <code>startAdornment</code> and <code>endAdornment</code> stand at the ends of a horizontal track, as Settings puts a small and a large letter at the ends of a text size slider; on a phone they take the place of the value. They are decoration, so the slider's name has to say what it sets. A label given as JSX can carry a tooltip, and <code>orientation="vertical"</code> stands the slider up.</p>
   <p>On a phone the slider is horizontal, as a list of iOS settings has no vertical slider, and a tooltip opens on hover, which a phone does not have, so the Phone preview leaves out those controls. The value at the end of the cell is a field: a tap brings up the number pad and the typed number moves the slider, taken as the slider's own field takes it, as Keynote for iPhone takes a value in the field next to its slider. The cell has no label row for a reset button, so the reset is a row of its own under the slider's group, its label centered in the accent, as Settings resets Hover Text's size; a disabled slider dims the row with it. A slider with a label of its own keeps the reset beside its value on a phone, as the small round gray button of the iOS 27 kit: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <SliderOverviewDemo />
@@ -214,6 +219,8 @@ On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: th
   { prop: "aria-label", type: "string", description: "Accessible name when there is no visible label. Range thumbs add Minimum / Maximum (or Value n of m)" },
   { prop: "aria-labelledby", type: "string", description: "Id of an element that names the slider; takes precedence over label" },
   { prop: "marks", type: "Array<{ value: number, label: string }>", description: "Marks below track (horizontal only)" },
+  { prop: "startAdornment", type: "ReactNode", description: "Text or an icon before the track, such as a small letter (horizontal only; hidden from assistive technology)" },
+  { prop: "endAdornment", type: "ReactNode", description: "Text or an icon after the track, such as a large letter (horizontal only; hidden from assistive technology)" },
   { prop: "onChange", type: "(value: number | number[]) => void", description: "Required. Change handler; receives array when range is true" },
   { prop: "minStepsBetweenThumbs", type: "number", description: "Minimum steps between thumbs (range mode only)" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable slider" },
@@ -234,3 +241,8 @@ Slider reads these component tokens. Override them at any scope to restyle it:
 
 - `--slider-range-color`: range color (default `light-dark(var(--gray-450), var(--gray-600))`)
 - `--slider-track-color`: track color (default `light-dark(var(--gray-150), var(--gray-400))`)
+- `--slider-adornment-color`: color of the adornments (default `var(--color-text-secondary)`)
+- `--slider-adornment-color-disabled`: their color on a disabled slider (default `var(--color-text-disabled)`)
+- `--slider-adornment-font-size`: their text size (default `var(--font-text-sm-size)`)
+- `--slider-adornment-icon-size`: size of an icon among them (default `20px`)
+- `--slider-adornment-gap`: space between an adornment and the track (default `10px`)

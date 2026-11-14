@@ -1058,6 +1058,8 @@ Props:
   - aria-label (string) — Accessible name when there is no visible label. Range thumbs add Minimum / Maximum (or Value n of m)
   - aria-labelledby (string) — Id of an element that names the slider; takes precedence over label
   - marks (Array<{ value: number, label: string }>) — Marks below track (horizontal only)
+  - startAdornment (ReactNode) — Text or an icon before the track, such as a small letter (horizontal only; hidden from assistive technology)
+  - endAdornment (ReactNode) — Text or an icon after the track, such as a large letter (horizontal only; hidden from assistive technology)
   - onChange ((value: number | number[]) => void) — Required. Change handler; receives array when range is true
   - minStepsBetweenThumbs (number) — Minimum steps between thumbs (range mode only)
   - disabled (boolean) default: false — Disable slider
