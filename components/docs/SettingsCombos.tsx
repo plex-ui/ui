@@ -66,8 +66,11 @@ export function RowsCombos({ value, onChange, onPage }: { value: RowsValue; onCh
         <Button block color="info" variant="ghost" onClick={() => onChange({ ...value, color: null, second: null })}>Reset Colors</Button>
       </div>
     </FieldGroup>
-    <FieldGroup aria-label="Actions">
+    <FieldGroup aria-label="Action">
       <div data-row><Button block color="info" variant="ghost" onClick={onPage}>Action</Button></div>
+    </FieldGroup>
+    {/* A red row with its description stands alone in its group, as Reset Voice Settings (IMG_5944) */}
+    <FieldGroup aria-label="Destructive action">
       <div data-row>
         {/* The row is the dialog's trigger, so closing the alert returns focus to it */}
         <Dialog open={confirm} onOpenChange={setConfirm}>

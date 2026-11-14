@@ -132,7 +132,12 @@
   flex-direction: column;
   justify-content: center;
   min-height: var(--field-row-min-height, 52px);
-  padding: 6px var(--field-row-padding-inline, 16px) 0;
+  padding: 9px var(--field-row-padding-inline, 16px) 0;
+}
+
+/* Audio & Visual › Balance (IMG_5962): the ends and the value 19 from the card's top, the track 55, the card 79 high */
+.BalanceRow > :last-child {
+  margin-block-end: -2px;
 }
 
 /* A desktop track is thin: its ends and value stand a line apart from it, not on it */

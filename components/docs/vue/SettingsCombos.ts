@@ -59,9 +59,11 @@ export const RowsCombos = defineComponent({
         h(Field, { row: true, label: 'Second color' }, () => h(ColorWell, { 'value': props.value.second, 'onUpdate:value': (second: string) => set({ second }) })),
         h('div', { 'data-row': '' }, h(Button, { block: true, color: 'info', variant: 'ghost', onClick: () => set({ color: null, second: null }) }, () => 'Reset Colors')),
       ]),
-      h(FieldGroup, { 'aria-label': 'Actions' }, () => [
-        h('div', { 'data-row': '' }, h(Button, { block: true, color: 'info', variant: 'ghost', onClick: () => emit('page') }, () => 'Action')),
-        // The row is the dialog's trigger, so closing the alert returns focus to it
+      h(FieldGroup, { 'aria-label': 'Action' }, () =>
+        h('div', { 'data-row': '' }, h(Button, { block: true, color: 'info', variant: 'ghost', onClick: () => emit('page') }, () => 'Action'))),
+      // A red row with its description stands alone in its group, as Reset Voice Settings (IMG_5944); the row is the
+      // dialog's trigger, so closing the alert returns focus to it
+      h(FieldGroup, { 'aria-label': 'Destructive action' }, () => [
         h('div', { 'data-row': '' }, h(Dialog, { 'open': confirm.value, 'onUpdate:open': (open: boolean) => { confirm.value = open; } }, () => [
           h(DialogTrigger, null, () => h(Button, { 'block': true, 'color': 'danger', 'variant': 'ghost', 'class': s.Action, 'data-described': '' }, () =>
             h('span', { class: s.ActionText }, ['Destructive action', h('span', { class: s.ActionDescription }, 'Asks first.')]))),

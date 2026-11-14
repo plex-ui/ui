@@ -15,21 +15,14 @@
     padding: var(--field-row-padding-inline);
 }
 
-/* On a desktop the cover is a thumbnail with its button beside it, as a form's avatar row */
+/* On a desktop the cover stands as on a phone: a square in the middle with its button under it, the button one of
+   the form's, as Cancel and Save */
 .Photo.DesktopPhoto {
-    flex-direction: row;
-    align-items: center;
-    gap: 16px;
+    gap: 12px;
 }
 
 .DesktopPhoto > .Cover {
-    width: 64px;
-    border-radius: var(--radius-md);
-}
-
-.DesktopPhoto > .Cover > svg {
-    width: 24px;
-    height: 24px;
+    width: 144px;
 }
 
 .DesktopActions {
