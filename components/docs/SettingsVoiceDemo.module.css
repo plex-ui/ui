@@ -135,6 +135,14 @@
   padding: 6px var(--field-row-padding-inline, 16px) 0;
 }
 
+/* A desktop track is thin: its ends and value stand a line apart from it, not on it */
+@media (min-width: 768px) {
+  .BalanceRow {
+    gap: 8px;
+    padding-block: 10px 12px;
+  }
+}
+
 .BalanceLabels {
   display: grid;
   grid-template-columns: 1fr auto 1fr;

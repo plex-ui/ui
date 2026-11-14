@@ -1,14 +1,12 @@
 ---
 title: "Forms: Settings"
-description: "Settings and editing forms: grouped rows, choices, tags, account actions, payout details, selection pages, and sliders built with Plex UI."
-metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account actions, payout details, selection pages, and sliders built with Plex UI for Vue."
+description: "Settings and editing forms: grouped rows, choices, tags, account actions, payout details, selection pages, sliders and every kind of settings row built with Plex UI."
+metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account actions, payout details, selection pages, sliders and every kind of settings row built with Plex UI for Vue."
 ---
 
 import { HashForward } from "@/components/docs/HashForward"
-import { VueSettingsSliderDemo } from "@/components/docs/vue/VueSettingsSliderDemo"
-import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode, settingsRegionVueCode, settingsAutofillVueCode, settingsHapticsVueCode, settingsSharingVueCode, settingsVpnVueCode, settingsTvProviderVueCode, settingsCaptionsVueCode, settingsCaptionsAppearanceVueCode, settingsAudioVueCode, settingsHeadTrackingVueCode } from "@/components/docs/settingsSliderCode"
-import { VueSettingsQuickDemo, VueSettingsLanguagesDemo, VueSettingsRegionDemo, VueSettingsAutofillDemo, VueSettingsHapticsDemo, VueSettingsSharingDemo, VueSettingsVpnDemo, VueSettingsTvProviderDemo, VueSettingsCaptionsDemo, VueSettingsCaptionsAppearanceDemo, VueSettingsAudioDemo, VueSettingsHeadTrackingDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
-import { VueSettingsVoiceDemo } from "@/components/docs/vue/VueSettingsVoiceDemo"
+import { settingsRowsVueCode, settingsSlidersVueCode, settingsChoiceVueCode, settingsOrderVueCode, settingsRegionVueCode, settingsPicturesVueCode, settingsFootersVueCode } from "@/components/docs/settingsCombosCode"
+import { VueSettingsRowsDemo, VueSettingsSlidersDemo, VueSettingsChoiceDemo, VueSettingsOrderDemo, VueSettingsRegionDemo, VueSettingsPicturesDemo, VueSettingsFootersDemo } from "@/components/docs/vue/VueSettingsCombosDemo"
 import { VueImageAlbumDemo } from "@/components/docs/vue/VueImageAlbumDemo"
 import { imageAlbumVueCode } from "@/components/docs/imageAlbumCode"
 import { VueFileUploadDemo } from "@/components/docs/vue/VueFileUploadDemos"
@@ -645,42 +643,51 @@ Copy the [ImageAlbumEditor helper](https://github.com/plex-ui/ui/blob/master/com
   <VueImageAlbumDemo />
 </ComponentPreview>
 
-## Settings with a slider
+<span id="vpn-settings" />
+<span id="tv-provider" />
+<span id="caption-appearance" />
 
-Adjust playback volume with the slider or arrow keys. Turning Sound off disables the slider and keeps its value. Learn more opens a separate explanation. These settings affect this example only.
+## Rows with controls
 
-Copy the [SettingsSliderFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsSliderFields.ts) with its [shared types](https://github.com/plex-ui/ui/blob/master/components/docs/settingsSliderData.ts), [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsSliderDemo.module.css) and the [FormScreen helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/FormScreen.ts). State belongs to the screen, so switching Page, Dialog, or surface keeps the settings.
+Every kind of row iOS Settings ends with a control, one screen in plain words: a `Switch`, a `Select` menu, a state in words before a switch, and a row with a description under its label, over a footer of one line. Under a header: a row that opens a page, a ghost `Button` with `block` showing its value and a chevron; two `ColorWell`s, each with the empty well while it has no color; and a row in the accent that resets them. Then an action in the accent, a red action with its description that asks first in an alert, and a centred action (`data-align="center"`) in a group of its own. The state in words is given to the row through the `Field`'s default slot with the control's props, so the switch keeps the row's label and its tap.
 
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsSliderVueCode} previewMinHeight={380}>
-  <VueSettingsSliderDemo />
+These screens use the [SettingsCombos helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsCombos.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsCombosData.ts), the [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsVoiceDemo.module.css) and the [FormScreen helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/FormScreen.ts). State belongs to the screen, so switching Page, Dialog, or surface keeps the values.
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsRowsVueCode} previewMinHeight={720}>
+  <VueSettingsRowsDemo />
 </ComponentPreview>
 
-## Voice settings
+<span id="settings-with-a-slider" />
+<span id="voice-settings" />
+<span id="audio-and-visual" />
+<span id="head-tracking" />
 
-Spoken voice settings: the voice in a menu, Rate, Pitch and Speech Volume each a slider alone in its titled group with words or speakers at its ends (`startAdornment`, `endAdornment`), and under each a row in the accent that brings back the default, as Settings lays out Spoken Content › Voice and VoiceOver's speech settings. Timbre and Sentence Pause show their number under the label and change it with a `Stepper`. Reset Voice Settings is a red row with its description and asks first. These settings affect this example only.
+## Sliders and steppers
 
-Copy the [SettingsVoiceFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsVoiceFields.ts) with its [shared data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsVoiceData.ts), [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsVoiceDemo.module.css) and the FormScreen helper above.
+Sliders and steppers, each alone in its titled group: a slider with its value 12 after the track, which a switch turns off and which keeps its value; a slider between symbols (`startAdornment`, `endAdornment`) with a row in the accent that brings back its default; and a balance from −1 to 1 under its ends and its value, L, 0.00 and R in a row of their own over the track. A `Stepper` ends a row with its number under the label. A number typed in an `Input` at the start of the row, 49 wide, or stepped at its end, changes one value kept between 0 and 100: what is typed applies on blur or Return, a step goes on from it, and an empty field goes back to the number.
 
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsVoiceVueCode} previewMinHeight={560}>
-  <VueSettingsVoiceDemo />
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsSlidersVueCode} previewMinHeight={720}>
+  <VueSettingsSlidersDemo />
 </ComponentPreview>
+
+<span id="sharing-settings" />
+
+## One choice
+
+One choice checked in a group of its own: a `RadioGroup` around its `FieldGroup`, so on a phone the chosen row carries the check and on a desktop the radio. Its footer ends with a link, a primary `TextLink` in the footer's text. Choices with a description and an info `Button` as their `action` lead with their mark in the icon column, so the info button alone stands at the end; a tap on the row chooses. The groups space themselves as an iOS list, the wrapped choice too.
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsChoiceVueCode} previewMinHeight={560}>
+  <VueSettingsChoiceDemo />
+</ComponentPreview>
+
+<span id="preferred-languages" />
 
 ## Pick and order
 
-Pick and order in one list, as Quick Settings of VoiceOver: the check leads the row and turns the setting on, the grip ends the row and moves it (`Sortable` with `handles`). A row keeps its check when it moves.
+Pick and order in one list: the check leads the row and turns it on, the grip ends the row and moves it (`Sortable` with `handles`), and a row keeps its check when it moves. Under a header, rows of two lines in order, the first marked as first, and a row in the accent that adds the next one, off when there is none left. Use the controls to hide the grips or move them to the start.
 
-These examples use the [SettingsOrderFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsOrderFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsOrderData.ts) and the [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsVoiceDemo.module.css) of Voice settings.
-
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsQuickVueCode} previewMinHeight={480}>
-  <VueSettingsQuickDemo />
-</ComponentPreview>
-
-## Preferred languages
-
-Preferred languages in the order of preference, as Language & Region lists them: each language in its own words with the English name under it, the first one marked as the app's language. Drag a grip to change the order. Add Language… in the accent ends the group and opens the languages not yet in the list; the footer says what the order does.
-
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsLanguagesVueCode} previewMinHeight={380}>
-  <VueSettingsLanguagesDemo />
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsOrderVueCode} previewMinHeight={560}>
+  <VueSettingsOrderDemo />
 </ComponentPreview>
 
 ## Long choice in a sheet
@@ -693,90 +700,23 @@ Copy the [SettingsRegionFields helper](https://github.com/plex-ui/ui/blob/master
   <VueSettingsRegionDemo />
 </ComponentPreview>
 
-## Apps in rows
+<span id="apps-in-rows" />
+<span id="glyph-rows-with-a-link-in-the-footer" />
 
-Apps in rows, each with a switch, as AutoFill & Passwords lists the apps that fill passwords: a switch for the whole feature with a footer, then the apps under a header, each with its picture, its name and what it fills under it. The picture goes in Field's `#icon` slot: a 28 column with 8 to the text on a phone, so the name, the line under it and the line above the row start at 56. An app that may not fill reads quieter. Turning the feature off hides the apps.
+## Rows with pictures
 
-Copy the [SettingsAppsFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsAppsFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsAppsData.ts).
+Rows with a picture in Field's `#icon` slot: a 28 column with 8 to the text on a phone, so the label, the line under it and the line above the row start at 56. Rows with a switch, where a row turned off reads quieter; the same with a description under the label; and rows with nothing to set. Use the control to show each picture as a tile, an outline or the symbol alone.
 
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsAutofillVueCode} previewMinHeight={420}>
-  <VueSettingsAutofillDemo />
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsPicturesVueCode} previewMinHeight={620}>
+  <VueSettingsPicturesDemo />
 </ComponentPreview>
 
-## Glyph rows with a link in the footer
+<span id="live-captions" />
 
-A switch whose footer ends with a link, and a list of the apps it works in, as Music Haptics: each app a glyph in the image column and a name, with nothing to set; the footer under the list says what it holds. The link is a primary `TextLink` in the footer's text.
+## Headers and footers
 
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsHapticsVueCode} previewMinHeight={300}>
-  <VueSettingsHapticsDemo />
-</ComponentPreview>
+Every header and footer of a group: a header over a footer of one line; a prominent header (`headerProminence="increased"`) over a footer that ends with a link; a header of a paragraph that wraps over its rows; a footer with a list, each item a line that starts with a bullet and wraps back to the footer's edge, a line apart from the paragraph; and a footer of two paragraphs, the second a primary `TextLink`.
 
-## Sharing settings
-
-One choice checked in a group of its own, switches under headers, and a row in the accent, as AirDrop lays out who may send. The choice is a `RadioGroup` around its `FieldGroup`: on a phone the chosen row carries the check, on a desktop the radio. Its footer ends with a link, a primary `TextLink` in the footer's text. Each switch stands under a header with a footer that says what it does. Manage Known Contacts is a ghost `Button` with `block` in a row, the accent with no chevron, with its footer under it. The groups space themselves as an iOS list, the wrapped choice too.
-
-Copy the [SettingsSharingFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsSharingFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsSharingData.ts).
-
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsSharingVueCode} previewMinHeight={560}>
-  <VueSettingsSharingDemo />
-</ComponentPreview>
-
-## VPN settings
-
-A switch with its state in words before it, then the configurations of the device with one chosen, as Settings › VPN lays them out. The state is the secondary text before the `Switch`, given to the row through the `Field`'s render prop so the switch keeps the row's label and its tap. Each configuration is a `Field` with a `description`, a `RadioGroup.Item` and an info `Button` as its `action`: a choice with an action at its end leads with its mark in the icon column, so the info button alone stands at the end. A tap on the row chooses; the info button opens the configuration.
-
-Copy the [SettingsVpnFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsVpnFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsVpnData.ts).
-
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsVpnVueCode} previewMinHeight={620}>
-  <VueSettingsVpnDemo />
-</ComponentPreview>
-
-## TV Provider
-
-A paragraph over the providers, a centred row, and a footer of two paragraphs, as Settings › TV Provider lays them out. The paragraph is the group's `title`, which wraps. Each provider is a ghost `Button` with `block` in a row, in the text color, as a row that opens a page. The centred row adds `data-align="center"`. The footer's second paragraph is a primary `TextLink`, a line apart. A long list of providers searches from a bar at the bottom, as [Region](#region-settings) does.
-
-Copy the [TvProviderFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsVpnFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsVpnData.ts).
-
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsTvProviderVueCode} previewMinHeight={480}>
-  <VueSettingsTvProviderDemo />
-</ComponentPreview>
-
-## Live Captions
-
-A switch and a row that opens a page over a footer with a list, then choices in menus, as Settings › Accessibility › Live Captions lays them out. The footer holds a paragraph and a `ul`: in a `FieldGroup` footer a list reads as Settings writes one, each item a line that starts with a bullet and wraps back to the footer's edge, a line apart from the paragraph. Appearance is a ghost `Button` with `block` in a row with a chevron at its end; its page is the next example, Caption appearance. Keep Call Captions and Current Language are `Select` menus at the end of their rows.
-
-Copy the [SettingsCaptionsFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsCaptionsFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsCaptionsData.ts).
-
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsCaptionsVueCode} previewMinHeight={560}>
-  <VueSettingsCaptionsDemo />
-</ComponentPreview>
-
-## Caption appearance
-
-Choices in menus, two colors with a row that resets them, and a slider with its value at its end, as Live Captions › Appearance lays them out. Each color is a `ColorWell` at the end of its row; with no color it shows the empty well. Reset Colors is a row in the accent that brings both back. Idle Opacity is a `Slider` alone in its titled group, its value as the `endAdornment`, with a footer that says what it does.
-
-Copy the [SettingsCaptionsFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsCaptionsFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsCaptionsData.ts).
-
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsCaptionsAppearanceVueCode} previewMinHeight={620}>
-  <VueSettingsCaptionsAppearanceDemo />
-</ComponentPreview>
-
-## Audio and Visual
-
-Rows each in a group of their own with a footer that ends with a link, a row that opens a page, a switch, and the balance between the channels, as Settings › Accessibility › Audio & Visual lays them out. Each footer ends with a primary `TextLink` in its text. Live Listen is a ghost `Button` with `block` in a row with a chevron at its end; it opens its page through `@live-listen`, left out here. The balance is a `Slider` from −1 to 1 under its ends and its value, L, 0.00 and R in a row of their own over the track.
-
-Copy the [SettingsAudioFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsAudioFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsAudioData.ts) and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsVoiceDemo.module.css).
-
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsAudioVueCode} previewMinHeight={720}>
-  <VueSettingsAudioDemo />
-</ComponentPreview>
-
-## Head Tracking
-
-A switch with a footer, actions chosen in menus, and a number typed in a field or stepped, as Settings › Accessibility › Head Tracking lays them out. Each action is a `Select` menu at the end of its row. Pointer Speed is an `Input` at the start of the row, 49 wide, with a `Stepper` at its end; both change the same number, kept between 0 and 100. What is typed applies on blur or Return; an empty field goes back to the number.
-
-Copy the [SettingsAudioFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsAudioFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsAudioData.ts) and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsVoiceDemo.module.css).
-
-<ComponentPreview phonePresentation="screen" language="vue" code={settingsHeadTrackingVueCode} previewMinHeight={720}>
-  <VueSettingsHeadTrackingDemo />
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsFootersVueCode} previewMinHeight={720}>
+  <VueSettingsFootersDemo />
 </ComponentPreview>
