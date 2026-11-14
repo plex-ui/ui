@@ -253,9 +253,6 @@ describe("a toast on a phone", () => {
       // (Codex r12b: a long label crushed the message), and never more than the row but the icon's 28px
       // A button is whatever follows the message: a caller's own action element too (Codex r12c)
       "&:has(> .Content ~ *) > .Content": { "min-width": "min(8em, 100% - 28px)" },
-      // Where the toast fills the width it keeps at least half the row; a wider button wraps under it.
-      // Half of a width the message sets would push a short message off its row, leaving the icon alone (Codex r12)
-      "&:not(.Compact):has(> .Content ~ *) > .Content": { "min-width": "50%" },
       // Two buttons leave the message the row but the icon's 28px, so they stand together under it
       "&:has(> .Content ~ * ~ *) > .Content": { "flex-basis": "calc(100% - 28px)" },
     })
@@ -263,7 +260,8 @@ describe("a toast on a phone", () => {
     postcss.parse(read(css)).walkAtRules("media", (media) => {
       if (media.params === "(width <= 600px)" && media.parent?.type === "rule") media.walkRules((rule) => { floors.push(rule.selector) })
     })
-    expect(floors).toEqual(["&:not(.Compact):has(> .Content ~ *) > .Content"])
+    // A toast is as wide as its message on a phone (owner 14.11): no floor of half a width the message sets
+    expect(floors).toEqual([])
   })
 
   test("a toast with a close button keeps the close button's room after the message", () => {

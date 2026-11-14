@@ -80,7 +80,14 @@
    preflight gives them `letter-spacing: inherit` by their element names, which a zero-specificity rule would
    not beat, and a 14px button inside 16px text would take the 16px tracking.
    A tracking set on an element by a utility (`tracking-wide`) or a style reaches the text inside it, a Button's
-   label among it. A monospace text keeps its face's spacing, by its tag, a font-mono utility or a style. */
+   label among it; a monospace text keeps its face's spacing, by its tag, a font-mono utility or a style, all the
+   way down. An element with such a utility or style sets --plex-letter-spacing on itself and its text inherits
+   it: `from-parent` is no length, so `letter-spacing` is invalid in its text and inherits the element's own; the
+   element itself keeps the tracking at its size until its utility applies (a `hover:` one), inside another such
+   element too, where it used to take that one's. Monospace sets
+   --plex-mono, which nothing inside unsets, so it wins over a tracking inside it as before (Codex #66). Each rule
+   reads the element alone: a rule that looked for such an element among the ancestors of every element made each
+   restyle test every ancestor's class and style, and a change of any element's style restyle its whole subtree. */
 @layer base {
   :where(*, ::before, ::after),
   button,
@@ -89,18 +96,17 @@
   optgroup,
   textarea,
   ::file-selector-button {
-    letter-spacing: var(--font-sans-tracking);
+    letter-spacing: var(--plex-mono, var(--plex-letter-spacing, var(--font-sans-tracking)));
   }
 
-  :where([class*="tracking-"], [style*="letter-spacing"]) :where(*, ::before, ::after),
-  :where([class*="tracking-"], [style*="letter-spacing"]) :is(button, input, select, optgroup, textarea) {
-    letter-spacing: inherit;
+  :where([class*="tracking-"], [style*="letter-spacing"]),
+  :is(button, input, select, optgroup, textarea):where([class*="tracking-"], [style*="letter-spacing"]) {
+    --plex-letter-spacing: from-parent;
+
+    letter-spacing: var(--plex-mono, var(--font-sans-tracking));
   }
 
-  :where(code, kbd, samp, pre, [class*="font-mono"], [style*="font-mono"]),
-  :where(code, kbd, samp, pre, [class*="font-mono"], [style*="font-mono"]) :where(*, ::before, ::after),
-  :where(code, kbd, samp, pre, [class*="font-mono"], [style*="font-mono"]) :is(button, input, select, optgroup, textarea),
-  :is(button, input, select, optgroup, textarea):where([class*="font-mono"], [style*="font-mono"]) {
-    letter-spacing: normal;
+  :where(code, kbd, samp, pre, [class*="font-mono"], [style*="font-mono"]) {
+    --plex-mono: normal;
   }
 }

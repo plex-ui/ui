@@ -705,12 +705,14 @@
   }
 
   /* Reserve the indicator's visible width at the row edge. Its centered target
-     and focus ring keep their full size, extending into the row's side padding. */
+     and focus ring keep their full size, extending into the row's side padding. A radio's wrapper is named by its
+     attribute: with a subject of :only-child alone, any change of :only-child on the page restyles that element's
+     whole subtree in Chromium (an invalidation set with no feature). */
   .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :only-child:not([data-has-label]):has(> [role="checkbox"]):not(:has(> [role="checkbox"] ~ [role="checkbox"], > :not([role="checkbox"], input[type="checkbox"][aria-hidden="true"]))) {
     margin-inline: calc((var(--checkbox-indicator-size) - var(--checkbox-target-size, var(--checkbox-indicator-size))) / 2);
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :only-child > label:only-child:not([data-has-label]) > :only-child:has(> [role="radio"]):not(:has(> [role="radio"] ~ [role="radio"], > :not([role="radio"], input[type="radio"][aria-hidden="true"]))) {
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :only-child > label:only-child:not([data-has-label]) > [data-radio-indicator]:only-child:has(> [role="radio"]):not(:has(> [role="radio"] ~ [role="radio"], > :not([role="radio"], input[type="radio"][aria-hidden="true"]))) {
     margin-inline: calc((var(--radio-group-indicator-size) - var(--radio-group-target-size, var(--radio-group-indicator-size))) / 2);
   }
 

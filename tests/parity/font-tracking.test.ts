@@ -60,14 +60,25 @@ describe("the kit face and its tracking", () => {
   })
 
   test("every element, the form controls Tailwind resets by name included, takes the tracking at its own size", () => {
-    const rule = tokens.match(/@layer base \{\s*([^{]+)\{\s*letter-spacing: var\(--font-sans-tracking\);/)?.[1] ?? ""
+    const rule = tokens.match(/@layer base \{\s*([^{]+)\{\s*letter-spacing: var\(--plex-mono, var\(--plex-letter-spacing, var\(--font-sans-tracking\)\)\);/)?.[1] ?? ""
     const selectors = rule.split(",").map((selector) => selector.trim())
     expect(selectors).toEqual([":where(*", "::before", "::after)", "button", "input", "select", "optgroup", "textarea", "::file-selector-button"])
   })
 
   test("a tracking set by a utility or a style reaches the text inside, monospace keeps its face's spacing", () => {
-    expect(tokens).toMatch(/:where\(\[class\*="tracking-"\], \[style\*="letter-spacing"\]\) :where\(\*, ::before, ::after\),[^{]*\{\s*letter-spacing: inherit;/)
-    expect(tokens).toMatch(/:where\(code, kbd, samp, pre, \[class\*="font-mono"\], \[style\*="font-mono"\]\),[^{]*\{\s*letter-spacing: normal;/)
+    // The element sets the variable on itself and its text inherits it: `from-parent` makes letter-spacing invalid
+    // there, so it inherits the element's own; monospace is `normal`
+    expect(tokens).toMatch(/:where\(\[class\*="tracking-"\], \[style\*="letter-spacing"\]\),\s*:is\(button, input, select, optgroup, textarea\):where\(\[class\*="tracking-"\], \[style\*="letter-spacing"\]\) \{\s*--plex-letter-spacing: from-parent;\s*letter-spacing: var\(--plex-mono, var\(--font-sans-tracking\)\);/)
+    expect(tokens).toMatch(/:where\(code, kbd, samp, pre, \[class\*="font-mono"\], \[style\*="font-mono"\]\) \{\s*--plex-mono: normal;/)
+  })
+
+  test("no rule looks among an element's ancestors by a substring of class or style (restyle cost)", () => {
+    const found = cssFiles(root).flatMap((path) => {
+      const text = readFileSync(path, "utf8").replace(/\/\*[\s\S]*?\*\//g, "")
+      // A [class*=…] or [style*=…] compound followed by a descendant or child combinator and another compound
+      return [...text.matchAll(/\[(?:class|style)\*="[^"]*"\][^{};,]*?\)?\s+(?:>\s*)?[:\w.#[*]/g)].map((match) => `${path.slice(root.length)}: ${match[0]}`)
+    })
+    expect(found).toEqual([])
   })
 
   test("no style sets a pixel tracking of its own", () => {

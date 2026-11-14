@@ -478,7 +478,9 @@ const RadioGroupItemComponent = defineComponent({
           "onMousedown": handleLabelMouseDown,
         },
         [
-          h("div", { class: s.RadioIndicatorWrapper, ref: wrapper }, [
+          // A Field row finds a lone radio by this attribute: a selector needs a feature on its subject, or a change of
+          // :only-child anywhere restyles that element's whole subtree
+          h("div", { "class": s.RadioIndicatorWrapper, "ref": wrapper, "data-radio-indicator": "" }, [
             h(
               RovingFocusItem,
               { asChild: true, focusable: !isDisabled, active: isChecked },

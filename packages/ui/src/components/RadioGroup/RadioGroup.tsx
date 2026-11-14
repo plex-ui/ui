@@ -134,7 +134,9 @@ const Item = <T extends string>({
         if (!event.defaultPrevented && event.detail > 1) event.preventDefault()
       }}
     >
-      <div className={s.RadioIndicatorWrapper}>
+      {/* A Field row finds a lone radio by this attribute: a selector needs a feature on its subject, or a change of
+          :only-child anywhere restyles that element's whole subtree */}
+      <div className={s.RadioIndicatorWrapper} data-radio-indicator="">
         <RadixRadioGroup.Item
           id={itemId}
           value={value}

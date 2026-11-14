@@ -9,7 +9,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ## 0.50.0 (2026-11-14)
 
-`@plexui/styles` 0.9.0; `@plexui/ui` 0.50.0 and `@plexui/vue` 0.30.0 need `^0.9.0`, so updating them brings it. `@plexui/mcp` is 0.2.26. Group spacing and a row's leading symbol on a phone measured again, against Settings in iOS 27 and a SwiftUI Form; a toast on a phone as wide as its message.
+`@plexui/styles` 0.9.0; `@plexui/ui` 0.50.0 and `@plexui/vue` 0.30.0 need `^0.9.0`, so updating them brings it. `@plexui/mcp` is 0.2.26. Group spacing and a row's leading symbol on a phone measured again, against Settings in iOS 27 and a SwiftUI Form; a toast on a phone as wide as its message; restyles cost less (two rules made Chromium restyle far more than what changed).
 
 ### Added
 
@@ -17,6 +17,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Changed
 
+- Tracking set by a `tracking-*` utility or an inline `letter-spacing`, and the face's own spacing of monospace text, now reach the text inside through `--plex-letter-spacing`, which such an element sets on itself; no rule looks for them among an element's ancestors any more. The result is the same; each restyle no longer tests every ancestor's class and style, and a change of an element's `style` (as a popover's position) no longer restyles its whole subtree.
+- A `Field` row finds its lone radio by the indicator's wrapper, which now carries `data-radio-indicator` (React and Vue): a rule whose subject had only `:only-child` made a change of `:only-child` anywhere on the page restyle that element's whole subtree.
 - `Toast` on a phone (under 600px) is as wide as its message and stands in the middle of the top, as the system's own capsule on an iPhone, instead of filling the width: a capsule with one line (21.5px corners, half its height, so a wrapped title stays inside), 24px corners with a description, on the glass of the menus (`--toast-mobile-background`, `--toast-mobile-backdrop-filter`, `--toast-mobile-shadow`); a toast with rich colors keeps its color.
 - Groups on a phone space themselves as Settings in iOS 27 does: 35 from rows to rows (was 37), 47.67 to rows under a one-line footer (was 49.5), 55.33 to rows under a header (was 60), 75.33 from a footer to rows under a header (was 72; Settings keeps the footer's space apart from the header's). A prominent header keeps a SwiftUI Form's steps, 62 after rows and 74 after a footer. Where a parent's gap stands between groups, set `--field-group-gap` to 35px less that gap.
 - A header of several lines keeps 11 above its text on a phone (`--field-group-header-padding-top`), so each further line adds its own 22.
