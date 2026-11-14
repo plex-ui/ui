@@ -54,3 +54,37 @@ describe("FieldGroup action rows", () => {
     cleanup()
   })
 })
+
+// R10: groups one after another space themselves on a phone as an iOS 27.2 inset list (simulator, 402pt): 37 rows
+// to rows, 60 to a header, 64 to a prominent one, 49.5 past a one-line footer, 72 past a footer to a header. The
+// header (39, prominent 45) and the footer (8 + 16 a line + 6) stand in the gap; the margin gives back the rest.
+describe("FieldGroup spacing on a phone", () => {
+  const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
+  const header = 39, prominent = 45, footer = (lines: number) => 8 + 16 * lines + 6
+  const offsets = { header: 16, prominent: 18.3, footer: 17.5 }
+
+  test("the rules give back the header's and the footer's blocks", () => {
+    expect(phone).toMatch(/\.FieldGroup \+ \.FieldGroup \{\s*margin-top: calc\(var\(--field-group-gap, 37px\) - var\(--field-group-gap-footer-offset, 0px\) - var\(--field-group-gap-header-offset, 0px\)\);/)
+    expect(phone).toMatch(/\.FieldGroup:has\(> \.Footer\) \+ \.FieldGroup \{\s*--field-group-gap-footer-offset: 17\.5px;/)
+    expect(phone).toMatch(/\.FieldGroup \+ \.FieldGroup:has\(> \.Header\) \{\s*--field-group-gap-header-offset: 16px;/)
+    expect(phone).toMatch(/\.FieldGroup \+ \.FieldGroup\[data-header-prominence="increased"\]:has\(> \.Header\) \{\s*--field-group-gap-header-offset: 18\.3px;/)
+  })
+
+  test("a group resets the offsets, so a group inside another does not inherit them", () => {
+    expect(phone).toMatch(/\.FieldGroup \{[^}]*--field-group-gap-footer-offset: 0px;\s*--field-group-gap-header-offset: 0px;/)
+  })
+
+  test.each([
+    ["rows to rows", 0, null, 37],
+    ["a header", 0, "header", 60],
+    ["a prominent header", 0, "prominent", 63.7],
+    ["a footer of one line", 1, null, 49.5],
+    ["a footer of two lines", 2, null, 65],
+    ["a footer then a header", 1, "header", 72],
+    ["a footer then a prominent header", 1, "prominent", 75.6],
+  ] as const)("%s: rows to rows as the simulator's", (_name, lines, head, native) => {
+    const margin = 37 - (lines ? offsets.footer : 0) - (head ? offsets[head] : 0)
+    const total = (lines ? footer(lines) : 0) + margin + (head === "header" ? header : head === "prominent" ? prominent : 0)
+    expect(Math.abs(total - native)).toBeLessThanOrEqual(1)
+  })
+})

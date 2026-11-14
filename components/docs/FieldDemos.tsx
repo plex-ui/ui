@@ -12,6 +12,7 @@ import { Button } from '@plexui/ui/components/Button';
 import { TextLink } from '@plexui/ui/components/TextLink';
 import { ArrowUpRight } from '@plexui/ui/components/Icon';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { Switch } from '@plexui/ui/components/Switch';
 import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 import { PhoneRowsStage, phoneCalendarSecondRowStageClassName, usePhoneRows } from './PhoneRows';
 
@@ -192,10 +193,38 @@ export function FieldActionRowsDemo() {
       </div>
       {phone ? <PhoneRowsStage>{groups}</PhoneRowsStage> : (
         <div data-demo-stage className="py-10">
-          <div className="flex w-full max-w-[480px] flex-col gap-6">{groups}</div>
+          <div className="flex w-full max-w-[480px] flex-col gap-6 [--field-group-gap:13px]">{groups}</div>
         </div>
       )}
     </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Spacing between groups: on a phone the groups space themselves as an iOS 27.2 inset list, for every pairing
+// of a footer above and a header below (37, a header 60, a footer 49.5 and 16 a further line, both 72)
+// ---------------------------------------------------------------------------
+
+export function FieldGroupSpacingDemo() {
+  const phone = usePhoneRows();
+  const row = (label: string) => <Field row label={label}><Switch defaultChecked aria-label={label} /></Field>;
+
+  const groups = (
+    <>
+      <FieldGroup>{row('Rows to rows')}</FieldGroup>
+      <FieldGroup>{row('No header')}</FieldGroup>
+      <FieldGroup title="Header">{row('Under a header')}</FieldGroup>
+      <FieldGroup footer={<p>A footer of one line.</p>}>{row('Over a footer')}</FieldGroup>
+      <FieldGroup footer={<p>A footer that runs on to a second line, so the next group stands 16 further down.</p>}>{row('After a footer')}</FieldGroup>
+      <FieldGroup title="Header after a footer" footer={<p>A footer of one line.</p>}>{row('Both')}</FieldGroup>
+      <FieldGroup title="Prominent header" headerProminence="increased">{row('Prominent')}</FieldGroup>
+    </>
+  );
+
+  return phone ? <PhoneRowsStage>{groups}</PhoneRowsStage> : (
+    <div data-demo-stage className="py-10">
+      <div className="flex w-full max-w-[480px] flex-col gap-6 [--field-group-gap:13px]">{groups}</div>
+    </div>
   );
 }
 

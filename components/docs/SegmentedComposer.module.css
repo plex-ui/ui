@@ -16,6 +16,9 @@
 }
 
 .Form {
+  /* The groups space themselves on a phone as an iOS list; the gap stands for 24 of the 37 */
+  --field-group-gap: 13px;
+
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -203,7 +206,9 @@
   }
 
   .Capsules {
-    /* 26px at 3x between the capsules of IMG_5434 and IMG_5441. */
+    /* 26px at 3x between the capsules of IMG_5434 and IMG_5441: capsules, not list sections, so the gap alone */
+    --field-group-gap: 0px;
+
     gap: 9px;
   }
 

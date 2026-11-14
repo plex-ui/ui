@@ -164,7 +164,7 @@ const [labels, setLabels] = useState(["new"]);
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6" onSubmit={handleSubmit}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={handleSubmit}>
       <img src={photo} alt="Product" className="mx-auto block size-28 rounded-3xl object-cover" />
       <FieldGroup>
         <Field row orientation="vertical" label="Name"><Input variant="ghost" value={name} onChange={(event) => setName(event.target.value)} /></Field>
@@ -232,7 +232,7 @@ const update = (key: keyof typeof contact) => (event: React.ChangeEvent<HTMLInpu
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={(event) => event.preventDefault()}>
       <FieldGroup title="Contact details" columns>
         <Field row label="First name"><Input value={contact.first} onChange={update("first")} /></Field>
         <Field row label="Last name"><Input value={contact.last} onChange={update("last")} /></Field>
@@ -274,7 +274,7 @@ const [summary, setSummary] = useState(true);
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={(event) => event.preventDefault()}>
       <FieldGroup
         title="Preferences"
         footer="Saved for every device you sign in on."
@@ -324,7 +324,7 @@ const [news, setNews] = useState(false);
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={(event) => event.preventDefault()}>
       <RadioGroup value={plan} onChange={setPlan} direction="col" aria-label="Plan" className="w-full">
         <FieldGroup title="Plan" className="w-full">
           <Field row label="Starter" description="For one person.">
@@ -387,7 +387,7 @@ const [tags, setTags] = useState(["new", "sale"]);
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={(event) => event.preventDefault()}>
       <FieldGroup title="Product" columns={!wide}>
         <Field row orientation="vertical" label="Name"><Input variant="ghost" value={name} onChange={(event) => setName(event.target.value)} /></Field>
         <Field row orientation="vertical" label="Description"><Textarea variant="ghost" rows={2} autoResize value={description} onChange={(event) => setDescription(event.target.value)} /></Field>
@@ -426,7 +426,7 @@ const [labels, setLabels] = useState(["new"]);
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={(event) => event.preventDefault()}>
       <FieldGroup>
 ${tagRowCode("Materials", "material", "materialOptions", "materials", "setMaterials", "setMaterialOptions", 8)}
 ${tagRowCode("Labels", "label", "labelOptions", "labels", "setLabels", "setLabelOptions", 8)}
@@ -512,7 +512,7 @@ function AccountSettings() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
-<FormScreen title="Account settings" {...presentation} onDialogChange={presentation.setDialog} fill={deleted}><div className={deleted ? "flex flex-1 flex-col" : "flex flex-col gap-6"}>
+<FormScreen title="Account settings" {...presentation} onDialogChange={presentation.setDialog} fill={deleted}><div className={deleted ? "flex flex-1 flex-col" : "flex flex-col gap-6 [--field-group-gap:13px]"}>
         {deleted ? (
           <EmptyMessage>
             <EmptyMessage.Title>No sample account</EmptyMessage.Title>
@@ -631,7 +631,7 @@ const [reference, setReference] = useState("Monthly payout for the spring collec
     </Page.Bar>
   </Page.Header>
   <Page.Content>
-    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+    <form id={formId} className="flex flex-col gap-6 [--field-group-gap:13px]" onSubmit={(event) => event.preventDefault()}>
       <FieldGroup title="Payout details">
         <Field row orientation={wide ? undefined : "vertical"} label="Account holder"><Input variant={wide ? undefined : "ghost"} value={holder} onChange={(event) => setHolder(event.target.value)} /></Field>
         <Field row orientation={wide ? undefined : "vertical"} label="IBAN" errorMessage={error ? 'Enter a valid IBAN.' : undefined}>

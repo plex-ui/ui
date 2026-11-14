@@ -1273,7 +1273,7 @@ setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
 <Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
 <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Notifications</Page.Title></Page.Bar></Page.Header>
 <Page.Content>
-  <div className="flex flex-col gap-6">
+  <div className="flex flex-col gap-6 [--field-group-gap:13px]">
     <FieldGroup title="Email notifications" description="Configure which emails you receive.">
       <Field row label="Marketing" description="Receive emails about new products and features."><Checkbox checked={settings.emailMarketing} onCheckedChange={toggle('emailMarketing')} /></Field>
       <Field row label="Security" description="Receive emails about account activity and security."><Checkbox checked={settings.emailSecurity} onCheckedChange={toggle('emailSecurity')} /></Field>
@@ -1302,7 +1302,7 @@ const topics = [
 { label: "Community", description: "Events, meetups, and discussions.", checked: false },
 ]
 
-<div className="flex flex-col gap-6 w-full max-w-md">
+<div className="flex flex-col gap-6 [--field-group-gap:13px] w-full max-w-md">
 <Field label="Notification channel" description="Choose how you'd like to be notified.">
   {() => (
     <RadioGroup direction="col" defaultValue="email" aria-label="Notification channel">
@@ -2690,6 +2690,18 @@ A row that is an action is a ghost Button with block in a row of a FieldGroup, a
   <Button block color="info" variant="ghost">Reset to Default</Button>
 </div>
 </FieldGroup>
+```
+
+### Spacing between groups
+On a phone, groups one after another space themselves as an iOS 27.2 inset list, measured on the simulator: 37 from rows to rows, 60 to rows under a header (64 under a prominent one), 49.5 past a footer of one line and 16 more for each further line, 72 past a footer to rows under a header. The header and the footer stand inside that space. Stack the groups in a block with no gap of its own. Where a parent's gap stands between them, set --field-group-gap to 37px less that gap. On a desktop the parent's gap spaces them, as before.
+```tsx
+<div>
+<FieldGroup>…</FieldGroup>
+<FieldGroup title="Header">…</FieldGroup>
+<FieldGroup footer={<p>A footer of one line.</p>}>…</FieldGroup>
+<FieldGroup title="Header after a footer">…</FieldGroup>
+<FieldGroup title="Prominent header" headerProminence="increased">…</FieldGroup>
+</div>
 ```
 
 ### Other controls
@@ -5514,7 +5526,7 @@ Use dividers to separate radio groups into logical sections. Each section can be
 <Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
 <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Preferences</Page.Title></Page.Bar></Page.Header>
 <Page.Content>
-  <div className="flex flex-col gap-6">
+  <div className="flex flex-col gap-6 [--field-group-gap:13px]">
     <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
       <FieldGroup title="Visibility" description="Control who can see project resources.">
         <Field row label="Hidden"><RadioGroup.Item value="hidden" /></Field>
@@ -5537,7 +5549,7 @@ Use dividers to separate radio groups into logical sections. Each section can be
 ### With Checkbox
 Place RadioGroup alongside Checkbox controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts. This check is desktop only: on a phone both live in rows, where the radio is a checkmark and the checkbox a circle at the end of the row.
 ```tsx
-<div className="flex flex-col gap-6 w-full max-w-md">
+<div className="flex flex-col gap-6 [--field-group-gap:13px] w-full max-w-md">
 <Field label="Notification channel" description="Choose how you'd like to be notified.">
   {() => (
     <RadioGroup direction="col" defaultValue="email" aria-label="Notification channel">
@@ -7673,7 +7685,7 @@ const [checked, setChecked] = useState(false)
 Group related settings with FieldGroup. Use a row description to explain a locked setting and a footer for help that applies to the group. Phone shows the same groups in a full Page with navigation.
 ```tsx
 // Place these groups inside Page.Content on Phone.
-<div className="flex flex-col gap-6">
+<div className="flex flex-col gap-6 [--field-group-gap:13px]">
 <FieldGroup title="Notifications">
   <Field row label="Push notifications"><Switch color="accent" defaultChecked /></Field>
   <Field row label="Product updates" description="A few emails a month."><Switch color="accent" /></Field>

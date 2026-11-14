@@ -418,7 +418,7 @@ export function FloatingLabelInputAboutYouFormDemo() {
           <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Tell us about you</h3>
           <p data-auth-description className="text-secondary text-sm mt-1">This helps us customize your experience.</p>
         </div>
-        <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+        <form className="flex flex-col gap-3 [--field-group-gap:0px]" onSubmit={handleSubmit}>
           <FloatingLabelInput
             label="Full name"
             value={fullName}
@@ -863,7 +863,7 @@ export function FloatingLabelInsideDemo() {
 
   return (
     <div data-demo-stage className="py-10">
-      <div className="flex w-[360px] flex-col gap-3">
+      <div className="flex w-[360px] flex-col gap-3 [--field-group-gap:0px]">
         <FloatingLabelInput label="Full name" labelPlacement="inside" defaultValue="Jane Doe" />
         <Select
           value={country}
@@ -953,7 +953,7 @@ export function FloatingLabelInsideBillingFormDemo() {
     <>
     {controls}
     <AuthFormStage title="Billing details" surface={presentation.surface} dialog={presentation.dialog} onDialogChange={presentation.setDialog}>
-      <form className="flex w-[360px] flex-col gap-3" onSubmit={(evt) => evt.preventDefault()}>
+      <form className="flex w-[360px] flex-col gap-3 [--field-group-gap:0px]" onSubmit={(evt) => evt.preventDefault()}>
         <FloatingLabelInput label="Billing email" labelPlacement={labelPlacement} pill={pill} type="email" value={billing.email} onChange={update('email')} autoComplete="email" />
         <FloatingLabelInput label="Full name" labelPlacement={labelPlacement} pill={pill} value={billing.name} onChange={update('name')} autoComplete="name" />
         <Select
@@ -1115,7 +1115,7 @@ export function FloatingLabelSelectAboutYouFormDemo() {
   const formContent = (
     <div className="w-[360px]">
       {heading}
-      <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+      <form className="flex flex-col gap-3 [--field-group-gap:0px]" onSubmit={handleSubmit}>
         <FloatingLabelInput
           label="Full name"
           value={fullName}
@@ -1363,7 +1363,7 @@ export function FloatingLabelInputPhoneDemo() {
 
   return (
     <div data-demo-stage className="py-10">
-      <div className="w-[360px] flex flex-col gap-3">
+      <div className="w-[360px] flex flex-col gap-3 [--field-group-gap:0px]">
         <Select
           value={country}
           options={PHONE_COUNTRY_OPTIONS}
@@ -1434,7 +1434,7 @@ export function FloatingLabelInputPhoneLoginFormDemo() {
         <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Welcome back</h3>
         <p data-auth-description className="text-secondary text-sm mt-1">Enter your phone number to continue.</p>
       </div>
-      <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+      <form id={formId} className="flex flex-col gap-3 [--field-group-gap:0px]" onSubmit={handleSubmit} noValidate>
         <AuthFields>
         <Select
           value={country}
@@ -1539,7 +1539,7 @@ export function FloatingLabelInputPhoneSignupFormDemo() {
         <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Create your account</h3>
         <p data-auth-description className="text-secondary text-sm mt-1">Enter your details to get started.</p>
       </div>
-      <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+      <form id={formId} className="flex flex-col gap-3 [--field-group-gap:0px]" onSubmit={handleSubmit} noValidate>
         <AuthInput
           label="Full name"
           value={fullName}
@@ -1682,9 +1682,9 @@ export function FloatingLabelInputPasswordFormDemo() {
               node.focus({ preventScroll: true });
             }
           }} className="text-2xl font-semibold tracking-tight">{title}</h3></div>
-          <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+          <form id={formId} className="flex flex-col gap-3 [--field-group-gap:0px]" onSubmit={handleSubmit} noValidate>
             {editingPhone ? (
-              <AuthFields className="flex flex-col gap-3">
+              <AuthFields className="flex flex-col gap-3 [--field-group-gap:0px]">
                 <Select value={draftCountry} options={PHONE_COUNTRY_OPTIONS} aria-label="Country"
                   onChange={(option) => { setDraftCountry(option.value); setSubmitted(false); setTimeout(() => phoneInput.current?.focus(), 0); }}
                   searchPlaceholder="Search countries..." OptionView={PhoneCountryOptionView} searchPredicate={phoneCountrySearchPredicate}
@@ -1735,7 +1735,7 @@ export function FloatingLabelInputEmailLoginFormDemo() {
         <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Welcome back</h3>
         <p data-auth-description className="text-secondary text-sm mt-1">Log in to your account.</p>
       </div>
-      <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+      <form id={formId} className="flex flex-col gap-3 [--field-group-gap:0px]" onSubmit={handleSubmit} noValidate>
         {wide ? (<>
         <AuthInput
           label="Email address"

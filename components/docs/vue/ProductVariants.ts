@@ -100,7 +100,7 @@ export const ProductVariants = defineComponent({
           h(DialogTitle, null, () => editingId.value ? 'Edit variant' : 'Add variant'),
           h(DialogDescription, { class: 'sr-only' }, () => 'A size, finish, or combination a buyer can choose.'),
         ]),
-        h(DialogBody, null, () => h('form', { ref: form, id: formId, noValidate: true, onSubmit: save, class: 'flex flex-col gap-6' }, [
+        h(DialogBody, null, () => h('form', { ref: form, id: formId, noValidate: true, onSubmit: save, class: 'flex flex-col gap-6 [--field-group-gap:13px]' }, [
           // What a variant is explains the group, so it is the group's footer (iOS 26 kit Lists), not a line under the title.
           h(FieldGroup, null, {
             default: () => h(Field, { row: true, orientation: 'vertical', label: 'Variant name', errorMessage: error.value || undefined }, () => h(Input, {

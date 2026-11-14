@@ -53,7 +53,7 @@ export function SwitchOverviewDemo() {
             ))}
           </PhoneSwitchGroup>
         ) : (
-          <div className="flex w-full max-w-sm flex-col gap-6">
+          <div className="flex w-full max-w-sm flex-col gap-6 [--field-group-gap:13px]">
             {OVERVIEW_SWITCHES.map((item) => (
               <Switch
                 key={item.name}
@@ -107,6 +107,6 @@ export function SwitchSettingsDemo() {
     </>
   );
   return phone ? <FormScreen title="Preferences">{groups}</FormScreen> : (
-    <div className="flex w-full max-w-lg flex-col gap-6">{groups}</div>
+    <div className="flex w-full max-w-lg flex-col gap-6 [--field-group-gap:13px]">{groups}</div>
   );
 }

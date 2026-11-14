@@ -102,7 +102,7 @@ export function MobileTagRow({ label, one, options, onOptionsChange, value, onCh
               <NavigationButton action="confirm" aria-label={`Apply ${label.toLowerCase()}`} onClick={apply} />
             </Dialog.HeaderAction>
           </Dialog.Header>
-          <Dialog.Body className="flex flex-col gap-6">
+          <Dialog.Body className="flex flex-col gap-6 [--field-group-gap:13px]">
             <FieldGroup aria-label={label} data-tag-options>
               {draftCatalog.map((option) => (
                 <Field key={option.value} row label={option.label} data-tag-option>

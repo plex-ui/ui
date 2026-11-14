@@ -58,7 +58,7 @@ export const emailLogin = `<component :is="AuthFormStage" title="Welcome back" v
         <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Welcome back</h3>
         <p data-auth-description class="text-secondary text-sm mt-1">Log in to your account.</p>
       </div>
-      <form :id="formId" class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+      <form :id="formId" class="flex flex-col gap-3 [--field-group-gap:0px]" novalidate @submit.prevent="submitted = true">
         <template v-if="wide">
         <component :is="AuthInput"
           label="Email address"
@@ -126,7 +126,7 @@ export const oauth = `<component :is="AuthFormStage" :title="mode === 'log-in' ?
     <h3 data-auth-title class="text-3xl font-semibold tracking-tight leading-[1.1]">{{ mode === 'log-in' ? 'Welcome back' : 'Create an account' }}</h3>
   </div>
 
-  <form class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+  <form class="flex flex-col gap-3 [--field-group-gap:0px]" novalidate @submit.prevent="submitted = true">
     <component :is="AuthInput"
       label="Email address"
       type="email"
@@ -154,7 +154,7 @@ export const oauth = `<component :is="AuthFormStage" :title="mode === 'log-in' ?
     <span aria-hidden="true" class="h-px flex-1 bg-[var(--color-fd-border)]" />
   </div>
 
-  <div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-3 [--field-group-gap:0px]">
     <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="GoogleLogo" />Continue with Google</Button>
     <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="AppleLogo" />Continue with Apple</Button>
     <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="MicrosoftLogo" />Continue with Microsoft</Button>
@@ -215,7 +215,7 @@ export const phoneSignup = `<component :is="AuthFormStage" title="Create an acco
         <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Create your account</h3>
         <p data-auth-description class="text-secondary text-sm mt-1">Enter your details to get started.</p>
       </div>
-      <form :id="formId" class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+      <form :id="formId" class="flex flex-col gap-3 [--field-group-gap:0px]" novalidate @submit.prevent="submitted = true">
         <component :is="AuthInput" label="Full name" v-model:value="fullName" />
         <component :is="AuthInput"
           label="Email address"
@@ -252,7 +252,7 @@ export const phoneLogin = `<component :is="AuthFormStage" title="Log in with pho
         <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Welcome back</h3>
         <p data-auth-description class="text-secondary text-sm mt-1">Enter your phone number to continue.</p>
       </div>
-      <form :id="formId" class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+      <form :id="formId" class="flex flex-col gap-3 [--field-group-gap:0px]" novalidate @submit.prevent="submitted = true">
         ${countrySelect}
         <Button v-if="wide" color="primary" size="3xl" type="submit" pill class="w-full h-[3.25rem] mt-3">Continue</Button>
         <p class="text-base text-center mt-4" :class="authFieldsStyles.CrossActionRow">
@@ -277,8 +277,8 @@ export const password = `<component :is="AuthFormStage" :navigation="wide ? unde
       <div class="mb-6 text-center">
         <h3 data-auth-title tabindex="-1" :ref="(node) => { if (node && focusPhoneEditor && editingPhone) $nextTick(() => { if (focusPhoneEditor && node.isConnected && !node.closest('[inert]')) { focusPhoneEditor = false; node.focus({ preventScroll: true }) } }) }" class="text-2xl font-semibold tracking-tight">{{ editingPhone ? 'Edit phone number' : 'Enter your password' }}</h3>
       </div>
-      <form :id="formId" class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true; if (editingPhone && isPhoneValid(draftPhone)) { phoneCountry = draftCountry; phone = draftPhone; returnToEdit = true; editingPhone = false; navigationStep++; focusPhoneEditor = false; submitted = false }">
-        <component :is="AuthFields" v-if="editingPhone" class="flex flex-col gap-3">
+      <form :id="formId" class="flex flex-col gap-3 [--field-group-gap:0px]" novalidate @submit.prevent="submitted = true; if (editingPhone && isPhoneValid(draftPhone)) { phoneCountry = draftCountry; phone = draftPhone; returnToEdit = true; editingPhone = false; navigationStep++; focusPhoneEditor = false; submitted = false }">
+        <component :is="AuthFields" v-if="editingPhone" class="flex flex-col gap-3 [--field-group-gap:0px]">
           <Select v-model:value="draftCountry" :options="phoneCountryOptions" aria-label="Country"
             search-placeholder="Search countries..." :search-predicate="phoneCountrySearchPredicate" :list-min-width="wide ? 360 : undefined"
             size="3xl" block check-position="end"
@@ -404,7 +404,7 @@ export const aboutYouDesktop = `<component :is="AuthFormStage" title="Tell us ab
       <p data-auth-description class="text-secondary text-sm mt-1">This helps us customize your experience.</p>
     </div>
     <form
-      class="flex flex-col gap-3"
+      class="flex flex-col gap-3 [--field-group-gap:0px]"
       @submit.prevent="() => {
         birthdayError = !birthday ? 'Birthday is required.' : !isValidBirthday(birthday) ? 'Please enter a valid date.' : null
         countryError = !country ? 'Please select a country.' : null
@@ -466,7 +466,7 @@ export const verification = `<component :is="VerificationFlow" v-model:cooldown=
           <h3 data-auth-title class="text-2xl font-semibold tracking-tight">{{ channel === 'email' ? 'Verify your email address' : 'Confirm phone' }}</h3>
           <p data-auth-description class="text-secondary text-sm mt-1">Enter the code sent to {{ channel === 'email' ? 'alex.johnson@example.com' : '+1 555 123 4567' }}</p>
         </div>
-        <form :id="formId" class="flex flex-col gap-6" novalidate :aria-busy="verifying"
+        <form :id="formId" class="flex flex-col gap-6 [--field-group-gap:13px]" novalidate :aria-busy="verifying"
           @submit.prevent="submit(input, code)">
           <div class="flex flex-col gap-2" data-verification-code>
             <div v-if="input === 'per-digit'" class="flex justify-center">
@@ -606,7 +606,7 @@ export const createPassword = `<component :is="AuthFormStage" title="Create Pass
       <div class="mb-6 text-center">
         <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Create Password</h3>
       </div>
-      <form :id="formId" class="flex flex-col gap-6" novalidate @submit.prevent="() => {
+      <form :id="formId" class="flex flex-col gap-6 [--field-group-gap:13px]" novalidate @submit.prevent="() => {
         if (completed) return;
         submitted = true;
         const invalid = passwordErrors(password, confirmation);
@@ -682,7 +682,7 @@ export const storageLocation = `<component :is="AuthFormStage" title="Choose Sto
         <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Choose Storage Location</h3>
         <p data-auth-description class="text-secondary text-sm mt-2">Select where your documents will be stored. This cannot be changed later.</p>
       </div>
-      <form :id="formId" class="flex flex-col gap-6" novalidate @submit.prevent="() => { if (region && !completed) completed = true }">
+      <form :id="formId" class="flex flex-col gap-6 [--field-group-gap:13px]" novalidate @submit.prevent="() => { if (region && !completed) completed = true }">
         <RadioGroup :name="formId + '-storage-region'" aria-label="Storage location" v-model:value="region" :disabled="completed" direction="col" class="w-full">
           <FieldGroup class="w-full">
             <Field v-for="option in storageRegions" :key="option.value" row :label="option.label"><RadioGroupItem :value="option.value" /></Field>

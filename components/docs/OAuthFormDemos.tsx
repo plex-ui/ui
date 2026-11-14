@@ -176,7 +176,7 @@ export function OAuthFormDemo({ initialMode = 'log-in' }: { initialMode?: AuthMo
           <h3 data-auth-title className="text-3xl font-semibold tracking-tight leading-[1.1]">{title}</h3>
         </div>
 
-        <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+        <form className="flex flex-col gap-3 [--field-group-gap:0px]" onSubmit={handleSubmit} noValidate>
           <AuthInput
             label="Email address"
             type="email"
@@ -198,7 +198,7 @@ export function OAuthFormDemo({ initialMode = 'log-in' }: { initialMode?: AuthMo
 
         <OrDivider />
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 [--field-group-gap:0px]">
           <OAuthButton icon={<GoogleLogo />}>Continue with Google</OAuthButton>
           <OAuthButton icon={<AppleLogo />}>Continue with Apple</OAuthButton>
           <OAuthButton icon={<MicrosoftLogo />}>Continue with Microsoft</OAuthButton>

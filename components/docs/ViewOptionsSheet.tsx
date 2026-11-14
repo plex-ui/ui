@@ -58,7 +58,7 @@ export function ViewOptionsSheet({ open, onOpenChange, value, onValueChange, tri
                   onChange={(option) => onValueChange({ ...value, iconSize: option.value })} />
               </Field>
             </FieldGroup>
-            <FieldGroup title="Advanced" footer={extensionNote} className={s.Advanced}>
+            <FieldGroup title="Advanced" footer={extensionNote}>
               <Field row label="Show All Filename Extensions">
                 <Switch color="accent" checked={value.showExtensions}
                   onCheckedChange={(showExtensions) => onValueChange({ ...value, showExtensions })} />

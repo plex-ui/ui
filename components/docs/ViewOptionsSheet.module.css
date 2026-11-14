@@ -27,11 +27,9 @@
   /* Files shows the values of these pop-ups in the primary label (iOS-menu IMG_5686). */
   .Sections {
     --field-row-popup-value-color: var(--color-text);
+    /* The groups space themselves as an iOS 27.2 list (37, 60 to the header); the gap stands for 32 of it */
+    --field-group-gap: 5px;
 
     gap: 32px;
-  }
-
-  .Advanced {
-    margin-top: -16px;
   }
 }

@@ -116,7 +116,7 @@ export const MobileTagRow = defineComponent({
                 }),
               ],
             }),
-            h(DialogBody, { class: 'flex flex-col gap-6' }, {
+            h(DialogBody, { class: 'flex flex-col gap-6 [--field-group-gap:13px]' }, {
               default: () => [
                 h(FieldGroup, { 'aria-label': props.label, 'data-tag-options': '' }, {
                   default: () => draftCatalog.value.map((option) => h(Field, {

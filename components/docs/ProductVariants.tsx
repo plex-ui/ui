@@ -94,7 +94,7 @@ export function ProductVariants({ value, onChange, wide }: {
           <Dialog.Description className="sr-only">A size, finish, or combination a buyer can choose.</Dialog.Description>
         </Dialog.Header>
         <Dialog.Body>
-          <form ref={form} id={formId} noValidate onSubmit={save} className="flex flex-col gap-6">
+          <form ref={form} id={formId} noValidate onSubmit={save} className="flex flex-col gap-6 [--field-group-gap:13px]">
             {/* What a variant is explains the group, so it is the group's footer (iOS 26 kit Lists), not a line under the title. */}
             <FieldGroup footer="A size, finish, or combination a buyer can choose.">
               <Field row orientation="vertical" label="Variant name" errorMessage={error || undefined}>

@@ -9,7 +9,7 @@ import { VueSwitchDemo } from "@/components/docs/vue/VueSwitchDemo"
 import formStyles from "@/components/docs/FormRowsDemos.module.css"
 import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
 
-export const overview = `<div class="flex w-full max-w-sm flex-col gap-6">
+export const overview = `<div class="flex w-full max-w-sm flex-col gap-6 [--field-group-gap:13px]">
   <Switch :color="color" name="notifications" label="Notifications" :description="description ? 'Messages and mentions.' : undefined" :label-position="labelPosition" default-checked :disabled="disabled" />
   <Switch :color="color" name="summary" label="Weekly summary" :description="description ? 'Sent on Mondays.' : undefined" :label-position="labelPosition" :disabled="disabled" />
 </div>`
@@ -50,7 +50,7 @@ export const groups = `<FieldGroup title="Notifications">
   <template #footer>You can change your data sharing preference at any time.</template>
 </FieldGroup>`
 
-export const settings = `<div class="flex w-full max-w-lg flex-col gap-6">${groups}</div>`
+export const settings = `<div class="flex w-full max-w-lg flex-col gap-6 [--field-group-gap:13px]">${groups}</div>`
 export const settingsPhone = formScreenTemplate("Preferences", groups)
 
 <UsageBlock>{`import { Switch } from "@plexui/vue/components/Switch";`}</UsageBlock>

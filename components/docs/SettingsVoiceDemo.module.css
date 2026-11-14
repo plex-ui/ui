@@ -106,6 +106,9 @@
    before a letter is wider than the letter's own space to its rows (owner 14.11: «перед заголовком всегда больше
    чем между заголовком и секцией»). */
 .ChoiceList > [role="radiogroup"] {
+  /* On a phone the groups add the rest of an iOS list's 37 (60 to a letter) */
+  --field-group-gap: 13px;
+
   gap: 24px;
 }
 

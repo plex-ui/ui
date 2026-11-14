@@ -171,6 +171,32 @@
   .FieldGroup {
     --field-group-description-color: var(--mobile-label-secondary, var(--color-text-secondary));
     --field-group-title-color: var(--mobile-label-secondary, var(--color-text-secondary));
+    /* Each group reads its own pairing: a group inside another does not take the outer one's (Codex #39) */
+    --field-group-gap-footer-offset: 0px;
+    --field-group-gap-header-offset: 0px;
+  }
+
+  /* Groups one after another space themselves as an iOS 27.2 inset list (SwiftUI List on the simulator, 402pt):
+     rows to rows 37 (--field-group-gap); a header 60, a prominent header 64; a footer of one line 49.5 and 16 more
+     for each further line; a footer and a header 72, a footer and a prominent header 75.6. The header's block (39,
+     or 45 when prominent) and the footer's (8 + 16 a line + 6) stand in the gap, so the margin gives back what they
+     take beyond the native step: 16 for a header, 18.3 for a prominent one, 17.5 for a footer. Stack the groups in
+     a block without a gap of its own; where a parent's gap stands between them, set --field-group-gap to 37px less
+     that gap. */
+  .FieldGroup + .FieldGroup {
+    margin-top: calc(var(--field-group-gap, 37px) - var(--field-group-gap-footer-offset, 0px) - var(--field-group-gap-header-offset, 0px));
+  }
+
+  .FieldGroup:has(> .Footer) + .FieldGroup {
+    --field-group-gap-footer-offset: 17.5px;
+  }
+
+  .FieldGroup + .FieldGroup:has(> .Header) {
+    --field-group-gap-header-offset: 16px;
+  }
+
+  .FieldGroup + .FieldGroup[data-header-prominence="increased"]:has(> .Header) {
+    --field-group-gap-header-offset: 18.3px;
   }
 
   /* The kit's Prominent list header (Lists, Header 517:38042, Type=Prominent): Title 3 Semibold

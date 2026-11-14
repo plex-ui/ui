@@ -466,7 +466,7 @@ Props:
     - bodyClassName (string) — Applied to the block that holds the rows
     - children (ReactNode) — The rows
     - className (string) — Applied to the root section
-Examples: Overview, Group, Action rows, Other controls, Label action, Several controls, Sizing, Optical alignment
+Examples: Overview, Group, Action rows, Spacing between groups, Other controls, Label action, Several controls, Sizing, Optical alignment
 
 ## File Upload
 Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.

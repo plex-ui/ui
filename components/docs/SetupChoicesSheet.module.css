@@ -200,6 +200,9 @@
 
   /* Separate rows: each its own rounded cell, 18pt apart (IMG_5499). */
   .Rows[data-layout="separate"] {
+    /* Cells on their own, not list sections: the gap alone spaces them */
+    --field-group-gap: 0px;
+
     gap: 18px;
   }
 

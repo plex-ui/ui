@@ -117,7 +117,7 @@ export function FormScreen({
   const hiddenPhoneHost = usePhoneViewport() && !phonePreview;
   const { open: dialogOpen, present: dialogPresent, onOpenAutoFocus: onDialogScopeOpen, onCloseAutoFocus: onDialogScopeClose, pageRef: bindPage } = useDialogStagePresence(dialog, !hiddenPhoneHost);
   const showDialog = dialogPresent;
-  const form = <form id={formId} data-form-content={showDialog || undefined} className={`flex flex-col gap-6${fill ? ` ${s.FillForm}` : ''}`} onSubmit={(event) => {
+  const form = <form id={formId} data-form-content={showDialog || undefined} className={`flex flex-col gap-6 [--field-group-gap:13px]${fill ? ` ${s.FillForm}` : ''}`} onSubmit={(event) => {
     onSubmit(event);
     if (showDialog && !phonePreview) onDialogChange?.(false);
   }} noValidate={noValidate}>{children}</form>;

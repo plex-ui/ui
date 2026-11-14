@@ -56,7 +56,7 @@ export const ViewOptionsSheet = defineComponent({
             value: props.value.iconSize, options: iconSizeOptions, block: false, align: 'end',
             'onUpdate:value': (candidate: unknown) => { const next = viewOptionValue(iconSizeOptions, candidate); if (next !== undefined) update('iconSize', next); },
           }))),
-          h(FieldGroup, { class: s.Advanced }, {
+          h(FieldGroup, null, {
             title: () => 'Advanced',
             footer: () => extensionNote,
             default: () => h(Field, { row: true, label: 'Show All Filename Extensions' }, () => h(Switch, {
