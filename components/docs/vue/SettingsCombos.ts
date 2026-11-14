@@ -80,7 +80,7 @@ export const RowsCombos = defineComponent({
         ])),
       ]),
       h(FieldGroup, { 'aria-label': 'Centred action' }, () =>
-        h('div', { 'data-row': '', 'data-align': 'center' }, h(Button, { block: true, color: 'primary', variant: 'ghost' }, () => 'Centred action'))),
+        h('div', { 'data-row': '', 'data-align': 'center' }, h(Button, { block: true, color: 'info', variant: 'ghost' }, () => 'Centred action'))),
     ];
   },
 });

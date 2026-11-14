@@ -96,7 +96,7 @@ export function RowsCombos({ value, onChange, onPage }: { value: RowsValue; onCh
       </div>
     </FieldGroup>
     <FieldGroup aria-label="Centred action">
-      <div data-row data-align="center"><Button block color="primary" variant="ghost">Centred action</Button></div>
+      <div data-row data-align="center"><Button block color="info" variant="ghost">Centred action</Button></div>
     </FieldGroup>
   </>;
 }
