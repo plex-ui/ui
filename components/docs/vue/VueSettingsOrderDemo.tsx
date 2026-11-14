@@ -6,6 +6,8 @@ import { VueDemo } from './VueDemo';
 import { FormScreen } from './FormScreen';
 import { LanguagesFields, QuickSettingsFields } from './SettingsOrderFields';
 import { initialLanguages, initialQuickSettings } from '../settingsOrderData';
+import { SettingsRegionFields } from './SettingsRegionFields';
+import { initialRegion } from '../settingsRegionData';
 import formStyles from '../FormRowsDemos.module.css';
 
 const controls = [
@@ -37,6 +39,18 @@ export function VueSettingsLanguagesDemo() {
     </component>`}
     stageClassName={`${formStyles.ScreenStage} flex justify-center py-10 w-full`}
     state={{ FormScreen: markRaw(FormScreen), LanguagesFields: markRaw(LanguagesFields), languages: [...initialLanguages] }}
+    context={useHosts()}
+    controls={[...controls]}
+  />;
+}
+
+export function VueSettingsRegionDemo() {
+  return <VueDemo
+    template={`<component :is="FormScreen" title="Language & Region" v-model:dialog="dialog" :surface="surface" :phone-preview="phonePreview" :phone-host="phoneHost">
+      <component :is="SettingsRegionFields" v-model:value="region" :phone-preview="phonePreview" :phone-host="phoneHost" />
+    </component>`}
+    stageClassName={`${formStyles.ScreenStage} flex justify-center py-10 w-full`}
+    state={{ FormScreen: markRaw(FormScreen), SettingsRegionFields: markRaw(SettingsRegionFields), region: initialRegion }}
     context={useHosts()}
     controls={[...controls]}
   />;

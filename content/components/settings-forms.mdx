@@ -5,8 +5,8 @@ metaDescription: "Production-ready React settings forms: grouped rows, choices, 
 ---
 
 import { SettingsSliderDemo } from "@/components/docs/SettingsSliderDemo"
-import { settingsSliderReactCode, settingsVoiceReactCode, settingsQuickReactCode, settingsLanguagesReactCode } from "@/components/docs/settingsSliderCode"
-import { SettingsQuickDemo, SettingsLanguagesDemo } from "@/components/docs/SettingsOrderDemo"
+import { settingsSliderReactCode, settingsVoiceReactCode, settingsQuickReactCode, settingsLanguagesReactCode, settingsRegionReactCode } from "@/components/docs/settingsSliderCode"
+import { SettingsQuickDemo, SettingsLanguagesDemo, SettingsRegionDemo } from "@/components/docs/SettingsOrderDemo"
 import { SettingsVoiceDemo } from "@/components/docs/SettingsVoiceDemo"
 import { ImageAlbumDemo } from "@/components/docs/ImageAlbumDemo"
 import { imageAlbumReactCode } from "@/components/docs/imageAlbumCode"
@@ -848,4 +848,14 @@ Preferred languages in the order of preference, as Language & Region lists them:
 
 <ComponentPreview phonePresentation="screen" code={settingsLanguagesReactCode} previewMinHeight={380}>
   <SettingsLanguagesDemo />
+</ComponentPreview>
+
+## Long choice in a sheet
+
+A long choice opens in a sheet, as Language & Region chooses the region: the row shows the current value and a chevron; the sheet lists the countries in sections by letter with an `IndexBar` down its trailing edge, checks the chosen one, and keeps the search in a bottom `Toolbar` on a phone; on a desktop the search stands over the list. A tap chooses and closes the sheet, the chosen one too, and the next opening starts with the search cleared. A search narrows the list, and the index steps aside while it does.
+
+Copy the [SettingsRegionFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsRegionFields.tsx) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsRegionData.ts).
+
+<ComponentPreview phonePresentation="screen" code={settingsRegionReactCode} previewMinHeight={300}>
+  <SettingsRegionDemo />
 </ComponentPreview>

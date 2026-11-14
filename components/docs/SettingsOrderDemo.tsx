@@ -6,6 +6,8 @@ import { FormScreen } from './FormRowsDemos';
 import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
 import { LanguagesFields, QuickSettingsFields } from './SettingsOrderFields';
 import { initialLanguages, initialQuickSettings } from './settingsOrderData';
+import { SettingsRegionFields } from './SettingsRegionFields';
+import { initialRegion } from './settingsRegionData';
 
 export function SettingsQuickDemo() {
   const presentation = useScreenPresentation();
@@ -25,6 +27,17 @@ export function SettingsLanguagesDemo() {
     <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
     <FormScreen title="Language & Region" {...presentation} onDialogChange={presentation.setDialog}>
       <LanguagesFields value={value} onChange={setValue} />
+    </FormScreen>
+  </>;
+}
+
+export function SettingsRegionDemo() {
+  const presentation = useScreenPresentation();
+  const [value, setValue] = useState(initialRegion);
+  return <>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+    <FormScreen title="Language & Region" {...presentation} onDialogChange={presentation.setDialog}>
+      <SettingsRegionFields value={value} onChange={setValue} />
     </FormScreen>
   </>;
 }

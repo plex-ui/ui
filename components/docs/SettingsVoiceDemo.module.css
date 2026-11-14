@@ -108,3 +108,7 @@
 .ChoiceList {
   position: relative;
 }
+
+.ChoiceSearch {
+  margin-bottom: 16px;
+}

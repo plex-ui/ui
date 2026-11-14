@@ -107,3 +107,31 @@ const languages = ref([...initialLanguages]);
     <LanguagesFields v-model:value="languages" />
   </FormScreen>
 </template>`;
+
+export const settingsRegionReactCode = `import { useState } from 'react';
+import { FormScreen } from './FormRowsDemos';
+import { SettingsRegionFields } from './SettingsRegionFields';
+import { initialRegion } from './settingsRegionData';
+
+export function RegionSettings() {
+  const [region, setRegion] = useState(initialRegion);
+  return (
+    <FormScreen title="Language & Region" surface="grouped">
+      <SettingsRegionFields value={region} onChange={setRegion} />
+    </FormScreen>
+  );
+}`;
+
+export const settingsRegionVueCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FormScreen } from './FormScreen';
+import { SettingsRegionFields } from './SettingsRegionFields';
+import { initialRegion } from './settingsRegionData';
+const region = ref(initialRegion);
+</script>
+
+<template>
+  <FormScreen title="Language & Region" surface="grouped">
+    <SettingsRegionFields v-model:value="region" />
+  </FormScreen>
+</template>`;
