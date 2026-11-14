@@ -189,3 +189,31 @@ const haptics = ref(false);
     <HapticsFields v-model:value="haptics" />
   </FormScreen>
 </template>`;
+
+export const settingsSharingReactCode = `import { useState } from 'react';
+import { FormScreen } from './FormRowsDemos';
+import { SharingFields } from './SettingsSharingFields';
+import { initialSharing } from './settingsSharingData';
+
+export function SharingSettings() {
+  const [sharing, setSharing] = useState(initialSharing);
+  return (
+    <FormScreen title="Nearby Sharing" surface="grouped">
+      <SharingFields value={sharing} onChange={setSharing} />
+    </FormScreen>
+  );
+}`;
+
+export const settingsSharingVueCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FormScreen } from './FormScreen';
+import { SharingFields } from './SettingsSharingFields';
+import { initialSharing } from './settingsSharingData';
+const sharing = ref({ ...initialSharing });
+</script>
+
+<template>
+  <FormScreen title="Nearby Sharing" surface="grouped">
+    <SharingFields v-model:value="sharing" />
+  </FormScreen>
+</template>`;

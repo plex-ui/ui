@@ -183,19 +183,26 @@
      take beyond the native step: 16 for a header, 18.3 for a prominent one, 17.5 for a footer. Stack the groups in
      a block without a gap of its own; where a parent's gap stands between them, set --field-group-gap to 37px less
      that gap. */
-  .FieldGroup + .FieldGroup {
+  /* A group may stand in a RadioGroup of its own, around the group of its choices: that radio group spaces as the
+     group. Only a radio group: a layout cell holding one group (a column of a grid) keeps its place (Codex #43). */
+  [role="radiogroup"]:has(> .FieldGroup:only-child) {
+    --field-group-gap-footer-offset: 0px;
+    --field-group-gap-header-offset: 0px;
+  }
+
+  :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) + :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) {
     margin-top: calc(var(--field-group-gap, 37px) - var(--field-group-gap-footer-offset, 0px) - var(--field-group-gap-header-offset, 0px));
   }
 
-  .FieldGroup:has(> .Footer) + .FieldGroup {
+  :is(.FieldGroup:has(> .Footer), [role="radiogroup"]:has(> .FieldGroup:only-child > .Footer)) + :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) {
     --field-group-gap-footer-offset: 17.5px;
   }
 
-  .FieldGroup + .FieldGroup:has(> .Header) {
+  :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) + :is(.FieldGroup:has(> .Header), [role="radiogroup"]:has(> .FieldGroup:only-child > .Header)) {
     --field-group-gap-header-offset: 16px;
   }
 
-  .FieldGroup + .FieldGroup[data-header-prominence="increased"]:has(> .Header) {
+  :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) + :is(.FieldGroup[data-header-prominence="increased"]:has(> .Header), [role="radiogroup"]:has(> .FieldGroup[data-header-prominence="increased"]:only-child > .Header)) {
     --field-group-gap-header-offset: 18.3px;
   }
 

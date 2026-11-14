@@ -2325,7 +2325,7 @@
         {
           "name": "Spacing between groups",
           "code": "<div>\n<FieldGroup>…</FieldGroup>\n<FieldGroup title=\"Header\">…</FieldGroup>\n<FieldGroup footer={<p>A footer of one line.</p>}>…</FieldGroup>\n<FieldGroup title=\"Header after a footer\">…</FieldGroup>\n<FieldGroup title=\"Prominent header\" headerProminence=\"increased\">…</FieldGroup>\n</div>",
-          "details": "On a phone, groups one after another space themselves as an iOS 27.2 inset list, measured on the simulator: 37 from rows to rows, 60 to rows under a header (64 under a prominent one), 49.5 past a footer of one line and 16 more for each further line, 72 past a footer to rows under a header. The header and the footer stand inside that space. Stack the groups in a block with no gap of its own. Where a parent's gap stands between them, set --field-group-gap to 37px less that gap. On a desktop the parent's gap spaces them, as before."
+          "details": "On a phone, groups one after another space themselves as an iOS 27.2 inset list, measured on the simulator: 37 from rows to rows, 60 to rows under a header (64 under a prominent one), 49.5 past a footer of one line and 16 more for each further line, 72 past a footer to rows under a header. The header and the footer stand inside that space, and a RadioGroup around a group of its own spaces as that group. Stack the groups in a block with no gap of its own. Where a parent's gap stands between them, set --field-group-gap to 37px less that gap. On a desktop the parent's gap spaces them, as before."
         },
         {
           "name": "Other controls",
@@ -7479,5 +7479,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-14T15:09:24.928Z"
+  "generatedAt": "2026-11-14T15:22:26.267Z"
 }

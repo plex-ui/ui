@@ -9,6 +9,8 @@ import { initialLanguages, initialQuickSettings } from '../settingsOrderData';
 import { SettingsRegionFields } from './SettingsRegionFields';
 import { initialRegion } from '../settingsRegionData';
 import { AutofillFields, HapticsFields } from './SettingsAppsFields';
+import { SharingFields } from './SettingsSharingFields';
+import { initialSharing } from '../settingsSharingData';
 import { initialAutofill } from '../settingsAppsData';
 import formStyles from '../FormRowsDemos.module.css';
 
@@ -89,5 +91,17 @@ export function VueSettingsHapticsDemo() {
     state={{ FormScreen: markRaw(FormScreen), HapticsFields: markRaw(HapticsFields), haptics: false }}
     context={useHosts()}
     controls={[...iconControls('outline')]}
+  />;
+}
+
+export function VueSettingsSharingDemo() {
+  return <VueDemo
+    template={`<component :is="FormScreen" title="Nearby Sharing" v-model:dialog="dialog" :surface="surface" :phone-preview="phonePreview" :phone-host="phoneHost">
+      <component :is="SharingFields" v-model:value="sharing" />
+    </component>`}
+    stageClassName={`${formStyles.ScreenStage} flex justify-center py-10 w-full`}
+    state={{ FormScreen: markRaw(FormScreen), SharingFields: markRaw(SharingFields), sharing: structuredClone(initialSharing) }}
+    context={useHosts()}
+    controls={[...controls]}
   />;
 }

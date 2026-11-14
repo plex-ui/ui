@@ -5,8 +5,8 @@ metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account act
 ---
 
 import { VueSettingsSliderDemo } from "@/components/docs/vue/VueSettingsSliderDemo"
-import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode, settingsRegionVueCode, settingsAutofillVueCode, settingsHapticsVueCode } from "@/components/docs/settingsSliderCode"
-import { VueSettingsQuickDemo, VueSettingsLanguagesDemo, VueSettingsRegionDemo, VueSettingsAutofillDemo, VueSettingsHapticsDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
+import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode, settingsRegionVueCode, settingsAutofillVueCode, settingsHapticsVueCode, settingsSharingVueCode } from "@/components/docs/settingsSliderCode"
+import { VueSettingsQuickDemo, VueSettingsLanguagesDemo, VueSettingsRegionDemo, VueSettingsAutofillDemo, VueSettingsHapticsDemo, VueSettingsSharingDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
 import { VueSettingsVoiceDemo } from "@/components/docs/vue/VueSettingsVoiceDemo"
 import { VueImageAlbumDemo } from "@/components/docs/vue/VueImageAlbumDemo"
 import { imageAlbumVueCode } from "@/components/docs/imageAlbumCode"
@@ -829,4 +829,14 @@ A switch whose footer ends with a link, and a list of the apps it works in, as M
 
 <ComponentPreview phonePresentation="screen" language="vue" code={settingsHapticsVueCode} previewMinHeight={300}>
   <VueSettingsHapticsDemo />
+</ComponentPreview>
+
+## Sharing settings
+
+One choice checked in a group of its own, switches under headers, and a row in the accent, as AirDrop lays out who may send. The choice is a `RadioGroup` around its `FieldGroup`: on a phone the chosen row carries the check, on a desktop the radio. Its footer ends with a link, a primary `TextLink` in the footer's text. Each switch stands under a header with a footer that says what it does. Manage Known Contacts is a ghost `Button` with `block` in a row, the accent with no chevron, with its footer under it. The groups space themselves as an iOS list, the wrapped choice too.
+
+Copy the [SettingsSharingFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsSharingFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsSharingData.ts).
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsSharingVueCode} previewMinHeight={560}>
+  <VueSettingsSharingDemo />
 </ComponentPreview>

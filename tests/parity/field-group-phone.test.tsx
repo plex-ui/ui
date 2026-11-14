@@ -63,11 +63,13 @@ describe("FieldGroup spacing on a phone", () => {
   const header = 39, prominent = 45, footer = (lines: number) => 8 + 16 * lines + 6
   const offsets = { header: 16, prominent: 18.3, footer: 17.5 }
 
-  test("the rules give back the header's and the footer's blocks", () => {
-    expect(phone).toMatch(/\.FieldGroup \+ \.FieldGroup \{\s*margin-top: calc\(var\(--field-group-gap, 37px\) - var\(--field-group-gap-footer-offset, 0px\) - var\(--field-group-gap-header-offset, 0px\)\);/)
-    expect(phone).toMatch(/\.FieldGroup:has\(> \.Footer\) \+ \.FieldGroup \{\s*--field-group-gap-footer-offset: 17\.5px;/)
-    expect(phone).toMatch(/\.FieldGroup \+ \.FieldGroup:has\(> \.Header\) \{\s*--field-group-gap-header-offset: 16px;/)
-    expect(phone).toMatch(/\.FieldGroup \+ \.FieldGroup\[data-header-prominence="increased"\]:has\(> \.Header\) \{\s*--field-group-gap-header-offset: 18\.3px;/)
+  test("the rules give back the header's and the footer's blocks, a group in a wrapper of its own too", () => {
+    const group = ":is(.FieldGroup, [role=\"radiogroup\"]:has(> .FieldGroup:only-child))"
+    expect(phone).toContain(`${group} + ${group} {\n    margin-top: calc(var(--field-group-gap, 37px) - var(--field-group-gap-footer-offset, 0px) - var(--field-group-gap-header-offset, 0px));`)
+    expect(phone).toContain(`:is(.FieldGroup:has(> .Footer), [role="radiogroup"]:has(> .FieldGroup:only-child > .Footer)) + ${group} {\n    --field-group-gap-footer-offset: 17.5px;`)
+    expect(phone).toContain(`${group} + :is(.FieldGroup:has(> .Header), [role="radiogroup"]:has(> .FieldGroup:only-child > .Header)) {\n    --field-group-gap-header-offset: 16px;`)
+    expect(phone).toMatch(/:has\(> \.FieldGroup\[data-header-prominence="increased"\]:only-child > \.Header\)\) \{\s*--field-group-gap-header-offset: 18\.3px;/)
+    expect(phone).toMatch(/:has\(> \.FieldGroup:only-child\) \{\s*--field-group-gap-footer-offset: 0px;\s*--field-group-gap-header-offset: 0px;/)
   })
 
   test("a group resets the offsets, so a group inside another does not inherit them", () => {

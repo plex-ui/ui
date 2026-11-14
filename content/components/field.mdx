@@ -118,7 +118,7 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
 ### Spacing between groups
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
-  <p>On a phone, groups one after another space themselves as an iOS 27.2 inset list, measured on the simulator: 37 from rows to rows, 60 to rows under a header (64 under a prominent one), 49.5 past a footer of one line and 16 more for each further line, 72 past a footer to rows under a header. The header and the footer stand inside that space. Stack the groups in a block with no gap of its own. Where a parent's gap stands between them, set <code>--field-group-gap</code> to 37px less that gap. On a desktop the parent's gap spaces them, as before.</p>
+  <p>On a phone, groups one after another space themselves as an iOS 27.2 inset list, measured on the simulator: 37 from rows to rows, 60 to rows under a header (64 under a prominent one), 49.5 past a footer of one line and 16 more for each further line, 72 past a footer to rows under a header. The header and the footer stand inside that space, and a <code>RadioGroup</code> around a group of its own spaces as that group. Stack the groups in a block with no gap of its own. Where a parent's gap stands between them, set <code>--field-group-gap</code> to 37px less that gap. On a desktop the parent's gap spaces them, as before.</p>
 </>} code={`<div>
   <FieldGroup>…</FieldGroup>
   <FieldGroup title="Header">…</FieldGroup>

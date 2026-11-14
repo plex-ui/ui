@@ -10,6 +10,8 @@ import { SettingsRegionFields } from './SettingsRegionFields';
 import { initialRegion } from './settingsRegionData';
 import { AutofillFields, HapticsFields, type IconStyle } from './SettingsAppsFields';
 import { initialAutofill } from './settingsAppsData';
+import { SharingFields } from './SettingsSharingFields';
+import { initialSharing } from './settingsSharingData';
 
 export function SettingsQuickDemo() {
   const presentation = useScreenPresentation();
@@ -78,6 +80,17 @@ export function SettingsHapticsDemo() {
     </div>
     <FormScreen title="Music Haptics" {...presentation} onDialogChange={presentation.setDialog}>
       <HapticsFields value={value} onChange={setValue} iconStyle={iconStyle} />
+    </FormScreen>
+  </>;
+}
+
+export function SettingsSharingDemo() {
+  const presentation = useScreenPresentation();
+  const [value, setValue] = useState(initialSharing);
+  return <>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+    <FormScreen title="Nearby Sharing" {...presentation} onDialogChange={presentation.setDialog}>
+      <SharingFields value={value} onChange={setValue} />
     </FormScreen>
   </>;
 }

@@ -2343,7 +2343,7 @@
         {
           "name": "Spacing between groups",
           "code": "<div>\n  <FieldGroup>\n    <Field row label=\"Rows to rows\"><Switch default-checked aria-label=\"Rows to rows\" /></Field>\n  </FieldGroup>\n  <FieldGroup>\n    <Field row label=\"No header\"><Switch default-checked aria-label=\"No header\" /></Field>\n  </FieldGroup>\n  <FieldGroup title=\"Header\">\n    <Field row label=\"Under a header\"><Switch default-checked aria-label=\"Under a header\" /></Field>\n  </FieldGroup>\n  <FieldGroup>\n    <Field row label=\"Over a footer\"><Switch default-checked aria-label=\"Over a footer\" /></Field>\n    <template #footer><p>A footer of one line.</p></template>\n  </FieldGroup>\n  <FieldGroup>\n    <Field row label=\"After a footer\"><Switch default-checked aria-label=\"After a footer\" /></Field>\n    <template #footer><p>A footer that runs on to a second line, so the next group stands 16 further down.</p></template>\n  </FieldGroup>\n  <FieldGroup title=\"Header after a footer\">\n    <Field row label=\"Both\"><Switch default-checked aria-label=\"Both\" /></Field>\n    <template #footer><p>A footer of one line.</p></template>\n  </FieldGroup>\n  <FieldGroup title=\"Prominent header\" header-prominence=\"increased\">\n    <Field row label=\"Prominent\"><Switch default-checked aria-label=\"Prominent\" /></Field>\n  </FieldGroup>\n</div>",
-          "details": "On a phone, groups one after another space themselves as an iOS 27.2 inset list, measured on the simulator: 37 from rows to rows, 60 to rows under a header (64 under a prominent one), 49.5 past a footer of one line and 16 more for each further line, 72 past a footer to rows under a header. The header and the footer stand inside that space. Stack the groups in a block with no gap of its own. Where a parent's gap stands between them, set --field-group-gap to 37px less that gap. On a desktop the parent's gap spaces them, as before."
+          "details": "On a phone, groups one after another space themselves as an iOS 27.2 inset list, measured on the simulator: 37 from rows to rows, 60 to rows under a header (64 under a prominent one), 49.5 past a footer of one line and 16 more for each further line, 72 past a footer to rows under a header. The header and the footer stand inside that space, and a RadioGroup around a group of its own spaces as that group. Stack the groups in a block with no gap of its own. Where a parent's gap stands between them, set --field-group-gap to 37px less that gap. On a desktop the parent's gap spaces them, as before."
         },
         {
           "name": "Other controls",
@@ -7394,5 +7394,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-14T15:09:26.178Z"
+  "generatedAt": "2026-11-14T15:22:27.483Z"
 }
