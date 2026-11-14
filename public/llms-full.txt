@@ -7006,14 +7006,15 @@ Props:
   - onBlur ((event: FocusEvent) => void) — Called when the value input or a thumb loses focus
 
 ### Overview
-Set range and give value two numbers for a range, or three or more for several thumbs; onChange then receives an array. minStepsBetweenThumbs keeps the thumbs that many steps apart. resetValue, with one thumb, adds a button to the label that brings the value back; a disabled slider hides it. unit follows the value and prefixUnit comes before it. marks label points of the scale under the track, horizontal only. trackColor and rangeColor color the track and its fill. A label given as JSX can carry a tooltip, and orientation="vertical" stands the slider up. On a phone the slider is horizontal, as a list of iOS settings has no vertical slider. A tooltip opens on hover, which a phone does not have, and the cell has no label to hold a reset button, so the Phone preview leaves out those controls. A slider with a label of its own keeps the reset on a phone, as the small round gray button of the iOS 27 kit 8px before the value: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.
+Set range and give value two numbers for a range, or three or more for several thumbs; onChange then receives an array. step is how far a drag or a key moves the value at a time: 25 here stops it on the marks. A typed number is taken as it is, whole and within the scale. minStepsBetweenThumbs keeps the thumbs that many steps apart. resetValue, with one thumb, adds a button to the label that brings the value back; a disabled slider leaves that button out. unit follows the value and prefixUnit comes before it. marks label points of the scale under the track, horizontal only. trackColor and rangeColor color the track and its fill. A label given as JSX can carry a tooltip, and orientation="vertical" stands the slider up. On a phone the slider is horizontal, as a list of iOS settings has no vertical slider, and a tooltip opens on hover, which a phone does not have, so the Phone preview leaves out those controls. The value at the end of the cell is a field: a tap brings up the number pad and the typed number moves the slider, taken as the slider's own field takes it, as Keynote for iPhone takes a value in the field next to its slider. The cell has no label row for a reset button, so the reset is a row of its own under the slider's group, its label centered in the accent, as Settings resets Hover Text's size; a disabled slider dims the row with it. A slider with a label of its own keeps the reset beside its value on a phone, as the small round gray button of the iOS 27 kit: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.
 ```tsx
 const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) }))
 
 const [thumbs, setThumbs] = useState("one") // or "two", "three"
 const [values, setValues] = useState({ one: 50, two: [25, 75], three: [10, 40, 70] })
 const [minStepsBetweenThumbs, setMinStepsBetweenThumbs] = useState(5) // with two or three thumbs
-const [resetValue, setResetValue] = useState(true) // with one thumb, while enabled
+const [step, setStep] = useState("1") // or "5", "10", "25"; with one thumb
+const [resetValue, setResetValue] = useState(true) // with one thumb
 const [unit, setUnit] = useState("unit") // or "none", "prefixUnit"
 const [marks, setMarks] = useState(false) // horizontal only
 const [colors, setColors] = useState(false)
@@ -7026,7 +7027,7 @@ const text = (value) => (unit === "prefixUnit" ? "$" : "") + value + (unit === "
 const shared = {
   min: 0,
   max: 100,
-  step: 1,
+  step: thumbs === "one" ? Number(step) : 1,
   marks: marks ? scaleMarks : undefined, // a vertical slider draws none
   trackColor: colors ? "#61C454" : undefined,
   rangeColor: colors ? "#EF4146" : undefined,
@@ -7054,13 +7055,42 @@ const desktop = {
   )}
 </div>
 
-// Phone: the group's title names the slider; one value ends the cell, a range goes under the track, and marks show
-// the scale in its place. The phone slider is horizontal, with no reset button or tooltip.
+// Phone: the group's title names the slider; one value ends the cell, a field the number is typed in, a range goes
+// under the track, and marks show the scale in its place. The reset is a row of its own under the group. The phone
+// slider is horizontal, with no tooltip.
+const [typed, setTyped] = useState<string | null>(null) // the number while it is typed
+const cancelTyped = useRef(false) // Escape keeps the value
+const commitTyped = () => {
+  const number = Number(typed?.trim() || NaN)
+  // Whole and within the scale, as the slider's own field takes a typed number
+  if (!cancelTyped.current && Number.isFinite(number)) setValue(Math.min(100, Math.max(0, Math.floor(number))))
+  setTyped(null)
+}
+
 <FieldGroup title="Example field">
   {thumbs === "one" && !marks ? (
     <div data-row className="flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]">
       <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} className="min-w-0 flex-1" />
-      <span className={`min-w-[4ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums ${disabled ? "text-[var(--mobile-label-tertiary,var(--color-text-disabled))]" : "text-secondary"}`}>{text(values.one)}</span>
+      <label className={`min-w-[4ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums inline-flex items-center justify-end cursor-text ${disabled ? "text-[var(--mobile-label-tertiary,var(--color-text-disabled))]" : "text-secondary"}`}>
+        {unit === "prefixUnit" && "$"}
+        <input
+          aria-label="Example field value"
+          inputMode="numeric"
+          enterKeyHint="done"
+          className="min-w-[1ch] border-0 bg-transparent p-0 text-end tabular-nums [color:inherit] [font:inherit] outline-none disabled:cursor-default"
+          style={{ width: `${Math.max(1, String(typed ?? values.one).length)}ch` }}
+          value={typed ?? values.one}
+          disabled={disabled}
+          onFocus={(event) => { cancelTyped.current = false; setTyped(String(values.one)); event.currentTarget.select() }}
+          onChange={(event) => setTyped(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") cancelTyped.current = true
+            if (event.key === "Enter" || event.key === "Escape") event.currentTarget.blur()
+          }}
+          onBlur={commitTyped}
+        />
+        {unit === "unit" && "%"}
+      </label>
     </div>
   ) : (
     <div data-row className="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
@@ -7074,6 +7104,69 @@ const desktop = {
       )}
     </div>
   )}
+</FieldGroup>
+{thumbs === "one" && resetValue && (
+  <FieldGroup>
+    <div data-row>
+      <Button block color="info" variant="ghost" className="[--button-size-md:var(--field-row-min-height)] [--button-font-size-md:var(--field-row-label-font-size)] [--button-line-height-md:var(--field-row-label-line-height)] [--button-font-weight:var(--field-row-label-font-weight)] [--button-touch-radius:0px]" disabled={disabled} onClick={() => setValue(50)}>Reset to Default</Button>
+    </div>
+  </FieldGroup>
+)}
+```
+
+### In a settings group
+A slider that is one setting of a screen. On a phone the group's title names it, one cell of the row's height holds the track and its value, typed in place as in the Overview, and the group's footer says what the setting does. A reset that changes nothing only crowds the group, so here it is the heading's action, the tinted text at the end of an iOS list's header: it shows once the value differs from its default, brings the default back and goes. The heading keeps its height either way, so the list does not move. On a desktop the slider keeps its label, its value and its round reset.
+```tsx
+const [zoom, setZoom] = useState(100)
+const footer = "Makes text and images on the page larger or smaller."
+
+// Desktop
+<div style={{ width: 300 }}>
+  <Slider label="Zoom" min={50} max={200} step={10} unit="%" value={zoom} onChange={setZoom} resetValue={100} />
+  <p className="mt-2 text-sm text-secondary">{footer}</p>
+</div>
+
+// Phone: the group's title names the setting, its footer says what it does, and the reset is the heading's action
+// once the value differs from its default. The value is typed in place, as in the Overview.
+const [typed, setTyped] = useState<string | null>(null) // the number while it is typed
+const cancelTyped = useRef(false) // Escape keeps the value
+const commitTyped = () => {
+  const number = Number(typed?.trim() || NaN)
+  // Whole and within the scale, as the slider's own field takes a typed number
+  if (!cancelTyped.current && Number.isFinite(number)) setZoom(Math.min(200, Math.max(50, Math.floor(number))))
+  setTyped(null)
+}
+
+<FieldGroup
+  title="Zoom"
+  footer={footer}
+  action={
+    <Button color="primary" variant="ghost" size="sm" className={zoom === 100 ? "invisible" : undefined} onClick={() => setZoom(100)}>
+      Reset
+    </Button>
+  }
+>
+  <div data-row className="flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]">
+    <Slider aria-label="Zoom" min={50} max={200} step={10} value={zoom} onChange={setZoom} className="min-w-0 flex-1" />
+    <label className="min-w-[4ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums inline-flex items-center justify-end cursor-text text-secondary">
+      <input
+        aria-label="Zoom value"
+        inputMode="numeric"
+        enterKeyHint="done"
+        className="min-w-[1ch] border-0 bg-transparent p-0 text-end tabular-nums [color:inherit] [font:inherit] outline-none disabled:cursor-default"
+        style={{ width: `${Math.max(1, String(typed ?? zoom).length)}ch` }}
+        value={typed ?? zoom}
+        onFocus={(event) => { cancelTyped.current = false; setTyped(String(zoom)); event.currentTarget.select() }}
+        onChange={(event) => setTyped(event.currentTarget.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") cancelTyped.current = true
+          if (event.key === "Enter" || event.key === "Escape") event.currentTarget.blur()
+        }}
+        onBlur={commitTyped}
+      />
+      %
+    </label>
+  </div>
 </FieldGroup>
 ```
 

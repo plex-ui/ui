@@ -1066,7 +1066,7 @@ Props:
   - className (string) — Applied to the root element
   - onFocus ((event: FocusEvent) => void) — Called when the value input or a thumb gains focus
   - onBlur ((event: FocusEvent) => void) — Called when the value input or a thumb loses focus
-Examples: Overview
+Examples: Overview, In a settings group
 
 ## Sortable
 "Reorders a list by dragging: rows of a group, table rows, images, tags and cards. The order changes on the drop."

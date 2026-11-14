@@ -33,7 +33,7 @@ import { SortableOverviewDemo } from '../../components/docs/SortableDemos';
 import { BadgeOverviewDemo } from '../../components/docs/BadgeDemos';
 import { SkeletonOverviewDemo } from '../../components/docs/SkeletonDemos';
 import { PageOverviewDemo } from '../../components/docs/PageDemos';
-import { SliderOverviewDemo } from '../../components/docs/SliderDemos';
+import { SliderOverviewDemo, SliderSettingDemo } from '../../components/docs/SliderDemos';
 import { TipOverviewDemo } from '../../components/docs/TipDemos';
 import { ToolbarOverviewDemo } from '../../components/docs/ToolbarDemos';
 import { ToastDemosHost, ToastOverviewDemo } from '../../components/docs/ToastDemos';
@@ -43,7 +43,7 @@ import { compact as reactCompact, toast as reactToast } from '@plexui/ui/compone
 import { compact as vueCompact, toast as vueToast } from '@plexui/vue/components/Toast';
 import { VuePhoneRowsDemo } from '../../components/docs/vue/VuePhoneRowsDemo';
 import { VueSelectDemo } from '../../components/docs/vue/VueSelectDemos';
-import { phoneRows, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName } from '../../components/docs/phoneRowsTemplate';
+import { phoneRows, rowButtonClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName } from '../../components/docs/phoneRowsTemplate';
 import { VueDemo, type VueDemoControl, type VueDemoLoop, type VueDemoOption, type VueDemoWhen } from '../../components/docs/vue/VueDemo';
 import { VueDataTableDemo } from '../../components/docs/vue/VueDataTableDemos';
 import { VueAvatarDemo } from '../../components/docs/vue/VueAvatarDemos';
@@ -219,12 +219,27 @@ const sliderOverview = (() => {
     const rest = mdx.slice(mdx.indexOf(`export const ${key} = `) + `export const ${key} = `.length);
     return new Function(...Object.keys(bindings), `return ${rest.slice(0, rest.search(/\nexport const |\n<UsageBlock>/)).trim()}`)(...Object.values(bindings));
   };
-  const cells = { sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName };
+  const cells = { rowButtonClassName, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName };
   return {
     template: read('overview') as string,
     phoneTemplate: phoneRows(read('overviewPhone', cells) as string),
     controls: read('overviewControls') as VueDemoControl[],
     state: read('overviewState') as Record<string, unknown>,
+  };
+})();
+/** The Slider's settings-group example as its page mounts it: a Zoom setting, its reset in the group's heading */
+const sliderSetting = (() => {
+  const mdx = readFileSync('content/vue/components/slider.mdx', 'utf8');
+  const read = (key: string, bindings: Record<string, unknown> = {}): unknown => {
+    const rest = mdx.slice(mdx.indexOf(`export const ${key} = `) + `export const ${key} = `.length);
+    return new Function(...Object.keys(bindings), `return ${rest.slice(0, rest.search(/\nexport const |\n<UsageBlock>/)).trim()}`)(...Object.values(bindings));
+  };
+  const cells = { sliderCellClassName, sliderCellValueClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName };
+  return {
+    template: read('setting') as string,
+    phoneTemplate: phoneRows(read('settingPhone', cells) as string),
+    stageClassName: read('stage') as string,
+    state: read('settingState') as Record<string, unknown>,
   };
 })();
 /** The Tip Overview as its page mounts it: one template for both views (a phone sets it in grouped rows) */
@@ -1859,7 +1874,7 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name })));
     const minSteps = () => page.queryByRole('slider', { name: 'minStepsBetweenThumbs' });
     const marks = () => Array.from(stage().querySelectorAll('[data-mark]'), (mark) => mark.textContent);
-    for (const name of ['thumbs', 'unit', 'orientation']) expect(page.getByRole('radiogroup', { name })).toBeTruthy();
+    for (const name of ['thumbs', 'step', 'unit', 'orientation']) expect(page.getByRole('radiogroup', { name })).toBeTruthy();
     for (const name of ['resetValue', 'marks', 'colors', 'tooltip', 'disabled']) expect(page.getByRole('switch', { name })).toBeTruthy();
     // One thumb at 50 of 0–100, its label and a reset button over the value and its %
     expect(values()).toEqual(['50']);
@@ -1868,6 +1883,21 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(within(stage()).getByRole('button', { name: 'Reset to default' })).toBeTruthy();
     expect(text()).toContain('%');
     expect(minSteps()).toBeNull();
+    // step is how far the value moves at a time: 25 from 50 is 75, and back
+    await choose('step', '25');
+    await interact(() => thumbs()[0].focus());
+    await interact(() => fireEvent.keyDown(thumbs()[0], { key: 'ArrowRight' }));
+    expect(values()).toEqual(['75']);
+    await interact(() => fireEvent.keyDown(thumbs()[0], { key: 'ArrowLeft' }));
+    expect(values()).toEqual(['50']);
+    // while a typed number is taken as it is, whole: 60.7 is 60, as on a phone
+    const field = () => within(stage()).getByRole('textbox') as HTMLInputElement;
+    await interact(() => field().focus());
+    await interact(() => fireEvent.change(field(), { target: { value: '60.7' } }));
+    await interact(() => fireEvent.blur(field()));
+    expect([values(), field().value]).toEqual([['60'], '60']);
+    await interact(() => fireEvent.click(within(stage()).getByRole('button', { name: 'Reset to default' })));
+    await choose('step', '1');
     await toggle('resetValue');
     expect(within(stage()).queryByRole('button', { name: 'Reset to default' })).toBeNull();
     // Two thumbs: a range, kept minStepsBetweenThumbs apart, with no reset button (one value only)
@@ -1875,6 +1905,20 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(values()).toEqual(['25', '75']);
     expect(text()).toContain('25% – 75%');
     expect(page.queryByRole('switch', { name: 'resetValue' })).toBeNull();
+    // A range keeps a step of 1, as a coarse step would leave thumbs kept apart no room to move: a step of 25 chosen
+    // with one thumb leaves a range moving by one, and comes back with the one thumb
+    expect(page.queryByRole('radiogroup', { name: 'step' })).toBeNull();
+    await choose('thumbs', 'one');
+    await choose('step', '25');
+    await choose('thumbs', 'two');
+    await interact(() => thumbs()[0].focus());
+    await interact(() => fireEvent.keyDown(thumbs()[0], { key: 'ArrowRight' }));
+    expect(values()).toEqual(['26', '75']);
+    await interact(() => fireEvent.keyDown(thumbs()[0], { key: 'ArrowLeft' }));
+    await choose('thumbs', 'one');
+    expect(group('step').getByRole('radio', { name: '25' }).getAttribute('aria-checked')).toBe('true');
+    await choose('step', '1');
+    await choose('thumbs', 'two');
     expect(minSteps()?.getAttribute('aria-valuenow')).toBe('5');
     const push = async (times: number) => {
       const thumb = thumbs()[0];
@@ -1917,15 +1961,71 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(marks()).toHaveLength(5);
     await toggle('disabled');
     expect(thumbs().every((thumb) => thumb.hasAttribute('data-disabled'))).toBe(true);
-    // A disabled slider hides its reset button, so resetValue is not offered; enabled again, it keeps the choice
+    // A disabled slider hides its reset button, so a desktop does not offer resetValue (a phone keeps its dimmed reset
+    // row); enabled again, it keeps the choice
     await choose('thumbs', 'one');
-    expect(page.queryByRole('switch', { name: 'resetValue' })).toBeNull();
+    expect(page.getByRole('switch', { name: 'resetValue' }).closest('[data-demo-phone-only]')).not.toBeNull();
     await toggle('disabled');
+    expect(page.getByRole('switch', { name: 'resetValue' }).closest('[data-demo-phone-only]')).toBeNull();
     expect(page.getByRole('switch', { name: 'resetValue' }).getAttribute('aria-checked')).toBe('false');
     expect(within(stage()).queryByRole('button', { name: 'Reset to default' })).toBeNull();
     // prefixUnit stands before one value too
     await choose('unit', 'prefixUnit');
     expect([text().includes('$'), text().includes('%')]).toEqual([true, false]);
+  });
+
+  test('slider in a settings group: on a phone the reset is the heading action, shown once the value is changed (owner 14.11)', async () => {
+    const show = viewport();
+    const view = render(framework === 'React' ? <SliderSettingDemo /> : <VuePhoneRowsDemo {...sliderSetting} />);
+    await interact(() => {});
+    const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+    const now = () => within(stage()).getByRole('slider').getAttribute('aria-valuenow');
+    // A desktop keeps the slider's label, its value and its round reset
+    expect(within(stage()).getByText('Zoom')).toBeTruthy();
+    expect(now()).toBe('100');
+    expect(within(stage()).getByRole('button', { name: 'Reset to default' })).toBeTruthy();
+    // Its own field takes a typed number as it is, as the phone's does
+    const desktopField = () => within(stage()).getByRole('textbox') as HTMLInputElement;
+    await interact(() => desktopField().focus());
+    await interact(() => fireEvent.change(desktopField(), { target: { value: '147' } }));
+    await interact(() => fireEvent.blur(desktopField()));
+    expect([now(), desktopField().value]).toEqual(['147', '147']);
+    await interact(() => fireEvent.click(within(stage()).getByRole('button', { name: 'Reset to default' })));
+    expect(now()).toBe('100');
+    await show('phone');
+    const group = () => stage().querySelector<HTMLElement>('section')!;
+    const reset = () => within(group()).getByText('Reset').closest('button')!;
+    const field = () => within(stage()).getByRole('textbox', { name: 'Zoom value' }) as HTMLInputElement;
+    // The group's title names the setting, one cell holds the track and its value, the footer says what it does
+    expect(within(group()).getByText('Zoom').closest('[data-row]')).toBeNull();
+    expect(stage().querySelector('[data-row]')?.className).toBe(sliderCellClassName);
+    expect(group().textContent).toContain('Makes text and images on the page larger or smaller.');
+    expect([field().value, now()]).toEqual(['100', '100']);
+    // At its default the heading's reset keeps its place but is not shown
+    expect(reset().className).toContain('invisible');
+    expect(reset().getAttribute('data-variant')).toBe('ghost');
+    // A typed number moves the slider, taken as it is; the reset shows, and brings the default back
+    await interact(() => field().focus());
+    await interact(() => fireEvent.input(field(), { target: { value: '147' } }));
+    await interact(() => fireEvent.change(field(), { target: { value: '147' } }));
+    await interact(() => fireEvent.blur(field()));
+    expect([now(), field().value]).toEqual(['147', '147']);
+    // Escape keeps the value and the field's width; so does text that is not a number
+    await interact(() => field().focus());
+    await interact(() => fireEvent.input(field(), { target: { value: '1' } }));
+    await interact(() => fireEvent.change(field(), { target: { value: '1' } }));
+    await interact(() => fireEvent.keyDown(field(), { key: 'Escape' }));
+    await interact(() => fireEvent.blur(field()));
+    expect([now(), field().value, field().style.width]).toEqual(['147', '147', '3ch']);
+    await interact(() => field().focus());
+    await interact(() => fireEvent.input(field(), { target: { value: '70%' } }));
+    await interact(() => fireEvent.change(field(), { target: { value: '70%' } }));
+    await interact(() => fireEvent.blur(field()));
+    expect([now(), field().value]).toEqual(['147', '147']);
+    expect(reset().className).not.toContain('invisible');
+    await interact(() => fireEvent.click(reset()));
+    expect([now(), field().value]).toEqual(['100', '100']);
+    expect(reset().className).toContain('invisible');
   });
 
   test('slider on a phone: one value ends the cell, a range goes under the track, marks take its place', async () => {
@@ -1949,7 +2049,9 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(within(view.container).getByText('Example field').closest('[data-row]')).toBeNull();
     expect(slider().getAttribute('data-orientation')).toBe('horizontal');
     expect(within(cell()).getAllByRole('slider').map((thumb) => thumb.getAttribute('aria-label'))).toEqual(['Example field Value 1 of 3', 'Example field Value 2 of 3', 'Example field Value 3 of 3']);
-    for (const [role, name] of [['switch', 'resetValue'], ['switch', 'tooltip'], ['radiogroup', 'orientation']]) expect(offered(role, name), name).toBe(false);
+    for (const [role, name] of [['switch', 'tooltip'], ['radiogroup', 'orientation']]) expect(offered(role, name), name).toBe(false);
+    // A range keeps a step of 1, its thumbs minStepsBetweenThumbs apart
+    expect(offered('radiogroup', 'step')).toBe(false);
     expect(offered('slider', 'minStepsBetweenThumbs')).toBe(true);
     // Marks show the scale in the value's place, so the unit is not offered with them
     expect(offered('switch', 'marks')).toBe(true);
@@ -1967,11 +2069,54 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await choose('thumbs', 'one');
     expect(cell().className).toBe(sliderCellClassName);
     const value = () => cell().lastElementChild!;
-    expect(value().textContent).toBe('$50');
+    const shown = () => Array.from(value().childNodes, (node) => node instanceof HTMLInputElement ? node.value : node.textContent).join('');
+    const now = () => within(cell()).getByRole('slider').getAttribute('aria-valuenow');
+    expect(shown()).toBe('$50');
     expect(value().className).toContain('text-secondary');
+    // The value is a field, typed in place (Keynote for iPhone; owner 14.11): a number moves the slider, whole and
+    // within the scale, as the slider's own field takes it; Escape or an empty field keeps the value
+    const field = () => within(cell()).getByRole('textbox', { name: 'Example field value' }) as HTMLInputElement;
+    expect(field().getAttribute('inputmode')).toBe('numeric');
+    const type = async (typed: string, end: 'commit' | 'escape' = 'commit') => {
+      await interact(() => field().focus());
+      await interact(() => fireEvent.input(field(), { target: { value: typed } }));
+      if (end === 'escape') {
+        await interact(() => fireEvent.keyDown(field(), { key: 'Escape' }));
+        return;
+      }
+      await interact(() => fireEvent.change(field(), { target: { value: typed } }));
+      await interact(() => fireEvent.blur(field()));
+    };
+    await type('73');
+    expect([now(), shown()]).toEqual(['73', '$73']);
+    await type('250');
+    expect(now()).toBe('100');
+    await type('12', 'escape');
+    expect([now(), shown()]).toEqual(['100', '$100']);
+    await type('');
+    expect(now()).toBe('100');
+    await choose('step', '25');
+    await type('60.7');
+    expect(now()).toBe('60');
+    await choose('step', '1');
+    // The reset is a row of its own under the slider's group (Settings, IMG_5940), offered on a phone too
+    expect(offered('switch', 'resetValue')).toBe(true);
+    const reset = () => within(view.container).queryByRole('button', { name: 'Reset to Default' });
+    await type('20');
+    await interact(() => fireEvent.click(reset()!));
+    expect(now()).toBe('50');
+    expect(reset()!.closest('section')?.contains(cell())).toBe(false);
+    await toggle('resetValue');
+    expect(reset()).toBeNull();
+    // Turned off, the reset row stays off when the slider is disabled; the phone keeps offering it
+    await toggle('disabled');
+    expect([reset(), offered('switch', 'resetValue')]).toEqual([null, true]);
+    await toggle('disabled');
+    await toggle('resetValue');
     await toggle('disabled');
     expect(value().className).toContain(sliderCellValueDisabledClassName);
     expect(within(cell()).getByRole('slider').hasAttribute('data-disabled')).toBe(true);
+    expect([field().disabled, (reset() as HTMLButtonElement).disabled]).toEqual([true, true]);
     // A range under the track takes it too
     await choose('thumbs', 'two');
     expect(value().className).toBe(`${sliderCellValueBelowClassName} ${sliderCellValueDisabledClassName}`);

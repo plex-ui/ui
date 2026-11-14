@@ -7719,10 +7719,11 @@ Props:
   - @blur ((event: FocusEvent) => void) — Emitted when the value input or a thumb loses focus
 
 ### Overview
-Set range and bind an array of two numbers with v-model:value for a range, or three or more for several thumbs. min-steps-between-thumbs keeps the thumbs that many steps apart. reset-value, with one thumb, adds a button to the label that brings the value back; a disabled slider hides it. unit follows the value and prefix-unit comes before it. marks label points of the scale under the track, horizontal only. track-color and range-color color the track and its fill. The label slot can carry a tooltip, and orientation="vertical" stands the slider up. On a phone the slider is horizontal, as a list of iOS settings has no vertical slider. A tooltip opens on hover, which a phone does not have, and the cell has no label to hold a reset button, so the Phone preview leaves out those controls. A slider with a label of its own keeps the reset on a phone, as the small round gray button of the iOS 27 kit 8px before the value: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.
+Set range and bind an array of two numbers with v-model:value for a range, or three or more for several thumbs. step is how far a drag or a key moves the value at a time: 25 here stops it on the marks. A typed number is taken as it is, whole and within the scale. min-steps-between-thumbs keeps the thumbs that many steps apart. reset-value, with one thumb, adds a button to the label that brings the value back; a disabled slider leaves that button out. unit follows the value and prefix-unit comes before it. marks label points of the scale under the track, horizontal only. track-color and range-color color the track and its fill. The label slot can carry a tooltip, and orientation="vertical" stands the slider up. On a phone the slider is horizontal, as a list of iOS settings has no vertical slider, and a tooltip opens on hover, which a phone does not have, so the Phone preview leaves out those controls. The value at the end of the cell is a field: a tap brings up the number pad and the typed number moves the slider, taken as the slider's own field takes it, as Keynote for iPhone takes a value in the field next to its slider. The cell has no label row for a reset button, so the reset is a row of its own under the slider's group, its label centered in the accent, as Settings resets Hover Text's size; a disabled slider dims the row with it. A slider with a label of its own keeps the reset beside its value on a phone, as the small round gray button of the iOS 27 kit: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { Slider } from '@plexui/vue/components/Slider';
 import { Tooltip, TooltipTriggerDecorator } from '@plexui/vue/components/Tooltip';
@@ -7731,7 +7732,8 @@ const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(v
 const thumbs = ref<"one" | "two" | "three">("one");
 const values = ref<{ one: number; two: number[]; three: number[] }>({ one: 50, two: [25, 75], three: [10, 40, 70] });
 const minStepsBetweenThumbs = ref(5); // with two or three thumbs
-const resetValue = ref(true); // with one thumb, while enabled
+const step = ref<"1" | "5" | "10" | "25">("1"); // with one thumb
+const resetValue = ref(true); // with one thumb
 const unit = ref<"none" | "unit" | "prefixUnit">("unit");
 const marks = ref(false); // horizontal only
 const colors = ref(false);
@@ -7748,7 +7750,7 @@ const disabled = ref(false);
     label="Example field"
     :min="0"
     :max="100"
-    :step="1"
+    :step="thumbs === 'one' ? Number(step) : 1"
     v-model:value="values[thumbs]"
     :min-steps-between-thumbs="thumbs === 'one' ? undefined : minStepsBetweenThumbs"
     :reset-value="thumbs === 'one' && resetValue ? 50 : undefined"
@@ -7768,21 +7770,34 @@ const disabled = ref(false);
   </Slider>
 </div>
 
-<!-- Phone: the group's title names the slider; one value ends the cell, a range goes under the track, and marks show the scale in its place. The phone slider is horizontal, with no reset button or tooltip -->
+<!-- Phone: the group's title names the slider; one value ends the cell, a field the number is typed in, a range goes under the track, and marks show the scale in its place. The reset is a row of its own under the group. The phone slider is horizontal, with no tooltip -->
 <FieldGroup title="Example field">
   <div v-if="thumbs === 'one' && !marks" data-row class="flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]">
     <Slider
       aria-label="Example field"
       :min="0"
       :max="100"
-      :step="1"
+      :step="Number(step)"
       v-model:value="values.one"
       :track-color="colors ? '#61C454' : undefined"
       :range-color="colors ? '#EF4146' : undefined"
       :disabled="disabled"
       class="min-w-0 flex-1"
     />
-    <span :class="['min-w-[4ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums', disabled ? 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]' : 'text-secondary']">{{ (unit === 'prefixUnit' ? '$' : '') + values.one + (unit === 'unit' ? '%' : '') }}</span>
+    <label :class="['min-w-[4ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums inline-flex items-center justify-end cursor-text', disabled ? 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]' : 'text-secondary']">{{ unit === 'prefixUnit' ? '$' : '' }}<input
+      aria-label="Example field value"
+      inputmode="numeric"
+      enterkeyhint="done"
+      class="min-w-[1ch] border-0 bg-transparent p-0 text-end tabular-nums [color:inherit] [font:inherit] outline-none disabled:cursor-default"
+      :style="{ width: Math.max(1, String(values.one).length) + 'ch' }"
+      :value="values.one"
+      :disabled="disabled"
+      @focus="$event.target.select()"
+      @input="$event.target.style.width = Math.max(1, $event.target.value.length) + 'ch'"
+      @keydown.enter="$event.target.blur()"
+      @keydown.esc="$event.target.value = values.one; $event.target.blur()"
+      @blur="values.one = Number.isFinite(Number($event.target.value.trim() || NaN)) ? Math.min(100, Math.max(0, Math.floor(Number($event.target.value)))) : values.one; $event.target.value = values.one; $event.target.style.width = Math.max(1, String(values.one).length) + 'ch'"
+    />{{ unit === 'unit' ? '%' : '' }}</label>
   </div>
   <div v-else data-row class="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
     <Slider
@@ -7790,7 +7805,7 @@ const disabled = ref(false);
       aria-label="Example field"
       :min="0"
       :max="100"
-      :step="1"
+      :step="thumbs === 'one' ? Number(step) : 1"
       v-model:value="values[thumbs]"
       :min-steps-between-thumbs="thumbs === 'one' ? undefined : minStepsBetweenThumbs"
       :marks="marks ? scaleMarks : undefined"
@@ -7800,6 +7815,56 @@ const disabled = ref(false);
     />
     <span v-if="!marks" :class="['text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums', disabled ? 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]' : '']">{{ [values[thumbs]].flat().map((value) => (unit === 'prefixUnit' ? '$' : '') + value + (unit === 'unit' ? '%' : '')).join(' – ') }}</span>
   </div>
+</FieldGroup>
+<FieldGroup v-if="thumbs === 'one' && resetValue">
+  <div data-row>
+    <Button block color="info" variant="ghost" class="[--button-size-md:var(--field-row-min-height)] [--button-font-size-md:var(--field-row-label-font-size)] [--button-line-height-md:var(--field-row-label-line-height)] [--button-font-weight:var(--field-row-label-font-weight)] [--button-touch-radius:0px]" :disabled="disabled" @click="values.one = 50">Reset to Default</Button>
+  </div>
+</FieldGroup>
+</template>
+```
+
+### In a settings group
+A slider that is one setting of a screen. On a phone the group's title names it, one cell of the row's height holds the track and its value, typed in place as in the Overview, and the group's footer says what the setting does. A reset that changes nothing only crowds the group, so here it is the heading's action, the tinted text at the end of an iOS list's header: it shows once the value differs from its default, brings the default back and goes. The heading keeps its height either way, so the list does not move. On a desktop the slider keeps its label, its value and its round reset.
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+import { FieldGroup } from '@plexui/vue/components/FieldGroup';
+import { Slider } from '@plexui/vue/components/Slider';
+
+const zoom = ref(100);
+</script>
+
+<template>
+<!-- Desktop -->
+<div style="width: 300px">
+  <Slider label="Zoom" :min="50" :max="200" :step="10" unit="%" v-model:value="zoom" :reset-value="100" />
+  <p class="mt-2 text-sm text-secondary">Makes text and images on the page larger or smaller.</p>
+</div>
+
+<!-- Phone: the group's title names the setting, its footer says what it does, and the reset is the heading's action once the value differs from its default. The value is typed in place, as in the Overview -->
+<FieldGroup title="Zoom">
+  <template #action>
+    <Button color="primary" variant="ghost" size="sm" :class="zoom === 100 ? 'invisible' : undefined" @click="zoom = 100">Reset</Button>
+  </template>
+  <div data-row class="flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]">
+    <Slider aria-label="Zoom" :min="50" :max="200" :step="10" v-model:value="zoom" class="min-w-0 flex-1" />
+    <label class="min-w-[4ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums inline-flex items-center justify-end cursor-text text-secondary"><input
+      aria-label="Zoom value"
+      inputmode="numeric"
+      enterkeyhint="done"
+      class="min-w-[1ch] border-0 bg-transparent p-0 text-end tabular-nums [color:inherit] [font:inherit] outline-none disabled:cursor-default"
+      :style="{ width: Math.max(1, String(zoom).length) + 'ch' }"
+      :value="zoom"
+      @focus="$event.target.select()"
+      @input="$event.target.style.width = Math.max(1, $event.target.value.length) + 'ch'"
+      @keydown.enter="$event.target.blur()"
+      @keydown.esc="$event.target.value = zoom; $event.target.blur()"
+      @blur="zoom = Number.isFinite(Number($event.target.value.trim() || NaN)) ? Math.min(200, Math.max(50, Math.floor(Number($event.target.value)))) : zoom; $event.target.value = zoom; $event.target.style.width = Math.max(1, String(zoom).length) + 'ch'"
+    />%</label>
+  </div>
+  <template #footer>Makes text and images on the page larger or smaller.</template>
 </FieldGroup>
 </template>
 ```

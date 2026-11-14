@@ -118,10 +118,11 @@ test("Switch shows the row with a description once", () => {
 })
 
 test("Slider: on a phone the Overview's slider stands in a cell of a grouped list; the tooltip and the vertical slider are desktop settings", () => {
-  // One Overview with every setting (owner 11.11): no example is desktop only, the desktop settings are its controls
+  // One Overview with every setting (owner 11.11): no example is desktop only, the desktop settings are its controls.
+  // The other example is other content: one setting of a screen, its reset in the heading (owner 14.11)
   for (const page of ["content/components/slider.mdx", "content/vue/components/slider.mdx"]) {
     expect(desktopOnly(page), page).toEqual([])
-    expect(sections(page).map(({ title }) => title), page).toEqual(["Overview"])
+    expect(sections(page).map(({ title }) => title), page).toEqual(["Overview", "In a settings group"])
   }
   // The group's title names the slider; a short value ends its cell, and a range, several values or marks go under
   // the track in a cell whose track stands in its first 44px (iOS Settings, Siri, Speaking Rate)
@@ -131,18 +132,19 @@ test("Slider: on a phone the Overview's slider stands in a cell of a grouped lis
   expect(cells).toContain("text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)]")
   const demos = read("components/docs/SliderDemos.tsx")
   expect(demos.match(/<FieldGroup title="Example field">/g)).toHaveLength(1)
-  expect(demos.match(/className=\{sliderCellClassName\}/g)).toHaveLength(1)
+  expect(demos.match(/className=\{sliderCellClassName\}/g)).toHaveLength(2)
   expect(demos.match(/className=\{sliderCellStackedClassName\}/g)).toHaveLength(1)
   expect(demos.match(/sliderCellValueBelowClassName\}/g)).toHaveLength(1)
   const react = read("content/components/slider.mdx")
-  expect(react.match(/<div data-row className="\$\{sliderCellClassName\}">/g)).toHaveLength(1)
+  expect(react.match(/<div data-row className="\$\{sliderCellClassName\}">/g)).toHaveLength(2)
   expect(react.match(/<div data-row className="\$\{sliderCellStackedClassName\}">/g)).toHaveLength(1)
   const vue = read("content/vue/components/slider.mdx")
-  expect(vue.match(/phoneTemplate=\{phoneRows\(\w+Phone\)\}/g)).toHaveLength(1)
-  expect(vue.match(/data-row class="\$\{sliderCellClassName\}">/g)).toHaveLength(1)
+  expect(vue.match(/phoneTemplate=\{phoneRows\(\w+Phone\)\}/g)).toHaveLength(2)
+  expect(vue.match(/data-row class="\$\{sliderCellClassName\}">/g)).toHaveLength(2)
   expect(vue.match(/data-row class="\$\{sliderCellStackedClassName\}">/g)).toHaveLength(1)
-  // The reset button, the tooltip and orientation are desktop controls; the unit too while marks take its place
-  expect(vue).toContain('{ name: "resetValue", type: "boolean", default: true, when: { thumbs: "one", disabled: false }, desktopOnly: true }')
+  // The tooltip and orientation are desktop controls, the unit too while marks take its place; the reset is offered
+  // on a phone as a row of its own under the group (owner 14.11, IMG_5940), which a disabled slider keeps, dimmed
+  expect(vue).toContain('{ name: "resetValue", type: "boolean", default: true, when: { thumbs: "one" }, phoneOnly: { disabled: true } }')
   expect(vue).toContain('{ name: "unit", type: "select", options: ["none", "unit", "prefixUnit"], default: "unit", desktopOnly: { marks: true } }')
   expect(vue).toContain('{ name: "tooltip", type: "boolean", default: false, desktopOnly: true }')
   expect(vue).toContain('{ name: "orientation", type: "select", options: ["horizontal", "vertical"], default: "horizontal", desktopOnly: true }')

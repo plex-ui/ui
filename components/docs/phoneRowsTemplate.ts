@@ -19,6 +19,11 @@ export const phoneCalendarSecondRowStageClassName = 'flex w-full min-h-[533px] f
  * takes the width of its widest text (`min-w-[…ch]`), so the track keeps its length while the value changes. */
 export const sliderCellClassName = 'flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]';
 export const sliderCellValueClassName = 'shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums';
+/** The value ending the cell is a field: a tap brings up the number pad and the typed number moves the slider, in
+ * place, as Keynote for iPhone takes a value "in the field next to the slider" (support.apple.com, Change object
+ * transparency). It keeps the value's look; the unit stays text around the number, and a tap on it focuses the number. */
+export const sliderCellValueFieldClassName = 'inline-flex items-center justify-end cursor-text';
+export const sliderCellValueInputClassName = 'min-w-[1ch] border-0 bg-transparent p-0 text-end tabular-nums [color:inherit] [font:inherit] outline-none disabled:cursor-default';
 /** A disabled value takes the tertiary label, as the label of a disabled row does (Field.module.css). */
 export const sliderCellValueDisabledClassName = 'text-[var(--mobile-label-tertiary,var(--color-text-disabled))]';
 /** A value too long to stand beside the track (a range, several thumbs), or marks, go under it in the same cell, as
@@ -27,6 +32,12 @@ export const sliderCellValueDisabledClassName = 'text-[var(--mobile-label-tertia
  * The track then stands in the cell's first 44px instead of the slider's 52px row. */
 export const sliderCellStackedClassName = 'flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]';
 export const sliderCellValueBelowClassName = 'text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums';
+
+/** A row that is a button: its label centred in the accent (`color="info"`, `variant="ghost"`, `block`), at the
+ * row's height and type, as Settings puts "Reset Font Size to Default" in a group of its own under Hover Text's size
+ * slider (owner 14.11, IMG_5940 at 430pt: a 53pt cell, 35pt under the slider's, 17pt text). FieldGroup gives a
+ * full-row button its pressed surface and the group's corners; these set the Button's own size hooks. */
+export const rowButtonClassName = '[--button-size-md:var(--field-row-min-height)] [--button-font-size-md:var(--field-row-label-font-size)] [--button-line-height-md:var(--field-row-label-line-height)] [--button-font-weight:var(--field-row-label-font-weight)] [--button-touch-radius:0px]';
 
 /** A section of an iOS inset grouped list on a phone screen, the shape and fill of a FieldGroup, with row insets. */
 export const phoneSectionClassName = 'rounded-[var(--field-group-radius)] bg-[var(--field-group-background)] px-[var(--mobile-list-inset,20px)]';

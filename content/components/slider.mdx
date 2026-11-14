@@ -4,16 +4,17 @@ description: Slider for fine-tuning numeric values with single or range thumbs, 
 metaDescription: React slider component for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation
 ---
 
-import { SliderOverviewDemo } from '@/components/docs/SliderDemos'
+import { SliderOverviewDemo, SliderSettingDemo } from '@/components/docs/SliderDemos'
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
-import { sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName } from "@/components/docs/phoneRowsTemplate"
+import { rowButtonClassName, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName } from "@/components/docs/phoneRowsTemplate"
 
 export const overviewCode = `const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) }))
 
 const [thumbs, setThumbs] = useState("one") // or "two", "three"
 const [values, setValues] = useState({ one: 50, two: [25, 75], three: [10, 40, 70] })
 const [minStepsBetweenThumbs, setMinStepsBetweenThumbs] = useState(5) // with two or three thumbs
-const [resetValue, setResetValue] = useState(true) // with one thumb, while enabled
+const [step, setStep] = useState("1") // or "5", "10", "25"; with one thumb
+const [resetValue, setResetValue] = useState(true) // with one thumb
 const [unit, setUnit] = useState("unit") // or "none", "prefixUnit"
 const [marks, setMarks] = useState(false) // horizontal only
 const [colors, setColors] = useState(false)
@@ -26,7 +27,7 @@ const text = (value) => (unit === "prefixUnit" ? "$" : "") + value + (unit === "
 const shared = {
   min: 0,
   max: 100,
-  step: 1,
+  step: thumbs === "one" ? Number(step) : 1,
   marks: marks ? scaleMarks : undefined, // a vertical slider draws none
   trackColor: colors ? "#61C454" : undefined,
   rangeColor: colors ? "#EF4146" : undefined,
@@ -54,13 +55,42 @@ const desktop = {
   )}
 </div>
 
-// Phone: the group's title names the slider; one value ends the cell, a range goes under the track, and marks show
-// the scale in its place. The phone slider is horizontal, with no reset button or tooltip.
+// Phone: the group's title names the slider; one value ends the cell, a field the number is typed in, a range goes
+// under the track, and marks show the scale in its place. The reset is a row of its own under the group. The phone
+// slider is horizontal, with no tooltip.
+const [typed, setTyped] = useState<string | null>(null) // the number while it is typed
+const cancelTyped = useRef(false) // Escape keeps the value
+const commitTyped = () => {
+  const number = Number(typed?.trim() || NaN)
+  // Whole and within the scale, as the slider's own field takes a typed number
+  if (!cancelTyped.current && Number.isFinite(number)) setValue(Math.min(100, Math.max(0, Math.floor(number))))
+  setTyped(null)
+}
+
 <FieldGroup title="Example field">
   {thumbs === "one" && !marks ? (
     <div data-row className="${sliderCellClassName}">
       <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} className="min-w-0 flex-1" />
-      <span className={\`min-w-[4ch] ${sliderCellValueClassName} \${disabled ? "${sliderCellValueDisabledClassName}" : "text-secondary"}\`}>{text(values.one)}</span>
+      <label className={\`min-w-[4ch] ${sliderCellValueClassName} ${sliderCellValueFieldClassName} \${disabled ? "${sliderCellValueDisabledClassName}" : "text-secondary"}\`}>
+        {unit === "prefixUnit" && "$"}
+        <input
+          aria-label="Example field value"
+          inputMode="numeric"
+          enterKeyHint="done"
+          className="${sliderCellValueInputClassName}"
+          style={{ width: \`\${Math.max(1, String(typed ?? values.one).length)}ch\` }}
+          value={typed ?? values.one}
+          disabled={disabled}
+          onFocus={(event) => { cancelTyped.current = false; setTyped(String(values.one)); event.currentTarget.select() }}
+          onChange={(event) => setTyped(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") cancelTyped.current = true
+            if (event.key === "Enter" || event.key === "Escape") event.currentTarget.blur()
+          }}
+          onBlur={commitTyped}
+        />
+        {unit === "unit" && "%"}
+      </label>
     </div>
   ) : (
     <div data-row className="${sliderCellStackedClassName}">
@@ -74,11 +104,70 @@ const desktop = {
       )}
     </div>
   )}
+</FieldGroup>
+{thumbs === "one" && resetValue && (
+  <FieldGroup>
+    <div data-row>
+      <Button block color="info" variant="ghost" className="${rowButtonClassName}" disabled={disabled} onClick={() => setValue(50)}>Reset to Default</Button>
+    </div>
+  </FieldGroup>
+)}`
+
+export const settingCode = `const [zoom, setZoom] = useState(100)
+const footer = "Makes text and images on the page larger or smaller."
+
+// Desktop
+<div style={{ width: 300 }}>
+  <Slider label="Zoom" min={50} max={200} step={10} unit="%" value={zoom} onChange={setZoom} resetValue={100} />
+  <p className="mt-2 text-sm text-secondary">{footer}</p>
+</div>
+
+// Phone: the group's title names the setting, its footer says what it does, and the reset is the heading's action
+// once the value differs from its default. The value is typed in place, as in the Overview.
+const [typed, setTyped] = useState<string | null>(null) // the number while it is typed
+const cancelTyped = useRef(false) // Escape keeps the value
+const commitTyped = () => {
+  const number = Number(typed?.trim() || NaN)
+  // Whole and within the scale, as the slider's own field takes a typed number
+  if (!cancelTyped.current && Number.isFinite(number)) setZoom(Math.min(200, Math.max(50, Math.floor(number))))
+  setTyped(null)
+}
+
+<FieldGroup
+  title="Zoom"
+  footer={footer}
+  action={
+    <Button color="primary" variant="ghost" size="sm" className={zoom === 100 ? "invisible" : undefined} onClick={() => setZoom(100)}>
+      Reset
+    </Button>
+  }
+>
+  <div data-row className="${sliderCellClassName}">
+    <Slider aria-label="Zoom" min={50} max={200} step={10} value={zoom} onChange={setZoom} className="min-w-0 flex-1" />
+    <label className="min-w-[4ch] ${sliderCellValueClassName} ${sliderCellValueFieldClassName} text-secondary">
+      <input
+        aria-label="Zoom value"
+        inputMode="numeric"
+        enterKeyHint="done"
+        className="${sliderCellValueInputClassName}"
+        style={{ width: \`\${Math.max(1, String(typed ?? zoom).length)}ch\` }}
+        value={typed ?? zoom}
+        onFocus={(event) => { cancelTyped.current = false; setTyped(String(zoom)); event.currentTarget.select() }}
+        onChange={(event) => setTyped(event.currentTarget.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") cancelTyped.current = true
+          if (event.key === "Enter" || event.key === "Escape") event.currentTarget.blur()
+        }}
+        onBlur={commitTyped}
+      />
+      %
+    </label>
+  </div>
 </FieldGroup>`
 
 <UsageBlock>{`import { Slider } from "@plexui/ui/components/Slider";`}</UsageBlock>
 
-On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider and the slider fills the cell. One value ends the cell, a range goes under the track, and with marks the cell shows the scale instead of a value. For a slider among other settings, see [Settings with a slider](/components/settings-forms#settings-with-a-slider).
+On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider and the slider fills the cell. One value ends the cell, a field the number can be typed in, a range goes under the track, and with marks the cell shows the scale instead of a value. A reset is a row of its own under the group. For a slider among other settings, see [Settings with a slider](/components/settings-forms#settings-with-a-slider).
 
 ## Examples
 
@@ -92,11 +181,20 @@ On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: th
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
-  <p>Set <code>range</code> and give <code>value</code> two numbers for a range, or three or more for several thumbs; <code>onChange</code> then receives an array. <code>minStepsBetweenThumbs</code> keeps the thumbs that many steps apart. <code>resetValue</code>, with one thumb, adds a button to the label that brings the value back; a disabled slider hides it.</p>
+  <p>Set <code>range</code> and give <code>value</code> two numbers for a range, or three or more for several thumbs; <code>onChange</code> then receives an array. <code>step</code> is how far a drag or a key moves the value at a time: 25 here stops it on the marks. A typed number is taken as it is, whole and within the scale. <code>minStepsBetweenThumbs</code> keeps the thumbs that many steps apart. <code>resetValue</code>, with one thumb, adds a button to the label that brings the value back; a disabled slider leaves that button out.</p>
   <p><code>unit</code> follows the value and <code>prefixUnit</code> comes before it. <code>marks</code> label points of the scale under the track, horizontal only. <code>trackColor</code> and <code>rangeColor</code> color the track and its fill. A label given as JSX can carry a tooltip, and <code>orientation="vertical"</code> stands the slider up.</p>
-  <p>On a phone the slider is horizontal, as a list of iOS settings has no vertical slider. A tooltip opens on hover, which a phone does not have, and the cell has no label to hold a reset button, so the Phone preview leaves out those controls. A slider with a label of its own keeps the reset on a phone, as the small round gray button of the iOS 27 kit 8px before the value: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.</p>
+  <p>On a phone the slider is horizontal, as a list of iOS settings has no vertical slider, and a tooltip opens on hover, which a phone does not have, so the Phone preview leaves out those controls. The value at the end of the cell is a field: a tap brings up the number pad and the typed number moves the slider, taken as the slider's own field takes it, as Keynote for iPhone takes a value in the field next to its slider. The cell has no label row for a reset button, so the reset is a row of its own under the slider's group, its label centered in the accent, as Settings resets Hover Text's size; a disabled slider dims the row with it. A slider with a label of its own keeps the reset beside its value on a phone, as the small round gray button of the iOS 27 kit: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <SliderOverviewDemo />
+</ComponentPreview>
+
+### In a settings group
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>A slider that is one setting of a screen. On a phone the group's title names it, one cell of the row's height holds the track and its value, typed in place as in the Overview, and the group's footer says what the setting does.</p>
+  <p>A reset that changes nothing only crowds the group, so here it is the heading's action, the tinted text at the end of an iOS list's header: it shows once the value differs from its default, brings the default back and goes. The heading keeps its height either way, so the list does not move. On a desktop the slider keeps its label, its value and its round reset.</p>
+</>} code={settingCode} previewMinHeight={168}>
+  <SliderSettingDemo />
 </ComponentPreview>
 
 ## API

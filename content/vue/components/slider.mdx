@@ -6,7 +6,7 @@ metaDescription: Vue 3 slider component for fine-tuning numeric values with sing
 
 import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
-import { phoneRows, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, withPhone } from "@/components/docs/phoneRowsTemplate"
+import { phoneRows, rowButtonClassName, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const stage = "flex-1 flex flex-col items-center justify-center py-12 w-full"
 
@@ -21,7 +21,7 @@ export const overview = `<div :style="orientation === 'horizontal' ? { width: '3
     label="Example field"
     :min="0"
     :max="100"
-    :step="1"
+    :step="thumbs === 'one' ? Number(step) : 1"
     v-model:value="values[thumbs]"
     :min-steps-between-thumbs="thumbs === 'one' ? undefined : minStepsBetweenThumbs"
     :reset-value="thumbs === 'one' && resetValue ? 50 : undefined"
@@ -47,14 +47,27 @@ export const overviewPhone = `<FieldGroup title="Example field">
       aria-label="Example field"
       :min="0"
       :max="100"
-      :step="1"
+      :step="Number(step)"
       v-model:value="values.one"
       :track-color="colors ? '#61C454' : undefined"
       :range-color="colors ? '#EF4146' : undefined"
       :disabled="disabled"
       class="min-w-0 flex-1"
     />
-    <span :class="['min-w-[4ch] ${sliderCellValueClassName}', disabled ? '${sliderCellValueDisabledClassName}' : 'text-secondary']">{{ (unit === 'prefixUnit' ? '$' : '') + values.one + (unit === 'unit' ? '%' : '') }}</span>
+    <label :class="['min-w-[4ch] ${sliderCellValueClassName} ${sliderCellValueFieldClassName}', disabled ? '${sliderCellValueDisabledClassName}' : 'text-secondary']">{{ unit === 'prefixUnit' ? '$' : '' }}<input
+      aria-label="Example field value"
+      inputmode="numeric"
+      enterkeyhint="done"
+      class="${sliderCellValueInputClassName}"
+      :style="{ width: Math.max(1, String(values.one).length) + 'ch' }"
+      :value="values.one"
+      :disabled="disabled"
+      @focus="$event.target.select()"
+      @input="$event.target.style.width = Math.max(1, $event.target.value.length) + 'ch'"
+      @keydown.enter="$event.target.blur()"
+      @keydown.esc="$event.target.value = values.one; $event.target.blur()"
+      @blur="values.one = Number.isFinite(Number($event.target.value.trim() || NaN)) ? Math.min(100, Math.max(0, Math.floor(Number($event.target.value)))) : values.one; $event.target.value = values.one; $event.target.style.width = Math.max(1, String(values.one).length) + 'ch'"
+    />{{ unit === 'unit' ? '%' : '' }}</label>
   </div>
   <div v-else data-row class="${sliderCellStackedClassName}">
     <Slider
@@ -62,7 +75,7 @@ export const overviewPhone = `<FieldGroup title="Example field">
       aria-label="Example field"
       :min="0"
       :max="100"
-      :step="1"
+      :step="thumbs === 'one' ? Number(step) : 1"
       v-model:value="values[thumbs]"
       :min-steps-between-thumbs="thumbs === 'one' ? undefined : minStepsBetweenThumbs"
       :marks="marks ? scaleMarks : undefined"
@@ -72,12 +85,21 @@ export const overviewPhone = `<FieldGroup title="Example field">
     />
     <span v-if="!marks" :class="['${sliderCellValueBelowClassName}', disabled ? '${sliderCellValueDisabledClassName}' : '']">{{ [values[thumbs]].flat().map((value) => (unit === 'prefixUnit' ? '$' : '') + value + (unit === 'unit' ? '%' : '')).join(' – ') }}</span>
   </div>
+</FieldGroup>
+<FieldGroup v-if="thumbs === 'one' && resetValue">
+  <div data-row>
+    <Button block color="info" variant="ghost" class="${rowButtonClassName}" :disabled="disabled" @click="values.one = 50">Reset to Default</Button>
+  </div>
 </FieldGroup>`
 
 export const overviewControls = [
   { name: "thumbs", type: "select", options: ["one", "two", "three"], default: "one" },
   { name: "minStepsBetweenThumbs", type: "range", min: 0, max: 20, step: 1, default: 5, when: { thumbs: ["two", "three"] } },
-  { name: "resetValue", type: "boolean", default: true, when: { thumbs: "one", disabled: false }, desktopOnly: true },
+  // A range keeps a step of 1: its thumbs stand min-steps-between-thumbs steps apart, and a coarse step would leave
+  // them no room to move
+  { name: "step", type: "select", options: ["1", "5", "10", "25"], default: "1", when: { thumbs: "one" } },
+  // A disabled desktop slider leaves its reset out; a phone keeps the reset row, dimmed
+  { name: "resetValue", type: "boolean", default: true, when: { thumbs: "one" }, phoneOnly: { disabled: true } },
   { name: "unit", type: "select", options: ["none", "unit", "prefixUnit"], default: "unit", desktopOnly: { marks: true } },
   { name: "marks", type: "boolean", default: false, when: { orientation: "horizontal" } },
   { name: "colors", type: "boolean", default: false },
@@ -88,6 +110,7 @@ export const overviewControls = [
 
 export const overviewCode = `<script setup lang="ts">
 import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { Slider } from '@plexui/vue/components/Slider';
 import { Tooltip, TooltipTriggerDecorator } from '@plexui/vue/components/Tooltip';
@@ -96,7 +119,8 @@ const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(v
 const thumbs = ref<"one" | "two" | "three">("one");
 const values = ref<{ one: number; two: number[]; three: number[] }>({ one: 50, two: [25, 75], three: [10, 40, 70] });
 const minStepsBetweenThumbs = ref(5); // with two or three thumbs
-const resetValue = ref(true); // with one thumb, while enabled
+const step = ref<"1" | "5" | "10" | "25">("1"); // with one thumb
+const resetValue = ref(true); // with one thumb
 const unit = ref<"none" | "unit" | "prefixUnit">("unit");
 const marks = ref(false); // horizontal only
 const colors = ref(false);
@@ -106,12 +130,55 @@ const disabled = ref(false);
 </script>
 
 <template>
-${withPhone(overview, overviewPhone, "the group's title names the slider; one value ends the cell, a range goes under the track, and marks show the scale in its place. The phone slider is horizontal, with no reset button or tooltip")}
+${withPhone(overview, overviewPhone, "the group's title names the slider; one value ends the cell, a field the number is typed in, a range goes under the track, and marks show the scale in its place. The reset is a row of its own under the group. The phone slider is horizontal, with no tooltip")}
+</template>`
+
+export const settingState = { zoom: 100 }
+
+export const setting = `<div style="width: 300px">
+  <Slider label="Zoom" :min="50" :max="200" :step="10" unit="%" v-model:value="zoom" :reset-value="100" />
+  <p class="mt-2 text-sm text-secondary">Makes text and images on the page larger or smaller.</p>
+</div>`
+
+export const settingPhone = `<FieldGroup title="Zoom">
+  <template #action>
+    <Button color="primary" variant="ghost" size="sm" :class="zoom === 100 ? 'invisible' : undefined" @click="zoom = 100">Reset</Button>
+  </template>
+  <div data-row class="${sliderCellClassName}">
+    <Slider aria-label="Zoom" :min="50" :max="200" :step="10" v-model:value="zoom" class="min-w-0 flex-1" />
+    <label class="min-w-[4ch] ${sliderCellValueClassName} ${sliderCellValueFieldClassName} text-secondary"><input
+      aria-label="Zoom value"
+      inputmode="numeric"
+      enterkeyhint="done"
+      class="${sliderCellValueInputClassName}"
+      :style="{ width: Math.max(1, String(zoom).length) + 'ch' }"
+      :value="zoom"
+      @focus="$event.target.select()"
+      @input="$event.target.style.width = Math.max(1, $event.target.value.length) + 'ch'"
+      @keydown.enter="$event.target.blur()"
+      @keydown.esc="$event.target.value = zoom; $event.target.blur()"
+      @blur="zoom = Number.isFinite(Number($event.target.value.trim() || NaN)) ? Math.min(200, Math.max(50, Math.floor(Number($event.target.value)))) : zoom; $event.target.value = zoom; $event.target.style.width = Math.max(1, String(zoom).length) + 'ch'"
+    />%</label>
+  </div>
+  <template #footer>Makes text and images on the page larger or smaller.</template>
+</FieldGroup>`
+
+export const settingCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+import { FieldGroup } from '@plexui/vue/components/FieldGroup';
+import { Slider } from '@plexui/vue/components/Slider';
+
+const zoom = ref(100);
+</script>
+
+<template>
+${withPhone(setting, settingPhone, "the group's title names the setting, its footer says what it does, and the reset is the heading's action once the value differs from its default. The value is typed in place, as in the Overview")}
 </template>`
 
 <UsageBlock>{`import { Slider } from "@plexui/vue/components/Slider";`}</UsageBlock>
 
-On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider and the slider fills the cell. One value ends the cell, a range goes under the track, and with marks the cell shows the scale instead of a value. For a slider among other settings, see [Settings with a slider](/vue/components/settings-forms#settings-with-a-slider).
+On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider and the slider fills the cell. One value ends the cell, a field the number can be typed in, a range goes under the track, and with marks the cell shows the scale instead of a value. A reset is a row of its own under the group. For a slider among other settings, see [Settings with a slider](/vue/components/settings-forms#settings-with-a-slider).
 
 ## Examples
 
@@ -125,11 +192,20 @@ On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: th
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
-  <p>Set <code>range</code> and bind an array of two numbers with <code>v-model:value</code> for a range, or three or more for several thumbs. <code>min-steps-between-thumbs</code> keeps the thumbs that many steps apart. <code>reset-value</code>, with one thumb, adds a button to the label that brings the value back; a disabled slider hides it.</p>
+  <p>Set <code>range</code> and bind an array of two numbers with <code>v-model:value</code> for a range, or three or more for several thumbs. <code>step</code> is how far a drag or a key moves the value at a time: 25 here stops it on the marks. A typed number is taken as it is, whole and within the scale. <code>min-steps-between-thumbs</code> keeps the thumbs that many steps apart. <code>reset-value</code>, with one thumb, adds a button to the label that brings the value back; a disabled slider leaves that button out.</p>
   <p><code>unit</code> follows the value and <code>prefix-unit</code> comes before it. <code>marks</code> label points of the scale under the track, horizontal only. <code>track-color</code> and <code>range-color</code> color the track and its fill. The <code>label</code> slot can carry a tooltip, and <code>orientation="vertical"</code> stands the slider up.</p>
-  <p>On a phone the slider is horizontal, as a list of iOS settings has no vertical slider. A tooltip opens on hover, which a phone does not have, and the cell has no label to hold a reset button, so the Phone preview leaves out those controls. A slider with a label of its own keeps the reset on a phone, as the small round gray button of the iOS 27 kit 8px before the value: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.</p>
+  <p>On a phone the slider is horizontal, as a list of iOS settings has no vertical slider, and a tooltip opens on hover, which a phone does not have, so the Phone preview leaves out those controls. The value at the end of the cell is a field: a tap brings up the number pad and the typed number moves the slider, taken as the slider's own field takes it, as Keynote for iPhone takes a value in the field next to its slider. The cell has no label row for a reset button, so the reset is a row of its own under the slider's group, its label centered in the accent, as Settings resets Hover Text's size; a disabled slider dims the row with it. A slider with a label of its own keeps the reset beside its value on a phone, as the small round gray button of the iOS 27 kit: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} stageClassName={stage} state={overviewState} controls={overviewControls} />
+</ComponentPreview>
+
+### In a settings group
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>A slider that is one setting of a screen. On a phone the group's title names it, one cell of the row's height holds the track and its value, typed in place as in the Overview, and the group's footer says what the setting does.</p>
+  <p>A reset that changes nothing only crowds the group, so here it is the heading's action, the tinted text at the end of an iOS list's header: it shows once the value differs from its default, brings the default back and goes. The heading keeps its height either way, so the list does not move. On a desktop the slider keeps its label, its value and its round reset.</p>
+</>} code={settingCode} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={setting} phoneTemplate={phoneRows(settingPhone)} stageClassName={stage} state={settingState} />
 </ComponentPreview>
 
 ## API
