@@ -5,8 +5,8 @@ metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account act
 ---
 
 import { VueSettingsSliderDemo } from "@/components/docs/vue/VueSettingsSliderDemo"
-import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode, settingsRegionVueCode, settingsAutofillVueCode, settingsHapticsVueCode, settingsSharingVueCode } from "@/components/docs/settingsSliderCode"
-import { VueSettingsQuickDemo, VueSettingsLanguagesDemo, VueSettingsRegionDemo, VueSettingsAutofillDemo, VueSettingsHapticsDemo, VueSettingsSharingDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
+import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode, settingsRegionVueCode, settingsAutofillVueCode, settingsHapticsVueCode, settingsSharingVueCode, settingsVpnVueCode, settingsTvProviderVueCode } from "@/components/docs/settingsSliderCode"
+import { VueSettingsQuickDemo, VueSettingsLanguagesDemo, VueSettingsRegionDemo, VueSettingsAutofillDemo, VueSettingsHapticsDemo, VueSettingsSharingDemo, VueSettingsVpnDemo, VueSettingsTvProviderDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
 import { VueSettingsVoiceDemo } from "@/components/docs/vue/VueSettingsVoiceDemo"
 import { VueImageAlbumDemo } from "@/components/docs/vue/VueImageAlbumDemo"
 import { imageAlbumVueCode } from "@/components/docs/imageAlbumCode"
@@ -839,4 +839,24 @@ Copy the [SettingsSharingFields helper](https://github.com/plex-ui/ui/blob/maste
 
 <ComponentPreview phonePresentation="screen" language="vue" code={settingsSharingVueCode} previewMinHeight={560}>
   <VueSettingsSharingDemo />
+</ComponentPreview>
+
+## VPN settings
+
+A switch with its state in words before it, then the configurations of the device with one chosen, as Settings › VPN lays them out. The state is the secondary text before the `Switch`, given to the row through the `Field`'s render prop so the switch keeps the row's label and its tap. Each configuration is a `Field` with a `description`, a `RadioGroup.Item` and an info `Button` as its `action`: a choice with an action at its end leads with its mark in the icon column, so the info button alone stands at the end. A tap on the row chooses; the info button opens the configuration.
+
+Copy the [SettingsVpnFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsVpnFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsVpnData.ts).
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsVpnVueCode} previewMinHeight={620}>
+  <VueSettingsVpnDemo />
+</ComponentPreview>
+
+## TV Provider
+
+A paragraph over the providers, a centred row, and a footer of two paragraphs, as Settings › TV Provider lays them out. The paragraph is the group's `title`, which wraps. Each provider is a ghost `Button` with `block` in a row, in the text color, as a row that opens a page. The centred row adds `data-align="center"`. The footer's second paragraph is a primary `TextLink`, a line apart. A long list of providers searches from a bar at the bottom, as [Region](#region-settings) does.
+
+Copy the [TvProviderFields helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsVpnFields.ts) with its [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsVpnData.ts).
+
+<ComponentPreview phonePresentation="screen" language="vue" code={settingsTvProviderVueCode} previewMinHeight={480}>
+  <VueSettingsTvProviderDemo />
 </ComponentPreview>

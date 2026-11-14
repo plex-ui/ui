@@ -203,7 +203,8 @@ const FieldComponent = defineComponent({
     default?: (fieldProps: FieldChildProps) => VNodeChild
     label?: () => VNodeChild
     labelAction?: () => VNodeChild
-    /** On a `fill` row, a control at the end of the row, such as a button that adds to a list. */
+    /** On a `row`, a control at the end of the row, such as a button that adds to a list on a `fill` row. On a row whose
+     * control is a radio (an info button after a network or a VPN) the radio's mark leads in the icon column. */
     action?: () => VNodeChild
     /** On a `row`, a symbol or an app's picture before the label, as an iOS cell's image (React's `icon`). */
     icon?: () => VNodeChild

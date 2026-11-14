@@ -394,6 +394,44 @@
   --button-font-weight: var(--field-row-action-font-weight);
 }
 
+/* A row that is not `fill` takes its action after the control, at the row's end. It weighs as a row alone, so a
+   group with `columns` keeps its own columns (Codex #46). */
+.Field:where([data-row]:not([data-fill], [data-orientation="vertical"]):has(> .Action):is(:has(> .Icon), :not(:has(> .Content > .Control > :only-child > label:only-child:not([data-has-label]) [role="radio"])))) {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+/* A choice with an action at its end, such as the info button of a VPN or a network, leads with its mark in the
+   icon column, so the action alone stands at the end (Settings › VPN, IMG_5959: the check at 32 from the group's
+   edge, the words at 60, the info symbol at the row's inset; the kit's icon column puts them at 34 and 56). Only a single radio without a label of its own: a RadioGroup of
+   several choices keeps its place (Codex #46), a row with an `icon` keeps its icon there (Codex #47), and a vertical row its own layout (Codex #48). */
+.Field:where([data-row]:not([data-fill], [data-orientation="vertical"])):has(> .Action):not(:has(> .Icon)):has(> .Content > .Control > :only-child > label:only-child:not([data-has-label]) [role="radio"]) {
+  --field-group-separator-inset-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-size) + var(--field-row-icon-gap));
+
+  position: relative;
+  padding-inline-start: calc(var(--field-row-padding-inline) + var(--field-row-icon-size) + var(--field-row-icon-gap));
+}
+
+/* The action takes the control's column; the control leaves the grid for the row's padding box (a grid area would
+   be its containing block) */
+.Field:where([data-row]:not([data-fill], [data-orientation="vertical"])):has(> .Action):not(:has(> .Icon)):has(> .Content > .Control > :only-child > label:only-child:not([data-has-label]) [role="radio"]) > .Action {
+  /* Its symbol is a row's symbol, as the info symbol of Settings › VPN (21.3pt of ink, a 24px icon) */
+  --button-icon-size-md: var(--field-row-icon-symbol-size);
+
+  /* The last column: the second of a row, the third of a group with `columns` (Codex #45) */
+  grid-column: -2;
+}
+
+.Field:where([data-row]:not([data-fill], [data-orientation="vertical"])):has(> .Action):not(:has(> .Icon)) > .Content > .Control:has(> :only-child > label:only-child:not([data-has-label]) [role="radio"]) {
+  position: absolute;
+  grid-area: auto;
+  inset-inline-start: var(--field-row-padding-inline);
+  top: 50%;
+  display: flex;
+  justify-content: center;
+  width: var(--field-row-icon-size);
+  translate: 0 -50%;
+}
+
 /* A framed field in a row: its width cannot follow what is typed, so it has one,
    wider for words than for a number. A ghost has the row for its frame, a Select
    follows its value, and fields set out by a wrapper of their own size themselves. */
@@ -624,7 +662,8 @@
     grid-row: 2;
   }
 
-  .Action {
+  /* A fill row's two columns; another row keeps its action after its control (Codex #45) */
+  .Field:where([data-row][data-fill]) > .Action {
     grid-column: 2;
   }
 

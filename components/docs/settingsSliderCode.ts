@@ -217,3 +217,53 @@ const sharing = ref({ ...initialSharing });
     <SharingFields v-model:value="sharing" />
   </FormScreen>
 </template>`;
+
+export const settingsVpnReactCode = `import { useState } from 'react';
+import { FormScreen } from './FormRowsDemos';
+import { VpnFields } from './SettingsVpnFields';
+import { initialVpn } from './settingsVpnData';
+
+export function VpnSettings() {
+  const [vpn, setVpn] = useState(initialVpn);
+  return (
+    <FormScreen title="VPN" surface="grouped">
+      <VpnFields value={vpn} onChange={setVpn} />
+    </FormScreen>
+  );
+}`;
+
+export const settingsVpnVueCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FormScreen } from './FormScreen';
+import { VpnFields } from './SettingsVpnFields';
+import { initialVpn } from './settingsVpnData';
+const vpn = ref({ ...initialVpn });
+</script>
+
+<template>
+  <FormScreen title="VPN" surface="grouped">
+    <VpnFields v-model:value="vpn" />
+  </FormScreen>
+</template>`;
+
+export const settingsTvProviderReactCode = `import { FormScreen } from './FormRowsDemos';
+import { TvProviderFields } from './SettingsVpnFields';
+
+export function TvProviderSettings() {
+  return (
+    <FormScreen title="TV Provider" surface="grouped">
+      <TvProviderFields />
+    </FormScreen>
+  );
+}`;
+
+export const settingsTvProviderVueCode = `<script setup lang="ts">
+import { FormScreen } from './FormScreen';
+import { TvProviderFields } from './SettingsVpnFields';
+</script>
+
+<template>
+  <FormScreen title="TV Provider" surface="grouped">
+    <TvProviderFields />
+  </FormScreen>
+</template>`;

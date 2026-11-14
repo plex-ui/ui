@@ -11,6 +11,8 @@ import { initialRegion } from '../settingsRegionData';
 import { AutofillFields, HapticsFields } from './SettingsAppsFields';
 import { SharingFields } from './SettingsSharingFields';
 import { initialSharing } from '../settingsSharingData';
+import { TvProviderFields, VpnFields } from './SettingsVpnFields';
+import { initialVpn } from '../settingsVpnData';
 import { initialAutofill } from '../settingsAppsData';
 import formStyles from '../FormRowsDemos.module.css';
 
@@ -101,6 +103,30 @@ export function VueSettingsSharingDemo() {
     </component>`}
     stageClassName={`${formStyles.ScreenStage} flex justify-center py-10 w-full`}
     state={{ FormScreen: markRaw(FormScreen), SharingFields: markRaw(SharingFields), sharing: structuredClone(initialSharing) }}
+    context={useHosts()}
+    controls={[...controls]}
+  />;
+}
+
+export function VueSettingsVpnDemo() {
+  return <VueDemo
+    template={`<component :is="FormScreen" title="VPN" v-model:dialog="dialog" :surface="surface" :phone-preview="phonePreview" :phone-host="phoneHost">
+      <component :is="VpnFields" v-model:value="vpn" />
+    </component>`}
+    stageClassName={`${formStyles.ScreenStage} flex justify-center py-10 w-full`}
+    state={{ FormScreen: markRaw(FormScreen), VpnFields: markRaw(VpnFields), vpn: { ...initialVpn } }}
+    context={useHosts()}
+    controls={[...controls]}
+  />;
+}
+
+export function VueSettingsTvProviderDemo() {
+  return <VueDemo
+    template={`<component :is="FormScreen" title="TV Provider" v-model:dialog="dialog" :surface="surface" :phone-preview="phonePreview" :phone-host="phoneHost">
+      <component :is="TvProviderFields" />
+    </component>`}
+    stageClassName={`${formStyles.ScreenStage} flex justify-center py-10 w-full`}
+    state={{ FormScreen: markRaw(FormScreen), TvProviderFields: markRaw(TvProviderFields) }}
     context={useHosts()}
     controls={[...controls]}
   />;

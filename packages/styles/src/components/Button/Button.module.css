@@ -94,12 +94,13 @@
     }
   }
 
-  /* Uniform buttons zero-out button-gutter, requiring custom calcs */
-  &:where([data-optically-align="start"][data-uniform]) {
+  /* Uniform buttons zero-out button-gutter, requiring custom calcs. They weigh as the pill rules above, which would
+     otherwise take a uniform pill back to its zero gutter. */
+  &:where([data-optically-align="start"])[data-uniform] {
     margin-inline-start: calc(((var(--button-size) - var(--button-icon-size)) / 2) * -1);
   }
 
-  &:where([data-optically-align="end"][data-uniform]) {
+  &:where([data-optically-align="end"])[data-uniform] {
     margin-inline-end: calc(((var(--button-size) - var(--button-icon-size)) / 2) * -1);
   }
 

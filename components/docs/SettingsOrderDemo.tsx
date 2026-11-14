@@ -12,6 +12,8 @@ import { AutofillFields, HapticsFields, type IconStyle } from './SettingsAppsFie
 import { initialAutofill } from './settingsAppsData';
 import { SharingFields } from './SettingsSharingFields';
 import { initialSharing } from './settingsSharingData';
+import { TvProviderFields, VpnFields } from './SettingsVpnFields';
+import { initialVpn } from './settingsVpnData';
 
 export function SettingsQuickDemo() {
   const presentation = useScreenPresentation();
@@ -91,6 +93,27 @@ export function SettingsSharingDemo() {
     <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
     <FormScreen title="Nearby Sharing" {...presentation} onDialogChange={presentation.setDialog}>
       <SharingFields value={value} onChange={setValue} />
+    </FormScreen>
+  </>;
+}
+
+export function SettingsVpnDemo() {
+  const presentation = useScreenPresentation();
+  const [value, setValue] = useState(initialVpn);
+  return <>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+    <FormScreen title="VPN" {...presentation} onDialogChange={presentation.setDialog}>
+      <VpnFields value={value} onChange={setValue} />
+    </FormScreen>
+  </>;
+}
+
+export function SettingsTvProviderDemo() {
+  const presentation = useScreenPresentation();
+  return <>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+    <FormScreen title="TV Provider" {...presentation} onDialogChange={presentation.setDialog}>
+      <TvProviderFields />
     </FormScreen>
   </>;
 }

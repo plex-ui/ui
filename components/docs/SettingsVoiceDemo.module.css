@@ -92,6 +92,13 @@
   font-weight: 400;
 }
 
+/* A switch with its state in words before it, in the secondary color (VPN Status › Not Connected, IMG_5959) */
+.StatusControl {
+  display: flex;
+  align-items: center;
+  gap: var(--field-row-gap, 12px);
+}
+
 .ValueRowContent > svg {
   flex: none;
   color: var(--color-text-tertiary);

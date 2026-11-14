@@ -51,9 +51,11 @@ export type FieldProps = {
    */
   labelAction?: React.ReactNode
   /**
-   * On a `fill` row, a control at the end of the row, such as a button that adds
-   * to a list. It stays on the list's first line, and on a phone it stands beside
-   * the label with the list on a line of its own.
+   * On a `row`, a control at the end of the row after the row's own control. On a `fill`
+   * row, such as a button that adds to a list, it stays on the list's first line, and on a
+   * phone it stands beside the label with the list on a line of its own. On a row whose
+   * control is a radio, such as an info button after a network or a VPN, the radio's mark
+   * leads in the icon column and the action alone stands at the end.
    */
   action?: React.ReactNode
   /**
