@@ -3251,117 +3251,98 @@ Props:
     - className (string) — Applied to the addon <div>
 
 ### Overview
-Put an InputGroup.Input and one or more InputGroup.Addons inside an InputGroup. The group draws the frame and passes size, pill, disabled and invalid down to the control and the buttons.
+Put an InputGroup.Input and one or more InputGroup.Addons inside an InputGroup. The group draws the frame and passes size, pill, disabled and invalid down to the control and the buttons. Use variant to stylize it, like Input. size takes every Input size from 3xs to 3xl; icons, text and InputGroup.Button scale with the group, and buttons in inline addons fit the control height and keep a 4px inset. Use align on InputGroup.Addon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it; here it places the caption of the amount. A block addon turns the group into rows, so keep the other content of such a group inside its block addons, as the Textarea example does. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position. loading shows a LoadingIndicator in an addon while a value is searched, checked or saved. On Phone the row is the frame: a group in a row keeps the default outline, which the row draws without a border, and the row sets its height (with touch.css 3xs to xl are all 44px; the iOS 26 field is one 52px row), so size, variant, pill and align stay on the desktop. The row places the value at its end, or, with columns, at one column shared by the group's rows; inline addons stay in the row, a block-start text becomes the row's label and a block-end text the group's footer. An indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is.
 ```tsx
+const [size, setSize] = useState<"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl">("md")
+const [variant, setVariant] = useState<"outline" | "soft">("outline")
+const [pill, setPill] = useState(false)
+const [align, setAlign] = useState<"inline-start" | "inline-end" | "block-start" | "block-end">("inline-start")
+const [loading, setLoading] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [invalid, setInvalid] = useState(false)
+
 // Desktop
-<InputGroup>
-<InputGroup.Input placeholder="Search..." />
-<InputGroup.Addon>
-  <Search />
-</InputGroup.Addon>
-<InputGroup.Addon align="inline-end">
-  <InputGroup.Text>12 results</InputGroup.Text>
-</InputGroup.Addon>
-</InputGroup>
+<div className="flex flex-col gap-2.5 w-[320px]">
+  <InputGroup size={size} variant={variant} pill={pill} disabled={disabled} invalid={invalid}>
+    <InputGroup.Input placeholder="Search..." />
+    <InputGroup.Addon>
+      <Search />
+    </InputGroup.Addon>
+    {loading && (
+      <InputGroup.Addon align="inline-end">
+        <LoadingIndicator />
+      </InputGroup.Addon>
+    )}
+    <InputGroup.Addon align="inline-end">
+      <InputGroup.Text>12 results</InputGroup.Text>
+    </InputGroup.Addon>
+  </InputGroup>
+  <InputGroup size={size} variant={variant} pill={pill} disabled={disabled} invalid={invalid}>
+    <InputGroup.Input placeholder="example" />
+    <InputGroup.Addon>
+      <InputGroup.Text>https://</InputGroup.Text>
+    </InputGroup.Addon>
+    <InputGroup.Addon align="inline-end">
+      <InputGroup.Text>.com</InputGroup.Text>
+    </InputGroup.Addon>
+  </InputGroup>
+  {/* A group with a block addon lays its addons out as rows: the caption is its only addon */}
+  <InputGroup size={size} variant={variant} pill={pill} disabled={disabled} invalid={invalid}>
+    <InputGroup.Input placeholder="0.00" inputMode="decimal" />
+    <InputGroup.Addon align={align}>
+      <InputGroup.Text>Amount in USD</InputGroup.Text>
+    </InputGroup.Addon>
+  </InputGroup>
+  <InputGroup size={size} variant={variant} pill={pill} disabled={disabled} invalid={invalid}>
+    <InputGroup.Input placeholder="Ask anything..." />
+    <InputGroup.Addon align="inline-end">
+      <InputGroup.Button variant="solid" color="primary" uniform aria-label="Send">
+        <ArrowUpSm />
+      </InputGroup.Button>
+    </InputGroup.Addon>
+  </InputGroup>
+</div>
 
 // Phone: the group is the value of a row; with a prefix the rows take columns.
 <FieldGroup columns>
-<Field row label="Website" errorMessage={invalid ? "Enter a valid address." : undefined}>
-  {(control) => (
-    <InputGroup disabled={disabled} invalid={invalid}>
-      <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
-      <InputGroup.Addon>
-        <InputGroup.Text>https://</InputGroup.Text>
-      </InputGroup.Addon>
-    </InputGroup>
-  )}
-</Field>
-<Field row label="Amount">
-  {(control) => (
-    <InputGroup disabled={disabled}>
-      <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
-      <InputGroup.Addon>
-        <InputGroup.Text>$</InputGroup.Text>
-      </InputGroup.Addon>
-    </InputGroup>
-  )}
-</Field>
+  <Field row label="Website" errorMessage={invalid ? "Enter a valid address." : undefined}>
+    {(control) => (
+      <InputGroup disabled={disabled} invalid={invalid}>
+        <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+        <InputGroup.Addon>
+          <InputGroup.Text>https://</InputGroup.Text>
+        </InputGroup.Addon>
+        {loading && (
+          <InputGroup.Addon align="inline-end">
+            <LoadingIndicator />
+          </InputGroup.Addon>
+        )}
+      </InputGroup>
+    )}
+  </Field>
+  <Field row label="Amount">
+    {(control) => (
+      <InputGroup disabled={disabled}>
+        <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+        <InputGroup.Addon>
+          <InputGroup.Text>$</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
 </FieldGroup>
-```
-
-### Variants
-Use variant to stylize the group, like Input. On Phone the row is the frame, so a group in a row keeps the default outline, which the row draws without a border, and the row places the value: at its end, or, with columns, at one column shared by the group's rows.
-```tsx
-// Desktop
-<InputGroup variant="outline">...</InputGroup>
-<InputGroup variant="soft">...</InputGroup>
-
-// Phone: the row is the frame and places the value.
-<FieldGroup title="Value at the end">
-<Field row label="Distance">
-  {(control) => (
-    <InputGroup>
-      <InputGroup.Input {...control} defaultValue="5" inputMode="decimal" />
-      <InputGroup.Addon align="inline-end">
-        <InputGroup.Text>km</InputGroup.Text>
-      </InputGroup.Addon>
-    </InputGroup>
-  )}
-</Field>
-</FieldGroup>
-<FieldGroup title="Values in a column" columns>
-<Field row label="Handle">
-  {(control) => (
-    <InputGroup>
-      <InputGroup.Input {...control} placeholder="username" autoCapitalize="none" spellCheck={false} />
-      <InputGroup.Addon>
-        <InputGroup.Text>@</InputGroup.Text>
-      </InputGroup.Addon>
-    </InputGroup>
-  )}
-</Field>
-<Field row label="Price">
-  {(control) => (
-    <InputGroup>
-      <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
-      <InputGroup.Addon>
-        <InputGroup.Text>€</InputGroup.Text>
-      </InputGroup.Addon>
-    </InputGroup>
-  )}
-</Field>
-</FieldGroup>
-```
-
-### Align
-Use align on InputGroup.Addon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position. On Phone the inline addons stay in the row (see Variants), a block-start text becomes the row's label and a block-end text the group's footer.
-```tsx
-// Desktop
-<InputGroup>
-<InputGroup.Input placeholder="Ada Lovelace" />
-<InputGroup.Addon align="block-start">
-  <InputGroup.Text>Full name</InputGroup.Text>
-</InputGroup.Addon>
-</InputGroup>
-
-// Phone: block-start text is the row's label, block-end text the group's footer.
+{/* A unit after the value: the value ends at the row's edge, so the group takes no columns */}
 <FieldGroup>
-<Field row label="Full name">
-  {(control) => (
-    <InputGroup>
-      <InputGroup.Input {...control} placeholder="Ada Lovelace" />
-    </InputGroup>
-  )}
-</Field>
-</FieldGroup>
-<FieldGroup footer="Amount in USD">
-<Field row label="Amount">
-  {(control) => (
-    <InputGroup>
-      <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
-    </InputGroup>
-  )}
-</Field>
+  <Field row label="Distance">
+    {(control) => (
+      <InputGroup disabled={disabled}>
+        <InputGroup.Input {...control} defaultValue="5" inputMode="decimal" />
+        <InputGroup.Addon align="inline-end">
+          <InputGroup.Text>km</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
 </FieldGroup>
 ```
 
@@ -3553,33 +3534,6 @@ const phoneUnitMenu = (units, unit, setUnit) => (
 </FieldGroup>
 ```
 
-### Spinner
-Show a LoadingIndicator in an addon while a value is searched, checked or saved. On a phone with touch.css an indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is.
-```tsx
-// Desktop
-<InputGroup>
-<InputGroup.Input defaultValue="Saving changes" readOnly />
-<InputGroup.Addon align="inline-end">
-  <InputGroup.Text>Saving...</InputGroup.Text>
-  <LoadingIndicator />
-</InputGroup.Addon>
-</InputGroup>
-
-// Phone: a value being checked; in a field the indicator is the kit's Small 22.
-<FieldGroup footer="Checking availability...">
-<Field row label="Username">
-  {(control) => (
-    <InputGroup>
-      <InputGroup.Input {...control} defaultValue="ada" autoCapitalize="none" spellCheck={false} />
-      <InputGroup.Addon align="inline-end">
-        <LoadingIndicator />
-      </InputGroup.Addon>
-    </InputGroup>
-  )}
-</Field>
-</FieldGroup>
-```
-
 ### Textarea
 With InputGroup.Textarea, use block-start and block-end addons for a header and a footer. Utility classes such as ml-auto push a button to the far side.
 ```tsx
@@ -3613,35 +3567,6 @@ With InputGroup.Textarea, use block-start and block-end addons for a header and 
 <Button color="primary" size="3xl" pill block>Run</Button>
 ```
 
-### Sizes
-Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.
-```tsx
-// Desktop
-<InputGroup size="lg">
-<InputGroup.Input placeholder="Search..." />
-<InputGroup.Addon>
-  <Search />
-</InputGroup.Addon>
-<InputGroup.Addon align="inline-end">
-  <InputGroup.Button>Search</InputGroup.Button>
-</InputGroup.Addon>
-</InputGroup>
-
-// Phone: one size, the 52px row.
-<FieldGroup columns>
-<Field row label="Domain">
-  {(control) => (
-    <InputGroup>
-      <InputGroup.Input {...control} defaultValue="plexui.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
-      <InputGroup.Addon>
-        <InputGroup.Text>https://</InputGroup.Text>
-      </InputGroup.Addon>
-    </InputGroup>
-  )}
-</Field>
-</FieldGroup>
-```
-
 ## Input
 Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
 Import: import { Input } from "@plexui/ui/components/Input"
@@ -3666,110 +3591,71 @@ Props:
     - type (string) default: "button" — Button type
 
 ### Overview
+Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. size sets the control height and gives a gutterSize (the horizontal padding) and a font-size, each of which can be overridden; Input shares the 9-step size scale with Button, Select, SelectControl and SegmentedControl, so adjacent controls of one size line up. pill rounds it fully. startAdornment puts content before the value, such as a prefix or a search icon, and endAdornment after it, such as a character counter. gutterSize sets the space at the edges (a negative margin on the adornment, such as -ml-2, fine-tunes it), and gap on the container the space between the adornment and the value. onClear shows a built-in clear button while the input has a value and is not disabled or read-only; clicking it keeps focus in the input. opticallyAlign ("start" or "end") offsets the gutter so the text lines up with the content around it, here the label; on a Field it is forwarded to its control. autoSelect selects all the text, useful with copy actions; it acts when toggled and leaves the selection free to change. Autofill extensions are prevented by default; allowAutofillExtensions lets them in, and a name or type="password" turns it on by default. readOnly keeps the value and hides the clear button. disabled greys the input out and blocks interaction. invalid marks it invalid, with [data-invalid] on the container; you decide how the state is removed (onFocus, onChange, an onSubmit handler). On Phone the row is the frame and sets the height, insets and type, so the input takes no variant, size, gutterSize, pill or opticallyAlign; with touch.css the 3xs to xl sizes are all 44px. The value stands at the end of the row, at one column for the whole group with FieldGroup columns, or under the label with orientation="vertical", where it is ghost. A start adornment is a prefix of the value and trailing text-secondary text takes the row's accessory color; the clear button is the filled circle of an iOS text field, shown only while the value is being edited, and a long value stops 6px before it. An error is the row's errorMessage under it. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard. An Input in a Toolbar takes the bar's search field, and one with type="search" at the top of the content is the same glass field under a large title.
 ```tsx
-// Desktop
-<Input placeholder="Enter text..." />
+const [value, setValue] = useState("janeappleseed")
+const [variant, setVariant] = useState<"outline" | "soft" | "ghost">("outline")
+const [size, setSize] = useState<"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl">("md")
+const [gutterSize, setGutterSize] = useState<"2xs" | "xs" | "sm" | "md" | "lg" | "xl" | undefined>(undefined) // undefined: the size gives it
+const [pill, setPill] = useState(false)
+const [adornment, setAdornment] = useState<"none" | "start" | "end">("none")
+const [clearable, setClearable] = useState(false)
+const [opticallyAlign, setOpticallyAlign] = useState<"start" | "end" | undefined>(undefined)
+const [autoSelect, setAutoSelect] = useState(false)
+const [allowAutofillExtensions, setAllowAutofillExtensions] = useState(true)
+const [readOnly, setReadOnly] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [invalid, setInvalid] = useState(false)
+const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal") // phone
+const [columns, setColumns] = useState(false) // phone
 
-// Phone: the input is the value of a row.
-<FieldGroup>
-<Field row label="Email">
-  <Input type="email" placeholder="name@example.com" />
-</Field>
-</FieldGroup>
-```
-
-### Variants
-Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. The state control shows each variant empty, with a value, invalid and disabled. You decide how the invalid state is removed, whether that's through onFocus, onChange, an onSubmit handler, etc.; [data-invalid] is applied to the container for custom styling. disabled greys the input out and prevents user interactions. On Phone the row is the frame, and the value stands in one of three places: at the end of the row, at one column for the whole group with FieldGroup columns, or under the label with orientation="vertical". A row has no frame to color, so an error is the row's errorMessage under it.
-```tsx
 // Desktop
-<div className="flex flex-col gap-2 w-[320px]">
-<Input type="email" placeholder="name@example.com" variant="outline" />
-<Input type="email" placeholder="name@example.com" variant="soft" />
-<Input type="email" placeholder="name@example.com" variant="ghost" />
+<div className="w-[320px]">
+  <Field label="Username" errorMessage={invalid ? "This username is taken." : undefined}>
+    <Input
+      key={String(allowAutofillExtensions)} // the extensions are let in or kept out as the field mounts
+      name="username"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onClear={clearable ? () => setValue("") : undefined}
+      maxLength={16}
+      placeholder="Choose a username"
+      variant={variant}
+      size={size}
+      gutterSize={gutterSize}
+      pill={pill}
+      opticallyAlign={opticallyAlign}
+      startAdornment={adornment === "start" ? <span className="text-tertiary">@</span> : undefined}
+      endAdornment={adornment === "end" ? <span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{value.length}/16</span> : undefined}
+      autoSelect={autoSelect}
+      allowAutofillExtensions={allowAutofillExtensions}
+      readOnly={readOnly}
+      disabled={disabled}
+      invalid={invalid}
+    />
+  </Field>
 </div>
 
-// States
-<Input type="email" defaultValue="jane@example.com" />
-<Input type="email" defaultValue="jane@example" invalid />
-<Input type="email" defaultValue="jane@example.com" disabled />
-
-// Phone: the value at the end of the row, at one column, or under the label.
-<FieldGroup title="Value at the end">
-<Field row label="Name">
-  <Input placeholder="Required" defaultValue="Jane Appleseed" />
-</Field>
-<Field row label="Email" errorMessage="Enter a valid email address.">
-  <Input type="email" placeholder="name@example.com" defaultValue="jane@example" invalid />
-</Field>
-</FieldGroup>
-<FieldGroup title="Values in a column" columns>
-<Field row label="Name">
-  <Input placeholder="Required" defaultValue="Jane Appleseed" />
-</Field>
-<Field row label="Email">
-  <Input type="email" placeholder="name@example.com" />
-</Field>
-</FieldGroup>
-<FieldGroup title="Value under the label">
-<Field row orientation="vertical" label="Name">
-  <Input variant="ghost" placeholder="Required" defaultValue="Jane Appleseed" disabled />
-</Field>
-<Field row orientation="vertical" label="Email">
-  <Input variant="ghost" type="email" placeholder="name@example.com" disabled />
-</Field>
-</FieldGroup>
-```
-
-### Adornments
-Add arbitrary content to the beginning of an input with startAdornment, like a search icon, or to its end with endAdornment, like a character counter or custom icon; position switches between the two. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutterSize determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutterSize, use a negative margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes. On Phone an Input in a Toolbar takes the bar's search field, and one with type="search" at the top of the content is the same glass field under a large title; in a row a start adornment is a prefix of the value, such as a currency, and trailing text-secondary text takes the row's accessory color.
-```tsx
-// Desktop
-<Input
-placeholder="Search"
-startAdornment={<Search className="fill-tertiary" />}
-/>
-<Input
-placeholder="Username"
-value={username}
-onChange={(evt) => setUsername(evt.target.value)}
-maxLength={16}
-endAdornment={
-  <span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">
-    {username.length}/16
-  </span>
-}
-/>
-
-// Phone: a prefix of the value, which starts at the column, or trailing text.
-<FieldGroup columns>
-<Field row label="Amount">
-  <Input placeholder="0.00" inputMode="decimal" startAdornment={<span className="text-secondary">$</span>} />
-</Field>
-</FieldGroup>
-<FieldGroup>
-<Field row label="Username">
-  <Input placeholder="Required" value={username} onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className="tabular-nums text-secondary">{username.length}/16</span>} />
-</Field>
-</FieldGroup>
-```
-
-### Clear button
-Use the onClear prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input. On Phone it is the filled circle of an iOS text field: in a row it shows only while the value is being edited, at the row's end, and a long value stops 6px before it.
-```tsx
-// Desktop
-<Input
-placeholder="Enter text..."
-value={value}
-onChange={(evt) => setValue(evt.target.value)}
-onClear={() => setValue("")}
-pill
-/>
-
-// Phone
-<FieldGroup>
-<Field row label="Name">
-  <Input placeholder="Enter text..." value={value} onChange={(evt) => setValue(evt.target.value)} onClear={() => setValue("")} />
-</Field>
+// Phone: the input is the value of a row, at its end, at one column for the group (columns) or under its label
+// (vertical, ghost); the row is its frame.
+<FieldGroup columns={orientation === "horizontal" && columns}>
+  <Field row orientation={orientation} label="Username" errorMessage={invalid ? "This username is taken." : undefined}>
+    <Input
+      name="username"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onClear={clearable ? () => setValue("") : undefined}
+      maxLength={16}
+      placeholder="Required"
+      variant={orientation === "vertical" ? "ghost" : undefined}
+      startAdornment={adornment === "start" ? <span className="text-secondary">@</span> : undefined}
+      endAdornment={adornment === "end" ? <span className="tabular-nums text-secondary">{value.length}/16</span> : undefined}
+      autoSelect={autoSelect}
+      readOnly={readOnly}
+      disabled={disabled}
+      invalid={invalid}
+    />
+  </Field>
 </FieldGroup>
 ```
 
@@ -3894,76 +3780,6 @@ You can pair Input and Button components together by using the same size value. 
 </Field>
 </FieldGroup>
 <Button color="primary" size="3xl" pill block>Subscribe</Button>
-```
-
-### Sizing & roundness
-Sizing of the input is controlled with size and gutterSize props. size sets the input to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so this example has no Phone switch.
-```tsx
-// Desktop
-<div className="flex flex-col gap-2.5 justify-start items-start w-[320px]">
-<Input placeholder="Enter text..." size="lg" />
-<Input placeholder="Search..." startAdornment={<Search className="fill-tertiary" />} size="lg" />
-<Input value={username} placeholder="Username" onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{username.length}/16</span>} />
-</div>
-
-// Phone: the row sets the height, insets and type.
-<FieldGroup columns>
-<Field row label="Name">
-  <Input placeholder="Enter text..." />
-</Field>
-<Field row label="Username">
-  <Input value={username} placeholder="Required" onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className="tabular-nums text-secondary">{username.length}/16</span>} />
-</Field>
-</FieldGroup>
-```
-
-### Behavior
-Pass autoSelect to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change. By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling. When name is passed, or type is set to "password", this value will default to true. Both behave the same in a phone row, so this example has no Phone switch.
-```tsx
-// Desktop
-<Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />
-<Input allowAutofillExtensions name="email" placeholder="Allowed" />
-
-// Phone
-<FieldGroup>
-<Field row label="Name">
-  <Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />
-</Field>
-<Field row label="Email">
-  <Input allowAutofillExtensions name="email" placeholder="Allowed" />
-</Field>
-</FieldGroup>
-```
-
-### Optical alignment
-```tsx
-// Desktop
-<Field label="Full name" opticallyAlign="start">
-<Input placeholder="Jane Doe" pill />
-</Field>
-<Field
-label="Email"
-description="We'll never share your email."
-errorMessage="Please enter a valid email address."
-required
-opticallyAlign="start"
->
-<Input placeholder="jane@example.com" pill />
-</Field>
-<Button className="mt-6" color="primary" variant="soft" pill>
-Submit
-</Button>
-
-// Phone: the help is the group's footer.
-<FieldGroup footer="We'll never share your email.">
-<Field row label="Full name">
-  <Input placeholder="Jane Doe" />
-</Field>
-<Field row label="Email" errorMessage="Please enter a valid email address.">
-  <Input placeholder="jane@example.com" />
-</Field>
-</FieldGroup>
-<Button color="primary" size="3xl" pill block>Submit</Button>
 ```
 
 ## Kbd

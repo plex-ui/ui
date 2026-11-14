@@ -21,6 +21,9 @@ export const overview = `<div class="flex flex-col gap-2.5 w-[320px]">
     <InputGroupAddon>
       <Search />
     </InputGroupAddon>
+    <InputGroupAddon v-if="loading" align="inline-end">
+      <LoadingIndicator />
+    </InputGroupAddon>
     <InputGroupAddon align="inline-end">
       <InputGroupText>12 results</InputGroupText>
     </InputGroupAddon>
@@ -35,68 +38,17 @@ export const overview = `<div class="flex flex-col gap-2.5 w-[320px]">
     </InputGroupAddon>
   </InputGroup>
   <InputGroup :size="size" :variant="variant" :pill="pill" :disabled="disabled" :invalid="invalid">
+    <InputGroupInput placeholder="0.00" inputmode="decimal" />
+    <InputGroupAddon :align="align">
+      <InputGroupText>Amount in USD</InputGroupText>
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup :size="size" :variant="variant" :pill="pill" :disabled="disabled" :invalid="invalid">
     <InputGroupInput placeholder="Ask anything..." />
     <InputGroupAddon align="inline-end">
       <InputGroupButton variant="solid" color="primary" uniform aria-label="Send">
         <ArrowUpSm />
       </InputGroupButton>
-    </InputGroupAddon>
-  </InputGroup>
-</div>`
-
-export const variants = `<div class="flex flex-col gap-2.5 w-[320px]">
-  <InputGroup variant="outline">
-    <InputGroupInput placeholder="Outline" />
-    <InputGroupAddon>
-      <Search />
-    </InputGroupAddon>
-  </InputGroup>
-  <InputGroup variant="soft">
-    <InputGroupInput placeholder="Soft" />
-    <InputGroupAddon>
-      <Search />
-    </InputGroupAddon>
-  </InputGroup>
-</div>`
-
-export const sizes = `<div class="flex flex-col gap-2.5 w-[360px]">
-  <div v-for="size in sizes" :key="size" class="flex items-center gap-4">
-    <span class="w-8 shrink-0 text-right text-sm text-tertiary">{{ size }}</span>
-    <InputGroup :size="size" :pill="pill">
-      <InputGroupInput placeholder="Search..." />
-      <InputGroupAddon>
-        <Search />
-      </InputGroupAddon>
-      <InputGroupAddon align="inline-end">
-        <InputGroupButton>Search</InputGroupButton>
-      </InputGroupAddon>
-    </InputGroup>
-  </div>
-</div>`
-
-export const align = `<div class="flex flex-col gap-2.5 w-[320px]">
-  <InputGroup>
-    <InputGroupInput placeholder="inline-start" />
-    <InputGroupAddon align="inline-start">
-      <Search />
-    </InputGroupAddon>
-  </InputGroup>
-  <InputGroup>
-    <InputGroupInput placeholder="inline-end" />
-    <InputGroupAddon align="inline-end">
-      <InfoCircle />
-    </InputGroupAddon>
-  </InputGroup>
-  <InputGroup>
-    <InputGroupInput placeholder="Ada Lovelace" />
-    <InputGroupAddon align="block-start">
-      <InputGroupText>Full name</InputGroupText>
-    </InputGroupAddon>
-  </InputGroup>
-  <InputGroup>
-    <InputGroupInput placeholder="0.00" />
-    <InputGroupAddon align="block-end">
-      <InputGroupText>Amount in USD</InputGroupText>
     </InputGroupAddon>
   </InputGroup>
 </div>`
@@ -221,6 +173,16 @@ export const dropdown = `<div class="flex flex-col gap-2.5 w-[320px]">
   </InputGroup>
 </div>`
 
+export const overviewControls = [
+  { name: "size", type: "select", options: sizeOptions, default: "md" },
+  { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" },
+  { name: "pill", type: "boolean", default: false },
+  { name: "align", type: "select", options: ["inline-start", "inline-end", "block-start", "block-end"], default: "inline-start" },
+  { name: "loading", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+  { name: "invalid", type: "boolean", default: false },
+]
+
 export const overviewPhone = `<FieldGroup columns>
   <Field row label="Website" :error-message="invalid ? 'Enter a valid address.' : undefined">
     <template #default="control">
@@ -228,6 +190,9 @@ export const overviewPhone = `<FieldGroup columns>
         <InputGroupInput v-bind="control" placeholder="acme.com" inputmode="url" autocapitalize="none" spellcheck="false" />
         <InputGroupAddon>
           <InputGroupText>https://</InputGroupText>
+        </InputGroupAddon>
+        <InputGroupAddon v-if="loading" align="inline-end">
+          <LoadingIndicator />
         </InputGroupAddon>
       </InputGroup>
     </template>
@@ -242,71 +207,15 @@ export const overviewPhone = `<FieldGroup columns>
       </InputGroup>
     </template>
   </Field>
-</FieldGroup>`
-
-export const variantsPhone = `<FieldGroup title="Value at the end">
+</FieldGroup>
+<FieldGroup>
   <Field row label="Distance">
     <template #default="control">
-      <InputGroup>
+      <InputGroup :disabled="disabled">
         <InputGroupInput v-bind="control" default-value="5" inputmode="decimal" />
         <InputGroupAddon align="inline-end">
           <InputGroupText>km</InputGroupText>
         </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-</FieldGroup>
-<FieldGroup title="Values in a column" columns>
-  <Field row label="Handle">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="username" autocapitalize="none" spellcheck="false" />
-        <InputGroupAddon>
-          <InputGroupText>@</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-  <Field row label="Price">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
-        <InputGroupAddon>
-          <InputGroupText>€</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-</FieldGroup>`
-
-export const sizesPhone = `<FieldGroup columns>
-  <Field row label="Domain">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" default-value="plexui.com" inputmode="url" autocapitalize="none" spellcheck="false" />
-        <InputGroupAddon>
-          <InputGroupText>https://</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-</FieldGroup>`
-
-export const alignPhone = `<FieldGroup>
-  <Field row label="Full name">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="Ada Lovelace" />
-      </InputGroup>
-    </template>
-  </Field>
-</FieldGroup>
-<FieldGroup>
-  <template #footer>Amount in USD</template>
-  <Field row label="Amount">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
       </InputGroup>
     </template>
   </Field>
@@ -418,20 +327,6 @@ export const dropdownPhone = `<FieldGroup>
   </Field>
 </FieldGroup>`
 
-export const spinnerPhone = `<FieldGroup>
-  <template #footer>Checking availability...</template>
-  <Field row label="Username">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" default-value="ada" autocapitalize="none" spellcheck="false" />
-        <InputGroupAddon align="inline-end">
-          <LoadingIndicator />
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-</FieldGroup>`
-
 export const textareaPhone = `<FieldGroup>
   <template #footer>Line 1, Column 1</template>
   <Field row orientation="vertical" label="script.js">
@@ -489,28 +384,6 @@ const unit = ref("kg")
   </InputGroup>
 </template>`
 
-export const spinner = `<div class="flex flex-col gap-2.5 w-[320px]">
-  <InputGroup>
-    <InputGroupInput default-value="Searching..." readonly />
-    <InputGroupAddon align="inline-end">
-      <LoadingIndicator />
-    </InputGroupAddon>
-  </InputGroup>
-  <InputGroup>
-    <InputGroupInput default-value="Processing..." readonly />
-    <InputGroupAddon>
-      <LoadingIndicator />
-    </InputGroupAddon>
-  </InputGroup>
-  <InputGroup>
-    <InputGroupInput default-value="Saving changes" readonly />
-    <InputGroupAddon align="inline-end">
-      <InputGroupText>Saving...</InputGroupText>
-      <LoadingIndicator />
-    </InputGroupAddon>
-  </InputGroup>
-</div>`
-
 export const textarea = `<div class="w-full min-w-0 max-w-[400px]">
   <InputGroup>
     <InputGroupTextarea placeholder="console.log('Hello, world!');" :rows="4" class="font-mono" />
@@ -546,35 +419,28 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
 
 ## Examples
 
+{/* The examples Variants, Align, Spinner and Sizes are settings of the Overview (owner 11.11: the first example
+    shows everything with every setting); their anchors stay */}
+<span id="variants" />
+<span id="align" />
+<span id="spinner" />
+<span id="sizes" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Put an <code>InputGroupInput</code> and one or more <code>InputGroupAddon</code>s inside an <code>InputGroup</code>. The group draws the frame and passes <code>size</code>, <code>pill</code>, <code>disabled</code> and <code>invalid</code> down to the control and the buttons.</>} code={withPhone(overview, overviewPhone, "the group is the value of a row; with a prefix the rows take columns.")} previewMinHeight={280}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>Put an <code>InputGroupInput</code> and one or more <code>InputGroupAddon</code>s inside an <code>InputGroup</code>. The group draws the frame and passes <code>size</code>, <code>pill</code>, <code>disabled</code> and <code>invalid</code> down to the control and the buttons. Use <code>variant</code> to stylize it, like <code>Input</code>. <code>size</code> takes every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>; icons, text and <code>InputGroupButton</code> scale with the group, and buttons in inline addons fit the control height and keep a 4px inset.</p>
+  <p>Use <code>align</code> on <code>InputGroupAddon</code> to place it before (<code>inline-start</code>, the default) or after (<code>inline-end</code>) the control, or as a row above (<code>block-start</code>) or below (<code>block-end</code>) it; here it places the caption of the amount. A block addon turns the group into rows, so keep the other content of such a group inside its block addons, as the Textarea example does. Place addons after the control in the markup so the tab order starts with the field; <code>align</code> handles the visual position. <code>loading</code> shows a <a href="/vue/components/indicators"><code>LoadingIndicator</code></a> in an addon while a value is searched, checked or saved.</p>
+  <p>On Phone the row is the frame: a group in a row keeps the default <code>outline</code>, which the row draws without a border, and the row sets its height (with <code>touch.css</code> <code>3xs</code> to <code>xl</code> are all 44px; the iOS 26 field is one 52px row), so <code>size</code>, <code>variant</code>, <code>pill</code> and <code>align</code> stay on the desktop. The row places the value at its end, or, with <code>columns</code>, at one column shared by the group's rows; inline addons stay in the row, a <code>block-start</code> text becomes the row's label and a <code>block-end</code> text the group's footer. An indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is.</p>
+</>} code={withPhone(overview, overviewPhone, "the group is the value of a row; with a prefix the rows take columns.")} previewMinHeight={280}>
   <VuePhoneRowsDemo
     template={overview}
     phoneTemplate={phoneRows(overviewPhone)}
     phoneStageClassName="w-full"
-    desktopControlNames={["size", "variant", "pill"]}
+    desktopControlNames={["size", "variant", "pill", "align"]}
     stageClassName="py-10"
-    controls={[
-      { name: "size", type: "select", options: sizeOptions, default: "md" },
-      { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" },
-      { name: "pill", type: "boolean", default: false },
-      { name: "disabled", type: "boolean", default: false },
-      { name: "invalid", type: "boolean", default: false },
-    ]}
+    controls={overviewControls}
   />
-</ComponentPreview>
-
-### Variants
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>variant</code> to stylize the group, like <code>Input</code>. On Phone the row is the frame, so a group in a row keeps the default <code>outline</code>, which the row draws without a border, and the row places the value: at its end, or, with <code>columns</code>, at one column shared by the group's rows.</>} code={withPhone(variants, variantsPhone)} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={variants} phoneTemplate={phoneRows(variantsPhone)} phoneStageClassName="w-full" />
-</ComponentPreview>
-
-### Align
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>align</code> on <code>InputGroupAddon</code> to place it before (<code>inline-start</code>, the default) or after (<code>inline-end</code>) the control, or as a row above (<code>block-start</code>) or below (<code>block-end</code>) it. Place addons after the control in the markup so the tab order starts with the field; <code>align</code> handles the visual position. On Phone the inline addons stay in the row (see Variants), a <code>block-start</code> text becomes the row's label and a <code>block-end</code> text the group's footer.</>} code={withPhone(align, alignPhone)} previewMinHeight={280}>
-  <VuePhoneRowsDemo template={align} phoneTemplate={phoneRows(alignPhone)} phoneStageClassName="w-full" />
 </ComponentPreview>
 
 ### Text
@@ -617,22 +483,10 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
   />
 </ComponentPreview>
 
-### Spinner
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Show a <a href="/vue/components/indicators"><code>LoadingIndicator</code></a> in an addon while a value is searched, checked or saved. On a phone with <code>touch.css</code> an indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is.</>} code={withPhone(spinner, spinnerPhone)} previewMinHeight={200}>
-  <VuePhoneRowsDemo template={spinner} phoneTemplate={phoneRows(spinnerPhone)} phoneStageClassName="w-full" />
-</ComponentPreview>
-
 ### Textarea
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>With <code>InputGroupTextarea</code>, use <code>block-start</code> and <code>block-end</code> addons for a header and a footer. Utility classes such as <code>ml-auto</code> push a button to the far side.</>} code={withPhone(textarea, textareaPhone, "the header is the row's label, the status line the group's footer.")} previewMinHeight={280}>
   <VuePhoneRowsDemo template={textarea} phoneTemplate={phoneRows(textareaPhone)} phoneStageClassName="w-full" />
-</ComponentPreview>
-
-### Sizes
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroupButton</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with <code>touch.css</code>, <code>3xs</code> to <code>xl</code> are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.</>} code={withPhone(sizes, sizesPhone)} previewMinHeight={480}>
-  <VuePhoneRowsDemo template={sizes} phoneTemplate={phoneRows(sizesPhone)} phoneStageClassName="w-full" desktopControlNames={["pill"]} stageClassName="py-10" state={{ sizes: sizeOptions }} controls={[{ name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ## API

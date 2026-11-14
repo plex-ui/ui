@@ -580,7 +580,7 @@ Props:
   InputGroup.Addon:
     - align ("inline-start" | "inline-end" | "block-start" | "block-end") default: "inline-start" — Before or after the control on its line, or a row above or below it
     - className (string) — Applied to the addon <div>
-Examples: Overview, Variants, Align, Text, Button, Dropdown, Spinner, Textarea, Sizes
+Examples: Overview, Text, Button, Dropdown, Textarea
 
 ## Input
 Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
@@ -604,7 +604,7 @@ Props:
   Input.AdornmentButton:
     - color (SemanticColor) — Tint of the pressed (aria-pressed="true") state; the neutral primary-soft tint when unset
     - type (string) default: "button" — Button type
-Examples: Overview, Variants, Adornments, Clear button, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, With button, Sizing & roundness, Behavior, Optical alignment
+Examples: Overview, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, With button
 
 ## Kbd
 A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.

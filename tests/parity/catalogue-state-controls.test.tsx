@@ -14,6 +14,9 @@ import { TextareaOverviewDemo } from '../../components/docs/TextareaDemos';
 import { TextLinkOverviewDemo } from '../../components/docs/TextLinkDemos';
 import { TooltipOverviewDemo } from '../../components/docs/TooltipDemos';
 import { CodeBlockOverviewDemo } from '../../components/docs/CodeBlockDemos';
+import { InputOverviewDemo } from '../../components/docs/InputDemos';
+import { VueInputDemo } from '../../components/docs/vue/VueInputDemos';
+import { InputGroupOverviewDemo } from '../../components/docs/InputGroupDemos';
 import { CODE_BLOCK_LANGUAGE_SAMPLES } from '../../components/docs/CodeBlockSamples';
 import { ToggleGroupOverviewDemo } from '../../components/docs/ToggleGroupDemos';
 import { SwitchOverviewDemo } from '../../components/docs/SwitchDemos';
@@ -77,6 +80,8 @@ vi.mock('@plexui/vue/components/Select', async () => import('../../packages/vue/
 vi.mock('@plexui/ui/components/RadioGroup', async () => import('../../packages/ui/src/components/RadioGroup'));
 vi.mock('@plexui/vue/components/RadioGroup', async () => import('../../packages/vue/src/components/RadioGroup'));
 vi.mock('@plexui/ui/components/CodeBlock', async () => import('../../packages/ui/src/components/CodeBlock'));
+vi.mock('@plexui/ui/components/Input', async () => import('../../packages/ui/src/components/Input'));
+vi.mock('@plexui/vue/components/Input', async () => import('../../packages/vue/src/components/Input'));
 vi.mock('@plexui/vue/components/CodeBlock', async () => import('../../packages/vue/src/components/CodeBlock'));
 
 function example(page: string, name: string, references: string[] = []) {
@@ -272,6 +277,22 @@ const radioOverview = (() => {
   const rest = mdx.slice(mdx.indexOf(marker) + marker.length);
   const phone = new Function(`return ${rest.slice(0, rest.search(/\nexport const /)).trim()}`)() as string;
   return { ...example('radio-group', 'overview'), phoneTemplate: phoneRows(phone), state: { frequency: 'daily' } };
+})();
+/** The Input Overview as its page mounts it, with its phone row */
+const inputOverview = (() => {
+  const mdx = readFileSync('content/vue/components/input.mdx', 'utf8');
+  const marker = 'export const overviewPhone = ';
+  const rest = mdx.slice(mdx.indexOf(marker) + marker.length);
+  const phone = new Function(`return ${rest.slice(0, rest.search(/\nexport const /)).trim()}`)() as string;
+  return { ...example('input', 'overview'), phoneTemplate: phoneRows(phone), phoneStageClassName: 'w-full', stageClassName: 'py-10', state: { value: 'janeappleseed' } };
+})();
+/** The Input Group Overview as its page mounts it, with its phone rows */
+const inputGroupOverview = (() => {
+  const mdx = readFileSync('content/vue/components/input-group.mdx', 'utf8');
+  const marker = 'export const overviewPhone = ';
+  const rest = mdx.slice(mdx.indexOf(marker) + marker.length);
+  const phone = new Function(`return ${rest.slice(0, rest.search(/\nexport const /)).trim()}`)() as string;
+  return { ...example('input-group', 'overview', ['sizeOptions']), phoneTemplate: phoneRows(phone), phoneStageClassName: 'w-full', desktopControlNames: ['size', 'variant', 'pill', 'align'], stageClassName: 'py-10' };
 })();
 const progressSteps = [
   { title: 'Your details', description: 'Please provide your name and email', icon: 'Email' },
@@ -631,6 +652,162 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await toggle('collapsible');
     expect(block().hasAttribute('data-collapsed')).toBe(false);
     expect(buttons()).toEqual(['Copy']);
+  });
+
+  test('input: one Overview of a username field carries every setting, desktop ones off the phone (row 33)', async () => {
+    const view = render(framework === 'React' ? <InputOverviewDemo /> : <VueInputDemo {...inputOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+    const input = () => stage().querySelector<HTMLInputElement>('input')!;
+    const root = () => input().closest<HTMLElement>('[data-slot="input"]')!;
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const control = (name: string) => page.queryByRole('radiogroup', { name }) ?? page.queryByRole('switch', { name, exact: true });
+    // On a desktop: left out, or marked for the stylesheet
+    const offered = (name: string) => !!control(name) && !control(name)!.closest('[data-demo-phone-only]');
+    const buttons = () => within(stage()).queryAllByRole('button').map((button) => button.getAttribute('aria-label'));
+    // A username under its label, named for a form, at most 16 characters
+    expect(input().value).toBe('janeappleseed');
+    expect(input().placeholder).toBe('Choose a username');
+    expect(input().name).toBe('username');
+    expect(input().maxLength).toBe(16);
+    expect(stage().querySelector('label')?.textContent).toBe('Username');
+    for (const name of ['variant', 'size', 'gutterSize', 'pill', 'adornment', 'clearable', 'opticallyAlign', 'autoSelect', 'allowAutofillExtensions', 'readOnly', 'disabled', 'invalid']) expect(offered(name), name).toBe(true);
+    for (const name of ['orientation', 'columns']) expect(offered(name), name).toBe(false);
+    // adornment: an @ before the value, or a counter after it
+    expect(stage().textContent).not.toContain('@');
+    await choose('adornment', 'start');
+    expect(stage().textContent).toContain('@');
+    await choose('adornment', 'end');
+    expect(stage().textContent).not.toContain('@');
+    expect(stage().textContent).toContain('13/16');
+    // clearable: the built-in clear button empties the field; read-only hides it
+    expect(buttons()).toEqual([]);
+    await toggle('clearable');
+    expect(buttons()).toEqual(['Clear input']);
+    await toggle('readOnly');
+    expect(buttons()).toEqual([]);
+    expect(input().readOnly).toBe(true);
+    await toggle('readOnly');
+    await interact(() => fireEvent.click(within(stage()).getByRole('button', { name: 'Clear input' })));
+    expect(input().value).toBe('');
+    expect(stage().textContent).toContain('0/16');
+    // The desktop settings reach the field
+    await choose('variant', 'soft');
+    await choose('size', 'lg');
+    await choose('gutterSize', 'xl');
+    await toggle('pill');
+    await choose('opticallyAlign', 'start');
+    expect([root().dataset.variant, root().dataset.size, root().dataset.gutterSize, root().hasAttribute('data-pill'), root().dataset.opticallyAlign]).toEqual(['soft', 'lg', 'xl', true, 'start']);
+    // invalid: the field and the label's error message; disabled
+    expect(stage().textContent).not.toContain('This username is taken.');
+    await toggle('invalid');
+    expect(root().hasAttribute('data-invalid')).toBe(true);
+    expect(stage().textContent).toContain('This username is taken.');
+    await toggle('disabled');
+    expect(input().disabled).toBe(true);
+  });
+
+  test('input on a phone: the value of a row at its end, at a column or under its label; desktop settings stay on desktop (row 33)', async () => {
+    vi.stubGlobal('matchMedia', (media: string) => ({ matches: !media.includes('min-width'), media, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }));
+    const view = render(framework === 'React' ? <InputOverviewDemo /> : <VueInputDemo {...inputOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+    const input = () => stage().querySelector<HTMLInputElement>('input')!;
+    const field = () => input().closest<HTMLElement>('[data-slot="field"]')!;
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const control = (name: string) => page.queryByRole('radiogroup', { name }) ?? page.queryByRole('switch', { name, exact: true });
+    // On a phone: left out, or marked for the stylesheet
+    const offered = (name: string) => !!control(name) && !control(name)!.closest('[data-demo-desktop-only]');
+    expect(field().hasAttribute('data-row')).toBe(true);
+    expect(field().textContent).toContain('Username');
+    expect(input().placeholder).toBe('Required');
+    for (const name of ['variant', 'size', 'gutterSize', 'pill', 'opticallyAlign', 'allowAutofillExtensions']) expect(offered(name), name).toBe(false);
+    for (const name of ['orientation', 'columns', 'adornment', 'clearable', 'autoSelect', 'readOnly', 'disabled', 'invalid']) expect(offered(name), name).toBe(true);
+    // columns: the value at one column for the group
+    expect(stage().querySelector('[data-field-columns]')).toBeNull();
+    await toggle('columns');
+    expect(stage().querySelector('[data-field-columns]')).not.toBeNull();
+    // vertical: the value under the label, ghost; columns does not act there
+    await choose('orientation', 'vertical');
+    expect(input().closest<HTMLElement>('[data-slot="input"]')?.dataset.variant).toBe('ghost');
+    expect(offered('columns')).toBe(false);
+    expect(stage().querySelector('[data-field-columns]')).toBeNull();
+    await choose('orientation', 'horizontal');
+    // An error is the row's message
+    await toggle('invalid');
+    expect(field().textContent).toContain('This username is taken.');
+  });
+
+  test('input group: one Overview of four groups carries every setting; align places the amount caption, loading adds a spinner (row 33)', async () => {
+    const view = render(framework === 'React' ? <InputGroupOverviewDemo /> : <VuePhoneRowsDemo {...inputGroupOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+    const groups = () => [...stage().querySelectorAll<HTMLElement>('[data-slot="input-group"]')];
+    const addons = (group: HTMLElement) => [...group.querySelectorAll<HTMLElement>('[data-slot="input-group-addon"]')];
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const control = (name: string) => page.queryByRole('radiogroup', { name }) ?? page.queryByRole('switch', { name, exact: true });
+    const offered = (name: string) => !!control(name) && !control(name)!.closest('[data-demo-phone-only]');
+    for (const name of ['size', 'variant', 'pill', 'align', 'loading', 'disabled', 'invalid']) expect(offered(name), name).toBe(true);
+    // A search with its results, an address between a prefix and a suffix, an amount with its caption, a prompt with a
+    // send button
+    expect(groups().map((group) => group.querySelector('input')?.placeholder)).toEqual(['Search...', 'example', '0.00', 'Ask anything...']);
+    // align: the caption before or after the amount, or a row above or below it; the only addon of its group, as a
+    // block addon lays a group's addons out as rows
+    const caption = () => addons(groups()[2]);
+    expect(caption().map((addon) => [addon.dataset.align, addon.textContent])).toEqual([['inline-start', 'Amount in USD']]);
+    for (const option of ['inline-end', 'block-start', 'block-end']) {
+      await choose('align', option);
+      expect(caption().map((addon) => addon.dataset.align)).toEqual([option]);
+    }
+    expect(addons(groups()[0]).map((addon) => addon.dataset.align)).toEqual(['inline-start', 'inline-end']);
+    // loading: a spinner after the search value, before its results
+    await toggle('loading');
+    expect(addons(groups()[0]).map((addon) => addon.dataset.align)).toEqual(['inline-start', 'inline-end', 'inline-end']);
+    expect(addons(groups()[0])[1].querySelectorAll('[aria-hidden="true"]')).toHaveLength(8);
+    // The group's settings reach every group
+    await choose('size', 'lg');
+    await choose('variant', 'soft');
+    await toggle('pill');
+    await toggle('disabled');
+    await toggle('invalid');
+    for (const group of groups()) expect([group.dataset.size, group.dataset.variant, group.hasAttribute('data-pill'), group.hasAttribute('data-disabled'), group.hasAttribute('data-invalid')]).toEqual(['lg', 'soft', true, true, true]);
+  });
+
+  test('input group on a phone: the value of a row, a prefix at the column and a unit at the edge; loading spins in the Website row (row 33)', async () => {
+    vi.stubGlobal('matchMedia', (media: string) => ({ matches: !media.includes('min-width'), media, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }));
+    const view = render(framework === 'React' ? <InputGroupOverviewDemo /> : <VuePhoneRowsDemo {...inputGroupOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+    const rows = () => [...stage().querySelectorAll<HTMLElement>('[data-slot="field"]')];
+    const row = (label: string) => rows().find((field) => field.textContent?.includes(label))!;
+    const addons = (field: HTMLElement) => [...field.querySelectorAll<HTMLElement>('[data-slot="input-group-addon"]')];
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const control = (name: string) => page.queryByRole('radiogroup', { name }) ?? page.queryByRole('switch', { name, exact: true });
+    const offered = (name: string) => !!control(name) && !control(name)!.closest('[data-demo-desktop-only]');
+    for (const name of ['size', 'variant', 'pill', 'align']) expect(offered(name), name).toBe(false);
+    for (const name of ['loading', 'disabled', 'invalid']) expect(offered(name), name).toBe(true);
+    // Rows of two groups: the prefixes at one column, the unit after its value at the row's edge
+    expect(rows().map((field) => field.querySelector('label')?.textContent)).toEqual(['Website', 'Amount', 'Distance']);
+    expect(rows().every((field) => field.hasAttribute('data-row'))).toBe(true);
+    const columns = [...stage().querySelectorAll<HTMLElement>('section[role="group"]')].map((group) => group.hasAttribute('data-field-columns'));
+    expect(columns).toEqual([true, false]);
+    expect(addons(row('Distance')).map((addon) => [addon.dataset.align, addon.textContent])).toEqual([['inline-end', 'km']]);
+    // loading: a spinner after the address
+    expect(addons(row('Website'))).toHaveLength(1);
+    await toggle('loading');
+    expect(addons(row('Website'))[1]?.dataset.align).toBe('inline-end');
+    // An error is the Website row's message; disabled reaches every row
+    await toggle('invalid');
+    expect(row('Website').textContent).toContain('Enter a valid address.');
+    await toggle('disabled');
+    expect(rows().every((field) => field.querySelector('input')?.disabled)).toBe(true);
   });
 
   test('toggle group: one Overview on the Repeat row carries every setting of the group (owner 11.11)', async () => {

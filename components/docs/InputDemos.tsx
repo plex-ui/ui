@@ -7,9 +7,9 @@ import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { Eye, EyeOff, Search } from '@plexui/ui/components/Icon';
+import { Eye, EyeOff } from '@plexui/ui/components/Icon';
 import { FieldError } from '@plexui/ui/components/FieldError';
-import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow, Segments } from './ButtonDemos';
 import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
@@ -22,430 +22,111 @@ function PhoneCounter({ length }: { length: number }) {
   return <span className="tabular-nums text-secondary">{length}/16</span>;
 }
 
+const OVERVIEW_VARIANTS = ['outline', 'soft', 'ghost'] as const;
+const ADORNMENT_OPTIONS = ['none', 'start', 'end'] as const;
+const ALIGN_OPTIONS = ['none', 'start', 'end'] as const;
+const ORIENTATION_OPTIONS = ['horizontal', 'vertical'] as const;
+const USERNAME_ERROR = 'This username is taken.';
+
+/**
+ * The Overview, one username field with every setting of an input: what the page's examples once showed one by one
+ * (Variants, Adornments, Clear button, Sizing & roundness, Behavior, Optical alignment) are its settings (owner 11.11:
+ * «в первом примере можно сразу показать все со всеми настройками»). `adornment` is not a prop: it puts an `@` before
+ * the value (`startAdornment`) or a counter after it (`endAdornment`); `clearable` passes `onClear`. On a desktop the
+ * field stands under a `Field` label, the content `opticallyAlign` lines its text up with. On a phone the input is the
+ * value of a grouped row, which sets its height, insets and type, so `variant`, `size`, `gutterSize`, `pill`,
+ * `opticallyAlign` and `allowAutofillExtensions` stay on the desktop; the row puts its value at its end, at one column
+ * (`columns`) or under its label (`orientation`), and shows an error as its `errorMessage`. A setting that is not
+ * offered gives its default, as the Vue demo's hidden controls do.
+ */
 export function InputOverviewDemo() {
   const phone = usePhoneRows();
-  if (phone) {
-    return (
-      <PhoneRowsStage>
-        <FieldGroup>
-          <Field row label="Email">
-            <Input type="email" placeholder="name@example.com" />
-          </Field>
-        </FieldGroup>
-      </PhoneRowsStage>
-    );
-  }
-  return (
-    <div className="w-[320px]">
-      <Input placeholder="Enter text..." />
-    </div>
-  );
-}
-
-const STATE_OPTIONS = ['empty', 'entered', 'invalid', 'disabled'] as const;
-type InputState = (typeof STATE_OPTIONS)[number];
-const VARIANT_OPTIONS = ['outline', 'soft', 'ghost'] as const;
-
-// A phone row puts its value in one of three places: at the end of the row, at one
-// column for the whole group (an iOS address form), or under the label.
-const PHONE_VALUE_PLACES = [
-  { title: 'Value at the end', columns: false, vertical: false },
-  { title: 'Values in a column', columns: true, vertical: false },
-  { title: 'Value under the label', columns: false, vertical: true },
-] as const;
-
-/** The value an email input of the Variants example holds in each state. */
-function emailOf(state: InputState) {
-  if (state === 'empty') return undefined;
-  return state === 'invalid' ? 'jane@example' : 'jane@example.com';
-}
-
-export function InputVariantsDemo() {
-  const phone = usePhoneRows();
-  const [state, setState] = useState<InputState>('entered');
-  const invalid = state === 'invalid';
-  const disabled = state === 'disabled';
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="state">
-          <SegmentedControl<InputState> value={state} onChange={setState} aria-label="state" size="xs">
-            {STATE_OPTIONS.map((option) => (
-              <SegmentedControl.Option key={option} value={option}>
-                {option}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
-      {phone ? (
-        <PhoneRowsStage>
-          {PHONE_VALUE_PLACES.map(({ title, columns, vertical }) => (
-            <FieldGroup key={title} title={title} columns={columns}>
-              <Field row orientation={vertical ? 'vertical' : undefined} label="Name">
-                <Input
-                  key={state}
-                  variant={vertical ? 'ghost' : undefined}
-                  placeholder="Required"
-                  defaultValue={state === 'empty' ? undefined : 'Jane Appleseed'}
-                  disabled={disabled}
-                />
-              </Field>
-              <Field
-                row
-                orientation={vertical ? 'vertical' : undefined}
-                label="Email"
-                errorMessage={invalid ? 'Enter a valid email address.' : undefined}
-              >
-                <Input
-                  key={state}
-                  type="email"
-                  variant={vertical ? 'ghost' : undefined}
-                  placeholder="name@example.com"
-                  defaultValue={emailOf(state)}
-                  invalid={invalid}
-                  disabled={disabled}
-                />
-              </Field>
-            </FieldGroup>
-          ))}
-        </PhoneRowsStage>
-      ) : (
-        <div data-demo-stage className="py-10">
-          <div className="flex flex-col gap-2 w-[320px]">
-            {VARIANT_OPTIONS.map((variant) => (
-              <Input
-                key={`${variant}-${state}`}
-                type="email"
-                variant={variant}
-                placeholder="name@example.com"
-                defaultValue={emailOf(state)}
-                invalid={invalid}
-                disabled={disabled}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-const POSITION_OPTIONS = ['start', 'end'] as const;
-type AdornmentPosition = (typeof POSITION_OPTIONS)[number];
-
-export function InputAdornmentsDemo() {
-  const phone = usePhoneRows();
-  const [position, setPosition] = useState<AdornmentPosition>('start');
-  const [username, setUsername] = useState('');
-  const counter = {
-    value: username,
-    onChange: (evt: React.ChangeEvent<HTMLInputElement>) => setUsername(evt.target.value),
-    maxLength: 16,
-  };
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="position">
-          <SegmentedControl<AdornmentPosition> value={position} onChange={setPosition} aria-label="position" size="xs">
-            {POSITION_OPTIONS.map((option) => (
-              <SegmentedControl.Option key={option} value={option}>
-                {option}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
-      {phone ? (
-        <PhoneRowsStage>
-          {position === 'start' ? (
-            <FieldGroup key="start" columns>
-              <Field row label="Amount">
-                <Input placeholder="0.00" inputMode="decimal" startAdornment={<span className="text-secondary">$</span>} />
-              </Field>
-            </FieldGroup>
-          ) : (
-            <FieldGroup key="end">
-              <Field row label="Username">
-                <Input placeholder="Required" {...counter} endAdornment={<PhoneCounter length={username.length} />} />
-              </Field>
-            </FieldGroup>
-          )}
-        </PhoneRowsStage>
-      ) : (
-        <div data-demo-stage className="py-10">
-          <div className="w-[320px]">
-            {position === 'start' ? (
-              <Input key="start" placeholder="Search" startAdornment={<Search className="fill-tertiary" />} />
-            ) : (
-              <Input
-                key="end"
-                placeholder="Username"
-                {...counter}
-                endAdornment={
-                  <span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">
-                    {username.length}/16
-                  </span>
-                }
-              />
-            )}
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-export function InputSizingDemo() {
-  const phone = usePhoneRows();
-  const [username, setUsername] = useState('');
+  const [value, setValue] = useState('janeappleseed');
+  const [variant, setVariant] = useState<(typeof OVERVIEW_VARIANTS)[number]>('outline');
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
   const [gutterSize, setGutterSize] = useState<GutterOption>('auto');
   const [pill, setPill] = useState(false);
-  const resolvedGutterSize = gutterSize === 'auto' ? undefined : gutterSize;
-  const args = { size, gutterSize: resolvedGutterSize, pill };
-  if (phone) {
-    return (
-      <PhoneRowsStage>
-        <FieldGroup columns>
-          <Field row label="Name">
-            <Input placeholder="Enter text..." />
-          </Field>
-          <Field row label="Username">
-            <Input
-              value={username}
-              placeholder="Required"
-              onChange={(evt) => setUsername(evt.target.value)}
-              maxLength={16}
-              endAdornment={<PhoneCounter length={username.length} />}
-            />
-          </Field>
-        </FieldGroup>
-      </PhoneRowsStage>
-    );
-  }
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
-          <SegmentedControl<(typeof SIZE_OPTIONS)[number]>
-            value={size}
-            onChange={setSize}
-            aria-label="size"
-            size="xs"
-          >
-            {SIZE_OPTIONS.map((s) => (
-              <SegmentedControl.Option key={s} value={s}>
-                {s}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlRow name="gutterSize">
-          <SegmentedControl<GutterOption>
-            value={gutterSize}
-            onChange={setGutterSize}
-            aria-label="gutterSize"
-            size="xs"
-          >
-            {GUTTER_OPTIONS.map((g) => (
-              <SegmentedControl.Option key={g} value={g}>
-                {g}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
-      </div>
-      <div data-demo-stage className="py-10">
-        <div className="flex flex-col gap-2.5 justify-start items-start w-[320px]">
-          <Input {...args} placeholder="Enter text..." />
-          <Input
-            {...args}
-            placeholder="Search..."
-            startAdornment={<Search className="fill-tertiary" />}
-          />
-          <Input
-            {...args}
-            value={username}
-            placeholder="Username"
-            onChange={(evt) => setUsername(evt.target.value)}
-            maxLength={16}
-            endAdornment={
-              <span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">
-                {username.length}/16
-              </span>
-            }
-          />
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function InputEndAdornmentDemo() {
-  const phone = usePhoneRows();
-  const [value, setValue] = useState('Clearable value');
-  const [pill, setPill] = useState(true);
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
-  if (phone) {
-    return (
-      <PhoneRowsStage>
-        <FieldGroup>
-          <Field row label="Name">
-            <Input
-              placeholder="Enter text..."
-              value={value}
-              onChange={(evt) => setValue(evt.target.value)}
-              onClear={() => setValue('')}
-            />
-          </Field>
-        </FieldGroup>
-      </PhoneRowsStage>
-    );
-  }
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
-        <DemoControlRow name="size">
-          <SegmentedControl<(typeof SIZE_OPTIONS)[number]>
-            value={size}
-            onChange={setSize}
-            aria-label="size"
-            size="xs"
-          >
-            {SIZE_OPTIONS.map((s) => (
-              <SegmentedControl.Option key={s} value={s}>
-                {s}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-[320px]">
-          <Input
-            placeholder="Enter text..."
-            value={value}
-            onChange={(evt) => setValue(evt.target.value)}
-            onClear={() => setValue('')}
-            pill={pill}
-            size={size}
-          />
-        </div>
-      </div>
-    </>
-  );
-}
-
-// Selection and autofill behave the same in a phone row: the phone form only shows where the input stands.
-export function InputBehaviorDemo() {
-  const phone = usePhoneRows();
+  const [adornment, setAdornment] = useState<(typeof ADORNMENT_OPTIONS)[number]>('none');
+  const [clearable, setClearable] = useState(false);
+  const [opticallyAlign, setOpticallyAlign] = useState<(typeof ALIGN_OPTIONS)[number]>('none');
   const [autoSelect, setAutoSelect] = useState(false);
   const [allowAutofillExtensions, setAllowAutofillExtensions] = useState(true);
-  const autofill = {
-    name: 'email',
-    allowAutofillExtensions,
-    placeholder: allowAutofillExtensions ? 'Allowed' : 'Not allowed',
+  const [readOnly, setReadOnly] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  const [invalid, setInvalid] = useState(false);
+  const [orientation, setOrientation] = useState<(typeof ORIENTATION_OPTIONS)[number]>('horizontal');
+  const [columns, setColumns] = useState(false);
+  const vertical = orientation === 'vertical';
+  const shared = {
+    name: 'username',
+    value,
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => setValue(event.target.value),
+    onClear: clearable ? () => setValue('') : undefined,
+    maxLength: 16,
+    autoSelect,
+    readOnly,
+    disabled,
+    invalid,
   };
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
+        <Segments name="variant" options={OVERVIEW_VARIANTS} value={variant} onChange={setVariant} desktopOnly />
+        <Segments name="size" options={SIZE_OPTIONS} value={size} onChange={setSize} desktopOnly />
+        <Segments name="gutterSize" options={GUTTER_OPTIONS} value={gutterSize} onChange={setGutterSize} desktopOnly />
+        <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
+        <Segments name="orientation" options={ORIENTATION_OPTIONS} value={orientation} onChange={setOrientation} phoneOnly />
+        {!vertical && <DemoControlBoolean name="columns" value={columns} onChange={setColumns} phoneOnly />}
+        <Segments name="adornment" options={ADORNMENT_OPTIONS} value={adornment} onChange={setAdornment} />
+        <DemoControlBoolean name="clearable" value={clearable} onChange={setClearable} />
+        <Segments name="opticallyAlign" options={ALIGN_OPTIONS} value={opticallyAlign} onChange={setOpticallyAlign} desktopOnly />
         <DemoControlBoolean name="autoSelect" value={autoSelect} onChange={setAutoSelect} />
-        <DemoControlBoolean
-          name="allowAutofillExtensions"
-          value={allowAutofillExtensions}
-          onChange={setAllowAutofillExtensions}
-        />
+        <DemoControlBoolean name="allowAutofillExtensions" value={allowAutofillExtensions} onChange={setAllowAutofillExtensions} desktopOnly />
+        <DemoControlBoolean name="readOnly" value={readOnly} onChange={setReadOnly} />
+        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+        <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} />
       </div>
       {phone ? (
         <PhoneRowsStage>
-          <FieldGroup>
-            <Field row label="Name">
-              <Input placeholder="Add text..." autoSelect={autoSelect} defaultValue="Toggle to auto select" />
-            </Field>
-            <Field row label="Email">
-              <Input key={String(allowAutofillExtensions)} {...autofill} />
+          <FieldGroup columns={!vertical && columns}>
+            <Field row orientation={orientation} label="Username" errorMessage={invalid ? USERNAME_ERROR : undefined}>
+              {/* A phone has no autofill extensions setting: its field takes the default, as the phone code does */}
+              <Input
+                {...shared}
+                variant={vertical ? 'ghost' : undefined}
+                placeholder="Required"
+                startAdornment={adornment === 'start' ? <span className="text-secondary">@</span> : undefined}
+                endAdornment={adornment === 'end' ? <PhoneCounter length={value.length} /> : undefined}
+              />
             </Field>
           </FieldGroup>
         </PhoneRowsStage>
       ) : (
         <div data-demo-stage className="py-10">
-          <div className="flex flex-col gap-2 w-[320px]">
-            <Input placeholder="Add text..." autoSelect={autoSelect} defaultValue="Toggle to auto select" />
-            <Input key={String(allowAutofillExtensions)} {...autofill} />
+          <div className="w-[320px]">
+            <Field label="Username" errorMessage={invalid ? USERNAME_ERROR : undefined}>
+              <Input
+                // The extensions are let in, or kept out, as the field mounts
+                key={String(allowAutofillExtensions)}
+                {...shared}
+                variant={variant}
+                size={size}
+                gutterSize={gutterSize === 'auto' ? undefined : gutterSize}
+                pill={pill}
+                opticallyAlign={opticallyAlign === 'none' ? undefined : opticallyAlign}
+                allowAutofillExtensions={allowAutofillExtensions}
+                placeholder="Choose a username"
+                startAdornment={adornment === 'start' ? <span className="text-tertiary">@</span> : undefined}
+                endAdornment={
+                  adornment === 'end' ? (
+                    <span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{value.length}/16</span>
+                  ) : undefined
+                }
+              />
+            </Field>
           </div>
         </div>
       )}
-    </>
-  );
-}
-
-export function InputOpticalAlignDemo() {
-  const phone = usePhoneRows();
-  const [opticallyAlign, setOpticallyAlign] = useState(true);
-  const [pill, setPill] = useState(true);
-
-  if (phone) {
-    // A row starts its label and its text at the row's inset: there is no gutter to offset
-    return (
-      <PhoneRowsStage>
-        <FieldGroup footer="We'll never share your email.">
-          <Field row label="Full name">
-            <Input placeholder="Jane Doe" />
-          </Field>
-          <Field row label="Email" errorMessage="Please enter a valid email address.">
-            <Input placeholder="jane@example.com" />
-          </Field>
-        </FieldGroup>
-        <Button color="primary" size="3xl" pill block>
-          Submit
-        </Button>
-      </PhoneRowsStage>
-    );
-  }
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="opticallyAlign" value={opticallyAlign} onChange={setOpticallyAlign} />
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
-      </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-full min-w-0 max-w-[400px]">
-          <div className="border border-dashed border-alpha/20 rounded-md py-6 px-8">
-            <div className="mb-5 text-secondary text-sm">
-              {opticallyAlign ? 'opticallyAlign="start"' : "Default"}
-            </div>
-            <div className="flex flex-col gap-5">
-              <Field
-                label="Full name"
-                opticallyAlign={opticallyAlign ? "start" : undefined}
-              >
-                <Input placeholder="Jane Doe" pill={pill} />
-              </Field>
-              <Field
-                label="Email"
-                description="We'll never share your email."
-                errorMessage="Please enter a valid email address."
-                required
-                opticallyAlign={opticallyAlign ? "start" : undefined}
-              >
-                <Input placeholder="jane@example.com" pill={pill} />
-              </Field>
-            </div>
-            <Button
-              className="mt-6"
-              color="primary"
-              variant="soft"
-              pill={pill}
-            >
-              Submit
-            </Button>
-          </div>
-        </div>
-      </div>
     </>
   );
 }

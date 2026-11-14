@@ -3067,132 +3067,61 @@ Props:
     - type (string) default: "button" — Button type
 
 ### Overview
+Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. size sets the control height and gives a gutter-size (the horizontal padding) and a font-size, each of which can be overridden; Input shares the 9-step size scale with Button, Select, SelectControl and SegmentedControl, so adjacent controls of one size line up. pill rounds it fully. Bind the text with v-model:value. The startAdornment slot puts content before the value, such as a prefix or a search icon, and the endAdornment slot after it, such as a character counter. gutter-size sets the space at the edges (a negative margin on the adornment, such as -ml-2, fine-tunes it), and gap on the container the space between the adornment and the value. Listening to @clear shows a built-in clear button while the input has a value and is not disabled or read-only (bind :on-clear to show it under a condition); clicking it keeps focus in the input. optically-align ("start" or "end") offsets the gutter so the text lines up with the content around it, here the label; on a Field it is forwarded to its control. auto-select selects all the text, useful with copy actions; it acts when toggled and leaves the selection free to change. Autofill extensions are prevented by default; allow-autofill-extensions lets them in, and a name or type="password" turns it on by default. read-only keeps the value and hides the clear button. disabled greys the input out and blocks interaction. invalid marks it invalid, with [data-invalid] on the container; you decide how the state is removed (@focus, @update:value, a submit handler). On Phone the row is the frame and sets the height, insets and type, so the input takes no variant, size, gutter-size, pill or optically-align; with touch.css the 3xs to xl sizes are all 44px. The value stands at the end of the row, at one column for the whole group with FieldGroup columns, or under the label with orientation="vertical", where it is ghost. A start adornment is a prefix of the value and trailing text-secondary text takes the row's accessory color; the clear button is the filled circle of an iOS text field, shown only while the value is being edited, and a long value stops 6px before it. An error is the row's error-message under it. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard. An Input in a Toolbar takes the bar's search field, and one with type="search" at the top of the content is the same glass field under a large title.
 ```vue
 <!-- Desktop -->
 <div class="w-[320px]">
-  <Input placeholder="Enter text..." />
-</div>
-
-<!-- Phone: the input is the value of a row. -->
-<FieldGroup>
-  <Field row label="Email">
-    <Input type="email" placeholder="name@example.com" />
-  </Field>
-</FieldGroup>
-```
-
-### Variants
-Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. The state control shows each variant empty, with a value, invalid and disabled. You decide how the invalid state is removed, whether that's through @focus, @update:value, a submit handler, etc.; [data-invalid] is applied to the container for custom styling. disabled greys the input out and prevents user interactions. On Phone the row is the frame, and the value stands in one of three places: at the end of the row, at one column for the whole group with FieldGroup columns, or under the label with orientation="vertical". A row has no frame to color, so an error is the row's error-message under it.
-```vue
-<!-- Desktop -->
-<div class="flex flex-col gap-2 w-[320px]">
-  <Input
-    v-for="variant in ['outline', 'soft', 'ghost']"
-    :key="variant + state"
-    type="email"
-    :variant="variant"
-    placeholder="name@example.com"
-    :default-value="state === 'empty' ? undefined : state === 'invalid' ? 'jane@example' : 'jane@example.com'"
-    :invalid="state === 'invalid'"
-    :disabled="state === 'disabled'"
-  />
-</div>
-
-<!-- Phone: the value at the end of the row, at one column, or under the label. -->
-<FieldGroup
-  v-for="place in [
-    { title: 'Value at the end', columns: false, vertical: false },
-    { title: 'Values in a column', columns: true, vertical: false },
-    { title: 'Value under the label', columns: false, vertical: true },
-  ]"
-  :key="place.title"
-  :title="place.title"
-  :columns="place.columns"
->
-  <Field row :orientation="place.vertical ? 'vertical' : undefined" label="Name">
+  <Field label="Username" :error-message="invalid ? 'This username is taken.' : undefined">
     <Input
-      :key="state"
-      :variant="place.vertical ? 'ghost' : undefined"
+      :key="String(allowAutofillExtensions)"
+      v-model:value="value"
+      name="username"
+      maxlength="16"
+      placeholder="Choose a username"
+      :variant="variant"
+      :size="size"
+      :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+      :pill="pill"
+      :optically-align="opticallyAlign === 'none' ? undefined : opticallyAlign"
+      :on-clear="clearable ? () => (value = '') : undefined"
+      :auto-select="autoSelect"
+      :allow-autofill-extensions="allowAutofillExtensions"
+      :read-only="readOnly"
+      :disabled="disabled"
+      :invalid="invalid"
+    >
+      <template v-if="adornment === 'start'" #startAdornment>
+        <span class="text-tertiary">@</span>
+      </template>
+      <template v-if="adornment === 'end'" #endAdornment>
+        <span class="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{{ value.length }}/16</span>
+      </template>
+    </Input>
+  </Field>
+</div>
+
+<!-- Phone: the input is the value of a row, at its end, at one column for the group (columns) or under its label (vertical, ghost); the row is its frame. -->
+<FieldGroup :columns="orientation === 'horizontal' && columns">
+  <Field row :orientation="orientation" label="Username" :error-message="invalid ? 'This username is taken.' : undefined">
+    <Input
+      v-model:value="value"
+      name="username"
+      maxlength="16"
       placeholder="Required"
-      :default-value="state === 'empty' ? undefined : 'Jane Appleseed'"
-      :disabled="state === 'disabled'"
-    />
-  </Field>
-  <Field
-    row
-    :orientation="place.vertical ? 'vertical' : undefined"
-    label="Email"
-    :error-message="state === 'invalid' ? 'Enter a valid email address.' : undefined"
-  >
-    <Input
-      :key="state"
-      type="email"
-      :variant="place.vertical ? 'ghost' : undefined"
-      placeholder="name@example.com"
-      :default-value="state === 'empty' ? undefined : state === 'invalid' ? 'jane@example' : 'jane@example.com'"
-      :invalid="state === 'invalid'"
-      :disabled="state === 'disabled'"
-    />
-  </Field>
-</FieldGroup>
-```
-
-### Adornments
-Add arbitrary content to the beginning of an input with the startAdornment slot, like a search icon, or to its end with the endAdornment slot, like a character counter or custom icon; position switches between the two. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutter-size determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutter-size, use a negative margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes. On Phone an Input in a Toolbar takes the bar's search field, and one with type="search" at the top of the content is the same glass field under a large title; in a row a start adornment is a prefix of the value, such as a currency, and trailing text-secondary text takes the row's accessory color.
-```vue
-<!-- Desktop -->
-<div class="w-[320px]">
-  <Input v-if="position === 'start'" placeholder="Search">
-    <template #startAdornment>
-      <Search class="fill-tertiary" />
-    </template>
-  </Input>
-  <Input v-else v-model:value="username" placeholder="Username" maxlength="16">
-    <template #endAdornment>
-      <span class="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{{ username.length }}/16</span>
-    </template>
-  </Input>
-</div>
-
-<!-- Phone: a prefix of the value, which starts at the column, or trailing text. -->
-<FieldGroup v-if="position === 'start'" columns>
-  <Field row label="Amount">
-    <Input placeholder="0.00" inputmode="decimal">
-      <template #startAdornment>
-        <span class="text-secondary">$</span>
+      :variant="orientation === 'vertical' ? 'ghost' : undefined"
+      :on-clear="clearable ? () => (value = '') : undefined"
+      :auto-select="autoSelect"
+      :read-only="readOnly"
+      :disabled="disabled"
+      :invalid="invalid"
+    >
+      <template v-if="adornment === 'start'" #startAdornment>
+        <span class="text-secondary">@</span>
+      </template>
+      <template v-if="adornment === 'end'" #endAdornment>
+        <span class="tabular-nums text-secondary">{{ value.length }}/16</span>
       </template>
     </Input>
-  </Field>
-</FieldGroup>
-<FieldGroup v-else>
-  <Field row label="Username">
-    <Input v-model:value="username" placeholder="Required" maxlength="16">
-      <template #endAdornment>
-        <span class="tabular-nums text-secondary">{{ username.length }}/16</span>
-      </template>
-    </Input>
-  </Field>
-</FieldGroup>
-```
-
-### Clear button
-Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input. On Phone it is the filled circle of an iOS text field: in a row it shows only while the value is being edited, at the row's end, and a long value stops 6px before it.
-```vue
-<!-- Desktop -->
-<div class="w-[320px]">
-  <Input
-    v-model:value="value"
-    placeholder="Enter text..."
-    :pill="pill"
-    :size="size"
-    @clear="value = ''"
-  />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Name">
-    <Input v-model:value="value" placeholder="Enter text..." @clear="value = ''" />
   </Field>
 </FieldGroup>
 ```
@@ -3491,125 +3420,6 @@ You can pair Input and Button components together by using the same size value. 
 <Button color="primary" size="3xl" pill block>Subscribe</Button>
 ```
 
-### Sizing & roundness
-Sizing of the input is controlled with the size and gutter-size props. size sets the input to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so this example has no Phone switch.
-```vue
-<!-- Desktop -->
-<div class="flex flex-col gap-2.5 justify-start items-start w-[320px]">
-  <Input
-    placeholder="Enter text..."
-    :size="size"
-    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
-    :pill="pill"
-  />
-  <Input
-    placeholder="Search..."
-    :size="size"
-    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
-    :pill="pill"
-  >
-    <template #startAdornment>
-      <Search class="fill-tertiary" />
-    </template>
-  </Input>
-  <Input
-    v-model:value="username"
-    placeholder="Username"
-    maxlength="16"
-    :size="size"
-    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
-    :pill="pill"
-  >
-    <template #endAdornment>
-      <span class="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{{ username.length }}/16</span>
-    </template>
-  </Input>
-</div>
-
-<!-- Phone: the row sets the height, insets and type. -->
-<FieldGroup columns>
-  <Field row label="Name">
-    <Input placeholder="Enter text..." />
-  </Field>
-  <Field row label="Username">
-    <Input v-model:value="username" placeholder="Required" maxlength="16">
-      <template #endAdornment>
-        <span class="tabular-nums text-secondary">{{ username.length }}/16</span>
-      </template>
-    </Input>
-  </Field>
-</FieldGroup>
-```
-
-### Behavior
-Pass auto-select to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change. By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allow-autofill-extensions to remove the disabling. When name is passed, or type is set to "password", this value will default to true. Both behave the same in a phone row, so this example has no Phone switch.
-```vue
-<!-- Desktop -->
-<div class="flex flex-col gap-2 w-[320px]">
-  <Input placeholder="Add text..." :auto-select="autoSelect" default-value="Toggle to auto select" />
-  <Input
-    :key="String(allowAutofillExtensions)"
-    name="email"
-    :allow-autofill-extensions="allowAutofillExtensions"
-    :placeholder="allowAutofillExtensions ? 'Allowed' : 'Not allowed'"
-  />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Name">
-    <Input placeholder="Add text..." :auto-select="autoSelect" default-value="Toggle to auto select" />
-  </Field>
-  <Field row label="Email">
-    <Input
-      :key="String(allowAutofillExtensions)"
-      name="email"
-      :allow-autofill-extensions="allowAutofillExtensions"
-      :placeholder="allowAutofillExtensions ? 'Allowed' : 'Not allowed'"
-    />
-  </Field>
-</FieldGroup>
-```
-
-### Optical alignment
-```vue
-<!-- Desktop -->
-<div class="w-full min-w-0 max-w-[400px]">
-  <div class="border border-dashed border-alpha/20 rounded-md py-6 px-8">
-    <div class="mb-5 text-secondary text-sm">
-      {{ opticallyAlign ? 'optically-align="start"' : 'Default' }}
-    </div>
-    <div class="flex flex-col gap-5">
-      <Field label="Full name" :optically-align="opticallyAlign ? 'start' : undefined">
-        <Input placeholder="Jane Doe" :pill="pill" />
-      </Field>
-      <Field
-        label="Email"
-        description="We'll never share your email."
-        error-message="Please enter a valid email address."
-        required
-        :optically-align="opticallyAlign ? 'start' : undefined"
-      >
-        <Input placeholder="jane@example.com" :pill="pill" />
-      </Field>
-    </div>
-    <Button class="mt-6" color="primary" variant="soft" :pill="pill">Submit</Button>
-  </div>
-</div>
-
-<!-- Phone: the help is the group's footer. -->
-<FieldGroup>
-  <Field row label="Full name">
-    <Input placeholder="Jane Doe" />
-  </Field>
-  <Field row label="Email" error-message="Please enter a valid email address.">
-    <Input placeholder="jane@example.com" />
-  </Field>
-  <template #footer>We'll never share your email.</template>
-</FieldGroup>
-<Button color="primary" size="3xl" pill block>Submit</Button>
-```
-
 ## Input Group
 Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.
 Import: import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText, InputGroupTextarea } from "@plexui/vue/components/InputGroup"
@@ -3626,7 +3436,7 @@ Props:
     - class (string) — Applied to the addon <div>
 
 ### Overview
-Put an InputGroupInput and one or more InputGroupAddons inside an InputGroup. The group draws the frame and passes size, pill, disabled and invalid down to the control and the buttons.
+Put an InputGroupInput and one or more InputGroupAddons inside an InputGroup. The group draws the frame and passes size, pill, disabled and invalid down to the control and the buttons. Use variant to stylize it, like Input. size takes every Input size from 3xs to 3xl; icons, text and InputGroupButton scale with the group, and buttons in inline addons fit the control height and keep a 4px inset. Use align on InputGroupAddon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it; here it places the caption of the amount. A block addon turns the group into rows, so keep the other content of such a group inside its block addons, as the Textarea example does. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position. loading shows a LoadingIndicator in an addon while a value is searched, checked or saved. On Phone the row is the frame: a group in a row keeps the default outline, which the row draws without a border, and the row sets its height (with touch.css 3xs to xl are all 44px; the iOS 26 field is one 52px row), so size, variant, pill and align stay on the desktop. The row places the value at its end, or, with columns, at one column shared by the group's rows; inline addons stay in the row, a block-start text becomes the row's label and a block-end text the group's footer. An indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is.
 ```vue
 <!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[320px]">
@@ -3634,6 +3444,9 @@ Put an InputGroupInput and one or more InputGroupAddons inside an InputGroup. Th
     <InputGroupInput placeholder="Search..." />
     <InputGroupAddon>
       <Search />
+    </InputGroupAddon>
+    <InputGroupAddon v-if="loading" align="inline-end">
+      <LoadingIndicator />
     </InputGroupAddon>
     <InputGroupAddon align="inline-end">
       <InputGroupText>12 results</InputGroupText>
@@ -3646,6 +3459,12 @@ Put an InputGroupInput and one or more InputGroupAddons inside an InputGroup. Th
     </InputGroupAddon>
     <InputGroupAddon align="inline-end">
       <InputGroupText>.com</InputGroupText>
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup :size="size" :variant="variant" :pill="pill" :disabled="disabled" :invalid="invalid">
+    <InputGroupInput placeholder="0.00" inputmode="decimal" />
+    <InputGroupAddon :align="align">
+      <InputGroupText>Amount in USD</InputGroupText>
     </InputGroupAddon>
   </InputGroup>
   <InputGroup :size="size" :variant="variant" :pill="pill" :disabled="disabled" :invalid="invalid">
@@ -3667,6 +3486,9 @@ Put an InputGroupInput and one or more InputGroupAddons inside an InputGroup. Th
         <InputGroupAddon>
           <InputGroupText>https://</InputGroupText>
         </InputGroupAddon>
+        <InputGroupAddon v-if="loading" align="inline-end">
+          <LoadingIndicator />
+        </InputGroupAddon>
       </InputGroup>
     </template>
   </Field>
@@ -3681,111 +3503,14 @@ Put an InputGroupInput and one or more InputGroupAddons inside an InputGroup. Th
     </template>
   </Field>
 </FieldGroup>
-```
-
-### Variants
-Use variant to stylize the group, like Input. On Phone the row is the frame, so a group in a row keeps the default outline, which the row draws without a border, and the row places the value: at its end, or, with columns, at one column shared by the group's rows.
-```vue
-<!-- Desktop -->
-<div class="flex flex-col gap-2.5 w-[320px]">
-  <InputGroup variant="outline">
-    <InputGroupInput placeholder="Outline" />
-    <InputGroupAddon>
-      <Search />
-    </InputGroupAddon>
-  </InputGroup>
-  <InputGroup variant="soft">
-    <InputGroupInput placeholder="Soft" />
-    <InputGroupAddon>
-      <Search />
-    </InputGroupAddon>
-  </InputGroup>
-</div>
-
-<!-- Phone -->
-<FieldGroup title="Value at the end">
+<FieldGroup>
   <Field row label="Distance">
     <template #default="control">
-      <InputGroup>
+      <InputGroup :disabled="disabled">
         <InputGroupInput v-bind="control" default-value="5" inputmode="decimal" />
         <InputGroupAddon align="inline-end">
           <InputGroupText>km</InputGroupText>
         </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-</FieldGroup>
-<FieldGroup title="Values in a column" columns>
-  <Field row label="Handle">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="username" autocapitalize="none" spellcheck="false" />
-        <InputGroupAddon>
-          <InputGroupText>@</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-  <Field row label="Price">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
-        <InputGroupAddon>
-          <InputGroupText>€</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-</FieldGroup>
-```
-
-### Align
-Use align on InputGroupAddon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position. On Phone the inline addons stay in the row (see Variants), a block-start text becomes the row's label and a block-end text the group's footer.
-```vue
-<!-- Desktop -->
-<div class="flex flex-col gap-2.5 w-[320px]">
-  <InputGroup>
-    <InputGroupInput placeholder="inline-start" />
-    <InputGroupAddon align="inline-start">
-      <Search />
-    </InputGroupAddon>
-  </InputGroup>
-  <InputGroup>
-    <InputGroupInput placeholder="inline-end" />
-    <InputGroupAddon align="inline-end">
-      <InfoCircle />
-    </InputGroupAddon>
-  </InputGroup>
-  <InputGroup>
-    <InputGroupInput placeholder="Ada Lovelace" />
-    <InputGroupAddon align="block-start">
-      <InputGroupText>Full name</InputGroupText>
-    </InputGroupAddon>
-  </InputGroup>
-  <InputGroup>
-    <InputGroupInput placeholder="0.00" />
-    <InputGroupAddon align="block-end">
-      <InputGroupText>Amount in USD</InputGroupText>
-    </InputGroupAddon>
-  </InputGroup>
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Full name">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="Ada Lovelace" />
-      </InputGroup>
-    </template>
-  </Field>
-</FieldGroup>
-<FieldGroup>
-  <template #footer>Amount in USD</template>
-  <Field row label="Amount">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
       </InputGroup>
     </template>
   </Field>
@@ -4030,48 +3755,6 @@ const unit = ref("kg")
 </FieldGroup>
 ```
 
-### Spinner
-Show a LoadingIndicator in an addon while a value is searched, checked or saved. On a phone with touch.css an indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is.
-```vue
-<!-- Desktop -->
-<div class="flex flex-col gap-2.5 w-[320px]">
-  <InputGroup>
-    <InputGroupInput default-value="Searching..." readonly />
-    <InputGroupAddon align="inline-end">
-      <LoadingIndicator />
-    </InputGroupAddon>
-  </InputGroup>
-  <InputGroup>
-    <InputGroupInput default-value="Processing..." readonly />
-    <InputGroupAddon>
-      <LoadingIndicator />
-    </InputGroupAddon>
-  </InputGroup>
-  <InputGroup>
-    <InputGroupInput default-value="Saving changes" readonly />
-    <InputGroupAddon align="inline-end">
-      <InputGroupText>Saving...</InputGroupText>
-      <LoadingIndicator />
-    </InputGroupAddon>
-  </InputGroup>
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <template #footer>Checking availability...</template>
-  <Field row label="Username">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" default-value="ada" autocapitalize="none" spellcheck="false" />
-        <InputGroupAddon align="inline-end">
-          <LoadingIndicator />
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-</FieldGroup>
-```
-
 ### Textarea
 With InputGroupTextarea, use block-start and block-end addons for a header and a footer. Utility classes such as ml-auto push a button to the far side.
 ```vue
@@ -4104,40 +3787,6 @@ With InputGroupTextarea, use block-start and block-end addons for a header and a
   </Field>
 </FieldGroup>
 <Button color="primary" size="3xl" pill block>Run</Button>
-```
-
-### Sizes
-Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.
-```vue
-<!-- Desktop -->
-<div class="flex flex-col gap-2.5 w-[360px]">
-  <div v-for="size in sizes" :key="size" class="flex items-center gap-4">
-    <span class="w-8 shrink-0 text-right text-sm text-tertiary">{{ size }}</span>
-    <InputGroup :size="size" :pill="pill">
-      <InputGroupInput placeholder="Search..." />
-      <InputGroupAddon>
-        <Search />
-      </InputGroupAddon>
-      <InputGroupAddon align="inline-end">
-        <InputGroupButton>Search</InputGroupButton>
-      </InputGroupAddon>
-    </InputGroup>
-  </div>
-</div>
-
-<!-- Phone -->
-<FieldGroup columns>
-  <Field row label="Domain">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" default-value="plexui.com" inputmode="url" autocapitalize="none" spellcheck="false" />
-        <InputGroupAddon>
-          <InputGroupText>https://</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-</FieldGroup>
 ```
 
 ## Kbd

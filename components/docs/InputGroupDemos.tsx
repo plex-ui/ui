@@ -18,7 +18,6 @@ import {
   CreditCard,
   Email,
   FileCode,
-  InfoCircle,
   Play,
   Search,
 } from '@plexui/ui/components/Icon';
@@ -33,7 +32,7 @@ import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 // ends at the row's edge with its unit after it ("72 kg"). A row keeps a prefix or a unit, not both: in a
 // column the unit would stand at the far edge, away from its value.
 
-function PhoneWebsiteRow({ disabled, invalid }: { disabled?: boolean; invalid?: boolean }) {
+function PhoneWebsiteRow({ disabled, invalid, loading }: { disabled?: boolean; invalid?: boolean; loading?: boolean }) {
   return (
     <Field row label="Website" errorMessage={invalid ? 'Enter a valid address.' : undefined}>
       {(control) => (
@@ -42,6 +41,12 @@ function PhoneWebsiteRow({ disabled, invalid }: { disabled?: boolean; invalid?: 
           <InputGroup.Addon>
             <InputGroup.Text>https://</InputGroup.Text>
           </InputGroup.Addon>
+          {/* The address being checked; in a field the indicator is 20px, the iOS 27 Regular spinner */}
+          {loading && (
+            <InputGroup.Addon align="inline-end">
+              <LoadingIndicator />
+            </InputGroup.Addon>
+          )}
         </InputGroup>
       )}
     </Field>
@@ -56,6 +61,22 @@ function PhoneAmountRow({ disabled }: { disabled?: boolean }) {
           <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
           <InputGroup.Addon>
             <InputGroup.Text>$</InputGroup.Text>
+          </InputGroup.Addon>
+        </InputGroup>
+      )}
+    </Field>
+  );
+}
+
+// A value with its unit after it ends at the row's edge, as iOS writes "5 km", so its group takes no columns
+function PhoneDistanceRow({ disabled }: { disabled?: boolean }) {
+  return (
+    <Field row label="Distance">
+      {(control) => (
+        <InputGroup disabled={disabled}>
+          <InputGroup.Input {...control} defaultValue="5" inputMode="decimal" />
+          <InputGroup.Addon align="inline-end">
+            <InputGroup.Text>km</InputGroup.Text>
           </InputGroup.Addon>
         </InputGroup>
       )}
@@ -113,10 +134,24 @@ function SegmentedRow<T extends string>({
   );
 }
 
+const ALIGN_OPTIONS = ['inline-start', 'inline-end', 'block-start', 'block-end'] as const;
+type Align = (typeof ALIGN_OPTIONS)[number];
+
+/**
+ * The Overview, with every setting of a group: what the page's examples once showed one by one (Variants, Align,
+ * Spinner, Sizes) are its settings (owner 11.11: «в первом примере можно сразу показать все со всеми настройками»);
+ * Text, Button, Dropdown and Textarea stay, each other content in its addons. `align` places the caption of the amount:
+ * before or after the value, or as a row above or below it; a group with a block addon lays its addons out as rows, so
+ * the caption is that group's only addon. `loading` shows a spinner after the value while it is searched or checked. On a phone the group is the value of a row: the row is its frame and sets its height, so
+ * `size`, `variant`, `pill` and `align` stay on the desktop (a block addon becomes the row's label or the group's
+ * footer there).
+ */
 export function InputGroupOverviewDemo() {
   const [size, setSize] = useState<Size>('md');
   const [variant, setVariant] = useState<Variant>('outline');
   const [pill, setPill] = useState(false);
+  const [align, setAlign] = useState<Align>('inline-start');
+  const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [invalid, setInvalid] = useState(false);
   const args = { size, variant, pill, disabled, invalid };
@@ -127,14 +162,19 @@ export function InputGroupOverviewDemo() {
         {!phone && <SegmentedRow name="size" options={SIZE_OPTIONS} value={size} onChange={setSize} />}
         {!phone && <SegmentedRow name="variant" options={VARIANT_OPTIONS} value={variant} onChange={setVariant} />}
         {!phone && <DemoControlBoolean name="pill" value={pill} onChange={setPill} />}
+        {!phone && <SegmentedRow name="align" options={ALIGN_OPTIONS} value={align} onChange={setAlign} />}
+        <DemoControlBoolean name="loading" value={loading} onChange={setLoading} />
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
         <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} />
       </div>
       {phone ? (
         <PhoneRowsStage>
           <FieldGroup columns>
-            <PhoneWebsiteRow disabled={disabled} invalid={invalid} />
+            <PhoneWebsiteRow disabled={disabled} invalid={invalid} loading={loading} />
             <PhoneAmountRow disabled={disabled} />
+          </FieldGroup>
+          <FieldGroup>
+            <PhoneDistanceRow disabled={disabled} />
           </FieldGroup>
         </PhoneRowsStage>
       ) : (
@@ -145,6 +185,11 @@ export function InputGroupOverviewDemo() {
             <InputGroup.Addon>
               <Search />
             </InputGroup.Addon>
+            {loading && (
+              <InputGroup.Addon align="inline-end">
+                <LoadingIndicator />
+              </InputGroup.Addon>
+            )}
             <InputGroup.Addon align="inline-end">
               <InputGroup.Text>12 results</InputGroup.Text>
             </InputGroup.Addon>
@@ -156,6 +201,13 @@ export function InputGroupOverviewDemo() {
             </InputGroup.Addon>
             <InputGroup.Addon align="inline-end">
               <InputGroup.Text>.com</InputGroup.Text>
+            </InputGroup.Addon>
+          </InputGroup>
+          {/* A group with a block addon is a column: its only addon here, so the text can take every place */}
+          <InputGroup {...args}>
+            <InputGroup.Input placeholder="0.00" inputMode="decimal" />
+            <InputGroup.Addon align={align}>
+              <InputGroup.Text>Amount in USD</InputGroup.Text>
             </InputGroup.Addon>
           </InputGroup>
           <InputGroup {...args}>
@@ -170,169 +222,6 @@ export function InputGroupOverviewDemo() {
       </div>
       )}
     </>
-  );
-}
-
-export function InputGroupVariantsDemo() {
-  const phone = usePhoneRows();
-  if (phone) {
-    return (
-      <PhoneRowsStage>
-        {/* The row is the frame and places the value. */}
-        <FieldGroup title="Value at the end">
-          <Field row label="Distance">
-            {(control) => (
-              <InputGroup>
-                <InputGroup.Input {...control} defaultValue="5" inputMode="decimal" />
-                <InputGroup.Addon align="inline-end">
-                  <InputGroup.Text>km</InputGroup.Text>
-                </InputGroup.Addon>
-              </InputGroup>
-            )}
-          </Field>
-        </FieldGroup>
-        <FieldGroup title="Values in a column" columns>
-          <Field row label="Handle">
-            {(control) => (
-              <InputGroup>
-                <InputGroup.Input {...control} placeholder="username" autoCapitalize="none" spellCheck={false} />
-                <InputGroup.Addon>
-                  <InputGroup.Text>@</InputGroup.Text>
-                </InputGroup.Addon>
-              </InputGroup>
-            )}
-          </Field>
-          <Field row label="Price">
-            {(control) => (
-              <InputGroup>
-                <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
-                <InputGroup.Addon>
-                  <InputGroup.Text>€</InputGroup.Text>
-                </InputGroup.Addon>
-              </InputGroup>
-            )}
-          </Field>
-        </FieldGroup>
-      </PhoneRowsStage>
-    );
-  }
-  return (
-    <div className="flex flex-col gap-2.5 w-[320px]">
-      {VARIANT_OPTIONS.map((variant) => (
-        <InputGroup key={variant} variant={variant}>
-          <InputGroup.Input placeholder={variant === 'outline' ? 'Outline' : 'Soft'} />
-          <InputGroup.Addon>
-            <Search />
-          </InputGroup.Addon>
-        </InputGroup>
-      ))}
-    </div>
-  );
-}
-
-export function InputGroupSizesDemo() {
-  const [pill, setPill] = useState(false);
-  const phone = usePhoneRows();
-  if (phone) {
-    return (
-      <PhoneRowsStage>
-        {/* One size, the 52px row. */}
-        <FieldGroup columns>
-          <Field row label="Domain">
-            {(control) => (
-              <InputGroup>
-                <InputGroup.Input {...control} defaultValue="plexui.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
-                <InputGroup.Addon>
-                  <InputGroup.Text>https://</InputGroup.Text>
-                </InputGroup.Addon>
-              </InputGroup>
-            )}
-          </Field>
-        </FieldGroup>
-      </PhoneRowsStage>
-    );
-  }
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
-      </div>
-      <div data-demo-stage className="py-10">
-        <div className="flex flex-col gap-2.5 w-[360px]">
-          {SIZE_OPTIONS.map((size) => (
-            <div key={size} className="flex items-center gap-4">
-              <span className="w-8 shrink-0 text-right text-sm text-tertiary">{size}</span>
-              <InputGroup size={size} pill={pill}>
-                <InputGroup.Input placeholder="Search..." />
-                <InputGroup.Addon>
-                  <Search />
-                </InputGroup.Addon>
-                <InputGroup.Addon align="inline-end">
-                  <InputGroup.Button>Search</InputGroup.Button>
-                </InputGroup.Addon>
-              </InputGroup>
-            </div>
-          ))}
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function InputGroupAlignDemo() {
-  const phone = usePhoneRows();
-  if (phone) {
-    return (
-      <PhoneRowsStage>
-        {/* Block-start text is the row's label, block-end text the group's footer. */}
-        <FieldGroup>
-          <Field row label="Full name">
-            {(control) => (
-              <InputGroup>
-                <InputGroup.Input {...control} placeholder="Ada Lovelace" />
-              </InputGroup>
-            )}
-          </Field>
-        </FieldGroup>
-        <FieldGroup footer="Amount in USD">
-          <Field row label="Amount">
-            {(control) => (
-              <InputGroup>
-                <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
-              </InputGroup>
-            )}
-          </Field>
-        </FieldGroup>
-      </PhoneRowsStage>
-    );
-  }
-  return (
-    <div className="flex flex-col gap-2.5 w-[320px]">
-      <InputGroup>
-        <InputGroup.Input placeholder="inline-start" />
-        <InputGroup.Addon align="inline-start">
-          <Search />
-        </InputGroup.Addon>
-      </InputGroup>
-      <InputGroup>
-        <InputGroup.Input placeholder="inline-end" />
-        <InputGroup.Addon align="inline-end">
-          <InfoCircle />
-        </InputGroup.Addon>
-      </InputGroup>
-      <InputGroup>
-        <InputGroup.Input placeholder="Ada Lovelace" />
-        <InputGroup.Addon align="block-start">
-          <InputGroup.Text>Full name</InputGroup.Text>
-        </InputGroup.Addon>
-      </InputGroup>
-      <InputGroup>
-        <InputGroup.Input placeholder="0.00" />
-        <InputGroup.Addon align="block-end">
-          <InputGroup.Text>Amount in USD</InputGroup.Text>
-        </InputGroup.Addon>
-      </InputGroup>
-    </div>
   );
 }
 
@@ -604,52 +493,6 @@ export function InputGroupDropdownDemo() {
         </div>
       </div>
     </>
-  );
-}
-
-export function InputGroupSpinnerDemo() {
-  const phone = usePhoneRows();
-  if (phone) {
-    return (
-      <PhoneRowsStage>
-        {/* A value being checked; in a field the indicator is the kit's Small 22. */}
-        <FieldGroup footer="Checking availability...">
-          <Field row label="Username">
-            {(control) => (
-              <InputGroup>
-                <InputGroup.Input {...control} defaultValue="ada" autoCapitalize="none" spellCheck={false} />
-                <InputGroup.Addon align="inline-end">
-                  <LoadingIndicator />
-                </InputGroup.Addon>
-              </InputGroup>
-            )}
-          </Field>
-        </FieldGroup>
-      </PhoneRowsStage>
-    );
-  }
-  return (
-    <div className="flex flex-col gap-2.5 w-[320px]">
-      <InputGroup>
-        <InputGroup.Input defaultValue="Searching..." readOnly />
-        <InputGroup.Addon align="inline-end">
-          <LoadingIndicator />
-        </InputGroup.Addon>
-      </InputGroup>
-      <InputGroup>
-        <InputGroup.Input defaultValue="Processing..." readOnly />
-        <InputGroup.Addon>
-          <LoadingIndicator />
-        </InputGroup.Addon>
-      </InputGroup>
-      <InputGroup>
-        <InputGroup.Input defaultValue="Saving changes" readOnly />
-        <InputGroup.Addon align="inline-end">
-          <InputGroup.Text>Saving...</InputGroup.Text>
-          <LoadingIndicator />
-        </InputGroup.Addon>
-      </InputGroup>
-    </div>
   );
 }
 

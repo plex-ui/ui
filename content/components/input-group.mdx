@@ -6,37 +6,62 @@ metaDescription: React input group component with icons, text, buttons and dropd
 
 import {
   InputGroupOverviewDemo,
-  InputGroupVariantsDemo,
-  InputGroupSizesDemo,
-  InputGroupAlignDemo,
   InputGroupTextDemo,
   InputGroupButtonDemo,
   InputGroupDropdownDemo,
-  InputGroupSpinnerDemo,
   InputGroupTextareaDemo,
 } from "@/components/docs/InputGroupDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
-<UsageBlock>{`import { InputGroup } from "@plexui/ui/components/InputGroup";`}</UsageBlock>
+export const overviewCode = `const [size, setSize] = useState<"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl">("md")
+const [variant, setVariant] = useState<"outline" | "soft">("outline")
+const [pill, setPill] = useState(false)
+const [align, setAlign] = useState<"inline-start" | "inline-end" | "block-start" | "block-end">("inline-start")
+const [loading, setLoading] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [invalid, setInvalid] = useState(false)
 
-For a single icon or action button inside a plain field, [Input](/components/input) with `startAdornment` / `endAdornment` is enough. Reach for `InputGroup` when the field needs text prefixes and suffixes, buttons with labels, menus, or a header and footer row.
-
-On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight row of the [Settings Forms](/components/settings-forms#several-groups): the row's label names it, its prefix, unit, menu or button sits in the row, and the row is its frame. With a prefix the group takes `columns`, so the value starts at the column; without one the value ends at the row's edge with its unit or menu after it, as iOS writes "72 kg". A row keeps a prefix or a unit, not both: in a column the unit would stand at the far edge, away from its value. A header becomes the row's label, a counter or status line the group's `footer`, and a main action the full-width button under the group. The Phone previews show rows without the `size`, `variant` and `pill` controls.
-
-## Examples
-
-### Overview
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Put an <code>InputGroup.Input</code> and one or more <code>InputGroup.Addon</code>s inside an <code>InputGroup</code>. The group draws the frame and passes <code>size</code>, <code>pill</code>, <code>disabled</code> and <code>invalid</code> down to the control and the buttons.</>} code={`// Desktop
-<InputGroup>
-  <InputGroup.Input placeholder="Search..." />
-  <InputGroup.Addon>
-    <Search />
-  </InputGroup.Addon>
-  <InputGroup.Addon align="inline-end">
-    <InputGroup.Text>12 results</InputGroup.Text>
-  </InputGroup.Addon>
-</InputGroup>
+// Desktop
+<div className="flex flex-col gap-2.5 w-[320px]">
+  <InputGroup size={size} variant={variant} pill={pill} disabled={disabled} invalid={invalid}>
+    <InputGroup.Input placeholder="Search..." />
+    <InputGroup.Addon>
+      <Search />
+    </InputGroup.Addon>
+    {loading && (
+      <InputGroup.Addon align="inline-end">
+        <LoadingIndicator />
+      </InputGroup.Addon>
+    )}
+    <InputGroup.Addon align="inline-end">
+      <InputGroup.Text>12 results</InputGroup.Text>
+    </InputGroup.Addon>
+  </InputGroup>
+  <InputGroup size={size} variant={variant} pill={pill} disabled={disabled} invalid={invalid}>
+    <InputGroup.Input placeholder="example" />
+    <InputGroup.Addon>
+      <InputGroup.Text>https://</InputGroup.Text>
+    </InputGroup.Addon>
+    <InputGroup.Addon align="inline-end">
+      <InputGroup.Text>.com</InputGroup.Text>
+    </InputGroup.Addon>
+  </InputGroup>
+  {/* A group with a block addon lays its addons out as rows: the caption is its only addon */}
+  <InputGroup size={size} variant={variant} pill={pill} disabled={disabled} invalid={invalid}>
+    <InputGroup.Input placeholder="0.00" inputMode="decimal" />
+    <InputGroup.Addon align={align}>
+      <InputGroup.Text>Amount in USD</InputGroup.Text>
+    </InputGroup.Addon>
+  </InputGroup>
+  <InputGroup size={size} variant={variant} pill={pill} disabled={disabled} invalid={invalid}>
+    <InputGroup.Input placeholder="Ask anything..." />
+    <InputGroup.Addon align="inline-end">
+      <InputGroup.Button variant="solid" color="primary" uniform aria-label="Send">
+        <ArrowUpSm />
+      </InputGroup.Button>
+    </InputGroup.Addon>
+  </InputGroup>
+</div>
 
 // Phone: the group is the value of a row; with a prefix the rows take columns.
 <FieldGroup columns>
@@ -47,6 +72,11 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
         <InputGroup.Addon>
           <InputGroup.Text>https://</InputGroup.Text>
         </InputGroup.Addon>
+        {loading && (
+          <InputGroup.Addon align="inline-end">
+            <LoadingIndicator />
+          </InputGroup.Addon>
+        )}
       </InputGroup>
     )}
   </Field>
@@ -60,21 +90,12 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
       </InputGroup>
     )}
   </Field>
-</FieldGroup>`} previewMinHeight={280}>
-  <InputGroupOverviewDemo />
-</ComponentPreview>
-
-### Variants
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>variant</code> to stylize the group, like <code>Input</code>. On Phone the row is the frame, so a group in a row keeps the default <code>outline</code>, which the row draws without a border, and the row places the value: at its end, or, with <code>columns</code>, at one column shared by the group's rows.</>} code={`// Desktop
-<InputGroup variant="outline">...</InputGroup>
-<InputGroup variant="soft">...</InputGroup>
-
-// Phone: the row is the frame and places the value.
-<FieldGroup title="Value at the end">
+</FieldGroup>
+{/* A unit after the value: the value ends at the row's edge, so the group takes no columns */}
+<FieldGroup>
   <Field row label="Distance">
     {(control) => (
-      <InputGroup>
+      <InputGroup disabled={disabled}>
         <InputGroup.Input {...control} defaultValue="5" inputMode="decimal" />
         <InputGroup.Addon align="inline-end">
           <InputGroup.Text>km</InputGroup.Text>
@@ -82,62 +103,31 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
       </InputGroup>
     )}
   </Field>
-</FieldGroup>
-<FieldGroup title="Values in a column" columns>
-  <Field row label="Handle">
-    {(control) => (
-      <InputGroup>
-        <InputGroup.Input {...control} placeholder="username" autoCapitalize="none" spellCheck={false} />
-        <InputGroup.Addon>
-          <InputGroup.Text>@</InputGroup.Text>
-        </InputGroup.Addon>
-      </InputGroup>
-    )}
-  </Field>
-  <Field row label="Price">
-    {(control) => (
-      <InputGroup>
-        <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
-        <InputGroup.Addon>
-          <InputGroup.Text>€</InputGroup.Text>
-        </InputGroup.Addon>
-      </InputGroup>
-    )}
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <InputGroupVariantsDemo />
-</ComponentPreview>
+</FieldGroup>`
 
-### Align
+<UsageBlock>{`import { InputGroup } from "@plexui/ui/components/InputGroup";`}</UsageBlock>
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>align</code> on <code>InputGroup.Addon</code> to place it before (<code>inline-start</code>, the default) or after (<code>inline-end</code>) the control, or as a row above (<code>block-start</code>) or below (<code>block-end</code>) it. Place addons after the control in the markup so the tab order starts with the field; <code>align</code> handles the visual position. On Phone the inline addons stay in the row (see Variants), a <code>block-start</code> text becomes the row's label and a <code>block-end</code> text the group's footer.</>} code={`// Desktop
-<InputGroup>
-  <InputGroup.Input placeholder="Ada Lovelace" />
-  <InputGroup.Addon align="block-start">
-    <InputGroup.Text>Full name</InputGroup.Text>
-  </InputGroup.Addon>
-</InputGroup>
+For a single icon or action button inside a plain field, [Input](/components/input) with `startAdornment` / `endAdornment` is enough. Reach for `InputGroup` when the field needs text prefixes and suffixes, buttons with labels, menus, or a header and footer row.
 
-// Phone: block-start text is the row's label, block-end text the group's footer.
-<FieldGroup>
-  <Field row label="Full name">
-    {(control) => (
-      <InputGroup>
-        <InputGroup.Input {...control} placeholder="Ada Lovelace" />
-      </InputGroup>
-    )}
-  </Field>
-</FieldGroup>
-<FieldGroup footer="Amount in USD">
-  <Field row label="Amount">
-    {(control) => (
-      <InputGroup>
-        <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
-      </InputGroup>
-    )}
-  </Field>
-</FieldGroup>`} previewMinHeight={280}>
-  <InputGroupAlignDemo />
+On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight row of the [Settings Forms](/components/settings-forms#several-groups): the row's label names it, its prefix, unit, menu or button sits in the row, and the row is its frame. With a prefix the group takes `columns`, so the value starts at the column; without one the value ends at the row's edge with its unit or menu after it, as iOS writes "72 kg". A row keeps a prefix or a unit, not both: in a column the unit would stand at the far edge, away from its value. A header becomes the row's label, a counter or status line the group's `footer`, and a main action the full-width button under the group. The Phone previews show rows without the `size`, `variant` and `pill` controls.
+
+## Examples
+
+{/* The examples Variants, Align, Spinner and Sizes are settings of the Overview (owner 11.11: the first example
+    shows everything with every setting); their anchors stay */}
+<span id="variants" />
+<span id="align" />
+<span id="spinner" />
+<span id="sizes" />
+
+### Overview
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>Put an <code>InputGroup.Input</code> and one or more <code>InputGroup.Addon</code>s inside an <code>InputGroup</code>. The group draws the frame and passes <code>size</code>, <code>pill</code>, <code>disabled</code> and <code>invalid</code> down to the control and the buttons. Use <code>variant</code> to stylize it, like <code>Input</code>. <code>size</code> takes every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>; icons, text and <code>InputGroup.Button</code> scale with the group, and buttons in inline addons fit the control height and keep a 4px inset.</p>
+  <p>Use <code>align</code> on <code>InputGroup.Addon</code> to place it before (<code>inline-start</code>, the default) or after (<code>inline-end</code>) the control, or as a row above (<code>block-start</code>) or below (<code>block-end</code>) it; here it places the caption of the amount. A block addon turns the group into rows, so keep the other content of such a group inside its block addons, as the Textarea example does. Place addons after the control in the markup so the tab order starts with the field; <code>align</code> handles the visual position. <code>loading</code> shows a <a href="/components/indicators"><code>LoadingIndicator</code></a> in an addon while a value is searched, checked or saved.</p>
+  <p>On Phone the row is the frame: a group in a row keeps the default <code>outline</code>, which the row draws without a border, and the row sets its height (with <code>touch.css</code> <code>3xs</code> to <code>xl</code> are all 44px; the iOS 26 field is one 52px row), so <code>size</code>, <code>variant</code>, <code>pill</code> and <code>align</code> stay on the desktop. The row places the value at its end, or, with <code>columns</code>, at one column shared by the group's rows; inline addons stay in the row, a <code>block-start</code> text becomes the row's label and a <code>block-end</code> text the group's footer. An indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is.</p>
+</>} code={overviewCode} previewMinHeight={280}>
+  <InputGroupOverviewDemo />
 </ComponentPreview>
 
 ### Text
@@ -328,33 +318,6 @@ const phoneUnitMenu = (units, unit, setUnit) => (
   <InputGroupDropdownDemo />
 </ComponentPreview>
 
-### Spinner
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Show a <a href="/components/indicators"><code>LoadingIndicator</code></a> in an addon while a value is searched, checked or saved. On a phone with <code>touch.css</code> an indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is.</>} code={`// Desktop
-<InputGroup>
-  <InputGroup.Input defaultValue="Saving changes" readOnly />
-  <InputGroup.Addon align="inline-end">
-    <InputGroup.Text>Saving...</InputGroup.Text>
-    <LoadingIndicator />
-  </InputGroup.Addon>
-</InputGroup>
-
-// Phone: a value being checked; in a field the indicator is the kit's Small 22.
-<FieldGroup footer="Checking availability...">
-  <Field row label="Username">
-    {(control) => (
-      <InputGroup>
-        <InputGroup.Input {...control} defaultValue="ada" autoCapitalize="none" spellCheck={false} />
-        <InputGroup.Addon align="inline-end">
-          <LoadingIndicator />
-        </InputGroup.Addon>
-      </InputGroup>
-    )}
-  </Field>
-</FieldGroup>`} previewMinHeight={200}>
-  <InputGroupSpinnerDemo />
-</ComponentPreview>
-
 ### Textarea
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>With <code>InputGroup.Textarea</code>, use <code>block-start</code> and <code>block-end</code> addons for a header and a footer. Utility classes such as <code>ml-auto</code> push a button to the far side.</>} code={`// Desktop
@@ -386,35 +349,6 @@ const phoneUnitMenu = (units, unit, setUnit) => (
 </FieldGroup>
 <Button color="primary" size="3xl" pill block>Run</Button>`} previewMinHeight={280}>
   <InputGroupTextareaDemo />
-</ComponentPreview>
-
-### Sizes
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroup.Button</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with <code>touch.css</code>, <code>3xs</code> to <code>xl</code> are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so this example is desktop only.</>} code={`// Desktop
-<InputGroup size="lg">
-  <InputGroup.Input placeholder="Search..." />
-  <InputGroup.Addon>
-    <Search />
-  </InputGroup.Addon>
-  <InputGroup.Addon align="inline-end">
-    <InputGroup.Button>Search</InputGroup.Button>
-  </InputGroup.Addon>
-</InputGroup>
-
-// Phone: one size, the 52px row.
-<FieldGroup columns>
-  <Field row label="Domain">
-    {(control) => (
-      <InputGroup>
-        <InputGroup.Input {...control} defaultValue="plexui.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
-        <InputGroup.Addon>
-          <InputGroup.Text>https://</InputGroup.Text>
-        </InputGroup.Addon>
-      </InputGroup>
-    )}
-  </Field>
-</FieldGroup>`} previewMinHeight={480}>
-  <InputGroupSizesDemo />
 </ComponentPreview>
 
 ## API

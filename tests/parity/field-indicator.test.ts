@@ -47,7 +47,8 @@ describe("inline addons in a phone row", () => {
 })
 
 // The phone code of each Input Group example: React MDX `// Phone` blocks and Vue `...Phone` templates.
-const reactPhone = [...read("content/components/input-group.mdx").matchAll(/\/\/ Phone[^\n]*\n([\s\S]*?)`\} previewMinHeight/g)].map((match) => match[1])
+// The Overview's code is an export (`overviewCode`), the others are inline in their previews
+const reactPhone = [...read("content/components/input-group.mdx").matchAll(/\/\/ Phone[^\n]*\n([\s\S]*?)`(?:\} previewMinHeight|\n)/g)].map((match) => match[1])
 // Vue templates in the order the page shows them, as the React blocks are (owner 11.11 moved the sections)
 const vueDocs = read("content/vue/components/input-group.mdx")
 const vueTemplates = new Map([...vueDocs.matchAll(/export const (\w+Phone) = `([\s\S]*?)`\n/g)].map((match) => [match[1], match[2]]))
@@ -73,7 +74,7 @@ describe.each([
   ["Vue", vuePhone],
 ])("%s Input Group phone examples", (_, blocks) => {
   test("cover every example", () => {
-    expect(blocks).toHaveLength(9)
+    expect(blocks).toHaveLength(5)
   })
 
   test("a row keeps a prefix in a column or a unit at the row's edge, never both", () => {
@@ -93,7 +94,7 @@ describe.each([
 
   test("no row repeats between examples", () => {
     const all = blocks.flatMap((block) => groups(block).flatMap((group) => rows(group.body).map(plain)))
-    expect(all.length).toBeGreaterThan(12)
+    expect(all.length).toBeGreaterThan(8)
     expect(new Set(all).size).toBe(all.length)
   })
 })
