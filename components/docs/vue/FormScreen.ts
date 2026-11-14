@@ -31,7 +31,8 @@ export const FormScreen = defineComponent({
       onSubmit: (event: Event) => { event.preventDefault(); if (props.dialog) close(); },
     }, slots.default);
     const submit = () => h(Button, {
-      color: 'primary', size: presence.present.value ? undefined : '3xl', pill: true, block: !presence.present.value,
+      // A desktop form ends with its action at the end, as the dialog's footer does; a phone takes the bottom Toolbar
+      color: 'primary', pill: true,
       type: 'submit', form: formId,
     }, () => props.submitLabel);
     // The phone action: a bottom Toolbar takes the place of the footer.

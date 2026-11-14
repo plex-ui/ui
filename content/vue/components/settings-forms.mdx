@@ -1,9 +1,10 @@
 ---
-title: Settings Forms
-description: "Settings and editing forms: grouped rows, choices, tags, account actions, payout and billing details, file upload, and sliders built with Plex UI."
-metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account actions, payout and billing details, file upload, and sliders built with Plex UI for Vue."
+title: "Forms: Settings"
+description: "Settings and editing forms: grouped rows, choices, tags, account actions, payout details, selection pages, and sliders built with Plex UI."
+metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account actions, payout details, selection pages, and sliders built with Plex UI for Vue."
 ---
 
+import { HashForward } from "@/components/docs/HashForward"
 import { VueSettingsSliderDemo } from "@/components/docs/vue/VueSettingsSliderDemo"
 import { settingsSliderVueCode, settingsVoiceVueCode, settingsQuickVueCode, settingsLanguagesVueCode, settingsRegionVueCode, settingsAutofillVueCode, settingsHapticsVueCode, settingsSharingVueCode, settingsVpnVueCode, settingsTvProviderVueCode, settingsCaptionsVueCode, settingsCaptionsAppearanceVueCode, settingsAudioVueCode, settingsHeadTrackingVueCode } from "@/components/docs/settingsSliderCode"
 import { VueSettingsQuickDemo, VueSettingsLanguagesDemo, VueSettingsRegionDemo, VueSettingsAutofillDemo, VueSettingsHapticsDemo, VueSettingsSharingDemo, VueSettingsVpnDemo, VueSettingsTvProviderDemo, VueSettingsCaptionsDemo, VueSettingsCaptionsAppearanceDemo, VueSettingsAudioDemo, VueSettingsHeadTrackingDemo } from "@/components/docs/vue/VueSettingsOrderDemo"
@@ -59,39 +60,6 @@ export const STAGE = "py-10 flex justify-center"
 
 export const errorControl = { name: "error", type: "boolean", default: false }
 
-export const billingDesktop = `<component :is="AuthFormStage" title="Billing details" :mobile="!wide" v-model:dialog="dialog" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface">
-<form class="flex w-[360px] flex-col gap-3" @submit.prevent>
-  <FloatingLabelInput label="Billing email" :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'" type="email" v-model:value="billingValues.email" autocomplete="email" />
-  <FloatingLabelInput label="Full name" :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'" v-model:value="billingValues.name" autocomplete="name" />
-  <Select
-    v-model:value="country"
-    :options="countries"
-    search-placeholder="Search countries..."
-    :list-min-width="360"
-    block
-    check-position="end"
-  >
-    <template #trigger="{ open }">
-      <FloatingLabelSelect
-        label="Country or region"
-        :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'"
-        :selected="!!country"
-        :open="open"
-      >
-        {{ countries.find((option) => option.value === country)?.label }}
-      </FloatingLabelSelect>
-    </template>
-  </Select>
-  <FloatingLabelInput label="Address line 1" :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'" v-model:value="billingValues.address1" autocomplete="address-line1" />
-  <FloatingLabelInput label="Address line 2" :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'" v-model:value="billingValues.address2" autocomplete="address-line2" />
-  <div class="flex gap-3">
-    <FloatingLabelInput class="flex-1" label="Postal code" :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'" v-model:value="billingValues.postalCode" autocomplete="postal-code" />
-    <FloatingLabelInput class="flex-1" label="City" :label-placement="inputType === 'inside-rounded' ? 'inside' : 'border'" :pill="inputType === 'border-pill'" v-model:value="billingValues.city" autocomplete="address-level2" />
-  </div>
-  <Button color="primary" size="3xl" type="submit" :pill="inputType === 'border-pill'" class="mt-3">Save</Button>
-</form>
-</component>`
-
 export const formScreen = (title, fields, action, id, wide = false) => `<component :is="FormScreen" title="${title}" v-model:dialog="dialog" :surface="surface" :phone-preview="phonePreview" :phone-host="phoneHost"${wide ? ' wide' : ''}${action ? ` submit-label="${action}"` : ''}>
 ${fields}
 </component>`
@@ -102,71 +70,6 @@ export const formScreenCode = (template) => template
   .replace(' data-form-width="wide"', '')
   .replace(' data-form-content', '')
   .replace(' data-form-footer', '')
-
-export const billingMobile = formScreen("Billing details", `<FieldGroup columns>
-  <Field row label="Billing email">
-    <Input type="email" v-model:value="billingValues.email" autocomplete="email" />
-  </Field>
-  <Field row label="Full name">
-    <Input v-model:value="billingValues.name" autocomplete="name" />
-  </Field>
-</FieldGroup>
-<FieldGroup title="Billing address" columns>
-  <Field row label="Country">
-    <Select v-model:value="country" :options="countries" search-placeholder="Search countries..." :block="false" align="end" check-position="end" />
-  </Field>
-  <Field row label="Address line 1">
-    <Input v-model:value="billingValues.address1" autocomplete="address-line1" />
-  </Field>
-  <Field row label="Address line 2">
-    <Input v-model:value="billingValues.address2" placeholder="Optional" autocomplete="address-line2" />
-  </Field>
-  <Field row label="Postal code">
-    <Input v-model:value="billingValues.postalCode" autocomplete="postal-code" />
-  </Field>
-  <Field row label="City">
-    <Input v-model:value="billingValues.city" autocomplete="address-level2" />
-  </Field>
-</FieldGroup>`, "Save", "billing-form")
-
-export const billing = `<template v-if="!wide">${billingMobile}</template><template v-else>${billingDesktop}</template>`
-
-export const billingTypeControl = { name: "inputType", label: "type", type: "select", options: [{ value: "border-pill", label: "Border pill" }, { value: "border-rounded", label: "Border rounded" }, { value: "inside-rounded", label: "Inside rounded" }], default: "inside-rounded" }
-
-export const billingCode = `<script setup lang="ts">
-import { ref } from 'vue';
-import { Button } from '@plexui/vue/components/Button';
-import { Field } from '@plexui/vue/components/Field';
-import { FieldGroup } from '@plexui/vue/components/FieldGroup';
-import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
-import { FloatingLabelSelect } from '@plexui/vue/components/FloatingLabelSelect';
-import { Input } from '@plexui/vue/components/Input';
-import { SegmentedControl, SegmentedControlOption } from '@plexui/vue/components/SegmentedControl';
-import { Select } from '@plexui/vue/components/Select';
-import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
-import { AuthFormStage } from './AuthFormStage';
-import { FormScreen } from './FormScreen';
-import { COUNTRIES as COUNTRY_DATA } from '../PhoneInputDemos';
-
-const wide = useBreakpoint('md');
-const dialog = ref(false);
-const surface = ref<'plain' | 'grouped'>('grouped');
-const inputType = ref<'border-pill' | 'border-rounded' | 'inside-rounded'>('inside-rounded');
-const country = ref('es');
-const countries = COUNTRY_DATA.map(({ value, label }) => ({ value, label }));
-const billingValues = ref({ email: 'jane.doe@example.com', name: 'Jane Doe', address1: '', address2: '', postalCode: '', city: '' });
-</script>
-
-<template>
-  <div v-if="wide" class="mb-4">
-    <SegmentedControl v-model:value="inputType" aria-label="type" size="xs">
-      <SegmentedControlOption value="border-pill">Border pill</SegmentedControlOption>
-      <SegmentedControlOption value="border-rounded">Border rounded</SegmentedControlOption>
-      <SegmentedControlOption value="inside-rounded">Inside rounded</SegmentedControlOption>
-    </SegmentedControl>
-  </div>
-${billing.replaceAll(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')}
-</template>`
 
 export const rowInputs = formScreen("Edit contact", `<FieldGroup title="Contact details" columns>
   <Field row label="First name">
@@ -600,20 +503,7 @@ export const rowState = {
   open: false,
 }
 
-export const uploadFile = `<div class="w-full">
-  <div class="mb-6 text-center">
-    <h3 data-auth-title class="text-2xl font-semibold tracking-tight">Upload documents</h3>
-    <p data-auth-description class="text-secondary text-sm mt-1">Please provide the required files to continue.</p>
-  </div>
-  <div class="flex flex-col gap-3">
-    <FileUpload accept=".pdf,.png" multiple :max-files="5" v-model:value="files" />
-    <Button color="primary" size="3xl" pill block class="h-[3.25rem] mt-3">
-      Continue
-    </Button>
-  </div>
-</div>`
-
-Settings and editing forms composed from [Field](/vue/components/field), [Input](/vue/components/input), [Select](/vue/components/select), [File Upload](/vue/components/file-upload), and [Button](/vue/components/button). Sign-up, log-in and verification screens are on [Auth Forms](/vue/components/auth-forms). The examples render small helpers from their setup scope with <code>{'<component :is>'}</code>, such as <code>FormScreen</code> and <code>AuthFormStage</code>.
+Settings and editing forms composed from [Field](/vue/components/field), [Input](/vue/components/input), [Select](/vue/components/select), [File Upload](/vue/components/file-upload), and [Button](/vue/components/button). Sign-up, log-in and verification screens are on [Forms: Auth](/vue/components/auth-forms). The examples render small helpers from their setup scope with <code>{'<component :is>'}</code>, such as <code>FormScreen</code> and <code>AuthFormStage</code>.
 
 Row forms use the [FormScreen helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/FormScreen.ts) and [shared form styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css) for Page and Dialog. The form owner holds every value above that presentation boundary.
 
@@ -724,17 +614,7 @@ const accountTrigger = ref<HTMLElement | null>(null);
   <VueFormExampleDemo template={rowErrors} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={rowState} controls={[errorControl]} />
 </ComponentPreview>
 
-## Billing details
-
-<ComponentPreview phonePresentation="screen" language="vue" details={<>On phones, related details share FieldGroup rows and a pinned Save action. Desktop offers three floating-label types; the fields, country select and Save use the same shape. Changing type or presentation preserves entered values. The code includes both layouts and imports their shared source helpers.</>} code={billingCode} previewMinHeight={560}>
-  <VueFormExampleDemo template={billing} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={{ inputType: "inside-rounded", country: "es", billingValues: { email: "jane.doe@example.com", name: "Jane Doe", address1: "", address2: "", postalCode: "", city: "" } }} controls={[billingTypeControl]} phoneControls={[]} />
-</ComponentPreview>
-
-## Upload file
-
-<ComponentPreview phonePresentation="screen" language="vue" details={<>A document upload form with <code>FileUpload</code>. The file list grows dynamically as files are added. Button and file list share the same 52px pill shape.</>} code={withAuthHelpers(`<component :is="AuthFormStage" title="Upload documents" :mobile="!wide" :surface="surface" v-model:dialog="dialog">${uploadFile}</component>`).replace("</script>", "const files = ref<File[]>([]);\n</script>")}>
-  <VueFileUploadDemo auth template={uploadFile} files="all" />
-</ComponentPreview>
+<HashForward to="/vue/components/auth-forms" ids={["billing-details", "upload-file"]} />
 
 ## Settings with selection pages
 

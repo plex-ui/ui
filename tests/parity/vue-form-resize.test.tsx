@@ -23,14 +23,18 @@ const choiceTemplate: unknown = new Function("formScreen", `return ${expression}
 if (typeof choiceTemplate !== "string") throw new Error("Choice in rows template was not resolved")
 const template = `<Field label="Name"><Input v-model:value="name" /></Field>${choiceTemplate}`
 
+// Billing details stands on Forms: Auth, with its own copy of the formScreen helper
+const authMdx = readFileSync("content/vue/components/auth-forms.mdx", "utf8")
+
 function resolveBillingExample() {
+  const mdx = authMdx
   const read = (name: string, next: string): string => {
     const marker = `export const ${name} = `
     return mdx.slice(mdx.indexOf(marker) + marker.length, mdx.indexOf(`export const ${next} = `)).trim()
   }
   const formScreen: unknown = new Function(`return ${read("formScreen", "formScreenCode")}`)()
   const desktop: unknown = new Function(`return ${read("billingDesktop", "formScreen")}`)()
-  const declarations = mdx.slice(mdx.indexOf("export const billingMobile = "), mdx.indexOf("export const rowInputs = ")).replaceAll("export const ", "const ")
+  const declarations = mdx.slice(mdx.indexOf("export const billingMobile = "), mdx.indexOf("export const uploadFile = ")).replaceAll("export const ", "const ")
   const result: unknown = new Function("formScreen", "billingDesktop", `${declarations}; return { template: billing, control: billingTypeControl };`)(formScreen, desktop)
   if (!result || typeof result !== "object" || !("template" in result) || typeof result.template !== "string" || !("control" in result)) {
     throw new Error("Billing example was not resolved")

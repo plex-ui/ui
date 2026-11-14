@@ -161,7 +161,8 @@ export function FormScreen({
         </Page.Content>
         {submitLabel && (
           <Page.Footer data-form-footer>
-            <Button color="primary" size="3xl" pill block type="submit" form={formId}>
+            {/* A desktop form ends with its action at the end, as the dialog's footer does; a phone takes the bottom Toolbar */}
+            <Button color="primary" pill type="submit" form={formId}>
               {submitLabel}
             </Button>
           </Page.Footer>

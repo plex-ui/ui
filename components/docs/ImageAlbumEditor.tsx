@@ -114,7 +114,7 @@ export function ImageAlbumEditor({
     );
     const desktopActions = (
         <>
-            <Button type="button" color="secondary" variant="outline" onClick={cancel}>
+            <Button type="button" color="secondary" variant="soft" onClick={cancel}>
                 Cancel
             </Button>
             <Button type="submit" form={formId} color="primary">Save</Button>
@@ -164,6 +164,10 @@ export function ImageAlbumEditor({
                 <FileUpload
                     className={phone ? s.Picker : undefined}
                     label={draft.photo ? 'Change photo' : 'Add Photos'}
+                    // On a desktop the picker is a button of the form, as Cancel and Save: one size and shape in the block
+                    size={phone ? '3xl' : 'md'}
+                    pill={phone}
+                    block={phone}
                     accept="image/jpeg,image/png,image/webp,image/gif"
                     maxFiles={1}
                     maxSize={10 * 1024 * 1024}

@@ -104,7 +104,7 @@ export const ImageAlbumEditor = defineComponent({
             action: 'confirm', type: 'submit', form: formId, 'aria-label': 'Save album',
         });
         const desktopActions = () => [
-            h(Button, { type: 'button', color: 'secondary', variant: 'outline', onClick: cancel }, () => 'Cancel'),
+            h(Button, { type: 'button', color: 'secondary', variant: 'soft', onClick: cancel }, () => 'Cancel'),
             h(Button, { type: 'submit', form: formId, color: 'primary' }, () => 'Save'),
         ];
         const nameControl = () => h(Input, {
@@ -157,6 +157,10 @@ export const ImageAlbumEditor = defineComponent({
                     h(FileUpload, {
                         class: phone() ? s.Picker : undefined,
                         label: file ? 'Change photo' : 'Add Photos',
+                        // On a desktop the picker is a button of the form, as Cancel and Save: one size and shape in the block
+                        size: phone() ? '3xl' : 'md',
+                        pill: phone(),
+                        block: phone(),
                         accept: 'image/jpeg,image/png,image/webp,image/gif',
                         maxFiles: 1,
                         maxSize: 10 * 1024 * 1024,

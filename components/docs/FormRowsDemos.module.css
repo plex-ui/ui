@@ -26,6 +26,12 @@
     padding: 0;
     background: transparent;
   }
+
+  /* The action ends the form, as the dialog's footer does (Page.Footer wraps it in a full-width content box) */
+  .ScreenStage [data-form-footer] > * {
+    display: flex;
+    justify-content: flex-end;
+  }
 }
 
 @media (max-width: 767px) {

@@ -3,6 +3,7 @@ import { defineComponent, h, onBeforeUnmount, onMounted, ref, shallowRef, useId,
 import { FileBlank, FileDocument, ImageSquare, UploadDocuments, X } from "../Icon/index.js"
 import { Button } from "../Button/index.js"
 import { FieldError } from "../FieldError/index.js"
+import type { ControlSize } from "@plexui/styles/types"
 import s from "@plexui/styles/components/FileUpload/FileUpload.module.css"
 
 // Vue port of packages/ui/src/components/FileUpload/FileUpload.tsx. Like
@@ -145,6 +146,16 @@ export const FileUpload = defineComponent({
     label: String,
     /** Helper text below the icon (area variant only) */
     description: String,
+    /**
+     * Size of the compact button. The default, `3xl` with `pill` and `block`, is the main action of a phone screen or
+     * a sign-in form; in a form of rows on a desktop give it the size and shape of the form's other buttons.
+     * @default "3xl"
+     */
+    size: { type: String as PropType<ControlSize>, default: "3xl" },
+    /** Rounds the compact button into a pill. @default true */
+    pill: { type: Boolean, default: true },
+    /** Stretches the compact button to the width of its container. @default true */
+    block: { type: Boolean, default: true },
     /** Accepted file types (e.g. ".pdf,.png,image/*") */
     accept: String,
     /** Allow selecting multiple files. @default false */
@@ -305,9 +316,9 @@ export const FileUpload = defineComponent({
               {
                 "color": "secondary",
                 "variant": "soft",
-                "size": "3xl",
-                "pill": true,
-                "block": true,
+                "size": props.size,
+                "pill": props.pill,
+                "block": props.block,
                 "disabled": disabled || atLimit,
                 "onClick": openPicker,
                 "aria-describedby": ariaDescribedBy,

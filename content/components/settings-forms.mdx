@@ -1,16 +1,16 @@
 ---
-title: Settings Forms
-description: "Settings and editing forms: grouped rows, choices, tags, account actions, payout and billing details, file upload, and sliders built with Plex UI."
-metaDescription: "Production-ready React settings forms: grouped rows, choices, tags, account actions, payout and billing details, file upload, and sliders built with Plex UI."
+title: "Forms: Settings"
+description: "Settings and editing forms: grouped rows, choices, tags, account actions, payout details, selection pages, and sliders built with Plex UI."
+metaDescription: "Production-ready React settings forms: grouped rows, choices, tags, account actions, payout details, selection pages, and sliders built with Plex UI."
 ---
 
+import { HashForward } from "@/components/docs/HashForward"
 import { SettingsSliderDemo } from "@/components/docs/SettingsSliderDemo"
 import { settingsSliderReactCode, settingsVoiceReactCode, settingsQuickReactCode, settingsLanguagesReactCode, settingsRegionReactCode, settingsAutofillReactCode, settingsHapticsReactCode, settingsSharingReactCode, settingsVpnReactCode, settingsTvProviderReactCode, settingsCaptionsReactCode, settingsCaptionsAppearanceReactCode, settingsAudioReactCode, settingsHeadTrackingReactCode } from "@/components/docs/settingsSliderCode"
 import { SettingsQuickDemo, SettingsLanguagesDemo, SettingsRegionDemo, SettingsAutofillDemo, SettingsHapticsDemo, SettingsSharingDemo, SettingsVpnDemo, SettingsTvProviderDemo, SettingsCaptionsDemo, SettingsCaptionsAppearanceDemo, SettingsAudioDemo, SettingsHeadTrackingDemo } from "@/components/docs/SettingsOrderDemo"
 import { SettingsVoiceDemo } from "@/components/docs/SettingsVoiceDemo"
 import { ImageAlbumDemo } from "@/components/docs/ImageAlbumDemo"
 import { imageAlbumReactCode } from "@/components/docs/imageAlbumCode"
-import { FloatingLabelInsideBillingFormDemo } from "@/components/docs/FloatingLabelInputDemos"
 import {
   FormRowsInputsDemo,
   FormRowsMixedDemo,
@@ -23,7 +23,6 @@ import {
 } from "@/components/docs/FormRowsDemos"
 import { tagRemovalFocusCode } from "@/components/docs/tagRemovalFocus"
 import { SettingsChecklistDemo } from "@/components/docs/SettingsChecklistDemo"
-import { FileUploadFormDemo } from "@/components/docs/FileUploadDemos"
 
 export const groupedFormStyles = `.grouped-form-screen[data-width] {
   height: 100dvh;
@@ -124,7 +123,7 @@ export const tagRowCode = (label, one, options, value, onChange, onOptionsChange
   </Field>
 )}`.split("\n").map((line) => " ".repeat(indent) + line).join("\n")
 
-Settings and editing forms composed from [Field](/components/field), [Input](/components/input), [Select](/components/select), [File Upload](/components/file-upload), and [Button](/components/button). Sign-up, log-in and verification screens are on [Auth Forms](/components/auth-forms).
+Settings and editing forms composed from [Field](/components/field), [Input](/components/input), [Select](/components/select), [File Upload](/components/file-upload), and [Button](/components/button). Sign-up, log-in and verification screens are on [Forms: Auth](/components/auth-forms).
 
 The screen examples share [FormScreen](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.tsx), [AuthFormStage](https://github.com/plex-ui/ui/blob/master/components/docs/AuthFormStage.tsx), and [presentation controls](https://github.com/plex-ui/ui/blob/master/components/docs/ScreenPresentationControls.tsx). Copy their styles and helpers with the example. Grouped is the default mobile surface; Plain is optional. Page uses base colors and Dialog uses elevated colors. Keep field values, selections and custom options in the owner above the presentation wrapper so switching Page/Dialog preserves them. The error control demonstrates a visual state; it does not validate a payout account.
 
@@ -647,146 +646,7 @@ const [reference, setReference] = useState("Monthly payout for the spring collec
   <FormRowsPayoutDemo />
 </ComponentPreview>
 
-## Billing details
-
-<ComponentPreview phonePresentation="screen" details={<>On phones, related details share FieldGroup rows and a pinned Save action. Desktop offers three floating-label types; the fields, country select and Save use the same shape. Changing type or presentation preserves entered values. The code includes both layouts and imports their shared source helpers.</>} code={`'use client';
-
-import { useCallback, useState, type ChangeEvent } from 'react';
-import { Button } from '@plexui/ui/components/Button';
-import { Field } from '@plexui/ui/components/Field';
-import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
-import { FloatingLabelSelect } from '@plexui/ui/components/FloatingLabelSelect';
-import { Input } from '@plexui/ui/components/Input';
-import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { Select } from '@plexui/ui/components/Select';
-import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import { AuthFormStage } from './AuthFormStage';
-import { FormScreen } from './FormRowsDemos';
-import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
-import { usePhoneViewport } from './PreviewEmbed';
-import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
-import { COUNTRIES as COUNTRY_DATA } from './PhoneInputDemos';
-
-const COUNTRIES = COUNTRY_DATA.map(({ value, label }) => ({ value, label }));
-
-export function BillingDetails() {
-  const presentation = useScreenPresentation();
-  const wide = useBreakpoint('md');
-  const phoneViewport = usePhoneViewport();
-  const [inputType, setInputType] = useState<'border-pill' | 'border-rounded' | 'inside-rounded'>('inside-rounded');
-  const labelPlacement = inputType === 'inside-rounded' ? 'inside' : 'border';
-  const pill = inputType === 'border-pill';
-  const [country, setCountry] = useState('es');
-  const [billing, setBilling] = useState({
-    email: 'jane.doe@example.com', name: 'Jane Doe', address1: '', address2: '', postalCode: '', city: '',
-  });
-  const update = (key: keyof typeof billing) => (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setBilling((current) => ({ ...current, [key]: value }));
-  };
-  const countryLabel = COUNTRIES.find((option) => option.value === country)?.label;
-  const trigger = useCallback(({ open }: { open: boolean }) => (
-    <FloatingLabelSelect label="Country or region" labelPlacement={labelPlacement} pill={pill} selected={!!countryLabel} open={open}>
-      {countryLabel}
-    </FloatingLabelSelect>
-  ), [countryLabel, labelPlacement, pill]);
-  const controls = <div data-demo-controls style={controlsTableStyle}>
-    <ScreenPresentationControls {...presentation} />
-    {wide && !phoneViewport && <DemoControlRow name="type">
-      <SegmentedControl value={inputType} onChange={setInputType} aria-label="type" size="xs">
-        <SegmentedControl.Option value="border-pill">Border pill</SegmentedControl.Option>
-        <SegmentedControl.Option value="border-rounded">Border rounded</SegmentedControl.Option>
-        <SegmentedControl.Option value="inside-rounded">Inside rounded</SegmentedControl.Option>
-      </SegmentedControl>
-    </DemoControlRow>}
-  </div>;
-
-  if (!wide) {
-    return (
-      <>
-      {controls}
-      <FormScreen title="Billing details" submitLabel="Save" surface={presentation.surface} dialog={presentation.dialog} onDialogChange={presentation.setDialog}>
-        <FieldGroup columns>
-          <Field row label="Billing email">
-            <Input type="email" value={billing.email} onChange={update('email')} autoComplete="email" />
-          </Field>
-          <Field row label="Full name">
-            <Input value={billing.name} onChange={update('name')} autoComplete="name" />
-          </Field>
-        </FieldGroup>
-        <FieldGroup title="Billing address" columns>
-          <Field row label="Country">
-            <Select value={country} options={COUNTRIES} onChange={(option) => setCountry(option.value)} searchPlaceholder="Search countries..." block={false} align="end" checkPosition="end" />
-          </Field>
-          <Field row label="Address line 1">
-            <Input value={billing.address1} onChange={update('address1')} autoComplete="address-line1" />
-          </Field>
-          <Field row label="Address line 2">
-            <Input value={billing.address2} onChange={update('address2')} placeholder="Optional" autoComplete="address-line2" />
-          </Field>
-          <Field row label="Postal code">
-            <Input value={billing.postalCode} onChange={update('postalCode')} autoComplete="postal-code" />
-          </Field>
-          <Field row label="City">
-            <Input value={billing.city} onChange={update('city')} autoComplete="address-level2" />
-          </Field>
-        </FieldGroup>
-      </FormScreen>
-      </>
-    );
-  }
-
-  return (
-    <>
-    {controls}
-    <AuthFormStage title="Billing details" surface={presentation.surface} dialog={presentation.dialog} onDialogChange={presentation.setDialog}>
-      <form className="flex w-[360px] flex-col gap-3" onSubmit={(evt) => evt.preventDefault()}>
-        <FloatingLabelInput label="Billing email" labelPlacement={labelPlacement} pill={pill} type="email" value={billing.email} onChange={update('email')} autoComplete="email" />
-        <FloatingLabelInput label="Full name" labelPlacement={labelPlacement} pill={pill} value={billing.name} onChange={update('name')} autoComplete="name" />
-        <Select
-          value={country}
-          options={COUNTRIES}
-          onChange={(option) => setCountry(option.value)}
-          searchPlaceholder="Search countries..."
-          listMinWidth={360}
-          block
-          trigger={trigger}
-          checkPosition="end"
-        />
-        <FloatingLabelInput label="Address line 1" labelPlacement={labelPlacement} pill={pill} value={billing.address1} onChange={update('address1')} autoComplete="address-line1" />
-        <FloatingLabelInput label="Address line 2" labelPlacement={labelPlacement} pill={pill} value={billing.address2} onChange={update('address2')} autoComplete="address-line2" />
-        <div className="flex gap-3">
-          <FloatingLabelInput className="flex-1" label="Postal code" labelPlacement={labelPlacement} pill={pill} value={billing.postalCode} onChange={update('postalCode')} autoComplete="postal-code" />
-          <FloatingLabelInput className="flex-1" label="City" labelPlacement={labelPlacement} pill={pill} value={billing.city} onChange={update('city')} autoComplete="address-level2" />
-        </div>
-        <Button color="primary" size="3xl" type="submit" pill={pill} className="mt-3">Save</Button>
-      </form>
-    </AuthFormStage>
-    </>
-  );
-}`} previewMinHeight={560}>
-  <FloatingLabelInsideBillingFormDemo />
-</ComponentPreview>
-
-## Upload file
-
-<ComponentPreview phonePresentation="screen" details={<>A document upload form with <code>FileUpload</code>. The file list grows dynamically as files are added. Button and file list share the same 52px pill shape.</>} code={`import { AuthFormStage } from './AuthFormStage';
-import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
-import { controlsTableStyle } from './ButtonDemos';
-
-const presentation = useScreenPresentation();
-const [files, setFiles] = useState<File[]>([]);
-
-<>
-  <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
-  <AuthFormStage title="Upload documents" dialog={presentation.dialog} surface={presentation.surface} onDialogChange={presentation.setDialog}>
-    <FileUpload accept=".pdf,.png" multiple maxFiles={5} value={files} onValueChange={setFiles} />
-    <Button color="primary" size="3xl" pill block>Continue</Button>
-  </AuthFormStage>
-</>`}>
-  <FileUploadFormDemo />
-</ComponentPreview>
+<HashForward to="/components/auth-forms" ids={["billing-details", "upload-file"]} />
 
 ## Settings with selection pages
 

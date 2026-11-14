@@ -11,12 +11,23 @@ import {
 } from "../Icon"
 import { Button } from "../Button"
 import { FieldError } from "../FieldError"
+import { type ControlSize } from "../../types"
 import s from "@plexui/styles/components/FileUpload/FileUpload.module.css"
 
 export type FileUploadProps = {
   variant?: "compact" | "area"
   label?: string
   description?: string
+  /**
+   * Size of the compact button. The default, `3xl` with `pill` and `block`, is the main action of a phone screen or a
+   * sign-in form; in a form of rows on a desktop give it the size and shape of the form's other buttons.
+   * @default "3xl"
+   */
+  size?: ControlSize
+  /** Rounds the compact button into a pill. @default true */
+  pill?: boolean
+  /** Stretches the compact button to the width of its container. @default true */
+  block?: boolean
   accept?: string
   multiple?: boolean
   maxFiles?: number
@@ -137,6 +148,9 @@ export const FileUpload = (props: FileUploadProps) => {
     variant = "compact",
     label,
     description,
+    size = "3xl",
+    pill = true,
+    block = true,
     accept,
     multiple = false,
     maxFiles,
@@ -283,9 +297,9 @@ export const FileUpload = (props: FileUploadProps) => {
         <Button
           color="secondary"
           variant="soft"
-          size="3xl"
-          pill
-          block
+          size={size}
+          pill={pill}
+          block={block}
           disabled={disabled || atLimit}
           onClick={openPicker}
           aria-describedby={ariaDescribedBy}

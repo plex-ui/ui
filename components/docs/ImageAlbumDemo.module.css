@@ -15,9 +15,21 @@
     padding: var(--field-row-padding-inline);
 }
 
+/* On a desktop the cover is a thumbnail with its button beside it, as a form's avatar row */
 .Photo.DesktopPhoto {
-    align-items: flex-start;
-    gap: 12px;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+}
+
+.DesktopPhoto > .Cover {
+    width: 64px;
+    border-radius: var(--radius-md);
+}
+
+.DesktopPhoto > .Cover > svg {
+    width: 24px;
+    height: 24px;
 }
 
 .DesktopActions {

@@ -26,7 +26,8 @@ const payout: unknown = new Function('formScreen', `return ${expression('rowErro
 if (typeof payout !== 'string') throw new Error('Payout template is missing');
 const groups: unknown = new Function('formScreen', `return ${expression('rowGroups', 'rowGroupsCode')}`)(formScreen);
 if (typeof groups !== 'string') throw new Error('Grouped product template is missing');
-const rowState: unknown = new Function(`return ${expression('rowState', 'uploadFile')}`)();
+const rowStateStart = settingsMdx.indexOf('export const rowState = ') + 'export const rowState = '.length;
+const rowState: unknown = new Function(`return ${settingsMdx.slice(rowStateStart, settingsMdx.indexOf('\n}\n', rowStateStart) + 2)}`)();
 if (!rowState || typeof rowState !== 'object' || Array.isArray(rowState)) throw new Error('Product state is missing');
 
 const interact = async (action: () => void) => { await act(async () => { action(); await flushVue(); }); };
