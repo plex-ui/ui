@@ -13,7 +13,7 @@ import {
 } from "react"
 import s from "@plexui/styles/components/Stepper/Stepper.module.css"
 import { useLatestValue } from "../../hooks/useLatestValue"
-import { Minus, Plus } from "../Icon"
+import { Minus, Plus, RemoveTrash } from "../Icon"
 
 export type StepperProps = {
   /** The `id` of the stepper. */
@@ -42,6 +42,13 @@ export type StepperProps = {
   decrementLabel?: string
   /** Accessible name of the increment segment. @default "Increase" */
   incrementLabel?: string
+  /**
+   * Called when the decrement segment is pressed at `min`. With it, the segment shows a trash can there and removes
+   * the item, as a cart's stepper does at a quantity of one (without `wrap`).
+   */
+  onRemove?: () => void
+  /** Accessible name of the decrement segment when it removes. @default "Remove" */
+  removeLabel?: string
   /** The name of the stepper. Submits its value with the owning form. */
   name?: string
   /** Accessible name of the value the stepper changes, when no visible label names it. */
@@ -95,6 +102,8 @@ export function Stepper({
   pill = true,
   decrementLabel = "Decrease",
   incrementLabel = "Increase",
+  onRemove,
+  removeLabel = "Remove",
   name,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -139,9 +148,18 @@ export function Stepper({
 
   const atMin = !wrap && value <= min
   const atMax = !wrap && value >= max
+  // At the minimum the decrement segment removes the item, when the owner can remove it
+  const removes = atMin && onRemove !== undefined
+  const onRemoveRef = useLatestValue(onRemove)
 
   const startPress = (segment: "decrement" | "increment", event: PointerEvent<HTMLButtonElement>) => {
     if (event.button !== 0 || disabled) return
+    if (segment === "decrement" && removes) {
+      event.currentTarget.setPointerCapture?.(event.pointerId)
+      setPressed(segment)
+      onRemoveRef.current?.()
+      return
+    }
     if (segment === "decrement" ? atMin : atMax) return
     event.currentTarget.setPointerCapture?.(event.pointerId)
     setPressed(segment)
@@ -158,6 +176,7 @@ export function Stepper({
   // A pointer steps on press, so only a click without one (assistive technology, `element.click()`) steps here.
   const handleClick = (segment: "decrement" | "increment", event: MouseEvent<HTMLButtonElement>) => {
     if (event.detail !== 0 || disabled) return
+    if (segment === "decrement" && removes) return onRemoveRef.current?.()
     stepBy(segment === "decrement" ? -1 : 1)
   }
 
@@ -170,6 +189,8 @@ export function Stepper({
       PageDown: () => stepBy(-1, 10),
       Home: () => commit(min),
       End: () => commit(max),
+      // At the minimum Delete or Backspace removes, as the trash can does; the arrows never do
+      ...(removes && { Delete: () => onRemoveRef.current?.(), Backspace: () => onRemoveRef.current?.() }),
     }
     const action = keys[event.key]
     if (!action) return
@@ -178,17 +199,19 @@ export function Stepper({
   }
 
   const segment = (kind: "decrement" | "increment") => {
-    const atEnd = kind === "decrement" ? atMin : atMax
-    const Icon = kind === "decrement" ? Minus : Plus
+    const remove = kind === "decrement" && removes
+    const atEnd = !remove && (kind === "decrement" ? atMin : atMax)
+    const Icon = remove ? RemoveTrash : kind === "decrement" ? Minus : Plus
     return (
       <button
         type="button"
         tabIndex={-1}
-        aria-label={kind === "decrement" ? decrementLabel : incrementLabel}
+        aria-label={remove ? removeLabel : kind === "decrement" ? decrementLabel : incrementLabel}
         aria-disabled={atEnd || undefined}
         disabled={disabled}
         className={s.Segment}
         data-segment={kind}
+        data-remove={remove ? "" : undefined}
         data-disabled={atEnd || disabled ? "" : undefined}
         data-pressed={pressed === kind && !disabled ? "" : undefined}
         // Keeps the focus where it is, as a native stepper takes none.
@@ -215,6 +238,7 @@ export function Stepper({
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
       aria-describedby={ariaDescribedBy}
+      aria-keyshortcuts={removes ? "Delete" : undefined}
       aria-disabled={disabled || undefined}
       className={clsx(s.Stepper, className)}
       data-disabled={disabled ? "" : undefined}

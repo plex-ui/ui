@@ -1153,6 +1153,8 @@ Props:
   - pill (boolean) default: true — Fully rounded ends
   - decrementLabel (string) default: "Decrease" — Accessible name of the minus segment
   - incrementLabel (string) default: "Increase" — Accessible name of the plus segment
+  - onRemove (() => void) — Called when the minus is pressed at min; with it the minus there is a trash can that removes the item (not with wrap)
+  - removeLabel (string) default: "Remove" — Accessible name of the minus when it removes
   - name (string) — Submits the value with the owning form through a hidden input
   - aria-label (string) — Name of the value, when no visible label names it
   - aria-labelledby (string) — The id of the visible label of the value
@@ -1161,7 +1163,7 @@ Props:
   - onFocus (FocusEventHandler<HTMLDivElement>) — Called when the stepper gains focus
   - onBlur (FocusEventHandler<HTMLDivElement>) — Called when the stepper loses focus
   - className (string) — CSS classes applied to the stepper
-Examples: Overview, Range, step and wrap
+Examples: Overview, Range, step and wrap, Remove at one
 
 ## Swipe Actions
 "Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys."

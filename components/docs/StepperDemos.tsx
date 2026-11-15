@@ -75,3 +75,34 @@ export function StepperRangeDemo() {
     </>
   );
 }
+
+const CART = [
+  { id: 'coffee', name: 'Flat White', quantity: 2 },
+  { id: 'croissant', name: 'Croissant', quantity: 1 },
+  { id: 'juice', name: 'Orange Juice', quantity: 1 },
+];
+
+/** A cart: at one the minus is a trash can that takes the item out (owner 15.11: «Да», console) */
+export function StepperRemoveDemo() {
+  const [items, setItems] = useState(CART);
+  const setQuantity = (id: string, quantity: number) =>
+    setItems((current) => current.map((item) => (item.id === id ? { ...item, quantity } : item)));
+  return (
+    <Rows>
+      <FieldGroup className={GROUP} footer={items.length ? 'At one, the minus is a trash can that takes the item out.' : 'The bag is empty.'}>
+        {items.map((item) => (
+          <Field key={item.id} row label={`${item.quantity} × ${item.name}`}>
+            <Stepper
+              value={item.quantity}
+              onChange={(quantity) => setQuantity(item.id, quantity)}
+              min={1}
+              max={9}
+              onRemove={() => setItems((current) => current.filter((other) => other.id !== item.id))}
+              removeLabel={`Remove ${item.name}`}
+            />
+          </Field>
+        ))}
+      </FieldGroup>
+    </Rows>
+  );
+}

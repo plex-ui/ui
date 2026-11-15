@@ -7566,6 +7566,8 @@ Props:
   - pill (boolean) default: true — Fully rounded ends
   - decrementLabel (string) default: "Decrease" — Accessible name of the minus segment
   - incrementLabel (string) default: "Increase" — Accessible name of the plus segment
+  - onRemove (() => void) — Called when the minus is pressed at min; with it the minus there is a trash can that removes the item (not with wrap)
+  - removeLabel (string) default: "Remove" — Accessible name of the minus when it removes
   - name (string) — Submits the value with the owning form through a hidden input
   - aria-label (string) — Name of the value, when no visible label names it
   - aria-labelledby (string) — The id of the visible label of the value
@@ -7605,6 +7607,25 @@ Decimal steps add without rounding drift. With wrap a step past max continues fr
 <Field row label={`Hour: ${String(hour).padStart(2, '0')}:00`}>
   <Stepper value={hour} onChange={setHour} min={0} max={23} wrap={wrap} />
 </Field>
+</FieldGroup>
+```
+
+### Remove at one
+With onRemove the minus at min is a trash can, as the stepper of a cart is at one: pressing it calls onRemove and the owner takes the item out; above min it steps down as before. From the keyboard, Delete or Backspace on the focused stepper removes at min; the arrows and Home never do. Name it with removeLabel, such as Remove Croissant. Without onRemove, or with wrap, the minus stops at min.
+```tsx
+<FieldGroup footer="At one, the minus is a trash can that takes the item out.">
+{items.map((item) => (
+  <Field key={item.id} row label={`${item.quantity} × ${item.name}`}>
+    <Stepper
+      value={item.quantity}
+      onChange={(quantity) => setQuantity(item.id, quantity)}
+      min={1}
+      max={9}
+      onRemove={() => remove(item.id)}
+      removeLabel={`Remove ${item.name}`}
+    />
+  </Field>
+))}
 </FieldGroup>
 ```
 

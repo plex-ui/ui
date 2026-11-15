@@ -8284,6 +8284,7 @@ Props:
   - pill (boolean) default: true — Fully rounded ends
   - decrement-label (string) default: "Decrease" — Accessible name of the minus segment
   - increment-label (string) default: "Increase" — Accessible name of the plus segment
+  - remove-label (string) default: "Remove" — Accessible name of the minus when it removes (with a `@remove` listener, at min)
   - name (string) — Submits the value with the owning form through a hidden input
   - aria-label (string) — Name of the value, when no visible label names it
   - aria-labelledby (string) — The id of the visible label of the value
@@ -8321,6 +8322,23 @@ Decimal steps add without rounding drift. With wrap a step past max continues fr
     </Field>
   </FieldGroup>
 </div>
+```
+
+### Remove at one
+With a @remove listener the minus at min is a trash can, as the stepper of a cart is at one: pressing it emits remove and the owner takes the item out; above min it steps down as before. From the keyboard, Delete or Backspace on the focused stepper removes at min; the arrows and Home never do. Name it with remove-label, such as Remove Croissant. Without a listener, or with wrap, the minus stops at min.
+```vue
+<FieldGroup class="w-full max-w-[400px]">
+  <template #footer>{{ items.length ? 'At one, the minus is a trash can that takes the item out.' : 'The bag is empty.' }}</template>
+  <Field v-for="item in items" :key="item.id" row :label="item.quantity + ' × ' + item.name">
+    <Stepper
+      v-model:value="item.quantity"
+      :min="1"
+      :max="9"
+      :remove-label="'Remove ' + item.name"
+      @remove="items.splice(items.indexOf(item), 1)"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ## Swipe Actions

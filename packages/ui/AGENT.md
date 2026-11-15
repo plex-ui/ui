@@ -410,7 +410,7 @@ Range: `range={true}`, `value` (number[]), `onChange`
 
 **Import:** `@plexui/ui/components/Stepper`
 
-Props: `value` / `defaultValue` (number), `onChange`, `min` (default 0), `max` (default 100), `step` (default 1), `wrap`, `autoRepeat` (default true), `disabled`, `pill` (default true), `decrementLabel`, `incrementLabel`, `name`, `aria-label` / `aria-labelledby`. Shows no value: render the value beside it.
+Props: `value` / `defaultValue` (number), `onChange`, `min` (default 0), `max` (default 100), `step` (default 1), `wrap`, `autoRepeat` (default true), `disabled`, `pill` (default true), `decrementLabel`, `incrementLabel`, `onRemove` (with it the minus at `min` is a trash can that calls it, as a cart at one; not with `wrap`) + `removeLabel` (default "Remove"), `name`, `aria-label` / `aria-labelledby`. Shows no value: render the value beside it.
 
 ### Skeleton
 

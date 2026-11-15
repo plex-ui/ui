@@ -6109,6 +6109,17 @@
           "description": "Accessible name of the plus segment"
         },
         {
+          "name": "onRemove",
+          "type": "() => void",
+          "description": "Called when the minus is pressed at min; with it the minus there is a trash can that removes the item (not with wrap)"
+        },
+        {
+          "name": "removeLabel",
+          "type": "string",
+          "default": "\"Remove\"",
+          "description": "Accessible name of the minus when it removes"
+        },
+        {
           "name": "name",
           "type": "string",
           "description": "Submits the value with the owning form through a hidden input"
@@ -6159,6 +6170,11 @@
           "name": "Range, step and wrap",
           "code": "<FieldGroup footer=\"Steps of 10% from 0% to 100%.\">\n<Field row label={`Opacity: ${Math.round(opacity * 100)}%`}>\n  <Stepper value={opacity} onChange={setOpacity} min={0} max={1} step={0.1} />\n</Field>\n</FieldGroup>\n<FieldGroup footer={wrap ? 'Past 23:00 the hour goes on from 00:00, and neither segment stops.' : 'The hour stops at 00:00 and 23:00, where a segment turns tertiary.'}>\n<Field row label={`Hour: ${String(hour).padStart(2, '0')}:00`}>\n  <Stepper value={hour} onChange={setHour} min={0} max={23} wrap={wrap} />\n</Field>\n</FieldGroup>",
           "details": "Decimal steps add without rounding drift. With wrap a step past max continues from min, so the hour goes from 23 to 0, and neither segment stops; turn it off and the plus stops at 23."
+        },
+        {
+          "name": "Remove at one",
+          "code": "<FieldGroup footer=\"At one, the minus is a trash can that takes the item out.\">\n{items.map((item) => (\n  <Field key={item.id} row label={`${item.quantity} × ${item.name}`}>\n    <Stepper\n      value={item.quantity}\n      onChange={(quantity) => setQuantity(item.id, quantity)}\n      min={1}\n      max={9}\n      onRemove={() => remove(item.id)}\n      removeLabel={`Remove ${item.name}`}\n    />\n  </Field>\n))}\n</FieldGroup>",
+          "details": "With onRemove the minus at min is a trash can, as the stepper of a cart is at one: pressing it calls onRemove and the owner takes the item out; above min it steps down as before. From the keyboard, Delete or Backspace on the focused stepper removes at min; the arrows and Home never do. Name it with removeLabel, such as Remove Croissant. Without onRemove, or with wrap, the minus stops at min."
         }
       ],
       "docsUrl": "https://plexui.com/components/stepper"
@@ -7570,5 +7586,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-15T19:01:10.252Z"
+  "generatedAt": "2026-11-15T19:26:52.632Z"
 }

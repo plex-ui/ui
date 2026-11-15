@@ -105,6 +105,6 @@
 }
 
 /* The PlexUI minus is shorter than the plus (12 and 14 of 24); a phone draws it as long, as iOS does (touch.css). */
-.Segment[data-segment="decrement"] > .Icon {
+.Segment[data-segment="decrement"]:not([data-remove]) > .Icon {
   scale: var(--stepper-decrement-icon-scale, none);
 }

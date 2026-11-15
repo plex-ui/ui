@@ -1,6 +1,6 @@
-import { computed, defineComponent, h, onBeforeUnmount, ref } from "vue"
+import { computed, defineComponent, h, onBeforeUnmount, type PropType, ref } from "vue"
 import s from "@plexui/styles/components/Stepper/Stepper.module.css"
-import { Minus, Plus } from "../Icon/index.js"
+import { Minus, Plus, RemoveTrash } from "../Icon/index.js"
 
 // Vue port of packages/ui/src/components/Stepper/Stepper.tsx: the same DOM (a spin button with two
 // unfocusable segments and an optional hidden input), keys, hold-to-repeat and clamped or wrapped steps.
@@ -54,6 +54,13 @@ const StepperComponent = defineComponent({
     decrementLabel: { type: String, default: "Decrease" },
     /** Accessible name of the increment segment. @default "Increase" */
     incrementLabel: { type: String, default: "Increase" },
+    /**
+     * Called (`@remove`) when the decrement segment is pressed at `min`. With it, the segment shows a trash can there
+     * and removes the item, as a cart's stepper does at a quantity of one (without `wrap`).
+     */
+    onRemove: Function as PropType<() => void>,
+    /** Accessible name of the decrement segment when it removes. @default "Remove" */
+    removeLabel: { type: String, default: "Remove" },
     /** The name of the stepper. Submits its value with the owning form. */
     name: String,
     /** Accessible name of the value the stepper changes, when no visible label names it. */
@@ -102,9 +109,18 @@ const StepperComponent = defineComponent({
 
     const atMin = computed(() => !props.wrap && value.value <= props.min)
     const atMax = computed(() => !props.wrap && value.value >= props.max)
+    // At the minimum the decrement segment removes the item, when the owner can remove it
+    const removes = computed(() => atMin.value && props.onRemove !== undefined)
 
     const startPress = (segment: Segment, event: PointerEvent) => {
       if (event.button !== 0 || props.disabled) return
+      if (segment === "decrement" && removes.value) {
+        const target = event.currentTarget
+        if (target instanceof HTMLElement) target.setPointerCapture?.(event.pointerId)
+        pressed.value = segment
+        props.onRemove?.()
+        return
+      }
       if (segment === "decrement" ? atMin.value : atMax.value) return
       const target = event.currentTarget
       if (target instanceof HTMLElement) target.setPointerCapture?.(event.pointerId)
@@ -122,6 +138,7 @@ const StepperComponent = defineComponent({
     // A pointer steps on press, so only a click without one (assistive technology, `element.click()`) steps here.
     const handleClick = (segment: Segment, event: MouseEvent) => {
       if (event.detail !== 0 || props.disabled) return
+      if (segment === "decrement" && removes.value) return props.onRemove?.()
       stepBy(segment === "decrement" ? -1 : 1)
     }
 
@@ -134,6 +151,8 @@ const StepperComponent = defineComponent({
         PageDown: () => stepBy(-1, 10),
         Home: () => commit(props.min),
         End: () => commit(props.max),
+        // At the minimum Delete or Backspace removes, as the trash can does; the arrows never do
+        ...(removes.value && { Delete: () => props.onRemove?.(), Backspace: () => props.onRemove?.() }),
       }
       const action = keys[event.key]
       if (!action) return
@@ -142,15 +161,17 @@ const StepperComponent = defineComponent({
     }
 
     const segment = (kind: Segment) => {
-      const atEnd = kind === "decrement" ? atMin.value : atMax.value
+      const remove = kind === "decrement" && removes.value
+      const atEnd = !remove && (kind === "decrement" ? atMin.value : atMax.value)
       return h("button", {
         "type": "button",
         "tabindex": -1,
-        "aria-label": kind === "decrement" ? props.decrementLabel : props.incrementLabel,
+        "aria-label": remove ? props.removeLabel : kind === "decrement" ? props.decrementLabel : props.incrementLabel,
         "aria-disabled": atEnd || undefined,
         "disabled": props.disabled,
         "class": s.Segment,
         "data-segment": kind,
+        "data-remove": remove ? "" : undefined,
         "data-disabled": atEnd || props.disabled ? "" : undefined,
         "data-pressed": pressed.value === kind && !props.disabled ? "" : undefined,
         // Keeps the focus where it is, as a native stepper takes none.
@@ -160,7 +181,7 @@ const StepperComponent = defineComponent({
         "onPointercancel": stopRepeat,
         "onLostpointercapture": stopRepeat,
         "onClick": (event: MouseEvent) => handleClick(kind, event),
-      }, [h(kind === "decrement" ? Minus : Plus, { class: s.Icon })])
+      }, [h(remove ? RemoveTrash : kind === "decrement" ? Minus : Plus, { class: s.Icon })])
     }
 
     return () => h("div", {
@@ -174,6 +195,7 @@ const StepperComponent = defineComponent({
       "aria-label": props.ariaLabel,
       "aria-labelledby": props.ariaLabelledby,
       "aria-describedby": props.ariaDescribedby,
+      "aria-keyshortcuts": removes.value ? "Delete" : undefined,
       "aria-disabled": props.disabled || undefined,
       "class": [s.Stepper, attrs.class],
       "data-disabled": props.disabled ? "" : undefined,

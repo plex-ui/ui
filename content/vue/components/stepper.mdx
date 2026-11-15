@@ -33,6 +33,19 @@ export const range = `<div class="flex w-full flex-col items-center gap-6 [--fie
   </FieldGroup>
 </div>`
 
+export const remove = `<FieldGroup class="w-full max-w-[400px]">
+  <template #footer>{{ items.length ? 'At one, the minus is a trash can that takes the item out.' : 'The bag is empty.' }}</template>
+  <Field v-for="item in items" :key="item.id" row :label="item.quantity + ' × ' + item.name">
+    <Stepper
+      v-model:value="item.quantity"
+      :min="1"
+      :max="9"
+      :remove-label="'Remove ' + item.name"
+      @remove="items.splice(items.indexOf(item), 1)"
+    />
+  </Field>
+</FieldGroup>`
+
 export const disabledControl = [{ name: "disabled", type: "boolean", default: false }]
 export const pillControl = [{ name: "pill", type: "boolean", default: true, desktopOnly: true }]
 
@@ -56,6 +69,12 @@ A stepper changes a value by small amounts and shows no value of its own. Show t
   <VuePhoneRowsDemo template={range} phoneTemplate={phoneRows(range)} phoneStageClassName="w-full" controls={[{ name: "wrap", type: "boolean", default: true }]} state={{ opacity: 0.5, hour: 23 }} />
 </ComponentPreview>
 
+### Remove at one
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>With a <code>@remove</code> listener the minus at <code>min</code> is a trash can, as the stepper of a cart is at one: pressing it emits <code>remove</code> and the owner takes the item out; above <code>min</code> it steps down as before. From the keyboard, Delete or Backspace on the focused stepper removes at <code>min</code>; the arrows and Home never do. Name it with <code>remove-label</code>, such as Remove Croissant. Without a listener, or with <code>wrap</code>, the minus stops at <code>min</code>.</>} code={remove} previewMinHeight={240}>
+  <VuePhoneRowsDemo template={remove} phoneTemplate={phoneRows(remove)} phoneStageClassName="w-full" state={{ items: [{ id: "coffee", name: "Flat White", quantity: 2 }, { id: "croissant", name: "Croissant", quantity: 1 }, { id: "juice", name: "Orange Juice", quantity: 1 }] }} />
+</ComponentPreview>
+
 ## API
 
 <PropsTable data={[
@@ -70,6 +89,7 @@ A stepper changes a value by small amounts and shows no value of its own. Show t
   { prop: "pill", type: "boolean", default: "true", description: "Fully rounded ends" },
   { prop: "decrement-label", type: "string", default: '"Decrease"', description: "Accessible name of the minus segment" },
   { prop: "increment-label", type: "string", default: '"Increase"', description: "Accessible name of the plus segment" },
+  { prop: "remove-label", type: "string", default: '"Remove"', description: "Accessible name of the minus when it removes (with a `@remove` listener, at min)" },
   { prop: "name", type: "string", description: "Submits the value with the owning form through a hidden input" },
   { prop: "aria-label", type: "string", description: "Name of the value, when no visible label names it" },
   { prop: "aria-labelledby", type: "string", description: "The id of the visible label of the value" },
@@ -77,7 +97,7 @@ A stepper changes a value by small amounts and shows no value of its own. Show t
   { prop: "id", type: "string", description: "The id of the stepper" },
 ]} />
 
-**Events**: `update:value` and `change` with the next value after a step; `focus` and `blur`.
+**Events**: `update:value` and `change` with the next value after a step; `remove` when the minus is pressed at `min` (with a listener the minus there is a trash can; not with `wrap`); `focus` and `blur`.
 
 The stepper is a spin button with the current value, range and name. Its two segments are buttons that a pointer or assistive technology presses; they take no keyboard focus, and pressing one keeps the focus where it was. With the keyboard, Up and Down step, Page Up and Page Down step ten times, Home and End go to `min` and `max`.
 

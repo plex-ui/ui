@@ -7,6 +7,7 @@ metaDescription: React stepper component with minus and plus segments for small 
 import {
   StepperOverviewDemo,
   StepperRangeDemo,
+  StepperRemoveDemo,
 } from "@/components/docs/StepperDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
@@ -51,6 +52,25 @@ const [nights, setNights] = useState(3)
   <StepperRangeDemo />
 </ComponentPreview>
 
+### Remove at one
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>With <code>onRemove</code> the minus at <code>min</code> is a trash can, as the stepper of a cart is at one: pressing it calls <code>onRemove</code> and the owner takes the item out; above <code>min</code> it steps down as before. From the keyboard, Delete or Backspace on the focused stepper removes at <code>min</code>; the arrows and Home never do. Name it with <code>removeLabel</code>, such as Remove Croissant. Without <code>onRemove</code>, or with <code>wrap</code>, the minus stops at <code>min</code>.</>} code={`<FieldGroup footer="At one, the minus is a trash can that takes the item out.">
+  {items.map((item) => (
+    <Field key={item.id} row label={\`\${item.quantity} × \${item.name}\`}>
+      <Stepper
+        value={item.quantity}
+        onChange={(quantity) => setQuantity(item.id, quantity)}
+        min={1}
+        max={9}
+        onRemove={() => remove(item.id)}
+        removeLabel={\`Remove \${item.name}\`}
+      />
+    </Field>
+  ))}
+</FieldGroup>`} previewMinHeight={240}>
+  <StepperRemoveDemo />
+</ComponentPreview>
+
 ## API
 
 <PropsTable data={[
@@ -66,6 +86,8 @@ const [nights, setNights] = useState(3)
   { prop: "pill", type: "boolean", default: "true", description: "Fully rounded ends" },
   { prop: "decrementLabel", type: "string", default: '"Decrease"', description: "Accessible name of the minus segment" },
   { prop: "incrementLabel", type: "string", default: '"Increase"', description: "Accessible name of the plus segment" },
+  { prop: "onRemove", type: "() => void", description: "Called when the minus is pressed at min; with it the minus there is a trash can that removes the item (not with wrap)" },
+  { prop: "removeLabel", type: "string", default: '"Remove"', description: "Accessible name of the minus when it removes" },
   { prop: "name", type: "string", description: "Submits the value with the owning form through a hidden input" },
   { prop: "aria-label", type: "string", description: "Name of the value, when no visible label names it" },
   { prop: "aria-labelledby", type: "string", description: "The id of the visible label of the value" },

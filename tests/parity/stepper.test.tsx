@@ -32,6 +32,8 @@ const cases: Array<[string, Case]> = [
   ["wrapping at an end", { "aria-label": "Hour", defaultValue: 23, min: 0, max: 23, wrap: true }],
   ["disabled", { "aria-label": "Guests", defaultValue: 3, disabled: true }],
   ["square ends", { "aria-label": "Guests", pill: false }],
+  ["removes at the lowest value", { "aria-label": "Quantity", defaultValue: 1, min: 1, max: 8, onRemove: () => {}, removeLabel: "Delete" }],
+  ["above the lowest value with onRemove it decreases", { "aria-label": "Quantity", defaultValue: 2, min: 1, max: 8, onRemove: () => {} }],
   ["labelled, described, named and submitted", { "id": "guests", "aria-labelledby": "label", "aria-describedby": "hint", "name": "guests", "defaultValue": 2, "decrementLabel": "Fewer", "incrementLabel": "More" }],
 ]
 
@@ -294,7 +296,7 @@ describe("Stepper tokens follow a native iOS 27.2 UIStepper on a phone", () => {
     expect(css).toContain("inset: min(0px, calc((var(--stepper-height) - var(--stepper-target-size, 0px)) / 2)) 0;")
     expect(css).toContain("border-radius: calc(var(--stepper-height) / 2);")
     // The PlexUI minus (12 of 24) is drawn as long as the plus (14 of 24) only where touch.css asks for it.
-    expect(css).toMatch(/\.Segment\[data-segment="decrement"\] > \.Icon \{\s*scale: var\(--stepper-decrement-icon-scale, none\);\s*\}/)
+    expect(css).toMatch(/\.Segment\[data-segment="decrement"\]:not\(\[data-remove\]\) > \.Icon \{\s*scale: var\(--stepper-decrement-icon-scale, none\);\s*\}/)
   })
 
   test("a segment carries its own fill; the end of the range wins over pressed, both over hover", () => {
@@ -308,5 +310,61 @@ describe("Stepper tokens follow a native iOS 27.2 UIStepper on a phone", () => {
     expect(pressed).toBeGreaterThan(hover)
     expect(disabled).toBeGreaterThan(pressed)
     expect(segment.slice(disabled)).toMatch(/^&\[data-disabled\] \{\s*background: var\(--stepper-segment-background-disabled, var\(--stepper-segment-background, transparent\)\);/)
+  })
+})
+
+describe("Stepper removes at its minimum (console 15.11, owner «Да»)", () => {
+  test("React: at min the decrement segment is a trash can that calls onRemove, by pointer and by click", async () => {
+    const onRemove = vi.fn()
+    const onChange = vi.fn()
+    await act(async () => { render(<RStepper aria-label="Quantity" defaultValue={1} min={1} onRemove={onRemove} onChange={onChange} />) })
+    const remove = document.querySelector<HTMLButtonElement>('[data-segment="decrement"]')!
+    expect(remove.getAttribute("aria-label")).toBe("Remove")
+    expect(remove.hasAttribute("data-remove")).toBe(true)
+    expect(remove.hasAttribute("aria-disabled")).toBe(false)
+    fireEvent.pointerDown(remove, { button: 0, pointerId: 1 })
+    fireEvent.pointerUp(remove, { pointerId: 1 })
+    remove.click()
+    expect(onRemove).toHaveBeenCalledTimes(2)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test("the keyboard: Delete or Backspace removes at min, ArrowDown and Home never do", async () => {
+    const onRemove = vi.fn()
+    await act(async () => { render(<RStepper aria-label="Quantity" defaultValue={1} min={1} onRemove={onRemove} />) })
+    const spin = document.querySelector<HTMLElement>('[role="spinbutton"]')!
+    expect(spin.getAttribute("aria-keyshortcuts")).toBe("Delete")
+    fireEvent.keyDown(spin, { key: "ArrowDown" })
+    fireEvent.keyDown(spin, { key: "Home" })
+    expect(onRemove).not.toHaveBeenCalled()
+    fireEvent.keyDown(spin, { key: "Delete" })
+    fireEvent.keyDown(spin, { key: "Backspace" })
+    expect(onRemove).toHaveBeenCalledTimes(2)
+    const vRemove = vi.fn()
+    const { unmount } = mountVue(() => h(Stepper, { ariaLabel: "Quantity", defaultValue: 1, min: 1, onRemove: vRemove }))
+    await flushVue()
+    const vSpin = document.querySelectorAll<HTMLElement>('[role="spinbutton"]')[1]
+    vSpin.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete", bubbles: true }))
+    expect(vRemove).toHaveBeenCalledTimes(1)
+    unmount()
+  })
+
+  test("Vue: @remove at min, not above it", async () => {
+    const onRemove = vi.fn()
+    const { unmount } = mountVue(() => h(Stepper, { ariaLabel: "Quantity", defaultValue: 2, min: 1, onRemove }))
+    await flushVue()
+    const decrement = () => document.querySelector<HTMLButtonElement>('[data-segment="decrement"]')!
+    expect(decrement().hasAttribute("data-remove")).toBe(false)
+    decrement().click()
+    await flushVue()
+    expect(onRemove).not.toHaveBeenCalled()
+    expect(decrement().hasAttribute("data-remove")).toBe(true)
+    decrement().click()
+    expect(onRemove).toHaveBeenCalledTimes(1)
+    unmount()
+  })
+
+  test("the trash keeps its own size: the phone's longer minus does not scale it", () => {
+    expect(read("packages/styles/src/components/Stepper/Stepper.module.css")).toMatch(/\.Segment\[data-segment="decrement"\]:not\(\[data-remove\]\) > \.Icon \{\s*scale: var\(--stepper-decrement-icon-scale/)
   })
 })
