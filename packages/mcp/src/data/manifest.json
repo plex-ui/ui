@@ -7345,8 +7345,8 @@
         },
         {
           "name": "Search in the content",
-          "code": "<Page surface=\"grouped\">\n<Toolbar titleStyle=\"large\">\n  <Toolbar.Title>Orders</Toolbar.Title>\n  <Toolbar.Trailing>\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n  </Toolbar.Trailing>\n</Toolbar>\n<Page.Content>\n  <Input\n    type=\"search\"\n    variant=\"soft\"\n    pill\n    placeholder=\"Search\"\n    aria-label=\"Search orders\"\n    startAdornment={<SearchSm />}\n    value={query}\n    onChange={(evt) => setQuery(evt.target.value)}\n    onClear={() => setQuery(\"\")}\n    className=\"mb-2.5\"\n  />\n  ...\n</Page.Content>\n</Page>",
-          "details": "A search field in the content, under a large title or at the top of a sheet, is an Input with type=\"search\": on Phone it is the bar's search field wherever it stands: the same magnifier, text and placeholder, and with variant=\"soft\" pill the same glass capsule. It stands at the top of Page.Content and scrolls up with the title; the content starts 16px under the title's baseline, and a list 10px under the field. With onClear it shows the filled clear circle of iOS while it holds text, in place of the browser's own clear button."
+          "code": "<Page surface=\"grouped\">\n<Toolbar titleStyle=\"large\"> {/* or \"inline\" (titleAlign \"center\" or \"start\"), \"compact-large\", \"compact-medium\" */}\n  <Toolbar.Title subtitle=\"24 orders\">Orders</Toolbar.Title> {/* a subtitle with an inline or large title */}\n  <Toolbar.Trailing>\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n  </Toolbar.Trailing>\n</Toolbar>\n<Page.Content>\n  <Input\n    type=\"search\"\n    variant=\"soft\"\n    pill\n    placeholder=\"Search\"\n    aria-label=\"Search orders\"\n    startAdornment={<SearchSm />}\n    value={query}\n    onChange={(evt) => setQuery(evt.target.value)}\n    onClear={() => setQuery(\"\")}\n    className=\"mb-2.5\"\n  />\n  ...\n</Page.Content>\n</Page>",
+          "details": "A search field in the content, under a large title or at the top of a sheet, is an Input with type=\"search\": on Phone it is the bar's search field wherever it stands: the same magnifier, text and placeholder, and with variant=\"soft\" pill the same glass capsule. It works under every title type, which the controls switch: with an inline or compact title the bar holds the title and the field starts the content, as it starts a page under such a bar. It stands at the top of Page.Content and scrolls up with the title; the content starts 16px under the title's baseline, and a list 10px under the field. With onClear it shows the filled clear circle of iOS while it holds text, in place of the browser's own clear button."
         },
         {
           "name": "Disabled",
@@ -7479,5 +7479,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-15T07:28:41.474Z"
+  "generatedAt": "2026-11-15T08:14:39.976Z"
 }

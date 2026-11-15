@@ -246,10 +246,10 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
 
 ### Search in the content
 
-<ComponentPreview phoneOnly language="vue" details={<>A search field in the content, under a large title or at the top of a sheet, is an <a href="/vue/components/input"><code>Input</code></a> with <code>type="search"</code>: on Phone it is the bar's search field wherever it stands: the same magnifier, text and placeholder, and with <code>variant="soft" pill</code> the same glass capsule. It stands at the top of <code>PageContent</code> and scrolls up with the title; the content starts 16px under the title's baseline, and a list 10px under the field. With <code>@clear</code> it shows the filled clear circle of iOS while it holds text, in place of the browser's own clear button.</>} code={searchUnderTitle}>
+<ComponentPreview phoneOnly language="vue" details={<>A search field in the content, under a large title or at the top of a sheet, is an <a href="/vue/components/input"><code>Input</code></a> with <code>type="search"</code>: on Phone it is the bar's search field wherever it stands: the same magnifier, text and placeholder, and with <code>variant="soft" pill</code> the same glass capsule. It works under every title type, which the controls switch: with an inline or compact title the bar holds the title and the field starts the content, as it starts a page under such a bar. It stands at the top of <code>PageContent</code> and scrolls up with the title; the content starts 16px under the title's baseline, and a list 10px under the field. With <code>@clear</code> it shows the filled clear circle of iOS while it holds text, in place of the browser's own clear button.</>} code={searchUnderTitle}>
   <VueDemo stageClassName={STAGE} state={{ rows, query: "" }} template={frame(`  <Page surface="grouped">
-    <Toolbar title-style="large">
-      <ToolbarTitle>Orders</ToolbarTitle>
+    <Toolbar :title-style="titleStyle" :title-align="titleStyle === 'inline' ? titleAlign : undefined">
+      <ToolbarTitle :subtitle="subtitle && !titleStyle.startsWith('compact') ? '24 orders' : undefined">Orders</ToolbarTitle>
       <ToolbarTrailing>
         <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
       </ToolbarTrailing>
@@ -262,7 +262,11 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
       </Input>
       ${list}
     </PageContent>
-  </Page>`)} />
+  </Page>`)} controls={[
+    { name: "titleStyle", type: "select", options: ["inline", "large", "compact-large", "compact-medium"], default: "large" },
+    { name: "titleAlign", type: "select", options: ["center", "start"], default: "center", when: { titleStyle: "inline" } },
+    { name: "subtitle", type: "boolean", default: false, when: { titleStyle: ["inline", "large"] } },
+  ]} />
 </ComponentPreview>
 
 ### Disabled

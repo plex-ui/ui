@@ -7255,7 +7255,7 @@
         {
           "name": "Search in the content",
           "code": "<Page surface=\"grouped\">\n  <Toolbar title-style=\"large\">\n    <ToolbarTitle>Orders</ToolbarTitle>\n    <ToolbarTrailing>\n      <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n    </ToolbarTrailing>\n  </Toolbar>\n  <PageContent>\n    <Input v-model:value=\"query\" type=\"search\" variant=\"soft\" pill placeholder=\"Search\" aria-label=\"Search orders\" class=\"mb-2.5\" @clear=\"query = ''\">\n      <template #startAdornment>\n        <SearchSm />\n      </template>\n    </Input>\n    ...\n  </PageContent>\n</Page>",
-          "details": "A search field in the content, under a large title or at the top of a sheet, is an Input with type=\"search\": on Phone it is the bar's search field wherever it stands: the same magnifier, text and placeholder, and with variant=\"soft\" pill the same glass capsule. It stands at the top of PageContent and scrolls up with the title; the content starts 16px under the title's baseline, and a list 10px under the field. With @clear it shows the filled clear circle of iOS while it holds text, in place of the browser's own clear button."
+          "details": "A search field in the content, under a large title or at the top of a sheet, is an Input with type=\"search\": on Phone it is the bar's search field wherever it stands: the same magnifier, text and placeholder, and with variant=\"soft\" pill the same glass capsule. It works under every title type, which the controls switch: with an inline or compact title the bar holds the title and the field starts the content, as it starts a page under such a bar. It stands at the top of PageContent and scrolls up with the title; the content starts 16px under the title's baseline, and a list 10px under the field. With @clear it shows the filled clear circle of iOS while it holds text, in place of the browser's own clear button."
         },
         {
           "name": "Disabled",
@@ -7394,5 +7394,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-15T07:28:42.738Z"
+  "generatedAt": "2026-11-15T08:14:41.765Z"
 }

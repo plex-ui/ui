@@ -239,11 +239,22 @@ export function ToolbarOverviewDemo() {
 /** A search field under a large title, at the top of the content, as Files and a search tab draw it. */
 export function ToolbarSearchLargeTitleDemo() {
   const [query, setQuery] = useState('');
+  // The field stands under any title type: a large one above it in the content, an inline or compact one in the bar
+  const [titleStyle, setTitleStyle] = useState<ToolbarTitleStyle>('large');
+  const [titleAlign, setTitleAlign] = useState<(typeof TITLE_ALIGNS)[number]>('center');
+  const [subtitle, setSubtitle] = useState(false);
+  const compact = titleStyle.startsWith('compact');
   return (
+    <>
+    <div data-demo-controls style={controlsTableStyle}>
+      <Segments name="titleStyle" options={TITLE_STYLES} value={titleStyle} onChange={setTitleStyle} />
+      {titleStyle === 'inline' && <Segments name="titleAlign" options={TITLE_ALIGNS} value={titleAlign} onChange={setTitleAlign} />}
+      {!compact && <DemoControlBoolean name="subtitle" value={subtitle} onChange={setSubtitle} />}
+    </div>
     <Frame>
       <Page surface="grouped">
-        <Toolbar titleStyle="large">
-          <Toolbar.Title>Orders</Toolbar.Title>
+        <Toolbar titleStyle={titleStyle} titleAlign={titleStyle === 'inline' ? titleAlign : undefined}>
+          <Toolbar.Title subtitle={subtitle && !compact ? '24 orders' : undefined}>Orders</Toolbar.Title>
           <Toolbar.Trailing>
             <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
           </Toolbar.Trailing>
@@ -265,6 +276,7 @@ export function ToolbarSearchLargeTitleDemo() {
         </Page.Content>
       </Page>
     </Frame>
+    </>
   );
 }
 
