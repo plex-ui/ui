@@ -1,6 +1,7 @@
 import clsx from "clsx"
 import type { ComponentProps } from "react"
 import s from "@plexui/styles/components/Kbd/Kbd.module.css"
+import { KbdModifier } from "./KbdModifier"
 
 export type KbdProps = ComponentProps<"kbd"> & {
   /**
@@ -29,3 +30,5 @@ const Group = ({ className, ...restProps }: KbdGroupProps) => {
 }
 
 Kbd.Group = Group
+/** A modifier key as the reader's keyboard prints it: ⌘ on a Mac, Ctrl elsewhere (`name` picks ⌘, ⌃, ⌥ or ⇧). */
+Kbd.Modifier = KbdModifier

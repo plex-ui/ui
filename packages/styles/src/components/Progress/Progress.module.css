@@ -35,3 +35,27 @@
     transform: translateX(-100%);
   }
 }
+
+/* Parts of one bar side by side, such as paid, pending and due, each in its color with a hairline of the track
+   between them; the rest of the track is what is left */
+.Root[data-segmented] {
+  display: flex;
+  gap: var(--progress-segment-gap);
+}
+
+/* A full bar's parts give the gaps back in proportion, so the last one is not cut off at the end */
+.Segment {
+  flex-shrink: 1;
+  min-width: 0;
+  height: 100%;
+  background: var(--progress-segment-color, var(--progress-indicator-color));
+  transition: width var(--progress-transition-duration) var(--progress-transition-ease);
+
+  &[data-color="secondary"] { --progress-segment-color: var(--color-background-secondary-solid); }
+  &[data-color="success"] { --progress-segment-color: var(--color-background-success-solid); }
+  &[data-color="warning"] { --progress-segment-color: var(--color-background-warning-solid); }
+  &[data-color="caution"] { --progress-segment-color: var(--color-background-caution-solid); }
+  &[data-color="danger"] { --progress-segment-color: var(--color-background-danger-solid); }
+  &[data-color="info"] { --progress-segment-color: var(--color-background-info-solid); }
+  &[data-color="discovery"] { --progress-segment-color: var(--color-background-discovery-solid); }
+}

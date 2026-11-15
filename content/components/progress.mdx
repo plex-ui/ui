@@ -9,6 +9,7 @@ import {
   ProgressOverviewDemo,
   ProgressWithLabelDemo,
   ProgressControlledDemo,
+  ProgressSegmentsDemo,
 } from "@/components/docs/ProgressDemos"
 
 <UsageBlock>{`import { Progress } from "@plexui/ui/components/Progress";`}</UsageBlock>
@@ -52,6 +53,21 @@ return (
   <ProgressControlledDemo />
 </ComponentPreview>
 
+### Segments
+
+<ComponentPreview details={<>Pass <code>segments</code> for parts of one bar side by side, each in its color, such as a bill paid in parts: what is paid, what is pending, and the track left for what is due. A part is <code>{"{ value, color, label }"}</code>; the bar&apos;s value is their sum, and a part past <code>max</code> is cut to it. A hairline of the track (<code>--progress-segment-gap</code>) parts them. It reads out each part with its label and share, such as Paid 60%, Pending 23%.</>} code={`<Label id="progress-bill-label">Bill of $200</Label>
+<Progress
+  aria-labelledby="progress-bill-label"
+  max={200}
+  segments={[
+    { value: 120, color: 'success', label: 'Paid' },
+    { value: 45, color: 'warning', label: 'Pending' },
+  ]}
+  style={{ '--progress-height': '8px' }}
+/>`}>
+  <ProgressSegmentsDemo />
+</ComponentPreview>
+
 ## API
 
 ### Progress
@@ -60,6 +76,7 @@ return (
 |------|------|---------|-------------|
 | `value` | `number \| null` | `null` | Current progress between `0` and `max`. Pass `null` for indeterminate. |
 | `max` | `number` | `100` | Maximum progress value |
+| `segments` | `ProgressSegment[]` | — | Parts of one bar side by side: `{ value, color?, label? }`, `color` one of `primary`, `secondary`, `success`, `warning`, `caution`, `danger`, `info`, `discovery`. Takes the place of `value`. |
 | `getValueLabel` | `(value: number, max: number) => string` | — | Accessible value text (`aria-valuetext`). Defaults to the rounded percentage, e.g. `"67%"`. |
 | `className` | `string` | — | Applied to the root `<div>` |
 
@@ -74,5 +91,7 @@ Component tokens:
 - `--progress-indicator-color`: fill color (defaults to `--color-text`)
 - `--progress-radius`: corner radius (defaults to `--radius-full`)
 - `--progress-indeterminate-duration`: sweep duration (defaults to `1.5s`)
+- `--progress-segment-gap`: the track between the parts of a segmented bar (defaults to `2px`)
+- `--progress-segment-color`: a part's color (set by its `color`, from the solid background of that color)
 
 Override at any scope to change the bar's look without subclassing.

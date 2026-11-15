@@ -335,6 +335,14 @@
       ]
     },
     {
+      "name": "rolling-number",
+      "type": "registry:ui",
+      "description": "A number whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "segmented-control",
       "type": "registry:ui",
       "description": "Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.",

@@ -70,7 +70,7 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from '@plexui/vue/components/InputGroup';
-import { Kbd, KbdGroup } from '@plexui/vue/components/Kbd';
+import { Kbd, KbdGroup, KbdModifier } from '@plexui/vue/components/Kbd';
 import { Label } from '@plexui/vue/components/Label';
 import { Markdown } from '@plexui/vue/components/Markdown';
 import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
@@ -119,6 +119,7 @@ import {
   ProgressStepsTitle,
 } from '@plexui/vue/components/ProgressSteps';
 import { RadioGroup, RadioGroupItem } from '@plexui/vue/components/RadioGroup';
+import { RollingNumber } from '@plexui/vue/components/RollingNumber';
 import { SegmentedControl, SegmentedControlOption, SegmentedControlTab } from '@plexui/vue/components/SegmentedControl';
 import { Select } from '@plexui/vue/components/Select';
 import { SelectControl, DropdownIcon } from '@plexui/vue/components/SelectControl';
@@ -316,6 +317,7 @@ const components: Record<string, Component> = {
   InputGroupTextarea,
   Kbd,
   KbdGroup,
+  KbdModifier,
   Label,
   LoadingDots,
   LoadingIndicator,
@@ -366,6 +368,7 @@ const components: Record<string, Component> = {
   ProgressStepsTitle,
   RadioGroup,
   RadioGroupItem,
+  RollingNumber,
   SegmentedControl,
   SegmentedControlOption,
   SegmentedControlTab,

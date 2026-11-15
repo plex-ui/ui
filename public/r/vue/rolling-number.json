@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "rolling-number",
+  "type": "registry:ui",
+  "title": "Rolling Number",
+  "description": "A number whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/rolling-number/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/RollingNumber\"\n"
+    }
+  ],
+  "docs": "Import as `import { RollingNumber } from '@/components/ui/rolling-number'`. See https://plexui.com/vue/components/rolling-number for props and examples."
+}

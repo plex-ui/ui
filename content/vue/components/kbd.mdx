@@ -22,6 +22,19 @@ export const shortcut = `<KbdGroup>
   <Kbd>P</Kbd>
 </KbdGroup>`
 
+export const modifier = `<p class="text-sm text-secondary">
+  Press
+  <KbdGroup>
+    <KbdModifier />
+    <Kbd>K</Kbd>
+  </KbdGroup>
+  to search.
+</p>
+<div v-for="platform in ['apple', 'other']" :key="platform" class="flex items-center gap-3">
+  <span class="w-12 text-xs text-tertiary">{{ platform === 'apple' ? 'Apple' : 'Other' }}</span>
+  <KbdModifier v-for="name in ['mod', 'ctrl', 'alt', 'shift']" :key="name" :name="name" :platform="platform" />
+</div>`
+
 export const sizes = `<div class="flex flex-col items-center gap-4">
   <div v-for="variant in ['soft', 'outline']" :key="variant" class="flex items-center gap-4">
     <Kbd size="xs" :variant="variant">⌘K</Kbd>
@@ -60,7 +73,7 @@ export const inContext = `<Tooltip>
   </MenuContent>
 </Menu>`
 
-<UsageBlock>{`import { Kbd, KbdGroup } from "@plexui/vue/components/Kbd";`}</UsageBlock>
+<UsageBlock>{`import { Kbd, KbdGroup, KbdModifier } from "@plexui/vue/components/Kbd";`}</UsageBlock>
 
 ## Examples
 
@@ -74,6 +87,12 @@ export const inContext = `<Tooltip>
 
 <ComponentPreview language="vue" details={<>Use <code>KbdGroup</code> for keys pressed together. Each key keeps its own frame.</>} code={shortcut} previewMinHeight={140}>
   <VueDemo stageClassName={STAGE} template={shortcut} />
+</ComponentPreview>
+
+### Modifier
+
+<ComponentPreview language="vue" details={<>Use <code>KbdModifier</code> for a modifier in an app&apos;s shortcut: it prints <code>mod</code> as ⌘ on a Mac, an iPhone or an iPad and as Ctrl elsewhere, as the reader&apos;s keyboard has it, so one shortcut reads right on both. <code>name</code> picks <code>ctrl</code> (⌃), <code>alt</code> (⌥ or Alt) or <code>shift</code> (⇧). A symbol is read out by its name, such as Command. <code>platform</code> fixes the keyboard, as the two rows here do; without it the server renders the Apple one and the browser corrects it after it loads.</>} code={modifier} previewMinHeight={200}>
+  <VueDemo stageClassName="flex-1 flex flex-col items-center justify-center gap-5 py-12 w-full" template={modifier} />
 </ComponentPreview>
 
 ### Sizes and variants
@@ -104,6 +123,17 @@ Other `<kbd>` attributes (`title`, `aria-label`, ...) fall through to it.
 ### KbdGroup
 
 A row of keys pressed together (React's `Kbd.Group`). Renders a `<span>`; attributes fall through to it.
+
+### KbdModifier
+
+<PropsTable data={[
+  { prop: "name", type: '"mod" | "ctrl" | "alt" | "shift"', default: '"mod"', description: "The modifier: mod is ⌘ on an Apple keyboard and Ctrl on another" },
+  { prop: "platform", type: '"apple" | "other"', description: "The keyboard to print for; by default the browser's (Apple on the server)" },
+  { prop: "size", type: '"xs" | "sm" | "md"', default: '"sm"', description: "As Kbd" },
+  { prop: "variant", type: '"soft" | "outline"', default: '"soft"', description: "As Kbd" },
+]} />
+
+React's `Kbd.Modifier`. Renders a `<kbd>`; a symbol carries its name for a screen reader. `isApplePlatform()` and `KBD_MODIFIERS` are exported for a shortcut written elsewhere, such as in `aria-keyshortcuts`.
 
 ## Styling
 

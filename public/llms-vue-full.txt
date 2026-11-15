@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 63
+Components: 64
 
 ## Setup
 
@@ -3861,13 +3861,18 @@ With InputGroupTextarea, use block-start and block-end addons for a header and a
 
 ## Kbd
 A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.
-Import: import { Kbd, KbdGroup } from "@plexui/vue/components/Kbd"
+Import: import { Kbd, KbdGroup, KbdModifier } from "@plexui/vue/components/Kbd"
 Docs: https://plexui.com/vue/components/kbd
 Props:
   - size ("xs" | "sm" | "md") default: "sm" — Height and text size: 16px, 20px or 24px
   - variant ("soft" | "outline") default: "soft" — soft fills the key, outline draws its edge; both mix the text color
   - class (string) — Applied to the kbd element
   - default slot (VNode[]) — The key
+  KbdModifier:
+    - name ("mod" | "ctrl" | "alt" | "shift") default: "mod" — The modifier: mod is ⌘ on an Apple keyboard and Ctrl on another
+    - platform ("apple" | "other") — The keyboard to print for; by default the browser's (Apple on the server)
+    - size ("xs" | "sm" | "md") default: "sm" — As Kbd
+    - variant ("soft" | "outline") default: "soft" — As Kbd
 
 ### Overview
 Kbd renders a {''} element: the semantic tag for keyboard input. It sits on the text baseline, so it can stand in a sentence.
@@ -3889,6 +3894,23 @@ Use KbdGroup for keys pressed together. Each key keeps its own frame.
   <Kbd>Shift</Kbd>
   <Kbd>P</Kbd>
 </KbdGroup>
+```
+
+### Modifier
+Use KbdModifier for a modifier in an app&apos;s shortcut: it prints mod as ⌘ on a Mac, an iPhone or an iPad and as Ctrl elsewhere, as the reader&apos;s keyboard has it, so one shortcut reads right on both. name picks ctrl (⌃), alt (⌥ or Alt) or shift (⇧). A symbol is read out by its name, such as Command. platform fixes the keyboard, as the two rows here do; without it the server renders the Apple one and the browser corrects it after it loads.
+```vue
+<p class="text-sm text-secondary">
+  Press
+  <KbdGroup>
+    <KbdModifier />
+    <Kbd>K</Kbd>
+  </KbdGroup>
+  to search.
+</p>
+<div v-for="platform in ['apple', 'other']" :key="platform" class="flex items-center gap-3">
+  <span class="w-12 text-xs text-tertiary">{{ platform === 'apple' ? 'Apple' : 'Other' }}</span>
+  <KbdModifier v-for="name in ['mod', 'ctrl', 'alt', 'shift']" :key="name" :name="name" :platform="platform" />
+</div>
 ```
 
 ### Sizes and variants
@@ -5191,6 +5213,7 @@ Docs: https://plexui.com/vue/components/progress
 Props:
   - value (number | null) default: null — Current progress between 0 and max. Pass null for indeterminate.
   - max (number) default: 100 — Maximum progress value
+  - segments (ProgressSegment[]) — Parts of one bar side by side: { value, color?, label? }, color one of primary, secondary, success, warning, caution, danger, info, discovery. Takes the place of value.
   - get-value-label ((value: number, max: number) => string) — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
   - class (string) — Applied to the root <div>
 
@@ -5231,6 +5254,24 @@ Bind value to any source, here a Slider through v-model:value.
 <div style="display: flex; width: 100%; max-width: 320px; flex-direction: column; gap: 16px">
   <Progress :value="value" aria-label="Progress" />
   <Slider v-model:value="value" :min="0" :max="100" :step="1" aria-label="Progress value" />
+</div>
+```
+
+### Segments
+Pass :segments for parts of one bar side by side, each in its color, such as a bill paid in parts: what is paid, what is pending, and the track left for what is due. A part is {"{ value, color, label }"}; the bar&apos;s value is their sum, and a part past max is cut to it. A hairline of the track (--progress-segment-gap) parts them. It reads out each part with its label and share, such as Paid 60%, Pending 23%.
+```vue
+<div style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px">
+  <Label id="progress-bill-label">Bill of $200</Label>
+  <Progress
+    aria-labelledby="progress-bill-label"
+    :max="200"
+    :segments="[
+      { value: 120, color: 'success', label: 'Paid' },
+      { value: 45, color: 'warning', label: 'Pending' },
+    ]"
+    style="--progress-height: 8px"
+  />
+  <span style="color: var(--color-text-tertiary); font-size: 14px">120 paid · 45 pending · 35 due</span>
 </div>
 ```
 
@@ -5656,6 +5697,40 @@ Leverage component composition and class overrides to build card-style radio sel
     </TooltipTrigger>
   </Tooltip>
 </RadioGroup>
+```
+
+## Rolling Number
+A number whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched.
+Import: import { RollingNumber } from "@plexui/vue/components/RollingNumber"
+Docs: https://plexui.com/vue/components/rolling-number
+Props:
+  - value (number) — The number shown; a new value rolls each changed digit to it
+  - locales (string | string[]) default: "en-US" — The locale the number is written in; fixed rather than the browser's, so the server writes it as the browser does. Its own digits roll, such as Arabic-Indic
+  - format (Intl.NumberFormatOptions) — How it is written: a currency, a percent, fraction digits, grouping
+  - class (string) — Applied to the root span; set the size and weight here
+
+### Overview
+Pass the number as value; a new value rolls each digit that changes, and the digits that stay still do not move. format and locales write it as Intl.NumberFormat does: here as a currency, a percent or a plain number, with its grouping. Separators, signs and the currency stand still; tabular figures keep each digit as wide, so the number does not shift while it rolls. It is read out as the written number, and with reduced motion the digits change at once.
+```vue
+<RollingNumber
+  :value="format === 'percent' ? value / 10000 : value"
+  locales="en-US"
+  :format="format === 'currency' ? { style: 'currency', currency: 'USD' } : format === 'percent' ? { style: 'percent', maximumFractionDigits: 1 } : {}"
+  class="text-4xl font-semibold"
+/>
+<div class="flex flex-wrap justify-center gap-2">
+  <Button v-for="step in [-100, -1, 1, 25, 1000]" :key="step" color="secondary" variant="soft" size="sm"
+    @click="value = Math.max(0, value + step)">{{ step > 0 ? '+' + step : step }}</Button>
+</div>
+```
+
+### In text
+It keeps the text&apos;s size, weight and baseline, so it stands in a sentence or a button as any word does.
+```vue
+<p class="text-sm text-secondary">
+  <RollingNumber :value="count" locales="en-US" /> {{ count === 1 ? 'item' : 'items' }} in your bag
+</p>
+<Button color="secondary" variant="soft" size="sm" @click="count += 7">Add 7</Button>
 ```
 
 ## Segmented Control

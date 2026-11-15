@@ -1,0 +1,61 @@
+---
+title: Rolling Number
+description: A number whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched.
+metaDescription: Vue 3 rolling number component that animates each digit like an odometer, written by Intl.NumberFormat as a currency, a percent or a plain number, read by screen readers as text
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<RollingNumber
+  :value="format === 'percent' ? value / 10000 : value"
+  locales="en-US"
+  :format="format === 'currency' ? { style: 'currency', currency: 'USD' } : format === 'percent' ? { style: 'percent', maximumFractionDigits: 1 } : {}"
+  class="text-4xl font-semibold"
+/>
+<div class="flex flex-wrap justify-center gap-2">
+  <Button v-for="step in [-100, -1, 1, 25, 1000]" :key="step" color="secondary" variant="soft" size="sm"
+    @click="value = Math.max(0, value + step)">{{ step > 0 ? '+' + step : step }}</Button>
+</div>`
+
+export const inText = `<p class="text-sm text-secondary">
+  <RollingNumber :value="count" locales="en-US" /> {{ count === 1 ? 'item' : 'items' }} in your bag
+</p>
+<Button color="secondary" variant="soft" size="sm" @click="count += 7">Add 7</Button>`
+
+export const formatControl = [{ name: "format", type: "select", options: ["number", "currency", "percent"], default: "currency" }]
+
+<UsageBlock>{`import { RollingNumber } from "@plexui/vue/components/RollingNumber";`}</UsageBlock>
+
+A rolling number turns each changed digit to its new value, as the wheels of an odometer do, so a total or a count that changes in front of the reader shows the change. Use it where a number moves while it is watched, such as a total as items are added; a number that only loads once needs none.
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Pass the number as <code>value</code>; a new value rolls each digit that changes, and the digits that stay still do not move. <code>format</code> and <code>locales</code> write it as <code>Intl.NumberFormat</code> does: here as a currency, a percent or a plain number, with its grouping. Separators, signs and the currency stand still; tabular figures keep each digit as wide, so the number does not shift while it rolls. It is read out as the written number, and with reduced motion the digits change at once.</>} code={overview} previewMinHeight={240}>
+  <VueDemo stageClassName="flex w-full flex-1 flex-col items-center justify-center gap-6 py-12" template={overview} controls={formatControl} state={{ value: 1284 }} />
+</ComponentPreview>
+
+### In text
+
+<ComponentPreview language="vue" details={<>It keeps the text&apos;s size, weight and baseline, so it stands in a sentence or a button as any word does.</>} code={inText} previewMinHeight={160}>
+  <VueDemo stageClassName="flex w-full flex-1 flex-col items-center justify-center gap-4 py-12" template={inText} state={{ count: 3 }} />
+</ComponentPreview>
+
+## API
+
+### RollingNumber
+
+<PropsTable data={[
+  { prop: "value", type: "number", description: "The number shown; a new value rolls each changed digit to it" },
+  { prop: "locales", type: "string | string[]", default: '"en-US"', description: "The locale the number is written in; fixed rather than the browser's, so the server writes it as the browser does. Its own digits roll, such as Arabic-Indic" },
+  { prop: "format", type: "Intl.NumberFormatOptions", description: "How it is written: a currency, a percent, fraction digits, grouping" },
+  { prop: "class", type: "string", description: "Applied to the root span; set the size and weight here" },
+]} />
+
+Other attributes fall through to the root `<span>`. The written number is in a visually hidden span; the reels are `aria-hidden`.
+
+## Styling
+
+- `--rolling-number-duration`: how long a digit rolls (defaults to `600ms`)
+- `--rolling-number-ease`: its easing (defaults to `--cubic-move`)

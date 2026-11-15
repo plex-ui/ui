@@ -114,6 +114,10 @@ const progressCases: Case[] = [
   ["className, id and style", { value: 67, className: "my-2", id: "progress-upload", style: { width: "200px" } }],
   ["caller aria attributes win", { value: 20, "aria-label": "Upload", "aria-valuetext": "Almost there", "data-state": "custom" }],
   ["aria-labelledby", { value: 10, "aria-labelledby": "label-id" }],
+  ["segments", { segments: [{ value: 60, color: "success", label: "Paid" }, { value: 15, color: "warning", label: "Pending" }] }],
+  ["segments over max are clamped, an empty one is left out", { max: 10, segments: [{ value: 6 }, { value: 0, color: "info" }, { value: 9, color: "danger", label: "Due" }] }],
+  ["segments with an invalid max measure against 100", { max: 0, segments: [{ value: 30, label: "Paid" }] }],
+  ["segments with a custom getValueLabel", { segments: [{ value: 30 }, { value: 20, color: "discovery" }], getValueLabel: (value: number, max: number) => `${value} of ${max}` }],
 ]
 
 describe("Badge parity", () => {

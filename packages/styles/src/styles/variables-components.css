@@ -140,6 +140,8 @@
     --progress-transition-duration: var(--transition-duration-basic);
     --progress-transition-ease: var(--transition-ease-basic);
     --progress-indeterminate-duration: 1.5s;
+    /* Between the parts of a segmented bar */
+    --progress-segment-gap: 2px;
 
     /* =============================================
       Separator
@@ -961,6 +963,13 @@
     /* A disabled item, pressed or not, is the enabled one at this opacity (the iOS 27 kit's disabled segmented
        control is the enabled one at 50%) */
     --toggle-group-disabled-opacity: 0.5;
+
+    /* =============================================
+      Rolling number
+    ============================================= */
+    /* Long enough to read the digits pass, as an odometer turns */
+    --rolling-number-duration: 600ms;
+    --rolling-number-ease: var(--cubic-move);
 
     /* =============================================
       Stepper

@@ -9,6 +9,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ## Unreleased
 
+### Added
+
+- `RollingNumber`: a number whose digits roll to a new value, as an odometer, written by `Intl.NumberFormat` (`format`, `locales`, en-US by default) in the locale's own digits and read out as text. Tokens `--rolling-number-duration` and `--rolling-number-ease`; no motion with reduced motion.
+- `Progress` takes `segments`: parts of one bar side by side in their colors, such as paid and pending, each read out with its label and share. Token `--progress-segment-gap`.
+- `Kbd.Modifier` (Vue: `KbdModifier`) prints a modifier as the reader's keyboard has it: `mod` is ⌘ on a Mac, an iPhone or an iPad and Ctrl elsewhere; `name` also gives ⌃, ⌥ and ⇧, read out by name.
+
 ### Fixed
 
 - On a phone the icon of an `Alert` draws its symbol 22 wide, as TipKit draws a 22pt tip image: the circle of the info icon was 18. Its place, the text at 56 and a custom indicator stay where they were.

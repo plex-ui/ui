@@ -4,7 +4,7 @@ import { h } from "vue"
 import { Breadcrumb as RBreadcrumb } from "../../packages/ui/src/components/Breadcrumb"
 import { Kbd as RKbd } from "../../packages/ui/src/components/Kbd"
 import { Breadcrumb, BreadcrumbItem } from "../../packages/vue/src/components/Breadcrumb"
-import { Kbd, KbdGroup } from "../../packages/vue/src/components/Kbd"
+import { Kbd, KbdGroup, KbdModifier } from "../../packages/vue/src/components/Kbd"
 import { flushVue, mountVue } from "./harness"
 import { renderPair } from "./pair"
 
@@ -116,5 +116,28 @@ describe("Breadcrumb parity", () => {
     expect(onReact).toHaveBeenCalledTimes(1)
     expect(onVue).toHaveBeenCalledTimes(1)
     expect(react).toContain('role="button"')
+  })
+})
+
+describe("Kbd.Modifier", () => {
+  test.each([
+    ["⌘ on an Apple keyboard, named Command", { platform: "apple" }, "⌘", "Command"],
+    ["Ctrl elsewhere", { platform: "other" }, "Ctrl", null],
+    ["⌥ Option", { name: "alt", platform: "apple" }, "⌥", "Option"],
+    ["Alt", { name: "alt", platform: "other" }, "Alt", null],
+    ["⇧ Shift, md outline", { name: "shift", platform: "apple", size: "md", variant: "outline" }, "⇧", "Shift"],
+    ["⌃ Control", { name: "ctrl", platform: "apple" }, "⌃", "Control"],
+  ])("%s", async (_name, props, symbol, spoken) => {
+    const pair = await renderPair(<RKbd.Modifier {...(props as object)} />, () => h(KbdModifier, props))
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.react).toContain(symbol)
+    if (spoken) expect(pair.react).toMatch(new RegExp(`class="Name">\\s*"${spoken}"`))
+  })
+
+  test("without a platform it prints the browser's keyboard: jsdom is not an Apple one", async () => {
+    const pair = await renderPair(<RKbd.Modifier />, () => h(KbdModifier))
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.react).toContain('"Ctrl"')
+    expect(pair.react).not.toContain("⌘")
   })
 })

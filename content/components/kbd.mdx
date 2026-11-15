@@ -7,6 +7,7 @@ metaDescription: React keyboard key component for shortcuts like ⌘K in text, t
 import {
   KbdOverviewDemo,
   KbdShortcutDemo,
+  KbdModifierDemo,
   KbdSizesDemo,
   KbdInContextDemo,
 } from "@/components/docs/KbdDemos"
@@ -36,6 +37,22 @@ import {
   <Kbd>P</Kbd>
 </Kbd.Group>`} previewMinHeight={140}>
   <KbdShortcutDemo />
+</ComponentPreview>
+
+### Modifier
+
+<ComponentPreview details={<>Use <code>Kbd.Modifier</code> for a modifier in an app&apos;s shortcut: it prints <code>mod</code> as ⌘ on a Mac, an iPhone or an iPad and as Ctrl elsewhere, as the reader&apos;s keyboard has it, so one shortcut reads right on both. <code>name</code> picks <code>ctrl</code> (⌃), <code>alt</code> (⌥ or Alt) or <code>shift</code> (⇧). A symbol is read out by its name, such as Command. <code>platform</code> fixes the keyboard, as the two rows here do; without it the server renders the Apple one and the browser corrects it after it loads.</>} code={`<p>
+  Press{' '}
+  <Kbd.Group>
+    <Kbd.Modifier />
+    <Kbd>K</Kbd>
+  </Kbd.Group>{' '}
+  to search.
+</p>
+
+<Kbd.Modifier name="mod" platform="apple" />   {/* ⌘ */}
+<Kbd.Modifier name="alt" platform="other" />   {/* Alt */}`} previewMinHeight={200}>
+  <KbdModifierDemo />
 </ComponentPreview>
 
 ### Sizes and variants
@@ -88,6 +105,17 @@ Other `<kbd>` attributes (`title`, `aria-label`, ...) are forwarded.
 ### Kbd.Group
 
 A row of keys pressed together. Renders a `<span>` and forwards its attributes.
+
+### Kbd.Modifier
+
+<PropsTable data={[
+  { prop: "name", type: '"mod" | "ctrl" | "alt" | "shift"', default: '"mod"', description: "The modifier: mod is ⌘ on an Apple keyboard and Ctrl on another" },
+  { prop: "platform", type: '"apple" | "other"', description: "The keyboard to print for; by default the browser's (Apple on the server)" },
+  { prop: "size", type: '"xs" | "sm" | "md"', default: '"sm"', description: "As Kbd" },
+  { prop: "variant", type: '"soft" | "outline"', default: '"soft"', description: "As Kbd" },
+]} />
+
+Renders a `<kbd>`; a symbol carries its name for a screen reader. `isApplePlatform()` and `KBD_MODIFIERS` are exported for a shortcut written elsewhere, such as in `aria-keyshortcuts`.
 
 ## Styling
 

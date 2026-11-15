@@ -1,5 +1,6 @@
 'use client';
 
+import type { CSSProperties } from 'react';
 import { useEffect, useState } from 'react';
 import { Progress } from '@plexui/ui/components/Progress';
 import { Label } from '@plexui/ui/components/Label';
@@ -83,6 +84,28 @@ export function ProgressControlledDemo() {
     >
       <Progress value={value} aria-label="Progress" />
       <Slider value={value} onChange={setValue} min={0} max={100} step={1} aria-label="Progress value" />
+    </div>
+  );
+}
+
+/* ============================================================
+   Segments — parts of one bar, as a bill paid in parts
+   ============================================================ */
+
+const BILL = [
+  { value: 120, color: 'success', label: 'Paid' },
+  { value: 45, color: 'warning', label: 'Pending' },
+] as const;
+
+export function ProgressSegmentsDemo() {
+  const due = 200 - BILL.reduce((sum, part) => sum + part.value, 0);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', maxWidth: 320 }}>
+      <Label id="progress-bill-label">Bill of $200</Label>
+      <Progress aria-labelledby="progress-bill-label" max={200} segments={[...BILL]} style={{ '--progress-height': '8px' } as CSSProperties} />
+      <span style={{ color: 'var(--color-text-tertiary)', fontSize: 14 }}>
+        120 paid · 45 pending · {due} due
+      </span>
     </div>
   );
 }

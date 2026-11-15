@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 63
+Components: 64
 
 ## Setup
 
@@ -616,7 +616,12 @@ Props:
   - size ("xs" | "sm" | "md") default: "sm" — Height and text size: 16px, 20px or 24px
   - variant ("soft" | "outline") default: "soft" — soft fills the key, outline draws its edge; both mix the text color
   - className (string) — Applied to the kbd element
-Examples: Overview, Shortcut, Sizes and variants, In a tooltip and a menu
+  Kbd.Modifier:
+    - name ("mod" | "ctrl" | "alt" | "shift") default: "mod" — The modifier: mod is ⌘ on an Apple keyboard and Ctrl on another
+    - platform ("apple" | "other") — The keyboard to print for; by default the browser's (Apple on the server)
+    - size ("xs" | "sm" | "md") default: "sm" — As Kbd
+    - variant ("soft" | "outline") default: "soft" — As Kbd
+Examples: Overview, Shortcut, Modifier, Sizes and variants, In a tooltip and a menu
 
 ## Label
 Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
@@ -857,9 +862,10 @@ Docs: https://plexui.com/components/progress
 Props:
   - value (number | null) default: null — Current progress between 0 and max. Pass null for indeterminate.
   - max (number) default: 100 — Maximum progress value
+  - segments (ProgressSegment[]) default: — — Parts of one bar side by side: { value, color?, label? }, color one of primary, secondary, success, warning, caution, danger, info, discovery. Takes the place of value.
   - getValueLabel ((value: number, max: number) => string) default: — — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
   - className (string) default: — — Applied to the root <div>
-Examples: Overview, With label, Controlled
+Examples: Overview, With label, Controlled, Segments
 
 ## Radio Group
 Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.
@@ -884,6 +890,17 @@ Props:
     - description (ReactNode) — Second line below the option's label, linked via aria-describedby
     - className (string) — Extra classes on the label element
 Examples: Overview, With Field, With Field error, Grouped sections, With Checkbox, Descriptions, Choice card, Card selection
+
+## Rolling Number
+A number whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched.
+Import: import { RollingNumber } from "@plexui/ui/components/RollingNumber"
+Docs: https://plexui.com/components/rolling-number
+Props:
+  - value (number) — The number shown; a new value rolls each changed digit to it
+  - locales (Intl.LocalesArgument) default: "en-US" — The locale the number is written in; fixed rather than the browser's, so the server writes it as the browser does. Its own digits roll, such as Arabic-Indic
+  - format (Intl.NumberFormatOptions) — How it is written: a currency, a percent, fraction digits, grouping
+  - className (string) — Applied to the root span; set the size and weight here
+Examples: Overview, In text
 
 ## Segmented Control
 Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.

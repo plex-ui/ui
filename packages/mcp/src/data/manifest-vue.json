@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 63,
+  "componentCount": 64,
   "components": [
     {
       "slug": "accordion",
@@ -3163,7 +3163,8 @@
       "importPath": "@plexui/vue/components/Kbd",
       "exports": [
         "Kbd",
-        "KbdGroup"
+        "KbdGroup",
+        "KbdModifier"
       ],
       "props": [
         {
@@ -3201,6 +3202,11 @@
           "details": "Use KbdGroup for keys pressed together. Each key keeps its own frame."
         },
         {
+          "name": "Modifier",
+          "code": "<p class=\"text-sm text-secondary\">\n  Press\n  <KbdGroup>\n    <KbdModifier />\n    <Kbd>K</Kbd>\n  </KbdGroup>\n  to search.\n</p>\n<div v-for=\"platform in ['apple', 'other']\" :key=\"platform\" class=\"flex items-center gap-3\">\n  <span class=\"w-12 text-xs text-tertiary\">{{ platform === 'apple' ? 'Apple' : 'Other' }}</span>\n  <KbdModifier v-for=\"name in ['mod', 'ctrl', 'alt', 'shift']\" :key=\"name\" :name=\"name\" :platform=\"platform\" />\n</div>",
+          "details": "Use KbdModifier for a modifier in an app&apos;s shortcut: it prints mod as ⌘ on a Mac, an iPhone or an iPad and as Ctrl elsewhere, as the reader&apos;s keyboard has it, so one shortcut reads right on both. name picks ctrl (⌃), alt (⌥ or Alt) or shift (⇧). A symbol is read out by its name, such as Command. platform fixes the keyboard, as the two rows here do; without it the server renders the Apple one and the browser corrects it after it loads."
+        },
+        {
           "name": "Sizes and variants",
           "code": "<div class=\"flex flex-col items-center gap-4\">\n  <div v-for=\"variant in ['soft', 'outline']\" :key=\"variant\" class=\"flex items-center gap-4\">\n    <Kbd size=\"xs\" :variant=\"variant\">⌘K</Kbd>\n    <Kbd size=\"sm\" :variant=\"variant\">⌘K</Kbd>\n    <Kbd size=\"md\" :variant=\"variant\">⌘K</Kbd>\n  </div>\n</div>",
           "details": "Three sizes: xs (16px) for tooltips and menu items, sm (20px, default) for text, md (24px) next to larger controls. soft (default) fills the key, outline draws its edge. Both mix the surrounding text color, so a key reads on a page, in a dark tooltip and in a highlighted menu item alike."
@@ -3209,6 +3215,36 @@
           "name": "In a tooltip and a menu",
           "code": "<Tooltip>\n  <template #content>\n    <span class=\"flex items-center gap-2\">\n      Search\n      <KbdGroup>\n        <Kbd size=\"xs\">⌘</Kbd>\n        <Kbd size=\"xs\">K</Kbd>\n      </KbdGroup>\n    </span>\n  </template>\n  <Button color=\"secondary\" variant=\"outline\" uniform aria-label=\"Search\" aria-keyshortcuts=\"Meta+K\">\n    <Search />\n  </Button>\n</Tooltip>\n<Menu>\n  <MenuTrigger>\n    <Button color=\"secondary\" variant=\"soft\">Edit</Button>\n  </MenuTrigger>\n  <MenuContent :min-width=\"220\">\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1\">Undo</span>\n      <Kbd size=\"xs\" variant=\"outline\">⌘Z</Kbd>\n    </MenuItem>\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1\">Redo</span>\n      <Kbd size=\"xs\" variant=\"outline\">⇧⌘Z</Kbd>\n    </MenuItem>\n  </MenuContent>\n</Menu>",
           "details": "Show a control's shortcut in its tooltip, or at the end of a menu item. Kbd only shows the keys: announce the shortcut to assistive technology with aria-keyshortcuts on the control that has it."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "KbdModifier",
+          "props": [
+            {
+              "name": "name",
+              "type": "\"mod\" | \"ctrl\" | \"alt\" | \"shift\"",
+              "default": "\"mod\"",
+              "description": "The modifier: mod is ⌘ on an Apple keyboard and Ctrl on another"
+            },
+            {
+              "name": "platform",
+              "type": "\"apple\" | \"other\"",
+              "description": "The keyboard to print for; by default the browser's (Apple on the server)"
+            },
+            {
+              "name": "size",
+              "type": "\"xs\" | \"sm\" | \"md\"",
+              "default": "\"sm\"",
+              "description": "As Kbd"
+            },
+            {
+              "name": "variant",
+              "type": "\"soft\" | \"outline\"",
+              "default": "\"soft\"",
+              "description": "As Kbd"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/kbd"
@@ -4303,6 +4339,11 @@
           "description": "Maximum progress value"
         },
         {
+          "name": "segments",
+          "type": "ProgressSegment[]",
+          "description": "Parts of one bar side by side: { value, color?, label? }, color one of primary, secondary, success, warning, caution, danger, info, discovery. Takes the place of value."
+        },
+        {
           "name": "get-value-label",
           "type": "(value: number, max: number) => string",
           "description": "Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. \"67%\"."
@@ -4327,6 +4368,11 @@
           "name": "Controlled",
           "code": "<div style=\"display: flex; width: 100%; max-width: 320px; flex-direction: column; gap: 16px\">\n  <Progress :value=\"value\" aria-label=\"Progress\" />\n  <Slider v-model:value=\"value\" :min=\"0\" :max=\"100\" :step=\"1\" aria-label=\"Progress value\" />\n</div>",
           "details": "Bind value to any source, here a Slider through v-model:value."
+        },
+        {
+          "name": "Segments",
+          "code": "<div style=\"display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px\">\n  <Label id=\"progress-bill-label\">Bill of $200</Label>\n  <Progress\n    aria-labelledby=\"progress-bill-label\"\n    :max=\"200\"\n    :segments=\"[\n      { value: 120, color: 'success', label: 'Paid' },\n      { value: 45, color: 'warning', label: 'Pending' },\n    ]\"\n    style=\"--progress-height: 8px\"\n  />\n  <span style=\"color: var(--color-text-tertiary); font-size: 14px\">120 paid · 45 pending · 35 due</span>\n</div>",
+          "details": "Pass :segments for parts of one bar side by side, each in its color, such as a bill paid in parts: what is paid, what is pending, and the track left for what is due. A part is {\"{ value, color, label }\"}; the bar&apos;s value is their sum, and a part past max is cut to it. A hairline of the track (--progress-segment-gap) parts them. It reads out each part with its label and share, such as Paid 60%, Pending 23%."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/progress"
@@ -4589,6 +4635,51 @@
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/radio-group"
+    },
+    {
+      "slug": "rolling-number",
+      "name": "Rolling Number",
+      "description": "A number whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched.",
+      "importPath": "@plexui/vue/components/RollingNumber",
+      "exports": [
+        "RollingNumber"
+      ],
+      "props": [
+        {
+          "name": "value",
+          "type": "number",
+          "description": "The number shown; a new value rolls each changed digit to it"
+        },
+        {
+          "name": "locales",
+          "type": "string | string[]",
+          "default": "\"en-US\"",
+          "description": "The locale the number is written in; fixed rather than the browser's, so the server writes it as the browser does. Its own digits roll, such as Arabic-Indic"
+        },
+        {
+          "name": "format",
+          "type": "Intl.NumberFormatOptions",
+          "description": "How it is written: a currency, a percent, fraction digits, grouping"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the root span; set the size and weight here"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<RollingNumber\n  :value=\"format === 'percent' ? value / 10000 : value\"\n  locales=\"en-US\"\n  :format=\"format === 'currency' ? { style: 'currency', currency: 'USD' } : format === 'percent' ? { style: 'percent', maximumFractionDigits: 1 } : {}\"\n  class=\"text-4xl font-semibold\"\n/>\n<div class=\"flex flex-wrap justify-center gap-2\">\n  <Button v-for=\"step in [-100, -1, 1, 25, 1000]\" :key=\"step\" color=\"secondary\" variant=\"soft\" size=\"sm\"\n    @click=\"value = Math.max(0, value + step)\">{{ step > 0 ? '+' + step : step }}</Button>\n</div>",
+          "details": "Pass the number as value; a new value rolls each digit that changes, and the digits that stay still do not move. format and locales write it as Intl.NumberFormat does: here as a currency, a percent or a plain number, with its grouping. Separators, signs and the currency stand still; tabular figures keep each digit as wide, so the number does not shift while it rolls. It is read out as the written number, and with reduced motion the digits change at once."
+        },
+        {
+          "name": "In text",
+          "code": "<p class=\"text-sm text-secondary\">\n  <RollingNumber :value=\"count\" locales=\"en-US\" /> {{ count === 1 ? 'item' : 'items' }} in your bag\n</p>\n<Button color=\"secondary\" variant=\"soft\" size=\"sm\" @click=\"count += 7\">Add 7</Button>",
+          "details": "It keeps the text&apos;s size, weight and baseline, so it stands in a sentence or a button as any word does."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/rolling-number"
     },
     {
       "slug": "segmented-control",
@@ -7487,5 +7578,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-15T20:14:11.950Z"
+  "generatedAt": "2026-11-15T21:03:12.277Z"
 }

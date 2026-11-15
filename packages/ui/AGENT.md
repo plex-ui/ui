@@ -472,7 +472,9 @@ Exports: `Animate`, `AnimateLayout`, `AnimateLayoutGroup`, `TransitionGroup`, `S
 | DateInput | `@plexui/ui/components/DateInput` | `value` (DateTime \| null), `onChange`, `min`, `max`, `clearable` + Input props |
 | OTPInput | `@plexui/ui/components/OTPInput` | `value`, `onChange`, `onComplete`, `length` (6), `grouping`, `invalid`, `disabled` |
 | ProgressSteps | `@plexui/ui/components/ProgressSteps` | `current` (1-indexed), `total`, `size`, `orientation`; sub: `.Step`, `.Title`, `.Description` |
-| Progress | `@plexui/ui/components/Progress` | `value` (omit for indeterminate), `max` (100) |
+| Progress | `@plexui/ui/components/Progress` | `value` (omit for indeterminate), `max` (100), `segments` (`{ value, color?, label? }[]`: parts of one bar side by side, such as paid / pending; takes `value`'s place) |
+| Kbd | `@plexui/ui/components/Kbd` | `size` ("xs" \| "sm" \| "md"), `variant` ("soft" \| "outline"); sub: `.Group`, `.Modifier` (`name` "mod" \| "ctrl" \| "alt" \| "shift", `platform`: mod is ⌘ on Apple, Ctrl elsewhere) |
+| RollingNumber | `@plexui/ui/components/RollingNumber` | `value`, `locales`, `format` (Intl.NumberFormatOptions): digits roll to a new value as an odometer; reads as the written number |
 | SelectControl | `@plexui/ui/components/SelectControl` | Select trigger shell for custom dropdowns: `variant`, `size`, `selected`, `onClearClick`, `StartIcon`, `children` |
 | ShimmerText | `@plexui/ui/components/ShimmerText` | `children`, `as`; `ShimmerableText` adds `shimmer` |
 | StatsCard | `@plexui/ui/components/StatsCard` | `label`, `value`, `description`, `trend` (`{ value, label? }`), `icon` |

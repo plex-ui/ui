@@ -19,6 +19,31 @@ const isValidMax = (max: unknown): max is number => isNumber(max) && !Number.isN
 const isValidValue = (value: unknown, max: number): value is number =>
   isNumber(value) && !Number.isNaN(value) && value <= max && value >= 0
 
+export type ProgressColor = "primary" | "secondary" | "success" | "warning" | "caution" | "danger" | "info" | "discovery"
+
+/** A part of a segmented bar: its share of `max`, its color, and the name it is read with. */
+export type ProgressSegment = {
+  value: number
+  /** @default "primary" */
+  color?: ProgressColor
+  /** Read out with its share, such as "Paid 60%" */
+  label?: string
+}
+
+/** The parts of a segmented bar, each clamped so their sum stays within `max`, and their sum. */
+export const progressSegments = (segments: ProgressSegment[], max: number) => {
+  let total = 0
+  const parts = segments.map((segment) => {
+    const value = Math.max(0, Math.min(max - total, segment.value || 0))
+    total += value
+    return { ...segment, value }
+  })
+  return { parts, total }
+}
+
+const segmentsLabel = (parts: ProgressSegment[], max: number) =>
+  parts.map((part) => `${part.label ? `${part.label} ` : ""}${Math.round((part.value / max) * 100)}%`).join(", ")
+
 const defaultGetValueLabel = (value: number, max: number) => `${Math.round((value / max) * 100)}%`
 
 const ProgressComponent = defineComponent({
@@ -33,12 +58,39 @@ const ProgressComponent = defineComponent({
     max: { type: Number, default: DEFAULT_MAX },
     /** Accessible value text for the current value. @default "<percentage>%" */
     getValueLabel: Function as PropType<(value: number, max: number) => string>,
+    /**
+     * Parts of one bar, side by side in their colors, such as paid, pending and due. The value is their sum; they
+     * take `value`'s place. A part's share is clamped so the bar never passes `max`.
+     */
+    segments: { type: Array as PropType<ProgressSegment[]>, default: undefined },
   },
   setup(props) {
     const getValueText = (value: number | null | undefined, max: number) =>
       isNumber(value) ? (props.getValueLabel ?? defaultGetValueLabel)(value, max) : undefined
 
     return () => {
+      if (props.segments) {
+        const rootMax = isValidMax(props.max) ? props.max : DEFAULT_MAX
+        const { parts, total } = progressSegments(props.segments, rootMax)
+        return h(
+          ProgressRoot,
+          {
+            "modelValue": total,
+            "max": rootMax,
+            "getValueLabel": () => undefined,
+            "getValueText": (current: number | null | undefined, currentMax: number) =>
+              props.getValueLabel && isNumber(current) ? props.getValueLabel(current, currentMax) : segmentsLabel(parts, rootMax),
+            "class": s.Root,
+            "data-segmented": "",
+          },
+          {
+            default: () => parts.map((part, index) =>
+              part.value > 0
+                ? h("div", { "key": index, "class": s.Segment, "data-color": part.color ?? "primary", "style": { width: `${(part.value / rootMax) * 100}%` } })
+                : null),
+          },
+        )
+      }
       const { value, max } = props
       const resolved = value == null ? null : Math.max(0, Math.min(max, value))
       const percentage = resolved == null ? null : (resolved / max) * 100

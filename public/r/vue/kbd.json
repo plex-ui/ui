@@ -17,5 +17,5 @@
       "content": "export * from \"@plexui/vue/components/Kbd\"\n"
     }
   ],
-  "docs": "Import as `import { Kbd, KbdGroup } from '@/components/ui/kbd'`. See https://plexui.com/vue/components/kbd for props and examples."
+  "docs": "Import as `import { Kbd, KbdGroup, KbdModifier } from '@/components/ui/kbd'`. See https://plexui.com/vue/components/kbd for props and examples."
 }

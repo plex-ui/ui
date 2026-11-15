@@ -32,6 +32,30 @@ export function KbdShortcutDemo() {
   );
 }
 
+/** The modifier as the reader's keyboard prints it: ⌘ on a Mac, Ctrl elsewhere; both keyboards side by side */
+export function KbdModifierDemo() {
+  return (
+    <div data-demo-stage className="flex-1 flex flex-col items-center justify-center gap-5 py-12 w-full">
+      <p className="text-sm text-secondary">
+        Press{' '}
+        <Kbd.Group>
+          <Kbd.Modifier />
+          <Kbd>K</Kbd>
+        </Kbd.Group>{' '}
+        to search.
+      </p>
+      {(['apple', 'other'] as const).map((platform) => (
+        <div key={platform} className="flex items-center gap-3">
+          <span className="w-12 text-xs text-tertiary">{platform === 'apple' ? 'Apple' : 'Other'}</span>
+          {(['mod', 'ctrl', 'alt', 'shift'] as const).map((name) => (
+            <Kbd.Modifier key={name} name={name} platform={platform} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function KbdSizesDemo() {
   return (
     <div data-demo-stage className="flex-1 flex flex-col items-center justify-center gap-4 py-12 w-full">
