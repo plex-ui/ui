@@ -367,13 +367,14 @@ describe("Phone date capsule in a row (iOS 27.2 compact date picker)", () => {
     expect(decls(rules[0])).toEqual({ "--select-control-background-color": "transparent", "--select-control-border-color": "transparent" })
   })
 
-  test("the capsule hides the pop-up chevrons only in a horizontal row, and the wrapper they leave empty", () => {
+  test("the capsule hides the pop-up chevrons only in a horizontal row, and their wrapper with any clear button (iOS has none)", () => {
     const rule = find("packages/styles/src/components/SelectControl/SelectControl.module.css", "[data-date-picker] .DropdownIcon")
     const wrapper = find("packages/styles/src/components/SelectControl/SelectControl.module.css", ".IndicatorWrapper")
     expect(rule.selector).toBe(":where([data-row][data-orientation=\"horizontal\"]) .SelectControl[data-date-picker] .DropdownIcon")
     expect(decls(rule)).toEqual({ display: "none" })
-    // An empty wrapper would still take the trigger's gap: the date 8px off center, the capsule 8px short of the edge.
-    expect(wrapper.selector).toBe(":where([data-row][data-orientation=\"horizontal\"]) .SelectControl[data-date-picker] .IndicatorWrapper:not(:has(> :not(.DropdownIcon)))")
+    // The compact date picker of iOS has no clear button (owner 15.11), and an empty wrapper would still take the
+    // trigger's gap: the date 8px off center, the capsule 8px short of the edge.
+    expect(wrapper.selector).toBe(":where([data-row][data-orientation=\"horizontal\"]) .SelectControl[data-date-picker] .IndicatorWrapper")
     expect(decls(wrapper)).toEqual({ display: "none" })
   })
 
