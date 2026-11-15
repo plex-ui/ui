@@ -322,6 +322,15 @@
     /* The narrow-screen radius follows the available inset; it is a fit
        constraint, not a separate measured native corner radius. */
     --popover-radius: calc(22px + var(--calendar-inner-padding));
+    /* Never squeezed to the room on one side: at its whole height it flips to the side with room, as the compact
+       date picker of iOS opens above a trigger with no room below (console 15.11). The popover's own cap would make
+       it fit below and stop the flip. */
+    max-height: none;
+
+    /* Neither side has room for the whole calendar: it takes the room of its side and scrolls (lib/calendarFit) */
+    &[data-calendar-squeezed] {
+      max-height: var(--radix-popover-content-available-height);
+    }
 
     background: color-mix(in srgb, var(--color-surface-elevated) 70%, transparent);
     box-shadow: var(--menu-shadow, var(--shadow), var(--shadow-hairline));

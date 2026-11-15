@@ -1270,3 +1270,25 @@ describe("Phone today marker", () => {
     expect(found).toEqual([{ "bottom": "8px", "width": "4px", "height": "4px", "margin-left": "-2px" }])
   })
 })
+
+describe("phone calendar height (console 15.11)", () => {
+  // The popover's own cap (available height) let a calendar squeeze to the room below its trigger, and the flip never
+  // fired. On a phone the calendar keeps its whole height, so it flips to the side with room.
+  for (const file of [
+    "packages/styles/src/components/DatePicker/Calendar.module.css",
+    "packages/styles/src/components/DateRangePicker/Calendar.module.css",
+  ]) {
+    test(`${file.split("/")[4]}: the phone popover is never capped`, () => {
+      const root = postcss.parse(readFileSync(file, "utf8"))
+      let found = false
+      root.walkAtRules("media", (media) => {
+        if (!media.params.includes("max-width: 767px")) return
+        media.walkRules((rule) => {
+          if (rule.selector.trim() !== '.Popover[role="dialog"]') return
+          rule.walkDecls("max-height", (decl) => { if (decl.value === "none") found = true })
+        })
+      })
+      expect(found).toBe(true)
+    })
+  }
+})

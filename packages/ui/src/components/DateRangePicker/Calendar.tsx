@@ -1,6 +1,7 @@
 "use client"
 
 import { DateTime, Interval } from "luxon"
+import { calendarFitRef } from "../../lib/calendarFit"
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import { useBreakpoint } from "../../hooks/useBreakpoints"
 import { useStableCallback } from "../../hooks/useStableCallback"
@@ -291,7 +292,7 @@ export const DateRangeCalendar = () => {
   }, [leftCalendarDate])
 
   return (
-    <div className={s.CalendarWrapper} key={`stable-view-${forceRenderIncrement}`}>
+    <div ref={calendarFitRef} className={s.CalendarWrapper} key={`stable-view-${forceRenderIncrement}`}>
       <div
         ref={calendarContainerRef}
         className={s.CalendarContainer}

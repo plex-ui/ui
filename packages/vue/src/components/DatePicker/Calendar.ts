@@ -1,5 +1,6 @@
 import { DateTime, Interval } from "luxon"
-import { computed, defineComponent, h, nextTick, ref, shallowRef, watch, type PropType } from "vue"
+import { watchCalendarFit } from "../../lib/calendarFit.js"
+import { computed, onBeforeUnmount, defineComponent, h, nextTick, ref, shallowRef, watch, type PropType } from "vue"
 import { chunkIntoWeeks, getDaysOfMonth, isAfter, isBefore, isSameDay, isToday } from "../../lib/dateUtils.js"
 import { waitForAnimationFrame } from "../../lib/helpers.js"
 import { Button } from "../Button/index.js"
@@ -57,6 +58,18 @@ const monthIndex = (date: DateTime) => date.year * 12 + date.month
 export const DateCalendar = defineComponent({
   name: "DateCalendar",
   setup() {
+    // A phone calendar too tall for either side of its trigger scrolls in the room it has (lib/calendarFit)
+    let stopFit: (() => void) | undefined
+    let fitEl: HTMLElement | undefined
+    // Vue calls the ref again on every update: the watcher stays while the element is the same
+    const fitRef = (el: unknown) => {
+      const next = el instanceof HTMLElement ? el : undefined
+      if (next === fitEl) return
+      stopFit?.()
+      fitEl = next
+      stopFit = next ? watchCalendarFit(next) : undefined
+    }
+    onBeforeUnmount(() => stopFit?.())
     const context = useDateContext()
     const closePopover = usePopoverClose()
     const calendarContainerRef = shallowRef<HTMLDivElement | null>(null)
@@ -290,7 +303,7 @@ export const DateCalendar = defineComponent({
       const { value, min, max } = context
       const viewKey = date.toLocaleString({ month: "long", year: "numeric" })
 
-      return h("div", { key: `stable-view-${forceRenderIncrement.value}`, class: s.CalendarWrapper }, [
+      return h("div", { key: `stable-view-${forceRenderIncrement.value}`, ref: fitRef, class: s.CalendarWrapper }, [
         h(
           "div",
           { "ref": setContainer, "class": s.CalendarContainer, "data-dropdown": dropdown ? "" : undefined },

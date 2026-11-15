@@ -13,6 +13,10 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 - Under a large title, a search field as the last `Toolbar.Row` has the content start 10px under it, as iOS 27.2 starts a list under the search field of a large title; other rows keep 16px. On a page and in a Sheet.
 
+### Fixed
+
+- On a phone, `DatePicker` and `DateRangePicker` never squeeze the calendar to the room on one side of the trigger: it keeps its whole height and opens above when it does not fit below, as the compact date picker of iOS does. When neither side has room for the whole calendar, it takes the room of its side and scrolls. The popover's height cap had let it fit below and stopped the flip.
+
 ## 0.51.0 (2026-11-15)
 
 `@plexui/styles` 0.10.0; `@plexui/ui` 0.51.0 and `@plexui/vue` 0.31.0 need `^0.10.0`, so updating them brings it. `@plexui/mcp` is 0.2.27. A large toolbar title in a phone Sheet scrolls with the body and collapses into the bar, as on a page.

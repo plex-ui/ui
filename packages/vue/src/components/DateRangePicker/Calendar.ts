@@ -1,5 +1,6 @@
 import { DateTime, Interval } from "luxon"
-import { computed, createCommentVNode, defineComponent, h, ref, shallowRef, watch, type PropType } from "vue"
+import { watchCalendarFit } from "../../lib/calendarFit.js"
+import { computed, onBeforeUnmount, createCommentVNode, defineComponent, h, ref, shallowRef, watch, type PropType } from "vue"
 import { useBreakpoint } from "../../composables/useBreakpoints.js"
 import { chunkIntoWeeks, getDaysOfMonth, isAfter, isBefore, isSameDay, isToday, weekPosition } from "../../lib/dateUtils.js"
 import { waitForAnimationFrame } from "../../lib/helpers.js"
@@ -54,6 +55,18 @@ const monthIndex = (date: DateTime) => date.year * 12 + date.month
 export const DateRangeCalendar = defineComponent({
   name: "DateRangeCalendar",
   setup() {
+    // A phone calendar too tall for either side of its trigger scrolls in the room it has (lib/calendarFit)
+    let stopFit: (() => void) | undefined
+    let fitEl: HTMLElement | undefined
+    // Vue calls the ref again on every update: the watcher stays while the element is the same
+    const fitRef = (el: unknown) => {
+      const next = el instanceof HTMLElement ? el : undefined
+      if (next === fitEl) return
+      stopFit?.()
+      fitEl = next
+      stopFit = next ? watchCalendarFit(next) : undefined
+    }
+    onBeforeUnmount(() => stopFit?.())
     const context = useDateRangeContext()
     const isMediumUp = useBreakpoint("md")
     const calendarContainerRef = shallowRef<HTMLDivElement | null>(null)
@@ -308,7 +321,7 @@ export const DateRangeCalendar = defineComponent({
         onDayKeyDown: handleDayKeyDown,
       }
 
-      return h("div", { key: `stable-view-${forceRenderIncrement.value}`, class: s.CalendarWrapper }, [
+      return h("div", { key: `stable-view-${forceRenderIncrement.value}`, ref: fitRef, class: s.CalendarWrapper }, [
         h("div", { ref: setContainer, class: s.CalendarContainer, onPointerleave: (event: PointerEvent) => { if (isHoverPointer(event)) handleCalendarMouseLeave() } }, [
           h("div", { class: s.Previous }, [
             h(
