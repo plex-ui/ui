@@ -1640,7 +1640,7 @@
           "name": "clearable",
           "type": "boolean",
           "default": "false",
-          "description": "Show clear button"
+          "description": "Show clear button. A phone row shows none, as the compact date picker of iOS; turn an optional date off with a Switch row"
         },
         {
           "name": "triggerShowIcon",
@@ -7479,5 +7479,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-15T09:07:35.000Z"
+  "generatedAt": "2026-11-15T09:30:44.800Z"
 }

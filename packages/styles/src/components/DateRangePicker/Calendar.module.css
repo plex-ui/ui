@@ -327,15 +327,15 @@
        it fit below and stop the flip. */
     max-height: none;
 
-    /* Neither side has room for the whole calendar: it takes the room of its side and scrolls (lib/calendarFit) */
-    &[data-calendar-squeezed] {
-      max-height: var(--radix-popover-content-available-height);
-    }
-
     background: color-mix(in srgb, var(--color-surface-elevated) 70%, transparent);
     box-shadow: var(--menu-shadow, var(--shadow), var(--shadow-hairline));
     -webkit-backdrop-filter: blur(50px);
     backdrop-filter: blur(50px);
+
+    /* Neither side has room for the whole calendar: it takes the room of its side and scrolls (lib/calendarFit) */
+    &[data-calendar-squeezed] {
+      max-height: var(--radix-popover-content-available-height);
+    }
   }
 
   .CalendarWrapper {

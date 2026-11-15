@@ -1725,7 +1725,7 @@ Props:
   - variant ("outline" | "soft" | "ghost") default: "outline" — Trigger style
   - pill (boolean) default: true — Rounded trigger
   - block (boolean) default: false — Full-width trigger
-  - clearable (boolean) default: false — Show clear button
+  - clearable (boolean) default: false — Show clear button. A phone row shows none, as the compact date picker of iOS; turn an optional date off with a Switch row
   - triggerShowIcon (boolean) default: true — Show calendar icon
   - triggerDateFormat (string) default: "MM/dd/yy" — Date format in trigger. Auto-includes time when showTime is enabled and triggerTimeFormat is not set
   - triggerTimeFormat (string) — With showTime, the time format after the date in the trigger. The date and the time become two parts; in a phone row, two capsules
