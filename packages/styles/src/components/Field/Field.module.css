@@ -596,6 +596,18 @@
     padding-block: calc((var(--field-row-min-height) - var(--field-row-label-line-height)) / 2);
   }
 
+  /* A held choice row (a check or a radio) is highlighted as a row of a list (FieldGroup, ref-app press): the cell's
+     gray to the card's corners, at once, fading when the finger lifts. A switch row does not light, as in iOS. */
+  .Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Content > .Control [data-row]))):has(> .Content > .Control :is(button[role="checkbox"], button[role="radio"], input[type="checkbox"], input[type="radio"]):not([disabled], [data-disabled], [aria-disabled="true"], [aria-hidden="true"])) {
+    transition: background-color var(--transition-duration-basic) var(--transition-ease-basic);
+
+    /* Not when the finger is on an action of its own (a label's details, a description's link), which skips the choice */
+    &:active:not(:has(:is(button, a, [role="button"]):not([role="checkbox"], [role="radio"]):active)) {
+      background: var(--field-row-press-background);
+      transition-duration: 0s;
+    }
+  }
+
   /* Mobile choice rows keep keyboard focus and activation without a drawn ring. */
   .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"]):focus-visible {
     outline: none;

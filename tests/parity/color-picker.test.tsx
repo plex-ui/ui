@@ -564,3 +564,14 @@ describe("ColorPicker saved color pages and reduced motion (plan 95)", () => {
     expect(runs).toEqual([["0 smooth", "0 auto"], ["0 smooth", "0 auto"]])
   })
 })
+
+describe("ColorPicker edges (owner 15.11: «не хватает рамки»)", () => {
+  const css = read("packages/styles/src/components/ColorPicker/ColorPicker.module.css")
+
+  test("the grid, spectrum, tracks and colors draw a hairline inside their edge, and the knobs ring with it", () => {
+    expect(css.match(/inset 0 0 0 1px var\(--color-picker-edge-color\)/g)?.length).toBe(4)
+    expect(css).toMatch(/\.Grid \{[^}]*position: relative;[\s\S]*?&::after \{[^}]*box-shadow: inset 0 0 0 1px var\(--color-picker-edge-color\)/)
+    expect(read("packages/styles/src/styles/variables-components.css")).toMatch(/--color-picker-edge-color: light-dark\(var\(--alpha-10\), var\(--alpha-15\)\);/)
+    expect(css.match(/box-shadow: 0 0 0 1px var\(--color-picker-edge-color\), var\(--color-picker-knob-shadow\);/g)?.length).toBe(2)
+  })
+})

@@ -110,6 +110,9 @@
   --button-gutter-md: var(--field-row-padding-inline);
   --button-icon-size-md: var(--field-row-icon-symbol-size);
   --button-touch-radius: 0px;
+  /* The row is a cell, never a pill: a global or provider pill default does not round it or widen its inset */
+  --button-radius: 0px;
+  --control-gutter-pill-scaling: 1;
   --button-justify-content: flex-start;
   text-align: start;
 
@@ -291,6 +294,19 @@
   .Body > [data-sortable]:last-child > [data-row]:last-child > :is(button, a)[data-block][data-variant="ghost"]::before {
     border-end-start-radius: var(--field-group-radius);
     border-end-end-radius: var(--field-group-radius);
+  }
+
+  /* A held row is a cell highlighted as iOS 27.2 draws one (ref-app press): systemGray4 over the whole cell to the
+     card's corners (209,209,214 on white, 58,58,60 on #1c1c1e), the nearest PlexUI alpha of each theme (alpha-20
+     shows 207 on white, alpha-12 55 on gray-150), the same gray under every tint, a destructive row too. Its words
+     keep their color and nothing scales; it shows at once and fades when the finger lifts (Button.module.css). */
+  .Body > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
+  .Body > [data-sortable] > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
+  .Body > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"],
+  .Body > [data-sortable] > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"] {
+    --button-background-color-active: var(--field-row-press-background);
+    --button-press-fill-opacity: 1;
+    --button-press-text-color: var(--button-text-color);
   }
 
   /* An open popup is not a held press. Keep selection and explicit glass

@@ -996,6 +996,53 @@
     }
   }
 
+  /* A press as iOS 27.2 highlights a button (ref-app press, UIButton configurations held, light and dark): nothing
+     scales; the label lightens toward white, 30% in light (0,157,255 to 77,183,255) and 22% in dark (0,165,255 to
+     60,183,255); a borderless (ghost) button draws no fill, only its label changes; a filled (solid) one lightens
+     its fill by the same mix; a tinted (soft) or gray one fades its fill (217,238,255 to 231,244,255 on white, 237 to
+     242 for gray), and an outline one with it. It shows at once and fades when the finger lifts. A glass button keeps
+     its own press, and a row of a list its gray fill (FieldGroup); so does a button a bar or a group makes glass
+     (--button-mobile-material-opacity 1, Toolbar, Page, ButtonGroup): its fill stays and its label does not change. */
+  .Button[data-variant]:not([data-mobile-material="glass"], [data-disabled]):active {
+    color: var(
+      --button-press-text-color,
+      light-dark(
+        color-mix(in srgb, var(--button-text-color), #fff calc(30% * (1 - var(--button-mobile-material-opacity, 0)))),
+        color-mix(in srgb, var(--button-text-color), #fff calc(22% * (1 - var(--button-mobile-material-opacity, 0))))
+      )
+    );
+    transition-duration: 0s;
+
+    &::before,
+    &::after {
+      transform: none;
+      transition-duration: 0s;
+    }
+  }
+
+  .Button[data-variant="ghost"]:not([data-mobile-material="glass"], [data-disabled]):active::before {
+    opacity: var(--button-press-fill-opacity, var(--button-mobile-material-opacity, 0));
+  }
+
+  .Button:is([data-variant="soft"], [data-variant="outline"]):not([data-mobile-material="glass"], [data-disabled]):active::before {
+    opacity: var(--button-press-fill-opacity, calc(0.7 + 0.3 * var(--button-mobile-material-opacity, 0)));
+  }
+
+  .Button[data-variant="soft"]:not([data-mobile-material="glass"], [data-disabled]):active::before {
+    background-color: var(--button-mobile-material-active, var(--button-background-color));
+  }
+
+  .Button[data-variant="outline"]:not([data-mobile-material="glass"], [data-disabled]):active::before {
+    background-color: var(--button-mobile-material-active, var(--button-outline-context-background, var(--button-outline-background)));
+  }
+
+  .Button[data-variant="solid"]:not([data-mobile-material="glass"], [data-disabled]):active::before {
+    background-color: light-dark(
+      color-mix(in srgb, var(--button-background-color), #fff 30%),
+      color-mix(in srgb, var(--button-background-color), #fff 22%)
+    );
+  }
+
   /* A disabled button labels in the tertiary label, as the iOS 27 kit's content-area button (Button - Content Area
      40:58696, Is Enabled=False: 60,60,67 at 30%, 196 on white, in every style, destructive too), where the desktop
      gray-400 read 143. With touch.css its fill is the gray of an enabled gray button, as iOS 27.2 draws a disabled

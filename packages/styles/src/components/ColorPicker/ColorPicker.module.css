@@ -26,12 +26,22 @@
 /* ===== Grid ===== */
 
 .Grid {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   grid-template-rows: repeat(10, 1fr);
   height: 100%;
   overflow: hidden;
   border-radius: var(--color-picker-body-radius);
+
+  &::after {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px var(--color-picker-edge-color);
+    content: "";
+    pointer-events: none;
+  }
 }
 
 .Cell {
@@ -68,6 +78,7 @@
   background:
     linear-gradient(to right, #fff, rgb(255 255 255 / 0%) 50%, rgb(0 0 0 / 0%) 50%, #000),
     linear-gradient(to bottom, #f00, #ff0 16.667%, #0f0 33.333%, #0ff 50%, #00f 66.667%, #f0f 83.333%, #f00);
+  box-shadow: inset 0 0 0 1px var(--color-picker-edge-color);
   cursor: crosshair;
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
@@ -89,7 +100,8 @@
   box-sizing: border-box;
   border: var(--color-picker-knob-border) solid var(--color-picker-selection-color);
   border-radius: var(--radius-full);
-  box-shadow: var(--color-picker-knob-shadow);
+  /* Ringed in the edge color here, so an override of it at any scope reaches the ring */
+  box-shadow: 0 0 0 1px var(--color-picker-edge-color), var(--color-picker-knob-shadow);
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
@@ -157,6 +169,7 @@
   padding: var(--color-picker-track-inset);
   box-sizing: border-box;
   border-radius: var(--radius-full);
+  box-shadow: inset 0 0 0 1px var(--color-picker-edge-color);
   background:
     var(--color-picker-track),
     var(--color-picker-checker) 0 0 / calc(2 * var(--color-picker-checker-size)) calc(2 * var(--color-picker-checker-size));
@@ -186,7 +199,8 @@
   box-sizing: border-box;
   border: var(--color-picker-knob-border) solid var(--color-picker-selection-color);
   border-radius: var(--radius-full);
-  box-shadow: var(--color-picker-knob-shadow);
+  /* Ringed in the edge color here, so an override of it at any scope reaches the ring */
+  box-shadow: 0 0 0 1px var(--color-picker-edge-color), var(--color-picker-knob-shadow);
   cursor: grab;
 
   &:focus {
@@ -259,6 +273,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
+  box-shadow: inset 0 0 0 1px var(--color-picker-edge-color);
 }
 
 .Saved {

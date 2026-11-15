@@ -298,6 +298,8 @@
     /* A full row's hover with a mouse: the light fill of a table row, not a button's (owner 14.11: «цвет hover
        слишком темный») */
     --field-row-hover-background: light-dark(var(--alpha-03), var(--alpha-05));
+    /* A held row on a phone: iOS systemGray4 (FieldGroup.module.css) */
+    --field-row-press-background: light-dark(var(--alpha-20), var(--alpha-12));
     --field-row-icon-size: 32px;
     --field-row-icon-gap: 12px;
     --field-row-icon-offset: 0px;
@@ -843,6 +845,10 @@
     --color-picker-checker-size: 6px;
     --color-picker-knob-size: 24px;
     --color-picker-knob-border: 2px;
+    /* A hairline inside the edge of every color surface (the grid, the spectrum, the tracks, the current and saved
+       colors), as iOS draws one round a color well, so white reads on a white popover and black on a dark one; the
+       knobs and the loupe ring themselves with it (owner 15.11 via the console: «не хватает рамки»). */
+    --color-picker-edge-color: light-dark(var(--alpha-10), var(--alpha-15));
     --color-picker-knob-shadow: 0 0 3px rgb(0 0 0 / 10%);
     --color-picker-loupe-size: 22px;
     --color-picker-field-gap: 8px;
