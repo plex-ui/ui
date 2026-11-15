@@ -58,6 +58,7 @@ function SettingsDemo({ columns }: { columns?: boolean }) {
                       value={values[item.id]}
                       description={item.description}
                       disabled={item.disabled}
+                      valuePlacement={item.valuePlacement}
                       onClick={() => setOpen(item.id)}
                     />
                   ))}

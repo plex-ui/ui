@@ -1454,7 +1454,7 @@ Props:
     - value (string | null) — The controlled color, `#rrggbb` or `#rrggbbaa`; `null` shows the well with no color
     - defaultValue (string | null) default: null — The color when it is initially rendered
     - onChange ((value: string) => void) — Called with the color the picker chose
-    - size ("sm" | "lg") default: "sm" — 28px or 36px
+    - size ("xs" | "sm" | "lg") default: "sm" — 28px or 36px, or 24px (`xs`) at the start of a 32px field
     - title (string) default: "Colors" — The title of the picker
     - supportsEyedropper (boolean) default: true — Shows the eyedropper where the browser has the EyeDropper API
     - disabled (boolean) default: false — Prevents opening the picker
@@ -4696,12 +4696,13 @@ Props:
   - target, rel, download (string) — Attributes of the link, with `href`
   - external (boolean) — Treats `href` as a link out of the app (a new tab)
   - disabled (boolean) default: false — The row can't be pressed. A disabled link renders as a disabled button, so it never navigates
+  - valuePlacement ("end" | "below" | "auto") default: "end" — Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it
   - onClick ((event: MouseEvent) => void) — Called when the row is pressed
   - ref (Ref<HTMLButtonElement | HTMLAnchorElement>) — The pressable of the row: the button, or the element of the link
   - className (string) — CSS classes applied to the pressable
 
 ### Overview
-Put the rows in a FieldGroup: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The value stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A description adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A disabled row greys all of it and can&apos;t be pressed. With href the row is a link through the linkComponent of PlexUIProvider (or as), for a router&apos;s page.
+Put the rows in a FieldGroup: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The value stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A description adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A disabled row greys all of it and can&apos;t be pressed. A value too long to stand beside the label on one line goes under it with valuePlacement="auto", at the full width of the text, and a description under the value, as Calendar sets a long value (below puts it there always). With href the row is a link through the linkComponent of PlexUIProvider (or as), for a router&apos;s page.
 ```tsx
 <FieldGroup>
 <NavigationRow label="Language" value={language} onClick={() => open("language")} />
@@ -4716,6 +4717,12 @@ Put the rows in a FieldGroup: each is a row of the group, so its separators, cor
   onClick={() => open("fetch")}
 />
 <NavigationRow label="Temperature" value="°C" disabled />
+<NavigationRow
+  label="Default Alerts"
+  value={alerts}
+  valuePlacement="auto"
+  onClick={() => open("alerts")}
+/>
 </FieldGroup>
 <FieldGroup>
 <NavigationRow label="Accounts" value={accounts.length} href="/settings/accounts" />

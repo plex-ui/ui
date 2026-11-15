@@ -1246,9 +1246,9 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"lg\"",
+              "type": "\"xs\" | \"sm\" | \"lg\"",
               "default": "\"sm\"",
-              "description": "28px or 36px"
+              "description": "28px or 36px, or 24px (`xs`) at the start of a 32px field"
             },
             {
               "name": "title",
@@ -3830,6 +3830,12 @@
           "description": "The row can't be pressed. A disabled link renders as a disabled button, so it never navigates"
         },
         {
+          "name": "valuePlacement",
+          "type": "\"end\" | \"below\" | \"auto\"",
+          "default": "\"end\"",
+          "description": "Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it"
+        },
+        {
           "name": "onClick",
           "type": "(event: MouseEvent) => void",
           "description": "Called when the row is pressed"
@@ -3848,8 +3854,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<FieldGroup>\n<NavigationRow label=\"Language\" value={language} onClick={() => open(\"language\")} />\n<NavigationRow label=\"Region\" value={region} onClick={() => open(\"region\")} />\n<NavigationRow label=\"Calendar\" value={calendar} onClick={() => open(\"calendar\")} />\n</FieldGroup>\n<FieldGroup>\n<NavigationRow\n  label=\"Fetch New Data\"\n  description=\"How new mail arrives\"\n  value={fetch}\n  onClick={() => open(\"fetch\")}\n/>\n<NavigationRow label=\"Temperature\" value=\"°C\" disabled />\n</FieldGroup>\n<FieldGroup>\n<NavigationRow label=\"Accounts\" value={accounts.length} href=\"/settings/accounts\" />\n</FieldGroup>",
-          "details": "Put the rows in a FieldGroup: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The value stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A description adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A disabled row greys all of it and can&apos;t be pressed. With href the row is a link through the linkComponent of PlexUIProvider (or as), for a router&apos;s page."
+          "code": "<FieldGroup>\n<NavigationRow label=\"Language\" value={language} onClick={() => open(\"language\")} />\n<NavigationRow label=\"Region\" value={region} onClick={() => open(\"region\")} />\n<NavigationRow label=\"Calendar\" value={calendar} onClick={() => open(\"calendar\")} />\n</FieldGroup>\n<FieldGroup>\n<NavigationRow\n  label=\"Fetch New Data\"\n  description=\"How new mail arrives\"\n  value={fetch}\n  onClick={() => open(\"fetch\")}\n/>\n<NavigationRow label=\"Temperature\" value=\"°C\" disabled />\n<NavigationRow\n  label=\"Default Alerts\"\n  value={alerts}\n  valuePlacement=\"auto\"\n  onClick={() => open(\"alerts\")}\n/>\n</FieldGroup>\n<FieldGroup>\n<NavigationRow label=\"Accounts\" value={accounts.length} href=\"/settings/accounts\" />\n</FieldGroup>",
+          "details": "Put the rows in a FieldGroup: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The value stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A description adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A disabled row greys all of it and can&apos;t be pressed. A value too long to stand beside the label on one line goes under it with valuePlacement=\"auto\", at the full width of the text, and a description under the value, as Calendar sets a long value (below puts it there always). With href the row is a link through the linkComponent of PlexUIProvider (or as), for a router&apos;s page."
         },
         {
           "name": "Columns",
@@ -7564,5 +7570,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-15T16:55:27.738Z"
+  "generatedAt": "2026-11-15T18:32:16.159Z"
 }

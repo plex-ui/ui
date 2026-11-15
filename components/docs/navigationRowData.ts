@@ -1,5 +1,12 @@
 /** The drill-in rows of the NavigationRow demos and the choices each one opens */
-export type NavigationRowChoice = { id: string; label: string; description?: string; choices: string[]; disabled?: boolean };
+export type NavigationRowChoice = {
+  id: string;
+  label: string;
+  description?: string;
+  choices: string[];
+  disabled?: boolean;
+  valuePlacement?: 'end' | 'below' | 'auto';
+};
 
 export const NAVIGATION_ROW_GROUPS: NavigationRowChoice[][] = [
   [
@@ -10,6 +17,12 @@ export const NAVIGATION_ROW_GROUPS: NavigationRowChoice[][] = [
   [
     { id: 'fetch', label: 'Fetch New Data', description: 'How new mail arrives', choices: ['Push', 'Every 15 Minutes', 'Hourly', 'Manually'] },
     { id: 'temperature', label: 'Temperature', choices: ['°C', '°F'], disabled: true },
+    {
+      id: 'alerts',
+      label: 'Default Alerts',
+      choices: ['At time of event, 15 minutes before, 1 day before', '15 minutes before', 'None'],
+      valuePlacement: 'auto',
+    },
   ],
 ];
 

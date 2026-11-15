@@ -45,6 +45,7 @@ const template = (columns: boolean) => `<div class="${pageStyles.Frame}">
           :value="values[row.id]"
           :description="row.description"
           :disabled="row.disabled"
+          :value-placement="row.valuePlacement"
           @click="open = row.id"
         />
       </FieldGroup>

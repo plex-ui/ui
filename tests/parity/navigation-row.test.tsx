@@ -29,6 +29,9 @@ describe("NavigationRow markup", () => {
     ["null value hides", { label: "Accounts", value: null }],
     ["description", { label: "Fetch New Data", description: "How new mail arrives", value: "Push" }],
     ["disabled", { label: "Temperature", value: "°C", disabled: true }],
+    ["value below", { label: "Tags", value: "Vegan, Gluten free, Spicy, Contains nuts", valuePlacement: "below", description: "Shown on the menu" }],
+    ["value below without a value stays end", { label: "Tags", valuePlacement: "below" }],
+    ["auto that fits", { label: "Category", value: "Mains", valuePlacement: "auto" }],
     ["link", { label: "Accounts", value: 2, href: "/settings/accounts" }],
     ["disabled link is a disabled button", { label: "Accounts", value: 2, href: "/settings/accounts", disabled: true }],
     [
@@ -142,5 +145,36 @@ describe("NavigationRow CSS", () => {
     expect(css).toMatch(/\.Label,\s*\.Description \{[^}]*overflow-wrap: break-word/)
     expect(css).toMatch(/\.Pressable:dir\(rtl\) \.Disclosure \{\s*transform: scaleX\(-1\)/)
     expect(css).toMatch(/\[data-field-columns\] \.NavigationRow \{\s*--field-row-gap: 16px/)
+  })
+})
+
+describe("NavigationRow valuePlacement (console 15.11, DEC-190)", () => {
+  const css = read("packages/styles/src/components/NavigationRow/NavigationRow.module.css")
+
+  test("below: the value under the label at full width, start-aligned and secondary, the description under it", () => {
+    expect(css).toMatch(/\[data-value-below\] \.Text \{\s*display: contents;/)
+    expect(css).toMatch(/\[data-value-below\] \.Value \{\s*grid-area: 2 \/ 1;\s*max-width: none;\s*margin: 0;[^}]*text-align: start;/)
+    expect(css).toMatch(/\[data-value-below\] \.Description \{\s*grid-area: 3 \/ 1;/)
+    expect(css).toMatch(/\[data-value-below\] \.Pressable:not\(\[data-disabled\]\) \.Value \{/)
+    expect(css).toMatch(/\[data-measuring\] \.Description \{\s*display: none;/)
+  })
+
+  test("auto moves the value below when the label and value do not fit on one line, in React and Vue", async () => {
+    const proto = HTMLElement.prototype
+    const scroll = Object.getOwnPropertyDescriptor(proto, "scrollWidth")
+    const client = Object.getOwnPropertyDescriptor(proto, "clientWidth")
+    Object.defineProperty(proto, "scrollWidth", { configurable: true, get() { return this.hasAttribute?.("data-navigation-row-content") ? 400 : 0 } })
+    Object.defineProperty(proto, "clientWidth", { configurable: true, get() { return this.hasAttribute?.("data-navigation-row-content") ? 300 : 0 } })
+    try {
+      const { container } = render(<RNavigationRow label="Nutrition" value="Calories, Protein, Fat, Carbohydrates" valuePlacement="auto" />)
+      expect(container.firstElementChild!.hasAttribute("data-value-below")).toBe(true)
+      const { unmount } = mountVue(() => h(NavigationRow, { label: "Nutrition", value: "Calories, Protein, Fat, Carbohydrates", valuePlacement: "auto" }))
+      await flushVue()
+      expect(document.querySelectorAll("[data-value-below]").length).toBe(2)
+      unmount()
+    } finally {
+      if (scroll) Object.defineProperty(proto, "scrollWidth", scroll)
+      if (client) Object.defineProperty(proto, "clientWidth", client)
+    }
   })
 })

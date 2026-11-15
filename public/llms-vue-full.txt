@@ -1420,7 +1420,7 @@ Props:
   ColorWell:
     - value (string | null) — The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value. `null` shows the well with no color
     - default-value (string | null) default: null — The color when it is initially rendered
-    - size ("sm" | "lg") default: "sm" — 28px or 36px
+    - size ("xs" | "sm" | "lg") default: "sm" — 28px or 36px, or 24px (`xs`) at the start of a 32px field
     - title (string) default: "Colors" — The title of the picker
     - supports-eyedropper (boolean) default: true — Shows the eyedropper where the browser has the EyeDropper API
     - disabled (boolean) default: false — Prevents opening the picker
@@ -4673,9 +4673,10 @@ Props:
   - as (Component | "a") — The link component, such as a router's link
   - external (boolean) — Treats the link as one out of the app (a new tab)
   - disabled (boolean) default: false — The row can't be pressed. A disabled link renders as a disabled button, so it never navigates
+  - valuePlacement ("end" | "below" | "auto") default: "end" — Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it
 
 ### Overview
-Put the rows in a FieldGroup: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The value stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A description adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A disabled row greys all of it and can&apos;t be pressed. With to or href the row is a link through the linkComponent of PlexUIProvider (or as), for a router&apos;s page.
+Put the rows in a FieldGroup: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The value stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A description adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A disabled row greys all of it and can&apos;t be pressed. A value too long to stand beside the label on one line goes under it with valuePlacement="auto", at the full width of the text, and a description under the value, as Calendar sets a long value (below puts it there always). With to or href the row is a link through the linkComponent of PlexUIProvider (or as), for a router&apos;s page.
 ```vue
 <FieldGroup>
   <NavigationRow label="Language" :value="language" @click="open('language')" />
@@ -4690,6 +4691,12 @@ Put the rows in a FieldGroup: each is a row of the group, so its separators, cor
     @click="open('fetch')"
   />
   <NavigationRow label="Temperature" value="°C" disabled />
+  <NavigationRow
+    label="Default Alerts"
+    :value="alerts"
+    value-placement="auto"
+    @click="open('alerts')"
+  />
 </FieldGroup>
 <FieldGroup>
   <NavigationRow label="Accounts" :value="accounts.length" to="/settings/accounts" />

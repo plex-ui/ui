@@ -256,7 +256,7 @@ Props:
     - value (string | null) — The controlled color, `#rrggbb` or `#rrggbbaa`; `null` shows the well with no color
     - defaultValue (string | null) default: null — The color when it is initially rendered
     - onChange ((value: string) => void) — Called with the color the picker chose
-    - size ("sm" | "lg") default: "sm" — 28px or 36px
+    - size ("xs" | "sm" | "lg") default: "sm" — 28px or 36px, or 24px (`xs`) at the start of a 32px field
     - title (string) default: "Colors" — The title of the picker
     - supportsEyedropper (boolean) default: true — Shows the eyedropper where the browser has the EyeDropper API
     - disabled (boolean) default: false — Prevents opening the picker
@@ -734,6 +734,7 @@ Props:
   - target, rel, download (string) — Attributes of the link, with `href`
   - external (boolean) — Treats `href` as a link out of the app (a new tab)
   - disabled (boolean) default: false — The row can't be pressed. A disabled link renders as a disabled button, so it never navigates
+  - valuePlacement ("end" | "below" | "auto") default: "end" — Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it
   - onClick ((event: MouseEvent) => void) — Called when the row is pressed
   - ref (Ref<HTMLButtonElement | HTMLAnchorElement>) — The pressable of the row: the button, or the element of the link
   - className (string) — CSS classes applied to the pressable

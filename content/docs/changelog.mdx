@@ -17,6 +17,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - A row of a `FieldGroup` is never rounded or widened as a pill, whatever the button's or the provider's `pill`.
 - `ColorPicker` draws a hairline inside the edge of the grid, the spectrum, the tracks and the current and saved colors, and rings its knobs and loupe with it, so white reads on a white popover and black on a dark one. New token `--color-picker-edge-color`.
 - The action of a `FieldGroup` header never changes the header's height, on a phone or a desktop: it stands centred over its line and overflows it by up to 8px each way, 6 on a phone (`--field-group-header-action-overflow`), so the rows below stay put when it comes and goes.
+- `NavigationRow` takes `valuePlacement`: `"below"` sets the value under the label at the full width of the text, in the secondary label, with the description under it; `"auto"` keeps it at the end while it fits beside the label on one line and moves it below otherwise, as Calendar sets a long value.
 - `ColorWell` takes `size="xs"`, 24px, for the start of a 32px field (`--color-well-size-xs`).
 
 ## 0.54.1 (2026-11-15)

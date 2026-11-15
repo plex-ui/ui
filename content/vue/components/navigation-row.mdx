@@ -19,6 +19,12 @@ export const overview = `<FieldGroup>
     @click="open('fetch')"
   />
   <NavigationRow label="Temperature" value="°C" disabled />
+  <NavigationRow
+    label="Default Alerts"
+    :value="alerts"
+    value-placement="auto"
+    @click="open('alerts')"
+  />
 </FieldGroup>
 <FieldGroup>
   <NavigationRow label="Accounts" :value="accounts.length" to="/settings/accounts" />
@@ -37,7 +43,7 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Put the rows in a <code>FieldGroup</code>: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The <code>value</code> stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A <code>description</code> adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A <code>disabled</code> row greys all of it and can&apos;t be pressed. With <code>to</code> or <code>href</code> the row is a link through the <code>linkComponent</code> of <code>PlexUIProvider</code> (or <code>as</code>), for a router&apos;s page.</>} code={overview}>
+<ComponentPreview language="vue" details={<>Put the rows in a <code>FieldGroup</code>: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The <code>value</code> stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A <code>description</code> adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A <code>disabled</code> row greys all of it and can&apos;t be pressed. A value too long to stand beside the label on one line goes under it with <code>valuePlacement="auto"</code>, at the full width of the text, and a description under the value, as Calendar sets a long value (<code>below</code> puts it there always). With <code>to</code> or <code>href</code> the row is a link through the <code>linkComponent</code> of <code>PlexUIProvider</code> (or <code>as</code>), for a router&apos;s page.</>} code={overview}>
   <VueNavigationRowOverviewDemo />
 </ComponentPreview>
 
@@ -60,6 +66,7 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
   { prop: "as", type: "Component | \"a\"", description: "The link component, such as a router's link" },
   { prop: "external", type: "boolean", description: "Treats the link as one out of the app (a new tab)" },
   { prop: "disabled", type: "boolean", default: "false", description: "The row can't be pressed. A disabled link renders as a disabled button, so it never navigates" },
+  { prop: "valuePlacement", type: "\"end\" | \"below\" | \"auto\"", default: "\"end\"", description: "Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it" },
 ]} />
 
 **Slots**: `label`, `value`, `description`, in place of their props.

@@ -14,7 +14,7 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
 
 ### Overview
 
-<ComponentPreview details={<>Put the rows in a <code>FieldGroup</code>: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The <code>value</code> stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A <code>description</code> adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A <code>disabled</code> row greys all of it and can&apos;t be pressed. With <code>href</code> the row is a link through the <code>linkComponent</code> of <code>PlexUIProvider</code> (or <code>as</code>), for a router&apos;s page.</>} code={`<FieldGroup>
+<ComponentPreview details={<>Put the rows in a <code>FieldGroup</code>: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The <code>value</code> stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A <code>description</code> adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A <code>disabled</code> row greys all of it and can&apos;t be pressed. A value too long to stand beside the label on one line goes under it with <code>valuePlacement="auto"</code>, at the full width of the text, and a description under the value, as Calendar sets a long value (<code>below</code> puts it there always). With <code>href</code> the row is a link through the <code>linkComponent</code> of <code>PlexUIProvider</code> (or <code>as</code>), for a router&apos;s page.</>} code={`<FieldGroup>
   <NavigationRow label="Language" value={language} onClick={() => open("language")} />
   <NavigationRow label="Region" value={region} onClick={() => open("region")} />
   <NavigationRow label="Calendar" value={calendar} onClick={() => open("calendar")} />
@@ -27,6 +27,12 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
     onClick={() => open("fetch")}
   />
   <NavigationRow label="Temperature" value="°C" disabled />
+  <NavigationRow
+    label="Default Alerts"
+    value={alerts}
+    valuePlacement="auto"
+    onClick={() => open("alerts")}
+  />
 </FieldGroup>
 <FieldGroup>
   <NavigationRow label="Accounts" value={accounts.length} href="/settings/accounts" />
@@ -56,6 +62,7 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
   { prop: "target, rel, download", type: "string", description: "Attributes of the link, with `href`" },
   { prop: "external", type: "boolean", description: "Treats `href` as a link out of the app (a new tab)" },
   { prop: "disabled", type: "boolean", default: "false", description: "The row can't be pressed. A disabled link renders as a disabled button, so it never navigates" },
+  { prop: "valuePlacement", type: "\"end\" | \"below\" | \"auto\"", default: "\"end\"", description: "Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it" },
   { prop: "onClick", type: "(event: MouseEvent) => void", description: "Called when the row is pressed" },
   { prop: "ref", type: "Ref<HTMLButtonElement | HTMLAnchorElement>", description: "The pressable of the row: the button, or the element of the link" },
   { prop: "className", type: "string", description: "CSS classes applied to the pressable" },

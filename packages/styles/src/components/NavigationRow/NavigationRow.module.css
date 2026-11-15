@@ -135,3 +135,58 @@
 [data-field-columns] .NavigationRow:not([data-value]) .Text {
   grid-column: 1 / 3;
 }
+
+/* valuePlacement="below", or "auto" when the value does not fit beside the label on one line (as Calendar sets a long
+   value): the value stands under the label at the full width of the text, in the secondary label, and the description
+   under it, also at full width; the chevron stays at the end, centred on the row. The row's padding is unchanged. */
+.NavigationRow[data-value-below] .Content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--field-row-disclosure-gap, 8px);
+  align-items: center;
+}
+
+.NavigationRow[data-value-below] .Text {
+  display: contents;
+}
+
+.NavigationRow[data-value-below] .Label {
+  grid-area: 1 / 1;
+}
+
+.NavigationRow[data-value-below] .Value {
+  grid-area: 2 / 1;
+  max-width: none;
+  margin: 0;
+  overflow-wrap: break-word;
+  text-align: start;
+}
+
+/* In the secondary label, with columns too; a disabled row keeps its grey */
+.NavigationRow[data-value-below] .Pressable:not([data-disabled]) .Value {
+  color: var(--navigation-row-value-color, var(--mobile-label-secondary, var(--color-text-secondary)));
+}
+
+.NavigationRow[data-value-below] .Description {
+  grid-area: 3 / 1;
+}
+
+.NavigationRow[data-value-below] .Disclosure {
+  grid-area: 1 / 2 / span 3 / 3;
+}
+
+/* "auto" measures the label and the value on one line each, beside each other, in the end layout's own limits (the
+   value's cap, a columns label's column): it fits when neither overflows its box and the row does not overflow. */
+.NavigationRow[data-measuring] .Text {
+  flex: none;
+}
+
+/* The description wraps under the label in the end layout, so it does not count */
+.NavigationRow[data-measuring] .Description {
+  display: none;
+}
+
+.NavigationRow[data-measuring] :is(.Label, .Value) {
+  overflow: hidden;
+  white-space: nowrap;
+}

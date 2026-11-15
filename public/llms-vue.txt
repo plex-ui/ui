@@ -253,7 +253,7 @@ Props:
   ColorWell:
     - value (string | null) — The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value. `null` shows the well with no color
     - default-value (string | null) default: null — The color when it is initially rendered
-    - size ("sm" | "lg") default: "sm" — 28px or 36px
+    - size ("xs" | "sm" | "lg") default: "sm" — 28px or 36px, or 24px (`xs`) at the start of a 32px field
     - title (string) default: "Colors" — The title of the picker
     - supports-eyedropper (boolean) default: true — Shows the eyedropper where the browser has the EyeDropper API
     - disabled (boolean) default: false — Prevents opening the picker
@@ -726,6 +726,7 @@ Props:
   - as (Component | "a") — The link component, such as a router's link
   - external (boolean) — Treats the link as one out of the app (a new tab)
   - disabled (boolean) default: false — The row can't be pressed. A disabled link renders as a disabled button, so it never navigates
+  - valuePlacement ("end" | "below" | "auto") default: "end" — Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it
 Examples: Overview, Columns
 
 ## OTP Input
