@@ -62,3 +62,16 @@ describe("press on a phone", () => {
     expect(rule.slice(rule.indexOf(".Field"))).not.toContain('role="switch"')
   })
 })
+
+describe("FieldGroup header and ColorWell xs (console 15.11)", () => {
+  test("a header's action stands centred and overflows its line, so it never sets the header's height", () => {
+    const css = read(fieldGroup)
+    expect(css).toMatch(/\.Header > :not\(\.HeaderText\) \{\s*align-self: center;\s*margin-block: calc\(-1 \* var\(--field-group-header-action-overflow, 8px\)\);/)
+    expect(css).toMatch(/\.Header > button\[data-variant="ghost"\]:not\(\[data-uniform\]\) \{[^}]*align-self: flex-end;/)
+  })
+
+  test("ColorWell has an xs of 24px", () => {
+    expect(read("packages/styles/src/styles/variables-components.css")).toMatch(/--color-well-size-xs: 24px;/)
+    expect(read("packages/styles/src/components/ColorPicker/ColorPicker.module.css")).toMatch(/&\[data-size="xs"\] \{\s*--color-well-size: var\(--color-well-size-xs\);/)
+  })
+})

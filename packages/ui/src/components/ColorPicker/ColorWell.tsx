@@ -26,8 +26,8 @@ export type ColorWellProps = Omit<ColorPickerProps, "value" | "defaultValue" | "
   title?: string
   /** Shows the eyedropper in the picker where the browser can pick a color from the screen (EyeDropper API). @default true */
   supportsEyedropper?: boolean
-  /** The kit's Picker Button sizes: `sm` 28px, `lg` 36px. @default "sm" */
-  size?: "sm" | "lg"
+  /** The kit's Picker Button sizes, `sm` 28px and `lg` 36px, and `xs` 24px for the start of a 32px field. @default "sm" */
+  size?: "xs" | "sm" | "lg"
   /** When `true`, prevents the user from opening the picker. */
   disabled?: boolean
   /** The name of the well. Submits its color with the owning form. */

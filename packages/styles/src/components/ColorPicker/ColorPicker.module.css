@@ -390,6 +390,11 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 
+  /* For a field: a 24 ring in a 32 input keeps 4 to its edge all round (console 15.11) */
+  &[data-size="xs"] {
+    --color-well-size: var(--color-well-size-xs);
+  }
+
   &[data-size="sm"] {
     --color-well-size: var(--color-well-size-sm);
   }

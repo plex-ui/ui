@@ -93,7 +93,7 @@ A color well shows a color and opens the system color picker, where people choos
 <PropsTable data={[
   { prop: "value", type: "string | null", description: "The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value. `null` shows the well with no color" },
   { prop: "default-value", type: "string | null", default: "null", description: "The color when it is initially rendered" },
-  { prop: "size", type: "\"sm\" | \"lg\"", default: "\"sm\"", description: "28px or 36px" },
+  { prop: "size", type: "\"xs\" | \"sm\" | \"lg\"", default: "\"sm\"", description: "28px or 36px, or 24px (`xs`) at the start of a 32px field" },
   { prop: "title", type: "string", default: "\"Colors\"", description: "The title of the picker" },
   { prop: "supports-eyedropper", type: "boolean", default: "true", description: "Shows the eyedropper where the browser has the EyeDropper API" },
   { prop: "disabled", type: "boolean", default: "false", description: "Prevents opening the picker" },

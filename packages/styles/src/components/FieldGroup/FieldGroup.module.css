@@ -19,6 +19,16 @@
   min-width: 0;
 }
 
+/* The action does not set the header's height, as a button in an iOS section header does not: it stands centred and
+   overflows its line by up to 8px each way (6 on a phone), into the header's own space, so the rows below do not move when it comes
+   and goes (console 15.11: «прыгают контролы»): a 34 button on a phone's 22 line, a 40 one in a desktop header. A
+   taller action grows the header rather than cover the first row. A phone's text action keeps its place on the
+   title's last line (below). */
+.Header > :not(.HeaderText) {
+  align-self: center;
+  margin-block: calc(-1 * var(--field-group-header-action-overflow, 8px));
+}
+
 .Title {
   margin: 0;
   padding-inline: var(--field-group-title-padding-inline);
@@ -178,6 +188,8 @@
     /* Each group reads its own pairing: a group inside another does not take the outer one's (Codex #39) */
     --field-group-gap-footer-offset: 0px;
     --field-group-gap-header-offset: 0px;
+    /* The phone header keeps 6 under its line: a 34 action fits its 22 line exactly */
+    --field-group-header-action-overflow: 6px;
   }
 
   /* With touch.css, groups one after another space themselves as Settings does in iOS 27 (IMG_5944–5966, 430pt; checked
@@ -251,6 +263,7 @@
     --button-mobile-material-backdrop-filter: none;
 
     flex-shrink: 0;
+    align-self: flex-end;
     min-width: 44px;
     margin-block: calc((var(--field-row-label-line-height) - 44px) / 2);
     margin-inline-end: var(--field-group-title-padding-inline);

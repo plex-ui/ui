@@ -310,7 +310,7 @@ A secondary click opens it at the pointer; a touch and hold (500ms) opens it 18p
 
 **Import:** `@plexui/ui/components/ColorPicker` -- exports `ColorPicker`, `ColorWell`
 
-ColorWell props: `value` (`#rrggbb` / `#rrggbbaa` or `null`), `defaultValue` (null), `onChange`, `size` ("sm" 28px | "lg" 36px), `title` ("Colors"), `supportsEyedropper` (true), `disabled`, `name`, `aria-label`, `aria-labelledby`, plus the picker props below. It opens the picker in a Popover; under 768px in a sheet.
+ColorWell props: `value` (`#rrggbb` / `#rrggbbaa` or `null`), `defaultValue` (null), `onChange`, `size` ("xs" 24px, for the start of a 32px field | "sm" 28px | "lg" 36px), `title` ("Colors"), `supportsEyedropper` (true), `disabled`, `name`, `aria-label`, `aria-labelledby`, plus the picker props below. It opens the picker in a Popover; under 768px in a sheet.
 
 ColorPicker props: `value`, `defaultValue` ("#000000"), `onChange`, `supportsAlpha` (true), `mode` / `defaultMode` ("grid" | "spectrum" | "sliders"), `onModeChange`, `swatches` / `defaultSwatches` ([]), `onSwatchesChange`, `aria-label` ("Colors").
 

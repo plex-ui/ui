@@ -28,8 +28,8 @@ const ColorWellComponent = defineComponent({
     title: { type: String, default: "Colors" },
     /** Shows the eyedropper in the picker where the browser can pick a color from the screen (EyeDropper API). @default true */
     supportsEyedropper: { type: Boolean, default: true },
-    /** The kit's Picker Button sizes: `sm` 28px, `lg` 36px. @default "sm" */
-    size: { type: String as PropType<"sm" | "lg">, default: "sm" },
+    /** The kit's Picker Button sizes, `sm` 28px and `lg` 36px, and `xs` 24px for the start of a 32px field. @default "sm" */
+    size: { type: String as PropType<"xs" | "sm" | "lg">, default: "sm" },
     /** When `true`, prevents the user from opening the picker. */
     disabled: { type: Boolean, default: false },
     /** The name of the well. Submits its color with the owning form. */

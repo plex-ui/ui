@@ -58,7 +58,7 @@ const [swatches, setSwatches] = useState(['#000000', '#007aff', '#34c759'])
   { prop: "value", type: "string | null", description: "The controlled color, `#rrggbb` or `#rrggbbaa`; `null` shows the well with no color" },
   { prop: "defaultValue", type: "string | null", default: "null", description: "The color when it is initially rendered" },
   { prop: "onChange", type: "(value: string) => void", description: "Called with the color the picker chose" },
-  { prop: "size", type: "\"sm\" | \"lg\"", default: "\"sm\"", description: "28px or 36px" },
+  { prop: "size", type: "\"xs\" | \"sm\" | \"lg\"", default: "\"sm\"", description: "28px or 36px, or 24px (`xs`) at the start of a 32px field" },
   { prop: "title", type: "string", default: "\"Colors\"", description: "The title of the picker" },
   { prop: "supportsEyedropper", type: "boolean", default: "true", description: "Shows the eyedropper where the browser has the EyeDropper API" },
   { prop: "disabled", type: "boolean", default: "false", description: "Prevents opening the picker" },

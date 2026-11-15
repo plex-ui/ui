@@ -885,6 +885,7 @@
     ============================================= */
     /* The kit's Picker Button (5739:34128): an angular rainbow from yellow at the top, a 3px ring 2px from the color;
        28px and 36px. */
+    --color-well-size-xs: 24px;
     --color-well-size-sm: 28px;
     --color-well-size-lg: 36px;
     --color-well-ring-width: 3px;

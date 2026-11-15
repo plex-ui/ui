@@ -16,6 +16,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - On a phone every press is the one iOS 27.2 draws for its kind: a row of a `FieldGroup` (an action row, a `NavigationRow`, a choice row of a `Field`) fills in the gray of a highlighted cell to the card's corners and keeps its words; a `ghost` button draws no capsule and only lightens its label; a `solid` button lightens, a `soft` or `outline` one fades its fill; none of them scales. Glass buttons, menus and segmented controls keep their press. New token `--field-row-press-background`.
 - A row of a `FieldGroup` is never rounded or widened as a pill, whatever the button's or the provider's `pill`.
 - `ColorPicker` draws a hairline inside the edge of the grid, the spectrum, the tracks and the current and saved colors, and rings its knobs and loupe with it, so white reads on a white popover and black on a dark one. New token `--color-picker-edge-color`.
+- The action of a `FieldGroup` header never changes the header's height, on a phone or a desktop: it stands centred over its line and overflows it by up to 8px each way, 6 on a phone (`--field-group-header-action-overflow`), so the rows below stay put when it comes and goes.
+- `ColorWell` takes `size="xs"`, 24px, for the start of a 32px field (`--color-well-size-xs`).
 
 ## 0.54.1 (2026-11-15)
 
