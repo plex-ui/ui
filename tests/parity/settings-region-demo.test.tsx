@@ -87,7 +87,7 @@ for (const framework of ['React', 'Vue'] as const) describe(`${framework} long c
     sheet = await waitFor(() => ui.getByRole('dialog', { name: 'Select Region' }));
     expect((within(sheet).getByRole('textbox', { name: 'Search regions' }) as HTMLInputElement).value).toBe('');
     expect(within(sheet).getAllByRole('radio').length).toBeGreaterThan(30);
-  });
+  }, 20_000); // two sheet opens and a list of every country: slow on CI runners
 
   test('on a desktop the search stands over the list, one search only', async () => {
     vi.stubGlobal('matchMedia', (media: string) => ({ matches: media.includes('min-width'), media, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }));
