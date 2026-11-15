@@ -465,6 +465,18 @@
     --stepper-segment-background-disabled: var(--stepper-mobile-segment-background-disabled);
     --stepper-separator-color: var(--stepper-mobile-separator-color);
     --stepper-icon-disabled-color: var(--mobile-label-tertiary);
+    /* With showValue, the cart's quantity stepper of the owner's design (15.11): a 96 x 36 capsule in the tertiary
+       fill (the segments' own), two 36px segments with 20px symbols, the value 15/20 medium in the label color, at
+       least 24 wide. A held segment darkens a circle as a native segment darkens; one at an end turns tertiary. */
+    --stepper-value-height: 36px;
+    --stepper-value-radius: 18px;
+    --stepper-value-icon-size: 20px;
+    --stepper-value-background: var(--stepper-mobile-segment-background);
+    --stepper-value-segment-background-hover: transparent;
+    --stepper-value-segment-background-active: var(--stepper-mobile-segment-background-active);
+    --stepper-value-disabled-color: var(--mobile-label-tertiary);
+    --stepper-value-font-size: 15px;
+    --stepper-value-line-height: 20px;
     /* Color picker: iOS 27.2's UIColorPickerViewController on an iPhone 17 (measures/color.md). The Mode control is
        the small segmented control, 32px (ColorPicker.module.css), 15 over the grid of square cells. Labels are 13px
        caps in the secondary label color, their caps 18.7 over a 34px track whose 34px knob has a 3px white ring; the

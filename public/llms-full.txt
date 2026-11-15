@@ -7564,6 +7564,7 @@ Props:
   - autoRepeat (boolean) default: true — Holding a segment keeps stepping: after 400ms, every 100ms
   - disabled (boolean) default: false — Prevent interaction and focus
   - pill (boolean) default: true — Fully rounded ends
+  - showValue (boolean) default: false — Shows the value between the minus and the plus on one fill, as a cart's quantity: round segments, no separator
   - decrementLabel (string) default: "Decrease" — Accessible name of the minus segment
   - incrementLabel (string) default: "Increase" — Accessible name of the plus segment
   - onRemove (() => void) — Called when the minus is pressed at min; with it the minus there is a trash can that removes the item (not with wrap)
@@ -7578,19 +7579,20 @@ Props:
   - className (string) — CSS classes applied to the stepper
 
 ### Overview
-Put a stepper in a Field row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set pill to false for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.
+Put a stepper in a Field row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. With showValue the value stands between the minus and the plus on one fill, as a cart's quantity does, and the row's label only names it, such as Copies; on a phone it is a 96 × 36 capsule with round 36px segments and the value at 15px medium. On a desktop set pill to false for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.
 ```tsx
 const [disabled, setDisabled] = useState(false)
+const [showValue, setShowValue] = useState(false)
 const [pill, setPill] = useState(true) // a desktop setting: on a phone the stepper is always a capsule
 const [copies, setCopies] = useState(1)
 const [nights, setNights] = useState(3)
 
 <FieldGroup footer="Up to 20 copies and 14 nights.">
-<Field row label={copies === 1 ? '1 copy' : `${copies} copies`}>
-  <Stepper value={copies} onChange={setCopies} min={1} max={20} disabled={disabled} pill={pill} />
+<Field row label={showValue ? 'Copies' : copies === 1 ? '1 copy' : `${copies} copies`}>
+  <Stepper value={copies} onChange={setCopies} min={1} max={20} disabled={disabled} showValue={showValue} pill={pill} />
 </Field>
-<Field row label={nights === 1 ? '1 night' : `${nights} nights`}>
-  <Stepper value={nights} onChange={setNights} min={1} max={14} disabled={disabled} pill={pill} />
+<Field row label={showValue ? 'Nights' : nights === 1 ? '1 night' : `${nights} nights`}>
+  <Stepper value={nights} onChange={setNights} min={1} max={14} disabled={disabled} showValue={showValue} pill={pill} />
 </Field>
 </FieldGroup>
 ```
@@ -7610,17 +7612,18 @@ Decimal steps add without rounding drift. With wrap a step past max continues fr
 </FieldGroup>
 ```
 
-### Remove at one
-With onRemove the minus at min is a trash can, as the stepper of a cart is at one: pressing it calls onRemove and the owner takes the item out; above min it steps down as before. From the keyboard, Delete or Backspace on the focused stepper removes at min; the arrows and Home never do. Name it with removeLabel, such as Remove Croissant. Without onRemove, or with wrap, the minus stops at min.
+### In a cart
+A cart shows the quantity in the stepper with showValue, all its states at once: 2 steps both ways, at one the minus is a trash can, Orange Juice has reached the 3 left and its plus stops, and the one Cheesecake left shows both. With onRemove the minus at min is a trash can, as the stepper of a cart is at one: pressing it calls onRemove and the owner takes the item out; above min it steps down as before. From the keyboard, Delete or Backspace on the focused stepper removes at min; the arrows and Home never do. Name it with removeLabel, such as Remove Croissant. Without onRemove, or with wrap, the minus stops at min.
 ```tsx
-<FieldGroup footer="At one, the minus is a trash can that takes the item out.">
+<FieldGroup footer="At one, the minus is a trash can. Orange Juice has 3 left and Cheesecake 1.">
 {items.map((item) => (
-  <Field key={item.id} row label={`${item.quantity} × ${item.name}`}>
+  <Field key={item.id} row label={item.name}>
     <Stepper
       value={item.quantity}
       onChange={(quantity) => setQuantity(item.id, quantity)}
       min={1}
-      max={9}
+      max={item.max}
+      showValue
       onRemove={() => remove(item.id)}
       removeLabel={`Remove ${item.name}`}
     />

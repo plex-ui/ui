@@ -987,6 +987,20 @@
     --stepper-mobile-segment-background-active: light-dark(var(--alpha-15), rgb(0 0 0 / 15%));
     --stepper-mobile-segment-background-disabled: var(--stepper-mobile-segment-background);
     --stepper-mobile-separator-color: var(--alpha-25);
+    /* With showValue: the value between round segments on one fill. On a desktop the control size, square segments
+       and the stepper's fill; a phone (touch.css) sets the 96 x 36 cart capsule. */
+    --stepper-value-height: var(--control-size-md);
+    --stepper-value-radius: var(--stepper-radius);
+    --stepper-value-icon-size: var(--control-icon-size-md);
+    --stepper-value-background: var(--stepper-background);
+    --stepper-value-segment-background-hover: var(--alpha-05);
+    --stepper-value-segment-background-active: var(--alpha-10);
+    --stepper-value-min-width: 24px;
+    --stepper-value-color: var(--color-text);
+    --stepper-value-disabled-color: var(--color-text-disabled);
+    --stepper-value-font-size: var(--font-text-sm-size);
+    --stepper-value-line-height: var(--font-text-sm-line-height);
+    --stepper-value-font-weight: var(--font-weight-medium);
 
     /* =============================================
       Tab bar (phone)

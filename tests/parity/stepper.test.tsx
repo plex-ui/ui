@@ -34,6 +34,8 @@ const cases: Array<[string, Case]> = [
   ["square ends", { "aria-label": "Guests", pill: false }],
   ["removes at the lowest value", { "aria-label": "Quantity", defaultValue: 1, min: 1, max: 8, onRemove: () => {}, removeLabel: "Delete" }],
   ["above the lowest value with onRemove it decreases", { "aria-label": "Quantity", defaultValue: 2, min: 1, max: 8, onRemove: () => {} }],
+  ["shows its value", { "aria-label": "Quantity", defaultValue: 2, min: 1, max: 9, showValue: true }],
+  ["shows its value and removes at the lowest, the plus at the highest", { "aria-label": "Quantity", defaultValue: 1, min: 1, max: 1, showValue: true, onRemove: () => {} }],
   ["labelled, described, named and submitted", { "id": "guests", "aria-labelledby": "label", "aria-describedby": "hint", "name": "guests", "defaultValue": 2, "decrementLabel": "Fewer", "incrementLabel": "More" }],
 ]
 
@@ -366,5 +368,40 @@ describe("Stepper removes at its minimum (console 15.11, owner «Да»)", () =>
 
   test("the trash keeps its own size: the phone's longer minus does not scale it", () => {
     expect(read("packages/styles/src/components/Stepper/Stepper.module.css")).toMatch(/\.Segment\[data-segment="decrement"\]:not\(\[data-remove\]\) > \.Icon \{\s*scale: var\(--stepper-decrement-icon-scale/)
+  })
+
+  test("showValue: the value stands between the segments, hidden from the reader (the spin button reads it), and follows a step", async () => {
+    await act(async () => { render(<RStepper aria-label="Quantity" defaultValue={2} min={1} max={9} showValue />) })
+    const spin = document.querySelector<HTMLElement>('[role="spinbutton"]')!
+    expect(spin.hasAttribute("data-show-value")).toBe(true)
+    expect([...spin.children].map((child) => child.tagName)).toEqual(["BUTTON", "SPAN", "BUTTON"])
+    const shown = spin.children[1]
+    expect(shown.getAttribute("aria-hidden")).toBe("true")
+    expect(shown.textContent).toBe("2")
+    await act(async () => { fireEvent.keyDown(spin, { key: "ArrowUp" }) })
+    expect(shown.textContent).toBe("3")
+    expect(spin.getAttribute("aria-valuenow")).toBe("3")
+  })
+
+  test("showValue: a phone draws the 96 x 36 cart capsule, 36px round segments, 20px symbols, the value 15/20", () => {
+    const touch = read("packages/styles/src/styles/touch.css")
+    const phone = touch.slice(touch.indexOf("@media (max-width: 767px) {"), touch.indexOf("@media (min-width: 414px)"))
+    for (const line of [
+      "--stepper-value-height: 36px;",
+      "--stepper-value-radius: 18px;",
+      "--stepper-value-icon-size: 20px;",
+      "--stepper-value-background: var(--stepper-mobile-segment-background);",
+      "--stepper-value-segment-background-active: var(--stepper-mobile-segment-background-active);",
+      "--stepper-value-font-size: 15px;",
+      "--stepper-value-line-height: 20px;",
+    ]) expect(phone).toContain(line)
+    const tokens = read("packages/styles/src/styles/variables-components.css")
+    expect(tokens).toContain("--stepper-value-min-width: 24px;")
+    expect(tokens).toContain("--stepper-value-font-weight: var(--font-weight-medium);")
+    const css = read("packages/styles/src/components/Stepper/Stepper.module.css")
+    const value = css.slice(css.indexOf(".Stepper[data-show-value] {"))
+    expect(value).toContain("--stepper-segment-width: var(--stepper-value-height);")
+    expect(value).toContain("--stepper-segment-background: transparent;")
+    expect(value).toMatch(/& \.Segment \{\s*border-radius: inherit;\s*\}/)
   })
 })

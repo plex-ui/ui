@@ -108,3 +108,40 @@
 .Segment[data-segment="decrement"]:not([data-remove]) > .Icon {
   scale: var(--stepper-decrement-icon-scale, none);
 }
+
+/* With the value: one fill under round segments and the number between them, as a cart's quantity stepper
+   (the iOS-style cart in the owner's design, 15.11): a 96 x 36 capsule on a phone, two 36px segments with 20px
+   symbols and the value, medium, at least 24 wide. A pressed segment darkens a circle; the separator is gone. */
+.Stepper[data-show-value] {
+  --stepper-height: var(--stepper-value-height);
+  --stepper-radius: var(--stepper-value-radius);
+  --stepper-segment-width: var(--stepper-value-height);
+  --stepper-icon-size: var(--stepper-value-icon-size);
+  --stepper-segment-background: transparent;
+  --stepper-segment-background-disabled: transparent;
+  --stepper-segment-background-hover: var(--stepper-value-segment-background-hover);
+  --stepper-segment-background-active: var(--stepper-value-segment-background-active);
+  background: var(--stepper-value-background);
+
+  & .Segment {
+    border-radius: inherit;
+  }
+}
+
+.Value {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  min-width: var(--stepper-value-min-width);
+  color: var(--stepper-value-color);
+  font-size: var(--stepper-value-font-size);
+  font-weight: var(--stepper-value-font-weight);
+  line-height: var(--stepper-value-line-height);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+
+  .Stepper[data-disabled] > & {
+    color: var(--stepper-value-disabled-color);
+  }
+}

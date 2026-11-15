@@ -1141,6 +1141,7 @@ Props:
   - auto-repeat (boolean) default: true — Holding a segment keeps stepping: after 400ms, every 100ms
   - disabled (boolean) default: false — Prevent interaction and focus
   - pill (boolean) default: true — Fully rounded ends
+  - show-value (boolean) default: false — Shows the value between the minus and the plus on one fill, as a cart's quantity: round segments, no separator
   - decrement-label (string) default: "Decrease" — Accessible name of the minus segment
   - increment-label (string) default: "Increase" — Accessible name of the plus segment
   - remove-label (string) default: "Remove" — Accessible name of the minus when it removes (with a `@remove` listener, at min)
@@ -1149,7 +1150,7 @@ Props:
   - aria-labelledby (string) — The id of the visible label of the value
   - aria-describedby (string) — The id of an element that describes the stepper
   - id (string) — The id of the stepper
-Examples: Overview, Range, step and wrap, Remove at one
+Examples: Overview, Range, step and wrap, In a cart
 
 ## Swipe Actions
 "Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys."

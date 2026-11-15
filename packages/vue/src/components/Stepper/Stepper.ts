@@ -50,6 +50,11 @@ const StepperComponent = defineComponent({
     disabled: { type: Boolean, default: false },
     /** Fully rounded ends. @default true */
     pill: { type: Boolean, default: true },
+    /**
+     * Shows the value between the minus and the plus on one fill, as a cart's quantity: round segments and no
+     * separator. Without it the stepper shows no value, as the native one. @default false
+     */
+    showValue: { type: Boolean, default: false },
     /** Accessible name of the decrement segment. @default "Decrease" */
     decrementLabel: { type: String, default: "Decrease" },
     /** Accessible name of the increment segment. @default "Increase" */
@@ -200,12 +205,16 @@ const StepperComponent = defineComponent({
       "class": [s.Stepper, attrs.class],
       "data-disabled": props.disabled ? "" : undefined,
       "data-pill": props.pill ? "" : undefined,
+      "data-show-value": props.showValue ? "" : undefined,
       "onKeydown": handleKeyDown,
       "onFocus": (event: FocusEvent) => emit("focus", event),
       "onBlur": (event: FocusEvent) => emit("blur", event),
     }, [
       segment("decrement"),
-      h("span", { "class": s.Separator, "aria-hidden": "true" }),
+      // The spin button already reads its value, so the shown one is not read again
+      props.showValue
+        ? h("span", { "class": s.Value, "aria-hidden": "true" }, String(value.value))
+        : h("span", { "class": s.Separator, "aria-hidden": "true" }),
       segment("increment"),
       props.name !== undefined ? h("input", { type: "hidden", name: props.name, value: value.value, disabled: props.disabled }) : null,
     ])

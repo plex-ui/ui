@@ -8282,6 +8282,7 @@ Props:
   - auto-repeat (boolean) default: true — Holding a segment keeps stepping: after 400ms, every 100ms
   - disabled (boolean) default: false — Prevent interaction and focus
   - pill (boolean) default: true — Fully rounded ends
+  - show-value (boolean) default: false — Shows the value between the minus and the plus on one fill, as a cart's quantity: round segments, no separator
   - decrement-label (string) default: "Decrease" — Accessible name of the minus segment
   - increment-label (string) default: "Increase" — Accessible name of the plus segment
   - remove-label (string) default: "Remove" — Accessible name of the minus when it removes (with a `@remove` listener, at min)
@@ -8292,15 +8293,15 @@ Props:
   - id (string) — The id of the stepper
 
 ### Overview
-Put a stepper in a Field row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set :pill="false" for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.
+Put a stepper in a Field row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. With show-value the value stands between the minus and the plus on one fill, as a cart's quantity does, and the row's label only names it, such as Copies; on a phone it is a 96 × 36 capsule with round 36px segments and the value at 15px medium. On a desktop set :pill="false" for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.
 ```vue
 <FieldGroup class="w-full max-w-[400px]">
   <template #footer>Up to 20 copies and 14 nights.</template>
-  <Field row :label="copies === 1 ? '1 copy' : copies + ' copies'">
-    <Stepper v-model:value="copies" :min="1" :max="20" :disabled="disabled" :pill="pill" />
+  <Field row :label="showValue ? 'Copies' : copies === 1 ? '1 copy' : copies + ' copies'">
+    <Stepper v-model:value="copies" :min="1" :max="20" :disabled="disabled" :show-value="showValue" :pill="pill" />
   </Field>
-  <Field row :label="nights === 1 ? '1 night' : nights + ' nights'">
-    <Stepper v-model:value="nights" :min="1" :max="14" :disabled="disabled" :pill="pill" />
+  <Field row :label="showValue ? 'Nights' : nights === 1 ? '1 night' : nights + ' nights'">
+    <Stepper v-model:value="nights" :min="1" :max="14" :disabled="disabled" :show-value="showValue" :pill="pill" />
   </Field>
 </FieldGroup>
 ```
@@ -8324,16 +8325,17 @@ Decimal steps add without rounding drift. With wrap a step past max continues fr
 </div>
 ```
 
-### Remove at one
-With a @remove listener the minus at min is a trash can, as the stepper of a cart is at one: pressing it emits remove and the owner takes the item out; above min it steps down as before. From the keyboard, Delete or Backspace on the focused stepper removes at min; the arrows and Home never do. Name it with remove-label, such as Remove Croissant. Without a listener, or with wrap, the minus stops at min.
+### In a cart
+A cart shows the quantity in the stepper with show-value, all its states at once: 2 steps both ways, at one the minus is a trash can, Orange Juice has reached the 3 left and its plus stops, and the one Cheesecake left shows both. With a @remove listener the minus at min is a trash can, as the stepper of a cart is at one: pressing it emits remove and the owner takes the item out; above min it steps down as before. From the keyboard, Delete or Backspace on the focused stepper removes at min; the arrows and Home never do. Name it with remove-label, such as Remove Croissant. Without a listener, or with wrap, the minus stops at min.
 ```vue
 <FieldGroup class="w-full max-w-[400px]">
-  <template #footer>{{ items.length ? 'At one, the minus is a trash can that takes the item out.' : 'The bag is empty.' }}</template>
-  <Field v-for="item in items" :key="item.id" row :label="item.quantity + ' × ' + item.name">
+  <template #footer>{{ items.length ? 'At one, the minus is a trash can. Orange Juice has 3 left and Cheesecake 1.' : 'The bag is empty.' }}</template>
+  <Field v-for="item in items" :key="item.id" row :label="item.name">
     <Stepper
       v-model:value="item.quantity"
       :min="1"
-      :max="9"
+      :max="item.max"
+      show-value
       :remove-label="'Remove ' + item.name"
       @remove="items.splice(items.indexOf(item), 1)"
     />

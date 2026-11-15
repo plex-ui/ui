@@ -38,6 +38,11 @@ export type StepperProps = {
   disabled?: boolean
   /** Fully rounded ends. @default true */
   pill?: boolean
+  /**
+   * Shows the value between the minus and the plus on one fill, as a cart's quantity: round segments and no
+   * separator. Without it the stepper shows no value, as the native one. @default false
+   */
+  showValue?: boolean
   /** Accessible name of the decrement segment. @default "Decrease" */
   decrementLabel?: string
   /** Accessible name of the increment segment. @default "Increase" */
@@ -84,8 +89,8 @@ export const stepValue = (current: number, direction: 1 | -1, { min, max, step, 
 }
 
 /**
- * Two segments that decrease and increase a number, as the iOS 26 stepper does. It shows no value of its own:
- * name it with `aria-label` or `aria-labelledby` and show the value beside it. Keyboard focus lands on the
+ * Two segments that decrease and increase a number, as the iOS 26 stepper does. It shows no value of its own
+ * (`showValue` puts it between the segments): name it with `aria-label` or `aria-labelledby`. Keyboard focus lands on the
  * stepper, a spin button: Up and Down step, Page Up and Page Down step ten times, Home and End go to the range ends.
  */
 export function Stepper({
@@ -100,6 +105,7 @@ export function Stepper({
   autoRepeat = true,
   disabled = false,
   pill = true,
+  showValue = false,
   decrementLabel = "Decrease",
   incrementLabel = "Increase",
   onRemove,
@@ -243,12 +249,20 @@ export function Stepper({
       className={clsx(s.Stepper, className)}
       data-disabled={disabled ? "" : undefined}
       data-pill={pill ? "" : undefined}
+      data-show-value={showValue ? "" : undefined}
       onKeyDown={handleKeyDown}
       onFocus={onFocus}
       onBlur={onBlur}
     >
       {segment("decrement")}
-      <span className={s.Separator} aria-hidden="true" />
+      {/* The spin button already reads its value, so the shown one is not read again */}
+      {showValue ? (
+        <span className={s.Value} aria-hidden="true">
+          {value}
+        </span>
+      ) : (
+        <span className={s.Separator} aria-hidden="true" />
+      )}
       {segment("increment")}
       {name !== undefined && <input type="hidden" name={name} value={value} disabled={disabled} />}
     </div>

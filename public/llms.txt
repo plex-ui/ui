@@ -1151,6 +1151,7 @@ Props:
   - autoRepeat (boolean) default: true — Holding a segment keeps stepping: after 400ms, every 100ms
   - disabled (boolean) default: false — Prevent interaction and focus
   - pill (boolean) default: true — Fully rounded ends
+  - showValue (boolean) default: false — Shows the value between the minus and the plus on one fill, as a cart's quantity: round segments, no separator
   - decrementLabel (string) default: "Decrease" — Accessible name of the minus segment
   - incrementLabel (string) default: "Increase" — Accessible name of the plus segment
   - onRemove (() => void) — Called when the minus is pressed at min; with it the minus there is a trash can that removes the item (not with wrap)
@@ -1163,7 +1164,7 @@ Props:
   - onFocus (FocusEventHandler<HTMLDivElement>) — Called when the stepper gains focus
   - onBlur (FocusEventHandler<HTMLDivElement>) — Called when the stepper loses focus
   - className (string) — CSS classes applied to the stepper
-Examples: Overview, Range, step and wrap, Remove at one
+Examples: Overview, Range, step and wrap, In a cart
 
 ## Swipe Actions
 "Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys."

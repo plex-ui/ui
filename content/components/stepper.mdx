@@ -13,7 +13,7 @@ import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { Stepper } from "@plexui/ui/components/Stepper";`}</UsageBlock>
 
-A stepper changes a value by small amounts and shows no value of its own. Show the value beside it and name the stepper with the label of that value. For values that vary widely, pair it with an input. On a phone it is the 93 × 32 capsule of a native iOS 27.2 stepper with a 44px target; on a desktop it follows the PlexUI control size.
+A stepper changes a value by small amounts and shows no value of its own. Show the value beside it and name the stepper with the label of that value, or set `showValue` to put it between the minus and the plus, as a cart's quantity. For values that vary widely, pair it with an input. On a phone it is the 93 × 32 capsule of a native iOS 27.2 stepper with a 44px target; on a desktop it follows the PlexUI control size.
 
 ## Examples
 
@@ -21,17 +21,18 @@ A stepper changes a value by small amounts and shows no value of its own. Show t
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Put a stepper in a <code>Field</code> row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. On a desktop set <code>pill</code> to <code>false</code> for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={`const [disabled, setDisabled] = useState(false)
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Put a stepper in a <code>Field</code> row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. With <code>showValue</code> the value stands between the minus and the plus on one fill, as a cart's quantity does, and the row's label only names it, such as Copies; on a phone it is a 96 × 36 capsule with round 36px segments and the value at 15px medium. On a desktop set <code>pill</code> to <code>false</code> for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={`const [disabled, setDisabled] = useState(false)
+const [showValue, setShowValue] = useState(false)
 const [pill, setPill] = useState(true) // a desktop setting: on a phone the stepper is always a capsule
 const [copies, setCopies] = useState(1)
 const [nights, setNights] = useState(3)
 
 <FieldGroup footer="Up to 20 copies and 14 nights.">
-  <Field row label={copies === 1 ? '1 copy' : \`\${copies} copies\`}>
-    <Stepper value={copies} onChange={setCopies} min={1} max={20} disabled={disabled} pill={pill} />
+  <Field row label={showValue ? 'Copies' : copies === 1 ? '1 copy' : \`\${copies} copies\`}>
+    <Stepper value={copies} onChange={setCopies} min={1} max={20} disabled={disabled} showValue={showValue} pill={pill} />
   </Field>
-  <Field row label={nights === 1 ? '1 night' : \`\${nights} nights\`}>
-    <Stepper value={nights} onChange={setNights} min={1} max={14} disabled={disabled} pill={pill} />
+  <Field row label={showValue ? 'Nights' : nights === 1 ? '1 night' : \`\${nights} nights\`}>
+    <Stepper value={nights} onChange={setNights} min={1} max={14} disabled={disabled} showValue={showValue} pill={pill} />
   </Field>
 </FieldGroup>`} previewMinHeight={240}>
   <StepperOverviewDemo />
@@ -52,16 +53,19 @@ const [nights, setNights] = useState(3)
   <StepperRangeDemo />
 </ComponentPreview>
 
-### Remove at one
+### In a cart
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>With <code>onRemove</code> the minus at <code>min</code> is a trash can, as the stepper of a cart is at one: pressing it calls <code>onRemove</code> and the owner takes the item out; above <code>min</code> it steps down as before. From the keyboard, Delete or Backspace on the focused stepper removes at <code>min</code>; the arrows and Home never do. Name it with <code>removeLabel</code>, such as Remove Croissant. Without <code>onRemove</code>, or with <code>wrap</code>, the minus stops at <code>min</code>.</>} code={`<FieldGroup footer="At one, the minus is a trash can that takes the item out.">
+<span id="remove-at-one" />
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A cart shows the quantity in the stepper with <code>showValue</code>, all its states at once: 2 steps both ways, at one the minus is a trash can, Orange Juice has reached the 3 left and its plus stops, and the one Cheesecake left shows both. With <code>onRemove</code> the minus at <code>min</code> is a trash can, as the stepper of a cart is at one: pressing it calls <code>onRemove</code> and the owner takes the item out; above <code>min</code> it steps down as before. From the keyboard, Delete or Backspace on the focused stepper removes at <code>min</code>; the arrows and Home never do. Name it with <code>removeLabel</code>, such as Remove Croissant. Without <code>onRemove</code>, or with <code>wrap</code>, the minus stops at <code>min</code>.</>} code={`<FieldGroup footer="At one, the minus is a trash can. Orange Juice has 3 left and Cheesecake 1.">
   {items.map((item) => (
-    <Field key={item.id} row label={\`\${item.quantity} × \${item.name}\`}>
+    <Field key={item.id} row label={item.name}>
       <Stepper
         value={item.quantity}
         onChange={(quantity) => setQuantity(item.id, quantity)}
         min={1}
-        max={9}
+        max={item.max}
+        showValue
         onRemove={() => remove(item.id)}
         removeLabel={\`Remove \${item.name}\`}
       />
@@ -84,6 +88,7 @@ const [nights, setNights] = useState(3)
   { prop: "autoRepeat", type: "boolean", default: "true", description: "Holding a segment keeps stepping: after 400ms, every 100ms" },
   { prop: "disabled", type: "boolean", default: "false", description: "Prevent interaction and focus" },
   { prop: "pill", type: "boolean", default: "true", description: "Fully rounded ends" },
+  { prop: "showValue", type: "boolean", default: "false", description: "Shows the value between the minus and the plus on one fill, as a cart's quantity: round segments, no separator" },
   { prop: "decrementLabel", type: "string", default: '"Decrease"', description: "Accessible name of the minus segment" },
   { prop: "incrementLabel", type: "string", default: '"Increase"', description: "Accessible name of the plus segment" },
   { prop: "onRemove", type: "() => void", description: "Called when the minus is pressed at min; with it the minus there is a trash can that removes the item (not with wrap)" },
@@ -113,3 +118,6 @@ Stepper reads these component tokens. Override them at any scope to restyle it:
 - `--stepper-separator-color`, `--stepper-separator-inset`: separator color and its inset from the top and bottom (default `var(--color-border)`, `4px`; `--alpha-25` at 767px and below)
 - `--stepper-icon-size`, `--stepper-icon-color`, `--stepper-icon-disabled-color`: the minus and plus (default `var(--control-icon-size-md)`, `var(--color-text)`, `var(--color-text-disabled)`; `22px` and the tertiary label at 767px and below)
 - `--stepper-target-size`: height of the touch target (`44px` at 767px and below)
+- `--stepper-value-height`, `--stepper-value-radius`, `--stepper-value-icon-size`, `--stepper-value-background`: the stepper with `showValue`, its height (also its square segments), corners, symbols and its one fill (default the control size, `--stepper-radius`, the control icon size and `--stepper-background`; `36px`, `18px`, `20px` and the segments' tertiary fill at 767px and below)
+- `--stepper-value-segment-background-hover`, `--stepper-value-segment-background-active`: a segment of it on hover and while pressed (default `--alpha-05`, `--alpha-10`; no hover and the native pressed fill at 767px and below)
+- `--stepper-value-color`, `--stepper-value-disabled-color`, `--stepper-value-font-size`, `--stepper-value-line-height`, `--stepper-value-font-weight`, `--stepper-value-min-width`: the value (default the text color, the disabled text color, `14px`, `20px`, medium, `24px`; `15px` and the tertiary label disabled at 767px and below)
