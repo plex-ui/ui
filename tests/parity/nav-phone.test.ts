@@ -140,19 +140,24 @@ describe("an inline Alert on a phone takes the shape and text of an iOS tip (Tip
   })
 
   test("26px corners, the text 17 from the top, the icon where TipKit puts a 22pt image (22 from the edge, the text 12 after it)", () => {
-    expect(phoneRule(css, ".Alert")).toMatchObject({ "border-radius": "26px", padding: "17px 16px", "column-gap": "8px", "row-gap": "18px", "--alert-indicator-size": "22px" })
+    expect(phoneRule(css, ".Alert")).toMatchObject({ "border-radius": "26px", padding: "17px 16px", "column-gap": "8px", "row-gap": "18px",
+      // The circle of i, 20 of the icon's 24, drawn 22 as TipKit draws its symbol at tipImageSize 22 (console 15.11)
+      "--alert-indicator-glyph-size": "22px",
+      "--alert-indicator-size": "calc(var(--alert-indicator-glyph-size) * 24 / 20)",
+      "--alert-indicator-inset": "calc((var(--alert-indicator-size) - var(--alert-indicator-glyph-size)) / 2)",
+    })
     expect(phoneRule(css, "&:has(> .Content > .Actions > :not(.DismissButton))")).toEqual({ "padding-bottom": "16px" })
     expect(phoneRule(css, ".Alert[data-banner]")).toEqual({ "border-radius": "0" })
     expect(phoneRule(css, ".Content")).toEqual({ display: "contents" })
     // Not the simulator's 38pt TipView glyph (owner 11.11: «она не должна быть огромной»), nor a list row's 30 column
     // («не сильно большие паддинги вокруг иконки?»): a TipView with tipImageSize 22 puts it 22 from the edge, the text 12
     // after it (16 + 6 + 22 + 4 + 8 = 56), 20 from the top in Safari of the same simulator; a title alone stands on its middle
-    expect(phoneRule(css, ".Indicator")).toEqual({ "padding-inline": "6px 4px", "margin-block": "5px", "min-height": "var(--alert-indicator-size)" })
+    expect(phoneRule(css, ".Indicator")).toEqual({ "padding-inline": "6px 4px", "margin-block": "5px", "min-height": "var(--alert-indicator-glyph-size)" })
     expect(phoneRule(css, ".Indicator + .Content > .Message:not(:has(> .Description))")).toEqual({ "align-self": "center" })
     // A description alone stands its first line on the icon's middle too (owner 13.11): 5 + 22/2 - 20/2 = 6, by the
     // text's own line height (lh), whatever unit --alert-line-height is given in
     expect(phoneRule(css, ".Indicator + .Content > .Message:not(:has(> .Title))")).toEqual({
-      "margin-top": "calc(5px + var(--alert-indicator-size) / 2 - 0.5lh)",
+      "margin-top": "calc(5px + var(--alert-indicator-glyph-size) / 2 - 0.5lh)",
     })
     expect(phoneRule(css, ".Message")).toEqual({ "padding-inline-start": "6px" })
     expect(phoneRule(css, ".Indicator + .Content > .Message")).toEqual({ "padding-inline-start": "0" })

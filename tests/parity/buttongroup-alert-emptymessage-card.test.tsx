@@ -342,6 +342,12 @@ describe("Alert parity", () => {
     expect(css).toMatch(/\.Alert:where\(:not\(\[data-mobile-actions="own"\]\)\) \.Actions > :where\(button, a, \[role="link"\]\) \{\s*--button-size: var\(--button-size-xl, 50px\);/)
   })
 
+  test("on a phone the icon's glyph is 22 as TipKit's: its 26.4px SVG overhangs a 22px place, so a custom indicator keeps its place", async () => {
+    const css = (await import("node:fs")).readFileSync(`${process.cwd()}/packages/styles/src/components/Alert/Alert.module.css`, "utf8")
+    expect(css).toContain("--alert-indicator-size: calc(var(--alert-indicator-glyph-size) * 24 / 20);")
+    expect(css).toMatch(/svg \{\s*margin: calc\(-1 \* var\(--alert-indicator-inset\)\);\s*\}/)
+  })
+
   test("on a phone the icon stands on the middle of the title's first line when a description follows (owner 15.11)", async () => {
     const css = (await import("node:fs")).readFileSync(`${process.cwd()}/packages/styles/src/components/Alert/Alert.module.css`, "utf8")
     expect(css).toMatch(/\.Indicator:has\(\+ \.Content > \.Message > \.Title ~ \.Description\) \{\s*margin-block: 0 10px;/)
@@ -698,7 +704,7 @@ test("on a phone a soft or outline Alert is gray and only its icon keeps the col
   expect(phone).toContain('.Alert[data-color="success"] { --alert-phone-tint: var(--color-text-success); }')
   expect(phone).toContain("color: var(--alert-phone-description-color, light-dark(var(--alpha-60), var(--alpha-70)));")
   // Buttons of their own size start under the text: 6 + 22 + 4 + 8 after the card's inset
-  expect(phone).toContain('.Alert[data-mobile-actions="own"]:has(> .Indicator) .Actions {\n    padding-inline-start: calc(6px + var(--alert-indicator-size) + 4px + 8px);')
+  expect(phone).toContain('.Alert[data-mobile-actions="own"]:has(> .Indicator) .Actions {\n    padding-inline-start: calc(6px + var(--alert-indicator-glyph-size) + 4px + 8px);')
 })
 
 describe("phone Alert on a grouped surface (owner 15.11: «почему у карточки такой цвет?»)", () => {

@@ -246,7 +246,13 @@
     row-gap: 18px;
     padding: 17px 16px;
     border-radius: 26px;
-    --alert-indicator-size: 22px;
+    /* TipKit draws the symbol itself 22 wide at tipImageSize 22 (the circle of i); a PlexUI icon draws its circle 20
+       of its 24, so the icon's box is 26.4 for a 22px circle (console 15.11, owner: «иконка правильного размера? не
+       маленькая?», it was 18.3). The SVG overhangs its 22px place by the inset on each side (negative margins), so the
+       layout, a custom indicator's place and the text at 56 stay as they were. */
+    --alert-indicator-glyph-size: 22px;
+    --alert-indicator-size: calc(var(--alert-indicator-glyph-size) * 24 / 20);
+    --alert-indicator-inset: calc((var(--alert-indicator-size) - var(--alert-indicator-glyph-size)) / 2);
 
     &:has(> .Content > .Actions > :not(.DismissButton)) {
       padding-bottom: 16px;
@@ -305,10 +311,14 @@
     padding-inline: 6px 4px;
     margin-block: 5px;
     /* A smaller custom indicator stands on the middle of the icon's place */
-    min-height: var(--alert-indicator-size);
+    min-height: var(--alert-indicator-glyph-size);
 
     &::before {
       content: none;
+    }
+
+    svg {
+      margin: calc(-1 * var(--alert-indicator-inset));
     }
   }
 
@@ -328,7 +338,7 @@
      of the image, as a title alone does: one line centred on the icon, more lines going on under it (owner 13.11:
      the line sat 6px above the icon's middle) */
   .Indicator + .Content > .Message:not(:has(> .Title)) {
-    margin-top: calc(5px + var(--alert-indicator-size) / 2 - 0.5lh);
+    margin-top: calc(5px + var(--alert-indicator-glyph-size) / 2 - 0.5lh);
   }
 
   .Message {
@@ -396,7 +406,7 @@
   }
 
   .Alert[data-mobile-actions="own"]:has(> .Indicator) .Actions {
-    padding-inline-start: calc(6px + var(--alert-indicator-size) + 4px + 8px);
+    padding-inline-start: calc(6px + var(--alert-indicator-glyph-size) + 4px + 8px);
   }
 
   .Alert .Actions > .DismissButton {
