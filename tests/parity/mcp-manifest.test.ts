@@ -41,7 +41,8 @@ export const code = screen("Payment", "<input required />", "Pay", "save", true)
   expect(examples[0].code).toMatch(/>Pay<\/Button>/)
 })
 
-// The generator warns when it cannot resolve a preview's code and leaves the example out of the manifest.
+// The generator warns when it cannot resolve a preview's code and leaves the example out of the manifest. Reading every
+// page takes about 4s alone and passed 5s with the whole suite running beside it, so it gets 20s.
 test.each(["content/components", "content/vue/components"])("no page in %s loses an example", (dir) => {
   const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
   const pages = readdirSync(dir).filter((file) => file.endsWith(".mdx"))
@@ -52,4 +53,4 @@ test.each(["content/components", "content/vue/components"])("no page in %s loses
     return warn.mock.calls.map((call) => `${file}: ${call.join(" ")}`)
   })
   expect(skipped).toEqual([])
-})
+}, 20_000)
