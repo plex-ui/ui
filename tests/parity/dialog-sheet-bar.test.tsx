@@ -4,6 +4,8 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { h } from "vue"
 import { Button as ReactButton } from "../../packages/ui/src/components/Button"
 import { Dialog as ReactDialog } from "../../packages/ui/src/components/Dialog"
+import { Toolbar as ReactToolbar } from "../../packages/ui/src/components/Toolbar"
+import { ToolbarRow } from "../../packages/vue/src/components/Toolbar"
 import { Button } from "../../packages/vue/src/components/Button"
 import {
   Dialog,
@@ -229,5 +231,39 @@ describe("a phone Sheet has no grabber, as an iOS 27.2 sheet of one height", () 
     expect(bar).not.toContain("::after")
     expect(read("styles/variables-components.css")).toContain("--toolbar-sheet-padding-top: 16px;")
     expect(read("styles/mobile-materials.css")).not.toContain("--mobile-grabber-color")
+  })
+})
+
+// Console 15.11: a ToolbarRow in a phone Sheet's header is a row of its bar under the controls, as in a Toolbar built
+// by hand (the bar's glass, edge and row gap), not a part of the heading. Close, the header actions and asksToClose stay.
+describe.each<Framework>(["React", "Vue"])("%s phone Sheet header row", (framework) => {
+  test("a ToolbarRow stands under the controls, after the trailing actions, outside the heading", async () => {
+    if (framework === "React") {
+      await act(async () => { render(
+        <ReactDialog open>
+          <ReactDialog.Content mobileVariant="sheet">
+            <ReactDialog.Header>
+              <ReactDialog.Title>Crop</ReactDialog.Title>
+              <ReactDialog.HeaderAction><ReactButton color="primary">Done</ReactButton></ReactDialog.HeaderAction>
+              <ReactToolbar.Row><span>Menu list / Item page</span></ReactToolbar.Row>
+            </ReactDialog.Header>
+          </ReactDialog.Content>
+        </ReactDialog>,
+      ) })
+    } else mountVue(() => h(Dialog, { open: true }, () => h(DialogContent, { mobileVariant: "sheet" }, () => h(DialogHeader, null, () => [
+      h(DialogTitle, null, () => "Crop"),
+      h(DialogHeaderAction, null, () => h(Button, { color: "primary" }, () => "Done")),
+      h(ToolbarRow, null, () => h("span", null, "Menu list / Item page")),
+    ]))))
+    await flushVue()
+    await flushVue()
+    const bar = dialogNamed("Crop").querySelector<HTMLElement>("[data-dialog-bar]")!
+    const children = [...bar.children] as HTMLElement[]
+    const row = children.find((child) => child.hasAttribute("data-toolbar-row"))!
+    expect(row).toBeTruthy()
+    expect(row.textContent).toBe("Menu list / Item page")
+    expect(children.indexOf(row)).toBe(children.length - 1)
+    expect(children[children.length - 2].className).toContain("Trailing")
+    expect(bar.querySelector('[class*="Heading"] [data-toolbar-row]')).toBeNull()
   })
 })

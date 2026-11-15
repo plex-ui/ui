@@ -7,6 +7,17 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- A `Toolbar.Row` in `Dialog.Header` is a row of a phone Sheet's bar under its controls, as in a Toolbar built by hand: a segmented control that switches the sheet's views gets the bar's glass, edge and row gap, and the header keeps Close, its actions and `asksToClose`.
+
+### Fixed
+
+- On a phone the date picker calendar is capped to one side only when neither side has room: a calendar that grows after it opened (its month rendered) still flips above, where 0.52.0 could keep it below and scroll.
+- A press on a `Field` row reaches the one control inside a component of your own that takes the Field's id (a row component around a Select or an input), as an iOS cell does; with two controls inside it reaches neither.
+
 ## 0.52.0 (2026-11-15)
 
 `@plexui/styles` 0.11.0; `@plexui/ui` 0.52.0 and `@plexui/vue` 0.32.0 need `^0.11.0`, so updating them brings it. `@plexui/mcp` is 0.2.28. A search field under a large toolbar title is a `Toolbar.Row` and pins under the bar; on a phone the date picker calendar opens above the trigger instead of squeezing.

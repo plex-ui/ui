@@ -54,7 +54,7 @@ import { Button } from "../Button/Button.js"
 import { NavigationButton } from "../Button/NavigationButton.js"
 import { Popover, PopoverAnchor, PopoverContent } from "../Popover/Popover.js"
 import { followTitleRows } from "../Page/Page.js"
-import { barBackground, TOOLBAR_HOST, Toolbar, ToolbarLeading, ToolbarTrailing, type BarBackground, type BarBackgroundAlias } from "../Toolbar/Toolbar.js"
+import { barBackground, TOOLBAR_HOST, Toolbar, ToolbarLeading, ToolbarRow, ToolbarTrailing, type BarBackground, type BarBackgroundAlias } from "../Toolbar/Toolbar.js"
 import { observeScrollEdges } from "../../lib/scrollEdges.js"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
 import t from "@plexui/styles/components/Toolbar/Toolbar.module.css"
@@ -762,6 +762,8 @@ const headerParts = (children: VNodeArrayChildren | undefined): VNodeArrayChildr
 const isHeaderAction = (part: unknown) => isVNode(part) && part.type === DialogHeaderAction
 const isLeadingAction = (part: unknown) => isHeaderAction(part) && (part as VNode).props?.side === "leading"
 const isDescription = (part: unknown) => isVNode(part) && part.type === DialogDescription
+// A ToolbarRow in the header is a row of the phone Sheet's bar, under its controls (console 15.11)
+const isToolbarRow = (part: unknown) => isVNode(part) && part.type === ToolbarRow
 
 // The parts it holds stand outside the header's bar, as React's descriptions stand outside the bar's provider
 const OutsideBar = defineComponent({
@@ -812,8 +814,11 @@ export const DialogHeader = defineComponent({
               ])
             : null,
           ...parts.filter(isLeadingAction),
-          h("div", { class: [t.Heading, s.BarHeading] }, parts.filter((part) => !isHeaderAction(part) && !isDescription(part))),
+          h("div", { class: [t.Heading, s.BarHeading] }, parts.filter((part) => !isHeaderAction(part) && !isDescription(part) && !isToolbarRow(part))),
           ...parts.filter((part) => isHeaderAction(part) && !isLeadingAction(part)),
+          // Rows stand under the controls, as in a Toolbar built by hand: the bar's glass, edge and row gap. Their own
+          // fragment keeps their keys apart from the actions' keys.
+          h(FragmentVNode, { key: "toolbar-rows" }, parts.filter(isToolbarRow)),
         ]),
         // The description reads as the first text of the content, at the top of DialogBody when there is one
         descriptions.length > 0

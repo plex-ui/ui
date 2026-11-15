@@ -611,6 +611,8 @@ const isHeaderAction = (part: ReactNode): part is ReactElement => isValidElement
 const isLeadingAction = (part: ReactNode): part is ReactElement<DialogHeaderActionProps> =>
   isHeaderAction(part) && (part.props as DialogHeaderActionProps).side === "leading"
 const isDescription = (part: ReactNode): part is ReactElement => isValidElement(part) && part.type === Description
+// A Toolbar.Row in the header is a row of the phone Sheet's bar, under its controls (console 15.11)
+const isToolbarRow = (part: ReactNode): part is ReactElement => isValidElement(part) && part.type === Toolbar.Row
 
 const Header = ({ children, className, background = "glass" }: DialogHeaderProps) => {
   const sheet = useContext(DialogSheetContext)
@@ -623,7 +625,7 @@ const Header = ({ children, className, background = "glass" }: DialogHeaderProps
     const description = descriptions.length > 0 && <div className={s.SheetDescription}>{descriptions}</div>
     // On a phone the header of a Sheet is its Toolbar (iOS 27 kit Sheets 507-24684, Toolbar - Top - iPhone
     // 1-54520): Close at the leading edge, the title alone centered on the row of controls, the header actions
-    // at the trailing edge, all on one 44px row 16px under the top edge.
+    // at the trailing edge, all on one 44px row 16px under the top edge; a Toolbar.Row stands under that row.
     return (
       <>
         <Toolbar background={background} className={className} data-dialog-bar="">
@@ -641,8 +643,10 @@ const Header = ({ children, className, background = "glass" }: DialogHeaderProps
               </Toolbar.Leading>
             )}
             {parts.filter(isLeadingAction)}
-            <div className={clsx(t.Heading, s.BarHeading)}>{parts.filter((part) => !isHeaderAction(part) && !isDescription(part))}</div>
+            <div className={clsx(t.Heading, s.BarHeading)}>{parts.filter((part) => !isHeaderAction(part) && !isDescription(part) && !isToolbarRow(part))}</div>
             {parts.filter((part) => isHeaderAction(part) && !isLeadingAction(part))}
+            {/* Rows stand under the controls, as in a Toolbar built by hand: the bar's glass, edge and row gap */}
+            <Fragment key="toolbar-rows">{parts.filter(isToolbarRow)}</Fragment>
           </DialogBarContext.Provider>
         </Toolbar>
         {description && (sheet.descriptionSlot ? createPortal(description, sheet.descriptionSlot) : description)}

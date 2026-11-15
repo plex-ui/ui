@@ -2285,7 +2285,7 @@
           "name": "row",
           "type": "boolean",
           "default": "false",
-          "description": "One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other attributes reach the root only on a row"
+          "description": "One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. When a component of your own takes the id around its control, the row reaches the one control inside it; with two, it reaches neither. Other attributes reach the root only on a row"
         },
         {
           "name": "fill",
@@ -7394,5 +7394,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-15T09:30:46.033Z"
+  "generatedAt": "2026-11-15T10:32:26.882Z"
 }

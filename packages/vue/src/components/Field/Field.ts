@@ -48,6 +48,17 @@ import s from "@plexui/styles/components/Field/Field.module.css"
 // - As in React only `class` reaches the root element; other attributes are
 //   dropped. On a `row` they all reach it, as React's rest props do.
 
+// What a row's press can reach: a form control, a popup trigger, a choice
+const ROW_CONTROL = 'input:not([type="hidden"]):not([aria-hidden="true"]), textarea, select, button, [role="button"], [role="switch"], [role="checkbox"], [role="radio"], [role="combobox"]'
+
+/** The one control inside a wrapper that took the Field's id; a control nested in another (a clear button in a
+ * trigger) counts as part of it. */
+function soleRowControl(wrapper: HTMLElement): HTMLElement | null {
+  const found = Array.from(wrapper.querySelectorAll<HTMLElement>(ROW_CONTROL))
+  const outer = found.filter((element) => !found.some((other) => other !== element && other.contains(element)))
+  return outer.length === 1 ? outer[0] : null
+}
+
 export type FieldChildProps = {
   id: string
   /** The label's id. Bind it to a control that the label's `for` cannot name, such as a Select trigger. */
@@ -296,9 +307,14 @@ const FieldComponent = defineComponent({
             if (!linkedControl || linkedControl.closest("[data-row]") !== root) return
             // Select's linked form proxy is inside its popup trigger. An
             // ordinary input never delegates to a sibling Unit popup.
-            const control = linkedControl.matches('input[aria-hidden="true"]')
+            const direct = linkedControl.matches('input[aria-hidden="true"]')
               ? linkedControl.closest<HTMLElement>(':is(button, [role="button"])[aria-haspopup]:not([aria-haspopup="false"])') ?? linkedControl
               : linkedControl
+            // A product's own wrapper may take the id (a row component around a Select): the row then reaches the one
+            // control inside it, as an iOS cell does; with two controls, or none, the press stays on the row.
+            const control = direct === linkedControl && !linkedControl.matches(ROW_CONTROL) ? soleRowControl(linkedControl) : direct
+            // A control of a row nested in the wrapper belongs to that row
+            if (!control || control.closest("[data-row]") !== root) return
             if (control.matches(':disabled, [disabled], [data-disabled], [aria-disabled="true"], [data-loading], [aria-busy="true"]')) return
             const label = target.closest("label")
             // Native label activation stays native; span popup triggers need
