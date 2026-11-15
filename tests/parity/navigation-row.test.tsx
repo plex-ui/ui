@@ -157,6 +157,9 @@ describe("NavigationRow valuePlacement (console 15.11, DEC-190)", () => {
     expect(css).toMatch(/\[data-value-below\] \.Description \{\s*grid-area: 3 \/ 1;/)
     expect(css).toMatch(/\[data-value-below\] \.Pressable:not\(\[data-disabled\]\) \.Value \{/)
     expect(css).toMatch(/\[data-measuring\] \.Description \{\s*display: none;/)
+    expect(css).toMatch(/\[data-value-below\] \.Content \{[^}]*gap: 0 var\(--field-row-disclosure-gap, 8px\);/)
+    expect(css).toMatch(/\[data-value-below\] \.Disclosure \{\s*grid-area: 1 \/ 2 \/ span 2 \/ 3;/)
+    expect(css).toMatch(/\[data-value-below\]\[data-description\] \.Disclosure \{\s*grid-row: 1 \/ span 3;/)
   })
 
   test("auto moves the value below when the label and value do not fit on one line, in React and Vue", async () => {

@@ -142,7 +142,8 @@
 .NavigationRow[data-value-below] .Content {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: var(--field-row-disclosure-gap, 8px);
+  /* The lines touch, as the label and the description do (a subtitle cell's two lines) */
+  gap: 0 var(--field-row-disclosure-gap, 8px);
   align-items: center;
 }
 
@@ -171,8 +172,13 @@
   grid-area: 3 / 1;
 }
 
+/* The chevron spans the rows there are, so no empty row (and no space) is added under the value */
 .NavigationRow[data-value-below] .Disclosure {
-  grid-area: 1 / 2 / span 3 / 3;
+  grid-area: 1 / 2 / span 2 / 3;
+}
+
+.NavigationRow[data-value-below][data-description] .Disclosure {
+  grid-row: 1 / span 3;
 }
 
 /* "auto" measures the label and the value on one line each, beside each other, in the end layout's own limits (the
