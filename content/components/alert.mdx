@@ -57,7 +57,7 @@ const [banner, setBanner] = useState(false)
   <p><code>color</code> and <code>variant</code> style the alert. It shows a <code>title</code>, a <code>description</code> or both; each takes text or nodes, such as a <code>&lt;TextLink color="currentcolor"&gt;</code> to a status page. It has an indicator icon by default, chosen from its color: an icon in <code>indicator</code> replaces it, and <code>indicator={'{false}'}</code> hides it.</p>
   <p><code>actions</code> takes buttons or other nodes. They are placed automatically, at the end or, when they take more than a third of the alert's width, under the message, unless <code>actionsPlacement</code> is <code>'end'</code> or <code>'bottom'</code>. <code>onDismiss</code> adds a Dismiss button in the alert's chrome; for a dismissible notice, labeled buttons in <code>actions</code> are the suggested approach. A solid alert is for a message alone: buttons, Dismiss among them, do not read on its color, so this preview offers them on soft and outline alerts.</p>
   <p>Use <code>banner</code> for a full-width strip across the top or bottom of a page or panel (offline, read-only, a new version): it drops the rounded corners and keeps only the lines above and below.</p>
-  <p>On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners (a banner stays square), the title at 17/22 semibold and the description at 15/20, and a close button in its corner instead of Dismiss. A title or a description alone stands its first line on the middle of the icon. It keeps its icon, colors and variants, and its actions always stand under the message as 50px capsules side by side, so <code>actionsPlacement</code> is a desktop setting. With <code>mobileActions="own"</code> the actions keep the size you give the buttons, for an alert inside a block of its own buttons.</p>
+  <p>On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners (a banner stays square), the title at 17/22 semibold and the description at 15/20, and a close button in its corner instead of Dismiss. A title or a description alone stands its first line on the middle of the icon. A soft or outline alert turns gray, as a tip is: the secondary fill with no border, the title in the text color and the description in the secondary label, and only its icon keeps the alert's color (a neutral alert's icon is the secondary label); a solid alert keeps its color. Its actions always stand under the message as 50px capsules side by side, so <code>actionsPlacement</code> is a desktop setting. With <code>mobileActions="own"</code> the actions keep the size you give the buttons, for an alert inside a block of its own buttons, and they start where the text starts.</p>
 </>} code={overviewCode} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <AlertOverviewDemo />
 </ComponentPreview>
@@ -88,6 +88,9 @@ Alert reads these component tokens. Override them at any scope to restyle it:
 - `--alert-gap`: gap (default `spacing(3)`)
 - `--alert-gutter`: gutter (default `spacing(4)`)
 - `--alert-line-height`: line height (default `var(--font-text-sm-line-height)`)
+- `--alert-phone-background`: the gray of a soft or outline alert on a phone (default `var(--color-background-secondary-soft-alpha)`); set the row's background for an alert inside a list
+- `--alert-phone-description-color`: its description on a phone (default the secondary label at 60%, 70% in the dark)
+- `--alert-phone-indicator-color`: its icon on a phone (default the alert color's text color)
 - `--alert-title-font-weight`: title font weight (default `var(--font-weight-semibold)`)
 
 </div>

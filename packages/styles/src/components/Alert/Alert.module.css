@@ -257,6 +257,41 @@
     border-radius: 0;
   }
 
+  /* A soft or outline alert is gray, as iOS draws a tip (TipKit Hint View: the secondary fill, no border, the title
+     in the primary label and the description in the secondary one), and only its icon keeps the alert's color
+     (owner 15.11: «они серым делают все», «разве что иконку могут зеленой сделать»). The fill is the kit's gray of
+     iOS fills/secondary (236 on white and 42 on black, native 233 and 38); `--alert-phone-background` takes another,
+     such as the row's own background for an alert inside a list. A neutral alert's icon is the secondary label, as
+     Apple's. A solid alert keeps its color, the one emphatic message of a screen. */
+  .Alert[data-variant]:is([data-variant="soft"], [data-variant="outline"]) {
+    background-color: var(--alert-phone-background, var(--color-background-secondary-soft-alpha));
+    box-shadow: none;
+    color: var(--color-text);
+  }
+
+  /* The icon takes the color's text color, which keeps 3:1 on the gray in both themes (the outline colors did not,
+     and in the dark warning, danger and discovery take a lighter orange, red and purple, Codex 15.11); a neutral alert's icon is the secondary label */
+  .Alert[data-variant]:is([data-variant="soft"], [data-variant="outline"]) > .Indicator {
+    color: var(--alert-phone-indicator-color, var(--mobile-label-secondary, var(--color-text-secondary)));
+  }
+
+  .Alert[data-variant]:is([data-variant="soft"], [data-variant="outline"]):not([data-color="primary"]) > .Indicator {
+    color: var(--alert-phone-indicator-color, var(--alert-phone-tint));
+  }
+
+  .Alert[data-color="success"] { --alert-phone-tint: var(--color-text-success); }
+  .Alert[data-color="warning"] { --alert-phone-tint: light-dark(var(--color-text-warning), var(--orange-300)); }
+  .Alert[data-color="caution"] { --alert-phone-tint: var(--color-text-caution); }
+  .Alert[data-color="danger"] { --alert-phone-tint: light-dark(var(--color-text-danger), var(--red-300)); }
+  .Alert[data-color="info"] { --alert-phone-tint: var(--color-text-info); }
+  .Alert[data-color="discovery"] { --alert-phone-tint: light-dark(var(--color-text-discovery), var(--purple-200)); }
+
+  /* The description in the secondary label at its native 60%, 70% in the dark (the kit's 50% read 3.5:1 on the gray,
+     and under 4.5:1 on a dark sheet, Codex 15.11) */
+  .Alert[data-variant]:is([data-variant="soft"], [data-variant="outline"]) .Description {
+    color: var(--alert-phone-description-color, light-dark(var(--alpha-60), var(--alpha-70)));
+  }
+
   /* The actions take a line of their own under the icon and the message */
   .Content {
     display: contents;
@@ -352,6 +387,16 @@
     line-height: var(--button-line-height-xl, 22px);
     white-space: normal;
     overflow-wrap: anywhere;
+  }
+
+  /* Buttons of their own size start where the text starts, under it (owner 15.11: «слева паддинг не верный, не на
+     уровне текста»): after the icon's column and the gap, or the message's 6 without an icon */
+  .Alert[data-mobile-actions="own"] .Actions {
+    padding-inline-start: 6px;
+  }
+
+  .Alert[data-mobile-actions="own"]:has(> .Indicator) .Actions {
+    padding-inline-start: calc(6px + var(--alert-indicator-size) + 4px + 8px);
   }
 
   .Alert .Actions > .DismissButton {

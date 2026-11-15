@@ -7,6 +7,13 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Changed
+
+- On a phone a soft or outline `Alert` is gray, as iOS draws a tip (TipKit's Hint View): the secondary fill with no border, the title in the text color and the description in the secondary label, and only its icon keeps the alert's color (a neutral alert's icon is the secondary label). A banner turns gray too; a solid alert keeps its color, and the web keeps every color. `--alert-phone-background` sets another fill, such as the row's background for an alert inside a list.
+- On a phone the actions of an `Alert` with `mobileActions="own"` start where its text starts, under it, not at the card's edge.
+
 ## 0.54.1 (2026-11-15)
 
 `@plexui/ui` 0.54.1 and `@plexui/vue` 0.34.1 mark a phone sheet at its full height; `@plexui/styles` 0.12.1 steps the sheet under it back. Take the three together. `@plexui/mcp` is 0.2.31.

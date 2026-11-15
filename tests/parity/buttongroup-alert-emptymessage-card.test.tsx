@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, type ComponentType, type ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vitest"
@@ -687,3 +688,15 @@ describe("Card parity", () => {
 
 // Keeps serializeDom imported for ad-hoc debugging of a failing case
 void serializeDom
+
+test("on a phone a soft or outline Alert is gray and only its icon keeps the color, as an iOS tip (owner 15.11)", () => {
+  const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Alert/Alert.module.css`, "utf8")
+  const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
+  const neutral = '.Alert[data-variant]:is([data-variant="soft"], [data-variant="outline"])'
+  expect(phone).toContain(`${neutral} {\n    background-color: var(--alert-phone-background, var(--color-background-secondary-soft-alpha));\n    box-shadow: none;\n    color: var(--color-text);`)
+  expect(phone).toContain(`${neutral}:not([data-color="primary"]) > .Indicator {\n    color: var(--alert-phone-indicator-color, var(--alert-phone-tint));`)
+  expect(phone).toContain('.Alert[data-color="success"] { --alert-phone-tint: var(--color-text-success); }')
+  expect(phone).toContain("color: var(--alert-phone-description-color, light-dark(var(--alpha-60), var(--alpha-70)));")
+  // Buttons of their own size start under the text: 6 + 22 + 4 + 8 after the card's inset
+  expect(phone).toContain('.Alert[data-mobile-actions="own"]:has(> .Indicator) .Actions {\n    padding-inline-start: calc(6px + var(--alert-indicator-size) + 4px + 8px);')
+})
