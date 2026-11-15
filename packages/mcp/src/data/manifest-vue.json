@@ -6108,17 +6108,17 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<FieldGroup>\n  <SwipeActions\n    v-for=\"list in lists\"\n    :key=\"list.name\"\n    :leading=\"[{ id: 'pin', label: 'Pin', Icon: Pin, color: 'warning', onSelect: () => pin(list) }]\"\n    :trailing=\"[\n      { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', onSelect: () => remove(list) },\n      { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', onSelect: () => archive(list) },\n    ]\"\n  >\n    <div class=\"row\">{{ list.name }}</div>\n  </SwipeActions>\n</FieldGroup>",
+          "code": "<FieldGroup>\n  <SwipeActions\n    v-for=\"list in lists\"\n    :key=\"list.name\"\n    :leading=\"[{ id: 'pin', label: 'Pin', Icon: Pin, color: 'warning', onSelect: () => pin(list) }]\"\n    :trailing=\"[\n      { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => remove(list) },\n      { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', role: 'destructive', onSelect: () => archive(list) },\n    ]\"\n  >\n    <div class=\"row\">{{ list.name }}</div>\n  </SwipeActions>\n</FieldGroup>",
           "details": "Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart, 10px from the edge and 4px inside the top and bottom of the row, as iOS 27.2 sets them; the first action of a side stands at its edge. A symbol alone is a capsule of 60px that grows with the row and is a 50px circle from a row of 58px. Swiped aside, the content rounds its corners by 26px and, on a phone, turns soft gray on the background of the list, as iOS fills it. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it."
         },
         {
           "name": "Labels inside",
-          "code": "<SwipeActions\n  label-placement=\"inside\"\n  :leading=\"[{ id: 'pin', label: 'Pin', Icon: Pin, color: 'warning', onSelect: () => pin(list) }]\"\n  :trailing=\"[\n    { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', onSelect: () => remove(list) },\n    { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', onSelect: () => archive(list) },\n  ]\"\n>\n  <div class=\"row\">{{ list.name }}</div>\n</SwipeActions>",
+          "code": "<SwipeActions\n  label-placement=\"inside\"\n  :leading=\"[{ id: 'pin', label: 'Pin', Icon: Pin, color: 'warning', onSelect: () => pin(list) }]\"\n  :trailing=\"[\n    { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => remove(list) },\n    { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', role: 'destructive', onSelect: () => archive(list) },\n  ]\"\n>\n  <div class=\"row\">{{ list.name }}</div>\n</SwipeActions>",
           "details": "With label-placement=&quot;inside&quot; each capsule holds a smaller symbol and its label, and every action of a side takes the width of the widest, as iOS 27.2 sets them. An action without an icon shows its label alone, in a rounded rectangle: beside labels inside it takes the width of the widest too, and elsewhere it is as wide as its text."
         },
         {
           "name": "Labels below",
-          "code": "<SwipeActions\n  label-placement=\"below\"\n  :leading=\"[{ id: 'flag', label: 'Flag', Icon: Flag, color: 'warning', onSelect: () => flag(message) }]\"\n  :trailing=\"[\n    { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', onSelect: () => remove(message) },\n    { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', onSelect: () => archive(message) },\n  ]\"\n>\n  <div class=\"row\">\n    <div>{{ message.from }}</div>\n    <div>{{ message.subject }}</div>\n  </div>\n</SwipeActions>",
+          "code": "<SwipeActions\n  label-placement=\"below\"\n  :leading=\"[{ id: 'flag', label: 'Flag', Icon: Flag, color: 'warning', onSelect: () => flag(message) }]\"\n  :trailing=\"[\n    { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => remove(message) },\n    { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', role: 'destructive', onSelect: () => archive(message) },\n  ]\"\n>\n  <div class=\"row\">\n    <div>{{ message.from }}</div>\n    <div>{{ message.subject }}</div>\n  </div>\n</SwipeActions>",
           "details": "With label-placement=&quot;below&quot; the label stands under the capsule, which takes the rest of the row: iOS 27.2 sets its labels this way from a row of 60px, such as a row of two lines, and draws a 50px circle from a row of 78px."
         }
       ],
@@ -6151,6 +6151,11 @@
               "name": "onSelect",
               "type": "() => void",
               "description": "Called when the action is pressed, or by a full swipe when it is the first action of its side"
+            },
+            {
+              "name": "role",
+              "type": "\"destructive\"",
+              "description": "The action removes the row: the row slides out and collapses, as iOS deletes a row, and `onSelect` comes at the end of that for the list to drop it. A row the list keeps comes back."
             }
           ]
         }
@@ -7394,5 +7399,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-15T10:32:26.882Z"
+  "generatedAt": "2026-11-15T12:13:29.034Z"
 }

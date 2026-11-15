@@ -16,19 +16,34 @@ const listsTemplate = (labelPlacement?: 'inside') => `<div class="${pageStyles.F
       <ToolbarTitle>Lists</ToolbarTitle>
     </Toolbar>
     <PageContent>
-      <FieldGroup>
+      <!-- A pinned list moves to the Pinned group, as iOS pins a note. -->
+      <FieldGroup v-if="lists.some((item) => item.pinned)" title="Pinned">
         <SwipeActions
-          v-for="list in lists"
+          v-for="list in lists.filter((item) => item.pinned)"
           :key="list.name"${labelPlacement ? `\n          label-placement="${labelPlacement}"` : ''}
           :leading="[{ id: 'pin', label: list.pinned ? 'Unpin' : 'Pin', Icon: icons.Pin, color: 'warning', onSelect: () => (list.pinned = !list.pinned) }]"
           :trailing="[
-            { id: 'delete', label: 'Delete', Icon: icons.RemoveTrash, color: 'danger', onSelect: () => lists.splice(lists.indexOf(list), 1) },
-            { id: 'archive', label: 'Archive', Icon: icons.Archive, color: 'info', onSelect: () => lists.splice(lists.indexOf(list), 1) },
+            { id: 'delete', label: 'Delete', Icon: icons.RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => lists.splice(lists.indexOf(list), 1) },
+            { id: 'archive', label: 'Archive', Icon: icons.Archive, color: 'info', role: 'destructive', onSelect: () => lists.splice(lists.indexOf(list), 1) },
           ]"
         >
           <div class="${rowStyles.Row}">
             <span class="${rowStyles.Title}">{{ list.name }}</span>
-            <component :is="icons.Pin" v-if="list.pinned" class="${rowStyles.Mark}" aria-label="Pinned" />
+          </div>
+        </SwipeActions>
+      </FieldGroup>
+      <FieldGroup title="My Lists">
+        <SwipeActions
+          v-for="list in lists.filter((item) => !item.pinned)"
+          :key="list.name"${labelPlacement ? `\n          label-placement="${labelPlacement}"` : ''}
+          :leading="[{ id: 'pin', label: list.pinned ? 'Unpin' : 'Pin', Icon: icons.Pin, color: 'warning', onSelect: () => (list.pinned = !list.pinned) }]"
+          :trailing="[
+            { id: 'delete', label: 'Delete', Icon: icons.RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => lists.splice(lists.indexOf(list), 1) },
+            { id: 'archive', label: 'Archive', Icon: icons.Archive, color: 'info', role: 'destructive', onSelect: () => lists.splice(lists.indexOf(list), 1) },
+          ]"
+        >
+          <div class="${rowStyles.Row}">
+            <span class="${rowStyles.Title}">{{ list.name }}</span>
           </div>
         </SwipeActions>
       </FieldGroup>
@@ -49,8 +64,8 @@ const messagesTemplate = `<div class="${pageStyles.Frame}">
           label-placement="below"
           :leading="[{ id: 'flag', label: message.flagged ? 'Unflag' : 'Flag', Icon: icons.Flag, color: 'warning', onSelect: () => (message.flagged = !message.flagged) }]"
           :trailing="[
-            { id: 'delete', label: 'Delete', Icon: icons.RemoveTrash, color: 'danger', onSelect: () => messages.splice(messages.indexOf(message), 1) },
-            { id: 'archive', label: 'Archive', Icon: icons.Archive, color: 'info', onSelect: () => messages.splice(messages.indexOf(message), 1) },
+            { id: 'delete', label: 'Delete', Icon: icons.RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => messages.splice(messages.indexOf(message), 1) },
+            { id: 'archive', label: 'Archive', Icon: icons.Archive, color: 'info', role: 'destructive', onSelect: () => messages.splice(messages.indexOf(message), 1) },
           ]"
         >
           <div class="${rowStyles.Row} ${rowStyles.Tall}">

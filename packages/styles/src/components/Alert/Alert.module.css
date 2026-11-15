@@ -277,6 +277,13 @@
     }
   }
 
+  /* With a description under it the title's first line stands on the middle of the icon too, as an iOS row centres
+     its icon on its first line (owner 15.11: TipKit's lower image read as off centre); the 10px under the icon keep
+     the card as tall */
+  .Indicator:has(+ .Content > .Message > .Title ~ .Description) {
+    margin-block: 0 10px;
+  }
+
   /* A title alone stands on the middle of the image, as TipKit centres it, 20 from the top and the bottom */
   .Indicator + .Content > .Message:not(:has(> .Description)) {
     align-self: center;

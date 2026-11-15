@@ -58,6 +58,24 @@
   -webkit-user-select: none;
 }
 
+/* A destructive action removes the row: the content slides out and the row collapses from the height it had
+   (--swipe-actions-row-height, set by the row) before the list drops it, as iOS deletes a row. Nothing in it takes a
+   press meanwhile. */
+.SwipeActions[data-removing] {
+  pointer-events: none;
+  animation: swipe-actions-collapse var(--swipe-actions-duration) var(--ease-cubic-move, ease) forwards;
+}
+
+@keyframes swipe-actions-collapse {
+  from {
+    height: var(--swipe-actions-row-height);
+  }
+
+  to {
+    height: 0;
+  }
+}
+
 .Actions {
   position: absolute;
   inset-block: 0;
@@ -249,5 +267,9 @@
 @media (prefers-reduced-motion: reduce) {
   .Content {
     transition: none;
+  }
+
+  .SwipeActions[data-removing] {
+    animation: none;
   }
 }

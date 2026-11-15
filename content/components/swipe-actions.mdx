@@ -22,8 +22,8 @@ The examples show the phone view.
       key={name}
       leading={[{ id: "pin", label: "Pin", Icon: Pin, color: "warning", onSelect: () => pin(name) }]}
       trailing={[
-        { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", onSelect: () => remove(name) },
-        { id: "archive", label: "Archive", Icon: Archive, color: "info", onSelect: () => archive(name) },
+        { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", role: "destructive", onSelect: () => remove(name) },
+        { id: "archive", label: "Archive", Icon: Archive, color: "info", role: "destructive", onSelect: () => archive(name) },
       ]}
     >
       <div className="row">{name}</div>
@@ -39,8 +39,8 @@ The examples show the phone view.
   labelPlacement="inside"
   leading={[{ id: "pin", label: "Pin", Icon: Pin, color: "warning", onSelect: () => pin(name) }]}
   trailing={[
-    { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", onSelect: () => remove(name) },
-    { id: "archive", label: "Archive", Icon: Archive, color: "info", onSelect: () => archive(name) },
+    { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", role: "destructive", onSelect: () => remove(name) },
+    { id: "archive", label: "Archive", Icon: Archive, color: "info", role: "destructive", onSelect: () => archive(name) },
   ]}
 >
   <div className="row">{name}</div>
@@ -54,8 +54,8 @@ The examples show the phone view.
   labelPlacement="below"
   leading={[{ id: "flag", label: "Flag", Icon: Flag, color: "warning", onSelect: () => flag(message) }]}
   trailing={[
-    { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", onSelect: () => remove(message) },
-    { id: "archive", label: "Archive", Icon: Archive, color: "info", onSelect: () => archive(message) },
+    { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", role: "destructive", onSelect: () => remove(message) },
+    { id: "archive", label: "Archive", Icon: Archive, color: "info", role: "destructive", onSelect: () => archive(message) },
   ]}
 >
   <div className="row">
@@ -87,9 +87,10 @@ The examples show the phone view.
   { prop: "Icon", type: "ComponentType<SVGProps<SVGSVGElement>>", description: "Icon of the action" },
   { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"secondary"', description: "Solid color of the action" },
   { prop: "onSelect", type: "() => void", description: "Called when the action is pressed, or by a full swipe when it is the first action of its side" },
+  { prop: "role", type: '"destructive"', description: "The action removes the row: the row slides out and collapses, as iOS deletes a row, and `onSelect` comes at the end of that for the list to drop it. A row the list keeps comes back." },
 ]} />
 
-A swipe starts once the finger has gone 10px across the row and farther across than down; a drag down scrolls the list, and a drag in a text field or along a slider stays with that control. A click that ends a swipe, or that closes an open row, does not reach the content. Each action is also a button, in the order of the screen: the leading actions before the content, the trailing ones after it. The focus on an action reveals its side, and the row closes when the focus leaves it; an action chosen from the keys keeps the focus, so its side stays open. The row has `data-revealed` with the side it shows, and `data-swiping` while a finger moves it.
+A swipe starts once the finger has gone 10px across the row and farther across than down; a quick flick opens the side it moves toward however short it is, and a two-finger swipe on a trackpad moves the row too (without a full swipe); a drag down scrolls the list, and a drag in a text field or along a slider stays with that control. A click that ends a swipe, or that closes an open row, does not reach the content. Each action is also a button, in the order of the screen: the leading actions before the content, the trailing ones after it. The focus on an action reveals its side, and the row closes when the focus leaves it; an action chosen from the keys keeps the focus, so its side stays open. The row has `data-revealed` with the side it shows, and `data-swiping` while a finger moves it.
 
 ## Styling
 

@@ -6,10 +6,11 @@ import { type FunctionalComponent, h, ref } from "vue"
 import {
   SwipeActions as RSwipeActions,
   swipeActionsOffset as rOffset,
+  swipeActionsSettle as rSettle,
   type SwipeAction as RSwipeAction,
   type SwipeActionsProps as RSwipeActionsProps,
 } from "../../packages/ui/src/components/SwipeActions"
-import { SwipeActions, swipeActionsOffset as vOffset, type SwipeAction as VSwipeAction } from "../../packages/vue/src/components/SwipeActions"
+import { SwipeActions, swipeActionsOffset as vOffset, swipeActionsSettle as vSettle, type SwipeAction as VSwipeAction } from "../../packages/vue/src/components/SwipeActions"
 import { flushVue, mountVue } from "./harness"
 import { interact, renderPair } from "./pair"
 
@@ -24,8 +25,11 @@ const read = (path: string) => readFileSync(`${process.cwd()}/${path}`, "utf8")
 const WIDTHS = { leading: 86, trailing: 156 }
 const ROW = 358
 let rtl = false
+/** The row's --swipe-actions-duration. */
+let duration = ""
 beforeEach(() => {
   rtl = false
+  duration = ""
   vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function rect(this: HTMLElement) {
     if (!this.hasAttribute("data-side")) return DOMRect.fromRect({ x: 0, y: 0, width: 0, height: 0 })
     const count = this.children.length
@@ -37,7 +41,7 @@ beforeEach(() => {
   })
   const computed = window.getComputedStyle
   vi.spyOn(window, "getComputedStyle").mockImplementation((element, pseudo) => {
-    if (element.hasAttribute("data-swipe-actions")) return { direction: rtl ? "rtl" : "ltr" } as unknown as CSSStyleDeclaration
+    if (element.hasAttribute("data-swipe-actions")) return { direction: rtl ? "rtl" : "ltr", getPropertyValue: () => duration } as unknown as CSSStyleDeclaration
     return computed(element, pseudo)
   })
 })
@@ -62,6 +66,16 @@ describe("swipeActionsOffset", () => {
     expect(offset(60, { leading: 0, trailing: 156 }, ROW, true)).toEqual({ offset: 0, full: false })
     expect(offset(-60, { leading: 86, trailing: 0 }, ROW, true)).toEqual({ offset: 0, full: false })
     expect(offset(0, WIDTHS, ROW, true)).toEqual({ offset: 0, full: false })
+  })
+})
+
+describe("swipeActionsSettle", () => {
+  test.each([rSettle, vSettle])("a flick opens the side it moves toward and closes the row moving back; a slow lift opens past half", (settle) => {
+    expect(settle(-20, -0.5, 156)).toBe(true)
+    expect(settle(-120, 0.5, 156)).toBe(false)
+    expect(settle(-20, -0.1, 156)).toBe(false)
+    expect(settle(-80, 0, 156)).toBe(true)
+    expect(settle(30, 0.4, 86)).toBe(true)
   })
 })
 
@@ -293,11 +307,72 @@ describe.each([
     expect(mounted.row().hasAttribute("data-revealed")).toBe(false)
     await interact(() => { fireEvent.pointerMove(content, at(240)) })
     expect([mounted.row().getAttribute("data-revealed"), mounted.row().hasAttribute("data-swiping"), offsetOf(mounted)]).toEqual(["trailing", true, "-60px"])
+    // The finger rests before it lifts, so the swipe is no flick.
+    await new Promise((resolve) => setTimeout(resolve, 120))
     await interact(() => { fireEvent.pointerUp(content, at(240)) })
     expect([mounted.row().hasAttribute("data-revealed"), mounted.row().hasAttribute("data-swiping"), offsetOf(mounted)]).toEqual([false, false, ""])
     await swipe(mounted, 200)
     expect([mounted.row().getAttribute("data-revealed"), mounted.row().hasAttribute("data-swiping"), offsetOf(mounted)]).toEqual(["trailing", false, "-156px"])
     expect(mounted.selected).toEqual([])
+  })
+
+  test("a quick flick opens the side it moves toward however short it is", async () => {
+    const mounted = await mount()
+    await swipe(mounted, 270)
+    expect([mounted.row().getAttribute("data-revealed"), offsetOf(mounted)]).toEqual(["trailing", "-156px"])
+  })
+
+  test("a destructive action slides the row out and collapses it before it runs; a row the list keeps comes back", async () => {
+    const mounted = await mount()
+    await mounted.setTrailing([{ ...DELETE, role: "destructive" }, ARCHIVE])
+    duration = "40ms"
+    await swipe(mounted, 200)
+    await interact(() => { fireEvent.click(mounted.button("trailing", "Delete"), { detail: 1 }) })
+    expect([mounted.row().hasAttribute("data-removing"), offsetOf(mounted), mounted.row().style.getPropertyValue("--swipe-actions-row-height"), mounted.selected]).toEqual([true, "-358px", "0px", []])
+    await interact(() => new Promise((resolve) => setTimeout(resolve, 80)))
+    expect(mounted.selected).toEqual(["A:delete"])
+    expect([mounted.row().hasAttribute("data-removing"), mounted.row().hasAttribute("data-revealed"), mounted.row().style.getPropertyValue("--swipe-actions-row-height")]).toEqual([false, false, ""])
+  })
+
+  test("a kept row whose destructive action was chosen from the keys keeps that side open around the focus", async () => {
+    const mounted = await mount()
+    await mounted.setTrailing([{ ...DELETE, role: "destructive" }, ARCHIVE])
+    const button = mounted.button("trailing", "Delete")
+    await interact(() => { button.focus() })
+    await interact(() => { fireEvent.click(button, { detail: 0 }) })
+    await interact(() => new Promise((resolve) => setTimeout(resolve, 50)))
+    expect([mounted.selected, document.activeElement === button, mounted.row().getAttribute("data-revealed")]).toEqual([["A:delete"], true, "trailing"])
+  })
+
+  test("a short flick after a hold opens: the speed is the finger's latest", async () => {
+    const mounted = await mount()
+    const content = mounted.content()
+    await interact(() => { fireEvent.pointerDown(content, at(300)) })
+    await new Promise((resolve) => setTimeout(resolve, 150))
+    await interact(() => { fireEvent.pointerMove(content, at(295)) })
+    await interact(() => { fireEvent.pointerMove(content, at(280)) })
+    await interact(() => { fireEvent.pointerUp(content, at(280)) })
+    expect(mounted.row().getAttribute("data-revealed")).toBe("trailing")
+  })
+
+  test("a full swipe on a destructive action removes the row too", async () => {
+    const mounted = await mount()
+    await mounted.setTrailing([{ ...DELETE, role: "destructive" }, ARCHIVE])
+    await swipe(mounted, 0)
+    await interact(() => new Promise((resolve) => setTimeout(resolve, 50)))
+    expect(mounted.selected).toEqual(["A:delete"])
+  })
+
+  test("a two-finger trackpad swipe opens a side and settles when the wheel stops; a wheel down is the page's", async () => {
+    const mounted = await mount()
+    const down = new WheelEvent("wheel", { deltaY: 40, bubbles: true, cancelable: true })
+    mounted.row().dispatchEvent(down)
+    expect(down.defaultPrevented).toBe(false)
+    const across = new WheelEvent("wheel", { deltaX: 120, bubbles: true, cancelable: true })
+    await interact(() => { mounted.row().dispatchEvent(across) })
+    expect([across.defaultPrevented, mounted.row().hasAttribute("data-swiping"), offsetOf(mounted)]).toEqual([true, true, "-120px"])
+    await interact(() => new Promise((resolve) => setTimeout(resolve, 200)))
+    expect([mounted.row().hasAttribute("data-swiping"), offsetOf(mounted)]).toEqual([false, "-156px"])
   })
 
   test("a swipe toward the trailing edge reveals the leading actions", async () => {

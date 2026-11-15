@@ -37,6 +37,8 @@ export type SwipeAction = {
   color?: SwipeActionColor
   /** Called when the action is pressed, or by a full swipe when it is the first action of its side */
   onSelect?: () => void
+  /** `"destructive"`: the action removes the row, so the row slides out and its height collapses, as iOS deletes a row, and `onSelect` comes at the end of that for the list to drop it. A row the list keeps comes back. */
+  role?: "destructive"
 }
 
 export type SwipeActionsSide = "leading" | "trailing"
@@ -62,8 +64,27 @@ const SLOP = 10
 /** The width an open row moves by is the border box of its actions, edge and content gaps included. */
 const BORDER_BOX: ResizeObserverOptions = { box: "border-box" }
 
+/** A finger lifting faster than this (px/ms) opens the side it moves toward, or closes the row when it moves back, however short the swipe. */
+const FLICK = 0.3
+
+/** A finger that stopped this long (ms) before it lifted flicks nothing. */
+const FLICK_WINDOW = 100
+
+/** A trackpad swipe (horizontal wheel) ends when no wheel event has come for this long (ms). */
+const WHEEL_IDLE = 120
+
 /** Controls that take a horizontal drag themselves. */
 const OWN_DRAG = 'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="slider"]'
+
+/** Whether a wheel over `target` belongs to a control or a box inside the row that scrolls across itself. */
+const scrollsAcross = (target: EventTarget | null, row: Element | null): boolean => {
+  for (let element = target instanceof Element ? target : null; element && element !== row; element = element.parentElement) {
+    if (element.matches(OWN_DRAG)) return true
+    const overflow = getComputedStyle(element).overflowX
+    if ((overflow === "auto" || overflow === "scroll") && element.scrollWidth > element.clientWidth) return true
+  }
+  return false
+}
 
 type Gesture = {
   pointerId: number
@@ -75,6 +96,10 @@ type Gesture = {
   rtl: boolean
   widths: Record<SwipeActionsSide, number>
   rowWidth: number
+  /** Where the finger last was across (px) and when (ms), and how fast it moved there (px/ms). */
+  across: number
+  time: number
+  velocity: number
   /** Removes the listeners for the end of the gesture. */
   detach: () => void
 }
@@ -93,6 +118,25 @@ const capture = (element: Element, pointerId: number) => {
 
 const sideOf = (offset: number): SwipeActionsSide | undefined =>
   offset > 0 ? "leading" : offset < 0 ? "trailing" : undefined
+
+/**
+ * Where a swipe that ended at `offset` settles: a flick (`velocity` px/ms, toward the trailing edge when positive)
+ * opens the side it moves toward and closes the row when it moves back; a slow one opens a side moved past half its
+ * `width`.
+ */
+export const swipeActionsSettle = (offset: number, velocity: number, width: number): boolean => {
+  if (Math.abs(velocity) >= FLICK) return Math.sign(velocity) === Math.sign(offset)
+  return Math.abs(offset) >= width / 2
+}
+
+/** The duration (ms) the row moves in, none when the motion is reduced. */
+const durationOf = (element: Element) => {
+  if (typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches) return 0
+  const value = getComputedStyle(element).getPropertyValue("--swipe-actions-duration").trim()
+  const time = parseFloat(value)
+  if (!Number.isFinite(time)) return 0
+  return value.endsWith("ms") ? time : time * 1000
+}
 
 /**
  * Where the content goes for a swipe of `raw` px toward the trailing edge (negative: toward the leading edge), and
@@ -136,12 +180,20 @@ export function SwipeActions({
   const [swiping, setSwiping] = useState(false)
   const [rtl, setRtl] = useState(false)
   const [round, setRound] = useState(false)
+  const [removing, setRemoving] = useState(false)
+  const [height, setHeight] = useState<number | undefined>(undefined)
   const root = useRef<HTMLDivElement>(null)
   const sides = useRef<Record<SwipeActionsSide, HTMLDivElement | null>>({ leading: null, trailing: null })
   const gesture = useRef<Gesture | null>(null)
   const current = useRef({ offset: 0, full: false })
   const suppressClick = useRef(false)
   const observer = useRef<ResizeObserver | null>(null)
+  /** The timers of a removal and of a trackpad swipe, cleared when the row goes. */
+  const timers = useRef<{ timeouts: number[]; wheel: number }>({ timeouts: [], wheel: 0 })
+  /** The row is being removed: nothing moves it back until the action has run. */
+  const removal = useRef(false)
+  /** A trackpad swipe: where it started, how far it went, the widths at its start. `locked` drops the momentum after it. */
+  const wheel = useRef<{ start: number; across: number; widths: Record<SwipeActionsSide, number>; rowWidth: number } | "locked" | null>(null)
   const actionsRef = useLatestValue({ leading, trailing })
   const revealed = sideOf(offset)
 
@@ -164,7 +216,16 @@ export function SwipeActions({
   }
 
   /** The handlers of the latest render, for listeners and observers set up once. */
-  const latest = useRef({ close: () => {}, release, finish: () => {}, cancel: () => {}, sync: () => {}, fit: () => {} })
+  const latest = useRef({
+    close: () => {},
+    release,
+    finish: () => {},
+    cancel: () => {},
+    sync: () => {},
+    fit: () => {},
+    wheel: (_event: globalThis.WheelEvent) => {},
+    lockWheel: () => {},
+  })
 
   /** One function for the life of the row, so the list knows which row is open; another row that opens ends this one's gesture too. */
   const closer = useRef(() => {
@@ -174,10 +235,22 @@ export function SwipeActions({
       // The finger of the ended swipe still lifts over this row: its click is not a click on the content.
       if (state.swiping) suppressClick.current = true
     }
+    latest.current.lockWheel()
     latest.current.close()
   }).current
 
+  /** No action of the row keeps the focus. */
+  const blurActions = () => {
+    const focused = document.activeElement
+    if (focused instanceof HTMLElement && (sides.current.leading?.contains(focused) || sides.current.trailing?.contains(focused))) focused.blur()
+  }
+
   const close = () => {
+    if (removal.current) return
+    // Whatever closes or opens the row (a press, the focus, another row) ends a trackpad swipe and its momentum.
+    lockWheel()
+    // A closed row hides its actions, so none keeps the focus (Enter would run a hidden action).
+    blurActions()
     if (closeOpenRow === closer) closeOpenRow = null
     move(0)
   }
@@ -190,7 +263,9 @@ export function SwipeActions({
 
   /** Shows a side as wide as its actions (`width` when known), or closes the row when that side has none (any more). */
   const open = (side: SwipeActionsSide, width = widthOf(side)) => {
+    if (removal.current) return
     if (!(width > 0)) return close()
+    lockWheel()
     claim()
     setRtl(isRtl())
     move(side === "leading" ? width : -width)
@@ -199,7 +274,7 @@ export function SwipeActions({
   /** An open row follows its actions: more of them, other labels or another width move it to their new width. */
   const sync = () => {
     const side = sideOf(current.current.offset)
-    if (!side || gesture.current?.swiping || current.current.full) return
+    if (!side || removal.current || gesture.current?.swiping || (wheel.current && wheel.current !== "locked") || current.current.full) return
     const width = widthOf(side)
     if (!(width > 0)) return close()
     const target = side === "leading" ? width : -width
@@ -220,16 +295,54 @@ export function SwipeActions({
     setRound(max > 0 && capsule.getBoundingClientRect().height >= max - 0.5)
   }
 
-  const settle = (state: Gesture) => {
+  /**
+   * A destructive action: the content slides out to the side it was swiped to (the trailing one when pressed from
+   * the keys) and the row collapses, then the action runs; a row the list keeps comes back closed.
+   */
+  const remove = (action: SwipeAction, side: SwipeActionsSide) => {
+    const element = root.current
+    if (!element || removal.current) return
+    const duration = durationOf(element)
+    const width = element.clientWidth
+    claim()
+    setHeight(element.getBoundingClientRect().height)
+    setRemoving(true)
+    setRtl(isRtl())
+    move(side === "leading" ? width : -width, current.current.full)
+    removal.current = true
+    lockWheel()
+    const { timeouts } = timers.current
+    timeouts.push(window.setTimeout(() => {
+      action.onSelect?.()
+      // A row the list dropped is gone by now; one it keeps comes back.
+      timeouts.push(window.setTimeout(() => {
+        removal.current = false
+        setRemoving(false)
+        setHeight(undefined)
+        // An action that keeps the focus (chosen from the keys) keeps its side open, so the focus is never on a hidden action.
+        const focused = document.activeElement
+        const side = (["leading", "trailing"] as const).find((name) => !!focused && !!sides.current[name]?.contains(focused))
+        if (side) open(side)
+        else close()
+      }))
+    }, duration))
+  }
+
+  /** Runs an action from its side: a destructive one removes the row first. */
+  const run = (action: SwipeAction | undefined, side: SwipeActionsSide) => {
+    if (!action) return close()
+    if (action.role === "destructive") return remove(action, side)
+    action.onSelect?.()
+    close()
+  }
+
+  const settle = (state: Gesture, velocity = 0) => {
     const { offset: last, full: wasFull } = current.current
     const side = sideOf(last)
     if (!side) return close()
-    if (wasFull) {
-      actionsRef.current[side][0]?.onSelect?.()
-      return close()
-    }
+    if (wasFull) return run(actionsRef.current[side][0], side)
     // The widths from the start of the swipe: a full swipe may have stretched the actions since.
-    if (Math.abs(last) >= state.widths[side] / 2) open(side, state.widths[side])
+    if (swipeActionsSettle(last, velocity, state.widths[side])) open(side, state.widths[side])
     else close()
   }
 
@@ -240,7 +353,7 @@ export function SwipeActions({
     if (state.swiping) {
       suppressClick.current = true
       setSwiping(false)
-      settle(state)
+      settle(state, performance.now() - state.time <= FLICK_WINDOW ? state.velocity : 0)
     } else if (state.start !== 0) {
       if (state.swiping === undefined) suppressClick.current = true
       close()
@@ -257,7 +370,73 @@ export function SwipeActions({
     else close()
   }
 
-  latest.current = { close, release, finish, cancel, sync, fit }
+  /** A trackpad swipe that has not settled yet settles no more, where it stands (a press or a removal takes over). */
+  const stopWheel = () => {
+    window.clearTimeout(timers.current.wheel)
+    if (wheel.current && wheel.current !== "locked") setSwiping(false)
+    wheel.current = null
+  }
+
+  /** Another row took over: this row's trackpad swipe ends here, and the momentum after it moves nothing. */
+  const lockWheel = () => {
+    if (!wheel.current || wheel.current === "locked") return
+    stopWheel()
+    wheel.current = "locked"
+    timers.current.wheel = window.setTimeout(() => {
+      wheel.current = null
+    }, WHEEL_IDLE)
+  }
+
+  /**
+   * A two-finger swipe on a trackpad moves the row as a finger does, without a full swipe (the momentum after the
+   * fingers lift would run an action), and settles when the wheel stops. A swipe down scrolls the page.
+   */
+  const handleWheel = (event: globalThis.WheelEvent) => {
+    if (event.ctrlKey) return
+    const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY)
+    let state = wheel.current
+    // The momentum after a swipe keeps the lock until it stops, a removal or not.
+    if (state === "locked") {
+      window.clearTimeout(timers.current.wheel)
+      if (horizontal) event.preventDefault()
+      timers.current.wheel = window.setTimeout(() => {
+        wheel.current = null
+      }, WHEEL_IDLE)
+      return
+    }
+    if (removal.current || gesture.current || (leading.length < 1 && trailing.length < 1)) return
+    if (!state && (!horizontal || scrollsAcross(event.target, root.current))) return
+    window.clearTimeout(timers.current.wheel)
+    event.preventDefault()
+    if (!state) {
+      // The row moves under the focus: an action that has it lets it go, as a closed row does.
+      const start = current.current.offset
+      blurActions()
+      state = { start, across: 0, widths: { leading: widthOf("leading"), trailing: widthOf("trailing") }, rowWidth: root.current?.clientWidth ?? 0 }
+      wheel.current = state
+      claim()
+      setRtl(isRtl())
+      setSwiping(true)
+    }
+    const scale = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? state.rowWidth : 1
+    // The page scrolls the other way the fingers move: fingers moving left give a positive deltaX.
+    state.across -= event.deltaX * scale * (isRtl() ? -1 : 1)
+    const next = swipeActionsOffset(state.start + state.across, state.widths, state.rowWidth, false)
+    move(next.offset)
+    const widths = state.widths
+    timers.current.wheel = window.setTimeout(() => {
+      wheel.current = "locked"
+      setSwiping(false)
+      const side = sideOf(current.current.offset)
+      if (side && swipeActionsSettle(current.current.offset, 0, widths[side])) open(side, widths[side])
+      else close()
+      timers.current.wheel = window.setTimeout(() => {
+        wheel.current = null
+      }, WHEEL_IDLE)
+    }, WHEEL_IDLE)
+  }
+
+  latest.current = { close, release, finish, cancel, sync, fit, wheel: handleWheel, lockWheel }
 
   // After each render, and whenever the actions change size, an open row takes their width and a symbol its shape.
   useEffect(() => {
@@ -272,32 +451,43 @@ export function SwipeActions({
       latest.current.sync()
     })
     for (const element of [sides.current.leading, sides.current.trailing]) if (element) observer.current?.observe(element, BORDER_BOX)
+    // A trackpad swipe has to stop the page's own scroll and back gesture, which a passive listener cannot.
+    const element = root.current
+    const handleWheel = (event: globalThis.WheelEvent) => latest.current.wheel(event)
+    element?.addEventListener("wheel", handleWheel, { passive: false })
+    const pending = timers.current
     // The open row lets go of the list, and of the finger, when it goes away.
     return () => {
+      element?.removeEventListener("wheel", handleWheel)
+      for (const id of pending.timeouts) window.clearTimeout(id)
+      window.clearTimeout(pending.wheel)
       observer.current?.disconnect()
       observer.current = null
       latest.current.release()
       if (closeOpenRow === closer) closeOpenRow = null
     }
-  }, [closer, latest])
+  }, [closer, latest, timers])
 
-  // A press anywhere outside the open row closes it.
+  // A press anywhere outside the open row closes it, while a trackpad moves it too; a finger's own swipe keeps it.
   useEffect(() => {
-    if (!revealed || swiping) return
+    if (!revealed) return
     const handlePointerDown = (event: globalThis.PointerEvent) => {
       if (event.target instanceof Node && root.current?.contains(event.target)) return
+      if (gesture.current?.swiping) return
       latest.current.close()
     }
     document.addEventListener("pointerdown", handlePointerDown, true)
     return () => document.removeEventListener("pointerdown", handlePointerDown, true)
-  }, [revealed, swiping, latest])
+  }, [revealed, latest])
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0 || gesture.current) return
+    if (event.button !== 0 || gesture.current || removal.current) return
     // A new press of the primary pointer starts clean: a swipe that another row ended and that was then cancelled leaves
     // no click to swallow. Another finger's press keeps it, as only the primary pointer clicks.
     if (event.isPrimary) suppressClick.current = false
     if (leading.length < 1 && trailing.length < 1) return
+    // Any press ends a trackpad swipe still moving the row, and its momentum.
+    lockWheel()
     // A drag in a text field or along a slider belongs to that control.
     if (event.target instanceof Element && event.target.closest(OWN_DRAG)) return
     const pointerId = event.pointerId
@@ -319,6 +509,9 @@ export function SwipeActions({
       rtl: isRtl(),
       widths: { leading: widthOf("leading"), trailing: widthOf("trailing") },
       rowWidth: root.current?.clientWidth ?? 0,
+      across: 0,
+      time: performance.now(),
+      velocity: 0,
       detach: () => {
         window.removeEventListener("pointerup", handleUp, true)
         window.removeEventListener("pointercancel", handleCancel, true)
@@ -331,6 +524,11 @@ export function SwipeActions({
     if (!state || state.pointerId !== event.pointerId || state.swiping === false) return
     const across = (event.clientX - state.x) * (state.rtl ? -1 : 1)
     const down = event.clientY - state.y
+    // The speed is the finger's latest, from every move, the ones within the slop too.
+    const now = performance.now()
+    if (now > state.time) state.velocity = (across - state.across) / (now - state.time)
+    state.across = across
+    state.time = now
     if (state.swiping === undefined) {
       if (Math.abs(across) < SLOP && Math.abs(down) < SLOP) return
       if (Math.abs(across) <= Math.abs(down)) {
@@ -363,27 +561,35 @@ export function SwipeActions({
 
   /** The focus on an action shows its side; on the content it closes the row. */
   const handleFocus = (event: FocusEvent<HTMLDivElement>) => {
-    if (gesture.current?.swiping) return
+    if (gesture.current?.swiping || removal.current) return
     const side = (["leading", "trailing"] as const).find((name) => sides.current[name]?.contains(event.target))
     if (side) {
-      if (sideOf(current.current.offset) !== side) open(side)
+      // A trackpad swipe still moving the row ends with the side fully open.
+      const wheeling = !!wheel.current && wheel.current !== "locked"
+      if (wheeling || sideOf(current.current.offset) !== side) open(side)
     } else if (current.current.offset !== 0) {
       close()
     }
   }
 
   const handleBlur = (event: FocusEvent<HTMLDivElement>) => {
-    if (gesture.current?.swiping) return
+    if (gesture.current?.swiping || removal.current) return
     if (event.relatedTarget instanceof Node && root.current?.contains(event.relatedTarget)) return
     if (current.current.offset !== 0) close()
   }
 
-  const select = (action: SwipeAction, event: MouseEvent<HTMLButtonElement>) => {
+  const select = (action: SwipeAction, side: SwipeActionsSide, event: MouseEvent<HTMLButtonElement>) => {
+    // A row being removed runs nothing more, from the keys either.
+    if (removal.current) return
+    // A press ends a trackpad swipe still moving the row.
+    lockWheel()
+    // A pointer leaves no focus on the action, so a row the list keeps closes.
+    if (event.detail !== 0) event.currentTarget.blur()
+    if (action.role === "destructive") return remove(action, side)
     action.onSelect?.()
     // A press closes the row, as iOS does. From the keys the action keeps the focus, so its side stays open until
     // the focus leaves the row.
     if (event.detail === 0) return
-    event.currentTarget.blur()
     close()
   }
 
@@ -416,7 +622,7 @@ export function SwipeActions({
               data-shape={shape}
               data-first={action === actions[0] ? "" : undefined}
               aria-label={labelInside || labelBelow ? undefined : action.label}
-              onClick={(event) => select(action, event)}
+              onClick={(event) => select(action, side, event)}
             >
               <span className={s.Capsule}>
                 {action.Icon && <action.Icon className={s.Icon} aria-hidden="true" />}
@@ -440,6 +646,9 @@ export function SwipeActions({
       data-round={round ? "" : undefined}
       data-revealed={revealed}
       data-swiping={swiping ? "" : undefined}
+      data-removing={removing ? "" : undefined}
+      // The row collapses from its height (keyframes in the CSS), so no frame has to pass first.
+      style={height !== undefined ? { "--swipe-actions-row-height": `${height}px` } as CSSProperties : undefined}
       onFocus={handleFocus}
       onBlur={handleBlur}
     >

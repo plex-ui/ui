@@ -341,6 +341,11 @@ describe("Alert parity", () => {
     expect(css).toMatch(/\.Alert:where\(:not\(\[data-mobile-actions="own"\]\)\) \.Actions > :where\(button, a, \[role="link"\]\) \{\s*--button-size: var\(--button-size-xl, 50px\);/)
   })
 
+  test("on a phone the icon stands on the middle of the title's first line when a description follows (owner 15.11)", async () => {
+    const css = (await import("node:fs")).readFileSync(`${process.cwd()}/packages/styles/src/components/Alert/Alert.module.css`, "utf8")
+    expect(css).toMatch(/\.Indicator:has\(\+ \.Content > \.Message > \.Title ~ \.Description\) \{\s*margin-block: 0 10px;/)
+  })
+
   test("v-if'd actions slot renders no actions container", async () => {
     mountVue(() => h(Alert, { title: "Hi" }, { actions: () => [createCommentVNode("v-if", true)] }))
     await flushVue()

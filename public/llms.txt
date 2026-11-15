@@ -1161,6 +1161,7 @@ Props:
     - Icon (ComponentType<SVGProps<SVGSVGElement>>) — Icon of the action
     - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "secondary" — Solid color of the action
     - onSelect (() => void) — Called when the action is pressed, or by a full swipe when it is the first action of its side
+    - role ("destructive") — The action removes the row: the row slides out and collapses, as iOS deletes a row, and `onSelect` comes at the end of that for the list to drop it. A row the list keeps comes back.
 Examples: Overview, Labels inside, Labels below
 
 ## Switch

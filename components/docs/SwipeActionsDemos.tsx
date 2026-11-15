@@ -14,6 +14,30 @@ function ListsDemo({ labelPlacement }: { labelPlacement?: 'hidden' | 'inside' })
   const [lists, setLists] = useState(SWIPE_LISTS);
   const [pinned, setPinned] = useState<string[]>(['Groceries']);
   const remove = (name: string) => setLists((current) => current.filter((item) => item !== name));
+  const row = (name: string) => {
+    const isPinned = pinned.includes(name);
+    return (
+      <SwipeActions
+        key={name}
+        labelPlacement={labelPlacement}
+        leading={[{
+          id: 'pin',
+          label: isPinned ? 'Unpin' : 'Pin',
+          Icon: Pin,
+          color: 'warning',
+          onSelect: () => setPinned((current) => isPinned ? current.filter((item) => item !== name) : [...current, name]),
+        }]}
+        trailing={[
+          { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => remove(name) },
+          { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', role: 'destructive', onSelect: () => remove(name) },
+        ]}
+      >
+        <div className={r.Row}>
+          <span className={r.Title}>{name}</span>
+        </div>
+      </SwipeActions>
+    );
+  };
   return (
     <div data-demo-stage className={s.Stage}>
       <div className={s.Frame}>
@@ -22,33 +46,11 @@ function ListsDemo({ labelPlacement }: { labelPlacement?: 'hidden' | 'inside' })
             <Toolbar.Title>Lists</Toolbar.Title>
           </Toolbar>
           <Page.Content>
-            <FieldGroup>
-              {lists.map((name) => {
-                const isPinned = pinned.includes(name);
-                return (
-                  <SwipeActions
-                    key={name}
-                    labelPlacement={labelPlacement}
-                    leading={[{
-                      id: 'pin',
-                      label: isPinned ? 'Unpin' : 'Pin',
-                      Icon: Pin,
-                      color: 'warning',
-                      onSelect: () => setPinned((current) => isPinned ? current.filter((item) => item !== name) : [...current, name]),
-                    }]}
-                    trailing={[
-                      { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', onSelect: () => remove(name) },
-                      { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', onSelect: () => remove(name) },
-                    ]}
-                  >
-                    <div className={r.Row}>
-                      <span className={r.Title}>{name}</span>
-                      {isPinned && <Pin className={r.Mark} aria-label="Pinned" />}
-                    </div>
-                  </SwipeActions>
-                );
-              })}
-            </FieldGroup>
+            {/* A pinned list moves to the Pinned group, as iOS pins a note. */}
+            {lists.some((name) => pinned.includes(name)) && (
+              <FieldGroup title="Pinned">{lists.filter((name) => pinned.includes(name)).map(row)}</FieldGroup>
+            )}
+            <FieldGroup title="My Lists">{lists.filter((name) => !pinned.includes(name)).map(row)}</FieldGroup>
           </Page.Content>
         </Page>
       </div>
@@ -91,8 +93,8 @@ export function SwipeActionsLabelsBelowDemo() {
                       onSelect: () => setFlagged((current) => isFlagged ? current.filter((item) => item !== message.id) : [...current, message.id]),
                     }]}
                     trailing={[
-                      { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', onSelect: () => remove(message.id) },
-                      { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', onSelect: () => remove(message.id) },
+                      { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => remove(message.id) },
+                      { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', role: 'destructive', onSelect: () => remove(message.id) },
                     ]}
                   >
                     <div className={`${r.Row} ${r.Tall}`}>

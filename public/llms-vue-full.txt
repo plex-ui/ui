@@ -8286,6 +8286,7 @@ Props:
     - Icon (Component) — Icon of the action, a component (mark it raw in reactive state)
     - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "secondary" — Solid color of the action
     - onSelect (() => void) — Called when the action is pressed, or by a full swipe when it is the first action of its side
+    - role ("destructive") — The action removes the row: the row slides out and collapses, as iOS deletes a row, and `onSelect` comes at the end of that for the list to drop it. A row the list keeps comes back.
 
 ### Overview
 Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart, 10px from the edge and 4px inside the top and bottom of the row, as iOS 27.2 sets them; the first action of a side stands at its edge. A symbol alone is a capsule of 60px that grows with the row and is a 50px circle from a row of 58px. Swiped aside, the content rounds its corners by 26px and, on a phone, turns soft gray on the background of the list, as iOS fills it. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it.
@@ -8296,8 +8297,8 @@ Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the 
     :key="list.name"
     :leading="[{ id: 'pin', label: 'Pin', Icon: Pin, color: 'warning', onSelect: () => pin(list) }]"
     :trailing="[
-      { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', onSelect: () => remove(list) },
-      { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', onSelect: () => archive(list) },
+      { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => remove(list) },
+      { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', role: 'destructive', onSelect: () => archive(list) },
     ]"
   >
     <div class="row">{{ list.name }}</div>
@@ -8312,8 +8313,8 @@ With label-placement=&quot;inside&quot; each capsule holds a smaller symbol and 
   label-placement="inside"
   :leading="[{ id: 'pin', label: 'Pin', Icon: Pin, color: 'warning', onSelect: () => pin(list) }]"
   :trailing="[
-    { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', onSelect: () => remove(list) },
-    { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', onSelect: () => archive(list) },
+    { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => remove(list) },
+    { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', role: 'destructive', onSelect: () => archive(list) },
   ]"
 >
   <div class="row">{{ list.name }}</div>
@@ -8327,8 +8328,8 @@ With label-placement=&quot;below&quot; the label stands under the capsule, which
   label-placement="below"
   :leading="[{ id: 'flag', label: 'Flag', Icon: Flag, color: 'warning', onSelect: () => flag(message) }]"
   :trailing="[
-    { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', onSelect: () => remove(message) },
-    { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', onSelect: () => archive(message) },
+    { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => remove(message) },
+    { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', role: 'destructive', onSelect: () => archive(message) },
   ]"
 >
   <div class="row">
