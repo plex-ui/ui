@@ -852,7 +852,7 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
   })
 
   test("the bar keeps the row of controls and swaps the large title for the inline one in time, not with the scroll", () => {
-    const start = css.indexOf('.Toolbar[data-host="page"][data-title-style="large"] {')
+    const start = css.indexOf('.Toolbar:is([data-host="page"], [data-host="dialog"])[data-title-style="large"] {')
     expect(start).toBeGreaterThan(-1)
     const block = css.slice(start, css.indexOf("\n  }\n", start))
     for (const declaration of [

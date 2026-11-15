@@ -55,7 +55,7 @@ type PageContext = {
  * title's bottom, where they would stand. It reports that and their height, which the bar's background takes in. React's
  * twin.
  */
-function followTitleRows(content: HTMLElement, rows: HTMLElement, report: (pinned: boolean, height: number) => void) {
+export function followTitleRows(content: HTMLElement, rows: HTMLElement, report: (pinned: boolean, height: number) => void) {
   let last = ""
   const update = () => {
     const height = rows.offsetHeight

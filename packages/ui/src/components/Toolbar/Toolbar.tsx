@@ -46,7 +46,8 @@ export const barBackground = (background: ToolbarBackground | undefined): BarBac
 
 /**
  * A surface that places phone toolbars: `Page` puts the top bar over its content
- * and reserves the space; `Dialog` puts it 16px under the Sheet's top edge.
+ * and reserves the space; `Dialog` puts it 16px under the Sheet's top edge. Both keep a large title at the top of
+ * their content (Page.Content, Dialog.Body), where it scrolls and collapses into the bar.
  */
 export type ToolbarHost = {
   kind: "page" | "dialog"
@@ -65,6 +66,11 @@ export type ToolbarHost = {
   largeTitleRowSlot?: HTMLElement | null
   /** The rows under a large title are pinned under the bar, so its background reaches under them. */
   rowsPinned?: boolean
+  /**
+   * `false` while the host has no content to keep a large title in (a Dialog without Dialog.Body): the title and its
+   * rows stay in the bar. Otherwise the rows wait for their place, so they mount once, there.
+   */
+  holdsLargeTitle?: boolean
 }
 
 export const ToolbarHostContext = createContext<ToolbarHost | null>(null)
@@ -286,7 +292,8 @@ function followRowOrder(anchor: HTMLElement, row: HTMLElement) {
 function ToolbarRow({ className, ref, ...restProps }: ToolbarSlotProps) {
   const host = useContext(ToolbarHostContext)
   const titleStyle = useContext(ToolbarTitleStyleContext)
-  const large = titleStyle === "large" && host?.kind === "page"
+  // The rows go with the title: under it at the top of a page's content or a Sheet's body
+  const large = titleStyle === "large" && !!host?.requestLargeTitleSlot
   const requestSlot = large ? host?.requestLargeTitleSlot : undefined
   const slot = large ? host?.largeTitleRowSlot ?? null : null
   useLayoutEffect(() => requestSlot?.(), [requestSlot])
@@ -304,8 +311,10 @@ function ToolbarRow({ className, ref, ...restProps }: ToolbarSlotProps) {
   const row = <div ref={setRef} className={clsx(s.Row, className)} data-toolbar-row="" data-in-content={slot ? "" : undefined} {...restProps} />
   // Under a large title the row waits for its place in the content (it comes before the first paint) and never stands
   // in the bar first: moving it from the bar into the portal would mount its children again, and a switcher that holds
-  // its own selection would lose it (Codex #5).
-  if (large) return slot ? <>{createPortal(row, slot)}<span ref={anchor} data-toolbar-row-anchor="" hidden /></> : null
+  // its own selection would lose it (Codex #5). A host with no content to keep the title in (a Sheet without a body)
+  // keeps it in the bar.
+  if (large && slot) return <>{createPortal(row, slot)}<span ref={anchor} data-toolbar-row-anchor="" hidden /></>
+  if (large && host?.holdsLargeTitle !== false) return null
   return row
 }
 ToolbarRow.displayName = "Toolbar.Row"
@@ -327,7 +336,8 @@ function ToolbarTitle({ children, subtitle, as, className, ref, ...restProps }: 
   const titleStyle = useContext(ToolbarTitleStyleContext)
   const bar = useContext(ToolbarElementContext)
   const headingRef = useRef<HTMLDivElement | null>(null)
-  const large = titleStyle === "large" && host?.kind === "page"
+  // A page, and a Dialog with its body, keep the title at the top of their content
+  const large = titleStyle === "large" && !!host?.requestLargeTitleSlot
   const requestSlot = large ? host?.requestLargeTitleSlot : undefined
   const slot = large ? host?.largeTitleSlot ?? null : null
   const subscribeScroll = host?.subscribeScroll

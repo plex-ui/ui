@@ -44,9 +44,10 @@ type PageContextValue = {
 /**
  * Follows the rows of a large title's bar (Toolbar.Row) in the content. They stand under the title and, scrolled up to
  * the bar, stay under its controls (`position: sticky`): they are pinned once the sticky offset moves them off the
- * title's bottom, where they would stand. It reports that and their height, which the bar's background takes in.
+ * title's bottom, where they would stand. It reports that and their height, which the bar's background takes in. A
+ * Sheet follows the rows in Dialog.Body the same way.
  */
-function followTitleRows(content: HTMLElement, rows: HTMLElement, report: (pinned: boolean, height: number) => void) {
+export function followTitleRows(content: HTMLElement, rows: HTMLElement, report: (pinned: boolean, height: number) => void) {
   let last = ""
   const update = () => {
     const height = rows.offsetHeight

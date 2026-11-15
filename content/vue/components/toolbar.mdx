@@ -201,7 +201,7 @@ export const sheet = `<Dialog v-model:open="open">
     <Button color="secondary" variant="outline">Show orders</Button>
   </DialogTrigger>
   <DialogContent mobile-variant="sheet" surface="grouped">
-    <Toolbar>
+    <Toolbar :title-style="titleStyle">
       <ToolbarLeading>
         <DialogClose>
           <NavigationButton action="close" />
@@ -218,7 +218,7 @@ export const sheet = `<Dialog v-model:open="open">
   </DialogContent>
 </Dialog>`
 
-export const sheetCode = sheet.replace(list, "...")
+export const sheetCode = sheet.replace(list, "...").replace(':title-style="titleStyle"', 'title-style="large"')
 
 <UsageBlock>{`import { Toolbar, ToolbarLeading, ToolbarTitle, ToolbarTrailing } from "@plexui/vue/components/Toolbar";`}</UsageBlock>
 
@@ -302,8 +302,10 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
 
 ### Sheet
 
-<ComponentPreview phoneOnly phoneDialog language="vue" details={<>In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's own bar and Close button on a phone. Keep <code>DialogHeader</code> with <code>DialogTitle</code>: it still names the dialog for assistive technology, and it is the header from 768px up.</>} code={sheetCode}>
-  <VueDemo template={sheet} phoneTemplate={sheet.replace('v-model:open="open"', ':open="true"').replace('<DialogContent mobile-variant="sheet" surface="grouped">', '<DialogContent mobile-variant="sheet" surface="grouped" @open-auto-focus="$event.preventDefault()">')} phoneState={{ open: true, rows }} stageClassName="py-10 flex justify-center" state={{ open: false, rows }} />
+<ComponentPreview phoneOnly phoneDialog language="vue" details={<>In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's own bar and Close button on a phone. Keep <code>DialogHeader</code> with <code>DialogTitle</code>: it still names the dialog for assistive technology, and it is the header from 768px up. With <code>title-style="large"</code> the title starts <code>DialogBody</code>, as it starts a page's content: it scrolls with the body, and once it has gone under the bar the bar shows it inline, a subtitle as its second line. The bar keeps the Sheet's top padding, background and corners.</>} code={sheetCode}>
+  <VueDemo template={sheet} phoneTemplate={sheet.replace('v-model:open="open"', ':open="true"').replace('<DialogContent mobile-variant="sheet" surface="grouped">', '<DialogContent mobile-variant="sheet" surface="grouped" @open-auto-focus="$event.preventDefault()">')} controls={[
+    { name: "titleStyle", type: "select", options: ["inline", "large"], default: "inline" },
+  ]} phoneState={{ open: true, rows }} stageClassName="py-10 flex justify-center" state={{ open: false, rows }} />
 </ComponentPreview>
 
 ## Hosts
@@ -311,7 +313,7 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
 A toolbar places itself by its parent:
 
 - In `Page`, the top bar covers the content below the device's top safe area, or, where there is none (a page in a browser), with the air above its row that it keeps below it, and `PageContent` starts below it. The bottom bar stays below the content, which scrolls under it. Under 768px a top toolbar replaces `PageHeader` and a bottom toolbar replaces `PageFooter`, so one page can keep its desktop header and its phone toolbar side by side.
-- In a `Dialog` Sheet, the top bar sits 16px under the top edge, hides the Sheet's own bar and Close button, and leaves `DialogHeader` to name the dialog. Its title is hidden from assistive technology there. A bottom bar replaces `DialogFooter`.
+- In a `Dialog` Sheet, the top bar sits 16px under the top edge, hides the Sheet's own bar and Close button, and leaves `DialogHeader` to name the dialog. Its title is hidden from assistive technology there; a large title starts `DialogBody` and collapses into the bar as the body scrolls. A bottom bar replaces `DialogFooter`.
 
 Put the Back button of a phone screen in the toolbar only. A desktop layout shows its own navigation, such as a sidebar or breadcrumbs.
 

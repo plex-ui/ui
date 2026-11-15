@@ -8902,10 +8902,10 @@ A disabled bar button keeps its glass capsule and draws its symbol or label in t
 ```
 
 ### Sheet
-In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's own bar and Close button on a phone. Keep Dialog.Header with Dialog.Title: it still names the dialog for assistive technology, and it is the header from 768px up.
+In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's own bar and Close button on a phone. Keep Dialog.Header with Dialog.Title: it still names the dialog for assistive technology, and it is the header from 768px up. With titleStyle="large" the title starts Dialog.Body, as it starts a page's content: it scrolls with the body, and once it has gone under the bar the bar shows it inline, a subtitle as its second line. The bar keeps the Sheet's top padding, background and corners.
 ```tsx
 <Dialog.Content mobileVariant="sheet" surface="grouped">
-<Toolbar>
+<Toolbar titleStyle="large">
   <Toolbar.Leading>
     <Dialog.Close>
       <NavigationButton action="close" />

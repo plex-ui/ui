@@ -9556,14 +9556,14 @@ A disabled bar button keeps its glass capsule and draws its symbol or label in t
 ```
 
 ### Sheet
-In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's own bar and Close button on a phone. Keep DialogHeader with DialogTitle: it still names the dialog for assistive technology, and it is the header from 768px up.
+In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's own bar and Close button on a phone. Keep DialogHeader with DialogTitle: it still names the dialog for assistive technology, and it is the header from 768px up. With title-style="large" the title starts DialogBody, as it starts a page's content: it scrolls with the body, and once it has gone under the bar the bar shows it inline, a subtitle as its second line. The bar keeps the Sheet's top padding, background and corners.
 ```vue
 <Dialog v-model:open="open">
   <DialogTrigger>
     <Button color="secondary" variant="outline">Show orders</Button>
   </DialogTrigger>
   <DialogContent mobile-variant="sheet" surface="grouped">
-    <Toolbar>
+    <Toolbar title-style="large">
       <ToolbarLeading>
         <DialogClose>
           <NavigationButton action="close" />

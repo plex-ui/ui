@@ -276,7 +276,7 @@ describe("Bar background styles", () => {
   })
 
   test("a large title is the content under the row until the inline title comes in", () => {
-    const large = toolbar.slice(toolbar.indexOf('.Toolbar[data-host="page"][data-title-style="large"] {'))
+    const large = toolbar.slice(toolbar.indexOf('.Toolbar:is([data-host="page"], [data-host="dialog"])[data-title-style="large"] {'))
     expect(large).toMatch(/&\[data-scrolled\]:not\(\[data-title-collapsed\]\)\[data-background="glass"\]::before \{\s*opacity: 0;/)
     expect(large).toMatch(/&\[data-scrolled\]:not\(\[data-title-collapsed\]\)\[data-background="hard"\]::before \{\s*border-bottom-color: transparent;/)
   })

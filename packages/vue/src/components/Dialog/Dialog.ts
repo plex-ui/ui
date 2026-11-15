@@ -53,6 +53,7 @@ import { provideFloatingBoundaryScope, useFloatingBoundaryRegistration } from ".
 import { Button } from "../Button/Button.js"
 import { NavigationButton } from "../Button/NavigationButton.js"
 import { Popover, PopoverAnchor, PopoverContent } from "../Popover/Popover.js"
+import { followTitleRows } from "../Page/Page.js"
 import { barBackground, TOOLBAR_HOST, Toolbar, ToolbarLeading, ToolbarTrailing, type BarBackground, type BarBackgroundAlias } from "../Toolbar/Toolbar.js"
 import { observeScrollEdges } from "../../lib/scrollEdges.js"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
@@ -61,7 +62,20 @@ import t from "@plexui/styles/components/Toolbar/Toolbar.module.css"
 const DOUBLE_CLICK = 300
 
 /** Where content lies under the bars: DialogBody reports it, the bars show their lines with it. */
-type DialogScroll = { scrolled: Ref<boolean>; contentBelow: Ref<boolean> }
+type DialogScroll = {
+  scrolled: Ref<boolean>
+  contentBelow: Ref<boolean>
+  notifyScroll: (scrollTop: number) => void
+  /** A large Toolbar title asks for a place at the top of the body. */
+  largeTitle: Ref<boolean>
+  largeTitleSlot: Ref<HTMLElement | null>
+  /** The place of the bar's rows under a large title, pinned under the bar once scrolled up to it. */
+  largeTitleRowSlot: Ref<HTMLElement | null>
+  titleRowsPinned: Ref<boolean>
+  titleRowsHeight: Ref<number>
+  /** The bodies there are: without one the title stays in the bar, its rows with it. */
+  bodies: Ref<number>
+}
 const DIALOG_SCROLL: InjectionKey<DialogScroll> = Symbol("DialogScroll")
 // What the header of a Sheet needs from its content to become the Sheet's bar on a phone
 type DialogSheet = {
@@ -331,9 +345,55 @@ export const DialogContent = defineComponent({
     const phoneLayout = computed(() => !!outerPhoneLayout?.phone.value || props.layout === "phone")
     const portalTarget = computed(() => outerPhoneLayout?.container.value ?? null)
     provide(PHONE_LAYOUT_SCOPE, { container: outerPhoneLayout?.container ?? shallowRef(null), phone: phoneLayout } satisfies PhoneLayoutValue)
-    const scroll: DialogScroll = { scrolled: ref(false), contentBelow: ref(false) }
+    // DialogBody tells the bars that follow the scroll, as a large title does, the body's scroll offset. A large Toolbar
+    // title lives at the top of DialogBody, where it scrolls with the body and goes under the bar, which then shows it
+    // inline, as on a page; the body keeps a place for it while a title asks for one.
+    const scrollListeners = new Set<(scrollTop: number) => void>()
+    const largeTitleRequests = ref(0)
+    const largeTitle = computed(() => largeTitleRequests.value > 0)
+    const largeTitleSlot = shallowRef<HTMLElement | null>(null)
+    const largeTitleRowSlot = shallowRef<HTMLElement | null>(null)
+    const titleRowsPinned = ref(false)
+    const titleRowsHeight = ref(0)
+    const bodies = ref(0)
+    const scroll: DialogScroll = {
+      scrolled: ref(false),
+      contentBelow: ref(false),
+      notifyScroll: (scrollTop) => scrollListeners.forEach((listener) => listener(scrollTop)),
+      largeTitle,
+      largeTitleSlot,
+      largeTitleRowSlot,
+      titleRowsPinned,
+      titleRowsHeight,
+      bodies,
+    }
     provide(DIALOG_SCROLL, scroll)
-    provide(TOOLBAR_HOST, { kind: "dialog", scrolled: scroll.scrolled, contentBelow: scroll.contentBelow })
+    const requestLargeTitleSlot = () => {
+      largeTitleRequests.value++
+      let released = false
+      return () => { if (!released) { released = true; largeTitleRequests.value-- } }
+    }
+    // The heights the bars report themselves: a Toolbar inside content of the app's own (a form) is not the panel's child.
+    const barHeights: { top?: number; bottom?: number } = {}
+    let measureBars = () => {}
+    provide(TOOLBAR_HOST, {
+      kind: "dialog",
+      setHeight: (placement, height) => { barHeights[placement] = height; measureBars() },
+      scrolled: scroll.scrolled,
+      contentBelow: scroll.contentBelow,
+      subscribeScroll: (listener) => {
+        scrollListeners.add(listener)
+        return () => { scrollListeners.delete(listener) }
+      },
+      // The request stays the same, so with a body the rows mount once, in their place (Codex #68)
+      requestLargeTitleSlot,
+      // Until the panel has mounted the body may not have told the dialog yet (it comes after the bar): the rows wait
+      // for their place rather than mount in the bar first (Codex #69)
+      holdsLargeTitle: computed(() => bodies.value > 0 || !panelNode.value),
+      largeTitleSlot: computed(() => (largeTitle.value ? largeTitleSlot.value : null)),
+      largeTitleRowSlot: computed(() => (largeTitle.value ? largeTitleRowSlot.value : null)),
+      rowsPinned: computed(() => largeTitle.value && titleRowsPinned.value),
+    })
     // A phone has no other modal view than the sheet and the alert (owner 12.11: «нет такого в iOS»): a centered
     // dialog is an alert, any other a sheet, at the bottom or over the whole screen.
     const mobileVariant = computed(() => props.mobileVariant ?? (props.mobilePlacement === "center" ? "alert" : "sheet"))
@@ -400,6 +460,12 @@ export const DialogContent = defineComponent({
     rootContext.contentId ||= useId(undefined, "reka-dialog-content")
     // Reka replaces the root's content ref as it mounts, so the layer is found from the panel once it is in place
     const panelNode = shallowRef<HTMLElement | null>(null)
+    // The bar's background reaches under the pinned rows by their height, as on a page
+    watch([panelNode, titleRowsHeight], ([panel, height]) => {
+      if (!panel) return
+      if (height > 0) panel.style.setProperty("--page-toolbar-rows-height", `${height}px`)
+      else panel.style.removeProperty("--page-toolbar-rows-height")
+    }, { flush: "post" })
     let stopViewport: (() => void) | undefined
     watch(
       [panelNode, portalTarget],
@@ -525,6 +591,7 @@ export const DialogContent = defineComponent({
       detachDrag?.()
       barObserver?.disconnect()
       barChildren?.disconnect()
+      measureBars = () => {}
       detachDrag = undefined
       panelElement = element
       panelNode.value = element ?? null
@@ -538,9 +605,10 @@ export const DialogContent = defineComponent({
             ?? element.querySelector<HTMLElement>(`:scope > ${TOP_TOOLBAR}`)
             ?? element.querySelector<HTMLElement>(`:scope > .${s.Header}`)
           const footer = element.querySelector<HTMLElement>(`:scope > ${BOTTOM_TOOLBAR}`) ?? element.querySelector<HTMLElement>(`:scope > .${s.Footer}`)
-          element.style.setProperty("--dialog-header-height", `${header?.offsetHeight ?? 0}px`)
-          element.style.setProperty("--dialog-footer-height", `${footer?.offsetHeight ?? 0}px`)
+          element.style.setProperty("--dialog-header-height", `${header?.offsetHeight ?? barHeights.top ?? 0}px`)
+          element.style.setProperty("--dialog-footer-height", `${footer?.offsetHeight ?? barHeights.bottom ?? 0}px`)
         }
+        measureBars = update
         barObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
         const observeBars = () => {
           barObserver?.disconnect()
@@ -801,7 +869,30 @@ export const DialogBody = defineComponent({
       stop?.()
       if (scroll) { scroll.scrolled.value = false; scroll.contentBelow.value = false }
     })
-    return () => h("div", { ref: element, class: [s.Body, attrs.class] }, [
+    const setLargeTitleSlot = (slot: unknown) => {
+      if (scroll) scroll.largeTitleSlot.value = slot instanceof HTMLElement ? slot : null
+    }
+    const setLargeTitleRowSlot = (slot: unknown) => {
+      if (scroll) scroll.largeTitleRowSlot.value = slot instanceof HTMLElement ? slot : null
+    }
+    // The dialog moves a large title here only while a body is there
+    if (scroll) scroll.bodies.value++
+    onBeforeUnmount(() => { if (scroll) scroll.bodies.value-- })
+    // The rows of a large title's bar pin under it once scrolled up to it, as on a page
+    let stopRows: (() => void) | undefined
+    if (scroll) {
+      watch([element, scroll.largeTitleRowSlot], ([body, rows]) => {
+        stopRows?.()
+        stopRows = body && rows
+          ? followTitleRows(body, rows, (pinned, height) => { scroll.titleRowsPinned.value = pinned; scroll.titleRowsHeight.value = height })
+          : undefined
+      }, { flush: "post" })
+    }
+    onBeforeUnmount(() => { stopRows?.(); stopRows = undefined })
+    return () => h("div", { ref: element, class: [s.Body, attrs.class], onScroll: scroll ? (event: Event) => scroll.notifyScroll((event.currentTarget as HTMLElement).scrollTop) : undefined }, [
+      // A large Toolbar title starts the body and scrolls with it; the description comes under it
+      scroll?.largeTitle.value ? h("div", { ref: setLargeTitleSlot, class: s.LargeTitle }) : null,
+      scroll?.largeTitle.value ? h("div", { ref: setLargeTitleRowSlot, class: s.LargeTitleRows }) : null,
       sheet?.value && phone.value ? h("div", { ref: setDescriptionSlot, class: s.SheetDescriptionSlot }) : null,
       slots.default?.(),
     ])

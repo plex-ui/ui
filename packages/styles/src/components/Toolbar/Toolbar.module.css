@@ -707,8 +707,9 @@
      the list through the bounce). The bar keeps the row of controls. Once the title has gone under the bar, the row
      shows it inline: the two swap over --toolbar-large-title-swap-duration, not with the scroll, as iOS 27.2 does,
      and a hard or glass bar shows its line with the inline title: until then the large title is the content under
-     the row. */
-  .Toolbar[data-host="page"][data-title-style="large"] {
+     the row. A Sheet does the same with its body (Dialog.Body keeps the place); its bar keeps its padding, background
+     and radius. */
+  .Toolbar:is([data-host="page"], [data-host="dialog"])[data-title-style="large"] {
     --toolbar-edge-blur: var(--toolbar-edge-blur-small);
     grid-template-areas: "leading collapsed trailing";
     grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr);
@@ -753,6 +754,12 @@
 
     & > .Heading:has(> .Subtitle) {
       margin-bottom: calc(-1 * (var(--toolbar-padding-bottom) + var(--toolbar-large-subtitle-descent)));
+    }
+
+    /* A title kept in the bar with rows under it (a Sheet without Dialog.Body) keeps its line box: the rows stand
+       --toolbar-large-title-gap under it, not over its descent (Codex #70). */
+    & > .Heading:has(~ .Row) {
+      margin-bottom: 0;
     }
 
     & > .CollapsedTitle {

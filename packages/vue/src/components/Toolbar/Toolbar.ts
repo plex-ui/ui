@@ -70,6 +70,11 @@ export type ToolbarHost = {
   largeTitleRowSlot?: Ref<HTMLElement | null>
   /** The rows under a large title are pinned under the bar, so its background reaches under them. */
   rowsPinned?: Ref<boolean>
+  /**
+   * `false` while the host has no content to keep a large title in (a Dialog without DialogBody): the title and its
+   * rows stay in the bar. Otherwise the rows wait for their place, so they mount once, there.
+   */
+  holdsLargeTitle?: Ref<boolean>
 }
 
 export const TOOLBAR_HOST: InjectionKey<ToolbarHost> = Symbol("ToolbarHost")
@@ -271,14 +276,16 @@ export const ToolbarRow = defineComponent({
   setup(_, { slots, attrs }) {
     const host = inject(TOOLBAR_HOST, null)
     const titleStyle = inject(TOOLBAR_TITLE_STYLE, null)
-    const large = computed(() => titleStyle?.value === "large" && host?.kind === "page")
+    // The rows go with the title: under it at the top of a page's content or a Sheet's body
+    const large = computed(() => titleStyle?.value === "large" && !!host?.requestLargeTitleSlot)
     const slot = computed(() => (large.value ? host?.largeTitleRowSlot?.value ?? null : null))
     let release: (() => void) | undefined
-    onMounted(() => { if (large.value) release = host?.requestLargeTitleSlot?.() })
     watch(large, (value) => {
       release?.()
       release = value ? host?.requestLargeTitleSlot?.() : undefined
     })
+    // A watch that ran first has asked already (Codex #68)
+    onMounted(() => { if (large.value && !release) release = host?.requestLargeTitleSlot?.() })
     onBeforeUnmount(() => release?.())
     const element = ref<HTMLElement | null>(null)
     const anchor = ref<HTMLElement | null>(null)
@@ -291,8 +298,10 @@ export const ToolbarRow = defineComponent({
     return () => {
       const place = slot.value
       const row = h("div", { ...attrs, "ref": element, "class": [s.Row, attrs.class], "data-toolbar-row": "", "data-in-content": place ? "" : undefined }, slots.default?.())
-      // Under a large title the row waits for its place in the content, as React's does.
-      if (large.value) return place ? [h(Teleport, { to: place }, [row]), h("span", { "ref": anchor, "data-toolbar-row-anchor": "", "hidden": true })] : null
+      // Under a large title the row waits for its place in the content, as React's does; a host with no content to
+      // keep the title in (a Sheet without a body) keeps it in the bar.
+      if (large.value && place) return [h(Teleport, { to: place }, [row]), h("span", { "ref": anchor, "data-toolbar-row-anchor": "", "hidden": true })]
+      if (large.value && host?.holdsLargeTitle?.value !== false) return null
       return row
     }
   },
@@ -329,10 +338,12 @@ export const ToolbarTitle = defineComponent({
     const titleStyle = inject(TOOLBAR_TITLE_STYLE, null)
     const bar = inject(TOOLBAR_ELEMENT, null)
     const heading = ref<HTMLElement | null>(null)
-    const large = computed(() => titleStyle?.value === "large" && host?.kind === "page")
+    // A page, and a Dialog with its body, keep the title at the top of their content
+    const large = computed(() => titleStyle?.value === "large" && !!host?.requestLargeTitleSlot)
     const slot = computed(() => (large.value ? host?.largeTitleSlot?.value ?? null : null))
     let release: (() => void) | undefined
-    onMounted(() => { if (large.value) release = host?.requestLargeTitleSlot?.() })
+    // A watch that ran first has asked already (Codex #68)
+    onMounted(() => { if (large.value && !release) release = host?.requestLargeTitleSlot?.() })
     watch(large, (value) => {
       release?.()
       release = value ? host?.requestLargeTitleSlot?.() : undefined

@@ -10,7 +10,7 @@ import { Input } from '@plexui/ui/components/Input';
 import { Page } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Toolbar, type BarBackground, type ToolbarTitleAlign, type ToolbarTitleStyle } from '@plexui/ui/components/Toolbar';
-import { DemoControlBoolean, DemoControlRow, Segments, controlsTableStyle } from './ButtonDemos';
+import { DemoControlBoolean, DemoControlRow, DemoControlSelect, Segments, controlsTableStyle } from './ButtonDemos';
 import { DemoControlsBottom, usePreviewEmbed } from './PreviewEmbed';
 import s from './PageDemos.module.css';
 import t from './ToolbarDemos.module.css';
@@ -344,15 +344,21 @@ export function ToolbarDisabledDemo() {
 export function ToolbarSheetDemo() {
   const phonePreview = usePreviewEmbed() !== null;
   const [open, setOpen] = useState(phonePreview);
+  // A large title starts the Sheet's body and goes under the bar as the body scrolls, which then shows it inline
+  const [titleStyle, setTitleStyle] = useState<'inline' | 'large'>('inline');
 
   return (
+    <>
+    <div data-demo-controls style={controlsTableStyle}>
+      <DemoControlSelect name="titleStyle" options={['inline', 'large'] as const} value={titleStyle} onChange={setTitleStyle} />
+    </div>
     <div data-demo-stage className="py-10 flex justify-center">
       <Dialog open={phonePreview || open} onOpenChange={setOpen}>
         <Dialog.Trigger>
           <Button color="secondary" variant="outline">Show orders</Button>
         </Dialog.Trigger>
         <Dialog.Content mobileVariant="sheet" surface="grouped" onOpenAutoFocus={(event) => { if (phonePreview) event.preventDefault(); }}>
-          <Toolbar>
+          <Toolbar titleStyle={titleStyle}>
             <Toolbar.Leading>
               <Dialog.Close>
                 <NavigationButton action="close" />
@@ -369,5 +375,6 @@ export function ToolbarSheetDemo() {
         </Dialog.Content>
       </Dialog>
     </div>
+    </>
   );
 }

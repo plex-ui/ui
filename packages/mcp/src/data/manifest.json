@@ -7355,8 +7355,8 @@
         },
         {
           "name": "Sheet",
-          "code": "<Dialog.Content mobileVariant=\"sheet\" surface=\"grouped\">\n<Toolbar>\n  <Toolbar.Leading>\n    <Dialog.Close>\n      <NavigationButton action=\"close\" />\n    </Dialog.Close>\n  </Toolbar.Leading>\n  <Toolbar.Title>Orders</Toolbar.Title>\n</Toolbar>\n<Dialog.Header>\n  <Dialog.Title>Orders</Dialog.Title>\n</Dialog.Header>\n<Dialog.Body>...</Dialog.Body>\n</Dialog.Content>",
-          "details": "In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's own bar and Close button on a phone. Keep Dialog.Header with Dialog.Title: it still names the dialog for assistive technology, and it is the header from 768px up."
+          "code": "<Dialog.Content mobileVariant=\"sheet\" surface=\"grouped\">\n<Toolbar titleStyle=\"large\">\n  <Toolbar.Leading>\n    <Dialog.Close>\n      <NavigationButton action=\"close\" />\n    </Dialog.Close>\n  </Toolbar.Leading>\n  <Toolbar.Title>Orders</Toolbar.Title>\n</Toolbar>\n<Dialog.Header>\n  <Dialog.Title>Orders</Dialog.Title>\n</Dialog.Header>\n<Dialog.Body>...</Dialog.Body>\n</Dialog.Content>",
+          "details": "In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's own bar and Close button on a phone. Keep Dialog.Header with Dialog.Title: it still names the dialog for assistive technology, and it is the header from 768px up. With titleStyle=\"large\" the title starts Dialog.Body, as it starts a page's content: it scrolls with the body, and once it has gone under the bar the bar shows it inline, a subtitle as its second line. The bar keeps the Sheet's top padding, background and corners."
         }
       ],
       "subComponents": [
@@ -7479,5 +7479,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-14T20:28:53.909Z"
+  "generatedAt": "2026-11-15T06:08:07.702Z"
 }

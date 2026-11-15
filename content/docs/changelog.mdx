@@ -7,6 +7,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- A `Toolbar` with `titleStyle="large"` in a phone Sheet behaves as on a page: its title starts `Dialog.Body` (Vue `DialogBody`), scrolls with it, and once it has gone under the bar the bar shows it inline, a subtitle as its second line. The bar keeps the Sheet's top padding, background and corners; without a body the title stays in the bar. A toolbar that is not the panel's own child reports its height to the Sheet itself. The bar's rows (`Toolbar.Row`) go with the title, under it in the body, and pin under the bar once scrolled up to it, as on a page. They reach the body just after the Sheet opens, so its opening focus does not land in them: to start in a search field there, prevent `onOpenAutoFocus` and focus the field in the next frame.
+
 ## 0.50.0 (2026-11-14)
 
 `@plexui/styles` 0.9.0; `@plexui/ui` 0.50.0 and `@plexui/vue` 0.30.0 need `^0.9.0`, so updating them brings it. `@plexui/mcp` is 0.2.26. Group spacing and a row's leading symbol on a phone measured again, against Settings in iOS 27 and a SwiftUI Form; a toast on a phone as wide as its message; restyles cost less (two rules made Chromium restyle far more than what changed).

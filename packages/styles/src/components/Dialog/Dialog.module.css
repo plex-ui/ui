@@ -131,6 +131,12 @@
   }
 }
 
+/* The place of a large Toolbar title at the top of Dialog.Body. It holds the title's margins, so they never merge
+   with the margins of the content after it. */
+.LargeTitle {
+  display: flow-root;
+}
+
 /* Keep the native scroll indicator consistent even without the global stylesheet. */
 .Panel,
 .Body {
@@ -827,6 +833,36 @@
     padding-bottom: calc(max(16px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))) + var(--dialog-footer-height, 0px));
     scroll-padding-top: calc(var(--page-bar-soft-tail, 32px) + var(--dialog-header-height, 0px));
     scroll-padding-bottom: calc(16px + var(--dialog-footer-height, 0px));
+  }
+
+  /* A large Toolbar title starts the body, as it starts a page's content: the body starts 16 under the bar, as
+     Page.Content does, and the title stands --toolbar-large-title-gap under the row of controls, the content 16 under
+     its last baseline. It scrolls with the body and goes under the bar, which then shows it inline. */
+  .Content[data-mobile-variant="sheet"] .Panel > .Body:has(> .LargeTitle > *) {
+    padding-top: calc(16px + var(--dialog-header-height, 0px));
+    scroll-padding-top: calc(16px + var(--dialog-header-height, 0px));
+  }
+
+  /* The bar's rows under a large title (Toolbar.Row) stand under it in the body and, scrolled up to the bar, stay
+     under its controls, as on a page (Page.Content's rows): the body's padding ends 16 under the bar, as the page
+     content's does, and the sticky offset is counted from there. The bar's background reaches under them. */
+  .LargeTitleRows {
+    position: sticky;
+    z-index: 6;
+    top: calc(var(--toolbar-row-gap) - var(--toolbar-padding-bottom) - 16px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--toolbar-row-gap);
+    margin-bottom: 16px;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  /* A target scrolled into view lands under the pinned rows, not behind them. */
+  .Content[data-mobile-variant="sheet"] .Panel > .Body:has(> .LargeTitleRows > *) {
+    scroll-padding-top: calc(16px + var(--dialog-header-height, 0px) + var(--toolbar-row-gap) + var(--page-toolbar-rows-height, 0px));
   }
 
   /* A footer keeps its actions above the home indicator itself: the content ends 16px above the footer. */
