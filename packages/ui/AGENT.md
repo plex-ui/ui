@@ -276,6 +276,12 @@ Props: `count` (required), `value` / `defaultValue` (page index from 0), `onChan
 
 Props: `items` (required, the section titles in order, such as `"A"` to `"Z"`), `onSelect(item, index)` (on a press, on each new letter while dragging, from the keys), `aria-label` (default "Section index"), `aria-controls`, `className`. The iOS section index of a long sorted list: phone only (under 768px), at the trailing edge of the nearest positioned container (a `Page`); scroll the list to the section in `onSelect`. Collapses to letters and dots when they do not fit. One vertical slider for assistive technology.
 
+### NavigationRow
+
+**Import:** `@plexui/ui/components/NavigationRow` -- also exports the type `NavigationRowProps`
+
+Props: `label`, `value` (shown unless `null`/`undefined`/`false`/`""`, so `0` shows), `description` (a line under the label; the row grows from 52px), `href` + `as` + `external` (a link through `PlexUIProvider` `linkComponent`), `disabled` (a disabled link renders as a disabled button), `onClick`, `ref` (the pressable). Every other attribute and `className` go to the pressable; the row sets no `aria-haspopup`/`aria-expanded`. A `FieldGroup` row (`data-row`) that opens what it holds, as an iOS Settings drill-in: label, value in the secondary label, a chevron, one press. With `FieldGroup columns` the value takes the control column. Tokens: `--navigation-row-label-color`, `--navigation-row-value-color`, `--navigation-row-disclosure-color`.
+
 ### SwipeActions
 
 **Import:** `@plexui/ui/components/SwipeActions` -- also exports the types `SwipeAction`, `SwipeActionColor`, `SwipeActionsSide`

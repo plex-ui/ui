@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 62
+Components: 63
 
 ## Setup
 
@@ -712,6 +712,21 @@ Props:
     - indicator-variant ("solid" | "ghost") default: "solid" — Indicator style
     - disabled (boolean) default: false — Disable the item
 Examples: Overview, Mode switch, Header, Grouped items, Submenus, Checkbox items, Radio items, Destructive items, Natural sizing, Horizontal (icons only), Item actions
+
+## Navigation Row
+"A row of a list that opens what it holds, as an iOS Settings row: its label, the current value at the end, a chevron, and the whole row one press."
+Import: import { NavigationRow } from "@plexui/vue/components/NavigationRow"
+Docs: https://plexui.com/vue/components/navigation-row
+Props:
+  - label (string | number) — The name of the row, where a row's label starts (or the `label` slot)
+  - value (string | number | null) — The current value, at the end of the row in the secondary label color (or the `value` slot). `0` shows; `null`, `undefined` and `""` do not
+  - description (string | number) — A line under the label; the row grows from 52px to hold it (or the `description` slot)
+  - to (string | object) — A router target: with it the row is a link, through the `linkComponent` of `PlexUIProvider`
+  - href (string) — Where the row goes, as a plain link
+  - as (Component | "a") — The link component, such as a router's link
+  - external (boolean) — Treats the link as one out of the app (a new tab)
+  - disabled (boolean) default: false — The row can't be pressed. A disabled link renders as a disabled button, so it never navigates
+Examples: Overview, Columns
 
 ## OTP Input
 Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.

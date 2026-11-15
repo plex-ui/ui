@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 62,
+  "componentCount": 63,
   "components": [
     {
       "slug": "accordion",
@@ -3775,6 +3775,71 @@
       "docsUrl": "https://plexui.com/vue/components/menu"
     },
     {
+      "slug": "navigation-row",
+      "name": "Navigation Row",
+      "description": "\"A row of a list that opens what it holds, as an iOS Settings row: its label, the current value at the end, a chevron, and the whole row one press.\"",
+      "importPath": "@plexui/vue/components/NavigationRow",
+      "exports": [
+        "NavigationRow"
+      ],
+      "props": [
+        {
+          "name": "label",
+          "type": "string | number",
+          "description": "The name of the row, where a row's label starts (or the `label` slot)"
+        },
+        {
+          "name": "value",
+          "type": "string | number | null",
+          "description": "The current value, at the end of the row in the secondary label color (or the `value` slot). `0` shows; `null`, `undefined` and `\"\"` do not"
+        },
+        {
+          "name": "description",
+          "type": "string | number",
+          "description": "A line under the label; the row grows from 52px to hold it (or the `description` slot)"
+        },
+        {
+          "name": "to",
+          "type": "string | object",
+          "description": "A router target: with it the row is a link, through the `linkComponent` of `PlexUIProvider`"
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "description": "Where the row goes, as a plain link"
+        },
+        {
+          "name": "as",
+          "type": "Component | \"a\"",
+          "description": "The link component, such as a router's link"
+        },
+        {
+          "name": "external",
+          "type": "boolean",
+          "description": "Treats the link as one out of the app (a new tab)"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "The row can't be pressed. A disabled link renders as a disabled button, so it never navigates"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<FieldGroup>\n  <NavigationRow label=\"Language\" :value=\"language\" @click=\"open('language')\" />\n  <NavigationRow label=\"Region\" :value=\"region\" @click=\"open('region')\" />\n  <NavigationRow label=\"Calendar\" :value=\"calendar\" @click=\"open('calendar')\" />\n</FieldGroup>\n<FieldGroup>\n  <NavigationRow\n    label=\"Fetch New Data\"\n    description=\"How new mail arrives\"\n    :value=\"fetch\"\n    @click=\"open('fetch')\"\n  />\n  <NavigationRow label=\"Temperature\" value=\"°C\" disabled />\n</FieldGroup>\n<FieldGroup>\n  <NavigationRow label=\"Accounts\" :value=\"accounts.length\" to=\"/settings/accounts\" />\n</FieldGroup>",
+          "details": "Put the rows in a FieldGroup: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The value stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A description adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A disabled row greys all of it and can&apos;t be pressed. With to or href the row is a link through the linkComponent of PlexUIProvider (or as), for a router&apos;s page."
+        },
+        {
+          "name": "Columns",
+          "code": "<FieldGroup columns>\n  <NavigationRow label=\"Language\" :value=\"language\" @click=\"open('language')\" />\n  <NavigationRow label=\"Region\" :value=\"region\" @click=\"open('region')\" />\n</FieldGroup>",
+          "details": "In a FieldGroup with columns the value takes the control column of the group, in the text color, as the value of a Field row does, and the chevron stays at the end."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/navigation-row"
+    },
+    {
       "slug": "otp-input",
       "name": "OTP Input",
       "description": "Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.",
@@ -7399,5 +7464,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-15T12:13:29.034Z"
+  "generatedAt": "2026-11-15T13:57:18.005Z"
 }

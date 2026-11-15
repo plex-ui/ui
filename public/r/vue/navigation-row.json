@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "navigation-row",
+  "type": "registry:ui",
+  "title": "Navigation Row",
+  "description": "\"A row of a list that opens what it holds, as an iOS Settings row: its label, the current value at the end, a chevron, and the whole row one press.\"",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/navigation-row/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/NavigationRow\"\n"
+    }
+  ],
+  "docs": "Import as `import { NavigationRow } from '@/components/ui/navigation-row'`. See https://plexui.com/vue/components/navigation-row for props and examples."
+}

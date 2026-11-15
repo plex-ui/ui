@@ -95,6 +95,7 @@ import {
   MenuTrigger,
 } from '@plexui/vue/components/Menu';
 import { OTPInput } from '@plexui/vue/components/OTPInput';
+import { NavigationRow } from '@plexui/vue/components/NavigationRow';
 import { PlexUIProvider } from '@plexui/vue/components/PlexUIProvider';
 import {
   Page,
@@ -339,6 +340,7 @@ const components: Record<string, Component> = {
   MenuSubTrigger,
   MenuTrigger,
   NavigationButton,
+  NavigationRow,
   OTPInput,
   // <TransitionGroup> always compiles to Vue's built-in, so templates use the alias
   PlexTransitionGroup,

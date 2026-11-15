@@ -1,0 +1,137 @@
+/* =============================================
+   NavigationRow
+   A row of a FieldGroup that opens what it holds, as an iOS 27.2 Settings drill-in (General › Language & Region,
+   Mail › Accounts): the label where a row's label starts, its current value at the end in the secondary label, a
+   chevron after it in the tertiary one, and the whole row one press. It is a FieldGroup action row (FieldGroup.module.css
+   gives it the row's height, inset, type and hover), so it keeps the row's 52 as a minimum and grows with a second
+   line under the label, which spaces two lines over 70 on a phone as a subtitle cell does.
+   ============================================= */
+
+.NavigationRow {
+  min-width: 0;
+}
+
+/* Twice the class, so the row's box beats the Button's own height and single line */
+.Pressable.Pressable {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: var(--field-row-min-height, 52px);
+  padding-block: max(
+    var(--field-row-text-padding-block, 10px),
+    calc((var(--field-row-min-height, 52px) - var(--field-row-label-line-height, 20px)) / 2)
+  );
+  padding-inline: var(--field-row-padding-inline, var(--button-gutter));
+  font-size: var(--field-row-label-font-size, var(--font-text-sm-size));
+  font-weight: var(--field-row-label-font-weight, var(--font-weight-medium));
+  line-height: var(--field-row-label-line-height, var(--font-text-sm-line-height));
+  text-align: start;
+  white-space: normal;
+}
+
+/* A label with a line under it centres the two lines in the subtitle cell's height */
+.NavigationRow[data-description] > .Pressable.Pressable {
+  padding-block: max(
+    var(--field-row-text-padding-block, 10px),
+    calc(
+      (
+          var(--field-row-description-min-height, var(--field-row-min-height, 52px)) -
+          var(--field-row-label-line-height, 20px) - var(--field-row-description-line-height, 20px)
+        ) /
+        2
+    )
+  );
+}
+
+.Content {
+  display: flex;
+  align-items: center;
+  gap: var(--field-row-disclosure-gap, 8px);
+  width: 100%;
+  min-width: 0;
+}
+
+.Text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* The label's words break only when one is wider than the row */
+.Label,
+.Description {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* The label in the text color, as a Settings row's, not a secondary button's gray */
+.Label {
+  color: var(--navigation-row-label-color, var(--color-text));
+}
+
+.Description {
+  color: var(--field-description-color, var(--mobile-label-secondary, var(--color-text-secondary)));
+  font-size: var(--field-row-description-font-size, var(--font-text-sm-size));
+  font-weight: var(--font-weight-normal);
+  line-height: var(--field-row-description-line-height, var(--font-text-sm-line-height));
+}
+
+/* The value keeps the row's gap from the label, and the disclosure's gap from the chevron. A short value keeps its
+   width (it never breaks inside a word to make room); a long one stops at 60% of the row and wraps there, so the
+   label and the chevron keep their room (Codex 15.11). */
+.Value {
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: var(--navigation-row-value-max-width, 60%);
+  margin-inline-start: calc(var(--field-row-gap, 24px) - var(--field-row-disclosure-gap, 8px));
+  color: var(--navigation-row-value-color, var(--mobile-label-secondary, var(--color-text-secondary)));
+  font-weight: var(--font-weight-normal);
+  overflow-wrap: anywhere;
+  text-align: end;
+}
+
+/* chevron.forward of a drill-in: a 20 glyph box whose drawn chevron ends at the row's inset, lighter than the value
+   (iOS IMG_5512: the value at 138 on white, its chevron at 197) */
+.Pressable .Disclosure {
+  display: block;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-inline: -5px;
+  color: var(--navigation-row-disclosure-color, var(--mobile-label-tertiary, var(--color-text-tertiary)));
+}
+
+/* chevron.forward points to the trailing edge, so it turns in a right-to-left row */
+.Pressable:dir(rtl) .Disclosure {
+  transform: scaleX(-1);
+}
+
+/* A disabled row greys all of it, as the Button greys its label */
+.Pressable[data-disabled] :is(.Label, .Description, .Value, .Disclosure) {
+  color: inherit;
+}
+
+/* With FieldGroup columns the value takes the control column, in the text color, as a Field's value does */
+/* The columns of a Field row: 16 between the label column and the value on every width (Field.module.css) */
+[data-field-columns] .NavigationRow {
+  --field-row-gap: 16px;
+}
+
+[data-field-columns] .Content {
+  display: grid;
+  grid-template-columns: var(--field-row-column-width) minmax(0, 1fr) auto;
+  gap: 0;
+}
+
+[data-field-columns] .Value {
+  max-width: none;
+  margin-inline: var(--field-row-gap, 24px) var(--field-row-disclosure-gap, 8px);
+  color: var(--navigation-row-value-color, var(--color-text));
+  text-align: start;
+}
+
+[data-field-columns] .NavigationRow:not([data-value]) .Text {
+  grid-column: 1 / 3;
+}

@@ -1,0 +1,13 @@
+/* The choice a row holds carries the checkmark in the tint, as an iOS list marks its choice */
+.Choice svg {
+  color: var(--color-text-info);
+}
+
+/* On a desktop groups one after another keep apart; a phone spaces them itself (touch.css) */
+@media (min-width: 768px) {
+  .Groups {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+}

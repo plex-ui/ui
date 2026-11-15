@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 62
+Components: 63
 
 ## Setup
 
@@ -4658,6 +4658,51 @@ Use MenuItemActions and MenuItemAction for hover actions (e.g. delete) on an ite
     </MenuItem>
   </MenuContent>
 </Menu>
+```
+
+## Navigation Row
+"A row of a list that opens what it holds, as an iOS Settings row: its label, the current value at the end, a chevron, and the whole row one press."
+Import: import { NavigationRow } from "@plexui/vue/components/NavigationRow"
+Docs: https://plexui.com/vue/components/navigation-row
+Props:
+  - label (string | number) — The name of the row, where a row's label starts (or the `label` slot)
+  - value (string | number | null) — The current value, at the end of the row in the secondary label color (or the `value` slot). `0` shows; `null`, `undefined` and `""` do not
+  - description (string | number) — A line under the label; the row grows from 52px to hold it (or the `description` slot)
+  - to (string | object) — A router target: with it the row is a link, through the `linkComponent` of `PlexUIProvider`
+  - href (string) — Where the row goes, as a plain link
+  - as (Component | "a") — The link component, such as a router's link
+  - external (boolean) — Treats the link as one out of the app (a new tab)
+  - disabled (boolean) default: false — The row can't be pressed. A disabled link renders as a disabled button, so it never navigates
+
+### Overview
+Put the rows in a FieldGroup: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The value stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A description adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A disabled row greys all of it and can&apos;t be pressed. With to or href the row is a link through the linkComponent of PlexUIProvider (or as), for a router&apos;s page.
+```vue
+<FieldGroup>
+  <NavigationRow label="Language" :value="language" @click="open('language')" />
+  <NavigationRow label="Region" :value="region" @click="open('region')" />
+  <NavigationRow label="Calendar" :value="calendar" @click="open('calendar')" />
+</FieldGroup>
+<FieldGroup>
+  <NavigationRow
+    label="Fetch New Data"
+    description="How new mail arrives"
+    :value="fetch"
+    @click="open('fetch')"
+  />
+  <NavigationRow label="Temperature" value="°C" disabled />
+</FieldGroup>
+<FieldGroup>
+  <NavigationRow label="Accounts" :value="accounts.length" to="/settings/accounts" />
+</FieldGroup>
+```
+
+### Columns
+In a FieldGroup with columns the value takes the control column of the group, in the text color, as the value of a Field row does, and the chevron stays at the end.
+```vue
+<FieldGroup columns>
+  <NavigationRow label="Language" :value="language" @click="open('language')" />
+  <NavigationRow label="Region" :value="region" @click="open('region')" />
+</FieldGroup>
 ```
 
 ## OTP Input

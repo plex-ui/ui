@@ -1,0 +1,79 @@
+---
+title: Navigation Row
+description: "A row of a list that opens what it holds, as an iOS Settings row: its label, the current value at the end, a chevron, and the whole row one press."
+metaDescription: "Vue 3 navigation row for lists in the iOS style: a FieldGroup row with a label, its current value in the secondary color and a chevron, pressed as one button or link, with a description line, disabled state and FieldGroup columns."
+---
+
+import { VueNavigationRowColumnsDemo, VueNavigationRowOverviewDemo } from "@/components/docs/vue/VueNavigationRowDemos"
+
+export const overview = `<FieldGroup>
+  <NavigationRow label="Language" :value="language" @click="open('language')" />
+  <NavigationRow label="Region" :value="region" @click="open('region')" />
+  <NavigationRow label="Calendar" :value="calendar" @click="open('calendar')" />
+</FieldGroup>
+<FieldGroup>
+  <NavigationRow
+    label="Fetch New Data"
+    description="How new mail arrives"
+    :value="fetch"
+    @click="open('fetch')"
+  />
+  <NavigationRow label="Temperature" value="°C" disabled />
+</FieldGroup>
+<FieldGroup>
+  <NavigationRow label="Accounts" :value="accounts.length" to="/settings/accounts" />
+</FieldGroup>`
+
+export const columns = `<FieldGroup columns>
+  <NavigationRow label="Language" :value="language" @click="open('language')" />
+  <NavigationRow label="Region" :value="region" @click="open('region')" />
+</FieldGroup>`
+
+<UsageBlock>{`import { NavigationRow } from "@plexui/vue/components/NavigationRow";`}</UsageBlock>
+
+A navigation row leads into what it holds, as a row of iOS Settings does: General › Language shows the language in use and opens the list to change it. Use it for a setting whose choices or details need a page of their own; for a choice made in place, use a [Select](/vue/components/select) in a [Field](/vue/components/field) row, and for a row that does something at once, an action row (a ghost `Button` with `block` in a `data-row`).
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Put the rows in a <code>FieldGroup</code>: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The <code>value</code> stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A <code>description</code> adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A <code>disabled</code> row greys all of it and can&apos;t be pressed. With <code>to</code> or <code>href</code> the row is a link through the <code>linkComponent</code> of <code>PlexUIProvider</code> (or <code>as</code>), for a router&apos;s page.</>} code={overview}>
+  <VueNavigationRowOverviewDemo />
+</ComponentPreview>
+
+### Columns
+
+<ComponentPreview language="vue" details={<>In a <code>FieldGroup</code> with <code>columns</code> the value takes the control column of the group, in the text color, as the value of a <code>Field</code> row does, and the chevron stays at the end.</>} code={columns}>
+  <VueNavigationRowColumnsDemo />
+</ComponentPreview>
+
+## API
+
+### NavigationRow
+
+<PropsTable data={[
+  { prop: "label", type: "string | number", description: "The name of the row, where a row's label starts (or the `label` slot)" },
+  { prop: "value", type: "string | number | null", description: "The current value, at the end of the row in the secondary label color (or the `value` slot). `0` shows; `null`, `undefined` and `\"\"` do not" },
+  { prop: "description", type: "string | number", description: "A line under the label; the row grows from 52px to hold it (or the `description` slot)" },
+  { prop: "to", type: "string | object", description: "A router target: with it the row is a link, through the `linkComponent` of `PlexUIProvider`" },
+  { prop: "href", type: "string", description: "Where the row goes, as a plain link" },
+  { prop: "as", type: "Component | \"a\"", description: "The link component, such as a router's link" },
+  { prop: "external", type: "boolean", description: "Treats the link as one out of the app (a new tab)" },
+  { prop: "disabled", type: "boolean", default: "false", description: "The row can't be pressed. A disabled link renders as a disabled button, so it never navigates" },
+]} />
+
+**Slots**: `label`, `value`, `description`, in place of their props.
+
+**Events**: `click`, when the row is pressed.
+
+**Exposed**: `element`, the pressable (the button, or the element of the link), and `focus()`.
+
+Every other attribute (an `id`, a `class`, listeners, ARIA and data attributes) goes to the pressable. The row says nothing of what it opens: a row that opens a dialog in place of a page sets `aria-haspopup="dialog"` and `aria-expanded` itself. The name the row reads with is its label, description and value in that order.
+
+## Styling
+
+NavigationRow reads the row tokens of [FieldGroup](/vue/components/field#fieldgroup) (`--field-row-min-height`, `--field-row-padding-inline`, `--field-row-label-*`, `--field-row-description-*`, `--field-row-gap`, `--field-row-disclosure-gap`) and three of its own. Override them at any scope to restyle it:
+
+- `--navigation-row-label-color`: the label (default the text color)
+- `--navigation-row-value-color`: the value (default the secondary label color; the text color with `columns`)
+- `--navigation-row-disclosure-color`: the chevron (default the tertiary label color)

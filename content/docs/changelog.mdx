@@ -7,6 +7,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `NavigationRow` (React and Vue): a `FieldGroup` row that opens what it holds, as an iOS Settings row: its label, the current `value` at the end in the secondary label color, a chevron in the tertiary one, and the whole row one press, a button or a link (`href`, the `linkComponent` of `PlexUIProvider` or `as`; `to` in Vue). It keeps the row's 52px and grows with a `description` line, greys all of it when `disabled` (a disabled link renders as a disabled button), and puts its value in the control column of a `FieldGroup` with `columns`.
+
 ## 0.53.0 (2026-11-15)
 
 `@plexui/ui` 0.53.0 and `@plexui/vue` 0.33.0 need `@plexui/styles` `^0.11.1`, which animates a removed swipe row and centres a phone Alert's icon on its title. `@plexui/mcp` is 0.2.29. A `Toolbar.Row` in a phone Sheet's header is a row of its bar; a swipe row opens on a flick and a trackpad swipe and collapses as it is deleted; a Field row reaches a wrapped control; the phone calendar flips even when it grows after it opened.

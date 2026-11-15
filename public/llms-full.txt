@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 62
+Components: 63
 
 ## Setup
 
@@ -4681,6 +4681,54 @@ Use Menu.ItemActions and Menu.ItemAction for hover actions (e.g. delete) on an i
   </Menu.Item>
 </Menu.Content>
 </Menu>
+```
+
+## Navigation Row
+"A row of a list that opens what it holds, as an iOS Settings row: its label, the current value at the end, a chevron, and the whole row one press."
+Import: import { NavigationRow } from "@plexui/ui/components/NavigationRow"
+Docs: https://plexui.com/components/navigation-row
+Props:
+  - label (ReactNode) — The name of the row, where a row's label starts
+  - value (ReactNode) — The current value, at the end of the row in the secondary label color. `0` shows; `null`, `undefined`, `false` and `""` do not
+  - description (ReactNode) — A line under the label; the row grows from 52px to hold it
+  - href (string) — Where the row goes: with it the row is a link, through the `linkComponent` of `PlexUIProvider`
+  - as (PlexUI.LinkComponent) — The link component for `href`, such as a router's link
+  - target, rel, download (string) — Attributes of the link, with `href`
+  - external (boolean) — Treats `href` as a link out of the app (a new tab)
+  - disabled (boolean) default: false — The row can't be pressed. A disabled link renders as a disabled button, so it never navigates
+  - onClick ((event: MouseEvent) => void) — Called when the row is pressed
+  - ref (Ref<HTMLButtonElement | HTMLAnchorElement>) — The pressable of the row: the button, or the element of the link
+  - className (string) — CSS classes applied to the pressable
+
+### Overview
+Put the rows in a FieldGroup: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The value stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A description adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A disabled row greys all of it and can&apos;t be pressed. With href the row is a link through the linkComponent of PlexUIProvider (or as), for a router&apos;s page.
+```tsx
+<FieldGroup>
+<NavigationRow label="Language" value={language} onClick={() => open("language")} />
+<NavigationRow label="Region" value={region} onClick={() => open("region")} />
+<NavigationRow label="Calendar" value={calendar} onClick={() => open("calendar")} />
+</FieldGroup>
+<FieldGroup>
+<NavigationRow
+  label="Fetch New Data"
+  description="How new mail arrives"
+  value={fetch}
+  onClick={() => open("fetch")}
+/>
+<NavigationRow label="Temperature" value="°C" disabled />
+</FieldGroup>
+<FieldGroup>
+<NavigationRow label="Accounts" value={accounts.length} href="/settings/accounts" />
+</FieldGroup>
+```
+
+### Columns
+In a FieldGroup with columns the value takes the control column of the group, in the text color, as the value of a Field row does, and the chevron stays at the end.
+```tsx
+<FieldGroup columns>
+<NavigationRow label="Language" value={language} onClick={() => open("language")} />
+<NavigationRow label="Region" value={region} onClick={() => open("region")} />
+</FieldGroup>
 ```
 
 ## OTP Input
