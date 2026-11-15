@@ -7,11 +7,14 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
-## Unreleased
+## 0.52.0 (2026-11-15)
+
+`@plexui/styles` 0.11.0; `@plexui/ui` 0.52.0 and `@plexui/vue` 0.32.0 need `^0.11.0`, so updating them brings it. `@plexui/mcp` is 0.2.28. A search field under a large toolbar title is a `Toolbar.Row` and pins under the bar; on a phone the date picker calendar opens above the trigger instead of squeezing.
 
 ### Changed
 
 - Under a large title, a search field as the last `Toolbar.Row` has the content start 10px under it, as iOS 27.2 starts a list under the search field of a large title; other rows keep 16px. On a page and in a Sheet.
+- A clearable `DatePicker` in a phone row shows no clear button, as the compact date picker of iOS has none; an optional date is turned off with a Switch row, as Reminders does.
 
 ### Fixed
 

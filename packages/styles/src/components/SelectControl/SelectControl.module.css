@@ -709,10 +709,10 @@
     display: none;
   }
 
-  /* Without the chevrons its indicator wrapper is empty; the trigger's gap before it would leave the date 8px off
-     the capsule's center and the capsules 8px short of the row's edge. A clear button keeps the wrapper. Both rules
-     follow each other: wherever a row hides a date's chevrons, it hides the wrapper they leave empty. */
-  :where([data-row][data-orientation="horizontal"]) .SelectControl[data-date-picker] .IndicatorWrapper:not(:has(> :not(.DropdownIcon))) {
+  /* The compact date picker of iOS has no clear button (owner 15.11 «есть такое у iOS???»): an optional date is
+     turned off with a Switch row, as Reminders and Calendar do. A clearable date in a phone row hides its ×, and with
+     it the wrapper (else empty without the chevrons), so the date sits centred in its capsule. */
+  :where([data-row][data-orientation="horizontal"]) .SelectControl[data-date-picker] .IndicatorWrapper {
     display: none;
   }
 
