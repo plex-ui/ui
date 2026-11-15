@@ -19,11 +19,32 @@ const DECIDE = 4
 const HOLD = 200
 const DRAG_TRANSFORM = "--dialog-panel-drag-transform"
 const EXITING = "[data-exiting], [data-exiting-active]"
+// A sheet at its full height says so: a sheet under it then steps back, as one presented from a sheet does on iOS.
+// A shorter sheet leaves the one under it in place, as a medium detent does.
+const FULL = "data-sheet-full"
+
+const watchFullHeight = (panel: HTMLElement, view: Window & typeof globalThis) => {
+  if (!view.ResizeObserver) return () => {}
+  const update = () => {
+    const max = Number.parseFloat(view.getComputedStyle(panel).maxHeight)
+    const full = Number.isFinite(max) && panel.offsetHeight >= max - 1
+    if (full !== panel.hasAttribute(FULL)) panel.toggleAttribute(FULL, full)
+  }
+  const observer = new view.ResizeObserver(update)
+  // Its height with the border, as `offsetHeight` reads it
+  observer.observe(panel, { box: "border-box" })
+  update()
+  return () => {
+    observer.disconnect()
+    panel.removeAttribute(FULL)
+  }
+}
 
 /** `close` returns false when the owner keeps the dialog open: the sheet then returns at once. */
 export const attachSheetDrag = (panel: HTMLElement, close: (event: TouchEvent) => boolean | void) => {
   const view = panel.ownerDocument.defaultView
   if (!view) return () => {}
+  const unwatchFull = watchFullHeight(panel, view)
   let startY: number | null = null
   // A touch in the content that may become a pull, until its first move says which way it goes
   let pending: { x: number; y: number; time: number; target: Element } | null = null
@@ -189,6 +210,7 @@ export const attachSheetDrag = (panel: HTMLElement, close: (event: TouchEvent) =
   panel.addEventListener("touchcancel", onCancel)
 
   return () => {
+    unwatchFull()
     stateObserver?.disconnect()
     panel.removeEventListener("touchstart", onStart)
     panel.removeEventListener("touchmove", onMove)

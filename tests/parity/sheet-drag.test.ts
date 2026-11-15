@@ -238,3 +238,31 @@ for (const [framework, attach] of [["React", attachReact], ["Vue", attachVue]] a
     })
   })
 }
+
+for (const [framework, attach] of [["React", attachReact], ["Vue", attachVue]] as const) {
+  describe(`${framework} sheet at its full height`, () => {
+    test("marks itself while it stands at its full height, so a sheet under it steps back", () => {
+      let notify = () => {}
+      vi.stubGlobal("ResizeObserver", class {
+        constructor(callback: () => void) { notify = callback }
+        observe() {}
+        disconnect() {}
+      })
+      const panel = document.createElement("div")
+      panel.style.maxHeight = "796px"
+      document.body.append(panel)
+      let height = 796
+      Object.defineProperty(panel, "offsetHeight", { get: () => height })
+      const detach = attach(panel, vi.fn())
+      expect(panel.hasAttribute("data-sheet-full")).toBe(true)
+      height = 420
+      notify()
+      expect(panel.hasAttribute("data-sheet-full")).toBe(false)
+      height = 796
+      notify()
+      expect(panel.hasAttribute("data-sheet-full")).toBe(true)
+      detach()
+      expect(panel.hasAttribute("data-sheet-full")).toBe(false)
+    })
+  })
+}

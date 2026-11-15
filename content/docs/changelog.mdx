@@ -7,7 +7,15 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Fixed
+
+- A phone sheet under a sheet at its full height steps back, as a sheet presented from a sheet does on iOS (Apple's iOS 26 kit, Sheet, Stacked): 16px narrower at each side at 402 (scale 0.92), its top 10px above the new one's, under the new one's dim, and it comes back as that one leaves. Before, the two stood at one height and the first read as closed. A shorter sheet over it leaves it in place, as a medium detent does. A sheet at its full height carries `data-sheet-full` (React and Vue).
+
 ## 0.54.0 (2026-11-15)
+
+`@plexui/ui` 0.54.0 and `@plexui/vue` 0.34.0 need `@plexui/styles` `^0.12.0`, which styles the new `NavigationRow`. `@plexui/mcp` is 0.2.30. A row that opens what it holds, as an iOS Settings row; a phone sheet closes with a pull down from anywhere once its content is at the top; a Sortable hold keeps through a small drift.
 
 ### Added
 

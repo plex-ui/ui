@@ -267,6 +267,28 @@
     --dialog-exit-duration: var(--motion-exit-large);
     --dialog-exit-easing: var(--cubic-enter);
   }
+
+  /* A sheet under a sheet at its full height steps back, as one presented from a sheet does on iOS (Apple's iOS 26
+     kit, Sheet - Full Screen - iPhone, Stacked): 16px narrower at each side at the kit's 402 (0.92), its top 10px
+     above the new one's, dimmed by the new one's overlay. It shows the sheet is still open under the new one; the two
+     at one height read as the first one closed. It comes back as the one over it leaves. `scale` and `translate`
+     leave `transform` to the entrance, the exit and a drag. */
+  .Content:where([data-mobile-placement="bottom"]) .Panel {
+    transform-origin: 50% 0;
+    transition:
+      scale var(--motion-enter-large) var(--cubic-enter),
+      translate var(--motion-enter-large) var(--cubic-enter);
+  }
+
+  :is(.Transition, .PhoneScope):has(
+      ~ .Transition:not([data-exiting], [data-exiting-active]) .Content[data-mobile-placement="bottom"] .Panel[data-sheet-full],
+      ~ .PhoneScope .Transition:not([data-exiting], [data-exiting-active]) .Content[data-mobile-placement="bottom"] .Panel[data-sheet-full]
+    )
+    .Content[data-mobile-placement="bottom"]
+    .Panel {
+    scale: 0.92;
+    translate: 0 -10px;
+  }
 }
 
 .CloseButton {
