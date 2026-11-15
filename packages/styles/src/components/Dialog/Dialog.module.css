@@ -1127,6 +1127,8 @@
     --mobile-neutral-outline-background: initial;
     --mobile-neutral-outline-hover: initial;
     --mobile-neutral-outline-active: initial;
+    /* A plain sheet inside a grouped surface keeps the gray tip (the grouped rule below sets it) */
+    --alert-phone-background: initial;
     --page-bar-veil: color-mix(in srgb, var(--dialog-panel-background) var(--page-bar-veil-opacity), transparent);
   }
 
@@ -1134,6 +1136,8 @@
     --mobile-surface-primary: var(--mobile-surface-elevated-grouped-primary, var(--color-surface-elevated-secondary));
     --mobile-surface-secondary: var(--mobile-surface-elevated-grouped-secondary, var(--color-surface-elevated));
     --mobile-surface-tertiary: var(--mobile-surface-elevated-grouped-tertiary, var(--color-surface-elevated-secondary));
+    /* A gray tip (Alert) is a cell of the sheet there, as a group is (Page.module.css) */
+    --alert-phone-background: var(--mobile-surface-secondary);
     --file-upload-list-background: var(--mobile-surface-secondary);
     --file-upload-list-border-width: 0px;
     --mobile-neutral-outline-background: var(--mobile-surface-secondary);

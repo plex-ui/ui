@@ -173,12 +173,17 @@
     --mobile-neutral-outline-background: initial;
     --mobile-neutral-outline-hover: initial;
     --mobile-neutral-outline-active: initial;
+    /* A plain page inside a grouped one keeps the gray tip (the grouped rule below sets it) */
+    --alert-phone-background: initial;
     --page-bar-veil: color-mix(in srgb, var(--page-background) var(--page-bar-veil-opacity), transparent);
 
     &[data-surface="grouped"] {
       --mobile-surface-primary: var(--mobile-surface-grouped-primary, var(--color-surface-secondary));
       --mobile-surface-secondary: var(--mobile-surface-grouped-secondary, var(--color-surface));
       --mobile-surface-tertiary: var(--mobile-surface-grouped-tertiary, var(--color-surface-secondary));
+      /* A gray tip (Alert) is a cell of the screen there, as a group is, not a darker gray on the gray ground
+         (owner 15.11 via the console: «почему у карточки такой цвет?») */
+      --alert-phone-background: var(--mobile-surface-secondary);
       --file-upload-list-background: var(--mobile-surface-secondary);
       --file-upload-list-border-width: 0px;
       --mobile-neutral-outline-background: var(--mobile-surface-secondary);

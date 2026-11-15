@@ -700,3 +700,11 @@ test("on a phone a soft or outline Alert is gray and only its icon keeps the col
   // Buttons of their own size start under the text: 6 + 22 + 4 + 8 after the card's inset
   expect(phone).toContain('.Alert[data-mobile-actions="own"]:has(> .Indicator) .Actions {\n    padding-inline-start: calc(6px + var(--alert-indicator-size) + 4px + 8px);')
 })
+
+describe("phone Alert on a grouped surface (owner 15.11: «почему у карточки такой цвет?»)", () => {
+  test("a grouped Page or sheet gives a gray tip the color of its cells", () => {
+    const read = (path: string) => readFileSync(`${process.cwd()}/${path}`, "utf8")
+    expect(read("packages/styles/src/components/Page/Page.module.css")).toMatch(/&\[data-surface="grouped"\] \{[^}]*--alert-phone-background: var\(--mobile-surface-secondary\);/)
+    expect(read("packages/styles/src/components/Dialog/Dialog.module.css")).toMatch(/\.Content\[data-surface="grouped"\] \{[^}]*--alert-phone-background: var\(--mobile-surface-secondary\);/)
+  })
+})
