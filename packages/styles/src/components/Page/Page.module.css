@@ -565,6 +565,12 @@
     gap: var(--toolbar-row-gap);
     margin-bottom: var(--page-content-padding-top, 16px);
 
+    /* A search field as the last row: the content starts 10 under it, as iOS 27.2 starts a list under the search
+       field of a large title (UISearchController .stacked and SwiftUI .searchable; ref-app searchstack-s0) */
+    &:has(> :last-child input) {
+      margin-bottom: var(--toolbar-row-gap);
+    }
+
     &:empty {
       display: none;
     }

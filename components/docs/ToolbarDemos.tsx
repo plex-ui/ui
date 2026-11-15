@@ -258,20 +258,22 @@ export function ToolbarSearchLargeTitleDemo() {
           <Toolbar.Trailing>
             <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
           </Toolbar.Trailing>
+          {/* A row of the bar: under a large title it starts the content and pins under the controls once scrolled up */}
+          <Toolbar.Row>
+            <Input
+              type="search"
+              variant="soft"
+              pill
+              placeholder="Search"
+              aria-label="Search orders"
+              startAdornment={<SearchSm />}
+              value={query}
+              onChange={(evt) => setQuery(evt.target.value)}
+              onClear={() => setQuery('')}
+            />
+          </Toolbar.Row>
         </Toolbar>
         <Page.Content>
-          <Input
-            type="search"
-            variant="soft"
-            pill
-            placeholder="Search"
-            aria-label="Search orders"
-            startAdornment={<SearchSm />}
-            value={query}
-            onChange={(evt) => setQuery(evt.target.value)}
-            onClear={() => setQuery('')}
-            className="mb-2.5"
-          />
           <Rows />
         </Page.Content>
       </Page>

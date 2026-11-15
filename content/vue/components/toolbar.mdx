@@ -153,20 +153,22 @@ ${overview.replace(list, "...")}
 </template>`
 
 export const searchUnderTitle = `<Page surface="grouped">
+  <!-- title-style: "large", or "inline" (title-align "center" or "start"), "compact-large", "compact-medium" -->
   <Toolbar title-style="large">
-    <ToolbarTitle>Orders</ToolbarTitle>
+    <!-- a subtitle with an inline or large title -->
+    <ToolbarTitle subtitle="24 orders">Orders</ToolbarTitle>
     <ToolbarTrailing>
       <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
     </ToolbarTrailing>
+    <ToolbarRow>
+      <Input v-model:value="query" type="search" variant="soft" pill placeholder="Search" aria-label="Search orders" @clear="query = ''">
+        <template #startAdornment>
+          <SearchSm />
+        </template>
+      </Input>
+    </ToolbarRow>
   </Toolbar>
-  <PageContent>
-    <Input v-model:value="query" type="search" variant="soft" pill placeholder="Search" aria-label="Search orders" class="mb-2.5" @clear="query = ''">
-      <template #startAdornment>
-        <SearchSm />
-      </template>
-    </Input>
-    ...
-  </PageContent>
+  <PageContent>...</PageContent>
 </Page>`
 
 export const disabledCode = `<Page surface="grouped">
@@ -244,22 +246,26 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
   <VueDemo stageClassName={STAGE} state={{ rows, view: "all", searching: false }} controls={overviewControls} template={frame(overview)} />
 </ComponentPreview>
 
-### Search in the content
+<span id="search-in-the-content" />
 
-<ComponentPreview phoneOnly language="vue" details={<>A search field in the content, under a large title or at the top of a sheet, is an <a href="/vue/components/input"><code>Input</code></a> with <code>type="search"</code>: on Phone it is the bar's search field wherever it stands: the same magnifier, text and placeholder, and with <code>variant="soft" pill</code> the same glass capsule. It works under every title type, which the controls switch: with an inline or compact title the bar holds the title and the field starts the content, as it starts a page under such a bar. It stands at the top of <code>PageContent</code> and scrolls up with the title; the content starts 16px under the title's baseline, and a list 10px under the field. With <code>@clear</code> it shows the filled clear circle of iOS while it holds text, in place of the browser's own clear button.</>} code={searchUnderTitle}>
+### Search under the title
+
+<ComponentPreview phoneOnly language="vue" details={<>A search field under the title is a row of the bar: <code>ToolbarRow</code> holding an <a href="/vue/components/input"><code>Input</code></a> with <code>type="search"</code> and <code>variant="soft" pill</code>, the bar's magnifier, text and placeholder in a glass capsule. Under a large title the row starts the content, the field 16px under the title's baseline and the list 10px under the field; scroll it up and the title goes under the bar while the field pins under the controls, 10px under them, as iOS 27.2 pins the search field of a large title. With an inline or compact title, which the controls switch, the row stands in the bar from the start. With <code>@clear</code> the field shows the filled clear circle of iOS while it holds text, in place of the browser's own clear button. Outside a bar, as at the top of a sheet's content, the same <code>Input</code> stands in the content and scrolls with it.</>} code={searchUnderTitle}>
   <VueDemo stageClassName={STAGE} state={{ rows, query: "" }} template={frame(`  <Page surface="grouped">
     <Toolbar :title-style="titleStyle" :title-align="titleStyle === 'inline' ? titleAlign : undefined">
       <ToolbarTitle :subtitle="subtitle && !titleStyle.startsWith('compact') ? '24 orders' : undefined">Orders</ToolbarTitle>
       <ToolbarTrailing>
         <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
       </ToolbarTrailing>
+      <ToolbarRow>
+        <Input v-model:value="query" type="search" variant="soft" pill placeholder="Search" aria-label="Search orders" @clear="query = ''">
+          <template #startAdornment>
+            <SearchSm />
+          </template>
+        </Input>
+      </ToolbarRow>
     </Toolbar>
     <PageContent>
-      <Input v-model:value="query" type="search" variant="soft" pill placeholder="Search" aria-label="Search orders" class="mb-2.5" @clear="query = ''">
-        <template #startAdornment>
-          <SearchSm />
-        </template>
-      </Input>
       ${list}
     </PageContent>
   </Page>`)} controls={[

@@ -855,6 +855,11 @@
     gap: var(--toolbar-row-gap);
     margin-bottom: 16px;
 
+    /* A search field as the last row: the body starts 10 under it, as on a page */
+    &:has(> :last-child input) {
+      margin-bottom: var(--toolbar-row-gap);
+    }
+
     &:empty {
       display: none;
     }
