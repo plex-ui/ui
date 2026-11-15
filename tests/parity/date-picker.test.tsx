@@ -1292,3 +1292,51 @@ describe("phone calendar height (console 15.11)", () => {
     })
   }
 })
+
+describe("phone calendar squeeze (console 15.11)", () => {
+  // A calendar opened below while it was short, then grew: with room for it above, it must stay uncapped so the
+  // popper flips it there; only with no room on either side does the cap go on and it scrolls.
+  const setup = async (helperPath: string, triggerTop: number, triggerBottom: number, room: number, height: number, side = "bottom", view?: { offsetTop: number; height: number }) => {
+    const { watchCalendarFit } = await import(helperPath)
+    document.body.innerHTML = `<button aria-controls="pop"></button><div id="pop" role="dialog" data-side="${side}"><div class="wrap"></div></div>`
+    const trigger = document.querySelector("button") as HTMLElement
+    const content = document.getElementById("pop") as HTMLElement
+    trigger.getBoundingClientRect = () => ({ top: triggerTop, bottom: triggerBottom } as DOMRect)
+    Object.defineProperty(document.documentElement, "clientHeight", { configurable: true, value: 812 })
+    Object.defineProperty(window, "visualViewport", { configurable: true, value: view })
+    Object.defineProperty(content, "scrollHeight", { configurable: true, value: height })
+    content.style.setProperty("--radix-popover-content-available-height", `${room}px`)
+    const stop = watchCalendarFit(content.querySelector(".wrap") as HTMLElement)
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+    const squeezed = content.hasAttribute("data-calendar-squeezed")
+    stop()
+    return squeezed
+  }
+
+  for (const helper of ["../../packages/ui/src/lib/calendarFit", "../../packages/vue/src/lib/calendarFit"]) {
+    test(`${helper.split("/")[3]}: room above leaves it uncapped; no room either side caps it`, async () => {
+      // The console's lower row: trigger 466-502 of 812, 294 below, about 440 above, calendar 323
+      expect(await setup(helper, 466, 502, 294, 323)).toBe(false)
+      // The same calendar between two short sides: 200 below, about 190 above
+      expect(await setup(helper, 300, 590, 200, 323)).toBe(true)
+      // It fits where it is
+      expect(await setup(helper, 100, 136, 650, 323)).toBe(false)
+      // Above, with a keyboard up: the visual viewport is 500 tall, trigger 300-344, so 276 above and 132 below
+      expect(await setup(helper, 300, 344, 276, 323, "top", { offsetTop: 0, height: 500 })).toBe(true)
+      // Above, with room below in the visual viewport: uncapped, so the popper can flip it down
+      expect(await setup(helper, 300, 344, 276, 323, "top", { offsetTop: 0, height: 812 })).toBe(false)
+      // A visual viewport scrolled 100 down (outside WebKit the rect is in layout coordinates): 200-244 of 500 seen,
+      // 200 above and 156 below, so neither side holds 323
+      expect(await setup(helper, 300, 344, 176, 323, "top", { offsetTop: 100, height: 500 })).toBe(true)
+      // WebKit hands the rect in visual coordinates and Floating UI adds the offset back: 176 above (offset and padding
+      // off), 232 below, so 323 fits nowhere and 220 fits below
+      vi.stubGlobal("CSS", { supports: () => true })
+      try {
+        expect(await setup(helper, 200, 244, 176, 323, "top", { offsetTop: 100, height: 500 })).toBe(true)
+        expect(await setup(helper, 200, 244, 176, 220, "top", { offsetTop: 100, height: 500 })).toBe(false)
+      } finally {
+        vi.unstubAllGlobals()
+      }
+    })
+  }
+})
