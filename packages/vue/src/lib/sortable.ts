@@ -367,9 +367,13 @@ function startDrag(
       if (travel > CONTEXT_MENU_LONG_PRESS_SLOP) stopListening()
       return
     }
-    const moved = travel >= START_DISTANCE
-    if (moved && touch) stopListening()
-    else if (moved) begin()
+    // A finger drifts while it holds: as an iOS long press, a touch keeps its hold within the long press slop and scrolls
+    // only past it. At 4 a hold that drifted 5 before the lift was dropped, so a row lifted one time and not the next.
+    if (touch) {
+      if (travel > CONTEXT_MENU_LONG_PRESS_SLOP) stopListening()
+      return
+    }
+    if (travel >= START_DISTANCE) begin()
   }
 
   function onUp(event: PointerEvent) {

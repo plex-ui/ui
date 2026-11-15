@@ -17,6 +17,10 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 - Dialog (React and Vue): a phone sheet follows a pull down that starts anywhere in its content, not only in its top 44px, once every scroller under the finger is at its top, as on iOS. The first move decides: down and mostly vertical takes the sheet, with the same release rules (30% of its height or a flick closes, less returns, a close the owner keeps open returns at once); up, sideways, a move another handler took, a field or slider, an element that pans by itself (`touch-action` without `pan-y`) or a finger that rested 200ms first (a Sortable or context menu hold) stays with the content. A pull ends without pressing the row under the finger; a tap keeps its press.
 
+### Fixed
+
+- `Sortable` (React and Vue): a touch keeps its hold while the finger drifts up to 10px, the long press slop a `ContextMenu` already uses, as an iOS long press does; it scrolls only past that. At 4px a hold that drifted a little before the lift was dropped, so a row lifted one time and not the next.
+
 ## 0.53.0 (2026-11-15)
 
 `@plexui/ui` 0.53.0 and `@plexui/vue` 0.33.0 need `@plexui/styles` `^0.11.1`, which animates a removed swipe row and centres a phone Alert's icon on its title. `@plexui/mcp` is 0.2.29. A `Toolbar.Row` in a phone Sheet's header is a row of its bar; a swipe row opens on a flick and a trackpad swipe and collapses as it is deleted; a Field row reaches a wrapped control; the phone calendar flips even when it grows after it opened.
