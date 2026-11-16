@@ -7,10 +7,15 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
-## Unreleased
+## 0.59.2 (2026-11-16)
+
+`@plexui/ui` 0.59.2 and `@plexui/vue` 0.39.2 make `Sortable` and `Sidebar` lighter on a phone and need `@plexui/styles` 0.16.2, which keeps the lists of a finger drag unselectable. Take the three together. `@plexui/mcp` is 0.2.38.
 
 ### Fixed
 
+- `Sortable` reads its gap and scroll pane when a drag begins, not on every press, so a plain tap on a row of a long list no longer forces a style and layout pass before its click.
+- A finger drag in `Sortable` no longer restyles the whole page on lift and on drop (a freeze of 150–300 ms on a phone): text stays unselected through the dragged lists alone, and a mouse or pen keeps the grabbing cursor. All lists of a group are marked before any is measured, one layout in place of one per list.
+- A `Sortable` drag cancelled with Escape while the button is still down no longer clicks the row on release.
 - A selected `Sidebar` cell hides the next cell's separator through a selector that names that cell, not any sibling, so the browser no longer restyles the whole page on every element added or removed under it: closing a phone sheet over a sidebar recalculated 3715 elements (135 ms on a phone), now 277 (30 ms).
 
 ## 0.59.1 (2026-11-16)
