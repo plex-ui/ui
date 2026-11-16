@@ -305,6 +305,8 @@ function startDrag(
   const validSource = () => list.isConnected && !list.hasAttribute("data-disabled")
     && source.parentElement === list && !source.hasAttribute(STATIC)
   const cancel = () => finish(false, true)
+  // The button came up: a drag ended by Escape or a lost focus still has the click of its press to come
+  let released = false
   activeDrags.set(doc, cancel)
   const touch = event.pointerType === "touch" && !immediate
   const origin = { x: event.clientX, y: event.clientY }
@@ -378,11 +380,16 @@ function startDrag(
   }
 
   function onUp(event: PointerEvent) {
-    if (event.pointerId === pointerId) finish(true)
+    if (event.pointerId !== pointerId) return
+    released = true
+    finish(true)
   }
 
   function onCancel(event: PointerEvent) {
-    if (event.pointerId === pointerId) cancel()
+    if (event.pointerId !== pointerId) return
+    // A cancelled pointer sends no click
+    released = true
+    cancel()
   }
 
   function onKey(keyEvent: KeyboardEvent) {
@@ -646,8 +653,28 @@ function startDrag(
     clearTimeout(rest)
     target?.removeAttribute("data-over")
     // The pointer lifts over a row: that click must not act on it
-    window.addEventListener("click", swallow, { capture: true, once: true })
-    setTimeout(() => window.removeEventListener("click", swallow, { capture: true }))
+    // Only the pointer's own click: a key or an assistive click (detail 0) still acts
+    const eat = (clickEvent: MouseEvent) => {
+      if (!clickEvent.detail) return
+      unswallow()
+      swallow(clickEvent)
+    }
+    window.addEventListener("click", eat, { capture: true })
+    const unswallow = () => {
+      window.removeEventListener("click", eat, { capture: true })
+      window.removeEventListener("pointerup", onRelease, true)
+      window.removeEventListener("pointerdown", unswallow, true)
+    }
+    // Ended with the button still down (Escape, blur): the click comes after that button's pointerup, not in the next
+    // task, so the swallow waits for it; a new press means that click is not coming (console 16.11)
+    function onRelease(upEvent: PointerEvent) {
+      if (upEvent.pointerId === pointerId) setTimeout(unswallow)
+    }
+    if (released) setTimeout(unswallow)
+    else {
+      window.addEventListener("pointerup", onRelease, true)
+      window.addEventListener("pointerdown", unswallow, true)
+    }
     line.remove()
     drag = undefined
     // On a drop this waits for the flip to read where the parted items stand

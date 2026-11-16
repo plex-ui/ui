@@ -185,6 +185,40 @@ describe("drag", () => {
     expect(list.children[0].hasAttribute("data-sortable-source")).toBe(false)
   })
 
+  // Console 16.11: Escape with the button still down, then the lift over the row, must not click the row
+  test.each([["React", sortablePointerDown], ["Vue", vueSortablePointerDown]] as const)(
+    "%s: the click after Esc and the lift is swallowed, a later press clicks",
+    async (_, pointerDown) => {
+      document.body.innerHTML = `<div data-sortable><div>a</div><div>b</div><div>c</div></div>`
+      const list = document.body.firstElementChild as HTMLElement
+      list.addEventListener("pointerdown", (event) => pointerDown(event, list, "list", vi.fn()))
+      const clicked = vi.fn()
+      list.children[0].addEventListener("click", clicked)
+      press(list.children[0], 20)
+      moveTo(30)
+      moveTo(80)
+      await frame()
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }))
+      await frame()
+      lift()
+      list.children[0].dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1 }))
+      await frame()
+      expect(clicked).not.toHaveBeenCalled()
+      press(list.children[0], 20)
+      lift()
+      list.children[0].dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1 }))
+      // After a blur the button may come up outside the window: a key's click (detail 0) still acts
+      press(list.children[0], 20)
+      moveTo(30)
+      moveTo(80)
+      await frame()
+      window.dispatchEvent(new Event("blur"))
+      await frame()
+      ;(list.children[0] as HTMLElement).click()
+      expect(clicked).toHaveBeenCalledTimes(2)
+    },
+  )
+
   test("a drop on its own place is no move", async () => {
     const { list, commit } = plainList("<div>a</div><div>b</div><div>c</div>")
     press(list.children[0], 20)
