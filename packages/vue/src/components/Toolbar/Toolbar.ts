@@ -161,14 +161,23 @@ const ToolbarComponent = defineComponent({
       const setHeight = host?.setHeight
       if (!bar || !setHeight) return
       // A desktop layout hides the bar; its height then leaves the host's own header in charge.
-      const update = () => {
+      const update = (height: number) => {
         if (reported && reported !== props.placement) setHeight(reported, undefined)
         reported = props.placement
-        setHeight(props.placement, bar.offsetHeight || undefined)
+        setHeight(props.placement, height || undefined)
       }
-      update()
-      observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
-      observer?.observe(bar, { box: "border-box" })
+      if (typeof ResizeObserver === "undefined") {
+        update(bar.offsetHeight)
+        return
+      }
+      // The observer reports the first height too, after the layout of the frame and before its paint: a read of
+      // offsetHeight on mount forced a layout while a sheet that holds the bar was being built
+      observer = new ResizeObserver((entries?: ResizeObserverEntry[]) => {
+        const entry = entries?.[entries.length - 1]
+        const box = entry?.borderBoxSize?.[0]
+        update(box ? box.blockSize : bar.offsetHeight)
+      })
+      observer.observe(bar, { box: "border-box" })
     })
     onBeforeUnmount(() => {
       observer?.disconnect()

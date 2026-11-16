@@ -24,3 +24,14 @@ test("a phone calendar popover takes the menu's glass edge", () => {
   }
   expect(read("styles/touch.css")).toContain("inset 0 0.67px 0 var(--mobile-glass-rim, transparent)")
 })
+
+test("the Close of a phone sheet paints its glyph through the button's text tokens, in the label color", () => {
+  const css = read("components/Dialog/Dialog.module.css")
+  // A ghost button paints with --button-text-color, so a bare `color` on the Close lost to the secondary ghost token
+  const sheet = css.match(/\.Content\[data-mobile-variant="sheet"\] \.CloseButton\[data-navigation-action\] \{([^}]*)\}/)?.[1] ?? ""
+  expect(sheet).toContain("--button-text-color: var(--color-text);")
+  expect(sheet).toContain("--button-text-color-hover: var(--color-text);")
+  // The visible Close of a sheet with Dialog.Header is the bar's own, at its leading edge
+  const bar = css.match(/\.Content\[data-mobile-variant="sheet"\] \.BarClose > :is\(\[data-navigation-action="close"\], \[data-navigation-action="back"\]\)\[data-color="secondary"\]:is\(\[data-variant="ghost"\], \[data-variant="soft"\]\):not\(\[data-disabled\]\) \{([^}]*)\}/)?.[1] ?? ""
+  expect(bar).toContain("--button-text-color: var(--color-text);")
+})

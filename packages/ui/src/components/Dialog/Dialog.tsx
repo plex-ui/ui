@@ -829,8 +829,9 @@ const ConfirmClose = ({
     return (
       <Popover open={open} onOpenChange={onOpenChange}>
         <Popover.Anchor element={anchor} />
-        {/* Over the Close, its corner 6 before the button's, as the native confirmation grows out of it */}
-        <Popover.Content side="bottom" align="start" sideOffset={-anchor.offsetHeight} alignOffset={-6} collisionPadding={10} width={240} minWidth={240} zIndex={zIndex} aria-labelledby={messageId} className={s.ConfirmClose} data-dialog-confirm-close="">
+        {/* Over the Close, its corner 6 before the button's, as the native confirmation grows out of it. Its height is
+            read only while the question is open: a read on every render of the sheet forced a layout */}
+        <Popover.Content side="bottom" align="start" sideOffset={open ? -anchor.offsetHeight : 0} alignOffset={-6} collisionPadding={10} width={240} minWidth={240} zIndex={zIndex} aria-labelledby={messageId} className={s.ConfirmClose} data-dialog-confirm-close="">
           <p id={messageId} className={s.ConfirmCloseMessage}>{message}</p>
           {detail != null && detail !== false && <p className={s.ConfirmCloseDetail}>{detail}</p>}
           <Button block pill color="danger" variant="soft" className={s.ConfirmCloseAction} onClick={onConfirm}>{confirmLabel}</Button>

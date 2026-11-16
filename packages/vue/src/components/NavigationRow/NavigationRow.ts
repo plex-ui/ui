@@ -79,13 +79,20 @@ const NavigationRowComponent = defineComponent({
       if (live) check()
     }
     onMounted(() => {
-      check()
-      fonts?.ready.then(onFonts)
       fonts?.addEventListener?.("loadingdone", onFonts)
-      if (typeof ResizeObserver === "undefined" || !row.value) return
-      width = row.value.getBoundingClientRect().width
-      observer = new ResizeObserver(() => {
-        const next = row.value?.getBoundingClientRect().width ?? width
+      if (typeof ResizeObserver === "undefined" || !row.value) {
+        check()
+        fonts?.ready.then(onFonts)
+        return
+      }
+      // The first measure waits for the observer's first report, after the frame's layout and before its paint: a
+      // measure on mount forced a layout for every row while a sheet of rows was being built. Fonts that finish
+      // loading after that report measure again; before it, the report itself measures with them.
+      fonts?.ready.then(() => {
+        if (width !== -1) onFonts()
+      })
+      observer = new ResizeObserver((entries?: ResizeObserverEntry[]) => {
+        const next = entries?.[entries.length - 1]?.contentRect.width ?? row.value?.getBoundingClientRect().width ?? width
         if (next === width) return
         width = next
         check()

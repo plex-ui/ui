@@ -4,7 +4,7 @@ import clsx from "clsx"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
 import { toCssVariables } from "../../lib/helpers"
-import { observeTextareaWidth } from "../../lib/observeTextareaWidth"
+import { observeTextareaWidth, sizesByContent } from "../../lib/observeTextareaWidth"
 import { type ControlSize, type Sizes, type Variants } from "../../types"
 import s from "@plexui/styles/components/Textarea/Textarea.module.css"
 
@@ -127,14 +127,14 @@ export const Textarea = (props: TextareaProps) => {
   }
 
   const autosizeTextarea = useCallback(() => {
-    if (!autoResize || !textAreaRef.current || computedMaxRows === undefined) return
+    if (!autoResize || !textAreaRef.current || computedMaxRows === undefined || sizesByContent()) return
     textAreaRef.current.style.height = "0px"
     const scrollHeight = textAreaRef.current.scrollHeight
     textAreaRef.current.style.height = scrollHeight + "px"
   }, [autoResize, computedMaxRows])
 
   useEffect(() => {
-    if (!autoResize || !textAreaRef.current) return
+    if (!autoResize || !textAreaRef.current || sizesByContent()) return
     return observeTextareaWidth(textAreaRef.current, autosizeTextarea)
   }, [autoResize, autosizeTextarea])
 

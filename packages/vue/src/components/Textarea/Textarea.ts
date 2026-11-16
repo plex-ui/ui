@@ -15,7 +15,7 @@ import {
 import type { ControlSize, Sizes, Variants } from "@plexui/styles/types"
 import { vServerText } from "../../lib/defaultValue.js"
 import { toCssVariables } from "../../lib/helpers.js"
-import { observeTextareaWidth } from "../../lib/observeTextareaWidth.js"
+import { observeTextareaWidth, sizesByContent } from "../../lib/observeTextareaWidth.js"
 import s from "@plexui/styles/components/Textarea/Textarea.module.css"
 
 // Vue port of packages/ui/src/components/Textarea/Textarea.tsx. Props,
@@ -105,7 +105,7 @@ const TextareaComponent = defineComponent({
 
     const autosizeTextarea = () => {
       const textarea = textAreaRef.value
-      if (!props.autoResize || !textarea || computedMaxRows.value === undefined) return
+      if (!props.autoResize || !textarea || computedMaxRows.value === undefined || sizesByContent()) return
       textarea.style.height = "0px"
       const scrollHeight = textarea.scrollHeight
       textarea.style.height = scrollHeight + "px"
@@ -114,7 +114,7 @@ const TextareaComponent = defineComponent({
     let stopObservingWidth: (() => void) | undefined
     const observeWidth = () => {
       stopObservingWidth?.()
-      stopObservingWidth = props.autoResize && textAreaRef.value
+      stopObservingWidth = props.autoResize && textAreaRef.value && !sizesByContent()
         ? observeTextareaWidth(textAreaRef.value, autosizeTextarea)
         : undefined
     }

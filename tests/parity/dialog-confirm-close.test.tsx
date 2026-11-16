@@ -203,8 +203,8 @@ describe("the question at a phone Sheet's Close (iOS 27.2 simulator)", () => {
   test("a 240 glass popover over the Close: 21/29 to the question in 17/22, 17 to a 48px pill 16 from the edges", () => {
     expect(css).toMatch(/\.ConfirmClose \{[^}]*--button-size-md: 48px;[^}]*padding: 21px 16px 16px;/)
     expect(css).toMatch(/\.ConfirmCloseMessage \{[^}]*margin: 0 13px 17px;[^}]*font-size: 17px;[^}]*line-height: 22px;/)
-    expect(react).toContain("sideOffset={-anchor.offsetHeight} alignOffset={-6} collisionPadding={10} width={240} minWidth={240}")
-    for (const option of ['"sideOffset": -anchor.offsetHeight', '"alignOffset": -6', '"collisionPadding": 10', '"width": 240', '"minWidth": 240'])
+    expect(react).toContain("sideOffset={open ? -anchor.offsetHeight : 0} alignOffset={-6} collisionPadding={10} width={240} minWidth={240}")
+    for (const option of ['"sideOffset": props.open ? -anchor.offsetHeight : 0', '"alignOffset": -6', '"collisionPadding": 10', '"width": 240', '"minWidth": 240'])
       expect(vue).toContain(option)
   })
 })

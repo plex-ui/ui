@@ -42,3 +42,11 @@ export const observeTextareaWidth = (element: HTMLElement, resize: () => void): 
     view?.removeEventListener("resize", onResize)
   }
 }
+
+/**
+ * Whether the browser sizes an auto-resizing textarea itself (`field-sizing: content`, Safari 26+, Chrome 123+): then
+ * the style sheet holds it between its rows and maximum rows, and no script measures it. Measuring set the height to
+ * 0 and read scrollHeight, a forced layout on mount of every such textarea.
+ */
+export const sizesByContent = (): boolean =>
+  typeof CSS !== "undefined" && typeof CSS.supports === "function" && CSS.supports("field-sizing", "content")

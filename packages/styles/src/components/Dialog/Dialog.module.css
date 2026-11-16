@@ -326,16 +326,19 @@
   --button-size: 2rem;
   --button-uniform-size: 2rem;
   --navigation-button-icon-size: 20px;
+  /* The glyph takes the button's own text tokens (a ghost button paints with them), not a bare color */
+  --button-text-color: var(--color-text-tertiary);
+  --button-text-color-hover: var(--color-text);
   padding: 0;
   border-radius: 0.5rem;
   background: var(--dialog-close-background);
-  color: var(--color-text-tertiary);
+  color: var(--button-text-color);
   transition: background-color 0.2s var(--cubic-enter), color 0.2s var(--cubic-enter);
 
   @media (hover: hover) and (pointer: fine) {
     &:hover:where(:not(:root[data-input="touch"] *)) {
       background: var(--dialog-close-background-hover);
-      color: var(--color-text);
+      color: var(--button-text-color-hover);
     }
   }
 
@@ -483,9 +486,11 @@
     --button-size: var(--dialog-mobile-action-size);
     --button-uniform-size: var(--dialog-mobile-action-size);
     --navigation-button-icon-size: var(--dialog-mobile-close-icon-size);
+    --button-text-color: var(--color-text-secondary);
+    --button-text-color-hover: var(--color-text-secondary);
     border-radius: var(--radius-full);
     background: transparent;
-    color: var(--color-text-secondary);
+    color: var(--button-text-color);
 
     @media (hover: hover) and (pointer: fine) {
       &:hover:where(:not(:root[data-input="touch"] *)) { background: transparent; }
@@ -748,8 +753,20 @@
     --button-size: var(--dialog-sheet-close-size);
     --button-uniform-size: var(--dialog-sheet-close-size);
     --navigation-button-icon-size: var(--dialog-sheet-close-icon-size);
-    /* The glass Close glyph uses the same label role as Page NavigationButton close (IMG_5453). */
-    color: var(--color-text);
+    /* The glass Close glyph uses the same label role as Page NavigationButton close (IMG_5453), through the
+       button's text tokens: the ghost button paints its glyph with them, so a bare color lost to them */
+    --button-text-color: var(--color-text);
+    --button-text-color-hover: var(--color-text);
+    color: var(--button-text-color);
+  }
+
+  /* The same for the Close (or a step's Back) at the leading edge of the bar a Dialog.Header becomes: a ghost
+     NavigationButton of the secondary color, whose glyph took the secondary ghost token. A disabled one keeps
+     the tertiary label of a disabled bar button; a leading action of the app's own (a Confirm, a danger color, a solid fill)
+     keeps its colors. */
+  .Content[data-mobile-variant="sheet"] .BarClose > :is([data-navigation-action="close"], [data-navigation-action="back"])[data-color="secondary"]:is([data-variant="ghost"], [data-variant="soft"]):not([data-disabled]) {
+    --button-text-color: var(--color-text);
+    --button-text-color-hover: var(--color-text);
   }
 
   /* The glass of a sheet's bar: Close, the header actions and a control in the header, such as a segmented

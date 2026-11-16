@@ -1044,7 +1044,8 @@ const ConfirmClose = defineComponent({
           h(PopoverContent, {
             "side": "bottom",
             "align": "start",
-            "sideOffset": -anchor.offsetHeight,
+            // Measured only while the question is open: a read of a layout on every render of the sheet forced one
+            "sideOffset": props.open ? -anchor.offsetHeight : 0,
             "alignOffset": -6,
             "collisionPadding": 10,
             "width": 240,
