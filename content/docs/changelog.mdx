@@ -7,6 +7,19 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.59.0 (2026-11-16)
+
+`@plexui/ui` 0.59.0 and `@plexui/vue` 0.39.0 add `listPill` to `Select`, open a phone sheet with fewer forced layouts and need `@plexui/styles` 0.16.1, which draws the Close of a phone sheet in the label color. Take the three together. `@plexui/mcp` is 0.2.36.
+
+### Added
+
+- `Select` takes `listPill` (Vue: `list-pill`): its list in the rounder shape of a pill menu, as `Menu.Content pill`, whatever the trigger, so a custom trigger or a rounded field opens the same list as a pill one. Without it the list keeps the trigger's shape, as before.
+
+### Fixed
+
+- On a phone the Close of a sheet (and the Close or Back at the leading edge of the bar `Dialog.Header` becomes, ghost or soft) draws its glyph in the label color, as the title: it took the grey of a secondary ghost button.
+- A phone sheet opens with fewer forced layouts: the question of `confirmClose` measures the Close only while it is open, an auto-resizing `Textarea` leaves its height to `field-sizing: content` where the browser has it, and in Vue an auto `NavigationRow` and a `Toolbar` take their first measure from their resize observer, before the first paint, in place of on mount.
+
 ## 0.58.0 (2026-11-15)
 
 `@plexui/ui` 0.58.0 and `@plexui/vue` 0.38.0 add `RollingNumber`, the segments of `Progress` and `Kbd.Modifier`, and need `@plexui/styles` 0.16.0, which also draws the phone `Alert` icon 22 wide. Take the three together. `@plexui/mcp` is 0.2.35.
