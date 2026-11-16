@@ -7,6 +7,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Fixed
+
+- A `Dialog` (a phone sheet too) and a `Menu` take no touch that starts while they come in, as on iOS: a double tap on a row no longer opens a sheet and a second one over it, and a double tap on a menu button no longer chooses its first item. The touch that opened them, a mouse or a pen (a quick second click still toggles a desktop menu) and a key's click still act.
+
 ## 0.59.2 (2026-11-16)
 
 `@plexui/ui` 0.59.2 and `@plexui/vue` 0.39.2 make `Sortable` and `Sidebar` lighter on a phone and need `@plexui/styles` 0.16.2, which keeps the lists of a finger drag unselectable. Take the three together. `@plexui/mcp` is 0.2.38.

@@ -79,6 +79,10 @@ import { focusPhoneSubmenuEntry } from "../../lib/menuSubmenuPlacement.js"
 import { ignoreReleaseOverTrigger, markCoveredMenuTrigger, observeMenuTriggerCover, type MenuTriggerCover } from "../../lib/menuTriggerCover.js"
 import { completeInitialPhoneSubmenuFocus, deferInitialPhoneSubmenuFocus, delegateInitialPhoneSubmenuFocus } from "../../lib/menuInitialFocus.js"
 import s from "@plexui/styles/components/Menu/Menu.module.css"
+import { HOLD_PRESSES_CLASS, holdEnteringPresses } from "../../lib/holdEnteringPresses.js"
+
+// Presses that start while a dialog or menu comes in are held, as on iOS (lib/holdEnteringPresses)
+holdEnteringPresses()
 
 // A touch listener lets iOS Safari apply :active, which draws the pressed capsule of a phone row (Menu.module.css).
 // React listens for touchstart at its root already.
@@ -692,7 +696,7 @@ export const MenuContent = defineComponent({
       menuPortal(phoneLayout, () =>
         h(
           TransitionGroup,
-          { class: s.Menu, ...overlayTiming, ...exitGuard.transition, overlay: true },
+          { class: [s.Menu, HOLD_PRESSES_CLASS], ...overlayTiming, ...exitGuard.transition, overlay: true },
           {
             default: () => [
               open.value

@@ -905,6 +905,33 @@ describe("Menu behaviour parity", () => {
     expect(result.react[1]!.dom).toContain('role="menu"')
   })
 
+  // Console 16.11: a double tap on the trigger chose the first item, the menu growing over its button. A touch that
+  // starts while the menu comes in does nothing, as on iOS; once it stands a tap selects.
+  test("a touch that starts while the menu comes in selects nothing", async () => {
+    animation.disabled = false
+    const result = await walk({}, async (snap) => {
+      await pointerDown(trigger(), { pointerType: "touch" })
+      await interact(() => { fireEvent.click(trigger(), { detail: 1 }) })
+      await interact(() => {
+        fireEvent.pointerDown(item("Edit"), { pointerType: "touch", pointerId: 2, button: 0 })
+        fireEvent.pointerUp(item("Edit"), { pointerType: "touch", pointerId: 2 })
+        fireEvent.click(item("Edit"), { detail: 1 })
+      })
+      snap()
+      await settle(400)
+      await interact(() => {
+        fireEvent.pointerDown(item("Edit"), { pointerType: "touch", pointerId: 3, button: 0 })
+        fireEvent.pointerUp(item("Edit"), { pointerType: "touch", pointerId: 3 })
+        fireEvent.click(item("Edit"), { detail: 1 })
+      })
+      await settle()
+      snap()
+    })
+    expectSame(result)
+    expect(result.react[0]!.log.join(" ")).not.toContain("select:Edit")
+    expect(result.react[1]!.log.join(" ")).toContain("select:Edit")
+  })
+
   test("pointerup on an item selects it when the pointer went down elsewhere", async () => {
     const result = await walk({}, async (snap) => {
       await pointerDown(trigger())

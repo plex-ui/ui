@@ -57,7 +57,11 @@ import { followTitleRows } from "../Page/Page.js"
 import { barBackground, TOOLBAR_HOST, Toolbar, ToolbarLeading, ToolbarRow, ToolbarTrailing, type BarBackground, type BarBackgroundAlias } from "../Toolbar/Toolbar.js"
 import { observeScrollEdges } from "../../lib/scrollEdges.js"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
+import { HOLD_PRESSES_CLASS, holdEnteringPresses } from "../../lib/holdEnteringPresses.js"
 import t from "@plexui/styles/components/Toolbar/Toolbar.module.css"
+
+// Presses that start while a dialog or menu comes in are held, as on iOS (lib/holdEnteringPresses)
+holdEnteringPresses()
 
 const DOUBLE_CLICK = 300
 
@@ -738,7 +742,7 @@ export const DialogContent = defineComponent({
             TransitionGroup,
             // A dialog mounted open enters too, as `v-if` and `open` together do
             {
-              class: s.Transition,
+              class: [s.Transition, HOLD_PRESSES_CLASS],
               ...(crossesScreen ? overlayTimingLarge : overlayTiming),
               overlay: true,
               preventInitialTransition: false,

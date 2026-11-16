@@ -34,6 +34,10 @@ import { TransitionGroup } from "../Transition"
 import { createExitGuard, overlayTiming, overlayTimingQuick } from "../Transition/shared"
 import { isHoverPointer } from "../../lib/inputMode"
 import s from "@plexui/styles/components/Menu/Menu.module.css"
+import { HOLD_PRESSES_CLASS, holdEnteringPresses } from "../../lib/holdEnteringPresses"
+
+// Presses that start while a dialog or menu comes in are held, as on iOS (lib/holdEnteringPresses)
+holdEnteringPresses()
 
 // Inside a PhoneLayout a menu opens in its box, laid out as on a phone and kept within it; in a Dialog laid out as on a
 // phone outside one it opens over the window, in a phone scope of its own (plan 176)
@@ -576,7 +580,7 @@ const Content = ({
   return (
     <DropdownMenu.Portal forceMount container={phoneLayout.container}>
       <PhoneScope enabled={phoneLayout.scoped}>
-      <TransitionGroup className={s.Menu} {...overlayTiming} {...exitGuard.transition} overlay>
+      <TransitionGroup className={clsx(s.Menu, HOLD_PRESSES_CLASS)} {...overlayTiming} {...exitGuard.transition} overlay>
         {open && (
           <RootMenuContent
             key="dropdown"

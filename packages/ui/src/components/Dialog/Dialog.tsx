@@ -40,7 +40,11 @@ import { enterStep, leaveStep, releaseStepHeight, settleStepHeight, STEP_TIMING 
 import { PhoneLayoutContext, usePhoneLayout, type PhoneLayoutValue } from "../PhoneLayout/PhoneLayout"
 import { usePopoverDismissableSurface } from "../Popover/deferredOutsidePress"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
+import { HOLD_PRESSES_CLASS, holdEnteringPresses } from "../../lib/holdEnteringPresses"
 import t from "@plexui/styles/components/Toolbar/Toolbar.module.css"
+
+// Presses that start while a dialog or menu comes in are held, as on iOS (lib/holdEnteringPresses)
+holdEnteringPresses()
 
 type DialogContextValue = {
   open: boolean
@@ -460,7 +464,7 @@ const Content = ({
       <TransitionGroup
         {...(crossesScreen ? overlayTimingLarge : overlayTiming)}
         {...exitGuard.transition}
-        className={s.Transition}
+        className={clsx(s.Transition, HOLD_PRESSES_CLASS)}
         overlay
         preventInitialTransition={false}
       >
