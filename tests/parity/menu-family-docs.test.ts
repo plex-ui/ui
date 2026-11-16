@@ -12,14 +12,20 @@ const components = { name: "Components", children: Object.entries(names).map(([s
 const empty = { name: "", children: [] }
 
 // Owner 10.11 on the one open «Menus» group: «это хорошая идея делать вложенные контролы???? только в этом одном
-// месте? кажется не очень / посмотри как делает Apple и другие». No big kit nests one group in a flat list: shadcn,
-// Radix, Carbon and Fluent are flat by name, Apple, Ant, Polaris, Atlassian and Mantine group every page, Material 3
-// nests five families. The list stays flat by name, as before; the note and Related components tie the four together.
-test("the sidebar lists the four by name among the other components, with no group of their own", () => {
+// месте? кажется не очень / посмотри как делает Apple и другие». No big kit nests one group in a flat list; Apple, Ant,
+// Polaris, Atlassian and Mantine group every page. Owner 16.11 approved groups for every page (lib/component-groups.ts),
+// with no nesting: a heading over each group. The four stay where their kind is (Menu and Context Menu with the
+// actions, Select and Select Control with the choices); the note and Related components tie them together.
+test("the sidebar lists the four under the headings of their groups, with no group of their own", () => {
   const { tree } = buildDocsTreeNavigation({ docs: empty, components, icons: empty })
-  const list = tree.children.slice(1, 7)
-  expect(list.map((node) => node.name)).toEqual(["Context Menu", "Input", "Menu", "Popover", "Select", "Select Control"])
-  expect(list.every((node) => node.type === "page")).toBe(true)
+  const headings: Record<string, string> = {}
+  let heading = ""
+  for (const node of tree.children) {
+    if (node.type === "separator") heading = String(node.name)
+    else if (node.type === "page") headings[String(node.name)] = heading
+  }
+  expect(headings).toMatchObject({ "Context Menu": "Actions", Menu: "Actions", Select: "Selection", "Select Control": "Selection", Input: "Text Input", Popover: "Overlays" })
+  expect(tree.children.filter((node) => node.type === "folder")).toEqual([])
 })
 
 test.each(["components", "vue/components"])("%s: each of the four pages says which to use, right after its usage", (dir) => {

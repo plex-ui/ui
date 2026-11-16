@@ -26,105 +26,6 @@ Variants: solid, soft, outline, ghost
 
 ---
 
-## Accordion
-Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
-Import: import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@plexui/vue/components/Accordion"
-Docs: https://plexui.com/vue/components/accordion
-Props:
-  - type ("single" | "multiple") — Required. Whether one item or many can be open at a time
-  - v-model:value / value (string | string[]) — Controlled open item(s), named like the React prop
-  - default-value (string | string[]) — Uncontrolled initial open item(s)
-  - collapsible (boolean) default: false — When type="single", allow closing the open item
-  - disabled (boolean) default: false — Disable every item
-  - dir ("ltr" | "rtl") default: "ltr" — Reading direction
-  - orientation ("horizontal" | "vertical") default: "vertical" — Layout axis
-  - class (string) — Applied to the root <div>
-  - @update:value ((value: string | string[]) => void) — Fires when the open item(s) change; closing the open item of a single accordion reports ""
-  AccordionItem:
-    - value (string) — Required. Unique identifier used by value / default-value
-    - disabled (boolean) default: false — Disable this item
-    - class (string) — Applied to the item wrapper
-Examples: Overview, Multiple, Card
-
-## Alert
-Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.
-Import: import { Alert } from "@plexui/vue/components/Alert"
-Docs: https://plexui.com/vue/components/alert
-Props:
-  - title (string | slot) — Title displayed in the alert
-  - description (string | slot) — Description text
-  - actions (slot) — Actions (for example buttons)
-  - actions-placement ("end" | "bottom") — Placement of actions; automatic from sizing when unset
-  - mobile-actions ("capsules" | "own") default: "capsules" — At 767px and below: 50px capsules as in an iOS tip, or the buttons at their own size, for an alert inside a block of its own buttons
-  - actions-class-name (string) — Class applied to the actions container
-  - color (SemanticColors) default: "primary" — Color scheme
-  - variant ("solid" | "soft" | "outline") default: "outline" — Style variant
-  - indicator (slot | false) — Custom indicator (slot), or :indicator="false" to hide it
-  - @dismiss (() => void) — Shows the dismiss button when set
-  - banner (boolean) default: false — Full-width strip: square corners, lines above and below only
-Examples: Overview
-
-## Avatar
-An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.
-Import: import { Avatar } from "@plexui/vue/components/Avatar"
-Docs: https://plexui.com/vue/components/avatar
-Props:
-  - name (string) — Display name; used for text initial when no image/icon
-  - image-url (string) — Absolute URL for image avatar
-  - Icon (Component) — Icon component for icon avatar, bound as :Icon
-  - size (number) — Width and height in pixels
-  - color ("primary" | "secondary" | "success" | "info" | "discovery" | "danger") default: "secondary" — Semantic color for text/icon avatar
-  - variant ("soft" | "solid") default: "soft" — Style variant
-  - overflow-count (number) — Show overflow count (e.g. +9)
-  - class (string) — Applied to the avatar root
-  - @click ((event: MouseEvent) => void) — Makes avatar interactive (renders a button)
-  - @pointerdown ((event: PointerEvent) => void) — Makes avatar interactive (renders a button)
-Examples: Overview
-
-## Avatar Group
-Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.
-Import: import { Avatar, AvatarGroup } from "@plexui/vue/components/Avatar"
-Docs: https://plexui.com/vue/components/avatar-group
-Props:
-  - default slot (VNode[]) — The avatars of the group
-  - size (number) — Size of all avatars in the group
-  - stack ("start" | "end") default: "start" — Stacking direction
-  - class (string) — Applied to the group container; other attributes are not forwarded
-Examples: Overview
-
-## Badge
-Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.
-Import: import { Badge } from "@plexui/vue/components/Badge"
-Docs: https://plexui.com/vue/components/badge
-Props:
-  - default slot (VNode[]) — Content inside the badge
-  - @remove ((event: MouseEvent) => void) — Adds a cross at the end of the badge that calls this when pressed
-  - remove-label (string) default: "Remove" — Accessible name of the cross
-  - removable (boolean) default: false — Shows the cross as a mark, for a badge inside a control that takes the press
-  - color ("secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution") default: "secondary" — Semantic color
-  - variant ("solid" | "soft" | "outline") default: "soft" — Style variant
-  - size ("sm" | "md" | "lg" | "xl") default: "sm" — Badge size
-  - pill (boolean) default: false — Fully rounded
-  - class (string) — Class applied to the badge
-Examples: Overview
-
-## Breadcrumb
-The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.
-Import: import { Breadcrumb, BreadcrumbItem } from "@plexui/vue/components/Breadcrumb"
-Docs: https://plexui.com/vue/components/breadcrumb
-Props:
-  - size ("sm" | "md") default: "md" — Text size: sm above a compact header, md above a page title
-  - aria-label (string) default: "Breadcrumb" — Name of the navigation landmark
-  - separator slot (VNode[]) default: a small chevron — What stands between two items
-  - default slot (VNode[]) — The BreadcrumbItem elements
-  BreadcrumbItem:
-    - href (string) — Link destination. Internal paths use the link component from PlexUIProvider
-    - to (string | RouteLocation) — Router destination, for link components that take to
-    - current (boolean) default: false — The current page: plain text marked aria-current="page"
-    - @click ((event: MouseEvent) => void) — Makes an item without a destination act as a button
-    - class (string) — Applied to the li element
-Examples: Overview, Separator, Small, Long trails
-
 ## Button
 Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.
 Import: import { Button, ButtonLink } from "@plexui/vue/components/Button"
@@ -180,88 +81,6 @@ Props:
     - class (string) — Applied to the wrapper
 Examples: Overview, Orientation, Input group, Separator, Input, Dropdown menu, Select, Popover
 
-## Card
-Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
-Import: import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@plexui/vue/components/Card"
-Docs: https://plexui.com/vue/components/card
-Props:
-  - variant ("outline" | "solid" | "ghost") default: "outline" — Visual variant
-  - size ("sm" | "md" | "lg") default: "md" — Padding scale
-  - interactive (boolean) default: false — Adds hover and focus affordances. Automatic when href is set.
-  - href (string) — Renders the Card as a link via the linkComponent of PlexUIProvider. A link component that takes to, such as RouterLink, gets it as to.
-  - external (boolean) default: auto-detected — Forces target="_blank" and rel="noopener noreferrer" when href is set.
-  - as (Component | "a") — Overrides the link component.
-  - class (string) — Applied to the root element
-Examples: Overview, Login, Create project, Payment Method, No team members (empty state), How did you hear about us?, Processing your request, Pricing
-
-## Checkbox
-Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.
-Import: import { Checkbox } from "@plexui/vue/components/Checkbox"
-Docs: https://plexui.com/vue/components/checkbox
-Props:
-  - variant ("solid" | "ghost") default: "solid" — Visual style: solid (filled background) or ghost (checkmark only)
-  - pill (boolean) default: false — Fully rounded indicator corners
-  - checked / v-model:checked (boolean | "indeterminate") — Controlled state
-  - default-checked (boolean | "indeterminate") — Initial state (uncontrolled)
-  - label (string) — Accessible label rendered next to the checkbox
-  - label slot (VNode[]) — Rich label content; takes precedence over the label prop
-  - description (string) — Second line below the label, linked via aria-describedby (or the description slot)
-  - disabled (boolean) default: false — Prevent interaction
-  - required (boolean) — Required for form submission
-  - name (string) — Form field name
-  - value (string) default: "on" — Value when submitted
-  - orientation ("left" | "right") default: "left" — Checkbox position relative to the label
-  - class (string) — CSS classes applied to the wrapper node
-  - id (string) — The id of the checkbox element (generated when omitted)
-  - @update:checked ((next: boolean | "indeterminate") => void) — Emitted with the next state when it changes (a click always emits a boolean)
-  - @focus ((event: FocusEvent) => void) — Emitted when the checkbox gains focus
-  - @blur ((event: FocusEvent) => void) — Emitted when the checkbox loses focus
-Examples: Overview, Group with select all, Group with description, With Field, Grouped sections, With Radio Group, Descriptions
-
-## Code Block
-Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
-Import: import { CodeBlock } from "@plexui/vue/components/CodeBlock"
-Docs: https://plexui.com/vue/components/code-block
-Props:
-  - default slot (string) — Code content (text only; interpolate a string to keep its whitespace)
-  - code (string) — Code content, used when the default slot is empty
-  - language (string) — Prism language name
-  - class (string) — Additional wrapper class
-  CollapsibleCodeBlock:
-    - default slot / code (string) — Code content
-    - language (string) — Prism language name
-    - default-expanded (boolean) default: false — Start expanded
-    - collapsed-height (number) default: 140 — Height when collapsed (px)
-    - max-expanded-height (number) — Max height when expanded (px); taller code scrolls
-    - copyable (boolean) default: true — Show copy button
-    - class (string) — Additional wrapper class
-Examples: Overview
-
-## Color Picker
-"The iOS 27.2 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
-Import: import { ColorPicker, ColorWell } from "@plexui/vue/components/ColorPicker"
-Docs: https://plexui.com/vue/components/color-picker
-Props:
-  - value (string) — The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value
-  - default-value (string) default: "#000000" — The color when it is initially rendered
-  - supports-alpha (boolean) default: true — Shows the Opacity slider
-  - mode ("grid" | "spectrum" | "sliders") — The controlled way to choose a color; bind with v-model:mode
-  - default-mode ("grid" | "spectrum" | "sliders") default: "grid" — The way to choose a color when it is initially rendered
-  - swatches (string[]) — The controlled saved colors; bind with v-model:swatches
-  - default-swatches (string[]) default: [] — The saved colors when it is initially rendered
-  - aria-label (string) default: "Colors" — Accessible name of the picker
-  ColorWell:
-    - value (string | null) — The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value. `null` shows the well with no color
-    - default-value (string | null) default: null — The color when it is initially rendered
-    - size ("xs" | "sm" | "lg") default: "sm" — 28px or 36px, or 24px (`xs`) at the start of a 32px field
-    - title (string) default: "Colors" — The title of the picker
-    - supports-eyedropper (boolean) default: true — Shows the eyedropper where the browser has the EyeDropper API
-    - disabled (boolean) default: false — Prevents opening the picker
-    - name (string) — Submits the color with the owning form
-    - aria-label (string) default: "Color" — Accessible name of the well
-    - aria-labelledby (string) — The `id` of the visible label of the well
-Examples: Color well, Large, Disabled, Picker, Without opacity
-
 ## Context Menu
 "A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu."
 Import: import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "@plexui/vue/components/ContextMenu"
@@ -279,157 +98,83 @@ Props:
     - aria-label (string) — Names the menu for assistive technology, in place of the name of its element
 Examples: Overview, Rounded elements, In a sortable list
 
-## Copy Tooltip
-A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
-Import: import { CopyTooltip } from "@plexui/vue/components/Tooltip"
-Import: import { Button } from "@plexui/vue/components/Button"
-Docs: https://plexui.com/vue/components/copy-tooltip
+## Menu
+Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.
+Import: import { Menu, MenuContent, MenuItem, MenuLink, MenuSeparator, MenuTrigger } from "@plexui/vue/components/Menu"
+Docs: https://plexui.com/vue/components/menu
 Props:
-  - default slot (VNode) — Trigger element (for example TooltipTriggerDecorator)
-  - copy-value (string) — Required. Content to copy to clipboard
-  - open-delay (number) default: 150 — Tooltip open delay in milliseconds
-  - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
-  - align-offset (number) default: 0 — Offset from start/end alignment in pixels
-  - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
-  - side-offset (number) default: 5 — Distance from trigger in pixels
-  - @copy ((copied: boolean) => void) — Emitted once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
-Examples: Overview
+  - force-open (boolean) — Keep menu open (controlled)
+  - modal (boolean) default: false — Whether menu is modal (focus trap)
+  - @open (() => void) — Emitted when menu opens
+  - @close (() => void) — Emitted when menu closes
+  MenuTrigger:
+    - disabled (boolean) default: false — Prevent the menu from opening
+  MenuContent:
+    - width (number | "auto") default: fits content, 250 on a phone — Panel width (numbers are pixels). Without it the panel fits its content, or with touch.css on a phone is 250px, as an iOS menu; "auto" fits the content there too
+    - min-width (number | "auto") default: 300 — Minimum panel width
+    - max-height (number) — Maximum panel height, in pixels
+    - pill (boolean) default: false — Rounder list with fully rounded rows, for menus beside pill controls. MenuSubContent takes it too
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement. Without it, and without side-offset, a menu on a phone opens upward from a trigger in the lower half of the screen
+    - side-offset (number) default: 5 — Distance from the trigger, in pixels. Without it a menu on a phone covers its trigger
+    - align ("start" | "center" | "end") default: "center" — Alignment relative to trigger
+    - align-offset (number) default: -5 — Offset from the start or end alignment, in pixels. 0 with center alignment, and on a phone when the menu covers its trigger
+    - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
+    - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
+    - @close-auto-focus ((event: Event) => void) — Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there
+    - @open-auto-focus ((event: Event) => void) — Emitted before focus moves into the menu as it opens; call event.preventDefault() to leave focus where it is, as for a menu that stands open when its screen appears
+  MenuItem:
+    - description (string) — Second line under the label (or the description slot). The label turns semibold on its own
+    - disabled (boolean) default: false — Disable the item
+    - danger (boolean) default: false — Destructive action: the item is drawn in the danger color
+    - @select ((event: Event) => void) — Called when the item is selected; call event.preventDefault() to keep the menu open
+    - @click ((event: MouseEvent) => void) — Called when the item is clicked; also makes the item interactive
+  MenuHeader:
+    - description (string) — Line under the title, such as the kind and size of a file (or the description slot)
+  MenuHeaderAction:
+    - aria-label (string) — Accessible name of the icon-only action (required)
+    - disabled (boolean) default: false — Disable the action
+    - @select ((event: Event) => void) — Emitted when the action is pressed; call event.preventDefault() to keep the menu open
+  MenuCheckboxItem:
+    - checked / v-model:checked (boolean | "indeterminate") default: false — Checked state
+    - @checked-change ((checked: boolean) => void) — Emitted with update:checked when the checkbox toggles
+    - @select ((event: Event) => void) — Call event.preventDefault() to keep the menu open
+    - indicator-position ("start" | "end") default: "end" — Checkbox position
+    - indicator-variant ("solid" | "ghost") default: "solid" — Indicator style
+    - disabled (boolean) default: false — Disable the item
+Examples: Overview, Mode switch, Header, Grouped items, Submenus, Checkbox items, Radio items, Destructive items, Natural sizing, Horizontal (icons only), Item actions
 
-## Date Input
-Masked text input for typing dates and times, with automatic formatting, min and max limits, and validation.
-Import: import { DateInput } from "@plexui/vue/components/DateInput"
-Docs: https://plexui.com/vue/components/date-input
+## Swipe Actions
+"Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys."
+Import: import { SwipeActions } from "@plexui/vue/components/SwipeActions"
+Docs: https://plexui.com/vue/components/swipe-actions
 Props:
-  - value / v-model:value (DateTime | null) — Selected date (Luxon DateTime). The field shows its date and time in its own zone, and a typed date is made in that zone (Luxon's default zone without a value)
-  - @update:value ((date: DateTime | null) => void) — Emitted when a complete valid date is entered or the field is cleared
-  - @change ((date: DateTime | null) => void) — Same payload as update:value, named after React's onChange
-  - mode (MaskitoDateMode) default: "dd/mm/yyyy" — Date format mode: dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, etc.
-  - separator (string) default: "." — Character between date parts
-  - time-mode (MaskitoTimeMode) — Enable time input: HH:MM, HH:MM:SS, etc.
-  - date-time-separator (string) default: ", " — Separator between date and time parts
-  - time-step (number) default: 0 — Arrow-key increment step for time segments
-  - min (DateTime) — Earliest allowed date
-  - max (DateTime) — Latest allowed date
-  - clearable (boolean) default: false — Show clear button when input has a value
-  - size (ControlSize) default: "md" — Input size (3xs to 3xl)
-  - variant ("outline" | "soft") default: "outline" — Visual style
-  - pill (boolean) default: false — Fully rounded corners
-  - disabled (boolean) default: false — Disable input
-  - invalid (boolean) default: false — Mark as invalid
-  - placeholder (string) — Generated from the format if not set
-Examples: Overview, With Field, Validation
+  - leading (SwipeAction[]) default: [] — Actions revealed by a swipe toward the trailing edge, the first one at the leading edge
+  - trailing (SwipeAction[]) default: [] — Actions revealed by a swipe toward the leading edge, the first one at the trailing edge
+  - label-placement ("hidden" | "inside" | "below") default: "hidden" — Where the actions show their labels: symbols only, inside the capsule, or below it (for rows of 60px and taller, as iOS sets them)
+  - full-swipe (boolean) default: true — A swipe past the middle between the open actions and the far edge runs the first action of that side
+  SwipeAction:
+    - id (string) — Unique ID of the action within its side
+    - label (string) — Name of the action: shown inside or below the capsule (and on an action without an icon), and its accessible name always
+    - Icon (Component) — Icon of the action, a component (mark it raw in reactive state)
+    - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "secondary" — Solid color of the action
+    - onSelect (() => void) — Called when the action is pressed, or by a full swipe when it is the first action of its side
+    - role ("destructive") — The action removes the row: the row slides out and collapses, as iOS deletes a row, and `onSelect` comes at the end of that for the list to drop it. A row the list keeps comes back.
+Examples: Overview, Labels inside, Labels below
 
-## Date Picker
-Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.
-Import: import { DatePicker } from "@plexui/vue/components/DatePicker"
-Docs: https://plexui.com/vue/components/date-picker
+## Text Link
+Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.
+Import: import { TextLink } from "@plexui/vue/components/TextLink"
+Docs: https://plexui.com/vue/components/text-link
 Props:
-  - value / v-model:value (DateTime | null) default: null — Selected date (luxon)
-  - @change ((date: DateTime | null) => void) — Emitted when the date changes, with the same value as update:value
-  - id (string) — Id of the trigger, for forms and labels
-  - min (DateTime) — Earliest selectable date (inclusive)
-  - max (DateTime) — Latest selectable date (inclusive). Must not be before min
-  - caption-layout ("buttons" | "dropdown") default: "buttons" — Calendar header mode. Use dropdown for date of birth
-  - show-time (boolean) default: false — Show time input below calendar
-  - year-range ([number, number]) default: last 120 years — Min/max years for dropdown caption
-  - size (ControlSize) default: "md" — Trigger size (3xs to 3xl)
-  - variant ("outline" | "soft" | "ghost") default: "outline" — Trigger style
-  - pill (boolean) default: true — Rounded trigger
-  - block (boolean) default: false — Full-width trigger
-  - clearable (boolean) default: false — Show clear button
-  - trigger-show-icon (boolean) default: true — Show calendar icon
-  - trigger-date-format (string) default: "MM/dd/yy" — Date format in trigger. Auto-includes time when show-time is enabled and trigger-time-format is not set
-  - trigger-time-format (string) — With show-time, the time format after the date in the trigger. The date and the time become two parts; in a phone row, two capsules
-  - trigger-class-name (string) — Class applied to the trigger
-  - dropdown-icon-type ("dropdown" | "chevronDown" | "none") default: "dropdown" — Icon at the end of the trigger
-  - placeholder (string) default: "Select date..." — Trigger placeholder
-  - disabled (boolean) default: false — Disable picker
-  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement.
-  - side-offset (number) default: 8 — Distance from the trigger in pixels
-  - align ("start" | "center" | "end") default: "center" — Alignment against the trigger
-  - align-offset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
-Examples: Overview, Two fields, Date input
-
-## Date Range Picker
-Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
-Import: import { DateRangePicker } from "@plexui/vue/components/DateRangePicker"
-Docs: https://plexui.com/vue/components/date-range-picker
-Props:
-  - value / v-model:value (DateRange | null) — Selected range ([start, end], inclusive)
-  - @change ((next: DateRange | null, shortcut?: DateRangeShortcut) => void) — Emitted when the range changes
-  - min (DateTime) — Earliest selectable date (inclusive)
-  - max (DateTime) — Latest selectable date (inclusive). Must not be before min
-  - max-range-days (number) — Max length of range in days (inclusive)
-  - week-starts-on (0 | 1 | 2 | 3 | 4 | 5 | 6) default: 0 — The day each week starts on, from 0 (Sunday) to 6 (Saturday)
-  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange }), shown next to the calendar from the md breakpoint up
-  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement.
-  - side-offset (number) default: 8 — Distance from trigger in pixels
-  - align ("start" | "center" | "end") default: "center" — Preferred popover alignment
-  - align-offset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
-  - disabled (boolean) default: false — Disable picker interactions
-  - placeholder (string) default: "Select date range..." — Placeholder in trigger when value is empty
-  - variant ("soft" | "outline" | "ghost") default: "outline" — Trigger style variant
-  - pill (boolean) default: true — Rounded trigger shape
-  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Trigger size scale
-  - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Icon shown at trigger end
-  - trigger-class-name (string) — Custom class for trigger
-  - trigger-show-icon (boolean) default: true — Show calendar icon at trigger start
-  - trigger-stepper-unit ("month") — Enable month stepper mode in trigger
-  - trigger-date-format (string) default: "MM/dd/yy" — Date formatting in trigger text
-  - clearable (boolean) default: false — Show clear button in trigger
-  - block (boolean) default: false — Stretch trigger to full available width
-Examples: Overview
-
-## Dialog
-Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
-Import: import { Dialog, DialogBody, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogHeaderAction, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
-Docs: https://plexui.com/vue/components/dialog
-Props:
-  - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
-  - @update:open ((open: boolean) => void) — Fires when the dialog opens or closes
-  DialogContent:
-    - surface ("plain" | "grouped") default: "plain" — Mobile panel and field-group palette. Dark dialogs use elevated surface levels; desktop colors stay unchanged
-    - width (number | string) default: 480 — Panel width. Mobile alert uses its compact width; a bottom sheet fills the viewport width
-    - show-close (boolean) default: true — Show the built-in close button. A mobile sheet places it at the leading edge, unless a leading DialogHeaderAction takes that place; a mobile alert hides it
-    - class (string) — Additional CSS class on the panel
-    - placement ("center" | "top" | "bottom" | "start" | "end" | "fullscreen") default: "center" — Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen
-    - mobile-variant ("alert" | "sheet") default: "sheet" — The iOS presentation at 767px and below. A phone has two modal views: a sheet, which iOS gives any view it presents, and an alert, a short question with its answers, compact and centered
-    - mobile-placement ("center" | "bottom" | "fullscreen") default: "bottom" — Where a phone sheet stands: at the bottom, or over the whole screen (the default for a fullscreen dialog). center is the alert's place: without mobile-variant it makes the dialog an alert
-    - @open-auto-focus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
-    - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
-    - @escape-key-down ((event: KeyboardEvent) => void) — Called on Escape before the dialog closes; call event.preventDefault() to keep it open
-    - @interact-outside ((event: DialogInteractOutsideEvent) => void) — Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes; call event.preventDefault() to keep it open (the sheet returns). event.detail.originalEvent is the browser's event, a TouchEvent for the sheet
-    - confirm-close ({ message: string; detail?: string; confirmLabel?: string; cancelLabel?: string } | (() => { message: string; detail?: string; confirmLabel?: string; cancelLabel?: string } | false | null) | false | null) — Asks before the dialog closes, for a form with unsaved changes: Close, DialogClose, Escape, a press outside and a pulled-down phone sheet ask first. On a phone Sheet the question is a glass popover at the bar's Close (iOS confirmation); elsewhere an alert. confirmLabel defaults to "Discard Changes", cancelLabel (the alert's other answer) to "Keep Editing". detail is a quieter line under the question, such as what a save left behind. A function is called at each close attempt, before the dialog decides: commit what is typed there, then return the question, or nothing to close at once. Setting open to false yourself closes at once
-    - z-index (number) default: 50 — Stack order of the overlay and the dialog, for a page whose own layers sit above 50
-    - root-props (DialogLayerProps) — class, style and data attributes for the fixed layer that holds the panel. Data attributes on DialogContent land there too
-    - overlay-props (DialogLayerProps) — class, style and data attributes for the overlay
-    - layout ("auto" | "phone") default: "auto" — phone lays the dialog out as on a phone at any window width, with the dialogs it opens. Inside a PhoneLayout it always is
-  DialogHeaderAction:
-    - side ("leading" | "trailing") default: "trailing" — leading puts the action before the title, such as the Back of a step: in a phone Sheet it takes the place of Close, as the back button of a screen pushed inside an iOS sheet
-  DialogFooter:
-    - background ("soft" | "hard" | "glass" | "blur") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged. solid is the earlier name of hard
-    - mobile-layout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit. A stacked alert keeps the written order; a stacked sheet puts its last action on top
-  DialogSteps:
-    - step (string | number) — The step on screen. A new value brings its content in
-    - direction ("forward" | "back") default: "forward" — forward brings the new step in from the trailing edge over the one before; back returns to a step before it
-    - class (string) — Additional CSS class on the steps
-Examples: Overview, Metadata details, Scrolling body, Placement, View options sheet, Segmented composer header, Setup choices, Steps, Keep it open, Ask before discarding
-
-## Empty Message
-Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
-Import: import { EmptyMessage, EmptyMessageActionRow, EmptyMessageDescription, EmptyMessageIcon, EmptyMessageTitle } from "@plexui/vue/components/EmptyMessage"
-Docs: https://plexui.com/vue/components/empty-message
-Props:
-  - fill ("static" | "absolute" | "none") default: "static" — How the container fills its parent: "static" takes full width and height, "absolute" covers a positioned parent (inset 0), "none" applies no sizing
-  - size ("sm" | "md") default: "md" — sm is the compact message for a panel, a card section or an empty list
-  - align ("center" | "start") default: "center" — start left-aligns the message, for an empty state under a section heading
-  EmptyMessageIcon:
-    - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
-    - size ("sm" | "md") default: "md" — Icon badge size
-  EmptyMessageTitle:
-    - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
-  EmptyMessageActionRow:
-    - class (string) — Additional classes for the action row container
+  - default slot (VNode[]) — Link content
+  - href (string) — URL. An http:// or https:// URL is external
+  - to (string | Record<string, unknown>) — Router link destination (internal), such as a vue-router location
+  - primary (boolean) default: false — Primary color, no default underline
+  - underline (boolean) default: true — Underline (default true unless primary)
+  - force-external (boolean) — Force external link behavior
+  - as (Component) — Link component (e.g. RouterLink, NuxtLink)
+  - target (string) — Where to open the link. External links default to _blank
+  - class (string) — Extra classes on the link
 Examples: Overview
 
 ## Field
@@ -532,34 +277,6 @@ Docs: https://plexui.com/vue/components/floating-label-input
     - @interact (() => void) — Fires on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
 Examples: Overview, Textarea, Password input, Phone input, Select, Multiple selection, Country select, Label inside
 
-## Index Bar
-"The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up."
-Import: import { IndexBar } from "@plexui/vue/components/IndexBar"
-Docs: https://plexui.com/vue/components/index-bar
-Props:
-  - items (string[]) — The titles of the sections, in order: usually letters, such as A to Z and #
-  - id (string) — The id of the index bar
-  - aria-label (string) default: "Section index" — Name of the index bar
-  - aria-controls (string) — The id of the list the index scrolls
-Examples: Overview
-
-## Indicators
-Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
-Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/vue/components/Indicator"
-Docs: https://plexui.com/vue/components/indicators
-  LoadingIndicator:
-    - size (number | string) default: "1em" — Size in px or any CSS length. Defaults to 20px with the optional touch stylesheet, also inside a field. Also accepts --indicator-size.
-    - stroke-width (number) default: 2 — Ring stroke or mobile spoke width in px. Mobile spokes default to the iOS 27 kit proportion: 2/14 of the size up to 16px, 4/30 to 27px, 5/35 from 28px.
-  CircularProgress:
-    - progress (number) — Static progress 0-100 (disables the simulated animation)
-    - done (boolean) default: false — Fills the ring and ends the simulated progress
-    - max-duration (number) default: 15000 — Duration of the simulated progress in ms
-    - size (number | string) default: "28px" — Diameter in px or any CSS length
-    - stroke-width (number) default: 2 — Stroke thickness in px, capped at 4
-    - track-color (string) — Track color (CSS variable or value)
-    - track-active-color (string) — Active segment color
-Examples: Overview
-
 ## Input
 Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
 Import: import { Input, InputAdornmentButton } from "@plexui/vue/components/Input"
@@ -601,22 +318,6 @@ Props:
     - class (string) — Applied to the addon <div>
 Examples: Overview, Text, Button, Dropdown, Textarea
 
-## Kbd
-A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.
-Import: import { Kbd, KbdGroup, KbdModifier } from "@plexui/vue/components/Kbd"
-Docs: https://plexui.com/vue/components/kbd
-Props:
-  - size ("xs" | "sm" | "md") default: "sm" — Height and text size: 16px, 20px or 24px
-  - variant ("soft" | "outline") default: "soft" — soft fills the key, outline draws its edge; both mix the text color
-  - class (string) — Applied to the kbd element
-  - default slot (VNode[]) — The key
-  KbdModifier:
-    - name ("mod" | "ctrl" | "alt" | "shift") default: "mod" — The modifier: mod is ⌘ on an Apple keyboard and Ctrl on another
-    - platform ("apple" | "other") — The keyboard to print for; by default the browser's (Apple on the server)
-    - size ("xs" | "sm" | "md") default: "sm" — As Kbd
-    - variant ("soft" | "outline") default: "soft" — As Kbd
-Examples: Overview, Shortcut, Modifier, Sizes and variants, In a tooltip and a menu
-
 ## Label
 Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
 Import: import { Label } from "@plexui/vue/components/Label"
@@ -626,28 +327,6 @@ Props:
   - class (string) — Applied to the root <label> element
   - default slot (VNode[]) — Label content
 Examples: Overview
-
-## Markdown
-Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
-Import: import { Markdown } from "@plexui/vue/components/Markdown"
-Docs: https://plexui.com/vue/components/markdown
-Props:
-  - default slot (string) — Markdown source (text only; interpolate a string to keep its newlines)
-  - source (string) — Markdown source, used when the default slot is empty
-  - include-math (boolean) default: false — Enable LaTeX math rendering
-  - break-new-lines (boolean) default: false — Turn single newlines into line breaks
-  - copyable-code-blocks (boolean) default: true — Show a copy button on code blocks
-  - collapsible-code-blocks (boolean) default: true — Render code blocks in the collapsible view with a View Code button
-  - components (Record<string, MarkdownComponent>) — Tag name to component overrides, applied over the built-in ones
-  - directives (MarkdownDirective[]) — Custom directives, each rendered by its own component
-  - remark-plugins (PluggableList) — Extra remark plugins, after the built-in ones
-  - rehype-plugins (PluggableList) — Extra rehype plugins
-  - allowed-elements (string[]) — Only render these elements
-  - disallowed-elements (string[]) — Never render these elements
-  - skip-html (boolean) default: false — Ignore raw HTML in the source
-  - url-transform ((url: string) => string) — Rewrites URLs; the default drops unsafe protocols (javascript:) and keeps tel: and sms:
-  - class (string) — Applied to the wrapping element
-Examples: Overview, Math
 
 ## Markdown Editor
 Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.
@@ -673,67 +352,6 @@ Props:
   - class (string) — Applied to the container
 Examples: Placeholder, All formatting, Formats and line breaks, With Field, Toolbar end slot, Variants
 
-## Menu
-Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.
-Import: import { Menu, MenuContent, MenuItem, MenuLink, MenuSeparator, MenuTrigger } from "@plexui/vue/components/Menu"
-Docs: https://plexui.com/vue/components/menu
-Props:
-  - force-open (boolean) — Keep menu open (controlled)
-  - modal (boolean) default: false — Whether menu is modal (focus trap)
-  - @open (() => void) — Emitted when menu opens
-  - @close (() => void) — Emitted when menu closes
-  MenuTrigger:
-    - disabled (boolean) default: false — Prevent the menu from opening
-  MenuContent:
-    - width (number | "auto") default: fits content, 250 on a phone — Panel width (numbers are pixels). Without it the panel fits its content, or with touch.css on a phone is 250px, as an iOS menu; "auto" fits the content there too
-    - min-width (number | "auto") default: 300 — Minimum panel width
-    - max-height (number) — Maximum panel height, in pixels
-    - pill (boolean) default: false — Rounder list with fully rounded rows, for menus beside pill controls. MenuSubContent takes it too
-    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement. Without it, and without side-offset, a menu on a phone opens upward from a trigger in the lower half of the screen
-    - side-offset (number) default: 5 — Distance from the trigger, in pixels. Without it a menu on a phone covers its trigger
-    - align ("start" | "center" | "end") default: "center" — Alignment relative to trigger
-    - align-offset (number) default: -5 — Offset from the start or end alignment, in pixels. 0 with center alignment, and on a phone when the menu covers its trigger
-    - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
-    - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
-    - @close-auto-focus ((event: Event) => void) — Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there
-    - @open-auto-focus ((event: Event) => void) — Emitted before focus moves into the menu as it opens; call event.preventDefault() to leave focus where it is, as for a menu that stands open when its screen appears
-  MenuItem:
-    - description (string) — Second line under the label (or the description slot). The label turns semibold on its own
-    - disabled (boolean) default: false — Disable the item
-    - danger (boolean) default: false — Destructive action: the item is drawn in the danger color
-    - @select ((event: Event) => void) — Called when the item is selected; call event.preventDefault() to keep the menu open
-    - @click ((event: MouseEvent) => void) — Called when the item is clicked; also makes the item interactive
-  MenuHeader:
-    - description (string) — Line under the title, such as the kind and size of a file (or the description slot)
-  MenuHeaderAction:
-    - aria-label (string) — Accessible name of the icon-only action (required)
-    - disabled (boolean) default: false — Disable the action
-    - @select ((event: Event) => void) — Emitted when the action is pressed; call event.preventDefault() to keep the menu open
-  MenuCheckboxItem:
-    - checked / v-model:checked (boolean | "indeterminate") default: false — Checked state
-    - @checked-change ((checked: boolean) => void) — Emitted with update:checked when the checkbox toggles
-    - @select ((event: Event) => void) — Call event.preventDefault() to keep the menu open
-    - indicator-position ("start" | "end") default: "end" — Checkbox position
-    - indicator-variant ("solid" | "ghost") default: "solid" — Indicator style
-    - disabled (boolean) default: false — Disable the item
-Examples: Overview, Mode switch, Header, Grouped items, Submenus, Checkbox items, Radio items, Destructive items, Natural sizing, Horizontal (icons only), Item actions
-
-## Navigation Row
-"A row of a list that opens what it holds, as an iOS Settings row: its label, the current value at the end, a chevron, and the whole row one press."
-Import: import { NavigationRow } from "@plexui/vue/components/NavigationRow"
-Docs: https://plexui.com/vue/components/navigation-row
-Props:
-  - label (string | number) — The name of the row, where a row's label starts (or the `label` slot)
-  - value (string | number | null) — The current value, at the end of the row in the secondary label color (or the `value` slot). `0` shows; `null`, `undefined` and `""` do not
-  - description (string | number) — A line under the label; the row grows from 52px to hold it (or the `description` slot)
-  - to (string | object) — A router target: with it the row is a link, through the `linkComponent` of `PlexUIProvider`
-  - href (string) — Where the row goes, as a plain link
-  - as (Component | "a") — The link component, such as a router's link
-  - external (boolean) — Treats the link as one out of the app (a new tab)
-  - disabled (boolean) default: false — The row can't be pressed. A disabled link renders as a disabled button, so it never navigates
-  - valuePlacement ("end" | "below" | "auto") default: "end" — Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it
-Examples: Overview, Columns
-
 ## OTP Input
 Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.
 Import: import { OTPInput } from "@plexui/vue/components/OTPInput"
@@ -751,106 +369,182 @@ Props:
   - class (string) — Applied to the root element
 Examples: Overview, Grouped (3+3)
 
-## Page
-"The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
-Import: import { Page, PageActions, PageBar, PageContent, PageFooter, PageHeader, PageHeading, PageLeading, PageSubtitle, PageTitle } from "@plexui/vue/components/Page"
-Docs: https://plexui.com/vue/components/page
+## Tag Input
+Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.
+Import: import { TagInput } from "@plexui/vue/components/TagInput"
+Docs: https://plexui.com/vue/components/tag-input
 Props:
-  - width ("full" | "wide" | "column") default: "full" — Column that header and content share: edge to edge, 1280px or 768px, centred
-  - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
-  - class (string) — Class of the root element
-  PageHeader:
-    - background ("soft" | "hard" | "glass" | "blur") default: "glass" — How the bar meets the content scrolled under it on a phone, see Background. solid is the earlier name of hard
-    - divider (boolean) default: true — Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background
-    - class (string) — Class of the band
-  PageContent:
-    - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
-    - class (string) — Class of the element that scrolls
+  - value / v-model:value (Tag[]) — Controlled value; update:value fires on every change
+  - default-value (Tag[]) — Uncontrolled initial tags
+  - @change ((tags: Tag[]) => void) — Fires when the tags change
+  - id (string) — Id of the text input, so a label can target it with for
+  - placeholder (string) — Input placeholder
+  - validator ((value: string) => boolean) — Validates each tag when it is created; invalid tags shown in red
+  - max-tags (number) — Maximum number of tags. At the limit the text input hides and a count shows below; the container then takes the tab stop, so arrow keys and Backspace still select and remove tags
+  - rows (number) default: 1 — Min rows
+  - size ('sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl') default: xl — Control height when rows=1; matches Input height of the same size
+  - pill (boolean) default: false — Fully-rounded container and chips; matches Input/SelectControl pill
+  - delimiters (string[]) default: [",", " "] — Characters that commit the current text as a tag
+  - disabled (boolean) — Disables the input: tags cannot be added or removed, and pending text stays as typed
+  - auto-focus (boolean) default: false — Focus on mount
+Examples: Overview, Inline filter row, Suggestions
+
+## Textarea
+Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.
+Import: import { Textarea } from "@plexui/vue/components/Textarea"
+Docs: https://plexui.com/vue/components/textarea
+Props:
+  - value / v-model:value (string | number) — Controlled value; uncontrolled when omitted
+  - default-value (string | number) — Initial value when uncontrolled
+  - variant ("outline" | "soft" | "ghost") default: "outline" — Visual style of the textarea; ghost has no border and no fill, for a row or a container that frames it
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height for single-line equivalent
+  - gutter-size ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding; defaults from size
+  - disabled (boolean) default: false — Disable the textarea
+  - read-only (boolean) default: false — Make the textarea read-only (the native readonly attribute works too)
+  - invalid (boolean) default: false — Mark as invalid
+  - allow-autofill-extensions (boolean) default: !!name — Allow autofill extensions
+  - auto-select (boolean) default: false — Select all contents when mounted
+  - rows (number) default: 3 — Initial row count
+  - auto-resize (boolean) default: false — Grow/shrink with content
+  - max-rows (number) — Max rows when auto-resize; defaults to the larger of rows and 10
+  - class (string) — Applied to the container <div>
+  - @update:value ((value: string) => void) — Emitted on every input
+  - @autofill (() => void) — Emitted when the browser autofills the textarea
 Examples: Overview
 
-## Page Control
-A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
-Import: import { PageControl } from "@plexui/vue/components/PageControl"
-Docs: https://plexui.com/vue/components/page-control
+## Checkbox
+Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.
+Import: import { Checkbox } from "@plexui/vue/components/Checkbox"
+Docs: https://plexui.com/vue/components/checkbox
 Props:
-  - count (number) — Number of pages
-  - value (number) — Controlled index of the current page, from 0; bind with v-model:value
-  - default-value (number) default: 0 — Initial page (uncontrolled)
-  - background ("automatic" | "prominent" | "minimal") default: "automatic" — When the capsule behind the dots shows; minimal also turns off scrubbing
-  - value-text ((index: number, count: number) => string) default: Page 2 of 5 — Text assistive technology reads for the current page
-  - aria-label (string) default: "Pages" — Name of the page control, when no visible label names it
-  - aria-labelledby (string) — The id of the visible label of the page control
-  - aria-controls (string) — The id of the element that shows the pages
-  - id (string) — The id of the page control
-Examples: Overview, Many pages, Prominent
+  - variant ("solid" | "ghost") default: "solid" — Visual style: solid (filled background) or ghost (checkmark only)
+  - pill (boolean) default: false — Fully rounded indicator corners
+  - checked / v-model:checked (boolean | "indeterminate") — Controlled state
+  - default-checked (boolean | "indeterminate") — Initial state (uncontrolled)
+  - label (string) — Accessible label rendered next to the checkbox
+  - label slot (VNode[]) — Rich label content; takes precedence over the label prop
+  - description (string) — Second line below the label, linked via aria-describedby (or the description slot)
+  - disabled (boolean) default: false — Prevent interaction
+  - required (boolean) — Required for form submission
+  - name (string) — Form field name
+  - value (string) default: "on" — Value when submitted
+  - orientation ("left" | "right") default: "left" — Checkbox position relative to the label
+  - class (string) — CSS classes applied to the wrapper node
+  - id (string) — The id of the checkbox element (generated when omitted)
+  - @update:checked ((next: boolean | "indeterminate") => void) — Emitted with the next state when it changes (a click always emits a boolean)
+  - @focus ((event: FocusEvent) => void) — Emitted when the checkbox gains focus
+  - @blur ((event: FocusEvent) => void) — Emitted when the checkbox loses focus
+Examples: Overview, Group with select all, Group with description, With Field, Grouped sections, With Radio Group, Descriptions
 
-## Phone Layout
-Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.
-Import: import { PhoneLayout } from "@plexui/vue/components/PhoneLayout"
-Docs: https://plexui.com/vue/components/phone-layout
+## Color Picker
+"The iOS 27.2 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
+Import: import { ColorPicker, ColorWell } from "@plexui/vue/components/ColorPicker"
+Docs: https://plexui.com/vue/components/color-picker
 Props:
-  - class (string) — Class on the box, such as its size and corners
-  - style (string | CSSProperties) — Style on the box
-Examples: Overview, Menu
+  - value (string) — The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value
+  - default-value (string) default: "#000000" — The color when it is initially rendered
+  - supports-alpha (boolean) default: true — Shows the Opacity slider
+  - mode ("grid" | "spectrum" | "sliders") — The controlled way to choose a color; bind with v-model:mode
+  - default-mode ("grid" | "spectrum" | "sliders") default: "grid" — The way to choose a color when it is initially rendered
+  - swatches (string[]) — The controlled saved colors; bind with v-model:swatches
+  - default-swatches (string[]) default: [] — The saved colors when it is initially rendered
+  - aria-label (string) default: "Colors" — Accessible name of the picker
+  ColorWell:
+    - value (string | null) — The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value. `null` shows the well with no color
+    - default-value (string | null) default: null — The color when it is initially rendered
+    - size ("xs" | "sm" | "lg") default: "sm" — 28px or 36px, or 24px (`xs`) at the start of a 32px field
+    - title (string) default: "Colors" — The title of the picker
+    - supports-eyedropper (boolean) default: true — Shows the eyedropper where the browser has the EyeDropper API
+    - disabled (boolean) default: false — Prevents opening the picker
+    - name (string) — Submits the color with the owning form
+    - aria-label (string) default: "Color" — Accessible name of the well
+    - aria-labelledby (string) — The `id` of the visible label of the well
+Examples: Color well, Large, Disabled, Picker, Without opacity
 
-## Popover
-A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.
-Import: import { Popover, PopoverContent, PopoverTrigger } from "@plexui/vue/components/Popover"
-Docs: https://plexui.com/vue/components/popover
+## Date Input
+Masked text input for typing dates and times, with automatic formatting, min and max limits, and validation.
+Import: import { DateInput } from "@plexui/vue/components/DateInput"
+Docs: https://plexui.com/vue/components/date-input
 Props:
-  - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
-  - @update:open ((nextState: boolean) => void) — Emitted when the popover opens or closes
-  - show-on-hover (boolean) default: false — Open on hover and focus instead of click
-  - hover-open-delay (number) default: 150 — Delay before a hover popover opens (ms)
-  PopoverContent:
-    - width (number | "auto") default: "auto" — Panel width in px
-    - min-width (number | "auto") default: 300 — Minimum panel width in px
-    - max-width (number) default: 700 — Maximum panel width in px, capped by the space available in the viewport
-    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement; flips when it collides
-    - align ("start" | "center" | "end") default: "center" — Alignment relative to trigger
-    - side-offset (number) default: 8 — Offset from trigger (px)
-    - align-offset (number) default: -5 — Offset from the start or end alignment (px)
-    - avoid-collisions (boolean) default: true — Reposition to stay inside the viewport and scroll containers
-    - collision-padding (number | { top?, right?, bottom?, left? }) default: 20 — Space in px to keep from viewport and scroll container boundaries; an object such as `{ top: 16, right: 32, bottom: 16, left: 32 }` sets it per side, and a side it leaves out gets 0
-    - translucent (boolean) default: false — Translucent, blurred surface
-    - z-index (number) default: 50 — Stack order, for a popover over a layer above 50, such as a dialog with its own zIndex
-    - aria-labelledby (string) — The id of the element that names the popover, such as the question of a confirmation
-    - auto-focus (boolean) default: true — Move focus into the panel when it opens (hover popovers never take focus)
-    - data-* (string) — Data attributes land on the panel
-    - class (string) — Applied to the panel
-    - default slot ({ close, shake }) — Panel content; receives the controller functions
-Examples: Overview, Using the controller, Confirmation, Column configuration
+  - value / v-model:value (DateTime | null) — Selected date (Luxon DateTime). The field shows its date and time in its own zone, and a typed date is made in that zone (Luxon's default zone without a value)
+  - @update:value ((date: DateTime | null) => void) — Emitted when a complete valid date is entered or the field is cleared
+  - @change ((date: DateTime | null) => void) — Same payload as update:value, named after React's onChange
+  - mode (MaskitoDateMode) default: "dd/mm/yyyy" — Date format mode: dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, etc.
+  - separator (string) default: "." — Character between date parts
+  - time-mode (MaskitoTimeMode) — Enable time input: HH:MM, HH:MM:SS, etc.
+  - date-time-separator (string) default: ", " — Separator between date and time parts
+  - time-step (number) default: 0 — Arrow-key increment step for time segments
+  - min (DateTime) — Earliest allowed date
+  - max (DateTime) — Latest allowed date
+  - clearable (boolean) default: false — Show clear button when input has a value
+  - size (ControlSize) default: "md" — Input size (3xs to 3xl)
+  - variant ("outline" | "soft") default: "outline" — Visual style
+  - pill (boolean) default: false — Fully rounded corners
+  - disabled (boolean) default: false — Disable input
+  - invalid (boolean) default: false — Mark as invalid
+  - placeholder (string) — Generated from the format if not set
+Examples: Overview, With Field, Validation
 
-## Progress
-A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
-Import: import { Progress } from "@plexui/vue/components/Progress"
-Docs: https://plexui.com/vue/components/progress
+## Date Picker
+Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.
+Import: import { DatePicker } from "@plexui/vue/components/DatePicker"
+Docs: https://plexui.com/vue/components/date-picker
 Props:
-  - value (number | null) default: null — Current progress between 0 and max. Pass null for indeterminate.
-  - max (number) default: 100 — Maximum progress value
-  - segments (ProgressSegment[]) — Parts of one bar side by side: { value, color?, label? }, color one of primary, secondary, success, warning, caution, danger, info, discovery. Takes the place of value.
-  - get-value-label ((value: number, max: number) => string) — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
-  - class (string) — Applied to the root <div>
-Examples: Overview, With label, Controlled, Segments
+  - value / v-model:value (DateTime | null) default: null — Selected date (luxon)
+  - @change ((date: DateTime | null) => void) — Emitted when the date changes, with the same value as update:value
+  - id (string) — Id of the trigger, for forms and labels
+  - min (DateTime) — Earliest selectable date (inclusive)
+  - max (DateTime) — Latest selectable date (inclusive). Must not be before min
+  - caption-layout ("buttons" | "dropdown") default: "buttons" — Calendar header mode. Use dropdown for date of birth
+  - show-time (boolean) default: false — Show time input below calendar
+  - year-range ([number, number]) default: last 120 years — Min/max years for dropdown caption
+  - size (ControlSize) default: "md" — Trigger size (3xs to 3xl)
+  - variant ("outline" | "soft" | "ghost") default: "outline" — Trigger style
+  - pill (boolean) default: true — Rounded trigger
+  - block (boolean) default: false — Full-width trigger
+  - clearable (boolean) default: false — Show clear button
+  - trigger-show-icon (boolean) default: true — Show calendar icon
+  - trigger-date-format (string) default: "MM/dd/yy" — Date format in trigger. Auto-includes time when show-time is enabled and trigger-time-format is not set
+  - trigger-time-format (string) — With show-time, the time format after the date in the trigger. The date and the time become two parts; in a phone row, two capsules
+  - trigger-class-name (string) — Class applied to the trigger
+  - dropdown-icon-type ("dropdown" | "chevronDown" | "none") default: "dropdown" — Icon at the end of the trigger
+  - placeholder (string) default: "Select date..." — Trigger placeholder
+  - disabled (boolean) default: false — Disable picker
+  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement.
+  - side-offset (number) default: 8 — Distance from the trigger in pixels
+  - align ("start" | "center" | "end") default: "center" — Alignment against the trigger
+  - align-offset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
+Examples: Overview, Two fields, Date input
 
-## Progress Steps
-Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
-Import: import { ProgressSteps, ProgressStepsStep, ProgressStepsTitle, ProgressStepsDescription } from "@plexui/vue/components/ProgressSteps"
-Docs: https://plexui.com/vue/components/progress-steps
+## Date Range Picker
+Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
+Import: import { DateRangePicker } from "@plexui/vue/components/DateRangePicker"
+Docs: https://plexui.com/vue/components/date-range-picker
 Props:
-  - current (number) — Required. Current active step (1-based)
-  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction
-  - size ("sm" | "md" | "lg") default: "md" — Step indicator size
-  - color ("default" | "success") default: "default" — Color scheme for completed/active steps
-  - connector-style ("solid" | "dashed") default: "solid" — Connector line style
-  - variant ("default" | "minimal") default: "default" — "minimal" renders a compact bar (requires total)
-  - total (number) — Total steps for minimal variant
-  - class (string) — Class applied to the container
-  ProgressStepsStep:
-    - icon (Component | VNode | string) — Custom icon instead of step number; the icon slot takes precedence
-  ProgressStepsTitle:
-    - visually-hidden (boolean) default: false — Hides the title from view and keeps it for screen readers, for steps that show their indicators alone; the step then takes no room under its indicator
-Examples: Overview, With Navigation
+  - value / v-model:value (DateRange | null) — Selected range ([start, end], inclusive)
+  - @change ((next: DateRange | null, shortcut?: DateRangeShortcut) => void) — Emitted when the range changes
+  - min (DateTime) — Earliest selectable date (inclusive)
+  - max (DateTime) — Latest selectable date (inclusive). Must not be before min
+  - max-range-days (number) — Max length of range in days (inclusive)
+  - week-starts-on (0 | 1 | 2 | 3 | 4 | 5 | 6) default: 0 — The day each week starts on, from 0 (Sunday) to 6 (Saturday)
+  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange }), shown next to the calendar from the md breakpoint up
+  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement.
+  - side-offset (number) default: 8 — Distance from trigger in pixels
+  - align ("start" | "center" | "end") default: "center" — Preferred popover alignment
+  - align-offset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
+  - disabled (boolean) default: false — Disable picker interactions
+  - placeholder (string) default: "Select date range..." — Placeholder in trigger when value is empty
+  - variant ("soft" | "outline" | "ghost") default: "outline" — Trigger style variant
+  - pill (boolean) default: true — Rounded trigger shape
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Trigger size scale
+  - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Icon shown at trigger end
+  - trigger-class-name (string) — Custom class for trigger
+  - trigger-show-icon (boolean) default: true — Show calendar icon at trigger start
+  - trigger-stepper-unit ("month") — Enable month stepper mode in trigger
+  - trigger-date-format (string) default: "MM/dd/yy" — Date formatting in trigger text
+  - clearable (boolean) default: false — Show clear button in trigger
+  - block (boolean) default: false — Stretch trigger to full available width
+Examples: Overview
 
 ## Radio Group
 Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.
@@ -878,17 +572,6 @@ Props:
     - class (string) — Extra classes on the label element
     - default slot (VNode[]) — Label content (text or rich content)
 Examples: Overview, With Field, With Field error, Grouped sections, With Checkbox, Descriptions, Choice card, Card selection
-
-## Rolling Number
-A number whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched.
-Import: import { RollingNumber } from "@plexui/vue/components/RollingNumber"
-Docs: https://plexui.com/vue/components/rolling-number
-Props:
-  - value (number) — The number shown; a new value rolls each changed digit to it
-  - locales (string | string[]) default: "en-US" — The locale the number is written in; fixed rather than the browser's, so the server writes it as the browser does. Its own digits roll, such as Arabic-Indic
-  - format (Intl.NumberFormatOptions) — How it is written: a currency, a percent, fraction digits, grouping
-  - class (string) — Applied to the root span; set the size and weight here
-Examples: Overview, In text
 
 ## Segmented Control
 Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.
@@ -991,30 +674,187 @@ Props:
   - class (string) — Applied to the control
 Examples: Overview, Country selector, Country code selector, Phone form
 
-## Separator
-A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
-Import: import { Separator } from "@plexui/vue/components/Separator"
-Docs: https://plexui.com/vue/components/separator
+## Slider
+Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.
+Import: import { Slider } from "@plexui/vue/components/Slider"
+Docs: https://plexui.com/vue/components/slider
 Props:
-  - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the divider
-  - decorative (boolean) default: true — When true, the separator is ignored by assistive technologies. Set false when the divider carries semantic grouping (renders role="separator").
-  - class (string) — Applied to the root <div>
-Examples: Overview, Vertical, Menu, List
+  - value (number | number[]) — Required. Current value; an array when range is set. Bind with v-model:value
+  - min (number) — Required. Minimum value
+  - max (number) — Required. Maximum value
+  - step (number) — Required. Step increment
+  - range (boolean) default: false — Enable multi-thumb range mode
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the slider
+  - reset-value (number) — Value for the reset option (single mode only)
+  - reset-tooltip (string) default: "Reset to default" — Tooltip and accessible name of the reset button (single mode only)
+  - unit (string) — Unit displayed after the value (e.g. ms, px)
+  - prefix-unit (string) — Unit displayed before the value (e.g. $)
+  - label (string) — Label text. Also names the slider thumbs for assistive technology
+  - label slot (VNode[]) — Rich label content (e.g. a tooltip); takes precedence over the label prop
+  - startAdornment slot (VNode[]) — Text or an icon before the track, such as a small letter (horizontal only; hidden from assistive technology)
+  - endAdornment slot (VNode[]) — Text or an icon after the track, such as a large letter (horizontal only; hidden from assistive technology)
+  - aria-label (string) — Accessible name when there is no visible label. Range thumbs add Minimum / Maximum (or Value n of m)
+  - aria-labelledby (string) — Id of an element that names the slider; takes precedence over label
+  - marks (Array<{ value: number, label: string }>) — Marks below the track (horizontal only)
+  - track-color (string) — Color of the slider track
+  - range-color (string) — Color of the filled part of the track
+  - min-steps-between-thumbs (number) — Minimum steps between thumbs (range mode only)
+  - disabled (boolean) default: false — Disable the slider
+  - class (string) — Extra classes on the wrapper element
+  - @update:value ((value: number | number[]) => void) — Emitted when the value changes; an array when range is set; powers v-model:value
+  - @change ((value: number | number[]) => void) — Emitted with update:value, named after the React onChange prop
+  - @focus ((event: FocusEvent) => void) — Emitted when the value input or a thumb gains focus
+  - @blur ((event: FocusEvent) => void) — Emitted when the value input or a thumb loses focus
+Examples: Overview, In a settings group
 
-## Shimmer Text
-Text with a shimmer animation for loading and in-progress states, always on or toggled with a graceful stop.
-Import: import { ShimmerText, ShimmerableText } from "@plexui/vue/components/ShimmerText"
-Docs: https://plexui.com/vue/components/shimmer-text
+## Stepper
+Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.
+Import: import { Stepper } from "@plexui/vue/components/Stepper"
+Docs: https://plexui.com/vue/components/stepper
 Props:
-  - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
-  - default slot (VNode[]) — Text content to shimmer
-  - class (string) — Additional CSS classes
-  ShimmerableText:
-    - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
-    - shimmer (boolean) default: false — Whether the shimmer animation is active
-    - default slot (VNode[]) — Text content to shimmer
-    - class (string) — Additional CSS classes
-Examples: Overview, Semantic elements, Controllable shimmer
+  - value (number) — Controlled value; bind with v-model:value
+  - default-value (number) default: min — Initial value (uncontrolled)
+  - min (number) default: 0 — Lowest value
+  - max (number) default: 100 — Highest value
+  - step (number) default: 1 — Amount each step adds or removes
+  - wrap (boolean) default: false — A step past max continues from min, and one below min from max
+  - auto-repeat (boolean) default: true — Holding a segment keeps stepping: after 400ms, every 100ms
+  - disabled (boolean) default: false — Prevent interaction and focus
+  - pill (boolean) default: true — Fully rounded ends
+  - show-value (boolean) default: false — Shows the value between the minus and the plus on one fill, as a cart's quantity: round segments, no separator
+  - decrement-label (string) default: "Decrease" — Accessible name of the minus segment
+  - increment-label (string) default: "Increase" — Accessible name of the plus segment
+  - remove-label (string) default: "Remove" — Accessible name of the minus when it removes (with a `@remove` listener, at min)
+  - name (string) — Submits the value with the owning form through a hidden input
+  - aria-label (string) — Name of the value, when no visible label names it
+  - aria-labelledby (string) — The id of the visible label of the value
+  - aria-describedby (string) — The id of an element that describes the stepper
+  - id (string) — The id of the stepper
+Examples: Overview, Range, step and wrap, In a cart
+
+## Switch
+Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.
+Import: import { Switch } from "@plexui/vue/components/Switch"
+Docs: https://plexui.com/vue/components/switch
+Props:
+  - checked / v-model:checked (boolean) — Controlled state
+  - default-checked (boolean) — Initial state (uncontrolled)
+  - label (string) — Accessible label rendered next to the switch
+  - label slot (VNode[]) — Rich label content; takes precedence over the label prop
+  - description (string) — Secondary text below the label, linked via aria-describedby
+  - description slot (VNode[]) — Rich description content; takes precedence over the description prop
+  - label-position ("start" | "end") default: "end" — Label on the left (start) or right (end)
+  - color ("primary" | "accent") default: "primary" — Checked track color. Accent reads --switch-accent-color, with platform green as its fallback. Disabled checked controls retain a muted accent.
+  - disabled (boolean) default: false — Prevent interaction
+  - required (boolean) — Required for form submission
+  - name (string) — Form field name
+  - value (string) default: "on" — Value when submitted
+  - class (string) — CSS classes applied to the wrapper node
+  - id (string) — The id of the switch element (generated when omitted)
+  - @update:checked ((next: boolean) => void) — Emitted with the next state when toggled
+  - @focus ((event: FocusEvent) => void) — Emitted when the switch gains focus
+  - @blur ((event: FocusEvent) => void) — Emitted when the switch loses focus
+Examples: Overview, Controlled state, Grouped settings
+
+## Toggle Group
+A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.
+Import: import { ToggleGroup, ToggleGroupItem } from "@plexui/vue/components/ToggleGroup"
+Docs: https://plexui.com/vue/components/toggle-group
+Props:
+  - value (string[]) — Controlled values of the pressed items; bind with v-model:value
+  - default-value (string[]) default: [] — Values of the items pressed at first (uncontrolled)
+  - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Fill of a pressed item, a solid button in this color
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Size of the items, as the Button sizes
+  - pill (boolean) default: false — Fully rounded items; with uniform, circles
+  - uniform (boolean) default: false — Items as wide as they are tall, for a letter or an icon
+  - block (boolean) default: false — Fills the width of its container, the items spread across it
+  - disabled (boolean) default: false — Disables every item
+  - dir ("ltr" | "rtl") default: "ltr" — Reading direction of the items, which the arrow keys follow
+  - aria-label (string) — Name of the group, when no visible label names it
+  - aria-labelledby (string) — The id of the visible label of the group
+  - id (string) — The id of the group
+  ToggleGroupItem:
+    - value (string) — Value of the item, in the group's value while it is pressed
+    - disabled (boolean) default: false — Disables the item
+    - aria-label (string) — Name of the item, when its content does not say it in full, such as a weekday's letter
+Examples: Overview, Text, Disabled
+
+## Breadcrumb
+The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.
+Import: import { Breadcrumb, BreadcrumbItem } from "@plexui/vue/components/Breadcrumb"
+Docs: https://plexui.com/vue/components/breadcrumb
+Props:
+  - size ("sm" | "md") default: "md" — Text size: sm above a compact header, md above a page title
+  - aria-label (string) default: "Breadcrumb" — Name of the navigation landmark
+  - separator slot (VNode[]) default: a small chevron — What stands between two items
+  - default slot (VNode[]) — The BreadcrumbItem elements
+  BreadcrumbItem:
+    - href (string) — Link destination. Internal paths use the link component from PlexUIProvider
+    - to (string | RouteLocation) — Router destination, for link components that take to
+    - current (boolean) default: false — The current page: plain text marked aria-current="page"
+    - @click ((event: MouseEvent) => void) — Makes an item without a destination act as a button
+    - class (string) — Applied to the li element
+Examples: Overview, Separator, Small, Long trails
+
+## Index Bar
+"The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up."
+Import: import { IndexBar } from "@plexui/vue/components/IndexBar"
+Docs: https://plexui.com/vue/components/index-bar
+Props:
+  - items (string[]) — The titles of the sections, in order: usually letters, such as A to Z and #
+  - id (string) — The id of the index bar
+  - aria-label (string) default: "Section index" — Name of the index bar
+  - aria-controls (string) — The id of the list the index scrolls
+Examples: Overview
+
+## Navigation Row
+"A row of a list that opens what it holds, as an iOS Settings row: its label, the current value at the end, a chevron, and the whole row one press."
+Import: import { NavigationRow } from "@plexui/vue/components/NavigationRow"
+Docs: https://plexui.com/vue/components/navigation-row
+Props:
+  - label (string | number) — The name of the row, where a row's label starts (or the `label` slot)
+  - value (string | number | null) — The current value, at the end of the row in the secondary label color (or the `value` slot). `0` shows; `null`, `undefined` and `""` do not
+  - description (string | number) — A line under the label; the row grows from 52px to hold it (or the `description` slot)
+  - to (string | object) — A router target: with it the row is a link, through the `linkComponent` of `PlexUIProvider`
+  - href (string) — Where the row goes, as a plain link
+  - as (Component | "a") — The link component, such as a router's link
+  - external (boolean) — Treats the link as one out of the app (a new tab)
+  - disabled (boolean) default: false — The row can't be pressed. A disabled link renders as a disabled button, so it never navigates
+  - valuePlacement ("end" | "below" | "auto") default: "end" — Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it
+Examples: Overview, Columns
+
+## Page
+"The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
+Import: import { Page, PageActions, PageBar, PageContent, PageFooter, PageHeader, PageHeading, PageLeading, PageSubtitle, PageTitle } from "@plexui/vue/components/Page"
+Docs: https://plexui.com/vue/components/page
+Props:
+  - width ("full" | "wide" | "column") default: "full" — Column that header and content share: edge to edge, 1280px or 768px, centred
+  - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
+  - class (string) — Class of the root element
+  PageHeader:
+    - background ("soft" | "hard" | "glass" | "blur") default: "glass" — How the bar meets the content scrolled under it on a phone, see Background. solid is the earlier name of hard
+    - divider (boolean) default: true — Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background
+    - class (string) — Class of the band
+  PageContent:
+    - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
+    - class (string) — Class of the element that scrolls
+Examples: Overview
+
+## Page Control
+A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
+Import: import { PageControl } from "@plexui/vue/components/PageControl"
+Docs: https://plexui.com/vue/components/page-control
+Props:
+  - count (number) — Number of pages
+  - value (number) — Controlled index of the current page, from 0; bind with v-model:value
+  - default-value (number) default: 0 — Initial page (uncontrolled)
+  - background ("automatic" | "prominent" | "minimal") default: "automatic" — When the capsule behind the dots shows; minimal also turns off scrubbing
+  - value-text ((index: number, count: number) => string) default: Page 2 of 5 — Text assistive technology reads for the current page
+  - aria-label (string) default: "Pages" — Name of the page control, when no visible label names it
+  - aria-labelledby (string) — The id of the visible label of the page control
+  - aria-controls (string) — The id of the element that shows the pages
+  - id (string) — The id of the page control
+Examples: Overview, Many pages, Prominent
 
 ## Sidebar
 Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu
@@ -1063,6 +903,273 @@ Props:
     - @dismiss ((event: MouseEvent) => void) — Emitted when the dismiss button is clicked
 Examples: App Shell, App, Basic, Collapsible Sections, Search and Filter, Tree with Hover Actions, Mobile Menu, Search Input
 
+## Tab Bar
+"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
+Import: import { TabBar, TabBarItem } from "@plexui/vue/components/TabBar"
+Docs: https://plexui.com/vue/components/tab-bar
+Props:
+  - value (string) — Controlled value of the selected tab; bind with v-model:value
+  - default-value (string) — Selected tab (uncontrolled)
+  - search ({ value: string; label?: string }) — A search tab in a glass circle of its own at the trailing end; label defaults to Search
+  - prominent ({ value: string; label: string }) — A prominent tab in a glass circle of its own at the trailing end, in place of the search circle; its symbol is the prominent-icon slot, and search then joins the capsule
+  - minimize-behavior ("never" | "onScrollDown") default: "never" — Minimize to the selected tab while the Page content scrolls down
+  - minimized (boolean) — Controlled minimized state; bind with v-model:minimized
+  - default-minimized (boolean) default: false — Minimized state (uncontrolled)
+  - background ("soft" | "hard" | "glass" | "blur") default: "soft" — How the bar meets the content scrolled under it, see Background. solid is the earlier name of hard
+  - aria-label (string) default: "Tabs" — Name of the navigation
+  TabBarItem:
+    - value (string) — Value of the tab
+    - label (string) — Label under the symbol and the name of the tab
+    - badge (string | number) — A count or a short word in a red capsule over the symbol; 0 shows none
+    - href (string) — Makes the tab a link
+    - disabled (boolean) default: false — The tab cannot be selected
+Examples: Overview
+
+## Toolbar
+"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up."
+Import: import { Toolbar, ToolbarLeading, ToolbarTitle, ToolbarTrailing } from "@plexui/vue/components/Toolbar"
+Docs: https://plexui.com/vue/components/toolbar
+Props:
+  - placement ("top" | "bottom") default: "top" — Top bar with 44px targets, or bottom bar with 48px targets
+  - titleStyle ("inline" | "large" | "compact-large" | "compact-medium") default: "inline" — Size and place of ToolbarTitle in a top bar
+  - titleAlign ("center" | "start") default: "center" — Alignment of an inline title. Large and compact titles always start at the leading edge
+  - background ("soft" | "hard" | "glass" | "blur") default: "glass" at the top, "soft" at the bottom — How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft and solid of hard
+  - class (string) — Class of the bar
+  ToolbarTitle:
+    - subtitle (string) — Second, smaller line below the title. The subtitle slot takes precedence
+    - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
+Examples: Overview, Search under the title, Disabled, Sheet
+
+## Copy Tooltip
+A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
+Import: import { CopyTooltip } from "@plexui/vue/components/Tooltip"
+Import: import { Button } from "@plexui/vue/components/Button"
+Docs: https://plexui.com/vue/components/copy-tooltip
+Props:
+  - default slot (VNode) — Trigger element (for example TooltipTriggerDecorator)
+  - copy-value (string) — Required. Content to copy to clipboard
+  - open-delay (number) default: 150 — Tooltip open delay in milliseconds
+  - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
+  - align-offset (number) default: 0 — Offset from start/end alignment in pixels
+  - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
+  - side-offset (number) default: 5 — Distance from trigger in pixels
+  - @copy ((copied: boolean) => void) — Emitted once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
+Examples: Overview
+
+## Dialog
+Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
+Import: import { Dialog, DialogBody, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogHeaderAction, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
+Docs: https://plexui.com/vue/components/dialog
+Props:
+  - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
+  - @update:open ((open: boolean) => void) — Fires when the dialog opens or closes
+  DialogContent:
+    - surface ("plain" | "grouped") default: "plain" — Mobile panel and field-group palette. Dark dialogs use elevated surface levels; desktop colors stay unchanged
+    - width (number | string) default: 480 — Panel width. Mobile alert uses its compact width; a bottom sheet fills the viewport width
+    - show-close (boolean) default: true — Show the built-in close button. A mobile sheet places it at the leading edge, unless a leading DialogHeaderAction takes that place; a mobile alert hides it
+    - class (string) — Additional CSS class on the panel
+    - placement ("center" | "top" | "bottom" | "start" | "end" | "fullscreen") default: "center" — Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen
+    - mobile-variant ("alert" | "sheet") default: "sheet" — The iOS presentation at 767px and below. A phone has two modal views: a sheet, which iOS gives any view it presents, and an alert, a short question with its answers, compact and centered
+    - mobile-placement ("center" | "bottom" | "fullscreen") default: "bottom" — Where a phone sheet stands: at the bottom, or over the whole screen (the default for a fullscreen dialog). center is the alert's place: without mobile-variant it makes the dialog an alert
+    - @open-auto-focus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
+    - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
+    - @escape-key-down ((event: KeyboardEvent) => void) — Called on Escape before the dialog closes; call event.preventDefault() to keep it open
+    - @interact-outside ((event: DialogInteractOutsideEvent) => void) — Called on a press or a focus outside the dialog, and on a phone sheet pulled down to close, before it closes; call event.preventDefault() to keep it open (the sheet returns). event.detail.originalEvent is the browser's event, a TouchEvent for the sheet
+    - confirm-close ({ message: string; detail?: string; confirmLabel?: string; cancelLabel?: string } | (() => { message: string; detail?: string; confirmLabel?: string; cancelLabel?: string } | false | null) | false | null) — Asks before the dialog closes, for a form with unsaved changes: Close, DialogClose, Escape, a press outside and a pulled-down phone sheet ask first. On a phone Sheet the question is a glass popover at the bar's Close (iOS confirmation); elsewhere an alert. confirmLabel defaults to "Discard Changes", cancelLabel (the alert's other answer) to "Keep Editing". detail is a quieter line under the question, such as what a save left behind. A function is called at each close attempt, before the dialog decides: commit what is typed there, then return the question, or nothing to close at once. Setting open to false yourself closes at once
+    - z-index (number) default: 50 — Stack order of the overlay and the dialog, for a page whose own layers sit above 50
+    - root-props (DialogLayerProps) — class, style and data attributes for the fixed layer that holds the panel. Data attributes on DialogContent land there too
+    - overlay-props (DialogLayerProps) — class, style and data attributes for the overlay
+    - layout ("auto" | "phone") default: "auto" — phone lays the dialog out as on a phone at any window width, with the dialogs it opens. Inside a PhoneLayout it always is
+  DialogHeaderAction:
+    - side ("leading" | "trailing") default: "trailing" — leading puts the action before the title, such as the Back of a step: in a phone Sheet it takes the place of Close, as the back button of a screen pushed inside an iOS sheet
+  DialogFooter:
+    - background ("soft" | "hard" | "glass" | "blur") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged. solid is the earlier name of hard
+    - mobile-layout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for an alert of two actions, stacked otherwise, as for three or more alert actions. Inline actions wrap when they do not fit. A stacked alert keeps the written order; a stacked sheet puts its last action on top
+  DialogSteps:
+    - step (string | number) — The step on screen. A new value brings its content in
+    - direction ("forward" | "back") default: "forward" — forward brings the new step in from the trailing edge over the one before; back returns to a step before it
+    - class (string) — Additional CSS class on the steps
+Examples: Overview, Metadata details, Scrolling body, Placement, View options sheet, Segmented composer header, Setup choices, Steps, Keep it open, Ask before discarding
+
+## Popover
+A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.
+Import: import { Popover, PopoverContent, PopoverTrigger } from "@plexui/vue/components/Popover"
+Docs: https://plexui.com/vue/components/popover
+Props:
+  - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
+  - @update:open ((nextState: boolean) => void) — Emitted when the popover opens or closes
+  - show-on-hover (boolean) default: false — Open on hover and focus instead of click
+  - hover-open-delay (number) default: 150 — Delay before a hover popover opens (ms)
+  PopoverContent:
+    - width (number | "auto") default: "auto" — Panel width in px
+    - min-width (number | "auto") default: 300 — Minimum panel width in px
+    - max-width (number) default: 700 — Maximum panel width in px, capped by the space available in the viewport
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement; flips when it collides
+    - align ("start" | "center" | "end") default: "center" — Alignment relative to trigger
+    - side-offset (number) default: 8 — Offset from trigger (px)
+    - align-offset (number) default: -5 — Offset from the start or end alignment (px)
+    - avoid-collisions (boolean) default: true — Reposition to stay inside the viewport and scroll containers
+    - collision-padding (number | { top?, right?, bottom?, left? }) default: 20 — Space in px to keep from viewport and scroll container boundaries; an object such as `{ top: 16, right: 32, bottom: 16, left: 32 }` sets it per side, and a side it leaves out gets 0
+    - translucent (boolean) default: false — Translucent, blurred surface
+    - z-index (number) default: 50 — Stack order, for a popover over a layer above 50, such as a dialog with its own zIndex
+    - aria-labelledby (string) — The id of the element that names the popover, such as the question of a confirmation
+    - auto-focus (boolean) default: true — Move focus into the panel when it opens (hover popovers never take focus)
+    - data-* (string) — Data attributes land on the panel
+    - class (string) — Applied to the panel
+    - default slot ({ close, shake }) — Panel content; receives the controller functions
+Examples: Overview, Using the controller, Confirmation, Column configuration
+
+## Tip
+A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.
+Import: import { Tip, TipPopover } from "@plexui/vue/components/Tip"
+Docs: https://plexui.com/vue/components/tip
+Props:
+  - title (string) — The tip's title: what the feature is (or the title slot)
+  - description (string) — One or two sentences on how to use it (or the description slot)
+  - on-close (() => void) — Shows the Close button; called when it is clicked
+  - arrow-edge ("top" | "bottom" | "left" | "right") — Draws an arrow at this edge, pointing at what the tip explains
+  - mobile-actions ("rows" | "buttons") default: "rows" — How the actions show at 767px and below: rows of text under a separator, or the buttons as given, each a full-width capsule
+  TipPopover:
+    - open (boolean) — Shows the tip (controlled); bind with v-model:open
+    - default-open (boolean) default: false — Shows the tip at first (uncontrolled)
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — The side of the control the tip shows on, turned when it does not fit
+    - align ("start" | "center" | "end") default: "center" — The alignment against the control
+    - side-offset (number) default: 4 — The distance from the control to the arrow's point, in pixels
+    - close-button (boolean) default: true — Shows the Close button
+Examples: Overview, Popover
+
+## Toast
+Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.
+Import: import { Toaster, toast } from "@plexui/vue/components/Toast"
+Docs: https://plexui.com/vue/components/toast
+  Toaster:
+    - position ("top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right") default: "top-center" — Where toasts anchor on the viewport
+    - duration (number) default: 3000 — Default auto-dismiss duration in ms
+    - offset (string | number | { top?; right?; bottom?; left? }) default: 32px — Distance from the viewport edge. Without a top or bottom edge here, the page's --toast-offset-top or --toast-offset-bottom sets it.
+    - mobile-offset (string | number | { top?; right?; bottom?; left? }) default: 16px top and bottom, 14px at the sides, past the safe area — Gutter under 600px, where a long toast wraps between the side gutters. Explicit edges override their defaults; omitted edges keep them, and the page's --toast-mobile-offset-top or --toast-mobile-offset-bottom sets the top or bottom one.
+    - gap (number) — Gap between stacked toasts in px
+Examples: Overview
+
+## Tooltip
+Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
+Import: import { Tooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip"
+Docs: https://plexui.com/vue/components/tooltip
+Props:
+  - default slot (VNode) — The trigger: a single element. Wrap plain text in TooltipTriggerDecorator
+  - content (string | number | VNode | null) — Tooltip content, or the #content slot (null = no tooltip)
+  - compact (boolean) default: false — Short 1-3 word tooltips, inverse styling
+  - interactive (boolean) default: false — Content is interactive, stays open when hovered
+  - max-width (number | "none") default: 300 — Max width of tooltip
+  - open-delay (number) default: 150 — Delay before showing (ms)
+  - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side
+  - side-offset (number) default: 5 — Distance from trigger
+  - align ("start" | "center" | "end") default: "center" — Alignment
+  - align-offset (number) default: 0 — Alignment offset
+  - gutter-size ("sm" | "md" | "lg") default: "md" — Content padding
+  - content-class-name (string) — Class for tooltip content
+  - force-open (boolean) — Force open or closed
+  - prevent-unintentional-click-to-close (boolean) default: false — Keeps the tooltip open when the trigger is clicked right after it opened
+  - content slot (VNode[]) — Rich tooltip content; takes precedence over content
+Examples: Overview
+
+## Alert
+Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.
+Import: import { Alert } from "@plexui/vue/components/Alert"
+Docs: https://plexui.com/vue/components/alert
+Props:
+  - title (string | slot) — Title displayed in the alert
+  - description (string | slot) — Description text
+  - actions (slot) — Actions (for example buttons)
+  - actions-placement ("end" | "bottom") — Placement of actions; automatic from sizing when unset
+  - mobile-actions ("capsules" | "own") default: "capsules" — At 767px and below: 50px capsules as in an iOS tip, or the buttons at their own size, for an alert inside a block of its own buttons
+  - actions-class-name (string) — Class applied to the actions container
+  - color (SemanticColors) default: "primary" — Color scheme
+  - variant ("solid" | "soft" | "outline") default: "outline" — Style variant
+  - indicator (slot | false) — Custom indicator (slot), or :indicator="false" to hide it
+  - @dismiss (() => void) — Shows the dismiss button when set
+  - banner (boolean) default: false — Full-width strip: square corners, lines above and below only
+Examples: Overview
+
+## Empty Message
+Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
+Import: import { EmptyMessage, EmptyMessageActionRow, EmptyMessageDescription, EmptyMessageIcon, EmptyMessageTitle } from "@plexui/vue/components/EmptyMessage"
+Docs: https://plexui.com/vue/components/empty-message
+Props:
+  - fill ("static" | "absolute" | "none") default: "static" — How the container fills its parent: "static" takes full width and height, "absolute" covers a positioned parent (inset 0), "none" applies no sizing
+  - size ("sm" | "md") default: "md" — sm is the compact message for a panel, a card section or an empty list
+  - align ("center" | "start") default: "center" — start left-aligns the message, for an empty state under a section heading
+  EmptyMessageIcon:
+    - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
+    - size ("sm" | "md") default: "md" — Icon badge size
+  EmptyMessageTitle:
+    - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
+  EmptyMessageActionRow:
+    - class (string) — Additional classes for the action row container
+Examples: Overview
+
+## Indicators
+Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
+Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/vue/components/Indicator"
+Docs: https://plexui.com/vue/components/indicators
+  LoadingIndicator:
+    - size (number | string) default: "1em" — Size in px or any CSS length. Defaults to 20px with the optional touch stylesheet, also inside a field. Also accepts --indicator-size.
+    - stroke-width (number) default: 2 — Ring stroke or mobile spoke width in px. Mobile spokes default to the iOS 27 kit proportion: 2/14 of the size up to 16px, 4/30 to 27px, 5/35 from 28px.
+  CircularProgress:
+    - progress (number) — Static progress 0-100 (disables the simulated animation)
+    - done (boolean) default: false — Fills the ring and ends the simulated progress
+    - max-duration (number) default: 15000 — Duration of the simulated progress in ms
+    - size (number | string) default: "28px" — Diameter in px or any CSS length
+    - stroke-width (number) default: 2 — Stroke thickness in px, capped at 4
+    - track-color (string) — Track color (CSS variable or value)
+    - track-active-color (string) — Active segment color
+Examples: Overview
+
+## Progress
+A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
+Import: import { Progress } from "@plexui/vue/components/Progress"
+Docs: https://plexui.com/vue/components/progress
+Props:
+  - value (number | null) default: null — Current progress between 0 and max. Pass null for indeterminate.
+  - max (number) default: 100 — Maximum progress value
+  - segments (ProgressSegment[]) — Parts of one bar side by side: { value, color?, label? }, color one of primary, secondary, success, warning, caution, danger, info, discovery. Takes the place of value.
+  - get-value-label ((value: number, max: number) => string) — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
+  - class (string) — Applied to the root <div>
+Examples: Overview, With label, Controlled, Segments
+
+## Progress Steps
+Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
+Import: import { ProgressSteps, ProgressStepsStep, ProgressStepsTitle, ProgressStepsDescription } from "@plexui/vue/components/ProgressSteps"
+Docs: https://plexui.com/vue/components/progress-steps
+Props:
+  - current (number) — Required. Current active step (1-based)
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction
+  - size ("sm" | "md" | "lg") default: "md" — Step indicator size
+  - color ("default" | "success") default: "default" — Color scheme for completed/active steps
+  - connector-style ("solid" | "dashed") default: "solid" — Connector line style
+  - variant ("default" | "minimal") default: "default" — "minimal" renders a compact bar (requires total)
+  - total (number) — Total steps for minimal variant
+  - class (string) — Class applied to the container
+  ProgressStepsStep:
+    - icon (Component | VNode | string) — Custom icon instead of step number; the icon slot takes precedence
+  ProgressStepsTitle:
+    - visually-hidden (boolean) default: false — Hides the title from view and keeps it for screen readers, for steps that show their indicators alone; the step then takes no room under its indicator
+Examples: Overview, With Navigation
+
+## Shimmer Text
+Text with a shimmer animation for loading and in-progress states, always on or toggled with a graceful stop.
+Import: import { ShimmerText, ShimmerableText } from "@plexui/vue/components/ShimmerText"
+Docs: https://plexui.com/vue/components/shimmer-text
+Props:
+  - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
+  - default slot (VNode[]) — Text content to shimmer
+  - class (string) — Additional CSS classes
+  ShimmerableText:
+    - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
+    - shimmer (boolean) default: false — Whether the shimmer animation is active
+    - default slot (VNode[]) — Text content to shimmer
+    - class (string) — Additional CSS classes
+Examples: Overview, Semantic elements, Controllable shimmer
+
 ## Skeleton
 Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.
 Import: import { Skeleton } from "@plexui/vue/components/Skeleton"
@@ -1072,38 +1179,161 @@ Props:
   - class (string) — Set dimensions and custom styling
 Examples: Overview, Card, Text, Form, Table
 
-## Slider
-Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.
-Import: import { Slider } from "@plexui/vue/components/Slider"
-Docs: https://plexui.com/vue/components/slider
+## Accordion
+Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
+Import: import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@plexui/vue/components/Accordion"
+Docs: https://plexui.com/vue/components/accordion
 Props:
-  - value (number | number[]) — Required. Current value; an array when range is set. Bind with v-model:value
-  - min (number) — Required. Minimum value
-  - max (number) — Required. Maximum value
-  - step (number) — Required. Step increment
-  - range (boolean) default: false — Enable multi-thumb range mode
-  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the slider
-  - reset-value (number) — Value for the reset option (single mode only)
-  - reset-tooltip (string) default: "Reset to default" — Tooltip and accessible name of the reset button (single mode only)
-  - unit (string) — Unit displayed after the value (e.g. ms, px)
-  - prefix-unit (string) — Unit displayed before the value (e.g. $)
-  - label (string) — Label text. Also names the slider thumbs for assistive technology
-  - label slot (VNode[]) — Rich label content (e.g. a tooltip); takes precedence over the label prop
-  - startAdornment slot (VNode[]) — Text or an icon before the track, such as a small letter (horizontal only; hidden from assistive technology)
-  - endAdornment slot (VNode[]) — Text or an icon after the track, such as a large letter (horizontal only; hidden from assistive technology)
-  - aria-label (string) — Accessible name when there is no visible label. Range thumbs add Minimum / Maximum (or Value n of m)
-  - aria-labelledby (string) — Id of an element that names the slider; takes precedence over label
-  - marks (Array<{ value: number, label: string }>) — Marks below the track (horizontal only)
-  - track-color (string) — Color of the slider track
-  - range-color (string) — Color of the filled part of the track
-  - min-steps-between-thumbs (number) — Minimum steps between thumbs (range mode only)
-  - disabled (boolean) default: false — Disable the slider
-  - class (string) — Extra classes on the wrapper element
-  - @update:value ((value: number | number[]) => void) — Emitted when the value changes; an array when range is set; powers v-model:value
-  - @change ((value: number | number[]) => void) — Emitted with update:value, named after the React onChange prop
-  - @focus ((event: FocusEvent) => void) — Emitted when the value input or a thumb gains focus
-  - @blur ((event: FocusEvent) => void) — Emitted when the value input or a thumb loses focus
-Examples: Overview, In a settings group
+  - type ("single" | "multiple") — Required. Whether one item or many can be open at a time
+  - v-model:value / value (string | string[]) — Controlled open item(s), named like the React prop
+  - default-value (string | string[]) — Uncontrolled initial open item(s)
+  - collapsible (boolean) default: false — When type="single", allow closing the open item
+  - disabled (boolean) default: false — Disable every item
+  - dir ("ltr" | "rtl") default: "ltr" — Reading direction
+  - orientation ("horizontal" | "vertical") default: "vertical" — Layout axis
+  - class (string) — Applied to the root <div>
+  - @update:value ((value: string | string[]) => void) — Fires when the open item(s) change; closing the open item of a single accordion reports ""
+  AccordionItem:
+    - value (string) — Required. Unique identifier used by value / default-value
+    - disabled (boolean) default: false — Disable this item
+    - class (string) — Applied to the item wrapper
+Examples: Overview, Multiple, Card
+
+## Avatar
+An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.
+Import: import { Avatar } from "@plexui/vue/components/Avatar"
+Docs: https://plexui.com/vue/components/avatar
+Props:
+  - name (string) — Display name; used for text initial when no image/icon
+  - image-url (string) — Absolute URL for image avatar
+  - Icon (Component) — Icon component for icon avatar, bound as :Icon
+  - size (number) — Width and height in pixels
+  - color ("primary" | "secondary" | "success" | "info" | "discovery" | "danger") default: "secondary" — Semantic color for text/icon avatar
+  - variant ("soft" | "solid") default: "soft" — Style variant
+  - overflow-count (number) — Show overflow count (e.g. +9)
+  - class (string) — Applied to the avatar root
+  - @click ((event: MouseEvent) => void) — Makes avatar interactive (renders a button)
+  - @pointerdown ((event: PointerEvent) => void) — Makes avatar interactive (renders a button)
+Examples: Overview
+
+## Avatar Group
+Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.
+Import: import { Avatar, AvatarGroup } from "@plexui/vue/components/Avatar"
+Docs: https://plexui.com/vue/components/avatar-group
+Props:
+  - default slot (VNode[]) — The avatars of the group
+  - size (number) — Size of all avatars in the group
+  - stack ("start" | "end") default: "start" — Stacking direction
+  - class (string) — Applied to the group container; other attributes are not forwarded
+Examples: Overview
+
+## Badge
+Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.
+Import: import { Badge } from "@plexui/vue/components/Badge"
+Docs: https://plexui.com/vue/components/badge
+Props:
+  - default slot (VNode[]) — Content inside the badge
+  - @remove ((event: MouseEvent) => void) — Adds a cross at the end of the badge that calls this when pressed
+  - remove-label (string) default: "Remove" — Accessible name of the cross
+  - removable (boolean) default: false — Shows the cross as a mark, for a badge inside a control that takes the press
+  - color ("secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution") default: "secondary" — Semantic color
+  - variant ("solid" | "soft" | "outline") default: "soft" — Style variant
+  - size ("sm" | "md" | "lg" | "xl") default: "sm" — Badge size
+  - pill (boolean) default: false — Fully rounded
+  - class (string) — Class applied to the badge
+Examples: Overview
+
+## Card
+Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
+Import: import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@plexui/vue/components/Card"
+Docs: https://plexui.com/vue/components/card
+Props:
+  - variant ("outline" | "solid" | "ghost") default: "outline" — Visual variant
+  - size ("sm" | "md" | "lg") default: "md" — Padding scale
+  - interactive (boolean) default: false — Adds hover and focus affordances. Automatic when href is set.
+  - href (string) — Renders the Card as a link via the linkComponent of PlexUIProvider. A link component that takes to, such as RouterLink, gets it as to.
+  - external (boolean) default: auto-detected — Forces target="_blank" and rel="noopener noreferrer" when href is set.
+  - as (Component | "a") — Overrides the link component.
+  - class (string) — Applied to the root element
+Examples: Overview, Login, Create project, Payment Method, No team members (empty state), How did you hear about us?, Processing your request, Pricing
+
+## Code Block
+Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
+Import: import { CodeBlock } from "@plexui/vue/components/CodeBlock"
+Docs: https://plexui.com/vue/components/code-block
+Props:
+  - default slot (string) — Code content (text only; interpolate a string to keep its whitespace)
+  - code (string) — Code content, used when the default slot is empty
+  - language (string) — Prism language name
+  - class (string) — Additional wrapper class
+  CollapsibleCodeBlock:
+    - default slot / code (string) — Code content
+    - language (string) — Prism language name
+    - default-expanded (boolean) default: false — Start expanded
+    - collapsed-height (number) default: 140 — Height when collapsed (px)
+    - max-expanded-height (number) — Max height when expanded (px); taller code scrolls
+    - copyable (boolean) default: true — Show copy button
+    - class (string) — Additional wrapper class
+Examples: Overview
+
+## Kbd
+A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.
+Import: import { Kbd, KbdGroup, KbdModifier } from "@plexui/vue/components/Kbd"
+Docs: https://plexui.com/vue/components/kbd
+Props:
+  - size ("xs" | "sm" | "md") default: "sm" — Height and text size: 16px, 20px or 24px
+  - variant ("soft" | "outline") default: "soft" — soft fills the key, outline draws its edge; both mix the text color
+  - class (string) — Applied to the kbd element
+  - default slot (VNode[]) — The key
+  KbdModifier:
+    - name ("mod" | "ctrl" | "alt" | "shift") default: "mod" — The modifier: mod is ⌘ on an Apple keyboard and Ctrl on another
+    - platform ("apple" | "other") — The keyboard to print for; by default the browser's (Apple on the server)
+    - size ("xs" | "sm" | "md") default: "sm" — As Kbd
+    - variant ("soft" | "outline") default: "soft" — As Kbd
+Examples: Overview, Shortcut, Modifier, Sizes and variants, In a tooltip and a menu
+
+## Markdown
+Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
+Import: import { Markdown } from "@plexui/vue/components/Markdown"
+Docs: https://plexui.com/vue/components/markdown
+Props:
+  - default slot (string) — Markdown source (text only; interpolate a string to keep its newlines)
+  - source (string) — Markdown source, used when the default slot is empty
+  - include-math (boolean) default: false — Enable LaTeX math rendering
+  - break-new-lines (boolean) default: false — Turn single newlines into line breaks
+  - copyable-code-blocks (boolean) default: true — Show a copy button on code blocks
+  - collapsible-code-blocks (boolean) default: true — Render code blocks in the collapsible view with a View Code button
+  - components (Record<string, MarkdownComponent>) — Tag name to component overrides, applied over the built-in ones
+  - directives (MarkdownDirective[]) — Custom directives, each rendered by its own component
+  - remark-plugins (PluggableList) — Extra remark plugins, after the built-in ones
+  - rehype-plugins (PluggableList) — Extra rehype plugins
+  - allowed-elements (string[]) — Only render these elements
+  - disallowed-elements (string[]) — Never render these elements
+  - skip-html (boolean) default: false — Ignore raw HTML in the source
+  - url-transform ((url: string) => string) — Rewrites URLs; the default drops unsafe protocols (javascript:) and keeps tel: and sms:
+  - class (string) — Applied to the wrapping element
+Examples: Overview, Math
+
+## Rolling Number
+A number whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched.
+Import: import { RollingNumber } from "@plexui/vue/components/RollingNumber"
+Docs: https://plexui.com/vue/components/rolling-number
+Props:
+  - value (number) — The number shown; a new value rolls each changed digit to it
+  - locales (string | string[]) default: "en-US" — The locale the number is written in; fixed rather than the browser's, so the server writes it as the browser does. Its own digits roll, such as Arabic-Indic
+  - format (Intl.NumberFormatOptions) — How it is written: a currency, a percent, fraction digits, grouping
+  - class (string) — Applied to the root span; set the size and weight here
+Examples: Overview, In text
+
+## Separator
+A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
+Import: import { Separator } from "@plexui/vue/components/Separator"
+Docs: https://plexui.com/vue/components/separator
+Props:
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the divider
+  - decorative (boolean) default: true — When true, the separator is ignored by assistive technologies. Set false when the divider carries semantic grouping (renders role="separator").
+  - class (string) — Applied to the root <div>
+Examples: Overview, Vertical, Menu, List
 
 ## Sortable
 "Reorders a list by dragging: rows of a group, table rows, images, tags and cards. The order changes on the drop."
@@ -1143,95 +1373,6 @@ Props:
   - variant ("default" | "accent") default: "default" — Visual variant
   - accent-color ("primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning") default: "primary" — Color of the accent bar (accent variant)
   - class (string) — Extra classes on the card element
-Examples: Overview
-
-## Stepper
-Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.
-Import: import { Stepper } from "@plexui/vue/components/Stepper"
-Docs: https://plexui.com/vue/components/stepper
-Props:
-  - value (number) — Controlled value; bind with v-model:value
-  - default-value (number) default: min — Initial value (uncontrolled)
-  - min (number) default: 0 — Lowest value
-  - max (number) default: 100 — Highest value
-  - step (number) default: 1 — Amount each step adds or removes
-  - wrap (boolean) default: false — A step past max continues from min, and one below min from max
-  - auto-repeat (boolean) default: true — Holding a segment keeps stepping: after 400ms, every 100ms
-  - disabled (boolean) default: false — Prevent interaction and focus
-  - pill (boolean) default: true — Fully rounded ends
-  - show-value (boolean) default: false — Shows the value between the minus and the plus on one fill, as a cart's quantity: round segments, no separator
-  - decrement-label (string) default: "Decrease" — Accessible name of the minus segment
-  - increment-label (string) default: "Increase" — Accessible name of the plus segment
-  - remove-label (string) default: "Remove" — Accessible name of the minus when it removes (with a `@remove` listener, at min)
-  - name (string) — Submits the value with the owning form through a hidden input
-  - aria-label (string) — Name of the value, when no visible label names it
-  - aria-labelledby (string) — The id of the visible label of the value
-  - aria-describedby (string) — The id of an element that describes the stepper
-  - id (string) — The id of the stepper
-Examples: Overview, Range, step and wrap, In a cart
-
-## Swipe Actions
-"Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys."
-Import: import { SwipeActions } from "@plexui/vue/components/SwipeActions"
-Docs: https://plexui.com/vue/components/swipe-actions
-Props:
-  - leading (SwipeAction[]) default: [] — Actions revealed by a swipe toward the trailing edge, the first one at the leading edge
-  - trailing (SwipeAction[]) default: [] — Actions revealed by a swipe toward the leading edge, the first one at the trailing edge
-  - label-placement ("hidden" | "inside" | "below") default: "hidden" — Where the actions show their labels: symbols only, inside the capsule, or below it (for rows of 60px and taller, as iOS sets them)
-  - full-swipe (boolean) default: true — A swipe past the middle between the open actions and the far edge runs the first action of that side
-  SwipeAction:
-    - id (string) — Unique ID of the action within its side
-    - label (string) — Name of the action: shown inside or below the capsule (and on an action without an icon), and its accessible name always
-    - Icon (Component) — Icon of the action, a component (mark it raw in reactive state)
-    - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "secondary" — Solid color of the action
-    - onSelect (() => void) — Called when the action is pressed, or by a full swipe when it is the first action of its side
-    - role ("destructive") — The action removes the row: the row slides out and collapses, as iOS deletes a row, and `onSelect` comes at the end of that for the list to drop it. A row the list keeps comes back.
-Examples: Overview, Labels inside, Labels below
-
-## Switch
-Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.
-Import: import { Switch } from "@plexui/vue/components/Switch"
-Docs: https://plexui.com/vue/components/switch
-Props:
-  - checked / v-model:checked (boolean) — Controlled state
-  - default-checked (boolean) — Initial state (uncontrolled)
-  - label (string) — Accessible label rendered next to the switch
-  - label slot (VNode[]) — Rich label content; takes precedence over the label prop
-  - description (string) — Secondary text below the label, linked via aria-describedby
-  - description slot (VNode[]) — Rich description content; takes precedence over the description prop
-  - label-position ("start" | "end") default: "end" — Label on the left (start) or right (end)
-  - color ("primary" | "accent") default: "primary" — Checked track color. Accent reads --switch-accent-color, with platform green as its fallback. Disabled checked controls retain a muted accent.
-  - disabled (boolean) default: false — Prevent interaction
-  - required (boolean) — Required for form submission
-  - name (string) — Form field name
-  - value (string) default: "on" — Value when submitted
-  - class (string) — CSS classes applied to the wrapper node
-  - id (string) — The id of the switch element (generated when omitted)
-  - @update:checked ((next: boolean) => void) — Emitted with the next state when toggled
-  - @focus ((event: FocusEvent) => void) — Emitted when the switch gains focus
-  - @blur ((event: FocusEvent) => void) — Emitted when the switch loses focus
-Examples: Overview, Controlled state, Grouped settings
-
-## Tab Bar
-"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
-Import: import { TabBar, TabBarItem } from "@plexui/vue/components/TabBar"
-Docs: https://plexui.com/vue/components/tab-bar
-Props:
-  - value (string) — Controlled value of the selected tab; bind with v-model:value
-  - default-value (string) — Selected tab (uncontrolled)
-  - search ({ value: string; label?: string }) — A search tab in a glass circle of its own at the trailing end; label defaults to Search
-  - prominent ({ value: string; label: string }) — A prominent tab in a glass circle of its own at the trailing end, in place of the search circle; its symbol is the prominent-icon slot, and search then joins the capsule
-  - minimize-behavior ("never" | "onScrollDown") default: "never" — Minimize to the selected tab while the Page content scrolls down
-  - minimized (boolean) — Controlled minimized state; bind with v-model:minimized
-  - default-minimized (boolean) default: false — Minimized state (uncontrolled)
-  - background ("soft" | "hard" | "glass" | "blur") default: "soft" — How the bar meets the content scrolled under it, see Background. solid is the earlier name of hard
-  - aria-label (string) default: "Tabs" — Name of the navigation
-  TabBarItem:
-    - value (string) — Value of the tab
-    - label (string) — Label under the symbol and the name of the tab
-    - badge (string | number) — A count or a short word in a red capsule over the symbol; 0 shows none
-    - href (string) — Makes the tab a link
-    - disabled (boolean) default: false — The tab cannot be selected
 Examples: Overview
 
 ## Table
@@ -1278,152 +1419,11 @@ Docs: https://plexui.com/vue/components/table
     - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
 Examples: Overview, With footer, Minimal, Variant, Sorting, Pagination, Row click, Row selection, Cell variants, Filtering, Column visibility
 
-## Tag Input
-Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.
-Import: import { TagInput } from "@plexui/vue/components/TagInput"
-Docs: https://plexui.com/vue/components/tag-input
+## Phone Layout
+Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.
+Import: import { PhoneLayout } from "@plexui/vue/components/PhoneLayout"
+Docs: https://plexui.com/vue/components/phone-layout
 Props:
-  - value / v-model:value (Tag[]) — Controlled value; update:value fires on every change
-  - default-value (Tag[]) — Uncontrolled initial tags
-  - @change ((tags: Tag[]) => void) — Fires when the tags change
-  - id (string) — Id of the text input, so a label can target it with for
-  - placeholder (string) — Input placeholder
-  - validator ((value: string) => boolean) — Validates each tag when it is created; invalid tags shown in red
-  - max-tags (number) — Maximum number of tags. At the limit the text input hides and a count shows below; the container then takes the tab stop, so arrow keys and Backspace still select and remove tags
-  - rows (number) default: 1 — Min rows
-  - size ('sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl') default: xl — Control height when rows=1; matches Input height of the same size
-  - pill (boolean) default: false — Fully-rounded container and chips; matches Input/SelectControl pill
-  - delimiters (string[]) default: [",", " "] — Characters that commit the current text as a tag
-  - disabled (boolean) — Disables the input: tags cannot be added or removed, and pending text stays as typed
-  - auto-focus (boolean) default: false — Focus on mount
-Examples: Overview, Inline filter row, Suggestions
-
-## Text Link
-Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.
-Import: import { TextLink } from "@plexui/vue/components/TextLink"
-Docs: https://plexui.com/vue/components/text-link
-Props:
-  - default slot (VNode[]) — Link content
-  - href (string) — URL. An http:// or https:// URL is external
-  - to (string | Record<string, unknown>) — Router link destination (internal), such as a vue-router location
-  - primary (boolean) default: false — Primary color, no default underline
-  - underline (boolean) default: true — Underline (default true unless primary)
-  - force-external (boolean) — Force external link behavior
-  - as (Component) — Link component (e.g. RouterLink, NuxtLink)
-  - target (string) — Where to open the link. External links default to _blank
-  - class (string) — Extra classes on the link
-Examples: Overview
-
-## Textarea
-Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.
-Import: import { Textarea } from "@plexui/vue/components/Textarea"
-Docs: https://plexui.com/vue/components/textarea
-Props:
-  - value / v-model:value (string | number) — Controlled value; uncontrolled when omitted
-  - default-value (string | number) — Initial value when uncontrolled
-  - variant ("outline" | "soft" | "ghost") default: "outline" — Visual style of the textarea; ghost has no border and no fill, for a row or a container that frames it
-  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height for single-line equivalent
-  - gutter-size ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding; defaults from size
-  - disabled (boolean) default: false — Disable the textarea
-  - read-only (boolean) default: false — Make the textarea read-only (the native readonly attribute works too)
-  - invalid (boolean) default: false — Mark as invalid
-  - allow-autofill-extensions (boolean) default: !!name — Allow autofill extensions
-  - auto-select (boolean) default: false — Select all contents when mounted
-  - rows (number) default: 3 — Initial row count
-  - auto-resize (boolean) default: false — Grow/shrink with content
-  - max-rows (number) — Max rows when auto-resize; defaults to the larger of rows and 10
-  - class (string) — Applied to the container <div>
-  - @update:value ((value: string) => void) — Emitted on every input
-  - @autofill (() => void) — Emitted when the browser autofills the textarea
-Examples: Overview
-
-## Tip
-A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.
-Import: import { Tip, TipPopover } from "@plexui/vue/components/Tip"
-Docs: https://plexui.com/vue/components/tip
-Props:
-  - title (string) — The tip's title: what the feature is (or the title slot)
-  - description (string) — One or two sentences on how to use it (or the description slot)
-  - on-close (() => void) — Shows the Close button; called when it is clicked
-  - arrow-edge ("top" | "bottom" | "left" | "right") — Draws an arrow at this edge, pointing at what the tip explains
-  - mobile-actions ("rows" | "buttons") default: "rows" — How the actions show at 767px and below: rows of text under a separator, or the buttons as given, each a full-width capsule
-  TipPopover:
-    - open (boolean) — Shows the tip (controlled); bind with v-model:open
-    - default-open (boolean) default: false — Shows the tip at first (uncontrolled)
-    - side ("top" | "right" | "bottom" | "left") default: "bottom" — The side of the control the tip shows on, turned when it does not fit
-    - align ("start" | "center" | "end") default: "center" — The alignment against the control
-    - side-offset (number) default: 4 — The distance from the control to the arrow's point, in pixels
-    - close-button (boolean) default: true — Shows the Close button
-Examples: Overview, Popover
-
-## Toast
-Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.
-Import: import { Toaster, toast } from "@plexui/vue/components/Toast"
-Docs: https://plexui.com/vue/components/toast
-  Toaster:
-    - position ("top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right") default: "top-center" — Where toasts anchor on the viewport
-    - duration (number) default: 3000 — Default auto-dismiss duration in ms
-    - offset (string | number | { top?; right?; bottom?; left? }) default: 32px — Distance from the viewport edge. Without a top or bottom edge here, the page's --toast-offset-top or --toast-offset-bottom sets it.
-    - mobile-offset (string | number | { top?; right?; bottom?; left? }) default: 16px top and bottom, 14px at the sides, past the safe area — Gutter under 600px, where a long toast wraps between the side gutters. Explicit edges override their defaults; omitted edges keep them, and the page's --toast-mobile-offset-top or --toast-mobile-offset-bottom sets the top or bottom one.
-    - gap (number) — Gap between stacked toasts in px
-Examples: Overview
-
-## Toggle Group
-A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.
-Import: import { ToggleGroup, ToggleGroupItem } from "@plexui/vue/components/ToggleGroup"
-Docs: https://plexui.com/vue/components/toggle-group
-Props:
-  - value (string[]) — Controlled values of the pressed items; bind with v-model:value
-  - default-value (string[]) default: [] — Values of the items pressed at first (uncontrolled)
-  - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Fill of a pressed item, a solid button in this color
-  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Size of the items, as the Button sizes
-  - pill (boolean) default: false — Fully rounded items; with uniform, circles
-  - uniform (boolean) default: false — Items as wide as they are tall, for a letter or an icon
-  - block (boolean) default: false — Fills the width of its container, the items spread across it
-  - disabled (boolean) default: false — Disables every item
-  - dir ("ltr" | "rtl") default: "ltr" — Reading direction of the items, which the arrow keys follow
-  - aria-label (string) — Name of the group, when no visible label names it
-  - aria-labelledby (string) — The id of the visible label of the group
-  - id (string) — The id of the group
-  ToggleGroupItem:
-    - value (string) — Value of the item, in the group's value while it is pressed
-    - disabled (boolean) default: false — Disables the item
-    - aria-label (string) — Name of the item, when its content does not say it in full, such as a weekday's letter
-Examples: Overview, Text, Disabled
-
-## Toolbar
-"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up."
-Import: import { Toolbar, ToolbarLeading, ToolbarTitle, ToolbarTrailing } from "@plexui/vue/components/Toolbar"
-Docs: https://plexui.com/vue/components/toolbar
-Props:
-  - placement ("top" | "bottom") default: "top" — Top bar with 44px targets, or bottom bar with 48px targets
-  - titleStyle ("inline" | "large" | "compact-large" | "compact-medium") default: "inline" — Size and place of ToolbarTitle in a top bar
-  - titleAlign ("center" | "start") default: "center" — Alignment of an inline title. Large and compact titles always start at the leading edge
-  - background ("soft" | "hard" | "glass" | "blur") default: "glass" at the top, "soft" at the bottom — How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft and solid of hard
-  - class (string) — Class of the bar
-  ToolbarTitle:
-    - subtitle (string) — Second, smaller line below the title. The subtitle slot takes precedence
-    - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
-Examples: Overview, Search under the title, Disabled, Sheet
-
-## Tooltip
-Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
-Import: import { Tooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip"
-Docs: https://plexui.com/vue/components/tooltip
-Props:
-  - default slot (VNode) — The trigger: a single element. Wrap plain text in TooltipTriggerDecorator
-  - content (string | number | VNode | null) — Tooltip content, or the #content slot (null = no tooltip)
-  - compact (boolean) default: false — Short 1-3 word tooltips, inverse styling
-  - interactive (boolean) default: false — Content is interactive, stays open when hovered
-  - max-width (number | "none") default: 300 — Max width of tooltip
-  - open-delay (number) default: 150 — Delay before showing (ms)
-  - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side
-  - side-offset (number) default: 5 — Distance from trigger
-  - align ("start" | "center" | "end") default: "center" — Alignment
-  - align-offset (number) default: 0 — Alignment offset
-  - gutter-size ("sm" | "md" | "lg") default: "md" — Content padding
-  - content-class-name (string) — Class for tooltip content
-  - force-open (boolean) — Force open or closed
-  - prevent-unintentional-click-to-close (boolean) default: false — Keeps the tooltip open when the trigger is clicked right after it opened
-  - content slot (VNode[]) — Rich tooltip content; takes precedence over content
-Examples: Overview
+  - class (string) — Class on the box, such as its size and corners
+  - style (string | CSSProperties) — Style on the box
+Examples: Overview, Menu

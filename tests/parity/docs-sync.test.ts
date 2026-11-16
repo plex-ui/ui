@@ -3,6 +3,7 @@ import path from "node:path"
 import { describe, expect, test } from "vitest"
 // @ts-expect-error plain .mjs script without types
 import { vueMeta } from "../../scripts/sync-vue-meta.mjs"
+import { COMPONENT_GROUPS, COMPONENT_PAGE_ORDER } from "../../lib/component-groups"
 
 // Tests run from the repo root
 const fromRoot = (relative: string) => path.resolve(process.cwd(), relative)
@@ -47,5 +48,17 @@ describe("MDX frontmatter", () => {
         .map((line) => `${file}: ${line}`)
     })
     expect(invalid).toEqual([])
+  })
+})
+
+describe("the component pages are in their groups (owner 16.11)", () => {
+  test("every page is in exactly one group, and meta.json lists them in the groups' order", () => {
+    const meta = JSON.parse(read("content/components/meta.json")) as { pages: string[] }
+    expect(meta.pages).toEqual(["index", ...COMPONENT_PAGE_ORDER])
+    expect(new Set(COMPONENT_PAGE_ORDER).size).toBe(COMPONENT_PAGE_ORDER.length)
+  })
+
+  test("a group lists its pages in alphabetical order", () => {
+    for (const group of COMPONENT_GROUPS) expect([...group.slugs], group.label).toEqual([...group.slugs].sort())
   })
 })
