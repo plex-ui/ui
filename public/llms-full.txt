@@ -6426,6 +6426,7 @@ Props:
   - variant ("soft" | "outline" | "ghost") default: "outline" — Trigger variant
   - size (ControlSize) default: "md" — Trigger size (3xs to 3xl)
   - pill (boolean) default: false — Rounded trigger
+  - listPill (boolean) default: pill — The list in the rounder shape of a pill menu, whatever the trigger: a custom `trigger` or a rounded field opens the same list as a pill one
   - clearable (boolean) default: false — Show clear button. On a phone, with the default trigger, a None row first in the list instead
   - noneLabel (string) default: "None" — Label of the row that unsets a clearable select on a phone
   - block (boolean) default: variant !== "ghost" — Full width trigger

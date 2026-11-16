@@ -162,6 +162,12 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
    */
   pill?: boolean
   /**
+   * The list in the rounder shape of a pill menu (as `Menu.Content pill`), whatever the trigger: a custom `trigger` or a
+   * rounded field can open the same list as a pill one
+   * @default the trigger's `pill`
+   */
+  listPill?: boolean
+  /**
    * Text of a `multiple` trigger when every option is selected
    * @default All selected
    */
@@ -314,6 +320,7 @@ type SelectContextValue<T extends Option> = (
   disabled: boolean
   variant: SelectControlProps["variant"]
   pill: boolean
+  listPill: boolean
   size: SelectControlProps["size"]
   dropdownIconType: SelectControlProps["dropdownIconType"]
   loading: boolean
@@ -407,6 +414,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     allSelectedLabel = "All selected",
     noneLabel = "None",
     pill: pillProp,
+    listPill: listPillProp,
     listMinWidth,
     options,
     actions: propActions = [],
@@ -428,6 +436,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     checkPosition = 'start',
   } = props
   const pill = useFieldRowPill(pillProp)
+  const listPill = listPillProp ?? pill
   // At the end of a Field row the menu opens from the row's end and fits its options: on a phone
   // the trigger there is only as wide as its value, so a menu of the trigger's width breaks every word.
   // In a `FieldGroup columns` the value starts at the column, and so does its menu.
@@ -553,6 +562,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       noneLabel,
       variant,
       pill,
+      listPill,
       size,
       dropdownIconType,
       block,
@@ -602,6 +612,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       noneLabel,
       variant,
       pill,
+      listPill,
       size,
       dropdownIconType,
       block,
@@ -830,7 +841,7 @@ const CustomSelect = () => {
     listMinWidth,
     listMaxWidth,
     trigger,
-    pill,
+    listPill,
   } = useSelectContext()
   const [open, setOpen] = useState<boolean>(false)
   const floatingBoundary = useFloatingBoundary(open && avoidCollisions, { bottom: 30, top: 30 })
@@ -947,7 +958,7 @@ const CustomSelect = () => {
               ref={setContent}
               forceMount
               className={s.MenuList}
-              data-pill={pill ? "" : undefined}
+              data-pill={listPill ? "" : undefined}
               // A list that fits its options is the 250pt of an iOS menu on a phone (Select.module.css)
               data-list-width={listWidth === "auto" ? "auto" : undefined}
               // A list given its own width keeps it on a phone too, below the 250pt

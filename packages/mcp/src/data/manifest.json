@@ -5058,6 +5058,12 @@
           "description": "Rounded trigger"
         },
         {
+          "name": "listPill",
+          "type": "boolean",
+          "default": "pill",
+          "description": "The list in the rounder shape of a pill menu, whatever the trigger: a custom `trigger` or a rounded field opens the same list as a pill one"
+        },
+        {
           "name": "clearable",
           "type": "boolean",
           "default": "false",
@@ -7688,5 +7694,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-16T06:20:07.816Z"
+  "generatedAt": "2026-11-16T08:52:37.938Z"
 }

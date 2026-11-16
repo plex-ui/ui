@@ -257,6 +257,7 @@ Searchable menus name their input `Search options` by default. Set `search-aria-
   { prop: "variant", type: '"soft" | "outline" | "ghost"', default: '"outline"', description: "Trigger variant" },
   { prop: "size", type: "ControlSize", default: '"md"', description: "Trigger size (3xs to 3xl)" },
   { prop: "pill", type: "boolean", default: "false", description: "Rounded trigger" },
+  { prop: "listPill", type: "boolean", default: "pill", description: "The list in the rounder shape of a pill menu, whatever the trigger: a custom `#trigger` slot or a rounded field opens the same list as a pill one" },
   { prop: "clearable", type: "boolean", default: "false", description: "Show clear button. On a phone, with the default trigger, a None row first in the list instead" },
   { prop: "none-label", type: "string", default: '"None"', description: "Label of the row that unsets a clearable select on a phone" },
   { prop: "block", type: "boolean", default: 'variant !== "ghost"', description: "Full width trigger" },

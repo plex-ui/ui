@@ -398,3 +398,22 @@ describe("Pop-up chevrons in a row (iOS 27.2 menu picker)", () => {
     expect(rule(":where([data-row]) .DropdownIcon > .MobileDropdownGlyph")).toMatchObject({ width: "17px", height: "17px" })
   })
 })
+
+// One shape for every list (owner 16.11): `listPill` rounds the list whatever the trigger, and without it the list keeps
+// the trigger's shape
+describe.each(["React", "Vue"])("%s Select listPill", (framework) => {
+  test.each([
+    [{ pill: false, listPill: true }, true],
+    [{ pill: true, listPill: false }, false],
+    [{ pill: true }, true],
+    [{ pill: false }, false],
+  ])("%o rounds the list: %s", async (shape, rounded) => {
+    if (framework === "React") render(<RSelect value="home" options={options} onChange={() => {}} {...shape} />)
+    else mountVue(() => h(Select, { value: "home", options, onChange: () => {}, ...shape }))
+    await flushVue()
+    const page = within(document.body)
+    await press(page.getAllByRole("button")[0])
+    await waitFor(() => expect(page.getAllByRole("dialog", { hidden: true })).toHaveLength(1))
+    expect(page.getByRole("dialog", { hidden: true }).hasAttribute("data-pill")).toBe(rounded)
+  })
+})

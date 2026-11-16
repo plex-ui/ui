@@ -173,6 +173,11 @@ const selectProps = {
   variant: { type: String as PropType<"soft" | "outline" | "ghost">, default: "outline" },
   /** Fully rounded pill shape for the trigger. @default false, or true at the end of a `Field row` */
   pill: { type: Boolean, default: undefined },
+  /**
+   * The list in the rounder shape of a pill menu (as `MenuContent pill`), whatever the trigger: a `#trigger` of its own or
+   * a rounded field can open the same list as a pill one. @default the trigger's `pill`
+   */
+  listPill: { type: Boolean, default: undefined },
   /** Size of the trigger: `3xs` 22px up to `3xl` 48px. @default "md" */
   size: { type: String as PropType<ControlSize>, default: "md" },
   /** Icon displayed in the far right of the select trigger. @default "dropdown" */
@@ -247,6 +252,7 @@ type SelectPropsValue = {
   loading: boolean
   variant: "soft" | "outline" | "ghost"
   pill?: boolean
+  listPill?: boolean
   size: ControlSize
   dropdownIconType: DropdownIconType
   actions?: SelectAction[]
@@ -297,6 +303,8 @@ type SelectContextValue = {
   block: ComputedRef<boolean>
   /** The prop, or else the shape of the `Field row` around the Select */
   pill: ComputedRef<boolean>
+  /** `listPill`, or else the trigger's shape */
+  listPill: ComputedRef<boolean>
   align: ComputedRef<PopoverAlign>
   alignOffset: ComputedRef<number>
   listWidth: ComputedRef<ListSize | undefined>
@@ -408,6 +416,7 @@ const SelectComponent = defineComponent({
   setup(rawProps, { emit, slots }) {
     const props = rawProps as unknown as SelectPropsValue
     const pill = useFieldRowPill(() => props.pill)
+    const listPill = computed(() => props.listPill ?? pill.value)
     // At the end of a Field row the menu opens from the row's end and fits its options: on a phone
     // the trigger there is only as wide as its value, so a menu of the trigger's width breaks every word.
     // In a `FieldGroup columns` the value starts at the column, and so does its menu.
@@ -504,6 +513,7 @@ const SelectComponent = defineComponent({
       triggerEl: shallowRef(null),
       block,
       pill,
+      listPill,
       align,
       alignOffset,
       listWidth,
@@ -898,7 +908,7 @@ const SelectContentElement = markRaw(
 const SelectPopoverContent = defineComponent({
   name: "SelectPopoverContent",
   setup() {
-    const { props, align, alignOffset, listWidth, listMaxWidth, pill } = useSelectContext()
+    const { props, align, alignOffset, listWidth, listMaxWidth, listPill } = useSelectContext()
     const { handleRootOpenChange, popoverTriggerEl, open, selectContentRef } = inject(CustomSelectContextKey)!
     const floatingBoundary = useFloatingBoundary(() => open.value && props.avoidCollisions, { bottom: 30, top: 30 })
     // On a phone the list opens over its trigger, as the pop-up menu of an iOS picker does (ref-app pickers, block 8:
@@ -932,7 +942,7 @@ const SelectPopoverContent = defineComponent({
           forceMount: true,
           as: SelectContentElement,
           class: s.MenuList,
-          "data-pill": pill.value ? "" : undefined,
+          "data-pill": listPill.value ? "" : undefined,
           // A list that fits its options is the 250pt of an iOS menu on a phone (Select.module.css)
           "data-list-width": listWidth.value === "auto" ? "auto" : undefined,
           // A list given its own width keeps it on a phone too, below the 250pt
