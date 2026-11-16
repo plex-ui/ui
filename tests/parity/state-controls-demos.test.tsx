@@ -5,10 +5,11 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ButtonLinkDemo, ButtonOverviewDemo } from '../../components/docs/ButtonDemos';
 import { DateInputOverviewDemo } from '../../components/docs/DateInputDemos';
 import { DatePickerOverviewDemo } from '../../components/docs/DatePickerDemos';
+import { DateRangePickerOverviewDemo } from '../../components/docs/DateRangePickerDemos';
 import { VueDemo, type VueDemoControl, type VueDemoOption, type VueDemoWhen } from '../../components/docs/vue/VueDemo';
 import { VuePhoneRowsDemo } from '../../components/docs/vue/VuePhoneRowsDemo';
 import { VueDateInputDemo } from '../../components/docs/vue/VueDateInputDemos';
-import { VueDatePickerDemo } from '../../components/docs/vue/VueDatePickerDemos';
+import { VueDatePickerDemo, VueDateRangePickerDemo } from '../../components/docs/vue/VueDatePickerDemos';
 import { phoneRows } from '../../components/docs/phoneRowsTemplate';
 import { flushVue } from './harness';
 
@@ -20,6 +21,8 @@ vi.mock('../../components/docs/VuePreview', async () => ({
 vi.mock('../../components/docs/PreviewEmbed.module.css', () => ({ default: { Root: 'PreviewEmbedRoot' } }));
 vi.mock('@plexui/ui/components/DatePicker', async () => import('../../packages/ui/src/components/DatePicker'));
 vi.mock('@plexui/vue/components/DatePicker', async () => import('../../packages/vue/src/components/DatePicker'));
+vi.mock('@plexui/ui/components/DateRangePicker', async () => import('../../packages/ui/src/components/DateRangePicker'));
+vi.mock('@plexui/vue/components/DateRangePicker', async () => import('../../packages/vue/src/components/DateRangePicker'));
 
 /** An `export const` of a Vue page */
 function pageExport(page: string, key: string): unknown {
@@ -70,6 +73,13 @@ const datePicker = {
   ...example('date-picker', 'overview'),
   phoneTemplate: phoneRows(pageExport('date-picker', 'overviewPhone') as string),
   desktopControlNames: pageExport('date-picker', 'overviewDesktopControls') as string[],
+};
+// The Date Range Picker Overview as its page mounts it (plan 178 row 33): its phone rows, and the controls it keeps on desktop
+const dateRangePicker = {
+  ...example('date-range-picker', 'overview'),
+  phoneTemplate: phoneRows(pageExport('date-range-picker', 'overviewPhone') as string),
+  desktopControlNames: pageExport('date-range-picker', 'overviewDesktopControls') as string[],
+  stageClassName: 'flex-1 flex items-center justify-center py-12 w-full',
 };
 const interact = async (action: () => void) => { await act(async () => { action(); await flushVue(); }); };
 // A viewport that can turn from a desktop into a phone and back, firing the media queries' change listeners
@@ -334,6 +344,81 @@ describe.each(['React', 'Vue'])('%s state-only demo consolidation', (framework) 
     await toggle('disabled');
     expect(trigger().getAttribute('aria-disabled')).toBe('true');
   });
+
+  test('date range picker: one Overview carries limits, shortcuts, maxRangeDays and the month stepper (row 33)', async () => {
+    // Today is the 15th of November 2026
+    Settings.now = () => new Date(2026, 10, 15, 12).valueOf();
+    const show = viewport();
+    const view = render(framework === 'React' ? <DateRangePickerOverviewDemo /> : <VueDateRangePickerDemo {...dateRangePicker} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const trigger = () => view.container.querySelector<HTMLElement>('[data-demo-stage] [data-slot="select-control"]')!;
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
+    const calendar = () => within(document.body);
+    const open = async () => { await interact(() => fireEvent.click(trigger())); await waitFor(() => calendar().getAllByRole('button', { name: /^Next month/ })); };
+    const close = () => interact(() => fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' }));
+    const shortcut = (label: string) => calendar().queryByRole<HTMLButtonElement>('button', { name: label, exact: true });
+    const day = (date: DateTime) => calendar().getAllByRole<HTMLButtonElement>('button', { name: date.toLocaleString(DateTime.DATE_HUGE), exact: true })[0];
+    // No shortcuts until the setting asks for them
+    await open();
+    expect(shortcut('Last 7 days')).toBeNull();
+    await close();
+    await toggle('shortcuts');
+    await open();
+    expect([shortcut('Last 7 days')?.disabled, shortcut('Last 30 days')?.disabled]).toEqual([false, false]);
+    await close();
+    // maxRangeDays 7 rules out a longer shortcut
+    await choose('maxRangeDays', '7 days');
+    await open();
+    expect([shortcut('Last 7 days')?.disabled, shortcut('Last 30 days')?.disabled]).toEqual([false, true]);
+    await close();
+    await choose('maxRangeDays', 'none');
+    // Limits: the last 30 days up to today, so no day after today
+    await choose('limits', 'last 30 days');
+    await open();
+    expect([day(DateTime.local(2026, 11, 15)).disabled, day(DateTime.local(2026, 11, 16)).disabled]).toEqual([false, true]);
+    await close();
+    await choose('limits', 'none');
+    // The month stepper: a whole month in the trigger gets arrows to the previous and the next one
+    await choose('triggerStepperUnit', 'month');
+    await open();
+    await interact(() => fireEvent.click(day(DateTime.local(2026, 11, 1))));
+    await interact(() => fireEvent.click(day(DateTime.local(2026, 11, 30))));
+    await close();
+    expect(within(view.container.querySelector('[data-demo-stage]')!).queryAllByRole('button', { name: /previous month/i }).length).toBeGreaterThan(0);
+    // weekStartsOn: the calendar's weeks start on Monday
+    const firstWeekday = async () => {
+      await open();
+      const header = document.body.querySelector('[class*="WeekdayHeader"] > * > span')?.textContent?.trim();
+      await close();
+      return header;
+    };
+    const sunday = await firstWeekday();
+    await choose('weekStartsOn', 'Monday');
+    expect([sunday, await firstWeekday()]).toEqual(['Su', 'Mo']);
+    // On a phone the shortcuts are a Period row above the Dates row; the frame, format and placement stay on desktop
+    await show('phone');
+    const rows = [...view.container.querySelectorAll('[data-slot="field"][data-row]')].map((row) => row.querySelector('label')?.textContent?.trim());
+    expect(rows).toEqual(['Period', 'Dates']);
+    for (const name of ['variant', 'size', 'pill', 'block', 'clearable', 'triggerShowIcon', 'dropdownIconType', 'triggerDateFormat', 'side', 'sideOffset', 'align']) {
+      const control = page.queryByRole('radiogroup', { name }) ?? page.queryByRole('switch', { name, exact: true }) ?? page.queryByRole('slider', { name });
+      expect(!control || !!control.closest('[data-demo-desktop-only]'), name).toBe(true);
+    }
+    for (const name of ['triggerStepperUnit', 'shortcuts', 'limits', 'maxRangeDays', 'weekStartsOn', 'disabled']) {
+      expect(page.queryByRole('radiogroup', { name }) ?? page.queryByRole('switch', { name, exact: true }), name).not.toBeNull();
+    }
+    // The Period row disables a shortcut the limits rule out, as the calendar does
+    await choose('maxRangeDays', '7 days');
+    const period = view.container.querySelector<HTMLElement>('[data-slot="field"][data-row] [data-slot="select-control"]')!;
+    await interact(() => fireEvent.click(period));
+    const list = await within(document.body).findByRole('listbox');
+    const disabled = (name: string) => within(list).getByRole('option', { name }).getAttribute('aria-disabled') === 'true';
+    expect([disabled('Last 7 days'), disabled('Last 30 days')]).toEqual([false, true]);
+    await close();
+    await toggle('shortcuts');
+    expect([...view.container.querySelectorAll('[data-slot="field"][data-row]')]).toHaveLength(1);
+  }, 20000);
 
   test('date picker on a phone: the compact date of a row; frame, format, icons and placement stay on desktop', async () => {
     vi.stubGlobal('matchMedia', (query: string) => ({ matches: !query.includes('min-width'), media: query, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, dispatchEvent: () => true, onchange: null }));

@@ -323,9 +323,11 @@ describe("a Phone preview is a phone screen in a phone frame (plan 164)", () => 
 
 describe("Date Range Picker shortcuts on a phone (plan 161.shortcuts)", () => {
   const [react, vue] = both("date-range-picker").map(read)
-  const reactPhone = react.slice(react.indexOf("// Phone: the shortcuts are a pop-up"), react.indexOf("<DateRangePickerShortcutsDemo />"))
-  const vuePhone = vue.slice(vue.indexOf("export const shortcutsPhone = `"), vue.indexOf("export const monthStepperPhone"))
-  const rows = (code: string) => [...code.matchAll(/<Field row label="([^"]+)">/g)].map((match) => match[1])
+  // The shortcuts are a setting of the Overview (plan 178 row 33): its phone code holds the Period row
+  const phoneCode = (code: string, start: string) => code.slice(code.indexOf(start), code.indexOf("</FieldGroup>`", code.indexOf(start)))
+  const reactPhone = phoneCode(react, "// Phone: the shortcuts are a pop-up")
+  const vuePhone = phoneCode(vue, "export const overviewPhone = `")
+  const rows = (code: string) => [...code.matchAll(/<Field (?:v-if="[^"]+" )?row label="([^"]+)">/g)].map((match) => match[1])
 
   test("a Period pop-up of the shortcuts above the Dates row, in React and Vue", () => {
     expect(rows(reactPhone)).toEqual(["Period", "Dates"])
@@ -342,7 +344,7 @@ describe("Date Range Picker shortcuts on a phone (plan 161.shortcuts)", () => {
     const demo = read("components/docs/DateRangePickerDemos.tsx")
     expect(demo).toContain("<PhoneRowsStage className={phoneCalendarSecondRowStageClassName}>")
     expect(demo).toContain("placeholder={value ? 'Custom' : 'None'}")
-    expect(vue).toContain("phoneTemplate={phoneRows(shortcutsPhone)} phoneStageClassName={phoneCalendarSecondRowStageClassName}")
+    expect(vue).toContain("phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName={phoneCalendarSecondRowStageClassName}")
     expect(read("components/docs/phoneRowsTemplate.ts")).toContain("export const phoneCalendarSecondRowStageClassName = 'flex w-full min-h-[533px] flex-col';")
   })
 })

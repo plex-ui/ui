@@ -15,18 +15,6 @@ import { VuePhoneRowsDemo } from './VuePhoneRowsDemo';
 
 type DateRange = [DateTime, DateTime];
 
-function getMonthStartAndEnd(
-  date: DateTime,
-  { min, max }: { min?: DateTime; max?: DateTime } = {},
-): DateRange {
-  const startOfMonth = date.startOf('month');
-  const endOfMonth = date.endOf('month');
-  return [
-    min ? DateTime.max(min, startOfMonth) : startOfMonth,
-    max ? DateTime.min(max, endOfMonth) : endOfMonth,
-  ];
-}
-
 const dayShortcuts = [
   {
     label: 'Today',
@@ -61,7 +49,15 @@ const dayShortcuts = [
 ];
 
 /** Shortcuts on a phone: the pop-up of the Period row holds the shortcuts */
-const periodOptions = dayShortcuts.map(({ label }) => ({ value: label, label }));
+/** Whether the limits allow a range, as the calendar decides for a shortcut: whole days from min to max, and no
+ * more than maxRangeDays days */
+const allows = ([start, end]: DateRange, min?: DateTime, max?: DateTime, maxRangeDays?: number) =>
+  !(min && start < min.startOf('day'))
+  && !(max && end > max.endOf('day'))
+  && !(maxRangeDays != null && end.startOf('day') > start.startOf('day').plus({ days: maxRangeDays - 1 }));
+/** The Period options of the phone rows: a shortcut the limits rule out is disabled, as in the calendar */
+const periodOptionsFor = (min?: DateTime, max?: DateTime, maxRangeDays?: number) =>
+  dayShortcuts.map(({ label, getDateRange }) => ({ value: label, label, disabled: !allows(getDateRange(), min, max, maxRangeDays) }));
 
 /** Shortcuts on a phone: the label of the shortcut whose range the dates are, or '' (the row then reads Custom) */
 const periodOf = (range: DateRange | null) => {
@@ -133,27 +129,15 @@ export function VueDatePickerDemo({
 
 /**
  * A VueDemo whose template can use `DateTime`, `dayShortcuts` (with
- * `periodOptions` and `periodOf` for the phone rows), `minDate`
- * (30 days ago) and `maxDate` (the end of today). `value` starts empty, at
- * this month within the limits (`initialRange="limits"`), or at this month
- * up to today (`initialRange="month"`).
+ * `periodOptionsFor` and `periodOf` for the phone rows), `minDate`
+ * (29 days ago: the last 30 days with today) and `maxDate` (the end of today). `value` starts empty.
  */
-export function VueDateRangePickerDemo({
-  state,
-  initialRange,
-  ...props
-}: ComponentProps<typeof VuePhoneRowsDemo> & { initialRange?: 'limits' | 'month' }) {
+export function VueDateRangePickerDemo({ state, ...props }: ComponentProps<typeof VuePhoneRowsDemo>) {
   const [scope] = useState(() => {
     const today = DateTime.local();
-    const minDate = today.minus({ days: 30 }).startOf('day');
+    const minDate = today.minus({ days: 29 }).startOf('day');
     const maxDate = today.endOf('day');
-    const value =
-      initialRange === 'limits'
-        ? getMonthStartAndEnd(today, { min: minDate, max: maxDate })
-        : initialRange === 'month'
-          ? getMonthStartAndEnd(today, { max: today })
-          : null;
-    return { DateTime, dayShortcuts, periodOptions, periodOf, minDate, maxDate, value };
+    return { DateTime, dayShortcuts, periodOptionsFor, periodOf, minDate, maxDate, value: null };
   });
   if (props.phoneTemplate) return <VuePhoneRowsDemo {...props} state={{ ...scope, ...state }} />;
   return <VueDemo {...props} state={{ ...scope, ...state }} />;

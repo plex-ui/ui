@@ -1934,86 +1934,99 @@ Props:
   - block (boolean) default: false — Stretch trigger to full available width
 
 ### Overview
-Bind the range ([start, end] luxon DateTimes, or null) with v-model:value. The @change event carries the same range.
+Bind the range ([start, end] luxon DateTimes, or null) with v-model:value. The @change event carries the same range. trigger-stepper-unit="month" adds a month stepper to the trigger: when the range is a whole month, the trigger shows the month with arrows to the previous and the next one. The shortcuts array offers quick ranges. When a shortcut is selected, its label is shown in the trigger and @change carries that shortcut as its second argument, like React's onChange(range, shortcut). Each shortcut has a label and a getDateRange() function; dayShortcuts here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside min and max, or is longer than max-range-days, is disabled. The calendar doesn't show shortcuts below the md breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: a Period row with a Select of the shortcut labels (periodOptionsFor, which disables a shortcut the limits rule out, as the calendar does) above the Dates row. periodOf(value) is the label of the shortcut the dates match, or an empty string, so the Period row reads Custom for any other range and None without dates. min and max limit the dates that can be picked: here the last 30 days up to today. max-range-days limits the length of the range. week-starts-on sets the day each week of the calendar starts on, from 0 (Sunday) to 6 (Saturday).
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { DateTime } from 'luxon';
+import { DateRangePicker, type DateRange, type DateRangePickerProps, type DateRangeShortcut } from '@plexui/vue/components/DateRangePicker';
+import { Field } from '@plexui/vue/components/Field';
+import { FieldGroup } from '@plexui/vue/components/FieldGroup';
+import { Select } from '@plexui/vue/components/Select';
+
+const today = DateTime.local();
+const minDate = today.minus({ days: 29 }).startOf('day');
+const maxDate = today.endOf('day');
+const dayShortcuts: DateRangeShortcut[] = [
+  { label: 'Today', getDateRange: () => [today.startOf('day'), today.endOf('day')] },
+  { label: 'Yesterday', getDateRange: () => [today.minus({ days: 1 }).startOf('day'), today.minus({ days: 1 }).endOf('day')] },
+  { label: 'Last 7 days', getDateRange: () => [today.minus({ days: 6 }).startOf('day'), today.endOf('day')] },
+  { label: 'Last 30 days', getDateRange: () => [today.minus({ days: 29 }).startOf('day'), today.endOf('day')] },
+];
+// Phone: the Period row offers the shortcuts and reads Custom for any other range. A shortcut the limits rule out
+// is disabled, as in the calendar: whole days from min to max, and no more than maxRangeDays days.
+const allows = ([start, end]: DateRange, min?: DateTime, max?: DateTime, maxRangeDays?: number) =>
+  !(min && start < min.startOf('day')) &&
+  !(max && end > max.endOf('day')) &&
+  !(maxRangeDays != null && end.startOf('day') > start.startOf('day').plus({ days: maxRangeDays - 1 }));
+const periodOptionsFor = (min?: DateTime, max?: DateTime, maxRangeDays?: number) =>
+  dayShortcuts.map(({ label, getDateRange }) => ({ value: label, label, disabled: !allows(getDateRange(), min, max, maxRangeDays) }));
+const periodOf = (range: DateRange | null) =>
+  range
+    ? dayShortcuts.find(({ getDateRange }) => {
+        const [start, end] = getDateRange();
+        return range[0].hasSame(start, 'day') && range[1].hasSame(end, 'day');
+      })?.label ?? ''
+    : '';
+
+const value = ref<DateRange | null>(null);
+const variant = ref<"outline" | "soft" | "ghost">("outline");
+const size = ref<DateRangePickerProps["size"]>("lg"); // "3xs" to "3xl"
+const pill = ref(true);
+const block = ref(false);
+const clearable = ref(true);
+const triggerShowIcon = ref(true);
+const dropdownIconType = ref<"dropdown" | "chevronDown" | "none">("dropdown");
+const triggerDateFormat = ref("MM/dd/yy"); // or "MMM d", "MMM d, yyyy"
+const triggerStepperUnit = ref("none"); // or "month"
+const shortcuts = ref(false);
+const limits = ref("none"); // or "past" (the last 30 days up to today)
+const maxRangeDays = ref("none"); // or "7"
+const weekStartsOn = ref("0"); // Sunday, or "1": Monday
+const side = ref<"top" | "right" | "bottom" | "left">("bottom");
+const sideOffset = ref(8);
+const align = ref<"start" | "center" | "end">("center");
+const alignOffset = ref(-5); // with a start or end alignment
+const disabled = ref(false);
+</script>
+
+<template>
 <!-- Desktop -->
-<div style="width: fit-content">
+<div :style="{ width: block ? '320px' : 'fit-content' }">
   <DateRangePicker
-    size="lg"
-    pill
-    clearable
+    :variant="variant"
+    :size="size"
+    :pill="pill"
+    :block="block"
+    :clearable="clearable"
+    :trigger-show-icon="triggerShowIcon"
+    :dropdown-icon-type="dropdownIconType"
+    :trigger-date-format="triggerDateFormat"
+    :trigger-stepper-unit="triggerStepperUnit === 'month' ? 'month' : undefined"
+    :shortcuts="shortcuts ? dayShortcuts : undefined"
+    :min="limits === 'past' ? minDate : undefined"
+    :max="limits === 'past' ? maxDate : undefined"
+    :max-range-days="maxRangeDays === '7' ? 7 : undefined"
+    :week-starts-on="weekStartsOn === '1' ? 1 : 0"
+    :side="side"
+    :side-offset="sideOffset"
+    :align="align"
+    :align-offset="align === 'center' ? undefined : alignOffset"
     :disabled="disabled"
     v-model:value="value"
   />
 </div>
 
-<!-- Phone -->
+<!-- Phone: the shortcuts are a pop-up in a row of their own -->
 <FieldGroup>
-  <Field row label="Dates">
-    <DateRangePicker
-      :trigger-show-icon="false"
-      trigger-date-format="MMM d"
-      placeholder="None"
-      :disabled="disabled"
-      v-model:value="value"
-    />
-  </Field>
-</FieldGroup>
-```
-
-### Limits
-Use min and max to limit the selectable range. Use max-range-days to limit the range length. Here minDate is 30 days ago (start of day) and maxDate is the end of today.
-```vue
-<!-- Desktop -->
-<div style="width: fit-content">
-  <DateRangePicker
-    size="lg"
-    pill
-    trigger-show-icon
-    v-model:value="value"
-    :min="minDate"
-    :max="maxDate"
-  />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Dates">
-    <DateRangePicker
-      :trigger-show-icon="false"
-      trigger-date-format="MMM d"
-      placeholder="None"
-      v-model:value="value"
-      :min="minDate"
-      :max="maxDate"
-    />
-  </Field>
-</FieldGroup>
-```
-
-### Shortcuts
-Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and @change carries that shortcut as its second argument, like React's onChange(range, shortcut). Each shortcut has a label and a getDateRange() function; dayShortcuts here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside min and max, or is longer than max-range-days, is disabled. The calendar doesn't show shortcuts below the md breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: here a Period row with a Select of the shortcut labels (periodOptions) above the Dates row. periodOf(value) is the label of the shortcut the dates match, or an empty string, so the Period row reads Custom for any other range and None without dates.
-```vue
-<!-- Desktop -->
-<div style="width: fit-content">
-  <DateRangePicker
-    size="lg"
-    pill
-    clearable
-    v-model:value="value"
-    :shortcuts="dayShortcuts"
-  />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Period">
+  <Field v-if="shortcuts" row label="Period">
     <Select
       :value="periodOf(value)"
-      :options="periodOptions"
+      :options="periodOptionsFor(limits === 'past' ? minDate : undefined, limits === 'past' ? maxDate : undefined, maxRangeDays === '7' ? 7 : undefined)"
       :placeholder="value ? 'Custom' : 'None'"
       :block="false"
       align="end"
+      :disabled="disabled"
       @change="({ value: label }) => (value = dayShortcuts.find((item) => item.label === label)?.getDateRange() ?? value)"
     />
   </Field>
@@ -2022,37 +2035,17 @@ Use the shortcuts array to provide quick date range options. When a shortcut is 
       :trigger-show-icon="false"
       trigger-date-format="MMM d"
       placeholder="None"
+      :trigger-stepper-unit="triggerStepperUnit === 'month' ? 'month' : undefined"
+      :min="limits === 'past' ? minDate : undefined"
+      :max="limits === 'past' ? maxDate : undefined"
+      :max-range-days="maxRangeDays === '7' ? 7 : undefined"
+      :week-starts-on="weekStartsOn === '1' ? 1 : 0"
+      :disabled="disabled"
       v-model:value="value"
     />
   </Field>
 </FieldGroup>
-```
-
-### Month stepper
-Enable a stepper in the trigger with trigger-stepper-unit="month". When the selected range matches the unit, the trigger shows the stepper.
-```vue
-<!-- Desktop -->
-<div style="width: fit-content">
-  <DateRangePicker
-    :size="size"
-    clearable
-    :pill="pill"
-    trigger-stepper-unit="month"
-    v-model:value="value"
-    :max="maxDate"
-  />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Month">
-    <DateRangePicker
-      trigger-stepper-unit="month"
-      v-model:value="value"
-      :max="maxDate"
-    />
-  </Field>
-</FieldGroup>
+</template>
 ```
 
 ## Dialog

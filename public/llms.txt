@@ -378,7 +378,7 @@ Props:
   - triggerDateFormat (string) default: "MM/dd/yy" — Date formatting in trigger text
   - clearable (boolean) default: false — Show clear button in trigger
   - block (boolean) default: false — Stretch trigger to full available width
-Examples: Overview, Limits, Shortcuts, Month stepper
+Examples: Overview
 
 ## Dialog
 Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.

@@ -4,141 +4,88 @@ description: Date range picker with an interactive calendar, min/max limits, pre
 metaDescription: React date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
 ---
 
-import {
-  DateRangePickerBaseDemo,
-  DateRangePickerLimitsDemo,
-  DateRangePickerShortcutsDemo,
-  DateRangePickerMonthStepperDemoWithControls,
-} from "@/components/docs/DateRangePickerDemos"
+import { DateRangePickerOverviewDemo } from "@/components/docs/DateRangePickerDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
-<UsageBlock>{`import { DateRangePicker } from "@plexui/ui/components/DateRangePicker";`}</UsageBlock>
+export const overviewCode = `const today = DateTime.local()
+const dayShortcuts: DateRangeShortcut[] = [
+  {
+    label: "Today",
+    getDateRange: () => [today.startOf("day"), today.endOf("day")],
+  },
+  {
+    label: "Yesterday",
+    getDateRange: () => {
+      const yesterday = today.minus({ days: 1 })
+      return [yesterday.startOf("day"), yesterday.endOf("day")]
+    },
+  },
+  {
+    label: "Last 7 days",
+    getDateRange: () => [today.minus({ days: 6 }).startOf("day"), today.endOf("day")],
+  },
+  {
+    label: "Last 30 days",
+    getDateRange: () => [today.minus({ days: 29 }).startOf("day"), today.endOf("day")],
+  },
+]
+const [value, setValue] = useState<DateRange | null>(null)
+const [variant, setVariant] = useState<"outline" | "soft" | "ghost">("outline")
+const [size, setSize] = useState<DateRangePickerProps["size"]>("lg") // "3xs" to "3xl"
+const [pill, setPill] = useState(true)
+const [block, setBlock] = useState(false)
+const [clearable, setClearable] = useState(true)
+const [triggerShowIcon, setTriggerShowIcon] = useState(true)
+const [dropdownIconType, setDropdownIconType] = useState<"dropdown" | "chevronDown" | "none">("dropdown")
+const [triggerDateFormat, setTriggerDateFormat] = useState("MM/dd/yy") // or "MMM d", "MMM d, yyyy"
+const [triggerStepperUnit, setTriggerStepperUnit] = useState<"month" | undefined>(undefined)
+const [shortcuts, setShortcuts] = useState(false)
+const [limits, setLimits] = useState<"none" | "past">("none") // "past": the last 30 days up to today
+const [maxRangeDays, setMaxRangeDays] = useState<number | undefined>(undefined) // or 7
+const [weekStartsOn, setWeekStartsOn] = useState<0 | 1>(0) // Sunday, or 1: Monday
+const [side, setSide] = useState<"top" | "right" | "bottom" | "left">("bottom")
+const [sideOffset, setSideOffset] = useState(8)
+const [align, setAlign] = useState<"start" | "center" | "end">("center")
+const [alignOffset, setAlignOffset] = useState(-5) // with a start or end alignment
+const [disabled, setDisabled] = useState(false)
 
-On Phone, put a date range picker in a row of a `FieldGroup`, as the [Forms: Settings](/components/settings-forms) do. In the row the range and its up-down chevrons end at the row's edge, as a pop-up, and open the calendar. The row is its frame and sets its height, insets and type, so the phone examples leave out `size`, `pill` and `clearable`, set `triggerShowIcon={false}`, show short dates (`triggerDateFormat="MMM d"`) and None when there is no range. In a row the month of a month stepper keeps the width of the longest month, so its arrows stay put when the month changes.
-
-## Examples
-
-### Overview
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass the range (<code>[start, end]</code> luxon <code>DateTime</code>s, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>.</>} code={`const [value, setValue] = useState<DateRange | null>(null)
-const [disabled] = useState(false)
+const min = limits === "past" ? today.minus({ days: 29 }).startOf("day") : undefined
+const max = limits === "past" ? today.endOf("day") : undefined
 
 // Desktop
-<div style={{ width: "fit-content" }}>
+<div style={{ width: block ? 320 : "fit-content" }}>
   <DateRangePicker
-    size="lg"
-    pill
-    clearable
+    variant={variant}
+    size={size}
+    pill={pill}
+    block={block}
+    clearable={clearable}
+    triggerShowIcon={triggerShowIcon}
+    dropdownIconType={dropdownIconType}
+    triggerDateFormat={triggerDateFormat}
+    triggerStepperUnit={triggerStepperUnit}
+    shortcuts={shortcuts ? dayShortcuts : undefined}
+    min={min}
+    max={max}
+    maxRangeDays={maxRangeDays}
+    weekStartsOn={weekStartsOn}
+    side={side}
+    sideOffset={sideOffset}
+    align={align}
+    alignOffset={align === "center" ? undefined : alignOffset}
     disabled={disabled}
     value={value}
     onChange={setValue}
   />
 </div>
 
-// Phone
-<FieldGroup>
-  <Field row label="Dates">
-    <DateRangePicker
-      triggerShowIcon={false}
-      triggerDateFormat="MMM d"
-      placeholder="None"
-      disabled={disabled}
-      value={value}
-      onChange={setValue}
-    />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <DateRangePickerBaseDemo />
-</ComponentPreview>
-
-### Limits
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>min</code> and <code>max</code> to limit the selectable range. Use <code>maxRangeDays</code> to limit the range length. Here <code>minDate</code> is 30 days ago (start of day) and <code>maxDate</code> is the end of today.</>} code={`const today = DateTime.local()
-const minDate = today.minus({ days: 30 }).startOf("day")
-const maxDate = today.endOf("day")
-const [value, setValue] = useState<DateRange | null>([
-  DateTime.max(minDate, today.startOf("month")),
-  DateTime.min(maxDate, today.endOf("month")),
-])
-
-// Desktop
-<div style={{ width: "fit-content" }}>
-  <DateRangePicker
-    size="lg"
-    pill
-    triggerShowIcon
-    value={value}
-    onChange={setValue}
-    min={minDate}
-    max={maxDate}
-  />
-</div>
-
-// Phone
-<FieldGroup>
-  <Field row label="Dates">
-    <DateRangePicker
-      triggerShowIcon={false}
-      triggerDateFormat="MMM d"
-      placeholder="None"
-      value={value}
-      onChange={setValue}
-      min={minDate}
-      max={maxDate}
-    />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <DateRangePickerLimitsDemo />
-</ComponentPreview>
-
-### Shortcuts
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and <code>onChange</code> receives that shortcut as its second argument. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>maxRangeDays</code>, is disabled. The calendar doesn't show shortcuts below the <code>md</code> breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: here a Period row with a <code>Select</code> of the shortcut labels above the Dates row. When the dates match no shortcut, the Period row reads Custom.</>} code={`const dayShortcuts: DateRangeShortcut[] = [
-  {
-    label: "Today",
-    getDateRange: () => {
-      const today = DateTime.local()
-      return [today.startOf("day"), today.endOf("day")]
-    },
-  },
-  {
-    label: "Yesterday",
-    getDateRange: () => {
-      const yesterday = DateTime.local().minus({ days: 1 })
-      return [yesterday.startOf("day"), yesterday.endOf("day")]
-    },
-  },
-  {
-    label: "Last 7 days",
-    getDateRange: () => {
-      const today = DateTime.local().endOf("day")
-      return [today.minus({ days: 6 }).startOf("day"), today]
-    },
-  },
-  {
-    label: "Last 30 days",
-    getDateRange: () => {
-      const today = DateTime.local().endOf("day")
-      return [today.minus({ days: 29 }).startOf("day"), today]
-    },
-  },
-]
-const [value, setValue] = useState<DateRange | null>(null)
-
-// Desktop
-<div style={{ width: "fit-content" }}>
-  <DateRangePicker
-    size="lg"
-    pill
-    clearable
-    value={value}
-    onChange={setValue}
-    shortcuts={dayShortcuts}
-  />
-</div>
-
-// Phone: the shortcuts are a pop-up in a row of their own, which reads Custom for any other range
-const periodOptions = dayShortcuts.map(({ label }) => ({ value: label, label }))
+// Phone: the shortcuts are a pop-up in a row of their own, which reads Custom for any other range. A shortcut the
+// limits rule out is disabled, as in the calendar.
+const allows = ([start, end]: DateRange) =>
+  !(min && start < min.startOf("day")) &&
+  !(max && end > max.endOf("day")) &&
+  !(maxRangeDays != null && end.startOf("day") > start.startOf("day").plus({ days: maxRangeDays - 1 }))
+const periodOptions = dayShortcuts.map(({ label, getDateRange }) => ({ value: label, label, disabled: !allows(getDateRange()) }))
 const period = value
   ? dayShortcuts.find(({ getDateRange }) => {
       const [start, end] = getDateRange()
@@ -147,63 +94,58 @@ const period = value
   : ""
 
 <FieldGroup>
-  <Field row label="Period">
-    <Select
-      value={period}
-      options={periodOptions}
-      onChange={({ value: label }) => {
-        const shortcut = dayShortcuts.find((item) => item.label === label)
-        if (shortcut) setValue(shortcut.getDateRange())
-      }}
-      placeholder={value ? "Custom" : "None"}
-      block={false}
-      align="end"
-    />
-  </Field>
+  {shortcuts && (
+    <Field row label="Period">
+      <Select
+        value={period}
+        options={periodOptions}
+        onChange={({ value: label }) => {
+          const shortcut = dayShortcuts.find((item) => item.label === label)
+          if (shortcut) setValue(shortcut.getDateRange())
+        }}
+        placeholder={value ? "Custom" : "None"}
+        block={false}
+        align="end"
+        disabled={disabled}
+      />
+    </Field>
+  )}
   <Field row label="Dates">
     <DateRangePicker
       triggerShowIcon={false}
       triggerDateFormat="MMM d"
       placeholder="None"
+      triggerStepperUnit={triggerStepperUnit}
+      min={min}
+      max={max}
+      maxRangeDays={maxRangeDays}
+      weekStartsOn={weekStartsOn}
+      disabled={disabled}
       value={value}
       onChange={setValue}
     />
   </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <DateRangePickerShortcutsDemo />
-</ComponentPreview>
+</FieldGroup>`
 
-### Month stepper
+<UsageBlock>{`import { DateRangePicker } from "@plexui/ui/components/DateRangePicker";`}</UsageBlock>
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Enable a stepper in the trigger with <code>triggerStepperUnit="month"</code>. When the selected range matches the unit, the trigger shows the stepper.</>} code={`const today = DateTime.local()
-const maxDate = today.endOf("day")
-const [value, setValue] = useState<DateRange | null>([today.startOf("month"), today])
+On Phone, put a date range picker in a row of a `FieldGroup`, as the [Forms: Settings](/components/settings-forms) do. In the row the range and its up-down chevrons end at the row's edge, as a pop-up, and open the calendar. The row is its frame and sets its height, insets and type, so the Phone preview leaves out the `variant`, `size`, `pill`, `block`, `clearable`, icon, date format and placement controls, sets `triggerShowIcon={false}`, shows short dates (`triggerDateFormat="MMM d"`) and None when there is no range. In a row the month of a month stepper keeps the width of the longest month, so its arrows stay put when the month changes.
 
-// Desktop
-<div style={{ width: "fit-content" }}>
-  <DateRangePicker
-    size="lg"
-    clearable
-    pill
-    triggerStepperUnit="month"
-    value={value}
-    onChange={setValue}
-    max={maxDate}
-  />
-</div>
+## Examples
 
-// Phone
-<FieldGroup>
-  <Field row label="Month">
-    <DateRangePicker
-      triggerStepperUnit="month"
-      value={value}
-      onChange={setValue}
-      max={maxDate}
-    />
-  </Field>
-</FieldGroup>`} previewMinHeight={168}>
-  <DateRangePickerMonthStepperDemoWithControls />
+<span id="limits" />
+<span id="shortcuts" />
+<span id="month-stepper" />
+
+### Overview
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>Pass the range (<code>[start, end]</code> luxon <code>DateTime</code>s, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>.</p>
+  <p><code>triggerStepperUnit="month"</code> adds a month stepper to the trigger: when the range is a whole month, the trigger shows the month with arrows to the previous and the next one.</p>
+  <p>The <code>shortcuts</code> array offers quick ranges. When a shortcut is selected, its label is shown in the trigger and <code>onChange</code> receives that shortcut as its second argument. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function; here Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>maxRangeDays</code>, is disabled. The calendar doesn't show shortcuts below the <code>md</code> breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: a Period row with a <code>Select</code> of the shortcut labels above the Dates row, which reads Custom when the dates match no shortcut.</p>
+  <p><code>min</code> and <code>max</code> limit the dates that can be picked: here the last 30 days up to today. <code>maxRangeDays</code> limits the length of the range. <code>weekStartsOn</code> sets the day each week of the calendar starts on, from 0 (Sunday) to 6 (Saturday).</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <DateRangePickerOverviewDemo />
 </ComponentPreview>
 
 ## API

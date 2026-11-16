@@ -6,87 +6,42 @@ metaDescription: Vue 3 date range picker with an interactive calendar, min/max l
 
 import { VueDateRangePickerDemo } from "@/components/docs/vue/VueDatePickerDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
-import { phoneCalendarSecondRowStageClassName, phoneCalendarStageClassName, phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
+import { phoneCalendarSecondRowStageClassName, phoneRows } from "@/components/docs/phoneRowsTemplate"
 
-export const SIZES = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
-
-export const overview = `<div style="width: fit-content">
+export const overview = `<div :style="{ width: block ? '320px' : 'fit-content' }">
   <DateRangePicker
-    size="lg"
-    pill
-    clearable
+    :variant="variant"
+    :size="size"
+    :pill="pill"
+    :block="block"
+    :clearable="clearable"
+    :trigger-show-icon="triggerShowIcon"
+    :dropdown-icon-type="dropdownIconType"
+    :trigger-date-format="triggerDateFormat"
+    :trigger-stepper-unit="triggerStepperUnit === 'month' ? 'month' : undefined"
+    :shortcuts="shortcuts ? dayShortcuts : undefined"
+    :min="limits === 'past' ? minDate : undefined"
+    :max="limits === 'past' ? maxDate : undefined"
+    :max-range-days="maxRangeDays === '7' ? 7 : undefined"
+    :week-starts-on="weekStartsOn === '1' ? 1 : 0"
+    :side="side"
+    :side-offset="sideOffset"
+    :align="align"
+    :align-offset="align === 'center' ? undefined : alignOffset"
     :disabled="disabled"
     v-model:value="value"
   />
 </div>`
 
-export const overviewControls = [{ name: "disabled", type: "boolean", default: false }]
-
-export const limits = `<div style="width: fit-content">
-  <DateRangePicker
-    size="lg"
-    pill
-    trigger-show-icon
-    v-model:value="value"
-    :min="minDate"
-    :max="maxDate"
-  />
-</div>`
-
-export const shortcuts = `<div style="width: fit-content">
-  <DateRangePicker
-    size="lg"
-    pill
-    clearable
-    v-model:value="value"
-    :shortcuts="dayShortcuts"
-  />
-</div>`
-
-export const monthStepper = `<div style="width: fit-content">
-  <DateRangePicker
-    :size="size"
-    clearable
-    :pill="pill"
-    trigger-stepper-unit="month"
-    v-model:value="value"
-    :max="maxDate"
-  />
-</div>`
-
 export const overviewPhone = `<FieldGroup>
-  <Field row label="Dates">
-    <DateRangePicker
-      :trigger-show-icon="false"
-      trigger-date-format="MMM d"
-      placeholder="None"
-      :disabled="disabled"
-      v-model:value="value"
-    />
-  </Field>
-</FieldGroup>`
-
-export const limitsPhone = `<FieldGroup>
-  <Field row label="Dates">
-    <DateRangePicker
-      :trigger-show-icon="false"
-      trigger-date-format="MMM d"
-      placeholder="None"
-      v-model:value="value"
-      :min="minDate"
-      :max="maxDate"
-    />
-  </Field>
-</FieldGroup>`
-
-export const shortcutsPhone = `<FieldGroup>
-  <Field row label="Period">
+  <Field v-if="shortcuts" row label="Period">
     <Select
       :value="periodOf(value)"
-      :options="periodOptions"
+      :options="periodOptionsFor(limits === 'past' ? minDate : undefined, limits === 'past' ? maxDate : undefined, maxRangeDays === '7' ? 7 : undefined)"
       :placeholder="value ? 'Custom' : 'None'"
       :block="false"
       align="end"
+      :disabled="disabled"
       @change="({ value: label }) => (value = dayShortcuts.find((item) => item.label === label)?.getDateRange() ?? value)"
     />
   </Field>
@@ -95,49 +50,122 @@ export const shortcutsPhone = `<FieldGroup>
       :trigger-show-icon="false"
       trigger-date-format="MMM d"
       placeholder="None"
+      :trigger-stepper-unit="triggerStepperUnit === 'month' ? 'month' : undefined"
+      :min="limits === 'past' ? minDate : undefined"
+      :max="limits === 'past' ? maxDate : undefined"
+      :max-range-days="maxRangeDays === '7' ? 7 : undefined"
+      :week-starts-on="weekStartsOn === '1' ? 1 : 0"
+      :disabled="disabled"
       v-model:value="value"
     />
   </Field>
 </FieldGroup>`
 
-export const monthStepperPhone = `<FieldGroup>
-  <Field row label="Month">
-    <DateRangePicker
-      trigger-stepper-unit="month"
-      v-model:value="value"
-      :max="maxDate"
-    />
-  </Field>
-</FieldGroup>`
+{/* In a phone row the row is the picker's frame: variant, size, pill, block and the dropdown icon have no effect there, the dates are short with no icon and the calendar opens under the row, so those controls, clearable, the date format and the placement are desktop ones (owner 11.11: the first preview has every setting). The shortcuts are a Period row of their own on a phone */}
+export const overviewControls = [
+  { name: "variant", type: "select", options: ["outline", "soft", "ghost"], default: "outline" },
+  { name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "lg" },
+  { name: "pill", type: "boolean", default: true },
+  { name: "block", type: "boolean", default: false },
+  { name: "clearable", type: "boolean", default: true },
+  { name: "triggerShowIcon", type: "boolean", default: true },
+  { name: "dropdownIconType", type: "select", options: ["dropdown", "chevronDown", "none"], default: "dropdown" },
+  { name: "triggerDateFormat", type: "select", options: ["MM/dd/yy", "MMM d", "MMM d, yyyy"], default: "MM/dd/yy" },
+  { name: "triggerStepperUnit", type: "select", options: ["none", "month"], default: "none" },
+  { name: "shortcuts", type: "boolean", default: false },
+  { name: "limits", type: "select", options: [{ value: "none", label: "none" }, { value: "past", label: "last 30 days" }], default: "none" },
+  { name: "maxRangeDays", type: "select", options: [{ value: "none", label: "none" }, { value: "7", label: "7 days" }], default: "none" },
+  { name: "weekStartsOn", type: "select", options: [{ value: "0", label: "Sunday" }, { value: "1", label: "Monday" }], default: "0" },
+  { name: "side", type: "select", options: ["top", "right", "bottom", "left"], default: "bottom" },
+  { name: "sideOffset", type: "range", min: 0, max: 24, step: 1, default: 8 },
+  { name: "align", type: "select", options: ["start", "center", "end"], default: "center" },
+  { name: "alignOffset", type: "range", min: -20, max: 20, step: 1, default: -5, when: { align: ["start", "end"] } },
+  { name: "disabled", type: "boolean", default: false },
+]
+
+export const overviewDesktopControls = ["variant", "size", "pill", "block", "clearable", "triggerShowIcon", "dropdownIconType", "triggerDateFormat", "side", "sideOffset", "align", "alignOffset"]
+
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { DateTime } from 'luxon';
+import { DateRangePicker, type DateRange, type DateRangePickerProps, type DateRangeShortcut } from '@plexui/vue/components/DateRangePicker';
+import { Field } from '@plexui/vue/components/Field';
+import { FieldGroup } from '@plexui/vue/components/FieldGroup';
+import { Select } from '@plexui/vue/components/Select';
+
+const today = DateTime.local();
+const minDate = today.minus({ days: 29 }).startOf('day');
+const maxDate = today.endOf('day');
+const dayShortcuts: DateRangeShortcut[] = [
+  { label: 'Today', getDateRange: () => [today.startOf('day'), today.endOf('day')] },
+  { label: 'Yesterday', getDateRange: () => [today.minus({ days: 1 }).startOf('day'), today.minus({ days: 1 }).endOf('day')] },
+  { label: 'Last 7 days', getDateRange: () => [today.minus({ days: 6 }).startOf('day'), today.endOf('day')] },
+  { label: 'Last 30 days', getDateRange: () => [today.minus({ days: 29 }).startOf('day'), today.endOf('day')] },
+];
+// Phone: the Period row offers the shortcuts and reads Custom for any other range. A shortcut the limits rule out
+// is disabled, as in the calendar: whole days from min to max, and no more than maxRangeDays days.
+const allows = ([start, end]: DateRange, min?: DateTime, max?: DateTime, maxRangeDays?: number) =>
+  !(min && start < min.startOf('day')) &&
+  !(max && end > max.endOf('day')) &&
+  !(maxRangeDays != null && end.startOf('day') > start.startOf('day').plus({ days: maxRangeDays - 1 }));
+const periodOptionsFor = (min?: DateTime, max?: DateTime, maxRangeDays?: number) =>
+  dayShortcuts.map(({ label, getDateRange }) => ({ value: label, label, disabled: !allows(getDateRange(), min, max, maxRangeDays) }));
+const periodOf = (range: DateRange | null) =>
+  range
+    ? dayShortcuts.find(({ getDateRange }) => {
+        const [start, end] = getDateRange();
+        return range[0].hasSame(start, 'day') && range[1].hasSame(end, 'day');
+      })?.label ?? ''
+    : '';
+
+const value = ref<DateRange | null>(null);
+const variant = ref<"outline" | "soft" | "ghost">("outline");
+const size = ref<DateRangePickerProps["size"]>("lg"); // "3xs" to "3xl"
+const pill = ref(true);
+const block = ref(false);
+const clearable = ref(true);
+const triggerShowIcon = ref(true);
+const dropdownIconType = ref<"dropdown" | "chevronDown" | "none">("dropdown");
+const triggerDateFormat = ref("MM/dd/yy"); // or "MMM d", "MMM d, yyyy"
+const triggerStepperUnit = ref("none"); // or "month"
+const shortcuts = ref(false);
+const limits = ref("none"); // or "past" (the last 30 days up to today)
+const maxRangeDays = ref("none"); // or "7"
+const weekStartsOn = ref("0"); // Sunday, or "1": Monday
+const side = ref<"top" | "right" | "bottom" | "left">("bottom");
+const sideOffset = ref(8);
+const align = ref<"start" | "center" | "end">("center");
+const alignOffset = ref(-5); // with a start or end alignment
+const disabled = ref(false);
+</script>
+
+<template>
+<!-- Desktop -->
+${overview}
+
+<!-- Phone: the shortcuts are a pop-up in a row of their own -->
+${overviewPhone}
+</template>`
 
 <UsageBlock>{`import { DateRangePicker } from "@plexui/vue/components/DateRangePicker";`}</UsageBlock>
 
-On Phone, put a date range picker in a row of a `FieldGroup`, as the [Forms: Settings](/vue/components/settings-forms) do. In the row the range and its up-down chevrons end at the row's edge, as a pop-up, and open the calendar. The row is its frame and sets its height, insets and type, so the phone examples leave out `size`, `pill` and `clearable`, set `:trigger-show-icon="false"`, show short dates (`trigger-date-format="MMM d"`) and None when there is no range. In a row the month of a month stepper keeps the width of the longest month, so its arrows stay put when the month changes.
+On Phone, put a date range picker in a row of a `FieldGroup`, as the [Forms: Settings](/vue/components/settings-forms) do. In the row the range and its up-down chevrons end at the row's edge, as a pop-up, and open the calendar. The row is its frame and sets its height, insets and type, so the Phone preview leaves out the `variant`, `size`, `pill`, `block`, `clearable`, icon, date format and placement controls, sets `:trigger-show-icon="false"`, shows short dates (`trigger-date-format="MMM d"`) and None when there is no range. In a row the month of a month stepper keeps the width of the longest month, so its arrows stay put when the month changes.
 
 ## Examples
 
+<span id="limits" />
+<span id="shortcuts" />
+<span id="month-stepper" />
+
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Bind the range (<code>[start, end]</code> luxon <code>DateTime</code>s, or <code>null</code>) with <code>v-model:value</code>. The <code>@change</code> event carries the same range.</>} code={withPhone(overview, overviewPhone)} previewMinHeight={168}>
-  <VueDateRangePickerDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName={phoneCalendarStageClassName} controls={overviewControls} stageClassName="flex-1 flex items-center justify-center py-12 w-full" />
-</ComponentPreview>
-
-### Limits
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>min</code> and <code>max</code> to limit the selectable range. Use <code>max-range-days</code> to limit the range length. Here <code>minDate</code> is 30 days ago (start of day) and <code>maxDate</code> is the end of today.</>} code={withPhone(limits, limitsPhone)} previewMinHeight={168}>
-  <VueDateRangePickerDemo template={limits} phoneTemplate={phoneRows(limitsPhone)} phoneStageClassName={phoneCalendarStageClassName} initialRange="limits" />
-</ComponentPreview>
-
-### Shortcuts
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and <code>@change</code> carries that shortcut as its second argument, like React's <code>onChange(range, shortcut)</code>. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function; <code>dayShortcuts</code> here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>max-range-days</code>, is disabled. The calendar doesn't show shortcuts below the <code>md</code> breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: here a Period row with a <code>Select</code> of the shortcut labels (<code>periodOptions</code>) above the Dates row. <code>periodOf(value)</code> is the label of the shortcut the dates match, or an empty string, so the Period row reads Custom for any other range and None without dates.</>} code={withPhone(shortcuts, shortcutsPhone)} previewMinHeight={168}>
-  <VueDateRangePickerDemo template={shortcuts} phoneTemplate={phoneRows(shortcutsPhone)} phoneStageClassName={phoneCalendarSecondRowStageClassName} />
-</ComponentPreview>
-
-### Month stepper
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Enable a stepper in the trigger with <code>trigger-stepper-unit="month"</code>. When the selected range matches the unit, the trigger shows the stepper.</>} code={withPhone(monthStepper, monthStepperPhone)} previewMinHeight={168}>
-  <VueDateRangePickerDemo template={monthStepper} phoneTemplate={phoneRows(monthStepperPhone)} phoneStageClassName={phoneCalendarStageClassName} initialRange="month" stageClassName="" controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: true }]} desktopControlNames={["size", "pill"]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>Bind the range (<code>[start, end]</code> luxon <code>DateTime</code>s, or <code>null</code>) with <code>v-model:value</code>. The <code>@change</code> event carries the same range.</p>
+  <p><code>trigger-stepper-unit="month"</code> adds a month stepper to the trigger: when the range is a whole month, the trigger shows the month with arrows to the previous and the next one.</p>
+  <p>The <code>shortcuts</code> array offers quick ranges. When a shortcut is selected, its label is shown in the trigger and <code>@change</code> carries that shortcut as its second argument, like React's <code>onChange(range, shortcut)</code>. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function; <code>dayShortcuts</code> here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>max-range-days</code>, is disabled. The calendar doesn't show shortcuts below the <code>md</code> breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: a Period row with a <code>Select</code> of the shortcut labels (<code>periodOptionsFor</code>, which disables a shortcut the limits rule out, as the calendar does) above the Dates row. <code>periodOf(value)</code> is the label of the shortcut the dates match, or an empty string, so the Period row reads Custom for any other range and None without dates.</p>
+  <p><code>min</code> and <code>max</code> limit the dates that can be picked: here the last 30 days up to today. <code>max-range-days</code> limits the length of the range. <code>week-starts-on</code> sets the day each week of the calendar starts on, from 0 (Sunday) to 6 (Saturday).</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <VueDateRangePickerDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName={phoneCalendarSecondRowStageClassName} controls={overviewControls} desktopControlNames={overviewDesktopControls} stageClassName="flex-1 flex items-center justify-center py-12 w-full" />
 </ComponentPreview>
 
 ## API
