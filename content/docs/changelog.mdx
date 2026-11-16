@@ -7,6 +7,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Fixed
+
+- With reduced motion an overlay (`Dialog`, `Menu`, `Popover`…) settles on the next frame instead of waiting out its enter time: nothing moves, so a `Dialog` or `Menu` no longer holds touches for that time either.
+
 ## 0.59.3 (2026-11-16)
 
 ### Fixed

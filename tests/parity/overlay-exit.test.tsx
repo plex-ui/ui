@@ -234,6 +234,18 @@ describe.each(overlays)("%s exit", (name, reactApp, vueApp) => {
     expect(seen).toEqual([false, false])
   })
 
+  test("with reduced motion it settles on the next frame, holding nothing", async () => {
+    vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("reduce"), media: query, addEventListener() {}, removeEventListener() {} }))
+    const seen: boolean[] = []
+    await walk(reactApp, vueApp, async (tools) => {
+      await tools.set({ open: true })
+      await tools.advance(32)
+      await tools.advance(1)
+      seen.push(!!panel(), !!document.querySelector("[data-entering]"))
+    })
+    expect(seen).toEqual([true, false, true, false])
+  })
+
   test(`${name}: animations off still removes it at once`, async () => {
     animation.disabled = true
     const seen: boolean[] = []
