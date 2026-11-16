@@ -8,29 +8,26 @@ import { VueDemo } from "@/components/docs/vue/VueDemo"
 
 export const STAGE = "flex-1 flex flex-col items-center justify-center gap-4 py-12 w-full"
 
-export const overview = `<Breadcrumb>
+export const overview = `<Breadcrumb :size="size">
+  <template v-if="separator === 'slash'" #separator>/</template>
   <BreadcrumbItem href="#">Home</BreadcrumbItem>
   <BreadcrumbItem href="#">Settings</BreadcrumbItem>
   <BreadcrumbItem current>Members</BreadcrumbItem>
 </Breadcrumb>`
 
-export const sizes = `<Breadcrumb size="sm">
-  <BreadcrumbItem href="#">Projects</BreadcrumbItem>
-  <BreadcrumbItem href="#">Website</BreadcrumbItem>
-  <BreadcrumbItem current>Deployments</BreadcrumbItem>
-</Breadcrumb>
-<Breadcrumb>
-  <BreadcrumbItem href="#">Projects</BreadcrumbItem>
-  <BreadcrumbItem href="#">Website</BreadcrumbItem>
-  <BreadcrumbItem current>Deployments</BreadcrumbItem>
+export const overviewCode = `<Breadcrumb[[#size=sm]] size="sm"[[/size=sm]]>
+[[#separator=slash]]
+  <template #separator>/</template>
+[[/separator=slash]]
+  <BreadcrumbItem href="/">Home</BreadcrumbItem>
+  <BreadcrumbItem href="/settings">Settings</BreadcrumbItem>
+  <BreadcrumbItem current>Members</BreadcrumbItem>
 </Breadcrumb>`
 
-export const separator = `<Breadcrumb>
-  <template #separator>/</template>
-  <BreadcrumbItem href="#">acme</BreadcrumbItem>
-  <BreadcrumbItem href="#">design-system</BreadcrumbItem>
-  <BreadcrumbItem current>README.md</BreadcrumbItem>
-</Breadcrumb>`
+export const overviewControls = [
+  { name: "size", type: "select", options: ["sm", "md"], default: "md", desktopOnly: true },
+  { name: "separator", type: "select", options: ["chevron", "slash"], default: "chevron" },
+]
 
 export const wrap = `<div class="w-[260px]">
   <Breadcrumb>
@@ -46,28 +43,23 @@ export const wrap = `<div class="w-[260px]">
 
 ## Examples
 
+{/* The examples Separator and Sizes are settings of the Overview (owner 11.11); their anchors stay */}
+<span id="separator" />
+<span id="sizes" />
+
 ### Overview
 
-<ComponentPreview language="vue" details={<>Breadcrumb renders a <code>nav</code> landmark named "Breadcrumb" around an ordered list. An item with <code>href</code> or <code>to</code> is a link (internal paths use the link component from <code>PlexUIProvider</code>, such as vue-router's <code>RouterLink</code>); the <code>current</code> item is plain text marked <code>aria-current="page"</code>. iOS has no breadcrumb, a phone screen goes back with the back button of its <a href="/vue/components/toolbar"><code>Toolbar</code></a>. A trail kept on a phone takes the 15/20 text of iOS and gives each link a 44px touch target.</>} code={overview} previewMinHeight={140}>
-  <VueDemo stageClassName={STAGE} template={overview} />
-</ComponentPreview>
-
-### Separator
-
-<ComponentPreview language="vue" details={<>A small chevron stands between items by default. The <code>separator</code> slot replaces it, such as with a slash for file paths. Separators are hidden from assistive technology.</>} code={separator} previewMinHeight={140}>
-  <VueDemo stageClassName={STAGE} template={separator} />
+<ComponentPreview language="vue" details={<>
+  <p>Breadcrumb renders a <code>nav</code> landmark named "Breadcrumb" around an ordered list. An item with <code>href</code> or <code>to</code> is a link (internal paths use the link component from <code>PlexUIProvider</code>, such as vue-router's <code>RouterLink</code>); the <code>current</code> item is plain text marked <code>aria-current="page"</code>. iOS has no breadcrumb, a phone screen goes back with the back button of its <a href="/vue/components/toolbar"><code>Toolbar</code></a>. A trail kept on a phone takes the 15/20 text of iOS and gives each link a 44px touch target.</p>
+  <p>A small chevron stands between items by default; the <code>separator</code> slot replaces it, such as with a slash for file paths. Separators are hidden from assistive technology. Use <code>size="sm"</code> for a trail above a compact header; the default <code>md</code> sits above a page title. On a phone both sizes take the same text, so the <code>size</code> setting is desktop only.</p>
+</>} code={overviewCode} codeValues={{ size: "md", separator: "chevron" }} codeExamples={[{ name: "Separator", values: { separator: "slash" }, details: "A slash between items, for file paths." }, { name: "Small", values: { size: "sm" }, details: "A trail above a compact header." }]} previewMinHeight={140}>
+  <VueDemo stageClassName={STAGE} template={overview} controls={overviewControls} />
 </ComponentPreview>
 
 ### Long trails
 
 <ComponentPreview language="vue" details={<>A trail that does not fit wraps onto the next line instead of leaving the screen. An item without <code>href</code> is a plain step; listen to <code>@click</code> to make it act as a button.</>} code={wrap} previewMinHeight={160}>
   <VueDemo stageClassName={STAGE} template={wrap} />
-</ComponentPreview>
-
-### Sizes
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>size="sm"</code> for a trail above a compact header; the default <code>md</code> sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.</>} code={sizes} previewMinHeight={160}>
-  <VueDemo stageClassName={STAGE} template={sizes} />
 </ComponentPreview>
 
 ## API

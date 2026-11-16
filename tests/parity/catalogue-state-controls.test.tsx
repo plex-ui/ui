@@ -19,6 +19,9 @@ import { VueInputDemo } from '../../components/docs/vue/VueInputDemos';
 import { InputGroupOverviewDemo } from '../../components/docs/InputGroupDemos';
 import { PopoverOverviewDemo } from '../../components/docs/PopoverDemos';
 import { AvatarGroupOverviewDemo } from '../../components/docs/AvatarGroupDemos';
+import { BreadcrumbOverviewDemo } from '../../components/docs/BreadcrumbDemos';
+import { PageControlOverviewDemo } from '../../components/docs/PageControlDemos';
+import { ColorPickerInlineDemo, ColorWellOverviewDemo } from '../../components/docs/ColorPickerDemos';
 import { VuePopoverDemo } from '../../components/docs/vue/VuePopoverDemos';
 import { CODE_BLOCK_LANGUAGE_SAMPLES } from '../../components/docs/CodeBlockSamples';
 import { ToggleGroupOverviewDemo } from '../../components/docs/ToggleGroupDemos';
@@ -316,6 +319,14 @@ const inputGroupOverview = (() => {
 const popoverOverview = { ...example('popover', 'overview'), stageClassName: 'flex-1 flex items-center justify-center w-full py-10' };
 /** The Avatar Group Overview as its page mounts it */
 const avatarGroupOverview = { ...example('avatar-group', 'overview'), stageClassName: 'flex-1 flex items-center justify-center py-12 w-full' };
+/** The Breadcrumb Overview as its page mounts it */
+const breadcrumbOverview = { ...example('breadcrumb', 'overview'), stageClassName: 'flex-1 flex flex-col items-center justify-center gap-4 py-12 w-full' };
+/** The Page Control Overview as its page mounts it */
+const pageControlOverview = { ...example('page-control', 'overview'), state: { page: 0 }, stageClassName: 'flex-1 flex items-center justify-center py-10 w-full' };
+/** The Color well and Picker examples as their page mounts them (the phone screen is not under test here) */
+const colorSwatches = ['#000000', '#007aff', '#34c759'];
+const colorWellOverview = { ...example('color-picker', 'overview'), state: { tint: '#af52de', highlight: null, swatches: colorSwatches }, stageClassName: 'flex-1 flex items-center justify-center py-10 w-full' };
+const colorPickerInline = { ...example('color-picker', 'inline'), state: { color: '#be38f3', swatches: colorSwatches }, stageClassName: 'flex-1 flex items-center justify-center py-10 w-full' };
 const progressSteps = [
   { title: 'Your details', description: 'Please provide your name and email', icon: 'Email' },
   { title: 'Company details', description: 'A few details about your company', icon: 'Globe' },
@@ -879,6 +890,76 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await choose('minWidth', 'auto');
     await interact(() => fireEvent.click(trigger()));
     expect([panel()?.dataset.side, panel()?.dataset.align, panel()?.style.getPropertyValue('--popover-min-width')]).toEqual(['bottom', 'center', 'auto']);
+  });
+
+  test('breadcrumb: one Overview carries size and separator (row 33)', async () => {
+    const view = render(framework === 'React' ? <BreadcrumbOverviewDemo /> : <VueDemo {...breadcrumbOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const nav = () => view.container.querySelector<HTMLElement>('[data-demo-stage] nav')!;
+    // Every item carries a separator before it, hidden from assistive technology; CSS hides the first one
+    const separators = () => [...nav().querySelectorAll<HTMLElement>('li > [aria-hidden="true"]')];
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    expect(nav().getAttribute('aria-label')).toBe('Breadcrumb');
+    expect(nav().dataset.size).toBe('md');
+    expect(within(nav()).getByText('Members').getAttribute('aria-current')).toBe('page');
+    // The chevron by default: no slash between the items
+    expect(separators()).toHaveLength(3);
+    expect(separators().map((separator) => separator.textContent)).toEqual(['', '', '']);
+    expect(separators()[1].querySelector('svg')).not.toBeNull();
+    await choose('separator', 'slash');
+    expect(separators().map((separator) => separator.textContent)).toEqual(['/', '/', '/']);
+    await choose('size', 'sm');
+    expect(nav().dataset.size).toBe('sm');
+    // size is a desktop setting: on a phone both sizes take the same text
+    expect(page.getByRole('radiogroup', { name: 'size' }).closest('[data-demo-desktop-only]')).not.toBeNull();
+    expect(page.getByRole('radiogroup', { name: 'separator' }).closest('[data-demo-desktop-only]')).toBeNull();
+  });
+
+  test('page control: one Overview carries pages and background (row 33)', async () => {
+    const view = render(framework === 'React' ? <PageControlOverviewDemo /> : <VueDemo {...pageControlOverview} />);
+    await interact(() => {});
+    const page = within(view.container);
+    const stage = () => view.container.querySelector<HTMLElement>('[data-demo-stage]')!;
+    const control = () => within(stage()).getByRole('slider');
+    // The pages the control scrolls, the element its aria-controls names
+    const slides = () => stage().querySelector(`[id="${control().getAttribute('aria-controls')}"]`)!.children.length;
+    const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
+    expect(control().getAttribute('aria-valuemax')).toBe('5');
+    expect(slides()).toBe(5);
+    const background = () => control().closest('[data-background]')?.getAttribute('data-background');
+    expect(background()).toBe('automatic');
+    await choose('background', 'prominent');
+    expect(background()).toBe('prominent');
+    // pages: from 2 to 12, the pages and the dots together
+    const pages = page.getByRole('slider', { name: 'pages' });
+    expect([pages.getAttribute('aria-valuemin'), pages.getAttribute('aria-valuemax')]).toEqual(['2', '12']);
+    await interact(() => { fireEvent.keyDown(pages, { key: 'ArrowRight' }); });
+    expect(control().getAttribute('aria-valuemax')).toBe('6');
+    expect(slides()).toBe(6);
+  });
+
+  test('color picker: the well carries size and disabled, the picker supportsAlpha (row 33)', async () => {
+    const well = render(framework === 'React' ? <ColorWellOverviewDemo /> : <VueDemo {...colorWellOverview} />);
+    await interact(() => {});
+    const page = within(well.container);
+    const wells = () => ['Tint', 'Highlight'].map((name) => page.getByRole('button', { name }));
+    expect(wells().map((button) => button.dataset.size)).toEqual(['sm', 'sm']);
+    await interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name: 'size' })).getByRole('radio', { name: 'lg', exact: true })));
+    expect(wells().map((button) => button.dataset.size)).toEqual(['lg', 'lg']);
+    expect(wells().map((button) => (button as HTMLButtonElement).disabled)).toEqual([false, false]);
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'disabled', exact: true })));
+    expect(wells().map((button) => (button as HTMLButtonElement).disabled)).toEqual([true, true]);
+    well.unmount();
+
+    const picker = render(framework === 'React' ? <ColorPickerInlineDemo /> : <VueDemo {...colorPickerInline} />);
+    await interact(() => {});
+    const view = within(picker.container);
+    const opacity = () => view.queryAllByText(/^Opacity$/i).length;
+    await interact(() => fireEvent.click(view.getByRole('radio', { name: 'Sliders' })));
+    expect(opacity()).toBeGreaterThan(0);
+    await interact(() => fireEvent.click(view.getByRole('switch', { name: 'supportsAlpha', exact: true })));
+    expect(opacity()).toBe(0);
   });
 
   test('avatar group: one Overview carries stack and size (row 33)', async () => {
@@ -2358,7 +2439,7 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(code).toContain(framework === 'React' ? 'const below = open && search === "button" && field === "bottom"' : `<Toolbar v-if="searching && search === 'button' && field === 'bottom'" placement="bottom" :background="bottom === 'none' || bottom === 'search' ? 'soft' : bottomBackground">`);
     if (framework === 'React') expect(code).toContain('<Toolbar placement="bottom" background={shownBottom === "none" ? "soft" : bottomBackground}>');
     if (framework === 'Vue') expect(code).toContain('{ name: "field", label: "field (search)", type: "select", options: ["top", "bottom"], default: "top", when: { search: "button" }, resets: { searching: false } }');
-  });
+  }, 20_000); // Two bars, every setting: over 5s on a loaded CI runner (release 0.58.0 timed out at 5070ms)
 
   test('DataTable restores the sorted rows after empty, with default, text and rich message modes', async () => {
     const view = render(framework === 'React' ? <TableVariantDemo /> : <VueDataTableDemo example="variant" code={table.template} controls={table.controls} />);

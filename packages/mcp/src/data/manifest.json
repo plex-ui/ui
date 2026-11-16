@@ -447,23 +447,23 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<Breadcrumb>\n<Breadcrumb.Item href=\"/\">Home</Breadcrumb.Item>\n<Breadcrumb.Item href=\"/settings\">Settings</Breadcrumb.Item>\n<Breadcrumb.Item current>Members</Breadcrumb.Item>\n</Breadcrumb>",
-          "details": "Breadcrumb renders a nav landmark named \"Breadcrumb\" around an ordered list. An item with href is a link (internal paths use the linkComponent of PlexUIProvider, such as your router's link); the current item is plain text marked aria-current=\"page\". iOS has no breadcrumb, a phone screen goes back with the back button of its Toolbar. A trail kept on a phone takes the 15/20 text of iOS and gives each link a 44px touch target."
+          "code": "<Breadcrumb>\n  <Breadcrumb.Item href=\"/\">Home</Breadcrumb.Item>\n  <Breadcrumb.Item href=\"/settings\">Settings</Breadcrumb.Item>\n  <Breadcrumb.Item current>Members</Breadcrumb.Item>\n</Breadcrumb>",
+          "details": "Breadcrumb renders a nav landmark named \"Breadcrumb\" around an ordered list. An item with href is a link (internal paths use the linkComponent of PlexUIProvider, such as your router's link); the current item is plain text marked aria-current=\"page\". iOS has no breadcrumb, a phone screen goes back with the back button of its Toolbar. A trail kept on a phone takes the 15/20 text of iOS and gives each link a 44px touch target. A small chevron stands between items by default; pass any node to separator, such as a slash for file paths. Separators are hidden from assistive technology. Use size=\"sm\" for a trail above a compact header; the default md sits above a page title. On a phone both sizes take the same text, so the size setting is desktop only."
         },
         {
           "name": "Separator",
-          "code": "<Breadcrumb separator=\"/\">\n<Breadcrumb.Item href=\"/acme\">acme</Breadcrumb.Item>\n<Breadcrumb.Item href=\"/acme/design-system\">design-system</Breadcrumb.Item>\n<Breadcrumb.Item current>README.md</Breadcrumb.Item>\n</Breadcrumb>",
-          "details": "A small chevron stands between items by default. Pass any node to separator, such as a slash for file paths. Separators are hidden from assistive technology."
+          "code": "<Breadcrumb separator=\"/\">\n  <Breadcrumb.Item href=\"/\">Home</Breadcrumb.Item>\n  <Breadcrumb.Item href=\"/settings\">Settings</Breadcrumb.Item>\n  <Breadcrumb.Item current>Members</Breadcrumb.Item>\n</Breadcrumb>",
+          "details": "A slash between items, for file paths."
+        },
+        {
+          "name": "Small",
+          "code": "<Breadcrumb size=\"sm\">\n  <Breadcrumb.Item href=\"/\">Home</Breadcrumb.Item>\n  <Breadcrumb.Item href=\"/settings\">Settings</Breadcrumb.Item>\n  <Breadcrumb.Item current>Members</Breadcrumb.Item>\n</Breadcrumb>",
+          "details": "A trail above a compact header."
         },
         {
           "name": "Long trails",
           "code": "<Breadcrumb>\n<Breadcrumb.Item href=\"/\">Workspace</Breadcrumb.Item>\n<Breadcrumb.Item href=\"/accounts\">Customer accounts</Breadcrumb.Item>\n<Breadcrumb.Item href=\"/accounts/northwind\">Northwind Traders</Breadcrumb.Item>\n<Breadcrumb.Item>Archived</Breadcrumb.Item>\n<Breadcrumb.Item current>Invoice 2024-0193</Breadcrumb.Item>\n</Breadcrumb>",
           "details": "A trail that does not fit wraps onto the next line instead of leaving the screen. An item without href is a plain step; give it onClick to make it act as a button."
-        },
-        {
-          "name": "Sizes",
-          "code": "<Breadcrumb size=\"sm\">\n<Breadcrumb.Item href=\"/projects\">Projects</Breadcrumb.Item>\n<Breadcrumb.Item href=\"/projects/website\">Website</Breadcrumb.Item>\n<Breadcrumb.Item current>Deployments</Breadcrumb.Item>\n</Breadcrumb>",
-          "details": "Use size=\"sm\" for a trail above a compact header; the default md sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only."
         }
       ],
       "subComponents": [
@@ -1205,23 +1205,28 @@
       "examples": [
         {
           "name": "Color well",
-          "code": "const [tint, setTint] = useState('#af52de')\nconst [swatches, setSwatches] = useState(['#000000', '#007aff', '#34c759'])\n\n<FieldGroup>\n<Field row label=\"Tint\">\n  <ColorWell aria-label=\"Tint\" value={tint} onChange={setTint}\n    swatches={swatches} onSwatchesChange={setSwatches} />\n</Field>\n</FieldGroup>",
-          "details": "The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (null). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen; on a phone the sheet's bar has Close first and the eyedropper last, as iOS 27.2 sets them. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar."
+          "code": "const [tint, setTint] = useState('#af52de')\nconst [swatches, setSwatches] = useState(['#000000', '#007aff', '#34c759'])\n\n<FieldGroup>\n  <Field row label=\"Tint\">\n    <ColorWell aria-label=\"Tint\" value={tint} onChange={setTint}\n      swatches={swatches} onSwatchesChange={setSwatches} />\n  </Field>\n</FieldGroup>",
+          "details": "The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (null), as Highlight here. It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen; on a phone the sheet's bar has Close first and the eyedropper last, as iOS 27.2 sets them. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar. size takes the kit's two sizes, sm 28px (the default) and lg 36px, and xs 24px for the start of a 32px field. A disabled well can't be opened."
         },
         {
-          "name": "Sizes and states",
-          "code": "<ColorWell aria-label=\"Small, no color\" />\n<ColorWell aria-label=\"Small\" defaultValue=\"#af52de\" />\n<ColorWell aria-label=\"Large, no color\" size=\"lg\" />\n<ColorWell aria-label=\"Large\" size=\"lg\" defaultValue=\"#af52de\" />\n<ColorWell aria-label=\"Disabled\" defaultValue=\"#007aff\" disabled />",
-          "details": "The kit's two sizes: sm 28px and lg 36px."
+          "name": "Large",
+          "code": "const [tint, setTint] = useState('#af52de')\nconst [swatches, setSwatches] = useState(['#000000', '#007aff', '#34c759'])\n\n<FieldGroup>\n  <Field row label=\"Tint\">\n    <ColorWell aria-label=\"Tint\" size=\"lg\" value={tint} onChange={setTint}\n      swatches={swatches} onSwatchesChange={setSwatches} />\n  </Field>\n</FieldGroup>",
+          "details": "The kit's large well, 36px."
+        },
+        {
+          "name": "Disabled",
+          "code": "const [tint, setTint] = useState('#af52de')\nconst [swatches, setSwatches] = useState(['#000000', '#007aff', '#34c759'])\n\n<FieldGroup>\n  <Field row label=\"Tint\">\n    <ColorWell aria-label=\"Tint\" disabled value={tint} onChange={setTint}\n      swatches={swatches} onSwatchesChange={setSwatches} />\n  </Field>\n</FieldGroup>",
+          "details": "A well that can't be opened."
         },
         {
           "name": "Picker",
           "code": "const [color, setColor] = useState('#be38f3')\n\n<ColorPicker value={color} onChange={setColor} defaultSwatches={['#000000', '#007aff', '#34c759']} />",
-          "details": "The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of twelve, two rows of six, that scroll sideways, as in iOS 27.2."
+          "details": "The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of twelve, two rows of six, that scroll sideways, as in iOS 27.2. With supportsAlpha off there is no Opacity slider, and every color is opaque."
         },
         {
           "name": "Without opacity",
-          "code": "<ColorPicker defaultValue=\"#007aff\" defaultMode=\"sliders\" supportsAlpha={false} />",
-          "details": "With supportsAlpha off there is no Opacity slider, and every color is opaque."
+          "code": "const [color, setColor] = useState('#be38f3')\n\n<ColorPicker value={color} onChange={setColor} supportsAlpha={false} defaultSwatches={['#000000', '#007aff', '#34c759']} />",
+          "details": "No Opacity slider; every color is opaque."
         }
       ],
       "subComponents": [
@@ -4058,18 +4063,18 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "const pagesId = useId()\nconst scroller = useRef<HTMLDivElement>(null)\nconst [page, setPage] = useState(0)\n\n<div\nid={pagesId}\nref={scroller}\nclassName=\"flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto\"\nonScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}\n>\n{pages.map((number) => <div key={number} className=\"w-full shrink-0 snap-center\">{number}</div>)}\n</div>\n<PageControl\ncount={pages.length}\nvalue={page}\naria-controls={pagesId}\nonChange={(index, { scrubbing }) => {\n  setPage(index)\n  scroller.current?.scrollTo({ left: index * scroller.current.clientWidth, behavior: scrubbing ? 'instant' : 'auto' })\n}}\n/>",
-          "details": "Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells, and with reduced motion, as motion-reduce:scroll-auto does here."
+          "code": "const pagesId = useId()\nconst scroller = useRef<HTMLDivElement>(null)\nconst [page, setPage] = useState(0)\nconst pages = Array.from({ length: 5 }, (_, index) => index + 1)\n\n<div\n  id={pagesId}\n  ref={scroller}\n  className=\"flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto\"\n  onScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}\n>\n  {pages.map((number) => <div key={number} className=\"w-full shrink-0 snap-center\">{number}</div>)}\n</div>\n<PageControl\n  count={pages.length}\n  value={page}\n  aria-controls={pagesId}\n  onChange={(index, { scrubbing }) => {\n    setPage(index)\n    scroller.current?.scrollTo({ left: index * scroller.current.clientWidth, behavior: scrubbing ? 'instant' : 'auto' })\n  }}\n/>",
+          "details": "Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells, and with reduced motion, as motion-reduce:scroll-auto does here. From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show. The capsule behind the dots shows while a pointer presses or scrubs with the automatic background, always with prominent, for a page control that is the main navigation of the screen, and never with minimal, which also turns off scrubbing since it gives no feedback."
         },
         {
           "name": "Many pages",
-          "code": "const [page, setPage] = useState(0)\n\n<PageControl count={12} value={page} onChange={setPage} />",
-          "details": "From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show."
+          "code": "const pagesId = useId()\nconst scroller = useRef<HTMLDivElement>(null)\nconst [page, setPage] = useState(0)\nconst pages = Array.from({ length: 12 }, (_, index) => index + 1)\n\n<div\n  id={pagesId}\n  ref={scroller}\n  className=\"flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto\"\n  onScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}\n>\n  {pages.map((number) => <div key={number} className=\"w-full shrink-0 snap-center\">{number}</div>)}\n</div>\n<PageControl\n  count={pages.length}\n  value={page}\n  aria-controls={pagesId}\n  onChange={(index, { scrubbing }) => {\n    setPage(index)\n    scroller.current?.scrollTo({ left: index * scroller.current.clientWidth, behavior: scrubbing ? 'instant' : 'auto' })\n  }}\n/>",
+          "details": "From seven pages the dots past a window around the current page shrink, suggesting more pages."
         },
         {
-          "name": "Background",
-          "code": "<PageControl count={4} />\n<PageControl count={4} background=\"prominent\" />\n<PageControl count={4} background=\"minimal\" />",
-          "details": "The capsule behind the dots shows while a pointer presses or scrubs with automatic, always with prominent, for a page control that is the main navigation of the screen, and never with minimal, which also turns off scrubbing since it gives no feedback."
+          "name": "Prominent",
+          "code": "const pagesId = useId()\nconst scroller = useRef<HTMLDivElement>(null)\nconst [page, setPage] = useState(0)\nconst pages = Array.from({ length: 5 }, (_, index) => index + 1)\n\n<div\n  id={pagesId}\n  ref={scroller}\n  className=\"flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto\"\n  onScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}\n>\n  {pages.map((number) => <div key={number} className=\"w-full shrink-0 snap-center\">{number}</div>)}\n</div>\n<PageControl\n  count={pages.length}\n  value={page}\n  background=\"prominent\"\n  aria-controls={pagesId}\n  onChange={(index, { scrubbing }) => {\n    setPage(index)\n    scroller.current?.scrollTo({ left: index * scroller.current.clientWidth, behavior: scrubbing ? 'instant' : 'auto' })\n  }}\n/>",
+          "details": "The capsule always shows, for a page control that is the main navigation of the screen."
         }
       ],
       "docsUrl": "https://plexui.com/components/page-control"
@@ -7683,5 +7688,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-15T21:13:50.118Z"
+  "generatedAt": "2026-11-16T06:20:07.816Z"
 }

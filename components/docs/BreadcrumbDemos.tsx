@@ -1,45 +1,33 @@
 'use client';
 
+import { useState } from 'react';
 import { Breadcrumb } from '@plexui/ui/components/Breadcrumb';
+import { Segments, controlsTableStyle } from './ButtonDemos';
 
+const SIZES = ['sm', 'md'] as const;
+const SEPARATORS = ['chevron', 'slash'] as const;
+
+/**
+ * The Overview, one trail with every setting: what the page once showed one by one (Sizes, Separator) are its
+ * settings (owner 11.11). `size` is desktop only: on a phone both sizes take the 15/20 text of iOS.
+ */
 export function BreadcrumbOverviewDemo() {
+  const [size, setSize] = useState<(typeof SIZES)[number]>('md');
+  const [separator, setSeparator] = useState<(typeof SEPARATORS)[number]>('chevron');
   return (
-    <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-      <Breadcrumb>
-        <Breadcrumb.Item href="#">Home</Breadcrumb.Item>
-        <Breadcrumb.Item href="#">Settings</Breadcrumb.Item>
-        <Breadcrumb.Item current>Members</Breadcrumb.Item>
-      </Breadcrumb>
-    </div>
-  );
-}
-
-export function BreadcrumbSizesDemo() {
-  return (
-    <div data-demo-stage className="flex-1 flex flex-col items-center justify-center gap-4 py-12 w-full">
-      <Breadcrumb size="sm">
-        <Breadcrumb.Item href="#">Projects</Breadcrumb.Item>
-        <Breadcrumb.Item href="#">Website</Breadcrumb.Item>
-        <Breadcrumb.Item current>Deployments</Breadcrumb.Item>
-      </Breadcrumb>
-      <Breadcrumb>
-        <Breadcrumb.Item href="#">Projects</Breadcrumb.Item>
-        <Breadcrumb.Item href="#">Website</Breadcrumb.Item>
-        <Breadcrumb.Item current>Deployments</Breadcrumb.Item>
-      </Breadcrumb>
-    </div>
-  );
-}
-
-export function BreadcrumbSeparatorDemo() {
-  return (
-    <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-      <Breadcrumb separator="/">
-        <Breadcrumb.Item href="#">acme</Breadcrumb.Item>
-        <Breadcrumb.Item href="#">design-system</Breadcrumb.Item>
-        <Breadcrumb.Item current>README.md</Breadcrumb.Item>
-      </Breadcrumb>
-    </div>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <Segments name="size" options={SIZES} value={size} onChange={setSize} desktopOnly />
+        <Segments name="separator" options={SEPARATORS} value={separator} onChange={setSeparator} />
+      </div>
+      <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
+        <Breadcrumb size={size} separator={separator === 'slash' ? '/' : undefined}>
+          <Breadcrumb.Item href="#">Home</Breadcrumb.Item>
+          <Breadcrumb.Item href="#">Settings</Breadcrumb.Item>
+          <Breadcrumb.Item current>Members</Breadcrumb.Item>
+        </Breadcrumb>
+      </div>
+    </>
   );
 }
 

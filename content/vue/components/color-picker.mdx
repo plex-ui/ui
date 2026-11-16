@@ -13,10 +13,10 @@ export const kitSwatches = ['#000000', '#007aff', '#34c759', '#ffcc00', '#ff3b30
 
 export const overview = `<FieldGroup class="w-full max-w-[400px]">
   <Field row label="Tint">
-    <ColorWell aria-label="Tint" v-model:value="tint" v-model:swatches="swatches" />
+    <ColorWell aria-label="Tint" :size="size" :disabled="disabled" v-model:value="tint" v-model:swatches="swatches" />
   </Field>
   <Field row label="Highlight">
-    <ColorWell aria-label="Highlight" v-model:value="highlight" v-model:swatches="swatches" />
+    <ColorWell aria-label="Highlight" :size="size" :disabled="disabled" v-model:value="highlight" v-model:swatches="swatches" />
   </Field>
 </FieldGroup>`
 
@@ -28,21 +28,18 @@ const swatches = ref(['#000000', '#007aff', '#34c759'])
 <template>
   <FieldGroup>
     <Field row label="Tint">
-      <ColorWell aria-label="Tint" v-model:value="tint" v-model:swatches="swatches" />
+      <ColorWell aria-label="Tint"[[^size=sm]] size="[[size]]"[[/size=sm]][[#disabled]] disabled[[/disabled]] v-model:value="tint" v-model:swatches="swatches" />
     </Field>
   </FieldGroup>
 </template>`
 
-export const sizes = `<div class="flex items-center gap-4">
-  <ColorWell aria-label="Small, no color" />
-  <ColorWell aria-label="Small" default-value="#af52de" />
-  <ColorWell aria-label="Large, no color" size="lg" />
-  <ColorWell aria-label="Large" size="lg" default-value="#af52de" />
-  <ColorWell aria-label="Disabled" default-value="#007aff" disabled />
-</div>`
+export const overviewControls = [
+  { name: "size", type: "select", options: ["xs", "sm", "lg"], default: "sm" },
+  { name: "disabled", type: "boolean", default: false },
+]
 
 export const inline = `<div class="flex flex-col items-center gap-3">
-  <ColorPicker v-model:value="color" :default-swatches="swatches" />
+  <ColorPicker v-model:value="color" :supports-alpha="supportsAlpha" :default-swatches="swatches" />
   <span class="text-sm text-secondary tabular-nums" aria-live="polite">{{ color }}</span>
 </div>`
 
@@ -51,10 +48,12 @@ const color = ref('#be38f3')
 </script>
 
 <template>
-  <ColorPicker v-model:value="color" :default-swatches="['#000000', '#007aff', '#34c759']" />
+  <ColorPicker v-model:value="color"[[^supportsAlpha]] :supports-alpha="false"[[/supportsAlpha]] :default-swatches="['#000000', '#007aff', '#34c759']" />
 </template>`
 
-export const opaque = `<ColorPicker default-value="#007aff" default-mode="sliders" :supports-alpha="false" />`
+export const inlineControls = [
+  { name: "supportsAlpha", type: "boolean", default: true },
+]
 
 <UsageBlock>{`import { ColorPicker, ColorWell } from "@plexui/vue/components/ColorPicker";`}</UsageBlock>
 
@@ -62,28 +61,28 @@ A color well shows a color and opens the system color picker, where people choos
 
 ## Examples
 
+{/* The example Sizes and states is settings of Color well (owner 11.11); its anchor stays */}
+<span id="sizes-and-states" />
+
 ### Color well
 
-<ComponentPreview language="vue" phonePresentation="screen" details={<>The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (<code>null</code>). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen; on a phone the sheet's bar has Close first and the eyedropper last, as iOS 27.2 sets them. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar.</>} code={overviewCode} previewMinHeight={200}>
-  <VuePhoneRowsDemo template={overview} phoneTemplate={formScreenTemplate("Appearance", overview)} phoneStageClassName={formStyles.ScreenStage} state={{ tint: '#af52de', highlight: null, swatches: kitSwatches }} />
+<ComponentPreview language="vue" phonePresentation="screen" details={<>
+  <p>The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (<code>null</code>), as Highlight here. It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen; on a phone the sheet's bar has Close first and the eyedropper last, as iOS 27.2 sets them. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar.</p>
+  <p><code>size</code> takes the kit's two sizes, <code>sm</code> 28px (the default) and <code>lg</code> 36px, and <code>xs</code> 24px for the start of a 32px field. A <code>disabled</code> well can't be opened.</p>
+</>} code={overviewCode} codeValues={{ size: "sm", disabled: false }} codeExamples={[{ name: "Large", values: { size: "lg" }, details: "The kit's large well, 36px." }, { name: "Disabled", values: { disabled: true }, details: "A well that can't be opened." }]} previewMinHeight={200}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={formScreenTemplate("Appearance", overview)} phoneStageClassName={formStyles.ScreenStage} stageClassName="flex-1 flex items-center justify-center py-10 w-full" controls={overviewControls} state={{ tint: '#af52de', highlight: null, swatches: kitSwatches }} />
 </ComponentPreview>
 
-### Sizes and states
-
-<ComponentPreview language="vue" details={<>The kit's two sizes: <code>sm</code> 28px and <code>lg</code> 36px.</>} code={sizes} previewMinHeight={140}>
-  <VueDemo template={sizes} />
-</ComponentPreview>
+{/* The example Without opacity is the supportsAlpha setting of Picker (owner 11.11); its anchor stays */}
+<span id="without-opacity" />
 
 ### Picker
 
-<ComponentPreview language="vue" details={<>The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of twelve, two rows of six, that scroll sideways, as in iOS 27.2.</>} code={inlineCode} previewMinHeight={640}>
-  <VueDemo template={inline} state={{ color: '#be38f3', swatches: kitSwatches }} />
-</ComponentPreview>
-
-### Without opacity
-
-<ComponentPreview language="vue" details={<>With <code>:supports-alpha="false"</code> there is no Opacity slider, and every color is opaque.</>} code={opaque} previewMinHeight={520}>
-  <VueDemo template={opaque} />
+<ComponentPreview language="vue" details={<>
+  <p>The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of twelve, two rows of six, that scroll sideways, as in iOS 27.2.</p>
+  <p>With <code>:supports-alpha="false"</code> there is no Opacity slider, and every color is opaque.</p>
+</>} code={inlineCode} codeValues={{ supportsAlpha: true }} codeExamples={[{ name: "Without opacity", values: { supportsAlpha: false }, details: "No Opacity slider; every color is opaque." }]} previewMinHeight={640}>
+  <VueDemo template={inline} controls={inlineControls} state={{ color: '#be38f3', swatches: kitSwatches }} stageClassName="flex-1 flex items-center justify-center py-10 w-full" />
 </ComponentPreview>
 
 ## API

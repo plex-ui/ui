@@ -123,7 +123,7 @@ Props:
     - current (boolean) default: false — The current page: plain text marked aria-current="page"
     - @click ((event: MouseEvent) => void) — Makes an item without a destination act as a button
     - class (string) — Applied to the li element
-Examples: Overview, Separator, Long trails, Sizes
+Examples: Overview, Separator, Small, Long trails
 
 ## Button
 Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.
@@ -260,7 +260,7 @@ Props:
     - name (string) — Submits the color with the owning form
     - aria-label (string) default: "Color" — Accessible name of the well
     - aria-labelledby (string) — The `id` of the visible label of the well
-Examples: Color well, Sizes and states, Picker, Without opacity
+Examples: Color well, Large, Disabled, Picker, Without opacity
 
 ## Context Menu
 "A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu."
@@ -782,7 +782,7 @@ Props:
   - aria-labelledby (string) — The id of the visible label of the page control
   - aria-controls (string) — The id of the element that shows the pages
   - id (string) — The id of the page control
-Examples: Overview, Many pages, Background
+Examples: Overview, Many pages, Prominent
 
 ## Phone Layout
 Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.

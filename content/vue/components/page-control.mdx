@@ -9,35 +9,46 @@ import { VueDemo } from "@/components/docs/vue/VueDemo"
 export const overview = `<div class="flex w-full max-w-[320px] flex-col items-center gap-3">
   <div
     id="page-control-pages"
-    ref="pages"
+    ref="scroller"
     class="flex w-full snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto rounded-2xl bg-[var(--color-surface-secondary)] [scrollbar-width:none]"
     @scroll="page = Math.round($event.target.scrollLeft / $event.target.clientWidth)"
   >
-    <div v-for="number in 5" :key="number" class="flex h-40 w-full shrink-0 snap-center items-center justify-center text-2xl font-semibold tabular-nums">
+    <div v-for="number in pages" :key="number" class="flex h-40 w-full shrink-0 snap-center items-center justify-center text-2xl font-semibold tabular-nums">
       {{ number }}
     </div>
   </div>
   <PageControl
-    :count="5"
-    v-model:value="page"
+    :count="pages"
+    :value="Math.min(page, pages - 1)"
+    :background="background"
     aria-controls="page-control-pages"
-    @change="(index, details) => $refs.pages.scrollTo({ left: index * $refs.pages.clientWidth, behavior: details.scrubbing ? 'instant' : 'auto' })"
+    @update:value="page = $event"
+    @change="(index, details) => $refs.scroller.scrollTo({ left: index * $refs.scroller.clientWidth, behavior: details.scrubbing ? 'instant' : 'auto' })"
   />
 </div>`
 
-export const many = `<div class="flex flex-col items-center gap-2">
-  <PageControl :count="12" v-model:value="page" />
-  <span class="text-sm text-secondary tabular-nums" aria-hidden="true">Page {{ page + 1 }} of 12</span>
-</div>`
+export const overviewCode = `<div
+  id="page-control-pages"
+  ref="scroller"
+  class="flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto"
+  @scroll="page = Math.round($event.target.scrollLeft / $event.target.clientWidth)"
+>
+  <div v-for="number in [[pages]]" :key="number" class="w-full shrink-0 snap-center">{{ number }}</div>
+</div>
+<PageControl
+  :count="[[pages]]"
+  v-model:value="page"
+[[^background=automatic]]
+  background="[[background]]"
+[[/background=automatic]]
+  aria-controls="page-control-pages"
+  @change="(index, details) => $refs.scroller.scrollTo({ left: index * $refs.scroller.clientWidth, behavior: details.scrubbing ? 'instant' : 'auto' })"
+/>`
 
-export const backgrounds = `<div class="grid grid-cols-[auto_auto] items-center gap-x-6 gap-y-4">
-  <span class="text-sm text-secondary">Automatic</span>
-  <PageControl :count="4" aria-label="Automatic background" />
-  <span class="text-sm text-secondary">Prominent</span>
-  <PageControl :count="4" aria-label="Prominent background" background="prominent" />
-  <span class="text-sm text-secondary">Minimal</span>
-  <PageControl :count="4" aria-label="Minimal background" background="minimal" />
-</div>`
+export const overviewControls = [
+  { name: "pages", type: "range", min: 2, max: 12, step: 1, default: 5 },
+  { name: "background", type: "select", options: ["automatic", "prominent", "minimal"], default: "automatic" },
+]
 
 <UsageBlock>{`import { PageControl } from "@plexui/vue/components/PageControl";`}</UsageBlock>
 
@@ -45,22 +56,17 @@ A page control shows the position of the current page in an ordered list of peer
 
 ## Examples
 
+{/* The examples Many pages and Background are settings of the Overview (owner 11.11); their anchors stay */}
+<span id="many-pages" />
+<span id="background" />
+
 ### Overview
 
-<ComponentPreview language="vue" details={<>Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as <code>details.scrubbing</code> tells, and with reduced motion, as <code>motion-reduce:scroll-auto</code> does here.</>} code={overview} previewMinHeight={260}>
-  <VueDemo template={overview} state={{ page: 0 }} />
-</ComponentPreview>
-
-### Many pages
-
-<ComponentPreview language="vue" details={<>From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show.</>} code={many} previewMinHeight={140}>
-  <VueDemo template={many} state={{ page: 0 }} />
-</ComponentPreview>
-
-### Background
-
-<ComponentPreview language="vue" details={<>The capsule behind the dots shows while a pointer presses or scrubs with <code>automatic</code>, always with <code>prominent</code>, for a page control that is the main navigation of the screen, and never with <code>minimal</code>, which also turns off scrubbing since it gives no feedback.</>} code={backgrounds} previewMinHeight={180}>
-  <VueDemo template={backgrounds} />
+<ComponentPreview language="vue" details={<>
+  <p>Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as <code>details.scrubbing</code> tells, and with reduced motion, as <code>motion-reduce:scroll-auto</code> does here.</p>
+  <p>From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show. The capsule behind the dots shows while a pointer presses or scrubs with the <code>automatic</code> <code>background</code>, always with <code>prominent</code>, for a page control that is the main navigation of the screen, and never with <code>minimal</code>, which also turns off scrubbing since it gives no feedback.</p>
+</>} code={overviewCode} codeValues={{ pages: 5, background: "automatic" }} codeExamples={[{ name: "Many pages", values: { pages: 12 }, details: "From seven pages the dots past a window around the current page shrink, suggesting more pages." }, { name: "Prominent", values: { background: "prominent" }, details: "The capsule always shows, for a page control that is the main navigation of the screen." }]} previewMinHeight={260}>
+  <VueDemo template={overview} controls={overviewControls} state={{ page: 0 }} stageClassName="flex-1 flex items-center justify-center py-10 w-full" />
 </ComponentPreview>
 
 ## API

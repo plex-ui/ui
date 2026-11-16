@@ -31,16 +31,15 @@ const phoneRule = (path: string, selector: string) => {
   return decls
 }
 
-describe.each([
-  ["breadcrumb", ["Sizes"]],
-])("%s on a phone", (page, desktop) => {
-  test("leaves out the examples a phone cannot show, in React and Vue, and says why", () => {
-    for (const path of both(page)) {
-      expect(desktopOnly(path), path).toEqual(desktop)
-      const section = read(path).split(`### ${desktop[0]}\n`)[1]
-      expect(section.slice(0, section.indexOf("</>}")), path).toMatch(/so this example is desktop only\./)
-    }
-  })
+// Breadcrumb: Sizes, once a desktop-only example, is the size setting of the one Overview (row 33), a desktop control:
+// on a phone both sizes take the 15/20 text of iOS
+test("Breadcrumb: size is a desktop control of the Overview, and the page says why", () => {
+  expect(read("components/docs/BreadcrumbDemos.tsx")).toMatch(/name="size"[^\n]*desktopOnly/)
+  expect(read("content/vue/components/breadcrumb.mdx")).toMatch(/\{ name: "size"[^\n]*desktopOnly: true/)
+  for (const path of both("breadcrumb")) {
+    expect(desktopOnly(path), path).toEqual([])
+    expect(read(path), path).toContain("On a phone both sizes take the same text, so the <code>size</code> setting is desktop only.")
+  }
 })
 
 // Popover: Open on hover, once a desktop-only example, is showOnHover of the one Overview (row 33), a desktop setting

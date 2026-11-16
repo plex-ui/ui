@@ -327,23 +327,33 @@ Props:
     - class (string) — Applied to the li element
 
 ### Overview
-Breadcrumb renders a nav landmark named "Breadcrumb" around an ordered list. An item with href or to is a link (internal paths use the link component from PlexUIProvider, such as vue-router's RouterLink); the current item is plain text marked aria-current="page". iOS has no breadcrumb, a phone screen goes back with the back button of its Toolbar. A trail kept on a phone takes the 15/20 text of iOS and gives each link a 44px touch target.
+Breadcrumb renders a nav landmark named "Breadcrumb" around an ordered list. An item with href or to is a link (internal paths use the link component from PlexUIProvider, such as vue-router's RouterLink); the current item is plain text marked aria-current="page". iOS has no breadcrumb, a phone screen goes back with the back button of its Toolbar. A trail kept on a phone takes the 15/20 text of iOS and gives each link a 44px touch target. A small chevron stands between items by default; the separator slot replaces it, such as with a slash for file paths. Separators are hidden from assistive technology. Use size="sm" for a trail above a compact header; the default md sits above a page title. On a phone both sizes take the same text, so the size setting is desktop only.
 ```vue
 <Breadcrumb>
-  <BreadcrumbItem href="#">Home</BreadcrumbItem>
-  <BreadcrumbItem href="#">Settings</BreadcrumbItem>
+  <BreadcrumbItem href="/">Home</BreadcrumbItem>
+  <BreadcrumbItem href="/settings">Settings</BreadcrumbItem>
   <BreadcrumbItem current>Members</BreadcrumbItem>
 </Breadcrumb>
 ```
 
 ### Separator
-A small chevron stands between items by default. The separator slot replaces it, such as with a slash for file paths. Separators are hidden from assistive technology.
+A slash between items, for file paths.
 ```vue
 <Breadcrumb>
   <template #separator>/</template>
-  <BreadcrumbItem href="#">acme</BreadcrumbItem>
-  <BreadcrumbItem href="#">design-system</BreadcrumbItem>
-  <BreadcrumbItem current>README.md</BreadcrumbItem>
+  <BreadcrumbItem href="/">Home</BreadcrumbItem>
+  <BreadcrumbItem href="/settings">Settings</BreadcrumbItem>
+  <BreadcrumbItem current>Members</BreadcrumbItem>
+</Breadcrumb>
+```
+
+### Small
+A trail above a compact header.
+```vue
+<Breadcrumb size="sm">
+  <BreadcrumbItem href="/">Home</BreadcrumbItem>
+  <BreadcrumbItem href="/settings">Settings</BreadcrumbItem>
+  <BreadcrumbItem current>Members</BreadcrumbItem>
 </Breadcrumb>
 ```
 
@@ -359,21 +369,6 @@ A trail that does not fit wraps onto the next line instead of leaving the screen
     <BreadcrumbItem current>Invoice 2024-0193</BreadcrumbItem>
   </Breadcrumb>
 </div>
-```
-
-### Sizes
-Use size="sm" for a trail above a compact header; the default md sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.
-```vue
-<Breadcrumb size="sm">
-  <BreadcrumbItem href="#">Projects</BreadcrumbItem>
-  <BreadcrumbItem href="#">Website</BreadcrumbItem>
-  <BreadcrumbItem current>Deployments</BreadcrumbItem>
-</Breadcrumb>
-<Breadcrumb>
-  <BreadcrumbItem href="#">Projects</BreadcrumbItem>
-  <BreadcrumbItem href="#">Website</BreadcrumbItem>
-  <BreadcrumbItem current>Deployments</BreadcrumbItem>
-</Breadcrumb>
 ```
 
 ## Button
@@ -1429,7 +1424,7 @@ Props:
     - aria-labelledby (string) — The `id` of the visible label of the well
 
 ### Color well
-The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (null). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen; on a phone the sheet's bar has Close first and the eyedropper last, as iOS 27.2 sets them. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar.
+The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (null), as Highlight here. It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen; on a phone the sheet's bar has Close first and the eyedropper last, as iOS 27.2 sets them. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar. size takes the kit's two sizes, sm 28px (the default) and lg 36px, and xs 24px for the start of a 32px field. A disabled well can't be opened.
 ```vue
 <script setup lang="ts">
 const tint = ref('#af52de')
@@ -1445,20 +1440,42 @@ const swatches = ref(['#000000', '#007aff', '#34c759'])
 </template>
 ```
 
-### Sizes and states
-The kit's two sizes: sm 28px and lg 36px.
+### Large
+The kit's large well, 36px.
 ```vue
-<div class="flex items-center gap-4">
-  <ColorWell aria-label="Small, no color" />
-  <ColorWell aria-label="Small" default-value="#af52de" />
-  <ColorWell aria-label="Large, no color" size="lg" />
-  <ColorWell aria-label="Large" size="lg" default-value="#af52de" />
-  <ColorWell aria-label="Disabled" default-value="#007aff" disabled />
-</div>
+<script setup lang="ts">
+const tint = ref('#af52de')
+const swatches = ref(['#000000', '#007aff', '#34c759'])
+</script>
+
+<template>
+  <FieldGroup>
+    <Field row label="Tint">
+      <ColorWell aria-label="Tint" size="lg" v-model:value="tint" v-model:swatches="swatches" />
+    </Field>
+  </FieldGroup>
+</template>
+```
+
+### Disabled
+A well that can't be opened.
+```vue
+<script setup lang="ts">
+const tint = ref('#af52de')
+const swatches = ref(['#000000', '#007aff', '#34c759'])
+</script>
+
+<template>
+  <FieldGroup>
+    <Field row label="Tint">
+      <ColorWell aria-label="Tint" disabled v-model:value="tint" v-model:swatches="swatches" />
+    </Field>
+  </FieldGroup>
+</template>
 ```
 
 ### Picker
-The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of twelve, two rows of six, that scroll sideways, as in iOS 27.2.
+The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of twelve, two rows of six, that scroll sideways, as in iOS 27.2. With :supports-alpha="false" there is no Opacity slider, and every color is opaque.
 ```vue
 <script setup lang="ts">
 const color = ref('#be38f3')
@@ -1470,9 +1487,15 @@ const color = ref('#be38f3')
 ```
 
 ### Without opacity
-With :supports-alpha="false" there is no Opacity slider, and every color is opaque.
+No Opacity slider; every color is opaque.
 ```vue
-<ColorPicker default-value="#007aff" default-mode="sliders" :supports-alpha="false" />
+<script setup lang="ts">
+const color = ref('#be38f3')
+</script>
+
+<template>
+  <ColorPicker v-model:value="color" :supports-alpha="false" :default-swatches="['#000000', '#007aff', '#34c759']" />
+</template>
 ```
 
 ## Context Menu
@@ -4857,48 +4880,61 @@ Props:
   - id (string) — The id of the page control
 
 ### Overview
-Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells, and with reduced motion, as motion-reduce:scroll-auto does here.
+Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells, and with reduced motion, as motion-reduce:scroll-auto does here. From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show. The capsule behind the dots shows while a pointer presses or scrubs with the automatic background, always with prominent, for a page control that is the main navigation of the screen, and never with minimal, which also turns off scrubbing since it gives no feedback.
 ```vue
-<div class="flex w-full max-w-[320px] flex-col items-center gap-3">
-  <div
-    id="page-control-pages"
-    ref="pages"
-    class="flex w-full snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto rounded-2xl bg-[var(--color-surface-secondary)] [scrollbar-width:none]"
-    @scroll="page = Math.round($event.target.scrollLeft / $event.target.clientWidth)"
-  >
-    <div v-for="number in 5" :key="number" class="flex h-40 w-full shrink-0 snap-center items-center justify-center text-2xl font-semibold tabular-nums">
-      {{ number }}
-    </div>
-  </div>
-  <PageControl
-    :count="5"
-    v-model:value="page"
-    aria-controls="page-control-pages"
-    @change="(index, details) => $refs.pages.scrollTo({ left: index * $refs.pages.clientWidth, behavior: details.scrubbing ? 'instant' : 'auto' })"
-  />
+<div
+  id="page-control-pages"
+  ref="scroller"
+  class="flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto"
+  @scroll="page = Math.round($event.target.scrollLeft / $event.target.clientWidth)"
+>
+  <div v-for="number in 5" :key="number" class="w-full shrink-0 snap-center">{{ number }}</div>
 </div>
+<PageControl
+  :count="5"
+  v-model:value="page"
+  aria-controls="page-control-pages"
+  @change="(index, details) => $refs.scroller.scrollTo({ left: index * $refs.scroller.clientWidth, behavior: details.scrubbing ? 'instant' : 'auto' })"
+/>
 ```
 
 ### Many pages
-From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show.
+From seven pages the dots past a window around the current page shrink, suggesting more pages.
 ```vue
-<div class="flex flex-col items-center gap-2">
-  <PageControl :count="12" v-model:value="page" />
-  <span class="text-sm text-secondary tabular-nums" aria-hidden="true">Page {{ page + 1 }} of 12</span>
+<div
+  id="page-control-pages"
+  ref="scroller"
+  class="flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto"
+  @scroll="page = Math.round($event.target.scrollLeft / $event.target.clientWidth)"
+>
+  <div v-for="number in 12" :key="number" class="w-full shrink-0 snap-center">{{ number }}</div>
 </div>
+<PageControl
+  :count="12"
+  v-model:value="page"
+  aria-controls="page-control-pages"
+  @change="(index, details) => $refs.scroller.scrollTo({ left: index * $refs.scroller.clientWidth, behavior: details.scrubbing ? 'instant' : 'auto' })"
+/>
 ```
 
-### Background
-The capsule behind the dots shows while a pointer presses or scrubs with automatic, always with prominent, for a page control that is the main navigation of the screen, and never with minimal, which also turns off scrubbing since it gives no feedback.
+### Prominent
+The capsule always shows, for a page control that is the main navigation of the screen.
 ```vue
-<div class="grid grid-cols-[auto_auto] items-center gap-x-6 gap-y-4">
-  <span class="text-sm text-secondary">Automatic</span>
-  <PageControl :count="4" aria-label="Automatic background" />
-  <span class="text-sm text-secondary">Prominent</span>
-  <PageControl :count="4" aria-label="Prominent background" background="prominent" />
-  <span class="text-sm text-secondary">Minimal</span>
-  <PageControl :count="4" aria-label="Minimal background" background="minimal" />
+<div
+  id="page-control-pages"
+  ref="scroller"
+  class="flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto"
+  @scroll="page = Math.round($event.target.scrollLeft / $event.target.clientWidth)"
+>
+  <div v-for="number in 5" :key="number" class="w-full shrink-0 snap-center">{{ number }}</div>
 </div>
+<PageControl
+  :count="5"
+  v-model:value="page"
+  background="prominent"
+  aria-controls="page-control-pages"
+  @change="(index, details) => $refs.scroller.scrollTo({ left: index * $refs.scroller.clientWidth, behavior: details.scrubbing ? 'instant' : 'auto' })"
+/>
 ```
 
 ## Phone Layout

@@ -123,7 +123,7 @@ Props:
     - current (boolean) default: false — The current page: plain text marked aria-current="page"
     - onClick ((event: MouseEvent) => void) — Makes an item without a destination act as a button
     - className (string) — Applied to the li element
-Examples: Overview, Separator, Long trails, Sizes
+Examples: Overview, Separator, Small, Long trails
 
 ## Button Group
 Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
@@ -263,7 +263,7 @@ Props:
     - name (string) — Submits the color with the owning form
     - aria-label (string) default: "Color" — Accessible name of the well
     - aria-labelledby (string) — The `id` of the visible label of the well
-Examples: Color well, Sizes and states, Picker, Without opacity
+Examples: Color well, Large, Disabled, Picker, Without opacity
 
 ## Context Menu
 "A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu."
@@ -780,7 +780,7 @@ Props:
   - onFocus (FocusEventHandler<HTMLDivElement>) — Called when the page control gains focus
   - onBlur (FocusEventHandler<HTMLDivElement>) — Called when the page control loses focus
   - className (string) — CSS classes applied to the page control
-Examples: Overview, Many pages, Background
+Examples: Overview, Many pages, Prominent
 
 ## Page
 "The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."

@@ -4,35 +4,29 @@ description: The trail of pages that leads to the current one, above a page titl
 metaDescription: Accessible React breadcrumb component with a navigation landmark, router-aware links, the current page marked aria-current, custom separators and wrapping trails
 ---
 
-import {
-  BreadcrumbOverviewDemo,
-  BreadcrumbSizesDemo,
-  BreadcrumbSeparatorDemo,
-  BreadcrumbWrapDemo,
-} from "@/components/docs/BreadcrumbDemos"
+import { BreadcrumbOverviewDemo, BreadcrumbWrapDemo } from "@/components/docs/BreadcrumbDemos"
+
+export const overviewCode = `<Breadcrumb[[#size=sm]] size="sm"[[/size=sm]][[#separator=slash]] separator="/"[[/separator=slash]]>
+  <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
+  <Breadcrumb.Item href="/settings">Settings</Breadcrumb.Item>
+  <Breadcrumb.Item current>Members</Breadcrumb.Item>
+</Breadcrumb>`
 
 <UsageBlock>{`import { Breadcrumb } from "@plexui/ui/components/Breadcrumb";`}</UsageBlock>
 
 ## Examples
 
+{/* The examples Separator and Sizes are settings of the Overview (owner 11.11); their anchors stay */}
+<span id="separator" />
+<span id="sizes" />
+
 ### Overview
 
-<ComponentPreview details={<>Breadcrumb renders a <code>nav</code> landmark named "Breadcrumb" around an ordered list. An item with <code>href</code> is a link (internal paths use the <code>linkComponent</code> of <code>PlexUIProvider</code>, such as your router's link); the <code>current</code> item is plain text marked <code>aria-current="page"</code>. iOS has no breadcrumb, a phone screen goes back with the back button of its <a href="/components/toolbar"><code>Toolbar</code></a>. A trail kept on a phone takes the 15/20 text of iOS and gives each link a 44px touch target.</>} code={`<Breadcrumb>
-  <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
-  <Breadcrumb.Item href="/settings">Settings</Breadcrumb.Item>
-  <Breadcrumb.Item current>Members</Breadcrumb.Item>
-</Breadcrumb>`} previewMinHeight={140}>
+<ComponentPreview details={<>
+  <p>Breadcrumb renders a <code>nav</code> landmark named "Breadcrumb" around an ordered list. An item with <code>href</code> is a link (internal paths use the <code>linkComponent</code> of <code>PlexUIProvider</code>, such as your router's link); the <code>current</code> item is plain text marked <code>aria-current="page"</code>. iOS has no breadcrumb, a phone screen goes back with the back button of its <a href="/components/toolbar"><code>Toolbar</code></a>. A trail kept on a phone takes the 15/20 text of iOS and gives each link a 44px touch target.</p>
+  <p>A small chevron stands between items by default; pass any node to <code>separator</code>, such as a slash for file paths. Separators are hidden from assistive technology. Use <code>size="sm"</code> for a trail above a compact header; the default <code>md</code> sits above a page title. On a phone both sizes take the same text, so the <code>size</code> setting is desktop only.</p>
+</>} code={overviewCode} codeValues={{ size: "md", separator: "chevron" }} codeExamples={[{ name: "Separator", values: { separator: "slash" }, details: "A slash between items, for file paths." }, { name: "Small", values: { size: "sm" }, details: "A trail above a compact header." }]} previewMinHeight={140}>
   <BreadcrumbOverviewDemo />
-</ComponentPreview>
-
-### Separator
-
-<ComponentPreview details={<>A small chevron stands between items by default. Pass any node to <code>separator</code>, such as a slash for file paths. Separators are hidden from assistive technology.</>} code={`<Breadcrumb separator="/">
-  <Breadcrumb.Item href="/acme">acme</Breadcrumb.Item>
-  <Breadcrumb.Item href="/acme/design-system">design-system</Breadcrumb.Item>
-  <Breadcrumb.Item current>README.md</Breadcrumb.Item>
-</Breadcrumb>`} previewMinHeight={140}>
-  <BreadcrumbSeparatorDemo />
 </ComponentPreview>
 
 ### Long trails
@@ -45,16 +39,6 @@ import {
   <Breadcrumb.Item current>Invoice 2024-0193</Breadcrumb.Item>
 </Breadcrumb>`} previewMinHeight={160}>
   <BreadcrumbWrapDemo />
-</ComponentPreview>
-
-### Sizes
-
-<ComponentPreview phonePresentation="none" details={<>Use <code>size="sm"</code> for a trail above a compact header; the default <code>md</code> sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.</>} code={`<Breadcrumb size="sm">
-  <Breadcrumb.Item href="/projects">Projects</Breadcrumb.Item>
-  <Breadcrumb.Item href="/projects/website">Website</Breadcrumb.Item>
-  <Breadcrumb.Item current>Deployments</Breadcrumb.Item>
-</Breadcrumb>`} previewMinHeight={160}>
-  <BreadcrumbSizesDemo />
 </ComponentPreview>
 
 ## API

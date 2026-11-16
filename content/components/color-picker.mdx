@@ -4,7 +4,21 @@ description: "The iOS 27.2 system color picker: Grid, Spectrum and Sliders, an O
 metaDescription: "React color picker in the iOS 27 style: a grid of colors, a spectrum, RGB sliders and hex, opacity, saved colors with Add, and a color well that opens the picker in a popover or a phone sheet."
 ---
 
-import { ColorPickerInlineDemo, ColorPickerOpaqueDemo, ColorWellOverviewDemo, ColorWellSizesDemo } from "@/components/docs/ColorPickerDemos"
+import { ColorPickerInlineDemo, ColorWellOverviewDemo } from "@/components/docs/ColorPickerDemos"
+
+export const overviewCode = `const [tint, setTint] = useState('#af52de')
+const [swatches, setSwatches] = useState(['#000000', '#007aff', '#34c759'])
+
+<FieldGroup>
+  <Field row label="Tint">
+    <ColorWell aria-label="Tint"[[^size=sm]] size="[[size]]"[[/size=sm]][[#disabled]] disabled[[/disabled]] value={tint} onChange={setTint}
+      swatches={swatches} onSwatchesChange={setSwatches} />
+  </Field>
+</FieldGroup>`
+
+export const pickerCode = `const [color, setColor] = useState('#be38f3')
+
+<ColorPicker value={color} onChange={setColor}[[^supportsAlpha]] supportsAlpha={false}[[/supportsAlpha]] defaultSwatches={['#000000', '#007aff', '#34c759']} />`
 
 <UsageBlock>{`import { ColorPicker, ColorWell } from "@plexui/ui/components/ColorPicker";`}</UsageBlock>
 
@@ -12,42 +26,28 @@ A color well shows a color and opens the system color picker, where people choos
 
 ## Examples
 
+{/* The example Sizes and states is settings of Color well (owner 11.11); its anchor stays */}
+<span id="sizes-and-states" />
+
 ### Color well
 
-<ComponentPreview phonePresentation="screen" details={<>The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (<code>null</code>). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen; on a phone the sheet's bar has Close first and the eyedropper last, as iOS 27.2 sets them. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar.</>} code={`const [tint, setTint] = useState('#af52de')
-const [swatches, setSwatches] = useState(['#000000', '#007aff', '#34c759'])
-
-<FieldGroup>
-  <Field row label="Tint">
-    <ColorWell aria-label="Tint" value={tint} onChange={setTint}
-      swatches={swatches} onSwatchesChange={setSwatches} />
-  </Field>
-</FieldGroup>`} previewMinHeight={200}>
+<ComponentPreview phonePresentation="screen" details={<>
+  <p>The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (<code>null</code>), as Highlight here. It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen; on a phone the sheet's bar has Close first and the eyedropper last, as iOS 27.2 sets them. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar.</p>
+  <p><code>size</code> takes the kit's two sizes, <code>sm</code> 28px (the default) and <code>lg</code> 36px, and <code>xs</code> 24px for the start of a 32px field. A <code>disabled</code> well can't be opened.</p>
+</>} code={overviewCode} codeValues={{ size: "sm", disabled: false }} codeExamples={[{ name: "Large", values: { size: "lg" }, details: "The kit's large well, 36px." }, { name: "Disabled", values: { disabled: true }, details: "A well that can't be opened." }]} previewMinHeight={200}>
   <ColorWellOverviewDemo />
 </ComponentPreview>
 
-### Sizes and states
-
-<ComponentPreview details={<>The kit's two sizes: <code>sm</code> 28px and <code>lg</code> 36px.</>} code={`<ColorWell aria-label="Small, no color" />
-<ColorWell aria-label="Small" defaultValue="#af52de" />
-<ColorWell aria-label="Large, no color" size="lg" />
-<ColorWell aria-label="Large" size="lg" defaultValue="#af52de" />
-<ColorWell aria-label="Disabled" defaultValue="#007aff" disabled />`} previewMinHeight={140}>
-  <ColorWellSizesDemo />
-</ComponentPreview>
+{/* The example Without opacity is the supportsAlpha setting of Picker (owner 11.11); its anchor stays */}
+<span id="without-opacity" />
 
 ### Picker
 
-<ComponentPreview details={<>The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of twelve, two rows of six, that scroll sideways, as in iOS 27.2.</>} code={`const [color, setColor] = useState('#be38f3')
-
-<ColorPicker value={color} onChange={setColor} defaultSwatches={['#000000', '#007aff', '#34c759']} />`} previewMinHeight={640}>
+<ComponentPreview details={<>
+  <p>The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of twelve, two rows of six, that scroll sideways, as in iOS 27.2.</p>
+  <p>With <code>supportsAlpha</code> off there is no Opacity slider, and every color is opaque.</p>
+</>} code={pickerCode} codeValues={{ supportsAlpha: true }} codeExamples={[{ name: "Without opacity", values: { supportsAlpha: false }, details: "No Opacity slider; every color is opaque." }]} previewMinHeight={640}>
   <ColorPickerInlineDemo />
-</ComponentPreview>
-
-### Without opacity
-
-<ComponentPreview details={<>With <code>supportsAlpha</code> off there is no Opacity slider, and every color is opaque.</>} code={`<ColorPicker defaultValue="#007aff" defaultMode="sliders" supportsAlpha={false} />`} previewMinHeight={520}>
-  <ColorPickerOpaqueDemo />
 </ComponentPreview>
 
 ## API
