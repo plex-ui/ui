@@ -42,7 +42,6 @@ import {
 } from '@plexui/ui/components/Icon';
 import { LoadingIndicator } from '@plexui/ui/components/Indicator';
 import { Input } from '@plexui/ui/components/Input';
-import { Label } from '@plexui/ui/components/Label';
 import {
   MarkdownEditor,
   markdownEditorStyles,
@@ -406,22 +405,16 @@ function LoginCard() {
           <Field label="Email">
             <Input type="email" placeholder="you@example.com" />
           </Field>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 8,
-              }}
-            >
-              <Label htmlFor="bento-login-password">Password</Label>
+          <Field
+            label="Password"
+            labelAction={
               <TextLink href="#" primary>
                 Forgot your password?
               </TextLink>
-            </div>
-            <Input id="bento-login-password" type="password" />
-          </div>
+            }
+          >
+            <Input type="password" />
+          </Field>
         </div>
       </Card.Content>
       <Card.Footer
@@ -1011,7 +1004,9 @@ function ToastVariantsOverview() {
 
 export function ComponentShowcase() {
   return (
-    <section className="mx-auto w-full max-w-7xl px-4 pb-20 sm:px-6 xl:max-w-[1440px]">
+    // Hidden below 768px: the site loads the kit's phone layer (touch.css) there, which turns these desktop cards
+    // half into phone ones (owner 16.11: «лучше не адаптируй к мобильным»)
+    <section className="mx-auto hidden w-full max-w-7xl px-4 pb-20 sm:px-6 md:block xl:max-w-[1440px]">
       <div className="mx-auto grid w-full max-w-xl gap-8 md:max-w-none md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
         <div className="flex flex-col gap-6">
           <LoginCard />
