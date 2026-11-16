@@ -305,7 +305,13 @@
   user-select: none;
 }
 
-/* Items under the pointer stay still while a drag runs: no hover, no row actions */
+/* Items under the pointer stay still while a drag runs: no hover, no row actions, no text selection (a finger drag
+   skips the page-wide .Dragging, and iOS has no selectstart to stop it) */
+.Sortable[data-dragging] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 .Sortable[data-dragging] > * {
   pointer-events: none;
 }

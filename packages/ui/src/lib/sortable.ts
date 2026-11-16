@@ -405,16 +405,24 @@ function startDrag(
     if (activeDrags.get(doc) === cancel) activeDrags.delete(doc)
     window.removeEventListener("keydown", onKey, true)
     window.removeEventListener("touchmove", blockScroll)
+    doc.removeEventListener("selectstart", noSelect, true)
   }
+
+  // A finger drag keeps text unselected by a listener: the class on <html> restyles every element of the page, on lift
+  // and again on drop, a long freeze on a phone (console 16.11). A mouse or a pen keeps the class for its cursor.
+  const noSelect = (selectEvent: Event) => selectEvent.preventDefault()
+  const byMouse = event.pointerType !== "touch"
 
   // Only onto a target: the list has no gaps to drop in, so nothing parts, no line shows and a drop elsewhere puts
   // the item back
   const onlyTargets = reachOf(list) === "targets"
 
   function measure() {
-    return listsOf(list).map((entry) => {
+    // Every list is marked before any is measured: marking one and measuring it in turn forced a layout per list
+    const lists = listsOf(list)
+    lists.forEach((entry) => entry.setAttribute("data-dragging", ""))
+    return lists.map((entry) => {
       const items = itemsOf(entry)
-      entry.setAttribute("data-dragging", "")
       return {
         list: entry, items,
         slots: onlyTargets ? [] : layout === "grid" ? gridSlots(entry, items) : listSlots(entry, items),
@@ -430,7 +438,8 @@ function startDrag(
     scroller = scrollParent(list)
     const areas = measure()
     window.getSelection()?.removeAllRanges()
-    document.documentElement.classList.add(s.Dragging)
+    if (byMouse) document.documentElement.classList.add(s.Dragging)
+    else doc.addEventListener("selectstart", noSelect, true)
     source.setAttribute("data-sortable-source", "")
     window.addEventListener("keydown", onKey, true)
     window.addEventListener("touchmove", blockScroll, { passive: false })
