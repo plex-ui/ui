@@ -1472,8 +1472,8 @@
 
     /* A selected cell hides the separators at its edges, as in iOS lists. */
     & .Menu :is(.MenuButton, .MenuSubButton)[data-active="true"]::after,
-    & .Menu :is(.MenuItem, .MenuSubItem):has(> :is(.MenuButton, .MenuSubButton)[data-active="true"], > * > :is(.MenuButton, .MenuSubButton)[data-active="true"]) + * > :is(.MenuButton, .MenuSubButton)::after,
-    & .Menu :is(.MenuItem, .MenuSubItem):has(> :is(.MenuButton, .MenuSubButton)[data-active="true"], > * > :is(.MenuButton, .MenuSubButton)[data-active="true"]) + * > * > :is(.MenuButton, .MenuSubButton)::after,
+    & .Menu :is(.MenuItem, .MenuSubItem):has(> :is(.MenuButton, .MenuSubButton)[data-active="true"], > * > :is(.MenuButton, .MenuSubButton)[data-active="true"]) + :is(.MenuItem, .MenuSubItem) > :is(.MenuButton, .MenuSubButton)::after,
+    & .Menu :is(.MenuItem, .MenuSubItem):has(> :is(.MenuButton, .MenuSubButton)[data-active="true"], > * > :is(.MenuButton, .MenuSubButton)[data-active="true"]) + :is(.MenuItem, .MenuSubItem) > * > :is(.MenuButton, .MenuSubButton)::after,
     & .Menu .MenuItem:has(> .MenuButton[data-active="true"], > * > .MenuButton[data-active="true"]) > .MenuSub > :first-child > :is(.MenuButton, .MenuSubButton)::after {
       opacity: 0;
     }
