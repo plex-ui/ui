@@ -10,9 +10,7 @@ export {
   ButtonGroupOverviewDemo,
   ButtonGroupOrientationDemo,
   ButtonGroupSeparatorDemo,
-  ButtonGroupInputDemo,
   ButtonGroupInputGroupDemo,
   ButtonGroupDropdownMenuDemo,
-  ButtonGroupSelectDemo,
   ButtonGroupPopoverDemo,
 } from './ButtonGroupDemos';

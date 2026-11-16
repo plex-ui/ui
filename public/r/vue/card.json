@@ -3,7 +3,7 @@
   "name": "card",
   "type": "registry:ui",
   "title": "Card",
-  "description": "Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.",
+  "description": "A surface that groups a title, a description, content and actions, in an outline, solid or ghost style, and as a link.",
   "dependencies": [
     "@plexui/vue"
   ],

@@ -9,10 +9,8 @@ import {
   ButtonGroupOverviewDemo,
   ButtonGroupOrientationDemo,
   ButtonGroupSeparatorDemo,
-  ButtonGroupInputDemo,
   ButtonGroupInputGroupDemo,
   ButtonGroupDropdownMenuDemo,
-  ButtonGroupSelectDemo,
   ButtonGroupPopoverDemo,
 } from "@/components/docs/ButtonGroupDemos.client"
 
@@ -29,6 +27,10 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/components/tool
     anchors stay */}
 <span id="size" />
 <span id="nested" />
+{/* Input (a field and a button) and Select (a menu, a field and a button) repeated Input Group (owner 16.11);
+    their anchors stay */}
+<span id="input" />
+<span id="select" />
 
 ### Overview
 
@@ -210,42 +212,6 @@ const [voiceEnabled, setVoiceEnabled] = useState(false)
   <ButtonGroupSeparatorDemo />
 </ComponentPreview>
 
-### Input
-
-<ComponentPreview phonePresentation="screen" details={<>
-  <p>Join an <code>Input</code> to a trailing <code>Button</code> for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content.</p>
-  <p>On a phone the example is the bottom bar of a list, as iOS 27.2 Contacts holds its search field and New Contact. In a <code>Toolbar</code> a group that holds a field comes apart: the field is a glass capsule and the button a glass circle, both the bar's 48px and 12px apart, as the bar's items. A phone searches as you type, so the button beside the field is an action of its own; <code>iconSize="sm"</code> draws the large plus of iOS. The bar sets the sizes, so the phone view leaves out the size control.</p>
-</>} code={`const [size, setSize] = useState("sm")
-
-// Desktop
-<ButtonGroup>
-  <Input placeholder="Search docs..." size={size} />
-  <Button variant="outline" color="secondary" size={size} aria-label="Search">
-    <SearchSm />
-  </Button>
-</ButtonGroup>
-
-// Phone: the bottom bar of a list
-<Page>
-  <Toolbar>
-    <Toolbar.Leading>
-      <NavigationButton action="back" />
-    </Toolbar.Leading>
-    <Toolbar.Title>Orders</Toolbar.Title>
-  </Toolbar>
-  <Page.Content>…</Page.Content>
-  <Toolbar placement="bottom">
-    <Toolbar.Content fill>
-      <ButtonGroup aria-label="Search orders">
-        <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
-        <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="New order"><PlusLg /></Button>
-      </ButtonGroup>
-    </Toolbar.Content>
-  </Toolbar>
-</Page>`}>
-  <ButtonGroupInputDemo />
-</ComponentPreview>
-
 ### Dropdown menu
 
 <ComponentPreview phonePresentation="screen" details={<>
@@ -292,70 +258,6 @@ const [voiceEnabled, setVoiceEnabled] = useState(false)
   </Toolbar.Trailing>
 </Toolbar>`}>
   <ButtonGroupDropdownMenuDemo />
-</ComponentPreview>
-
-### Select
-
-<ComponentPreview phonePresentation="screen" details={<>
-  <p>Mix a <a href="/components/select"><code>Select</code></a> and an <code>Input</code> inside one <code>ButtonGroup</code> for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested <code>ButtonGroup</code> to get a gap between the compound field and the send affordance.</p>
-  <p>iOS has no group of a menu, a field and a button, in a bar or in the content. A phone form sets a value and its qualifier as rows of a grouped list: the field is the value of its <a href="/components/field"><code>Field</code></a> row, the unit is the pop-up at the end of its row, as on the <a href="/components/select">Select</a> page, and the bar's confirm takes the place of the send button. The rows set the sizes, so the phone view leaves out the size control.</p>
-</>} code={`const [size, setSize] = useState("sm")
-const [unit, setUnit] = useState("kg")
-const units = [
-  { value: "kg", label: "kg · Kilogram" },
-  { value: "lb", label: "lb · Pound" },
-  { value: "oz", label: "oz · Ounce" },
-]
-// A phone row's value is the whole word
-const unitNames = [
-  { value: "kg", label: "Kilograms" },
-  { value: "lb", label: "Pounds" },
-  { value: "oz", label: "Ounces" },
-]
-
-// Desktop
-<ButtonGroup>
-  <ButtonGroup>
-    <Select
-      options={units}
-      value={unit}
-      onChange={(option) => setUnit(option.value)}
-      variant="outline"
-      size={size}
-      block={false}
-    />
-    <Input placeholder="2.50" size={size} inputMode="decimal" />
-  </ButtonGroup>
-  <ButtonGroup>
-    <Button variant="outline" color="secondary" size={size} uniform aria-label="Log weight">
-      <ArrowRight />
-    </Button>
-  </ButtonGroup>
-</ButtonGroup>
-
-// Phone: a form of rows; the bar's confirm logs the weight
-<Page surface="grouped">
-  <Toolbar>
-    <Toolbar.Leading>
-      <NavigationButton action="close" />
-    </Toolbar.Leading>
-    <Toolbar.Title>Weight</Toolbar.Title>
-    <Toolbar.Trailing>
-      <NavigationButton action="confirm" aria-label="Log weight" />
-    </Toolbar.Trailing>
-  </Toolbar>
-  <Page.Content>
-    <FieldGroup>
-      <Field row label="Weight">
-        <Input placeholder="2.50" inputMode="decimal" />
-      </Field>
-      <Field row label="Unit">
-        <Select options={unitNames} value={unit} onChange={(option) => setUnit(option.value)} block={false} align="end" />
-      </Field>
-    </FieldGroup>
-  </Page.Content>
-</Page>`}>
-  <ButtonGroupSelectDemo />
 </ComponentPreview>
 
 ### Popover

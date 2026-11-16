@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 63
+Components: 61
 
 ## Setup
 
@@ -136,7 +136,7 @@ Props:
   ButtonGroup.Text:
     - asChild (boolean) default: false — Render as the passed child (e.g. a <label> tied to an input)
     - className (string) default: — — Applied to the wrapper
-Examples: Overview, Orientation, Input group, Separator, Input, Dropdown menu, Select, Popover
+Examples: Overview, Orientation, Input group, Separator, Dropdown menu, Popover
 
 ## Button
 Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.
@@ -182,7 +182,7 @@ Props:
 Examples: Overview, Link, Optical alignment
 
 ## Card
-Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
+A surface that groups a title, a description, content and actions, in an outline, solid or ghost style, and as a link.
 Import: import { Card } from "@plexui/ui/components/Card"
 Docs: https://plexui.com/components/card
 Props:
@@ -193,7 +193,7 @@ Props:
   - external (boolean) default: auto-detected — Forces target="_blank" and rel="noopener noreferrer" when href is set.
   - as (ComponentType | "a") default: — — Overrides the link component (e.g. next/link).
   - className (string) default: — — Applied to the root element
-Examples: Overview, Login, Create project, Payment Method, No team members (empty state), How did you hear about us?, Processing your request, Pricing
+Examples: Overview
 
 ## Checkbox
 Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.
@@ -280,21 +280,38 @@ Props:
     - aria-label (string) — Names the menu for assistive technology, in place of the name of its element
 Examples: Overview, Rounded elements, In a sortable list
 
-## Copy Tooltip
-A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
-Import: import { CopyTooltip } from "@plexui/ui/components/Tooltip"
-Import: import { Button } from "@plexui/ui/components/Button"
-Docs: https://plexui.com/components/copy-tooltip
+## Data Table
+"Table of your data on TanStack Table v8, with sorting, pagination, filtering, row selection, column visibility and cell helpers."
+Import: import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTable"
+Docs: https://plexui.com/components/data-table
 Props:
-  - children (ReactNode) — Trigger element (for example Tooltip.TriggerDecorator)
-  - copyValue (string) — Required. Content to copy to clipboard
-  - openDelay (number) default: 150 — Tooltip open delay in milliseconds
-  - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
-  - alignOffset (number) default: 0 — Offset from start/end alignment in pixels
-  - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
-  - sideOffset (number) default: 5 — Distance from trigger in pixels
-  - onCopy ((copied: boolean) => void) — Called once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
-Examples: Overview
+  - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API (required)
+  - data (TData[]) — Data array to display (required)
+  - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
+  - pageSize (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size
+  - initialSorting (SortingState) — Initial column sorting state
+  - globalFilter (string) — Controlled search/filter string
+  - onGlobalFilterChange ((value: string) => void) — Callback when filter changes
+  - onRowClick ((row: TData) => void) — Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space
+  - columnVisibility (VisibilityState) — Controlled column visibility state
+  - onColumnVisibilityChange ((visibility: VisibilityState) => void) — Callback when visibility changes
+  - enableRowSelection (boolean) default: false — Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click
+  - rowSelection (RowSelectionState) — Controlled row selection state
+  - onRowSelectionChange ((selection: RowSelectionState) => void) — Callback when selection changes
+  - getRowId ((row: TData) => string) — Custom row ID accessor; selection keys use it
+  - emptyMessage (ReactNode) default: "No results." — Shown when no rows
+  - showPagination (boolean) default: true — Whether to show pagination controls. They hide on their own when every row fits on one page
+  - className (string) — Class applied to outermost wrapper
+  DataTableColumnHeader:
+    - column (Column<TData, TValue>) — TanStack Table column object (required)
+    - title (string) — Display text for the header (required)
+    - className (string) — Class applied to the header button (or text when the column cannot sort)
+  Column helpers:
+    - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
+    - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is
+    - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
+    - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
+Examples: Overview, Sorting, Pagination, Row click, Row selection, Cell variants, Filtering, Column visibility
 
 ## Date Input
 Masked text input for typing dates and times, with automatic formatting, min and max limits, and validation.
@@ -438,6 +455,7 @@ Examples: Overview
 Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.
 Import: import { Field } from "@plexui/ui/components/Field"
 Import: import { FieldGroup } from "@plexui/ui/components/FieldGroup"
+Import: import { Label } from "@plexui/ui/components/Label"
 Docs: https://plexui.com/components/field
 Props:
   - label (ReactNode) — Label text for the field
@@ -466,7 +484,10 @@ Props:
     - bodyClassName (string) — Applied to the block that holds the rows
     - children (ReactNode) — The rows
     - className (string) — Applied to the root section
-Examples: Overview, Group, Action rows, Spacing between groups, Other controls, Label action, Several controls, Sizing, Optical alignment
+  Label:
+    - htmlFor (string) default: — — id of the associated control. Clicks on the label focus or activate the control.
+    - className (string) default: — — Applied to the root <label> element
+Examples: Overview, Group, Action rows, Spacing between groups, Other controls, Label action, Label, Several controls, Sizing, Optical alignment
 
 ## File Upload
 Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
@@ -622,15 +643,6 @@ Props:
     - size ("xs" | "sm" | "md") default: "sm" — As Kbd
     - variant ("soft" | "outline") default: "soft" — As Kbd
 Examples: Overview, Shortcut, Modifier, Sizes and variants, In a tooltip and a menu
-
-## Label
-Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
-Import: import { Label } from "@plexui/ui/components/Label"
-Docs: https://plexui.com/components/label
-Props:
-  - htmlFor (string) default: — — id of the associated control. Clicks on the label focus or activate the control.
-  - className (string) default: — — Applied to the root <label> element
-Examples: Overview
 
 ## Markdown Editor
 Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.
@@ -925,31 +937,10 @@ Props:
     - children (ReactNode) — Tab label
 Examples: Overview, Icons, Icon only, Badges, Overflow
 
-## Select Control
-The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.
-Import: import { SelectControl } from "@plexui/ui/components/SelectControl"
-Docs: https://plexui.com/components/select-control
-Props:
-  - selected (boolean) default: false — Whether a value is selected (affects placeholder styling)
-  - variant ("soft" | "outline" | "ghost") default: "outline" — Visual variant
-  - size (ControlSize) default: "md" — Control size (3xs to 3xl)
-  - pill (boolean) default: false — Fully rounded trigger
-  - StartIcon (ComponentType) — Icon at start
-  - onClearClick (() => void) — Enables the clear button when set
-  - interactOnEnter (boolean) default: false — Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form
-  - onInteract (() => void) — Called on pointer down, ArrowDown, ArrowUp and Space. Without it, a wrapping trigger opens on pointer down
-  - dropdownIconType ("chevronDown" | "dropdown" | "none") default: "dropdown" — Dropdown indicator style
-  - invalid (boolean) default: false — Invalid state
-  - disabled (boolean) default: false — Disable control
-  - block (boolean) default: false — Full width
-  - loading (boolean) default: false — Loading state (aria-busy); hides the indicators and ignores interaction
-  - opticallyAlign ("start" | "end") — Optical alignment
-  - className (string) — Applied to the control
-Examples: Overview, Country selector, Country code selector, Phone form
-
 ## Select
 Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.
 Import: import { Select } from "@plexui/ui/components/Select"
+Import: import { SelectControl } from "@plexui/ui/components/SelectControl"
 Docs: https://plexui.com/components/select
 Props:
   - options (Options<T>) — Array of options or grouped options
@@ -989,7 +980,23 @@ Props:
   - searchSize (ControlSize) default: "md" — Size of the search input in the menu. A phone list has no search: it is an iOS menu, and a long one scrolls
   - searchPredicate ((option, term) => boolean) — Filters options while searching
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
-Examples: Overview, With descriptions, Actions, Grouped options
+  SelectControl:
+    - selected (boolean) default: false — Whether a value is selected (affects placeholder styling)
+    - variant ("soft" | "outline" | "ghost") default: "outline" — Visual variant
+    - size (ControlSize) default: "md" — Control size (3xs to 3xl)
+    - pill (boolean) default: false — Fully rounded trigger
+    - StartIcon (ComponentType) — Icon at start
+    - onClearClick (() => void) — Enables the clear button when set
+    - interactOnEnter (boolean) default: false — Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form
+    - onInteract (() => void) — Called on pointer down, ArrowDown, ArrowUp and Space. Without it, a wrapping trigger opens on pointer down
+    - dropdownIconType ("chevronDown" | "dropdown" | "none") default: "dropdown" — Dropdown indicator style
+    - invalid (boolean) default: false — Invalid state
+    - disabled (boolean) default: false — Disable control
+    - block (boolean) default: false — Full width
+    - loading (boolean) default: false — Loading state (aria-busy); hides the indicators and ignores interaction
+    - opticallyAlign ("start" | "end") — Optical alignment
+    - className (string) — Applied to the control
+Examples: Overview, With descriptions, Actions, Grouped options, Country selector, Country code selector, Select Control
 
 ## Separator
 A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
@@ -1247,47 +1254,19 @@ Props:
 Examples: Overview
 
 ## Table
-Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
+"Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements."
 Import: import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/ui/components/Table"
-Import: import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTable"
 Docs: https://plexui.com/components/table
-  Table Primitives:
-    - Table (table) — Root table container with horizontal scroll wrapper
-    - TableHeader (thead) — Table header group
-    - TableBody (tbody) — Table body group
-    - TableFooter (tfoot) — Table footer group
-    - TableRow (tr) — Table row
-    - TableHead (th) — Table header cell
-    - TableCell (td) — Table data cell
-    - TableCaption (caption) — Table caption
-  DataTable:
-    - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API (required)
-    - data (TData[]) — Data array to display (required)
-    - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
-    - pageSize (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size
-    - initialSorting (SortingState) — Initial column sorting state
-    - globalFilter (string) — Controlled search/filter string
-    - onGlobalFilterChange ((value: string) => void) — Callback when filter changes
-    - onRowClick ((row: TData) => void) — Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space
-    - columnVisibility (VisibilityState) — Controlled column visibility state
-    - onColumnVisibilityChange ((visibility: VisibilityState) => void) — Callback when visibility changes
-    - enableRowSelection (boolean) default: false — Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click
-    - rowSelection (RowSelectionState) — Controlled row selection state
-    - onRowSelectionChange ((selection: RowSelectionState) => void) — Callback when selection changes
-    - getRowId ((row: TData) => string) — Custom row ID accessor; selection keys use it
-    - emptyMessage (ReactNode) default: "No results." — Shown when no rows
-    - showPagination (boolean) default: true — Whether to show pagination controls. They hide on their own when every row fits on one page
-    - className (string) — Class applied to outermost wrapper
-  DataTableColumnHeader:
-    - column (Column<TData, TValue>) — TanStack Table column object (required)
-    - title (string) — Display text for the header (required)
-    - className (string) — Class applied to the header button (or text when the column cannot sort)
-  Column helpers:
-    - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
-    - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is
-    - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
-    - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
-Examples: Overview, With footer, Minimal, Variant, Sorting, Pagination, Row click, Row selection, Cell variants, Filtering, Column visibility
+Props:
+  - Table (table) — Root table container with horizontal scroll wrapper
+  - TableHeader (thead) — Table header group
+  - TableBody (tbody) — Table body group
+  - TableFooter (tfoot) — Table footer group
+  - TableRow (tr) — Table row
+  - TableHead (th) — Table header cell
+  - TableCell (td) — Table data cell
+  - TableCaption (caption) — Table caption
+Examples: Overview, With footer, Minimal
 
 ## Tag Input
 Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.
@@ -1430,8 +1409,8 @@ Props:
 Examples: Overview, Search under the title, Disabled, Sheet
 
 ## Tooltip
-Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
-Import: import { Tooltip } from "@plexui/ui/components/Tooltip"
+Brief informative text shown on hover or focus, for any trigger element, with conditional enabling, a compact variant and a copy-to-clipboard tooltip.
+Import: import { CopyTooltip, Tooltip } from "@plexui/ui/components/Tooltip"
 Docs: https://plexui.com/components/tooltip
 Props:
   - children (ReactElement) — The trigger: a single element. Wrap plain text in Tooltip.TriggerDecorator
@@ -1448,4 +1427,13 @@ Props:
   - contentClassName (string) — Class for tooltip content
   - forceOpen (boolean) — Force open or closed
   - preventUnintentionalClickToClose (true) — Keeps the tooltip open when the trigger is clicked right after it opened
-Examples: Overview
+  CopyTooltip:
+    - children (ReactNode) — Trigger element (for example Tooltip.TriggerDecorator)
+    - copyValue (string) — Required. Content to copy to clipboard
+    - openDelay (number) default: 150 — Tooltip open delay in milliseconds
+    - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
+    - alignOffset (number) default: 0 — Offset from start/end alignment in pixels
+    - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
+    - sideOffset (number) default: 5 — Distance from trigger in pixels
+    - onCopy ((copied: boolean) => void) — Called once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
+Examples: Overview, Copy Tooltip

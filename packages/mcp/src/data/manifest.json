@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 63,
+  "componentCount": 61,
   "components": [
     {
       "slug": "accordion",
@@ -551,19 +551,9 @@
           "details": "Drop a ButtonGroup.Separator between items to add a visible divider, commonly used for Undo / Redo pairs or any \"two related actions\" toolbar. The same divider makes the classic split button: an action joined to a secondary affordance, as Save / Save As, Filter / Add filter or Delete / Undo. On a phone the example is Undo and Redo in the top bar of a drawing, as iOS 27.2 sets a document's bar: Back, the title, and the group as one glass capsule. The capsule of iOS draws no line between its buttons, so in a glass group the separator draws nothing. The bar sets its buttons' size, so the phone view leaves out the size control."
         },
         {
-          "name": "Input",
-          "code": "const [size, setSize] = useState(\"sm\")\n\n// Desktop\n<ButtonGroup>\n<Input placeholder=\"Search docs...\" size={size} />\n<Button variant=\"outline\" color=\"secondary\" size={size} aria-label=\"Search\">\n  <SearchSm />\n</Button>\n</ButtonGroup>\n\n// Phone: the bottom bar of a list\n<Page>\n<Toolbar>\n  <Toolbar.Leading>\n    <NavigationButton action=\"back\" />\n  </Toolbar.Leading>\n  <Toolbar.Title>Orders</Toolbar.Title>\n</Toolbar>\n<Page.Content>…</Page.Content>\n<Toolbar placement=\"bottom\">\n  <Toolbar.Content fill>\n    <ButtonGroup aria-label=\"Search orders\">\n      <Input variant=\"soft\" pill placeholder=\"Search\" aria-label=\"Search orders\" startAdornment={<SearchSm />} />\n      <Button color=\"secondary\" variant=\"soft\" uniform pill iconSize=\"sm\" aria-label=\"New order\"><PlusLg /></Button>\n    </ButtonGroup>\n  </Toolbar.Content>\n</Toolbar>\n</Page>",
-          "details": "Join an Input to a trailing Button for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content. On a phone the example is the bottom bar of a list, as iOS 27.2 Contacts holds its search field and New Contact. In a Toolbar a group that holds a field comes apart: the field is a glass capsule and the button a glass circle, both the bar's 48px and 12px apart, as the bar's items. A phone searches as you type, so the button beside the field is an action of its own; iconSize=\"sm\" draws the large plus of iOS. The bar sets the sizes, so the phone view leaves out the size control."
-        },
-        {
           "name": "Dropdown menu",
           "code": "const [size, setSize] = useState(\"sm\")\n\n// Desktop\n<ButtonGroup>\n<Button variant=\"outline\" color=\"secondary\" pill={false} size={size}>Export</Button>\n<Menu>\n  <Menu.Trigger>\n    <Button variant=\"outline\" color=\"secondary\" pill={false} size={size} uniform aria-label=\"More export options\">\n      <ChevronDownMd />\n    </Button>\n  </Menu.Trigger>\n  <Menu.Content align=\"end\" minWidth={200}>\n    <Menu.Item onSelect={() => {}}><FileImage /> PNG image</Menu.Item>\n    <Menu.Item onSelect={() => {}}><FileCode /> SVG vector</Menu.Item>\n    <Menu.Item onSelect={() => {}}><FileDocument /> PDF document</Menu.Item>\n    <Menu.Separator />\n    <Menu.Item onSelect={() => {}}><Copy /> Copy as code</Menu.Item>\n    <Menu.Item onSelect={() => {}}><Link /> Copy share link</Menu.Item>\n  </Menu.Content>\n</Menu>\n</ButtonGroup>\n\n// Phone: in the top bar of a report\n<Toolbar>\n<Toolbar.Leading>\n  <NavigationButton action=\"back\" />\n</Toolbar.Leading>\n<Toolbar.Title>Report</Toolbar.Title>\n<Toolbar.Trailing>\n  <ButtonGroup aria-label=\"Export\">\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Export\"><Share /></Button>\n    <Menu>\n      <Menu.Trigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More export options\"><DotsHorizontal /></Button>\n      </Menu.Trigger>\n      <Menu.Content align=\"end\" minWidth={200}>…</Menu.Content>\n    </Menu>\n  </ButtonGroup>\n</Toolbar.Trailing>\n</Toolbar>",
           "details": "Compose a primary action with a Menu trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / …. On a phone the action and its menu are symbols in one glass capsule of the top bar, as iOS 27.2 groups a bar's symbols (Add, Share and More in one glass). iOS never puts a label and a symbol in one capsule, and a bar opens a menu from More (…), not from a chevron: here Share exports, More opens the formats. The bar sets its buttons' size, so the phone view leaves out the size control."
-        },
-        {
-          "name": "Select",
-          "code": "const [size, setSize] = useState(\"sm\")\nconst [unit, setUnit] = useState(\"kg\")\nconst units = [\n{ value: \"kg\", label: \"kg · Kilogram\" },\n{ value: \"lb\", label: \"lb · Pound\" },\n{ value: \"oz\", label: \"oz · Ounce\" },\n]\n// A phone row's value is the whole word\nconst unitNames = [\n{ value: \"kg\", label: \"Kilograms\" },\n{ value: \"lb\", label: \"Pounds\" },\n{ value: \"oz\", label: \"Ounces\" },\n]\n\n// Desktop\n<ButtonGroup>\n<ButtonGroup>\n  <Select\n    options={units}\n    value={unit}\n    onChange={(option) => setUnit(option.value)}\n    variant=\"outline\"\n    size={size}\n    block={false}\n  />\n  <Input placeholder=\"2.50\" size={size} inputMode=\"decimal\" />\n</ButtonGroup>\n<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" size={size} uniform aria-label=\"Log weight\">\n    <ArrowRight />\n  </Button>\n</ButtonGroup>\n</ButtonGroup>\n\n// Phone: a form of rows; the bar's confirm logs the weight\n<Page surface=\"grouped\">\n<Toolbar>\n  <Toolbar.Leading>\n    <NavigationButton action=\"close\" />\n  </Toolbar.Leading>\n  <Toolbar.Title>Weight</Toolbar.Title>\n  <Toolbar.Trailing>\n    <NavigationButton action=\"confirm\" aria-label=\"Log weight\" />\n  </Toolbar.Trailing>\n</Toolbar>\n<Page.Content>\n  <FieldGroup>\n    <Field row label=\"Weight\">\n      <Input placeholder=\"2.50\" inputMode=\"decimal\" />\n    </Field>\n    <Field row label=\"Unit\">\n      <Select options={unitNames} value={unit} onChange={(option) => setUnit(option.value)} block={false} align=\"end\" />\n    </Field>\n  </FieldGroup>\n</Page.Content>\n</Page>",
-          "details": "Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entry, or any \"qualifier + value\" pattern. Wrap each slot in a nested ButtonGroup to get a gap between the compound field and the send affordance. iOS has no group of a menu, a field and a button, in a bar or in the content. A phone form sets a value and its qualifier as rows of a grouped list: the field is the value of its Field row, the unit is the pop-up at the end of its row, as on the Select page, and the bar's confirm takes the place of the send button. The rows set the sizes, so the phone view leaves out the size control."
         },
         {
           "name": "Popover",
@@ -826,7 +816,7 @@
     {
       "slug": "card",
       "name": "Card",
-      "description": "Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.",
+      "description": "A surface that groups a title, a description, content and actions, in an outline, solid or ghost style, and as a link.",
       "importPath": "@plexui/ui/components/Card",
       "exports": [
         "Card"
@@ -878,42 +868,8 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<Card style={{ maxWidth: 380 }}>\n<Card.Header>\n  <Card.Title>Project activity</Card.Title>\n  <Card.Description>\n    Your team opened 12 issues and closed 8 pull requests over the last 7 days.\n  </Card.Description>\n</Card.Header>\n<Card.Footer>\n  <Button color=\"primary\" variant=\"solid\" size=\"sm\">View report</Button>\n  <Button color=\"secondary\" variant=\"outline\" size=\"sm\">Dismiss</Button>\n</Card.Footer>\n</Card>"
-        },
-        {
-          "name": "Login",
-          "code": "<Card style={{ maxWidth: 380 }}>\n<Card.Header>\n  <Card.Title>Log in to your account</Card.Title>\n  <Card.Description>Enter your email below to log in to your account.</Card.Description>\n</Card.Header>\n<Card.Content>\n  <div style={{ display: \"flex\", flexDirection: \"column\", gap: 20 }}>\n    <Field label=\"Email\">\n      <Input type=\"email\" placeholder=\"you@example.com\" />\n    </Field>\n    <div style={{ display: \"flex\", flexDirection: \"column\", gap: 6 }}>\n      <div style={{ display: \"flex\", alignItems: \"center\", justifyContent: \"space-between\", gap: 8 }}>\n        <Label htmlFor=\"card-login-password\">Password</Label>\n        <TextLink href=\"#\" primary>Forgot your password?</TextLink>\n      </div>\n      <Input id=\"card-login-password\" type=\"password\" />\n    </div>\n  </div>\n</Card.Content>\n<Card.Footer style={{ flexDirection: \"column\", alignItems: \"stretch\", gap: 12 }}>\n  <Button color=\"primary\" variant=\"solid\" block>Log in</Button>\n  {/* Description sits flush under a title by default; here it follows a button */}\n  <Card.Description className=\"text-center\" style={{ margin: 0 }}>\n    Don't have an account? <TextLink href=\"#\" primary>Sign up</TextLink>\n  </Card.Description>\n</Card.Footer>\n</Card>",
-          "details": "A classic login form with a primary Log in CTA and an inline Sign up link below."
-        },
-        {
-          "name": "Create project",
-          "code": "<Card style={{ maxWidth: 380 }}>\n<Card.Header>\n  <Card.Title>Create project</Card.Title>\n  <Card.Description>Deploy a new project in one-click with sensible defaults.</Card.Description>\n</Card.Header>\n<Card.Content>\n  <div style={{ display: \"flex\", flexDirection: \"column\", gap: 20 }}>\n    <Field label=\"Name\">\n      <Input placeholder=\"billing-service\" />\n    </Field>\n    <Field label=\"Region\" description=\"Where your functions and database will live.\">\n      <Input placeholder=\"us-east-1\" />\n    </Field>\n  </div>\n</Card.Content>\n<Card.Footer style={{ justifyContent: \"flex-end\" }}>\n  <Button color=\"secondary\" variant=\"outline\" size=\"sm\">Cancel</Button>\n  <Button color=\"primary\" variant=\"solid\" size=\"sm\">Deploy</Button>\n</Card.Footer>\n</Card>",
-          "details": "Right-aligned footer with Cancel / Deploy. Use {'style={{ justifyContent: \"flex-end\" }}'} on Card.Footer."
-        },
-        {
-          "name": "Payment Method",
-          "code": "const monthOptions = Array.from({ length: 12 }, (_, i) => {\nconst value = String(i + 1).padStart(2, \"0\")\nreturn { label: value, value }\n})\nconst yearOptions = Array.from({ length: 6 }, (_, i) => {\nconst value = String(2024 + i)\nreturn { label: value, value }\n})\n\nconst [month, setMonth] = useState(\"\")\nconst [year, setYear] = useState(\"\")\nconst [sameAsShipping, setSameAsShipping] = useState(true)\n\n<Card style={{ maxWidth: 420 }}>\n<div style={{ display: \"flex\", flexDirection: \"column\", gap: 16 }}>\n  <Card.Header>\n    <Card.Title>Payment Method</Card.Title>\n    <Card.Description>All transactions are secure and encrypted</Card.Description>\n  </Card.Header>\n\n  <Field label=\"Name on Card\">\n    <Input placeholder=\"Aisha Cooper\" />\n  </Field>\n\n  <Field label=\"Card Number\" description=\"Enter your 16-digit card number\">\n    <Input placeholder=\"1234 5678 9012 3456\" inputMode=\"numeric\" />\n  </Field>\n\n  <div style={{ display: \"grid\", gridTemplateColumns: \"1fr 1fr 1fr\", gap: 16 }}>\n    <Field label=\"Month\">\n      <Select value={month} options={monthOptions} placeholder=\"MM\" onChange={(option) => setMonth(option.value)} />\n    </Field>\n    <Field label=\"Year\">\n      <Select value={year} options={yearOptions} placeholder=\"YYYY\" onChange={(option) => setYear(option.value)} />\n    </Field>\n    <Field label=\"CVV\">\n      <Input placeholder=\"123\" inputMode=\"numeric\" />\n    </Field>\n  </div>\n\n  <Separator />\n\n  <Card.Header>\n    <Card.Title>Billing Address</Card.Title>\n    <Card.Description>The billing address associated with your payment method</Card.Description>\n  </Card.Header>\n\n  <Checkbox checked={sameAsShipping} onCheckedChange={setSameAsShipping} label=\"Same as shipping address\" />\n\n  <Separator />\n\n  <Field label=\"Comments\">\n    <Textarea placeholder=\"Add any additional comments\" rows={3} />\n  </Field>\n\n  <div style={{ display: \"flex\", gap: 8 }}>\n    <Button color=\"primary\" variant=\"solid\">Submit</Button>\n    <Button color=\"secondary\" variant=\"outline\">Cancel</Button>\n  </div>\n</div>\n</Card>",
-          "details": "Full-fidelity payment form. Month, Year and CVV share one row, with a Select for the month and the year. A Separator sets off the Billing Address section, whose Checkbox takes its text through label."
-        },
-        {
-          "name": "No team members (empty state)",
-          "code": "<Card style={{ maxWidth: 380, padding: 24 }}>\n<EmptyMessage>\n  <EmptyMessage.Icon>\n    <UserAdd />\n  </EmptyMessage.Icon>\n  <EmptyMessage.Title>No team members</EmptyMessage.Title>\n  <EmptyMessage.Description>Invite your team to collaborate on this project.</EmptyMessage.Description>\n  <EmptyMessage.ActionRow>\n    <Button color=\"primary\" variant=\"solid\" size=\"sm\">Invite members</Button>\n  </EmptyMessage.ActionRow>\n</EmptyMessage>\n</Card>",
-          "details": "Compose Card with EmptyMessage for a center-aligned empty state with icon badge, title, description, and primary action."
-        },
-        {
-          "name": "How did you hear about us?",
-          "code": "const [source, setSource] = useState(\"social\")\n\n<Card style={{ maxWidth: 380 }}>\n<Card.Header>\n  <Card.Title>How did you hear about us?</Card.Title>\n  <Card.Description>Select the option that best describes how you heard about us.</Card.Description>\n</Card.Header>\n<Card.Content>\n  <RadioGroup value={source} onChange={setSource} direction=\"col\">\n    <RadioGroup.Item value=\"social\" block>Social Media</RadioGroup.Item>\n    <RadioGroup.Item value=\"search\" block>Search Engine</RadioGroup.Item>\n    <RadioGroup.Item value=\"referral\" block>Referral</RadioGroup.Item>\n    <RadioGroup.Item value=\"other\" block>Other</RadioGroup.Item>\n  </RadioGroup>\n</Card.Content>\n<Card.Footer>\n  <Button color=\"primary\" variant=\"solid\" block>Submit</Button>\n</Card.Footer>\n</Card>",
-          "details": "A single-question survey using RadioGroup with direction=\"col\" and a full-width submit button."
-        },
-        {
-          "name": "Processing your request",
-          "code": "<Card style={{ maxWidth: 380, padding: 24 }}>\n<EmptyMessage>\n  <div style={{ marginBottom: 12, color: \"var(--color-text-tertiary)\" }}>\n    <LoadingIndicator size={28} />\n  </div>\n  <EmptyMessage.Title>Processing your request</EmptyMessage.Title>\n  <EmptyMessage.Description>\n    Please wait while we process your request. Do not refresh the page.\n  </EmptyMessage.Description>\n  <EmptyMessage.ActionRow>\n    <Button color=\"secondary\" variant=\"outline\" size=\"sm\">Cancel</Button>\n  </EmptyMessage.ActionRow>\n</EmptyMessage>\n</Card>",
-          "details": "Loading state built with EmptyMessage and a LoadingIndicator as the visual anchor."
-        },
-        {
-          "name": "Pricing",
-          "code": "const plans = [\n{ name: \"Starter\", price: \"$0\", highlighted: false, features: [\"1 project\", \"Community support\", \"Plex UI core\"] },\n{ name: \"Pro\", price: \"$19\", highlighted: true, features: [\"Unlimited projects\", \"Priority support\", \"Custom domains\", \"Early components\"] },\n]\n\n<div style={{ display: \"grid\", gap: 16, gridTemplateColumns: \"repeat(auto-fit, minmax(240px, 1fr))\", maxWidth: 720 }}>\n{plans.map((plan) => (\n  <Card key={plan.name} variant={plan.highlighted ? \"solid\" : \"outline\"}>\n    <Card.Header>\n      <Card.Title>{plan.name}</Card.Title>\n      <Card.Description>\n        <span style={{ fontSize: 28, fontWeight: 600, color: \"var(--color-text)\" }}>{plan.price}</span>\n        <span style={{ marginLeft: 4 }}>/ month</span>\n      </Card.Description>\n    </Card.Header>\n    <Card.Content>\n      <ul style={{ listStyle: \"none\", padding: 0, margin: 0, display: \"flex\", flexDirection: \"column\", gap: 8 }}>\n        {plan.features.map((feature) => (\n          <li key={feature} style={{ display: \"flex\", alignItems: \"center\", gap: 8 }}>\n            <Check style={{ width: 16, height: 16, color: \"var(--color-text-success-soft)\" }} />\n            {feature}\n          </li>\n        ))}\n      </ul>\n    </Card.Content>\n    <Card.Footer style={{ marginTop: \"auto\", paddingTop: 4 }}>\n      <Button\n        color={plan.highlighted ? \"primary\" : \"secondary\"}\n        variant={plan.highlighted ? \"solid\" : \"outline\"}\n        block\n      >\n        Choose {plan.name}\n      </Button>\n    </Card.Footer>\n  </Card>\n))}\n</div>",
-          "details": "Mix variant=\"outline\" and variant=\"solid\" to emphasize a highlighted plan."
+          "code": "const [variant, setVariant] = useState<\"outline\" | \"solid\" | \"ghost\">(\"outline\")\nconst [size, setSize] = useState<\"sm\" | \"md\" | \"lg\">(\"md\")\nconst [description, setDescription] = useState(true)\nconst [content, setContent] = useState(false)\nconst [footer, setFooter] = useState<\"none\" | \"one\" | \"two\">(\"two\")\nconst [action, setAction] = useState(false) // without href\nconst [link, setLink] = useState(false)\n\n<Card variant={variant} size={size} href={link ? \"#overview\" : undefined} style={{ width: \"100%\", maxWidth: 380 }}>\n  <Card.Header>\n    <Card.Title>Project activity</Card.Title>\n    {description && (\n      <Card.Description>Your team opened 12 issues and closed 8 pull requests over the last 7 days.</Card.Description>\n    )}\n    {action && !link && (\n      <Card.Action>\n        <Button color=\"secondary\" variant=\"ghost\" size=\"sm\" uniform aria-label=\"More\">\n          <DotsHorizontal />\n        </Button>\n      </Card.Action>\n    )}\n  </Card.Header>\n  {content && <Card.Content>Most of the work landed on Tuesday, in the release branch.</Card.Content>}\n  {footer !== \"none\" && !link && (\n    <Card.Footer>\n      <Button color=\"primary\" variant=\"solid\" size=\"sm\" pill={false}>View report</Button>\n      {footer === \"two\" && <Button color=\"secondary\" variant=\"outline\" size=\"sm\" pill={false}>Dismiss</Button>}\n    </Card.Footer>\n  )}\n</Card>",
+          "details": "variant sets the frame: outline (a 1px border), solid (a muted fill) or ghost (neither). size sets the padding. On a phone an outline card is a section of an iOS inset grouped list, as a FieldGroup is, and a solid card takes a gray fill to stand apart from those sections. A card is its parts: Card.Header with Card.Title, Card.Description and Card.Action (a slot at the top end), Card.Content and Card.Footer for the actions. With href the whole card is a link, with hover and focus states; it then holds no buttons of its own. For a log-in, sign-up or verification screen, see Forms: Auth; for a metric, Stats Card; for an empty state, Empty Message."
         }
       ],
       "docsUrl": "https://plexui.com/components/card"
@@ -1368,83 +1324,196 @@
       "docsUrl": "https://plexui.com/components/context-menu"
     },
     {
-      "slug": "copy-tooltip",
-      "name": "Copy Tooltip",
-      "description": "A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.",
-      "importPath": "@plexui/ui/components/Tooltip",
+      "slug": "data-table",
+      "name": "Data Table",
+      "description": "\"Table of your data on TanStack Table v8, with sorting, pagination, filtering, row selection, column visibility and cell helpers.\"",
+      "importPath": "@plexui/ui/components/DataTable",
       "exports": [
-        "CopyTooltip",
-        "Button"
-      ],
-      "imports": [
-        {
-          "path": "@plexui/ui/components/Tooltip",
-          "names": [
-            "CopyTooltip"
-          ]
-        },
-        {
-          "path": "@plexui/ui/components/Button",
-          "names": [
-            "Button"
-          ]
-        }
+        "DataTable",
+        "DataTableColumnHeader"
       ],
       "props": [
         {
-          "name": "children",
-          "type": "ReactNode",
-          "description": "Trigger element (for example Tooltip.TriggerDecorator)"
+          "name": "columns",
+          "type": "ColumnDef<TData>[]",
+          "description": "Column definitions following TanStack Table v8 API (required)"
         },
         {
-          "name": "copyValue",
+          "name": "data",
+          "type": "TData[]",
+          "description": "Data array to display (required)"
+        },
+        {
+          "name": "variant",
+          "type": "\"default\" | \"bordered\"",
+          "default": "\"default\"",
+          "description": "Visual variant: bordered adds a rounded border and tinted header"
+        },
+        {
+          "name": "pageSize",
+          "type": "number",
+          "default": "10",
+          "description": "Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size"
+        },
+        {
+          "name": "initialSorting",
+          "type": "SortingState",
+          "description": "Initial column sorting state"
+        },
+        {
+          "name": "globalFilter",
           "type": "string",
-          "description": "Required. Content to copy to clipboard"
+          "description": "Controlled search/filter string"
         },
         {
-          "name": "openDelay",
-          "type": "number",
-          "default": "150",
-          "description": "Tooltip open delay in milliseconds"
+          "name": "onGlobalFilterChange",
+          "type": "(value: string) => void",
+          "description": "Callback when filter changes"
         },
         {
-          "name": "align",
-          "type": "\"start\" | \"center\" | \"end\"",
-          "default": "\"center\"",
-          "description": "Preferred tooltip alignment against the trigger"
+          "name": "onRowClick",
+          "type": "(row: TData) => void",
+          "description": "Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space"
         },
         {
-          "name": "alignOffset",
-          "type": "number",
-          "default": "0",
-          "description": "Offset from start/end alignment in pixels"
+          "name": "columnVisibility",
+          "type": "VisibilityState",
+          "description": "Controlled column visibility state"
         },
         {
-          "name": "side",
-          "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
-          "default": "\"top\"",
-          "description": "Preferred side of the trigger"
+          "name": "onColumnVisibilityChange",
+          "type": "(visibility: VisibilityState) => void",
+          "description": "Callback when visibility changes"
         },
         {
-          "name": "sideOffset",
-          "type": "number",
-          "default": "5",
-          "description": "Distance from trigger in pixels"
+          "name": "enableRowSelection",
+          "type": "boolean",
+          "default": "false",
+          "description": "Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click"
         },
         {
-          "name": "onCopy",
-          "type": "(copied: boolean) => void",
-          "description": "Called once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write"
+          "name": "rowSelection",
+          "type": "RowSelectionState",
+          "description": "Controlled row selection state"
+        },
+        {
+          "name": "onRowSelectionChange",
+          "type": "(selection: RowSelectionState) => void",
+          "description": "Callback when selection changes"
+        },
+        {
+          "name": "getRowId",
+          "type": "(row: TData) => string",
+          "description": "Custom row ID accessor; selection keys use it"
+        },
+        {
+          "name": "emptyMessage",
+          "type": "ReactNode",
+          "default": "\"No results.\"",
+          "description": "Shown when no rows"
+        },
+        {
+          "name": "showPagination",
+          "type": "boolean",
+          "default": "true",
+          "description": "Whether to show pagination controls. They hide on their own when every row fits on one page"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "description": "Class applied to outermost wrapper"
         }
       ],
       "examples": [
         {
           "name": "Overview",
-          "code": "<CopyTooltip copyValue=\"sess_12345abcdefg\">\n<Button color=\"secondary\" variant=\"ghost\" size=\"xl\" aria-label=\"Copy session ID\">\n  sess_12345abcdefg\n</Button>\n</CopyTooltip>",
-          "details": "Hovering the trigger shows Copy after openDelay, keyboard focus shows it at once; a click copies the value and the tooltip says Copied! On a phone a tap copies and shows Copied! at once, so the delay applies to a pointer only."
+          "code": "import { useState } from \"react\"\nimport { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n{\n  accessorKey: \"name\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Name\" />,\n  cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span>,\n},\n{ accessorKey: \"role\", header: \"Role\" },\n{ accessorKey: \"department\", header: \"Department\" },\n{ accessorKey: \"status\", header: \"Status\", cell: statusCell<User>((row) => row.status) },\n]\n\nconst previewUsers = users.slice(0, 6)\nconst emptyUsers: User[] = []\nconst emptyMessages = {\ndefault: undefined,\ntext: \"No users found.\",\nrich: <strong>No users found.</strong>,\n}\n\nexport function UsersTable() {\nconst [empty, setEmpty] = useState(false)\nconst [emptyMessage, setEmptyMessage] = useState<keyof typeof emptyMessages>(\"text\")\n\nreturn <DataTable columns={columns} data={empty ? emptyUsers : previewUsers}\n  variant=\"bordered\" pageSize={Infinity} emptyMessage={emptyMessages[emptyMessage]} />\n}",
+          "details": "Use variant=\"bordered\" for a card-like table with a rounded border and tinted header background. Toggle empty to supply no rows without resetting sorting or changing columns. emptyMessage selects the default message, custom text, or rich content. Filtering and its no-results state are shown separately."
+        },
+        {
+          "name": "Sorting",
+          "code": "import { DataTable, DataTableColumnHeader, type ColumnDef } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n{\n  accessorKey: \"name\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Name\" />,\n  cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span>,\n},\n{\n  accessorKey: \"role\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Role\" />,\n},\n{\n  accessorKey: \"status\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Status\" />,\n},\n]\n\nexport function UsersTable() {\nreturn (\n  <DataTable\n    columns={columns}\n    data={users}\n    pageSize={5}\n    initialSorting={[{ id: \"name\", desc: false }]}\n  />\n)\n}",
+          "details": "Click column headers to toggle sort direction. Columns use DataTableColumnHeader for sort controls."
+        },
+        {
+          "name": "Pagination",
+          "code": "import { DataTable, type ColumnDef } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n{ accessorKey: \"id\", header: \"ID\" },\n{ accessorKey: \"name\", header: \"Name\" },\n{ accessorKey: \"department\", header: \"Department\" },\n{ accessorKey: \"status\", header: \"Status\" },\n]\n\nexport function UsersTable() {\nreturn <DataTable columns={columns} data={users} pageSize={5} />\n}",
+          "details": "Automatic pagination with rows-per-page selector and navigation controls. Set pageSize to control the initial page size; the select offers 10, 20, 50 and 100 plus that size. The controls hide when every row fits on one page."
+        },
+        {
+          "name": "Row click",
+          "code": "import { useState } from \"react\"\nimport { DataTable, DataTableColumnHeader, type ColumnDef } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n{\n  accessorKey: \"name\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Name\" />,\n  cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span>,\n},\n{ accessorKey: \"email\", header: \"Email\" },\n{ accessorKey: \"role\", header: \"Role\" },\n]\n\nexport function UsersTable() {\nconst [selectedUser, setSelectedUser] = useState<User | null>(null)\n\nreturn (\n  <>\n    <DataTable columns={columns} data={users.slice(0, 8)} pageSize={4} onRowClick={setSelectedUser} />\n    <p className=\"mt-3 text-sm text-secondary\">\n      {selectedUser\n        ? \"Clicked: \" + selectedUser.name + \" (\" + selectedUser.id + \") - \" + selectedUser.department\n        : \"Click a row to see selected user details.\"}\n    </p>\n  </>\n)\n}",
+          "details": "Pass onRowClick to make rows clickable. Clickable rows also take Tab and call it on Enter or Space."
+        },
+        {
+          "name": "Row selection",
+          "code": "import { useState } from \"react\"\nimport {\nDataTable,\nDataTableColumnHeader,\nstatusCell,\ntype ColumnDef,\ntype RowSelectionState,\n} from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n{\n  accessorKey: \"name\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Name\" />,\n  cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span>,\n},\n{ accessorKey: \"role\", header: \"Role\" },\n{ accessorKey: \"status\", header: \"Status\", cell: statusCell<User>((row) => row.status) },\n]\n\nexport function UsersTable() {\nconst [rowSelection, setRowSelection] = useState<RowSelectionState>({})\n\nreturn (\n  <>\n    <DataTable\n      columns={columns}\n      data={users}\n      pageSize={5}\n      enableRowSelection\n      rowSelection={rowSelection}\n      onRowSelectionChange={setRowSelection}\n      getRowId={(user) => user.id}\n    />\n    <p className=\"mt-3 text-sm text-secondary\">\n      {Object.keys(rowSelection).length} of {users.length} rows selected\n    </p>\n  </>\n)\n}",
+          "details": "Set enableRowSelection to add a first column of checkboxes. The header checkbox selects every row on all pages and shows a mixed state when only some are selected. Bind rowSelection and onRowSelectionChange to read the selection; getRowId keys it by your own ids."
+        },
+        {
+          "name": "Cell variants",
+          "code": "import { DataTable, dateTimeCell, idCell, statusCell, tooltipHeader, type ColumnDef } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst money = new Intl.NumberFormat(\"en-US\", { style: \"currency\", currency: \"USD\", maximumFractionDigits: 0 })\n\nconst columns: ColumnDef<User>[] = [\n{ accessorKey: \"id\", header: \"ID\", cell: idCell<User>((row) => row.id) },\n{ accessorKey: \"name\", header: \"Name\", cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span> },\n{ accessorKey: \"status\", header: \"Status\", cell: statusCell<User>((row) => row.status) },\n{ accessorKey: \"joined\", header: \"Joined\", cell: dateTimeCell<User>((row) => row.joined) },\n{\n  accessorKey: \"salary\",\n  header: tooltipHeader(\"Salary\", \"Annual base salary in USD.\"),\n  meta: { align: \"right\" },\n  cell: ({ row }) => <span className=\"font-medium\">{money.format(row.original.salary)}</span>,\n},\n]\n\nexport function UsersTable() {\nreturn <DataTable columns={columns} data={users} pageSize={6} />\n}",
+          "details": "Column helpers render common cells: idCell (monospace ID with copy-on-click), statusCell (status badge), dateTimeCell (formatted date) and tooltipHeader (header with an info tooltip). Other formats, like the salary below, are plain cell renderers; meta.align aligns a column."
+        },
+        {
+          "name": "Filtering",
+          "code": "import { useState } from \"react\"\nimport { Input } from \"@plexui/ui/components/Input\"\nimport { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n{\n  accessorKey: \"name\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Name\" />,\n  cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span>,\n},\n{ accessorKey: \"role\", header: \"Role\" },\n{ accessorKey: \"department\", header: \"Department\" },\n{ accessorKey: \"status\", header: \"Status\", cell: statusCell<User>((row) => row.status) },\n]\n\nexport function UsersTable() {\nconst [globalFilter, setGlobalFilter] = useState(\"\")\n\nreturn (\n  <>\n    <Input\n      value={globalFilter}\n      onChange={(event) => setGlobalFilter(event.target.value)}\n      placeholder=\"Search name, role, department...\"\n    />\n    <DataTable\n      columns={columns}\n      data={users}\n      globalFilter={globalFilter}\n      onGlobalFilterChange={setGlobalFilter}\n      pageSize={5}\n    />\n  </>\n)\n}",
+          "details": "Control search with globalFilter and onGlobalFilterChange. The filter searches across all columns."
+        },
+        {
+          "name": "Column visibility",
+          "code": "import { useState } from \"react\"\nimport { DataTable, DataTableColumnHeader, statusCell, type ColumnDef, type VisibilityState } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst money = new Intl.NumberFormat(\"en-US\", { style: \"currency\", currency: \"USD\", maximumFractionDigits: 0 })\n\nconst columns: ColumnDef<User>[] = [\n{\n  accessorKey: \"name\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Name\" />,\n  cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span>,\n},\n{ accessorKey: \"role\", header: \"Role\" },\n{ accessorKey: \"department\", header: \"Department\" },\n{ accessorKey: \"status\", header: \"Status\", cell: statusCell<User>((row) => row.status) },\n{\n  accessorKey: \"salary\",\n  header: \"Salary\",\n  meta: { align: \"right\" },\n  cell: ({ row }) => <span>{money.format(row.original.salary)}</span>,\n},\n]\n\nexport function UsersTable() {\nconst [columnVisibility, setColumnVisibility] = useState<VisibilityState>({\n  role: true,\n  department: true,\n  status: true,\n  salary: true,\n})\n\nreturn (\n  <DataTable\n    columns={columns}\n    data={users}\n    pageSize={5}\n    columnVisibility={columnVisibility}\n    onColumnVisibilityChange={setColumnVisibility}\n  />\n)\n}",
+          "details": "Toggle column visibility with the columnVisibility and onColumnVisibilityChange props."
         }
       ],
-      "docsUrl": "https://plexui.com/components/copy-tooltip"
+      "subComponents": [
+        {
+          "name": "DataTableColumnHeader",
+          "props": [
+            {
+              "name": "column",
+              "type": "Column<TData, TValue>",
+              "description": "TanStack Table column object (required)"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "description": "Display text for the header (required)"
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "description": "Class applied to the header button (or text when the column cannot sort)"
+            }
+          ]
+        },
+        {
+          "name": "Column helpers",
+          "props": [
+            {
+              "name": "idCell(accessor)",
+              "type": "CellComponent",
+              "description": "Monospace ID with copy-on-click tooltip"
+            },
+            {
+              "name": "dateTimeCell(accessor, options?)",
+              "type": "CellComponent",
+              "description": "Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is"
+            },
+            {
+              "name": "statusCell(accessor, colorMap?)",
+              "type": "CellComponent",
+              "description": "Badge cell with automatic status-to-color mapping"
+            },
+            {
+              "name": "tooltipHeader(label, description)",
+              "type": "HeaderComponent",
+              "description": "Header with dashed underline and info tooltip"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/data-table"
     },
     {
       "slug": "date-input",
@@ -2192,7 +2261,8 @@
       "importPath": "@plexui/ui/components/Field",
       "exports": [
         "Field",
-        "FieldGroup"
+        "FieldGroup",
+        "Label"
       ],
       "imports": [
         {
@@ -2205,6 +2275,12 @@
           "path": "@plexui/ui/components/FieldGroup",
           "names": [
             "FieldGroup"
+          ]
+        },
+        {
+          "path": "@plexui/ui/components/Label",
+          "names": [
+            "Label"
           ]
         }
       ],
@@ -2328,6 +2404,11 @@
           "details": "Use labelAction for a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a \"Replace\" link. It takes the label's font size. On Phone a row has no label line to hold it: the link stands under the group in the rows' text, as under the Apple Account sign-in. A group's footer is a footnote, for words to read."
         },
         {
+          "name": "Label",
+          "code": "const [accepted, setAccepted] = useState(true);\n\nreturn (\n<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>\n  <Checkbox id=\"terms\" checked={accepted} onCheckedChange={setAccepted} />\n  <Label htmlFor=\"terms\">Accept terms and conditions</Label>\n</div>\n);",
+          "details": "A Field draws its own label. Reach for a standalone Label when you pair it with a checkbox, a switch or any control where a field's layout is too much: htmlFor points it at the control's id, so clicking the label toggles or focuses the control. Here accepted starts as true. On Phone the label takes the body type of a list row, 17/22 regular, the same as the labels of Checkbox, Switch and a Field row."
+        },
+        {
           "name": "Several controls",
           "code": "<Field label=\"Birthday\">\n{(fieldProps) => (\n  <div className=\"flex gap-2\">\n    <div className=\"w-[130px]\">\n      <Select id={fieldProps.id} aria-labelledby={fieldProps[\"aria-labelledby\"]} placeholder=\"Month\" options={months} value={month} onChange={(option) => setMonth(option.value)} />\n    </div>\n    <div className=\"w-[84px]\">\n      <Select aria-label=\"Day\" placeholder=\"Day\" options={days} value={day} onChange={(option) => setDay(option.value)} />\n    </div>\n    <div className=\"w-[96px]\">\n      <Select aria-label=\"Year\" placeholder=\"Year\" options={years} value={year} onChange={(option) => setYear(option.value)} />\n    </div>\n  </div>\n)}\n</Field>",
           "details": "For more than one control, or a control that needs its props placed by hand, pass a function as children. It receives {'{ id, \"aria-labelledby\", \"aria-describedby\", \"aria-invalid\" }'}: put the id and aria-labelledby on the first control, so the label names it, and give the others an aria-label of their own. On a phone a birthday is one row and one value, whose wheel sets the day, the month and the year, as in Contacts. PlexUI has no such wheel, so this example has no Phone view."
@@ -2393,6 +2474,23 @@
               "name": "className",
               "type": "string",
               "description": "Applied to the root section"
+            }
+          ]
+        },
+        {
+          "name": "Label",
+          "props": [
+            {
+              "name": "htmlFor",
+              "type": "string",
+              "default": "—",
+              "description": "id of the associated control. Clicks on the label focus or activate the control."
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "default": "—",
+              "description": "Applied to the root <label> element"
             }
           ]
         }
@@ -3237,37 +3335,6 @@
         }
       ],
       "docsUrl": "https://plexui.com/components/kbd"
-    },
-    {
-      "slug": "label",
-      "name": "Label",
-      "description": "Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.",
-      "importPath": "@plexui/ui/components/Label",
-      "exports": [
-        "Label"
-      ],
-      "props": [
-        {
-          "name": "htmlFor",
-          "type": "string",
-          "default": "—",
-          "description": "id of the associated control. Clicks on the label focus or activate the control."
-        },
-        {
-          "name": "className",
-          "type": "string",
-          "default": "—",
-          "description": "Applied to the root <label> element"
-        }
-      ],
-      "examples": [
-        {
-          "name": "Overview",
-          "code": "const [accepted, setAccepted] = useState(true);\n\nreturn (\n<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>\n  <Checkbox id=\"terms\" checked={accepted} onCheckedChange={setAccepted} />\n  <Label htmlFor=\"terms\">Accept terms and conditions</Label>\n</div>\n);",
-          "details": "Clicking the label toggles the checkbox it points at. Here accepted starts as true. On Phone the label takes the body type of a list row, 17/22 regular, the same as the labels of Checkbox, Switch and a Field row."
-        }
-      ],
-      "docsUrl": "https://plexui.com/components/label"
     },
     {
       "slug": "markdown-editor",
@@ -4200,7 +4267,7 @@
         {
           "name": "Column configuration",
           "code": "const allColumns = [\n{ id: \"name\", label: \"Name\" },\n{ id: \"email\", label: \"Email\" },\n{ id: \"role\", label: \"Role\" },\n{ id: \"status\", label: \"Status\" },\n{ id: \"created\", label: \"Created at\" },\n{ id: \"lastLogin\", label: \"Last login\" },\n{ id: \"avatar\", label: \"Avatar\" },\n{ id: \"phone\", label: \"Phone\" },\n]\nconst [shown, setShown] = useState([\"name\", \"email\", \"role\", \"status\"])\nconst heading = useRef<HTMLDivElement>(null)\nconst toggle = (id: string) => {\nsetShown((prev) =>\n  prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]\n)\n}\nconst shownColumns = allColumns.filter((c) => shown.includes(c.id))\nconst hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))\n\n// Desktop: a popover; a switch moves its column between the shown and hidden lists\n<Popover>\n<Popover.Trigger>\n  <Button color=\"secondary\" variant=\"outline\" size=\"sm\">\n    <SettingsSlider width={15} height={15} /> Columns\n  </Button>\n</Popover.Trigger>\n<Popover.Content minWidth={240} side=\"bottom\" align=\"start\">\n  <div className=\"py-1.5\">\n    {shownColumns.map((col) => (\n      <div\n        key={col.id}\n        className=\"flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5\"\n        onClick={() => toggle(col.id)}\n      >\n        <span className=\"text-sm\">{col.label}</span>\n        <Switch checked aria-label={col.label} />\n      </div>\n    ))}\n    {hiddenColumns.map((col) => (\n      <div\n        key={col.id}\n        className=\"flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5\"\n        onClick={() => toggle(col.id)}\n      >\n        <span className=\"text-sm text-tertiary\">{col.label}</span>\n        <Switch checked={false} aria-label={col.label} />\n      </div>\n    ))}\n  </div>\n</Popover.Content>\n</Popover>\n\n// Phone: a bar button of the top bar opens a sheet of switch rows in a fixed order\n<Page>\n<Toolbar>\n  <Toolbar.Title>Members</Toolbar.Title>\n  <Toolbar.Trailing>\n    <Dialog>\n      <Dialog.Trigger>\n        <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Columns\">\n          <DotsHorizontal />\n        </Button>\n      </Dialog.Trigger>\n      <Dialog.Content mobileVariant=\"sheet\" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>\n        <Dialog.Header>\n          <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Columns</Dialog.Title></div>\n        </Dialog.Header>\n        <Dialog.Body>\n          <FieldGroup>\n            {allColumns.map((col) => (\n              <Field row key={col.id} label={col.label}>\n                <Switch color=\"accent\" checked={shown.includes(col.id)} onCheckedChange={() => toggle(col.id)} />\n              </Field>\n            ))}\n          </FieldGroup>\n        </Dialog.Body>\n      </Dialog.Content>\n    </Dialog>\n  </Toolbar.Trailing>\n</Toolbar>\n</Page>",
-          "details": "A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups. For a DataTable, turn the shown ids into its columnVisibility, an object of column id to shown (Table › Column visibility). On a phone the panel is a sheet (Dialog with mobileVariant=\"sheet\") of Field rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More bar button of the screen's Toolbar, three dots on glass, as iOS apps open their view options."
+          "details": "A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups. For a DataTable, turn the shown ids into its columnVisibility, an object of column id to shown (Data Table › Column visibility). On a phone the panel is a sheet (Dialog with mobileVariant=\"sheet\") of Field rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More bar button of the screen's Toolbar, three dots on glass, as iOS apps open their view options."
         }
       ],
       "subComponents": [
@@ -4830,131 +4897,27 @@
       "docsUrl": "https://plexui.com/components/segmented-control"
     },
     {
-      "slug": "select-control",
-      "name": "Select Control",
-      "description": "The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.",
-      "importPath": "@plexui/ui/components/SelectControl",
-      "exports": [
-        "SelectControl"
-      ],
-      "props": [
-        {
-          "name": "selected",
-          "type": "boolean",
-          "default": "false",
-          "description": "Whether a value is selected (affects placeholder styling)"
-        },
-        {
-          "name": "variant",
-          "type": "\"soft\" | \"outline\" | \"ghost\"",
-          "default": "\"outline\"",
-          "description": "Visual variant"
-        },
-        {
-          "name": "size",
-          "type": "ControlSize",
-          "default": "\"md\"",
-          "description": "Control size (3xs to 3xl)"
-        },
-        {
-          "name": "pill",
-          "type": "boolean",
-          "default": "false",
-          "description": "Fully rounded trigger"
-        },
-        {
-          "name": "StartIcon",
-          "type": "ComponentType",
-          "description": "Icon at start"
-        },
-        {
-          "name": "onClearClick",
-          "type": "() => void",
-          "description": "Enables the clear button when set"
-        },
-        {
-          "name": "interactOnEnter",
-          "type": "boolean",
-          "default": "false",
-          "description": "Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form"
-        },
-        {
-          "name": "onInteract",
-          "type": "() => void",
-          "description": "Called on pointer down, ArrowDown, ArrowUp and Space. Without it, a wrapping trigger opens on pointer down"
-        },
-        {
-          "name": "dropdownIconType",
-          "type": "\"chevronDown\" | \"dropdown\" | \"none\"",
-          "default": "\"dropdown\"",
-          "description": "Dropdown indicator style"
-        },
-        {
-          "name": "invalid",
-          "type": "boolean",
-          "default": "false",
-          "description": "Invalid state"
-        },
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false",
-          "description": "Disable control"
-        },
-        {
-          "name": "block",
-          "type": "boolean",
-          "default": "false",
-          "description": "Full width"
-        },
-        {
-          "name": "loading",
-          "type": "boolean",
-          "default": "false",
-          "description": "Loading state (aria-busy); hides the indicators and ignores interaction"
-        },
-        {
-          "name": "opticallyAlign",
-          "type": "\"start\" | \"end\"",
-          "description": "Optical alignment"
-        },
-        {
-          "name": "className",
-          "type": "string",
-          "description": "Applied to the control"
-        }
-      ],
-      "examples": [
-        {
-          "name": "Overview",
-          "code": "const [value, setValue] = useState(\"\")\nconst [variant, setVariant] = useState(\"outline\")\nconst [size, setSize] = useState(\"md\")\nconst [pill, setPill] = useState(false)\nconst [startIcon, setStartIcon] = useState(true)\nconst [dropdownIconType, setDropdownIconType] = useState(\"dropdown\")\nconst [clearable, setClearable] = useState(true)\nconst [loading, setLoading] = useState(false)\nconst [invalid, setInvalid] = useState(false)\nconst [disabled, setDisabled] = useState(false)\nconst [block, setBlock] = useState(false)\nconst [opticallyAlign, setOpticallyAlign] = useState(\"none\") // ghost only: \"start\", or \"end\" with block\n\n// Desktop\n<div className=\"w-[290px]\">\n  <Field label=\"Period\" errorMessage={invalid ? \"No data for this period.\" : undefined}>\n    {(control) => (\n      <Menu>\n        <Menu.Trigger>\n          <SelectControl\n            {...control}\n            aria-labelledby={`${control[\"aria-labelledby\"]} ${control.id}-value`}\n            className={block ? undefined : \"w-[200px]\"}\n            variant={variant}\n            size={size}\n            pill={pill}\n            block={block}\n            opticallyAlign={variant === \"ghost\" && opticallyAlign !== \"none\" ? opticallyAlign : undefined}\n            StartIcon={startIcon ? CalendarAlt : undefined}\n            dropdownIconType={dropdownIconType}\n            selected={!!value}\n            onClearClick={clearable ? () => setValue(\"\") : undefined}\n            loading={loading}\n            invalid={invalid}\n            disabled={disabled}\n          >\n            <span id={`${control.id}-value`}>{value || \"Select date...\"}</span>\n          </SelectControl>\n        </Menu.Trigger>\n        <Menu.Content minWidth={200} width={block ? 290 : 200}>\n          <Menu.RadioGroup value={value} onChange={setValue}>\n            <Menu.RadioItem value=\"Today\">Today</Menu.RadioItem>\n            <Menu.RadioItem value=\"Last week\">Last week</Menu.RadioItem>\n            <Menu.RadioItem value=\"Last month\">Last month</Menu.RadioItem>\n            <Menu.RadioItem value=\"Last 3 months\">Last 3 months</Menu.RadioItem>\n          </Menu.RadioGroup>\n        </Menu.Content>\n      </Menu>\n    )}\n  </Field>\n</div>\n\n// Phone: the control is the value of a row; its label and value name the trigger, and a clearable one has None.\n<FieldGroup>\n  <Field row label=\"Period\" errorMessage={invalid ? \"No data for this period.\" : undefined}>\n    {(control) => (\n      <Menu>\n        <Menu.Trigger>\n          <SelectControl\n            {...control}\n            aria-labelledby={`${control[\"aria-labelledby\"]} ${control.id}-value`}\n            selected={!!value}\n            loading={loading}\n            invalid={invalid}\n            disabled={disabled}\n          >\n            <span id={`${control.id}-value`}>{value || \"None\"}</span>\n          </SelectControl>\n        </Menu.Trigger>\n        <Menu.Content minWidth={200} align=\"end\">\n          <Menu.RadioGroup value={value} onChange={setValue}>\n            {clearable && <Menu.RadioItem value=\"\">None</Menu.RadioItem>}\n            <Menu.RadioItem value=\"Today\">Today</Menu.RadioItem>\n            <Menu.RadioItem value=\"Last week\">Last week</Menu.RadioItem>\n            <Menu.RadioItem value=\"Last month\">Last month</Menu.RadioItem>\n            <Menu.RadioItem value=\"Last 3 months\">Last 3 months</Menu.RadioItem>\n          </Menu.RadioGroup>\n        </Menu.Content>\n      </Menu>\n    )}\n  </Field>\n</FieldGroup>",
-          "details": "Use variant to stylize the control: its styles are like those of {\"\"}, with the small differences of {\"\"}, and ghost has no frame. size sets the control's height, font size, gutter and the placement of its icon and indicator, on the 9-step scale of Button, Input, Select and SegmentedControl; pill rounds it fully and widens its gutter, and its clear action is a pill too. StartIcon puts an icon before the value, sized, spaced and colored by the control, and dropdownIconType picks the indicator. selected says the control holds a value and turns off the placeholder styling. It does nothing to the content, which is up to you, so here it follows the value: pick a period, or clear it. Pass onClearClick to make the control clearable: the clear action shows while it is selected. During loading the dropdown icon and clear action are hidden, the control is marked aria-busy and it ignores pointer and keyboard interaction; add disabled to dim it as well. invalid marks the control invalid; pair it with the field's errorMessage. disabled disables it both visually and accessibly. block stretches it across its container, here the 290px field. opticallyAlign offsets the control by its gutter: \"start\" puts the start of a ghost control, its icon or its text, on the label's edge, and \"end\" puts the end of a block one, its indicator, on the field's end. A framed control keeps its gutter, so the example offers the setting for ghost only, and \"end\" only with block: a narrower control does not reach the field's end. The control's own aria-labelledby names it by the label and the value, as Select's trigger is named.On Phone the control is the value of a row in a FieldGroup: the value and its up-down chevrons sit at the row's end, as an iOS pop-up button. The row sets its height, insets, type and colors, so the Phone preview has no variant, size, pill, StartIcon, dropdownIconType, block and opticallyAlign controls. A selected value takes the secondary label color (the primary one in a group with columns), a placeholder the tertiary one. A clearable control unsets its value with the menu's None row, as iOS pop-ups do, rather than a clear button. A row has no frame to color, so the error is the row's errorMessage line."
-        },
-        {
-          "name": "Country selector",
-          "code": "const countries = [\n{ value: \"us\", label: \"United States\" },\n{ value: \"gb\", label: \"United Kingdom\" },\n// ...60 countries\n];\n\nconst CountryView = ({ value, label }: Option) => (\n<span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>\n  <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} alt=\"\" width={20} />\n  {label}\n</span>\n);\n\n// Desktop\n<Select\nvalue={country}\noptions={countries}\nonChange={(option) => setCountry(option.value)}\nplaceholder=\"Select country...\"\nsize=\"lg\"\nblock\nsearchPlaceholder=\"Search countries...\"\nTriggerView={CountryView}\nOptionView={CountryView}\nlistMinWidth={300}\n/>\n\n// Phone: the country at the row's end; the flags stay in the list.\n<FieldGroup>\n<Field row label=\"Country\">\n  <Select\n    value={country}\n    options={countries}\n    onChange={(option) => setCountry(option.value)}\n    block={false}\n    align=\"end\"\n    searchPlaceholder=\"Search countries...\"\n    OptionView={CountryView}\n    listMinWidth={300}\n  />\n</Field>\n</FieldGroup>",
-          "details": "A plain country selector built with Select. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. The search box appears on its own because the list has more than 15 options; there is no prop for it."
-        },
-        {
-          "name": "Country code selector",
-          "code": "const countries = [\n{ value: \"us\", label: \"United States (+1)\", dialCode: \"+1\" },\n{ value: \"gb\", label: \"United Kingdom (+44)\", dialCode: \"+44\" },\n// ...60 countries\n];\n\nconst CountryTriggerView = ({ value }) => {\nconst country = lookup.get(value);\nreturn (\n  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>\n    <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} alt=\"\" width={20} />\n    {country.label} ({country.dialCode})\n  </span>\n);\n};\n\n// Desktop\n<Select\nvalue={country}\noptions={countries}\nonChange={(option) => setCountry(option.value)}\nplaceholder=\"Select country...\"\nsize=\"lg\"\nblock\nsearchPredicate={searchPredicate}\nTriggerView={CountryTriggerView}\nlistMinWidth={300}\n/>\n\n// Phone: the country and its code at the row's end; the flags stay in the list.\n<FieldGroup>\n<Field row label=\"Country\">\n  <Select\n    value={country}\n    options={countries}\n    onChange={(option) => setCountry(option.value)}\n    block={false}\n    align=\"end\"\n    searchPlaceholder=\"Search countries...\"\n    searchPredicate={searchPredicate}\n    OptionView={CountryOptionView}\n    listMinWidth={300}\n  />\n</Field>\n</FieldGroup>",
-          "details": "A searchable country selector built with Select. Custom TriggerView and OptionView render flag icons and dial codes. Search matches both country name and dial code."
-        },
-        {
-          "name": "Phone form",
-          "code": "import { useState, useCallback, useRef } from 'react';\nimport { Input } from '@plexui/ui/components/Input';\nimport { Select, type Option } from '@plexui/ui/components/Select';\nimport { Button } from '@plexui/ui/components/Button';\nimport { Field } from '@plexui/ui/components/Field';\nimport { FieldGroup } from '@plexui/ui/components/FieldGroup';\nimport { Page } from '@plexui/ui/components/Page';\n// BackButton is your app's navigation action.\n\n// Country data: include all 245 countries in production\ntype Country = { value: string; label: string; dialCode: string; flag: string };\n\nconst COUNTRIES: Country[] = [\n{ value: 'us', label: 'United States', dialCode: '+1', flag: '🇺🇸' },\n{ value: 'gb', label: 'United Kingdom', dialCode: '+44', flag: '🇬🇧' },\n{ value: 'de', label: 'Germany', dialCode: '+49', flag: '🇩🇪' },\n{ value: 'fr', label: 'France', dialCode: '+33', flag: '🇫🇷' },\n{ value: 'es', label: 'Spain', dialCode: '+34', flag: '🇪🇸' },\n{ value: 'it', label: 'Italy', dialCode: '+39', flag: '🇮🇹' },\n{ value: 'jp', label: 'Japan', dialCode: '+81', flag: '🇯🇵' },\n{ value: 'au', label: 'Australia', dialCode: '+61', flag: '🇦🇺' },\n{ value: 'br', label: 'Brazil', dialCode: '+55', flag: '🇧🇷' },\n{ value: 'in', label: 'India', dialCode: '+91', flag: '🇮🇳' },\n// ... full list of 245 countries\n];\n\nconst COUNTRY_LOOKUP = new Map(COUNTRIES.map((c) => [c.value, c]));\nconst COUNTRY_OPTIONS = COUNTRIES.map((c) => ({\n...c,\nlabel: `${c.label} (${c.dialCode})`,\n}));\n\n// Per-country phone number format patterns\nconst PHONE_FORMATS: Record<string, number[]> = {\nus: [3, 3, 4], ca: [3, 3, 4],   // 123 456 7890\ngb: [4, 3, 3], de: [3, 4, 4],   // 1234 567 890 | 123 4567 8901\nfr: [1, 2, 2, 2, 2],            // 1 23 45 67 89\nes: [3, 2, 2, 2],               // 123 45 67 89\nit: [3, 3, 4], jp: [2, 4, 4],\nau: [3, 3, 3], br: [2, 5, 4],\nin: [5, 5],                      // 12345 67890\n// ... add more countries as needed\n};\n\nfunction formatPhoneNumber(raw: string, countryCode?: string) {\nconst digits = raw.replace(/\\D/g, '');\nif (!digits) return '';\nconst format = (countryCode && PHONE_FORMATS[countryCode]) || [3, 3, 4];\nconst groups: string[] = [];\nlet i = 0;\nfor (const size of format) {\n  if (i >= digits.length) break;\n  groups.push(digits.slice(i, i + size));\n  i += size;\n}\nif (i < digits.length) groups.push(digits.slice(i));\nreturn groups.join(' ');\n}\n\n// Flag icon: SVG flags from lipis/flag-icons, all 4:3\nfunction FlagIcon({ code, trigger }: { code: string; trigger?: boolean }) {\nreturn (\n  <span\n    style={{\n      display: 'block',\n      height: trigger ? 'var(--start-icon-size, 18px)' : 16,\n      aspectRatio: '4 / 3',\n      borderRadius: 2,\n      overflow: 'hidden',\n      flexShrink: 0,\n    }}\n  >\n    <img\n      src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${code}.svg`}\n      alt=\"\"\n      loading=\"lazy\"\n      style={{\n        display: 'block',\n        width: '100%',\n        height: '100%',\n      }}\n    />\n  </span>\n);\n}\n\n// Custom trigger and option renderers\nconst CountryTriggerView = ({ value }: Option) => {\nconst country = COUNTRY_LOOKUP.get(value);\nif (!country) return null;\nreturn (\n  <span style={{ display: 'flex', alignItems: 'center', gap: 8, height: '100%' }}>\n    <FlagIcon code={value} trigger />\n    {country.label} ({country.dialCode})\n  </span>\n);\n};\n\nconst CountryOptionView = ({ value, label }: Option) => (\n<span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>\n  <FlagIcon code={value} />\n  {label}\n</span>\n);\n\n// Search matches country name or dial code\nconst searchPredicate = (option: Option, term: string) => {\nconst country = COUNTRY_LOOKUP.get(option.value);\nif (!country) return false;\nreturn (\n  country.label.toLowerCase().includes(term) ||\n  country.dialCode.includes(term)\n);\n};\n\nfunction PhoneForm() {\nconst [country, setCountry] = useState('us');\nconst [phone, setPhone] = useState('');\nconst [submitted, setSubmitted] = useState(false);\nconst phoneRef = useRef<HTMLInputElement>(null);\n\nconst dialCode = COUNTRY_LOOKUP.get(country)?.dialCode ?? '+1';\nconst digits = phone.replace(/\\D/g, '');\nconst isValid = digits.length >= 7 && digits.length <= 15;\nconst showError = submitted && !isValid;\n\nconst handleCountryChange = useCallback((option: Option) => {\n  setCountry(option.value);\n  setPhone('');\n  setSubmitted(false);\n  setTimeout(() => phoneRef.current?.focus(), 0);\n}, []);\n\nconst handlePhoneChange = useCallback(\n  (e: React.ChangeEvent<HTMLInputElement>) => {\n    setPhone(formatPhoneNumber(e.target.value.replace(/\\D/g, ''), country));\n    setSubmitted(false);\n  },\n  [country]\n);\n\nreturn (\n  <Page className=\"h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]\">\n    <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Phone number</Page.Title></Page.Bar></Page.Header>\n    <Page.Content>\n      <form id=\"phone-form\" onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }} noValidate>\n        <FieldGroup title=\"Phone number\" description=\"Choose your country and enter the number you want to use.\" columns>\n      <Field row label=\"Country\">\n        <Select value={country} options={COUNTRY_OPTIONS} onChange={handleCountryChange}\n          searchPlaceholder=\"Search countries...\" searchPredicate={searchPredicate}\n          OptionView={CountryOptionView} listMinWidth={300} />\n      </Field>\n      <Field row label=\"Phone\" errorMessage={showError ? 'Phone number is not valid.' : undefined}>\n        <Input ref={phoneRef} value={phone} onChange={handlePhoneChange}\n          placeholder=\"Phone number\" type=\"tel\" inputMode=\"tel\" autoComplete=\"tel-national\"\n          startAdornment={<span className=\"text-tertiary whitespace-nowrap select-none mr-2\">{dialCode}</span>} />\n      </Field>\n    </FieldGroup>\n      </form>\n    </Page.Content>\n    <Page.Footer><Button color=\"primary\" size=\"3xl\" pill block form=\"phone-form\" type=\"submit\">Continue</Button></Page.Footer>\n  </Page>\n);\n}",
-          "details": "Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix and clears the phone field. Phone numbers are formatted as you type using per-country patterns (e.g. 123 456 7890 for US, 1234 567 890 for UK). Search works by both country name and dial code. Validation runs on submit: the phone field shows an error state with FieldError when the number is too short or too long."
-        }
-      ],
-      "docsUrl": "https://plexui.com/components/select-control"
-    },
-    {
       "slug": "select",
       "name": "Select",
       "description": "Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.",
       "importPath": "@plexui/ui/components/Select",
       "exports": [
-        "Select"
+        "Select",
+        "SelectControl"
+      ],
+      "imports": [
+        {
+          "path": "@plexui/ui/components/Select",
+          "names": [
+            "Select"
+          ]
+        },
+        {
+          "path": "@plexui/ui/components/SelectControl",
+          "names": [
+            "SelectControl"
+          ]
+        }
       ],
       "props": [
         {
@@ -5186,6 +5149,114 @@
           "name": "Grouped options",
           "code": "// Desktop\n<Select\nvalue={value}\noptions={groupedItems}\nonChange={(v) => setValue(v.value)}\nvariant=\"outline\"\nsize=\"lg\"\nside=\"bottom\"\nlistMinWidth={300}\nsearchPlaceholder=\"Select an option...\"\nclearable\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Plan\">\n  <Select\n    value={value}\n    options={groupedItems}\n    onChange={(v) => setValue(v.value)}\n    block={false}\n    align=\"end\"\n    searchPlaceholder=\"Select an option...\"\n  />\n</Field>\n</FieldGroup>",
           "details": "Select supports option groups, similar to the native &lt;optgroup&gt; element. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options. On a phone the list is an iOS menu, which has no search: a long list scrolls."
+        },
+        {
+          "name": "Country selector",
+          "code": "const countries = [\n{ value: \"us\", label: \"United States\" },\n{ value: \"gb\", label: \"United Kingdom\" },\n// ...60 countries\n];\n\nconst CountryView = ({ value, label }: Option) => (\n<span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>\n  <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} alt=\"\" width={20} />\n  {label}\n</span>\n);\n\n// Desktop\n<Select\nvalue={country}\noptions={countries}\nonChange={(option) => setCountry(option.value)}\nplaceholder=\"Select country...\"\nsize=\"lg\"\nblock\nsearchPlaceholder=\"Search countries...\"\nTriggerView={CountryView}\nOptionView={CountryView}\nlistMinWidth={300}\n/>\n\n// Phone: the country at the row's end; the flags stay in the list.\n<FieldGroup>\n<Field row label=\"Country\">\n  <Select\n    value={country}\n    options={countries}\n    onChange={(option) => setCountry(option.value)}\n    block={false}\n    align=\"end\"\n    searchPlaceholder=\"Search countries...\"\n    OptionView={CountryView}\n    listMinWidth={300}\n  />\n</Field>\n</FieldGroup>",
+          "details": "A plain country selector built with Select. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. The search box appears on its own because the list has more than 15 options; there is no prop for it."
+        },
+        {
+          "name": "Country code selector",
+          "code": "const countries = [\n{ value: \"us\", label: \"United States (+1)\", dialCode: \"+1\" },\n{ value: \"gb\", label: \"United Kingdom (+44)\", dialCode: \"+44\" },\n// ...60 countries\n];\n\nconst CountryTriggerView = ({ value }) => {\nconst country = lookup.get(value);\nreturn (\n  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>\n    <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} alt=\"\" width={20} />\n    {country.label} ({country.dialCode})\n  </span>\n);\n};\n\n// Desktop\n<Select\nvalue={country}\noptions={countries}\nonChange={(option) => setCountry(option.value)}\nplaceholder=\"Select country...\"\nsize=\"lg\"\nblock\nsearchPredicate={searchPredicate}\nTriggerView={CountryTriggerView}\nlistMinWidth={300}\n/>\n\n// Phone: the country and its code at the row's end; the flags stay in the list.\n<FieldGroup>\n<Field row label=\"Country\">\n  <Select\n    value={country}\n    options={countries}\n    onChange={(option) => setCountry(option.value)}\n    block={false}\n    align=\"end\"\n    searchPlaceholder=\"Search countries...\"\n    searchPredicate={searchPredicate}\n    OptionView={CountryOptionView}\n    listMinWidth={300}\n  />\n</Field>\n</FieldGroup>",
+          "details": "A searchable country selector built with Select. Custom TriggerView and OptionView render flag icons and dial codes. Search matches both country name and dial code."
+        },
+        {
+          "name": "Select Control",
+          "code": "const [value, setValue] = useState(\"\")\nconst [variant, setVariant] = useState(\"outline\")\nconst [size, setSize] = useState(\"md\")\nconst [pill, setPill] = useState(false)\nconst [startIcon, setStartIcon] = useState(true)\nconst [dropdownIconType, setDropdownIconType] = useState(\"dropdown\")\nconst [clearable, setClearable] = useState(true)\nconst [loading, setLoading] = useState(false)\nconst [invalid, setInvalid] = useState(false)\nconst [disabled, setDisabled] = useState(false)\nconst [block, setBlock] = useState(false)\nconst [opticallyAlign, setOpticallyAlign] = useState(\"none\") // ghost only: \"start\", or \"end\" with block\n\n// Desktop\n<div className=\"w-[290px]\">\n  <Field label=\"Period\" errorMessage={invalid ? \"No data for this period.\" : undefined}>\n    {(control) => (\n      <Menu>\n        <Menu.Trigger>\n          <SelectControl\n            {...control}\n            aria-labelledby={`${control[\"aria-labelledby\"]} ${control.id}-value`}\n            className={block ? undefined : \"w-[200px]\"}\n            variant={variant}\n            size={size}\n            pill={pill}\n            block={block}\n            opticallyAlign={variant === \"ghost\" && opticallyAlign !== \"none\" ? opticallyAlign : undefined}\n            StartIcon={startIcon ? CalendarAlt : undefined}\n            dropdownIconType={dropdownIconType}\n            selected={!!value}\n            onClearClick={clearable ? () => setValue(\"\") : undefined}\n            loading={loading}\n            invalid={invalid}\n            disabled={disabled}\n          >\n            <span id={`${control.id}-value`}>{value || \"Select date...\"}</span>\n          </SelectControl>\n        </Menu.Trigger>\n        <Menu.Content minWidth={200} width={block ? 290 : 200}>\n          <Menu.RadioGroup value={value} onChange={setValue}>\n            <Menu.RadioItem value=\"Today\">Today</Menu.RadioItem>\n            <Menu.RadioItem value=\"Last week\">Last week</Menu.RadioItem>\n            <Menu.RadioItem value=\"Last month\">Last month</Menu.RadioItem>\n            <Menu.RadioItem value=\"Last 3 months\">Last 3 months</Menu.RadioItem>\n          </Menu.RadioGroup>\n        </Menu.Content>\n      </Menu>\n    )}\n  </Field>\n</div>\n\n// Phone: the control is the value of a row; its label and value name the trigger, and a clearable one has None.\n<FieldGroup>\n  <Field row label=\"Period\" errorMessage={invalid ? \"No data for this period.\" : undefined}>\n    {(control) => (\n      <Menu>\n        <Menu.Trigger>\n          <SelectControl\n            {...control}\n            aria-labelledby={`${control[\"aria-labelledby\"]} ${control.id}-value`}\n            selected={!!value}\n            loading={loading}\n            invalid={invalid}\n            disabled={disabled}\n          >\n            <span id={`${control.id}-value`}>{value || \"None\"}</span>\n          </SelectControl>\n        </Menu.Trigger>\n        <Menu.Content minWidth={200} align=\"end\">\n          <Menu.RadioGroup value={value} onChange={setValue}>\n            {clearable && <Menu.RadioItem value=\"\">None</Menu.RadioItem>}\n            <Menu.RadioItem value=\"Today\">Today</Menu.RadioItem>\n            <Menu.RadioItem value=\"Last week\">Last week</Menu.RadioItem>\n            <Menu.RadioItem value=\"Last month\">Last month</Menu.RadioItem>\n            <Menu.RadioItem value=\"Last 3 months\">Last 3 months</Menu.RadioItem>\n          </Menu.RadioGroup>\n        </Menu.Content>\n      </Menu>\n    )}\n  </Field>\n</FieldGroup>",
+          "details": "Use variant to stylize the control: its styles are like those of {\"\"}, with the small differences of {\"\"}, and ghost has no frame. size sets the control's height, font size, gutter and the placement of its icon and indicator, on the 9-step scale of Button, Input, Select and SegmentedControl; pill rounds it fully and widens its gutter, and its clear action is a pill too. StartIcon puts an icon before the value, sized, spaced and colored by the control, and dropdownIconType picks the indicator. selected says the control holds a value and turns off the placeholder styling. It does nothing to the content, which is up to you, so here it follows the value: pick a period, or clear it. Pass onClearClick to make the control clearable: the clear action shows while it is selected. During loading the dropdown icon and clear action are hidden, the control is marked aria-busy and it ignores pointer and keyboard interaction; add disabled to dim it as well. invalid marks the control invalid; pair it with the field's errorMessage. disabled disables it both visually and accessibly. block stretches it across its container, here the 290px field. opticallyAlign offsets the control by its gutter: \"start\" puts the start of a ghost control, its icon or its text, on the label's edge, and \"end\" puts the end of a block one, its indicator, on the field's end. A framed control keeps its gutter, so the example offers the setting for ghost only, and \"end\" only with block: a narrower control does not reach the field's end. The control's own aria-labelledby names it by the label and the value, as Select's trigger is named.On Phone the control is the value of a row in a FieldGroup: the value and its up-down chevrons sit at the row's end, as an iOS pop-up button. The row sets its height, insets, type and colors, so the Phone preview has no variant, size, pill, StartIcon, dropdownIconType, block and opticallyAlign controls. A selected value takes the secondary label color (the primary one in a group with columns), a placeholder the tertiary one. A clearable control unsets its value with the menu's None row, as iOS pop-ups do, rather than a clear button. A row has no frame to color, so the error is the row's errorMessage line."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "SelectControl",
+          "description": "Use SelectControl with any floating UI (e.g. Menu, Popover). The control renders the trigger; you provide the dropdown content. children is the control's content. Other props land on the control's <span role=\"button\">; onKeyDown receives only the keys the control does not handle itself. To decide when the control opens (or to keep it closed), pass onInteract and control the dropdown's open state yourself: the wrapping trigger then no longer opens on its own.",
+          "props": [
+            {
+              "name": "selected",
+              "type": "boolean",
+              "default": "false",
+              "description": "Whether a value is selected (affects placeholder styling)"
+            },
+            {
+              "name": "variant",
+              "type": "\"soft\" | \"outline\" | \"ghost\"",
+              "default": "\"outline\"",
+              "description": "Visual variant"
+            },
+            {
+              "name": "size",
+              "type": "ControlSize",
+              "default": "\"md\"",
+              "description": "Control size (3xs to 3xl)"
+            },
+            {
+              "name": "pill",
+              "type": "boolean",
+              "default": "false",
+              "description": "Fully rounded trigger"
+            },
+            {
+              "name": "StartIcon",
+              "type": "ComponentType",
+              "description": "Icon at start"
+            },
+            {
+              "name": "onClearClick",
+              "type": "() => void",
+              "description": "Enables the clear button when set"
+            },
+            {
+              "name": "interactOnEnter",
+              "type": "boolean",
+              "default": "false",
+              "description": "Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form"
+            },
+            {
+              "name": "onInteract",
+              "type": "() => void",
+              "description": "Called on pointer down, ArrowDown, ArrowUp and Space. Without it, a wrapping trigger opens on pointer down"
+            },
+            {
+              "name": "dropdownIconType",
+              "type": "\"chevronDown\" | \"dropdown\" | \"none\"",
+              "default": "\"dropdown\"",
+              "description": "Dropdown indicator style"
+            },
+            {
+              "name": "invalid",
+              "type": "boolean",
+              "default": "false",
+              "description": "Invalid state"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disable control"
+            },
+            {
+              "name": "block",
+              "type": "boolean",
+              "default": "false",
+              "description": "Full width"
+            },
+            {
+              "name": "loading",
+              "type": "boolean",
+              "default": "false",
+              "description": "Loading state (aria-busy); hides the indicators and ignores interaction"
+            },
+            {
+              "name": "opticallyAlign",
+              "type": "\"start\" | \"end\"",
+              "description": "Optical alignment"
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "description": "Applied to the control"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/components/select"
@@ -6580,7 +6651,7 @@
     {
       "slug": "table",
       "name": "Table",
-      "description": "Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.",
+      "description": "\"Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.\"",
       "importPath": "@plexui/ui/components/Table",
       "exports": [
         "Table",
@@ -6588,28 +6659,48 @@
         "TableBody",
         "TableRow",
         "TableHead",
-        "TableCell",
-        "DataTable",
-        "DataTableColumnHeader"
+        "TableCell"
       ],
-      "imports": [
+      "props": [
         {
-          "path": "@plexui/ui/components/Table",
-          "names": [
-            "Table",
-            "TableHeader",
-            "TableBody",
-            "TableRow",
-            "TableHead",
-            "TableCell"
-          ]
+          "name": "Table",
+          "type": "table",
+          "description": "Root table container with horizontal scroll wrapper"
         },
         {
-          "path": "@plexui/ui/components/DataTable",
-          "names": [
-            "DataTable",
-            "DataTableColumnHeader"
-          ]
+          "name": "TableHeader",
+          "type": "thead",
+          "description": "Table header group"
+        },
+        {
+          "name": "TableBody",
+          "type": "tbody",
+          "description": "Table body group"
+        },
+        {
+          "name": "TableFooter",
+          "type": "tfoot",
+          "description": "Table footer group"
+        },
+        {
+          "name": "TableRow",
+          "type": "tr",
+          "description": "Table row"
+        },
+        {
+          "name": "TableHead",
+          "type": "th",
+          "description": "Table header cell"
+        },
+        {
+          "name": "TableCell",
+          "type": "td",
+          "description": "Table data cell"
+        },
+        {
+          "name": "TableCaption",
+          "type": "caption",
+          "description": "Table caption"
         }
       ],
       "examples": [
@@ -6627,233 +6718,6 @@
           "name": "Minimal",
           "code": "const people = [\n{ name: \"Lindsay Walton\", title: \"Front-end Developer\", email: \"lindsay@example.com\" },\n{ name: \"Courtney Henry\", title: \"Designer\", email: \"courtney@example.com\" },\n{ name: \"Tom Cook\", title: \"Director of Product\", email: \"tom@example.com\" },\n]\n\nreturn (\n<Table>\n  <TableHeader>\n    <TableRow>\n      <TableHead>Name</TableHead>\n      <TableHead>Title</TableHead>\n      <TableHead>Email</TableHead>\n    </TableRow>\n  </TableHeader>\n  <TableBody>\n    {people.map((person) => (\n      <TableRow key={person.email}>\n        <TableCell className=\"font-medium\">{person.name}</TableCell>\n        <TableCell>{person.title}</TableCell>\n        <TableCell>{person.email}</TableCell>\n      </TableRow>\n    ))}\n  </TableBody>\n</Table>\n)",
           "details": "A simple table without caption or footer, showing a list of people."
-        },
-        {
-          "name": "Variant",
-          "code": "import { useState } from \"react\"\nimport { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n{\n  accessorKey: \"name\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Name\" />,\n  cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span>,\n},\n{ accessorKey: \"role\", header: \"Role\" },\n{ accessorKey: \"department\", header: \"Department\" },\n{ accessorKey: \"status\", header: \"Status\", cell: statusCell<User>((row) => row.status) },\n]\n\nconst previewUsers = users.slice(0, 6)\nconst emptyUsers: User[] = []\nconst emptyMessages = {\ndefault: undefined,\ntext: \"No users found.\",\nrich: <strong>No users found.</strong>,\n}\n\nexport function UsersTable() {\nconst [empty, setEmpty] = useState(false)\nconst [emptyMessage, setEmptyMessage] = useState<keyof typeof emptyMessages>(\"text\")\n\nreturn <DataTable columns={columns} data={empty ? emptyUsers : previewUsers}\n  variant=\"bordered\" pageSize={Infinity} emptyMessage={emptyMessages[emptyMessage]} />\n}",
-          "details": "Use variant=\"bordered\" for a card-like table with a rounded border and tinted header background. Toggle empty to supply no rows without resetting sorting or changing columns. emptyMessage selects the default message, custom text, or rich content. Filtering and its no-results state are shown separately."
-        },
-        {
-          "name": "Sorting",
-          "code": "import { DataTable, DataTableColumnHeader, type ColumnDef } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n{\n  accessorKey: \"name\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Name\" />,\n  cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span>,\n},\n{\n  accessorKey: \"role\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Role\" />,\n},\n{\n  accessorKey: \"status\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Status\" />,\n},\n]\n\nexport function UsersTable() {\nreturn (\n  <DataTable\n    columns={columns}\n    data={users}\n    pageSize={5}\n    initialSorting={[{ id: \"name\", desc: false }]}\n  />\n)\n}",
-          "details": "Click column headers to toggle sort direction. Columns use DataTableColumnHeader for sort controls."
-        },
-        {
-          "name": "Pagination",
-          "code": "import { DataTable, type ColumnDef } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n{ accessorKey: \"id\", header: \"ID\" },\n{ accessorKey: \"name\", header: \"Name\" },\n{ accessorKey: \"department\", header: \"Department\" },\n{ accessorKey: \"status\", header: \"Status\" },\n]\n\nexport function UsersTable() {\nreturn <DataTable columns={columns} data={users} pageSize={5} />\n}",
-          "details": "Automatic pagination with rows-per-page selector and navigation controls. Set pageSize to control the initial page size; the select offers 10, 20, 50 and 100 plus that size. The controls hide when every row fits on one page."
-        },
-        {
-          "name": "Row click",
-          "code": "import { useState } from \"react\"\nimport { DataTable, DataTableColumnHeader, type ColumnDef } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n{\n  accessorKey: \"name\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Name\" />,\n  cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span>,\n},\n{ accessorKey: \"email\", header: \"Email\" },\n{ accessorKey: \"role\", header: \"Role\" },\n]\n\nexport function UsersTable() {\nconst [selectedUser, setSelectedUser] = useState<User | null>(null)\n\nreturn (\n  <>\n    <DataTable columns={columns} data={users.slice(0, 8)} pageSize={4} onRowClick={setSelectedUser} />\n    <p className=\"mt-3 text-sm text-secondary\">\n      {selectedUser\n        ? \"Clicked: \" + selectedUser.name + \" (\" + selectedUser.id + \") - \" + selectedUser.department\n        : \"Click a row to see selected user details.\"}\n    </p>\n  </>\n)\n}",
-          "details": "Pass onRowClick to make rows clickable. Clickable rows also take Tab and call it on Enter or Space."
-        },
-        {
-          "name": "Row selection",
-          "code": "import { useState } from \"react\"\nimport {\nDataTable,\nDataTableColumnHeader,\nstatusCell,\ntype ColumnDef,\ntype RowSelectionState,\n} from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n{\n  accessorKey: \"name\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Name\" />,\n  cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span>,\n},\n{ accessorKey: \"role\", header: \"Role\" },\n{ accessorKey: \"status\", header: \"Status\", cell: statusCell<User>((row) => row.status) },\n]\n\nexport function UsersTable() {\nconst [rowSelection, setRowSelection] = useState<RowSelectionState>({})\n\nreturn (\n  <>\n    <DataTable\n      columns={columns}\n      data={users}\n      pageSize={5}\n      enableRowSelection\n      rowSelection={rowSelection}\n      onRowSelectionChange={setRowSelection}\n      getRowId={(user) => user.id}\n    />\n    <p className=\"mt-3 text-sm text-secondary\">\n      {Object.keys(rowSelection).length} of {users.length} rows selected\n    </p>\n  </>\n)\n}",
-          "details": "Set enableRowSelection to add a first column of checkboxes. The header checkbox selects every row on all pages and shows a mixed state when only some are selected. Bind rowSelection and onRowSelectionChange to read the selection; getRowId keys it by your own ids."
-        },
-        {
-          "name": "Cell variants",
-          "code": "import { DataTable, dateTimeCell, idCell, statusCell, tooltipHeader, type ColumnDef } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst money = new Intl.NumberFormat(\"en-US\", { style: \"currency\", currency: \"USD\", maximumFractionDigits: 0 })\n\nconst columns: ColumnDef<User>[] = [\n{ accessorKey: \"id\", header: \"ID\", cell: idCell<User>((row) => row.id) },\n{ accessorKey: \"name\", header: \"Name\", cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span> },\n{ accessorKey: \"status\", header: \"Status\", cell: statusCell<User>((row) => row.status) },\n{ accessorKey: \"joined\", header: \"Joined\", cell: dateTimeCell<User>((row) => row.joined) },\n{\n  accessorKey: \"salary\",\n  header: tooltipHeader(\"Salary\", \"Annual base salary in USD.\"),\n  meta: { align: \"right\" },\n  cell: ({ row }) => <span className=\"font-medium\">{money.format(row.original.salary)}</span>,\n},\n]\n\nexport function UsersTable() {\nreturn <DataTable columns={columns} data={users} pageSize={6} />\n}",
-          "details": "Column helpers render common cells: idCell (monospace ID with copy-on-click), statusCell (status badge), dateTimeCell (formatted date) and tooltipHeader (header with an info tooltip). Other formats, like the salary below, are plain cell renderers; meta.align aligns a column."
-        },
-        {
-          "name": "Filtering",
-          "code": "import { useState } from \"react\"\nimport { Input } from \"@plexui/ui/components/Input\"\nimport { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n{\n  accessorKey: \"name\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Name\" />,\n  cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span>,\n},\n{ accessorKey: \"role\", header: \"Role\" },\n{ accessorKey: \"department\", header: \"Department\" },\n{ accessorKey: \"status\", header: \"Status\", cell: statusCell<User>((row) => row.status) },\n]\n\nexport function UsersTable() {\nconst [globalFilter, setGlobalFilter] = useState(\"\")\n\nreturn (\n  <>\n    <Input\n      value={globalFilter}\n      onChange={(event) => setGlobalFilter(event.target.value)}\n      placeholder=\"Search name, role, department...\"\n    />\n    <DataTable\n      columns={columns}\n      data={users}\n      globalFilter={globalFilter}\n      onGlobalFilterChange={setGlobalFilter}\n      pageSize={5}\n    />\n  </>\n)\n}",
-          "details": "Control search with globalFilter and onGlobalFilterChange. The filter searches across all columns."
-        },
-        {
-          "name": "Column visibility",
-          "code": "import { useState } from \"react\"\nimport { DataTable, DataTableColumnHeader, statusCell, type ColumnDef, type VisibilityState } from \"@plexui/ui/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst money = new Intl.NumberFormat(\"en-US\", { style: \"currency\", currency: \"USD\", maximumFractionDigits: 0 })\n\nconst columns: ColumnDef<User>[] = [\n{\n  accessorKey: \"name\",\n  header: ({ column }) => <DataTableColumnHeader column={column} title=\"Name\" />,\n  cell: ({ row }) => <span className=\"font-medium\">{row.original.name}</span>,\n},\n{ accessorKey: \"role\", header: \"Role\" },\n{ accessorKey: \"department\", header: \"Department\" },\n{ accessorKey: \"status\", header: \"Status\", cell: statusCell<User>((row) => row.status) },\n{\n  accessorKey: \"salary\",\n  header: \"Salary\",\n  meta: { align: \"right\" },\n  cell: ({ row }) => <span>{money.format(row.original.salary)}</span>,\n},\n]\n\nexport function UsersTable() {\nconst [columnVisibility, setColumnVisibility] = useState<VisibilityState>({\n  role: true,\n  department: true,\n  status: true,\n  salary: true,\n})\n\nreturn (\n  <DataTable\n    columns={columns}\n    data={users}\n    pageSize={5}\n    columnVisibility={columnVisibility}\n    onColumnVisibilityChange={setColumnVisibility}\n  />\n)\n}",
-          "details": "Toggle column visibility with the columnVisibility and onColumnVisibilityChange props."
-        }
-      ],
-      "subComponents": [
-        {
-          "name": "Table Primitives",
-          "props": [
-            {
-              "name": "Table",
-              "type": "table",
-              "description": "Root table container with horizontal scroll wrapper"
-            },
-            {
-              "name": "TableHeader",
-              "type": "thead",
-              "description": "Table header group"
-            },
-            {
-              "name": "TableBody",
-              "type": "tbody",
-              "description": "Table body group"
-            },
-            {
-              "name": "TableFooter",
-              "type": "tfoot",
-              "description": "Table footer group"
-            },
-            {
-              "name": "TableRow",
-              "type": "tr",
-              "description": "Table row"
-            },
-            {
-              "name": "TableHead",
-              "type": "th",
-              "description": "Table header cell"
-            },
-            {
-              "name": "TableCell",
-              "type": "td",
-              "description": "Table data cell"
-            },
-            {
-              "name": "TableCaption",
-              "type": "caption",
-              "description": "Table caption"
-            }
-          ]
-        },
-        {
-          "name": "DataTable",
-          "props": [
-            {
-              "name": "columns",
-              "type": "ColumnDef<TData>[]",
-              "description": "Column definitions following TanStack Table v8 API (required)"
-            },
-            {
-              "name": "data",
-              "type": "TData[]",
-              "description": "Data array to display (required)"
-            },
-            {
-              "name": "variant",
-              "type": "\"default\" | \"bordered\"",
-              "default": "\"default\"",
-              "description": "Visual variant: bordered adds a rounded border and tinted header"
-            },
-            {
-              "name": "pageSize",
-              "type": "number",
-              "default": "10",
-              "description": "Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size"
-            },
-            {
-              "name": "initialSorting",
-              "type": "SortingState",
-              "description": "Initial column sorting state"
-            },
-            {
-              "name": "globalFilter",
-              "type": "string",
-              "description": "Controlled search/filter string"
-            },
-            {
-              "name": "onGlobalFilterChange",
-              "type": "(value: string) => void",
-              "description": "Callback when filter changes"
-            },
-            {
-              "name": "onRowClick",
-              "type": "(row: TData) => void",
-              "description": "Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space"
-            },
-            {
-              "name": "columnVisibility",
-              "type": "VisibilityState",
-              "description": "Controlled column visibility state"
-            },
-            {
-              "name": "onColumnVisibilityChange",
-              "type": "(visibility: VisibilityState) => void",
-              "description": "Callback when visibility changes"
-            },
-            {
-              "name": "enableRowSelection",
-              "type": "boolean",
-              "default": "false",
-              "description": "Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click"
-            },
-            {
-              "name": "rowSelection",
-              "type": "RowSelectionState",
-              "description": "Controlled row selection state"
-            },
-            {
-              "name": "onRowSelectionChange",
-              "type": "(selection: RowSelectionState) => void",
-              "description": "Callback when selection changes"
-            },
-            {
-              "name": "getRowId",
-              "type": "(row: TData) => string",
-              "description": "Custom row ID accessor; selection keys use it"
-            },
-            {
-              "name": "emptyMessage",
-              "type": "ReactNode",
-              "default": "\"No results.\"",
-              "description": "Shown when no rows"
-            },
-            {
-              "name": "showPagination",
-              "type": "boolean",
-              "default": "true",
-              "description": "Whether to show pagination controls. They hide on their own when every row fits on one page"
-            },
-            {
-              "name": "className",
-              "type": "string",
-              "description": "Class applied to outermost wrapper"
-            }
-          ]
-        },
-        {
-          "name": "DataTableColumnHeader",
-          "props": [
-            {
-              "name": "column",
-              "type": "Column<TData, TValue>",
-              "description": "TanStack Table column object (required)"
-            },
-            {
-              "name": "title",
-              "type": "string",
-              "description": "Display text for the header (required)"
-            },
-            {
-              "name": "className",
-              "type": "string",
-              "description": "Class applied to the header button (or text when the column cannot sort)"
-            }
-          ]
-        },
-        {
-          "name": "Column helpers",
-          "props": [
-            {
-              "name": "idCell(accessor)",
-              "type": "CellComponent",
-              "description": "Monospace ID with copy-on-click tooltip"
-            },
-            {
-              "name": "dateTimeCell(accessor, options?)",
-              "type": "CellComponent",
-              "description": "Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is"
-            },
-            {
-              "name": "statusCell(accessor, colorMap?)",
-              "type": "CellComponent",
-              "description": "Badge cell with automatic status-to-color mapping"
-            },
-            {
-              "name": "tooltipHeader(label, description)",
-              "type": "HeaderComponent",
-              "description": "Header with dashed underline and info tooltip"
-            }
-          ]
         }
       ],
       "docsUrl": "https://plexui.com/components/table"
@@ -7543,9 +7407,10 @@
     {
       "slug": "tooltip",
       "name": "Tooltip",
-      "description": "Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.",
+      "description": "Brief informative text shown on hover or focus, for any trigger element, with conditional enabling, a compact variant and a copy-to-clipboard tooltip.",
       "importPath": "@plexui/ui/components/Tooltip",
       "exports": [
+        "CopyTooltip",
         "Tooltip"
       ],
       "props": [
@@ -7634,10 +7499,67 @@
           "name": "Overview",
           "code": "const [trigger, setTrigger] = useState<\"text\" | \"button\" | \"icon\">(\"text\")\nconst [compact, setCompact] = useState(false)\nconst [side, setSide] = useState<\"top\" | \"right\" | \"bottom\" | \"left\">(\"top\")\nconst [disabled, setDisabled] = useState(false)\n\n<>\n  {trigger === \"text\" && (\n    // Tooltip.TriggerDecorator makes text a trigger\n    <Tooltip content=\"This is additional context that appears when the trigger is hovered or focused\" compact={compact} side={side}>\n      <Tooltip.TriggerDecorator>Simple text with tooltip</Tooltip.TriggerDecorator>\n    </Tooltip>\n  )}\n  {trigger === \"button\" && (\n    <Tooltip content={disabled ? \"This action is disabled for reasons\" : \"Tooltip on button\"} compact={compact} side={side}>\n      <Button color=\"primary\" size=\"lg\" disabled={disabled}>\n        Sample button\n      </Button>\n    </Tooltip>\n  )}\n  {trigger === \"icon\" && (\n    <Tooltip content={disabled ? \"This action is disabled for reasons\" : \"Copy to clipboard\"} compact={compact} side={side}>\n      <Button color=\"secondary\" variant=\"ghost\" size=\"md\" aria-label=\"Copy to clipboard\" disabled={disabled}>\n        <Copy />\n      </Button>\n    </Tooltip>\n  )}\n</>",
           "details": "Any element can be the trigger: trigger shows text, a button and an icon button. Text is no tab stop of its own, so wrap it in Tooltip.TriggerDecorator, which makes it one and marks it with a dotted underline; a plain span shows its tooltip on hover only, and a keyboard never reaches it. An icon button names itself with aria-label, and its tooltip says the same in words. compact is for short tooltips of one to three words: little padding (2px by 8px) and inverted colors, a dark fill with light text in the light theme and the other way round in the dark one. side is the side the tooltip prefers; it turns to the other side when there is no room. A disabled button can tell why in its tooltip on hover (a disabled button is no tab stop): pass the reason as content while it is disabled. To show a tooltip only under a condition, pass null otherwise."
+        },
+        {
+          "name": "Copy Tooltip",
+          "code": "<CopyTooltip copyValue=\"sess_12345abcdefg\">\n<Button color=\"secondary\" variant=\"ghost\" size=\"xl\" aria-label=\"Copy session ID\">\n  sess_12345abcdefg\n</Button>\n</CopyTooltip>",
+          "details": "A CopyTooltip copies copyValue when its trigger is clicked and says Copied! once the clipboard write succeeds. Hovering the trigger shows Copy after openDelay, keyboard focus shows it at once. On a phone a tap copies and shows Copied! at once, so the delay applies to a pointer only."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "CopyTooltip",
+          "props": [
+            {
+              "name": "children",
+              "type": "ReactNode",
+              "description": "Trigger element (for example Tooltip.TriggerDecorator)"
+            },
+            {
+              "name": "copyValue",
+              "type": "string",
+              "description": "Required. Content to copy to clipboard"
+            },
+            {
+              "name": "openDelay",
+              "type": "number",
+              "default": "150",
+              "description": "Tooltip open delay in milliseconds"
+            },
+            {
+              "name": "align",
+              "type": "\"start\" | \"center\" | \"end\"",
+              "default": "\"center\"",
+              "description": "Preferred tooltip alignment against the trigger"
+            },
+            {
+              "name": "alignOffset",
+              "type": "number",
+              "default": "0",
+              "description": "Offset from start/end alignment in pixels"
+            },
+            {
+              "name": "side",
+              "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
+              "default": "\"top\"",
+              "description": "Preferred side of the trigger"
+            },
+            {
+              "name": "sideOffset",
+              "type": "number",
+              "default": "5",
+              "description": "Distance from trigger in pixels"
+            },
+            {
+              "name": "onCopy",
+              "type": "(copied: boolean) => void",
+              "description": "Called once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-16T17:10:57.755Z"
+  "generatedAt": "2026-11-16T17:31:20.335Z"
 }

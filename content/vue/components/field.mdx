@@ -269,7 +269,13 @@ export const opticalAlign = `<div class="w-full min-w-0 max-w-[400px]">
 </div>`
 
 <UsageBlock>{`import { Field } from "@plexui/vue/components/Field";
-import { FieldGroup } from "@plexui/vue/components/FieldGroup";`}</UsageBlock>
+import { FieldGroup } from "@plexui/vue/components/FieldGroup";
+import { Label } from "@plexui/vue/components/Label";`}</UsageBlock>
+
+export const labelOverview = `<div style="display: flex; align-items: center; gap: 8px">
+  <Checkbox id="label-demo-terms" v-model:checked="accepted" />
+  <Label for="label-demo-terms">Accept terms and conditions</Label>
+</div>`
 
 ## Examples
 
@@ -329,6 +335,12 @@ import { FieldGroup } from "@plexui/vue/components/FieldGroup";`}</UsageBlock>
   <VuePhoneRowsDemo template={labelAction} phoneTemplate={phoneRows(labelActionPhone)} phoneStageClassName="w-full" stageClassName="py-10" />
 </ComponentPreview>
 
+### Label
+
+<ComponentPreview language="vue" details={<>A <code>Field</code> draws its own label. Reach for a standalone <code>Label</code> when you pair it with a checkbox, a switch or any control where a field's layout is too much: <code>for</code> points it at the control's <code>id</code>, so clicking the label toggles or focuses the control. Here <code>accepted</code> starts as <code>true</code>. On Phone the label takes the body type of a list row, 17/22 regular, the same as the labels of <code>Checkbox</code>, <code>Switch</code> and a <code>Field</code> row.</>} code={labelOverview}>
+  <VueDemo template={labelOverview} state={{ accepted: true }} />
+</ComponentPreview>
+
 ### Several controls
 
 <ComponentPreview phonePresentation="none" language="vue" details={<>For more than one control, or a control that needs its props placed by hand, read the default slot's props (<code>v-slot="fieldProps"</code>): <code>{'{ id, "aria-labelledby", "aria-describedby", "aria-invalid" }'}</code>. A slot that reads them renders its content as it is, so you bind them where they belong: put the <code>id</code> and <code>aria-labelledby</code> on the first control, so the label names it, and give the others an <code>aria-label</code> of their own. On a phone a birthday is one row and one value, whose wheel sets the day, the month and the year, as in Contacts. PlexUI has no such wheel, so this example has no Phone view.</>} code={severalControls} previewMinHeight={168}>
@@ -386,6 +398,16 @@ For whole forms, on the web and on a phone, see [Forms: Settings](/vue/component
   { prop: "action slot", type: "VNode", description: "Content at the end of the header. On a phone a ghost text button reads as the list header's action: tinted text on the title's last line" },
   { prop: "footer slot", type: "VNode", description: "Content under the block, such as a note; its paragraphs stand apart" },
 ]} />
+
+### Label
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `for` | `string` | | `id` of the associated control. Clicks on the label focus or activate the control. |
+| `class` | `string` | | Applied to the root `<label>` element |
+| default slot | `VNode[]` | | Label content |
+
+Built on [Reka UI Label](https://reka-ui.com/docs/components/label), which prevents text selection on double-click and forwards clicks to the associated control. All other `<label>` attributes are forwarded.
 
 ## Styling
 
@@ -463,3 +485,12 @@ FieldGroup reads these:
 - `--field-group-title-letter-spacing`: title tracking (default `normal`)
 - `--field-group-title-line-height`: title line height (default `var(--font-text-md-line-height)`)
 - `--field-group-title-padding-inline`: title inset (default `0`; 20px on a phone)
+
+A standalone `Label` reads its own tokens:
+
+- `--label-color`: text color (defaults to `--color-text`)
+- `--label-font-size`: text size (defaults to `--font-text-sm-size`)
+- `--label-font-weight`: weight (defaults to `--font-weight-medium`)
+- `--label-line-height`: line height (defaults to `1`)
+
+On Phone the label is 17px with a 22px line height and regular weight.

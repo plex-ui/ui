@@ -7,11 +7,8 @@ import { Input } from '@plexui/ui/components/Input';
 import { Select, type Option } from '@plexui/ui/components/Select';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { FormScreen } from './FormRowsDemos';
 import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 import { Button } from '@plexui/ui/components/Button';
-import { FieldError } from '@plexui/ui/components/FieldError';
-
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 
@@ -594,142 +591,6 @@ export function CountrySelectorDemo() {
             optionClassName={COUNTRY_OPTION_CLASS}
           />
         </div>
-      </div>
-    </>
-  );
-}
-
-// ============================================================
-// Demo 3: Combined Phone Form (Country Selector + Phone Input)
-// ============================================================
-
-export function PhoneFormDemo() {
-  const [country, setCountry] = useState('es');
-  const [phone, setPhone] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
-  const [pill, setPill] = useState(false);
-
-  const phoneInputRef = useRef<HTMLInputElement>(null);
-
-  const selectedCountry = COUNTRY_LOOKUP.get(country);
-  const dialCode = selectedCountry?.dialCode ?? '+1';
-
-  const handlePhoneChange = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = evt.target.value.replace(/\D/g, '');
-    setPhone(formatPhoneNumber(raw, country));
-    setSubmitted(false);
-  }, [country]);
-
-  const handleCountryChange = useCallback((option: Option) => {
-    setCountry(option.value);
-    setPhone('');
-    setSubmitted(false);
-    setTimeout(() => phoneInputRef.current?.focus(), 0);
-  }, []);
-
-  const digits = stripFormatting(phone);
-  const isPhoneValid = digits.length >= 7 && digits.length <= 15;
-  const showError = submitted && !isPhoneValid;
-
-  const handleSubmit = (evt: React.FormEvent) => {
-    evt.preventDefault();
-    setSubmitted(true);
-
-  };
-
-  const phoneRows = usePhoneRows();
-  if (phoneRows) return (
-    <>
-      <style>{COUNTRY_OPTION_STYLE}</style>
-      <FormScreen title="Phone number" submitLabel="Continue" onSubmit={handleSubmit} noValidate>
-        <FieldGroup title="Phone number" description="Choose your country and enter the number you want to use." columns>
-        <Field row label="Country">
-          <Select value={country} options={COUNTRY_OPTIONS} onChange={handleCountryChange}
-            searchPlaceholder="Search countries..." searchPredicate={countrySearchPredicate}
-            OptionView={CountryOptionView} listMinWidth={300} optionClassName={COUNTRY_OPTION_CLASS} />
-        </Field>
-        <Field row label="Phone" errorMessage={showError ? 'Phone number is not valid.' : undefined}>
-          <Input ref={phoneInputRef} value={phone} onChange={handlePhoneChange}
-            placeholder="Phone number" type="tel" inputMode="tel" autoComplete="tel-national"
-            startAdornment={<span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCode}</span>} />
-        </Field>
-      </FieldGroup>
-      </FormScreen>
-    </>
-  );
-
-  return (
-    <>
-      <style>{COUNTRY_OPTION_STYLE}</style>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
-          <SegmentedControl<(typeof SIZE_OPTIONS)[number]>
-            value={size}
-            onChange={setSize}
-            aria-label="size"
-            size="xs"
-          >
-            {SIZE_OPTIONS.map((s) => (
-              <SegmentedControl.Option key={s} value={s}>
-                {s}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
-      </div>
-      <div data-demo-stage className="py-10">
-        <form onSubmit={handleSubmit} className="w-[360px]" noValidate>
-          <div className="flex flex-col gap-2">
-            <Select
-              value={country}
-              options={COUNTRY_OPTIONS}
-              onChange={handleCountryChange}
-              placeholder="Select country..."
-              size={size}
-              variant="outline"
-              pill={pill}
-              block
-              searchPlaceholder="Search countries..."
-              searchPredicate={countrySearchPredicate}
-              TriggerView={CountryTriggerView}
-              OptionView={CountryOptionView}
-              listMinWidth={300}
-              optionClassName={COUNTRY_OPTION_CLASS}
-            />
-            <div>
-              <Input
-                ref={phoneInputRef}
-                value={phone}
-                onChange={handlePhoneChange}
-                placeholder="Phone number"
-                type="tel"
-                inputMode="tel"
-                size={size}
-                variant="outline"
-                pill={pill}
-                invalid={showError}
-                startAdornment={
-                  <span style={{ display: 'inline-flex', alignItems: 'center', height: 'var(--input-size)', lineHeight: 0 }} className="text-tertiary whitespace-nowrap select-none">{dialCode}</span>
-                }
-              />
-              {showError && (
-                <FieldError className="mt-1.5">Phone number is not valid.</FieldError>
-              )}
-            </div>
-          </div>
-          <Button
-            type="submit"
-            color="primary"
-            variant="solid"
-            size={size}
-            pill={pill}
-            className="w-full mt-3"
-          >
-            Continue
-          </Button>
-        </form>
       </div>
     </>
   );

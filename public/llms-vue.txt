@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 63
+Components: 61
 
 ## Setup
 
@@ -79,7 +79,7 @@ Props:
   ButtonGroupText:
     - as-child (boolean) default: false — Render the slotted child (e.g. a <label> tied to an input) instead of a <div>
     - class (string) — Applied to the wrapper
-Examples: Overview, Orientation, Input group, Separator, Input, Dropdown menu, Select, Popover
+Examples: Overview, Orientation, Input group, Separator, Dropdown menu, Popover
 
 ## Context Menu
 "A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu."
@@ -181,6 +181,7 @@ Examples: Overview
 Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.
 Import: import { Field } from "@plexui/vue/components/Field"
 Import: import { FieldGroup } from "@plexui/vue/components/FieldGroup"
+Import: import { Label } from "@plexui/vue/components/Label"
 Docs: https://plexui.com/vue/components/field
 Props:
   - label (string) — Label text for the field
@@ -209,7 +210,11 @@ Props:
     - default slot (VNode) — The rows
     - action slot (VNode) — Content at the end of the header. On a phone a ghost text button reads as the list header's action: tinted text on the title's last line
     - footer slot (VNode) — Content under the block, such as a note; its paragraphs stand apart
-Examples: Overview, Group, Action rows, Spacing between groups, Other controls, Label action, Several controls, Sizing, Optical alignment
+  Label:
+    - for (string) — id of the associated control. Clicks on the label focus or activate the control.
+    - class (string) — Applied to the root <label> element
+    - default slot (VNode[]) — Label content
+Examples: Overview, Group, Action rows, Spacing between groups, Other controls, Label action, Label, Several controls, Sizing, Optical alignment
 
 ## File Upload
 Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
@@ -317,16 +322,6 @@ Props:
     - align ("inline-start" | "inline-end" | "block-start" | "block-end") default: "inline-start" — Before or after the control on its line, or a row above or below it
     - class (string) — Applied to the addon <div>
 Examples: Overview, Text, Button, Dropdown, Textarea
-
-## Label
-Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
-Import: import { Label } from "@plexui/vue/components/Label"
-Docs: https://plexui.com/vue/components/label
-Props:
-  - for (string) — id of the associated control. Clicks on the label focus or activate the control.
-  - class (string) — Applied to the root <label> element
-  - default slot (VNode[]) — Label content
-Examples: Overview
 
 ## Markdown Editor
 Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.
@@ -611,6 +606,7 @@ Examples: Overview, Icons, Icon only, Badges, Overflow
 ## Select
 Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.
 Import: import { Select } from "@plexui/vue/components/Select"
+Import: import { SelectControl } from "@plexui/vue/components/SelectControl"
 Docs: https://plexui.com/vue/components/select
 Props:
   - options (Options<T>) — Array of options or grouped options
@@ -650,29 +646,23 @@ Props:
   - search-size (ControlSize) default: "md" — Size of the search input in the menu. A phone list has no search: it is an iOS menu, and a long one scrolls
   - search-predicate ((option, term) => boolean) — Filters options while searching
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
-Examples: Overview, With descriptions, Actions, Grouped options
-
-## Select Control
-The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.
-Import: import { SelectControl } from "@plexui/vue/components/SelectControl"
-Docs: https://plexui.com/vue/components/select-control
-Props:
-  - selected (boolean) default: false — Whether a value is selected (affects placeholder styling)
-  - variant ("soft" | "outline" | "ghost") default: "outline" — Visual variant
-  - size (ControlSize) default: "md" — Control size (3xs to 3xl)
-  - pill (boolean) default: false — Fully rounded trigger
-  - StartIcon (Component) — Icon at start
-  - @clear-click (() => void) — Enables the clear button when set (a function prop, onClearClick)
-  - interact-on-enter (boolean) default: false — Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form
-  - @interact (() => void) — Called on pointer down, ArrowDown, ArrowUp and Space (a function prop, onInteract). Without it, a wrapping trigger opens on pointer down
-  - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Dropdown indicator style
-  - invalid (boolean) default: false — Invalid state
-  - disabled (boolean) default: false — Disable control
-  - block (boolean) default: false — Full width
-  - loading (boolean) default: false — Loading state (aria-busy); hides the indicators and ignores interaction
-  - optically-align ("start" | "end") — Optical alignment
-  - class (string) — Applied to the control
-Examples: Overview, Country selector, Country code selector, Phone form
+  SelectControl:
+    - selected (boolean) default: false — Whether a value is selected (affects placeholder styling)
+    - variant ("soft" | "outline" | "ghost") default: "outline" — Visual variant
+    - size (ControlSize) default: "md" — Control size (3xs to 3xl)
+    - pill (boolean) default: false — Fully rounded trigger
+    - StartIcon (Component) — Icon at start
+    - @clear-click (() => void) — Enables the clear button when set (a function prop, onClearClick)
+    - interact-on-enter (boolean) default: false — Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form
+    - @interact (() => void) — Called on pointer down, ArrowDown, ArrowUp and Space (a function prop, onInteract). Without it, a wrapping trigger opens on pointer down
+    - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Dropdown indicator style
+    - invalid (boolean) default: false — Invalid state
+    - disabled (boolean) default: false — Disable control
+    - block (boolean) default: false — Full width
+    - loading (boolean) default: false — Loading state (aria-busy); hides the indicators and ignores interaction
+    - optically-align ("start" | "end") — Optical alignment
+    - class (string) — Applied to the control
+Examples: Overview, With descriptions, Actions, Grouped options, Country selector, Country code selector, Select Control
 
 ## Slider
 Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.
@@ -940,22 +930,6 @@ Props:
     - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
 Examples: Overview, Search under the title, Disabled, Sheet
 
-## Copy Tooltip
-A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
-Import: import { CopyTooltip } from "@plexui/vue/components/Tooltip"
-Import: import { Button } from "@plexui/vue/components/Button"
-Docs: https://plexui.com/vue/components/copy-tooltip
-Props:
-  - default slot (VNode) — Trigger element (for example TooltipTriggerDecorator)
-  - copy-value (string) — Required. Content to copy to clipboard
-  - open-delay (number) default: 150 — Tooltip open delay in milliseconds
-  - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
-  - align-offset (number) default: 0 — Offset from start/end alignment in pixels
-  - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
-  - side-offset (number) default: 5 — Distance from trigger in pixels
-  - @copy ((copied: boolean) => void) — Emitted once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
-Examples: Overview
-
 ## Dialog
 Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
 Import: import { Dialog, DialogBody, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogHeaderAction, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
@@ -1051,8 +1025,8 @@ Docs: https://plexui.com/vue/components/toast
 Examples: Overview
 
 ## Tooltip
-Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
-Import: import { Tooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip"
+Brief informative text shown on hover or focus, for any trigger element, with conditional enabling, a compact variant and a copy-to-clipboard tooltip.
+Import: import { CopyTooltip, Tooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip"
 Docs: https://plexui.com/vue/components/tooltip
 Props:
   - default slot (VNode) — The trigger: a single element. Wrap plain text in TooltipTriggerDecorator
@@ -1070,7 +1044,16 @@ Props:
   - force-open (boolean) — Force open or closed
   - prevent-unintentional-click-to-close (boolean) default: false — Keeps the tooltip open when the trigger is clicked right after it opened
   - content slot (VNode[]) — Rich tooltip content; takes precedence over content
-Examples: Overview
+  CopyTooltip:
+    - default slot (VNode) — Trigger element (for example TooltipTriggerDecorator)
+    - copy-value (string) — Required. Content to copy to clipboard
+    - open-delay (number) default: 150 — Tooltip open delay in milliseconds
+    - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
+    - align-offset (number) default: 0 — Offset from start/end alignment in pixels
+    - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
+    - side-offset (number) default: 5 — Distance from trigger in pixels
+    - @copy ((copied: boolean) => void) — Emitted once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
+Examples: Overview, Copy Tooltip
 
 ## Alert
 Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.
@@ -1244,7 +1227,7 @@ Props:
 Examples: Overview
 
 ## Card
-Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
+A surface that groups a title, a description, content and actions, in an outline, solid or ghost style, and as a link.
 Import: import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@plexui/vue/components/Card"
 Docs: https://plexui.com/vue/components/card
 Props:
@@ -1255,7 +1238,7 @@ Props:
   - external (boolean) default: auto-detected — Forces target="_blank" and rel="noopener noreferrer" when href is set.
   - as (Component | "a") — Overrides the link component.
   - class (string) — Applied to the root element
-Examples: Overview, Login, Create project, Payment Method, No team members (empty state), How did you hear about us?, Processing your request, Pricing
+Examples: Overview
 
 ## Code Block
 Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
@@ -1275,6 +1258,40 @@ Props:
     - copyable (boolean) default: true — Show copy button
     - class (string) — Additional wrapper class
 Examples: Overview
+
+## Data Table
+"Table of your data on TanStack Table v8, with sorting, pagination, filtering, row selection, column visibility and cell helpers."
+Import: import { DataTable, DataTableColumnHeader } from "@plexui/vue/components/DataTable"
+Docs: https://plexui.com/vue/components/data-table
+Props:
+  - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API; header and cell renderers return VNodes (required)
+  - data (TData[]) — Data array to display (required)
+  - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
+  - page-size (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size
+  - initial-sorting (SortingState) — Initial column sorting state
+  - global-filter (string) — Controlled search/filter string. Bind with v-model:global-filter
+  - column-visibility (VisibilityState) — Controlled column visibility state. Bind with v-model:column-visibility
+  - enable-row-selection (boolean) default: false — Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click
+  - row-selection (RowSelectionState) — Controlled row selection state. Bind with v-model:row-selection
+  - get-row-id ((row: TData) => string) — Custom row ID accessor; selection keys use it
+  - empty-message (string | number | VNode) default: "No results." — Shown when no rows; the emptyMessage slot takes precedence
+  - show-pagination (boolean) default: true — Whether to show pagination controls. They hide on their own when every row fits on one page
+  - class (string) — Class applied to outermost wrapper
+  - emptyMessage slot (VNode[]) — Rich content shown when no rows
+  - @row-click ((row: TData) => void) — Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space
+  - @update:global-filter ((value: string) => void) — Emitted with the next filter when the table changes it; powers v-model:global-filter
+  - @update:column-visibility ((visibility: VisibilityState) => void) — Emitted with the next visibility; powers v-model:column-visibility
+  - @update:row-selection ((selection: RowSelectionState) => void) — Emitted with the next selection; powers v-model:row-selection
+  DataTableColumnHeader:
+    - column (Column<TData, TValue>) — TanStack Table column object (required)
+    - title (string) — Display text for the header (required)
+    - class (string) — Class applied to the header button (or text when the column cannot sort)
+  Column helpers:
+    - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
+    - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is
+    - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
+    - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
+Examples: Overview, Sorting, Pagination, Row click, Row selection, Cell variants, Filtering, Column visibility
 
 ## Kbd
 A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.
@@ -1376,45 +1393,16 @@ Props:
 Examples: Overview
 
 ## Table
-Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
+"Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements."
 Import: import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/vue/components/Table"
-Import: import { DataTable, DataTableColumnHeader } from "@plexui/vue/components/DataTable"
 Docs: https://plexui.com/vue/components/table
-  Table Primitives:
-    - Table (table) — Root table container with horizontal scroll wrapper; attributes go to the <table>
-    - TableHeader (thead) — Table header group
-    - TableBody (tbody) — Table body group
-    - TableFooter (tfoot) — Table footer group
-    - TableRow (tr) — Table row
-    - TableHead (th) — Table header cell
-    - TableCell (td) — Table data cell
-    - TableCaption (caption) — Table caption
-  DataTable:
-    - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API; header and cell renderers return VNodes (required)
-    - data (TData[]) — Data array to display (required)
-    - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
-    - page-size (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size
-    - initial-sorting (SortingState) — Initial column sorting state
-    - global-filter (string) — Controlled search/filter string. Bind with v-model:global-filter
-    - column-visibility (VisibilityState) — Controlled column visibility state. Bind with v-model:column-visibility
-    - enable-row-selection (boolean) default: false — Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click
-    - row-selection (RowSelectionState) — Controlled row selection state. Bind with v-model:row-selection
-    - get-row-id ((row: TData) => string) — Custom row ID accessor; selection keys use it
-    - empty-message (string | number | VNode) default: "No results." — Shown when no rows; the emptyMessage slot takes precedence
-    - show-pagination (boolean) default: true — Whether to show pagination controls. They hide on their own when every row fits on one page
-    - class (string) — Class applied to outermost wrapper
-    - emptyMessage slot (VNode[]) — Rich content shown when no rows
-    - @row-click ((row: TData) => void) — Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space
-    - @update:global-filter ((value: string) => void) — Emitted with the next filter when the table changes it; powers v-model:global-filter
-    - @update:column-visibility ((visibility: VisibilityState) => void) — Emitted with the next visibility; powers v-model:column-visibility
-    - @update:row-selection ((selection: RowSelectionState) => void) — Emitted with the next selection; powers v-model:row-selection
-  DataTableColumnHeader:
-    - column (Column<TData, TValue>) — TanStack Table column object (required)
-    - title (string) — Display text for the header (required)
-    - class (string) — Class applied to the header button (or text when the column cannot sort)
-  Column helpers:
-    - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
-    - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is
-    - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
-    - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
-Examples: Overview, With footer, Minimal, Variant, Sorting, Pagination, Row click, Row selection, Cell variants, Filtering, Column visibility
+Props:
+  - Table (table) — Root table container with horizontal scroll wrapper; attributes go to the <table>
+  - TableHeader (thead) — Table header group
+  - TableBody (tbody) — Table body group
+  - TableFooter (tfoot) — Table footer group
+  - TableRow (tr) — Table row
+  - TableHead (th) — Table header cell
+  - TableCell (td) — Table data cell
+  - TableCaption (caption) — Table caption
+Examples: Overview, With footer, Minimal

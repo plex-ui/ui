@@ -3,7 +3,6 @@
 import countryLabelStyles from '../CountryLabel.module.css';
 
 import type { ComponentProps } from 'react';
-import { usePhoneRows } from '../PhoneRows';
 import { h, type FunctionalComponent } from 'vue';
 import {
   Cabinet,
@@ -21,12 +20,9 @@ import {
   COUNTRY_OPTION_CLASS,
   COUNTRY_OPTION_STYLE,
   countrySearchPredicate,
-  formatPhoneNumber,
-  stripFormatting,
 } from '../PhoneInputDemos';
 import { VueDemo } from './VueDemo';
 import { VuePhoneRowsDemo } from './VuePhoneRowsDemo';
-import { VueFormScreenDemo } from './VueFormScreenDemo';
 
 // A Vue template reads values from its setup scope, and MDX cannot pass
 // functions or VNodes to a client component. The Select and SelectControl
@@ -186,15 +182,6 @@ const scope = {
   countryOptionClass: COUNTRY_OPTION_CLASS,
   countrySearchPredicate,
   countryOf: (code: string) => COUNTRY_LOOKUP.get(code),
-  formatPhoneNumber,
-  isPhoneValid: (phone: string) => {
-    const digits = stripFormatting(phone);
-    return digits.length >= 7 && digits.length <= 15;
-  },
-  /** Focuses a template ref once the select has closed */
-  focusLater: (target: { focus?: () => void } | null | undefined) => {
-    setTimeout(() => target?.focus?.(), 0);
-  },
 };
 
 /** A VueDemo whose template can use the icons, option lists and helpers above. */
@@ -212,10 +199,4 @@ export function VueCountrySelectDemo(props: ComponentProps<typeof VueSelectDemo>
       <VueSelectDemo {...props} />
     </>
   );
-}
-
-/** The phone form screen of the country selector: as in the React demo, the size and pill controls are desktop only. */
-export function VueCountryFormDemo({ state, controls, ...props }: ComponentProps<typeof VueDemo>) {
-  const phone = usePhoneRows();
-  return <><style>{COUNTRY_OPTION_STYLE}</style><VueFormScreenDemo {...props} controls={controls} hiddenControls={phone ? controls?.map((control) => control.name) : undefined} state={{ ...scope, ...state }} /></>;
 }

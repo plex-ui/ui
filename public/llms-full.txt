@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 63
+Components: 61
 
 ## Setup
 
@@ -526,39 +526,6 @@ const [size, setSize] = useState("sm")
 </Page>
 ```
 
-### Input
-Join an Input to a trailing Button for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content. On a phone the example is the bottom bar of a list, as iOS 27.2 Contacts holds its search field and New Contact. In a Toolbar a group that holds a field comes apart: the field is a glass capsule and the button a glass circle, both the bar's 48px and 12px apart, as the bar's items. A phone searches as you type, so the button beside the field is an action of its own; iconSize="sm" draws the large plus of iOS. The bar sets the sizes, so the phone view leaves out the size control.
-```tsx
-const [size, setSize] = useState("sm")
-
-// Desktop
-<ButtonGroup>
-<Input placeholder="Search docs..." size={size} />
-<Button variant="outline" color="secondary" size={size} aria-label="Search">
-  <SearchSm />
-</Button>
-</ButtonGroup>
-
-// Phone: the bottom bar of a list
-<Page>
-<Toolbar>
-  <Toolbar.Leading>
-    <NavigationButton action="back" />
-  </Toolbar.Leading>
-  <Toolbar.Title>Orders</Toolbar.Title>
-</Toolbar>
-<Page.Content>…</Page.Content>
-<Toolbar placement="bottom">
-  <Toolbar.Content fill>
-    <ButtonGroup aria-label="Search orders">
-      <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
-      <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="New order"><PlusLg /></Button>
-    </ButtonGroup>
-  </Toolbar.Content>
-</Toolbar>
-</Page>
-```
-
 ### Dropdown menu
 Compose a primary action with a Menu trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / …. On a phone the action and its menu are symbols in one glass capsule of the top bar, as iOS 27.2 groups a bar's symbols (Add, Share and More in one glass). iOS never puts a label and a symbol in one capsule, and a bar opens a menu from More (…), not from a chevron: here Share exports, More opens the formats. The bar sets its buttons' size, so the phone view leaves out the size control.
 ```tsx
@@ -602,67 +569,6 @@ const [size, setSize] = useState("sm")
   </ButtonGroup>
 </Toolbar.Trailing>
 </Toolbar>
-```
-
-### Select
-Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested ButtonGroup to get a gap between the compound field and the send affordance. iOS has no group of a menu, a field and a button, in a bar or in the content. A phone form sets a value and its qualifier as rows of a grouped list: the field is the value of its Field row, the unit is the pop-up at the end of its row, as on the Select page, and the bar's confirm takes the place of the send button. The rows set the sizes, so the phone view leaves out the size control.
-```tsx
-const [size, setSize] = useState("sm")
-const [unit, setUnit] = useState("kg")
-const units = [
-{ value: "kg", label: "kg · Kilogram" },
-{ value: "lb", label: "lb · Pound" },
-{ value: "oz", label: "oz · Ounce" },
-]
-// A phone row's value is the whole word
-const unitNames = [
-{ value: "kg", label: "Kilograms" },
-{ value: "lb", label: "Pounds" },
-{ value: "oz", label: "Ounces" },
-]
-
-// Desktop
-<ButtonGroup>
-<ButtonGroup>
-  <Select
-    options={units}
-    value={unit}
-    onChange={(option) => setUnit(option.value)}
-    variant="outline"
-    size={size}
-    block={false}
-  />
-  <Input placeholder="2.50" size={size} inputMode="decimal" />
-</ButtonGroup>
-<ButtonGroup>
-  <Button variant="outline" color="secondary" size={size} uniform aria-label="Log weight">
-    <ArrowRight />
-  </Button>
-</ButtonGroup>
-</ButtonGroup>
-
-// Phone: a form of rows; the bar's confirm logs the weight
-<Page surface="grouped">
-<Toolbar>
-  <Toolbar.Leading>
-    <NavigationButton action="close" />
-  </Toolbar.Leading>
-  <Toolbar.Title>Weight</Toolbar.Title>
-  <Toolbar.Trailing>
-    <NavigationButton action="confirm" aria-label="Log weight" />
-  </Toolbar.Trailing>
-</Toolbar>
-<Page.Content>
-  <FieldGroup>
-    <Field row label="Weight">
-      <Input placeholder="2.50" inputMode="decimal" />
-    </Field>
-    <Field row label="Unit">
-      <Select options={unitNames} value={unit} onChange={(option) => setUnit(option.value)} block={false} align="end" />
-    </Field>
-  </FieldGroup>
-</Page.Content>
-</Page>
 ```
 
 ### Popover
@@ -846,7 +752,7 @@ Use opticallyAlign with either "start" or "end" to offset the gutter of the butt
 ```
 
 ## Card
-Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
+A surface that groups a title, a description, content and actions, in an outline, solid or ghost style, and as a link.
 Import: import { Card } from "@plexui/ui/components/Card"
 Docs: https://plexui.com/components/card
 Props:
@@ -859,244 +765,38 @@ Props:
   - className (string) default: — — Applied to the root element
 
 ### Overview
+variant sets the frame: outline (a 1px border), solid (a muted fill) or ghost (neither). size sets the padding. On a phone an outline card is a section of an iOS inset grouped list, as a FieldGroup is, and a solid card takes a gray fill to stand apart from those sections. A card is its parts: Card.Header with Card.Title, Card.Description and Card.Action (a slot at the top end), Card.Content and Card.Footer for the actions. With href the whole card is a link, with hover and focus states; it then holds no buttons of its own. For a log-in, sign-up or verification screen, see Forms: Auth; for a metric, Stats Card; for an empty state, Empty Message.
 ```tsx
-<Card style={{ maxWidth: 380 }}>
-<Card.Header>
-  <Card.Title>Project activity</Card.Title>
-  <Card.Description>
-    Your team opened 12 issues and closed 8 pull requests over the last 7 days.
-  </Card.Description>
-</Card.Header>
-<Card.Footer>
-  <Button color="primary" variant="solid" size="sm">View report</Button>
-  <Button color="secondary" variant="outline" size="sm">Dismiss</Button>
-</Card.Footer>
-</Card>
-```
+const [variant, setVariant] = useState<"outline" | "solid" | "ghost">("outline")
+const [size, setSize] = useState<"sm" | "md" | "lg">("md")
+const [description, setDescription] = useState(true)
+const [content, setContent] = useState(false)
+const [footer, setFooter] = useState<"none" | "one" | "two">("two")
+const [action, setAction] = useState(false) // without href
+const [link, setLink] = useState(false)
 
-### Login
-A classic login form with a primary Log in CTA and an inline Sign up link below.
-```tsx
-<Card style={{ maxWidth: 380 }}>
-<Card.Header>
-  <Card.Title>Log in to your account</Card.Title>
-  <Card.Description>Enter your email below to log in to your account.</Card.Description>
-</Card.Header>
-<Card.Content>
-  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-    <Field label="Email">
-      <Input type="email" placeholder="you@example.com" />
-    </Field>
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-        <Label htmlFor="card-login-password">Password</Label>
-        <TextLink href="#" primary>Forgot your password?</TextLink>
-      </div>
-      <Input id="card-login-password" type="password" />
-    </div>
-  </div>
-</Card.Content>
-<Card.Footer style={{ flexDirection: "column", alignItems: "stretch", gap: 12 }}>
-  <Button color="primary" variant="solid" block>Log in</Button>
-  {/* Description sits flush under a title by default; here it follows a button */}
-  <Card.Description className="text-center" style={{ margin: 0 }}>
-    Don't have an account? <TextLink href="#" primary>Sign up</TextLink>
-  </Card.Description>
-</Card.Footer>
-</Card>
-```
-
-### Create project
-Right-aligned footer with Cancel / Deploy. Use {'style={{ justifyContent: "flex-end" }}'} on Card.Footer.
-```tsx
-<Card style={{ maxWidth: 380 }}>
-<Card.Header>
-  <Card.Title>Create project</Card.Title>
-  <Card.Description>Deploy a new project in one-click with sensible defaults.</Card.Description>
-</Card.Header>
-<Card.Content>
-  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-    <Field label="Name">
-      <Input placeholder="billing-service" />
-    </Field>
-    <Field label="Region" description="Where your functions and database will live.">
-      <Input placeholder="us-east-1" />
-    </Field>
-  </div>
-</Card.Content>
-<Card.Footer style={{ justifyContent: "flex-end" }}>
-  <Button color="secondary" variant="outline" size="sm">Cancel</Button>
-  <Button color="primary" variant="solid" size="sm">Deploy</Button>
-</Card.Footer>
-</Card>
-```
-
-### Payment Method
-Full-fidelity payment form. Month, Year and CVV share one row, with a Select for the month and the year. A Separator sets off the Billing Address section, whose Checkbox takes its text through label.
-```tsx
-const monthOptions = Array.from({ length: 12 }, (_, i) => {
-const value = String(i + 1).padStart(2, "0")
-return { label: value, value }
-})
-const yearOptions = Array.from({ length: 6 }, (_, i) => {
-const value = String(2024 + i)
-return { label: value, value }
-})
-
-const [month, setMonth] = useState("")
-const [year, setYear] = useState("")
-const [sameAsShipping, setSameAsShipping] = useState(true)
-
-<Card style={{ maxWidth: 420 }}>
-<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+<Card variant={variant} size={size} href={link ? "#overview" : undefined} style={{ width: "100%", maxWidth: 380 }}>
   <Card.Header>
-    <Card.Title>Payment Method</Card.Title>
-    <Card.Description>All transactions are secure and encrypted</Card.Description>
+    <Card.Title>Project activity</Card.Title>
+    {description && (
+      <Card.Description>Your team opened 12 issues and closed 8 pull requests over the last 7 days.</Card.Description>
+    )}
+    {action && !link && (
+      <Card.Action>
+        <Button color="secondary" variant="ghost" size="sm" uniform aria-label="More">
+          <DotsHorizontal />
+        </Button>
+      </Card.Action>
+    )}
   </Card.Header>
-
-  <Field label="Name on Card">
-    <Input placeholder="Aisha Cooper" />
-  </Field>
-
-  <Field label="Card Number" description="Enter your 16-digit card number">
-    <Input placeholder="1234 5678 9012 3456" inputMode="numeric" />
-  </Field>
-
-  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-    <Field label="Month">
-      <Select value={month} options={monthOptions} placeholder="MM" onChange={(option) => setMonth(option.value)} />
-    </Field>
-    <Field label="Year">
-      <Select value={year} options={yearOptions} placeholder="YYYY" onChange={(option) => setYear(option.value)} />
-    </Field>
-    <Field label="CVV">
-      <Input placeholder="123" inputMode="numeric" />
-    </Field>
-  </div>
-
-  <Separator />
-
-  <Card.Header>
-    <Card.Title>Billing Address</Card.Title>
-    <Card.Description>The billing address associated with your payment method</Card.Description>
-  </Card.Header>
-
-  <Checkbox checked={sameAsShipping} onCheckedChange={setSameAsShipping} label="Same as shipping address" />
-
-  <Separator />
-
-  <Field label="Comments">
-    <Textarea placeholder="Add any additional comments" rows={3} />
-  </Field>
-
-  <div style={{ display: "flex", gap: 8 }}>
-    <Button color="primary" variant="solid">Submit</Button>
-    <Button color="secondary" variant="outline">Cancel</Button>
-  </div>
-</div>
-</Card>
-```
-
-### No team members (empty state)
-Compose Card with EmptyMessage for a center-aligned empty state with icon badge, title, description, and primary action.
-```tsx
-<Card style={{ maxWidth: 380, padding: 24 }}>
-<EmptyMessage>
-  <EmptyMessage.Icon>
-    <UserAdd />
-  </EmptyMessage.Icon>
-  <EmptyMessage.Title>No team members</EmptyMessage.Title>
-  <EmptyMessage.Description>Invite your team to collaborate on this project.</EmptyMessage.Description>
-  <EmptyMessage.ActionRow>
-    <Button color="primary" variant="solid" size="sm">Invite members</Button>
-  </EmptyMessage.ActionRow>
-</EmptyMessage>
-</Card>
-```
-
-### How did you hear about us?
-A single-question survey using RadioGroup with direction="col" and a full-width submit button.
-```tsx
-const [source, setSource] = useState("social")
-
-<Card style={{ maxWidth: 380 }}>
-<Card.Header>
-  <Card.Title>How did you hear about us?</Card.Title>
-  <Card.Description>Select the option that best describes how you heard about us.</Card.Description>
-</Card.Header>
-<Card.Content>
-  <RadioGroup value={source} onChange={setSource} direction="col">
-    <RadioGroup.Item value="social" block>Social Media</RadioGroup.Item>
-    <RadioGroup.Item value="search" block>Search Engine</RadioGroup.Item>
-    <RadioGroup.Item value="referral" block>Referral</RadioGroup.Item>
-    <RadioGroup.Item value="other" block>Other</RadioGroup.Item>
-  </RadioGroup>
-</Card.Content>
-<Card.Footer>
-  <Button color="primary" variant="solid" block>Submit</Button>
-</Card.Footer>
-</Card>
-```
-
-### Processing your request
-Loading state built with EmptyMessage and a LoadingIndicator as the visual anchor.
-```tsx
-<Card style={{ maxWidth: 380, padding: 24 }}>
-<EmptyMessage>
-  <div style={{ marginBottom: 12, color: "var(--color-text-tertiary)" }}>
-    <LoadingIndicator size={28} />
-  </div>
-  <EmptyMessage.Title>Processing your request</EmptyMessage.Title>
-  <EmptyMessage.Description>
-    Please wait while we process your request. Do not refresh the page.
-  </EmptyMessage.Description>
-  <EmptyMessage.ActionRow>
-    <Button color="secondary" variant="outline" size="sm">Cancel</Button>
-  </EmptyMessage.ActionRow>
-</EmptyMessage>
-</Card>
-```
-
-### Pricing
-Mix variant="outline" and variant="solid" to emphasize a highlighted plan.
-```tsx
-const plans = [
-{ name: "Starter", price: "$0", highlighted: false, features: ["1 project", "Community support", "Plex UI core"] },
-{ name: "Pro", price: "$19", highlighted: true, features: ["Unlimited projects", "Priority support", "Custom domains", "Early components"] },
-]
-
-<div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", maxWidth: 720 }}>
-{plans.map((plan) => (
-  <Card key={plan.name} variant={plan.highlighted ? "solid" : "outline"}>
-    <Card.Header>
-      <Card.Title>{plan.name}</Card.Title>
-      <Card.Description>
-        <span style={{ fontSize: 28, fontWeight: 600, color: "var(--color-text)" }}>{plan.price}</span>
-        <span style={{ marginLeft: 4 }}>/ month</span>
-      </Card.Description>
-    </Card.Header>
-    <Card.Content>
-      <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
-        {plan.features.map((feature) => (
-          <li key={feature} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Check style={{ width: 16, height: 16, color: "var(--color-text-success-soft)" }} />
-            {feature}
-          </li>
-        ))}
-      </ul>
-    </Card.Content>
-    <Card.Footer style={{ marginTop: "auto", paddingTop: 4 }}>
-      <Button
-        color={plan.highlighted ? "primary" : "secondary"}
-        variant={plan.highlighted ? "solid" : "outline"}
-        block
-      >
-        Choose {plan.name}
-      </Button>
+  {content && <Card.Content>Most of the work landed on Tuesday, in the release branch.</Card.Content>}
+  {footer !== "none" && !link && (
+    <Card.Footer>
+      <Button color="primary" variant="solid" size="sm" pill={false}>View report</Button>
+      {footer === "two" && <Button color="secondary" variant="outline" size="sm" pill={false}>Dismiss</Button>}
     </Card.Footer>
-  </Card>
-))}
-</div>
+  )}
+</Card>
 ```
 
 ## Checkbox
@@ -1586,29 +1286,314 @@ const [notes, setNotes] = useState(["Groceries", "Trip to Lisbon", "Book club"])
 </FieldGroup>
 ```
 
-## Copy Tooltip
-A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
-Import: import { CopyTooltip } from "@plexui/ui/components/Tooltip"
-Import: import { Button } from "@plexui/ui/components/Button"
-Docs: https://plexui.com/components/copy-tooltip
+## Data Table
+"Table of your data on TanStack Table v8, with sorting, pagination, filtering, row selection, column visibility and cell helpers."
+Import: import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTable"
+Docs: https://plexui.com/components/data-table
 Props:
-  - children (ReactNode) — Trigger element (for example Tooltip.TriggerDecorator)
-  - copyValue (string) — Required. Content to copy to clipboard
-  - openDelay (number) default: 150 — Tooltip open delay in milliseconds
-  - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
-  - alignOffset (number) default: 0 — Offset from start/end alignment in pixels
-  - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
-  - sideOffset (number) default: 5 — Distance from trigger in pixels
-  - onCopy ((copied: boolean) => void) — Called once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
+  - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API (required)
+  - data (TData[]) — Data array to display (required)
+  - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
+  - pageSize (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size
+  - initialSorting (SortingState) — Initial column sorting state
+  - globalFilter (string) — Controlled search/filter string
+  - onGlobalFilterChange ((value: string) => void) — Callback when filter changes
+  - onRowClick ((row: TData) => void) — Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space
+  - columnVisibility (VisibilityState) — Controlled column visibility state
+  - onColumnVisibilityChange ((visibility: VisibilityState) => void) — Callback when visibility changes
+  - enableRowSelection (boolean) default: false — Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click
+  - rowSelection (RowSelectionState) — Controlled row selection state
+  - onRowSelectionChange ((selection: RowSelectionState) => void) — Callback when selection changes
+  - getRowId ((row: TData) => string) — Custom row ID accessor; selection keys use it
+  - emptyMessage (ReactNode) default: "No results." — Shown when no rows
+  - showPagination (boolean) default: true — Whether to show pagination controls. They hide on their own when every row fits on one page
+  - className (string) — Class applied to outermost wrapper
+  DataTableColumnHeader:
+    - column (Column<TData, TValue>) — TanStack Table column object (required)
+    - title (string) — Display text for the header (required)
+    - className (string) — Class applied to the header button (or text when the column cannot sort)
+  Column helpers:
+    - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
+    - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is
+    - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
+    - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
 
 ### Overview
-Hovering the trigger shows Copy after openDelay, keyboard focus shows it at once; a click copies the value and the tooltip says Copied! On a phone a tap copies and shows Copied! at once, so the delay applies to a pointer only.
+Use variant="bordered" for a card-like table with a rounded border and tinted header background. Toggle empty to supply no rows without resetting sorting or changing columns. emptyMessage selects the default message, custom text, or rich content. Filtering and its no-results state are shown separately.
 ```tsx
-<CopyTooltip copyValue="sess_12345abcdefg">
-<Button color="secondary" variant="ghost" size="xl" aria-label="Copy session ID">
-  sess_12345abcdefg
-</Button>
-</CopyTooltip>
+import { useState } from "react"
+import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+{
+  accessorKey: "name",
+  header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+  cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+},
+{ accessorKey: "role", header: "Role" },
+{ accessorKey: "department", header: "Department" },
+{ accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+
+const previewUsers = users.slice(0, 6)
+const emptyUsers: User[] = []
+const emptyMessages = {
+default: undefined,
+text: "No users found.",
+rich: <strong>No users found.</strong>,
+}
+
+export function UsersTable() {
+const [empty, setEmpty] = useState(false)
+const [emptyMessage, setEmptyMessage] = useState<keyof typeof emptyMessages>("text")
+
+return <DataTable columns={columns} data={empty ? emptyUsers : previewUsers}
+  variant="bordered" pageSize={Infinity} emptyMessage={emptyMessages[emptyMessage]} />
+}
+```
+
+### Sorting
+Click column headers to toggle sort direction. Columns use DataTableColumnHeader for sort controls.
+```tsx
+import { DataTable, DataTableColumnHeader, type ColumnDef } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+{
+  accessorKey: "name",
+  header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+  cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+},
+{
+  accessorKey: "role",
+  header: ({ column }) => <DataTableColumnHeader column={column} title="Role" />,
+},
+{
+  accessorKey: "status",
+  header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+},
+]
+
+export function UsersTable() {
+return (
+  <DataTable
+    columns={columns}
+    data={users}
+    pageSize={5}
+    initialSorting={[{ id: "name", desc: false }]}
+  />
+)
+}
+```
+
+### Pagination
+Automatic pagination with rows-per-page selector and navigation controls. Set pageSize to control the initial page size; the select offers 10, 20, 50 and 100 plus that size. The controls hide when every row fits on one page.
+```tsx
+import { DataTable, type ColumnDef } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+{ accessorKey: "id", header: "ID" },
+{ accessorKey: "name", header: "Name" },
+{ accessorKey: "department", header: "Department" },
+{ accessorKey: "status", header: "Status" },
+]
+
+export function UsersTable() {
+return <DataTable columns={columns} data={users} pageSize={5} />
+}
+```
+
+### Row click
+Pass onRowClick to make rows clickable. Clickable rows also take Tab and call it on Enter or Space.
+```tsx
+import { useState } from "react"
+import { DataTable, DataTableColumnHeader, type ColumnDef } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+{
+  accessorKey: "name",
+  header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+  cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+},
+{ accessorKey: "email", header: "Email" },
+{ accessorKey: "role", header: "Role" },
+]
+
+export function UsersTable() {
+const [selectedUser, setSelectedUser] = useState<User | null>(null)
+
+return (
+  <>
+    <DataTable columns={columns} data={users.slice(0, 8)} pageSize={4} onRowClick={setSelectedUser} />
+    <p className="mt-3 text-sm text-secondary">
+      {selectedUser
+        ? "Clicked: " + selectedUser.name + " (" + selectedUser.id + ") - " + selectedUser.department
+        : "Click a row to see selected user details."}
+    </p>
+  </>
+)
+}
+```
+
+### Row selection
+Set enableRowSelection to add a first column of checkboxes. The header checkbox selects every row on all pages and shows a mixed state when only some are selected. Bind rowSelection and onRowSelectionChange to read the selection; getRowId keys it by your own ids.
+```tsx
+import { useState } from "react"
+import {
+DataTable,
+DataTableColumnHeader,
+statusCell,
+type ColumnDef,
+type RowSelectionState,
+} from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+{
+  accessorKey: "name",
+  header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+  cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+},
+{ accessorKey: "role", header: "Role" },
+{ accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+
+export function UsersTable() {
+const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+
+return (
+  <>
+    <DataTable
+      columns={columns}
+      data={users}
+      pageSize={5}
+      enableRowSelection
+      rowSelection={rowSelection}
+      onRowSelectionChange={setRowSelection}
+      getRowId={(user) => user.id}
+    />
+    <p className="mt-3 text-sm text-secondary">
+      {Object.keys(rowSelection).length} of {users.length} rows selected
+    </p>
+  </>
+)
+}
+```
+
+### Cell variants
+Column helpers render common cells: idCell (monospace ID with copy-on-click), statusCell (status badge), dateTimeCell (formatted date) and tooltipHeader (header with an info tooltip). Other formats, like the salary below, are plain cell renderers; meta.align aligns a column.
+```tsx
+import { DataTable, dateTimeCell, idCell, statusCell, tooltipHeader, type ColumnDef } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+
+const columns: ColumnDef<User>[] = [
+{ accessorKey: "id", header: "ID", cell: idCell<User>((row) => row.id) },
+{ accessorKey: "name", header: "Name", cell: ({ row }) => <span className="font-medium">{row.original.name}</span> },
+{ accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+{ accessorKey: "joined", header: "Joined", cell: dateTimeCell<User>((row) => row.joined) },
+{
+  accessorKey: "salary",
+  header: tooltipHeader("Salary", "Annual base salary in USD."),
+  meta: { align: "right" },
+  cell: ({ row }) => <span className="font-medium">{money.format(row.original.salary)}</span>,
+},
+]
+
+export function UsersTable() {
+return <DataTable columns={columns} data={users} pageSize={6} />
+}
+```
+
+### Filtering
+Control search with globalFilter and onGlobalFilterChange. The filter searches across all columns.
+```tsx
+import { useState } from "react"
+import { Input } from "@plexui/ui/components/Input"
+import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+{
+  accessorKey: "name",
+  header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+  cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+},
+{ accessorKey: "role", header: "Role" },
+{ accessorKey: "department", header: "Department" },
+{ accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+
+export function UsersTable() {
+const [globalFilter, setGlobalFilter] = useState("")
+
+return (
+  <>
+    <Input
+      value={globalFilter}
+      onChange={(event) => setGlobalFilter(event.target.value)}
+      placeholder="Search name, role, department..."
+    />
+    <DataTable
+      columns={columns}
+      data={users}
+      globalFilter={globalFilter}
+      onGlobalFilterChange={setGlobalFilter}
+      pageSize={5}
+    />
+  </>
+)
+}
+```
+
+### Column visibility
+Toggle column visibility with the columnVisibility and onColumnVisibilityChange props.
+```tsx
+import { useState } from "react"
+import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef, type VisibilityState } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+
+const columns: ColumnDef<User>[] = [
+{
+  accessorKey: "name",
+  header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+  cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+},
+{ accessorKey: "role", header: "Role" },
+{ accessorKey: "department", header: "Department" },
+{ accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+{
+  accessorKey: "salary",
+  header: "Salary",
+  meta: { align: "right" },
+  cell: ({ row }) => <span>{money.format(row.original.salary)}</span>,
+},
+]
+
+export function UsersTable() {
+const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+  role: true,
+  department: true,
+  status: true,
+  salary: true,
+})
+
+return (
+  <DataTable
+    columns={columns}
+    data={users}
+    pageSize={5}
+    columnVisibility={columnVisibility}
+    onColumnVisibilityChange={setColumnVisibility}
+  />
+)
+}
 ```
 
 ## Date Input
@@ -2541,6 +2526,7 @@ const [actions, setActions] = useState("one") // or "two", "link", "none"
 Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.
 Import: import { Field } from "@plexui/ui/components/Field"
 Import: import { FieldGroup } from "@plexui/ui/components/FieldGroup"
+Import: import { Label } from "@plexui/ui/components/Label"
 Docs: https://plexui.com/components/field
 Props:
   - label (ReactNode) — Label text for the field
@@ -2569,6 +2555,9 @@ Props:
     - bodyClassName (string) — Applied to the block that holds the rows
     - children (ReactNode) — The rows
     - className (string) — Applied to the root section
+  Label:
+    - htmlFor (string) default: — — id of the associated control. Clicks on the label focus or activate the control.
+    - className (string) default: — — Applied to the root <label> element
 
 ### Overview
 Field wraps a form control with a label, a description and an error message, and links them: the label's htmlFor, aria-describedby and aria-invalid reach the control. required adds an asterisk after the label; it is visual only, so give the control its own required for form validation. The layout control puts the label in its four places: above: the default, orientation="vertical". columns: orientation="horizontal", every value starting at one column. end: row, one line of a FieldGroup with the value at its end. A framed field is a pill there and takes --field-row-control-width, as its width cannot follow what is typed; pill={'{false}'} on the control keeps the rounded box. hidden: hideLabel. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field. On Phone a field is always a cell of a FieldGroup on the grouped background, as in an iOS form, in the same four places: the label above its value (row orientation="vertical"), values in one column (FieldGroup columns), the value at the end of the row, or the placeholder alone (row hideLabel), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's footer, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: OTPInput keeps its own digit cells on the screen, outside a group, as in Verify email.
@@ -2710,6 +2699,19 @@ labelAction={<TextLink href="/reset-password">Forgot password?</TextLink>}
   Forgot password?
 </TextLink>
 </div>
+```
+
+### Label
+A Field draws its own label. Reach for a standalone Label when you pair it with a checkbox, a switch or any control where a field's layout is too much: htmlFor points it at the control's id, so clicking the label toggles or focuses the control. Here accepted starts as true. On Phone the label takes the body type of a list row, 17/22 regular, the same as the labels of Checkbox, Switch and a Field row.
+```tsx
+const [accepted, setAccepted] = useState(true);
+
+return (
+<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+  <Checkbox id="terms" checked={accepted} onCheckedChange={setAccepted} />
+  <Label htmlFor="terms">Accept terms and conditions</Label>
+</div>
+);
 ```
 
 ### Several controls
@@ -3896,27 +3898,6 @@ content={
 <span className="flex-1">Undo</span>
 <Kbd size="xs" variant="outline">⌘Z</Kbd>
 </Menu.Item>
-```
-
-## Label
-Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
-Import: import { Label } from "@plexui/ui/components/Label"
-Docs: https://plexui.com/components/label
-Props:
-  - htmlFor (string) default: — — id of the associated control. Clicks on the label focus or activate the control.
-  - className (string) default: — — Applied to the root <label> element
-
-### Overview
-Clicking the label toggles the checkbox it points at. Here accepted starts as true. On Phone the label takes the body type of a list row, 17/22 regular, the same as the labels of Checkbox, Switch and a Field row.
-```tsx
-const [accepted, setAccepted] = useState(true);
-
-return (
-<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-  <Checkbox id="terms" checked={accepted} onCheckedChange={setAccepted} />
-  <Label htmlFor="terms">Accept terms and conditions</Label>
-</div>
-);
 ```
 
 ## Markdown Editor
@@ -5134,7 +5115,7 @@ export function PopoverConfirmationDemo() {
 ```
 
 ### Column configuration
-A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups. For a DataTable, turn the shown ids into its columnVisibility, an object of column id to shown (Table › Column visibility). On a phone the panel is a sheet (Dialog with mobileVariant="sheet") of Field rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More bar button of the screen's Toolbar, three dots on glass, as iOS apps open their view options.
+A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups. For a DataTable, turn the shown ids into its columnVisibility, an object of column id to shown (Data Table › Column visibility). On a phone the panel is a sheet (Dialog with mobileVariant="sheet") of Field rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More bar button of the screen's Toolbar, three dots on glass, as iOS apps open their view options.
 ```tsx
 const allColumns = [
 { id: "name", label: "Name" },
@@ -5905,383 +5886,10 @@ return (
 )
 ```
 
-## Select Control
-The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.
-Import: import { SelectControl } from "@plexui/ui/components/SelectControl"
-Docs: https://plexui.com/components/select-control
-Props:
-  - selected (boolean) default: false — Whether a value is selected (affects placeholder styling)
-  - variant ("soft" | "outline" | "ghost") default: "outline" — Visual variant
-  - size (ControlSize) default: "md" — Control size (3xs to 3xl)
-  - pill (boolean) default: false — Fully rounded trigger
-  - StartIcon (ComponentType) — Icon at start
-  - onClearClick (() => void) — Enables the clear button when set
-  - interactOnEnter (boolean) default: false — Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form
-  - onInteract (() => void) — Called on pointer down, ArrowDown, ArrowUp and Space. Without it, a wrapping trigger opens on pointer down
-  - dropdownIconType ("chevronDown" | "dropdown" | "none") default: "dropdown" — Dropdown indicator style
-  - invalid (boolean) default: false — Invalid state
-  - disabled (boolean) default: false — Disable control
-  - block (boolean) default: false — Full width
-  - loading (boolean) default: false — Loading state (aria-busy); hides the indicators and ignores interaction
-  - opticallyAlign ("start" | "end") — Optical alignment
-  - className (string) — Applied to the control
-
-### Overview
-Use variant to stylize the control: its styles are like those of {""}, with the small differences of {""}, and ghost has no frame. size sets the control's height, font size, gutter and the placement of its icon and indicator, on the 9-step scale of Button, Input, Select and SegmentedControl; pill rounds it fully and widens its gutter, and its clear action is a pill too. StartIcon puts an icon before the value, sized, spaced and colored by the control, and dropdownIconType picks the indicator. selected says the control holds a value and turns off the placeholder styling. It does nothing to the content, which is up to you, so here it follows the value: pick a period, or clear it. Pass onClearClick to make the control clearable: the clear action shows while it is selected. During loading the dropdown icon and clear action are hidden, the control is marked aria-busy and it ignores pointer and keyboard interaction; add disabled to dim it as well. invalid marks the control invalid; pair it with the field's errorMessage. disabled disables it both visually and accessibly. block stretches it across its container, here the 290px field. opticallyAlign offsets the control by its gutter: "start" puts the start of a ghost control, its icon or its text, on the label's edge, and "end" puts the end of a block one, its indicator, on the field's end. A framed control keeps its gutter, so the example offers the setting for ghost only, and "end" only with block: a narrower control does not reach the field's end. The control's own aria-labelledby names it by the label and the value, as Select's trigger is named.On Phone the control is the value of a row in a FieldGroup: the value and its up-down chevrons sit at the row's end, as an iOS pop-up button. The row sets its height, insets, type and colors, so the Phone preview has no variant, size, pill, StartIcon, dropdownIconType, block and opticallyAlign controls. A selected value takes the secondary label color (the primary one in a group with columns), a placeholder the tertiary one. A clearable control unsets its value with the menu's None row, as iOS pop-ups do, rather than a clear button. A row has no frame to color, so the error is the row's errorMessage line.
-```tsx
-const [value, setValue] = useState("")
-const [variant, setVariant] = useState("outline")
-const [size, setSize] = useState("md")
-const [pill, setPill] = useState(false)
-const [startIcon, setStartIcon] = useState(true)
-const [dropdownIconType, setDropdownIconType] = useState("dropdown")
-const [clearable, setClearable] = useState(true)
-const [loading, setLoading] = useState(false)
-const [invalid, setInvalid] = useState(false)
-const [disabled, setDisabled] = useState(false)
-const [block, setBlock] = useState(false)
-const [opticallyAlign, setOpticallyAlign] = useState("none") // ghost only: "start", or "end" with block
-
-// Desktop
-<div className="w-[290px]">
-  <Field label="Period" errorMessage={invalid ? "No data for this period." : undefined}>
-    {(control) => (
-      <Menu>
-        <Menu.Trigger>
-          <SelectControl
-            {...control}
-            aria-labelledby={`${control["aria-labelledby"]} ${control.id}-value`}
-            className={block ? undefined : "w-[200px]"}
-            variant={variant}
-            size={size}
-            pill={pill}
-            block={block}
-            opticallyAlign={variant === "ghost" && opticallyAlign !== "none" ? opticallyAlign : undefined}
-            StartIcon={startIcon ? CalendarAlt : undefined}
-            dropdownIconType={dropdownIconType}
-            selected={!!value}
-            onClearClick={clearable ? () => setValue("") : undefined}
-            loading={loading}
-            invalid={invalid}
-            disabled={disabled}
-          >
-            <span id={`${control.id}-value`}>{value || "Select date..."}</span>
-          </SelectControl>
-        </Menu.Trigger>
-        <Menu.Content minWidth={200} width={block ? 290 : 200}>
-          <Menu.RadioGroup value={value} onChange={setValue}>
-            <Menu.RadioItem value="Today">Today</Menu.RadioItem>
-            <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
-            <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
-            <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
-          </Menu.RadioGroup>
-        </Menu.Content>
-      </Menu>
-    )}
-  </Field>
-</div>
-
-// Phone: the control is the value of a row; its label and value name the trigger, and a clearable one has None.
-<FieldGroup>
-  <Field row label="Period" errorMessage={invalid ? "No data for this period." : undefined}>
-    {(control) => (
-      <Menu>
-        <Menu.Trigger>
-          <SelectControl
-            {...control}
-            aria-labelledby={`${control["aria-labelledby"]} ${control.id}-value`}
-            selected={!!value}
-            loading={loading}
-            invalid={invalid}
-            disabled={disabled}
-          >
-            <span id={`${control.id}-value`}>{value || "None"}</span>
-          </SelectControl>
-        </Menu.Trigger>
-        <Menu.Content minWidth={200} align="end">
-          <Menu.RadioGroup value={value} onChange={setValue}>
-            {clearable && <Menu.RadioItem value="">None</Menu.RadioItem>}
-            <Menu.RadioItem value="Today">Today</Menu.RadioItem>
-            <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
-            <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
-            <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
-          </Menu.RadioGroup>
-        </Menu.Content>
-      </Menu>
-    )}
-  </Field>
-</FieldGroup>
-```
-
-### Country selector
-A plain country selector built with Select. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. The search box appears on its own because the list has more than 15 options; there is no prop for it.
-```tsx
-const countries = [
-{ value: "us", label: "United States" },
-{ value: "gb", label: "United Kingdom" },
-// ...60 countries
-];
-
-const CountryView = ({ value, label }: Option) => (
-<span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-  <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} alt="" width={20} />
-  {label}
-</span>
-);
-
-// Desktop
-<Select
-value={country}
-options={countries}
-onChange={(option) => setCountry(option.value)}
-placeholder="Select country..."
-size="lg"
-block
-searchPlaceholder="Search countries..."
-TriggerView={CountryView}
-OptionView={CountryView}
-listMinWidth={300}
-/>
-
-// Phone: the country at the row's end; the flags stay in the list.
-<FieldGroup>
-<Field row label="Country">
-  <Select
-    value={country}
-    options={countries}
-    onChange={(option) => setCountry(option.value)}
-    block={false}
-    align="end"
-    searchPlaceholder="Search countries..."
-    OptionView={CountryView}
-    listMinWidth={300}
-  />
-</Field>
-</FieldGroup>
-```
-
-### Country code selector
-A searchable country selector built with Select. Custom TriggerView and OptionView render flag icons and dial codes. Search matches both country name and dial code.
-```tsx
-const countries = [
-{ value: "us", label: "United States (+1)", dialCode: "+1" },
-{ value: "gb", label: "United Kingdom (+44)", dialCode: "+44" },
-// ...60 countries
-];
-
-const CountryTriggerView = ({ value }) => {
-const country = lookup.get(value);
-return (
-  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-    <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} alt="" width={20} />
-    {country.label} ({country.dialCode})
-  </span>
-);
-};
-
-// Desktop
-<Select
-value={country}
-options={countries}
-onChange={(option) => setCountry(option.value)}
-placeholder="Select country..."
-size="lg"
-block
-searchPredicate={searchPredicate}
-TriggerView={CountryTriggerView}
-listMinWidth={300}
-/>
-
-// Phone: the country and its code at the row's end; the flags stay in the list.
-<FieldGroup>
-<Field row label="Country">
-  <Select
-    value={country}
-    options={countries}
-    onChange={(option) => setCountry(option.value)}
-    block={false}
-    align="end"
-    searchPlaceholder="Search countries..."
-    searchPredicate={searchPredicate}
-    OptionView={CountryOptionView}
-    listMinWidth={300}
-  />
-</Field>
-</FieldGroup>
-```
-
-### Phone form
-Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix and clears the phone field. Phone numbers are formatted as you type using per-country patterns (e.g. 123 456 7890 for US, 1234 567 890 for UK). Search works by both country name and dial code. Validation runs on submit: the phone field shows an error state with FieldError when the number is too short or too long.
-```tsx
-import { useState, useCallback, useRef } from 'react';
-import { Input } from '@plexui/ui/components/Input';
-import { Select, type Option } from '@plexui/ui/components/Select';
-import { Button } from '@plexui/ui/components/Button';
-import { Field } from '@plexui/ui/components/Field';
-import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { Page } from '@plexui/ui/components/Page';
-// BackButton is your app's navigation action.
-
-// Country data: include all 245 countries in production
-type Country = { value: string; label: string; dialCode: string; flag: string };
-
-const COUNTRIES: Country[] = [
-{ value: 'us', label: 'United States', dialCode: '+1', flag: '🇺🇸' },
-{ value: 'gb', label: 'United Kingdom', dialCode: '+44', flag: '🇬🇧' },
-{ value: 'de', label: 'Germany', dialCode: '+49', flag: '🇩🇪' },
-{ value: 'fr', label: 'France', dialCode: '+33', flag: '🇫🇷' },
-{ value: 'es', label: 'Spain', dialCode: '+34', flag: '🇪🇸' },
-{ value: 'it', label: 'Italy', dialCode: '+39', flag: '🇮🇹' },
-{ value: 'jp', label: 'Japan', dialCode: '+81', flag: '🇯🇵' },
-{ value: 'au', label: 'Australia', dialCode: '+61', flag: '🇦🇺' },
-{ value: 'br', label: 'Brazil', dialCode: '+55', flag: '🇧🇷' },
-{ value: 'in', label: 'India', dialCode: '+91', flag: '🇮🇳' },
-// ... full list of 245 countries
-];
-
-const COUNTRY_LOOKUP = new Map(COUNTRIES.map((c) => [c.value, c]));
-const COUNTRY_OPTIONS = COUNTRIES.map((c) => ({
-...c,
-label: `${c.label} (${c.dialCode})`,
-}));
-
-// Per-country phone number format patterns
-const PHONE_FORMATS: Record<string, number[]> = {
-us: [3, 3, 4], ca: [3, 3, 4],   // 123 456 7890
-gb: [4, 3, 3], de: [3, 4, 4],   // 1234 567 890 | 123 4567 8901
-fr: [1, 2, 2, 2, 2],            // 1 23 45 67 89
-es: [3, 2, 2, 2],               // 123 45 67 89
-it: [3, 3, 4], jp: [2, 4, 4],
-au: [3, 3, 3], br: [2, 5, 4],
-in: [5, 5],                      // 12345 67890
-// ... add more countries as needed
-};
-
-function formatPhoneNumber(raw: string, countryCode?: string) {
-const digits = raw.replace(/\D/g, '');
-if (!digits) return '';
-const format = (countryCode && PHONE_FORMATS[countryCode]) || [3, 3, 4];
-const groups: string[] = [];
-let i = 0;
-for (const size of format) {
-  if (i >= digits.length) break;
-  groups.push(digits.slice(i, i + size));
-  i += size;
-}
-if (i < digits.length) groups.push(digits.slice(i));
-return groups.join(' ');
-}
-
-// Flag icon: SVG flags from lipis/flag-icons, all 4:3
-function FlagIcon({ code, trigger }: { code: string; trigger?: boolean }) {
-return (
-  <span
-    style={{
-      display: 'block',
-      height: trigger ? 'var(--start-icon-size, 18px)' : 16,
-      aspectRatio: '4 / 3',
-      borderRadius: 2,
-      overflow: 'hidden',
-      flexShrink: 0,
-    }}
-  >
-    <img
-      src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${code}.svg`}
-      alt=""
-      loading="lazy"
-      style={{
-        display: 'block',
-        width: '100%',
-        height: '100%',
-      }}
-    />
-  </span>
-);
-}
-
-// Custom trigger and option renderers
-const CountryTriggerView = ({ value }: Option) => {
-const country = COUNTRY_LOOKUP.get(value);
-if (!country) return null;
-return (
-  <span style={{ display: 'flex', alignItems: 'center', gap: 8, height: '100%' }}>
-    <FlagIcon code={value} trigger />
-    {country.label} ({country.dialCode})
-  </span>
-);
-};
-
-const CountryOptionView = ({ value, label }: Option) => (
-<span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-  <FlagIcon code={value} />
-  {label}
-</span>
-);
-
-// Search matches country name or dial code
-const searchPredicate = (option: Option, term: string) => {
-const country = COUNTRY_LOOKUP.get(option.value);
-if (!country) return false;
-return (
-  country.label.toLowerCase().includes(term) ||
-  country.dialCode.includes(term)
-);
-};
-
-function PhoneForm() {
-const [country, setCountry] = useState('us');
-const [phone, setPhone] = useState('');
-const [submitted, setSubmitted] = useState(false);
-const phoneRef = useRef<HTMLInputElement>(null);
-
-const dialCode = COUNTRY_LOOKUP.get(country)?.dialCode ?? '+1';
-const digits = phone.replace(/\D/g, '');
-const isValid = digits.length >= 7 && digits.length <= 15;
-const showError = submitted && !isValid;
-
-const handleCountryChange = useCallback((option: Option) => {
-  setCountry(option.value);
-  setPhone('');
-  setSubmitted(false);
-  setTimeout(() => phoneRef.current?.focus(), 0);
-}, []);
-
-const handlePhoneChange = useCallback(
-  (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPhone(formatPhoneNumber(e.target.value.replace(/\D/g, ''), country));
-    setSubmitted(false);
-  },
-  [country]
-);
-
-return (
-  <Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
-    <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Phone number</Page.Title></Page.Bar></Page.Header>
-    <Page.Content>
-      <form id="phone-form" onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }} noValidate>
-        <FieldGroup title="Phone number" description="Choose your country and enter the number you want to use." columns>
-      <Field row label="Country">
-        <Select value={country} options={COUNTRY_OPTIONS} onChange={handleCountryChange}
-          searchPlaceholder="Search countries..." searchPredicate={searchPredicate}
-          OptionView={CountryOptionView} listMinWidth={300} />
-      </Field>
-      <Field row label="Phone" errorMessage={showError ? 'Phone number is not valid.' : undefined}>
-        <Input ref={phoneRef} value={phone} onChange={handlePhoneChange}
-          placeholder="Phone number" type="tel" inputMode="tel" autoComplete="tel-national"
-          startAdornment={<span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCode}</span>} />
-      </Field>
-    </FieldGroup>
-      </form>
-    </Page.Content>
-    <Page.Footer><Button color="primary" size="3xl" pill block form="phone-form" type="submit">Continue</Button></Page.Footer>
-  </Page>
-);
-}
-```
-
 ## Select
 Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.
 Import: import { Select } from "@plexui/ui/components/Select"
+Import: import { SelectControl } from "@plexui/ui/components/SelectControl"
 Docs: https://plexui.com/components/select
 Props:
   - options (Options<T>) — Array of options or grouped options
@@ -6321,6 +5929,22 @@ Props:
   - searchSize (ControlSize) default: "md" — Size of the search input in the menu. A phone list has no search: it is an iOS menu, and a long one scrolls
   - searchPredicate ((option, term) => boolean) — Filters options while searching
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
+  SelectControl:
+    - selected (boolean) default: false — Whether a value is selected (affects placeholder styling)
+    - variant ("soft" | "outline" | "ghost") default: "outline" — Visual variant
+    - size (ControlSize) default: "md" — Control size (3xs to 3xl)
+    - pill (boolean) default: false — Fully rounded trigger
+    - StartIcon (ComponentType) — Icon at start
+    - onClearClick (() => void) — Enables the clear button when set
+    - interactOnEnter (boolean) default: false — Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form
+    - onInteract (() => void) — Called on pointer down, ArrowDown, ArrowUp and Space. Without it, a wrapping trigger opens on pointer down
+    - dropdownIconType ("chevronDown" | "dropdown" | "none") default: "dropdown" — Dropdown indicator style
+    - invalid (boolean) default: false — Invalid state
+    - disabled (boolean) default: false — Disable control
+    - block (boolean) default: false — Full width
+    - loading (boolean) default: false — Loading state (aria-busy); hides the indicators and ignores interaction
+    - opticallyAlign ("start" | "end") — Optical alignment
+    - className (string) — Applied to the control
 
 ### Overview
 Pass the selection as value: a string, or an array of strings with multiple. multiple also changes how onChange and TriggerView are typed: onChange receives the selected option, or every selected option, and TriggerView receives {"{ values, selectedAll }"}. The trigger is a SelectControl: variant, size (the 9-step scale of Button, Input, SelectControl and SegmentedControl), pill and dropdownIconType style it. block stretches it across its container, here the 290px field, and the list takes its width. Without block the trigger fits its value and the list is at least listMinWidth, here 240px, wider than the trigger, so align places it against the trigger. side is the side the list prefers. checkPosition puts the checkmark at the start or the end of a row; "none" leaves the column out. clearable adds a clear action. loading shows loadingPlaceholder and keeps the list closed. disabled disables the select, and a disabled select is not submitted with its form. opticallyAlign offsets the trigger by its gutter: "start" puts the text of a ghost trigger on the label's edge, and "end" puts the end of a block one, its indicator, on the field's end. A framed trigger keeps its gutter, so the example offers the setting for ghost only, and "end" only with block: a narrower trigger does not reach the field's end.On Phone the select is the value of a row in a FieldGroup, with {"block={false}"} and align="end". The row sets its height, insets, type and colors, and the list opens over the value with the checkmark leading. So the Phone preview has no variant, size, pill, block, dropdownIconType, side, align and opticallyAlign controls, and its checkPosition is "start" or "none": the checkmark leads every row, and "none" leaves it out. A clearable select leads its list with a None row instead of a clear button.
@@ -6517,6 +6141,190 @@ clearable
     searchPlaceholder="Select an option..."
   />
 </Field>
+</FieldGroup>
+```
+
+### Country selector
+A plain country selector built with Select. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. The search box appears on its own because the list has more than 15 options; there is no prop for it.
+```tsx
+const countries = [
+{ value: "us", label: "United States" },
+{ value: "gb", label: "United Kingdom" },
+// ...60 countries
+];
+
+const CountryView = ({ value, label }: Option) => (
+<span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+  <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} alt="" width={20} />
+  {label}
+</span>
+);
+
+// Desktop
+<Select
+value={country}
+options={countries}
+onChange={(option) => setCountry(option.value)}
+placeholder="Select country..."
+size="lg"
+block
+searchPlaceholder="Search countries..."
+TriggerView={CountryView}
+OptionView={CountryView}
+listMinWidth={300}
+/>
+
+// Phone: the country at the row's end; the flags stay in the list.
+<FieldGroup>
+<Field row label="Country">
+  <Select
+    value={country}
+    options={countries}
+    onChange={(option) => setCountry(option.value)}
+    block={false}
+    align="end"
+    searchPlaceholder="Search countries..."
+    OptionView={CountryView}
+    listMinWidth={300}
+  />
+</Field>
+</FieldGroup>
+```
+
+### Country code selector
+A searchable country selector built with Select. Custom TriggerView and OptionView render flag icons and dial codes. Search matches both country name and dial code.
+```tsx
+const countries = [
+{ value: "us", label: "United States (+1)", dialCode: "+1" },
+{ value: "gb", label: "United Kingdom (+44)", dialCode: "+44" },
+// ...60 countries
+];
+
+const CountryTriggerView = ({ value }) => {
+const country = lookup.get(value);
+return (
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+    <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} alt="" width={20} />
+    {country.label} ({country.dialCode})
+  </span>
+);
+};
+
+// Desktop
+<Select
+value={country}
+options={countries}
+onChange={(option) => setCountry(option.value)}
+placeholder="Select country..."
+size="lg"
+block
+searchPredicate={searchPredicate}
+TriggerView={CountryTriggerView}
+listMinWidth={300}
+/>
+
+// Phone: the country and its code at the row's end; the flags stay in the list.
+<FieldGroup>
+<Field row label="Country">
+  <Select
+    value={country}
+    options={countries}
+    onChange={(option) => setCountry(option.value)}
+    block={false}
+    align="end"
+    searchPlaceholder="Search countries..."
+    searchPredicate={searchPredicate}
+    OptionView={CountryOptionView}
+    listMinWidth={300}
+  />
+</Field>
+</FieldGroup>
+```
+
+### Select Control
+Use variant to stylize the control: its styles are like those of {""}, with the small differences of {""}, and ghost has no frame. size sets the control's height, font size, gutter and the placement of its icon and indicator, on the 9-step scale of Button, Input, Select and SegmentedControl; pill rounds it fully and widens its gutter, and its clear action is a pill too. StartIcon puts an icon before the value, sized, spaced and colored by the control, and dropdownIconType picks the indicator. selected says the control holds a value and turns off the placeholder styling. It does nothing to the content, which is up to you, so here it follows the value: pick a period, or clear it. Pass onClearClick to make the control clearable: the clear action shows while it is selected. During loading the dropdown icon and clear action are hidden, the control is marked aria-busy and it ignores pointer and keyboard interaction; add disabled to dim it as well. invalid marks the control invalid; pair it with the field's errorMessage. disabled disables it both visually and accessibly. block stretches it across its container, here the 290px field. opticallyAlign offsets the control by its gutter: "start" puts the start of a ghost control, its icon or its text, on the label's edge, and "end" puts the end of a block one, its indicator, on the field's end. A framed control keeps its gutter, so the example offers the setting for ghost only, and "end" only with block: a narrower control does not reach the field's end. The control's own aria-labelledby names it by the label and the value, as Select's trigger is named.On Phone the control is the value of a row in a FieldGroup: the value and its up-down chevrons sit at the row's end, as an iOS pop-up button. The row sets its height, insets, type and colors, so the Phone preview has no variant, size, pill, StartIcon, dropdownIconType, block and opticallyAlign controls. A selected value takes the secondary label color (the primary one in a group with columns), a placeholder the tertiary one. A clearable control unsets its value with the menu's None row, as iOS pop-ups do, rather than a clear button. A row has no frame to color, so the error is the row's errorMessage line.
+```tsx
+const [value, setValue] = useState("")
+const [variant, setVariant] = useState("outline")
+const [size, setSize] = useState("md")
+const [pill, setPill] = useState(false)
+const [startIcon, setStartIcon] = useState(true)
+const [dropdownIconType, setDropdownIconType] = useState("dropdown")
+const [clearable, setClearable] = useState(true)
+const [loading, setLoading] = useState(false)
+const [invalid, setInvalid] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [block, setBlock] = useState(false)
+const [opticallyAlign, setOpticallyAlign] = useState("none") // ghost only: "start", or "end" with block
+
+// Desktop
+<div className="w-[290px]">
+  <Field label="Period" errorMessage={invalid ? "No data for this period." : undefined}>
+    {(control) => (
+      <Menu>
+        <Menu.Trigger>
+          <SelectControl
+            {...control}
+            aria-labelledby={`${control["aria-labelledby"]} ${control.id}-value`}
+            className={block ? undefined : "w-[200px]"}
+            variant={variant}
+            size={size}
+            pill={pill}
+            block={block}
+            opticallyAlign={variant === "ghost" && opticallyAlign !== "none" ? opticallyAlign : undefined}
+            StartIcon={startIcon ? CalendarAlt : undefined}
+            dropdownIconType={dropdownIconType}
+            selected={!!value}
+            onClearClick={clearable ? () => setValue("") : undefined}
+            loading={loading}
+            invalid={invalid}
+            disabled={disabled}
+          >
+            <span id={`${control.id}-value`}>{value || "Select date..."}</span>
+          </SelectControl>
+        </Menu.Trigger>
+        <Menu.Content minWidth={200} width={block ? 290 : 200}>
+          <Menu.RadioGroup value={value} onChange={setValue}>
+            <Menu.RadioItem value="Today">Today</Menu.RadioItem>
+            <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
+            <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
+            <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
+          </Menu.RadioGroup>
+        </Menu.Content>
+      </Menu>
+    )}
+  </Field>
+</div>
+
+// Phone: the control is the value of a row; its label and value name the trigger, and a clearable one has None.
+<FieldGroup>
+  <Field row label="Period" errorMessage={invalid ? "No data for this period." : undefined}>
+    {(control) => (
+      <Menu>
+        <Menu.Trigger>
+          <SelectControl
+            {...control}
+            aria-labelledby={`${control["aria-labelledby"]} ${control.id}-value`}
+            selected={!!value}
+            loading={loading}
+            invalid={invalid}
+            disabled={disabled}
+          >
+            <span id={`${control.id}-value`}>{value || "None"}</span>
+          </SelectControl>
+        </Menu.Trigger>
+        <Menu.Content minWidth={200} align="end">
+          <Menu.RadioGroup value={value} onChange={setValue}>
+            {clearable && <Menu.RadioItem value="">None</Menu.RadioItem>}
+            <Menu.RadioItem value="Today">Today</Menu.RadioItem>
+            <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
+            <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
+            <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
+          </Menu.RadioGroup>
+        </Menu.Content>
+      </Menu>
+    )}
+  </Field>
 </FieldGroup>
 ```
 
@@ -7828,46 +7636,18 @@ const [tab, setTab] = useState('home')
 ```
 
 ## Table
-Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
+"Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements."
 Import: import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/ui/components/Table"
-Import: import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTable"
 Docs: https://plexui.com/components/table
-  Table Primitives:
-    - Table (table) — Root table container with horizontal scroll wrapper
-    - TableHeader (thead) — Table header group
-    - TableBody (tbody) — Table body group
-    - TableFooter (tfoot) — Table footer group
-    - TableRow (tr) — Table row
-    - TableHead (th) — Table header cell
-    - TableCell (td) — Table data cell
-    - TableCaption (caption) — Table caption
-  DataTable:
-    - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API (required)
-    - data (TData[]) — Data array to display (required)
-    - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
-    - pageSize (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size
-    - initialSorting (SortingState) — Initial column sorting state
-    - globalFilter (string) — Controlled search/filter string
-    - onGlobalFilterChange ((value: string) => void) — Callback when filter changes
-    - onRowClick ((row: TData) => void) — Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space
-    - columnVisibility (VisibilityState) — Controlled column visibility state
-    - onColumnVisibilityChange ((visibility: VisibilityState) => void) — Callback when visibility changes
-    - enableRowSelection (boolean) default: false — Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click
-    - rowSelection (RowSelectionState) — Controlled row selection state
-    - onRowSelectionChange ((selection: RowSelectionState) => void) — Callback when selection changes
-    - getRowId ((row: TData) => string) — Custom row ID accessor; selection keys use it
-    - emptyMessage (ReactNode) default: "No results." — Shown when no rows
-    - showPagination (boolean) default: true — Whether to show pagination controls. They hide on their own when every row fits on one page
-    - className (string) — Class applied to outermost wrapper
-  DataTableColumnHeader:
-    - column (Column<TData, TValue>) — TanStack Table column object (required)
-    - title (string) — Display text for the header (required)
-    - className (string) — Class applied to the header button (or text when the column cannot sort)
-  Column helpers:
-    - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
-    - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is
-    - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
-    - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
+Props:
+  - Table (table) — Root table container with horizontal scroll wrapper
+  - TableHeader (thead) — Table header group
+  - TableBody (tbody) — Table body group
+  - TableFooter (tfoot) — Table footer group
+  - TableRow (tr) — Table row
+  - TableHead (th) — Table header cell
+  - TableCell (td) — Table data cell
+  - TableCaption (caption) — Table caption
 
 ### Overview
 A complete table with header, body, footer, and caption showing invoice data.
@@ -7975,284 +7755,6 @@ return (
   </TableBody>
 </Table>
 )
-```
-
-### Variant
-Use variant="bordered" for a card-like table with a rounded border and tinted header background. Toggle empty to supply no rows without resetting sorting or changing columns. emptyMessage selects the default message, custom text, or rich content. Filtering and its no-results state are shown separately.
-```tsx
-import { useState } from "react"
-import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/ui/components/DataTable"
-import { users, type User } from "./data"
-
-const columns: ColumnDef<User>[] = [
-{
-  accessorKey: "name",
-  header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
-  cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
-},
-{ accessorKey: "role", header: "Role" },
-{ accessorKey: "department", header: "Department" },
-{ accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
-]
-
-const previewUsers = users.slice(0, 6)
-const emptyUsers: User[] = []
-const emptyMessages = {
-default: undefined,
-text: "No users found.",
-rich: <strong>No users found.</strong>,
-}
-
-export function UsersTable() {
-const [empty, setEmpty] = useState(false)
-const [emptyMessage, setEmptyMessage] = useState<keyof typeof emptyMessages>("text")
-
-return <DataTable columns={columns} data={empty ? emptyUsers : previewUsers}
-  variant="bordered" pageSize={Infinity} emptyMessage={emptyMessages[emptyMessage]} />
-}
-```
-
-### Sorting
-Click column headers to toggle sort direction. Columns use DataTableColumnHeader for sort controls.
-```tsx
-import { DataTable, DataTableColumnHeader, type ColumnDef } from "@plexui/ui/components/DataTable"
-import { users, type User } from "./data"
-
-const columns: ColumnDef<User>[] = [
-{
-  accessorKey: "name",
-  header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
-  cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
-},
-{
-  accessorKey: "role",
-  header: ({ column }) => <DataTableColumnHeader column={column} title="Role" />,
-},
-{
-  accessorKey: "status",
-  header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
-},
-]
-
-export function UsersTable() {
-return (
-  <DataTable
-    columns={columns}
-    data={users}
-    pageSize={5}
-    initialSorting={[{ id: "name", desc: false }]}
-  />
-)
-}
-```
-
-### Pagination
-Automatic pagination with rows-per-page selector and navigation controls. Set pageSize to control the initial page size; the select offers 10, 20, 50 and 100 plus that size. The controls hide when every row fits on one page.
-```tsx
-import { DataTable, type ColumnDef } from "@plexui/ui/components/DataTable"
-import { users, type User } from "./data"
-
-const columns: ColumnDef<User>[] = [
-{ accessorKey: "id", header: "ID" },
-{ accessorKey: "name", header: "Name" },
-{ accessorKey: "department", header: "Department" },
-{ accessorKey: "status", header: "Status" },
-]
-
-export function UsersTable() {
-return <DataTable columns={columns} data={users} pageSize={5} />
-}
-```
-
-### Row click
-Pass onRowClick to make rows clickable. Clickable rows also take Tab and call it on Enter or Space.
-```tsx
-import { useState } from "react"
-import { DataTable, DataTableColumnHeader, type ColumnDef } from "@plexui/ui/components/DataTable"
-import { users, type User } from "./data"
-
-const columns: ColumnDef<User>[] = [
-{
-  accessorKey: "name",
-  header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
-  cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
-},
-{ accessorKey: "email", header: "Email" },
-{ accessorKey: "role", header: "Role" },
-]
-
-export function UsersTable() {
-const [selectedUser, setSelectedUser] = useState<User | null>(null)
-
-return (
-  <>
-    <DataTable columns={columns} data={users.slice(0, 8)} pageSize={4} onRowClick={setSelectedUser} />
-    <p className="mt-3 text-sm text-secondary">
-      {selectedUser
-        ? "Clicked: " + selectedUser.name + " (" + selectedUser.id + ") - " + selectedUser.department
-        : "Click a row to see selected user details."}
-    </p>
-  </>
-)
-}
-```
-
-### Row selection
-Set enableRowSelection to add a first column of checkboxes. The header checkbox selects every row on all pages and shows a mixed state when only some are selected. Bind rowSelection and onRowSelectionChange to read the selection; getRowId keys it by your own ids.
-```tsx
-import { useState } from "react"
-import {
-DataTable,
-DataTableColumnHeader,
-statusCell,
-type ColumnDef,
-type RowSelectionState,
-} from "@plexui/ui/components/DataTable"
-import { users, type User } from "./data"
-
-const columns: ColumnDef<User>[] = [
-{
-  accessorKey: "name",
-  header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
-  cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
-},
-{ accessorKey: "role", header: "Role" },
-{ accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
-]
-
-export function UsersTable() {
-const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-
-return (
-  <>
-    <DataTable
-      columns={columns}
-      data={users}
-      pageSize={5}
-      enableRowSelection
-      rowSelection={rowSelection}
-      onRowSelectionChange={setRowSelection}
-      getRowId={(user) => user.id}
-    />
-    <p className="mt-3 text-sm text-secondary">
-      {Object.keys(rowSelection).length} of {users.length} rows selected
-    </p>
-  </>
-)
-}
-```
-
-### Cell variants
-Column helpers render common cells: idCell (monospace ID with copy-on-click), statusCell (status badge), dateTimeCell (formatted date) and tooltipHeader (header with an info tooltip). Other formats, like the salary below, are plain cell renderers; meta.align aligns a column.
-```tsx
-import { DataTable, dateTimeCell, idCell, statusCell, tooltipHeader, type ColumnDef } from "@plexui/ui/components/DataTable"
-import { users, type User } from "./data"
-
-const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
-
-const columns: ColumnDef<User>[] = [
-{ accessorKey: "id", header: "ID", cell: idCell<User>((row) => row.id) },
-{ accessorKey: "name", header: "Name", cell: ({ row }) => <span className="font-medium">{row.original.name}</span> },
-{ accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
-{ accessorKey: "joined", header: "Joined", cell: dateTimeCell<User>((row) => row.joined) },
-{
-  accessorKey: "salary",
-  header: tooltipHeader("Salary", "Annual base salary in USD."),
-  meta: { align: "right" },
-  cell: ({ row }) => <span className="font-medium">{money.format(row.original.salary)}</span>,
-},
-]
-
-export function UsersTable() {
-return <DataTable columns={columns} data={users} pageSize={6} />
-}
-```
-
-### Filtering
-Control search with globalFilter and onGlobalFilterChange. The filter searches across all columns.
-```tsx
-import { useState } from "react"
-import { Input } from "@plexui/ui/components/Input"
-import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/ui/components/DataTable"
-import { users, type User } from "./data"
-
-const columns: ColumnDef<User>[] = [
-{
-  accessorKey: "name",
-  header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
-  cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
-},
-{ accessorKey: "role", header: "Role" },
-{ accessorKey: "department", header: "Department" },
-{ accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
-]
-
-export function UsersTable() {
-const [globalFilter, setGlobalFilter] = useState("")
-
-return (
-  <>
-    <Input
-      value={globalFilter}
-      onChange={(event) => setGlobalFilter(event.target.value)}
-      placeholder="Search name, role, department..."
-    />
-    <DataTable
-      columns={columns}
-      data={users}
-      globalFilter={globalFilter}
-      onGlobalFilterChange={setGlobalFilter}
-      pageSize={5}
-    />
-  </>
-)
-}
-```
-
-### Column visibility
-Toggle column visibility with the columnVisibility and onColumnVisibilityChange props.
-```tsx
-import { useState } from "react"
-import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef, type VisibilityState } from "@plexui/ui/components/DataTable"
-import { users, type User } from "./data"
-
-const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
-
-const columns: ColumnDef<User>[] = [
-{
-  accessorKey: "name",
-  header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
-  cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
-},
-{ accessorKey: "role", header: "Role" },
-{ accessorKey: "department", header: "Department" },
-{ accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
-{
-  accessorKey: "salary",
-  header: "Salary",
-  meta: { align: "right" },
-  cell: ({ row }) => <span>{money.format(row.original.salary)}</span>,
-},
-]
-
-export function UsersTable() {
-const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-  role: true,
-  department: true,
-  status: true,
-  salary: true,
-})
-
-return (
-  <DataTable
-    columns={columns}
-    data={users}
-    pageSize={5}
-    columnVisibility={columnVisibility}
-    onColumnVisibilityChange={setColumnVisibility}
-  />
-)
-}
 ```
 
 ## Tag Input
@@ -8996,8 +8498,8 @@ In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's o
 ```
 
 ## Tooltip
-Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
-Import: import { Tooltip } from "@plexui/ui/components/Tooltip"
+Brief informative text shown on hover or focus, for any trigger element, with conditional enabling, a compact variant and a copy-to-clipboard tooltip.
+Import: import { CopyTooltip, Tooltip } from "@plexui/ui/components/Tooltip"
 Docs: https://plexui.com/components/tooltip
 Props:
   - children (ReactElement) — The trigger: a single element. Wrap plain text in Tooltip.TriggerDecorator
@@ -9014,6 +8516,15 @@ Props:
   - contentClassName (string) — Class for tooltip content
   - forceOpen (boolean) — Force open or closed
   - preventUnintentionalClickToClose (true) — Keeps the tooltip open when the trigger is clicked right after it opened
+  CopyTooltip:
+    - children (ReactNode) — Trigger element (for example Tooltip.TriggerDecorator)
+    - copyValue (string) — Required. Content to copy to clipboard
+    - openDelay (number) default: 150 — Tooltip open delay in milliseconds
+    - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
+    - alignOffset (number) default: 0 — Offset from start/end alignment in pixels
+    - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
+    - sideOffset (number) default: 5 — Distance from trigger in pixels
+    - onCopy ((copied: boolean) => void) — Called once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
 
 ### Overview
 Any element can be the trigger: trigger shows text, a button and an icon button. Text is no tab stop of its own, so wrap it in Tooltip.TriggerDecorator, which makes it one and marks it with a dotted underline; a plain span shows its tooltip on hover only, and a keyboard never reaches it. An icon button names itself with aria-label, and its tooltip says the same in words. compact is for short tooltips of one to three words: little padding (2px by 8px) and inverted colors, a dark fill with light text in the light theme and the other way round in the dark one. side is the side the tooltip prefers; it turns to the other side when there is no room. A disabled button can tell why in its tooltip on hover (a disabled button is no tab stop): pass the reason as content while it is disabled. To show a tooltip only under a condition, pass null otherwise.
@@ -9045,4 +8556,14 @@ const [disabled, setDisabled] = useState(false)
     </Tooltip>
   )}
 </>
+```
+
+### Copy Tooltip
+A CopyTooltip copies copyValue when its trigger is clicked and says Copied! once the clipboard write succeeds. Hovering the trigger shows Copy after openDelay, keyboard focus shows it at once. On a phone a tap copies and shows Copied! at once, so the delay applies to a pointer only.
+```tsx
+<CopyTooltip copyValue="sess_12345abcdefg">
+<Button color="secondary" variant="ghost" size="xl" aria-label="Copy session ID">
+  sess_12345abcdefg
+</Button>
+</CopyTooltip>
 ```

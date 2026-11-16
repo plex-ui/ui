@@ -16,9 +16,11 @@ import {
   FieldSizingDemo,
   FieldOpticalAlignDemo,
 } from "@/components/docs/FieldDemos"
+import { LabelOverviewDemo } from "@/components/docs/LabelDemos"
 
 <UsageBlock>{`import { Field } from "@plexui/ui/components/Field";
-import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
+import { FieldGroup } from "@plexui/ui/components/FieldGroup";
+import { Label } from "@plexui/ui/components/Label";`}</UsageBlock>
 
 ## Examples
 
@@ -184,6 +186,19 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
   <FieldLabelActionDemo />
 </ComponentPreview>
 
+### Label
+
+<ComponentPreview details={<>A <code>Field</code> draws its own label. Reach for a standalone <code>Label</code> when you pair it with a checkbox, a switch or any control where a field's layout is too much: <code>htmlFor</code> points it at the control's <code>id</code>, so clicking the label toggles or focuses the control. Here <code>accepted</code> starts as <code>true</code>. On Phone the label takes the body type of a list row, 17/22 regular, the same as the labels of <code>Checkbox</code>, <code>Switch</code> and a <code>Field</code> row.</>} code={`const [accepted, setAccepted] = useState(true);
+
+return (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <Checkbox id="terms" checked={accepted} onCheckedChange={setAccepted} />
+    <Label htmlFor="terms">Accept terms and conditions</Label>
+  </div>
+);`}>
+  <LabelOverviewDemo />
+</ComponentPreview>
+
 ### Several controls
 
 <ComponentPreview phonePresentation="none" details={<>For more than one control, or a control that needs its props placed by hand, pass a function as <code>children</code>. It receives <code>{'{ id, "aria-labelledby", "aria-describedby", "aria-invalid" }'}</code>: put the <code>id</code> and <code>aria-labelledby</code> on the first control, so the label names it, and give the others an <code>aria-label</code> of their own. On a phone a birthday is one row and one value, whose wheel sets the day, the month and the year, as in Contacts. PlexUI has no such wheel, so this example has no Phone view.</>} code={`<Field label="Birthday">
@@ -282,6 +297,15 @@ For whole forms, on the web and on a phone, see [Forms: Settings](/components/se
   { prop: "className", type: "string", description: "Applied to the root section" },
 ]} />
 
+### Label
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `htmlFor` | `string` | — | `id` of the associated control. Clicks on the label focus or activate the control. |
+| `className` | `string` | — | Applied to the root `<label>` element |
+
+Built on [Radix Label](https://www.radix-ui.com/primitives/components/label), which prevents double-click text selection and forwards clicks to the associated control. All other `<label>` attributes are forwarded.
+
 ## Styling
 
 Field reads these component tokens. Override them at any scope to restyle it:
@@ -358,3 +382,12 @@ FieldGroup reads these:
 - `--field-group-title-letter-spacing`: title tracking (default `normal`)
 - `--field-group-title-line-height`: title line height (default `var(--font-text-md-line-height)`)
 - `--field-group-title-padding-inline`: title inset (default `0`; 20px on a phone)
+
+A standalone `Label` reads its own tokens:
+
+- `--label-color`: text color (defaults to `--color-text`)
+- `--label-font-size`: text size (defaults to `--font-text-sm-size`)
+- `--label-font-weight`: weight (defaults to `--font-weight-medium`)
+- `--label-line-height`: line height (defaults to `1`)
+
+On Phone the label is 17px with a 22px line height and regular weight.

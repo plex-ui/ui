@@ -103,14 +103,6 @@
       ]
     },
     {
-      "name": "label",
-      "type": "registry:ui",
-      "description": "Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.",
-      "dependencies": [
-        "@plexui/vue"
-      ]
-    },
-    {
       "name": "markdown-editor",
       "type": "registry:ui",
       "description": "Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.",
@@ -202,14 +194,6 @@
       "name": "select",
       "type": "registry:ui",
       "description": "Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.",
-      "dependencies": [
-        "@plexui/vue"
-      ]
-    },
-    {
-      "name": "select-control",
-      "type": "registry:ui",
-      "description": "The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -311,14 +295,6 @@
       ]
     },
     {
-      "name": "copy-tooltip",
-      "type": "registry:ui",
-      "description": "A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.",
-      "dependencies": [
-        "@plexui/vue"
-      ]
-    },
-    {
       "name": "dialog",
       "type": "registry:ui",
       "description": "Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.",
@@ -353,7 +329,7 @@
     {
       "name": "tooltip",
       "type": "registry:ui",
-      "description": "Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.",
+      "description": "Brief informative text shown on hover or focus, for any trigger element, with conditional enabling, a compact variant and a copy-to-clipboard tooltip.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -449,7 +425,7 @@
     {
       "name": "card",
       "type": "registry:ui",
-      "description": "Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.",
+      "description": "A surface that groups a title, a description, content and actions, in an outline, solid or ghost style, and as a link.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -458,6 +434,14 @@
       "name": "code-block",
       "type": "registry:ui",
       "description": "Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "data-table",
+      "type": "registry:ui",
+      "description": "\"Table of your data on TanStack Table v8, with sorting, pagination, filtering, row selection, column visibility and cell helpers.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -505,7 +489,7 @@
     {
       "name": "table",
       "type": "registry:ui",
-      "description": "Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.",
+      "description": "\"Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.\"",
       "dependencies": [
         "@plexui/vue"
       ]

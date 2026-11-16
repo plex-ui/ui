@@ -262,7 +262,7 @@ export const columnConfigPhone = `<Page>
 ### Column configuration
 
 <ComponentPreview language="vue" details={<>
-  <p>A column-visibility panel built with <code>Popover</code> and <code>Switch</code>. Toggling a switch moves the column between shown and hidden groups. For a <code>DataTable</code>, turn the shown ids into its <code>v-model:column-visibility</code>, an object of column id to shown (<a href="/vue/components/table#column-visibility">Table › Column visibility</a>).</p>
+  <p>A column-visibility panel built with <code>Popover</code> and <code>Switch</code>. Toggling a switch moves the column between shown and hidden groups. For a <code>DataTable</code>, turn the shown ids into its <code>v-model:column-visibility</code>, an object of column id to shown (<a href="/vue/components/data-table#column-visibility">Data Table › Column visibility</a>).</p>
   <p>On a phone the panel is a sheet (<code>Dialog</code> with <code>mobile-variant="sheet"</code>) of <code>Field</code> rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More bar button of the screen's <code>Toolbar</code>, three dots on glass, as iOS apps open their view options.</p>
 </>} code={withPhone(columnConfig, columnConfigPhone, "a bar button of the top bar opens a sheet of switch rows in a fixed order.")} previewMinHeight={168} phonePresentation="screen">
   <VueSelectDemo template={columnConfig} phoneTemplate={`<div class="${pageStyles.Frame}">${columnConfigPhone}</div>`} phoneStageClassName={pageStyles.Stage} state={{ shown: ["name", "email", "role", "status"] }} />

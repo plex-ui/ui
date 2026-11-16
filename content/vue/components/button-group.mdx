@@ -8,7 +8,6 @@ import { VueDemo } from "@/components/docs/vue/VueDemo"
 import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
 import { withPhone } from "@/components/docs/phoneRowsTemplate"
 import pageStyles from "@/components/docs/PageDemos.module.css"
-import toolbarStyles from "@/components/docs/ToolbarDemos.module.css"
 
 export const STAGE = pageStyles.Stage
 
@@ -103,13 +102,6 @@ export const separator = `<ButtonGroup>
   <Button variant="soft" color="secondary" :size="size">Redo <Redo /></Button>
 </ButtonGroup>`
 
-export const input = `<ButtonGroup>
-  <Input placeholder="Search docs..." :size="size" />
-  <Button variant="outline" color="secondary" :size="size" aria-label="Search">
-    <SearchSm />
-  </Button>
-</ButtonGroup>`
-
 export const inputGroup = `<ButtonGroup style="width: 100%; max-width: 280px">
   <ButtonGroup>
     <Button variant="outline" color="secondary" pill :size="size" uniform aria-label="Add attachment">
@@ -154,24 +146,6 @@ export const dropdownMenu = `<ButtonGroup>
       <MenuItem @select="() => {}"><Link /> Copy share link</MenuItem>
     </MenuContent>
   </Menu>
-</ButtonGroup>`
-
-export const select = `<ButtonGroup>
-  <ButtonGroup>
-    <Select
-      :options="unitOptions"
-      v-model:value="unit"
-      variant="outline"
-      :size="size"
-      :block="false"
-    />
-    <Input placeholder="2.50" :size="size" inputmode="decimal" />
-  </ButtonGroup>
-  <ButtonGroup>
-    <Button variant="outline" color="secondary" :size="size" uniform aria-label="Log weight">
-      <ArrowRight />
-    </Button>
-  </ButtonGroup>
 </ButtonGroup>`
 
 export const popover = `<ButtonGroup>
@@ -256,40 +230,6 @@ export const separatorPhone = `<Page>
   <PageContent style="${canvasStyle}" />
 </Page>`
 
-export const rows = Array.from({ length: 24 }, (_, index) => `Order ${1024 + index}`)
-
-{/* Phone: the bottom bar of a list, as Contacts holds its search field and New Contact (iOS 27.2): in a Toolbar the field and the button come apart, each a glass shape of the bar's 48px, 12px apart. */}
-export const inputScreen = (content) => `<Page>
-  <Toolbar>
-    <ToolbarLeading>
-      <NavigationButton action="back" />
-    </ToolbarLeading>
-    <ToolbarTitle>Orders</ToolbarTitle>
-  </Toolbar>
-  <PageContent>${content}</PageContent>
-  <Toolbar placement="bottom">
-    <ToolbarContent fill>
-      <ButtonGroup aria-label="Search orders">
-        <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
-          <template #startAdornment>
-            <SearchSm />
-          </template>
-        </Input>
-        <Button color="secondary" variant="soft" uniform pill icon-size="sm" aria-label="New order"><PlusLg /></Button>
-      </ButtonGroup>
-    </ToolbarContent>
-  </Toolbar>
-</Page>`
-
-export const inputPhone = inputScreen(`
-    <FieldGroup>
-      <div v-for="row in rows" :key="row" data-row class="${toolbarStyles.Row}">
-        <span>{{ row }}</span>
-        <span class="${toolbarStyles.Value}">Paid</span>
-      </div>
-    </FieldGroup>
-  `)
-
 export const report = [
   "Orders grew 12% over the quarter, led by the new subscription plans.",
   "Refunds fell to 1.4% after the checkout changes in August.",
@@ -332,30 +272,6 @@ export const dropdownMenuPhone = barScreen("Report", `      <ButtonGroup aria-la
         </Menu>
       </ButtonGroup>`)
 
-{/* Phone: iOS has no bar of a menu, a field and a button (owner 13.11: «это боттом бар разве такой бывает?»). An iOS 27.2 form sets a value and its unit as rows of a list: the unit is the pop-up at the end of its row, as on the Select page, and the bar's confirm logs the weight. */}
-export const selectPhone = `<Page surface="grouped">
-  <Toolbar>
-    <ToolbarLeading>
-      <NavigationButton action="close" />
-    </ToolbarLeading>
-    <ToolbarTitle>Weight</ToolbarTitle>
-    <ToolbarTrailing>
-      <NavigationButton action="confirm" aria-label="Log weight" />
-    </ToolbarTrailing>
-  </Toolbar>
-  <PageContent>
-    <FieldGroup>
-      <Field row label="Weight">
-        <Input placeholder="2.50" inputmode="decimal" />
-      </Field>
-      <Field row label="Unit">
-        <Select :options="unitNames" v-model:value="unit" :block="false" align="end" />
-      </Field>
-    </FieldGroup>
-  </PageContent>
-</Page>`
-
-{/* Phone: as the Dropdown menu, the action and More as symbols in one capsule of the top bar. A panel of fields from a bar button is a sheet on a phone, as the Popover page's Column configuration opens its options (owner 13.11: no hand-set padding; the sheet's header and body set it). Its field is a row of a grouped list, as Dialog's Edit profile: a text area is a vertical row with a ghost Textarea, the note is the list's footer and the header's confirm runs it (owner 13.11: «нет таких инпутов в plexui»). Focus goes to the title, so no keyboard comes up. */}
 export const popoverPhone = barScreen("Draft", `      <ButtonGroup aria-label="Generate">
         <Button color="secondary" variant="soft" uniform pill aria-label="Generate"><Sparkles /></Button>
         <Dialog v-model:open="open">
@@ -382,19 +298,6 @@ export const popoverPhone = barScreen("Draft", `      <ButtonGroup aria-label="G
         </Dialog>
       </ButtonGroup>`)
 
-export const unitOptions = [
-  { value: "kg", label: "kg · Kilogram" },
-  { value: "lb", label: "lb · Pound" },
-  { value: "oz", label: "oz · Ounce" },
-]
-
-{/* The units as a phone row names them: the row's value is the whole word. */}
-export const unitNames = [
-  { value: "kg", label: "Kilograms" },
-  { value: "lb", label: "Pounds" },
-  { value: "oz", label: "Ounces" },
-]
-
 <UsageBlock>{`import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@plexui/vue/components/ButtonGroup";`}</UsageBlock>
 
 Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and removes the shared border so they read as one unit. Nest `ButtonGroup` inside itself to create visually separated sub-groups (the outer group automatically spaces them).
@@ -408,6 +311,10 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/vue/components/
     anchors stay */}
 <span id="size" />
 <span id="nested" />
+{/* Input (a field and a button) and Select (a menu, a field and a button) repeated Input Group (owner 16.11);
+    their anchors stay */}
+<span id="input" />
+<span id="select" />
 
 ### Overview
 
@@ -451,15 +358,6 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/vue/components/
   <VuePhoneRowsDemo template={separator} controls={phoneFixedSizeControl} phoneTemplate={frame(separatorPhone)} phoneStageClassName={STAGE} />
 </ComponentPreview>
 
-### Input
-
-<ComponentPreview language="vue" phonePresentation="screen" details={<>
-  <p>Join an <code>Input</code> to a trailing <code>Button</code> for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content.</p>
-  <p>On a phone the example is the bottom bar of a list, as iOS 27.2 Contacts holds its search field and New Contact. In a <code>Toolbar</code> a group that holds a field comes apart: the field is a glass capsule and the button a glass circle, both the bar's 48px and 12px apart, as the bar's items. A phone searches as you type, so the button beside the field is an action of its own; <code>icon-size="sm"</code> draws the large plus of iOS. The bar sets the sizes, so the phone view leaves out the size control.</p>
-</>} code={withPhone(input, inputScreen("…"), "the bottom bar of a list")}>
-  <VuePhoneRowsDemo template={input} controls={phoneFixedSizeControl} phoneTemplate={frame(inputPhone)} phoneStageClassName={STAGE} state={{ rows }} />
-</ComponentPreview>
-
 ### Dropdown menu
 
 <ComponentPreview language="vue" phonePresentation="screen" details={<>
@@ -467,15 +365,6 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/vue/components/
   <p>On a phone the action and its menu are symbols in one glass capsule of the top bar, as iOS 27.2 groups a bar's symbols (Add, Share and More in one glass). iOS never puts a label and a symbol in one capsule, and a bar opens a menu from More (…), not from a chevron: here Share exports, More opens the formats. The bar sets its buttons' size, so the phone view leaves out the size control.</p>
 </>} code={withPhone(dropdownMenu, dropdownMenuPhone.replace(/<PageContent>[\s\S]*<\/PageContent>/, "<PageContent>…</PageContent>"), "in the top bar of a report")}>
   <VuePhoneRowsDemo template={dropdownMenu} controls={phoneFixedSizeControl} phoneTemplate={frame(dropdownMenuPhone)} phoneStageClassName={STAGE} state={{ report }} />
-</ComponentPreview>
-
-### Select
-
-<ComponentPreview language="vue" phonePresentation="screen" details={<>
-  <p>Mix a <a href="/vue/components/select"><code>Select</code></a> and an <code>Input</code> inside one <code>ButtonGroup</code> for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested <code>ButtonGroup</code> to get a gap between the compound field and the send affordance.</p>
-  <p>iOS has no group of a menu, a field and a button, in a bar or in the content. A phone form sets a value and its qualifier as rows of a grouped list: the field is the value of its <a href="/vue/components/field"><code>Field</code></a> row, the unit is the pop-up at the end of its row, as on the <a href="/vue/components/select">Select</a> page, and the bar's confirm takes the place of the send button. The rows set the sizes, so the phone view leaves out the size control.</p>
-</>} code={withPhone(select, selectPhone, "a form of rows; the bar's confirm logs the weight")}>
-  <VuePhoneRowsDemo template={select} controls={phoneFixedSizeControl} phoneTemplate={frame(selectPhone)} phoneStageClassName={STAGE} state={{ unit: "kg", unitOptions, unitNames }} />
 </ComponentPreview>
 
 ### Popover

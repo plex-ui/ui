@@ -9,7 +9,6 @@ import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import {
   ArrowLeftSm,
-  ArrowRight,
   ChevronDownMd,
   Clip,
   Copy,
@@ -29,7 +28,6 @@ import {
   PlusLg,
   PlusSm,
   Redo,
-  SearchSm,
   Share,
   Sparkles,
   Tag,
@@ -40,12 +38,10 @@ import { Menu } from '@plexui/ui/components/Menu';
 import { Page } from '@plexui/ui/components/Page';
 import { Popover } from '@plexui/ui/components/Popover';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { Select } from '@plexui/ui/components/Select';
 import { Textarea } from '@plexui/ui/components/Textarea';
 import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { usePhoneRows } from './PhoneRows';
-import { Rows } from './ToolbarDemos';
 import pageStyles from './PageDemos.module.css';
 
 /* ------------------------------------------------------------------
@@ -294,55 +290,6 @@ export function ButtonGroupSeparatorDemo() {
 }
 
 /* ============================================================
-   Input — Input joined with a Button
-   ============================================================ */
-
-export function ButtonGroupInputDemo() {
-  const [size, setSize] = useState<DemoSize>('sm');
-  // Phone: the bottom bar of a list, as Contacts holds its search field and New Contact (iOS 27.2): in a Toolbar the
-  // field and the button come apart, each a glass shape of the bar's 48px, 12px apart. A phone searches as you type,
-  // so the button beside the field is an action of its own.
-  if (usePhoneRows()) {
-    return (
-      <PhoneFrame>
-        <Page>
-          <Toolbar>
-            <Toolbar.Leading>
-              <NavigationButton action="back" />
-            </Toolbar.Leading>
-            <Toolbar.Title>Orders</Toolbar.Title>
-          </Toolbar>
-          <Page.Content>
-            <Rows />
-          </Page.Content>
-          <Toolbar placement="bottom">
-            <Toolbar.Content fill>
-              <ButtonGroup aria-label="Search orders">
-                <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<SearchSm />} />
-                <Button color="secondary" variant="soft" uniform pill iconSize="sm" aria-label="New order"><PlusLg /></Button>
-              </ButtonGroup>
-            </Toolbar.Content>
-          </Toolbar>
-        </Page>
-      </PhoneFrame>
-    );
-  }
-  return (
-    <>
-      <SizeToggle value={size} onChange={setSize} desktopOnly />
-      <DemoStage>
-      <ButtonGroup>
-        <Input placeholder="Search docs..." size={size} />
-        <Button variant="outline" color="secondary" pill={false} size={size} aria-label="Search">
-          <SearchSm />
-        </Button>
-      </ButtonGroup>
-      </DemoStage>
-    </>
-  );
-}
-
-/* ============================================================
    Input Group — message composer with leading action + inline voice toggle
    ============================================================ */
 
@@ -536,92 +483,6 @@ export function ButtonGroupDropdownMenuDemo() {
             <ExportMenuItems />
           </Menu.Content>
         </Menu>
-      </ButtonGroup>
-      </DemoStage>
-    </>
-  );
-}
-
-/* ============================================================
-   Select — currency picker joined to an amount input + send
-   ============================================================ */
-
-const UNIT_OPTIONS = [
-  { value: 'kg', label: 'kg · Kilogram' },
-  { value: 'lb', label: 'lb · Pound' },
-  { value: 'oz', label: 'oz · Ounce' },
-];
-
-/** The units as a phone row names them: the row's value is the whole word. */
-const UNIT_NAMES = [
-  { value: 'kg', label: 'Kilograms' },
-  { value: 'lb', label: 'Pounds' },
-  { value: 'oz', label: 'Ounces' },
-];
-
-export function ButtonGroupSelectDemo() {
-  const [size, setSize] = useState<DemoSize>('sm');
-  const [unit, setUnit] = useState('kg');
-  // Phone: iOS has no bar of a menu, a field and a button (owner 13.11: «это боттом бар разве такой бывает?»). An iOS
-  // 27.2 form sets a value and its unit as rows of a list: the unit is the pop-up at the end of its row, as on the
-  // Select page, and the bar's confirm logs the weight.
-  if (usePhoneRows()) {
-    return (
-      <PhoneFrame>
-        <Page surface="grouped">
-          <Toolbar>
-            <Toolbar.Leading>
-              <NavigationButton action="close" />
-            </Toolbar.Leading>
-            <Toolbar.Title>Weight</Toolbar.Title>
-            <Toolbar.Trailing>
-              <NavigationButton action="confirm" aria-label="Log weight" />
-            </Toolbar.Trailing>
-          </Toolbar>
-          <Page.Content>
-            <FieldGroup>
-              <Field row label="Weight">
-                <Input placeholder="2.50" inputMode="decimal" />
-              </Field>
-              <Field row label="Unit">
-                <Select options={UNIT_NAMES} value={unit} onChange={(opt) => setUnit(opt.value)} block={false} align="end" />
-              </Field>
-            </FieldGroup>
-          </Page.Content>
-        </Page>
-      </PhoneFrame>
-    );
-  }
-
-  return (
-    <>
-      <SizeToggle value={size} onChange={setSize} desktopOnly />
-      <DemoStage>
-      <ButtonGroup>
-        <ButtonGroup>
-          <Select
-            options={UNIT_OPTIONS}
-            value={unit}
-            onChange={(opt) => setUnit(opt.value)}
-            variant="outline"
-            pill={false}
-            size={size}
-            block={false}
-          />
-          <Input placeholder="2.50" size={size} inputMode="decimal" />
-        </ButtonGroup>
-        <ButtonGroup>
-          <Button
-            variant="outline"
-            color="secondary"
-            pill={false}
-            size={size}
-            uniform
-            aria-label="Log weight"
-          >
-            <ArrowRight />
-          </Button>
-        </ButtonGroup>
       </ButtonGroup>
       </DemoStage>
     </>

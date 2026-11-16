@@ -81,10 +81,10 @@ test("Page: width and fill are desktop controls of the Overview, and the page sa
   }
 })
 
-test("Copy Tooltip: the hover delay is a desktop control, a tap copies at once", () => {
+test("Copy Tooltip (an example of Tooltip): the hover delay is a desktop control, a tap copies at once", () => {
   expect(read("components/docs/CopyTooltipDemo.tsx")).toContain('<DemoControlRow name="openDelay" desktopOnly>')
-  expect(read("content/vue/components/copy-tooltip.mdx")).toContain('{ name: "openDelay", desktopOnly: true, type: "range"')
-  for (const path of both("copy-tooltip")) expect(read(path), path).toContain("On a phone a tap copies and shows Copied! at once")
+  expect(read("content/vue/components/tooltip.mdx")).toContain('{ name: "openDelay", desktopOnly: true, type: "range"')
+  for (const path of both("tooltip")) expect(read(path), path).toContain("On a phone a tap copies and shows Copied! at once")
 })
 
 describe("Page examples on a phone", () => {

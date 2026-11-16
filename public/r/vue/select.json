@@ -14,8 +14,8 @@
     {
       "path": "components/ui/select/index.ts",
       "type": "registry:ui",
-      "content": "export * from \"@plexui/vue/components/Select\"\n"
+      "content": "export * from \"@plexui/vue/components/Select\"\nexport * from \"@plexui/vue/components/SelectControl\"\n"
     }
   ],
-  "docs": "Import as `import { Select } from '@/components/ui/select'`. See https://plexui.com/vue/components/select for props and examples."
+  "docs": "Import as `import { Select, SelectControl } from '@/components/ui/select'`. See https://plexui.com/vue/components/select for props and examples."
 }

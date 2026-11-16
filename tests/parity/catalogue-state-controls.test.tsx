@@ -158,7 +158,7 @@ const indicators = (() => {
 })();
 const accordion = example('accordion', 'overview', ['overviewAccordion']);
 const tabs = example('segmented-control', 'overview', ['SIZES', 'VARIANTS', 'ORIENTATIONS']);
-const table = example('table', 'variant');
+const table = example('data-table', 'variant');
 const textareaOverview = example('textarea', 'overview');
 /** A select example as its page mounts it: the page's VueSelectDemo props (its phone template, desktop-only controls and
  * state) over the template and controls, with the helpers VueSelectDemo gives every template */
@@ -173,7 +173,7 @@ function selectExample(page: string, name: string, references: string[] = []) {
   const state = new Function(`return ${/state=\{(\{[^}]*\})\}/.exec(tag)![1]}`)() as Record<string, unknown>;
   return { ...example(page, name, references), phoneTemplate: phoneRows(phone), desktopControlNames, state };
 }
-const selectControlOverview = selectExample('select-control', 'overview');
+const selectControlOverview = selectExample('select', 'scOverview');
 const selectOverview = selectExample('select', 'overview', ['VARIANTS']);
 const progressOverview = example('progress-steps', 'overview');
 /** The Date Input Overview as its page mounts it, with its phone row and desktop-only controls */

@@ -15,7 +15,7 @@ export const COMPONENT_GROUPS: readonly ComponentGroup[] = [
   {
     id: 'text-input',
     label: 'Text Input',
-    slugs: ['field', 'file-upload', 'floating-label-input', 'input', 'input-group', 'label', 'markdown-editor', 'otp-input', 'tag-input', 'textarea'],
+    slugs: ['field', 'file-upload', 'floating-label-input', 'input', 'input-group', 'markdown-editor', 'otp-input', 'tag-input', 'textarea'],
   },
   {
     id: 'selection',
@@ -29,7 +29,6 @@ export const COMPONENT_GROUPS: readonly ComponentGroup[] = [
       'radio-group',
       'segmented-control',
       'select',
-      'select-control',
       'slider',
       'stepper',
       'switch',
@@ -44,7 +43,7 @@ export const COMPONENT_GROUPS: readonly ComponentGroup[] = [
   {
     id: 'overlays',
     label: 'Overlays',
-    slugs: ['copy-tooltip', 'dialog', 'popover', 'tip', 'toast', 'tooltip'],
+    slugs: ['dialog', 'popover', 'tip', 'toast', 'tooltip'],
   },
   {
     id: 'feedback',
@@ -61,6 +60,7 @@ export const COMPONENT_GROUPS: readonly ComponentGroup[] = [
       'badge',
       'card',
       'code-block',
+      'data-table',
       'kbd',
       'markdown',
       'rolling-number',

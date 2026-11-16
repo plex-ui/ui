@@ -15,7 +15,6 @@ afterEach(() => vi.restoreAllMocks())
 describe.each([
   ["checkbox", "Grouped sections", "Notifications"],
   ["radio-group", "Grouped sections", "Preferences"],
-  ["select-control", "Phone form", "Phone number"],
 ])("Vue %s: %s", (slug, name, title) => {
   test("the manifest keeps the screen the imported helper builds", () => {
     const example = examplesOf(read(`content/vue/components/${slug}.mdx`)).find((entry) => entry.name === name)

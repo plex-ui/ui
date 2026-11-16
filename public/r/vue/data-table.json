@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "data-table",
+  "type": "registry:ui",
+  "title": "Data Table",
+  "description": "\"Table of your data on TanStack Table v8, with sorting, pagination, filtering, row selection, column visibility and cell helpers.\"",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/data-table/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/DataTable\"\n"
+    }
+  ],
+  "docs": "Import as `import { DataTable, DataTableColumnHeader } from '@/components/ui/data-table'`. See https://plexui.com/vue/components/data-table for props and examples."
+}

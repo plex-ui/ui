@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 63
+Components: 61
 
 ## Setup
 
@@ -339,41 +339,6 @@ Drop a ButtonGroupSeparator between items to add a visible divider, commonly use
 </Page>
 ```
 
-### Input
-Join an Input to a trailing Button for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content. On a phone the example is the bottom bar of a list, as iOS 27.2 Contacts holds its search field and New Contact. In a Toolbar a group that holds a field comes apart: the field is a glass capsule and the button a glass circle, both the bar's 48px and 12px apart, as the bar's items. A phone searches as you type, so the button beside the field is an action of its own; icon-size="sm" draws the large plus of iOS. The bar sets the sizes, so the phone view leaves out the size control.
-```vue
-<!-- Desktop -->
-<ButtonGroup>
-  <Input placeholder="Search docs..." :size="size" />
-  <Button variant="outline" color="secondary" :size="size" aria-label="Search">
-    <SearchSm />
-  </Button>
-</ButtonGroup>
-
-<!-- Phone: the bottom bar of a list -->
-<Page>
-  <Toolbar>
-    <ToolbarLeading>
-      <NavigationButton action="back" />
-    </ToolbarLeading>
-    <ToolbarTitle>Orders</ToolbarTitle>
-  </Toolbar>
-  <PageContent>…</PageContent>
-  <Toolbar placement="bottom">
-    <ToolbarContent fill>
-      <ButtonGroup aria-label="Search orders">
-        <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
-          <template #startAdornment>
-            <SearchSm />
-          </template>
-        </Input>
-        <Button color="secondary" variant="soft" uniform pill icon-size="sm" aria-label="New order"><PlusLg /></Button>
-      </ButtonGroup>
-    </ToolbarContent>
-  </Toolbar>
-</Page>
-```
-
 ### Dropdown menu
 Compose a primary action with a Menu trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / …. On a phone the action and its menu are symbols in one glass capsule of the top bar, as iOS 27.2 groups a bar's symbols (Add, Share and More in one glass). iOS never puts a label and a symbol in one capsule, and a bar opens a menu from More (…), not from a chevron: here Share exports, More opens the formats. The bar sets its buttons' size, so the phone view leaves out the size control.
 ```vue
@@ -424,52 +389,6 @@ Compose a primary action with a Menu trigger for follow-up options. Common for E
     </ToolbarTrailing>
   </Toolbar>
   <PageContent>…</PageContent>
-</Page>
-```
-
-### Select
-Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested ButtonGroup to get a gap between the compound field and the send affordance. iOS has no group of a menu, a field and a button, in a bar or in the content. A phone form sets a value and its qualifier as rows of a grouped list: the field is the value of its Field row, the unit is the pop-up at the end of its row, as on the Select page, and the bar's confirm takes the place of the send button. The rows set the sizes, so the phone view leaves out the size control.
-```vue
-<!-- Desktop -->
-<ButtonGroup>
-  <ButtonGroup>
-    <Select
-      :options="unitOptions"
-      v-model:value="unit"
-      variant="outline"
-      :size="size"
-      :block="false"
-    />
-    <Input placeholder="2.50" :size="size" inputmode="decimal" />
-  </ButtonGroup>
-  <ButtonGroup>
-    <Button variant="outline" color="secondary" :size="size" uniform aria-label="Log weight">
-      <ArrowRight />
-    </Button>
-  </ButtonGroup>
-</ButtonGroup>
-
-<!-- Phone: a form of rows; the bar's confirm logs the weight -->
-<Page surface="grouped">
-  <Toolbar>
-    <ToolbarLeading>
-      <NavigationButton action="close" />
-    </ToolbarLeading>
-    <ToolbarTitle>Weight</ToolbarTitle>
-    <ToolbarTrailing>
-      <NavigationButton action="confirm" aria-label="Log weight" />
-    </ToolbarTrailing>
-  </Toolbar>
-  <PageContent>
-    <FieldGroup>
-      <Field row label="Weight">
-        <Input placeholder="2.50" inputmode="decimal" />
-      </Field>
-      <Field row label="Unit">
-        <Select :options="unitNames" v-model:value="unit" :block="false" align="end" />
-      </Field>
-    </FieldGroup>
-  </PageContent>
 </Page>
 ```
 
@@ -1263,6 +1182,7 @@ A TextLink sits in running text. By default it takes the surrounding text color 
 Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.
 Import: import { Field } from "@plexui/vue/components/Field"
 Import: import { FieldGroup } from "@plexui/vue/components/FieldGroup"
+Import: import { Label } from "@plexui/vue/components/Label"
 Docs: https://plexui.com/vue/components/field
 Props:
   - label (string) — Label text for the field
@@ -1291,6 +1211,10 @@ Props:
     - default slot (VNode) — The rows
     - action slot (VNode) — Content at the end of the header. On a phone a ghost text button reads as the list header's action: tinted text on the title's last line
     - footer slot (VNode) — Content under the block, such as a note; its paragraphs stand apart
+  Label:
+    - for (string) — id of the associated control. Clicks on the label focus or activate the control.
+    - class (string) — Applied to the root <label> element
+    - default slot (VNode[]) — Label content
 
 ### Overview
 Field wraps a form control with a label, a description and an error message, and links them: the label's for, aria-describedby and aria-invalid reach the control. required adds an asterisk after the label; it is visual only, so give the control its own required for form validation. The layout control puts the label in its four places: above: the default, orientation="vertical". columns: orientation="horizontal", every value starting at one column. end: row, one line of a FieldGroup with the value at its end. A framed field is a pill there and takes --field-row-control-width, as its width cannot follow what is typed; :pill="false" on the control keeps the rounded box. hidden: hide-label. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field. On Phone a field is always a cell of a FieldGroup on the grouped background, as in an iOS form, in the same four places: the label above its value (row orientation="vertical"), values in one column (FieldGroup columns), the value at the end of the row, or the placeholder alone (row hide-label), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's footer slot, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: OTPInput keeps its own digit cells on the screen, outside a group, as in Verify email.
@@ -1455,6 +1379,15 @@ Use the labelAction slot (or the label-action string prop) for a link or a small
   <TextLink primary href="#label-action" class="mt-[15px] self-start text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)]">
     Forgot password?
   </TextLink>
+</div>
+```
+
+### Label
+A Field draws its own label. Reach for a standalone Label when you pair it with a checkbox, a switch or any control where a field's layout is too much: for points it at the control's id, so clicking the label toggles or focuses the control. Here accepted starts as true. On Phone the label takes the body type of a list row, 17/22 regular, the same as the labels of Checkbox, Switch and a Field row.
+```vue
+<div style="display: flex; align-items: center; gap: 8px">
+  <Checkbox id="label-demo-terms" v-model:checked="accepted" />
+  <Label for="label-demo-terms">Accept terms and conditions</Label>
 </div>
 ```
 
@@ -2645,24 +2578,6 @@ With InputGroupTextarea, use block-start and block-end addons for a header and a
   </Field>
 </FieldGroup>
 <Button color="primary" size="3xl" pill block>Run</Button>
-```
-
-## Label
-Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
-Import: import { Label } from "@plexui/vue/components/Label"
-Docs: https://plexui.com/vue/components/label
-Props:
-  - for (string) — id of the associated control. Clicks on the label focus or activate the control.
-  - class (string) — Applied to the root <label> element
-  - default slot (VNode[]) — Label content
-
-### Overview
-Clicking the label toggles the checkbox it points at. Here accepted starts as true. On Phone the label takes the body type of a list row, 17/22 regular, the same as the labels of Checkbox, Switch and a Field row.
-```vue
-<div style="display: flex; align-items: center; gap: 8px">
-  <Checkbox id="label-demo-terms" v-model:checked="accepted" />
-  <Label for="label-demo-terms">Accept terms and conditions</Label>
-</div>
 ```
 
 ## Markdown Editor
@@ -4305,6 +4220,7 @@ When tabs overflow their container they scroll sideways, the default overflow="s
 ## Select
 Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.
 Import: import { Select } from "@plexui/vue/components/Select"
+Import: import { SelectControl } from "@plexui/vue/components/SelectControl"
 Docs: https://plexui.com/vue/components/select
 Props:
   - options (Options<T>) — Array of options or grouped options
@@ -4344,6 +4260,22 @@ Props:
   - search-size (ControlSize) default: "md" — Size of the search input in the menu. A phone list has no search: it is an iOS menu, and a long one scrolls
   - search-predicate ((option, term) => boolean) — Filters options while searching
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
+  SelectControl:
+    - selected (boolean) default: false — Whether a value is selected (affects placeholder styling)
+    - variant ("soft" | "outline" | "ghost") default: "outline" — Visual variant
+    - size (ControlSize) default: "md" — Control size (3xs to 3xl)
+    - pill (boolean) default: false — Fully rounded trigger
+    - StartIcon (Component) — Icon at start
+    - @clear-click (() => void) — Enables the clear button when set (a function prop, onClearClick)
+    - interact-on-enter (boolean) default: false — Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form
+    - @interact (() => void) — Called on pointer down, ArrowDown, ArrowUp and Space (a function prop, onInteract). Without it, a wrapping trigger opens on pointer down
+    - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Dropdown indicator style
+    - invalid (boolean) default: false — Invalid state
+    - disabled (boolean) default: false — Disable control
+    - block (boolean) default: false — Full width
+    - loading (boolean) default: false — Loading state (aria-busy); hides the indicators and ignores interaction
+    - optically-align ("start" | "end") — Optical alignment
+    - class (string) — Applied to the control
 
 ### Overview
 Bind the selection with v-model:value: a string, or an array of strings with multiple. multiple also changes what @change and the #triggerView slot carry: @change carries the selected option, or every selected option, like React's onChange, and the slot receives {"{ values, selectedAll }"}. The trigger is a SelectControl: variant, size (the 9-step scale of Button, Input, SelectControl and SegmentedControl), pill and dropdown-icon-type style it. block stretches it across its container, here the 290px field, and the list takes its width. Without block the trigger fits its value and the list is at least list-min-width, here 240px, wider than the trigger, so align places it against the trigger. side is the side the list prefers. check-position puts the checkmark at the start or the end of a row; "none" leaves the column out. clearable adds a clear action. loading shows loading-placeholder and keeps the list closed. disabled disables the select, and a disabled select is not submitted with its form. optically-align offsets the trigger by its gutter: "start" puts the text of a ghost trigger on the label's edge, and "end" puts the end of a block one, its indicator, on the field's end. A framed trigger keeps its gutter, so the example offers the setting for ghost only, and "end" only with block: a narrower trigger does not reach the field's end.On Phone the select is the value of a row in a FieldGroup, with :block="false" and align="end". The row sets its height, insets, type and colors, and the list opens over the value with the checkmark leading. So the Phone preview has no variant, size, pill, block, dropdown-icon-type, side, align and optically-align controls, and its check-position is "start" or "none": the checkmark leads every row, and "none" leaves it out. A clearable select leads its list with a None row instead of a clear button.
@@ -4539,97 +4471,6 @@ Select supports option groups, similar to the native &lt;optgroup&gt; element, a
 </FieldGroup>
 ```
 
-## Select Control
-The button of a Select on its own, for a list of your own, with variants, sizes, start and dropdown icons, clearable, loading and invalid states.
-Import: import { SelectControl } from "@plexui/vue/components/SelectControl"
-Docs: https://plexui.com/vue/components/select-control
-Props:
-  - selected (boolean) default: false — Whether a value is selected (affects placeholder styling)
-  - variant ("soft" | "outline" | "ghost") default: "outline" — Visual variant
-  - size (ControlSize) default: "md" — Control size (3xs to 3xl)
-  - pill (boolean) default: false — Fully rounded trigger
-  - StartIcon (Component) — Icon at start
-  - @clear-click (() => void) — Enables the clear button when set (a function prop, onClearClick)
-  - interact-on-enter (boolean) default: false — Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form
-  - @interact (() => void) — Called on pointer down, ArrowDown, ArrowUp and Space (a function prop, onInteract). Without it, a wrapping trigger opens on pointer down
-  - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Dropdown indicator style
-  - invalid (boolean) default: false — Invalid state
-  - disabled (boolean) default: false — Disable control
-  - block (boolean) default: false — Full width
-  - loading (boolean) default: false — Loading state (aria-busy); hides the indicators and ignores interaction
-  - optically-align ("start" | "end") — Optical alignment
-  - class (string) — Applied to the control
-
-### Overview
-Use variant to stylize the control: its styles are like those of {""}, with the small differences of {""}, and ghost has no frame. size sets the control's height, font size, gutter and the placement of its icon and indicator, on the 9-step scale of Button, Input, Select and SegmentedControl; pill rounds it fully and widens its gutter, and its clear action is a pill too. Pass a component to StartIcon to put an icon before the value, sized, spaced and colored by the control, and dropdown-icon-type picks the indicator. selected says the control holds a value and turns off the placeholder styling. It does nothing to the content, which is up to you, so here it follows the value: pick a period, or clear it. Listen to @clear-click (or pass on-clear-click) to make the control clearable: the clear action shows while it is selected. During loading the dropdown icon and clear action are hidden, the control is marked aria-busy and it ignores pointer and keyboard interaction; add disabled to dim it as well. invalid marks the control invalid; pair it with the field's error-message. disabled disables it both visually and accessibly. block stretches it across its container, here the 290px field. optically-align offsets the control by its gutter: "start" puts the start of a ghost control, its icon or its text, on the label's edge, and "end" puts the end of a block one, its indicator, on the field's end. A framed control keeps its gutter, so the example offers the setting for ghost only, and "end" only with block: a narrower control does not reach the field's end. The control's own aria-labelledby names it by the label and the value, as Select's trigger is named.On Phone the control is the value of a row in a FieldGroup: the value and its up-down chevrons sit at the row's end, as an iOS pop-up button. The row sets its height, insets, type and colors, so the Phone preview has no variant, size, pill, StartIcon, dropdownIconType, block and opticallyAlign controls. A selected value takes the secondary label color (the primary one in a group with columns), a placeholder the tertiary one. A clearable control unsets its value with the menu's None row, as iOS pop-ups do, rather than a clear button. A row has no frame to color, so the error is the row's error-message line.
-```vue
-<!-- Desktop -->
-<div class="w-[290px]">
-  <Field label="Period" :error-message="invalid ? 'No data for this period.' : undefined">
-    <template #default="control">
-      <Menu>
-        <MenuTrigger>
-          <SelectControl
-            v-bind="control"
-            :aria-labelledby="control['aria-labelledby'] + ' ' + control.id + '-value'"
-            :class="block ? undefined : 'w-[200px]'"
-            :variant="variant"
-            :size="size"
-            :pill="pill"
-            :block="block"
-            :optically-align="variant === 'ghost' && opticallyAlign !== 'none' ? opticallyAlign : undefined"
-            :StartIcon="startIcon ? CalendarAlt : undefined"
-            :dropdown-icon-type="dropdownIconType"
-            :selected="!!value"
-            :on-clear-click="clearable ? () => (value = '') : undefined"
-            :loading="loading"
-            :invalid="invalid"
-            :disabled="disabled"
-          ><span :id="control.id + '-value'">{{ value || "Select date..." }}</span></SelectControl>
-        </MenuTrigger>
-        <MenuContent :min-width="200" :width="block ? 290 : 200">
-          <MenuRadioGroup v-model:value="value">
-            <MenuRadioItem value="Today">Today</MenuRadioItem>
-            <MenuRadioItem value="Last week">Last week</MenuRadioItem>
-            <MenuRadioItem value="Last month">Last month</MenuRadioItem>
-            <MenuRadioItem value="Last 3 months">Last 3 months</MenuRadioItem>
-          </MenuRadioGroup>
-        </MenuContent>
-      </Menu>
-    </template>
-  </Field>
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Period" :error-message="invalid ? 'No data for this period.' : undefined">
-    <template #default="control">
-      <Menu>
-        <MenuTrigger>
-          <SelectControl
-            v-bind="control"
-            :aria-labelledby="control['aria-labelledby'] + ' ' + control.id + '-value'"
-            :selected="!!value"
-            :loading="loading"
-            :invalid="invalid"
-            :disabled="disabled"
-          ><span :id="control.id + '-value'">{{ value || "None" }}</span></SelectControl>
-        </MenuTrigger>
-        <MenuContent :min-width="200" align="end">
-          <MenuRadioGroup v-model:value="value">
-            <MenuRadioItem v-if="clearable" value="">None</MenuRadioItem>
-            <MenuRadioItem value="Today">Today</MenuRadioItem>
-            <MenuRadioItem value="Last week">Last week</MenuRadioItem>
-            <MenuRadioItem value="Last month">Last month</MenuRadioItem>
-            <MenuRadioItem value="Last 3 months">Last 3 months</MenuRadioItem>
-          </MenuRadioGroup>
-        </MenuContent>
-      </Menu>
-    </template>
-  </Field>
-</FieldGroup>
-```
-
 ### Country selector
 A plain country selector built with Select. The #triggerView and #optionView slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. countries holds {"{ value, label }"} options, and FlagIcon renders the flag image for a country code. The search box appears on its own because the list has more than 15 options; there is no prop for it.
 ```vue
@@ -4725,36 +4566,74 @@ A searchable country selector built with Select. The #triggerView and #optionVie
 </FieldGroup>
 ```
 
-### Phone form
-Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix, clears the phone field and focuses it. Phone numbers are formatted as you type using per-country patterns (e.g. 123 456 7890 for US, 1234 567 890 for UK). Search works by both country name and dial code. Validation runs on submit: the phone field shows an error state with FieldError when the number is too short or too long.
+### Select Control
+Use variant to stylize the control: its styles are like those of {""}, with the small differences of {""}, and ghost has no frame. size sets the control's height, font size, gutter and the placement of its icon and indicator, on the 9-step scale of Button, Input, Select and SegmentedControl; pill rounds it fully and widens its gutter, and its clear action is a pill too. Pass a component to StartIcon to put an icon before the value, sized, spaced and colored by the control, and dropdown-icon-type picks the indicator. selected says the control holds a value and turns off the placeholder styling. It does nothing to the content, which is up to you, so here it follows the value: pick a period, or clear it. Listen to @clear-click (or pass on-clear-click) to make the control clearable: the clear action shows while it is selected. During loading the dropdown icon and clear action are hidden, the control is marked aria-busy and it ignores pointer and keyboard interaction; add disabled to dim it as well. invalid marks the control invalid; pair it with the field's error-message. disabled disables it both visually and accessibly. block stretches it across its container, here the 290px field. optically-align offsets the control by its gutter: "start" puts the start of a ghost control, its icon or its text, on the label's edge, and "end" puts the end of a block one, its indicator, on the field's end. A framed control keeps its gutter, so the example offers the setting for ghost only, and "end" only with block: a narrower control does not reach the field's end. The control's own aria-labelledby names it by the label and the value, as Select's trigger is named.On Phone the control is the value of a row in a FieldGroup: the value and its up-down chevrons sit at the row's end, as an iOS pop-up button. The row sets its height, insets, type and colors, so the Phone preview has no variant, size, pill, StartIcon, dropdownIconType, block and opticallyAlign controls. A selected value takes the secondary label color (the primary one in a group with columns), a placeholder the tertiary one. A clearable control unsets its value with the menu's None row, as iOS pop-ups do, rather than a clear button. A row has no frame to color, so the error is the row's error-message line.
 ```vue
-<Page surface="grouped" class="h-dvh" data-form-screen style="--page-content-padding-top:10px; --page-content-padding-bottom:16px; --page-footer-gutter:24px; --page-footer-padding-bottom:max(24px, env(safe-area-inset-bottom, 0px))">
-  <Toolbar>
-    <ToolbarLeading><DemoBackButton /></ToolbarLeading>
-    <ToolbarTitle>Phone number</ToolbarTitle>
-  </Toolbar>
-  <PageContent data-form-content>
-    <form ref="screenForm" class="flex flex-col gap-6 [--field-group-gap:11px]" @submit.prevent="submitted = true" novalidate>
-      <FieldGroup title="Phone number" description="Choose your country and enter the number you want to use." columns>
-  <Field row label="Country">
-    <Select v-model:value="country" :options="countryOptions" search-placeholder="Search countries..."
-      :search-predicate="countrySearchPredicate" :list-min-width="300" :option-class-name="countryOptionClass"
-      @change="() => { phone = ''; submitted = false; focusLater($refs.phoneInput) }">
-      <template #optionView="{ value, label }"><span class="inline-flex items-center gap-2"><component :is="FlagIcon" :code="value" />{{ label }}</span></template>
-    </Select>
+<!-- Desktop -->
+<div class="w-[290px]">
+  <Field label="Period" :error-message="invalid ? 'No data for this period.' : undefined">
+    <template #default="control">
+      <Menu>
+        <MenuTrigger>
+          <SelectControl
+            v-bind="control"
+            :aria-labelledby="control['aria-labelledby'] + ' ' + control.id + '-value'"
+            :class="block ? undefined : 'w-[200px]'"
+            :variant="variant"
+            :size="size"
+            :pill="pill"
+            :block="block"
+            :optically-align="variant === 'ghost' && opticallyAlign !== 'none' ? opticallyAlign : undefined"
+            :StartIcon="startIcon ? CalendarAlt : undefined"
+            :dropdown-icon-type="dropdownIconType"
+            :selected="!!value"
+            :on-clear-click="clearable ? () => (value = '') : undefined"
+            :loading="loading"
+            :invalid="invalid"
+            :disabled="disabled"
+          ><span :id="control.id + '-value'">{{ value || "Select date..." }}</span></SelectControl>
+        </MenuTrigger>
+        <MenuContent :min-width="200" :width="block ? 290 : 200">
+          <MenuRadioGroup v-model:value="value">
+            <MenuRadioItem value="Today">Today</MenuRadioItem>
+            <MenuRadioItem value="Last week">Last week</MenuRadioItem>
+            <MenuRadioItem value="Last month">Last month</MenuRadioItem>
+            <MenuRadioItem value="Last 3 months">Last 3 months</MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuContent>
+      </Menu>
+    </template>
   </Field>
-  <Field row label="Phone" :error-message="submitted && !isPhoneValid(phone) ? 'Phone number is not valid.' : undefined">
-    <Input ref="phoneInput" :value="phone" @update:value="(raw) => { phone = formatPhoneNumber(raw, country); submitted = false }"
-      placeholder="Phone number" type="tel" inputmode="tel" autocomplete="tel-national">
-      <template #startAdornment><span class="text-tertiary whitespace-nowrap select-none mr-2">{{ countryOf(country)?.dialCode ?? '+1' }}</span></template>
-    </Input>
+</div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Period" :error-message="invalid ? 'No data for this period.' : undefined">
+    <template #default="control">
+      <Menu>
+        <MenuTrigger>
+          <SelectControl
+            v-bind="control"
+            :aria-labelledby="control['aria-labelledby'] + ' ' + control.id + '-value'"
+            :selected="!!value"
+            :loading="loading"
+            :invalid="invalid"
+            :disabled="disabled"
+          ><span :id="control.id + '-value'">{{ value || "None" }}</span></SelectControl>
+        </MenuTrigger>
+        <MenuContent :min-width="200" align="end">
+          <MenuRadioGroup v-model:value="value">
+            <MenuRadioItem v-if="clearable" value="">None</MenuRadioItem>
+            <MenuRadioItem value="Today">Today</MenuRadioItem>
+            <MenuRadioItem value="Last week">Last week</MenuRadioItem>
+            <MenuRadioItem value="Last month">Last month</MenuRadioItem>
+            <MenuRadioItem value="Last 3 months">Last 3 months</MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuContent>
+      </Menu>
+    </template>
   </Field>
 </FieldGroup>
-    </form>
-  </PageContent>
-  <PageFooter data-form-footer><Button color="primary" size="3xl" pill block @click="$refs.screenForm.requestSubmit()">Continue</Button></PageFooter>
-  <Toolbar placement="bottom"><ToolbarContent fill><Button color="primary" pill block @click="$refs.screenForm.requestSubmit()">Continue</Button></ToolbarContent></Toolbar>
-</Page>
 ```
 
 ## Slider
@@ -7117,38 +6996,6 @@ In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's o
 </Dialog>
 ```
 
-## Copy Tooltip
-A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
-Import: import { CopyTooltip } from "@plexui/vue/components/Tooltip"
-Import: import { Button } from "@plexui/vue/components/Button"
-Docs: https://plexui.com/vue/components/copy-tooltip
-Props:
-  - default slot (VNode) — Trigger element (for example TooltipTriggerDecorator)
-  - copy-value (string) — Required. Content to copy to clipboard
-  - open-delay (number) default: 150 — Tooltip open delay in milliseconds
-  - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
-  - align-offset (number) default: 0 — Offset from start/end alignment in pixels
-  - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
-  - side-offset (number) default: 5 — Distance from trigger in pixels
-  - @copy ((copied: boolean) => void) — Emitted once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
-
-### Overview
-Hovering the trigger shows Copy after open-delay, keyboard focus shows it at once; a click copies the value and the tooltip says Copied! On a phone a tap copies and shows Copied! at once, so the delay applies to a pointer only.
-```vue
-<CopyTooltip
-  copy-value="sess_12345abcdefg"
-  :open-delay="openDelay"
-  :side-offset="sideOffset"
-  :align-offset="alignOffset"
-  :side="side"
-  :align="align"
->
-  <Button color="secondary" variant="ghost" size="xl" aria-label="Copy session ID">
-    sess_12345abcdefg
-  </Button>
-</CopyTooltip>
-```
-
 ## Dialog
 Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
 Import: import { Dialog, DialogBody, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogHeaderAction, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
@@ -7657,7 +7504,7 @@ const wide = useBreakpoint('md');
 ```
 
 ### Column configuration
-A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups. For a DataTable, turn the shown ids into its v-model:column-visibility, an object of column id to shown (Table › Column visibility). On a phone the panel is a sheet (Dialog with mobile-variant="sheet") of Field rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More bar button of the screen's Toolbar, three dots on glass, as iOS apps open their view options.
+A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups. For a DataTable, turn the shown ids into its v-model:column-visibility, an object of column id to shown (Data Table › Column visibility). On a phone the panel is a sheet (Dialog with mobile-variant="sheet") of Field rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More bar button of the screen's Toolbar, three dots on glass, as iOS apps open their view options.
 ```vue
 <!-- Desktop -->
 <Popover>
@@ -7865,8 +7712,8 @@ function show(settings) {
 ```
 
 ## Tooltip
-Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
-Import: import { Tooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip"
+Brief informative text shown on hover or focus, for any trigger element, with conditional enabling, a compact variant and a copy-to-clipboard tooltip.
+Import: import { CopyTooltip, Tooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip"
 Docs: https://plexui.com/vue/components/tooltip
 Props:
   - default slot (VNode) — The trigger: a single element. Wrap plain text in TooltipTriggerDecorator
@@ -7884,6 +7731,15 @@ Props:
   - force-open (boolean) — Force open or closed
   - prevent-unintentional-click-to-close (boolean) default: false — Keeps the tooltip open when the trigger is clicked right after it opened
   - content slot (VNode[]) — Rich tooltip content; takes precedence over content
+  CopyTooltip:
+    - default slot (VNode) — Trigger element (for example TooltipTriggerDecorator)
+    - copy-value (string) — Required. Content to copy to clipboard
+    - open-delay (number) default: 150 — Tooltip open delay in milliseconds
+    - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
+    - align-offset (number) default: 0 — Offset from start/end alignment in pixels
+    - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
+    - side-offset (number) default: 5 — Distance from trigger in pixels
+    - @copy ((copied: boolean) => void) — Emitted once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
 
 ### Overview
 Any element can be the trigger: trigger shows text, a button and an icon button. Text is no tab stop of its own, so wrap it in TooltipTriggerDecorator, which makes it one and marks it with a dotted underline; a plain span shows its tooltip on hover only, and a keyboard never reaches it. An icon button names itself with aria-label, and its tooltip says the same in words. compact is for short tooltips of one to three words: little padding (2px by 8px) and inverted colors, a dark fill with light text in the light theme and the other way round in the dark one. side is the side the tooltip prefers; it turns to the other side when there is no room. A disabled button can tell why in its tooltip on hover (a disabled button is no tab stop): pass the reason as content while it is disabled. To show a tooltip only under a condition, pass null otherwise.
@@ -7918,6 +7774,23 @@ const disabled = ref(false);
     </Button>
   </Tooltip>
 </template>
+```
+
+### Copy Tooltip
+A CopyTooltip copies copy-value when its trigger is clicked and says Copied! once the clipboard write succeeds. Hovering the trigger shows Copy after open-delay, keyboard focus shows it at once. On a phone a tap copies and shows Copied! at once, so the delay applies to a pointer only.
+```vue
+<CopyTooltip
+  copy-value="sess_12345abcdefg"
+  :open-delay="openDelay"
+  :side-offset="sideOffset"
+  :align-offset="alignOffset"
+  :side="side"
+  :align="align"
+>
+  <Button color="secondary" variant="ghost" size="xl" aria-label="Copy session ID">
+    sess_12345abcdefg
+  </Button>
+</CopyTooltip>
 ```
 
 ## Alert
@@ -8564,7 +8437,7 @@ const labels = { none: "New", icon: "Beta", loading: "In progress" };
 ```
 
 ## Card
-Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
+A surface that groups a title, a description, content and actions, in an outline, solid or ghost style, and as a link.
 Import: import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@plexui/vue/components/Card"
 Docs: https://plexui.com/vue/components/card
 Props:
@@ -8577,230 +8450,41 @@ Props:
   - class (string) — Applied to the root element
 
 ### Overview
+variant sets the frame: outline (a 1px border), solid (a muted fill) or ghost (neither). size sets the padding. On a phone an outline card is a section of an iOS inset grouped list, as a FieldGroup is, and a solid card takes a gray fill to stand apart from those sections. A card is its parts: CardHeader with CardTitle, CardDescription and CardAction (a slot at the top end), CardContent and CardFooter for the actions. With href the whole card is a link, with hover and focus states; it then holds no buttons of its own. For a log-in, sign-up or verification screen, see Forms: Auth; for a metric, Stats Card; for an empty state, Empty Message.
 ```vue
-<Card style="max-width: 380px">
+<script setup lang="ts">
+import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@plexui/vue/components/Card';
+import { DotsHorizontal } from '@plexui/vue/components/Icon';
+
+const variant = ref<"outline" | "solid" | "ghost">("outline");
+const size = ref<"sm" | "md" | "lg">("md");
+const description = ref(true);
+const content = ref(false);
+const footer = ref<"none" | "one" | "two">("two");
+const action = ref(false); // without href
+const href = ref(false);
+</script>
+
+<template>
+<Card :variant="variant" :size="size" :href="href ? '#overview' : undefined" style="width: 100%; max-width: 380px">
   <CardHeader>
     <CardTitle>Project activity</CardTitle>
-    <CardDescription>
-      Your team opened 12 issues and closed 8 pull requests over the last 7 days.
-    </CardDescription>
-  </CardHeader>
-  <CardFooter>
-    <Button color="primary" variant="solid" size="sm">View report</Button>
-    <Button color="secondary" variant="outline" size="sm">Dismiss</Button>
-  </CardFooter>
-</Card>
-```
-
-### Login
-A classic login form with a primary Log in CTA and an inline Sign up link below.
-```vue
-<Card style="max-width: 380px">
-  <CardHeader>
-    <CardTitle>Log in to your account</CardTitle>
-    <CardDescription>Enter your email below to log in to your account.</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <div style="display: flex; flex-direction: column; gap: 20px">
-      <Field label="Email">
-        <Input type="email" placeholder="you@example.com" />
-      </Field>
-      <div style="display: flex; flex-direction: column; gap: 6px">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
-          <Label for="card-login-password">Password</Label>
-          <TextLink href="#" primary>Forgot your password?</TextLink>
-        </div>
-        <Input id="card-login-password" type="password" />
-      </div>
-    </div>
-  </CardContent>
-  <CardFooter style="flex-direction: column; align-items: stretch; gap: 12px">
-    <Button color="primary" variant="solid" block>Log in</Button>
-    <!-- Description sits flush under a title by default; here it follows a button -->
-    <CardDescription class="text-center" style="margin: 0">
-      Don't have an account?
-      <TextLink href="#" primary>Sign up</TextLink>
-    </CardDescription>
-  </CardFooter>
-</Card>
-```
-
-### Create project
-Right-aligned footer with Cancel / Deploy. Use style="justify-content: flex-end" on CardFooter.
-```vue
-<Card style="max-width: 380px">
-  <CardHeader>
-    <CardTitle>Create project</CardTitle>
-    <CardDescription>Deploy a new project in one-click with sensible defaults.</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <div style="display: flex; flex-direction: column; gap: 20px">
-      <Field label="Name">
-        <Input placeholder="billing-service" />
-      </Field>
-      <Field label="Region" description="Where your functions and database will live.">
-        <Input placeholder="us-east-1" />
-      </Field>
-    </div>
-  </CardContent>
-  <CardFooter style="justify-content: flex-end">
-    <Button color="secondary" variant="outline" size="sm">Cancel</Button>
-    <Button color="primary" variant="solid" size="sm">Deploy</Button>
-  </CardFooter>
-</Card>
-```
-
-### Payment Method
-Full-fidelity payment form. Month, Year and CVV share one row, with a Select for the month and the year. A Separator sets off the Billing Address section, whose Checkbox takes its text through label.
-```vue
-<Card style="max-width: 420px">
-  <div style="display: flex; flex-direction: column; gap: 16px">
-    <CardHeader>
-      <CardTitle>Payment Method</CardTitle>
-      <CardDescription>All transactions are secure and encrypted</CardDescription>
-    </CardHeader>
-
-    <Field label="Name on Card">
-      <Input placeholder="Aisha Cooper" />
-    </Field>
-
-    <Field label="Card Number" description="Enter your 16-digit card number">
-      <Input placeholder="1234 5678 9012 3456" inputmode="numeric" />
-    </Field>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px">
-      <Field label="Month">
-        <Select v-model:value="month" :options="monthOptions" placeholder="MM" />
-      </Field>
-      <Field label="Year">
-        <Select v-model:value="year" :options="yearOptions" placeholder="YYYY" />
-      </Field>
-      <Field label="CVV">
-        <Input placeholder="123" inputmode="numeric" />
-      </Field>
-    </div>
-
-    <Separator />
-
-    <CardHeader>
-      <CardTitle>Billing Address</CardTitle>
-      <CardDescription>The billing address associated with your payment method</CardDescription>
-    </CardHeader>
-
-    <Checkbox v-model:checked="sameAsShipping" label="Same as shipping address" />
-
-    <Separator />
-
-    <Field label="Comments">
-      <Textarea placeholder="Add any additional comments" :rows="3" />
-    </Field>
-
-    <div style="display: flex; gap: 8px">
-      <Button color="primary" variant="solid">Submit</Button>
-      <Button color="secondary" variant="outline">Cancel</Button>
-    </div>
-  </div>
-</Card>
-```
-
-### No team members (empty state)
-Compose Card with EmptyMessage for a center-aligned empty state with icon badge, title, description, and primary action.
-```vue
-<Card style="max-width: 380px; padding: 24px">
-  <EmptyMessage>
-    <EmptyMessageIcon>
-      <UserAdd />
-    </EmptyMessageIcon>
-    <EmptyMessageTitle>No team members</EmptyMessageTitle>
-    <EmptyMessageDescription>
-      Invite your team to collaborate on this project.
-    </EmptyMessageDescription>
-    <EmptyMessageActionRow>
-      <Button color="primary" variant="solid" size="sm">Invite members</Button>
-    </EmptyMessageActionRow>
-  </EmptyMessage>
-</Card>
-```
-
-### How did you hear about us?
-A single-question survey using RadioGroup with direction="col" and a full-width submit button.
-```vue
-<Card style="max-width: 380px">
-  <CardHeader>
-    <CardTitle>How did you hear about us?</CardTitle>
-    <CardDescription>Select the option that best describes how you heard about us.</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <RadioGroup v-model:value="source" direction="col">
-      <RadioGroupItem value="social" block>Social Media</RadioGroupItem>
-      <RadioGroupItem value="search" block>Search Engine</RadioGroupItem>
-      <RadioGroupItem value="referral" block>Referral</RadioGroupItem>
-      <RadioGroupItem value="other" block>Other</RadioGroupItem>
-    </RadioGroup>
-  </CardContent>
-  <CardFooter>
-    <Button color="primary" variant="solid" block>Submit</Button>
-  </CardFooter>
-</Card>
-```
-
-### Processing your request
-Loading state built with EmptyMessage and a LoadingIndicator as the visual anchor.
-```vue
-<Card style="max-width: 380px; padding: 24px">
-  <EmptyMessage>
-    <div style="margin-bottom: 12px; color: var(--color-text-tertiary)">
-      <LoadingIndicator :size="28" />
-    </div>
-    <EmptyMessageTitle>Processing your request</EmptyMessageTitle>
-    <EmptyMessageDescription>
-      Please wait while we process your request. Do not refresh the page.
-    </EmptyMessageDescription>
-    <EmptyMessageActionRow>
-      <Button color="secondary" variant="outline" size="sm">Cancel</Button>
-    </EmptyMessageActionRow>
-  </EmptyMessage>
-</Card>
-```
-
-### Pricing
-Mix variant="outline" and variant="solid" to emphasize a highlighted plan.
-```vue
-<div style="display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); max-width: min(100%, 720px)">
-  <Card
-    v-for="plan in [
-      { name: 'Starter', price: '$0', highlighted: false, features: ['1 project', 'Community support', 'Plex UI core'] },
-      { name: 'Pro', price: '$19', highlighted: true, features: ['Unlimited projects', 'Priority support', 'Custom domains', 'Early components'] },
-    ]"
-    :key="plan.name"
-    :variant="plan.highlighted ? 'solid' : 'outline'"
-  >
-    <CardHeader>
-      <CardTitle>{{ plan.name }}</CardTitle>
-      <CardDescription>
-        <span style="font-size: 28px; font-weight: 600; color: var(--color-text)">{{ plan.price }}</span>
-        <span style="margin-left: 4px">/ month</span>
-      </CardDescription>
-    </CardHeader>
-    <CardContent>
-      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px">
-        <li v-for="feature in plan.features" :key="feature" style="display: flex; align-items: center; gap: 8px">
-          <Check style="width: 16px; height: 16px; color: var(--color-text-success-soft)" />
-          {{ feature }}
-        </li>
-      </ul>
-    </CardContent>
-    <CardFooter style="margin-top: auto; padding-top: 4px">
-      <Button
-        :color="plan.highlighted ? 'primary' : 'secondary'"
-        :variant="plan.highlighted ? 'solid' : 'outline'"
-        block
-      >
-        Choose {{ plan.name }}
+    <CardDescription v-if="description">Your team opened 12 issues and closed 8 pull requests over the last 7 days.</CardDescription>
+    <CardAction v-if="action && !href">
+      <Button color="secondary" variant="ghost" size="sm" uniform aria-label="More">
+        <DotsHorizontal />
       </Button>
-    </CardFooter>
-  </Card>
-</div>
+    </CardAction>
+  </CardHeader>
+  <CardContent v-if="content">Most of the work landed on Tuesday, in the release branch.</CardContent>
+  <CardFooter v-if="footer !== 'none' && !href">
+    <Button color="primary" variant="solid" size="sm" :pill="false">View report</Button>
+    <Button v-if="footer === 'two'" color="secondary" variant="outline" size="sm" :pill="false">Dismiss</Button>
+  </CardFooter>
+</Card>
+</template>
 ```
 
 ## Code Block
@@ -8843,6 +8527,319 @@ const copyable = ref(true);
   <!-- The block reads default-expanded once: a new key mounts it again, folded or not as the settings ask -->
   <CollapsibleCodeBlock v-if="collapsible" :key="language + defaultExpanded + collapsedHeight" :language="language" :default-expanded="defaultExpanded" :collapsed-height="collapsedHeight" :max-expanded-height="maxExpandedHeight" :copyable="copyable">{{ code }}</CollapsibleCodeBlock>
   <CodeBlock v-else :language="language">{{ code }}</CodeBlock>
+</template>
+```
+
+## Data Table
+"Table of your data on TanStack Table v8, with sorting, pagination, filtering, row selection, column visibility and cell helpers."
+Import: import { DataTable, DataTableColumnHeader } from "@plexui/vue/components/DataTable"
+Docs: https://plexui.com/vue/components/data-table
+Props:
+  - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API; header and cell renderers return VNodes (required)
+  - data (TData[]) — Data array to display (required)
+  - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
+  - page-size (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size
+  - initial-sorting (SortingState) — Initial column sorting state
+  - global-filter (string) — Controlled search/filter string. Bind with v-model:global-filter
+  - column-visibility (VisibilityState) — Controlled column visibility state. Bind with v-model:column-visibility
+  - enable-row-selection (boolean) default: false — Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click
+  - row-selection (RowSelectionState) — Controlled row selection state. Bind with v-model:row-selection
+  - get-row-id ((row: TData) => string) — Custom row ID accessor; selection keys use it
+  - empty-message (string | number | VNode) default: "No results." — Shown when no rows; the emptyMessage slot takes precedence
+  - show-pagination (boolean) default: true — Whether to show pagination controls. They hide on their own when every row fits on one page
+  - class (string) — Class applied to outermost wrapper
+  - emptyMessage slot (VNode[]) — Rich content shown when no rows
+  - @row-click ((row: TData) => void) — Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space
+  - @update:global-filter ((value: string) => void) — Emitted with the next filter when the table changes it; powers v-model:global-filter
+  - @update:column-visibility ((visibility: VisibilityState) => void) — Emitted with the next visibility; powers v-model:column-visibility
+  - @update:row-selection ((selection: RowSelectionState) => void) — Emitted with the next selection; powers v-model:row-selection
+  DataTableColumnHeader:
+    - column (Column<TData, TValue>) — TanStack Table column object (required)
+    - title (string) — Display text for the header (required)
+    - class (string) — Class applied to the header button (or text when the column cannot sort)
+  Column helpers:
+    - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
+    - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is
+    - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
+    - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
+
+### Overview
+Use variant="bordered" for a card-like table with a rounded border and tinted header background. Toggle empty to supply no rows without resetting sorting or changing columns. emptyMessage selects the default message, custom text through empty-message, or rich content through the emptyMessage slot. Filtering and its no-results state are shown separately.
+```vue
+<script setup lang="ts">
+import { h, ref } from "vue"
+import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const variant = ref<"default" | "bordered">("bordered")
+const empty = ref(false)
+const emptyMessage = ref<"default" | "text" | "rich">("text")
+const variantUsers = users.slice(0, 6)
+const emptyUsers: User[] = []
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "department", header: "Department" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+</script>
+
+<template>
+  <DataTable :columns="columns" :data="empty ? emptyUsers : variantUsers"
+    :variant="variant" :page-size="Infinity"
+    :empty-message="emptyMessage === 'default' ? undefined : 'No users found.'">
+    <template v-if="emptyMessage === 'rich'" #emptyMessage>
+      <strong>No users found.</strong>
+    </template>
+  </DataTable>
+</template>
+```
+
+### Sorting
+Click column headers to toggle sort direction. Columns use DataTableColumnHeader for sort controls.
+```vue
+<script setup lang="ts">
+import { h } from "vue"
+import { DataTable, DataTableColumnHeader, type ColumnDef } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  {
+    accessorKey: "role",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Role" }),
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Status" }),
+  },
+]
+</script>
+
+<template>
+  <DataTable
+    :columns="columns"
+    :data="users"
+    :page-size="5"
+    :initial-sorting="[{ id: 'name', desc: false }]"
+  />
+</template>
+```
+
+### Pagination
+Automatic pagination with rows-per-page selector and navigation controls. Set page-size to control the initial page size; the select offers 10, 20, 50 and 100 plus that size. The controls hide when every row fits on one page.
+```vue
+<script setup lang="ts">
+import { DataTable, type ColumnDef } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+  { accessorKey: "id", header: "ID" },
+  { accessorKey: "name", header: "Name" },
+  { accessorKey: "department", header: "Department" },
+  { accessorKey: "status", header: "Status" },
+]
+</script>
+
+<template>
+  <DataTable :columns="columns" :data="users" :page-size="5" />
+</template>
+```
+
+### Row click
+Listen to @row-click to make rows clickable. Clickable rows also take Tab and call it on Enter or Space.
+```vue
+<script setup lang="ts">
+import { h, ref } from "vue"
+import { DataTable, DataTableColumnHeader, type ColumnDef } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const selectedUser = ref<User | null>(null)
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  { accessorKey: "email", header: "Email" },
+  { accessorKey: "role", header: "Role" },
+]
+</script>
+
+<template>
+  <DataTable
+    :columns="columns"
+    :data="users.slice(0, 8)"
+    :page-size="4"
+    @row-click="selectedUser = $event"
+  />
+  <p class="mt-3 text-sm text-secondary">
+    {{
+      selectedUser
+        ? "Clicked: " + selectedUser.name + " (" + selectedUser.id + ") - " + selectedUser.department
+        : "Click a row to see selected user details."
+    }}
+  </p>
+</template>
+```
+
+### Row selection
+Set enable-row-selection to add a first column of checkboxes. The header checkbox selects every row on all pages and shows a mixed state when only some are selected. Bind v-model:row-selection to read the selection; get-row-id keys it by your own ids.
+```vue
+<script setup lang="ts">
+import { h, ref } from "vue"
+import {
+  DataTable,
+  DataTableColumnHeader,
+  statusCell,
+  type ColumnDef,
+  type RowSelectionState,
+} from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const rowSelection = ref<RowSelectionState>({})
+const getRowId = (user: User) => user.id
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+</script>
+
+<template>
+  <DataTable
+    v-model:row-selection="rowSelection"
+    :columns="columns"
+    :data="users"
+    :page-size="5"
+    enable-row-selection
+    :get-row-id="getRowId"
+  />
+  <p class="mt-3 text-sm text-secondary">
+    {{ Object.keys(rowSelection).length }} of {{ users.length }} rows selected
+  </p>
+</template>
+```
+
+### Cell variants
+Column helpers render common cells: idCell (monospace ID with copy-on-click), statusCell (status badge), dateTimeCell (formatted date) and tooltipHeader (header with an info tooltip). Other formats, like the salary below, are plain cell renderers; meta.align aligns a column.
+```vue
+<script setup lang="ts">
+import { h } from "vue"
+import { DataTable, dateTimeCell, idCell, statusCell, tooltipHeader, type ColumnDef } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+
+const columns: ColumnDef<User>[] = [
+  { accessorKey: "id", header: "ID", cell: idCell<User>((row) => row.id) },
+  { accessorKey: "name", header: "Name", cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name) },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+  { accessorKey: "joined", header: "Joined", cell: dateTimeCell<User>((row) => row.joined) },
+  {
+    accessorKey: "salary",
+    header: tooltipHeader("Salary", "Annual base salary in USD."),
+    meta: { align: "right" },
+    cell: ({ row }) => h("span", { class: "font-medium" }, money.format(row.original.salary)),
+  },
+]
+</script>
+
+<template>
+  <DataTable :columns="columns" :data="users" :page-size="6" />
+</template>
+```
+
+### Filtering
+Control search with v-model:global-filter. The filter searches across all columns.
+```vue
+<script setup lang="ts">
+import { h, ref } from "vue"
+import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+// Bind the same ref to a search field: <Input v-model:value="globalFilter" />
+const globalFilter = ref("")
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "department", header: "Department" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+</script>
+
+<template>
+  <DataTable
+    :columns="columns"
+    :data="users"
+    v-model:global-filter="globalFilter"
+    :page-size="5"
+  />
+</template>
+```
+
+### Column visibility
+Toggle column visibility with v-model:column-visibility.
+```vue
+<script setup lang="ts">
+import { h, ref } from "vue"
+import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef, type VisibilityState } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+
+const columnVisibility = ref<VisibilityState>({
+  role: true,
+  department: true,
+  status: true,
+  salary: true,
+})
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "department", header: "Department" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+  {
+    accessorKey: "salary",
+    header: "Salary",
+    meta: { align: "right" },
+    cell: ({ row }) => h("span", money.format(row.original.salary)),
+  },
+]
+</script>
+
+<template>
+  <DataTable
+    :columns="columns"
+    :data="users"
+    :page-size="5"
+    v-model:column-visibility="columnVisibility"
+  />
 </template>
 ```
 
@@ -9325,47 +9322,18 @@ Dashboard-ready stats cards with trends, icons, and progress bars. Use size="sm"
 ```
 
 ## Table
-Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
+"Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements."
 Import: import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/vue/components/Table"
-Import: import { DataTable, DataTableColumnHeader } from "@plexui/vue/components/DataTable"
 Docs: https://plexui.com/vue/components/table
-  Table Primitives:
-    - Table (table) — Root table container with horizontal scroll wrapper; attributes go to the <table>
-    - TableHeader (thead) — Table header group
-    - TableBody (tbody) — Table body group
-    - TableFooter (tfoot) — Table footer group
-    - TableRow (tr) — Table row
-    - TableHead (th) — Table header cell
-    - TableCell (td) — Table data cell
-    - TableCaption (caption) — Table caption
-  DataTable:
-    - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API; header and cell renderers return VNodes (required)
-    - data (TData[]) — Data array to display (required)
-    - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
-    - page-size (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size
-    - initial-sorting (SortingState) — Initial column sorting state
-    - global-filter (string) — Controlled search/filter string. Bind with v-model:global-filter
-    - column-visibility (VisibilityState) — Controlled column visibility state. Bind with v-model:column-visibility
-    - enable-row-selection (boolean) default: false — Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click
-    - row-selection (RowSelectionState) — Controlled row selection state. Bind with v-model:row-selection
-    - get-row-id ((row: TData) => string) — Custom row ID accessor; selection keys use it
-    - empty-message (string | number | VNode) default: "No results." — Shown when no rows; the emptyMessage slot takes precedence
-    - show-pagination (boolean) default: true — Whether to show pagination controls. They hide on their own when every row fits on one page
-    - class (string) — Class applied to outermost wrapper
-    - emptyMessage slot (VNode[]) — Rich content shown when no rows
-    - @row-click ((row: TData) => void) — Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space
-    - @update:global-filter ((value: string) => void) — Emitted with the next filter when the table changes it; powers v-model:global-filter
-    - @update:column-visibility ((visibility: VisibilityState) => void) — Emitted with the next visibility; powers v-model:column-visibility
-    - @update:row-selection ((selection: RowSelectionState) => void) — Emitted with the next selection; powers v-model:row-selection
-  DataTableColumnHeader:
-    - column (Column<TData, TValue>) — TanStack Table column object (required)
-    - title (string) — Display text for the header (required)
-    - class (string) — Class applied to the header button (or text when the column cannot sort)
-  Column helpers:
-    - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
-    - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat in the reader's time zone. It hydrates without a mismatch: the server writes the time in UTC (or in the timeZone of the options), and the reader's zone and wording follow once the page is in the browser. An ISO date or time written without a zone (2023-01-15, 2023-01-15T09:00) shows as written in every zone; a value that is no date shows as it is
-    - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
-    - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
+Props:
+  - Table (table) — Root table container with horizontal scroll wrapper; attributes go to the <table>
+  - TableHeader (thead) — Table header group
+  - TableBody (tbody) — Table body group
+  - TableFooter (tfoot) — Table footer group
+  - TableRow (tr) — Table row
+  - TableHead (th) — Table header cell
+  - TableCell (td) — Table data cell
+  - TableCaption (caption) — Table caption
 
 ### Overview
 A complete table with header, body, footer, and caption showing invoice data.
@@ -9467,284 +9435,4 @@ A simple table without caption or footer, showing a list of people.
     </TableRow>
   </TableBody>
 </Table>
-```
-
-### Variant
-Use variant="bordered" for a card-like table with a rounded border and tinted header background. Toggle empty to supply no rows without resetting sorting or changing columns. emptyMessage selects the default message, custom text through empty-message, or rich content through the emptyMessage slot. Filtering and its no-results state are shown separately.
-```vue
-<script setup lang="ts">
-import { h, ref } from "vue"
-import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/vue/components/DataTable"
-import { users, type User } from "./data"
-
-const variant = ref<"default" | "bordered">("bordered")
-const empty = ref(false)
-const emptyMessage = ref<"default" | "text" | "rich">("text")
-const variantUsers = users.slice(0, 6)
-const emptyUsers: User[] = []
-
-const columns: ColumnDef<User>[] = [
-  {
-    accessorKey: "name",
-    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
-    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
-  },
-  { accessorKey: "role", header: "Role" },
-  { accessorKey: "department", header: "Department" },
-  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
-]
-</script>
-
-<template>
-  <DataTable :columns="columns" :data="empty ? emptyUsers : variantUsers"
-    :variant="variant" :page-size="Infinity"
-    :empty-message="emptyMessage === 'default' ? undefined : 'No users found.'">
-    <template v-if="emptyMessage === 'rich'" #emptyMessage>
-      <strong>No users found.</strong>
-    </template>
-  </DataTable>
-</template>
-```
-
-### Sorting
-Click column headers to toggle sort direction. Columns use DataTableColumnHeader for sort controls.
-```vue
-<script setup lang="ts">
-import { h } from "vue"
-import { DataTable, DataTableColumnHeader, type ColumnDef } from "@plexui/vue/components/DataTable"
-import { users, type User } from "./data"
-
-const columns: ColumnDef<User>[] = [
-  {
-    accessorKey: "name",
-    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
-    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
-  },
-  {
-    accessorKey: "role",
-    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Role" }),
-  },
-  {
-    accessorKey: "status",
-    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Status" }),
-  },
-]
-</script>
-
-<template>
-  <DataTable
-    :columns="columns"
-    :data="users"
-    :page-size="5"
-    :initial-sorting="[{ id: 'name', desc: false }]"
-  />
-</template>
-```
-
-### Pagination
-Automatic pagination with rows-per-page selector and navigation controls. Set page-size to control the initial page size; the select offers 10, 20, 50 and 100 plus that size. The controls hide when every row fits on one page.
-```vue
-<script setup lang="ts">
-import { DataTable, type ColumnDef } from "@plexui/vue/components/DataTable"
-import { users, type User } from "./data"
-
-const columns: ColumnDef<User>[] = [
-  { accessorKey: "id", header: "ID" },
-  { accessorKey: "name", header: "Name" },
-  { accessorKey: "department", header: "Department" },
-  { accessorKey: "status", header: "Status" },
-]
-</script>
-
-<template>
-  <DataTable :columns="columns" :data="users" :page-size="5" />
-</template>
-```
-
-### Row click
-Listen to @row-click to make rows clickable. Clickable rows also take Tab and call it on Enter or Space.
-```vue
-<script setup lang="ts">
-import { h, ref } from "vue"
-import { DataTable, DataTableColumnHeader, type ColumnDef } from "@plexui/vue/components/DataTable"
-import { users, type User } from "./data"
-
-const selectedUser = ref<User | null>(null)
-
-const columns: ColumnDef<User>[] = [
-  {
-    accessorKey: "name",
-    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
-    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
-  },
-  { accessorKey: "email", header: "Email" },
-  { accessorKey: "role", header: "Role" },
-]
-</script>
-
-<template>
-  <DataTable
-    :columns="columns"
-    :data="users.slice(0, 8)"
-    :page-size="4"
-    @row-click="selectedUser = $event"
-  />
-  <p class="mt-3 text-sm text-secondary">
-    {{
-      selectedUser
-        ? "Clicked: " + selectedUser.name + " (" + selectedUser.id + ") - " + selectedUser.department
-        : "Click a row to see selected user details."
-    }}
-  </p>
-</template>
-```
-
-### Row selection
-Set enable-row-selection to add a first column of checkboxes. The header checkbox selects every row on all pages and shows a mixed state when only some are selected. Bind v-model:row-selection to read the selection; get-row-id keys it by your own ids.
-```vue
-<script setup lang="ts">
-import { h, ref } from "vue"
-import {
-  DataTable,
-  DataTableColumnHeader,
-  statusCell,
-  type ColumnDef,
-  type RowSelectionState,
-} from "@plexui/vue/components/DataTable"
-import { users, type User } from "./data"
-
-const rowSelection = ref<RowSelectionState>({})
-const getRowId = (user: User) => user.id
-
-const columns: ColumnDef<User>[] = [
-  {
-    accessorKey: "name",
-    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
-    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
-  },
-  { accessorKey: "role", header: "Role" },
-  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
-]
-</script>
-
-<template>
-  <DataTable
-    v-model:row-selection="rowSelection"
-    :columns="columns"
-    :data="users"
-    :page-size="5"
-    enable-row-selection
-    :get-row-id="getRowId"
-  />
-  <p class="mt-3 text-sm text-secondary">
-    {{ Object.keys(rowSelection).length }} of {{ users.length }} rows selected
-  </p>
-</template>
-```
-
-### Cell variants
-Column helpers render common cells: idCell (monospace ID with copy-on-click), statusCell (status badge), dateTimeCell (formatted date) and tooltipHeader (header with an info tooltip). Other formats, like the salary below, are plain cell renderers; meta.align aligns a column.
-```vue
-<script setup lang="ts">
-import { h } from "vue"
-import { DataTable, dateTimeCell, idCell, statusCell, tooltipHeader, type ColumnDef } from "@plexui/vue/components/DataTable"
-import { users, type User } from "./data"
-
-const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
-
-const columns: ColumnDef<User>[] = [
-  { accessorKey: "id", header: "ID", cell: idCell<User>((row) => row.id) },
-  { accessorKey: "name", header: "Name", cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name) },
-  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
-  { accessorKey: "joined", header: "Joined", cell: dateTimeCell<User>((row) => row.joined) },
-  {
-    accessorKey: "salary",
-    header: tooltipHeader("Salary", "Annual base salary in USD."),
-    meta: { align: "right" },
-    cell: ({ row }) => h("span", { class: "font-medium" }, money.format(row.original.salary)),
-  },
-]
-</script>
-
-<template>
-  <DataTable :columns="columns" :data="users" :page-size="6" />
-</template>
-```
-
-### Filtering
-Control search with v-model:global-filter. The filter searches across all columns.
-```vue
-<script setup lang="ts">
-import { h, ref } from "vue"
-import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/vue/components/DataTable"
-import { users, type User } from "./data"
-
-// Bind the same ref to a search field: <Input v-model:value="globalFilter" />
-const globalFilter = ref("")
-
-const columns: ColumnDef<User>[] = [
-  {
-    accessorKey: "name",
-    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
-    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
-  },
-  { accessorKey: "role", header: "Role" },
-  { accessorKey: "department", header: "Department" },
-  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
-]
-</script>
-
-<template>
-  <DataTable
-    :columns="columns"
-    :data="users"
-    v-model:global-filter="globalFilter"
-    :page-size="5"
-  />
-</template>
-```
-
-### Column visibility
-Toggle column visibility with v-model:column-visibility.
-```vue
-<script setup lang="ts">
-import { h, ref } from "vue"
-import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef, type VisibilityState } from "@plexui/vue/components/DataTable"
-import { users, type User } from "./data"
-
-const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
-
-const columnVisibility = ref<VisibilityState>({
-  role: true,
-  department: true,
-  status: true,
-  salary: true,
-})
-
-const columns: ColumnDef<User>[] = [
-  {
-    accessorKey: "name",
-    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
-    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
-  },
-  { accessorKey: "role", header: "Role" },
-  { accessorKey: "department", header: "Department" },
-  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
-  {
-    accessorKey: "salary",
-    header: "Salary",
-    meta: { align: "right" },
-    cell: ({ row }) => h("span", money.format(row.original.salary)),
-  },
-]
-</script>
-
-<template>
-  <DataTable
-    :columns="columns"
-    :data="users"
-    :page-size="5"
-    v-model:column-visibility="columnVisibility"
-  />
-</template>
 ```

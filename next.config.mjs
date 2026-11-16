@@ -127,6 +127,54 @@ const config = {
         destination: '/docs/concepts#phone-layout',
         permanent: true,
       },
+      // Copy Tooltip is an example of the Tooltip page (owner 16.11); the Vue Tooltip registry item exports it.
+      {
+        source: '/components/copy-tooltip',
+        destination: '/components/tooltip#copy-tooltip',
+        permanent: true,
+      },
+      {
+        source: '/vue/components/copy-tooltip',
+        destination: '/vue/components/tooltip#copy-tooltip',
+        permanent: true,
+      },
+      {
+        source: '/r/vue/copy-tooltip.json',
+        destination: '/r/vue/tooltip.json',
+        permanent: true,
+      },
+      // Label is a section of Field (owner 16.11)
+      {
+        source: '/components/label',
+        destination: '/components/field#label',
+        permanent: true,
+      },
+      {
+        source: '/vue/components/label',
+        destination: '/vue/components/field#label',
+        permanent: true,
+      },
+      {
+        source: '/r/vue/label.json',
+        destination: '/r/vue/field.json',
+        permanent: true,
+      },
+      // Select Control is a section of Select (owner 16.11)
+      {
+        source: '/components/select-control',
+        destination: '/components/select#select-control',
+        permanent: true,
+      },
+      {
+        source: '/vue/components/select-control',
+        destination: '/vue/components/select#select-control',
+        permanent: true,
+      },
+      {
+        source: '/r/vue/select-control.json',
+        destination: '/r/vue/select.json',
+        permanent: true,
+      },
       // Stat Card is now Stats Card, the name of the metric cards it follows
       // (owner 11.11); the component keeps StatCard as an alias.
       {

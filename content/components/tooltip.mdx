@@ -1,10 +1,11 @@
 ---
 title: Tooltip
-description: Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
+description: Brief informative text shown on hover or focus, for any trigger element, with conditional enabling, a compact variant and a copy-to-clipboard tooltip.
 metaDescription: React tooltip component for brief informative hover text, with any trigger element, conditional enabling, and a compact variant.
 ---
 
 import { TooltipOverviewDemo } from "@/components/docs/TooltipDemos"
+import { CopyTooltipBaseDemo } from "@/components/docs/CopyTooltipDemo"
 
 export const overviewCode = `const [trigger, setTrigger] = useState<"text" | "button" | "icon">("text")
 const [compact, setCompact] = useState(false)
@@ -34,11 +35,11 @@ const [disabled, setDisabled] = useState(false)
   )}
 </>`
 
-<UsageBlock>{`import { Tooltip } from "@plexui/ui/components/Tooltip";`}</UsageBlock>
+<UsageBlock>{`import { CopyTooltip, Tooltip } from "@plexui/ui/components/Tooltip";`}</UsageBlock>
 
 ## Examples
 
-Tooltips provide supplementary information on hover or keyboard focus. Touch-only users need visible helper text or a tap-triggered [Popover](/components/popover). These examples use pointer and keyboard interactions, so they do not have a separate Phone preview. For copying, [Copy Tooltip](/components/copy-tooltip) confirms the action after a successful tap.
+Tooltips provide supplementary information on hover or keyboard focus. Touch-only users need visible helper text or a tap-triggered [Popover](/components/popover). The Overview uses pointer and keyboard interactions, so it has no separate Phone preview. For copying, [Copy Tooltip](#copy-tooltip) confirms the action after a successful tap.
 
 <span id="different-triggers" />
 <span id="conditionally-enabled" />
@@ -54,7 +55,19 @@ Tooltips provide supplementary information on hover or keyboard focus. Touch-onl
   <TooltipOverviewDemo />
 </ComponentPreview>
 
+### Copy Tooltip
+
+<ComponentPreview details={<>A <code>CopyTooltip</code> copies <code>copyValue</code> when its trigger is clicked and says Copied! once the clipboard write succeeds. Hovering the trigger shows Copy after <code>openDelay</code>, keyboard focus shows it at once. On a phone a tap copies and shows Copied! at once, so the delay applies to a pointer only.</>} code={`<CopyTooltip copyValue="sess_12345abcdefg">
+  <Button color="secondary" variant="ghost" size="xl" aria-label="Copy session ID">
+    sess_12345abcdefg
+  </Button>
+</CopyTooltip>`} previewMinHeight={168}>
+  <CopyTooltipBaseDemo />
+</ComponentPreview>
+
 ## API
+
+### Tooltip
 
 <PropsTable data={[
   { prop: "children", type: "ReactElement", description: "The trigger: a single element. Wrap plain text in Tooltip.TriggerDecorator" },
@@ -75,6 +88,19 @@ Tooltips provide supplementary information on hover or keyboard focus. Touch-onl
 
 The tooltip content is the `role="tooltip"` element, and the trigger points at it with `aria-describedby`. Other props, such as `onClick` and `onPointerDown`, go to the trigger element. `Tooltip.TriggerDecorator` turns text into an accessible trigger with the decorator style and a tab stop (`focusable`, default `true`).
 
+### CopyTooltip
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "Trigger element (for example Tooltip.TriggerDecorator)" },
+  { prop: "copyValue", type: "string", description: "Required. Content to copy to clipboard" },
+  { prop: "openDelay", type: "number", default: "150", description: "Tooltip open delay in milliseconds" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Preferred tooltip alignment against the trigger" },
+  { prop: "alignOffset", type: "number", default: "0", description: "Offset from start/end alignment in pixels" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"top"', description: "Preferred side of the trigger" },
+  { prop: "sideOffset", type: "number", default: "5", description: "Distance from trigger in pixels" },
+  { prop: "onCopy", type: "(copied: boolean) => void", description: "Called once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write" },
+]} />
+
 ## Styling
 
-Tooltip has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.
+Tooltip and Copy Tooltip have no component tokens of their own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.

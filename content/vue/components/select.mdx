@@ -5,7 +5,8 @@ metaDescription: Vue 3 select dropdown component with grouped options, per-item 
 ---
 
 import { MenuFamilyNote } from "@/components/docs/MenuFamilyNote"
-import { VueSelectDemo } from "@/components/docs/vue/VueSelectDemos"
+import { VueCountrySelectDemo, VueSelectDemo } from "@/components/docs/vue/VueSelectDemos"
+import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import { phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
@@ -204,7 +205,174 @@ export const groupedPhone = `<FieldGroup>
   </Field>
 </FieldGroup>`
 
-<UsageBlock>{`import { Select } from "@plexui/vue/components/Select";`}</UsageBlock>
+export const SC_STAGE = "flex-1 flex flex-col items-center justify-center py-12 w-full"
+export const SC_SIZES = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
+
+export const scOverview = `<div class="w-[290px]">
+  <Field label="Period" :error-message="invalid ? 'No data for this period.' : undefined">
+    <template #default="control">
+      <Menu>
+        <MenuTrigger>
+          <SelectControl
+            v-bind="control"
+            :aria-labelledby="control['aria-labelledby'] + ' ' + control.id + '-value'"
+            :class="block ? undefined : 'w-[200px]'"
+            :variant="variant"
+            :size="size"
+            :pill="pill"
+            :block="block"
+            :optically-align="variant === 'ghost' && opticallyAlign !== 'none' ? opticallyAlign : undefined"
+            :StartIcon="startIcon ? CalendarAlt : undefined"
+            :dropdown-icon-type="dropdownIconType"
+            :selected="!!value"
+            :on-clear-click="clearable ? () => (value = '') : undefined"
+            :loading="loading"
+            :invalid="invalid"
+            :disabled="disabled"
+          ><span :id="control.id + '-value'">{{ value || "Select date..." }}</span></SelectControl>
+        </MenuTrigger>
+        <MenuContent :min-width="200" :width="block ? 290 : 200">
+          <MenuRadioGroup v-model:value="value">
+            <MenuRadioItem value="Today">Today</MenuRadioItem>
+            <MenuRadioItem value="Last week">Last week</MenuRadioItem>
+            <MenuRadioItem value="Last month">Last month</MenuRadioItem>
+            <MenuRadioItem value="Last 3 months">Last 3 months</MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuContent>
+      </Menu>
+    </template>
+  </Field>
+</div>`
+
+export const countrySelector = `<div class="w-[320px]">
+  <Select
+    v-model:value="country"
+    :options="countries"
+    placeholder="Select country..."
+    :size="size"
+    :variant="variant"
+    :pill="pill"
+    block
+    search-placeholder="Search countries..."
+    :list-min-width="300"
+    :option-class-name="countryOptionClass"
+  >
+    <template #triggerView="{ value, label }">
+      <span style="display: flex; align-items: center; gap: 8px; height: 100%; overflow: hidden; white-space: nowrap"><component :is="FlagIcon" :code="value" trigger />{{ label }}</span>
+    </template>
+    <template #optionView="{ value, label }">
+      <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
+    </template>
+  </Select>
+</div>`
+
+export const countryCodeSelector = `<div class="w-[320px]">
+  <Select
+    v-model:value="country"
+    :options="countryOptions"
+    placeholder="Select country..."
+    :size="size"
+    :variant="variant"
+    :pill="pill"
+    block
+    search-placeholder="Search countries..."
+    :search-predicate="countrySearchPredicate"
+    :list-min-width="300"
+    :option-class-name="countryOptionClass"
+  >
+    <template #triggerView="{ value, label }">
+      <span v-if="countryOf(value)" style="display: flex; align-items: center; gap: 8px; height: 100%; overflow: hidden; white-space: nowrap"><component :is="FlagIcon" :code="value" trigger />{{ countryOf(value).label }} ({{ countryOf(value).dialCode }})</span>
+      <template v-else>{{ label }}</template>
+    </template>
+    <template #optionView="{ value, label }">
+      <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
+    </template>
+  </Select>
+</div>`
+
+export const scOverviewPhone = `<FieldGroup>
+  <Field row label="Period" :error-message="invalid ? 'No data for this period.' : undefined">
+    <template #default="control">
+      <Menu>
+        <MenuTrigger>
+          <SelectControl
+            v-bind="control"
+            :aria-labelledby="control['aria-labelledby'] + ' ' + control.id + '-value'"
+            :selected="!!value"
+            :loading="loading"
+            :invalid="invalid"
+            :disabled="disabled"
+          ><span :id="control.id + '-value'">{{ value || "None" }}</span></SelectControl>
+        </MenuTrigger>
+        <MenuContent :min-width="200" align="end">
+          <MenuRadioGroup v-model:value="value">
+            <MenuRadioItem v-if="clearable" value="">None</MenuRadioItem>
+            <MenuRadioItem value="Today">Today</MenuRadioItem>
+            <MenuRadioItem value="Last week">Last week</MenuRadioItem>
+            <MenuRadioItem value="Last month">Last month</MenuRadioItem>
+            <MenuRadioItem value="Last 3 months">Last 3 months</MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuContent>
+      </Menu>
+    </template>
+  </Field>
+</FieldGroup>`
+
+export const scOverviewControls = [
+  { name: "variant", type: "select", options: ["outline", "soft", "ghost"], default: "outline" },
+  { name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" },
+  { name: "pill", type: "boolean", default: false },
+  { name: "startIcon", type: "boolean", default: true },
+  { name: "dropdownIconType", type: "select", options: ["dropdown", "chevronDown", "none"], default: "dropdown" },
+  { name: "clearable", type: "boolean", default: true },
+  { name: "loading", type: "boolean", default: false },
+  { name: "invalid", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+  { name: "block", type: "boolean", default: false },
+  // A framed control keeps its gutter: the setting lines up a ghost control with the label (start) or, with block,
+  // with the field's end (end); a narrower control does not reach the field's end
+  { name: "opticallyAlign", type: "select", options: ["none", "start", { value: "end", label: "end", when: { block: true } }], default: "none", when: { variant: "ghost" } },
+]
+
+export const countrySelectorPhone = `<FieldGroup>
+  <Field row label="Country">
+    <Select
+      v-model:value="country"
+      :options="countries"
+      :block="false"
+      align="end"
+      search-placeholder="Search countries..."
+      :list-min-width="300"
+      :option-class-name="countryOptionClass"
+    >
+      <template #optionView="{ value, label }">
+        <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
+      </template>
+    </Select>
+  </Field>
+</FieldGroup>`
+
+export const countryCodeSelectorPhone = `<FieldGroup>
+  <Field row label="Country">
+    <Select
+      v-model:value="country"
+      :options="countryOptions"
+      :block="false"
+      align="end"
+      search-placeholder="Search countries..."
+      :search-predicate="countrySearchPredicate"
+      :list-min-width="300"
+      :option-class-name="countryOptionClass"
+    >
+      <template #optionView="{ value, label }">
+        <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
+      </template>
+    </Select>
+  </Field>
+</FieldGroup>`
+
+<UsageBlock>{`import { Select } from "@plexui/vue/components/Select";
+import { SelectControl } from "@plexui/vue/components/SelectControl";`}</UsageBlock>
 
 <MenuFamilyNote current="select" framework="vue" />
 
@@ -240,7 +408,29 @@ On Phone, put a select in a `Field row` of a `FieldGroup`, as the [Forms: Settin
   <VueSelectDemo template={grouped} phoneTemplate={phoneRows(groupedPhone)} phoneStageClassName="w-full" state={{ value: "1" }} />
 </ComponentPreview>
 
+### Country selector
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A plain country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. <code>countries</code> holds <code>{"{ value, label }"}</code> options, and <code>FlagIcon</code> renders the flag image for a country code. The search box appears on its own because the list has more than 15 options; there is no prop for it.</>} code={withPhone(countrySelector, countrySelectorPhone)} previewMinHeight={168}>
+  <VueCountrySelectDemo phoneTemplate={phoneRows(countrySelectorPhone)} phoneStageClassName="w-full" desktopControlNames={["size", "variant", "pill"]} stageClassName="py-10" template={countrySelector} state={{ country: "us" }} controls={[{ name: "size", type: "select", options: SC_SIZES, default: "lg" }, { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }, { name: "pill", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Country code selector
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A searchable country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots render flag icons and dial codes. A <code>search-predicate</code> matches both country name and dial code.</>} code={withPhone(countryCodeSelector, countryCodeSelectorPhone)} previewMinHeight={168}>
+  <VueCountrySelectDemo phoneTemplate={phoneRows(countryCodeSelectorPhone)} phoneStageClassName="w-full" desktopControlNames={["size", "variant", "pill"]} stageClassName="py-10" template={countryCodeSelector} state={{ country: "us" }} controls={[{ name: "size", type: "select", options: SC_SIZES, default: "lg" }, { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }, { name: "pill", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Select Control
+
+A `SelectControl` is Select's button alone, for a list of your own: wrap it in a `MenuTrigger` or `PopoverTrigger` and give it the content. It takes Select's trigger styles, and on Phone it is the value of a row in a `FieldGroup`, with the value and its up-down chevrons at the row's end, like an iOS pop-up button. The same module exports `DropdownIcon` for custom menu triggers. Its `icon-type` accepts `"dropdown"` or `"chevronDown"`; the indicator keeps its proportions inside a Button.
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>variant</code> to stylize the control: its styles are like those of <code>{"<Button>"}</code>, with the small differences of <code>{"<Input>"}</code>, and <code>ghost</code> has no frame. <code>size</code> sets the control's height, font size, gutter and the placement of its icon and indicator, on the 9-step scale of Button, Input, Select and SegmentedControl; <code>pill</code> rounds it fully and widens its gutter, and its clear action is a pill too. Pass a component to <code>StartIcon</code> to put an icon before the value, sized, spaced and colored by the control, and <code>dropdown-icon-type</code> picks the indicator. <code>selected</code> says the control holds a value and turns off the placeholder styling. It does nothing to the content, which is up to you, so here it follows the value: pick a period, or clear it. Listen to <code>@clear-click</code> (or pass <code>on-clear-click</code>) to make the control clearable: the clear action shows while it is <code>selected</code>. During <code>loading</code> the dropdown icon and clear action are hidden, the control is marked <code>aria-busy</code> and it ignores pointer and keyboard interaction; add <code>disabled</code> to dim it as well. <code>invalid</code> marks the control invalid; pair it with the field's <code>error-message</code>. <code>disabled</code> disables it both visually and accessibly. <code>block</code> stretches it across its container, here the 290px field. <code>optically-align</code> offsets the control by its gutter: <code>"start"</code> puts the start of a <code>ghost</code> control, its icon or its text, on the label's edge, and <code>"end"</code> puts the end of a block one, its indicator, on the field's end. A framed control keeps its gutter, so the example offers the setting for ghost only, and <code>"end"</code> only with <code>block</code>: a narrower control does not reach the field's end. The control's own <code>aria-labelledby</code> names it by the label and the value, as Select's trigger is named.<br /><br />On Phone the control is the value of a row in a <code>FieldGroup</code>: the value and its up-down chevrons sit at the row's end, as an iOS pop-up button. The row sets its height, insets, type and colors, so the Phone preview has no <code>variant</code>, <code>size</code>, <code>pill</code>, <code>StartIcon</code>, <code>dropdownIconType</code>, <code>block</code> and <code>opticallyAlign</code> controls. A selected value takes the secondary label color (the primary one in a group with <code>columns</code>), a placeholder the tertiary one. A clearable control unsets its value with the menu's None row, as iOS pop-ups do, rather than a clear button. A row has no frame to color, so the error is the row's <code>error-message</code> line.</>} code={withPhone(scOverview, scOverviewPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo phoneTemplate={phoneRows(scOverviewPhone)} phoneStageClassName="w-full" stageClassName={SC_STAGE} template={scOverview} state={{ value: "" }} controls={scOverviewControls} desktopControlNames={["variant", "size", "pill", "startIcon", "dropdownIconType", "block", "opticallyAlign"]} />
+</ComponentPreview>
+
 ## API
+
+### Select
 
 Use `aria-labelledby` with the ID of a visible field label. The default trigger includes that label and its current value or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the default trigger. Custom triggers manage their own accessibility attributes.
 
@@ -290,6 +480,30 @@ Searchable menus name their input `Search options` by default. Set `search-aria-
 
 Select shares the unified 9-step size scale with Button, Input, SelectControl, and SegmentedControl.
 
+### SelectControl
+
+Use `SelectControl` with any floating UI (e.g. `MenuTrigger`, `PopoverTrigger`). The control renders the trigger; you provide the dropdown content. The default slot is the control's content. Attributes and listeners that are not props land on the control's `<span role="button">`; `@keydown` receives only the keys the control does not handle itself. To decide when the control opens (or to keep it closed), listen to `@interact` and control the dropdown's `open` state yourself: the wrapping trigger then no longer opens on its own.
+
+<PropsTable data={[
+  { prop: "selected", type: "boolean", default: "false", description: "Whether a value is selected (affects placeholder styling)" },
+  { prop: "variant", type: '"soft" | "outline" | "ghost"', default: '"outline"', description: "Visual variant" },
+  { prop: "size", type: "ControlSize", default: '"md"', description: "Control size (3xs to 3xl)" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded trigger" },
+  { prop: "StartIcon", type: "Component", description: "Icon at start" },
+  { prop: "@clear-click", type: "() => void", description: "Enables the clear button when set (a function prop, onClearClick)" },
+  { prop: "interact-on-enter", type: "boolean", default: "false", description: "Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form" },
+  { prop: "@interact", type: "() => void", description: "Called on pointer down, ArrowDown, ArrowUp and Space (a function prop, onInteract). Without it, a wrapping trigger opens on pointer down" },
+  { prop: "dropdown-icon-type", type: '"chevronDown" | "dropdown" | "none"', default: '"dropdown"', description: "Dropdown indicator style" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Invalid state" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable control" },
+  { prop: "block", type: "boolean", default: "false", description: "Full width" },
+  { prop: "loading", type: "boolean", default: "false", description: "Loading state (aria-busy); hides the indicators and ignores interaction" },
+  { prop: "optically-align", type: '"start" | "end"', description: "Optical alignment" },
+  { prop: "class", type: "string", description: "Applied to the control" },
+]} />
+
+SelectControl shares the unified 9-step size scale with Button, Input, Select, and SegmentedControl.
+
 ## Styling
 
 Phone options share Menu's 34px corners and 17/20px label scale with the optional `touch.css` stylesheet. Long labels wrap within their text column; selection indicators keep a separate slot. Custom option content must inherit the label line height and allow its text to shrink. Search stays fixed while the option list scrolls.
@@ -307,3 +521,12 @@ Select reads these component tokens. Override them at any scope to restyle it:
 - `--menu-line-height`: line height (default `var(--font-text-sm-line-height)`)
 - `--menu-radius`: radius (default `var(--radius-xl)`)
 - `--menu-separator-background-color`: separator background color (default `var(--color-border)`)
+
+A standalone `SelectControl` reads these component tokens:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-text-color`: text color (default `var(--color-text)`)
+- `--select-control-font-weight`: font weight (default `var(--font-weight-normal)`)
