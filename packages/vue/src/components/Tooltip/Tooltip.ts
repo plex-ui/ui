@@ -29,8 +29,11 @@ import {
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
 import { preventDefaultHandler } from "../../lib/helpers.js"
 import { composeEventHandlers, concatAriaDescribedby, firstElementChild, flattenSlot, mergeSlotProps } from "./slot.js"
-import { isHoverPointer } from "../../lib/inputMode.js"
+import { isFocusVisible, isHoverPointer, notePointerInput, trackInputModality } from "../../lib/inputMode.js"
 import s from "@plexui/styles/components/Tooltip/Tooltip.module.css"
+
+// A tooltip opens on a focus that shows its ring only (isFocusVisible): it follows the last input of the page
+if (typeof document !== "undefined") trackInputModality(document)
 
 // Vue port of packages/ui/src/components/Tooltip/Tooltip.tsx on Reka UI.
 // Exports are flat (`TooltipRoot`, `TooltipTrigger`, ...) because
@@ -228,6 +231,7 @@ export const TooltipTrigger = defineComponent({
     // Radix's TooltipTrigger handlers
     const handlers: Record<string, (event: Event) => void> = {
       onPointermove: (event) => {
+        trackInputModality((event.currentTarget as HTMLElement).ownerDocument)
         if (!isHoverPointer(event as PointerEvent)) return
         if (!hasPointerMoveOpened && !providerContext.isPointerInTransitRef.value) {
           rootContext.onTriggerEnter()
@@ -246,11 +250,17 @@ export const TooltipTrigger = defineComponent({
         }
         isPointerDown = true
         pointerDocument = (event.currentTarget as HTMLElement).ownerDocument
+        // A trigger in another document (an iframe) tracks that document's input
+        notePointerInput(pointerDocument)
         pointerDocument.addEventListener("pointerup", handlePointerEnd, { once: true })
         pointerDocument.addEventListener("pointercancel", handlePointerEnd, { once: true })
       },
       onFocus: (event) => {
-        if (!isPointerDown && !(event.currentTarget as HTMLElement).hasAttribute("data-menu-pointer-focus")) {
+        const trigger = event.currentTarget as HTMLElement
+        trackInputModality(trigger.ownerDocument)
+        // A focus after a mouse press that a script moved here (a dialog closed with the mouse returns focus to its
+        // trigger) shows no ring, so no tooltip: it stayed open until the focus left
+        if (!isPointerDown && !trigger.hasAttribute("data-menu-pointer-focus") && isFocusVisible(trigger)) {
           rootContext.onOpen()
         }
       },

@@ -7,6 +7,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Fixed
+
+- A `Tooltip` opens on a focus that shows its ring only, as `:focus-visible`: a focus a script moves after a mouse press (a dialog closed with the mouse returns focus to its trigger) no longer opens it and leaves it open until the focus moves on. Keyboard focus still opens it.
+
 ## 0.59.0 (2026-11-16)
 
 `@plexui/ui` 0.59.0 and `@plexui/vue` 0.39.0 add `listPill` to `Select`, open a phone sheet with fewer forced layouts and need `@plexui/styles` 0.16.1, which draws the Close of a phone sheet in the label color. Take the three together. `@plexui/mcp` is 0.2.36.

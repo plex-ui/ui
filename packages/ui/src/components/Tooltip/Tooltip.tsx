@@ -6,8 +6,11 @@ import { createContext, useContext, useRef, useState, type MouseEventHandler, ty
 import { useTimeout } from "usehooks-ts"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { preventDefaultHandler } from "../../lib/helpers"
-import { isHoverPointer } from "../../lib/inputMode"
+import { isFocusVisible, isHoverPointer, notePointerInput, trackInputModality } from "../../lib/inputMode"
 import s from "@plexui/styles/components/Tooltip/Tooltip.module.css"
+
+// A tooltip opens on a focus that shows its ring only (isFocusVisible): it follows the last input of the page
+if (typeof document !== "undefined") trackInputModality(document)
 
 export type TooltipProps = {
   children: React.ReactNode
@@ -296,6 +299,8 @@ export const Trigger = ({
       {...(focusRecovery?.state && { "data-state": focusRecovery.state })}
       onPointerDown={(event) => {
         cancelledPointer.current = false
+        // A trigger in another document (an iframe) tracks that document's input
+        notePointerInput(event.currentTarget.ownerDocument)
         onPointerDown?.(event)
       }}
       onPointerCancel={(event) => {
@@ -305,9 +310,14 @@ export const Trigger = ({
         onPointerCancel?.(event)
       }}
       onFocus={(event) => {
+        trackInputModality(event.currentTarget.ownerDocument)
         onFocus?.(event)
         if (event.defaultPrevented) return
         if (event.currentTarget.hasAttribute("data-menu-pointer-focus")) {
+          event.preventDefault()
+        } else if (!isFocusVisible(event.currentTarget)) {
+          // A focus after a mouse press that a script moved here (a dialog closed with the mouse returns focus to its
+          // trigger) shows no ring, so no tooltip: it stayed open until the focus left
           event.preventDefault()
         } else if (cancelledPointer.current) {
           event.preventDefault()
@@ -322,6 +332,7 @@ export const Trigger = ({
         }
       }}
       onPointerMove={(event) => {
+        trackInputModality(event.currentTarget.ownerDocument)
         onPointerMove?.(event)
         if (!isHoverPointer(event)) event.preventDefault()
       }}

@@ -100,6 +100,8 @@ type Tools<T> = {
   fire: (target: Target, event: keyof typeof fireEvent, init?: object) => Promise<void>
   /** Focuses or blurs an element */
   focus: (target: Target) => Promise<void>
+  /** Focuses an element as a script does, with no key before it */
+  scriptFocus: (target: Target) => Promise<void>
   blur: (target: Target) => Promise<void>
   /** Advances the fake clock */
   advance: (ms: number) => Promise<void>
@@ -159,7 +161,14 @@ const walk = async <T extends object>(
       dispatch(() => {
         ;(fireEvent[event] as (element: Element, init?: object) => boolean)(resolve(target), init)
       }),
-    focus: (target) => dispatch(() => (resolve(target) as HTMLElement).focus()),
+    // A keyboard focus, as Tab gives: a tooltip opens on a focus that shows its ring, not one a script moves after a
+    // mouse press (the last input of the page decides where :focus-visible is unknown)
+    focus: (target) => dispatch(() => {
+      const element = resolve(target) as HTMLElement
+      element.ownerDocument.dispatchEvent(new KeyboardEvent("keydown", { key: "Shift", bubbles: true }))
+      element.focus()
+    }),
+    scriptFocus: (target) => dispatch(() => (resolve(target) as HTMLElement).focus()),
     blur: (target) => dispatch(() => (resolve(target) as HTMLElement).blur()),
     advance: (ms) => run(() => vi.advanceTimersByTime(ms)),
     set: (patch) =>
@@ -562,6 +571,22 @@ describe("Tooltip behaviour parity", () => {
     expect(result.react[0]).toContain('data-state="instant-open"')
     expect(result.react[1]).not.toContain('role="tooltip"')
     expect(result.react[2]).toContain('data-state="delayed-open"')
+  })
+
+  // A dialog closed with the mouse returns focus to its trigger: that focus shows no ring, and the tooltip stayed open
+  // until the focus left (console 16.11). A key before a focus opens it again.
+  test("a focus a script moves after a mouse press opens no tooltip; a keyboard focus does", async () => {
+    const result = await tooltipWalk({}, async ({ fire, scriptFocus, focus, blur, snapshot }) => {
+      await fire(() => document.body, "pointerDown", { pointerType: "mouse" })
+      await scriptFocus(TRIGGER)
+      snapshot()
+      await blur(TRIGGER)
+      await focus(TRIGGER)
+      snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).not.toContain('role="tooltip"')
+    expect(result.react[1]).toContain('role="tooltip"')
   })
 
   test("focus opens at once, blur closes", async () => {
