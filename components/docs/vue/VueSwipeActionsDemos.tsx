@@ -10,7 +10,7 @@ import { VueDemo } from './VueDemo';
 // The icons go into a reactive scope: raw, so Vue keeps them components.
 const icons = { Archive: markRaw(Archive), Flag: markRaw(Flag), Pin: markRaw(Pin), RemoveTrash: markRaw(RemoveTrash) };
 
-const listsTemplate = (labelPlacement?: 'inside') => `<div class="${pageStyles.Frame}">
+const listsTemplate = `<div class="${pageStyles.Frame}">
   <Page surface="grouped">
     <Toolbar>
       <ToolbarTitle>Lists</ToolbarTitle>
@@ -20,7 +20,8 @@ const listsTemplate = (labelPlacement?: 'inside') => `<div class="${pageStyles.F
       <FieldGroup v-if="lists.some((item) => item.pinned)" title="Pinned">
         <SwipeActions
           v-for="list in lists.filter((item) => item.pinned)"
-          :key="list.name"${labelPlacement ? `\n          label-placement="${labelPlacement}"` : ''}
+          :key="list.name"
+          :label-placement="labelPlacement"
           :leading="[{ id: 'pin', label: list.pinned ? 'Unpin' : 'Pin', Icon: icons.Pin, color: 'warning', onSelect: () => (list.pinned = !list.pinned) }]"
           :trailing="[
             { id: 'delete', label: 'Delete', Icon: icons.RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => lists.splice(lists.indexOf(list), 1) },
@@ -35,7 +36,8 @@ const listsTemplate = (labelPlacement?: 'inside') => `<div class="${pageStyles.F
       <FieldGroup title="My Lists">
         <SwipeActions
           v-for="list in lists.filter((item) => !item.pinned)"
-          :key="list.name"${labelPlacement ? `\n          label-placement="${labelPlacement}"` : ''}
+          :key="list.name"
+          :label-placement="labelPlacement"
           :leading="[{ id: 'pin', label: list.pinned ? 'Unpin' : 'Pin', Icon: icons.Pin, color: 'warning', onSelect: () => (list.pinned = !list.pinned) }]"
           :trailing="[
             { id: 'delete', label: 'Delete', Icon: icons.RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => lists.splice(lists.indexOf(list), 1) },
@@ -83,20 +85,21 @@ const messagesTemplate = `<div class="${pageStyles.Frame}">
 
 const lists = () => SWIPE_LISTS.map((name) => ({ name, pinned: name === 'Groceries' }));
 
+/** The Overview, as React's: `below` shows the two-line rows of an inbox, the other placements the lists */
+const overviewTemplate = `<template v-if="labelPlacement === 'below'">
+${messagesTemplate}
+</template>
+<template v-else>
+${listsTemplate}
+</template>`;
+
 export function VueSwipeActionsOverviewDemo() {
-  return <VueDemo stageClassName={pageStyles.Stage} template={listsTemplate()} state={{ lists: lists() }} context={{ icons }} />;
-}
-
-export function VueSwipeActionsLabelsInsideDemo() {
-  return <VueDemo stageClassName={pageStyles.Stage} template={listsTemplate('inside')} state={{ lists: lists() }} context={{ icons }} />;
-}
-
-export function VueSwipeActionsLabelsBelowDemo() {
   return (
     <VueDemo
       stageClassName={pageStyles.Stage}
-      template={messagesTemplate}
-      state={{ messages: SWIPE_MESSAGES.map((message) => ({ ...message, flagged: false })) }}
+      template={overviewTemplate}
+      controls={[{ name: 'labelPlacement', type: 'select', options: ['hidden', 'inside', 'below'], default: 'hidden' }]}
+      state={{ lists: lists(), messages: SWIPE_MESSAGES.map((message) => ({ ...message, flagged: false })) }}
       context={{ icons }}
     />
   );

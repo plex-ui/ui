@@ -15,12 +15,16 @@ export const overviewControls = [
   { name: "errorMessage", type: "boolean", default: true },
   { name: "required", type: "boolean", default: true },
   { name: "disabled", type: "boolean", default: false },
+  { name: "labelAction", type: "boolean", default: false, when: { layout: ["above", "columns"] } },
+  { name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "md", desktopOnly: true, menu: true },
+  { name: "pill", type: "boolean", default: false, desktopOnly: true, when: { layout: ["above", "columns", "hidden"] } },
+  { name: "opticallyAlign", type: "boolean", default: false, desktopOnly: true, when: { layout: ["above", "columns", "hidden"] } },
 ]
 
 export const overview = `<div v-if="layout === 'end'" class="w-full max-w-[480px]">
   <FieldGroup>
     <Field row label="Name" :required="required">
-      <Input placeholder="Jane Appleseed" autocomplete="name" :disabled="disabled" />
+      <Input placeholder="Jane Appleseed" autocomplete="name" :disabled="disabled" :size="size" />
     </Field>
     <Field
       row
@@ -29,27 +33,32 @@ export const overview = `<div v-if="layout === 'end'" class="w-full max-w-[480px
       :description="description ? 'We\\'ll never share your email with anyone else.' : undefined"
       :error-message="errorMessage ? 'Enter a valid email address.' : undefined"
     >
-      <Input :key="String(errorMessage)" type="email" placeholder="name@example.com" :default-value="errorMessage ? 'jane@example' : undefined" autocomplete="email" :disabled="disabled" />
+      <Input :key="String(errorMessage)" type="email" placeholder="name@example.com" :default-value="errorMessage ? 'jane@example' : undefined" autocomplete="email" :disabled="disabled" :size="size" />
     </Field>
   </FieldGroup>
 </div>
 <div v-else :class="['flex w-full flex-col gap-4', layout === 'columns' ? 'max-w-[480px]' : 'max-w-[320px]']">
-  <Field label="Name" :required="required" :hide-label="layout === 'hidden'" :orientation="layout === 'columns' ? 'horizontal' : 'vertical'">
-    <Input :placeholder="layout === 'hidden' ? 'Name' : 'Jane Appleseed'" autocomplete="name" :disabled="disabled" />
+  <Field label="Name" :required="required" :hide-label="layout === 'hidden'" :orientation="layout === 'columns' ? 'horizontal' : 'vertical'" :optically-align="opticallyAlign ? 'start' : undefined">
+    <Input :placeholder="layout === 'hidden' ? 'Name' : 'Jane Appleseed'" autocomplete="name" :disabled="disabled" :size="size" :pill="pill" />
   </Field>
   <Field
     label="Email"
     :required="required"
     :hide-label="layout === 'hidden'"
     :orientation="layout === 'columns' ? 'horizontal' : 'vertical'"
+    :optically-align="opticallyAlign ? 'start' : undefined"
     :description="description ? 'We\\'ll never share your email with anyone else.' : undefined"
     :error-message="errorMessage ? 'Enter a valid email address.' : undefined"
   >
-    <Input :key="String(errorMessage)" type="email" :placeholder="layout === 'hidden' ? 'Email' : 'name@example.com'" :default-value="errorMessage ? 'jane@example' : undefined" autocomplete="email" :disabled="disabled" />
+    <template v-if="labelAction" #labelAction>
+      <TextLink href="#overview">Use phone instead</TextLink>
+    </template>
+    <Input :key="String(errorMessage)" type="email" :placeholder="layout === 'hidden' ? 'Email' : 'name@example.com'" :default-value="errorMessage ? 'jane@example' : undefined" autocomplete="email" :disabled="disabled" :size="size" :pill="pill" />
   </Field>
 </div>`
 
-export const overviewPhone = `<FieldGroup :columns="layout === 'columns'">
+export const overviewPhone = `<div class="flex flex-col">
+<FieldGroup :columns="layout === 'columns'">
   <Field row label="Name" :orientation="layout === 'above' ? 'vertical' : undefined" :hide-label="layout === 'hidden'">
     <Input :placeholder="layout === 'hidden' ? 'Name' : required ? 'Required' : 'Jane Appleseed'" autocomplete="name" :disabled="disabled" />
   </Field>
@@ -63,7 +72,12 @@ export const overviewPhone = `<FieldGroup :columns="layout === 'columns'">
     <Input :key="String(errorMessage)" type="email" :placeholder="layout === 'hidden' ? 'Email' : required ? 'Required' : 'name@example.com'" :default-value="errorMessage ? 'jane@example' : undefined" autocomplete="email" :disabled="disabled" />
   </Field>
   <template v-if="description" #footer>We'll never share your email with anyone else.</template>
-</FieldGroup>`
+</FieldGroup>
+<!-- A row has no label line: the link stands under the group in the rows' text -->
+<TextLink v-if="labelAction" primary href="#overview" class="mt-[15px] self-start text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)]">
+  Use phone instead
+</TextLink>
+</div>`
 
 export const overviewCode = withPhone(`<Field label="Name" required>
   <Input placeholder="Jane Appleseed" />
@@ -75,6 +89,14 @@ export const overviewCode = withPhone(`<Field label="Name" required>
   error-message="Enter a valid email address."
 >
   <Input type="email" default-value="jane@example" />
+</Field>
+
+<!-- labelAction: a link at the end of the label row; size and pill on the control; optically-align lines its text up -->
+<Field label="Email" optically-align="start">
+  <template #labelAction>
+    <TextLink href="#">Use phone instead</TextLink>
+  </template>
+  <Input type="email" size="lg" pill />
 </Field>`, `<FieldGroup>
   <Field row label="Name" orientation="vertical">
     <Input placeholder="Required" />
@@ -88,7 +110,10 @@ export const overviewCode = withPhone(`<Field label="Name" required>
 <!-- columns: <FieldGroup columns> with rows; end: rows; hidden: placeholder only -->
 <Field row hide-label label="Name">
   <Input placeholder="Name" />
-</Field>`, "a cell of a FieldGroup; the words that explain it go in the footer.")
+</Field>
+
+<!-- A label action stands under the group, in the rows' text -->
+<TextLink primary href="#">Use phone instead</TextLink>`, "a cell of a FieldGroup; the words that explain it go in the footer.")
 
 export const actionRowsControls = [
   { name: "trailingIcon", type: "boolean", default: true },
@@ -194,26 +219,6 @@ export const controlsPhone = `<FieldGroup>
   </Field>
 </FieldGroup>`
 
-export const labelAction = `<div class="w-[320px]">
-  <Field label="Password">
-    <template #labelAction>
-      <TextLink href="#label-action">Forgot password?</TextLink>
-    </template>
-    <Input type="password" placeholder="Enter password" autocomplete="current-password" />
-  </Field>
-</div>`
-
-export const labelActionPhone = `<div class="flex flex-col">
-  <FieldGroup>
-    <Field row label="Password">
-      <Input type="password" placeholder="Required" autocomplete="current-password" />
-    </Field>
-  </FieldGroup>
-  <TextLink primary href="#label-action" class="mt-[15px] self-start text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)]">
-    Forgot password?
-  </TextLink>
-</div>`
-
 export const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map((month, index) => ({ label: month, value: String(index + 1).padStart(2, "0") }))
 export const days = Array.from({ length: 31 }, (_, index) => ({ label: String(index + 1), value: String(index + 1) }))
 export const years = Array.from({ length: 2025 - 1920 + 1 }, (_, index) => ({ label: String(2025 - index), value: String(2025 - index) }))
@@ -234,40 +239,6 @@ export const severalControls = `<div class="w-[320px]">
   </Field>
 </div>`
 
-export const sizing = `<div class="w-full max-w-[320px]">
-  <Field
-    label="Email"
-    description="We'll never share your email with anyone else."
-    error-message="Enter a valid email address."
-    required
-  >
-    <Input type="email" placeholder="name@example.com" :size="size" :pill="pill" />
-  </Field>
-</div>`
-
-export const opticalAlign = `<div class="w-full min-w-0 max-w-[400px]">
-  <div class="border border-dashed border-alpha/20 rounded-md py-6 px-8">
-    <div class="mb-5 text-secondary text-sm">
-      {{ opticallyAlign ? 'optically-align="start"' : 'Default' }}
-    </div>
-    <div class="flex flex-col gap-5">
-      <Field label="Full name" :optically-align="opticallyAlign ? 'start' : undefined">
-        <Input placeholder="Jane Doe" :pill="pill" />
-      </Field>
-      <Field
-        label="Email"
-        description="We'll never share your email."
-        error-message="Enter a valid email address."
-        required
-        :optically-align="opticallyAlign ? 'start' : undefined"
-      >
-        <Input placeholder="jane@example.com" :pill="pill" />
-      </Field>
-    </div>
-    <Button class="mt-6" color="primary" variant="soft" :pill="pill">Submit</Button>
-  </div>
-</div>`
-
 <UsageBlock>{`import { Field } from "@plexui/vue/components/Field";
 import { FieldGroup } from "@plexui/vue/components/FieldGroup";
 import { Label } from "@plexui/vue/components/Label";`}</UsageBlock>
@@ -278,6 +249,10 @@ export const labelOverview = `<div style="display: flex; align-items: center; ga
 </div>`
 
 ## Examples
+
+<span id="label-action" />
+<span id="sizing" />
+<span id="optical-alignment" />
 
 ### Overview
 
@@ -290,6 +265,9 @@ export const labelOverview = `<div style="display: flex; align-items: center; ga
     <li><strong>hidden</strong>: <code>hide-label</code>. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field.</li>
   </ul>
   <p>On Phone a field is always a cell of a <code>FieldGroup</code> on the grouped background, as in an iOS form, in the same four places: the label above its value (<code>row orientation="vertical"</code>), values in one column (<code>FieldGroup columns</code>), the value at the end of the row, or the placeholder alone (<code>row hide-label</code>), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's <code>footer</code> slot, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: <code>OTPInput</code> keeps its own digit cells on the screen, outside a group, as in <a href="/vue/components/auth-forms#verify-email">Verify email</a>.</p>
+  <p>Use the <code>labelAction</code> slot (or the <code>label-action</code> string prop) for a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size. On Phone a row has no label line to hold it: the link stands under the group in the rows' text, as under the Apple Account sign-in. A group's footer is a footnote, for words to read. Here it is offered for a label above the field or in its column.</p>
+  <p>The label and description scale with the child control: Field reads the control's <code>size</code>, so <code>{'<Input size="lg" />'}</code> gets a <code>lg</code> label without repeating it. Pass <code>size</code> to Field to set the label size yourself, or when the slot reads the field props. Outside a row, with <code>touch.css</code> a text field is 44px from <code>3xs</code> to <code>2xl</code> and 50px at <code>3xl</code>, with the 17px text of iOS. <code>size</code>, <code>pill</code> and <code>opticallyAlign</code> are the web's: on Phone a row sets the field's height, insets and type, and has no frame to align.</p>
+  <p><code>opticallyAlign</code>: <code>"start"</code> applies a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" stageClassName="py-10" controls={overviewControls} />
 </ComponentPreview>
@@ -329,11 +307,6 @@ export const labelOverview = `<div style="display: flex; align-items: center; ga
   <VuePhoneRowsDemo template={controls} phoneTemplate={phoneRows(controlsPhone)} phoneStageClassName={phoneCalendarSecondRowStageClassName} stageClassName="py-10" state={{ role: "editor", roles, start: null }} />
 </ComponentPreview>
 
-### Label action
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>labelAction</code> slot (or the <code>label-action</code> string prop) for a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size. On Phone a row has no label line to hold it: the link stands under the group in the rows' text, as under the Apple Account sign-in. A group's footer is a footnote, for words to read.</>} code={withPhone(labelAction, labelActionPhone)} previewMinHeight={168}>
-  <VuePhoneRowsDemo template={labelAction} phoneTemplate={phoneRows(labelActionPhone)} phoneStageClassName="w-full" stageClassName="py-10" />
-</ComponentPreview>
 
 ### Label
 
@@ -347,22 +320,6 @@ export const labelOverview = `<div style="display: flex; align-items: center; ga
   <VueDemo template={severalControls} stageClassName="py-10" state={{ month: "", day: "", year: "", months, days, years }} />
 </ComponentPreview>
 
-### Sizing
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>
-  <p>The label and description scale with the child control: Field reads the control's <code>size</code>, so <code>{'<Input size="lg" />'}</code> gets a <code>lg</code> label without repeating it. Pass <code>size</code> to Field to set the label size yourself, or when the slot reads the field props.</p>
-  <p>On a phone a row sets the field's height, insets and type, so this example has no Phone view. Outside a row, with <code>touch.css</code> a text field is 44px from <code>3xs</code> to <code>2xl</code> and 50px at <code>3xl</code>, with the 17px text of iOS.</p>
-</>} code={sizing} previewMinHeight={168}>
-  <VueDemo template={sizing} stageClassName="py-10" controls={[{ name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" }, { name: "pill", type: "boolean", default: false }]} />
-</ComponentPreview>
-
-### Optical alignment
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>optically-align="start"</code> to apply a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it. A phone row has no frame to align, so this example has no Phone view.</>} code={opticalAlign} previewMinHeight={168}>
-  <VueDemo template={opticalAlign} stageClassName="py-10" controls={[{ name: "opticallyAlign", type: "boolean", default: true }, { name: "pill", type: "boolean", default: false }]} />
-</ComponentPreview>
-
-For whole forms, on the web and on a phone, see [Forms: Settings](/vue/components/settings-forms).
 
 ## API
 

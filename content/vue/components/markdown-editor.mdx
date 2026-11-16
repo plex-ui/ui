@@ -4,166 +4,104 @@ description: Compact rich text editor powered by Tiptap, embedded in a form fiel
 metaDescription: Vue 3 rich text editor component powered by Tiptap that reads and writes markdown through v-model:value, with a formatting toolbar, a toolbar end slot, variants, and an invalid state.
 ---
 
-import { VueDemo } from "@/components/docs/vue/VueDemo"
 import { VueMarkdownEditorDemo } from "@/components/docs/vue/VueMarkdownEditorDemos"
 
-export const allFormattingMd = `This is regular text with **bold** and *italic* formatting.
+export const formattedMd = `This is regular text with **bold** and *italic* formatting.
 
 Read our [Privacy Policy](https://example.com/privacy) and [Terms of Service](https://example.com/terms) for details.
 
 1. First ordered item
 2. Second ordered item
-3. Third ordered item
 
 - Unordered item one
-- Unordered item two
-- Unordered item three`
+- Unordered item two`
 
-export const baseControls = [
+export const overviewControls = [
+  { name: "content", type: "select", options: ["empty", "formatted"], default: "empty" },
+  { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" },
+  { name: "formats", type: "select", options: ["all", "bold, link"], default: "all" },
+  { name: "breaks", type: "boolean", default: false },
+  { name: "field", type: "boolean", default: true },
   { name: "invalid", type: "boolean", default: false },
   { name: "disabled", type: "boolean", default: false },
+  { name: "toolbarEnd", type: "boolean", default: false },
 ]
 
-export const base = `<div class="w-full min-w-0 max-w-[500px]">
-  <MarkdownEditor aria-label="Markdown content" placeholder="Enter text..."
-    v-model:value="value" :invalid="invalid" :aria-invalid="invalid" :disabled="disabled" />
-</div>`
-
-export const baseCode = `<script setup lang="ts">
-import { ref } from 'vue';
-import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
-
-const value = ref('');
-const invalid = ref(false);
-const disabled = ref(false);
-</script>
-
-<template>
-  <MarkdownEditor aria-label="Markdown content" placeholder="Enter text..."
-    v-model:value="value" :invalid="invalid" :disabled="disabled" />
-</template>`
-
-export const allFormatting = `<div class="w-full min-w-0 max-w-[500px]">
-  <MarkdownEditor :default-value="allFormattingMd" />
-</div>`
-
-export const formatsMd = `Some **bold**, *italic* and a [link](https://example.com).
-
-- A list item
-
-Line one
-Line two`
-
-export const formats = `<div class="w-full min-w-0 max-w-[500px]">
-  <MarkdownEditor aria-label="Message" :formats="['bold', 'link']" breaks v-model:value="value" />
-  <p class="text-secondary text-sm mt-2 break-all">Markdown: <code>{{ JSON.stringify(value) }}</code></p>
-</div>`
-
-export const formatsCode = `<script setup lang="ts">
-import { ref } from 'vue';
-import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
-
-const value = ref(initialMd);
-</script>
-
-<template>
-  <MarkdownEditor aria-label="Message" :formats="['bold', 'link']" breaks v-model:value="value" />
-</template>`
-
-export const withFieldControls = [
-  { name: "errorMessage", type: "boolean", default: false },
-]
-
-export const withField = `<div class="w-full min-w-0 max-w-[500px]">
-  <Field label="Description" description="Supports bold, italic, lists, and links."
-    :error-message="errorMessage ? 'This field is required.' : undefined">
-    <MarkdownEditor aria-label="Description" placeholder="Enter description..." v-model:value="value" />
-  </Field>
-</div>`
-
-export const withFieldCode = `<script setup lang="ts">
-import { ref } from 'vue';
-import { Field } from '@plexui/vue/components/Field';
-import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
-
-const value = ref('');
-const errorMessage = ref(false);
-</script>
-
-<template>
-  <Field label="Description" description="Supports bold, italic, lists, and links."
-    :error-message="errorMessage ? 'This field is required.' : undefined">
-    <MarkdownEditor aria-label="Description" placeholder="Enter description..." v-model:value="value" />
-  </Field>
-</template>`
-
-export const toolbarEnd = `<div class="w-full min-w-0 max-w-[500px]">
-  <Field label="Text markdown">
-    <MarkdownEditor placeholder="Enter text...">
-      <template #toolbarEnd>
-        <button
-          type="button"
-          :class="markdownEditorStyles.toolbarButton"
-          aria-label="Edit translations"
-          title="Edit translations"
-        >
+export const overview = `<div class="w-full min-w-0 max-w-[500px]">
+  <Field v-if="field" label="Description" description="Supports bold, italic, lists, and links."
+    :error-message="invalid ? 'This field is required.' : undefined">
+    <MarkdownEditor :key="content + formats + breaks" aria-label="Description" placeholder="Enter text..."
+      v-model:value="values[content]" :variant="variant" :formats="formats === 'all' ? undefined : ['bold', 'link']" :breaks="breaks"
+      :invalid="field ? undefined : invalid" :aria-invalid="field ? undefined : invalid" :disabled="disabled">
+      <template v-if="toolbarEnd" #toolbarEnd>
+        <button type="button" :disabled="disabled" :class="markdownEditorStyles.toolbarButton" aria-label="Edit translations" title="Edit translations">
           <Translate />
         </button>
       </template>
     </MarkdownEditor>
   </Field>
+  <template v-else>
+    <MarkdownEditor :key="content + formats + breaks" aria-label="Description" placeholder="Enter text..."
+      v-model:value="values[content]" :variant="variant" :formats="formats === 'all' ? undefined : ['bold', 'link']" :breaks="breaks"
+      :invalid="field ? undefined : invalid" :aria-invalid="field ? undefined : invalid" :disabled="disabled">
+      <template v-if="toolbarEnd" #toolbarEnd>
+        <button type="button" :disabled="disabled" :class="markdownEditorStyles.toolbarButton" aria-label="Edit translations" title="Edit translations">
+          <Translate />
+        </button>
+      </template>
+    </MarkdownEditor>
+  </template>
+  <p class="text-secondary text-sm mt-2 break-all">Markdown: <code>{{ JSON.stringify(values[content]) }}</code></p>
 </div>`
 
-export const variants = `<div class="flex flex-col gap-4 w-full min-w-0 max-w-[500px]">
-  <Field label="Outline">
-    <MarkdownEditor placeholder="Outline variant..." variant="outline" />
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { Field } from '@plexui/vue/components/Field';
+import { MarkdownEditor, markdownEditorStyles } from '@plexui/vue/components/MarkdownEditor';
+import { Translate } from '@plexui/vue/components/Icon';
+
+const value = ref('');
+const variant = ref<'outline' | 'soft'>('outline');
+const formats = ref(); // e.g. ['bold', 'link']
+const breaks = ref(false);
+const invalid = ref(false);
+const disabled = ref(false);
+const toolbarEnd = ref(false);
+</script>
+
+<template>
+  <Field label="Description" description="Supports bold, italic, lists, and links."
+    :error-message="invalid ? 'This field is required.' : undefined">
+    <!-- formats and breaks are read when the editor is created: a new key makes a new one -->
+    <MarkdownEditor :key="\`\${formats}-\${breaks}\`" aria-label="Description" placeholder="Enter text..." v-model:value="value"
+      :variant="variant" :formats="formats" :breaks="breaks" :disabled="disabled">
+      <template v-if="toolbarEnd" #toolbarEnd>
+        <button type="button" :disabled="disabled" :class="markdownEditorStyles.toolbarButton"
+          aria-label="Edit translations" title="Edit translations">
+          <Translate />
+        </button>
+      </template>
+    </MarkdownEditor>
   </Field>
-  <Field label="Soft">
-    <MarkdownEditor placeholder="Soft variant..." variant="soft" />
-  </Field>
-</div>`
+</template>`
 
 <UsageBlock>{`import { MarkdownEditor } from "@plexui/vue/components/MarkdownEditor";`}</UsageBlock>
 
 ## Examples
 
+<span id="placeholder" />
+<span id="all-formatting" />
+<span id="formats-and-line-breaks" />
+<span id="with-field" />
+<span id="toolbar-end-slot" />
+<span id="variants" />
 <span id="disabled" />
 <span id="invalid" />
 
-### Placeholder
+### Overview
 
-<ComponentPreview language="vue" details={<>Use <code>placeholder</code> for empty content. Toggle <code>invalid</code> and <code>disabled</code> without replacing the entered markdown. The invalid state is controlled by this example, not by a validator.</>} code={baseCode} previewMinHeight={168}>
-  <VueDemo template={base} controls={baseControls} state={{ value: "" }} stageClassName="py-10 w-full flex justify-center" />
-</ComponentPreview>
-
-### All formatting
-
-<ComponentPreview language="vue" details={<>Example with all supported formatting: <strong>bold</strong>, <em>italic</em>, links, ordered lists, and unordered lists. Click inside formatted text to see toolbar buttons toggle.</>} code={allFormatting} previewMinHeight={300}>
-  <VueDemo template={allFormatting} state={{ allFormattingMd }} />
-</ComponentPreview>
-
-### Formats and line breaks
-
-<ComponentPreview language="vue" details={<>Use <code>formats</code> to choose what the editor offers: <code>bold</code>, <code>italic</code>, <code>orderedList</code>, <code>bulletList</code> and <code>link</code>, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. In pasted text its markers stay text, as if they were typed, and so do those of headings, quotes, code and rules, which the editor never offers. Pasted HTML and incoming markdown keep its text without it, and the markdown the editor writes leaves it out: here the italic and the list of the initial value become plain text. With <code>breaks</code>, a single newline is a line break, read and written as one newline. Both are read when the editor is created.</>} code={formatsCode} previewMinHeight={220}>
-  <VueDemo template={formats} state={{ value: formatsMd }} />
-</ComponentPreview>
-
-### With Field
-
-<ComponentPreview language="vue" details={<>Wrap with <code>Field</code> to add a description and a linked error message. The editor receives <code>id</code>, <code>aria-describedby</code> and <code>aria-invalid</code> automatically. Set an accessible name with <code>aria-label</code>. The <code>errorMessage</code> control demonstrates the error state without validating or replacing the content.</>} code={withFieldCode} previewMinHeight={200}>
-  <VueDemo template={withField} controls={withFieldControls} state={{ value: "" }} stageClassName="py-10 w-full flex justify-center" />
-</ComponentPreview>
-
-### Toolbar end slot
-
-<ComponentPreview language="vue" details={<>Use the <code>#toolbarEnd</code> slot to render custom content at the end of the toolbar, for example an &ldquo;Edit translations&rdquo; button. <code>markdownEditorStyles.toolbarButton</code> gives it the style of the built-in toolbar buttons.</>} code={toolbarEnd} previewMinHeight={200}>
-  <VueMarkdownEditorDemo template={toolbarEnd} />
-</ComponentPreview>
-
-### Variants
-
-<ComponentPreview language="vue" details={<>Use <code>variant</code> to switch between <code>outline</code> (default) and <code>soft</code> styles.</>} code={variants} previewMinHeight={380}>
-  <VueDemo template={variants} />
+<ComponentPreview language="vue" details={<>Use <code>placeholder</code> for empty content; <code>content</code> starts the editor with markdown of every format it offers: <strong>bold</strong>, <em>italic</em>, links, ordered and unordered lists. Click inside formatted text to see its toolbar buttons toggle. <code>variant</code> switches between <code>outline</code> (default) and <code>soft</code>.<br /><br /><code>formats</code> chooses what the editor offers: <code>bold</code>, <code>italic</code>, <code>orderedList</code>, <code>bulletList</code> and <code>link</code>, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. In pasted text its markers stay text, as if they were typed, and so do those of headings, quotes, code and rules, which the editor never offers. Pasted HTML and incoming markdown keep its text without it, and the markdown the editor writes leaves it out: with <code>bold, link</code> the italic and the lists of the formatted content become plain text. With <code>breaks</code>, a single newline is a line break, read and written as one newline. Both are read when the editor is created, so the example makes a new editor when they change.<br /><br /><code>field</code> wraps the editor in a <code>Field</code> with a label and a description: the editor receives <code>id</code>, <code>aria-describedby</code> and <code>aria-invalid</code> from it, and <code>invalid</code> shows the Field's linked error message. Without a Field, set an accessible name with <code>aria-label</code> and <code>invalid</code> on the editor itself. The invalid state is controlled by this example, not by a validator, and it and <code>disabled</code> keep the entered markdown. The <code>#toolbarEnd</code> slot renders custom content at the end of the toolbar, here an &ldquo;Edit translations&rdquo; button; <code>markdownEditorStyles.toolbarButton</code> gives it the style of the built-in toolbar buttons.</>} code={overviewCode} previewMinHeight={300}>
+  <VueMarkdownEditorDemo template={overview} controls={overviewControls} state={{ values: { empty: "", formatted: formattedMd } }} stageClassName="py-10 w-full flex justify-center" />
 </ComponentPreview>
 
 ## API

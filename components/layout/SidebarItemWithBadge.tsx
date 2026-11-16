@@ -7,7 +7,7 @@ import type * as PageTree from 'fumadocs-core/page-tree';
 import { Badge } from '@plexui/ui/components/Badge';
 import { SidebarMenuBadge } from '@plexui/ui/components/Sidebar';
 import { NEW_COMPONENT_SLUGS } from '@/lib/docs-new-badges';
-import { frameworkUrl } from '@/lib/framework-urls';
+import { frameworkUrl, SAME_PAGE_URLS } from '@/lib/framework-urls';
 
 /* Minimal base — all visual states are handled by globals.css sidebar rules */
 const SIDEBAR_ITEM_BASE =
@@ -42,9 +42,11 @@ const EXACT_MATCH_URLS = new Set(['/docs', '/components', '/vue/components']);
  * Replaces fumadocs' default `SidebarItem` strict-equality match — that one
  * leaves "Icons" inactive whenever the user drills into a sub-page.
  */
+
 function isActivePath(pathname: string, url: string): boolean {
   const current = normalizePath(pathname);
   const target = normalizePath(url);
+  if (SAME_PAGE_URLS[target]?.includes(current)) return true;
   if (EXACT_MATCH_URLS.has(target)) return current === target;
   return current === target || current.startsWith(`${target}/`);
 }

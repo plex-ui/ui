@@ -4,7 +4,7 @@ description: "Actions behind a row of a list, as the swipe actions of an iOS lis
 metaDescription: "React swipe actions for list rows in the iOS style: leading and trailing actions behind a FieldGroup row, revealed by a swipe, a full swipe for the first action, labels hidden, inside or below, and keyboard reach."
 ---
 
-import { SwipeActionsLabelsBelowDemo, SwipeActionsLabelsInsideDemo, SwipeActionsOverviewDemo } from "@/components/docs/SwipeActionsDemos"
+import { SwipeActionsOverviewDemo } from "@/components/docs/SwipeActionsDemos"
 
 <UsageBlock>{`import { SwipeActions } from "@plexui/ui/components/SwipeActions";`}</UsageBlock>
 
@@ -14,12 +14,19 @@ Swipe actions keep the actions of a row out of sight until they are wanted, as t
 
 The examples show the phone view.
 
+<span id="labels-inside" />
+<span id="labels-below" />
+
 ### Overview
 
-<ComponentPreview phoneOnly details={<>Wrap the content of a row of a <code>FieldGroup</code>: the swipe row is the <code>data-row</code> of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart, 10px from the edge and 4px inside the top and bottom of the row, as iOS 27.2 sets them; the first action of a side stands at its edge. A symbol alone is a capsule of 60px that grows with the row and is a 50px circle from a row of 58px. Swiped aside, the content rounds its corners by 26px and, on a phone, turns soft gray on the background of the list, as iOS fills it. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it.</>} code={`<FieldGroup>
+<ComponentPreview phoneOnly details={<>Wrap the content of a row of a <code>FieldGroup</code>: the swipe row is the <code>data-row</code> of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart, 10px from the edge and 4px inside the top and bottom of the row, as iOS 27.2 sets them; the first action of a side stands at its edge. A symbol alone is a capsule of 60px that grows with the row and is a 50px circle from a row of 58px. Swiped aside, the content rounds its corners by 26px and, on a phone, turns soft gray on the background of the list, as iOS fills it. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it.<br /><br /><code>labelPlacement</code> sets where the actions show their labels. With <code>inside</code> each capsule holds a smaller symbol and its label, and every action of a side takes the width of the widest, as iOS 27.2 sets them. An action without an icon shows its label alone, in a rounded rectangle: beside labels inside it takes the width of the widest too, and elsewhere it is as wide as its text. With <code>below</code> the label stands under the capsule, which takes the rest of the row: iOS 27.2 sets its labels this way from a row of 60px, such as the two-line rows of an inbox here, and draws a 50px circle from a row of 78px.</>} code={`[[^labelPlacement=below]]
+<FieldGroup>
   {lists.map((name) => (
     <SwipeActions
       key={name}
+[[#labelPlacement=inside]]
+      labelPlacement="inside"
+[[/labelPlacement=inside]]
       leading={[{ id: "pin", label: "Pin", Icon: Pin, color: "warning", onSelect: () => pin(name) }]}
       trailing={[
         { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", role: "destructive", onSelect: () => remove(name) },
@@ -29,41 +36,30 @@ The examples show the phone view.
       <div className="row">{name}</div>
     </SwipeActions>
   ))}
-</FieldGroup>`}>
+</FieldGroup>
+[[/labelPlacement=below]]
+[[#labelPlacement=below]]
+{/* Labels below from a row of 60px, such as a row of two lines */}
+<FieldGroup>
+  {messages.map((message) => (
+    <SwipeActions
+      key={message.id}
+      labelPlacement="below"
+      leading={[{ id: "flag", label: "Flag", Icon: Flag, color: "warning", onSelect: () => flag(message) }]}
+      trailing={[
+        { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", role: "destructive", onSelect: () => remove(message) },
+        { id: "archive", label: "Archive", Icon: Archive, color: "info", role: "destructive", onSelect: () => archive(message) },
+      ]}
+    >
+      <div className="row">
+        <div>{message.from}</div>
+        <div>{message.subject}</div>
+      </div>
+    </SwipeActions>
+  ))}
+</FieldGroup>
+[[/labelPlacement=below]]`} codeValues={{ labelPlacement: "hidden" }}>
   <SwipeActionsOverviewDemo />
-</ComponentPreview>
-
-### Labels inside
-
-<ComponentPreview phoneOnly details={<>With <code>labelPlacement=&quot;inside&quot;</code> each capsule holds a smaller symbol and its label, and every action of a side takes the width of the widest, as iOS 27.2 sets them. An action without an icon shows its label alone, in a rounded rectangle: beside labels inside it takes the width of the widest too, and elsewhere it is as wide as its text.</>} code={`<SwipeActions
-  labelPlacement="inside"
-  leading={[{ id: "pin", label: "Pin", Icon: Pin, color: "warning", onSelect: () => pin(name) }]}
-  trailing={[
-    { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", role: "destructive", onSelect: () => remove(name) },
-    { id: "archive", label: "Archive", Icon: Archive, color: "info", role: "destructive", onSelect: () => archive(name) },
-  ]}
->
-  <div className="row">{name}</div>
-</SwipeActions>`}>
-  <SwipeActionsLabelsInsideDemo />
-</ComponentPreview>
-
-### Labels below
-
-<ComponentPreview phoneOnly details={<>With <code>labelPlacement=&quot;below&quot;</code> the label stands under the capsule, which takes the rest of the row: iOS 27.2 sets its labels this way from a row of 60px, such as a row of two lines, and draws a 50px circle from a row of 78px.</>} code={`<SwipeActions
-  labelPlacement="below"
-  leading={[{ id: "flag", label: "Flag", Icon: Flag, color: "warning", onSelect: () => flag(message) }]}
-  trailing={[
-    { id: "delete", label: "Delete", Icon: RemoveTrash, color: "danger", role: "destructive", onSelect: () => remove(message) },
-    { id: "archive", label: "Archive", Icon: Archive, color: "info", role: "destructive", onSelect: () => archive(message) },
-  ]}
->
-  <div className="row">
-    <div>{message.from}</div>
-    <div>{message.subject}</div>
-  </div>
-</SwipeActions>`}>
-  <SwipeActionsLabelsBelowDemo />
 </ComponentPreview>
 
 ## API

@@ -159,7 +159,7 @@ Props:
     - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "secondary" — Solid color of the action
     - onSelect (() => void) — Called when the action is pressed, or by a full swipe when it is the first action of its side
     - role ("destructive") — The action removes the row: the row slides out and collapses, as iOS deletes a row, and `onSelect` comes at the end of that for the list to drop it. A row the list keeps comes back.
-Examples: Overview, Labels inside, Labels below
+Examples: Overview
 
 ## Text Link
 Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.
@@ -214,7 +214,7 @@ Props:
     - for (string) — id of the associated control. Clicks on the label focus or activate the control.
     - class (string) — Applied to the root <label> element
     - default slot (VNode[]) — Label content
-Examples: Overview, Group, Action rows, Spacing between groups, Other controls, Label action, Label, Several controls, Sizing, Optical alignment
+Examples: Overview, Group, Action rows, Spacing between groups, Other controls, Label, Several controls
 
 ## File Upload
 Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
@@ -345,7 +345,7 @@ Props:
   - aria-describedby (string) — aria-describedby of the editable element (Field sets it)
   - aria-invalid (boolean) — Sets aria-invalid on the editable element and the invalid style (Field sets it with error-message)
   - class (string) — Applied to the container
-Examples: Placeholder, All formatting, Formats and line breaks, With Field, Toolbar end slot, Variants
+Examples: Overview
 
 ## OTP Input
 Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.
@@ -362,7 +362,7 @@ Props:
   - disabled (boolean) default: false — Disable all cells
   - auto-focus (boolean) default: false — Auto-focus first cell on mount
   - class (string) — Applied to the root element
-Examples: Overview, Grouped (3+3)
+Examples: Overview
 
 ## Tag Input
 Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.
@@ -847,7 +847,7 @@ Props:
 Examples: Overview, Many pages, Prominent
 
 ## Sidebar
-Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu
+Composable navigation sidebar for app shells, folding to an icon rail, with submenus, badges, search, a footer card or person menu, and a mobile menu
 Import: import { SidebarProvider, SidebarLayout, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger } from "@plexui/vue/components/Sidebar"
 Docs: https://plexui.com/vue/components/sidebar
 Props:
@@ -891,7 +891,7 @@ Props:
     - variant ("default" | "elevated") default: "default" — Visual variant
     - dismissible (boolean) default: false — Shows dismiss button
     - @dismiss ((event: MouseEvent) => void) — Emitted when the dismiss button is clicked
-Examples: App Shell, App, Basic, Collapsible Sections, Search and Filter, Tree with Hover Actions, Mobile Menu, Search Input
+Examples: Overview, Mobile Menu
 
 ## Tab Bar
 "The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
@@ -1117,7 +1117,7 @@ Props:
   - segments (ProgressSegment[]) — Parts of one bar side by side: { value, color?, label? }, color one of primary, secondary, success, warning, caution, danger, info, discovery. Takes the place of value.
   - get-value-label ((value: number, max: number) => string) — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
   - class (string) — Applied to the root <div>
-Examples: Overview, With label, Controlled, Segments
+Examples: Overview, Segments
 
 ## Progress Steps
 Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
@@ -1151,7 +1151,7 @@ Props:
     - shimmer (boolean) default: false — Whether the shimmer animation is active
     - default slot (VNode[]) — Text content to shimmer
     - class (string) — Additional CSS classes
-Examples: Overview, Semantic elements, Controllable shimmer
+Examples: Overview
 
 ## Skeleton
 Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.
@@ -1160,7 +1160,7 @@ Docs: https://plexui.com/vue/components/skeleton
 Props:
   - circle (boolean) default: false — Render a circular skeleton
   - class (string) — Set dimensions and custom styling
-Examples: Overview, Card, Text, Form, Table
+Examples: Overview
 
 ## Accordion
 Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
@@ -1307,7 +1307,7 @@ Props:
     - platform ("apple" | "other") — The keyboard to print for; by default the browser's (Apple on the server)
     - size ("xs" | "sm" | "md") default: "sm" — As Kbd
     - variant ("soft" | "outline") default: "soft" — As Kbd
-Examples: Overview, Shortcut, Modifier, Sizes and variants, In a tooltip and a menu
+Examples: Overview, In a tooltip and a menu
 
 ## Markdown
 Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
@@ -1350,7 +1350,7 @@ Props:
   - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the divider
   - decorative (boolean) default: true — When true, the separator is ignored by assistive technologies. Set false when the divider carries semantic grouping (renders role="separator").
   - class (string) — Applied to the root <div>
-Examples: Overview, Vertical, Menu, List
+Examples: Overview
 
 ## Sortable
 "Reorders a list by dragging: rows of a group, table rows, images, tags and cards. The order changes on the drop."

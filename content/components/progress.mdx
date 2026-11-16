@@ -7,8 +7,6 @@ metaDescription: "Accessible React progress bar component for showing task compl
 import { Progress } from "@plexui/ui/components/Progress"
 import {
   ProgressOverviewDemo,
-  ProgressWithLabelDemo,
-  ProgressControlledDemo,
   ProgressSegmentsDemo,
 } from "@/components/docs/ProgressDemos"
 
@@ -16,41 +14,26 @@ import {
 
 ## Examples
 
+<span id="with-label" />
+<span id="controlled" />
+
 ### Overview
 
-<ComponentPreview code={`const [value, setValue] = useState(13);
-useEffect(() => {
-  const t = setTimeout(() => setValue(66), 500);
-  return () => clearTimeout(t);
-}, []);
-
-return <Progress value={value} aria-label="Loading" />;`}>
-  <ProgressOverviewDemo />
-</ComponentPreview>
-
-### With label
-
-<ComponentPreview details={<>Pair a <a href="/components/field#label"><code>Label</code></a> with a value readout above the bar, the typical upload / onboarding progress pattern.</>} code={`<div>
-  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+<ComponentPreview details={<>A bar of task completion between <code>0</code> and <code>max</code> (100 by default); it animates each change of <code>value</code>, so bind it to any source, here the <code>value</code> slider. <code>indeterminate</code> passes <code>value={'{null}'}</code>: a sweep for a task of unknown length. <code>label</code> pairs a <a href="/components/field#label"><code>Label</code></a> with a readout above the bar, the typical upload or onboarding pattern; the bar takes its name from it with <code>aria-labelledby</code>, and without one it needs an <code>aria-label</code>. It reads out the value as a rounded percentage, or what <code>getValueLabel</code> returns.</>} code={`[[#label]]
+<div>
+  <div style={{ display: "flex", justifyContent: "space-between" }}>
     <Label id="progress-upload-label">Uploading plex-ui.zip</Label>
-    <span>3.2 / 4.8 MB</span>
+[[^indeterminate]]
+    <span>[[value]]%</span>
+[[/indeterminate]]
   </div>
-  <Progress aria-labelledby="progress-upload-label" value={67} />
-</div>`}>
-  <ProgressWithLabelDemo />
-</ComponentPreview>
-
-### Controlled
-
-<ComponentPreview details={<>Bind <code>value</code> to any source. Here it follows a <a href="/components/slider"><code>Slider</code></a>.</>} code={`const [value, setValue] = useState(50);
-
-return (
-  <>
-    <Progress value={value} aria-label="Progress" />
-    <Slider value={value} onChange={setValue} min={0} max={100} step={1} aria-label="Progress value" />
-  </>
-);`}>
-  <ProgressControlledDemo />
+  <Progress value={[[#indeterminate]]null[[/indeterminate]][[^indeterminate]][[value]][[/indeterminate]]} aria-labelledby="progress-upload-label" />
+</div>
+[[/label]]
+[[^label]]
+<Progress value={[[#indeterminate]]null[[/indeterminate]][[^indeterminate]][[value]][[/indeterminate]]} aria-label="Uploading plex-ui.zip" />
+[[/label]]`} codeValues={{ value: 66, indeterminate: false, label: true }}>
+  <ProgressOverviewDemo />
 </ComponentPreview>
 
 ### Segments

@@ -37,28 +37,37 @@ const FRAMEWORKS = [
 
 type Framework = (typeof FRAMEWORKS)[number]['id'];
 
-const hrefFor = (framework: Framework, slug: string) =>
-  `${FRAMEWORKS.find(({ id }) => id === framework)!.base}/${slug}`;
+const hrefFor = (framework: Framework, slug: string, hrefs?: Record<Framework, string>) =>
+  hrefs ? hrefs[framework] : `${FRAMEWORKS.find(({ id }) => id === framework)!.base}/${slug}`;
 
 /**
  * React / Vue between the two pages of the same component, and Desktop / Phone for all its examples: two pill
  * segments of one size, as every switch of the docs (owner 12.11, «мы везде pill используем»). The marks come from
  * the owner's reference, animate-ui.com (plan 178 phase 8).
  */
-export function FrameworkSwitch({ framework, slug }: { framework: Framework; slug: string }) {
+export function FrameworkSwitch({
+  framework,
+  slug = '',
+  hrefs,
+}: {
+  framework: Framework;
+  slug?: string;
+  /** The two pages of a docs page with no examples, such as Hooks and Composables: no Desktop / Phone switch */
+  hrefs?: Record<Framework, string>;
+}) {
   const router = useRouter();
 
   useEffect(() => {
     for (const { id } of FRAMEWORKS) {
-      if (id !== framework) router.prefetch(hrefFor(id, slug));
+      if (id !== framework) router.prefetch(hrefFor(id, slug, hrefs));
     }
-  }, [framework, slug, router]);
+  }, [framework, slug, hrefs, router]);
 
   return (
     <div className="mb-6 flex items-center justify-between gap-4">
       <SegmentedControl<Framework>
         value={framework}
-        onChange={(next) => router.push(hrefFor(next, slug))}
+        onChange={(next) => router.push(hrefFor(next, slug, hrefs))}
         aria-label="Framework"
         size="sm"
         pill
@@ -70,7 +79,7 @@ export function FrameworkSwitch({ framework, slug }: { framework: Framework; slu
           </SegmentedControl.Option>
         ))}
       </SegmentedControl>
-      <PreviewViewportControl />
+      {!hrefs && <PreviewViewportControl />}
     </div>
   );
 }

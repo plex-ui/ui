@@ -4,58 +4,45 @@ description: Loading placeholders that match the shape of the content they stand
 metaDescription: React skeleton component for showing animated placeholders while content loads, with ready-made compositions for cards, text, forms, and tables
 ---
 
-import { Skeleton } from "@plexui/ui/components/Skeleton"
 import { SkeletonOverviewDemo } from "@/components/docs/SkeletonDemos"
 
 <UsageBlock>{`import { Skeleton } from "@plexui/ui/components/Skeleton";`}</UsageBlock>
 
 ## Examples
 
+<span id="card" />
+<span id="text" />
+<span id="form" />
+<span id="table" />
+
 ### Overview
 
-<ComponentPreview phonePresentation="none" details={<>Use a circular skeleton to represent loading avatars, combined with text placeholders. Without <code>circle</code> a skeleton keeps its own radius, as for a square picture. Set its size and shape with <code>className</code>.</>} code={`const [circle, setCircle] = useState(true)
-
+<ComponentPreview phonePresentation="none" details={<>A skeleton stands in for content while it loads, in its shape: compose skeletons as the content is laid out, and set each one's size and shape with <code>className</code>. <code>content</code> shows the placeholders of a profile, a card with a picture, a paragraph (lines of varying widths read as natural text), a form (inputs and buttons at the control height, 32px) and a table (its header and rows).<br /><br /><code>circle</code> rounds a skeleton, for the avatar of a profile; without it a skeleton keeps its own radius, as for a square picture.</>} code={`[[#content=profile]]
 <div className="flex items-center gap-4">
-  <Skeleton circle={circle} className="size-12" />
+  <Skeleton[[#circle]] circle[[/circle]] className="size-12" />
   <div className="flex flex-col gap-2">
     <Skeleton className="h-4 w-[200px]" />
     <Skeleton className="h-4 w-[150px]" />
   </div>
-</div>`} previewMinHeight={168}>
-  <SkeletonOverviewDemo />
-</ComponentPreview>
-
-### Card
-
-<ComponentPreview phonePresentation="none" details={<>Compose multiple skeletons to represent loading cards with images and text content.</>} code={`<div className="flex flex-col gap-3 w-[300px] p-4 border border-default rounded-xl">
+</div>
+[[/content=profile]]
+[[#content=card]]
+<div className="flex flex-col gap-3 w-[300px] p-4 border border-default rounded-xl">
   <Skeleton className="h-[150px] w-full rounded-lg" />
   <Skeleton className="h-4 w-3/4" />
   <Skeleton className="h-4 w-1/2" />
-</div>`} previewMinHeight={168}>
-  <div className="flex flex-col gap-3 w-[300px] p-4 border border-default rounded-xl">
-    <Skeleton className="h-[150px] w-full rounded-lg" />
-    <Skeleton className="h-4 w-3/4" />
-    <Skeleton className="h-4 w-1/2" />
-  </div>
-</ComponentPreview>
-
-### Text
-
-<ComponentPreview phonePresentation="none" details={<>Multiple text lines with varying widths create natural-looking paragraph placeholders.</>} code={`<div className="flex flex-col gap-2 w-[300px]">
+</div>
+[[/content=card]]
+[[#content=text]]
+<div className="flex flex-col gap-2 w-[300px]">
   <Skeleton className="h-4 w-full" />
   <Skeleton className="h-4 w-full" />
   <Skeleton className="h-4 w-4/5" />
-</div>`} previewMinHeight={168}>
-  <div className="flex flex-col gap-2 w-[300px]">
-    <Skeleton className="h-4 w-full" />
-    <Skeleton className="h-4 w-full" />
-    <Skeleton className="h-4 w-4/5" />
-  </div>
-</ComponentPreview>
-
-### Form
-
-<ComponentPreview phonePresentation="none" details={<>Form skeletons use Plex UI control sizing (32px height for inputs and buttons).</>} code={`<div className="flex flex-col gap-4 w-[300px]">
+</div>
+[[/content=text]]
+[[#content=form]]
+{/* Inputs and a button at the control height */}
+<div className="flex flex-col gap-4 w-[300px]">
   <div className="flex flex-col gap-2">
     <Skeleton className="h-4 w-[80px]" />
     <Skeleton className="h-8 w-full rounded-lg" />
@@ -65,50 +52,21 @@ import { SkeletonOverviewDemo } from "@/components/docs/SkeletonDemos"
     <Skeleton className="h-8 w-full rounded-lg" />
   </div>
   <Skeleton className="h-8 w-[120px] rounded-lg" />
-</div>`} previewMinHeight={168}>
-  <div className="flex flex-col gap-4 w-[300px]">
-    <div className="flex flex-col gap-2">
-      <Skeleton className="h-4 w-[80px]" />
-      <Skeleton className="h-8 w-full rounded-lg" />
-    </div>
-    <div className="flex flex-col gap-2">
-      <Skeleton className="h-4 w-[100px]" />
-      <Skeleton className="h-8 w-full rounded-lg" />
-    </div>
-    <Skeleton className="h-8 w-[120px] rounded-lg" />
-  </div>
-</ComponentPreview>
-
-### Table
-
-<ComponentPreview phonePresentation="none" details={<>Table skeletons show header and row structure while data loads.</>} code={`<div className="flex flex-col gap-2 w-full min-w-0 max-w-[400px]">
-  <div className="flex gap-4 pb-2 border-b border-default">
-    <Skeleton className="h-4 w-[100px]" />
-    <Skeleton className="h-4 w-[150px]" />
-    <Skeleton className="h-4 w-[80px]" />
-  </div>
-  {Array.from({ length: 4 }).map((_, i) => (
-    <div key={i} className="flex gap-4 py-2">
+</div>
+[[/content=form]]
+[[#content=table]]
+{/* A header and rows */}
+<div className="flex flex-col gap-2 w-full max-w-[400px]">
+  {Array.from({ length: 5 }, (_, i) => (
+    <div key={i} className={i === 0 ? "flex gap-4 pb-2 border-b border-default" : "flex gap-4 py-2"}>
       <Skeleton className="h-4 w-[100px]" />
       <Skeleton className="h-4 w-[150px]" />
       <Skeleton className="h-4 w-[80px]" />
     </div>
   ))}
-</div>`} previewMinHeight={168}>
-  <div className="flex flex-col gap-2 w-full min-w-0 max-w-[400px]">
-    <div className="flex gap-4 pb-2 border-b border-default">
-      <Skeleton className="h-4 w-[100px]" />
-      <Skeleton className="h-4 w-[150px]" />
-      <Skeleton className="h-4 w-[80px]" />
-    </div>
-    {Array.from({ length: 4 }).map((_, i) => (
-      <div key={i} className="flex gap-4 py-2">
-        <Skeleton className="h-4 w-[100px]" />
-        <Skeleton className="h-4 w-[150px]" />
-        <Skeleton className="h-4 w-[80px]" />
-      </div>
-    ))}
-  </div>
+</div>
+[[/content=table]]`} codeValues={{ content: "profile", circle: true }} previewMinHeight={168}>
+  <SkeletonOverviewDemo />
 </ComponentPreview>
 
 ## API

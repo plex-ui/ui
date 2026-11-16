@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 import { act, cleanup, fireEvent, render, within } from '@testing-library/react';
 import { Editor } from '@tiptap/core';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { MarkdownEditorBaseDemo, MarkdownEditorWithFieldDemo } from '../../components/docs/MarkdownEditorDemos';
+import { FORMATTED_MD, MarkdownEditorOverviewDemo } from '../../components/docs/MarkdownEditorDemos';
+import { VueMarkdownEditorDemo } from '../../components/docs/vue/VueMarkdownEditorDemos';
 import { FileUploadDemo } from '../../components/docs/FileUploadDemos';
 import { VueDemo, type VueDemoControl } from '../../components/docs/vue/VueDemo';
 import { VueFileUploadDemo } from '../../components/docs/vue/VueFileUploadDemos';
@@ -32,17 +33,15 @@ function example(page: string, name: string) {
   const template = read(name);
   const rawControls = read(`${name}Controls`);
   if (typeof template !== 'string' || !Array.isArray(rawControls)) throw new Error('Invalid demo');
-  const controls: VueDemoControl[] = rawControls.map((control: unknown) => {
-    if (!control || typeof control !== 'object' || !('name' in control) || typeof control.name !== 'string' || !('type' in control) || control.type !== 'boolean' || !('default' in control) || typeof control.default !== 'boolean') {
-      throw new Error('Invalid boolean demo control');
-    }
-    return { name: control.name, type: 'boolean', default: control.default };
-  });
+  // The controls are the MDX's own (booleans and selects), checked by VueDemo as it renders them
+  const controls = rawControls as VueDemoControl[];
   return { template, controls };
 }
 
-const editorExample = example('markdown-editor', 'base');
-const fieldExample = example('markdown-editor', 'withField');
+const editorExample = example('markdown-editor', 'overview');
+const editorDemo = (framework: string) => framework === 'React'
+  ? <MarkdownEditorOverviewDemo />
+  : <VueMarkdownEditorDemo {...editorExample} state={{ values: { empty: '', formatted: FORMATTED_MD } }} />;
 const uploadExample = example('file-upload', 'overview');
 const interact = async (action: () => void) => {
   await act(async () => { action(); await flushVue(); });
@@ -79,9 +78,9 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe.each(['React', 'Vue'])('%s editor and upload demo controls', (framework) => {
   test('editor keeps content, selection and the mounted instance through invalid and disabled', async () => {
-    const view = render(framework === 'React' ? <MarkdownEditorBaseDemo /> : <VueDemo {...editorExample} state={{ value: '' }} />);
+    const view = render(editorDemo(framework));
     const page = within(view.container);
-    const input = await page.findByRole('textbox', { name: 'Markdown content' });
+    const input = await page.findByRole('textbox', { name: 'Description' });
     const editor = editorOf(input);
     await interact(() => {
       editor.commands.insertContent('Saved content');
@@ -89,7 +88,7 @@ describe.each(['React', 'Vue'])('%s editor and upload demo controls', (framework
     });
     for (const name of ['invalid', 'disabled', 'disabled', 'invalid']) {
       await interact(() => fireEvent.click(page.getByRole('switch', { name, exact: true })));
-      expect(page.getByRole('textbox', { name: 'Markdown content' })).toBe(input);
+      expect(page.getByRole('textbox', { name: 'Description' })).toBe(input);
       expect(editorOf(input)).toBe(editor);
       expect(editor.getText()).toBe('Saved content');
       expect([editor.state.selection.from, editor.state.selection.to]).toEqual([2, 6]);
@@ -101,21 +100,38 @@ describe.each(['React', 'Vue'])('%s editor and upload demo controls', (framework
   });
 
   test('Field error is linked and toggles independently of the existing markdown', async () => {
-    const view = render(framework === 'React' ? <MarkdownEditorWithFieldDemo /> : <VueDemo {...fieldExample} state={{ value: '' }} />);
+    const view = render(editorDemo(framework));
     const page = within(view.container);
     const input = await page.findByRole('textbox', { name: 'Description' });
     const editor = editorOf(input);
     await interact(() => editor.commands.insertContent('Kept description'));
-    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'errorMessage' })));
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'invalid' })));
     expect(editor.getText()).toBe('Kept description');
     expect(input.getAttribute('aria-invalid')).toBe('true');
     expect(describedText(input)).toContain('This field is required.');
-    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'errorMessage' })));
+    await interact(() => fireEvent.click(page.getByRole('switch', { name: 'invalid' })));
     expect(page.getByRole('textbox', { name: 'Description' })).toBe(input);
     expect(editor.getText()).toBe('Kept description');
     expect(input.getAttribute('aria-invalid')).not.toBe('true');
     expect(describedText(input)).not.toContain('This field is required.');
     expect(page.queryByText('This field is required.')).toBeNull();
+  });
+
+  test('content keeps the edits of each, and formats make a new editor that drops what it does not offer', async () => {
+    const view = render(editorDemo(framework));
+    const page = within(view.container);
+    const radio = (name: string) => page.getByRole('radio', { name });
+    await interact(() => fireEvent.click(radio('formatted')));
+    const formatted = await page.findByRole('textbox', { name: 'Description' });
+    expect(formatted.querySelector('strong')?.textContent).toBe('bold');
+    expect(formatted.querySelector('ol')).not.toBeNull();
+    await interact(() => fireEvent.click(radio('bold, link')));
+    const reduced = await page.findByRole('textbox', { name: 'Description' });
+    expect(reduced).not.toBe(formatted);
+    expect(reduced.querySelector('strong')).not.toBeNull();
+    expect(reduced.querySelector('em, ol, ul')).toBeNull();
+    await interact(() => fireEvent.click(radio('empty')));
+    expect(page.getByText(/Markdown:/).textContent).toBe('Markdown: ""');
   });
 
   test('file states retain real selections and keep controls outside the preview stage', async () => {

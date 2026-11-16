@@ -4,48 +4,25 @@ description: Text with a shimmer animation for loading and in-progress states, a
 metaDescription: React shimmer text component that applies an animated gradient sweep to any text element, with pause, resume, and any semantic tag
 ---
 
-import { ShimmerText, ShimmerableText } from "@plexui/ui/components/ShimmerText"
-import { ShimmerableTextDemo } from "@/components/docs/ShimmerTextDemos"
+import { ShimmerTextOverviewDemo } from "@/components/docs/ShimmerTextDemos"
 
 <UsageBlock>{`import { ShimmerText, ShimmerableText } from "@plexui/ui/components/ShimmerText";`}</UsageBlock>
 
 ## Examples
 
+<span id="semantic-elements" />
+<span id="controllable-shimmer" />
+
 ### Overview
 
-<ComponentPreview phonePresentation="none" details={<><code>ShimmerText</code> applies a continuous shimmer animation to text content. Useful for loading states, AI-generated content indicators, or visual emphasis.</>} code={`<ShimmerText className="text-lg font-semibold">
-  Thinking...
-</ShimmerText>`} previewMinHeight={168}>
-  <ShimmerText className="text-lg font-semibold">
-    Thinking...
-  </ShimmerText>
-</ComponentPreview>
+<ComponentPreview phonePresentation="none" details={<><code>ShimmerText</code> applies a continuous shimmer to text: for loading states, AI-generated content in progress, or visual emphasis. <code>as</code> renders it as any text element: <code>p</code>, <code>span</code>, <code>h1</code> to <code>h6</code>, or <code>div</code> (default).<br /><br /><code>ShimmerableText</code> turns the shimmer on and off with <code>shimmer</code>, for text that moves between a loading and an idle state. Set to <code>false</code>, the animation finishes its current sweep and then pauses, with no abrupt cut.</>} code={`// Always shimmering: ShimmerText
+// Shimmering while loading: ShimmerableText, which off finishes its sweep and stops
+const [shimmer, setShimmer] = useState([[shimmer]]);
 
-### Semantic elements
-
-<ComponentPreview phonePresentation="none" details={<>Use the <code>as</code> prop to render as any text element: <code>p</code>, <code>span</code>, <code>h1</code> to <code>h6</code>, or <code>div</code>.</>} code={`<div className="flex flex-col gap-4">
-  <ShimmerText as="h2" className="text-2xl font-bold">Heading shimmer</ShimmerText>
-  <ShimmerText as="p" className="text-base">Paragraph shimmer effect</ShimmerText>
-  <ShimmerText as="span" className="text-sm text-secondary">Inline shimmer</ShimmerText>
-</div>`} previewMinHeight={168}>
-  <div className="flex flex-col gap-4">
-    <ShimmerText as="h2" className="text-2xl font-bold">Heading shimmer</ShimmerText>
-    <ShimmerText as="p" className="text-base">Paragraph shimmer effect</ShimmerText>
-    <ShimmerText as="span" className="text-sm text-secondary">Inline shimmer</ShimmerText>
-  </div>
-</ComponentPreview>
-
-### Controllable shimmer
-
-<ComponentPreview phonePresentation="none" details={<>
-  <p><code>ShimmerableText</code> allows toggling the shimmer on and off. When <code>shimmer</code> is set to <code>false</code>, the animation finishes its current iteration and then pauses gracefully, with no abrupt cut.</p>
-  <p>Use this variant when text transitions between a loading and idle state.</p>
-</>} code={`const [shimmer, setShimmer] = useState(true)
-
-<ShimmerableText shimmer={shimmer} className="text-lg font-semibold">
+<ShimmerableText[[^as=div]] as="[[as]]"[[/as=div]] shimmer={shimmer} className="[[#as=div]]text-lg font-semibold[[/as=div]][[#as=h2]]text-2xl font-bold[[/as=h2]][[#as=p]]text-base[[/as=p]][[#as=span]]text-sm text-secondary[[/as=span]]">
   Generating response...
-</ShimmerableText>`} previewMinHeight={168}>
-  <ShimmerableTextDemo />
+</ShimmerableText>`} codeValues={{ as: "div", shimmer: true }} previewMinHeight={168}>
+  <ShimmerTextOverviewDemo />
 </ComponentPreview>
 
 ## API

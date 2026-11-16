@@ -4,7 +4,7 @@ import { ButtonLink } from '@plexui/ui/components/Button';
 import { ArrowLeftSm, ArrowRightSm } from '@plexui/ui/components/Icon';
 import { usePathname } from 'fumadocs-core/framework';
 import { useFooterItems } from 'fumadocs-ui/utils/use-footer-items';
-import { frameworkUrl, reactPath } from '@/lib/framework-urls';
+import { frameworkUrl, reactPath, treeUrlOf } from '@/lib/framework-urls';
 import s from './PageNav.module.css';
 
 function normalizePath(path: string) {
@@ -19,7 +19,8 @@ export function PageNav({
   className?: string;
   compact?: boolean;
 }) {
-  const pathname = normalizePath(usePathname());
+  // Composables steps from the Hooks entry, the one entry of both pages
+  const pathname = treeUrlOf(normalizePath(usePathname()));
   // Vue pages navigate through the same (React) tree, with links mapped to
   // the Vue pages that exist
   const items = useFooterItems()

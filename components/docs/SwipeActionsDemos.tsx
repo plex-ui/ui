@@ -7,12 +7,16 @@ import { Page } from '@plexui/ui/components/Page';
 import { SwipeActions } from '@plexui/ui/components/SwipeActions';
 import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { SWIPE_LISTS, SWIPE_MESSAGES } from './swipeActionsData';
+import { controlsTableStyle, Segments } from './ButtonDemos';
 import s from './PageDemos.module.css';
 import r from './SwipeActionsDemos.module.css';
 
-function ListsDemo({ labelPlacement }: { labelPlacement?: 'hidden' | 'inside' }) {
-  const [lists, setLists] = useState(SWIPE_LISTS);
-  const [pinned, setPinned] = useState<string[]>(['Groceries']);
+type ListsState = { lists: readonly string[]; pinned: string[] };
+type MessagesState = { messages: typeof SWIPE_MESSAGES; flagged: string[] };
+
+function ListsDemo({ labelPlacement, state: { lists, pinned }, onState }: { labelPlacement: 'hidden' | 'inside'; state: ListsState; onState: (update: (state: ListsState) => ListsState) => void }) {
+  const setLists = (update: (current: readonly string[]) => readonly string[]) => onState((state) => ({ ...state, lists: update(state.lists) }));
+  const setPinned = (update: (current: string[]) => string[]) => onState((state) => ({ ...state, pinned: update(state.pinned) }));
   const remove = (name: string) => setLists((current) => current.filter((item) => item !== name));
   const row = (name: string) => {
     const isPinned = pinned.includes(name);
@@ -58,17 +62,33 @@ function ListsDemo({ labelPlacement }: { labelPlacement?: 'hidden' | 'inside' })
   );
 }
 
+const PLACEMENTS = ['hidden', 'inside', 'below'] as const;
+
+/**
+ * The Overview, with every setting of the actions (row 33: one example per content, owner 11.11): the labels hidden,
+ * inside or below the capsules were three examples of one list. iOS 27.2 sets its labels below from a row of 60px, so
+ * `below` shows the two-line rows of an inbox and the others the one-line rows of the lists.
+ */
 export function SwipeActionsOverviewDemo() {
-  return <ListsDemo />;
+  const [labelPlacement, setLabelPlacement] = useState<(typeof PLACEMENTS)[number]>('hidden');
+  // Each list keeps what was removed, pinned or flagged while the other one shows
+  const [lists, setLists] = useState<ListsState>({ lists: SWIPE_LISTS, pinned: ['Groceries'] });
+  const [messages, setMessages] = useState<MessagesState>({ messages: SWIPE_MESSAGES, flagged: [] });
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <Segments name="labelPlacement" options={PLACEMENTS} value={labelPlacement} onChange={setLabelPlacement} />
+      </div>
+      {labelPlacement === 'below'
+        ? <MessagesDemo state={messages} onState={setMessages} />
+        : <ListsDemo labelPlacement={labelPlacement} state={lists} onState={setLists} />}
+    </>
+  );
 }
 
-export function SwipeActionsLabelsInsideDemo() {
-  return <ListsDemo labelPlacement="inside" />;
-}
-
-export function SwipeActionsLabelsBelowDemo() {
-  const [messages, setMessages] = useState(SWIPE_MESSAGES);
-  const [flagged, setFlagged] = useState<string[]>([]);
+function MessagesDemo({ state: { messages, flagged }, onState }: { state: MessagesState; onState: (update: (state: MessagesState) => MessagesState) => void }) {
+  const setMessages = (update: (current: MessagesState['messages']) => MessagesState['messages']) => onState((state) => ({ ...state, messages: update(state.messages) }));
+  const setFlagged = (update: (current: string[]) => string[]) => onState((state) => ({ ...state, flagged: update(state.flagged) }));
   const remove = (id: string) => setMessages((current) => current.filter((item) => item.id !== id));
   return (
     <div data-demo-stage className={s.Stage}>

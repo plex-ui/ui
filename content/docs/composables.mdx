@@ -3,6 +3,11 @@ title: Composables
 description: Plex UI Vue composables reference, the Vue counterparts of the React hooks, from useBreakpoint to useSimulatedProgress and useTextSelection.
 ---
 
+import { FrameworkSwitch } from "@/components/docs/FrameworkSwitch"
+
+<FrameworkSwitch framework="vue" hrefs={{ react: "/docs/hooks", vue: "/docs/composables" }} />
+
+
 `@plexui/vue` ships the hooks that carry behaviour as Vue composables, one module per hook under `@plexui/vue/composables/<name>`. They accept refs and getters (`MaybeRefOrGetter`) where the React hook takes plain values, return refs where it returns state, and clean up when the calling component unmounts. They are safe to call during SSR: listeners, observers, timers and media queries start once the component is mounted or its element ref is set. `useBreakpoint` is `false` on the server and in the client's first render, so hydration matches; `useDocumentVisible` is `true` on the server and reads `document.visibilityState` on the client.
 
 ## useAnimatedScrollTo

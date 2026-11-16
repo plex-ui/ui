@@ -1,19 +1,10 @@
 ---
 title: Sidebar
-description: Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu
-metaDescription: Composable React navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu
+description: Composable navigation sidebar for app shells, folding to an icon rail, with submenus, badges, search, a footer card or person menu, and a mobile menu
+metaDescription: Composable React navigation sidebar for app shells, folding to an icon rail, with submenus, badges, search, a footer card or person menu, and a mobile menu
 ---
 
-import {
-  SidebarBaseDemo,
-  SidebarConsoleDemo,
-  SidebarAppDemo,
-  SidebarNestedDemo,
-  SidebarFilteredTreeDemo,
-  SidebarActionTreeDemo,
-  SidebarSearchDemo,
-  SidebarMobileDemo,
-} from "@/components/docs/SidebarDemos"
+import { SidebarOverviewDemo, SidebarMobileDemo } from "@/components/docs/SidebarDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 <UsageBlock>{`import {
@@ -37,311 +28,135 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 The examples use local `ResponsiveSidebarProvider`, `ResponsiveSidebar` and `SidebarDemoPage` helpers from [Responsive composition](#responsive-composition). They keep the desktop rail and use the existing `SidebarMobile` drawer with a `Page` toolbar on phones. The mobile presentation is a navigation adaptation, not an iPad sidebar squeezed into a phone. On a phone the examples leave out the controls that only change the desktop sidebar, `open`, `collapsible` and `labelSize`: the drawer is the same with each of them.
 
 
-### App Shell
+{/* The examples App Shell, App, Basic, Collapsible Sections, Search and Filter, Tree with Hover Actions and Search Input
+    are the settings of the Overview (owner 16.11: «Sidebar: Overview плюс Mobile Menu»); their anchors stay */}
+<span id="app-shell" />
+<span id="app" />
+<span id="basic" />
+<span id="collapsible-sections" />
+<span id="search-and-filter" />
+<span id="tree-with-hover-actions" />
+<span id="search-input" />
 
-<ComponentPreview phonePresentation="screen" details={<>A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. Inbox carries a quiet count <code>Badge</code>, as the inbox of a platform does. When collapsed (icon mode), hovering a parent icon opens a <code>Popover</code> flyout listing the section&apos;s items so users keep one-click access without expanding the rail.</>} code={`<ResponsiveSidebarProvider collapsible="icon">
-  <SidebarLayout style={{ height: 600 }}>
-    <ResponsiveSidebar>
-      <SidebarHeader>
-        <span>Console</span>
-        <SidebarTrigger />
-      </SidebarHeader>
-      <SidebarContent>
-        {/* Workspace selector */}
-        <SidebarMenuItem>
-          <Menu>
-            <Menu.Trigger>
-              <SidebarMenuButton tooltip="Default workspace">
-                <SidebarMenuButtonIcon><Cube /></SidebarMenuButtonIcon>
-                <SidebarMenuButtonLabel>Default</SidebarMenuButtonLabel>
-                <ChevronUpDown className="ml-auto" />
-              </SidebarMenuButton>
-            </Menu.Trigger>
-            <Menu.Content>...</Menu.Content>
-          </Menu>
-        </SidebarMenuItem>
+### Overview
 
-        {/* Parent section: hover flyout when collapsed */}
-        {state === "collapsed" ? (
-          <Popover showOnHover>
-            <Popover.Trigger>
-              <SidebarMenuButton>
-                <SidebarMenuButtonIcon><SettingsWrench /></SidebarMenuButtonIcon>
-                <SidebarMenuButtonLabel>Build</SidebarMenuButtonLabel>
-                <SidebarMenuChevron />
-              </SidebarMenuButton>
-            </Popover.Trigger>
-            <Popover.Content side="right" minWidth={220}>
-              <div>Build / Workbench / Files / Skills / Batches</div>
-            </Popover.Content>
-          </Popover>
-        ) : (
-          <SidebarMenuItem expanded={isExpanded}>
-            <SidebarMenuButton onClick={toggle}>
-              <SidebarMenuButtonIcon><SettingsWrench /></SidebarMenuButtonIcon>
-              <SidebarMenuButtonLabel>Build</SidebarMenuButtonLabel>
-              <SidebarMenuChevron />
-            </SidebarMenuButton>
-            <SidebarMenuSub open={isExpanded} hasIcons>
-              <SidebarMenuSubButton indent={1}>Workbench</SidebarMenuSubButton>
-              ...
-            </SidebarMenuSub>
-          </SidebarMenuItem>
-        )}
-      </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenuButton><Book /> Documentation</SidebarMenuButton>
-        <Menu>
-          <Menu.Trigger>
-            <SidebarMenuButton>
-              <Avatar name="Alex" />
-              <SidebarMenuButtonLabel>Alex · Admin</SidebarMenuButtonLabel>
-            </SidebarMenuButton>
-          </Menu.Trigger>
-          <Menu.Content>...</Menu.Content>
-        </Menu>
-      </SidebarFooter>
-    </ResponsiveSidebar>
-    <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
-  </SidebarLayout>
-</ResponsiveSidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
-  <SidebarConsoleDemo />
-</ComponentPreview>
+<ComponentPreview phonePresentation="screen" details={<>Use <code>variant</code> for the look of the whole shell: <code>"app"</code> is the sidebar of a product, 260px, pill rows on a grey ground and a page with no inset. <code>collapsible</code> sets how the sidebar folds, to an icon rail or off the canvas, and <code>open</code> folds it (or press <kbd>⌘B</kbd>). Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. <code>labelSize</code> sets the group labels, <code>icons</code> the icons of the rows (a sidebar without them does not fold to a rail).<br /><br /><code>badges</code> puts a <code>Badge</code> in <code>SidebarMenuBadge</code>: it sits as far from the row's edge as from its top and bottom, its digits end where plain counts and the chevron end, and in the folded rail it becomes a dot of its color above the icon. <code>submenus</code> turns Settings into a row with a submenu: a <code>SidebarMenuItem</code> whose <code>SidebarMenuSub</code> holds the next level; <code>expanded</code> on the item turns its <code>SidebarMenuChevron</code> and <code>open</code> on the submenu shows it. Set <code>--sidebar-menu-sub-max-height</code> to a submenu's real height for an even fold. <code>search</code> adds a <code>SidebarInput</code>, an <code>Input</code> with a search icon that takes every Input prop, and narrows the rows to the ones that match. <code>footer</code> holds a dismissible <code>SidebarCard</code> or a person row whose <code>Menu</code> opens above it; the person row is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. <code>bordered</code> sets the inset page of the default variant against a flat one.<br /><br />On a phone the toolbar opens the same navigation tree in a full-screen drawer, so the Phone view leaves out <code>collapsible</code>, <code>open</code> and <code>labelSize</code>.</>} code={`// Inside the provider: a folded icon rail shows no submenu (its rows would be clipped and still focusable)
+function SettingsItem({ icons, shown, onToggle, children }) {
+  const { state, isMobile } = useSidebar()
+  const expanded = shown && (state !== "collapsed" || isMobile)
+  return (
+    <SidebarMenuItem expanded={expanded}>
+      <SidebarMenuButton tooltip="Settings" aria-expanded={expanded} aria-controls="settings-items" onClick={onToggle}>
+        {icons && <SidebarMenuButtonIcon><SettingsCog /></SidebarMenuButtonIcon>}
+        <SidebarMenuButtonLabel>Settings</SidebarMenuButtonLabel>
+        <SidebarMenuChevron />
+      </SidebarMenuButton>
+      <SidebarMenuSub id="settings-items" open={expanded} hasIcons={icons}>{children}</SidebarMenuSub>
+    </SidebarMenuItem>
+  )
+}
 
-### App
-
-<ComponentPreview phonePresentation="screen" details={<>The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A <code>Badge</code> in <code>SidebarMenuBadge</code> sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a <code>Menu</code> beside the icon when folded. The person row in the footer is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. In these examples, the phone toolbar opens the same navigation tree in a full-screen drawer. Set <code>--sidebar-menu-sub-max-height</code> to a group's real height for an even fold.</>} code={`<ResponsiveSidebarProvider collapsible="icon" variant="app">
-  <SidebarLayout>
-    <ResponsiveSidebar>
-      <SidebarHeader>
-        <span>App</span>
-        <SidebarTrigger />
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton isActive tooltip="Notifications">
-              <SidebarMenuButtonIcon><Bell /></SidebarMenuButtonIcon>
-              <SidebarMenuButtonLabel>Notifications</SidebarMenuButtonLabel>
-              <SidebarMenuBadge>
-                <Badge color="danger" variant="solid" pill>4</Badge>
-              </SidebarMenuBadge>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Favorites">
-              <SidebarMenuButtonIcon><Bookmark /></SidebarMenuButtonIcon>
-              <SidebarMenuButtonLabel>Favorites</SidebarMenuButtonLabel>
-              <SidebarMenuBadge>3</SidebarMenuBadge>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem expanded={open}>
-            <SidebarMenuButton aria-expanded={open} onClick={toggle}>
-              <SidebarMenuButtonIcon><FileDocument /></SidebarMenuButtonIcon>
-              <SidebarMenuButtonLabel>Documents</SidebarMenuButtonLabel>
-              <SidebarMenuChevron />
-            </SidebarMenuButton>
-            <SidebarMenuSub open={open} hasIcons>
-              <SidebarMenuSubItem>
-                <SidebarMenuSubButton indent={1}>
-                  All documents
-                  <SidebarMenuBadge>156</SidebarMenuBadge>
-                </SidebarMenuSubButton>
-              </SidebarMenuSubItem>
-            </SidebarMenuSub>
-          </SidebarMenuItem>
-          {/* ...Shared with me, Archive, Settings */}
-        </SidebarMenu>
-      </SidebarContent>
-      <SidebarFooter>...</SidebarFooter>
-    </ResponsiveSidebar>
-    <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
-  </SidebarLayout>
-</ResponsiveSidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
-  <SidebarAppDemo />
-</ComponentPreview>
-
-### Basic
-
-<ComponentPreview phonePresentation="screen" code={`<ResponsiveSidebarProvider collapsible="icon">
-  <SidebarLayout style={{ height: 500 }}>
-    <ResponsiveSidebar>
-      <SidebarHeader>
-        <span>App</span>
-        <SidebarTrigger />
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton isActive tooltip="Overview">
-                  <SidebarMenuButtonIcon><Home /></SidebarMenuButtonIcon>
-                  <SidebarMenuButtonLabel>Overview</SidebarMenuButtonLabel>
-                  <SidebarMenuBadge><Badge size="sm" color="info">3</Badge></SidebarMenuBadge>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              ...
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </ResponsiveSidebar>
-    <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
-  </SidebarLayout>
-</ResponsiveSidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
-  <SidebarBaseDemo />
-</ComponentPreview>
-
-### Collapsible Sections
-
-<ComponentPreview phonePresentation="screen" details={<>Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. A parent is a <code>SidebarMenuItem</code> whose <code>SidebarMenuSub</code> holds the next level; <code>expanded</code> on the item turns its <code>SidebarMenuChevron</code> and <code>open</code> on the submenu shows it.</>} code={`const [expanded, setExpanded] = useState<string[]>([]);
-const toggle = (id: string) =>
-  setExpanded((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+const [active, setActive] = useState("Overview")
+const [settingsOpen, setSettingsOpen] = useState(true)
+const [query, setQuery] = useState("")
+const [card, setCard] = useState(true)
+// search narrows the rows to the ones that match
+const hit = (label) => !search || label.toLowerCase().includes(query.trim().toLowerCase())
+const settingsItems = ["General", "Billing", "Members"].filter((item) => hit("Settings") || hit(item))
+const settingsShown = settingsOpen || (search && query.trim() !== "")
 
 return (
-  <ResponsiveSidebarProvider collapsible="none">
-    <SidebarLayout style={{ height: 500 }}>
-      <ResponsiveSidebar variant="docs">
+  <ResponsiveSidebarProvider variant={variant} collapsible={collapsible} open={open} onOpenChange={setOpen}>
+    <SidebarLayout>
+      <ResponsiveSidebar>
+        <SidebarHeader>
+          <span className="wordmark">App</span>
+          <SidebarTrigger />
+        </SidebarHeader>
         <SidebarContent>
+          {search && (
+            <SidebarInput variant="soft" placeholder="Search" value={query}
+              onChange={(e) => setQuery(e.target.value)} onClear={() => setQuery("")} />
+          )}
           <SidebarGroup>
-            <SidebarGroupLabel>API Reference</SidebarGroupLabel>
+            <SidebarGroupLabel size={labelSize}>Project</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem expanded={expanded.includes("responses")}>
-                  <SidebarMenuSubButton onClick={() => toggle("responses")}>
-                    Responses
-                    <SidebarMenuChevron />
-                  </SidebarMenuSubButton>
-                  <SidebarMenuSub open={expanded.includes("responses")}>
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton indent={1} isActive>Create</SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                    ...
-                  </SidebarMenuSub>
-                </SidebarMenuItem>
-                ...
+                {hit("Projects") && <SidebarMenuItem>
+                  <SidebarMenuButton isActive={active === "Projects"} tooltip="Projects" onClick={() => setActive("Projects")}>
+                    {icons && <SidebarMenuButtonIcon><Folder /></SidebarMenuButtonIcon>}
+                    <SidebarMenuButtonLabel>Projects</SidebarMenuButtonLabel>
+                    {badges && <SidebarMenuBadge><Badge size="sm" color="info">New</Badge></SidebarMenuBadge>}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>}
+                {/* Overview, Assets, Analytics… */}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel size={labelSize}>System</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {/* submenus: a row that opens its items (without them, Settings is a plain row) */}
+                {submenus && (hit("Settings") || settingsItems.length > 0) && (
+                  <SettingsItem icons={icons} shown={settingsShown} onToggle={() => setSettingsOpen(!settingsOpen)}>
+                    {settingsItems.map((item) => (
+                      <SidebarMenuSubItem key={item}>
+                        <SidebarMenuSubButton indent={1} isActive={active === item} onClick={() => setActive(item)}>
+                          {item}
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SettingsItem>
+                )}
+                {!submenus && hit("Settings") && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton isActive={active === "Settings"} tooltip="Settings" onClick={() => setActive("Settings")}>
+                      {icons && <SidebarMenuButtonIcon><SettingsCog /></SidebarMenuButtonIcon>}
+                      <SidebarMenuButtonLabel>Settings</SidebarMenuButtonLabel>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
+        {footer === "card" && card && (
+          <SidebarFooter>
+            <SidebarCard dismissible onDismiss={() => setCard(false)}>
+              <SidebarCardTitleLink href="/pricing">Upgrade to Pro</SidebarCardTitleLink>
+              <SidebarCardContent>Unlock higher rate limits, priority support, and advanced features.</SidebarCardContent>
+              <SidebarCardFooter><Button size="sm" pill color="primary">View Plans</Button></SidebarCardFooter>
+            </SidebarCard>
+          </SidebarFooter>
+        )}
+        {footer === "user" && (
+          <SidebarFooter>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <Menu>
+                  <Menu.Trigger>
+                    <SidebarMenuButton tooltip="Sam Lee">
+                      <SidebarMenuButtonIcon><Avatar name="Sam Lee" size={24} color="secondary" variant="solid" /></SidebarMenuButtonIcon>
+                      <SidebarMenuButtonLabel>Sam Lee</SidebarMenuButtonLabel>
+                    </SidebarMenuButton>
+                  </Menu.Trigger>
+                  <Menu.Content side="top" align="start" minWidth={220}>
+                    <Menu.Item><Members /> Account</Menu.Item>
+                    <Menu.Separator />
+                    <Menu.Item><Logout /> Sign out</Menu.Item>
+                  </Menu.Content>
+                </Menu>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+        )}
       </ResponsiveSidebar>
-      <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
+      <SidebarDemoPage title={active}>…</SidebarDemoPage>
     </SidebarLayout>
   </ResponsiveSidebarProvider>
-);`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarTall}>
-  <SidebarNestedDemo />
-</ComponentPreview>
-
-### Search and Filter
-
-<ComponentPreview phonePresentation="screen" details={<>Combine search and type-based filtering with nested tree navigation. Each item has an icon based on its type. A <code>Menu</code> with checkbox items filters items by type.</>} code={`const subMenuId = useId();
-
-<ResponsiveSidebarProvider collapsible="none">
-  <SidebarLayout style={{ height: 650 }}>
-    <ResponsiveSidebar>
-      <SidebarHeader>
-        <div className="flex items-center gap-2 w-full">
-          <div className="flex-1">
-            <SidebarInput
-              variant="soft"
-              placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onClear={() => setSearch("")}
-            />
-          </div>
-          <Menu>
-            <Menu.Trigger>
-              <Button variant="soft" color="secondary" uniform aria-label="Filter by type">
-                {typeFilters.length > 0 ? <FilterBadge /> : <Filter />}
-              </Button>
-            </Menu.Trigger>
-            <Menu.Content minWidth="auto" align="end">
-              {stepFilterOptions.map((option) => (
-                <Menu.CheckboxItem
-                  key={option.value}
-                  checked={typeFilters.includes(option.value)}
-                  indicatorPosition="end"
-                  indicatorVariant="ghost"
-                  onCheckedChange={(checked) =>
-                    setTypeFilters((prev) =>
-                      checked ? [...prev, option.value] : prev.filter((v) => v !== option.value),
-                    )
-                  }
-                  onSelect={(event) => event.preventDefault()}
-                >
-                  {option.label}
-                </Menu.CheckboxItem>
-              ))}
-            </Menu.Content>
-          </Menu>
-        </div>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem expanded={expanded}>
-                <div className="flex items-center">
-                  <SidebarMenuButton className="!w-auto min-w-0 flex-1" isActive={activeItem === id} onClick={() => setActiveItem(id)}>
-                    <SidebarMenuButtonIcon><Desktop /></SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>{label}</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                  <Button variant="ghost" color="secondary" size="xs" uniform
-                    className="!size-[26px] max-md:!size-11 [&_svg]:!size-4"
-                    aria-label={(expanded ? "Collapse " : "Expand ") + label}
-                    aria-expanded={expanded} aria-controls={subMenuId} onClick={() => setExpanded(!expanded)}>
-                    <ChevronDownMd aria-hidden="true" style={{ transform: expanded ? "rotate(0deg)" : "rotate(-90deg)" }} />
-                  </Button>
-                </div>
-                <SidebarMenuSub id={subMenuId} open={expanded}>...</SidebarMenuSub>
-              </SidebarMenuItem>
-              ...
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </ResponsiveSidebar>
-    <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
-  </SidebarLayout>
-</ResponsiveSidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
-  <SidebarFilteredTreeDemo />
-</ComponentPreview>
-
-### Tree with Hover Actions
-
-<ComponentPreview phonePresentation="screen" details={<>Tree navigation with independent selection, disclosure and action buttons. Tab reaches each control; Enter and Space activate it. Actions appear on hover or keyboard focus on desktop and stay visible on Phone. The controls occupy separate columns, with 44px touch targets on Phone.</>} code={`const treeId = useId();
-const subMenuId = treeId + "-" + id;
-
-<SidebarMenuItem expanded={isExpanded}>
-  <div className="group/row flex items-center">
-    <Button variant="ghost" color="secondary" size="xs" uniform
-      className="!size-6 max-md:!size-11 [&_svg]:!size-4"
-      aria-label={(isExpanded ? "Collapse " : "Expand ") + label}
-      aria-expanded={isExpanded} aria-controls={subMenuId}
-      onClick={() => toggleExpanded(id)}>
-      <ChevronDownMd aria-hidden="true" style={{ transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)" }} />
-    </Button>
-    <SidebarMenuButton className="!w-auto min-w-0 flex-1" isActive={activeItem === id} onClick={() => setActiveItem(id)}>
-      <SidebarMenuButtonIcon><Icon /></SidebarMenuButtonIcon>
-      <SidebarMenuButtonLabel>{label}</SidebarMenuButtonLabel>
-    </SidebarMenuButton>
-    <span className="flex shrink-0 opacity-0 pointer-events-none group-hover/row:opacity-100 group-hover/row:pointer-events-auto group-focus-within/row:opacity-100 group-focus-within/row:pointer-events-auto max-md:opacity-100 max-md:pointer-events-auto">
-      <Menu>
-        <Menu.Trigger>
-          <Button variant="ghost" color="secondary" size="xs" uniform className="!size-6 max-md:!size-11" aria-label={"Add to " + label}>
-            <Plus />
-          </Button>
-        </Menu.Trigger>
-        <Menu.Content minWidth="auto" align="end">...</Menu.Content>
-      </Menu>
-    </span>
-  </div>
-  <SidebarMenuSub id={subMenuId} open={isExpanded} hasIcons>...</SidebarMenuSub>
-</SidebarMenuItem>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
-  <SidebarActionTreeDemo />
+)`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
+  <SidebarOverviewDemo />
 </ComponentPreview>
 
 ### Mobile Menu
@@ -358,39 +173,6 @@ const subMenuId = treeId + "-" + id;
 </ComponentPreview>
 
 
-### Search Input
-
-<ComponentPreview phonePresentation="screen" details={<>The sidebar provides a dedicated <code>SidebarInput</code> component for search functionality. It forwards everything to <code>Input</code>, so control it with <code>value</code> and <code>onChange</code> and clear it with <code>onClear</code>.</>} code={`<ResponsiveSidebarProvider collapsible="none">
-  <SidebarLayout style={{ height: 500 }}>
-    <ResponsiveSidebar variant="docs">
-      <SidebarHeader>
-        <SidebarInput
-          variant="soft"
-          placeholder="Search"
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          onClear={() => setSearchValue("")}
-        />
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Get started</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuSubButton indent={0} isActive>Overview</SidebarMenuSubButton>
-              </SidebarMenuItem>
-              ...
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </ResponsiveSidebar>
-    <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
-  </SidebarLayout>
-</ResponsiveSidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
-  <SidebarSearchDemo />
-</ComponentPreview>
 
 ## Responsive composition
 

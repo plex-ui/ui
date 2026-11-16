@@ -94,7 +94,6 @@ const footerColumns: FooterColumn[] = [
         { label: 'Typography', href: '/docs/foundations/typography' },
         { label: 'Concepts', href: '/docs/concepts' },
         { label: 'Hooks', href: '/docs/hooks' },
-        { label: 'Composables', href: '/docs/composables' },
         { label: 'Transitions', href: '/docs/transitions' },
       ],
     },

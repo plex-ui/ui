@@ -232,8 +232,9 @@ export const FOUNDATIONS: DocsGroup = {
     // a 2-item group felt thin. They're runtime utilities the user
     // reaches for when building with the system, so they belong
     // alongside the other Foundations references.
+    // Hooks (React) and Composables (Vue) are one page behind the React / Vue switch (owner 16.11); the entry stays
+    // lit on both (components/layout/SidebarItemWithBadge.tsx)
     { label: 'Hooks', url: '/docs/hooks' },
-    { label: 'Composables', url: '/docs/composables' },
     { label: 'Transitions', url: '/docs/transitions' },
   ],
 };

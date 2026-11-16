@@ -487,7 +487,7 @@ Props:
   Label:
     - htmlFor (string) default: — — id of the associated control. Clicks on the label focus or activate the control.
     - className (string) default: — — Applied to the root <label> element
-Examples: Overview, Group, Action rows, Spacing between groups, Other controls, Label action, Label, Several controls, Sizing, Optical alignment
+Examples: Overview, Group, Action rows, Spacing between groups, Other controls, Label, Several controls
 
 ## File Upload
 Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
@@ -642,7 +642,7 @@ Props:
     - platform ("apple" | "other") — The keyboard to print for; by default the browser's (Apple on the server)
     - size ("xs" | "sm" | "md") default: "sm" — As Kbd
     - variant ("soft" | "outline") default: "soft" — As Kbd
-Examples: Overview, Shortcut, Modifier, Sizes and variants, In a tooltip and a menu
+Examples: Overview, In a tooltip and a menu
 
 ## Markdown Editor
 Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.
@@ -666,7 +666,7 @@ Props:
   - aria-describedby (string) — aria-describedby of the editable element (Field sets it)
   - aria-invalid (boolean) — Sets aria-invalid on the editable element and the invalid style (Field sets it with errorMessage)
   - className (string) — Applied to the container
-Examples: Placeholder, All formatting, Formats and line breaks, With Field, Toolbar end slot, Variants
+Examples: Overview
 
 ## Markdown
 Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
@@ -772,7 +772,7 @@ Props:
   - disabled (boolean) default: false — Disable all cells
   - autoFocus (boolean) default: false — Auto-focus first cell on mount
   - className (string) — Applied to the root element
-Examples: Overview, Grouped (3+3)
+Examples: Overview
 
 ## Page Control
 A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
@@ -868,7 +868,7 @@ Props:
   - segments (ProgressSegment[]) default: — — Parts of one bar side by side: { value, color?, label? }, color one of primary, secondary, success, warning, caution, danger, info, discovery. Takes the place of value.
   - getValueLabel ((value: number, max: number) => string) default: — — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
   - className (string) default: — — Applied to the root <div>
-Examples: Overview, With label, Controlled, Segments
+Examples: Overview, Segments
 
 ## Radio Group
 Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.
@@ -1006,7 +1006,7 @@ Props:
   - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the divider
   - decorative (boolean) default: true — When true, the separator is ignored by assistive technologies. Set false when the divider carries semantic grouping (renders role="separator").
   - className (string) default: — — Applied to the root <div>
-Examples: Overview, Vertical, Menu, List
+Examples: Overview
 
 ## Shimmer Text
 Text with a shimmer animation for loading and in-progress states, always on or toggled with a graceful stop.
@@ -1021,10 +1021,10 @@ Props:
     - shimmer (boolean) default: false — Whether the shimmer animation is active
     - children (ReactNode) — Text content to shimmer
     - className (string) — Additional CSS classes
-Examples: Overview, Semantic elements, Controllable shimmer
+Examples: Overview
 
 ## Sidebar
-Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu
+Composable navigation sidebar for app shells, folding to an icon rail, with submenus, badges, search, a footer card or person menu, and a mobile menu
 Import: import { SidebarProvider, SidebarLayout, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger } from "@plexui/ui/components/Sidebar"
 Docs: https://plexui.com/components/sidebar
 Props:
@@ -1067,7 +1067,7 @@ Props:
     - variant ("default" | "elevated") default: "default" — Visual variant
     - dismissible (boolean) default: false — Shows dismiss button
     - onDismiss (() => void) — Callback when dismissed
-Examples: App Shell, App, Basic, Collapsible Sections, Search and Filter, Tree with Hover Actions, Mobile Menu, Search Input
+Examples: Overview, Mobile Menu
 
 ## Skeleton
 Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.
@@ -1076,7 +1076,7 @@ Docs: https://plexui.com/components/skeleton
 Props:
   - circle (boolean) default: false — Render a circular skeleton
   - className (string) — Set dimensions and custom styling
-Examples: Overview, Card, Text, Form, Table
+Examples: Overview
 
 ## Slider
 Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.
@@ -1200,7 +1200,7 @@ Props:
     - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "secondary" — Solid color of the action
     - onSelect (() => void) — Called when the action is pressed, or by a full swipe when it is the first action of its side
     - role ("destructive") — The action removes the row: the row slides out and collapses, as iOS deletes a row, and `onSelect` comes at the end of that for the list to drop it. A row the list keeps comes back.
-Examples: Overview, Labels inside, Labels below
+Examples: Overview
 
 ## Switch
 Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.

@@ -22,3 +22,13 @@ export function frameworkUrl(pathname: string, url: string): string {
   const match = url.match(/^\/components\/([^/]+)$/);
   return match && VUE_COMPONENT_SLUGS.has(match[1]) ? `/vue/components/${match[1]}` : url;
 }
+
+/**
+ * Pages of one entry in the docs tree, a React and a Vue page under the entry's url (Hooks and Composables, owner
+ * 16.11): the sidebar highlights the entry and the page arrows step from it on either page.
+ */
+export const SAME_PAGE_URLS: Record<string, readonly string[]> = { '/docs/hooks': ['/docs/composables'] };
+
+/** The tree entry's url of a page that is one of SAME_PAGE_URLS, else the page itself */
+export const treeUrlOf = (pathname: string): string =>
+  Object.entries(SAME_PAGE_URLS).find(([, urls]) => urls.includes(pathname))?.[0] ?? pathname;

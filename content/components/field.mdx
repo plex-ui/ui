@@ -11,10 +11,7 @@ import {
   FieldActionRowsDemo,
   FieldGroupSpacingDemo,
   FieldControlsDemo,
-  FieldLabelActionDemo,
   FieldSeveralControlsDemo,
-  FieldSizingDemo,
-  FieldOpticalAlignDemo,
 } from "@/components/docs/FieldDemos"
 import { LabelOverviewDemo } from "@/components/docs/LabelDemos"
 
@@ -23,6 +20,10 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";
 import { Label } from "@plexui/ui/components/Label";`}</UsageBlock>
 
 ## Examples
+
+<span id="label-action" />
+<span id="sizing" />
+<span id="optical-alignment" />
 
 ### Overview
 
@@ -35,6 +36,9 @@ import { Label } from "@plexui/ui/components/Label";`}</UsageBlock>
     <li><strong>hidden</strong>: <code>hideLabel</code>. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field.</li>
   </ul>
   <p>On Phone a field is always a cell of a <code>FieldGroup</code> on the grouped background, as in an iOS form, in the same four places: the label above its value (<code>row orientation="vertical"</code>), values in one column (<code>FieldGroup columns</code>), the value at the end of the row, or the placeholder alone (<code>row hideLabel</code>), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's <code>footer</code>, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: <code>OTPInput</code> keeps its own digit cells on the screen, outside a group, as in <a href="/components/auth-forms#verify-email">Verify email</a>.</p>
+  <p><code>labelAction</code> holds a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size. On Phone a row has no label line to hold it: the link stands under the group in the rows' text, as under the Apple Account sign-in. A group's footer is a footnote, for words to read. Here it is offered for a label above the field or in its column.</p>
+  <p>The label and description scale with the child control: Field reads the control's <code>size</code>, so <code>{'<Input size="lg" />'}</code> gets a <code>lg</code> label without repeating it. Pass <code>size</code> to Field to set the label size yourself, or when the child is a render prop. Outside a row, with <code>touch.css</code> a text field is 44px from <code>3xs</code> to <code>2xl</code> and 50px at <code>3xl</code>, with the 17px text of iOS. <code>size</code>, <code>pill</code> and <code>opticallyAlign</code> are the web's: on Phone a row sets the field's height, insets and type, and has no frame to align.</p>
+  <p><code>opticallyAlign</code>: <code>"start"</code> applies a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it.</p>
 </>} code={`// Desktop
 <Field label="Name" required>
   <Input placeholder="Jane Appleseed" />
@@ -46,6 +50,11 @@ import { Label } from "@plexui/ui/components/Label";`}</UsageBlock>
   errorMessage="Enter a valid email address."
 >
   <Input type="email" defaultValue="jane@example" />
+</Field>
+
+// labelAction: a link at the end of the label row; size and pill on the control; opticallyAlign lines its text up
+<Field label="Email" labelAction={<TextLink href="#">Use phone instead</TextLink>} opticallyAlign="start">
+  <Input type="email" size="lg" pill />
 </Field>
 
 // Phone: a cell of a FieldGroup; the words that explain it go in the footer.
@@ -61,7 +70,10 @@ import { Label } from "@plexui/ui/components/Label";`}</UsageBlock>
 // columns: <FieldGroup columns> with rows; end: rows; hidden: placeholder only
 <Field row hideLabel label="Name">
   <Input placeholder="Name" />
-</Field>`} previewMinHeight={168}>
+</Field>
+
+// A label action stands under the group, in the rows' text
+<TextLink primary href="#">Use phone instead</TextLink>`} previewMinHeight={168}>
   <FieldOverviewDemo />
 </ComponentPreview>
 
@@ -162,29 +174,6 @@ import { Label } from "@plexui/ui/components/Label";`}</UsageBlock>
   <FieldControlsDemo />
 </ComponentPreview>
 
-### Label action
-
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>labelAction</code> for a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size. On Phone a row has no label line to hold it: the link stands under the group in the rows' text, as under the Apple Account sign-in. A group's footer is a footnote, for words to read.</>} code={`// Desktop
-<Field
-  label="Password"
-  labelAction={<TextLink href="/reset-password">Forgot password?</TextLink>}
->
-  <Input type="password" placeholder="Enter password" />
-</Field>
-
-// Phone
-<div className="flex flex-col">
-  <FieldGroup>
-    <Field row label="Password">
-      <Input type="password" placeholder="Required" />
-    </Field>
-  </FieldGroup>
-  <TextLink primary href="/reset-password" className="mt-[15px] self-start text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)]">
-    Forgot password?
-  </TextLink>
-</div>`} previewMinHeight={168}>
-  <FieldLabelActionDemo />
-</ComponentPreview>
 
 ### Label
 
@@ -219,48 +208,6 @@ return (
   <FieldSeveralControlsDemo />
 </ComponentPreview>
 
-### Sizing
-
-<ComponentPreview phonePresentation="none" details={<>
-  <p>The label and description scale with the child control: Field reads the control's <code>size</code>, so <code>{'<Input size="lg" />'}</code> gets a <code>lg</code> label without repeating it. Pass <code>size</code> to Field to set the label size yourself, or when the child is a render prop.</p>
-  <p>On a phone a row sets the field's height, insets and type, so this example has no Phone view. Outside a row, with <code>touch.css</code> a text field is 44px from <code>3xs</code> to <code>2xl</code> and 50px at <code>3xl</code>, with the 17px text of iOS.</p>
-</>} code={`<Field
-  label="Email"
-  description="We'll never share your email with anyone else."
-  errorMessage="Enter a valid email address."
-  required
->
-  <Input type="email" placeholder="name@example.com" size="md" />
-</Field>`} previewMinHeight={168}>
-  <FieldSizingDemo />
-</ComponentPreview>
-
-### Optical alignment
-
-<ComponentPreview phonePresentation="none" details={<>Use <code>opticallyAlign="start"</code> to apply a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it. A phone row has no frame to align, so this example has no Phone view.</>} code={`<div className="w-full min-w-0 max-w-[400px]">
-  <div className="border border-dashed border-alpha/20 rounded-md py-6 px-8">
-    <div className="mb-5 text-secondary text-sm">opticallyAlign="start"</div>
-    <div className="flex flex-col gap-5">
-      <Field label="Full name" opticallyAlign="start">
-        <Input placeholder="Jane Doe" />
-      </Field>
-      <Field
-        label="Email"
-        description="We'll never share your email."
-        errorMessage="Enter a valid email address."
-        required
-        opticallyAlign="start"
-      >
-        <Input placeholder="jane@example.com" />
-      </Field>
-    </div>
-    <Button className="mt-6" color="primary" variant="soft">Submit</Button>
-  </div>
-</div>`} previewMinHeight={168}>
-  <FieldOpticalAlignDemo />
-</ComponentPreview>
-
-For whole forms, on the web and on a phone, see [Forms: Settings](/components/settings-forms).
 
 ## API
 

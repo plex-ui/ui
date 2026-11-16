@@ -5,101 +5,56 @@ metaDescription: Compact React rich text editor powered by Tiptap, embedded in a
 ---
 
 import {
-  MarkdownEditorBaseDemo,
-  MarkdownEditorAllFormattingDemo,
-  MarkdownEditorFormatsDemo,
-  MarkdownEditorWithFieldDemo,
-  MarkdownEditorToolbarEndDemo,
-  MarkdownEditorVariantsDemo,
+  MarkdownEditorOverviewDemo,
 } from '@/components/docs/MarkdownEditorDemos'
 
 <UsageBlock>{`import { MarkdownEditor } from "@plexui/ui/components/MarkdownEditor";`}</UsageBlock>
 
 ## Examples
 
+<span id="placeholder" />
+<span id="all-formatting" />
+<span id="formats-and-line-breaks" />
+<span id="with-field" />
+<span id="toolbar-end-slot" />
+<span id="variants" />
 <span id="disabled" />
 <span id="invalid" />
 
-### Placeholder
+### Overview
 
-<ComponentPreview details={<>Use <code>placeholder</code> for empty content. Toggle <code>invalid</code> and <code>disabled</code> without replacing the entered markdown. The invalid state is controlled by this example, not by a validator.</>} code={`function Example({ invalid = false, disabled = false }) {
-  const [value, setValue] = useState("");
+<ComponentPreview details={<>Use <code>placeholder</code> for empty content; <code>content</code> starts the editor with markdown of every format it offers: <strong>bold</strong>, <em>italic</em>, links, ordered and unordered lists. Click inside formatted text to see its toolbar buttons toggle. <code>variant</code> switches between <code>outline</code> (default) and <code>soft</code>.<br /><br /><code>formats</code> chooses what the editor offers: <code>bold</code>, <code>italic</code>, <code>orderedList</code>, <code>bulletList</code> and <code>link</code>, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. In pasted text its markers stay text, as if they were typed, and so do those of headings, quotes, code and rules, which the editor never offers. Pasted HTML and incoming markdown keep its text without it, and the markdown the editor writes leaves it out: with <code>bold, link</code> the italic and the lists of the formatted content become plain text. With <code>breaks</code>, a single newline is a line break, read and written as one newline. Both are read when the editor is created, so the example makes a new editor when they change.<br /><br /><code>field</code> wraps the editor in a <code>Field</code> with a label and a description: the editor receives <code>id</code>, <code>aria-describedby</code> and <code>aria-invalid</code> from it, and <code>invalid</code> shows the Field's linked error message. Without a Field, set an accessible name with <code>aria-label</code> and <code>invalid</code> on the editor itself. The invalid state is controlled by this example, not by a validator, and it and <code>disabled</code> keep the entered markdown. <code>toolbarEnd</code> renders custom content at the end of the toolbar, here an &ldquo;Edit translations&rdquo; button; <code>markdownEditorStyles.toolbarButton</code> gives it the style of the built-in toolbar buttons.</>} code={`import { MarkdownEditor, markdownEditorStyles } from "@plexui/ui/components/MarkdownEditor"
+import { Field } from "@plexui/ui/components/Field"
+import { Translate } from "@plexui/ui/components/Icon"
 
-  return (
-    <MarkdownEditor aria-label="Markdown content" placeholder="Enter text..."
-      value={value} onChange={setValue} invalid={invalid} aria-invalid={invalid} disabled={disabled} />
-  );
-}`} previewMinHeight={168}>
-  <MarkdownEditorBaseDemo />
-</ComponentPreview>
-
-### All formatting
-
-<ComponentPreview details={<>Example with all supported formatting: <strong>bold</strong>, <em>italic</em>, links, ordered lists, and unordered lists. Click inside formatted text to see toolbar buttons toggle.</>} code={`<MarkdownEditor defaultValue={allFormattingMd} />`} previewMinHeight={300}>
-  <MarkdownEditorAllFormattingDemo />
-</ComponentPreview>
-
-### Formats and line breaks
-
-<ComponentPreview details={<>Use <code>formats</code> to choose what the editor offers: <code>bold</code>, <code>italic</code>, <code>orderedList</code>, <code>bulletList</code> and <code>link</code>, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. In pasted text its markers stay text, as if they were typed, and so do those of headings, quotes, code and rules, which the editor never offers. Pasted HTML and incoming markdown keep its text without it, and the markdown the editor writes leaves it out: here the italic and the list of the initial value become plain text. With <code>breaks</code>, a single newline is a line break, read and written as one newline. Both are read when the editor is created.</>} code={`function Example() {
-  const [value, setValue] = useState(initialMd);
-
-  return (
-    <MarkdownEditor aria-label="Message" formats={["bold", "link"]} breaks
-      value={value} onChange={setValue} />
-  );
-}`} previewMinHeight={220}>
-  <MarkdownEditorFormatsDemo />
-</ComponentPreview>
-
-### With Field
-
-<ComponentPreview details={<>Wrap with <code>Field</code> to add a description and a linked error message. The editor receives <code>id</code>, <code>aria-describedby</code> and <code>aria-invalid</code> automatically. Set an accessible name with <code>aria-label</code>. The <code>errorMessage</code> control demonstrates the error state without validating or replacing the content.</>} code={`function Example({ errorMessage = false }) {
-  const [value, setValue] = useState("");
+function Example({ variant = "outline", formats, breaks = false, invalid = false, disabled = false, toolbarEnd = false }) {
+  const [value, setValue] = useState("")
 
   return (
     <Field label="Description" description="Supports bold, italic, lists, and links."
-      errorMessage={errorMessage ? "This field is required." : undefined}>
-      <MarkdownEditor aria-label="Description" placeholder="Enter description..."
-        value={value} onChange={setValue} />
+      errorMessage={invalid ? "This field is required." : undefined}>
+      <MarkdownEditor
+        // formats and breaks are read when the editor is created: a new key makes a new one
+        key={\`\${formats}-\${breaks}\`}
+        aria-label="Description"
+        placeholder="Enter text..."
+        value={value}
+        onChange={setValue}
+        variant={variant}
+        formats={formats} // e.g. ["bold", "link"]
+        breaks={breaks}
+        disabled={disabled}
+        toolbarEnd={toolbarEnd && (
+          <button type="button" disabled={disabled} className={markdownEditorStyles.toolbarButton}
+            aria-label="Edit translations" title="Edit translations">
+            <Translate />
+          </button>
+        )}
+      />
     </Field>
-  );
-}`} previewMinHeight={200}>
-  <MarkdownEditorWithFieldDemo />
-</ComponentPreview>
-
-### Toolbar end slot
-
-<ComponentPreview details={<>Use <code>toolbarEnd</code> to render custom content at the end of the toolbar, for example an &ldquo;Edit translations&rdquo; button. <code>markdownEditorStyles.toolbarButton</code> gives it the style of the built-in toolbar buttons.</>} code={`import { MarkdownEditor, markdownEditorStyles } from "@plexui/ui/components/MarkdownEditor"
-import { Translate } from "@plexui/ui/components/Icon"
-
-<Field label="Text markdown">
-  <MarkdownEditor
-    placeholder="Enter text..."
-    toolbarEnd={
-      <button
-        type="button"
-        className={markdownEditorStyles.toolbarButton}
-        aria-label="Edit translations"
-        title="Edit translations"
-      >
-        <Translate />
-      </button>
-    }
-  />
-</Field>`} previewMinHeight={200}>
-  <MarkdownEditorToolbarEndDemo />
-</ComponentPreview>
-
-### Variants
-
-<ComponentPreview details={<>Use <code>variant</code> to switch between <code>outline</code> (default) and <code>soft</code> styles.</>} code={`<Field label="Outline">
-  <MarkdownEditor placeholder="Outline variant..." variant="outline" />
-</Field>
-<Field label="Soft">
-  <MarkdownEditor placeholder="Soft variant..." variant="soft" />
-</Field>`} previewMinHeight={380}>
-  <MarkdownEditorVariantsDemo />
+  )
+}`} previewMinHeight={300}>
+  <MarkdownEditorOverviewDemo />
 </ComponentPreview>
 
 ## API

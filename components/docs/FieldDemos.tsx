@@ -13,7 +13,7 @@ import { TextLink } from '@plexui/ui/components/TextLink';
 import { ArrowUpRight } from '@plexui/ui/components/Icon';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Switch } from '@plexui/ui/components/Switch';
-import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow, DemoControlSelect } from './ButtonDemos';
 import { PhoneRowsStage, phoneCalendarSecondRowStageClassName, usePhoneRows } from './PhoneRows';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
@@ -47,7 +47,13 @@ export function FieldOverviewDemo() {
   const [error, setError] = useState(true);
   const [required, setRequired] = useState(true);
   const [disabled, setDisabled] = useState(false);
+  const [labelAction, setLabelAction] = useState(false);
+  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [pill, setPill] = useState(false);
+  const [opticallyAlign, setOpticallyAlign] = useState(false);
   const phone = usePhoneRows();
+  // A link that acts on the field stands at the end of a label above it or in its column
+  const withLabelAction = labelAction && (layout === 'above' || layout === 'columns');
 
   const note = "We'll never share your email with anyone else.";
   const errorMessage = error ? 'Enter a valid email address.' : undefined;
@@ -61,8 +67,14 @@ export function FieldOverviewDemo() {
       <DemoControlBoolean name="errorMessage" value={error} onChange={setError} />
       <DemoControlBoolean name="required" value={required} onChange={setRequired} />
       <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+      {(layout === 'above' || layout === 'columns') && <DemoControlBoolean name="labelAction" value={labelAction} onChange={setLabelAction} />}
+      <DemoControlSelect name="size" options={SIZE_OPTIONS} value={size} onChange={setSize} desktopOnly />
+      {/* A row field is a pill of its own: the setting is for a field outside a row */}
+      {layout !== 'end' && <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />}
+      {layout !== 'end' && <DemoControlBoolean name="opticallyAlign" value={opticallyAlign} onChange={setOpticallyAlign} desktopOnly />}
     </div>
   );
+  const link = <TextLink href="#overview">Use phone instead</TextLink>;
 
   if (phone) {
     // A required field says so in its placeholder, as iOS account forms do; a hidden label leaves the placeholder
@@ -73,6 +85,7 @@ export function FieldOverviewDemo() {
       <>
         {controls}
         <PhoneRowsStage>
+          <div className="flex flex-col">
           <FieldGroup columns={layout === 'columns'} footer={description ? note : undefined}>
             <Field row label="Name" orientation={orientation} hideLabel={hidden}>
               <Input placeholder={placeholder('Name', 'Jane Appleseed')} autoComplete="name" disabled={disabled} />
@@ -81,13 +94,21 @@ export function FieldOverviewDemo() {
               <Input key={String(error)} type="email" placeholder={placeholder('Email', 'name@example.com')} defaultValue={email} autoComplete="email" disabled={disabled} />
             </Field>
           </FieldGroup>
+          {/* A row has no label line: the link stands under the group in the rows' text, as "Forgot password?" under
+              the Apple Account sign-in */}
+          {withLabelAction && (
+            <TextLink primary href="#overview" className="mt-[15px] self-start text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)]">Use phone instead</TextLink>
+          )}
+          </div>
         </PhoneRowsStage>
       </>
     );
   }
 
-  const name = <Input placeholder={hidden ? 'Name' : 'Jane Appleseed'} autoComplete="name" disabled={disabled} />;
-  const emailInput = <Input key={String(error)} type="email" placeholder={hidden ? 'Email' : 'name@example.com'} defaultValue={email} autoComplete="email" disabled={disabled} />;
+  const control = { size, pill: layout === 'end' ? undefined : pill, disabled };
+  const align = opticallyAlign && layout !== 'end' ? ('start' as const) : undefined;
+  const name = <Input placeholder={hidden ? 'Name' : 'Jane Appleseed'} autoComplete="name" {...control} />;
+  const emailInput = <Input key={String(error)} type="email" placeholder={hidden ? 'Email' : 'name@example.com'} defaultValue={email} autoComplete="email" {...control} />;
   return (
     <>
       {controls}
@@ -101,8 +122,8 @@ export function FieldOverviewDemo() {
           </div>
         ) : (
           <div className={`flex w-full flex-col gap-4 ${layout === 'columns' ? 'max-w-[480px]' : 'max-w-[320px]'}`}>
-            <Field label="Name" required={required} hideLabel={hidden} orientation={layout === 'columns' ? 'horizontal' : 'vertical'}>{name}</Field>
-            <Field label="Email" required={required} hideLabel={hidden} orientation={layout === 'columns' ? 'horizontal' : 'vertical'} description={description ? note : undefined} errorMessage={errorMessage}>{emailInput}</Field>
+            <Field label="Name" required={required} hideLabel={hidden} orientation={layout === 'columns' ? 'horizontal' : 'vertical'} opticallyAlign={align}>{name}</Field>
+            <Field label="Email" required={required} hideLabel={hidden} orientation={layout === 'columns' ? 'horizontal' : 'vertical'} opticallyAlign={align} labelAction={withLabelAction ? link : undefined} description={description ? note : undefined} errorMessage={errorMessage}>{emailInput}</Field>
           </div>
         )}
       </div>
@@ -277,38 +298,6 @@ export function FieldControlsDemo() {
 // Label action: on the web at the end of the label row; a phone has no label row, so the link stands under the group
 // ---------------------------------------------------------------------------
 
-export function FieldLabelActionDemo() {
-  const phone = usePhoneRows();
-  const link = <TextLink href="#label-action">Forgot password?</TextLink>;
-
-  // A row has no label line. As "Forgot your password?" under the Apple Account sign-in (IMG_5505), the link
-  // stands under the group in the rows' 17/22 text, from the group's edge, its line 15 below: an action, not a footnote
-  if (phone) {
-    return (
-      <PhoneRowsStage>
-        <div className="flex flex-col">
-          <FieldGroup>
-            <Field row label="Password">
-              <Input type="password" placeholder="Required" autoComplete="current-password" />
-            </Field>
-          </FieldGroup>
-          <TextLink primary href="#label-action" className="mt-[15px] self-start text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)]">Forgot password?</TextLink>
-        </div>
-      </PhoneRowsStage>
-    );
-  }
-
-  return (
-    <div data-demo-stage className="py-10">
-      <div className="w-[320px]">
-        <Field label="Password" labelAction={link}>
-          <Input type="password" placeholder="Enter password" autoComplete="current-password" />
-        </Field>
-      </div>
-    </div>
-  );
-}
-
 // ---------------------------------------------------------------------------
 // Several controls in one field: the render prop puts the field's id on the first; the others name themselves
 // ---------------------------------------------------------------------------
@@ -351,69 +340,5 @@ export function FieldSeveralControlsDemo() {
         </Field>
       </div>
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Sizing and optical alignment: the web only. On a phone a row sets the field's height, insets and type.
-// ---------------------------------------------------------------------------
-
-export function FieldSizingDemo() {
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
-  const [pill, setPill] = useState(false);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <SegmentedRow name="size" value={size} options={SIZE_OPTIONS} onChange={setSize} />
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
-      </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-full max-w-[320px]">
-          <Field label="Email" description="We'll never share your email with anyone else." errorMessage="Enter a valid email address." required>
-            <Input type="email" placeholder="name@example.com" size={size} pill={pill} />
-          </Field>
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function FieldOpticalAlignDemo() {
-  const [opticallyAlign, setOpticallyAlign] = useState(true);
-  const [pill, setPill] = useState(false);
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="opticallyAlign" value={opticallyAlign} onChange={setOpticallyAlign} />
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
-      </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-full min-w-0 max-w-[400px]">
-          <div className="border border-dashed border-alpha/20 rounded-md py-6 px-8">
-            <div className="mb-5 text-secondary text-sm">
-              {opticallyAlign ? 'opticallyAlign="start"' : 'Default'}
-            </div>
-            <div className="flex flex-col gap-5">
-              <Field label="Full name" opticallyAlign={opticallyAlign ? 'start' : undefined}>
-                <Input placeholder="Jane Doe" pill={pill} />
-              </Field>
-              <Field
-                label="Email"
-                description="We'll never share your email."
-                errorMessage="Enter a valid email address."
-                required
-                opticallyAlign={opticallyAlign ? 'start' : undefined}
-              >
-                <Input placeholder="jane@example.com" pill={pill} />
-              </Field>
-            </div>
-            <Button className="mt-6" color="primary" variant="soft" pill={pill}>
-              Submit
-            </Button>
-          </div>
-        </div>
-      </div>
-    </>
   );
 }

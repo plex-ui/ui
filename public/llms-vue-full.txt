@@ -1096,7 +1096,7 @@ Props:
     - role ("destructive") — The action removes the row: the row slides out and collapses, as iOS deletes a row, and `onSelect` comes at the end of that for the list to drop it. A row the list keeps comes back.
 
 ### Overview
-Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart, 10px from the edge and 4px inside the top and bottom of the row, as iOS 27.2 sets them; the first action of a side stands at its edge. A symbol alone is a capsule of 60px that grows with the row and is a 50px circle from a row of 58px. Swiped aside, the content rounds its corners by 26px and, on a phone, turns soft gray on the background of the list, as iOS fills it. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it.
+Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart, 10px from the edge and 4px inside the top and bottom of the row, as iOS 27.2 sets them; the first action of a side stands at its edge. A symbol alone is a capsule of 60px that grows with the row and is a 50px circle from a row of 58px. Swiped aside, the content rounds its corners by 26px and, on a phone, turns soft gray on the background of the list, as iOS fills it. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it.labelPlacement sets where the actions show their labels. With label-placement=&quot;inside&quot; each capsule holds a smaller symbol and its label, and every action of a side takes the width of the widest, as iOS 27.2 sets them. An action without an icon shows its label alone, in a rounded rectangle: beside labels inside it takes the width of the widest too, and elsewhere it is as wide as its text. With label-placement=&quot;below&quot; the label stands under the capsule, which takes the rest of the row: iOS 27.2 sets its labels this way from a row of 60px, such as the two-line rows of an inbox here, and draws a 50px circle from a row of 78px.
 ```vue
 <FieldGroup>
   <SwipeActions
@@ -1111,39 +1111,6 @@ Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the 
     <div class="row">{{ list.name }}</div>
   </SwipeActions>
 </FieldGroup>
-```
-
-### Labels inside
-With label-placement=&quot;inside&quot; each capsule holds a smaller symbol and its label, and every action of a side takes the width of the widest, as iOS 27.2 sets them. An action without an icon shows its label alone, in a rounded rectangle: beside labels inside it takes the width of the widest too, and elsewhere it is as wide as its text.
-```vue
-<SwipeActions
-  label-placement="inside"
-  :leading="[{ id: 'pin', label: 'Pin', Icon: Pin, color: 'warning', onSelect: () => pin(list) }]"
-  :trailing="[
-    { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => remove(list) },
-    { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', role: 'destructive', onSelect: () => archive(list) },
-  ]"
->
-  <div class="row">{{ list.name }}</div>
-</SwipeActions>
-```
-
-### Labels below
-With label-placement=&quot;below&quot; the label stands under the capsule, which takes the rest of the row: iOS 27.2 sets its labels this way from a row of 60px, such as a row of two lines, and draws a 50px circle from a row of 78px.
-```vue
-<SwipeActions
-  label-placement="below"
-  :leading="[{ id: 'flag', label: 'Flag', Icon: Flag, color: 'warning', onSelect: () => flag(message) }]"
-  :trailing="[
-    { id: 'delete', label: 'Delete', Icon: RemoveTrash, color: 'danger', role: 'destructive', onSelect: () => remove(message) },
-    { id: 'archive', label: 'Archive', Icon: Archive, color: 'info', role: 'destructive', onSelect: () => archive(message) },
-  ]"
->
-  <div class="row">
-    <div>{{ message.from }}</div>
-    <div>{{ message.subject }}</div>
-  </div>
-</SwipeActions>
 ```
 
 ## Text Link
@@ -1217,7 +1184,7 @@ Props:
     - default slot (VNode[]) — Label content
 
 ### Overview
-Field wraps a form control with a label, a description and an error message, and links them: the label's for, aria-describedby and aria-invalid reach the control. required adds an asterisk after the label; it is visual only, so give the control its own required for form validation. The layout control puts the label in its four places: above: the default, orientation="vertical". columns: orientation="horizontal", every value starting at one column. end: row, one line of a FieldGroup with the value at its end. A framed field is a pill there and takes --field-row-control-width, as its width cannot follow what is typed; :pill="false" on the control keeps the rounded box. hidden: hide-label. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field. On Phone a field is always a cell of a FieldGroup on the grouped background, as in an iOS form, in the same four places: the label above its value (row orientation="vertical"), values in one column (FieldGroup columns), the value at the end of the row, or the placeholder alone (row hide-label), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's footer slot, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: OTPInput keeps its own digit cells on the screen, outside a group, as in Verify email.
+Field wraps a form control with a label, a description and an error message, and links them: the label's for, aria-describedby and aria-invalid reach the control. required adds an asterisk after the label; it is visual only, so give the control its own required for form validation. The layout control puts the label in its four places: above: the default, orientation="vertical". columns: orientation="horizontal", every value starting at one column. end: row, one line of a FieldGroup with the value at its end. A framed field is a pill there and takes --field-row-control-width, as its width cannot follow what is typed; :pill="false" on the control keeps the rounded box. hidden: hide-label. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field. On Phone a field is always a cell of a FieldGroup on the grouped background, as in an iOS form, in the same four places: the label above its value (row orientation="vertical"), values in one column (FieldGroup columns), the value at the end of the row, or the placeholder alone (row hide-label), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's footer slot, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims its label with its value. A one-time code is the exception: OTPInput keeps its own digit cells on the screen, outside a group, as in Verify email. Use the labelAction slot (or the label-action string prop) for a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size. On Phone a row has no label line to hold it: the link stands under the group in the rows' text, as under the Apple Account sign-in. A group's footer is a footnote, for words to read. Here it is offered for a label above the field or in its column. The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props. Outside a row, with touch.css a text field is 44px from 3xs to 2xl and 50px at 3xl, with the 17px text of iOS. size, pill and opticallyAlign are the web's: on Phone a row sets the field's height, insets and type, and has no frame to align. opticallyAlign: "start" applies a negative margin on the child control, aligning its text with the surrounding content. Works with pill inputs. The label, description, and error message stay at the container edge while the control extends past it.
 ```vue
 <!-- Desktop -->
 <Field label="Name" required>
@@ -1230,6 +1197,14 @@ Field wraps a form control with a label, a description and an error message, and
   error-message="Enter a valid email address."
 >
   <Input type="email" default-value="jane@example" />
+</Field>
+
+<!-- labelAction: a link at the end of the label row; size and pill on the control; optically-align lines its text up -->
+<Field label="Email" optically-align="start">
+  <template #labelAction>
+    <TextLink href="#">Use phone instead</TextLink>
+  </template>
+  <Input type="email" size="lg" pill />
 </Field>
 
 <!-- Phone: a cell of a FieldGroup; the words that explain it go in the footer. -->
@@ -1247,6 +1222,9 @@ Field wraps a form control with a label, a description and an error message, and
 <Field row hide-label label="Name">
   <Input placeholder="Name" />
 </Field>
+
+<!-- A label action stands under the group, in the rows' text -->
+<TextLink primary href="#">Use phone instead</TextLink>
 ```
 
 ### Group
@@ -1356,32 +1334,6 @@ Field works with any form control. A native one, such as a Textarea, is named by
 </FieldGroup>
 ```
 
-### Label action
-Use the labelAction slot (or the label-action string prop) for a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size. On Phone a row has no label line to hold it: the link stands under the group in the rows' text, as under the Apple Account sign-in. A group's footer is a footnote, for words to read.
-```vue
-<!-- Desktop -->
-<div class="w-[320px]">
-  <Field label="Password">
-    <template #labelAction>
-      <TextLink href="#label-action">Forgot password?</TextLink>
-    </template>
-    <Input type="password" placeholder="Enter password" autocomplete="current-password" />
-  </Field>
-</div>
-
-<!-- Phone -->
-<div class="flex flex-col">
-  <FieldGroup>
-    <Field row label="Password">
-      <Input type="password" placeholder="Required" autocomplete="current-password" />
-    </Field>
-  </FieldGroup>
-  <TextLink primary href="#label-action" class="mt-[15px] self-start text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)]">
-    Forgot password?
-  </TextLink>
-</div>
-```
-
 ### Label
 A Field draws its own label. Reach for a standalone Label when you pair it with a checkbox, a switch or any control where a field's layout is too much: for points it at the control's id, so clicking the label toggles or focuses the control. Here accepted starts as true. On Phone the label takes the body type of a list row, 17/22 regular, the same as the labels of Checkbox, Switch and a Field row.
 ```vue
@@ -1408,48 +1360,6 @@ For more than one control, or a control that needs its props placed by hand, rea
       </div>
     </div>
   </Field>
-</div>
-```
-
-### Sizing
-The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props. On a phone a row sets the field's height, insets and type, so this example has no Phone view. Outside a row, with touch.css a text field is 44px from 3xs to 2xl and 50px at 3xl, with the 17px text of iOS.
-```vue
-<div class="w-full max-w-[320px]">
-  <Field
-    label="Email"
-    description="We'll never share your email with anyone else."
-    error-message="Enter a valid email address."
-    required
-  >
-    <Input type="email" placeholder="name@example.com" :size="size" :pill="pill" />
-  </Field>
-</div>
-```
-
-### Optical alignment
-Use optically-align="start" to apply a negative margin on the child control, aligning its text with the surrounding content. Works with pill inputs. The label, description, and error message stay at the container edge while the control extends past it. A phone row has no frame to align, so this example has no Phone view.
-```vue
-<div class="w-full min-w-0 max-w-[400px]">
-  <div class="border border-dashed border-alpha/20 rounded-md py-6 px-8">
-    <div class="mb-5 text-secondary text-sm">
-      {{ opticallyAlign ? 'optically-align="start"' : 'Default' }}
-    </div>
-    <div class="flex flex-col gap-5">
-      <Field label="Full name" :optically-align="opticallyAlign ? 'start' : undefined">
-        <Input placeholder="Jane Doe" :pill="pill" />
-      </Field>
-      <Field
-        label="Email"
-        description="We'll never share your email."
-        error-message="Enter a valid email address."
-        required
-        :optically-align="opticallyAlign ? 'start' : undefined"
-      >
-        <Input placeholder="jane@example.com" :pill="pill" />
-      </Field>
-    </div>
-    <Button class="mt-6" color="primary" variant="soft" :pill="pill">Submit</Button>
-  </div>
 </div>
 ```
 
@@ -2603,99 +2513,39 @@ Props:
   - aria-invalid (boolean) — Sets aria-invalid on the editable element and the invalid style (Field sets it with error-message)
   - class (string) — Applied to the container
 
-### Placeholder
-Use placeholder for empty content. Toggle invalid and disabled without replacing the entered markdown. The invalid state is controlled by this example, not by a validator.
-```vue
-<script setup lang="ts">
-import { ref } from 'vue';
-import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
-
-const value = ref('');
-const invalid = ref(false);
-const disabled = ref(false);
-</script>
-
-<template>
-  <MarkdownEditor aria-label="Markdown content" placeholder="Enter text..."
-    v-model:value="value" :invalid="invalid" :disabled="disabled" />
-</template>
-```
-
-### All formatting
-Example with all supported formatting: bold, italic, links, ordered lists, and unordered lists. Click inside formatted text to see toolbar buttons toggle.
-```vue
-<div class="w-full min-w-0 max-w-[500px]">
-  <MarkdownEditor :default-value="allFormattingMd" />
-</div>
-```
-
-### Formats and line breaks
-Use formats to choose what the editor offers: bold, italic, orderedList, bulletList and link, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. In pasted text its markers stay text, as if they were typed, and so do those of headings, quotes, code and rules, which the editor never offers. Pasted HTML and incoming markdown keep its text without it, and the markdown the editor writes leaves it out: here the italic and the list of the initial value become plain text. With breaks, a single newline is a line break, read and written as one newline. Both are read when the editor is created.
-```vue
-<script setup lang="ts">
-import { ref } from 'vue';
-import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
-
-const value = ref(initialMd);
-</script>
-
-<template>
-  <MarkdownEditor aria-label="Message" :formats="['bold', 'link']" breaks v-model:value="value" />
-</template>
-```
-
-### With Field
-Wrap with Field to add a description and a linked error message. The editor receives id, aria-describedby and aria-invalid automatically. Set an accessible name with aria-label. The errorMessage control demonstrates the error state without validating or replacing the content.
+### Overview
+Use placeholder for empty content; content starts the editor with markdown of every format it offers: bold, italic, links, ordered and unordered lists. Click inside formatted text to see its toolbar buttons toggle. variant switches between outline (default) and soft.formats chooses what the editor offers: bold, italic, orderedList, bulletList and link, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. In pasted text its markers stay text, as if they were typed, and so do those of headings, quotes, code and rules, which the editor never offers. Pasted HTML and incoming markdown keep its text without it, and the markdown the editor writes leaves it out: with bold, link the italic and the lists of the formatted content become plain text. With breaks, a single newline is a line break, read and written as one newline. Both are read when the editor is created, so the example makes a new editor when they change.field wraps the editor in a Field with a label and a description: the editor receives id, aria-describedby and aria-invalid from it, and invalid shows the Field's linked error message. Without a Field, set an accessible name with aria-label and invalid on the editor itself. The invalid state is controlled by this example, not by a validator, and it and disabled keep the entered markdown. The #toolbarEnd slot renders custom content at the end of the toolbar, here an &ldquo;Edit translations&rdquo; button; markdownEditorStyles.toolbarButton gives it the style of the built-in toolbar buttons.
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Field } from '@plexui/vue/components/Field';
-import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
+import { MarkdownEditor, markdownEditorStyles } from '@plexui/vue/components/MarkdownEditor';
+import { Translate } from '@plexui/vue/components/Icon';
 
 const value = ref('');
-const errorMessage = ref(false);
+const variant = ref<'outline' | 'soft'>('outline');
+const formats = ref(); // e.g. ['bold', 'link']
+const breaks = ref(false);
+const invalid = ref(false);
+const disabled = ref(false);
+const toolbarEnd = ref(false);
 </script>
 
 <template>
   <Field label="Description" description="Supports bold, italic, lists, and links."
-    :error-message="errorMessage ? 'This field is required.' : undefined">
-    <MarkdownEditor aria-label="Description" placeholder="Enter description..." v-model:value="value" />
-  </Field>
-</template>
-```
-
-### Toolbar end slot
-Use the #toolbarEnd slot to render custom content at the end of the toolbar, for example an &ldquo;Edit translations&rdquo; button. markdownEditorStyles.toolbarButton gives it the style of the built-in toolbar buttons.
-```vue
-<div class="w-full min-w-0 max-w-[500px]">
-  <Field label="Text markdown">
-    <MarkdownEditor placeholder="Enter text...">
-      <template #toolbarEnd>
-        <button
-          type="button"
-          :class="markdownEditorStyles.toolbarButton"
-          aria-label="Edit translations"
-          title="Edit translations"
-        >
+    :error-message="invalid ? 'This field is required.' : undefined">
+    <!-- formats and breaks are read when the editor is created: a new key makes a new one -->
+    <MarkdownEditor :key="`${formats}-${breaks}`" aria-label="Description" placeholder="Enter text..." v-model:value="value"
+      :variant="variant" :formats="formats" :breaks="breaks" :disabled="disabled">
+      <template v-if="toolbarEnd" #toolbarEnd>
+        <button type="button" :disabled="disabled" :class="markdownEditorStyles.toolbarButton"
+          aria-label="Edit translations" title="Edit translations">
           <Translate />
         </button>
       </template>
     </MarkdownEditor>
   </Field>
-</div>
-```
-
-### Variants
-Use variant to switch between outline (default) and soft styles.
-```vue
-<div class="flex flex-col gap-4 w-full min-w-0 max-w-[500px]">
-  <Field label="Outline">
-    <MarkdownEditor placeholder="Outline variant..." variant="outline" />
-  </Field>
-  <Field label="Soft">
-    <MarkdownEditor placeholder="Soft variant..." variant="soft" />
-  </Field>
-</div>
+</template>
 ```
 
 ## OTP Input
@@ -2723,21 +2573,24 @@ import { OTPInput } from '@plexui/vue/components/OTPInput';
 const value = ref('');
 const error = ref(false);
 const disabled = ref(false);
+const grouping = ref('none'); // or '3+3'
 </script>
 
 <template>
-<OTPInput
-  v-model:value="value"
-  :invalid="error"
-  :error-message="error ? 'Invalid verification code.' : undefined"
-  :disabled="disabled"
-/>
+<div class="flex flex-col items-center gap-6 text-center">
+  <div class="flex flex-col gap-1">
+    <p class="text-lg font-semibold">Enter the code</p>
+    <p class="text-sm text-secondary">We sent a 6-digit code to alex.johnson@example.com</p>
+  </div>
+  <OTPInput
+    v-model:value="value"
+    :grouping="grouping === '3+3' ? [3, 3] : undefined"
+    :invalid="error"
+    :error-message="error ? 'Invalid verification code.' : undefined"
+    :disabled="disabled"
+  />
+</div>
 </template>
-```
-
-### Grouped (3+3)
-```vue
-<OTPInput v-model:value="value" :grouping="[3, 3]" />
 ```
 
 ## Tag Input
@@ -5348,7 +5201,7 @@ The capsule always shows, for a page control that is the main navigation of the 
 ```
 
 ## Sidebar
-Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu
+Composable navigation sidebar for app shells, folding to an icon rail, with submenus, badges, search, a footer card or person menu, and a mobile menu
 Import: import { SidebarProvider, SidebarLayout, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger } from "@plexui/vue/components/Sidebar"
 Docs: https://plexui.com/vue/components/sidebar
 Props:
@@ -5393,188 +5246,17 @@ Props:
     - dismissible (boolean) default: false — Shows dismiss button
     - @dismiss ((event: MouseEvent) => void) — Emitted when the dismiss button is clicked
 
-### App Shell
-A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. Inbox carries a quiet count Badge, as the inbox of a platform does. When collapsed (icon mode), hovering a parent icon opens a Popover flyout listing the section&apos;s items so users keep one-click access without expanding the rail.
+### Overview
+Use variant for the look of the whole shell: "app" is the sidebar of a product, 260px, pill rows on a grey ground and a page with no inset. collapsible sets how the sidebar folds, to an icon rail or off the canvas, and v-model:open folds it (or press ⌘B). Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. labelSize sets the group labels, icons the icons of the rows (a sidebar without them does not fold to a rail).badges puts a Badge in SidebarMenuBadge: it sits as far from the row's edge as from its top and bottom, its digits end where plain counts and the chevron end, and in the folded rail it becomes a dot of its color above the icon. submenus turns Settings into a row with a submenu: a SidebarMenuItem whose SidebarMenuSub holds the next level; expanded on the item turns its SidebarMenuChevron and open on the submenu shows it. Set --sidebar-menu-sub-max-height to a submenu's real height for an even fold. search adds a SidebarInput, an Input with a search icon that takes every Input prop (bind it with v-model:value, clear it with @clear), and narrows the rows to the ones that match; hit is a plain function of the setup scope. footer holds a dismissible SidebarCard or a person row whose Menu opens above it; the person row is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. bordered sets the inset page of the default variant against a flat one.On a phone the toolbar opens the same navigation tree in a full-screen drawer, so the Phone view leaves out collapsible, open and labelSize.
 ```vue
 <component :is="ResponsiveSidebarProvider"
-  v-model:open="open"
+  :key="(icons ? collapsible : 'none') + '-' + variant"
   v-slot="sidebar"
-  :class="['h-full console-demo', { 'demo-sidebar-flat': !bordered }]"
-  collapsible="icon"
+  v-model:open="open"
+  :class="['h-full', { 'demo-sidebar-flat': variant === 'sidebar' && !bordered }]"
+  :variant="variant"
+  :collapsible="icons ? collapsible : 'none'"
 >
-  <SidebarLayout class="h-full">
-    <component :is="ResponsiveSidebar">
-      <SidebarHeader v-if="!sidebar.isMobile">
-        <span class="demo-sidebar-wordmark">Console</span>
-        <Tooltip v-if="sidebar.collapsible !== 'none'" compact>
-          <SidebarTrigger />
-          <template #content>
-            <span class="inline-flex items-center gap-1.5">
-              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}
-              <kbd class="console-trigger-kbd">⌘B</kbd>
-            </span>
-          </template>
-        </Tooltip>
-      </SidebarHeader>
-
-      <SidebarContent class="console-content">
-        <!-- Workspace selector -->
-        <SidebarGroup class="console-group">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <Menu>
-                  <MenuTrigger>
-                    <SidebarMenuButton class="console-menu-button" tooltip="Default">
-                      <SidebarMenuButtonIcon><Cube /></SidebarMenuButtonIcon>
-                      <SidebarMenuButtonLabel>Default</SidebarMenuButtonLabel>
-                      <ChevronUpDown class="ml-auto console-workspace-chevron" style="width: 14px; height: 14px" />
-                    </SidebarMenuButton>
-                  </MenuTrigger>
-                  <MenuContent :min-width="200" align="start">
-                    <MenuItem @select="() => {}">Default</MenuItem>
-                    <MenuItem @select="() => {}">Production</MenuItem>
-                    <MenuItem @select="() => {}">Staging</MenuItem>
-                    <MenuSeparator />
-                    <MenuItem @select="() => {}"><Plus /> New workspace</MenuItem>
-                  </MenuContent>
-                </Menu>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup class="console-group">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <template v-for="section in consoleSections" :key="section.id">
-                <!-- Collapsed rail: hovering a parent opens a flyout with its items -->
-                <SidebarMenuItem v-if="section.items && sidebar.state === 'collapsed' && !sidebar.isMobile">
-                  <Popover show-on-hover :hover-open-delay="80">
-                    <PopoverTrigger>
-                      <SidebarMenuButton class="console-menu-button">
-                        <SidebarMenuButtonIcon><component :is="section.icon" /></SidebarMenuButtonIcon>
-                        <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>
-                        <SidebarMenuBadge v-if="section.badge">
-                          <Badge size="sm" color="info">{{ section.badge }}</Badge>
-                        </SidebarMenuBadge>
-                        <SidebarMenuChevron class="ml-auto transition-transform" />
-                      </SidebarMenuButton>
-                    </PopoverTrigger>
-                    <PopoverContent side="right" :side-offset="8" :min-width="220" align="start" :auto-focus="false">
-                      <div class="p-1">
-                        <div class="px-3 py-2 text-xs font-medium text-tertiary">{{ section.label }}</div>
-                        <button
-                          v-for="item in section.items"
-                          :key="item.id"
-                          type="button"
-                          :data-active="active === item.id ? 'true' : undefined"
-                          class="flex items-center w-full text-left rounded-md px-3 py-1.5 text-sm text-primary cursor-pointer bg-transparent border-0 appearance-none select-none transition-colors hover:bg-[var(--sidebar-accent)] data-[active=true]:bg-[var(--sidebar-accent)] data-[active=true]:text-[var(--sidebar-menu-text-active)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
-                          @click="active = item.id"
-                        >{{ item.label }}</button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </SidebarMenuItem>
-
-                <!-- Expanded: the parent toggles its sub items; a row without items opens its page -->
-                <SidebarMenuItem v-else :expanded="!!expanded[section.id]">
-                  <SidebarMenuButton
-                    class="console-menu-button"
-                    :is-active="!section.items && active === section.id"
-                    :tooltip="section.items ? undefined : section.label"
-                    @click="section.items ? (expanded[section.id] = !expanded[section.id]) : (active = section.id)"
-                  >
-                    <SidebarMenuButtonIcon><component :is="section.icon" /></SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>
-                    <SidebarMenuBadge v-if="section.badge">
-                      <Badge size="sm" color="info">{{ section.badge }}</Badge>
-                    </SidebarMenuBadge>
-                    <SidebarMenuBadge v-if="section.count">
-                      <Badge size="sm" color="secondary">{{ section.count }}</Badge>
-                    </SidebarMenuBadge>
-                    <SidebarMenuChevron
-                      v-if="section.items"
-                      class="ml-auto transition-transform"
-                      :style="{ transform: expanded[section.id] ? 'rotate(90deg)' : undefined }"
-                    />
-                  </SidebarMenuButton>
-                  <SidebarMenuSub v-if="section.items" :open="!!expanded[section.id]" has-icons>
-                    <SidebarMenuSubItem v-for="item in section.items" :key="item.id">
-                      <SidebarMenuSubButton :indent="1" :is-active="active === item.id" @click="active = item.id">{{ item.label }}</SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  </SidebarMenuSub>
-                </SidebarMenuItem>
-              </template>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter class="console-footer">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton class="console-menu-button" tooltip="Documentation">
-              <SidebarMenuButtonIcon><Book /></SidebarMenuButtonIcon>
-              <SidebarMenuButtonLabel>Documentation</SidebarMenuButtonLabel>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarSeparator class="console-footer-separator" />
-          <SidebarMenuItem>
-            <Menu>
-              <MenuTrigger>
-                <SidebarMenuButton class="console-menu-button console-account-button" tooltip="Alex · Acme Inc">
-                  <SidebarMenuButtonIcon>
-                    <Avatar name="Alex" :size="24" color="secondary" variant="solid" />
-                  </SidebarMenuButtonIcon>
-                  <SidebarMenuButtonLabel>
-                    <span class="flex flex-col leading-tight">
-                      <span class="font-medium text-primary text-sm">Alex</span>
-                      <span class="text-tertiary text-xs">Admin</span>
-                    </span>
-                  </SidebarMenuButtonLabel>
-                  <ChevronDownMd class="ml-auto" style="width: 14px; height: 14px" />
-                </SidebarMenuButton>
-              </MenuTrigger>
-              <MenuContent :min-width="260" align="start" side="top">
-                <MenuItem disabled>
-                  <span class="text-tertiary text-sm">alex@example.com</span>
-                </MenuItem>
-                <MenuItem @select="() => {}">
-                  <BuildingWorkspace /> Acme Inc
-                  <span class="ml-auto text-xs text-tertiary">API plan</span>
-                </MenuItem>
-                <MenuSeparator />
-                <MenuItem @select="() => {}"><SettingsCog /> Organization settings</MenuItem>
-                <MenuSeparator />
-                <MenuItem @select="() => {}"><Chat /> Feedback</MenuItem>
-                <MenuItem @select="() => {}"><Help /> Get help</MenuItem>
-                <MenuItem @select="() => {}">
-                  <InfoCircle /> Legal center
-                  <ChevronRightMd class="ml-auto" />
-                </MenuItem>
-                <MenuSeparator />
-                <MenuItem @select="() => {}"><Logout /> Log out</MenuItem>
-              </MenuContent>
-            </Menu>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </component>
-
-    <component :is="SidebarDemoPage" :title="consoleSections.flatMap((s) => [s, ...(s.items ?? [])]).find((i) => i.id === active)?.label ?? 'Workbench'">
-        <p class="text-secondary">
-          Hover the icons when collapsed to reveal a flyout with the section's items.
-        </p>
-      </component>
-  </SidebarLayout>
-</component>
-```
-
-### App
-The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A Badge in SidebarMenuBadge sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a Menu beside the icon when folded. The person row in the footer is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. In these examples, the phone toolbar opens the same navigation tree in a full-screen drawer. Set --sidebar-menu-sub-max-height to a group's real height for an even fold.
-```vue
-<component :is="ResponsiveSidebarProvider" v-model:open="open" v-slot="sidebar" class="h-full" collapsible="icon" variant="app">
   <SidebarLayout class="h-full">
     <component :is="ResponsiveSidebar">
       <SidebarHeader v-if="!sidebar.isMobile">
@@ -5590,78 +5272,66 @@ The sidebar of a product: 260px, pill rows on a grey ground and a page with no i
         </Tooltip>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMenu>
-          <SidebarMenuItem v-for="row in appTopRows" :key="row.id">
-            <SidebarMenuButton :is-active="active === row.id" :tooltip="row.label" @click="active = row.id">
-              <SidebarMenuButtonIcon><component :is="row.icon" /></SidebarMenuButtonIcon>
-              <SidebarMenuButtonLabel>{{ row.label }}</SidebarMenuButtonLabel>
-              <SidebarMenuBadge v-if="row.alert">
-                <Badge color="danger" variant="solid" pill>{{ row.alert }}</Badge>
-              </SidebarMenuBadge>
-              <SidebarMenuBadge v-if="row.count">{{ row.count }}</SidebarMenuBadge>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <!-- Collapsed rail: the group's items in a menu beside its icon -->
-          <SidebarMenuItem v-if="sidebar.state === 'collapsed' && !sidebar.isMobile">
-            <Menu>
-              <MenuTrigger>
-                <SidebarMenuButton :is-active="appDocumentItems.some((item) => item.id === active)" aria-label="Documents">
-                  <SidebarMenuButtonIcon><FileDocument /></SidebarMenuButtonIcon>
-                  <SidebarMenuButtonLabel>Documents</SidebarMenuButtonLabel>
-                </SidebarMenuButton>
-              </MenuTrigger>
-              <MenuContent side="right" align="start" :min-width="220">
-                <MenuCheckboxItem
-                  v-for="item in appDocumentItems"
-                  :key="item.id"
-                  :checked="item.id === active"
-                  indicator-position="start"
-                  indicator-variant="ghost"
-                  @select="active = item.id"
-                >
-                  {{ item.label }}
-                  <span class="ml-auto text-xs text-secondary tabular-nums">{{ item.count }}</span>
-                </MenuCheckboxItem>
-              </MenuContent>
-            </Menu>
-          </SidebarMenuItem>
-
-          <!-- Expanded: the group opens in place, each item with its count -->
-          <SidebarMenuItem v-else :expanded="documentsOpen">
-            <SidebarMenuButton
-              :is-active="!documentsOpen && appDocumentItems.some((item) => item.id === active)"
-              :aria-expanded="documentsOpen"
-              @click="documentsOpen = !documentsOpen"
-            >
-              <SidebarMenuButtonIcon><FileDocument /></SidebarMenuButtonIcon>
-              <SidebarMenuButtonLabel>Documents</SidebarMenuButtonLabel>
-              <SidebarMenuChevron />
-            </SidebarMenuButton>
-            <SidebarMenuSub :open="documentsOpen" has-icons>
-              <SidebarMenuSubItem v-for="item in appDocumentItems" :key="item.id">
-                <SidebarMenuSubButton :indent="1" :is-active="active === item.id" @click="active = item.id">
-                  {{ item.label }}
-                  <SidebarMenuBadge>{{ item.count }}</SidebarMenuBadge>
-                </SidebarMenuSubButton>
-              </SidebarMenuSubItem>
-            </SidebarMenuSub>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem v-for="row in appBottomRows" :key="row.id">
-            <SidebarMenuButton :is-active="active === row.id" :tooltip="row.label" @click="active = row.id">
-              <SidebarMenuButtonIcon><component :is="row.icon" /></SidebarMenuButtonIcon>
-              <SidebarMenuButtonLabel>{{ row.label }}</SidebarMenuButtonLabel>
-              <SidebarMenuBadge v-if="row.alert">
-                <Badge color="danger" variant="solid" pill>{{ row.alert }}</Badge>
-              </SidebarMenuBadge>
-              <SidebarMenuBadge v-if="row.count">{{ row.count }}</SidebarMenuBadge>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div v-if="search" class="demo-sidebar-search">
+          <SidebarInput v-model:value="query" variant="soft" placeholder="Search" @clear="query = ''" />
+        </div>
+        <template v-for="group in navGroups" :key="group.label">
+          <SidebarGroup v-if="group.items.some((item) => hit(item.label, search ? query : '') || (submenus && item.label === 'Settings' && settingsItems.some((child) => hit(child, search ? query : ''))))">
+            <SidebarGroupLabel :size="labelSize">{{ group.label }}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <template v-for="item in group.items" :key="item.label">
+                  <SidebarMenuItem
+                    v-if="submenus && item.label === 'Settings' && (hit(item.label, search ? query : '') || settingsItems.some((child) => hit(child, search ? query : '')))"
+                    :expanded="(settingsOpen || (search && !!query.trim())) && (sidebar.state !== 'collapsed' || sidebar.isMobile)"
+                  >
+                    <SidebarMenuButton
+                      :tooltip="item.label"
+                      :aria-expanded="(settingsOpen || (search && !!query.trim())) && (sidebar.state !== 'collapsed' || sidebar.isMobile)"
+                      aria-controls="sidebar-overview-settings"
+                      @click="settingsOpen = !settingsOpen"
+                    >
+                      <SidebarMenuButtonIcon v-if="icons"><component :is="item.icon" /></SidebarMenuButtonIcon>
+                      <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>
+                      <SidebarMenuChevron />
+                    </SidebarMenuButton>
+                    <SidebarMenuSub id="sidebar-overview-settings" :open="(settingsOpen || (search && !!query.trim())) && (sidebar.state !== 'collapsed' || sidebar.isMobile)" :has-icons="icons">
+                      <SidebarMenuSubItem v-for="child in settingsItems.filter((child) => hit(item.label, search ? query : '') || hit(child, search ? query : ''))" :key="child">
+                        <SidebarMenuSubButton :indent="1" :is-active="activeItem === child" @click="activeItem = child">{{ child }}</SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    </SidebarMenuSub>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem v-else-if="hit(item.label, search ? query : '')">
+                    <SidebarMenuButton
+                      :is-active="activeItem === item.label"
+                      :tooltip="item.label"
+                      @click="activeItem = item.label"
+                    >
+                      <SidebarMenuButtonIcon v-if="icons"><component :is="item.icon" /></SidebarMenuButtonIcon>
+                      <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>
+                      <SidebarMenuBadge v-if="badges && item.badge">
+                        <Badge size="sm" color="info">{{ item.badge }}</Badge>
+                      </SidebarMenuBadge>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </template>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </template>
       </SidebarContent>
-
-      <SidebarFooter>
+      <SidebarFooter v-if="footer === 'card'">
+        <SidebarCard dismissible @dismiss="footer = 'none'">
+          <SidebarCardTitleLink href="#" @click.prevent>Upgrade to Pro</SidebarCardTitleLink>
+          <SidebarCardContent>
+            Unlock higher rate limits, priority support, and advanced features.
+          </SidebarCardContent>
+          <SidebarCardFooter>
+            <Button size="sm" pill color="primary">View Plans</Button>
+          </SidebarCardFooter>
+        </SidebarCard>
+      </SidebarFooter>
+      <SidebarFooter v-else-if="footer === 'user'">
         <SidebarMenu>
           <SidebarMenuItem>
             <Menu>
@@ -5682,899 +5352,11 @@ The sidebar of a product: 260px, pill rows on a grey ground and a page with no i
       </SidebarFooter>
     </component>
 
-    <component :is="SidebarDemoPage" :title="appLabels.find((item) => item.id === active)?.label">
-          <p class="text-secondary">Fold the sidebar: the Notifications badge turns into a dot above its icon, the counts fade.</p>
-        </component>
-  </SidebarLayout>
-</component>
-```
-
-### Basic
-```vue
-<component :is="ResponsiveSidebarProvider"
-  :key="collapsible + '-' + icons"
-  v-slot="sidebar"
-  :class="['h-full', { 'demo-sidebar-flat': !bordered }]"
-  :collapsible="icons ? collapsible : 'none'"
->
-  <SidebarLayout class="h-full">
-    <component :is="ResponsiveSidebar">
-      <SidebarHeader v-if="!sidebar.isMobile">
-        <span class="demo-sidebar-wordmark">App</span>
-        <Tooltip v-if="sidebar.collapsible !== 'none'" compact>
-          <SidebarTrigger />
-          <template #content>
-            <span class="inline-flex items-center gap-1.5">
-              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}
-              <kbd class="console-trigger-kbd">⌘B</kbd>
-            </span>
-          </template>
-        </Tooltip>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup v-for="group in navGroups" :key="group.label">
-          <SidebarGroupLabel :size="labelSize">{{ group.label }}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem v-for="item in group.items" :key="item.label">
-                <SidebarMenuButton
-                  :is-active="activeItem === item.label"
-                  :tooltip="item.label"
-                  @click="activeItem = item.label"
-                >
-                  <SidebarMenuButtonIcon v-if="icons"><component :is="item.icon" /></SidebarMenuButtonIcon>
-                  <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>
-                  <SidebarMenuBadge v-if="badges && item.badge">
-                    <Badge size="sm" color="info">{{ item.badge }}</Badge>
-                  </SidebarMenuBadge>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter v-if="footerCard">
-        <SidebarCard dismissible>
-          <SidebarCardTitleLink href="#" @click.prevent>Upgrade to Pro</SidebarCardTitleLink>
-          <SidebarCardContent>
-            Unlock higher rate limits, priority support, and advanced features.
-          </SidebarCardContent>
-          <SidebarCardFooter>
-            <Button size="sm" pill color="primary">View Plans</Button>
-          </SidebarCardFooter>
-        </SidebarCard>
-      </SidebarFooter>
-    </component>
-
     <component :is="SidebarDemoPage" :title="activeItem">
-        <p class="text-secondary">Main content area.</p>
-      </component>
-  </SidebarLayout>
-</component>
-```
-
-### Collapsible Sections
-Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. A parent is a SidebarMenuItem whose SidebarMenuSub holds the next level; expanded on the item turns its SidebarMenuChevron and open on the submenu shows it. Each level of the tree is one v-for.
-```vue
-<component :is="ResponsiveSidebarProvider" :key="icons ? 'icons' : 'no-icons'" class="h-full" collapsible="none">
-  <SidebarLayout class="h-full">
-    <component :is="ResponsiveSidebar" :variant="icons ? undefined : 'docs'">
-      <SidebarContent>
-        <SidebarGroup v-if="icons">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem v-for="section in iconSections" :key="section.id" :expanded="!!expanded[section.id]">
-                <SidebarMenuButton @click="expanded[section.id] = !expanded[section.id]">
-                  <SidebarMenuButtonIcon><component :is="section.icon" /></SidebarMenuButtonIcon>
-                  <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>
-                  <SidebarMenuChevron />
-                </SidebarMenuButton>
-                <SidebarMenuSub :open="!!expanded[section.id]" has-icons>
-                  <SidebarMenuSubItem v-for="child in section.items" :key="child.id">
-                    <SidebarMenuSubButton :indent="1" :is-active="appPage.id === child.id" @click="appPage = child">{{ child.label }}</SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <template v-else>
-          <SidebarGroup v-for="section in docsSections" :key="section.id">
-            <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <template v-for="a in section.items" :key="a.id">
-                  <SidebarMenuItem v-if="a.items" :expanded="!!expanded[a.id]">
-                    <SidebarMenuSubButton :indent="0" @click="expanded[a.id] = !expanded[a.id]">
-                      {{ a.label }}<SidebarMenuChevron />
-                    </SidebarMenuSubButton>
-                    <SidebarMenuSub :open="!!expanded[a.id]">
-                      <template v-for="b in a.items" :key="b.id">
-                        <SidebarMenuItem v-if="b.items" :expanded="!!expanded[b.id]">
-                          <SidebarMenuSubButton :indent="1" @click="expanded[b.id] = !expanded[b.id]">
-                            {{ b.label }}<SidebarMenuChevron />
-                          </SidebarMenuSubButton>
-                          <SidebarMenuSub :open="!!expanded[b.id]">
-                            <template v-for="c in b.items" :key="c.id">
-                              <SidebarMenuItem v-if="c.items" :expanded="!!expanded[c.id]">
-                                <SidebarMenuSubButton :indent="2" @click="expanded[c.id] = !expanded[c.id]">
-                                  {{ c.label }}<SidebarMenuChevron />
-                                </SidebarMenuSubButton>
-                                <SidebarMenuSub :open="!!expanded[c.id]">
-                                  <SidebarMenuSubItem v-for="d in c.items" :key="d.id">
-                                    <SidebarMenuSubButton :indent="3" :is-active="docsPage.id === d.id" @click="docsPage = d">{{ d.label }}</SidebarMenuSubButton>
-                                  </SidebarMenuSubItem>
-                                </SidebarMenuSub>
-                              </SidebarMenuItem>
-                              <SidebarMenuSubItem v-else>
-                                <SidebarMenuSubButton :indent="2" :is-active="docsPage.id === c.id" @click="docsPage = c">{{ c.label }}</SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            </template>
-                          </SidebarMenuSub>
-                        </SidebarMenuItem>
-                        <SidebarMenuSubItem v-else>
-                          <SidebarMenuSubButton :indent="1" :is-active="docsPage.id === b.id" @click="docsPage = b">{{ b.label }}</SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      </template>
-                    </SidebarMenuSub>
-                  </SidebarMenuItem>
-                  <SidebarMenuSubItem v-else>
-                    <SidebarMenuSubButton :indent="0" :is-active="docsPage.id === a.id" @click="docsPage = a">{{ a.label }}</SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </template>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </template>
-      </SidebarContent>
+      <p class="text-secondary">Main content area.</p>
     </component>
-
-    <component :is="SidebarDemoPage" :title="(icons ? appPage : docsPage).label">
-        <p class="text-secondary">
-          Documentation page for {{ (icons ? appPage : docsPage).label }}. This is where the content would be displayed.
-        </p>
-      </component>
   </SidebarLayout>
 </component>
-```
-
-### Search and Filter
-Combine search and type-based filtering with nested tree navigation. Each item has an icon based on its type. A Menu with checkbox items filters items by type; filterWorkflowTree and flattenByType are plain functions in the setup scope. Create a unique treeId with Vue useId() to connect each disclosure to its sublist.
-```vue
-<component :is="ResponsiveSidebarProvider" :class="['h-full', { 'demo-sidebar-flat': !bordered }]" collapsible="none">
-  <SidebarLayout class="h-full">
-    <component :is="ResponsiveSidebar">
-      <SidebarHeader>
-        <div class="flex items-center gap-2 w-full [&>div:first-child>div]:!p-0" style="padding: 16px 0 8px">
-          <div class="flex-1">
-            <SidebarInput
-              v-model:value="search"
-              size="md"
-              :pill="false"
-              variant="soft"
-              placeholder="Search"
-              @clear="search = ''"
-            />
-          </div>
-          <Menu>
-            <MenuTrigger>
-              <Button variant="soft" size="md" color="secondary" :pill="false" aria-label="Filter by type" uniform>
-                <FilterBadge v-if="typeFilters.length > 0" />
-                <Filter v-else />
-              </Button>
-            </MenuTrigger>
-            <MenuContent min-width="auto" align="end">
-              <MenuCheckboxItem
-                v-for="option in stepFilterOptions"
-                :key="option.value"
-                :checked="typeFilters.includes(option.value)"
-                indicator-position="end"
-                indicator-variant="ghost"
-                @update:checked="(checked) => (typeFilters = checked ? [...typeFilters, option.value] : typeFilters.filter((v) => v !== option.value))"
-                @select="(event) => event.preventDefault()"
-              >{{ option.label }}</MenuCheckboxItem>
-            </MenuContent>
-          </Menu>
-        </div>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <!-- Filtered by type: a flat list -->
-            <SidebarMenu v-if="typeFilters.length > 0">
-              <SidebarMenuItem v-for="step in flattenByType(workflowSteps, typeFilters, search)" :key="step.id">
-                <SidebarMenuButton :is-active="activeStep === step.id" @click="activeStep = step.id">
-                  <SidebarMenuButtonIcon style="--sidebar-icon-size: 16px">
-                    <component :is="stepTypes[step.type].icon" />
-                  </SidebarMenuButtonIcon>
-                  <SidebarMenuButtonLabel>{{ step.label }}</SidebarMenuButtonLabel>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-
-            <!-- Otherwise the tree, narrowed by the search -->
-            <SidebarMenu v-else>
-              <template v-for="step in filterWorkflowTree(workflowSteps, search)" :key="step.id">
-                <SidebarMenuItem v-if="step.children" :expanded="!!expanded[step.id]">
-                  <div class="flex items-center">
-                  <SidebarMenuButton
-                    class="!w-auto min-w-0 flex-1"
-                    :aria-expanded="expand === 'row' ? !!expanded[step.id] : undefined"
-                    :aria-controls="expand === 'row' ? treeId + '-' + step.id : undefined"
-                    :is-active="activeStep === step.id"
-                    @click="expand === 'chevron' ? (activeStep = step.id) : (expanded[step.id] = !expanded[step.id])"
-                  >
-                    <SidebarMenuButtonIcon style="--sidebar-icon-size: 16px">
-                      <component :is="stepTypes[step.type].icon" />
-                    </SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>{{ step.label }}</SidebarMenuButtonLabel>
-                    <SidebarMenuChevron v-if="expand === 'row'" aria-hidden="true" />
-                  </SidebarMenuButton>
-                  <Button v-if="expand === 'chevron'" variant="ghost" color="secondary" size="xs" uniform
-                    class="!size-[26px] max-md:!size-11 [&_svg]:!size-4"
-                    :aria-label="(expanded[step.id] ? 'Collapse ' : 'Expand ') + step.label"
-                    :aria-expanded="!!expanded[step.id]" :aria-controls="treeId + '-' + step.id"
-                    @click="expanded[step.id] = !expanded[step.id]">
-                    <ChevronDownMd aria-hidden="true" :style="{ transform: expanded[step.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }" />
-                  </Button>
-                  </div>
-                  <SidebarMenuSub :id="treeId + '-' + step.id" :open="!!expanded[step.id]" has-icons>
-                    <SidebarMenuSubItem v-for="child in step.children" :key="child.id">
-                      <SidebarMenuSubButton
-                        class="gap-2"
-                        :indent="1"
-                        :is-active="activeStep === child.id"
-                        @click="activeStep = child.id"
-                      >
-                        <span
-                          class="inline-flex items-center justify-center [&>svg]:w-full [&>svg]:h-full"
-                          style="width: 16px; height: 16px; flex-shrink: 0"
-                        >
-                          <component :is="stepTypes[child.type].icon" />
-                        </span>{{ child.label }}
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  </SidebarMenuSub>
-                </SidebarMenuItem>
-                <SidebarMenuItem v-else>
-                  <SidebarMenuButton :is-active="activeStep === step.id" @click="activeStep = step.id">
-                    <SidebarMenuButtonIcon style="--sidebar-icon-size: 16px">
-                      <component :is="stepTypes[step.type].icon" />
-                    </SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>{{ step.label }}</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </template>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </component>
-
-    <component :is="SidebarDemoPage" :title="findStepLabel(activeStep) || 'Start'">
-        <p class="text-secondary">
-          {{ typeFilters.length > 0 ? 'Filtered results shown as a flat list.' : 'Use the search and filter controls to narrow the navigation tree.' }}
-        </p>
-      </component>
-  </SidebarLayout>
-</component>
-```
-
-### Tree with Hover Actions
-Tree navigation with chevrons on the left and actions on the right. Clicking a row selects the item and its chevron toggles expand/collapse. On hover, a row shows a + menu (top-level rows and nested groups) and nested rows show a drag handle for reordering. The actions sit next to the row button, not inside it, so no button is nested in another.
-```vue
-<script setup lang="ts">
-// Local responsive helpers from the Responsive composition example below.
-import { ResponsiveSidebarProvider, ResponsiveSidebar, SidebarDemoPage } from "./responsive-sidebar"
-import { computed, ref, useId, watch, type Component } from "vue"
-import { Button } from "@plexui/vue/components/Button"
-import { Menu, MenuCheckboxItem, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from "@plexui/vue/components/Menu"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarHeader,
-  SidebarInput,
-  SidebarInset,
-  SidebarLayout,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuButtonIcon,
-  SidebarMenuButtonLabel,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  SidebarProvider,
-} from "@plexui/vue/components/Sidebar"
-import {
-  // Row types
-  Abc, AllProductsExplore, Bolt, ButtonMousePointer, Calendar, CheckboxChecked, CheckCheck, CheckMd,
-  Clip, Commit, Desktop, Globe, GroupCheck, GroupCheckCircle, ImageSquare, LinkExternal, MapPin,
-  Number123, PanelBottom, Phone, SpacingVertical, SquareAsterisk, SquareDashed, TextAlignStart,
-  TextInitial, TextSelect,
-  // Header and row actions
-  ChevronDownMd, Filter, FilterBadge, GripVertical, ListChevronsDownUp, Plus,
-} from "@plexui/vue/components/Icon"
-
-type NodeType =
-  | "action"
-  | "condition"
-  | "module"
-  | "screen"
-  | "container"
-  | "footer"
-  | "button"
-  | "image"
-  | "text"
-  | "title"
-  | "spacer"
-  | "address-input"
-  | "checkbox"
-  | "checkbox-group"
-  | "country-select"
-  | "date"
-  | "file-upload"
-  | "masked-text"
-  | "multi-select"
-  | "number-input"
-  | "phone-number"
-  | "radio-group"
-  | "select"
-  | "text-area"
-  | "text-input"
-  | "url-input"
-
-type ActionNode = { id: string; label: string; type: NodeType; children?: ActionNode[] }
-
-const nodeTypes: Record<NodeType, { icon: Component; label: string }> = {
-  action: { icon: Bolt, label: "Action" },
-  condition: { icon: Commit, label: "Condition" },
-  module: { icon: AllProductsExplore, label: "Module" },
-  screen: { icon: Desktop, label: "Screen" },
-  container: { icon: SquareDashed, label: "Container" },
-  footer: { icon: PanelBottom, label: "Footer" },
-  button: { icon: ButtonMousePointer, label: "Button" },
-  image: { icon: ImageSquare, label: "Image" },
-  text: { icon: TextAlignStart, label: "Text" },
-  title: { icon: TextInitial, label: "Title" },
-  spacer: { icon: SpacingVertical, label: "Spacer" },
-  "address-input": { icon: MapPin, label: "Address input" },
-  checkbox: { icon: CheckboxChecked, label: "Checkbox" },
-  "checkbox-group": { icon: GroupCheck, label: "Checkbox group" },
-  "country-select": { icon: Globe, label: "Country select" },
-  date: { icon: Calendar, label: "Date" },
-  "file-upload": { icon: Clip, label: "File upload" },
-  "masked-text": { icon: SquareAsterisk, label: "Masked text" },
-  "multi-select": { icon: CheckCheck, label: "Multi select" },
-  "number-input": { icon: Number123, label: "Number input" },
-  "phone-number": { icon: Phone, label: "Phone number" },
-  "radio-group": { icon: GroupCheckCircle, label: "Radio group" },
-  select: { icon: CheckMd, label: "Select" },
-  "text-area": { icon: TextSelect, label: "Text area" },
-  "text-input": { icon: Abc, label: "Text input" },
-  "url-input": { icon: LinkExternal, label: "URL input" },
-}
-
-const filterOptions = (["action", "condition", "module", "screen", "container", "footer"] as NodeType[]).map((type) => ({
-  value: type,
-  label: nodeTypes[type].label,
-}))
-
-const elementTypes: NodeType[] = ["button", "image", "text", "title", "spacer"]
-const formTypes: NodeType[] = [
-  "address-input", "checkbox", "checkbox-group", "country-select", "date",
-  "file-upload", "masked-text", "multi-select", "number-input", "phone-number",
-  "radio-group", "select", "text-area", "text-input", "url-input",
-]
-
-/** The + menu: a screen adds a container or a footer, any other row adds elements */
-const addMenu = (node: ActionNode): NodeType[][] =>
-  node.type === "screen" ? [["container", "footer"]] : [elementTypes, formTypes]
-
-const treeId = useId()
-
-// Demo controls
-const action = ref<"collapse" | "filter">("collapse")
-const bordered = ref(true)
-
-const steps = ref<ActionNode[]>([
-  { id: "action", label: "Action", type: "action" },
-  { id: "condition", label: "Condition", type: "condition" },
-  {
-    id: "screen", label: "Screen", type: "screen",
-    children: [
-      {
-        id: "container-elements", label: "Container 1", type: "container",
-        children: [
-          { id: "el-button", label: "Button", type: "button" },
-          { id: "el-image", label: "Image", type: "image" },
-          { id: "el-text", label: "Text", type: "text" },
-          { id: "el-title", label: "Title", type: "title" },
-          { id: "el-spacer", label: "Spacer", type: "spacer" },
-        ],
-      },
-      {
-        id: "container-forms", label: "Container 2", type: "container",
-        children: [
-          { id: "fm-address", label: "Address input", type: "address-input" },
-          { id: "fm-checkbox", label: "Checkbox", type: "checkbox" },
-          { id: "fm-checkgroup", label: "Checkbox group", type: "checkbox-group" },
-          { id: "fm-country", label: "Country select", type: "country-select" },
-          { id: "fm-date", label: "Date", type: "date" },
-          { id: "fm-file", label: "File upload", type: "file-upload" },
-          { id: "fm-masked", label: "Masked text", type: "masked-text" },
-          { id: "fm-multi", label: "Multi select", type: "multi-select" },
-          { id: "fm-number", label: "Number input", type: "number-input" },
-          { id: "fm-phone", label: "Phone number", type: "phone-number" },
-          { id: "fm-radio", label: "Radio group", type: "radio-group" },
-          { id: "fm-select", label: "Select", type: "select" },
-          { id: "fm-textarea", label: "Text area", type: "text-area" },
-          { id: "fm-textinput", label: "Text input", type: "text-input" },
-          { id: "fm-url", label: "URL input", type: "url-input" },
-        ],
-      },
-      {
-        id: "footer", label: "Footer", type: "footer",
-        children: [
-          { id: "ft-text", label: "Text", type: "text" },
-          { id: "ft-button", label: "Button", type: "button" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "module", label: "Module", type: "module",
-    children: [
-      { id: "mod-screen-1", label: "Screen 1", type: "screen" },
-      { id: "mod-screen-2", label: "Screen 2", type: "screen" },
-      { id: "mod-screen-3", label: "Screen 3", type: "screen" },
-    ],
-  },
-])
-
-const search = ref("")
-const typeFilters = ref<NodeType[]>([])
-const activeItem = ref("screen")
-
-const groupIds = ["screen", "container-elements", "container-forms", "footer", "module"]
-const expandAll = (): Record<string, boolean> => Object.fromEntries(groupIds.map((id) => [id, true]))
-const expanded = ref<Record<string, boolean>>(expandAll())
-
-function toggle(id: string) {
-  expanded.value[id] = !expanded.value[id]
-}
-
-// Collapse mode: one button folds every group, or opens them all again
-const hasAnyExpanded = computed(() => groupIds.some((id) => expanded.value[id]))
-function toggleCollapseAll() {
-  expanded.value = hasAnyExpanded.value ? {} : expandAll()
-}
-
-// Filter mode: a search or a type filter lists the matching rows flat
-const isFlattening = computed(
-  () => action.value === "filter" && (typeFilters.value.length > 0 || search.value.length > 0),
-)
-const visibleSteps = computed(() =>
-  isFlattening.value
-    ? flattenNodes(steps.value, typeFilters.value, search.value)
-    : filterTree(steps.value, search.value),
-)
-const activeLabel = computed(() => findLabel(steps.value, activeItem.value) || "Screen")
-
-// Switching modes clears the search and the type filters
-watch(action, (mode) => {
-  typeFilters.value = []
-  search.value = ""
-  if (mode === "collapse") expanded.value = expandAll()
-})
-
-/** The tree, keeping the parents of matching rows */
-function filterTree(items: ActionNode[], query: string): ActionNode[] {
-  if (!query) return items
-  return items.reduce<ActionNode[]>((acc, item) => {
-    const match = item.label.toLowerCase().includes(query.toLowerCase())
-    const children = item.children ? filterTree(item.children, query) : undefined
-    const childMatch = !!children && children.length > 0
-    if (match || childMatch) acc.push(childMatch ? { ...item, children } : item)
-    return acc
-  }, [])
-}
-
-/** Every row of the checked types (all types when none is) matching the search, as a flat list */
-function flattenNodes(items: ActionNode[], types: NodeType[], query: string): ActionNode[] {
-  const result: ActionNode[] = []
-  const collect = (list: ActionNode[]) => {
-    for (const item of list) {
-      const matchType = types.length === 0 || types.includes(item.type)
-      const matchSearch = !query || item.label.toLowerCase().includes(query.toLowerCase())
-      if (matchType && matchSearch) result.push(item)
-      if (item.children) collect(item.children)
-    }
-  }
-  collect(items)
-  return result
-}
-
-/** The label of a row anywhere in the tree */
-function findLabel(items: ActionNode[], id: string): string {
-  for (const item of items) {
-    if (item.id === id) return item.label
-    if (item.children) {
-      const found = findLabel(item.children, id)
-      if (found) return found
-    }
-  }
-  return ""
-}
-
-// Drag and drop (native HTML5): pressing a row's grip makes the row
-// draggable; it drops on the rows of its own list and takes their place.
-
-/** Containers in a screen (not its Footer) and elements reorder; a module's screens do not */
-const isSortable = (parent: ActionNode, node: ActionNode) => parent.type !== "module" && node.type !== "footer"
-
-const grabbed = ref<string | null>(null) // the row whose grip is pressed
-const dragId = ref<string | null>(null)
-const overId = ref<string | null>(null) // the drop target, drawn hovered
-let dropIds: string[] = []
-
-/** Moves `activeId` to the place of `targetId` in the list holding both; the Footer never moves */
-function reorderTree(items: ActionNode[], activeId: string, targetId: string): ActionNode[] {
-  return items.map((item) => {
-    if (!item.children) return item
-    const from = item.children.findIndex((child) => child.id === activeId)
-    const to = item.children.findIndex((child) => child.id === targetId)
-    if (from !== -1 && to !== -1) {
-      if (item.children[from].type === "footer" || item.children[to].type === "footer") return item
-      const children = [...item.children]
-      children.splice(to, 0, ...children.splice(from, 1))
-      return { ...item, children }
-    }
-    return { ...item, children: reorderTree(item.children, activeId, targetId) }
-  })
-}
-
-function startDrag(event: DragEvent, parent: ActionNode, node: ActionNode) {
-  dragId.value = node.id
-  dropIds = (parent.children ?? []).filter((sibling) => isSortable(parent, sibling)).map((sibling) => sibling.id)
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = "move"
-    event.dataTransfer.setData("text/plain", node.id)
-  }
-}
-
-function dragOver(event: DragEvent, id: string) {
-  if (!dragId.value || !dropIds.includes(id)) return
-  event.preventDefault() // accepts the drop
-  overId.value = id === dragId.value ? null : id
-}
-
-/** Anywhere else in the sidebar there is no drop target */
-function clearDropTarget(event: DragEvent) {
-  if (!event.defaultPrevented) overId.value = null
-}
-
-function endDrag() {
-  grabbed.value = null
-  dragId.value = null
-  overId.value = null
-  dropIds = []
-}
-
-function dropOn(event: DragEvent, id: string) {
-  if (!dragId.value || !dropIds.includes(id)) return
-  event.preventDefault()
-  if (id !== dragId.value) steps.value = reorderTree(steps.value, dragId.value, id)
-  endDrag()
-}
-
-/** Indent each level; leaf rows reserve the disclosure column without adding a control. */
-const rowStyle = (depth: number, node: ActionNode) => ({
-  paddingLeft: "calc(" + (4 + depth * 24) + "px + " + (node.children ? "0px" : "var(--disclosure-width)") + ")",
-})
-</script>
-
-<template>
-  <component :is="ResponsiveSidebarProvider" :class="['h-full', { 'demo-sidebar-flat': !bordered }]" collapsible="none">
-    <SidebarLayout class="h-full">
-      <component :is="ResponsiveSidebar" class="!py-4">
-        <SidebarHeader>
-          <div class="flex items-center gap-2 w-full [&>div:first-child>div]:!p-0">
-            <div class="flex-1">
-              <SidebarInput
-                v-model:value="search"
-                size="md"
-                :pill="false"
-                variant="soft"
-                placeholder="Search..."
-                @clear="search = ''"
-              />
-            </div>
-            <!-- collapse: folds every group, or opens them all again -->
-            <Button
-              v-if="action === 'collapse'"
-              variant="soft"
-              size="md"
-              color="secondary"
-              :pill="false"
-              uniform
-              aria-label="Collapse all"
-              :aria-pressed="!hasAnyExpanded"
-              @click="toggleCollapseAll"
-            >
-              <ListChevronsDownUp />
-            </Button>
-            <!-- filter: lists the rows of the checked types -->
-            <Menu v-else>
-              <MenuTrigger>
-                <Button variant="soft" size="md" color="secondary" :pill="false" aria-label="Filter by type" uniform>
-                  <FilterBadge v-if="typeFilters.length > 0" />
-                  <Filter v-else />
-                </Button>
-              </MenuTrigger>
-              <MenuContent min-width="auto" align="end">
-                <MenuCheckboxItem
-                  v-for="option in filterOptions"
-                  :key="option.value"
-                  :checked="typeFilters.includes(option.value)"
-                  indicator-position="end"
-                  indicator-variant="ghost"
-                  @update:checked="(checked) => (typeFilters = checked ? [...typeFilters, option.value] : typeFilters.filter((v) => v !== option.value))"
-                  @select="(event) => event.preventDefault()"
-                >{{ option.label }}</MenuCheckboxItem>
-              </MenuContent>
-            </Menu>
-          </div>
-        </SidebarHeader>
-        <SidebarContent @dragover="clearDropTarget">
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <!-- Filter mode, searching or filtering by type: a flat list -->
-              <SidebarMenu v-if="isFlattening">
-                <SidebarMenuItem v-for="item in visibleSteps" :key="item.id">
-                  <SidebarMenuButton :is-active="activeItem === item.id" @click="activeItem = item.id">
-                    <SidebarMenuButtonIcon style="--sidebar-icon-size: 16px">
-                      <component :is="nodeTypes[item.type].icon" />
-                    </SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-
-              <!-- Otherwise the tree, narrowed by the search -->
-              <SidebarMenu v-else>
-                <SidebarMenuItem v-for="item in visibleSteps" :key="item.id" :expanded="!!expanded[item.id]">
-                  <div class="group/atp relative flex items-center pl-1">
-                    <Button
-                      v-if="item.children"
-                      variant="ghost" color="secondary" size="xs" uniform
-                      class="!size-6 max-md:!size-11 [&_svg]:!size-4"
-                      :aria-label="(expanded[item.id] ? 'Collapse ' : 'Expand ') + item.label"
-                      :aria-expanded="!!expanded[item.id]"
-                      :aria-controls="treeId + '-' + item.id"
-                      @click="toggle(item.id)"
-                    >
-                      <ChevronDownMd aria-hidden="true" :style="{ transform: expanded[item.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }" />
-                    </Button>
-                    <span v-else class="w-6 max-md:w-11 shrink-0" />
-                    <SidebarMenuButton
-                      :is-active="activeItem === item.id"
-                      class="!w-auto min-w-0 flex-1 group-hover/atp:text-[var(--sidebar-menu-text-active)] group-hover/atp:[&::before]:!opacity-50 group-hover/atp:[&::before]:![transform:scale(1)]"
-                      @click="activeItem = item.id"
-                    >
-                      <span class="flex items-center shrink-0" style="margin-left: 4px">
-                        <span
-                          class="inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]"
-                          style="width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px"
-                        >
-                          <component :is="nodeTypes[item.type].icon" />
-                        </span>
-                      </span>
-                      <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>
-                    </SidebarMenuButton>
-                    <span
-                      class="item-actions flex shrink-0 items-center gap-0.5 opacity-0 pointer-events-none group-hover/atp:opacity-100 group-hover/atp:pointer-events-auto group-focus-within/atp:opacity-100 group-focus-within/atp:pointer-events-auto max-md:opacity-100 max-md:pointer-events-auto"
-                    >
-                      <Menu>
-                        <MenuTrigger>
-                          <Button variant="ghost" color="secondary" size="xs" uniform class="!size-6 max-md:!size-11" :aria-label="'Add to ' + item.label"><Plus /></Button>
-                        </MenuTrigger>
-                        <MenuContent min-width="auto" align="end">
-                          <template v-for="(types, index) in addMenu(item)" :key="index">
-                            <MenuSeparator v-if="index > 0" />
-                            <MenuItem v-for="type in types" :key="type" @select="() => {}">
-                              <span class="inline-flex items-center justify-center w-4 h-4 shrink-0 [&>svg]:w-full [&>svg]:h-full"><component :is="nodeTypes[type].icon" /></span> {{ nodeTypes[type].label }}
-                            </MenuItem>
-                          </template>
-                        </MenuContent>
-                      </Menu>
-                    </span>
-                  </div>
-                  <SidebarMenuSub :id="treeId + '-' + item.id" v-if="item.children" :open="!!expanded[item.id]" has-icons>
-                    <SidebarMenuSubItem
-                      v-for="child in item.children"
-                      :key="child.id"
-                      :style="dragId === child.id ? 'opacity: 0.7' : undefined"
-                    >
-                      <div
-                        class="group/ati relative flex items-center [--disclosure-width:24px] max-md:[--disclosure-width:44px]"
-                        :style="rowStyle(1, child)"
-                        :draggable="grabbed === child.id"
-                        @dragstart="startDrag($event, item, child)"
-                        @dragover="dragOver($event, child.id)"
-                        @drop="dropOn($event, child.id)"
-                        @dragend="endDrag"
-                      >
-                        <Button
-                          v-if="child.children"
-                          variant="ghost" color="secondary" size="xs" uniform
-                          class="!size-6 max-md:!size-11 [&_svg]:!size-4"
-                          :aria-label="(expanded[child.id] ? 'Collapse ' : 'Expand ') + child.label"
-                          :aria-expanded="!!expanded[child.id]"
-                          :aria-controls="treeId + '-' + child.id"
-                          @click="toggle(child.id)"
-                        >
-                          <ChevronDownMd aria-hidden="true" :style="{ transform: expanded[child.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }" />
-                        </Button>
-                        <SidebarMenuSubButton
-                          :indent="1"
-                          :is-active="activeItem === child.id"
-                          :class="[
-                            'gap-0.5 !w-auto min-w-0 flex-1 !h-8 !px-1 !py-0 max-md:!h-11',
-                            dragId === child.id || overId === child.id
-                              ? 'text-[var(--sidebar-menu-text-active)] [&::before]:!opacity-50 [&::before]:![transform:scale(1)]'
-                              : 'group-hover/ati:text-[var(--sidebar-menu-text-active)] group-hover/ati:[&::before]:!opacity-50 group-hover/ati:[&::before]:![transform:scale(1)]',
-                          ]"
-                          @click="activeItem = child.id"
-                        >
-                          <span class="flex items-center shrink-0">
-                            <span
-                              class="inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]"
-                              style="width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px"
-                            >
-                              <component :is="nodeTypes[child.type].icon" />
-                            </span>
-                          </span>
-                          <span class="flex-1 min-w-0 truncate text-left relative z-[1]">{{ child.label }}</span>
-                        </SidebarMenuSubButton>
-                        <!-- Hover actions: + on parents, the drag grip on rows that reorder -->
-                        <span
-                          v-if="child.children || isSortable(item, child)"
-                          class="item-actions flex shrink-0 items-center gap-0.5"
-                          :class="
-                            dragId === child.id
-                              ? 'opacity-100 pointer-events-auto'
-                              : 'opacity-0 pointer-events-none group-hover/ati:opacity-100 group-hover/ati:pointer-events-auto group-focus-within/ati:opacity-100 group-focus-within/ati:pointer-events-auto max-md:opacity-100 max-md:pointer-events-auto'
-                          "
-                        >
-                          <Menu v-if="child.children">
-                            <MenuTrigger>
-                              <Button variant="ghost" color="secondary" size="xs" uniform class="!size-6 max-md:!size-11" :aria-label="'Add to ' + child.label"><Plus /></Button>
-                            </MenuTrigger>
-                            <MenuContent min-width="auto" align="end">
-                              <template v-for="(types, index) in addMenu(child)" :key="index">
-                                <MenuSeparator v-if="index > 0" />
-                                <MenuItem v-for="type in types" :key="type" @select="() => {}">
-                                  <span class="inline-flex items-center justify-center w-4 h-4 shrink-0 [&>svg]:w-full [&>svg]:h-full"><component :is="nodeTypes[type].icon" /></span> {{ nodeTypes[type].label }}
-                                </MenuItem>
-                              </template>
-                            </MenuContent>
-                          </Menu>
-                          <span
-                            v-if="isSortable(item, child)"
-                            class="inline-flex size-6 max-md:size-11 items-center justify-center shrink-0 [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto text-[var(--color-text-tertiary)]"
-                            style="border-radius: 6px; touch-action: none"
-                            :style="{ cursor: dragId === child.id ? 'grabbing' : 'grab' }"
-                            @pointerdown="grabbed = child.id"
-                            @pointerup="grabbed = null"
-                          >
-                            <GripVertical />
-                          </span>
-                        </span>
-                      </div>
-                      <SidebarMenuSub :id="treeId + '-' + child.id" v-if="child.children && dragId !== child.id" :open="!!expanded[child.id]" has-icons>
-                        <SidebarMenuSubItem
-                          v-for="grandchild in child.children"
-                          :key="grandchild.id"
-                          :style="dragId === grandchild.id ? 'opacity: 0.7' : undefined"
-                        >
-                          <div
-                            class="group/ati relative flex items-center [--disclosure-width:24px] max-md:[--disclosure-width:44px]"
-                            :style="rowStyle(2, grandchild)"
-                            :draggable="grabbed === grandchild.id"
-                            @dragstart="startDrag($event, child, grandchild)"
-                            @dragover="dragOver($event, grandchild.id)"
-                            @drop="dropOn($event, grandchild.id)"
-                            @dragend="endDrag"
-                          >
-                            <Button
-                              v-if="grandchild.children"
-                              variant="ghost" color="secondary" size="xs" uniform
-                              class="!size-6 max-md:!size-11 [&_svg]:!size-4"
-                              :aria-label="(expanded[grandchild.id] ? 'Collapse ' : 'Expand ') + grandchild.label"
-                              :aria-expanded="!!expanded[grandchild.id]"
-                              :aria-controls="treeId + '-' + grandchild.id"
-                              @click="toggle(grandchild.id)"
-                            >
-                              <ChevronDownMd aria-hidden="true" :style="{ transform: expanded[grandchild.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }" />
-                            </Button>
-                            <SidebarMenuSubButton
-                              :indent="1"
-                              :is-active="activeItem === grandchild.id"
-                              :class="[
-                                'gap-0.5 !w-auto min-w-0 flex-1 !h-8 !px-1 !py-0 max-md:!h-11',
-                                dragId === grandchild.id || overId === grandchild.id
-                                  ? 'text-[var(--sidebar-menu-text-active)] [&::before]:!opacity-50 [&::before]:![transform:scale(1)]'
-                                  : 'group-hover/ati:text-[var(--sidebar-menu-text-active)] group-hover/ati:[&::before]:!opacity-50 group-hover/ati:[&::before]:![transform:scale(1)]',
-                              ]"
-                              @click="activeItem = grandchild.id"
-                            >
-                              <span class="flex items-center shrink-0">
-                                <span
-                                  class="inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]"
-                                  style="width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px"
-                                >
-                                  <component :is="nodeTypes[grandchild.type].icon" />
-                                </span>
-                              </span>
-                              <span class="flex-1 min-w-0 truncate text-left relative z-[1]">{{ grandchild.label }}</span>
-                            </SidebarMenuSubButton>
-                            <!-- Hover actions: + on parents, the drag grip on rows that reorder -->
-                            <span
-                              v-if="grandchild.children || isSortable(child, grandchild)"
-                              class="item-actions flex shrink-0 items-center gap-0.5"
-                              :class="
-                                dragId === grandchild.id
-                                  ? 'opacity-100 pointer-events-auto'
-                                  : 'opacity-0 pointer-events-none group-hover/ati:opacity-100 group-hover/ati:pointer-events-auto group-focus-within/ati:opacity-100 group-focus-within/ati:pointer-events-auto max-md:opacity-100 max-md:pointer-events-auto'
-                              "
-                            >
-                              <Menu v-if="grandchild.children">
-                                <MenuTrigger>
-                                  <Button variant="ghost" color="secondary" size="xs" uniform class="!size-6 max-md:!size-11" :aria-label="'Add to ' + grandchild.label"><Plus /></Button>
-                                </MenuTrigger>
-                                <MenuContent min-width="auto" align="end">
-                                  <template v-for="(types, index) in addMenu(grandchild)" :key="index">
-                                    <MenuSeparator v-if="index > 0" />
-                                    <MenuItem v-for="type in types" :key="type" @select="() => {}">
-                                      <span class="inline-flex items-center justify-center w-4 h-4 shrink-0 [&>svg]:w-full [&>svg]:h-full"><component :is="nodeTypes[type].icon" /></span> {{ nodeTypes[type].label }}
-                                    </MenuItem>
-                                  </template>
-                                </MenuContent>
-                              </Menu>
-                              <span
-                                v-if="isSortable(child, grandchild)"
-                                class="inline-flex size-6 max-md:size-11 items-center justify-center shrink-0 [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto text-[var(--color-text-tertiary)]"
-                                style="border-radius: 6px; touch-action: none"
-                                :style="{ cursor: dragId === grandchild.id ? 'grabbing' : 'grab' }"
-                                @pointerdown="grabbed = grandchild.id"
-                                @pointerup="grabbed = null"
-                              >
-                                <GripVertical />
-                              </span>
-                            </span>
-                          </div>
-                        </SidebarMenuSubItem>
-                      </SidebarMenuSub>
-                    </SidebarMenuSubItem>
-                  </SidebarMenuSub>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-      </component>
-
-      <component :is="SidebarDemoPage" :title="activeLabel">
-          <p class="text-secondary">
-            {{ isFlattening ? 'Filtered results shown as a flat list.' : 'Screen → Container / Footer → Elements. Containers and elements are drag-reorderable; Footer stays pinned.' }}
-          </p>
-        </component>
-    </SidebarLayout>
-  </component>
-</template>
 ```
 
 ### Mobile Menu
@@ -6694,43 +5476,6 @@ Use Phone preview, then open the menu in the page toolbar. The same navigation t
     <component :is="SidebarDemoPage" :title="active.label">
       <p class="text-secondary">Open the menu to choose a different page.</p>
     </component>
-  </SidebarLayout>
-</component>
-```
-
-### Search Input
-The sidebar provides a dedicated SidebarInput component for search functionality. It forwards everything to Input, so bind it with v-model:value and clear it with @clear.
-```vue
-<component :is="ResponsiveSidebarProvider" class="h-full" collapsible="none">
-  <SidebarLayout class="h-full">
-    <component :is="ResponsiveSidebar" variant="docs">
-      <SidebarHeader>
-        <div style="padding: 12px 0 8px; width: 100%">
-          <SidebarInput v-model:value="searchValue" variant="soft" placeholder="Search" @clear="searchValue = ''" />
-        </div>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup v-for="section in searchSections" :key="section.label">
-          <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem v-for="item in section.items" :key="section.label + '-' + item">
-                <SidebarMenuSubButton
-                  :indent="0"
-                  :is-active="activeItem === section.label + '-' + item"
-                  @click="activeItem = section.label + '-' + item"
-                >{{ item }}</SidebarMenuSubButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </component>
-    <component :is="SidebarDemoPage" :title="activeItem">
-        <p class="text-secondary">
-          Search input stays fixed at the top while sidebar content scrolls.
-        </p>
-      </component>
   </SidebarLayout>
 </component>
 ```
@@ -7926,43 +6671,22 @@ Props:
   - class (string) — Applied to the root <div>
 
 ### Overview
+A bar of task completion between 0 and max (100 by default); it animates each change of value, so bind it to any source, here the value slider. indeterminate passes :value="null": a sweep for a task of unknown length. label pairs a Label with a readout above the bar, the typical upload or onboarding pattern; the bar takes its name from it with aria-labelledby, and without one it needs an aria-label. It reads out the value as a rounded percentage, or what get-value-label returns.
 ```vue
-<script setup>
-import { onMounted, onUnmounted, ref } from "vue"
-import { Progress } from "@plexui/vue/components/Progress"
-
-const value = ref(13)
-let timer
-onMounted(() => {
-  timer = setTimeout(() => (value.value = 66), 500)
-})
-onUnmounted(() => clearTimeout(timer))
+<script setup lang="ts">
+import { Label } from '@plexui/vue/components/Label';
+import { Progress } from '@plexui/vue/components/Progress';
 </script>
 
 <template>
-  <Progress :value="value" aria-label="Loading" />
-</template>
-```
-
-### With label
-Pair a Label with a value readout above the bar, the typical upload or onboarding progress pattern.
-```vue
-<div style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px">
-  <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px">
-    <Label id="progress-upload-label">Uploading plex-ui.zip</Label>
-    <span style="color: var(--color-text-tertiary); font-size: 14px">3.2 / 4.8 MB</span>
+  <div>
+    <div style="display: flex; justify-content: space-between">
+      <Label id="progress-upload-label">Uploading plex-ui.zip</Label>
+      <span>66%</span>
+    </div>
+    <Progress :value="66" aria-labelledby="progress-upload-label" />
   </div>
-  <Progress aria-labelledby="progress-upload-label" :value="67" />
-</div>
-```
-
-### Controlled
-Bind value to any source, here a Slider through v-model:value.
-```vue
-<div style="display: flex; width: 100%; max-width: 320px; flex-direction: column; gap: 16px">
-  <Progress :value="value" aria-label="Progress" />
-  <Slider v-model:value="value" :min="0" :max="100" :step="1" aria-label="Progress value" />
-</div>
+</template>
 ```
 
 ### Segments
@@ -8085,29 +6809,22 @@ Props:
     - class (string) — Additional CSS classes
 
 ### Overview
-ShimmerText applies a continuous shimmer animation to text content. Useful for loading states, AI-generated content indicators, or visual emphasis.
+ShimmerText applies a continuous shimmer to text: for loading states, AI-generated content in progress, or visual emphasis. as renders it as any text element: p, span, h1 to h6, or div (default).ShimmerableText turns the shimmer on and off with shimmer, for text that moves between a loading and an idle state. Set to false, the animation finishes its current sweep and then pauses, with no abrupt cut.
 ```vue
-<ShimmerText class="text-lg font-semibold">
-  Thinking...
-</ShimmerText>
-```
+<script setup lang="ts">
+import { ref } from 'vue';
+import { ShimmerableText } from '@plexui/vue/components/ShimmerText';
 
-### Semantic elements
-Use the as prop to render as any text element: p, span, h1 to h6, or div.
-```vue
-<div class="flex flex-col gap-4">
-  <ShimmerText as="h2" class="text-2xl font-bold">Heading shimmer</ShimmerText>
-  <ShimmerText as="p" class="text-base">Paragraph shimmer effect</ShimmerText>
-  <ShimmerText as="span" class="text-sm text-secondary">Inline shimmer</ShimmerText>
-</div>
-```
+// Always shimmering: ShimmerText
+// Shimmering while loading: ShimmerableText, which off finishes its sweep and stops
+const shimmer = ref(true);
+</script>
 
-### Controllable shimmer
-ShimmerableText allows toggling the shimmer on and off. When shimmer is set to false, the animation finishes its current iteration and then pauses gracefully, with no abrupt cut. Use this variant when text transitions between a loading and idle state.
-```vue
-<ShimmerableText :shimmer="shimmer" class="text-lg font-semibold">
-  Generating response...
-</ShimmerableText>
+<template>
+  <ShimmerableText :shimmer="shimmer" class="text-lg font-semibold">
+    Generating response...
+  </ShimmerableText>
+</template>
 ```
 
 ## Skeleton
@@ -8119,76 +6836,17 @@ Props:
   - class (string) — Set dimensions and custom styling
 
 ### Overview
-Use a circular skeleton to represent loading avatars, combined with text placeholders. Without circle a skeleton keeps its own radius, as for a square picture. Set its size and shape with class.
+A skeleton stands in for content while it loads, in its shape: compose skeletons as the content is laid out, and set each one's size and shape with class. content shows the placeholders of a profile, a card with a picture, a paragraph (lines of varying widths read as natural text), a form (inputs and buttons at the control height, 32px) and a table (its header and rows).circle rounds a skeleton, for the avatar of a profile; without it a skeleton keeps its own radius, as for a square picture.
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue';
-
-const circle = ref(true);
-</script>
-
 <template>
-<div class="flex items-center gap-4">
-  <Skeleton :circle="circle" class="size-12" />
-  <div class="flex flex-col gap-2">
-    <Skeleton class="h-4 w-[200px]" />
-    <Skeleton class="h-4 w-[150px]" />
+  <div class="flex items-center gap-4">
+    <Skeleton circle class="size-12" />
+    <div class="flex flex-col gap-2">
+      <Skeleton class="h-4 w-[200px]" />
+      <Skeleton class="h-4 w-[150px]" />
+    </div>
   </div>
-</div>
 </template>
-```
-
-### Card
-Compose multiple skeletons to represent loading cards with images and text content.
-```vue
-<div class="flex flex-col gap-3 w-[300px] p-4 border border-default rounded-xl">
-  <Skeleton class="h-[150px] w-full rounded-lg" />
-  <Skeleton class="h-4 w-3/4" />
-  <Skeleton class="h-4 w-1/2" />
-</div>
-```
-
-### Text
-Multiple text lines with varying widths create natural-looking paragraph placeholders.
-```vue
-<div class="flex flex-col gap-2 w-[300px]">
-  <Skeleton class="h-4 w-full" />
-  <Skeleton class="h-4 w-full" />
-  <Skeleton class="h-4 w-4/5" />
-</div>
-```
-
-### Form
-Form skeletons use Plex UI control sizing (32px height for inputs and buttons).
-```vue
-<div class="flex flex-col gap-4 w-[300px]">
-  <div class="flex flex-col gap-2">
-    <Skeleton class="h-4 w-[80px]" />
-    <Skeleton class="h-8 w-full rounded-lg" />
-  </div>
-  <div class="flex flex-col gap-2">
-    <Skeleton class="h-4 w-[100px]" />
-    <Skeleton class="h-8 w-full rounded-lg" />
-  </div>
-  <Skeleton class="h-8 w-[120px] rounded-lg" />
-</div>
-```
-
-### Table
-Table skeletons show header and row structure while data loads.
-```vue
-<div class="flex flex-col gap-2 w-full min-w-0 max-w-[400px]">
-  <div class="flex gap-4 pb-2 border-b border-default">
-    <Skeleton class="h-4 w-[100px]" />
-    <Skeleton class="h-4 w-[150px]" />
-    <Skeleton class="h-4 w-[80px]" />
-  </div>
-  <div v-for="i in 4" :key="i" class="flex gap-4 py-2">
-    <Skeleton class="h-4 w-[100px]" />
-    <Skeleton class="h-4 w-[150px]" />
-    <Skeleton class="h-4 w-[80px]" />
-  </div>
-</div>
 ```
 
 ## Accordion
@@ -8859,54 +7517,16 @@ Props:
     - variant ("soft" | "outline") default: "soft" — As Kbd
 
 ### Overview
-Kbd renders a {''} element: the semantic tag for keyboard input. It sits on the text baseline, so it can stand in a sentence.
+Kbd renders a {''} element: the semantic tag for keyboard input. It sits on the text baseline, so it can stand in a sentence. keys sets what the sentence shows: one key, a shortcut, or a modifier and a key.Use KbdGroup for keys pressed together; each key keeps its own frame. Use KbdModifier for a modifier in an app&apos;s shortcut: it prints mod as ⌘ on a Mac, an iPhone or an iPad and as Ctrl elsewhere, as the reader&apos;s keyboard has it, so one shortcut reads right on both. name picks ctrl (⌃), alt (⌥ or Alt) or shift (⇧). A symbol is read out by its name, such as Command. platform fixes the keyboard; without it (auto) the server renders the Apple one and the browser corrects it after it loads.size: xs (16px) for tooltips and menu items, sm (20px, default) for text, md (24px) next to larger controls. variant: soft (default) fills the key, outline draws its edge. Both mix the surrounding text color, so a key reads on a page, in a dark tooltip and in a highlighted menu item alike.
 ```vue
-<p class="text-sm text-secondary">
-  Press <Kbd>/</Kbd> to search, <Kbd>Esc</Kbd> to close.
-</p>
-```
-
-### Shortcut
-Use KbdGroup for keys pressed together. Each key keeps its own frame.
-```vue
-<KbdGroup>
-  <Kbd>⌘</Kbd>
-  <Kbd>K</Kbd>
-</KbdGroup>
-<KbdGroup>
-  <Kbd>Ctrl</Kbd>
-  <Kbd>Shift</Kbd>
-  <Kbd>P</Kbd>
-</KbdGroup>
-```
-
-### Modifier
-Use KbdModifier for a modifier in an app&apos;s shortcut: it prints mod as ⌘ on a Mac, an iPhone or an iPad and as Ctrl elsewhere, as the reader&apos;s keyboard has it, so one shortcut reads right on both. name picks ctrl (⌃), alt (⌥ or Alt) or shift (⇧). A symbol is read out by its name, such as Command. platform fixes the keyboard, as the two rows here do; without it the server renders the Apple one and the browser corrects it after it loads.
-```vue
-<p class="text-sm text-secondary">
+<p>
   Press
   <KbdGroup>
-    <KbdModifier />
+    <Kbd>⌘</Kbd>
     <Kbd>K</Kbd>
   </KbdGroup>
   to search.
 </p>
-<div v-for="platform in ['apple', 'other']" :key="platform" class="flex items-center gap-3">
-  <span class="w-12 text-xs text-tertiary">{{ platform === 'apple' ? 'Apple' : 'Other' }}</span>
-  <KbdModifier v-for="name in ['mod', 'ctrl', 'alt', 'shift']" :key="name" :name="name" :platform="platform" />
-</div>
-```
-
-### Sizes and variants
-Three sizes: xs (16px) for tooltips and menu items, sm (20px, default) for text, md (24px) next to larger controls. soft (default) fills the key, outline draws its edge. Both mix the surrounding text color, so a key reads on a page, in a dark tooltip and in a highlighted menu item alike.
-```vue
-<div class="flex flex-col items-center gap-4">
-  <div v-for="variant in ['soft', 'outline']" :key="variant" class="flex items-center gap-4">
-    <Kbd size="xs" :variant="variant">⌘K</Kbd>
-    <Kbd size="sm" :variant="variant">⌘K</Kbd>
-    <Kbd size="md" :variant="variant">⌘K</Kbd>
-  </div>
-</div>
 ```
 
 ### In a tooltip and a menu
@@ -9020,64 +7640,24 @@ Props:
   - class (string) — Applied to the root <div>
 
 ### Overview
+A thin divider between content. orientation="horizontal" (default) separates the rows of a list or the parts of a card; "vertical" stands between inline items, such as a meta strip, and stretches to the height of its row. A separator is decorative by default, so assistive technologies skip it; set decorative={'{false}'} when the divider marks a real grouping, and it renders role="separator" with its aria-orientation.
 ```vue
-<div style="display: flex; max-width: 384px; flex-direction: column; gap: 16px; font-size: var(--font-text-sm-size); line-height: var(--font-text-sm-line-height)">
-  <div style="display: flex; flex-direction: column; gap: 2px; line-height: 1.3">
-    <div style="font-weight: 500">Aisha Cooper</div>
-    <div style="color: var(--color-text-tertiary)">Engineering · Platform team</div>
+<script setup lang="ts">
+import { Separator } from '@plexui/vue/components/Separator';
+
+const details = [['Version', '0.9.0'], ['Published', '2 days ago'], ['Bundle', '48 kB'], ['License', 'MIT']];
+</script>
+
+<template>
+  <div style="display: flex; flex-direction: column; gap: 8px; max-width: 384px">
+    <template v-for="([term, value], i) in details" :key="term">
+      <Separator v-if="i > 0" />
+      <dl style="display: flex; justify-content: space-between">
+        <dt>{{ term }}</dt><dd class="text-tertiary">{{ value }}</dd>
+      </dl>
+    </template>
   </div>
-  <Separator />
-  <div>Shipped 24 pull requests this week across CI/CD and developer tooling.</div>
-</div>
-```
-
-### Vertical
-Use orientation="vertical" between inline items. Works for meta-strips, breadcrumbs, and dot-less separators.
-```vue
-<div style="display: flex; height: 20px; align-items: center; gap: 16px; font-size: var(--font-text-sm-size)">
-  <div>MIT license</div>
-  <Separator orientation="vertical" />
-  <div>12k downloads</div>
-  <Separator orientation="vertical" />
-  <div>48 kB bundle</div>
-</div>
-```
-
-### Menu
-Vertical separators between menu items with a short caption underneath each label.
-```vue
-<div style="display: flex; align-items: center; gap: 16px; font-size: var(--font-text-sm-size)">
-  <template v-for="(plan, i) in [
-    { name: 'Starter', meta: 'Free · 1 project' },
-    { name: 'Pro', meta: '$19/mo · Unlimited' },
-    { name: 'Enterprise', meta: 'Custom · Priority SLA' },
-  ]" :key="plan.name">
-    <Separator v-if="i > 0" orientation="vertical" />
-    <div style="display: flex; flex-direction: column; gap: 2px; line-height: 1.2">
-      <span style="font-weight: 500">{{ plan.name }}</span>
-      <span style="font-size: var(--font-text-xs-size); color: var(--color-text-tertiary)">{{ plan.meta }}</span>
-    </div>
-  </template>
-</div>
-```
-
-### List
-Horizontal separators between rows in a definition list.
-```vue
-<div style="display: flex; width: 100%; max-width: 384px; flex-direction: column; gap: 8px; font-size: var(--font-text-sm-size); line-height: var(--font-text-sm-line-height)">
-  <template v-for="(row, i) in [
-    ['Version', '0.9.0'],
-    ['Published', '2 days ago'],
-    ['Bundle', '48 kB'],
-    ['License', 'MIT'],
-  ]" :key="row[0]">
-    <Separator v-if="i > 0" />
-    <dl style="display: flex; align-items: center; justify-content: space-between; margin: 0">
-      <dt>{{ row[0] }}</dt>
-      <dd style="margin: 0; color: var(--color-text-tertiary)">{{ row[1] }}</dd>
-    </dl>
-  </template>
-</div>
+</template>
 ```
 
 ## Sortable

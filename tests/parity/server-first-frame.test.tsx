@@ -273,11 +273,14 @@ describe("a Markdown Editor shows its markdown before the editor exists", () => 
 
 describe("the docs draw these demos on the server", () => {
   test("no demo of these pages is client-only or waits for mounting", () => {
-    for (const path of ["components/docs/SliderDemos.tsx", "components/docs/SliderValueControl.tsx", "components/docs/ProgressDemos.tsx"]) {
+    for (const path of ["components/docs/SliderDemos.tsx", "components/docs/SliderValueControl.tsx"]) {
       const source = read(path)
       expect(source).not.toMatch(/ssr: false|next\/dynamic/)
       expect(source).toContain("import { Slider } from '@plexui/ui/components/Slider';")
     }
+    // The Progress Overview sets its value with the demo's slider control, drawn on the server as above
+    expect(read("components/docs/ProgressDemos.tsx")).not.toMatch(/ssr: false|next\/dynamic/)
+    expect(read("components/docs/ProgressDemos.tsx")).toContain("import { SliderValueControl } from './SliderValueControl';")
     expect(read("components/docs/ButtonGroupDemos.client.tsx")).not.toMatch(/ssr: false|next\/dynamic/)
     expect(read("components/docs/AvatarIconDemo.tsx")).not.toMatch(/useMounted|!mounted/)
   })

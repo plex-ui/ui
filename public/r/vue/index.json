@@ -273,7 +273,7 @@
     {
       "name": "sidebar",
       "type": "registry:ui",
-      "description": "Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu",
+      "description": "Composable navigation sidebar for app shells, folding to an icon rail, with submenus, badges, search, a footer card or person menu, and a mobile menu",
       "dependencies": [
         "@plexui/vue"
       ]

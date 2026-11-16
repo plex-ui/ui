@@ -6,42 +6,47 @@ metaDescription: Vue 3 keyboard key component for shortcuts like ⌘K in text, t
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
-export const STAGE = "flex-1 flex items-center justify-center gap-6 py-12 w-full"
+export const overviewControls = [
+  { name: "keys", type: "select", options: ["key", "shortcut", "modifier"], default: "shortcut" },
+  { name: "name", type: "select", options: ["mod", "ctrl", "alt", "shift"], default: "mod", when: { keys: "modifier" } },
+  { name: "platform", type: "select", options: ["auto", "apple", "other"], default: "auto", when: { keys: "modifier" } },
+  { name: "size", type: "select", options: ["xs", "sm", "md"], default: "sm" },
+  { name: "variant", type: "select", options: ["soft", "outline"], default: "soft" },
+]
 
 export const overview = `<p class="text-sm text-secondary">
-  Press <Kbd>/</Kbd> to search, <Kbd>Esc</Kbd> to close.
-</p>`
-
-export const shortcut = `<KbdGroup>
-  <Kbd>⌘</Kbd>
-  <Kbd>K</Kbd>
-</KbdGroup>
-<KbdGroup>
-  <Kbd>Ctrl</Kbd>
-  <Kbd>Shift</Kbd>
-  <Kbd>P</Kbd>
-</KbdGroup>`
-
-export const modifier = `<p class="text-sm text-secondary">
   Press
-  <KbdGroup>
-    <KbdModifier />
-    <Kbd>K</Kbd>
+  <Kbd v-if="keys === 'key'" :size="size" :variant="variant">/</Kbd>
+  <KbdGroup v-else-if="keys === 'shortcut'">
+    <Kbd :size="size" :variant="variant">⌘</Kbd>
+    <Kbd :size="size" :variant="variant">K</Kbd>
+  </KbdGroup>
+  <KbdGroup v-else>
+    <KbdModifier :size="size" :variant="variant" :name="name" :platform="platform === 'auto' ? undefined : platform" />
+    <Kbd :size="size" :variant="variant">K</Kbd>
   </KbdGroup>
   to search.
-</p>
-<div v-for="platform in ['apple', 'other']" :key="platform" class="flex items-center gap-3">
-  <span class="w-12 text-xs text-tertiary">{{ platform === 'apple' ? 'Apple' : 'Other' }}</span>
-  <KbdModifier v-for="name in ['mod', 'ctrl', 'alt', 'shift']" :key="name" :name="name" :platform="platform" />
-</div>`
+</p>`
 
-export const sizes = `<div class="flex flex-col items-center gap-4">
-  <div v-for="variant in ['soft', 'outline']" :key="variant" class="flex items-center gap-4">
-    <Kbd size="xs" :variant="variant">⌘K</Kbd>
-    <Kbd size="sm" :variant="variant">⌘K</Kbd>
-    <Kbd size="md" :variant="variant">⌘K</Kbd>
-  </div>
-</div>`
+export const overviewCode = `<p>
+  Press
+[[#keys=key]]
+  <Kbd[[^size=sm]] size="[[size]]"[[/size=sm]][[^variant=soft]] variant="[[variant]]"[[/variant=soft]]>/</Kbd>
+[[/keys=key]]
+[[#keys=shortcut]]
+  <KbdGroup>
+    <Kbd[[^size=sm]] size="[[size]]"[[/size=sm]][[^variant=soft]] variant="[[variant]]"[[/variant=soft]]>⌘</Kbd>
+    <Kbd[[^size=sm]] size="[[size]]"[[/size=sm]][[^variant=soft]] variant="[[variant]]"[[/variant=soft]]>K</Kbd>
+  </KbdGroup>
+[[/keys=shortcut]]
+[[#keys=modifier]]
+  <KbdGroup>
+    <KbdModifier[[^size=sm]] size="[[size]]"[[/size=sm]][[^variant=soft]] variant="[[variant]]"[[/variant=soft]][[^name=mod]] name="[[name]]"[[/name=mod]][[^platform=auto]] platform="[[platform]]"[[/platform=auto]] />
+    <Kbd[[^size=sm]] size="[[size]]"[[/size=sm]][[^variant=soft]] variant="[[variant]]"[[/variant=soft]]>K</Kbd>
+  </KbdGroup>
+[[/keys=modifier]]
+  to search.
+</p>`
 
 export const inContext = `<Tooltip>
   <template #content>
@@ -77,28 +82,14 @@ export const inContext = `<Tooltip>
 
 ## Examples
 
+<span id="shortcut" />
+<span id="modifier" />
+<span id="sizes-and-variants" />
+
 ### Overview
 
-<ComponentPreview language="vue" details={<>Kbd renders a <code>{'<kbd>'}</code> element: the semantic tag for keyboard input. It sits on the text baseline, so it can stand in a sentence.</>} code={overview} previewMinHeight={140}>
-  <VueDemo stageClassName={STAGE} template={overview} />
-</ComponentPreview>
-
-### Shortcut
-
-<ComponentPreview language="vue" details={<>Use <code>KbdGroup</code> for keys pressed together. Each key keeps its own frame.</>} code={shortcut} previewMinHeight={140}>
-  <VueDemo stageClassName={STAGE} template={shortcut} />
-</ComponentPreview>
-
-### Modifier
-
-<ComponentPreview language="vue" details={<>Use <code>KbdModifier</code> for a modifier in an app&apos;s shortcut: it prints <code>mod</code> as ⌘ on a Mac, an iPhone or an iPad and as Ctrl elsewhere, as the reader&apos;s keyboard has it, so one shortcut reads right on both. <code>name</code> picks <code>ctrl</code> (⌃), <code>alt</code> (⌥ or Alt) or <code>shift</code> (⇧). A symbol is read out by its name, such as Command. <code>platform</code> fixes the keyboard, as the two rows here do; without it the server renders the Apple one and the browser corrects it after it loads.</>} code={modifier} previewMinHeight={200}>
-  <VueDemo stageClassName="flex-1 flex flex-col items-center justify-center gap-5 py-12 w-full" template={modifier} />
-</ComponentPreview>
-
-### Sizes and variants
-
-<ComponentPreview language="vue" details={<>Three sizes: <code>xs</code> (16px) for tooltips and menu items, <code>sm</code> (20px, default) for text, <code>md</code> (24px) next to larger controls. <code>soft</code> (default) fills the key, <code>outline</code> draws its edge. Both mix the surrounding text color, so a key reads on a page, in a dark tooltip and in a highlighted menu item alike.</>} code={sizes} previewMinHeight={180}>
-  <VueDemo stageClassName={STAGE} template={sizes} />
+<ComponentPreview language="vue" details={<>Kbd renders a <code>{'<kbd>'}</code> element: the semantic tag for keyboard input. It sits on the text baseline, so it can stand in a sentence. <code>keys</code> sets what the sentence shows: one key, a shortcut, or a modifier and a key.<br /><br />Use <code>KbdGroup</code> for keys pressed together; each key keeps its own frame. Use <code>KbdModifier</code> for a modifier in an app&apos;s shortcut: it prints <code>mod</code> as ⌘ on a Mac, an iPhone or an iPad and as Ctrl elsewhere, as the reader&apos;s keyboard has it, so one shortcut reads right on both. <code>name</code> picks <code>ctrl</code> (⌃), <code>alt</code> (⌥ or Alt) or <code>shift</code> (⇧). A symbol is read out by its name, such as Command. <code>platform</code> fixes the keyboard; without it (<code>auto</code>) the server renders the Apple one and the browser corrects it after it loads.<br /><br /><code>size</code>: <code>xs</code> (16px) for tooltips and menu items, <code>sm</code> (20px, default) for text, <code>md</code> (24px) next to larger controls. <code>variant</code>: <code>soft</code> (default) fills the key, <code>outline</code> draws its edge. Both mix the surrounding text color, so a key reads on a page, in a dark tooltip and in a highlighted menu item alike.</>} code={overviewCode} codeValues={{ keys: "shortcut", name: "mod", platform: "auto", size: "sm", variant: "soft" }} previewMinHeight={140}>
+  <VueDemo stageClassName="flex-1 flex items-center justify-center py-12 w-full" template={overview} controls={overviewControls} />
 </ComponentPreview>
 
 ### In a tooltip and a menu

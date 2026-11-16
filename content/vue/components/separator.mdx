@@ -6,78 +6,67 @@ metaDescription: Vue 3 separator component built on Reka UI, horizontal or verti
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
-export const overview = `<div style="display: flex; max-width: 384px; flex-direction: column; gap: 16px; font-size: var(--font-text-sm-size); line-height: var(--font-text-sm-line-height)">
-  <div style="display: flex; flex-direction: column; gap: 2px; line-height: 1.3">
-    <div style="font-weight: 500">Aisha Cooper</div>
-    <div style="color: var(--color-text-tertiary)">Engineering · Platform team</div>
-  </div>
-  <Separator />
-  <div>Shipped 24 pull requests this week across CI/CD and developer tooling.</div>
-</div>`
+export const overviewControls = [
+  { name: "orientation", type: "select", options: ["horizontal", "vertical"], default: "horizontal" },
+  { name: "decorative", type: "boolean", default: true },
+]
 
-export const vertical = `<div style="display: flex; height: 20px; align-items: center; gap: 16px; font-size: var(--font-text-sm-size)">
-  <div>MIT license</div>
-  <Separator orientation="vertical" />
-  <div>12k downloads</div>
-  <Separator orientation="vertical" />
-  <div>48 kB bundle</div>
-</div>`
-
-export const menu = `<div style="display: flex; align-items: center; gap: 16px; font-size: var(--font-text-sm-size)">
-  <template v-for="(plan, i) in [
-    { name: 'Starter', meta: 'Free · 1 project' },
-    { name: 'Pro', meta: '$19/mo · Unlimited' },
-    { name: 'Enterprise', meta: 'Custom · Priority SLA' },
-  ]" :key="plan.name">
-    <Separator v-if="i > 0" orientation="vertical" />
-    <div style="display: flex; flex-direction: column; gap: 2px; line-height: 1.2">
-      <span style="font-weight: 500">{{ plan.name }}</span>
-      <span style="font-size: var(--font-text-xs-size); color: var(--color-text-tertiary)">{{ plan.meta }}</span>
-    </div>
-  </template>
-</div>`
-
-export const list = `<div style="display: flex; width: 100%; max-width: 384px; flex-direction: column; gap: 8px; font-size: var(--font-text-sm-size); line-height: var(--font-text-sm-line-height)">
+export const overview = `<div :style="{ display: 'flex', flexDirection: orientation === 'vertical' ? 'row' : 'column', alignItems: orientation === 'vertical' ? 'center' : undefined, gap: orientation === 'vertical' ? '16px' : '8px', width: orientation === 'vertical' ? undefined : '100%', maxWidth: '384px', fontSize: 'var(--font-text-sm-size)', lineHeight: 'var(--font-text-sm-line-height)' }">
   <template v-for="(row, i) in [
     ['Version', '0.9.0'],
     ['Published', '2 days ago'],
     ['Bundle', '48 kB'],
     ['License', 'MIT'],
   ]" :key="row[0]">
-    <Separator v-if="i > 0" />
-    <dl style="display: flex; align-items: center; justify-content: space-between; margin: 0">
-      <dt>{{ row[0] }}</dt>
+    <Separator v-if="i > 0" :orientation="orientation" :decorative="decorative" />
+    <dl :style="{ display: 'flex', flexDirection: orientation === 'vertical' ? 'column' : 'row', justifyContent: 'space-between', gap: orientation === 'vertical' ? '2px' : undefined, margin: 0, lineHeight: orientation === 'vertical' ? 1.2 : undefined }">
+      <dt :style="{ fontWeight: orientation === 'vertical' ? 500 : undefined }">{{ row[0] }}</dt>
       <dd style="margin: 0; color: var(--color-text-tertiary)">{{ row[1] }}</dd>
     </dl>
   </template>
 </div>`
 
+export const overviewCode = `<script setup lang="ts">
+import { Separator } from '@plexui/vue/components/Separator';
+
+const details = [['Version', '0.9.0'], ['Published', '2 days ago'], ['Bundle', '48 kB'], ['License', 'MIT']];
+</script>
+
+<template>
+[[#orientation=horizontal]]
+  <div style="display: flex; flex-direction: column; gap: 8px; max-width: 384px">
+    <template v-for="([term, value], i) in details" :key="term">
+      <Separator v-if="i > 0"[[^decorative]] :decorative="false"[[/decorative]] />
+      <dl style="display: flex; justify-content: space-between">
+        <dt>{{ term }}</dt><dd class="text-tertiary">{{ value }}</dd>
+      </dl>
+    </template>
+  </div>
+[[/orientation=horizontal]]
+[[#orientation=vertical]]
+  <div style="display: flex; align-items: center; gap: 16px">
+    <template v-for="([term, value], i) in details" :key="term">
+      <Separator v-if="i > 0" orientation="vertical"[[^decorative]] :decorative="false"[[/decorative]] />
+      <dl>
+        <dt>{{ term }}</dt><dd class="text-tertiary">{{ value }}</dd>
+      </dl>
+    </template>
+  </div>
+[[/orientation=vertical]]
+</template>`
+
 <UsageBlock>{`import { Separator } from "@plexui/vue/components/Separator";`}</UsageBlock>
 
 ## Examples
 
+<span id="vertical" />
+<span id="menu" />
+<span id="list" />
+
 ### Overview
 
-<ComponentPreview phonePresentation="none" language="vue" code={overview}>
-  <VueDemo template={overview} />
-</ComponentPreview>
-
-### Vertical
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>orientation="vertical"</code> between inline items. Works for meta-strips, breadcrumbs, and dot-less separators.</>} code={vertical}>
-  <VueDemo template={vertical} />
-</ComponentPreview>
-
-### Menu
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Vertical separators between menu items with a short caption underneath each label.</>} code={menu}>
-  <VueDemo template={menu} />
-</ComponentPreview>
-
-### List
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Horizontal separators between rows in a definition list.</>} code={list}>
-  <VueDemo template={list} />
+<ComponentPreview language="vue" phonePresentation="none" details={<>A thin divider between content. <code>orientation="horizontal"</code> (default) separates the rows of a list or the parts of a card; <code>"vertical"</code> stands between inline items, such as a meta strip, and stretches to the height of its row. A separator is <code>decorative</code> by default, so assistive technologies skip it; set <code>decorative={'{false}'}</code> when the divider marks a real grouping, and it renders <code>role="separator"</code> with its <code>aria-orientation</code>.</>} code={overviewCode} codeValues={{ orientation: "horizontal", decorative: true }}>
+  <VueDemo template={overview} controls={overviewControls} stageClassName="flex-1 flex items-center justify-center py-12 px-4 w-full" />
 </ComponentPreview>
 
 ## API

@@ -6,15 +6,23 @@ metaDescription: Vue 3 OTP input component for one-time password and verificatio
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
-export const overview = `<OTPInput
-  v-model:value="value"
-  :invalid="error"
-  :error-message="error ? 'Invalid verification code.' : undefined"
-  :disabled="disabled"
-/>`
+export const overview = `<div class="flex flex-col items-center gap-6 text-center">
+  <div class="flex flex-col gap-1">
+    <p class="text-lg font-semibold">Enter the code</p>
+    <p class="text-sm text-secondary">We sent a 6-digit code to alex.johnson@example.com</p>
+  </div>
+  <OTPInput
+    v-model:value="value"
+    :grouping="grouping === '3+3' ? [3, 3] : undefined"
+    :invalid="error"
+    :error-message="error ? 'Invalid verification code.' : undefined"
+    :disabled="disabled"
+  />
+</div>`
 
 export const overviewControls = [
   { name: "value", label: "preset", type: "select", options: [{ value: "", label: "Empty" }, { value: "488030", label: "Filled" }], default: "" },
+  { name: "grouping", type: "select", options: ["none", "3+3"], default: "none" },
   { name: "error", type: "boolean", default: false },
   { name: "disabled", type: "boolean", default: false },
 ]
@@ -26,13 +34,12 @@ import { OTPInput } from '@plexui/vue/components/OTPInput';
 const value = ref('');
 const error = ref(false);
 const disabled = ref(false);
+const grouping = ref('none'); // or '3+3'
 </script>
 
 <template>
 ${overview}
 </template>`
-
-export const grouped = `<OTPInput v-model:value="value" :grouping="[3, 3]" />`
 
 <UsageBlock>{`import { OTPInput } from "@plexui/vue/components/OTPInput";`}</UsageBlock>
 
@@ -41,19 +48,16 @@ export const grouped = `<OTPInput v-model:value="value" :grouping="[3, 3]" />`
 <span id="filled-state" />
 <span id="with-error" />
 <span id="disabled" />
+<span id="grouped-33" />
 
 ### Overview
 
-Choose Empty or Filled to replace the current code with a preset. The error and disabled controls preserve the code you entered. The error control demonstrates styling; it does not validate the code.
+A code is entered in a verification step, so the field stands under the step's title and the recipient the code went to. For the whole screen, with Resend and its countdown, on the web and on a phone, see [Forms: Auth › Verify email or phone](/vue/components/auth-forms#verify-email-or-phone).
+
+Choose Empty or Filled to replace the current code with a preset. `grouping` splits the cells, here into two groups of three. The error and disabled controls preserve the code you entered. The error control demonstrates styling; it does not validate the code.
 
 <ComponentPreview language="vue" code={overviewCode} previewMinHeight={168}>
   <VueDemo template={overview} controls={overviewControls} stageClassName="py-10 flex justify-center" />
-</ComponentPreview>
-
-### Grouped (3+3)
-
-<ComponentPreview language="vue" code={grouped} previewMinHeight={168}>
-  <VueDemo template={grouped} stageClassName="py-10 flex justify-center" state={{ value: "" }} />
 </ComponentPreview>
 
 ## API

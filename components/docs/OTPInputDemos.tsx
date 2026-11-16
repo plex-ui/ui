@@ -65,15 +65,25 @@ function DemoControlBoolean({
 type InputMode = 'per-digit' | 'text-field';
 type OTPValuePreset = 'empty' | 'filled' | 'custom';
 
+type OTPGrouping = 'none' | '3+3';
+
+/**
+ * The Overview, with every setting of the code and the step it belongs to (owner 16.11: «почему это не часть
+ * auth-forms»): a code is entered in a verification step, so the field stands under the step's title and recipient.
+ * The whole screen, with resend and its countdown, is Forms: Auth › Verify email or phone. Grouped (3+3) is the
+ * grouping setting (row 33).
+ */
 export function OTPInputOverviewDemo() {
   const [value, setValue] = useState('');
   const [error, setError] = useState(false);
   const [disabled, setDisabled] = useState(false);
+  const [grouping, setGrouping] = useState<OTPGrouping>('none');
   const preset: OTPValuePreset = value === '' ? 'empty' : value === '488030' ? 'filled' : 'custom';
   const applyPreset = (next: OTPValuePreset) => {
     if (next !== 'custom') setValue(next === 'filled' ? '488030' : '');
   };
   useDemoControlSync('preset', preset, applyPreset);
+  useDemoControlSync('grouping', grouping, setGrouping);
 
   return (
     <>
@@ -84,24 +94,24 @@ export function OTPInputOverviewDemo() {
             <SegmentedControl.Option value="filled">Filled</SegmentedControl.Option>
           </SegmentedControl>
         </DemoControlRow>
+        <DemoControlRow name="grouping">
+          <SegmentedControl<OTPGrouping> value={grouping} onChange={setGrouping} aria-label="grouping" size="xs">
+            <SegmentedControl.Option value="none">none</SegmentedControl.Option>
+            <SegmentedControl.Option value="3+3">3+3</SegmentedControl.Option>
+          </SegmentedControl>
+        </DemoControlRow>
         <DemoControlBoolean name="error" value={error} onChange={setError} />
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
-      <div data-demo-stage className="py-10 flex justify-center">
-        <OTPInput value={value} onChange={setValue} invalid={error}
+      <div data-demo-stage className="py-10 flex flex-col items-center gap-6 text-center">
+        <div className="flex flex-col gap-1">
+          <p className="text-lg font-semibold">Enter the code</p>
+          <p className="text-sm text-secondary">We sent a 6-digit code to alex.johnson@example.com</p>
+        </div>
+        <OTPInput value={value} onChange={setValue} grouping={grouping === '3+3' ? [3, 3] : undefined} invalid={error}
           errorMessage={error ? 'Invalid verification code.' : undefined} disabled={disabled} />
       </div>
     </>
-  );
-}
-
-export function OTPInputGroupedDemo() {
-  const [value, setValue] = useState('');
-
-  return (
-    <div data-demo-stage className="py-10 flex justify-center">
-      <OTPInput value={value} onChange={setValue} grouping={[3, 3]} />
-    </div>
   );
 }
 

@@ -1206,14 +1206,23 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(list().querySelectorAll('[role="switch"]')).toHaveLength(4);
   });
 
-  test('skeleton: the Overview carries circle, the one setting (owner 11.11)', async () => {
-    const view = render(framework === 'React' ? <SkeletonOverviewDemo /> : <VueDemo {...example('skeleton', 'overview')} />);
+  test('skeleton: the Overview carries the content and circle, offered for the profile (owner 11.11, row 33)', async () => {
+    const view = render(framework === 'React' ? <SkeletonOverviewDemo /> : <VueDemo {...example('skeleton', 'overview', ['profile', 'card', 'text', 'form', 'table'])} />);
     await interact(() => {});
     const page = within(view.container);
-    const avatar = () => view.container.querySelector<HTMLElement>('[data-demo-stage] .size-12')!;
-    expect(avatar().hasAttribute('data-circle')).toBe(true);
+    const avatar = () => view.container.querySelector<HTMLElement>('[data-demo-stage] .size-12');
+    const choose = (option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name: 'content' })).getByRole('radio', { name: option, exact: true })));
+    expect(avatar()!.hasAttribute('data-circle')).toBe(true);
     await interact(() => fireEvent.click(page.getByRole('switch', { name: 'circle', exact: true })));
-    expect(avatar().hasAttribute('data-circle')).toBe(false);
+    expect(avatar()!.hasAttribute('data-circle')).toBe(false);
+    // A table has a header and four rows of three placeholders, and no avatar to round
+    await choose('table');
+    expect(avatar()).toBeNull();
+    expect(page.queryByRole('switch', { name: 'circle', exact: true })).toBeNull();
+    expect(view.container.querySelectorAll('[data-demo-stage] .w-\\[150px\\]')).toHaveLength(5);
+    // Back on the profile, circle keeps its choice
+    await choose('profile');
+    expect(avatar()!.hasAttribute('data-circle')).toBe(false);
   });
 
   test('badge: one Overview carries color, variant, size, pill, what leads the text and the cross (owner 11.11)', async () => {

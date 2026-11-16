@@ -5,26 +5,15 @@ metaDescription: Vue 3 skeleton loading placeholder component for avatars, text,
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { indentCode } from "@/components/docs/demoCode.mjs"
 
-export const overview = `<div class="flex items-center gap-4">
+export const profile = `<div class="flex items-center gap-4">
   <Skeleton :circle="circle" class="size-12" />
   <div class="flex flex-col gap-2">
     <Skeleton class="h-4 w-[200px]" />
     <Skeleton class="h-4 w-[150px]" />
   </div>
 </div>`
-
-export const overviewControls = [{ name: "circle", type: "boolean", default: true }]
-
-export const overviewCode = `<script setup lang="ts">
-import { ref } from 'vue';
-
-const circle = ref(true);
-</script>
-
-<template>
-${overview}
-</template>`
 
 export const card = `<div class="flex flex-col gap-3 w-[300px] p-4 border border-default rounded-xl">
   <Skeleton class="h-[150px] w-full rounded-lg" />
@@ -63,38 +52,50 @@ export const table = `<div class="flex flex-col gap-2 w-full min-w-0 max-w-[400p
   </div>
 </div>`
 
+export const overviewControls = [
+  { name: "content", type: "select", options: ["profile", "card", "text", "form", "table"], default: "profile" },
+  { name: "circle", type: "boolean", default: true, when: { content: "profile" } },
+]
+
+export const overview = `<template v-if="content === 'profile'">${profile}</template>
+<template v-else-if="content === 'card'">${card}</template>
+<template v-else-if="content === 'text'">${text}</template>
+<template v-else-if="content === 'form'">${form}</template>
+<template v-else>${table}</template>`
+
+export const overviewCode = `<template>
+[[#content=profile]]
+${indentCode(profile.replace(':circle="circle"', "[[#circle]] circle[[/circle]]").replace(" [[#circle]]", "[[#circle]]"), 2)}
+[[/content=profile]]
+[[#content=card]]
+${indentCode(card, 2)}
+[[/content=card]]
+[[#content=text]]
+${indentCode(text, 2)}
+[[/content=text]]
+[[#content=form]]
+  <!-- Inputs and a button at the control height -->
+${indentCode(form, 2)}
+[[/content=form]]
+[[#content=table]]
+  <!-- A header and rows -->
+${indentCode(table, 2)}
+[[/content=table]]
+</template>`
+
 <UsageBlock>{`import { Skeleton } from "@plexui/vue/components/Skeleton";`}</UsageBlock>
 
 ## Examples
 
+<span id="card" />
+<span id="text" />
+<span id="form" />
+<span id="table" />
+
 ### Overview
 
-<ComponentPreview phonePresentation="none" language="vue" details={<>Use a circular skeleton to represent loading avatars, combined with text placeholders. Without <code>circle</code> a skeleton keeps its own radius, as for a square picture. Set its size and shape with <code>class</code>.</>} code={overviewCode} previewMinHeight={168}>
-  <VueDemo template={overview} controls={overviewControls} stageClassName="flex-1 w-full py-12 flex items-center justify-center" />
-</ComponentPreview>
-
-### Card
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Compose multiple skeletons to represent loading cards with images and text content.</>} code={card} previewMinHeight={168}>
-  <VueDemo template={card} />
-</ComponentPreview>
-
-### Text
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Multiple text lines with varying widths create natural-looking paragraph placeholders.</>} code={text} previewMinHeight={168}>
-  <VueDemo template={text} />
-</ComponentPreview>
-
-### Form
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Form skeletons use Plex UI control sizing (32px height for inputs and buttons).</>} code={form} previewMinHeight={168}>
-  <VueDemo template={form} />
-</ComponentPreview>
-
-### Table
-
-<ComponentPreview phonePresentation="none" language="vue" details={<>Table skeletons show header and row structure while data loads.</>} code={table} previewMinHeight={168}>
-  <VueDemo template={table} />
+<ComponentPreview phonePresentation="none" language="vue" details={<>A skeleton stands in for content while it loads, in its shape: compose skeletons as the content is laid out, and set each one's size and shape with <code>class</code>. <code>content</code> shows the placeholders of a profile, a card with a picture, a paragraph (lines of varying widths read as natural text), a form (inputs and buttons at the control height, 32px) and a table (its header and rows).<br /><br /><code>circle</code> rounds a skeleton, for the avatar of a profile; without it a skeleton keeps its own radius, as for a square picture.</>} code={overviewCode} codeValues={{ content: "profile", circle: true }} previewMinHeight={168}>
+  <VueDemo template={overview} controls={overviewControls} stageClassName="flex-1 w-full py-12 px-4 flex items-center justify-center" />
 </ComponentPreview>
 
 ## API

@@ -6,7 +6,6 @@ metaDescription: React OTP input component for one-time password and verificatio
 
 import { OTPInput } from "@plexui/ui/components/OTPInput"
 import {
-  OTPInputGroupedDemo,
   OTPInputOverviewDemo,
 } from "@/components/docs/OTPInputDemos"
 
@@ -17,29 +16,30 @@ import {
 <span id="filled-state" />
 <span id="with-error" />
 <span id="disabled" />
+<span id="grouped-33" />
 
 ### Overview
 
-Choose Empty or Filled to replace the current code with a preset. The error and disabled controls preserve the code you entered. The error control demonstrates styling; it does not validate the code.
+A code is entered in a verification step, so the field stands under the step's title and the recipient the code went to. For the whole screen, with Resend and its countdown, on the web and on a phone, see [Forms: Auth › Verify email or phone](/components/auth-forms#verify-email-or-phone).
+
+Choose Empty or Filled to replace the current code with a preset. `grouping` splits the cells, here into two groups of three. The error and disabled controls preserve the code you entered. The error control demonstrates styling; it does not validate the code.
 
 <ComponentPreview code={`const [value, setValue] = useState("")
 const [error, setError] = useState(false)
 const [disabled, setDisabled] = useState(false)
+const [grouping, setGrouping] = useState("none") // or "3+3"
 
+<p className="text-lg font-semibold">Enter the code</p>
+<p className="text-sm text-secondary">We sent a 6-digit code to alex.johnson@example.com</p>
 <OTPInput
   value={value}
   onChange={setValue}
+  grouping={grouping === "3+3" ? [3, 3] : undefined}
   invalid={error}
   errorMessage={error ? "Invalid verification code." : undefined}
   disabled={disabled}
 />`} previewMinHeight={168}>
   <OTPInputOverviewDemo />
-</ComponentPreview>
-
-### Grouped (3+3)
-
-<ComponentPreview code={`<OTPInput grouping={[3, 3]} />`} previewMinHeight={168}>
-  <OTPInputGroupedDemo />
 </ComponentPreview>
 
 ## API

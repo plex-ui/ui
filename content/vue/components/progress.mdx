@@ -5,20 +5,49 @@ metaDescription: Vue 3 progress bar component built on Reka UI for showing task 
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
-import { VueProgressOverviewDemo, vueProgressOverviewCode } from "@/components/docs/vue/VueProgressDemos"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
 
-export const controlled = `<div style="display: flex; width: 100%; max-width: 320px; flex-direction: column; gap: 16px">
-  <Progress :value="value" aria-label="Progress" />
-  <Slider v-model:value="value" :min="0" :max="100" :step="1" aria-label="Progress value" />
-</div>`
+export const overviewControls = [
+  { name: "value", type: "range", min: 0, max: 100, step: 1, default: 66 },
+  { name: "indeterminate", type: "boolean", default: false },
+  { name: "label", type: "boolean", default: true },
+]
 
-export const withLabel = `<div style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px">
-  <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px">
+export const overview = `<div style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px">
+  <div v-if="label" style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px">
     <Label id="progress-upload-label">Uploading plex-ui.zip</Label>
-    <span style="color: var(--color-text-tertiary); font-size: 14px">3.2 / 4.8 MB</span>
+    <span v-if="!indeterminate" style="color: var(--color-text-tertiary); font-size: 14px">{{ value }}%</span>
   </div>
-  <Progress aria-labelledby="progress-upload-label" :value="67" />
+  <Progress
+    :value="indeterminate ? null : value"
+    :aria-labelledby="label ? 'progress-upload-label' : undefined"
+    :aria-label="label ? undefined : 'Uploading plex-ui.zip'"
+  />
 </div>`
+
+export const overviewPhone = overview.replace("; max-width: 320px", "") // on a phone the bar spans the screen between its margins, as an iOS progress view does
+
+export const overviewCode = `<script setup lang="ts">
+import { Label } from '@plexui/vue/components/Label';
+import { Progress } from '@plexui/vue/components/Progress';
+</script>
+
+<template>
+[[#label]]
+  <div>
+    <div style="display: flex; justify-content: space-between">
+      <Label id="progress-upload-label">Uploading plex-ui.zip</Label>
+[[^indeterminate]]
+      <span>[[value]]%</span>
+[[/indeterminate]]
+    </div>
+    <Progress :value="[[#indeterminate]]null[[/indeterminate]][[^indeterminate]][[value]][[/indeterminate]]" aria-labelledby="progress-upload-label" />
+  </div>
+[[/label]]
+[[^label]]
+  <Progress :value="[[#indeterminate]]null[[/indeterminate]][[^indeterminate]][[value]][[/indeterminate]]" aria-label="Uploading plex-ui.zip" />
+[[/label]]
+</template>`
 
 export const segments = `<div style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px">
   <Label id="progress-bill-label">Bill of $200</Label>
@@ -38,22 +67,13 @@ export const segments = `<div style="display: flex; flex-direction: column; gap:
 
 ## Examples
 
+<span id="with-label" />
+<span id="controlled" />
+
 ### Overview
 
-<ComponentPreview language="vue" code={vueProgressOverviewCode}>
-  <VueProgressOverviewDemo />
-</ComponentPreview>
-
-### With label
-
-<ComponentPreview language="vue" details={<>Pair a <a href="/vue/components/field#label"><code>Label</code></a> with a value readout above the bar, the typical upload or onboarding progress pattern.</>} code={withLabel}>
-  <VueDemo template={withLabel} />
-</ComponentPreview>
-
-### Controlled
-
-<ComponentPreview language="vue" details={<>Bind <code>value</code> to any source, here a <a href="/vue/components/slider"><code>Slider</code></a> through <code>v-model:value</code>.</>} code={controlled}>
-  <VueDemo template={controlled} state={{ value: 50 }} />
+<ComponentPreview language="vue" details={<>A bar of task completion between <code>0</code> and <code>max</code> (100 by default); it animates each change of <code>value</code>, so bind it to any source, here the <code>value</code> slider. <code>indeterminate</code> passes <code>:value="null"</code>: a sweep for a task of unknown length. <code>label</code> pairs a <a href="/vue/components/field#label"><code>Label</code></a> with a readout above the bar, the typical upload or onboarding pattern; the bar takes its name from it with <code>aria-labelledby</code>, and without one it needs an <code>aria-label</code>. It reads out the value as a rounded percentage, or what <code>get-value-label</code> returns.</>} code={overviewCode} codeValues={{ value: 66, indeterminate: false, label: true }}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={overviewPhone} controls={overviewControls} stageClassName="flex-1 flex items-center justify-center py-12 px-4 w-full" />
 </ComponentPreview>
 
 ### Segments
