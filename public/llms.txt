@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 64
+Components: 63
 
 ## Setup
 
@@ -799,15 +799,6 @@ Props:
     - onScroll (UIEventHandler) default: — — Called on every scroll, after the page has read the position
     - className (string) default: — — Applied to the element that scrolls
 Examples: Overview
-
-## Phone Layout
-Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.
-Import: import { PhoneLayout } from "@plexui/ui/components/PhoneLayout"
-Docs: https://plexui.com/components/phone-layout
-Props:
-  - className (string) — Class on the box, such as its size and corners
-  - style (CSSProperties) — Style on the box
-Examples: Overview, Menu
 
 ## Popover
 A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.

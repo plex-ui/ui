@@ -71,11 +71,6 @@ export const COMPONENT_GROUPS: readonly ComponentGroup[] = [
     ],
   },
   {
-    id: 'utilities',
-    label: 'Utilities',
-    slugs: ['phone-layout'],
-  },
-  {
     id: 'patterns',
     label: 'Patterns',
     slugs: ['auth-forms', 'settings-forms'],

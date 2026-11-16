@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 64,
+  "componentCount": 63,
   "components": [
     {
       "slug": "accordion",
@@ -4150,46 +4150,6 @@
       "docsUrl": "https://plexui.com/components/page"
     },
     {
-      "slug": "phone-layout",
-      "name": "Phone Layout",
-      "description": "Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.",
-      "importPath": "@plexui/ui/components/PhoneLayout",
-      "exports": [
-        "PhoneLayout"
-      ],
-      "props": [
-        {
-          "name": "className",
-          "type": "string",
-          "description": "Class on the box, such as its size and corners"
-        },
-        {
-          "name": "style",
-          "type": "CSSProperties",
-          "description": "Style on the box"
-        }
-      ],
-      "examples": [
-        {
-          "name": "Overview",
-          "code": "const [open, setOpen] = useState(false)\n\n<PhoneLayout style={{ width: 375, height: 600, borderRadius: 40, border: '1px solid var(--color-border)' }}>\n<Dialog open={open} onOpenChange={setOpen}>\n  <Dialog.Trigger>\n    <Button color=\"primary\">New list</Button>\n  </Dialog.Trigger>\n  <Dialog.Content mobileVariant=\"sheet\">\n    <Dialog.Header>\n      <Dialog.Title>New list</Dialog.Title>\n    </Dialog.Header>\n    <Dialog.Body>\n      <Field label=\"Name\">\n        <Input placeholder=\"Groceries\" />\n      </Field>\n    </Dialog.Body>\n    <Dialog.Footer>\n      <Button color=\"primary\" onClick={() => setOpen(false)}>Create</Button>\n    </Dialog.Footer>\n  </Dialog.Content>\n</Dialog>\n</PhoneLayout>",
-          "details": "The box is the screen of the phone: a Dialog opened inside it portals into the box and covers it instead of the window. Give the box a size; let a child of it scroll rather than the box, so a dialog stays in place."
-        },
-        {
-          "name": "Menu",
-          "code": "const [sort, setSort] = useState(\"Manual\")\n\n<PhoneLayout style={{ width: 375, height: 600, borderRadius: 40, border: '1px solid var(--color-border)' }}>\n<Page>\n  <Toolbar titleStyle=\"large\">\n    <Toolbar.Title>Groceries</Toolbar.Title>\n    <Toolbar.Trailing>\n      <Menu>\n        <Menu.Trigger>\n          <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n        </Menu.Trigger>\n        <Menu.Content align=\"end\">\n          <Menu.Item onSelect={() => {}}><CheckCircle /> Select Items</Menu.Item>\n          <Menu.Sub>\n            <Menu.SubTrigger description={sort}><Sort /> Sort By</Menu.SubTrigger>\n            <Menu.SubContent>\n              <Menu.RadioGroup value={sort} onChange={setSort}>\n                <Menu.RadioItem value=\"Manual\">Manual</Menu.RadioItem>\n                <Menu.RadioItem value=\"Due Date\">Due Date</Menu.RadioItem>\n                <Menu.RadioItem value=\"Title\">Title</Menu.RadioItem>\n              </Menu.RadioGroup>\n            </Menu.SubContent>\n          </Menu.Sub>\n          <Menu.Item onSelect={() => {}} danger><Trash /> Delete List</Menu.Item>\n        </Menu.Content>\n      </Menu>\n    </Toolbar.Trailing>\n  </Toolbar>\n</Page>\n</PhoneLayout>",
-          "details": "A menu opened inside the box is a phone menu at any window width: it covers the button that opens it and opens in the box. A submenu opens over its menu, which steps back: a press on the menu behind closes the submenu and chooses nothing, and screen readers skip its rows until then."
-        }
-      ],
-      "hooks": [
-        {
-          "name": "usePhoneLayout",
-          "description": "`usePhoneLayout()` returns whether components where it is called are laid out as on a phone: inside a PhoneLayout or a Dialog with `layout=\"phone\"`, or in a window 767px wide or narrower. On the server it is false outside a PhoneLayout."
-        }
-      ],
-      "docsUrl": "https://plexui.com/components/phone-layout"
-    },
-    {
       "slug": "popover",
       "name": "Popover",
       "description": "A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.",
@@ -7679,5 +7639,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-16T17:09:22.991Z"
+  "generatedAt": "2026-11-16T17:10:57.755Z"
 }

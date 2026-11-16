@@ -115,6 +115,18 @@ const config = {
         destination: '/r/vue/segmented-control.json',
         permanent: true,
       },
+      // Phone Layout is a utility, not a component of the screen: its page is
+      // a section of Concepts (owner 16.11). The component keeps its export.
+      {
+        source: '/components/phone-layout',
+        destination: '/docs/concepts#phone-layout',
+        permanent: true,
+      },
+      {
+        source: '/vue/components/phone-layout',
+        destination: '/docs/concepts#phone-layout',
+        permanent: true,
+      },
       // Stat Card is now Stats Card, the name of the metric cards it follows
       // (owner 11.11); the component keeps StatCard as an alias.
       {

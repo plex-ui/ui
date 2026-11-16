@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 64
+Components: 63
 
 ## Setup
 
@@ -4918,76 +4918,6 @@ const [bottomBackground, setBottomBackground] = useState("soft") // or "hard", "
     </Page.Footer>
   )}
 </Page>
-```
-
-## Phone Layout
-Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.
-Import: import { PhoneLayout } from "@plexui/ui/components/PhoneLayout"
-Docs: https://plexui.com/components/phone-layout
-Props:
-  - className (string) — Class on the box, such as its size and corners
-  - style (CSSProperties) — Style on the box
-
-### Overview
-The box is the screen of the phone: a Dialog opened inside it portals into the box and covers it instead of the window. Give the box a size; let a child of it scroll rather than the box, so a dialog stays in place.
-```tsx
-const [open, setOpen] = useState(false)
-
-<PhoneLayout style={{ width: 375, height: 600, borderRadius: 40, border: '1px solid var(--color-border)' }}>
-<Dialog open={open} onOpenChange={setOpen}>
-  <Dialog.Trigger>
-    <Button color="primary">New list</Button>
-  </Dialog.Trigger>
-  <Dialog.Content mobileVariant="sheet">
-    <Dialog.Header>
-      <Dialog.Title>New list</Dialog.Title>
-    </Dialog.Header>
-    <Dialog.Body>
-      <Field label="Name">
-        <Input placeholder="Groceries" />
-      </Field>
-    </Dialog.Body>
-    <Dialog.Footer>
-      <Button color="primary" onClick={() => setOpen(false)}>Create</Button>
-    </Dialog.Footer>
-  </Dialog.Content>
-</Dialog>
-</PhoneLayout>
-```
-
-### Menu
-A menu opened inside the box is a phone menu at any window width: it covers the button that opens it and opens in the box. A submenu opens over its menu, which steps back: a press on the menu behind closes the submenu and chooses nothing, and screen readers skip its rows until then.
-```tsx
-const [sort, setSort] = useState("Manual")
-
-<PhoneLayout style={{ width: 375, height: 600, borderRadius: 40, border: '1px solid var(--color-border)' }}>
-<Page>
-  <Toolbar titleStyle="large">
-    <Toolbar.Title>Groceries</Toolbar.Title>
-    <Toolbar.Trailing>
-      <Menu>
-        <Menu.Trigger>
-          <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
-        </Menu.Trigger>
-        <Menu.Content align="end">
-          <Menu.Item onSelect={() => {}}><CheckCircle /> Select Items</Menu.Item>
-          <Menu.Sub>
-            <Menu.SubTrigger description={sort}><Sort /> Sort By</Menu.SubTrigger>
-            <Menu.SubContent>
-              <Menu.RadioGroup value={sort} onChange={setSort}>
-                <Menu.RadioItem value="Manual">Manual</Menu.RadioItem>
-                <Menu.RadioItem value="Due Date">Due Date</Menu.RadioItem>
-                <Menu.RadioItem value="Title">Title</Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.SubContent>
-          </Menu.Sub>
-          <Menu.Item onSelect={() => {}} danger><Trash /> Delete List</Menu.Item>
-        </Menu.Content>
-      </Menu>
-    </Toolbar.Trailing>
-  </Toolbar>
-</Page>
-</PhoneLayout>
 ```
 
 ## Popover

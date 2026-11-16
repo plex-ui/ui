@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 64,
+  "componentCount": 63,
   "components": [
     {
       "slug": "button",
@@ -7532,47 +7532,7 @@
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/table"
-    },
-    {
-      "slug": "phone-layout",
-      "name": "Phone Layout",
-      "description": "Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.",
-      "importPath": "@plexui/vue/components/PhoneLayout",
-      "exports": [
-        "PhoneLayout"
-      ],
-      "props": [
-        {
-          "name": "class",
-          "type": "string",
-          "description": "Class on the box, such as its size and corners"
-        },
-        {
-          "name": "style",
-          "type": "string | CSSProperties",
-          "description": "Style on the box"
-        }
-      ],
-      "examples": [
-        {
-          "name": "Overview",
-          "code": "<PhoneLayout style=\"width: 375px; height: 600px; border-radius: 40px; border: 1px solid var(--color-border); background: var(--color-background)\">\n  <div style=\"display: flex; height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 24px\">\n    <Dialog v-model:open=\"open\">\n      <DialogTrigger>\n        <Button color=\"primary\">New list</Button>\n      </DialogTrigger>\n      <DialogContent mobile-variant=\"sheet\">\n        <DialogHeader>\n          <DialogTitle>New list</DialogTitle>\n        </DialogHeader>\n        <DialogBody>\n          <Field label=\"Name\">\n            <Input placeholder=\"Groceries\" />\n          </Field>\n        </DialogBody>\n        <DialogFooter>\n          <Button color=\"primary\" @click=\"open = false\">Create</Button>\n        </DialogFooter>\n      </DialogContent>\n    </Dialog>\n  </div>\n</PhoneLayout>",
-          "details": "The box is the screen of the phone: a Dialog opened inside it portals into the box and covers it instead of the window. Give the box a size; let a child of it scroll rather than the box, so a dialog stays in place."
-        },
-        {
-          "name": "Menu",
-          "code": "<PhoneLayout style=\"width: 375px; height: 600px; border-radius: 40px; border: 1px solid var(--color-border); background: var(--color-background)\">\n  <Page>\n    <Toolbar title-style=\"large\">\n      <ToolbarTitle>Groceries</ToolbarTitle>\n      <ToolbarTrailing>\n        <Menu>\n          <MenuTrigger>\n            <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n          </MenuTrigger>\n          <MenuContent align=\"end\">\n            <MenuItem @select=\"() => {}\"><CheckCircle /> Select Items</MenuItem>\n            <MenuSub>\n              <MenuSubTrigger :description=\"sort\"><Sort /> Sort By</MenuSubTrigger>\n              <MenuSubContent>\n                <MenuRadioGroup v-model:value=\"sort\">\n                  <MenuRadioItem value=\"Manual\">Manual</MenuRadioItem>\n                  <MenuRadioItem value=\"Due Date\">Due Date</MenuRadioItem>\n                  <MenuRadioItem value=\"Title\">Title</MenuRadioItem>\n                </MenuRadioGroup>\n              </MenuSubContent>\n            </MenuSub>\n            <MenuItem danger @select=\"() => {}\"><Trash /> Delete List</MenuItem>\n          </MenuContent>\n        </Menu>\n      </ToolbarTrailing>\n    </Toolbar>\n  </Page>\n</PhoneLayout>",
-          "details": "A menu opened inside the box is a phone menu at any window width: it covers the button that opens it and opens in the box. A submenu opens over its menu, which steps back: a press on the menu behind closes the submenu and chooses nothing, and screen readers skip its rows until then."
-        }
-      ],
-      "hooks": [
-        {
-          "name": "usePhoneLayout",
-          "description": "`usePhoneLayout()` returns a computed ref: whether components where it is called are laid out as on a phone: inside a PhoneLayout or a Dialog with `layout=\"phone\"`, or in a window 767px wide or narrower. On the server, and until the component mounts, it is false outside a PhoneLayout."
-        }
-      ],
-      "docsUrl": "https://plexui.com/vue/components/phone-layout"
     }
   ],
-  "generatedAt": "2026-11-16T17:09:24.503Z"
+  "generatedAt": "2026-11-16T17:10:59.085Z"
 }

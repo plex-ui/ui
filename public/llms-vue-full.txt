@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 64
+Components: 63
 
 ## Setup
 
@@ -9747,72 +9747,4 @@ const columns: ColumnDef<User>[] = [
     v-model:column-visibility="columnVisibility"
   />
 </template>
-```
-
-## Phone Layout
-Lays out the components inside it as on a phone at any window width, such as a phone frame on a desktop page, and keeps their dialogs inside its box.
-Import: import { PhoneLayout } from "@plexui/vue/components/PhoneLayout"
-Docs: https://plexui.com/vue/components/phone-layout
-Props:
-  - class (string) — Class on the box, such as its size and corners
-  - style (string | CSSProperties) — Style on the box
-
-### Overview
-The box is the screen of the phone: a Dialog opened inside it portals into the box and covers it instead of the window. Give the box a size; let a child of it scroll rather than the box, so a dialog stays in place.
-```vue
-<PhoneLayout style="width: 375px; height: 600px; border-radius: 40px; border: 1px solid var(--color-border); background: var(--color-background)">
-  <div style="display: flex; height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 24px">
-    <Dialog v-model:open="open">
-      <DialogTrigger>
-        <Button color="primary">New list</Button>
-      </DialogTrigger>
-      <DialogContent mobile-variant="sheet">
-        <DialogHeader>
-          <DialogTitle>New list</DialogTitle>
-        </DialogHeader>
-        <DialogBody>
-          <Field label="Name">
-            <Input placeholder="Groceries" />
-          </Field>
-        </DialogBody>
-        <DialogFooter>
-          <Button color="primary" @click="open = false">Create</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  </div>
-</PhoneLayout>
-```
-
-### Menu
-A menu opened inside the box is a phone menu at any window width: it covers the button that opens it and opens in the box. A submenu opens over its menu, which steps back: a press on the menu behind closes the submenu and chooses nothing, and screen readers skip its rows until then.
-```vue
-<PhoneLayout style="width: 375px; height: 600px; border-radius: 40px; border: 1px solid var(--color-border); background: var(--color-background)">
-  <Page>
-    <Toolbar title-style="large">
-      <ToolbarTitle>Groceries</ToolbarTitle>
-      <ToolbarTrailing>
-        <Menu>
-          <MenuTrigger>
-            <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
-          </MenuTrigger>
-          <MenuContent align="end">
-            <MenuItem @select="() => {}"><CheckCircle /> Select Items</MenuItem>
-            <MenuSub>
-              <MenuSubTrigger :description="sort"><Sort /> Sort By</MenuSubTrigger>
-              <MenuSubContent>
-                <MenuRadioGroup v-model:value="sort">
-                  <MenuRadioItem value="Manual">Manual</MenuRadioItem>
-                  <MenuRadioItem value="Due Date">Due Date</MenuRadioItem>
-                  <MenuRadioItem value="Title">Title</MenuRadioItem>
-                </MenuRadioGroup>
-              </MenuSubContent>
-            </MenuSub>
-            <MenuItem danger @select="() => {}"><Trash /> Delete List</MenuItem>
-          </MenuContent>
-        </Menu>
-      </ToolbarTrailing>
-    </Toolbar>
-  </Page>
-</PhoneLayout>
 ```

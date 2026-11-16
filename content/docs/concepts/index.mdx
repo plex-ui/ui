@@ -127,3 +127,36 @@ function SampleComponent() {
 ```
 
 `useBreakpoint` returns `false` on the first render, on the server and the client alike, then follows the viewport. It reads the `--breakpoint-*` variables and falls back to the table above (with a console warning in development) when they are not defined.
+
+## Phone layout
+
+Components take their phone presentation in a window 767px wide or narrower. Inside a `PhoneLayout` they take it at any width: a Dialog becomes a phone sheet, a Button takes its phone size, a Menu opens as a phone menu inside the box. Use it to show a phone screen on a desktop page, such as a preview in a phone frame. For one dialog only, set `layout="phone"` on [Dialog](/components/dialog#api)'s content instead.
+
+```tsx
+import { PhoneLayout } from "@plexui/ui/components/PhoneLayout";
+
+<PhoneLayout style={{ width: 393, height: 852, borderRadius: 55, overflow: "hidden" }}>
+  <Page>…</Page>
+</PhoneLayout>
+```
+
+```vue
+<script setup lang="ts">
+import { PhoneLayout } from "@plexui/vue/components/PhoneLayout";
+</script>
+
+<template>
+  <PhoneLayout :style="{ width: '393px', height: '852px', borderRadius: '55px', overflow: 'hidden' }">
+    <Page>…</Page>
+  </PhoneLayout>
+</template>
+```
+
+`PhoneLayout` renders a `div` and passes its props and attributes on (a class or a style for its size and corners). It marks the box with `data-plex-layout="phone"`: the style sheets apply their phone rules inside such an element at any window width, and their desktop rules (768px and up) do not apply there.
+
+- **Dialogs and menus stay in the box.** A Dialog opened inside it portals into the box and covers it instead of the window; a Menu opens in the box and keeps inside it. Popovers, selects and tooltips still open at the end of the page and take the window's presentation.
+- **Give the box a size, and let a child of it scroll** rather than the box, so a dialog stays in place. The box has layout containment, so it is the containing block of the fixed layers of the dialogs inside it, and it clips its overflow as a screen does.
+- **Safe areas.** Set `--safe-area-inset-top` and `--safe-area-inset-bottom` on the box when the frame draws a status bar or a home indicator: phone sheets and bars read them before the window's safe area.
+
+`usePhoneLayout()` (React, from `@plexui/ui/components/PhoneLayout`) returns whether components where it is called are laid out as on a phone: inside a PhoneLayout or a Dialog with `layout="phone"`, or in a window 767px wide or narrower. In Vue, `usePhoneLayout()` from `@plexui/vue/components/PhoneLayout` returns the same as a computed ref. On the server, and until the component mounts, it is false outside a PhoneLayout.
+
