@@ -314,9 +314,10 @@ function startDrag(
   const menu = touch ? heldContextMenu(event.target, source) : undefined
   let lifted: { x: number; y: number; close: () => void } | undefined
   const holdTimer = touch && !menu ? setTimeout(begin, TOUCH_HOLD) : undefined
-  const style = getComputedStyle(list)
-  const part = parseFloat(layout === "grid" ? style.columnGap : style.rowGap) ? PART : 0
-  const scroller = scrollParent(list)
+  // Read once the drag begins: a plain tap never needs them, and reading styles and every ancestor's scroll size on
+  // pointerdown forced a style and layout pass of a long list before the tap reached its click (console 16.11)
+  let part = 0
+  let scroller: ReturnType<typeof scrollParent>
   const { group } = list.dataset
   const targets = group ? `[data-sortable-target="${CSS.escape(group)}"]` : undefined
   let drag:
@@ -424,6 +425,9 @@ function startDrag(
 
   function begin() {
     if (!validSource()) { cancel(); return }
+    const style = getComputedStyle(list)
+    part = parseFloat(layout === "grid" ? style.columnGap : style.rowGap) ? PART : 0
+    scroller = scrollParent(list)
     const areas = measure()
     window.getSelection()?.removeAllRanges()
     document.documentElement.classList.add(s.Dragging)
