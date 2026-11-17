@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { PreviewViewportControl } from './PreviewViewport';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import styles from './FrameworkSwitch.module.css';
@@ -57,14 +56,21 @@ export function FrameworkSwitch({
 }) {
   const router = useRouter();
 
-  useEffect(() => {
+  // Prefetch the other framework's page only when the switch is pointed at,
+  // focused or touched: on Vercel each prefetch of a prerendered page is an ISR read.
+  const prefetchOther = () => {
     for (const { id } of FRAMEWORKS) {
       if (id !== framework) router.prefetch(hrefFor(id, slug, hrefs));
     }
-  }, [framework, slug, hrefs, router]);
+  };
 
   return (
-    <div className="mb-6 flex items-center justify-between gap-4">
+    <div
+      className="mb-6 flex items-center justify-between gap-4"
+      onPointerEnter={prefetchOther}
+      onFocusCapture={prefetchOther}
+      onTouchStartCapture={prefetchOther}
+    >
       <SegmentedControl<Framework>
         value={framework}
         onChange={(next) => router.push(hrefFor(next, slug, hrefs))}

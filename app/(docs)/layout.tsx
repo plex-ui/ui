@@ -44,6 +44,9 @@ export default function Layout({ children }: { children: ReactNode }) {
       nav={{
         ...options.nav,
         transparentMode: 'none',
+        // fumadocs' own title link sits empty in the hidden sidebar header and
+        // prefetched the home page on every docs view; the global nav has the brand link
+        title: () => null,
         component: <DocsGlobalNav sections={docsNavigation.sections} />,
       }}
     >
