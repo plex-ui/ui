@@ -234,16 +234,18 @@ describe.each(overlays)("%s exit", (name, reactApp, vueApp) => {
     expect(seen).toEqual([false, false])
   })
 
-  test("with reduced motion it settles on the next frame, holding nothing", async () => {
+  // iOS with Reduce Motion fades an overlay in place and takes no touch meanwhile: it stays entering for its whole fade
+  test("with reduced motion it stays entering through its fade", async () => {
     vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("reduce"), media: query, addEventListener() {}, removeEventListener() {} }))
     const seen: boolean[] = []
     await walk(reactApp, vueApp, async (tools) => {
       await tools.set({ open: true })
-      await tools.advance(32)
-      await tools.advance(1)
+      await tools.advance(100)
       seen.push(!!panel(), !!document.querySelector("[data-entering]"))
+      await tools.advance(400)
+      seen.push(!!document.querySelector("[data-entering]"))
     })
-    expect(seen).toEqual([true, false, true, false])
+    expect(seen).toEqual([true, true, false, true, true, false])
   })
 
   test(`${name}: animations off still removes it at once`, async () => {

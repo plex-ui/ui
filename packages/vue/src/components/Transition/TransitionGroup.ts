@@ -152,8 +152,8 @@ export const TransitionGroup = defineComponent({
     disableAnimations: { type: Boolean, default: () => getDisableAnimations() },
     /**
      * For overlays: an exiting child is `inert`, out of the tab order and of hit
-     * testing, and with reduced motion it settles and leaves without waiting for
-     * `enterDuration` or `exitDuration` (nothing moves, so nothing is held).
+     * testing, and with reduced motion it leaves without waiting for `exitDuration`. It
+     * still waits out `enterDuration`: with reduced motion an overlay fades in over it.
      */
     overlay: Boolean,
     /** Determines how new children are added to the children array */

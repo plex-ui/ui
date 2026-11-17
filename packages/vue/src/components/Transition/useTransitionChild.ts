@@ -89,7 +89,7 @@ export function useTransitionChild(props: TransitionChildProps, getElement: () =
       enterTimeout = window.setTimeout(() => {
         dispatch({ type: "done" })
         trigger("enter-complete")
-      }, props.overlay && prefersReducedMotion() ? 0 : props.enterDuration)
+      }, props.enterDuration)
     })
     cancel = () => {
       cancelFrame()

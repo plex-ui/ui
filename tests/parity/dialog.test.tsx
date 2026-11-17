@@ -729,12 +729,16 @@ describe("Dialog parity, radix-ui 1.8", () => {
     const root = postcss.parse(readFileSync(`${process.cwd()}/packages/styles/src/components/Dialog/Dialog.module.css`, "utf8"))
     const phone: Array<[string, string]> = []
     const desktop: Array<[string, string]> = []
+    const reduced: Array<[string, string]> = []
     root.walkDecls("--dialog-panel-hidden-opacity", (decl) => {
       const rule = decl.parent
       if (rule?.type !== "rule") return
       const media = rule.parent?.type === "atrule" && "params" in rule.parent ? String(rule.parent.params) : ""
-      ;(media.includes("width <= 767px") ? phone : desktop).push([rule.selector.replace(/\s+/g, " "), decl.value])
+      const list = media.includes("width <= 767px") ? phone : media.includes("prefers-reduced-motion") ? reduced : desktop
+      list.push([rule.selector.replace(/\s+/g, " "), decl.value])
     })
+    // With reduced motion every panel fades in place, as on iOS with Reduce Motion
+    expect(reduced).toEqual([[".Content.Content", "0"]])
     expect(phone).toEqual([
       ['.Content:where([data-mobile-placement="center"])', "0"],
       ['.Content:where([data-mobile-placement="bottom"])', "1"],

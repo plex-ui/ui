@@ -291,6 +291,27 @@
   }
 }
 
+/* With reduced motion the dialog fades in place, the scrim with it, as a sheet does on iOS with Reduce Motion: no
+   slide or scale, a fade over the time its timer holds it entering (--motion-fade-enter*), so the touches that land
+   while it shows stay held. The tokens stand in for --motion-enter* around the dialog, so each placement keeps its own
+   time; the panel's own scale under a sheet over it stays at once. */
+@media (prefers-reduced-motion: reduce) {
+  .Transition {
+    --motion-enter: var(--motion-fade-enter);
+    --motion-enter-large: var(--motion-fade-enter-large);
+  }
+
+  .Content.Content {
+    --dialog-panel-hidden-transform: none;
+    --dialog-panel-hidden-opacity: 0;
+  }
+
+  .Panel {
+    --motion-enter: 0ms;
+    --motion-enter-large: 0ms;
+  }
+}
+
 .CloseButton {
   position: absolute;
   top: 0.75rem;

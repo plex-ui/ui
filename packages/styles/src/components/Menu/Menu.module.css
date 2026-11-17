@@ -1012,3 +1012,17 @@
     transition-delay: 0s;
   }
 }
+
+/* With reduced motion a menu fades in place, as on iOS with Reduce Motion (Files' ⋯ menu on the iOS 27.2 simulator: no
+   growth from the button): no scale, a fade over the time its timer holds it entering, so the touches that land while
+   it shows stay held. A submenu keeps showing at once. */
+@media (prefers-reduced-motion: reduce) {
+  .Menu[data-entering] .MenuList:not([data-submenu], [data-submenu-phone]) {
+    transform: none;
+  }
+
+  .Menu:is([data-entering-active], [data-entering][data-interrupted]) .MenuList:not([data-submenu], [data-submenu-phone]) {
+    transition-property: opacity;
+    transition-duration: var(--motion-fade-enter);
+  }
+}
