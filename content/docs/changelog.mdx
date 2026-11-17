@@ -7,6 +7,17 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `Progress` takes `size` (`sm` 4px by default, `md` 6px, `lg` 8px) and `color` (the filled part's color, such as `secondary` grey for a second series), so a thin or grey bar needs no token override or one-part `segments`. New tokens `--progress-height-md` and `--progress-height-lg` (React and Vue).
+- `NavigationRow` takes `leading` (React) and a `leading` slot (Vue): an `Avatar` or a picture in a column before the label, as the People list of iOS Find My, with the line above the row starting at the text. New tokens `--navigation-row-leading-size` (40px) and `--navigation-row-leading-gap` (12px).
+
+### Fixed
+
+- A `StatsCard` value wider than its card (two cards a row on a 320px phone) no longer runs past the card's padding: it scales down to fit, to half its size at most, as iOS's `minimumScaleFactor`, and past that ends in an ellipsis. The value stays on one line (React and Vue).
+
 ## 0.59.5 (2026-11-17)
 
 ### Fixed

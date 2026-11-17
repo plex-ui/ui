@@ -52,6 +52,24 @@
   min-width: 0;
 }
 
+/* What leads the row (an Avatar, a picture), as iOS Find My's People list: a column of its own before the text,
+   centred in the row's height, 12 before the label; the line above the row starts where the text does */
+.Leading {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--navigation-row-leading-size);
+  margin-inline-end: calc(var(--navigation-row-leading-gap) - var(--field-row-disclosure-gap, 8px));
+}
+
+.NavigationRow[data-leading] {
+  --field-group-separator-inset-start: calc(
+    var(--field-row-padding-inline, var(--button-gutter)) + var(--navigation-row-leading-size) +
+      var(--navigation-row-leading-gap)
+  );
+}
+
 .Text {
   display: flex;
   flex: 1 1 auto;
@@ -195,4 +213,52 @@
 .NavigationRow[data-measuring] :is(.Label, .Value) {
   overflow: hidden;
   white-space: nowrap;
+}
+
+/* A leading column keeps its own column in the grids: before the label column with FieldGroup columns, and spanning
+   the lines when the value stands below the label */
+/* With FieldGroup columns the leading column comes out of the label column, so the values keep the group's control
+   column; the grid has no gap there, so the leading keeps its whole gap to the text */
+[data-field-columns] .NavigationRow[data-leading] .Content {
+  grid-template-columns:
+    auto
+    max(0px, calc(var(--field-row-column-width) - var(--navigation-row-leading-size) - var(--navigation-row-leading-gap)))
+    minmax(0, 1fr)
+    auto;
+}
+
+[data-field-columns] .NavigationRow[data-leading]:not([data-value-below]) .Leading {
+  margin-inline-end: var(--navigation-row-leading-gap);
+}
+
+[data-field-columns] .NavigationRow[data-leading]:not([data-value]) .Text {
+  grid-column: 2 / 4;
+}
+
+.NavigationRow[data-value-below][data-leading] .Content {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.NavigationRow[data-value-below][data-leading] .Leading {
+  grid-area: 1 / 1 / span 3 / 2;
+}
+
+.NavigationRow[data-value-below][data-leading] .Label {
+  grid-area: 1 / 2;
+}
+
+.NavigationRow[data-value-below][data-leading] .Value {
+  grid-area: 2 / 2;
+}
+
+.NavigationRow[data-value-below][data-leading] .Description {
+  grid-area: 3 / 2;
+}
+
+.NavigationRow[data-value-below][data-leading] .Disclosure {
+  grid-area: 1 / 3 / span 2 / 4;
+}
+
+.NavigationRow[data-value-below][data-leading][data-description] .Disclosure {
+  grid-row: 1 / span 3;
 }

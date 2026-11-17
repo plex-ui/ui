@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { Avatar } from '@plexui/ui/components/Avatar';
 import { Button, NavigationButton } from '@plexui/ui/components/Button';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Check } from '@plexui/ui/components/Icon';
 import { NavigationRow } from '@plexui/ui/components/NavigationRow';
 import { Page } from '@plexui/ui/components/Page';
 import { Toolbar } from '@plexui/ui/components/Toolbar';
-import { NAVIGATION_ROW_GROUPS, navigationRowValues } from './navigationRowData';
+import { NAVIGATION_ROW_GROUPS, NAVIGATION_ROW_PEOPLE, navigationRowValues } from './navigationRowData';
 import s from './PageDemos.module.css';
 import r from './NavigationRowDemos.module.css';
 
@@ -79,4 +80,45 @@ export function NavigationRowOverviewDemo() {
 
 export function NavigationRowColumnsDemo() {
   return <SettingsDemo columns />;
+}
+
+/** A list that leads with avatars, as iOS Find My's People: the name, where and since when under it, how far at the end */
+export function NavigationRowLeadingDemo() {
+  const [open, setOpen] = useState<string | null>(null);
+  const person = NAVIGATION_ROW_PEOPLE.find((item) => item.id === open);
+
+  return (
+    <div data-demo-stage className={s.Stage}>
+      <div className={s.Frame}>
+        <Page surface="grouped">
+          <Toolbar>
+            {person && (
+              <Toolbar.Leading>
+                <NavigationButton action="back" onClick={() => setOpen(null)} />
+              </Toolbar.Leading>
+            )}
+            <Toolbar.Title>{person ? person.name : 'People'}</Toolbar.Title>
+          </Toolbar>
+          <Page.Content>
+            <FieldGroup>
+              {person ? (
+                <NavigationRow label="Directions" value={person.distance} onClick={() => setOpen(null)} />
+              ) : (
+                NAVIGATION_ROW_PEOPLE.map((item) => (
+                  <NavigationRow
+                    key={item.id}
+                    leading={<Avatar name={item.name} size={40} />}
+                    label={item.name}
+                    description={`${item.place} · ${item.time}`}
+                    value={item.distance}
+                    onClick={() => setOpen(item.id)}
+                  />
+                ))
+              )}
+            </FieldGroup>
+          </Page.Content>
+        </Page>
+      </div>
+    </div>
+  );
 }

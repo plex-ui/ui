@@ -5,6 +5,8 @@ import { type ComponentProps } from "react"
 import { Progress as RadixProgress } from "radix-ui"
 import s from "@plexui/styles/components/Progress/Progress.module.css"
 
+export type ProgressSize = "sm" | "md" | "lg"
+
 export type ProgressColor = "primary" | "secondary" | "success" | "warning" | "caution" | "danger" | "info" | "discovery"
 
 /** A part of a segmented bar: its share of `max`, its color, and the name it is read with. */
@@ -35,6 +37,17 @@ export type ProgressProps = Omit<
    * take `value`'s place. A part's share is clamped so the bar never passes `max`.
    */
   segments?: ProgressSegment[]
+  /**
+   * The bar's thickness: `sm` 4px (iOS's progress view), `md` 6px, `lg` 8px (a bar in a stats card, as Apple Fitness).
+   * @default "sm"
+   */
+  size?: ProgressSize
+  /**
+   * The color of the filled part, such as `secondary` (grey) for a second series beside a `primary` one. A segmented
+   * bar's parts take their own colors.
+   * @default "primary"
+   */
+  color?: ProgressColor
   className?: string
 }
 
@@ -56,6 +69,8 @@ export const Progress = ({
   value = null,
   max = 100,
   segments,
+  size = "sm",
+  color = "primary",
   className,
   ...restProps
 }: ProgressProps) => {
@@ -70,6 +85,7 @@ export const Progress = ({
         getValueLabel={() => segmentsLabel(parts, rootMax)}
         className={clsx(s.Root, className)}
         data-segmented=""
+        data-size={size}
         {...restProps}
       >
         {parts.map((part, index) =>
@@ -89,6 +105,8 @@ export const Progress = ({
       value={resolved}
       max={max}
       className={clsx(s.Root, className)}
+      data-size={size}
+      data-color={color}
       {...restProps}
     >
       <RadixProgress.Indicator

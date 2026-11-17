@@ -4,7 +4,7 @@ description: "A row of a list that opens what it holds, as an iOS Settings row: 
 metaDescription: "React navigation row for lists in the iOS style: a FieldGroup row with a label, its current value in the secondary color and a chevron, pressed as one button or link, with a description line, disabled state and FieldGroup columns."
 ---
 
-import { NavigationRowColumnsDemo, NavigationRowOverviewDemo } from "@/components/docs/NavigationRowDemos"
+import { NavigationRowColumnsDemo, NavigationRowLeadingDemo, NavigationRowOverviewDemo } from "@/components/docs/NavigationRowDemos"
 
 <UsageBlock>{`import { NavigationRow } from "@plexui/ui/components/NavigationRow";`}</UsageBlock>
 
@@ -40,6 +40,23 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
   <NavigationRowOverviewDemo />
 </ComponentPreview>
 
+### Leading
+
+<ComponentPreview details={<>Pass <code>leading</code> to lead the row with an <code>Avatar</code> or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, <code>--navigation-row-leading-size</code>), centred in the row&apos;s height, 12px before the text, and the line above the row starts where the text does. The <code>description</code> says where and since when, and the <code>value</code> at the end how far. A <code>&lt;br /&gt;</code> in the description starts a second line.</>} code={`<FieldGroup>
+  {people.map((person) => (
+    <NavigationRow
+      key={person.id}
+      leading={<Avatar name={person.name} size={40} />}
+      label={person.name}
+      description={\`\${person.place} · \${person.time}\`}
+      value={person.distance}
+      onClick={() => open(person.id)}
+    />
+  ))}
+</FieldGroup>`}>
+  <NavigationRowLeadingDemo />
+</ComponentPreview>
+
 ### Columns
 
 <ComponentPreview details={<>In a <code>FieldGroup</code> with <code>columns</code> the value takes the control column of the group, in the text color, as the value of a <code>Field</code> row does, and the chevron stays at the end.</>} code={`<FieldGroup columns>
@@ -56,7 +73,8 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
 <PropsTable data={[
   { prop: "label", type: "ReactNode", description: "The name of the row, where a row's label starts" },
   { prop: "value", type: "ReactNode", description: "The current value, at the end of the row in the secondary label color. `0` shows; `null`, `undefined`, `false` and `\"\"` do not" },
-  { prop: "description", type: "ReactNode", description: "A line under the label; the row grows from 52px to hold it" },
+  { prop: "description", type: "ReactNode", description: "A line under the label; the row grows from 52px to hold it. A `<br />` starts a second line" },
+  { prop: "leading", type: "ReactNode", description: "What leads the row, such as an `Avatar` or a picture: a column before the label, centred in the row's height; the line above the row starts after it, where the text starts" },
   { prop: "href", type: "string", description: "Where the row goes: with it the row is a link, through the `linkComponent` of `PlexUIProvider`" },
   { prop: "as", type: "PlexUI.LinkComponent", description: "The link component for `href`, such as a router's link" },
   { prop: "target, rel, download", type: "string", description: "Attributes of the link, with `href`" },
@@ -72,8 +90,10 @@ Every other attribute (an `id`, events, ARIA and data attributes) goes to the pr
 
 ## Styling
 
-NavigationRow reads the row tokens of [FieldGroup](/components/field#fieldgroup) (`--field-row-min-height`, `--field-row-padding-inline`, `--field-row-label-*`, `--field-row-description-*`, `--field-row-gap`, `--field-row-disclosure-gap`) and three of its own. Override them at any scope to restyle it:
+NavigationRow reads the row tokens of [FieldGroup](/components/field#fieldgroup) (`--field-row-min-height`, `--field-row-padding-inline`, `--field-row-label-*`, `--field-row-description-*`, `--field-row-gap`, `--field-row-disclosure-gap`) and five of its own. Override them at any scope to restyle it:
 
 - `--navigation-row-label-color`: the label (default the text color)
 - `--navigation-row-value-color`: the value (default the secondary label color; the text color with `columns`)
 - `--navigation-row-disclosure-color`: the chevron (default the tertiary label color)
+- `--navigation-row-leading-size`: the column of `leading` (default `40px`)
+- `--navigation-row-leading-gap`: from `leading` to the text (default `12px`)

@@ -3838,7 +3838,12 @@
         {
           "name": "description",
           "type": "ReactNode",
-          "description": "A line under the label; the row grows from 52px to hold it"
+          "description": "A line under the label; the row grows from 52px to hold it. A `<br />` starts a second line"
+        },
+        {
+          "name": "leading",
+          "type": "ReactNode",
+          "description": "What leads the row, such as an `Avatar` or a picture: a column before the label, centred in the row's height; the line above the row starts after it, where the text starts"
         },
         {
           "name": "href",
@@ -3893,6 +3898,11 @@
           "name": "Overview",
           "code": "<FieldGroup>\n<NavigationRow label=\"Language\" value={language} onClick={() => open(\"language\")} />\n<NavigationRow label=\"Region\" value={region} onClick={() => open(\"region\")} />\n<NavigationRow label=\"Calendar\" value={calendar} onClick={() => open(\"calendar\")} />\n</FieldGroup>\n<FieldGroup>\n<NavigationRow\n  label=\"Fetch New Data\"\n  description=\"How new mail arrives\"\n  value={fetch}\n  onClick={() => open(\"fetch\")}\n/>\n<NavigationRow label=\"Temperature\" value=\"°C\" disabled />\n<NavigationRow\n  label=\"Default Alerts\"\n  value={alerts}\n  valuePlacement=\"auto\"\n  onClick={() => open(\"alerts\")}\n/>\n</FieldGroup>\n<FieldGroup>\n<NavigationRow label=\"Accounts\" value={accounts.length} href=\"/settings/accounts\" />\n</FieldGroup>",
           "details": "Put the rows in a FieldGroup: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The value stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A description adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A disabled row greys all of it and can&apos;t be pressed. A value too long to stand beside the label on one line goes under it with valuePlacement=\"auto\", at the full width of the text, and a description under the value, as Calendar sets a long value (below puts it there always). With href the row is a link through the linkComponent of PlexUIProvider (or as), for a router&apos;s page."
+        },
+        {
+          "name": "Leading",
+          "code": "<FieldGroup>\n{people.map((person) => (\n  <NavigationRow\n    key={person.id}\n    leading={<Avatar name={person.name} size={40} />}\n    label={person.name}\n    description={`${person.place} · ${person.time}`}\n    value={person.distance}\n    onClick={() => open(person.id)}\n  />\n))}\n</FieldGroup>",
+          "details": "Pass leading to lead the row with an Avatar or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, --navigation-row-leading-size), centred in the row&apos;s height, 12px before the text, and the line above the row starts where the text does. The description says where and since when, and the value at the end how far. A &lt;br /&gt; in the description starts a second line."
         },
         {
           "name": "Columns",
@@ -4428,6 +4438,18 @@
           "description": "Parts of one bar side by side: { value, color?, label? }, color one of primary, secondary, success, warning, caution, danger, info, discovery. Takes the place of value."
         },
         {
+          "name": "size",
+          "type": "'sm' | 'md' | 'lg'",
+          "default": "'sm'",
+          "description": "The bar's thickness: sm 4px (iOS's progress view), md 6px, lg 8px (a bar in a stats card, as Apple Fitness)."
+        },
+        {
+          "name": "color",
+          "type": "'primary' | 'secondary' | 'success' | 'warning' | 'caution' | 'danger' | 'info' | 'discovery'",
+          "default": "'primary'",
+          "description": "The color of the filled part, such as secondary (grey) for a second series beside a primary one. A segmented bar's parts take their own colors."
+        },
+        {
           "name": "getValueLabel",
           "type": "(value: number, max: number) => string",
           "default": "—",
@@ -4444,11 +4466,11 @@
         {
           "name": "Overview",
           "code": "<div>\n<div style={{ display: \"flex\", justifyContent: \"space-between\" }}>\n  <Label id=\"progress-upload-label\">Uploading plex-ui.zip</Label>\n  <span>66%</span>\n</div>\n<Progress value={66} aria-labelledby=\"progress-upload-label\" />\n</div>",
-          "details": "A bar of task completion between 0 and max (100 by default); it animates each change of value, so bind it to any source, here the value slider. indeterminate passes value={'{null}'}: a sweep for a task of unknown length. label pairs a Label with a readout above the bar, the typical upload or onboarding pattern; the bar takes its name from it with aria-labelledby, and without one it needs an aria-label. It reads out the value as a rounded percentage, or what getValueLabel returns."
+          "details": "A bar of task completion between 0 and max (100 by default); it animates each change of value, so bind it to any source, here the value slider. indeterminate passes value={'{null}'}: a sweep for a task of unknown length. label pairs a Label with a readout above the bar, the typical upload or onboarding pattern; the bar takes its name from it with aria-labelledby, and without one it needs an aria-label. It reads out the value as a rounded percentage, or what getValueLabel returns. size sets the thickness, 4, 6 or 8 px, and color the filled part, such as secondary grey for a second series beside the first."
         },
         {
           "name": "Segments",
-          "code": "<Label id=\"progress-bill-label\">Bill of $200</Label>\n<Progress\naria-labelledby=\"progress-bill-label\"\nmax={200}\nsegments={[\n  { value: 120, color: 'success', label: 'Paid' },\n  { value: 45, color: 'warning', label: 'Pending' },\n]}\nstyle={{ '--progress-height': '8px' }}\n/>",
+          "code": "<Label id=\"progress-bill-label\">Bill of $200</Label>\n<Progress\naria-labelledby=\"progress-bill-label\"\nmax={200}\nsegments={[\n  { value: 120, color: 'success', label: 'Paid' },\n  { value: 45, color: 'warning', label: 'Pending' },\n]}\nsize=\"lg\"\n/>",
           "details": "Pass segments for parts of one bar side by side, each in its color, such as a bill paid in parts: what is paid, what is pending, and the track left for what is due. A part is {\"{ value, color, label }\"}; the bar&apos;s value is their sum, and a part past max is cut to it. A hairline of the track (--progress-segment-gap) parts them. It reads out each part with its label and share, such as Paid 60%, Pending 23%."
         }
       ],
@@ -5918,7 +5940,7 @@
         {
           "name": "value",
           "type": "ReactNode",
-          "description": "Required. The primary metric value"
+          "description": "Required. The primary metric value. It stays on one line: wider than the card, it scales down to fit, to half its size at most (as iOS's minimumScaleFactor), then ends in an ellipsis"
         },
         {
           "name": "description",
@@ -7410,5 +7432,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-16T18:10:27.148Z"
+  "generatedAt": "2026-11-17T12:01:47.235Z"
 }

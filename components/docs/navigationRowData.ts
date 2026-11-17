@@ -28,3 +28,10 @@ export const NAVIGATION_ROW_GROUPS: NavigationRowChoice[][] = [
 
 export const navigationRowValues = () =>
   Object.fromEntries(NAVIGATION_ROW_GROUPS.flat().map((row) => [row.id, row.choices[0]])) as Record<string, string>;
+
+/** People a list leads with their avatars, as iOS Find My's People list: where each is, since when, and how far. */
+export const NAVIGATION_ROW_PEOPLE = [
+  { id: 'anna', name: 'Anna Keller', place: 'Home', time: 'Now', distance: '2 km' },
+  { id: 'marco', name: 'Marco Rossi', place: 'Office', time: '5 min ago', distance: '7 km' },
+  { id: 'lena', name: 'Lena Novak', place: 'Airport, Terminal 2', time: '12 min ago', distance: '24 km' },
+];

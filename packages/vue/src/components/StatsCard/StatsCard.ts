@@ -1,8 +1,9 @@
-import { defineComponent, h, type HTMLAttributes, type PropType } from "vue"
+import { defineComponent, h, onBeforeUnmount, onMounted, ref, type HTMLAttributes, type PropType } from "vue"
 import { Badge } from "../Badge/index.js"
 import { InfoCircle, Trending } from "../Icon/index.js"
 import { Tooltip } from "../Tooltip/index.js"
 import { hasContent } from "../../lib/slotContent.js"
+import { fitValueScale } from "../../lib/fitValueScale.js"
 import s from "@plexui/styles/components/StatsCard/StatsCard.module.css"
 
 // Vue port of packages/ui/src/components/StatsCard/StatsCard.tsx. Props,
@@ -59,6 +60,14 @@ const StatsCardComponent = defineComponent({
     accentColor: { type: String as PropType<StatsCardAccentColor>, default: "primary" },
   },
   setup(props, { slots }) {
+    // A value wider than the card (two cards a row on a phone) scales down to fit, as iOS's minimumScaleFactor
+    const valueRef = ref<HTMLElement | null>(null)
+    let stopFit: (() => void) | undefined
+    onMounted(() => {
+      if (valueRef.value) stopFit = fitValueScale(valueRef.value, "--stats-card-value-scale")
+    })
+    onBeforeUnmount(() => stopFit?.())
+
     return () => {
       const { label, description, trend, invertTrend, progress, progressLabel, tooltip, trendPosition, trendVariant } =
         props
@@ -130,7 +139,7 @@ const StatsCardComponent = defineComponent({
 
       const valueSlot = slots.value?.()
       const valueRowEl = h("div", { class: s.ValueRow }, [
-        h("div", { class: s.Value }, hasContent(valueSlot) ? valueSlot : props.value),
+        h("div", { ref: valueRef, class: s.Value }, hasContent(valueSlot) ? valueSlot : props.value),
       ])
 
       // Under the value, a trend and what it compares with, on one line (shadcn's metric card with a trend); a trend

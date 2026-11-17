@@ -1,10 +1,9 @@
 'use client';
 
-import type { CSSProperties } from 'react';
 import { useId, useState } from 'react';
-import { Progress } from '@plexui/ui/components/Progress';
+import { Progress, type ProgressColor, type ProgressSize } from '@plexui/ui/components/Progress';
 import { Label } from '@plexui/ui/components/Label';
-import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow, DemoControlSelect } from './ButtonDemos';
 import { SliderValueControl } from './SliderValueControl';
 import { usePhoneRows } from './PhoneRows';
 
@@ -13,10 +12,15 @@ import { usePhoneRows } from './PhoneRows';
  * label with its readout and a value bound to a control were four examples of one bar. The bar animates each change
  * of the value; with no value it is indeterminate.
  */
+const PROGRESS_SIZES = ['sm', 'md', 'lg'] as const;
+const PROGRESS_COLORS = ['primary', 'secondary', 'success', 'warning', 'caution', 'danger', 'info', 'discovery'] as const;
+
 export function ProgressOverviewDemo() {
   const [value, setValue] = useState(66);
   const [indeterminate, setIndeterminate] = useState(false);
   const [label, setLabel] = useState(true);
+  const [size, setSize] = useState<ProgressSize>('sm');
+  const [color, setColor] = useState<ProgressColor>('primary');
   // On a phone the bar spans the screen between its margins, as an iOS progress view does
   const phone = usePhoneRows();
   const labelId = useId();
@@ -29,6 +33,8 @@ export function ProgressOverviewDemo() {
         </DemoControlRow>
         <DemoControlBoolean name="indeterminate" value={indeterminate} onChange={setIndeterminate} />
         <DemoControlBoolean name="label" value={label} onChange={setLabel} />
+        <DemoControlSelect name="size" options={PROGRESS_SIZES} value={size} onChange={setSize} />
+        <DemoControlSelect name="color" options={PROGRESS_COLORS} value={color} onChange={setColor} />
       </div>
       <div data-demo-stage className="flex-1 flex items-center justify-center py-12 px-4 w-full">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', maxWidth: phone ? undefined : 320 }}>
@@ -40,6 +46,8 @@ export function ProgressOverviewDemo() {
           )}
           <Progress
             value={indeterminate ? null : value}
+            size={size}
+            color={color}
             aria-labelledby={label ? labelId : undefined}
             aria-label={label ? undefined : 'Uploading plex-ui.zip'}
           />
@@ -63,7 +71,7 @@ export function ProgressSegmentsDemo() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', maxWidth: 320 }}>
       <Label id="progress-bill-label">Bill of $200</Label>
-      <Progress aria-labelledby="progress-bill-label" max={200} segments={[...BILL]} style={{ '--progress-height': '8px' } as CSSProperties} />
+      <Progress aria-labelledby="progress-bill-label" max={200} segments={[...BILL]} size="lg" />
       <span style={{ color: 'var(--color-text-tertiary)', fontSize: 14 }}>
         120 paid · 45 pending · {due} due
       </span>

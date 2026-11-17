@@ -49,6 +49,45 @@ describe("NavigationRow markup", () => {
     expect(pair.vue).toBe(pair.react)
   })
 
+  test("a leading avatar", async () => {
+    const pair = await renderPair(
+      <RFieldGroup>
+        <RNavigationRow leading={<span data-avatar="">AK</span>} label="Anna Keller" description="Home · Now" value="2 km" />
+      </RFieldGroup>,
+      () =>
+        h(FieldGroup, null, {
+          default: () =>
+            h(NavigationRow, { label: "Anna Keller", description: "Home · Now", value: "2 km" }, { leading: () => h("span", { "data-avatar": "" }, "AK") }),
+        }),
+    )
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.react).toContain("data-leading")
+  })
+
+  test("Vue: a leading slot that renders nothing leaves no column, as an empty React leading", async () => {
+    const pair = await renderPair(
+      <RFieldGroup>
+        <RNavigationRow leading={null} label="Anna Keller" value="2 km" />
+      </RFieldGroup>,
+      () =>
+        h(FieldGroup, null, {
+          default: () => h(NavigationRow, { label: "Anna Keller", value: "2 km" }, { leading: () => [] }),
+        }),
+    )
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.vue).not.toContain("data-leading")
+  })
+
+  test("with FieldGroup columns the leading column comes out of the label column", () => {
+    const css = read("packages/styles/src/components/NavigationRow/NavigationRow.module.css")
+    expect(css).toMatch(/\[data-field-columns\] \.NavigationRow\[data-leading\] \.Content \{[^}]*calc\(var\(--field-row-column-width\) - var\(--navigation-row-leading-size\) - var\(--navigation-row-leading-gap\)\)/)
+  })
+
+  test("leading starts the line above the row at the text", () => {
+    const css = read("packages/styles/src/components/NavigationRow/NavigationRow.module.css")
+    expect(css).toMatch(/\.NavigationRow\[data-leading\] \{[^}]*--field-group-separator-inset-start:[^}]*--navigation-row-leading-size[^}]*--navigation-row-leading-gap/)
+  })
+
   test("in a FieldGroup with columns", async () => {
     const pair = await renderPair(
       <RFieldGroup columns>

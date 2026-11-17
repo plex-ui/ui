@@ -4,7 +4,7 @@ description: "A row of a list that opens what it holds, as an iOS Settings row: 
 metaDescription: "Vue 3 navigation row for lists in the iOS style: a FieldGroup row with a label, its current value in the secondary color and a chevron, pressed as one button or link, with a description line, disabled state and FieldGroup columns."
 ---
 
-import { VueNavigationRowColumnsDemo, VueNavigationRowOverviewDemo } from "@/components/docs/vue/VueNavigationRowDemos"
+import { VueNavigationRowColumnsDemo, VueNavigationRowLeadingDemo, VueNavigationRowOverviewDemo } from "@/components/docs/vue/VueNavigationRowDemos"
 
 export const overview = `<FieldGroup>
   <NavigationRow label="Language" :value="language" @click="open('language')" />
@@ -30,6 +30,21 @@ export const overview = `<FieldGroup>
   <NavigationRow label="Accounts" :value="accounts.length" to="/settings/accounts" />
 </FieldGroup>`
 
+export const leading = `<FieldGroup>
+  <NavigationRow
+    v-for="person in people"
+    :key="person.id"
+    :label="person.name"
+    :description="\`\${person.place} · \${person.time}\`"
+    :value="person.distance"
+    @click="open(person.id)"
+  >
+    <template #leading>
+      <Avatar :name="person.name" :size="40" />
+    </template>
+  </NavigationRow>
+</FieldGroup>`
+
 export const columns = `<FieldGroup columns>
   <NavigationRow label="Language" :value="language" @click="open('language')" />
   <NavigationRow label="Region" :value="region" @click="open('region')" />
@@ -47,6 +62,12 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
   <VueNavigationRowOverviewDemo />
 </ComponentPreview>
 
+### Leading
+
+<ComponentPreview language="vue" details={<>Fill the <code>leading</code> slot to lead the row with an <code>Avatar</code> or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, <code>--navigation-row-leading-size</code>), centred in the row&apos;s height, 12px before the text, and the line above the row starts where the text does. The <code>description</code> says where and since when, and the <code>value</code> at the end how far. A <code>&lt;br /&gt;</code> in the <code>description</code> slot starts a second line.</>} code={leading}>
+  <VueNavigationRowLeadingDemo />
+</ComponentPreview>
+
 ### Columns
 
 <ComponentPreview language="vue" details={<>In a <code>FieldGroup</code> with <code>columns</code> the value takes the control column of the group, in the text color, as the value of a <code>Field</code> row does, and the chevron stays at the end.</>} code={columns}>
@@ -60,7 +81,7 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
 <PropsTable data={[
   { prop: "label", type: "string | number", description: "The name of the row, where a row's label starts (or the `label` slot)" },
   { prop: "value", type: "string | number | null", description: "The current value, at the end of the row in the secondary label color (or the `value` slot). `0` shows; `null`, `undefined` and `\"\"` do not" },
-  { prop: "description", type: "string | number", description: "A line under the label; the row grows from 52px to hold it (or the `description` slot)" },
+  { prop: "description", type: "string | number", description: "A line under the label; the row grows from 52px to hold it (or the `description` slot, where a `<br />` starts a second line)" },
   { prop: "to", type: "string | object", description: "A router target: with it the row is a link, through the `linkComponent` of `PlexUIProvider`" },
   { prop: "href", type: "string", description: "Where the row goes, as a plain link" },
   { prop: "as", type: "Component | \"a\"", description: "The link component, such as a router's link" },
@@ -69,7 +90,7 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
   { prop: "valuePlacement", type: "\"end\" | \"below\" | \"auto\"", default: "\"end\"", description: "Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it" },
 ]} />
 
-**Slots**: `label`, `value`, `description`, in place of their props.
+**Slots**: `label`, `value`, `description`, in place of their props; `leading`, what leads the row (an `Avatar` or a picture) in a column before the label, centred in the row's height, the line above the row starting after it.
 
 **Events**: `click`, when the row is pressed.
 
@@ -79,8 +100,10 @@ Every other attribute (an `id`, a `class`, listeners, ARIA and data attributes) 
 
 ## Styling
 
-NavigationRow reads the row tokens of [FieldGroup](/vue/components/field#fieldgroup) (`--field-row-min-height`, `--field-row-padding-inline`, `--field-row-label-*`, `--field-row-description-*`, `--field-row-gap`, `--field-row-disclosure-gap`) and three of its own. Override them at any scope to restyle it:
+NavigationRow reads the row tokens of [FieldGroup](/vue/components/field#fieldgroup) (`--field-row-min-height`, `--field-row-padding-inline`, `--field-row-label-*`, `--field-row-description-*`, `--field-row-gap`, `--field-row-disclosure-gap`) and five of its own. Override them at any scope to restyle it:
 
 - `--navigation-row-label-color`: the label (default the text color)
 - `--navigation-row-value-color`: the value (default the secondary label color; the text color with `columns`)
 - `--navigation-row-disclosure-color`: the chevron (default the tertiary label color)
+- `--navigation-row-leading-size`: the column of `leading` (default `40px`)
+- `--navigation-row-leading-gap`: from `leading` to the text (default `12px`)

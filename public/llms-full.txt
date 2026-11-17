@@ -4512,7 +4512,8 @@ Docs: https://plexui.com/components/navigation-row
 Props:
   - label (ReactNode) — The name of the row, where a row's label starts
   - value (ReactNode) — The current value, at the end of the row in the secondary label color. `0` shows; `null`, `undefined`, `false` and `""` do not
-  - description (ReactNode) — A line under the label; the row grows from 52px to hold it
+  - description (ReactNode) — A line under the label; the row grows from 52px to hold it. A `<br />` starts a second line
+  - leading (ReactNode) — What leads the row, such as an `Avatar` or a picture: a column before the label, centred in the row's height; the line above the row starts after it, where the text starts
   - href (string) — Where the row goes: with it the row is a link, through the `linkComponent` of `PlexUIProvider`
   - as (PlexUI.LinkComponent) — The link component for `href`, such as a router's link
   - target, rel, download (string) — Attributes of the link, with `href`
@@ -4548,6 +4549,23 @@ Put the rows in a FieldGroup: each is a row of the group, so its separators, cor
 </FieldGroup>
 <FieldGroup>
 <NavigationRow label="Accounts" value={accounts.length} href="/settings/accounts" />
+</FieldGroup>
+```
+
+### Leading
+Pass leading to lead the row with an Avatar or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, --navigation-row-leading-size), centred in the row&apos;s height, 12px before the text, and the line above the row starts where the text does. The description says where and since when, and the value at the end how far. A &lt;br /&gt; in the description starts a second line.
+```tsx
+<FieldGroup>
+{people.map((person) => (
+  <NavigationRow
+    key={person.id}
+    leading={<Avatar name={person.name} size={40} />}
+    label={person.name}
+    description={`${person.place} · ${person.time}`}
+    value={person.distance}
+    onClick={() => open(person.id)}
+  />
+))}
 </FieldGroup>
 ```
 
@@ -5160,11 +5178,13 @@ Props:
   - value (number | null) default: null — Current progress between 0 and max. Pass null for indeterminate.
   - max (number) default: 100 — Maximum progress value
   - segments (ProgressSegment[]) default: — — Parts of one bar side by side: { value, color?, label? }, color one of primary, secondary, success, warning, caution, danger, info, discovery. Takes the place of value.
+  - size ('sm' | 'md' | 'lg') default: 'sm' — The bar's thickness: sm 4px (iOS's progress view), md 6px, lg 8px (a bar in a stats card, as Apple Fitness).
+  - color ('primary' | 'secondary' | 'success' | 'warning' | 'caution' | 'danger' | 'info' | 'discovery') default: 'primary' — The color of the filled part, such as secondary (grey) for a second series beside a primary one. A segmented bar's parts take their own colors.
   - getValueLabel ((value: number, max: number) => string) default: — — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
   - className (string) default: — — Applied to the root <div>
 
 ### Overview
-A bar of task completion between 0 and max (100 by default); it animates each change of value, so bind it to any source, here the value slider. indeterminate passes value={'{null}'}: a sweep for a task of unknown length. label pairs a Label with a readout above the bar, the typical upload or onboarding pattern; the bar takes its name from it with aria-labelledby, and without one it needs an aria-label. It reads out the value as a rounded percentage, or what getValueLabel returns.
+A bar of task completion between 0 and max (100 by default); it animates each change of value, so bind it to any source, here the value slider. indeterminate passes value={'{null}'}: a sweep for a task of unknown length. label pairs a Label with a readout above the bar, the typical upload or onboarding pattern; the bar takes its name from it with aria-labelledby, and without one it needs an aria-label. It reads out the value as a rounded percentage, or what getValueLabel returns. size sets the thickness, 4, 6 or 8 px, and color the filled part, such as secondary grey for a second series beside the first.
 ```tsx
 <div>
 <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -5186,7 +5206,7 @@ segments={[
   { value: 120, color: 'success', label: 'Paid' },
   { value: 45, color: 'warning', label: 'Pending' },
 ]}
-style={{ '--progress-height': '8px' }}
+size="lg"
 />
 ```
 
@@ -6800,7 +6820,7 @@ Import: import { StatsCard } from "@plexui/ui/components/StatsCard"
 Docs: https://plexui.com/components/stats-card
 Props:
   - label (string) — Required. Label describing the metric
-  - value (ReactNode) — Required. The primary metric value
+  - value (ReactNode) — Required. The primary metric value. It stays on one line: wider than the card, it scales down to fit, to half its size at most (as iOS's minimumScaleFactor), then ends in an ellipsis
   - description (string) — Subtitle below the value
   - trend ({ value: number; label?: string }) — Trend indicator with percentage
   - invertTrend (boolean) default: false — Invert trend colors (positive = bad)

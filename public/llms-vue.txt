@@ -804,14 +804,14 @@ Docs: https://plexui.com/vue/components/navigation-row
 Props:
   - label (string | number) — The name of the row, where a row's label starts (or the `label` slot)
   - value (string | number | null) — The current value, at the end of the row in the secondary label color (or the `value` slot). `0` shows; `null`, `undefined` and `""` do not
-  - description (string | number) — A line under the label; the row grows from 52px to hold it (or the `description` slot)
+  - description (string | number) — A line under the label; the row grows from 52px to hold it (or the `description` slot, where a `<br />` starts a second line)
   - to (string | object) — A router target: with it the row is a link, through the `linkComponent` of `PlexUIProvider`
   - href (string) — Where the row goes, as a plain link
   - as (Component | "a") — The link component, such as a router's link
   - external (boolean) — Treats the link as one out of the app (a new tab)
   - disabled (boolean) default: false — The row can't be pressed. A disabled link renders as a disabled button, so it never navigates
   - valuePlacement ("end" | "below" | "auto") default: "end" — Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it
-Examples: Overview, Columns
+Examples: Overview, Leading, Columns
 
 ## Page
 "The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
@@ -1115,6 +1115,8 @@ Props:
   - value (number | null) default: null — Current progress between 0 and max. Pass null for indeterminate.
   - max (number) default: 100 — Maximum progress value
   - segments (ProgressSegment[]) — Parts of one bar side by side: { value, color?, label? }, color one of primary, secondary, success, warning, caution, danger, info, discovery. Takes the place of value.
+  - size ('sm' | 'md' | 'lg') default: 'sm' — The bar's thickness: sm 4px (iOS's progress view), md 6px, lg 8px (a bar in a stats card, as Apple Fitness).
+  - color ('primary' | 'secondary' | 'success' | 'warning' | 'caution' | 'danger' | 'info' | 'discovery') default: 'primary' — The color of the filled part, such as secondary (grey) for a second series beside a primary one. A segmented bar's parts take their own colors.
   - get-value-label ((value: number, max: number) => string) — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
   - class (string) — Applied to the root <div>
 Examples: Overview, Segments
@@ -1374,7 +1376,7 @@ Import: import { StatsCard } from "@plexui/vue/components/StatsCard"
 Docs: https://plexui.com/vue/components/stats-card
 Props:
   - label (string) — Required. Label describing the metric
-  - value (string | number) — The primary metric value
+  - value (string | number) — The primary metric value. It stays on one line: wider than the card, it scales down to fit, to half its size at most (as iOS's minimumScaleFactor), then ends in an ellipsis
   - value slot (VNode[]) — Rich value content; takes precedence over the value prop
   - description (string) — Subtitle below the value
   - trend ({ value: number; label?: string }) — Trend indicator with percentage

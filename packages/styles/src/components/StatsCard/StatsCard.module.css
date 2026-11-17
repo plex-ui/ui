@@ -25,7 +25,7 @@
     }
 
     .Value {
-      font-size: var(--stats-card-sm-value-font-size);
+      font-size: calc(var(--stats-card-sm-value-font-size) * var(--stats-card-value-scale, 1));
       line-height: var(--font-heading-md-line-height);
       letter-spacing: var(--font-heading-md-tracking);
     }
@@ -210,10 +210,15 @@
   line-height: var(--font-text-sm-line-height);
 }
 
+/* One line: a value wider than the card scales down to fit (StatsCard writes --stats-card-value-scale, down to 0.5,
+   as iOS's minimumScaleFactor) and past that ends in an ellipsis; the line keeps its height, so cards a row line up */
 .Value {
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--stats-card-value-color);
-  font-size: var(--stats-card-value-font-size);
+  font-size: calc(var(--stats-card-value-font-size) * var(--stats-card-value-scale, 1));
   font-weight: var(--stats-card-value-font-weight);
   line-height: var(--font-heading-xl-line-height);
   letter-spacing: var(--font-heading-xl-tracking);

@@ -745,7 +745,8 @@ Docs: https://plexui.com/components/navigation-row
 Props:
   - label (ReactNode) — The name of the row, where a row's label starts
   - value (ReactNode) — The current value, at the end of the row in the secondary label color. `0` shows; `null`, `undefined`, `false` and `""` do not
-  - description (ReactNode) — A line under the label; the row grows from 52px to hold it
+  - description (ReactNode) — A line under the label; the row grows from 52px to hold it. A `<br />` starts a second line
+  - leading (ReactNode) — What leads the row, such as an `Avatar` or a picture: a column before the label, centred in the row's height; the line above the row starts after it, where the text starts
   - href (string) — Where the row goes: with it the row is a link, through the `linkComponent` of `PlexUIProvider`
   - as (PlexUI.LinkComponent) — The link component for `href`, such as a router's link
   - target, rel, download (string) — Attributes of the link, with `href`
@@ -755,7 +756,7 @@ Props:
   - onClick ((event: MouseEvent) => void) — Called when the row is pressed
   - ref (Ref<HTMLButtonElement | HTMLAnchorElement>) — The pressable of the row: the button, or the element of the link
   - className (string) — CSS classes applied to the pressable
-Examples: Overview, Columns
+Examples: Overview, Leading, Columns
 
 ## OTP Input
 Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.
@@ -866,6 +867,8 @@ Props:
   - value (number | null) default: null — Current progress between 0 and max. Pass null for indeterminate.
   - max (number) default: 100 — Maximum progress value
   - segments (ProgressSegment[]) default: — — Parts of one bar side by side: { value, color?, label? }, color one of primary, secondary, success, warning, caution, danger, info, discovery. Takes the place of value.
+  - size ('sm' | 'md' | 'lg') default: 'sm' — The bar's thickness: sm 4px (iOS's progress view), md 6px, lg 8px (a bar in a stats card, as Apple Fitness).
+  - color ('primary' | 'secondary' | 'success' | 'warning' | 'caution' | 'danger' | 'info' | 'discovery') default: 'primary' — The color of the filled part, such as secondary (grey) for a second series beside a primary one. A segmented bar's parts take their own colors.
   - getValueLabel ((value: number, max: number) => string) default: — — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
   - className (string) default: — — Applied to the root <div>
 Examples: Overview, Segments
@@ -1135,7 +1138,7 @@ Import: import { StatsCard } from "@plexui/ui/components/StatsCard"
 Docs: https://plexui.com/components/stats-card
 Props:
   - label (string) — Required. Label describing the metric
-  - value (ReactNode) — Required. The primary metric value
+  - value (ReactNode) — Required. The primary metric value. It stays on one line: wider than the card, it scales down to fit, to half its size at most (as iOS's minimumScaleFactor), then ends in an ellipsis
   - description (string) — Subtitle below the value
   - trend ({ value: number; label?: string }) — Trend indicator with percentage
   - invertTrend (boolean) default: false — Invert trend colors (positive = bad)

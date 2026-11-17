@@ -3,6 +3,7 @@ import { Button, ButtonLink } from "../Button/index.js"
 import { Disclosure } from "../Icon/index.js"
 import { useFieldColumns } from "../../lib/fieldRow.js"
 import type { LinkComponent } from "../PlexUIProvider/index.js"
+import { hasContent } from "../../lib/slotContent.js"
 import s from "@plexui/styles/components/NavigationRow/NavigationRow.module.css"
 
 type RouteTarget = string | Record<string, unknown>
@@ -27,7 +28,8 @@ const valueFitsBeside = (row: HTMLElement) => {
 /**
  * Vue port of `NavigationRow` from packages/ui/src/components/NavigationRow/NavigationRow.tsx: a FieldGroup row
  * that opens what it holds, as an iOS Settings drill-in. Attributes (id, class, ARIA, data, listeners) fall through
- * to the pressable. The `label`, `value` and `description` slots take the place of their props.
+ * to the pressable. The `label`, `value` and `description` slots take the place of their props; the `leading` slot
+ * (an `Avatar` or a picture) leads the row, as React's `leading`.
  */
 const NavigationRowComponent = defineComponent({
   name: "NavigationRow",
@@ -37,7 +39,7 @@ const NavigationRowComponent = defineComponent({
     label: [String, Number] as PropType<string | number>,
     /** The current value, at the end of the row in the secondary label. `0` shows; `null`, `undefined` and `""` do not. */
     value: [String, Number] as PropType<string | number | null>,
-    /** A line under the label; the row grows from 52 to hold it */
+    /** A line under the label; the row grows from 52 to hold it. A `<br />` in the slot starts a second line. */
     description: [String, Number] as PropType<string | number>,
     /** Where the row goes. With it the row is a link (through `PlexUIProvider`'s `linkComponent`, or `as`). */
     href: String,
@@ -115,10 +117,14 @@ const NavigationRowComponent = defineComponent({
       const description: VNodeChild = slots.description ? slots.description() : props.description
       const hasValue = slots.value ? true : shown(props.value)
       const hasDescription = slots.description ? true : shown(props.description)
+      // A slot that renders nothing (a v-if that is off) leaves no column, as React's empty `leading` does
+      const leading = slots.leading?.()
+      const hasLeading = hasContent(leading)
       const below = hasValue && (props.valuePlacement === "below" || (props.valuePlacement === "auto" && !fits.value))
 
       const content = () =>
         h("span", { "class": s.Content, "data-navigation-row-content": "" }, [
+          hasLeading ? h("span", { class: s.Leading }, [leading as never]) : null,
           h("span", { class: s.Text }, [
             h("span", { "class": s.Label, "data-navigation-row-part": "" }, [label as never]),
             hasDescription ? h("span", { class: s.Description }, [description as never]) : null,
@@ -146,6 +152,7 @@ const NavigationRowComponent = defineComponent({
           "data-value-below": below ? "" : undefined,
           "data-value": hasValue ? "" : undefined,
           "data-description": hasDescription ? "" : undefined,
+          "data-leading": hasLeading ? "" : undefined,
         },
         [
           link

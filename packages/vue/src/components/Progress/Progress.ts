@@ -19,6 +19,8 @@ const isValidMax = (max: unknown): max is number => isNumber(max) && !Number.isN
 const isValidValue = (value: unknown, max: number): value is number =>
   isNumber(value) && !Number.isNaN(value) && value <= max && value >= 0
 
+export type ProgressSize = "sm" | "md" | "lg"
+
 export type ProgressColor = "primary" | "secondary" | "success" | "warning" | "caution" | "danger" | "info" | "discovery"
 
 /** A part of a segmented bar: its share of `max`, its color, and the name it is read with. */
@@ -63,6 +65,17 @@ const ProgressComponent = defineComponent({
      * take `value`'s place. A part's share is clamped so the bar never passes `max`.
      */
     segments: { type: Array as PropType<ProgressSegment[]>, default: undefined },
+    /**
+     * The bar's thickness: `sm` 4px (iOS's progress view), `md` 6px, `lg` 8px (a bar in a stats card, as Apple Fitness).
+     * @default "sm"
+     */
+    size: { type: String as PropType<ProgressSize>, default: "sm" },
+    /**
+     * The color of the filled part, such as `secondary` (grey) for a second series beside a `primary` one. A segmented
+     * bar's parts take their own colors.
+     * @default "primary"
+     */
+    color: { type: String as PropType<ProgressColor>, default: "primary" },
   },
   setup(props) {
     const getValueText = (value: number | null | undefined, max: number) =>
@@ -82,6 +95,7 @@ const ProgressComponent = defineComponent({
               props.getValueLabel && isNumber(current) ? props.getValueLabel(current, currentMax) : segmentsLabel(parts, rootMax),
             "class": s.Root,
             "data-segmented": "",
+            "data-size": props.size,
           },
           {
             default: () => parts.map((part, index) =>
@@ -102,11 +116,13 @@ const ProgressComponent = defineComponent({
       return h(
         ProgressRoot,
         {
-          modelValue: rootValue,
-          max: rootMax,
-          getValueLabel: () => undefined,
-          getValueText,
-          class: s.Root,
+          "modelValue": rootValue,
+          "max": rootMax,
+          "getValueLabel": () => undefined,
+          "getValueText": getValueText,
+          "class": s.Root,
+          "data-size": props.size,
+          "data-color": props.color,
         },
         {
           default: () =>

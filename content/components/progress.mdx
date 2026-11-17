@@ -19,7 +19,7 @@ import {
 
 ### Overview
 
-<ComponentPreview details={<>A bar of task completion between <code>0</code> and <code>max</code> (100 by default); it animates each change of <code>value</code>, so bind it to any source, here the <code>value</code> slider. <code>indeterminate</code> passes <code>value={'{null}'}</code>: a sweep for a task of unknown length. <code>label</code> pairs a <a href="/components/field#label"><code>Label</code></a> with a readout above the bar, the typical upload or onboarding pattern; the bar takes its name from it with <code>aria-labelledby</code>, and without one it needs an <code>aria-label</code>. It reads out the value as a rounded percentage, or what <code>getValueLabel</code> returns.</>} code={`[[#label]]
+<ComponentPreview details={<>A bar of task completion between <code>0</code> and <code>max</code> (100 by default); it animates each change of <code>value</code>, so bind it to any source, here the <code>value</code> slider. <code>indeterminate</code> passes <code>value={'{null}'}</code>: a sweep for a task of unknown length. <code>label</code> pairs a <a href="/components/field#label"><code>Label</code></a> with a readout above the bar, the typical upload or onboarding pattern; the bar takes its name from it with <code>aria-labelledby</code>, and without one it needs an <code>aria-label</code>. It reads out the value as a rounded percentage, or what <code>getValueLabel</code> returns. <code>size</code> sets the thickness, 4, 6 or 8 px, and <code>color</code> the filled part, such as <code>secondary</code> grey for a second series beside the first.</>} code={`[[#label]]
 <div>
   <div style={{ display: "flex", justifyContent: "space-between" }}>
     <Label id="progress-upload-label">Uploading plex-ui.zip</Label>
@@ -27,12 +27,12 @@ import {
     <span>[[value]]%</span>
 [[/indeterminate]]
   </div>
-  <Progress value={[[#indeterminate]]null[[/indeterminate]][[^indeterminate]][[value]][[/indeterminate]]} aria-labelledby="progress-upload-label" />
+  <Progress value={[[#indeterminate]]null[[/indeterminate]][[^indeterminate]][[value]][[/indeterminate]]}[[^size=sm]] size="[[size]]"[[/size=sm]][[^color=primary]] color="[[color]]"[[/color=primary]] aria-labelledby="progress-upload-label" />
 </div>
 [[/label]]
 [[^label]]
-<Progress value={[[#indeterminate]]null[[/indeterminate]][[^indeterminate]][[value]][[/indeterminate]]} aria-label="Uploading plex-ui.zip" />
-[[/label]]`} codeValues={{ value: 66, indeterminate: false, label: true }}>
+<Progress value={[[#indeterminate]]null[[/indeterminate]][[^indeterminate]][[value]][[/indeterminate]]}[[^size=sm]] size="[[size]]"[[/size=sm]][[^color=primary]] color="[[color]]"[[/color=primary]] aria-label="Uploading plex-ui.zip" />
+[[/label]]`} codeValues={{ value: 66, indeterminate: false, label: true, size: 'sm', color: 'primary' }}>
   <ProgressOverviewDemo />
 </ComponentPreview>
 
@@ -46,7 +46,7 @@ import {
     { value: 120, color: 'success', label: 'Paid' },
     { value: 45, color: 'warning', label: 'Pending' },
   ]}
-  style={{ '--progress-height': '8px' }}
+  size="lg"
 />`}>
   <ProgressSegmentsDemo />
 </ComponentPreview>
@@ -60,6 +60,8 @@ import {
 | `value` | `number \| null` | `null` | Current progress between `0` and `max`. Pass `null` for indeterminate. |
 | `max` | `number` | `100` | Maximum progress value |
 | `segments` | `ProgressSegment[]` | — | Parts of one bar side by side: `{ value, color?, label? }`, `color` one of `primary`, `secondary`, `success`, `warning`, `caution`, `danger`, `info`, `discovery`. Takes the place of `value`. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'sm'` | The bar's thickness: `sm` 4px (iOS's progress view), `md` 6px, `lg` 8px (a bar in a stats card, as Apple Fitness). |
+| `color` | `'primary' \| 'secondary' \| 'success' \| 'warning' \| 'caution' \| 'danger' \| 'info' \| 'discovery'` | `'primary'` | The color of the filled part, such as `secondary` (grey) for a second series beside a `primary` one. A segmented bar's parts take their own colors. |
 | `getValueLabel` | `(value: number, max: number) => string` | — | Accessible value text (`aria-valuetext`). Defaults to the rounded percentage, e.g. `"67%"`. |
 | `className` | `string` | — | Applied to the root `<div>` |
 
@@ -70,6 +72,7 @@ Built on [Radix Progress](https://www.radix-ui.com/primitives/components/progres
 Component tokens:
 
 - `--progress-height`: track height (defaults to `4px`)
+- `--progress-height-md`, `--progress-height-lg`: the heights of `size` `md` and `lg` (defaults to `6px` and `8px`)
 - `--progress-track-color`: track background (defaults to `--color-background-secondary-soft`)
 - `--progress-indicator-color`: fill color (defaults to `--color-text`)
 - `--progress-radius`: corner radius (defaults to `--radius-full`)

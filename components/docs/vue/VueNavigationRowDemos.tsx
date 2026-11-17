@@ -2,7 +2,7 @@
 
 import { markRaw } from 'vue';
 import { Check } from '@plexui/vue/components/Icon';
-import { NAVIGATION_ROW_GROUPS, navigationRowValues } from '../navigationRowData';
+import { NAVIGATION_ROW_GROUPS, NAVIGATION_ROW_PEOPLE, navigationRowValues } from '../navigationRowData';
 import pageStyles from '../PageDemos.module.css';
 import rowStyles from '../NavigationRowDemos.module.css';
 import { VueDemo } from './VueDemo';
@@ -62,4 +62,36 @@ export function VueNavigationRowOverviewDemo() {
 
 export function VueNavigationRowColumnsDemo() {
   return <VueDemo stageClassName={pageStyles.Stage} template={template(true)} state={state()} context={{ icons }} />;
+}
+
+const leadingTemplate = `<div class="${pageStyles.Frame}">
+  <Page surface="grouped">
+    <Toolbar>
+      <ToolbarLeading v-if="open">
+        <NavigationButton action="back" @click="open = null" />
+      </ToolbarLeading>
+      <ToolbarTitle>{{ open ? people.find((item) => item.id === open).name : 'People' }}</ToolbarTitle>
+    </Toolbar>
+    <PageContent>
+      <FieldGroup>
+        <NavigationRow v-if="open" label="Directions" :value="people.find((item) => item.id === open).distance" @click="open = null" />
+        <template v-else>
+          <NavigationRow
+            v-for="item in people"
+            :key="item.id"
+            :label="item.name"
+            :description="item.place + ' · ' + item.time"
+            :value="item.distance"
+            @click="open = item.id"
+          >
+            <template #leading><Avatar :name="item.name" :size="40" /></template>
+          </NavigationRow>
+        </template>
+      </FieldGroup>
+    </PageContent>
+  </Page>
+</div>`;
+
+export function VueNavigationRowLeadingDemo() {
+  return <VueDemo stageClassName={pageStyles.Stage} template={leadingTemplate} state={{ people: NAVIGATION_ROW_PEOPLE, open: null as string | null }} />;
 }

@@ -9,6 +9,19 @@
   transform: translateZ(0);
 }
 
+/* Thickness: sm is iOS's 4pt progress view, md and lg a bar in a card (Apple Fitness) */
+.Root[data-size="md"] { --progress-height: var(--progress-height-md); }
+.Root[data-size="lg"] { --progress-height: var(--progress-height-lg); }
+
+/* The filled part's color; a segmented bar's parts set their own */
+.Root[data-color="secondary"] { --progress-indicator-color: var(--color-background-secondary-solid); }
+.Root[data-color="success"] { --progress-indicator-color: var(--color-background-success-solid); }
+.Root[data-color="warning"] { --progress-indicator-color: var(--color-background-warning-solid); }
+.Root[data-color="caution"] { --progress-indicator-color: var(--color-background-caution-solid); }
+.Root[data-color="danger"] { --progress-indicator-color: var(--color-background-danger-solid); }
+.Root[data-color="info"] { --progress-indicator-color: var(--color-background-info-solid); }
+.Root[data-color="discovery"] { --progress-indicator-color: var(--color-background-discovery-solid); }
+
 .Indicator {
   width: 100%;
   height: 100%;

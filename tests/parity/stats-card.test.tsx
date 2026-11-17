@@ -10,6 +10,7 @@ import { DollarCircle } from "../../packages/vue/src/components/Icon"
 import { StatsCard } from "../../packages/vue/src/components/StatsCard"
 import { StatCard as RStatCard } from "../../packages/ui/src/components/StatCard"
 import { StatCard } from "../../packages/vue/src/components/StatCard"
+import { fitValueScale } from "../../packages/ui/src/lib/fitValueScale"
 import { flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
 import { renderPair } from "./pair"
@@ -251,5 +252,60 @@ describe("StatsCard layout", () => {
     // A fall draws the rise's trend line mirrored
     expect(trendRow.querySelector("svg")?.getAttribute("class")).toMatch(/TrendDown/)
     cleanup()
+  })
+})
+
+describe("StatsCard value fit", () => {
+  test("the value is one line whose font size follows --stats-card-value-scale, and both ports fit it", () => {
+    const read = (file: string) => readFileSync(`${process.cwd()}/${file}`, "utf8")
+    const css = read("packages/styles/src/components/StatsCard/StatsCard.module.css")
+    expect(css).toMatch(/\.Value \{[^}]*white-space: nowrap;[^}]*font-size: calc\(var\(--stats-card-value-font-size\) \* var\(--stats-card-value-scale, 1\)\)/)
+    expect(css).toContain("calc(var(--stats-card-sm-value-font-size) * var(--stats-card-value-scale, 1))")
+    expect(read("packages/ui/src/components/StatsCard/StatsCard.tsx")).toContain('fitValueScale(valueRef.current, "--stats-card-value-scale")')
+    expect(read("packages/vue/src/components/StatsCard/StatsCard.ts")).toContain('fitValueScale(valueRef.value, "--stats-card-value-scale")')
+    expect(read("packages/vue/src/lib/fitValueScale.ts")).toBe(read("packages/ui/src/lib/fitValueScale.ts"))
+  })
+
+  test("fitValueScale writes the factor that fits, at least the minimum, and none at full size", () => {
+    const row = document.createElement("div")
+    const value = document.createElement("div")
+    row.append(value)
+    document.body.append(row)
+    Object.defineProperty(row, "clientWidth", { configurable: true, get: () => 98 })
+    let natural = 131
+    Object.defineProperty(value, "scrollWidth", {
+      configurable: true,
+      get: () => natural * (Number.parseFloat(value.style.getPropertyValue("--s")) || 1),
+    })
+    const stop = fitValueScale(value, "--s")
+    expect(value.style.getPropertyValue("--s")).toBe("0.74")
+    stop()
+    natural = 400
+    fitValueScale(value, "--s")()
+    expect(value.style.getPropertyValue("--s")).toBe("0.5")
+    natural = 60
+    fitValueScale(value, "--s")()
+    expect(value.style.getPropertyValue("--s")).toBe("")
+    row.remove()
+  })
+
+  test("fitValueScale settles when whole-pixel widths put the fit between two steps", () => {
+    const row = document.createElement("div")
+    const value = document.createElement("div")
+    row.append(value)
+    document.body.append(row)
+    Object.defineProperty(row, "clientWidth", { configurable: true, get: () => 130 })
+    Object.defineProperty(value, "scrollWidth", {
+      configurable: true,
+      get: () => Math.round(130.81 * (Number.parseFloat(value.style.getPropertyValue("--s")) || 1)),
+    })
+    // Each call measures once, as each frame after a resize does
+    const writes: string[] = []
+    for (let i = 0; i < 6; i++) {
+      fitValueScale(value, "--s")()
+      writes.push(value.style.getPropertyValue("--s"))
+    }
+    expect(new Set(writes.slice(1)).size).toBe(1)
+    row.remove()
   })
 })

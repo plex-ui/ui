@@ -1,1 +1,1 @@
-export { Progress, progressSegments, type ProgressColor, type ProgressProps, type ProgressSegment } from "./Progress.js"
+export { Progress, progressSegments, type ProgressColor, type ProgressProps, type ProgressSegment, type ProgressSize } from "./Progress.js"

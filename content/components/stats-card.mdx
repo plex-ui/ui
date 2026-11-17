@@ -63,7 +63,7 @@ const [showProgress, setShowProgress] = useState(false)
 
 <PropsTable data={[
   { prop: "label", type: "string", description: "Required. Label describing the metric" },
-  { prop: "value", type: "ReactNode", description: "Required. The primary metric value" },
+  { prop: "value", type: "ReactNode", description: "Required. The primary metric value. It stays on one line: wider than the card, it scales down to fit, to half its size at most (as iOS's minimumScaleFactor), then ends in an ellipsis" },
   { prop: "description", type: "string", description: "Subtitle below the value" },
   { prop: "trend", type: "{ value: number; label?: string }", description: "Trend indicator with percentage" },
   { prop: "invertTrend", type: "boolean", default: "false", description: "Invert trend colors (positive = bad)" },

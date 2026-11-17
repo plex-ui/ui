@@ -134,6 +134,8 @@
       Progress
     ============================================= */
     --progress-height: 4px;
+    --progress-height-md: 6px;
+    --progress-height-lg: 8px;
     --progress-radius: var(--radius-full);
     --progress-track-color: var(--color-background-secondary-soft);
     --progress-indicator-color: var(--color-text);
@@ -305,6 +307,9 @@
     --field-row-icon-size: 32px;
     --field-row-icon-gap: 12px;
     --field-row-icon-offset: 0px;
+    /* NavigationRow `leading` (an Avatar): its column and the gap to the text, as iOS Find My's People list */
+    --navigation-row-leading-size: 40px;
+    --navigation-row-leading-gap: 12px;
     --field-row-picture-offset: 0px;
     --field-row-picture-gap: 12px;
     --field-row-icon-symbol-size: 20px;

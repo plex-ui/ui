@@ -1,10 +1,11 @@
 "use client"
 
 import clsx from "clsx"
-import { type ReactNode, type Ref } from "react"
+import { type ReactNode, type Ref, useLayoutEffect, useRef } from "react"
 import { Badge } from "../Badge"
 import { InfoCircle, Trending } from "../Icon"
 import { Tooltip } from "../Tooltip"
+import { fitValueScale } from "../../lib/fitValueScale"
 import s from "@plexui/styles/components/StatsCard/StatsCard.module.css"
 
 export type StatsCardProps = {
@@ -90,6 +91,9 @@ export const StatsCard = ({
   ref,
   ...restProps
 }: StatsCardProps) => {
+  // A value wider than the card (two cards a row on a phone) scales down to fit, as iOS's minimumScaleFactor
+  const valueRef = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => (valueRef.current ? fitValueScale(valueRef.current, "--stats-card-value-scale") : undefined), [])
   const trendValue = trend?.value ?? 0
   const trendClassName =
     trendValue === 0
@@ -166,7 +170,7 @@ export const StatsCard = ({
 
   const valueRowEl = (
     <div className={s.ValueRow}>
-      <div className={s.Value}>{value}</div>
+      <div ref={valueRef} className={s.Value}>{value}</div>
     </div>
   )
 

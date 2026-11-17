@@ -78,7 +78,7 @@ Formerly `StatCard`. The old name and its import path `@plexui/vue/components/St
 
 <PropsTable data={[
   { prop: "label", type: "string", description: "Required. Label describing the metric" },
-  { prop: "value", type: "string | number", description: "The primary metric value" },
+  { prop: "value", type: "string | number", description: "The primary metric value. It stays on one line: wider than the card, it scales down to fit, to half its size at most (as iOS's minimumScaleFactor), then ends in an ellipsis" },
   { prop: "value slot", type: "VNode[]", description: "Rich value content; takes precedence over the value prop" },
   { prop: "description", type: "string", description: "Subtitle below the value" },
   { prop: "trend", type: "{ value: number; label?: string }", description: "Trend indicator with percentage" },
