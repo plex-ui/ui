@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/layout/HoverPrefetchLink';
 import { Check, Minus } from 'lucide-react';
 
 type CellValue = true | false | string;

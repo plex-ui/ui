@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/layout/HoverPrefetchLink';
 import { componentsSource, vueComponentsSource } from '@/lib/source';
 import { getRelatedComponents } from '@/lib/related-components';
 import s from './RelatedComponents.module.css';

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/layout/HoverPrefetchLink';
 
 type FooterLink = { label: string; href: string; external?: boolean };
 type FooterGroup = { title: string; links: FooterLink[] };

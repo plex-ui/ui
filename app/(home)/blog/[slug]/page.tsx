@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/layout/HoverPrefetchLink';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { blog } from '@/lib/source';

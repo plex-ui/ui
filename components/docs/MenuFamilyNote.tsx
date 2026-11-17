@@ -1,5 +1,5 @@
 // Plain module (no 'use client'), so MDX pages can render it on the server.
-import Link from 'next/link';
+import Link from '@/components/layout/HoverPrefetchLink';
 import type { ReactNode } from 'react';
 
 type Slug = 'menu' | 'context-menu' | 'select';

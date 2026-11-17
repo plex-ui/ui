@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'fumadocs-core/link';
+import Link from '@/components/layout/HoverPrefetchLink';
 import { Badge } from '@plexui/ui/components/Badge';
 import { cn } from 'fumadocs-ui/utils/cn';
 

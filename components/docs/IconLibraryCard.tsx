@@ -1,4 +1,4 @@
-import Link from 'fumadocs-core/link';
+import Link from '@/components/layout/HoverPrefetchLink';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
 

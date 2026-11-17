@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/layout/HoverPrefetchLink';
 import { usePathname } from 'fumadocs-core/framework';
 import { useSidebar } from 'fumadocs-ui/components/sidebar/base';
 import { useEffect, useMemo } from 'react';

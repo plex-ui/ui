@@ -26,6 +26,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       themeSwitch={{ enabled: false }}
       sidebar={{
         collapsible: false,
+        prefetch: false,
         tabs: false,
         className: 'plex-docs-sidebar',
         components: { Item: SidebarItemWithBadge },

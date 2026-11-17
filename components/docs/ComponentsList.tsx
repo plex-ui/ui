@@ -1,4 +1,4 @@
-import Link from 'fumadocs-core/link';
+import Link from '@/components/layout/HoverPrefetchLink';
 import componentsMeta from '@/content/components/meta.json';
 import vueComponentsMeta from '@/content/vue/components/meta.json';
 import { COMPONENT_GROUPS } from '@/lib/component-groups';

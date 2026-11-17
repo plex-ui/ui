@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/layout/HoverPrefetchLink';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { usePathname } from 'fumadocs-core/framework';

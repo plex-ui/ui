@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'fumadocs-core/link';
+import Link from '@/components/layout/HoverPrefetchLink';
 import { usePathname } from 'fumadocs-core/framework';
 import type { FC } from 'react';
 import type * as PageTree from 'fumadocs-core/page-tree';
