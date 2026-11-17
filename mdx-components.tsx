@@ -1,4 +1,5 @@
 import defaultMdxComponents from 'fumadocs-ui/mdx';
+import { MdxLink } from '@/components/layout/MdxLink';
 import { Accordions, Accordion } from 'fumadocs-ui/components/accordion';
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Children, isValidElement, type ReactElement, type ReactNode } from 'react';
@@ -89,6 +90,7 @@ function PreCodeBlock({ children }: { children: ReactNode }) {
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
+    a: MdxLink,
     pre: PreCodeBlock,
     Accordions,
     Accordion,
