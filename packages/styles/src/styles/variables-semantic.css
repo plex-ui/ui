@@ -506,11 +506,15 @@
     /* A submenu: it opens 100 ms after the pointer arrives, then shows at once */
     --motion-enter-quick: 100ms;
     --motion-exit-quick: 100ms;
-    /* With reduced motion a sheet and a menu fade in place instead, as on iOS with Reduce Motion (no slide, no
-       growth, measured on the iOS 27.2 simulator): over the time their timers hold them entering (overlayTiming), so
-       touches stay held while they show. Not zeroed with reduced motion: a fade is not motion. */
-    --motion-fade-enter: 250ms;
-    --motion-fade-enter-large: 300ms;
+    /* With reduced motion a Dialog and a Menu fade in place instead, as on iOS with Reduce Motion (no slide, no
+       growth). Time and curve fitted to the fade on the iOS 27.2 simulator (a sheet: 65% at 100ms, 92% at 200ms, 99% at
+       300ms; a menu: 44% at 100ms, 74% at 200ms, 92% at 300ms, 99% at 400ms). Their timers hold them entering, and
+       touches with them, for the same time (reducedMotionEnter in components/Transition/shared). Not zeroed with
+       reduced motion: a fade is not motion. */
+    --motion-reduced-enter-dialog: 350ms;
+    --cubic-reduced-enter-dialog: cubic-bezier(0.3, 1, 0.7, 1);
+    --motion-reduced-enter-menu: 500ms;
+    --cubic-reduced-enter-menu: cubic-bezier(0.4, 1, 0.7, 1);
 
     /* =============================================
       Scrollbar

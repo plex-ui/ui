@@ -31,7 +31,7 @@ import { Check, ChevronDown, ChevronRight } from "../Icon"
 import { PhoneLayoutContext } from "../PhoneLayout/PhoneLayout"
 import { useLinkComponent } from "../PlexUIProvider/internal"
 import { TransitionGroup } from "../Transition"
-import { createExitGuard, overlayTiming, overlayTimingQuick } from "../Transition/shared"
+import { createExitGuard, overlayTiming, overlayTimingQuick, reducedMotionEnter } from "../Transition/shared"
 import { isHoverPointer } from "../../lib/inputMode"
 import s from "@plexui/styles/components/Menu/Menu.module.css"
 import { HOLD_PRESSES_CLASS, holdEnteringPresses } from "../../lib/holdEnteringPresses"
@@ -580,7 +580,13 @@ const Content = ({
   return (
     <DropdownMenu.Portal forceMount container={phoneLayout.container}>
       <PhoneScope enabled={phoneLayout.scoped}>
-      <TransitionGroup className={clsx(s.Menu, HOLD_PRESSES_CLASS)} {...overlayTiming} {...exitGuard.transition} overlay>
+      <TransitionGroup
+        className={clsx(s.Menu, HOLD_PRESSES_CLASS)}
+        {...overlayTiming}
+        reducedMotionEnterDuration={reducedMotionEnter.menu}
+        {...exitGuard.transition}
+        overlay
+      >
         {open && (
           <RootMenuContent
             key="dropdown"

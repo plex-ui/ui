@@ -44,7 +44,7 @@ import { useLinkComponent } from "../PlexUIProvider/internal.js"
 import { composeEventHandlers, mergeSlotProps } from "../Tooltip/slot.js"
 import type { LinkComponent } from "../PlexUIProvider/index.js"
 import { TransitionGroup } from "../Transition/index.js"
-import { createExitGuard, overlayTiming, overlayTimingQuick } from "../Transition/shared.js"
+import { createExitGuard, overlayTiming, overlayTimingQuick, reducedMotionEnter } from "../Transition/shared.js"
 import {
   MenuLevelKey,
   MenuRootInternalsKey,
@@ -696,7 +696,13 @@ export const MenuContent = defineComponent({
       menuPortal(phoneLayout, () =>
         h(
           TransitionGroup,
-          { class: [s.Menu, HOLD_PRESSES_CLASS], ...overlayTiming, ...exitGuard.transition, overlay: true },
+          {
+            class: [s.Menu, HOLD_PRESSES_CLASS],
+            ...overlayTiming,
+            reducedMotionEnterDuration: reducedMotionEnter.menu,
+            ...exitGuard.transition,
+            overlay: true,
+          },
           {
             default: () => [
               open.value

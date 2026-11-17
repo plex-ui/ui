@@ -11,7 +11,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Fixed
 
-- With reduced motion a `Dialog` (a phone sheet too) and a `Menu` fade in place, as on iOS with Reduce Motion, instead of appearing at once, and take no touch that starts while they fade in. 0.59.4 let them settle on the next frame, and a double tap acted again.
+- With reduced motion a `Dialog` (a phone sheet too) and a `Menu` fade in place, as on iOS with Reduce Motion, instead of appearing at once, on iOS's time and curve (a dialog 350 ms, a menu 500 ms), and take no touch that starts while they fade in. 0.59.4 let them settle on the next frame, and a double tap acted again. `TransitionGroup` takes `reducedMotionEnterDuration` for this.
 
 ## 0.59.4 (2026-11-17)
 

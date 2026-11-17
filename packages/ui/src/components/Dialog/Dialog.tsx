@@ -33,7 +33,7 @@ import { followTitleRows } from "../Page/Page"
 import { barBackground, Toolbar, ToolbarHostContext, type BarBackground, type BarBackgroundAlias, type ToolbarHost } from "../Toolbar/Toolbar"
 import { NO_SCROLL_EDGES, observeScrollEdges, sameScrollEdges, type ScrollEdges } from "../../lib/scrollEdges"
 import { TransitionGroup } from "../Transition"
-import { createExitGuard, overlayTiming, overlayTimingLarge } from "../Transition/shared"
+import { createExitGuard, overlayTiming, overlayTimingLarge, reducedMotionEnter } from "../Transition/shared"
 import { attachSheetDrag } from "./sheetDrag"
 import { watchDialogViewport } from "./dialogViewport"
 import { enterStep, leaveStep, releaseStepHeight, settleStepHeight, STEP_TIMING } from "./dialogSteps"
@@ -463,6 +463,7 @@ const Content = ({
       {/* A dialog mounted open enters too, as `open` set with the mount does */}
       <TransitionGroup
         {...(crossesScreen ? overlayTimingLarge : overlayTiming)}
+        reducedMotionEnterDuration={reducedMotionEnter.dialog}
         {...exitGuard.transition}
         className={clsx(s.Transition, HOLD_PRESSES_CLASS)}
         overlay

@@ -60,6 +60,12 @@ export const overlayTiming = { enterDuration: 250, exitDuration: 150 }
 export const overlayTimingLarge = { enterDuration: 300, exitDuration: 200 }
 /** A submenu: it opens after a hover delay of its own, so it shows at once */
 export const overlayTimingQuick = { enterDuration: 100, exitDuration: 100 }
+/**
+ * With reduced motion a Dialog and a Menu fade in place, as on iOS with Reduce Motion (measured on the iOS 27.2
+ * simulator: a sheet about 350 ms, a menu about 500 ms), and stay entering, holding touches, for the whole fade. These
+ * match --motion-reduced-enter-dialog and --motion-reduced-enter-menu.
+ */
+export const reducedMotionEnter = { dialog: 350, menu: 500 }
 
 /**
  * An overlay stays a dismissable layer through its exit. A press on its trigger

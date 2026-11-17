@@ -231,6 +231,11 @@ export type TransitionGroupProps = {
   transitionId?: string
   /** Determines the amount of time that the enter state is applied during mounting */
   enterDuration?: number
+  /**
+   * The enter time with reduced motion, in place of `enterDuration`: for an overlay
+   * whose styles fade it in over a time of its own then (a Dialog, a Menu).
+   */
+  reducedMotionEnterDuration?: number
   /** Determines the amount of time that the exit state is applied before unmounting */
   exitDuration?: number
   /**
@@ -272,6 +277,7 @@ export const TransitionGroup = (props: TransitionGroupProps) => {
     transitionId,
     style,
     enterDuration = 0,
+    reducedMotionEnterDuration,
     exitDuration = 0,
     preventInitialTransition = true,
     enterMountDelay,
@@ -366,7 +372,9 @@ export const TransitionGroup = (props: TransitionGroupProps) => {
           as={TagName}
           className={className}
           transitionId={transitionId}
-          enterDuration={enterDuration}
+          enterDuration={
+            reducedMotionEnterDuration !== undefined && prefersReducedMotion() ? reducedMotionEnterDuration : enterDuration
+          }
           exitDuration={exitDuration}
           enterMountDelay={enterMountDelay}
           overlay={overlay}

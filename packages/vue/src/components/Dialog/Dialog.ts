@@ -48,7 +48,7 @@ import { attachSheetDrag } from "./sheetDrag.js"
 import { watchDialogViewport } from "./dialogViewport.js"
 import { enterStep, leaveStep, releaseStepHeight, settleStepHeight, STEP_TIMING } from "./dialogSteps.js"
 import { PHONE_LAYOUT as PHONE_LAYOUT_SCOPE, type PhoneLayoutValue } from "../PhoneLayout/PhoneLayout.js"
-import { overlayTiming, overlayTimingLarge } from "../Transition/shared.js"
+import { overlayTiming, overlayTimingLarge, reducedMotionEnter } from "../Transition/shared.js"
 import { provideFloatingBoundaryScope, useFloatingBoundaryRegistration } from "../../composables/useFloatingBoundary.js"
 import { Button } from "../Button/Button.js"
 import { NavigationButton } from "../Button/NavigationButton.js"
@@ -744,6 +744,7 @@ export const DialogContent = defineComponent({
             {
               class: [s.Transition, HOLD_PRESSES_CLASS],
               ...(crossesScreen ? overlayTimingLarge : overlayTiming),
+              reducedMotionEnterDuration: reducedMotionEnter.dialog,
               overlay: true,
               preventInitialTransition: false,
             },

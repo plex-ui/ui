@@ -238,11 +238,13 @@ describe.each(overlays)("%s exit", (name, reactApp, vueApp) => {
   test("with reduced motion it stays entering through its fade", async () => {
     vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("reduce"), media: query, addEventListener() {}, removeEventListener() {} }))
     const seen: boolean[] = []
+    // A Dialog and a Menu fade over iOS's time (reducedMotionEnter); a Popover keeps its own
+    const hold = ({ Dialog: 350, Menu: 500 } as Record<string, number>)[name] ?? 250
     await walk(reactApp, vueApp, async (tools) => {
       await tools.set({ open: true })
-      await tools.advance(100)
+      await tools.advance(hold - 30)
       seen.push(!!panel(), !!document.querySelector("[data-entering]"))
-      await tools.advance(400)
+      await tools.advance(80)
       seen.push(!!document.querySelector("[data-entering]"))
     })
     expect(seen).toEqual([true, true, false, true, true, false])

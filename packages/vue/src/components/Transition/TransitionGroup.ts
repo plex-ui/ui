@@ -11,6 +11,7 @@ import {
   type StyleValue,
   type VNode,
 } from "vue"
+import { prefersReducedMotion } from "../../lib/helpers.js"
 import getDisableAnimations from "./getDisableAnimations.js"
 import { flattenChildren, isPlaceholder, useChildList } from "./childList.js"
 import type { InsertMethod, TransitionGroupChildCallback, TransitionGroupChildCallbacks } from "./shared.js"
@@ -142,6 +143,11 @@ export const TransitionGroup = defineComponent({
     transitionId: String,
     /** Determines the amount of time that the enter state is applied during mounting */
     enterDuration: { type: Number, default: 0 },
+    /**
+     * The enter time with reduced motion, in place of `enterDuration`: for an overlay
+     * whose styles fade it in over a time of its own then (a Dialog, a Menu).
+     */
+    reducedMotionEnterDuration: Number,
     /** Determines the amount of time that the exit state is applied before unmounting */
     exitDuration: { type: Number, default: 0 },
     /** Determines if children should have an enter transition applied during mounting of the TransitionGroup. */
@@ -215,7 +221,10 @@ export const TransitionGroup = defineComponent({
             transitionId: props.transitionId,
             styleValue: style,
             shouldRender: child.shouldRender,
-            enterDuration: props.enterDuration,
+            enterDuration:
+              props.reducedMotionEnterDuration !== undefined && prefersReducedMotion()
+                ? props.reducedMotionEnterDuration
+                : props.enterDuration,
             exitDuration: props.exitDuration,
             overlay: props.overlay,
             removeChild: () => children.remove(child.key),
