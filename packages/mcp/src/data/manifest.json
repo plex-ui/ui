@@ -3843,7 +3843,13 @@
         {
           "name": "leading",
           "type": "ReactNode",
-          "description": "What leads the row, such as an `Avatar` or a picture: a column before the label, centred in the row's height; the line above the row starts after it, where the text starts"
+          "description": "What leads the row, such as an `Avatar` or a picture: a column before the label, on the label's first line (a taller avatar starts at its top); the line above the row starts after it, where the text starts"
+        },
+        {
+          "name": "disclosure",
+          "type": "boolean",
+          "default": "true",
+          "description": "The chevron at the end. `false` drops it, for a row that opens a record rather than a page of choices (the Contacts list of iOS); the row is still one press"
         },
         {
           "name": "href",
@@ -3902,7 +3908,7 @@
         {
           "name": "Leading",
           "code": "<FieldGroup>\n{people.map((person) => (\n  <NavigationRow\n    key={person.id}\n    leading={<Avatar name={person.name} size={40} />}\n    label={person.name}\n    description={`${person.place} · ${person.time}`}\n    value={person.distance}\n    onClick={() => open(person.id)}\n  />\n))}\n</FieldGroup>",
-          "details": "Pass leading to lead the row with an Avatar or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, --navigation-row-leading-size), centred in the row&apos;s height, 12px before the text, and the line above the row starts where the text does. The description says where and since when, and the value at the end how far. A &lt;br /&gt; in the description starts a second line."
+          "details": "Pass leading to lead the row with an Avatar or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, --navigation-row-leading-size; set it to a symbol&apos;s size, such as 28px, for a symbol), 12px before the text, and the line above the row starts where the text does. The description says where and since when, and the value at the end how far. A &lt;br /&gt; in the description starts a second line; with three lines the avatar stays on the first, beside the name, as SwiftUI&apos;s Label in a list, and the chevron stays at the row&apos;s centre. disclosure={'{false}'} drops the chevron, for a list whose rows open a record rather than a page of choices, as the Contacts list of iOS."
         },
         {
           "name": "Columns",
@@ -7432,5 +7438,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-17T12:01:47.235Z"
+  "generatedAt": "2026-11-17T13:13:21.945Z"
 }

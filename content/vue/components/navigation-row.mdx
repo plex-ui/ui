@@ -37,6 +37,9 @@ export const leading = `<FieldGroup>
     :label="person.name"
     :description="\`\${person.place} · \${person.time}\`"
     :value="person.distance"
+[[^disclosure]]
+    :disclosure="false"
+[[/disclosure]]
     @click="open(person.id)"
   >
     <template #leading>
@@ -64,7 +67,7 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
 
 ### Leading
 
-<ComponentPreview language="vue" details={<>Fill the <code>leading</code> slot to lead the row with an <code>Avatar</code> or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, <code>--navigation-row-leading-size</code>), centred in the row&apos;s height, 12px before the text, and the line above the row starts where the text does. The <code>description</code> says where and since when, and the <code>value</code> at the end how far. A <code>&lt;br /&gt;</code> in the <code>description</code> slot starts a second line.</>} code={leading}>
+<ComponentPreview language="vue" details={<>Fill the <code>leading</code> slot to lead the row with an <code>Avatar</code> or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, <code>--navigation-row-leading-size</code>; set it to a symbol&apos;s size, such as 28px, for a symbol), 12px before the text, and the line above the row starts where the text does. The <code>description</code> says where and since when, and the <code>value</code> at the end how far. A <code>&lt;br /&gt;</code> in the <code>description</code> slot starts a second line; with three lines the avatar stays on the first, beside the name, as SwiftUI&apos;s <code>Label</code> in a list, and the chevron stays at the row&apos;s centre. <code>:disclosure="false"</code> drops the chevron, for a list whose rows open a record rather than a page of choices, as the Contacts list of iOS.</>} code={leading} codeValues={{ disclosure: true }}>
   <VueNavigationRowLeadingDemo />
 </ComponentPreview>
 
@@ -87,10 +90,11 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
   { prop: "as", type: "Component | \"a\"", description: "The link component, such as a router's link" },
   { prop: "external", type: "boolean", description: "Treats the link as one out of the app (a new tab)" },
   { prop: "disabled", type: "boolean", default: "false", description: "The row can't be pressed. A disabled link renders as a disabled button, so it never navigates" },
+  { prop: "disclosure", type: "boolean", default: "true", description: "The chevron at the end. `false` drops it, for a row that opens a record rather than a page of choices (the Contacts list of iOS); the row is still one press" },
   { prop: "valuePlacement", type: "\"end\" | \"below\" | \"auto\"", default: "\"end\"", description: "Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it" },
 ]} />
 
-**Slots**: `label`, `value`, `description`, in place of their props; `leading`, what leads the row (an `Avatar` or a picture) in a column before the label, centred in the row's height, the line above the row starting after it.
+**Slots**: `label`, `value`, `description`, in place of their props; `leading`, what leads the row (an `Avatar` or a picture) in a column before the label, on the label's first line (a taller avatar starts at its top), the line above the row starting after it.
 
 **Events**: `click`, when the row is pressed.
 
@@ -105,5 +109,5 @@ NavigationRow reads the row tokens of [FieldGroup](/vue/components/field#fieldgr
 - `--navigation-row-label-color`: the label (default the text color)
 - `--navigation-row-value-color`: the value (default the secondary label color; the text color with `columns`)
 - `--navigation-row-disclosure-color`: the chevron (default the tertiary label color)
-- `--navigation-row-leading-size`: the column of `leading` (default `40px`)
+- `--navigation-row-leading-size`: the column of `leading`, its own size (default `40px`, an avatar; `28px` for a symbol)
 - `--navigation-row-leading-gap`: from `leading` to the text (default `12px`)

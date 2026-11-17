@@ -22,10 +22,16 @@ export type NavigationRowProps = Omit<ButtonHTMLAttributes<HTMLButtonElement | H
   /** A line under the label; the row grows from 52 to hold it. A `<br />` starts a second line. */
   description?: ReactNode
   /**
-   * What leads the row, such as an `Avatar` or a picture, in a column before the label, centred in the row's height;
-   * the line above the row starts after it, where the text starts (iOS Find My's People list).
+   * What leads the row, such as an `Avatar` or a symbol, in a column before the label (`--navigation-row-leading-size`,
+   * its own size), on the label's first line: a shorter text is centred beside it, a longer one starts level with it.
+   * The line above the row starts after it, where the text starts (iOS Find My's People list).
    */
   leading?: ReactNode
+  /**
+   * The chevron at the end. `false` drops it, for a row that opens a record rather than a page of choices (as the
+   * Contacts list of iOS); the row is still one press. @default true
+   */
+  disclosure?: boolean
   /** Where the row goes. With it the row is a link (through `PlexUIProvider`'s `linkComponent`, or `as`). */
   href?: string
   /** Force external-link behavior for `href` */
@@ -67,7 +73,7 @@ const valueFitsBeside = (row: HTMLElement) => {
  * the row opens (`aria-haspopup`, `aria-expanded`) itself.
  */
 export function NavigationRow(props: NavigationRowProps) {
-  const { label, value, description, leading, href, external, as, disabled, valuePlacement = "end", className, ref, target, rel, download, hrefLang, ping, referrerPolicy, ...rest } = props
+  const { label, value, description, leading, disclosure = true, href, external, as, disabled, valuePlacement = "end", className, ref, target, rel, download, hrefLang, ping, referrerPolicy, ...rest } = props
   // Only the link attributes given: an undefined `target` would override the new tab of an external link
   const linkAttributes = Object.fromEntries(
     Object.entries({ target, rel, download, hrefLang, ping, referrerPolicy }).filter(([, attribute]) => attribute !== undefined),
@@ -111,7 +117,7 @@ export function NavigationRow(props: NavigationRowProps) {
       stop()
       observer.disconnect()
     }
-  }, [auto, label, value, description, leading, columns])
+  }, [auto, label, value, description, leading, disclosure, columns])
 
   const below = hasValue && (valuePlacement === "below" || (auto && !fits))
 
@@ -123,7 +129,7 @@ export function NavigationRow(props: NavigationRowProps) {
         {hasDescription && <span className={s.Description}>{description}</span>}
       </span>
       {hasValue && <span className={s.Value} data-navigation-row-part="">{value}</span>}
-      <Disclosure className={s.Disclosure} aria-hidden="true" data-no-autosize="" />
+      {disclosure && <Disclosure className={s.Disclosure} aria-hidden="true" data-no-autosize="" />}
     </span>
   )
 
@@ -144,6 +150,7 @@ export function NavigationRow(props: NavigationRowProps) {
       data-value={hasValue ? "" : undefined}
       data-description={hasDescription ? "" : undefined}
       data-leading={hasLeading ? "" : undefined}
+      data-disclosure={disclosure ? undefined : "none"}
     >
       {href !== undefined && !disabled ? (
         <ButtonLink

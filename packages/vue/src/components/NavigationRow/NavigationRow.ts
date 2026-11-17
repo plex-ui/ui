@@ -56,6 +56,11 @@ const NavigationRowComponent = defineComponent({
      * it fits beside the label on one line, otherwise below (as Calendar sets a long value).
      */
     valuePlacement: { type: String as PropType<"end" | "below" | "auto">, default: "end" },
+    /**
+     * The chevron at the end. `false` drops it, for a row that opens a record rather than a page of choices (as the
+     * Contacts list of iOS); the row is still one press.
+     */
+    disclosure: { type: Boolean, default: true },
   },
   setup(props, { attrs, slots, expose }) {
     const pressable = ref<ComponentPublicInstance | null>(null)
@@ -130,7 +135,7 @@ const NavigationRowComponent = defineComponent({
             hasDescription ? h("span", { class: s.Description }, [description as never]) : null,
           ]),
           hasValue ? h("span", { "class": s.Value, "data-navigation-row-part": "" }, [value as never]) : null,
-          h(Disclosure, { "class": s.Disclosure, "aria-hidden": "true", "data-no-autosize": "" }),
+          props.disclosure ? h(Disclosure, { "class": s.Disclosure, "aria-hidden": "true", "data-no-autosize": "" }) : null,
         ])
 
       const { class: className, ...rest } = attrs
@@ -153,6 +158,7 @@ const NavigationRowComponent = defineComponent({
           "data-value": hasValue ? "" : undefined,
           "data-description": hasDescription ? "" : undefined,
           "data-leading": hasLeading ? "" : undefined,
+          "data-disclosure": props.disclosure ? undefined : "none",
         },
         [
           link

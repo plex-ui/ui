@@ -52,15 +52,28 @@
   min-width: 0;
 }
 
-/* What leads the row (an Avatar, a picture), as iOS Find My's People list: a column of its own before the text,
-   centred in the row's height, 12 before the label; the line above the row starts where the text does */
+/* What leads the row (an Avatar, a symbol, a picture), as iOS Find My's People list: a column of its own before the
+   text, 12 before the label; the line above the row starts where the text does. It stands on the label's first line,
+   not the row's centre, so a text of three lines keeps it beside the title (SwiftUI's Label in a List, Mail): a symbol
+   no taller than the line is centred on it, a taller avatar starts at its top. The text starts at the top too, at
+   least as tall as the column (--navigation-row-leading-size, the leading's own size: 28 for a symbol) and centred
+   in it, so a text shorter than an avatar stays centred beside it and a value taller than both moves neither. The
+   chevron stays centred, as a UIKit accessory. */
 .Leading {
   display: flex;
   flex: none;
+  align-self: start;
   align-items: center;
   justify-content: center;
   min-width: var(--navigation-row-leading-size);
+  min-height: var(--field-row-label-line-height, var(--font-text-sm-line-height));
   margin-inline-end: calc(var(--navigation-row-leading-gap) - var(--field-row-disclosure-gap, 8px));
+}
+
+.NavigationRow[data-leading] .Text {
+  align-self: start;
+  justify-content: center;
+  min-height: var(--navigation-row-leading-size);
 }
 
 .NavigationRow[data-leading] {
@@ -261,4 +274,18 @@
 
 .NavigationRow[data-value-below][data-leading][data-description] .Disclosure {
   grid-row: 1 / span 3;
+}
+
+/* Without a chevron (`disclosure={false}`) the value ends at the row's inset: no gap is kept for the chevron */
+[data-field-columns] .NavigationRow[data-disclosure="none"] .Value {
+  margin-inline-end: 0;
+}
+
+.NavigationRow[data-value-below][data-disclosure="none"] .Content {
+  column-gap: 0;
+}
+
+/* There the leading keeps its whole gap to the text, which no grid gap adds */
+.NavigationRow[data-value-below][data-disclosure="none"][data-leading] .Leading {
+  margin-inline-end: var(--navigation-row-leading-gap);
 }

@@ -42,7 +42,7 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
 
 ### Leading
 
-<ComponentPreview details={<>Pass <code>leading</code> to lead the row with an <code>Avatar</code> or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, <code>--navigation-row-leading-size</code>), centred in the row&apos;s height, 12px before the text, and the line above the row starts where the text does. The <code>description</code> says where and since when, and the <code>value</code> at the end how far. A <code>&lt;br /&gt;</code> in the description starts a second line.</>} code={`<FieldGroup>
+<ComponentPreview details={<>Pass <code>leading</code> to lead the row with an <code>Avatar</code> or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, <code>--navigation-row-leading-size</code>; set it to a symbol&apos;s size, such as 28px, for a symbol), 12px before the text, and the line above the row starts where the text does. The <code>description</code> says where and since when, and the <code>value</code> at the end how far. A <code>&lt;br /&gt;</code> in the description starts a second line; with three lines the avatar stays on the first, beside the name, as SwiftUI&apos;s <code>Label</code> in a list, and the chevron stays at the row&apos;s centre. <code>disclosure={'{false}'}</code> drops the chevron, for a list whose rows open a record rather than a page of choices, as the Contacts list of iOS.</>} code={`<FieldGroup>
   {people.map((person) => (
     <NavigationRow
       key={person.id}
@@ -50,10 +50,13 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
       label={person.name}
       description={\`\${person.place} · \${person.time}\`}
       value={person.distance}
+[[^disclosure]]
+      disclosure={false}
+[[/disclosure]]
       onClick={() => open(person.id)}
     />
   ))}
-</FieldGroup>`}>
+</FieldGroup>`} codeValues={{ disclosure: true }}>
   <NavigationRowLeadingDemo />
 </ComponentPreview>
 
@@ -74,7 +77,8 @@ A navigation row leads into what it holds, as a row of iOS Settings does: Genera
   { prop: "label", type: "ReactNode", description: "The name of the row, where a row's label starts" },
   { prop: "value", type: "ReactNode", description: "The current value, at the end of the row in the secondary label color. `0` shows; `null`, `undefined`, `false` and `\"\"` do not" },
   { prop: "description", type: "ReactNode", description: "A line under the label; the row grows from 52px to hold it. A `<br />` starts a second line" },
-  { prop: "leading", type: "ReactNode", description: "What leads the row, such as an `Avatar` or a picture: a column before the label, centred in the row's height; the line above the row starts after it, where the text starts" },
+  { prop: "leading", type: "ReactNode", description: "What leads the row, such as an `Avatar` or a picture: a column before the label, on the label's first line (a taller avatar starts at its top); the line above the row starts after it, where the text starts" },
+  { prop: "disclosure", type: "boolean", default: "true", description: "The chevron at the end. `false` drops it, for a row that opens a record rather than a page of choices (the Contacts list of iOS); the row is still one press" },
   { prop: "href", type: "string", description: "Where the row goes: with it the row is a link, through the `linkComponent` of `PlexUIProvider`" },
   { prop: "as", type: "PlexUI.LinkComponent", description: "The link component for `href`, such as a router's link" },
   { prop: "target, rel, download", type: "string", description: "Attributes of the link, with `href`" },
@@ -95,5 +99,5 @@ NavigationRow reads the row tokens of [FieldGroup](/components/field#fieldgroup)
 - `--navigation-row-label-color`: the label (default the text color)
 - `--navigation-row-value-color`: the value (default the secondary label color; the text color with `columns`)
 - `--navigation-row-disclosure-color`: the chevron (default the tertiary label color)
-- `--navigation-row-leading-size`: the column of `leading` (default `40px`)
+- `--navigation-row-leading-size`: the column of `leading`, its own size (default `40px`, an avatar; `28px` for a symbol)
 - `--navigation-row-leading-gap`: from `leading` to the text (default `12px`)

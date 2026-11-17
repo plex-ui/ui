@@ -82,6 +82,7 @@ const leadingTemplate = `<div class="${pageStyles.Frame}">
             :label="item.name"
             :description="item.place + ' · ' + item.time"
             :value="item.distance"
+            :disclosure="disclosure"
             @click="open = item.id"
           >
             <template #leading><Avatar :name="item.name" :size="40" /></template>
@@ -93,5 +94,5 @@ const leadingTemplate = `<div class="${pageStyles.Frame}">
 </div>`;
 
 export function VueNavigationRowLeadingDemo() {
-  return <VueDemo stageClassName={pageStyles.Stage} template={leadingTemplate} state={{ people: NAVIGATION_ROW_PEOPLE, open: null as string | null }} />;
+  return <VueDemo stageClassName={pageStyles.Stage} template={leadingTemplate} state={{ people: NAVIGATION_ROW_PEOPLE, open: null as string | null }} controls={[{ name: 'disclosure', type: 'boolean', default: true }]} />;
 }

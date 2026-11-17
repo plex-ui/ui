@@ -33,6 +33,8 @@ describe("NavigationRow markup", () => {
     ["value below without a value stays end", { label: "Tags", valuePlacement: "below" }],
     ["auto that fits", { label: "Category", value: "Mains", valuePlacement: "auto" }],
     ["link", { label: "Accounts", value: 2, href: "/settings/accounts" }],
+    ["no chevron", { label: "Anna Keller", description: "Mobile", disclosure: false }],
+    ["no chevron, value below", { label: "Tags", value: "Vegan, Gluten free, Spicy, Contains nuts", valuePlacement: "below", disclosure: false }],
     ["disabled link is a disabled button", { label: "Accounts", value: 2, href: "/settings/accounts", disabled: true }],
     [
       "attributes go to the pressable",
@@ -81,6 +83,22 @@ describe("NavigationRow markup", () => {
   test("with FieldGroup columns the leading column comes out of the label column", () => {
     const css = read("packages/styles/src/components/NavigationRow/NavigationRow.module.css")
     expect(css).toMatch(/\[data-field-columns\] \.NavigationRow\[data-leading\] \.Content \{[^}]*calc\(var\(--field-row-column-width\) - var\(--navigation-row-leading-size\) - var\(--navigation-row-leading-gap\)\)/)
+  })
+
+  test("leading stands on the label's first line, the chevron at the row's centre", () => {
+    const css = read("packages/styles/src/components/NavigationRow/NavigationRow.module.css")
+    expect(css).toMatch(/\.Leading \{[^}]*align-self: start;[^}]*min-height: var\(--field-row-label-line-height/)
+    expect(css).not.toMatch(/\.Disclosure \{[^}]*align-self/)
+  })
+
+  test("disclosure={false} leaves out the chevron", () => {
+    const { container } = render(
+      <RFieldGroup>
+        <RNavigationRow label="Anna Keller" disclosure={false} />
+      </RFieldGroup>,
+    )
+    expect(container.querySelector("svg")).toBeNull()
+    expect(container.querySelector("[data-row]")?.getAttribute("data-disclosure")).toBe("none")
   })
 
   test("leading starts the line above the row at the text", () => {

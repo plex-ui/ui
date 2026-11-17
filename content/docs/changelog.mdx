@@ -12,7 +12,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 ### Added
 
 - `Progress` takes `size` (`sm` 4px by default, `md` 6px, `lg` 8px) and `color` (the filled part's color, such as `secondary` grey for a second series), so a thin or grey bar needs no token override or one-part `segments`. New tokens `--progress-height-md` and `--progress-height-lg` (React and Vue).
-- `NavigationRow` takes `leading` (React) and a `leading` slot (Vue): an `Avatar` or a picture in a column before the label, as the People list of iOS Find My, with the line above the row starting at the text. New tokens `--navigation-row-leading-size` (40px) and `--navigation-row-leading-gap` (12px).
+- `NavigationRow` takes `leading` (React) and a `leading` slot (Vue): an `Avatar` or a picture in a column before the label, as the People list of iOS Find My, with the line above the row starting at the text. It stands on the label's first line, so with three lines of text it stays beside the title (SwiftUI's `Label` in a list); the chevron stays at the row's centre. New tokens `--navigation-row-leading-size` (40px) and `--navigation-row-leading-gap` (12px).
+- `NavigationRow` takes `disclosure` (default `true`): `false` drops the chevron, for a row that opens a record rather than a page of choices, as the Contacts list of iOS (React and Vue).
 
 ### Fixed
 

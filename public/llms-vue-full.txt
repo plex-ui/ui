@@ -5023,6 +5023,7 @@ Props:
   - as (Component | "a") — The link component, such as a router's link
   - external (boolean) — Treats the link as one out of the app (a new tab)
   - disabled (boolean) default: false — The row can't be pressed. A disabled link renders as a disabled button, so it never navigates
+  - disclosure (boolean) default: true — The chevron at the end. `false` drops it, for a row that opens a record rather than a page of choices (the Contacts list of iOS); the row is still one press
   - valuePlacement ("end" | "below" | "auto") default: "end" — Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it
 
 ### Overview
@@ -5054,7 +5055,7 @@ Put the rows in a FieldGroup: each is a row of the group, so its separators, cor
 ```
 
 ### Leading
-Fill the leading slot to lead the row with an Avatar or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, --navigation-row-leading-size), centred in the row&apos;s height, 12px before the text, and the line above the row starts where the text does. The description says where and since when, and the value at the end how far. A &lt;br /&gt; in the description slot starts a second line.
+Fill the leading slot to lead the row with an Avatar or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, --navigation-row-leading-size; set it to a symbol&apos;s size, such as 28px, for a symbol), 12px before the text, and the line above the row starts where the text does. The description says where and since when, and the value at the end how far. A &lt;br /&gt; in the description slot starts a second line; with three lines the avatar stays on the first, beside the name, as SwiftUI&apos;s Label in a list, and the chevron stays at the row&apos;s centre. :disclosure="false" drops the chevron, for a list whose rows open a record rather than a page of choices, as the Contacts list of iOS.
 ```vue
 <FieldGroup>
   <NavigationRow

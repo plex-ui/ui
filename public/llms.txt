@@ -746,7 +746,8 @@ Props:
   - label (ReactNode) — The name of the row, where a row's label starts
   - value (ReactNode) — The current value, at the end of the row in the secondary label color. `0` shows; `null`, `undefined`, `false` and `""` do not
   - description (ReactNode) — A line under the label; the row grows from 52px to hold it. A `<br />` starts a second line
-  - leading (ReactNode) — What leads the row, such as an `Avatar` or a picture: a column before the label, centred in the row's height; the line above the row starts after it, where the text starts
+  - leading (ReactNode) — What leads the row, such as an `Avatar` or a picture: a column before the label, on the label's first line (a taller avatar starts at its top); the line above the row starts after it, where the text starts
+  - disclosure (boolean) default: true — The chevron at the end. `false` drops it, for a row that opens a record rather than a page of choices (the Contacts list of iOS); the row is still one press
   - href (string) — Where the row goes: with it the row is a link, through the `linkComponent` of `PlexUIProvider`
   - as (PlexUI.LinkComponent) — The link component for `href`, such as a router's link
   - target, rel, download (string) — Attributes of the link, with `href`

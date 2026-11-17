@@ -8,6 +8,7 @@ import { Check } from '@plexui/ui/components/Icon';
 import { NavigationRow } from '@plexui/ui/components/NavigationRow';
 import { Page } from '@plexui/ui/components/Page';
 import { Toolbar } from '@plexui/ui/components/Toolbar';
+import { controlsTableStyle, DemoControlBoolean } from './ButtonDemos';
 import { NAVIGATION_ROW_GROUPS, NAVIGATION_ROW_PEOPLE, navigationRowValues } from './navigationRowData';
 import s from './PageDemos.module.css';
 import r from './NavigationRowDemos.module.css';
@@ -85,9 +86,14 @@ export function NavigationRowColumnsDemo() {
 /** A list that leads with avatars, as iOS Find My's People: the name, where and since when under it, how far at the end */
 export function NavigationRowLeadingDemo() {
   const [open, setOpen] = useState<string | null>(null);
+  const [disclosure, setDisclosure] = useState(true);
   const person = NAVIGATION_ROW_PEOPLE.find((item) => item.id === open);
 
   return (
+    <>
+    <div data-demo-controls style={controlsTableStyle}>
+      <DemoControlBoolean name="disclosure" value={disclosure} onChange={setDisclosure} />
+    </div>
     <div data-demo-stage className={s.Stage}>
       <div className={s.Frame}>
         <Page surface="grouped">
@@ -111,6 +117,7 @@ export function NavigationRowLeadingDemo() {
                     label={item.name}
                     description={`${item.place} · ${item.time}`}
                     value={item.distance}
+                    disclosure={disclosure}
                     onClick={() => setOpen(item.id)}
                   />
                 ))
@@ -120,5 +127,6 @@ export function NavigationRowLeadingDemo() {
         </Page>
       </div>
     </div>
+    </>
   );
 }

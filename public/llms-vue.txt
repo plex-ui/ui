@@ -810,6 +810,7 @@ Props:
   - as (Component | "a") — The link component, such as a router's link
   - external (boolean) — Treats the link as one out of the app (a new tab)
   - disabled (boolean) default: false — The row can't be pressed. A disabled link renders as a disabled button, so it never navigates
+  - disclosure (boolean) default: true — The chevron at the end. `false` drops it, for a row that opens a record rather than a page of choices (the Contacts list of iOS); the row is still one press
   - valuePlacement ("end" | "below" | "auto") default: "end" — Where the value stands: at the end of the row, under the label at the full width, or `auto`: at the end while it fits beside the label on one line, otherwise under it
 Examples: Overview, Leading, Columns
 

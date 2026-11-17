@@ -4267,6 +4267,12 @@
           "description": "The row can't be pressed. A disabled link renders as a disabled button, so it never navigates"
         },
         {
+          "name": "disclosure",
+          "type": "boolean",
+          "default": "true",
+          "description": "The chevron at the end. `false` drops it, for a row that opens a record rather than a page of choices (the Contacts list of iOS); the row is still one press"
+        },
+        {
           "name": "valuePlacement",
           "type": "\"end\" | \"below\" | \"auto\"",
           "default": "\"end\"",
@@ -4282,7 +4288,7 @@
         {
           "name": "Leading",
           "code": "<FieldGroup>\n  <NavigationRow\n    v-for=\"person in people\"\n    :key=\"person.id\"\n    :label=\"person.name\"\n    :description=\"`${person.place} · ${person.time}`\"\n    :value=\"person.distance\"\n    @click=\"open(person.id)\"\n  >\n    <template #leading>\n      <Avatar :name=\"person.name\" :size=\"40\" />\n    </template>\n  </NavigationRow>\n</FieldGroup>",
-          "details": "Fill the leading slot to lead the row with an Avatar or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, --navigation-row-leading-size), centred in the row&apos;s height, 12px before the text, and the line above the row starts where the text does. The description says where and since when, and the value at the end how far. A &lt;br /&gt; in the description slot starts a second line."
+          "details": "Fill the leading slot to lead the row with an Avatar or a picture, as the People list of iOS Find My: it stands in a column of its own before the label (40px, --navigation-row-leading-size; set it to a symbol&apos;s size, such as 28px, for a symbol), 12px before the text, and the line above the row starts where the text does. The description says where and since when, and the value at the end how far. A &lt;br /&gt; in the description slot starts a second line; with three lines the avatar stays on the first, beside the name, as SwiftUI&apos;s Label in a list, and the chevron stays at the row&apos;s centre. :disclosure=\"false\" drops the chevron, for a list whose rows open a record rather than a page of choices, as the Contacts list of iOS."
         },
         {
           "name": "Columns",
@@ -7322,5 +7328,5 @@
       "docsUrl": "https://plexui.com/vue/components/table"
     }
   ],
-  "generatedAt": "2026-11-17T12:01:49.620Z"
+  "generatedAt": "2026-11-17T13:13:23.361Z"
 }
