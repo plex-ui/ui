@@ -245,4 +245,29 @@ describe('A start adornment in a row is a prefix of the value', () => {
         cleanup();
         document.body.innerHTML = '';
     });
+
+    // Owner 19.11: a disabled text field dims only its value; the label keeps its color. A row that is unavailable
+    // as a whole opts in with data-disabled on the Field.
+    test('a disabled text field leaves the label alone; data-disabled on the Field dims the whole row', () => {
+        const css = readFileSync('packages/styles/src/components/Field/Field.module.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+        const selectors = [...css.matchAll(/([^{};]+)\{/g)].map((match) => match[1].trim());
+        expect(selectors.filter((selector) => /input:not\(\[type="checkbox"\][^)]*\), textarea\):disabled/.test(selector))).toEqual([]);
+        expect(css).toMatch(/\.Field:where\(\[data-row\]\[data-disabled\]\) \{\s*--field-description-color: var\(--mobile-label-quaternary, var\(--color-text-disabled\)\);\s*> \.LabelGroup \.Label \{\s*color: var\(--mobile-label-tertiary, var\(--color-text-disabled\)\);/);
+    });
+
+    test.each(['React', 'Vue'])('%s passes data-disabled of a row to the Field root', async (framework) => {
+        if (framework === 'React') {
+            render(
+                <RField row label="Minimum" data-disabled="">
+                    <RInput disabled defaultValue="0" />
+                </RField>,
+            );
+        } else {
+            mountVue(() => h(Field, { row: true, label: 'Minimum', 'data-disabled': '' }, () => h(Input, { disabled: true, modelValue: '0' })));
+            await flushVue();
+        }
+        expect(document.querySelector('[data-row]')?.hasAttribute('data-disabled')).toBe(true);
+        cleanup();
+        document.body.innerHTML = '';
+    });
 });

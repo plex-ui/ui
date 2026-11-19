@@ -581,9 +581,10 @@
     }
   }
 
-  /* A disabled text field in a row reads as disabled as a whole, as an unavailable row of iOS Settings
-     is gray: its label dims with its value. (A Select's hidden form input does not count.) */
-  .Field:where([data-row]):has(> .Content > .Control :is(input:not([type="checkbox"], [type="radio"], [type="hidden"], [aria-hidden="true"]), textarea):disabled) {
+  /* A disabled text field in a row dims only its value, as iOS shows a value that cannot be changed: the label
+     keeps its color (owner 19.11). A row that is unavailable as a whole, as a gray row
+     of iOS Settings, opts in with data-disabled on the Field: its label and description dim too. */
+  .Field:where([data-row][data-disabled]) {
     --field-description-color: var(--mobile-label-quaternary, var(--color-text-disabled));
 
     > .LabelGroup .Label {
