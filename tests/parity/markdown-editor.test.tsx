@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, useSyncExternalStore, type ReactElement } from "react"
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest"
@@ -1542,5 +1543,15 @@ describe("MarkdownEditor parity: line breaks", () => {
         expect(written).toEqual(["a\n\\- b", "a\n1\\) b", "a\n\\===", "a\n  \\- b", "a\n    \\- b", "a\n3.14 is pi"])
       }),
     )
+  })
+})
+
+// Owner 19.11: on a phone the editor and its format buttons take the corners of the phone kit
+describe("MarkdownEditor phone corners", () => {
+  test("the editor takes a FieldGroup card's corners and its format buttons are round below 768px", () => {
+    const css = readFileSync("packages/styles/src/components/MarkdownEditor/MarkdownEditor.module.css", "utf8").replace(/\/\*[\s\S]*?\*\//g, "")
+    const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
+    expect(phone).toMatch(/\.Container \{\s*border-radius: var\(--field-group-radius, 26px\);/)
+    expect(phone).toMatch(/\.ToolbarButton\.ToolbarButton \{[^}]*border-radius: var\(--button-touch-radius, var\(--radius-full\)\);/)
   })
 })

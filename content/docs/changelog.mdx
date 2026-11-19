@@ -11,6 +11,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Fixed
 
+- On a phone `MarkdownEditor` takes the corners of the phone kit: the editor those of a `FieldGroup` card (26px, `--field-group-radius`) instead of a desktop control's 8px, and its format buttons are round (`--button-touch-radius`), so a pressed or active one lights a circle instead of a small square (React and Vue).
 - A disabled text field in a `Field` row no longer dims the row's label: only the value turns grey, as iOS shows a value that cannot be changed. A row that is unavailable as a whole takes `data-disabled` on the `Field`, which dims its label and description as before. A row with a disabled checkbox, radio or switch still dims whole (React and Vue).
 
 ## 0.60.0 (2026-11-17)

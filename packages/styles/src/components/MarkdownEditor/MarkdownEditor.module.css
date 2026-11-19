@@ -185,6 +185,13 @@
 }
 
 @media (max-width: 767px) {
+  /* On a phone the editor is a card of the grouped form, with the corners of a FieldGroup (26), not a desktop
+     control's 8; its format buttons are round, as every button of the phone kit (--button-touch-radius), so a
+     pressed or active one lights a circle, not a small square (owner 19.11). */
+  .Container {
+    border-radius: var(--field-group-radius, 26px);
+  }
+
   .ToolbarGroup {
     overflow-x: auto;
     overscroll-behavior-x: contain;
@@ -196,5 +203,6 @@
     width: 44px;
     height: 44px;
     flex-shrink: 0;
+    border-radius: var(--button-touch-radius, var(--radius-full));
   }
 }
