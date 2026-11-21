@@ -607,11 +607,23 @@ const URL_INPUT = '[role="dialog"] input[type="url"]'
 const TITLE_INPUT = '[role="dialog"] input[type="text"]'
 
 describe("MarkdownEditor parity: link dialog", () => {
-  test("link button is disabled without a selection", async () => {
+  test("with no selection the link is new text at the caret: its title, or the address", async () => {
     expectSame(
       await walkEditor({ defaultValue: "Read the docs" }, async ({ snapshot, command, fire, advance }) => {
-        await command((e) => e.commands.setTextSelection(3))
+        await command((e) => e.commands.setTextSelection(5))
         await fire(button("Link"), "click")
+        await advance(500)
+        snapshot()
+        await fire(URL_INPUT, "input", { target: { value: "https://example.com" } })
+        await fire(TITLE_INPUT, "input", { target: { value: "our " } })
+        await fire(dialogButton("Save"), "click")
+        await advance(500)
+        snapshot()
+        await command((e) => e.commands.setTextSelection(1))
+        await fire(button("Link"), "click")
+        await advance(500)
+        await fire(URL_INPUT, "input", { target: { value: "https://plexui.com" } })
+        await fire(dialogButton("Save"), "click")
         await advance(500)
         snapshot()
       }),
@@ -1547,11 +1559,14 @@ describe("MarkdownEditor parity: line breaks", () => {
 })
 
 // Owner 19.11: on a phone the editor and its format buttons take the corners of the phone kit
-describe("MarkdownEditor phone corners", () => {
-  test("the editor takes a FieldGroup card's corners and its format buttons are round below 768px", () => {
+describe("MarkdownEditor phone cell", () => {
+  test("below 768px the editor is a grouped cell: card corners, buttons of 35 circles under the text", () => {
     const css = readFileSync("packages/styles/src/components/MarkdownEditor/MarkdownEditor.module.css", "utf8").replace(/\/\*[\s\S]*?\*\//g, "")
     const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
-    expect(phone).toMatch(/\.Container \{\s*border-radius: var\(--field-group-radius, 26px\);/)
-    expect(phone).toMatch(/\.ToolbarButton\.ToolbarButton \{[^}]*border-radius: var\(--button-touch-radius, var\(--radius-full\)\);/)
+    expect(phone).toMatch(/\.Container \{[^}]*border-radius: var\(--field-group-radius, 26px\);/)
+    expect(phone).toMatch(/--markdown-editor-button-size: 35px;/)
+    expect(phone).toMatch(/\.Toolbar \{[^}]*order: 1;/)
+    expect(phone).toMatch(/\.ToolbarButton\.ToolbarButton \{[^}]*border-radius: var\(--radius-full\);/)
+    expect(phone).toMatch(/\.ToolbarGroup \{[^}]*gap: 18px;\s*padding: 16px var\(--markdown-editor-inset\);/)
   })
 })

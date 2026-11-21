@@ -5,6 +5,8 @@ metaDescription: Vue 3 rich text editor component powered by Tiptap that reads a
 ---
 
 import { VueMarkdownEditorDemo } from "@/components/docs/vue/VueMarkdownEditorDemos"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const formattedMd = `This is regular text with **bold** and *italic* formatting.
 
@@ -54,9 +56,34 @@ export const overview = `<div class="w-full min-w-0 max-w-[500px]">
   <p class="text-secondary text-sm mt-2 break-all">Markdown: <code>{{ JSON.stringify(values[content]) }}</code></p>
 </div>`
 
+export const overviewPhone = `<FieldGroup v-if="field" title="Description">
+  <MarkdownEditor :key="content + formats + breaks" aria-label="Description" aria-describedby="markdown-editor-overview-footer" placeholder="Enter text..."
+    v-model:value="values[content]" :formats="formats === 'all' ? undefined : ['bold', 'link']" :breaks="breaks"
+    :invalid="invalid" :aria-invalid="invalid" :disabled="disabled">
+    <template v-if="toolbarEnd" #toolbarEnd>
+      <button type="button" :disabled="disabled" :class="markdownEditorStyles.toolbarButton" aria-label="Edit translations" title="Edit translations">
+        <Translate />
+      </button>
+    </template>
+  </MarkdownEditor>
+  <template #footer>
+    <span id="markdown-editor-overview-footer">{{ invalid ? 'This field is required.' : 'Supports bold, italic, lists, and links.' }}</span>
+  </template>
+</FieldGroup>
+<MarkdownEditor v-else :key="content + formats + breaks" aria-label="Description" placeholder="Enter text..."
+  v-model:value="values[content]" :formats="formats === 'all' ? undefined : ['bold', 'link']" :breaks="breaks"
+  :invalid="invalid" :aria-invalid="invalid" :disabled="disabled">
+  <template v-if="toolbarEnd" #toolbarEnd>
+    <button type="button" :disabled="disabled" :class="markdownEditorStyles.toolbarButton" aria-label="Edit translations" title="Edit translations">
+      <Translate />
+    </button>
+  </template>
+</MarkdownEditor>`
+
 export const overviewCode = `<script setup lang="ts">
 import { ref } from 'vue';
 import { Field } from '@plexui/vue/components/Field';
+import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { MarkdownEditor, markdownEditorStyles } from '@plexui/vue/components/MarkdownEditor';
 import { Translate } from '@plexui/vue/components/Icon';
 
@@ -83,6 +110,14 @@ const toolbarEnd = ref(false);
       </template>
     </MarkdownEditor>
   </Field>
+
+  <!-- Phone: the editor is the cell of a FieldGroup; the label is the group's title, the description (or the error) its footer -->
+  <FieldGroup title="Description">
+    <MarkdownEditor aria-label="Description" aria-describedby="description-footer" placeholder="Enter text..." v-model:value="value" />
+    <template #footer>
+      <span id="description-footer">Supports bold, italic, lists, and links.</span>
+    </template>
+  </FieldGroup>
 </template>`
 
 <UsageBlock>{`import { MarkdownEditor } from "@plexui/vue/components/MarkdownEditor";`}</UsageBlock>
@@ -100,8 +135,8 @@ const toolbarEnd = ref(false);
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Use <code>placeholder</code> for empty content; <code>content</code> starts the editor with markdown of every format it offers: <strong>bold</strong>, <em>italic</em>, links, ordered and unordered lists. Click inside formatted text to see its toolbar buttons toggle. <code>variant</code> switches between <code>outline</code> (default) and <code>soft</code>.<br /><br /><code>formats</code> chooses what the editor offers: <code>bold</code>, <code>italic</code>, <code>orderedList</code>, <code>bulletList</code> and <code>link</code>, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. In pasted text its markers stay text, as if they were typed, and so do those of headings, quotes, code and rules, which the editor never offers. Pasted HTML and incoming markdown keep its text without it, and the markdown the editor writes leaves it out: with <code>bold, link</code> the italic and the lists of the formatted content become plain text. With <code>breaks</code>, a single newline is a line break, read and written as one newline. Both are read when the editor is created, so the example makes a new editor when they change.<br /><br /><code>field</code> wraps the editor in a <code>Field</code> with a label and a description: the editor receives <code>id</code>, <code>aria-describedby</code> and <code>aria-invalid</code> from it, and <code>invalid</code> shows the Field's linked error message. Without a Field, set an accessible name with <code>aria-label</code> and <code>invalid</code> on the editor itself. The invalid state is controlled by this example, not by a validator, and it and <code>disabled</code> keep the entered markdown. The <code>#toolbarEnd</code> slot renders custom content at the end of the toolbar, here an &ldquo;Edit translations&rdquo; button; <code>markdownEditorStyles.toolbarButton</code> gives it the style of the built-in toolbar buttons.</>} code={overviewCode} previewMinHeight={300}>
-  <VueMarkdownEditorDemo template={overview} controls={overviewControls} state={{ values: { empty: "", formatted: formattedMd } }} stageClassName="py-10 w-full flex justify-center" />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>placeholder</code> for empty content; <code>content</code> starts the editor with markdown of every format it offers: <strong>bold</strong>, <em>italic</em>, links, ordered and unordered lists. Click inside formatted text to see its toolbar buttons toggle. <code>variant</code> switches between <code>outline</code> (default) and <code>soft</code>.<br /><br /><code>formats</code> chooses what the editor offers: <code>bold</code>, <code>italic</code>, <code>orderedList</code>, <code>bulletList</code> and <code>link</code>, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. In pasted text its markers stay text, as if they were typed, and so do those of headings, quotes, code and rules, which the editor never offers. Pasted HTML and incoming markdown keep its text without it, and the markdown the editor writes leaves it out: with <code>bold, link</code> the italic and the lists of the formatted content become plain text. With <code>breaks</code>, a single newline is a line break, read and written as one newline. Both are read when the editor is created, so the example makes a new editor when they change.<br /><br /><code>field</code> wraps the editor in a <code>Field</code> with a label and a description: the editor receives <code>id</code>, <code>aria-describedby</code> and <code>aria-invalid</code> from it, and <code>invalid</code> shows the Field's linked error message. Without a Field, set an accessible name with <code>aria-label</code> and <code>invalid</code> on the editor itself. The invalid state is controlled by this example, not by a validator, and it and <code>disabled</code> keep the entered markdown. The <code>#toolbarEnd</code> slot renders custom content at the end of the toolbar, here an &ldquo;Edit translations&rdquo; button; <code>markdownEditorStyles.toolbarButton</code> gives it the style of the built-in toolbar buttons.<br /><br />On Phone the editor is a cell of a grouped form: put it in a <code>FieldGroup</code> whose <code>title</code> names it and whose <code>footer</code> describes it, at the cell's inset. The text takes the row's type and insets; the format buttons are 35px circles in a row under a hairline, as iOS draws a row of round buttons in a cell, and a format that is on is a solid circle. <code>variant</code> is a desktop setting: the cell has no outline. The link button works without a selection, adding the link at the caret; in a link it edits it, and the sheet's <em>Remove Link</em> row takes it off.</>} code={overviewCode} previewMinHeight={300}>
+  <VueMarkdownEditorDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" controls={overviewControls} desktopControlNames={["variant"]} state={{ values: { empty: "", formatted: formattedMd } }} stageClassName="py-10 w-full flex justify-center" />
 </ComponentPreview>
 
 ## API

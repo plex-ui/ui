@@ -3834,10 +3834,11 @@ Props:
   - className (string) — Applied to the container
 
 ### Overview
-Use placeholder for empty content; content starts the editor with markdown of every format it offers: bold, italic, links, ordered and unordered lists. Click inside formatted text to see its toolbar buttons toggle. variant switches between outline (default) and soft.formats chooses what the editor offers: bold, italic, orderedList, bulletList and link, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. In pasted text its markers stay text, as if they were typed, and so do those of headings, quotes, code and rules, which the editor never offers. Pasted HTML and incoming markdown keep its text without it, and the markdown the editor writes leaves it out: with bold, link the italic and the lists of the formatted content become plain text. With breaks, a single newline is a line break, read and written as one newline. Both are read when the editor is created, so the example makes a new editor when they change.field wraps the editor in a Field with a label and a description: the editor receives id, aria-describedby and aria-invalid from it, and invalid shows the Field's linked error message. Without a Field, set an accessible name with aria-label and invalid on the editor itself. The invalid state is controlled by this example, not by a validator, and it and disabled keep the entered markdown. toolbarEnd renders custom content at the end of the toolbar, here an &ldquo;Edit translations&rdquo; button; markdownEditorStyles.toolbarButton gives it the style of the built-in toolbar buttons.
+Use placeholder for empty content; content starts the editor with markdown of every format it offers: bold, italic, links, ordered and unordered lists. Click inside formatted text to see its toolbar buttons toggle. variant switches between outline (default) and soft.formats chooses what the editor offers: bold, italic, orderedList, bulletList and link, all five by default. A format left out has no toolbar button, keyboard shortcut or input rule. In pasted text its markers stay text, as if they were typed, and so do those of headings, quotes, code and rules, which the editor never offers. Pasted HTML and incoming markdown keep its text without it, and the markdown the editor writes leaves it out: with bold, link the italic and the lists of the formatted content become plain text. With breaks, a single newline is a line break, read and written as one newline. Both are read when the editor is created, so the example makes a new editor when they change.field wraps the editor in a Field with a label and a description: the editor receives id, aria-describedby and aria-invalid from it, and invalid shows the Field's linked error message. Without a Field, set an accessible name with aria-label and invalid on the editor itself. The invalid state is controlled by this example, not by a validator, and it and disabled keep the entered markdown. toolbarEnd renders custom content at the end of the toolbar, here an &ldquo;Edit translations&rdquo; button; markdownEditorStyles.toolbarButton gives it the style of the built-in toolbar buttons.On Phone the editor is a cell of a grouped form: put it in a FieldGroup whose title names it and whose footer describes it, at the cell's inset. The text takes the row's type and insets; the format buttons are 35px circles in a row under a hairline, as iOS draws a row of round buttons in a cell, and a format that is on is a solid circle. variant is a desktop setting: the cell has no outline. The link button works without a selection, adding the link at the caret; in a link it edits it, and the sheet's Remove Link row takes it off.
 ```tsx
 import { MarkdownEditor, markdownEditorStyles } from "@plexui/ui/components/MarkdownEditor"
 import { Field } from "@plexui/ui/components/Field"
+import { FieldGroup } from "@plexui/ui/components/FieldGroup"
 import { Translate } from "@plexui/ui/components/Icon"
 
 function Example({ variant = "outline", formats, breaks = false, invalid = false, disabled = false, toolbarEnd = false }) {
@@ -3867,6 +3868,11 @@ return (
   </Field>
 )
 }
+
+// Phone: the editor is the cell of a FieldGroup; the label is the group's title, the description (or the error) its footer
+<FieldGroup title="Description" footer={<span id="description-footer">Supports bold, italic, lists, and links.</span>}>
+<MarkdownEditor aria-label="Description" aria-describedby="description-footer" placeholder="Enter text..." value={value} onChange={setValue} />
+</FieldGroup>
 ```
 
 ## Markdown

@@ -8,9 +8,12 @@ import { keepMovedFocus } from "../../lib/helpers"
 import { Bold as BoldIcon, Italic as ItalicIcon, Link as LinkIcon, List as ListIcon, ListNumbers as ListNumbersIcon } from "../Icon"
 import { Tooltip } from "../Tooltip"
 import { Button } from "../Button"
+import { NavigationButton } from "../Button/NavigationButton"
 import { Dialog } from "../Dialog"
 import { Field } from "../Field"
+import { FieldGroup } from "../FieldGroup"
 import { Input } from "../Input"
+import { usePhoneLayout } from "../PhoneLayout"
 import { getMarkRange, type Editor as CoreEditor } from "@tiptap/core"
 
 import { useEditor, EditorContent } from "@tiptap/react"
@@ -108,37 +111,76 @@ function LinkDialog({
 }) {
   const [url, setUrl] = useState(initialUrl)
   const [title, setTitle] = useState(initialTitle)
+  const urlRef = useRef<HTMLInputElement>(null)
+  // On a phone the dialog is a sheet of the kit's grouped form: Cancel is the sheet's close button, Save its confirm
+  // button in the bar, the fields rows of a card and Remove a destructive row of its own (owner 21.11)
+  const phone = usePhoneLayout()
+  const save = () => { if (!disabled) onSave(url, title) }
+  const onKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" && !event.nativeEvent.isComposing && event.target instanceof HTMLInputElement) {
+      event.preventDefault()
+      save()
+    }
+  }
+  const urlInput = (
+    <Input ref={urlRef} type="url" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false}
+      placeholder={phone ? "Required" : "Enter URL"} value={url} disabled={disabled} onChange={(event) => setUrl(event.target.value)} />
+  )
+  const titleInput = (
+    <Input placeholder={phone ? "Optional" : "Enter link title"} value={title} disabled={disabled} onChange={(event) => setTitle(event.target.value)} />
+  )
 
   return (
     <Dialog open={open} onOpenChange={(next) => { if (!next) onCancel() }}>
-      <Dialog.Content width={450} mobileVariant="sheet" showClose={false}
-        onOpenAutoFocus={() => {
+      <Dialog.Content width={450} mobileVariant="sheet" surface="grouped" showClose={phone}
+        onOpenAutoFocus={(event) => {
           setUrl(initialUrl)
           setTitle(initialTitle)
+          // On a phone the address is what the sheet asks for: it takes the focus, not the close button before it
+          if (!phone) return
+          event.preventDefault()
+          urlRef.current?.focus()
         }}
         onCloseAutoFocus={onRestoreFocus}>
-        <Dialog.Header><Dialog.Title>Link</Dialog.Title></Dialog.Header>
+        <Dialog.Header>
+          <Dialog.Title>Link</Dialog.Title>
+          {phone && (
+            <Dialog.HeaderAction>
+              <NavigationButton action="confirm" aria-label="Save" disabled={disabled} onClick={save} />
+            </Dialog.HeaderAction>
+          )}
+        </Dialog.Header>
         <Dialog.Body>
-          <div className={s.LinkDialogFields} onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.nativeEvent.isComposing && event.target instanceof HTMLInputElement) {
-              event.preventDefault()
-              if (!disabled) onSave(url, title)
-            }
-          }}>
-            <Field label="URL">
-              <Input type="url" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false}
-                placeholder="Enter URL" value={url} disabled={disabled} onChange={(event) => setUrl(event.target.value)} />
-            </Field>
-            <Field label="Link title">
-              <Input placeholder="Enter link title" value={title} disabled={disabled} onChange={(event) => setTitle(event.target.value)} />
-            </Field>
-          </div>
+          {phone ? (
+            // The groups keep the spacing of a grouped form between them
+            <div onKeyDown={onKeyDown}>
+              {/* A long address needs the cell's width: the label stands over the value, as a Textarea's row */}
+              <FieldGroup>
+                <Field row orientation="vertical" label="URL">{urlInput}</Field>
+                <Field row orientation="vertical" label="Title">{titleInput}</Field>
+              </FieldGroup>
+              {isEditing && (
+                <FieldGroup>
+                  <div data-row>
+                    <Button block color="danger" variant="ghost" disabled={disabled} onClick={onRemove}>Remove Link</Button>
+                  </div>
+                </FieldGroup>
+              )}
+            </div>
+          ) : (
+            <div className={s.LinkDialogFields} onKeyDown={onKeyDown}>
+              <Field label="URL">{urlInput}</Field>
+              <Field label="Link title">{titleInput}</Field>
+            </div>
+          )}
         </Dialog.Body>
-        <Dialog.Footer>
-          {isEditing && <Button color="danger" variant="soft" disabled={disabled} onClick={onRemove}>Remove</Button>}
-          <Button color="secondary" variant="soft" onClick={onCancel}>Cancel</Button>
-          <Button color="primary" disabled={disabled} onClick={() => onSave(url, title)}>Save</Button>
-        </Dialog.Footer>
+        {!phone && (
+          <Dialog.Footer>
+            {isEditing && <Button color="danger" variant="soft" disabled={disabled} onClick={onRemove}>Remove</Button>}
+            <Button color="secondary" variant="soft" onClick={onCancel}>Cancel</Button>
+            <Button color="primary" disabled={disabled} onClick={save}>Save</Button>
+          </Dialog.Footer>
+        )}
       </Dialog.Content>
     </Dialog>
   )
@@ -236,7 +278,6 @@ export function MarkdownEditor({
   const [activeMarks, setActiveMarks] = useState({
     bold: false, italic: false, link: false, orderedList: false, bulletList: false,
   })
-  const [linkCanEnable, setLinkCanEnable] = useState(false)
   const isControlled = value !== undefined
   const suppressChangeRef = useRef(false)
   const linkSelection = useRef<LinkSelection | null>(null)
@@ -250,7 +291,6 @@ export function MarkdownEditor({
       orderedList: e.isActive("orderedList"),
       bulletList: e.isActive("bulletList"),
     })
-    setLinkCanEnable(!e.state.selection.empty || e.isActive("link"))
   }, [])
 
   const editor = useEditor({
@@ -343,6 +383,8 @@ export function MarkdownEditor({
     const selectedText = editor.state.doc.textBetween(range.from, range.to, "")
     const chain = editor.chain().setTextSelection({ from: range.from, to: range.to })
     if (!url) chain.unsetLink().run()
+    // With no text selected the link is new text at the caret: its title, or the address itself
+    else if (range.from === range.to) chain.insertContent(linkText(title || url, url)).run()
     else if (title && title !== selectedText) chain.insertContent(linkText(title, url)).run()
     else chain.setLink({ href: url }).run()
   }, [editor, disabled])
@@ -409,7 +451,7 @@ export function MarkdownEditor({
     ],
     [
       offered.has("link") && (
-        <ToolbarButton key="link" tooltip="Link" active={activeMarks.link} disabled={disabled || !linkCanEnable} onClick={openLinkDialog}>
+        <ToolbarButton key="link" tooltip="Link" active={activeMarks.link} disabled={disabled} onClick={openLinkDialog}>
           <LinkIcon />
         </ToolbarButton>
       ),

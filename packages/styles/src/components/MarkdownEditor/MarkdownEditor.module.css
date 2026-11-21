@@ -185,24 +185,107 @@
 }
 
 @media (max-width: 767px) {
-  /* On a phone the editor is a card of the grouped form, with the corners of a FieldGroup (26), not a desktop
-     control's 8; its format buttons are round, as every button of the phone kit (--button-touch-radius), so a
-     pressed or active one lights a circle, not a small square (owner 19.11). */
+  /* On a phone the editor is a cell of a grouped form (owner 21.11), built as an iOS 27 cell with a row of round
+     buttons under its value, the Repeat cell of the Clock app's Add Alarm (IMG_6623, measured at 430pt): the text
+     takes the row's 20 inset, as a Textarea in a row does; under it a hairline from that inset to the other, then the
+     row of 35 circles, 18 apart, 16 above and under them. A circle is a soft gray face with its glyph; a format that
+     is on is the solid face with an inverse glyph, as the days of the alarm that are chosen. The cell is the
+     FieldGroup's card: its fill, its 26 corners and no outline; its title and footer stand over and under it. */
   .Container {
+    --markdown-editor-inset: var(--list-row-inset, 20px);
+    --markdown-editor-button-size: 35px;
+
     border-radius: var(--field-group-radius, 26px);
+    font-size: var(--field-row-label-font-size, 17px);
+
+    /* A cell has no outline, hovered or focused either, as an iOS cell being edited; only the invalid line stays. */
+    &:where([data-variant="outline"], [data-variant="soft"]),
+    &:where([data-variant="outline"], [data-variant="soft"]):not([data-disabled])[data-focused="true"] {
+      background-color: var(--field-group-background);
+      box-shadow: none;
+    }
+
+    &:where([data-variant="outline"], [data-variant="soft"]):not([data-disabled]):is(:hover, [data-focused="true"]) {
+      box-shadow: none;
+    }
+
+    &:where([data-variant="outline"], [data-variant="soft"]):not([data-disabled])[data-invalid][data-invalid] {
+      box-shadow: 0 0 0 1px var(--input-border-color-invalid) inset;
+    }
+  }
+
+  .Editor {
+    order: 0;
+    padding: 15px var(--markdown-editor-inset);
+    line-height: var(--field-row-label-line-height, 22px);
+  }
+
+  .Toolbar {
+    position: relative;
+    order: 1;
+    border-bottom: 0;
+
+    &::before {
+      position: absolute;
+      top: 0;
+      inset-inline: var(--markdown-editor-inset);
+      height: 1px;
+      background: var(--color-border);
+      content: "";
+    }
   }
 
   .ToolbarGroup {
+    gap: 18px;
+    padding: 16px var(--markdown-editor-inset);
     overflow-x: auto;
     overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .ToolbarSeparator {
+    display: none;
   }
 
   .ToolbarButton.ToolbarButton {
-    --button-size: 44px;
-    --button-uniform-size: 44px;
-    width: 44px;
-    height: 44px;
+    --button-size: var(--markdown-editor-button-size);
+    --button-uniform-size: var(--markdown-editor-button-size);
+
+    position: relative;
+    width: var(--markdown-editor-button-size);
+    height: var(--markdown-editor-button-size);
     flex-shrink: 0;
-    border-radius: var(--button-touch-radius, var(--radius-full));
+    border-radius: var(--radius-full);
+    background-color: var(--color-background-secondary-soft-alpha);
+    color: var(--color-text);
+    font-size: 20px;
+
+    > span > svg,
+    > svg {
+      width: 20px;
+      height: 20px;
+    }
+
+  }
+
+  /* A format that is on: the solid face with an inverse glyph, over the Button's selected colors. */
+  .Container .Toolbar .ToolbarButton.ToolbarButton[aria-pressed="true"] {
+    background-color: var(--color-background-primary-solid);
+    color: var(--color-text-inverse);
+
+    > span {
+      color: inherit;
+    }
+  }
+
+  /* The face is the button itself; its ::before is the 44 target around the circle, without a face of its own, on a
+     toolbarEnd button of the app's own too. */
+  .Container .Toolbar .ToolbarButton.ToolbarButton::before {
+    position: absolute;
+    inset: calc((var(--markdown-editor-button-size) - 44px) / 2);
+    content: "";
+    border-radius: var(--radius-full);
+    background: transparent;
+    opacity: 0;
   }
 }

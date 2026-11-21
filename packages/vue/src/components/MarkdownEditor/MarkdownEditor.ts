@@ -28,10 +28,12 @@ import {
   ListNumbers as ListNumbersIcon,
 } from "../Icon/index.js"
 import { Tooltip } from "../Tooltip/index.js"
-import { Button } from "../Button/index.js"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody, DialogFooter } from "../Dialog/index.js"
+import { Button, NavigationButton } from "../Button/index.js"
+import { Dialog, DialogContent, DialogHeader, DialogHeaderAction, DialogTitle, DialogBody, DialogFooter } from "../Dialog/index.js"
 import { Field } from "../Field/index.js"
+import { FieldGroup } from "../FieldGroup/index.js"
 import { Input } from "../Input/index.js"
+import { usePhoneLayout } from "../PhoneLayout/index.js"
 import { flattenSlot } from "../Tooltip/slot.js"
 import { renderMarkdown } from "../Markdown/pipeline.js"
 import s from "@plexui/styles/components/MarkdownEditor/MarkdownEditor.module.css"
@@ -97,37 +99,67 @@ const LinkDialog = defineComponent({
     watch(() => [props.open, props.initialUrl, props.initialTitle] as const, ([open, initialUrl, initialTitle]) => {
       if (open) { url.value = initialUrl; title.value = initialTitle }
     })
+    // On a phone the dialog is a sheet of the kit's grouped form: Cancel is the sheet's close button, Save its confirm
+    // button in the bar, the fields rows of a card and Remove a destructive row of its own (owner 21.11)
+    const phone = usePhoneLayout()
+    const fields = ref<HTMLElement | null>(null)
+    const save = () => { if (!props.disabled) props.onSave(url.value, title.value) }
+    const onKeydown = (event: KeyboardEvent) => {
+      if (event.key === "Enter" && !event.isComposing && event.target instanceof HTMLInputElement) {
+        event.preventDefault()
+        save()
+      }
+    }
+    const urlInput = () => h(Input, {
+      type: "url", inputmode: "url", autocapitalize: "none", autocorrect: "off", spellcheck: false,
+      placeholder: phone.value ? "Required" : "Enter URL", value: url.value, disabled: props.disabled,
+      "onUpdate:value": (value: string) => { url.value = value },
+    })
+    const titleInput = () => h(Input, {
+      placeholder: phone.value ? "Optional" : "Enter link title", value: title.value, disabled: props.disabled,
+      "onUpdate:value": (value: string) => { title.value = value },
+    })
     return () => h(Dialog, {
       "open": props.open,
       "onUpdate:open": (next: boolean) => { if (!next) props.onCancel() },
     }, { default: () => h(DialogContent, {
-      width: 450, mobileVariant: "sheet", showClose: false,
+      width: 450, mobileVariant: "sheet", surface: "grouped", showClose: phone.value,
+      // On a phone the address is what the sheet asks for: it takes the focus, not the close button before it
+      onOpenAutoFocus: (event: Event) => {
+        if (!phone.value) return
+        event.preventDefault()
+        fields.value?.querySelector<HTMLInputElement>('input[type="url"]')?.focus()
+      },
       onCloseAutoFocus: props.onRestoreFocus,
     }, { default: () => [
-      h(DialogHeader, null, { default: () => h(DialogTitle, null, { default: () => "Link" }) }),
-      h(DialogBody, null, { default: () => h("div", {
-        class: s.LinkDialogFields,
-        onKeydown: (event: KeyboardEvent) => {
-          if (event.key === "Enter" && !event.isComposing && event.target instanceof HTMLInputElement) {
-            event.preventDefault()
-            if (!props.disabled) props.onSave(url.value, title.value)
-          }
-        },
-      }, [
-        h(Field, { label: "URL" }, { default: () => h(Input, {
-          type: "url", inputmode: "url", autocapitalize: "none", autocorrect: "off", spellcheck: false,
-          placeholder: "Enter URL", value: url.value, disabled: props.disabled,
-          "onUpdate:value": (value: string) => { url.value = value },
-        }) }),
-        h(Field, { label: "Link title" }, { default: () => h(Input, {
-          placeholder: "Enter link title", value: title.value, disabled: props.disabled,
-          "onUpdate:value": (value: string) => { title.value = value },
-        }) }),
-      ]) }),
-      h(DialogFooter, null, { default: () => [
+      h(DialogHeader, null, { default: () => [
+        h(DialogTitle, null, { default: () => "Link" }),
+        phone.value
+          ? h(DialogHeaderAction, null, { default: () => h(NavigationButton, { action: "confirm", "aria-label": "Save", disabled: props.disabled, onClick: save }) })
+          : null,
+      ] }),
+      h(DialogBody, null, { default: () => phone.value
+        // The groups keep the spacing of a grouped form between them
+        ? h("div", { ref: fields, onKeydown }, [
+          // A long address needs the cell's width: the label stands over the value, as a Textarea's row
+          h(FieldGroup, null, { default: () => [
+            h(Field, { row: true, orientation: "vertical", label: "URL" }, { default: urlInput }),
+            h(Field, { row: true, orientation: "vertical", label: "Title" }, { default: titleInput }),
+          ] }),
+          props.isEditing
+            ? h(FieldGroup, null, { default: () => h("div", { "data-row": "" }, [
+              h(Button, { block: true, color: "danger", variant: "ghost", disabled: props.disabled, onClick: () => { if (!props.disabled) props.onRemove() } }, { default: () => "Remove Link" }),
+            ]) })
+            : null,
+        ])
+        : h("div", { ref: fields, class: s.LinkDialogFields, onKeydown }, [
+          h(Field, { label: "URL" }, { default: urlInput }),
+          h(Field, { label: "Link title" }, { default: titleInput }),
+        ]) }),
+      phone.value ? null : h(DialogFooter, null, { default: () => [
         props.isEditing ? h(Button, { color: "danger", variant: "soft", disabled: props.disabled, onClick: () => { if (!props.disabled) props.onRemove() } }, { default: () => "Remove" }) : null,
         h(Button, { color: "secondary", variant: "soft", onClick: () => props.onCancel() }, { default: () => "Cancel" }),
-        h(Button, { color: "primary", disabled: props.disabled, onClick: () => { if (!props.disabled) props.onSave(url.value, title.value) } }, { default: () => "Save" }),
+        h(Button, { color: "primary", disabled: props.disabled, onClick: save }, { default: () => "Save" }),
       ] }),
     ] }) })
   },
@@ -233,7 +265,6 @@ const MarkdownEditorComponent = defineComponent({
       orderedList: false,
       bulletList: false,
     })
-    const linkCanEnable = ref(false)
     const isControlled = () => props.value !== undefined
     let suppressChange = false
     let linkSelection: LinkSelection | null = null
@@ -247,7 +278,6 @@ const MarkdownEditorComponent = defineComponent({
         orderedList: e.isActive("orderedList"),
         bulletList: e.isActive("bulletList"),
       })
-      linkCanEnable.value = !e.state.selection.empty || e.isActive("link")
     }
 
     const editorAttributes = () => ({
@@ -358,6 +388,8 @@ const MarkdownEditorComponent = defineComponent({
       const selectedText = instance.state.doc.textBetween(range.from, range.to, "")
       const chain = instance.chain().setTextSelection({ from: range.from, to: range.to })
       if (!url) chain.unsetLink().run()
+      // With no text selected the link is new text at the caret: its title, or the address itself
+      else if (range.from === range.to) chain.insertContent(linkText(title || url, url)).run()
       else if (title && title !== selectedText) chain.insertContent(linkText(title, url)).run()
       else chain.setLink({ href: url }).run()
     }
@@ -439,7 +471,7 @@ const MarkdownEditorComponent = defineComponent({
           offered.has("link") && h(ToolbarButton, {
             tooltip: "Link",
             active: activeMarks.link,
-            disabled: disabled || !linkCanEnable.value,
+            disabled,
             icon: LinkIcon,
             onClick: openLinkDialog,
           }),
