@@ -72,6 +72,8 @@ afterAll(() => {
 });
 
 beforeEach(() => {
+  // A desktop window: the editor demos lay out as on a phone (usePhoneRows) only below 768px
+  vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('min-width'), media: query, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, dispatchEvent: () => true, onchange: null }));
   vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} });
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
