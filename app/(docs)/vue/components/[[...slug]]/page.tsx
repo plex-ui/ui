@@ -1,4 +1,4 @@
-import { vueComponentsSource } from '@/lib/source';
+import { componentsSource, reactNativeComponentsSource, vueComponentsSource } from '@/lib/source';
 import type { TOCItemType } from 'fumadocs-core/toc';
 import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/mdx-components';
@@ -118,7 +118,17 @@ export default async function Page(props: {
         {showPageNav && <PageNav compact className="plex-docs-nav plex-docs-nav-top" />}
       </div>
       <DocsDescription className="plex-docs-description">{page.data.description}</DocsDescription>
-      {params.slug && <FrameworkSwitch framework="vue" slug={params.slug.join('/')} />}
+      {params.slug && (
+        <FrameworkSwitch
+          framework="vue"
+          slug={params.slug.join('/')}
+          available={[
+            ...(componentsSource.getPage(params.slug) ? (['react'] as const) : []),
+            'vue',
+            ...(reactNativeComponentsSource.getPage(params.slug) ? (['react-native'] as const) : []),
+          ]}
+        />
+      )}
       <DocsBody className="plex-docs-body">
         <MDX components={getMDXComponents()} />
         {params.slug?.[0] && <RelatedComponents slug={params.slug[0]} framework="vue" />}

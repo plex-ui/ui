@@ -1,0 +1,105 @@
+---
+title: Avatar
+description: A person or an entity in a circle, with an initial, a picture, a symbol or an overflow count on a soft or solid fill, and AvatarGroup for overlapping stacks; drawn alike on iOS and Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `import { User } from "@plexui/react-native/icons"
+
+<Avatar name="Ada Lovelace" color="info" size={40} />
+<Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260…" size={40} />
+<Avatar Icon={User} color="discovery" size={40} accessibilityLabel="Guest" />
+<Avatar overflowCount={12} size={40} />`
+
+export const colorsCode = `const COLORS = ["secondary", "primary", "success", "info", "discovery", "danger"]
+
+{COLORS.map((color) => <Avatar key={color} name={color} color={color} size={40} />)}
+{COLORS.map((color) => <Avatar key={color} name={color} color={color} variant="solid" size={40} />)}`
+
+export const sizesCode = `<Avatar name="Grace" color="primary" size={24} />
+<Avatar name="Grace" color="primary" />
+<Avatar name="Grace" color="primary" size={40} />
+<Avatar name="Grace" color="primary" size={56} />
+<Avatar name="Grace" color="primary" size={72} />`
+
+export const asButtonCode = `const [count, setCount] = useState(0)
+
+<Avatar name="Grace Hopper" color="primary" size={56} onPress={() => setCount((n) => n + 1)} />
+<Text variant="footnote" color="secondary">Presses: {count}</Text>`
+
+export const groupCode = `<AvatarGroup size={36}>
+  <Avatar name="Ada" color="info" />
+  <Avatar name="Grace" color="success" />
+  <Avatar name="Linus" color="discovery" />
+  <Avatar overflowCount={4} />
+</AvatarGroup>
+
+<AvatarGroup>
+  <Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260…" />
+  <Avatar name="Margaret" color="primary" variant="solid" />
+  <Avatar overflowCount={128} />
+</AvatarGroup>`
+
+<UsageBlock>{`import { Avatar, AvatarGroup } from "@plexui/react-native"`}</UsageBlock>
+
+The props follow `@plexui/ui`'s Avatar. Neither iOS nor Android has an avatar control of its own, so both platforms draw the Plex avatar from the same tokens: the initial at half the size in semibold, a picture with a hairline border inside its edge, and the semantic colors of the soft and solid fills. In a group, each avatar is cut out of the one before it by a 3pt ring of the surface: `--color-surface` on iOS, Material's `surface` on Android.
+
+## Examples
+
+### Overview
+
+Without other props an avatar shows the first letter of `name`. `imageUrl` puts a picture over it; while the picture loads, or when it fails, the initial stays. `Icon` shows a symbol instead of the initial, and `overflowCount` shows `+N`.
+
+<RNPreview demo="avatar/Overview" code={overviewCode} />
+
+### Colors
+
+Six semantic colors, each with a soft and a solid fill.
+
+<RNPreview demo="avatar/Colors" code={colorsCode} />
+
+### Sizes
+
+`size` sets the width and height in points; the initial, symbol and count scale with it. The default is 28.
+
+<RNPreview demo="avatar/Sizes" code={sizesCode} />
+
+### As a button
+
+`onPress` makes the avatar a button, named by `name` for screen readers. It dims while pressed.
+
+<RNPreview demo="avatar/AsButton" code={asButtonCode} />
+
+### Group
+
+`AvatarGroup` overlaps its avatars and gives each one its `size`. Put an avatar with `overflowCount` last for the people the group does not show.
+
+<RNPreview demo="avatar/Group" code={groupCode} />
+
+## API
+
+### Avatar
+
+<PropsTable data={[
+  { prop: "name", type: "string", description: "The person's name: its first letter is the placeholder, and it names the avatar for screen readers" },
+  { prop: "imageUrl", type: "string", description: "A picture over the placeholder; when it fails to load, the placeholder stays" },
+  { prop: "color", type: '"primary" | "secondary" | "success" | "info" | "discovery" | "danger"', default: '"secondary"', description: "Semantic color of the fill and the initial" },
+  { prop: "variant", type: '"soft" | "solid"', default: '"soft"', description: "Fill style" },
+  { prop: "size", type: "number", default: "28", description: "Width and height in points" },
+  { prop: "Icon", type: "ComponentType<IconProps>", description: "A symbol instead of the initial, at 60% of the size" },
+  { prop: "overflowCount", type: "number", description: "Shows +N for the people a group does not show; large counts are compact (+1k)" },
+  { prop: "onPress", type: "() => void", description: "Makes the avatar a button named by name" },
+  { prop: "accessibilityLabel", type: "string", description: "Name for screen readers; defaults to name" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the circle" },
+]} />
+
+### AvatarGroup
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The avatars, first one at the start" },
+  { prop: "size", type: "number", default: "28", description: "The size of every Avatar in the group that sets none of its own" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the row" },
+]} />

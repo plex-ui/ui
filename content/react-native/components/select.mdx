@@ -1,0 +1,107 @@
+---
+title: Select
+description: Select for choosing one option from a menu, with descriptions, disabled options, a placeholder and field variants; UIKit's pop-up button on iOS, Material 3's exposed dropdown menu on Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const FRUITS = [
+  { value: "apple", label: "Apple" },
+  { value: "banana", label: "Banana", description: "Ripe this week" },
+  { value: "cherry", label: "Cherry" },
+  { value: "durian", label: "Durian", disabled: true },
+]
+
+const [fruit, setFruit] = useState("banana")
+
+<Select aria-label="Fruit" options={FRUITS} value={fruit} onChange={(option) => setFruit(option.value)} />`
+
+export const placeholderCode = `const [fruit, setFruit] = useState(null)
+
+<Select
+  aria-label="Fruit"
+  options={FRUITS}
+  value={fruit}
+  onChange={(option) => setFruit(option.value)}
+  placeholder="Choose a fruit"
+/>`
+
+export const variantsCode = `<Select aria-label="Outline" options={FRUITS} value={outline} onChange={(option) => setOutline(option.value)} />
+<Select aria-label="Soft" variant="soft" options={FRUITS} value={soft} onChange={(option) => setSoft(option.value)} />
+<Select aria-label="Ghost" variant="ghost" options={FRUITS} value={ghost} onChange={(option) => setGhost(option.value)} />`
+
+export const statesCode = `<Select aria-label="Invalid" options={FRUITS} value={null} onChange={() => {}} placeholder="Required" invalid />
+<Select aria-label="Disabled" options={FRUITS} value="apple" onChange={() => {}} disabled />`
+
+export const hugCode = `const SORTS = [
+  { value: "recent", label: "Most recent" },
+  { value: "popular", label: "Most popular" },
+  { value: "price", label: "Lowest price" },
+]
+
+const [sort, setSort] = useState("recent")
+
+<Select aria-label="Sort by" options={SORTS} value={sort} onChange={(option) => setSort(option.value)} block={false} pill />`
+
+<UsageBlock>{`import { Select } from "@plexui/react-native"`}</UsageBlock>
+
+The props follow `@plexui/ui`'s Select: `options`, `value` and `onChange`, which receives the chosen option. The field is drawn as an [Input](/react-native/components/input) of the same variant, with the chosen label and an indicator, and a press opens a menu of the options with a checkmark at the chosen one. On iOS that is UIKit's pop-up button: the up and down chevron, and the glass menu of iOS 26 at least 250pt wide. On Android it is Material 3's exposed dropdown menu: the dropdown arrow, which turns up while the menu is open, and a menu as wide as the field, opening at its edge. The menu is a modal layer over the screen; on this page it opens over the page.
+
+## Examples
+
+### Overview
+
+Press the field to open the menu. An option's `description` shows under its label in the menu, and a `disabled` option cannot be chosen.
+
+<RNPreview demo="select/Overview" code={overviewCode} minHeight={380} />
+
+### Placeholder
+
+While `value` matches no option, the field shows the `placeholder` in the placeholder color.
+
+<RNPreview demo="select/Placeholder" code={placeholderCode} minHeight={380} />
+
+### Variants
+
+The field takes Input's variants: on Android `outline` is the outlined exposed dropdown, `soft` the filled one.
+
+<RNPreview demo="select/Variants" code={variantsCode} minHeight={380} />
+
+### Invalid and disabled
+
+<RNPreview demo="select/States" code={statesCode} minHeight={380} />
+
+### Fit content
+
+A phone's Select fills the width; `block={false}` makes it as wide as its label. `pill` gives it a capsule.
+
+<RNPreview demo="select/Hug" code={hugCode} minHeight={380} />
+
+## API
+
+### Select
+
+<PropsTable data={[
+  { prop: "options", type: "readonly SelectOption[]", description: "The options (required)" },
+  { prop: "value", type: "string | null | undefined", description: "The value of the chosen option (required); null or a value of no option shows the placeholder" },
+  { prop: "onChange", type: "(option: SelectOption) => void", description: "Called with the option a person chooses (required)" },
+  { prop: "placeholder", type: "string", default: '"Select…"', description: "Shown while no option is chosen" },
+  { prop: "variant", type: '"outline" | "soft" | "ghost"', default: '"outline"', description: "The field's fill style, as Input's" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Step of the control scale, as Input's" },
+  { prop: "pill", type: "boolean", default: "false", description: "A capsule" },
+  { prop: "block", type: "boolean", default: "true", description: "Fills the width; false makes the field as wide as its label" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Draws the field in the error color" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the field and takes no presses" },
+  { prop: "aria-label", type: "string", description: "Name of the field and its menu for assistive technology" },
+  { prop: "testID", type: "string", description: "Test id; the menu takes <testID>-menu and each option <testID>-option-<value>" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the field's outer box" },
+]} />
+
+### SelectOption
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "The option's value (required)" },
+  { prop: "label", type: "string", description: "Shown in the field and the menu (required)" },
+  { prop: "description", type: "ReactNode", description: "Secondary text under the label in the menu" },
+  { prop: "disabled", type: "boolean", description: "Shown dimmed in the menu and cannot be chosen" },
+]} />

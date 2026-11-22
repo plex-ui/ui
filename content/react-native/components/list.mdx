@@ -1,0 +1,139 @@
+---
+title: List
+description: A section of rows for settings and navigation, with a header, a footer, leading symbols, values, controls and drill-ins; an inset grouped section on iOS, a preference group of Android's Settings on Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const [opened, setOpened] = useState("nothing")
+const [airplane, setAirplane] = useState(false)
+
+<List footer={\`Last opened: \${opened}\`}>
+  <ListItem label="Wi-Fi" value="Home" onPress={() => setOpened("Wi-Fi")} />
+  <ListItem label="Bluetooth" value="On" onPress={() => setOpened("Bluetooth")} />
+  <ListItem
+    label="Airplane mode"
+    trailing={<Switch checked={airplane} onCheckedChange={setAirplane} accessibilityLabel="Airplane mode" />}
+  />
+</List>`
+
+export const headerFooterCode = `<List header="Account" footer="Your name and photo show on everything you share.">
+  <ListItem label="Name" value="Ada Lovelace" />
+  <ListItem label="Email" value="ada@example.com" />
+</List>`
+
+export const leadingCode = `import { Bell, Globe, LockKeyHole, Moon } from "@plexui/react-native/icons"
+
+const theme = useTheme()
+const [dark, setDark] = useState(false)
+
+<List header="General">
+  <ListItem label="Notifications" leading={<Bell />} leadingColor={theme.color("--color-background-danger-solid")} value="On" onPress={() => {}} />
+  <ListItem label="Language" leading={<Globe />} leadingColor={theme.color("--color-background-info-solid")} value="English" onPress={() => {}} />
+  <ListItem
+    label="Dark mode"
+    leading={<Moon />}
+    leadingColor={theme.color("--color-background-discovery-solid")}
+    trailing={<Switch checked={dark} onCheckedChange={setDark} accessibilityLabel="Dark mode" />}
+  />
+  <ListItem label="Privacy" leading={<LockKeyHole />} leadingColor={theme.color("--color-background-success-solid")} onPress={() => {}} />
+</List>`
+
+export const descriptionsCode = `const [backup, setBackup] = useState(true)
+
+<List>
+  <ListItem
+    label="Back up photos"
+    description="Over Wi-Fi only, while charging"
+    trailing={<Switch checked={backup} onCheckedChange={setBackup} accessibilityLabel="Back up photos" />}
+  />
+  <ListItem label="Privacy" description="Who can see your profile" onPress={() => {}} />
+  <ListItem label="Beta features" trailing={<Badge color="info">New</Badge>} onPress={() => {}} />
+</List>`
+
+export const statesCode = `<List>
+  <ListItem label="Storage" value="12 GB free" onPress={() => {}} />
+  <ListItem label="Transfer to a new phone" value="Unavailable" disabled onPress={() => {}} />
+</List>
+
+<List>
+  <ListItem label="Sign out" destructive disclosure={false} onPress={() => {}} />
+</List>`
+
+export const plainCode = `<List surface="plain" header="Recent">
+  <ListItem label="Budget 2026" value="Today" onPress={() => {}} />
+  <ListItem label="Trip to Lisbon" value="Yesterday" onPress={() => {}} />
+</List>`
+
+<UsageBlock>{`import { List, ListItem } from "@plexui/react-native"`}</UsageBlock>
+
+`List` is a section of rows and `ListItem` one row, as `@plexui/ui`'s FieldGroup and NavigationRow on a phone. On iOS an inset grouped section of iOS 26: 26pt corners, 52pt rows with their content 20pt in from the section's edges, hairlines between rows from the text's start, a chevron on a row that opens a page. On Android a preference group of Android 16's Settings: every row its own card in `surfaceBright` on the `surfaceContainer` page, 2dp apart, 20dp at the group's outer corners and 4dp where rows meet, rows 72dp tall with the title in Title M; a row's `value` shows as its summary line under the title, and a drill-in has no chevron.
+
+## Examples
+
+### Overview
+
+A row with `onPress` opens something: on iOS it shows a chevron. `value` is the current setting, `trailing` a control at the end.
+
+<RNPreview demo="list/Overview" grouped code={overviewCode} />
+
+### Header and footer
+
+`header` titles the section and names it for screen readers; `footer` is a note under it. On Android the header is the Settings category, in the primary color.
+
+<RNPreview demo="list/HeaderFooter" grouped code={headerFooterCode} />
+
+### Leading symbols
+
+`leading` puts a symbol at the start. With `leadingColor`, iOS draws it white on a rounded tile of that color, the look of the Settings app; Android draws the symbol plain, in `onSurfaceVariant`.
+
+<RNPreview demo="list/Leading" grouped code={leadingCode} />
+
+### Descriptions and controls
+
+`description` adds secondary text under the label; a pressable row reads it to screen readers after its name. Any control can end a row: a Switch, a Badge.
+
+<RNPreview demo="list/Descriptions" grouped code={descriptionsCode} />
+
+### Disabled and destructive
+
+A `disabled` row dims and takes no presses. A `destructive` row is red, for an action such as signing out; give it a section of its own, and `disclosure={false}` since it opens no page.
+
+<RNPreview demo="list/States" grouped code={statesCode} />
+
+### Plain surface
+
+`surface="plain"` is for a list on a plain screen rather than the grouped background of a settings screen: the section takes the plain secondary gray on iOS, and its rows `surfaceContainer` on a `surface` page on Android.
+
+<RNPreview demo="list/Plain" code={plainCode} />
+
+## API
+
+### List
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The rows: ListItem elements" },
+  { prop: "header", type: "ReactNode", description: "The title over the section" },
+  { prop: "footer", type: "ReactNode", description: "A note under the section" },
+  { prop: "surface", type: '"grouped" | "plain"', default: '"grouped"', description: "The canvas the section stands on: the grouped background of a settings screen, or a plain screen" },
+  { prop: "aria-label", type: "string", description: "Name of the list for screen readers; defaults to the header's text" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the section" },
+]} />
+
+### ListItem
+
+<PropsTable data={[
+  { prop: "label", type: "ReactNode", description: "The row's text" },
+  { prop: "description", type: "ReactNode", description: "Secondary text under the label" },
+  { prop: "leading", type: "ReactNode", description: "A symbol at the start" },
+  { prop: "leadingColor", type: "string", description: "The fill of the leading tile on iOS, where the symbol turns white. Android ignores it" },
+  { prop: "value", type: "ReactNode", description: "The current value: at the end on iOS, the summary line under the label on Android" },
+  { prop: "trailing", type: "ReactNode", description: "A control at the end: a Switch, a Badge" },
+  { prop: "disclosure", type: "boolean", default: "onPress && !trailing", description: "The chevron of a row that opens a page, on iOS. Android draws none" },
+  { prop: "onPress", type: "() => void", description: "Makes the row a button" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the row and takes no presses" },
+  { prop: "destructive", type: "boolean", default: "false", description: "A row in red, as a destructive action" },
+  { prop: "accessibilityLabel", type: "string", description: "Name of the row for screen readers; defaults to the label and the value" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />

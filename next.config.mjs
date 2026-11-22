@@ -57,7 +57,22 @@ const config = {
     },
   },
   outputFileTracingRoot: projectRoot,
-  turbopack: { root: projectRoot },
+  turbopack: {
+    root: projectRoot,
+    // The React Native pages draw @plexui/react-native from its source with react-native-web: `react-native` is
+    // react-native-web in package.json, reached through a shim that keeps overlays in the example's screen; svg and
+    // safe areas go to small shims (components/docs/react-native/shims).
+    resolveAlias: {
+      '@plexui/react-native': './packages/react-native/src/index.ts',
+      '@plexui/react-native/icons': './packages/react-native/src/icons/plex/index.ts',
+      // react-native-web whose overlays open in the example's phone screen
+      'react-native': './components/docs/react-native/shims/react-native.js',
+      'react-native-svg': './components/docs/react-native/shims/svg.js',
+      'react-native-safe-area-context': './components/docs/react-native/shims/safe-area.js',
+      'expo-blur': './components/docs/react-native/missing-module.ts',
+      'expo-glass-effect': './components/docs/react-native/missing-module.ts',
+    },
+  },
   async redirects() {
     return [
       // The paid Figma kit (/pricing) and the Figma AI Bridge plugin

@@ -1,0 +1,94 @@
+---
+title: Checkbox
+description: Checkbox for on/off choices with a label, a description, an indeterminate state and an invalid state; a filled circle on iOS, Material 3's square box on Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const [accepted, setAccepted] = useState(false)
+
+<Checkbox label="Accept the terms" checked={accepted} onCheckedChange={setAccepted} />
+<Checkbox label="Checked" defaultChecked />
+<Checkbox label="Indeterminate" checked="indeterminate" />
+<Checkbox label="Disabled" disabled />
+<Checkbox label="Disabled checked" disabled defaultChecked />`
+
+export const selectAllCode = `const TOPICS = ["Product news", "Tips and tricks", "Events"]
+const [chosen, setChosen] = useState(["Tips and tricks"])
+const all = chosen.length === TOPICS.length ? true : chosen.length > 0 ? "indeterminate" : false
+
+<Checkbox label="All topics" checked={all} onCheckedChange={(next) => setChosen(next ? TOPICS : [])} />
+<View style={{ paddingStart: 32 }}>
+  {TOPICS.map((topic) => (
+    <Checkbox
+      key={topic}
+      label={topic}
+      checked={chosen.includes(topic)}
+      onCheckedChange={(next) => setChosen((list) => (next ? [...list, topic] : list.filter((item) => item !== topic)))}
+    />
+  ))}
+</View>`
+
+export const descriptionsCode = `<Checkbox label="Email updates" description="Product news, once a month" defaultChecked />
+<Checkbox label="Usage data" description="Helps improve the app. Nothing personal is shared." />`
+
+export const invalidCode = `const [agreed, setAgreed] = useState(false)
+
+<Checkbox label="I agree to the terms" invalid={!agreed} checked={agreed} onCheckedChange={setAgreed} />
+<Checkbox label="Invalid and checked" invalid defaultChecked />`
+
+export const placementCode = `<Checkbox label="Box at the end" orientation="right" defaultChecked />
+<Checkbox label="Ghost" variant="ghost" defaultChecked />
+<Checkbox label="Ghost, unchecked" variant="ghost" />`
+
+<UsageBlock>{`import { Checkbox } from "@plexui/react-native"`}</UsageBlock>
+
+The props follow `@plexui/ui`'s Checkbox. On iOS the box is the phone layer's 22pt circle, a 1.5pt ring that fills in the Plex primary with a check, its label 11pt away in a 44pt row. On Android it is Material 3's 18dp box with 2dp corners and a 2dp outline, filled when checked, in a 48dp touch target with the press's state layer. Both fill with the Plex primary (the ink, or a brand's), as a selected Button does.
+
+## Examples
+
+### States
+
+<RNPreview demo="checkbox/Overview" code={overviewCode} />
+
+### Select all
+
+A parent box is `"indeterminate"` while only some of its children are checked. A press on an indeterminate box checks it, as on the web, so `onCheckedChange` receives `true`.
+
+<RNPreview demo="checkbox/SelectAll" code={selectAllCode} />
+
+### Descriptions
+
+The description sits under the label in the secondary color and is read after it by VoiceOver and TalkBack.
+
+<RNPreview demo="checkbox/Descriptions" code={descriptionsCode} />
+
+### Invalid
+
+An invalid box draws its ring in the error color, and keeps the red fill once checked.
+
+<RNPreview demo="checkbox/Invalid" code={invalidCode} />
+
+### Placement and ghost
+
+`orientation="right"` puts the box after the label. `variant="ghost"` draws the checkmark alone, as an iOS list row marks its chosen rows; Android has no such checkbox and keeps the box.
+
+<RNPreview demo="checkbox/Placement" code={placementCode} />
+
+## API
+
+<PropsTable data={[
+  { prop: "checked", type: 'boolean | "indeterminate"', description: "Controlled state" },
+  { prop: "defaultChecked", type: 'boolean | "indeterminate"', default: "false", description: "Initial state (uncontrolled)" },
+  { prop: "onCheckedChange", type: "(nextState: boolean) => void", description: "Called when toggled; an indeterminate box checks" },
+  { prop: "label", type: "ReactNode", description: "The label beside the box" },
+  { prop: "description", type: "ReactNode", description: "Secondary text under the label" },
+  { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Where the box stands against the label" },
+  { prop: "variant", type: '"solid" | "ghost"', default: '"solid"', description: "ghost: the checkmark alone, as an iOS list row draws it. Android keeps the box" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Draws the box in the error color" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the box and label and takes no presses" },
+  { prop: "pill", type: "boolean", description: "Kept for @plexui/ui's API: the box is a circle on iOS and Material's square on Android" },
+  { prop: "accessibilityLabel", type: "string", description: "Name of a checkbox without a text label" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the checkbox's row" },
+]} />

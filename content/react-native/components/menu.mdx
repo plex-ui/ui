@@ -1,0 +1,111 @@
+---
+title: Menu
+description: "A menu of actions from a trigger: the iOS 26 pop-up menu on iOS, Material 3 Expressive's menu on Android, with icons, descriptions, labels and separators."
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `<Menu>
+  <Menu.Trigger>
+    <Button color="secondary" variant="soft">Actions</Button>
+  </Menu.Trigger>
+  <Menu.Content aria-label="Actions">
+    <Menu.Item icon={<Pencil />} onSelect={rename}>Rename</Menu.Item>
+    <Menu.Item icon={<Copy />} onSelect={duplicate}>Duplicate</Menu.Item>
+    <Menu.Item icon={<Share />} onSelect={share}>Share</Menu.Item>
+    <Menu.Separator />
+    <Menu.Item icon={<RemoveTrash />} danger onSelect={remove}>Delete</Menu.Item>
+  </Menu.Content>
+</Menu>`
+
+export const labelsAndDescriptionsCode = `<Menu.Content aria-label="Document">
+  <Menu.Label>Document</Menu.Label>
+  <Menu.Item icon={<Pencil />} onSelect={rename}>Rename</Menu.Item>
+  <Menu.Item icon={<Copy />} description="A copy in the same folder" onSelect={duplicate}>
+    Duplicate
+  </Menu.Item>
+  <Menu.Item icon={<Share />} disabled>Share</Menu.Item>
+  <Menu.Separator />
+  <Menu.Label>Danger zone</Menu.Label>
+  <Menu.Item icon={<RemoveTrash />} danger description="It cannot be undone" onSelect={remove}>
+    Delete
+  </Menu.Item>
+</Menu.Content>`
+
+export const controlledCode = `const [open, setOpen] = useState(false)
+
+<Menu open={open} onOpenChange={setOpen}>
+  <Menu.Trigger>
+    <IconButton icon={<DotsHorizontal />} variant="soft" color="secondary" accessibilityLabel="More" />
+  </Menu.Trigger>
+  <Menu.Content align="end" aria-label="More">
+    <Menu.Item icon={<Archive />} onSelect={archive}>Archive</Menu.Item>
+    <Menu.Item icon={<Flag />} onSelect={flag}>Flag</Menu.Item>
+  </Menu.Content>
+</Menu>`
+
+<UsageBlock>{`import { Menu } from "@plexui/react-native"`}</UsageBlock>
+
+The parts follow `@plexui/ui`'s Menu: `Menu.Trigger`, `Menu.Content`, `Menu.Item`, `Menu.Separator` and `Menu.Label`. On iOS the pop-up menu of iOS 26: a 250pt glass panel with radius 34, 17pt rows at least 42 tall with the symbol at the leading edge, 8 under its trigger. On Android Material 3 Expressive's menu (Compose's `DropdownMenuGroup`): `surfaceContainerLow` with 16dp corners, as wide as its items and right at its trigger's edge, 44dp items in Label L with 20dp icons; the first and last item between two separators round to the group's corners. The menu opens over its trigger when the screen ends below it, long menus scroll, and a tap outside closes it.
+
+## Examples
+
+### Items and separators
+
+`Menu.Trigger` takes a Button, or any element with `onPress`, and opens the menu. Choosing an item runs its `onSelect` and closes the menu. A `danger` item is red.
+
+<RNPreview demo="menu/Overview" code={overviewCode} minHeight={440} />
+
+### Labels and descriptions
+
+`Menu.Label` heads a group of items, `description` adds a second line under an item's label, and a `disabled` item is dimmed and takes no presses.
+
+<RNPreview demo="menu/LabelsAndDescriptions" code={labelsAndDescriptionsCode} minHeight={440} />
+
+### Aligned to the end, controlled
+
+`align="end"` lines the menu's trailing edge up with its trigger's, as for a More button at the end of a row. `open` and `onOpenChange` control the menu; a menu opened from outside is placed at its trigger too.
+
+<RNPreview demo="menu/Controlled" code={controlledCode} minHeight={440} />
+
+## API
+
+### Menu
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "Menu.Trigger and Menu.Content" },
+  { prop: "open", type: "boolean", description: "Controlled open state; without it the menu keeps its own" },
+  { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called when the menu opens or closes" },
+]} />
+
+### Menu.Trigger
+
+<PropsTable data={[
+  { prop: "children", type: "ReactElement", description: "The element that opens the menu: a Button or anything with onPress, which still runs" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the view around the trigger, measured to place the menu" },
+]} />
+
+### Menu.Content
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "Items, separators and labels" },
+  { prop: "align", type: '"start" | "end"', default: '"start"', description: "The menu's edge that lines up with the trigger's" },
+  { prop: "width", type: "number", default: "250 on iOS", description: "Width of the menu; on Android it fits its items, 112 to 280" },
+  { prop: "aria-label", type: "string", description: "Accessible name of the menu" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+### Menu.Item
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The item's label" },
+  { prop: "icon", type: "ReactNode", description: "A symbol at the leading edge" },
+  { prop: "description", type: "ReactNode", description: "A second line under the label" },
+  { prop: "danger", type: "boolean", default: "false", description: "A red, destructive item" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the item and takes no presses" },
+  { prop: "checked", type: "boolean", description: "The checkmark of a chosen option; a menu whose items set it (true or false) keeps a column for the checkmark, as Select's" },
+  { prop: "onSelect", type: "() => void", description: "Called when the item is chosen; the menu closes after it" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+`Menu.Separator` takes no props. `Menu.Label` takes its text as `children`.

@@ -1,0 +1,102 @@
+---
+title: Dialog
+description: "A dialog that asks for a decision: the iOS 26 alert on iOS, the dialog of Android 16's Settings on Android, with a title, a message, actions and an optional field."
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const [open, setOpen] = useState(false)
+
+<Button color="secondary" variant="soft" onPress={() => setOpen(true)}>
+  Delete photo
+</Button>
+<Dialog
+  open={open}
+  onOpenChange={setOpen}
+  title="Delete this photo?"
+  description="It will be removed from all your devices."
+  actions={[
+    { label: "Cancel", variant: "cancel" },
+    { label: "Delete", variant: "destructive", onPress: deletePhoto },
+  ]}
+/>`
+
+export const threeActionsCode = `<Dialog
+  open={open}
+  onOpenChange={setOpen}
+  title="Unsaved changes"
+  description="Save the changes to this document before closing?"
+  actions={[
+    { label: "Save", preferred: true, onPress: save },
+    { label: "Don't Save", variant: "destructive", onPress: discard },
+    { label: "Cancel", variant: "cancel" },
+  ]}
+/>`
+
+export const withFieldCode = `const theme = useTheme()
+const [name, setName] = useState("Untitled folder")
+
+<Dialog
+  open={open}
+  onOpenChange={setOpen}
+  title="New folder"
+  description="Enter a name for this folder."
+  actions={[
+    { label: "Cancel", variant: "cancel" },
+    { label: "Save", preferred: true, disabled: !name.trim(), onPress: () => create(name) },
+  ]}
+>
+  <Input variant="soft" size="3xl" pill={theme.isIOS} value={name} onChangeText={setName} accessibilityLabel="Name" />
+</Dialog>`
+
+<UsageBlock>{`import { Dialog } from "@plexui/react-native"`}</UsageBlock>
+
+Dialog is one call with props: the web Dialog's `mobileVariant="alert"`. A sheet from the bottom edge is a [BottomSheet](/react-native/components/bottom-sheet). On iOS it is the alert of iOS 26: a 320pt glass panel with radius 34, the title and message over 48pt capsule actions, the preferred action semibold on the primary fill and a destructive one in red. Two actions stand side by side with the cancel first, three or more stack with the cancel last, and a tap outside does nothing. On Android it is the dialog of Android 16's Settings: Material 3's basic dialog (radius 28, `surfaceContainerHigh`, a Headline S title) whose positive action is a filled button, a cancel an outlined one and any other a text button at the start of the bar. A tap outside or Back closes it there.
+
+## Examples
+
+### Two actions
+
+The button opens the dialog in place of the page; any action closes it and runs its `onPress`. On Android the action that is not a cancel is the filled button, in the error color when it is destructive.
+
+<RNPreview demo="dialog/Overview" code={overviewCode} minHeight={520} />
+
+### Three actions
+
+Three actions stack on iOS, the cancel last. On Android the `preferred` action is the filled button, the cancel outlined and the other a text button at the start. `mobileLayout="stacked"` stacks two actions on iOS too, `"inline"` keeps three in a row.
+
+<RNPreview demo="dialog/ThreeActions" code={threeActionsCode} minHeight={520} />
+
+### With a field
+
+Children stand between the text and the actions, as a text field. The dialog rises over the keyboard, and long content scrolls inside it. A `disabled` action takes no presses until the field has a name.
+
+<RNPreview demo="dialog/WithField" code={withFieldCode} minHeight={520} />
+
+## API
+
+### Dialog
+
+<PropsTable data={[
+  { prop: "open", type: "boolean", description: "Shows the dialog (required)" },
+  { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called with false when an action, a tap outside or Back closes it (required)" },
+  { prop: "title", type: "ReactNode", description: "The title (required)" },
+  { prop: "description", type: "ReactNode", description: "The message under the title" },
+  { prop: "actions", type: "DialogAction[]", default: "[]", description: "The actions; two stand side by side on iOS, three or more stack" },
+  { prop: "children", type: "ReactNode", description: "Content between the text and the actions, as a text field" },
+  { prop: "mobileLayout", type: '"inline" | "stacked"', description: "On iOS, stacked stacks two actions too and inline keeps more in a row; by default the count decides" },
+  { prop: "dismissible", type: "boolean", default: "true on Android, false on iOS", description: "A tap outside, Android's back and Escape close it, as Material's dialogs do and an iOS alert does not" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+### DialogAction
+
+<PropsTable data={[
+  { prop: "label", type: "string", description: "The action's label (required)" },
+  { prop: "onPress", type: "() => void", description: "Called when the action is pressed, before the dialog closes" },
+  { prop: "variant", type: '"default" | "cancel" | "destructive"', default: '"default"', description: "A cancel stands where the platform puts it; a destructive action is red" },
+  { prop: "preferred", type: "boolean", default: "false", description: "The preferred action: semibold on the primary fill on iOS, the filled button on Android" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the action and takes no presses" },
+  { prop: "keepOpen", type: "boolean", default: "false", description: "Keeps the dialog open after the action" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />

@@ -1,0 +1,44 @@
+---
+title: React Native
+description: "Plex UI for React Native, with the component names and props of @plexui/ui: drawn as iOS 26 on iOS and as Android 16 (Material 3 Expressive) on Android, from the same CSS tokens."
+---
+
+`@plexui/react-native` is not released yet: these pages document the `feat/react-native` branch. Every example on them is live, drawn by react-native-web. The switch above the examples draws them as iOS or Android, light or dark.
+
+## Setup
+
+<UsageBlock>{`npm install @plexui/react-native react-native-svg react-native-safe-area-context
+# optional: native glass on iOS 26, a blur elsewhere
+npx expo install expo-glass-effect expo-blur`}</UsageBlock>
+
+Wrap the app in `ThemeProvider` inside `SafeAreaProvider`, and put one `Toaster` in it for `toast()`:
+
+```tsx
+import { ThemeProvider, Toaster, interFonts } from "@plexui/react-native"
+import { SafeAreaProvider } from "react-native-safe-area-context"
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <ThemeProvider fonts={interFonts}>
+        <Screens />
+        <Toaster />
+      </ThemeProvider>
+    </SafeAreaProvider>
+  )
+}
+```
+
+`ThemeProvider` follows the device: iOS draws the iOS 26 look, Android the look of Android 16 and Google's own apps (Material 3 Expressive), the web the iOS look. `platform` overrides it, `scheme` takes `"light"`, `"dark"` or `"system"`, and `brand` sets a product's colors, faces and radii over the Plex UI defaults.
+
+## Components
+
+**Actions:** [Button](/react-native/components/button) and `IconButton`, [Chip](/react-native/components/chip), [Menu](/react-native/components/menu), [Segmented control](/react-native/components/segmented-control)
+
+**Selection and input:** [Checkbox](/react-native/components/checkbox), [Radio group](/react-native/components/radio-group), [Switch](/react-native/components/switch), [Slider](/react-native/components/slider), [Input](/react-native/components/input) and `TextField`, [Select](/react-native/components/select)
+
+**Overlays:** [Dialog](/react-native/components/dialog), [Bottom sheet](/react-native/components/bottom-sheet), [Action sheet](/react-native/components/action-sheet), [Toast](/react-native/components/toast)
+
+**Navigation:** [Toolbar](/react-native/components/toolbar) and `NavigationButton`, [Tab bar](/react-native/components/tab-bar), [Page control](/react-native/components/page-control)
+
+**Content:** [Text](/react-native/components/text) and `Heading`, [List](/react-native/components/list), [Card](/react-native/components/card), [Avatar](/react-native/components/avatar), [Badge](/react-native/components/badge), [Skeleton](/react-native/components/skeleton), [Empty message](/react-native/components/empty-message)

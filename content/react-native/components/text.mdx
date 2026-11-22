@@ -1,0 +1,125 @@
+---
+title: Text
+description: Text and Heading in the faces, sizes and colors of Plex UI, with the platform's text styles (Apple's names on iOS, the nearest Material 3 role on Android), the Plex type scale, weights, semantic colors, mono and tabular figures.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `<Text variant="largeTitle" weight="bold">Trips</Text>
+<Text variant="headline">Lisbon in May</Text>
+<Text>Five days by the river, with a day trip to Sintra and the coast.</Text>
+<Text variant="footnote" color="secondary">Updated 2 hours ago</Text>`
+
+export const variantsCode = `const VARIANTS = ["largeTitle", "title1", "title2", "title3", "headline", "body", "callout", "subheadline", "footnote", "caption1", "caption2"]
+
+{VARIANTS.map((variant) => (
+  <Text key={variant} variant={variant} numberOfLines={1}>{variant}</Text>
+))}`
+
+export const sizesCode = `{["3xs", "2xs", "xs", "sm", "md", "lg"].map((size) => (
+  <Text key={size} size={size}>Text {size}</Text>
+))}`
+
+export const headingsCode = `{["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl"].map((size) => (
+  <Heading key={size} size={size} numberOfLines={1}>Size {size}</Heading>
+))}`
+
+export const weightsCode = `<Text weight="regular">Regular</Text>
+<Text weight="medium">Medium</Text>
+<Text weight="semibold">Semibold</Text>
+<Text weight="bold">Bold</Text>`
+
+export const colorsCode = `const COLORS = ["primary", "secondary", "tertiary", "disabled", "accent", "danger", "success", "warning", "caution", "info", "discovery"]
+
+{COLORS.map((color) => (
+  <Text key={color} color={color}>{color}</Text>
+))}`
+
+export const figuresCode = `<Text mono>const answer = 42</Text>
+<Text tabularNums>1,111.11 / 8,888.88</Text>
+<Text>1,111.11 / 8,888.88</Text>`
+
+<UsageBlock>{`import { Heading, Text } from "@plexui/react-native"`}</UsageBlock>
+
+`variant` takes the text styles of the platform under Apple's names: on iOS the sizes of the Human Interface Guidelines (Body 17/22, Headline 17/22 semibold, Large Title 34/41); on Android each name takes the nearest role of the Material 3 type scale (Body Large 16/24, Title Medium 16/24 medium, Headline Large 32/40). `size` and `Heading` give the Plex UI scale instead, the same on both platforms. The face is Inter on both, with the Plex tracking at each size, and the colors follow iOS's label roles or Material's `onSurface` and `onSurfaceVariant`.
+
+## Examples
+
+### Overview
+
+<RNPreview demo="text/Overview" code={overviewCode} />
+
+### Platform text styles
+
+The default is `body`. Switch the platform to compare iOS's sizes with Material's roles.
+
+<RNPreview demo="text/Variants" minHeight={320} code={variantsCode} />
+
+| Variant | iOS | Android |
+|---------|-----|---------|
+| `largeTitle` | 34/41 | Headline Large 32/40 |
+| `title1` | 28/34 | Headline Medium 28/36 |
+| `title2` | 22/28 | Headline Small 24/32 |
+| `title3` | 20/25 | Title Large 22/28 |
+| `headline` | 17/22 semibold | Title Medium 16/24 medium |
+| `body` | 17/22 | Body Large 16/24 |
+| `callout` | 16/21 | Body Large 16/24 |
+| `subheadline` | 15/20 | Body Medium 14/20 |
+| `footnote` | 13/18 | Body Small 12/16 |
+| `caption1` | 12/16 | Label Medium 12/16 medium |
+| `caption2` | 11/13 | Label Small 11/16 medium |
+
+### Plex UI sizes
+
+`size` sets a size of the Plex UI text scale (`--font-text-*`, 8 to 18) in place of a platform style.
+
+<RNPreview demo="text/Sizes" code={sizesCode} />
+
+### Headings
+
+`Heading` is semibold text of the Plex UI heading scale (`--font-heading-*`, 16 to 72), announced as a header.
+
+<RNPreview demo="text/Headings" minHeight={420} code={headingsCode} />
+
+### Weights
+
+<RNPreview demo="text/Weights" code={weightsCode} />
+
+### Colors
+
+`color` takes a semantic color or any color string.
+
+<RNPreview demo="text/Colors" code={colorsCode} />
+
+### Mono and figures
+
+`mono` sets the monospace face of the kit; `tabularNums` gives every figure the same width, for counters and prices.
+
+<RNPreview demo="text/Figures" code={figuresCode} />
+
+## API
+
+### Text
+
+<PropsTable data={[
+  { prop: "variant", type: '"largeTitle" | "title1" | "title2" | "title3" | "headline" | "body" | "callout" | "subheadline" | "footnote" | "caption1" | "caption2"', default: '"body"', description: "A text style of the platform: Apple's sizes on iOS, the nearest Material 3 role on Android" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg"', description: "A size of the Plex UI scale instead of a platform style" },
+  { prop: "weight", type: '"regular" | "medium" | "semibold" | "bold"', description: "Font weight; defaults to the style's" },
+  { prop: "color", type: '"primary" | "secondary" | "tertiary" | "disabled" | "inverse" | "accent" | "danger" | "success" | "warning" | "caution" | "info" | "discovery" | string', default: '"primary"', description: "A semantic color or any color string. Inside a control the text takes the control's color unless it sets its own" },
+  { prop: "align", type: "TextStyle[\"textAlign\"]", description: "Text alignment" },
+  { prop: "mono", type: "boolean", default: "false", description: "The monospace face of the kit" },
+  { prop: "tabularNums", type: "boolean", default: "false", description: "Figures of one width, for counters and prices" },
+  { prop: "children", type: "ReactNode", description: "The text" },
+  { prop: "style", type: "StyleProp<TextStyle>", description: "Style of the text (all of React Native Text's props pass through)" },
+]} />
+
+### Heading
+
+<PropsTable data={[
+  { prop: "size", type: '"xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl"', default: '"md"', description: "A size of the Plex UI heading scale" },
+  { prop: "weight", type: '"regular" | "medium" | "semibold" | "bold"', default: '"semibold"', description: "Font weight" },
+  { prop: "color", type: "TextColor | string", default: '"primary"', description: "A semantic color or any color string" },
+  { prop: "align", type: "TextStyle[\"textAlign\"]", description: "Text alignment" },
+  { prop: "children", type: "ReactNode", description: "The heading" },
+  { prop: "style", type: "StyleProp<TextStyle>", description: "Style of the heading (all of React Native Text's props pass through)" },
+]} />

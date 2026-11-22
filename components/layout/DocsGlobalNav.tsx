@@ -18,7 +18,7 @@ function normalizePath(pathname: string) {
 }
 
 function isActivePath(currentPath: string, href: string) {
-  // Vue component pages (/vue/components/*) belong to the Components section
+  // Vue and React Native component pages (/vue/components/*, /react-native/components/*) belong to Components
   const current = reactPath(normalizePath(currentPath));
   const target = normalizePath(href);
   return current === target || current.startsWith(`${target}/`);

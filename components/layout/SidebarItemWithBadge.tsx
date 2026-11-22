@@ -30,7 +30,7 @@ function normalizePath(p: string): string {
  * Same applies to `/docs` (Introduction) — otherwise it would light up on
  * every page in docs because every URL is a prefix of `/docs`.
  */
-const EXACT_MATCH_URLS = new Set(['/docs', '/components', '/vue/components']);
+const EXACT_MATCH_URLS = new Set(['/docs', '/components', '/vue/components', '/react-native/components']);
 
 /**
  * Active when the current pathname IS the link's URL or sits under it

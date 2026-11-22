@@ -1,0 +1,54 @@
+---
+title: Switch
+description: Toggle switch for turning settings on or off; the iOS 26 switch on iOS, Material 3 Expressive's switch on Android, usually as the trailing control of a list row.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const [on, setOn] = useState(true)
+
+<Switch checked={on} onCheckedChange={setOn} accessibilityLabel="Notifications" />
+<Switch accessibilityLabel="Weekly summary" />
+<Switch defaultChecked disabled accessibilityLabel="Locked on" />
+<Switch disabled accessibilityLabel="Locked off" />`
+
+export const settingsCode = `<List>
+  <ListItem label="Wi-Fi" trailing={<Switch checked={wifi} onCheckedChange={setWifi} accessibilityLabel="Wi-Fi" />} />
+  <ListItem
+    label="Bluetooth"
+    description="Find nearby devices"
+    trailing={<Switch checked={bluetooth} onCheckedChange={setBluetooth} accessibilityLabel="Bluetooth" />}
+  />
+</List>`
+
+<UsageBlock>{`import { Switch } from "@plexui/react-native"`}</UsageBlock>
+
+On iOS the phone layer's 63x28 track with a 37x24 capsule thumb. On Android the switch of Android 16's Settings: Material 3's 52x32 track with a 24dp thumb that shows a check when on and an X when off, 28 while held.
+
+## Examples
+
+### States
+
+<RNPreview demo="switch/Overview" code={overviewCode} />
+
+### In settings rows
+
+A phone puts a switch at the end of a list row, its label at the start.
+
+<RNPreview demo="switch/Settings" grouped code={settingsCode} />
+
+## API
+
+<PropsTable data={[
+  { prop: "checked", type: "boolean", description: "Controlled state" },
+  { prop: "defaultChecked", type: "boolean", description: "Initial state (uncontrolled)" },
+  { prop: "onCheckedChange", type: "(next: boolean) => void", description: "Called when toggled" },
+  { prop: "color", type: '"primary" | "accent"', default: '"primary"', description: "On track: the Plex primary (the ink, or a brand's) or the accent" },
+  { prop: "label", type: "ReactNode", description: "A label beside the switch" },
+  { prop: "description", type: "ReactNode", description: "Secondary text under the label" },
+  { prop: "labelPosition", type: '"start" | "end"', default: '"end"', description: "Where the label stands" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Takes no presses" },
+  { prop: "accessibilityLabel", type: "string", description: "Name of a switch without a label" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the switch's row" },
+]} />

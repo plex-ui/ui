@@ -1,0 +1,137 @@
+---
+title: Card
+description: A surface that groups a title, a description, content and actions, in outline, solid or ghost, with pictures to its edges and the whole card as a button; a grouped section on iOS, a Material 3 card on Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `import { DotsHorizontal } from "@plexui/react-native/icons"
+
+<Card>
+  <Card.Header>
+    <Card.Title>Weekly summary</Card.Title>
+    <Card.Description>12 new places this week.</Card.Description>
+    <Card.Action>
+      <IconButton icon={<DotsHorizontal />} size="sm" accessibilityLabel="More" />
+    </Card.Action>
+  </Card.Header>
+  <Card.Content>
+    <Text variant="subheadline">You saved 4 of them and visited 2. Your favorite was the market on the river.</Text>
+  </Card.Content>
+  <Card.Footer>
+    <Button size="sm">Open</Button>
+    <Button size="sm" variant="soft">Later</Button>
+  </Card.Footer>
+</Card>`
+
+export const variantsCode = `<Card>
+  <Card.Header>
+    <Card.Title>Outline</Card.Title>
+    <Card.Description>The default: a grouped section on iOS, an outlined card on Android.</Card.Description>
+  </Card.Header>
+</Card>
+<Card variant="solid">…</Card>
+<Card variant="ghost">…</Card>`
+
+export const sizesCode = `<Card size="sm">…</Card>
+<Card size="md">…</Card>
+<Card size="lg">…</Card>`
+
+export const mediaCode = `<Card>
+  <Card.Media
+    source={{ uri: "https://picsum.photos/id/1018/800/600" }}
+    aspectRatio={4 / 3}
+    accessibilityLabel="A road winding through green hills"
+    title="A road through the hills"
+    description="A caption over the picture"
+  />
+</Card>
+
+<Card>
+  <Card.Media source={{ uri: "https://picsum.photos/id/1015/800/400" }} aspectRatio={2} />
+  <Card.Header>
+    <Card.Title>Picture on top</Card.Title>
+    <Card.Description>The picture reaches the card's edges.</Card.Description>
+  </Card.Header>
+</Card>`
+
+export const asButtonCode = `const [count, setCount] = useState(0)
+
+<Card onPress={() => setCount((n) => n + 1)} accessibilityLabel="Storage">
+  <Card.Header>
+    <Card.Title>Storage</Card.Title>
+    <Card.Description>The whole card is one button. Presses: {count}</Card.Description>
+  </Card.Header>
+</Card>`
+
+<UsageBlock>{`import { Card } from "@plexui/react-native"`}</UsageBlock>
+
+The parts follow `@plexui/ui`'s Card (`Card.Header`, `Card.Title`, `Card.Description`, `Card.Content`, `Card.Footer`, `Card.Action`), plus `Card.Media` for a picture. On iOS the phone layer's card: 26pt corners, 16pt padding, the title 17/22 semibold and the description 15/20 in the secondary label; an outline card is a section of an inset grouped list, so it stands on the grouped background. On Android Material 3's cards: 12dp corners, 16dp padding, the title in Title M and the description in Body M, an outlined card on `surface` with an `outlineVariant` border, a filled one on `surfaceContainerHighest`, the footer's buttons at the end.
+
+## Examples
+
+### Overview
+
+<RNPreview demo="card/Overview" grouped code={overviewCode} />
+
+### Variants
+
+`outline` is a grouped section on iOS and an outlined card on Android; `solid` takes a gray fill on iOS and Material's filled card on Android; `ghost` has no fill.
+
+<RNPreview demo="card/Variants" grouped code={variantsCode} />
+
+### Sizes
+
+`size` sets the padding: 12, 16 or 20 on iOS; 12, 16 or 24 on Android.
+
+<RNPreview demo="card/Sizes" grouped code={sizesCode} />
+
+### Media
+
+`Card.Media` shows a picture. Placed first or last, it reaches the card's edges. `title` and `description` set a white caption over a gradient that darkens the bottom of the picture.
+
+<RNPreview demo="card/Media" grouped code={mediaCode} />
+
+### As a button
+
+`onPress` makes the whole card one button, with the platform's pressed layer. A card whose own parts take the presses can show the press with `interactive` instead.
+
+<RNPreview demo="card/AsButton" grouped code={asButtonCode} />
+
+## API
+
+### Card
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The card's parts" },
+  { prop: "variant", type: '"outline" | "solid" | "ghost"', default: '"outline"', description: "Fill style" },
+  { prop: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "The padding: 12, 16 or 20 on iOS; 12, 16 or 24 on Android" },
+  { prop: "onPress", type: "() => void", description: "Makes the whole card a button" },
+  { prop: "interactive", type: "boolean", default: "false", description: "Shows the press of a card whose own parts take it" },
+  { prop: "accessibilityLabel", type: "string", description: "Name of the card for screen readers" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the card" },
+]} />
+
+### Card.Media
+
+<PropsTable data={[
+  { prop: "source", type: "ImageSourcePropType", description: "The picture: a bundled image or { uri }" },
+  { prop: "aspectRatio", type: "number", default: "16 / 9", description: "Width over height" },
+  { prop: "accessibilityLabel", type: "string", description: "The picture's description for screen readers; without it the picture is decorative" },
+  { prop: "title", type: "ReactNode", description: "Caption title over the bottom of the picture" },
+  { prop: "description", type: "ReactNode", description: "Caption text under the title" },
+  { prop: "children", type: "ReactNode", description: "Anything else over the picture, at its bottom" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+### Compound parts
+
+| Part | Props | Purpose |
+|------|-------|---------|
+| `Card.Header` | `children`, `style`, `testID` | The title and description, with a `Card.Action` at the end |
+| `Card.Title` | `children` | The card's heading, announced as a header |
+| `Card.Description` | `children` | Secondary text under the title |
+| `Card.Content` | `children`, `style`, `testID` | The body of the card |
+| `Card.Footer` | `children`, `style`, `testID` | The buttons at the bottom, at the end on Android |
+| `Card.Action` | `children`, `style`, `testID` | An action at the end of the header, such as a menu or a close button |

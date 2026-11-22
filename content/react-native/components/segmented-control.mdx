@@ -1,0 +1,124 @@
+---
+title: SegmentedControl
+description: Segmented control for switching between a few views or modes, with sizes, equal or content widths, symbols and disabled segments; the iOS 26 segmented control on iOS, Material 3 Expressive's connected button group on Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const [period, setPeriod] = useState("week")
+
+<SegmentedControl aria-label="Period" value={period} onChange={setPeriod}>
+  <SegmentedControl.Tab value="day">Day</SegmentedControl.Tab>
+  <SegmentedControl.Tab value="week">Week</SegmentedControl.Tab>
+  <SegmentedControl.Tab value="month">Month</SegmentedControl.Tab>
+  <SegmentedControl.Tab value="year">Year</SegmentedControl.Tab>
+</SegmentedControl>`
+
+export const sizesCode = `<SegmentedControl aria-label="Small" size="sm" value={small} onChange={setSmall}>
+  <SegmentedControl.Tab value="day">Day</SegmentedControl.Tab>
+  <SegmentedControl.Tab value="week">Week</SegmentedControl.Tab>
+  <SegmentedControl.Tab value="month">Month</SegmentedControl.Tab>
+</SegmentedControl>
+<SegmentedControl aria-label="Large" value={large} onChange={setLarge}>
+  …
+</SegmentedControl>
+<SegmentedControl aria-label="Large flat" mobileMaterial="flat" value={flat} onChange={setFlat}>
+  …
+</SegmentedControl>`
+
+export const widthsCode = `<SegmentedControl aria-label="Content width" mobileSegmentWidth="content" value={content} onChange={setContent}>
+  <SegmentedControl.Tab value="all">All</SegmentedControl.Tab>
+  <SegmentedControl.Tab value="unread">Unread</SegmentedControl.Tab>
+  <SegmentedControl.Tab value="flagged">Flagged</SegmentedControl.Tab>
+</SegmentedControl>
+<SegmentedControl aria-label="Block" block value={block} onChange={setBlock}>
+  …
+</SegmentedControl>`
+
+export const symbolsCode = `import { Grid, List, Moon, Sun } from "@plexui/react-native/icons"
+
+<SegmentedControl aria-label="View" size="sm" value={view} onChange={setView}>
+  <SegmentedControl.Tab value="grid" aria-label="Grid" icon={<Grid />} />
+  <SegmentedControl.Tab value="list" aria-label="List" icon={<List />} />
+</SegmentedControl>
+<SegmentedControl aria-label="Appearance" value={scheme} onChange={setScheme}>
+  <SegmentedControl.Tab value="light" icon={<Sun />}>Light</SegmentedControl.Tab>
+  <SegmentedControl.Tab value="dark" icon={<Moon />}>Dark</SegmentedControl.Tab>
+</SegmentedControl>`
+
+export const disabledCode = `<SegmentedControl aria-label="Period" value={period} onChange={setPeriod}>
+  <SegmentedControl.Tab value="day">Day</SegmentedControl.Tab>
+  <SegmentedControl.Tab value="week">Week</SegmentedControl.Tab>
+  <SegmentedControl.Tab value="month" disabled>Month</SegmentedControl.Tab>
+</SegmentedControl>
+<SegmentedControl aria-label="Period, disabled" value="week" disabled>
+  …
+</SegmentedControl>`
+
+<UsageBlock>{`import { SegmentedControl } from "@plexui/react-native"`}</UsageBlock>
+
+The props follow `@plexui/ui`'s SegmentedControl, with `SegmentedControl.Tab` for each segment (`SegmentedControl.Option` is the same part). On iOS the control is a capsule whose thumb slides to the selection: at `md` and larger the 48pt glass capsule of iOS 26 apps, at `sm` and smaller the 32pt plain capsule of SwiftUI's segmented Picker. On Android it is Material 3 Expressive's connected button group, the successor of segmented buttons: 40dp buttons 2dp apart, the outer corners round and the inner ones 8dp, the selected one fully round in the Plex primary (the ink, or a brand's), as a selected Button.
+
+## Examples
+
+### Overview
+
+<RNPreview demo="segmented-control/Overview" code={overviewCode} />
+
+### Sizes
+
+iOS has two controls: `sm` and smaller the small plain one, `md` and larger the large glass one. `mobileMaterial="flat"` gives the large one the plain look of SwiftUI's `.controlSize(.large)` (49pt), and `"glass"` gives the small one glass. Android draws the same 40dp group at every size.
+
+<RNPreview demo="segmented-control/Sizes" code={sizesCode} />
+
+### Widths
+
+Segments are as wide as the widest one by default, as UISegmentedControl draws them. `mobileSegmentWidth="content"` gives each segment its own label's width, and `block` fills the row, the segments sharing its width.
+
+<RNPreview demo="segmented-control/Widths" code={widthsCode} />
+
+### Symbols
+
+A segment takes an `icon`. A symbol alone needs an `aria-label`. With both a symbol and a label, iOS shows the symbol alone, as UISegmentedControl does, and Android shows both.
+
+<RNPreview demo="segmented-control/Symbols" code={symbolsCode} />
+
+### Disabled
+
+`disabled` on a segment disables it alone; on the control, every segment.
+
+<RNPreview demo="segmented-control/Disabled" code={disabledCode} />
+
+A `badge` on a segment is not drawn on either platform, as neither iOS nor Material draws counts on segments: it is read with the segment's name ("Year, 2").
+
+## API
+
+### SegmentedControl
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "The value of the selected segment (required, controlled)" },
+  { prop: "onChange", type: "(nextValue: string) => void", description: "Called with the value of the segment a person selects" },
+  { prop: "onClick", type: "() => void", description: "Called on any press of the control, even when the value stays" },
+  { prop: "aria-label", type: "string", description: "Name of the control for assistive technology (required)" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "iOS: sm and smaller the small 32pt control, md and larger the large 48pt one. Android: 40dp at every size" },
+  { prop: "mobileMaterial", type: '"glass" | "flat"', default: '"glass" at md and larger, "flat" at sm and smaller', description: "iOS: flat gives the large control the plain look (49pt), glass gives the small one glass. In a Toolbar the control is the large glass one" },
+  { prop: "mobileSegmentWidth", type: '"equal" | "content"', default: '"equal"', description: "Every segment the widest one's width, or each its own label's" },
+  { prop: "block", type: "boolean", default: "false", description: "Fills the row, the segments sharing its width" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disables every segment" },
+  { prop: "pill", type: "boolean", description: "Kept for @plexui/ui's API: a phone's segmented control is always a capsule" },
+  { prop: "children", type: "ReactNode", description: "SegmentedControl.Tab elements" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the control's outer box" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+### SegmentedControl.Tab
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "The segment's value (required)" },
+  { prop: "children", type: "ReactNode", description: "The label" },
+  { prop: "icon", type: "ReactNode", description: "A symbol before the label; with a label, iOS shows the symbol alone" },
+  { prop: "aria-label", type: "string", description: "Name of the segment for assistive technology, for a symbol alone" },
+  { prop: "badge", type: "ReactNode | { content: ReactNode }", description: "A count, read with the segment's name and not drawn" },
+  { prop: "disabled", type: "boolean", description: "Disables the segment" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />

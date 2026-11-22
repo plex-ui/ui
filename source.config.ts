@@ -46,6 +46,13 @@ export const vueComponents = defineDocs({
   docs: { schema: componentPageSchema },
 });
 
+/** React Native component pages (/react-native/components/*), on the feat/react-native branch: noindex, out of
+ *  the sitemap, search, registry and MCP until @plexui/react-native is released. */
+export const reactNativeComponents = defineDocs({
+  dir: 'content/react-native/components',
+  docs: { schema: componentPageSchema },
+});
+
 export const blog = defineCollections({
   type: 'doc',
   dir: 'content/blog',

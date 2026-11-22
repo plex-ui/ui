@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { PreviewViewportControl } from './PreviewViewport';
+import { RNPreviewControl } from './react-native/RNPreviewSettings';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import styles from './FrameworkSwitch.module.css';
 
@@ -32,12 +33,14 @@ function VueMark() {
 const FRAMEWORKS = [
   { id: 'react', label: 'React', base: '/components', mark: <ReactMark /> },
   { id: 'vue', label: 'Vue', base: '/vue/components', mark: <VueMark /> },
+  // React Native draws with React's mark: the label tells them apart
+  { id: 'react-native', label: 'React Native', base: '/react-native/components', mark: <ReactMark /> },
 ] as const;
 
-type Framework = (typeof FRAMEWORKS)[number]['id'];
+export type Framework = (typeof FRAMEWORKS)[number]['id'];
 
-const hrefFor = (framework: Framework, slug: string, hrefs?: Record<Framework, string>) =>
-  hrefs ? hrefs[framework] : `${FRAMEWORKS.find(({ id }) => id === framework)!.base}/${slug}`;
+const hrefFor = (framework: Framework, slug: string, hrefs?: Partial<Record<Framework, string>>) =>
+  hrefs?.[framework] ?? `${FRAMEWORKS.find(({ id }) => id === framework)!.base}/${slug}`;
 
 /**
  * React / Vue between the two pages of the same component, and Desktop / Phone for all its examples: two pill
@@ -48,29 +51,36 @@ export function FrameworkSwitch({
   framework,
   slug = '',
   hrefs,
+  available,
 }: {
   framework: Framework;
   slug?: string;
-  /** The two pages of a docs page with no examples, such as Hooks and Composables: no Desktop / Phone switch */
-  hrefs?: Record<Framework, string>;
+  /** The pages of a docs page with no examples, such as Hooks and Composables: no Desktop / Phone switch */
+  hrefs?: Partial<Record<Framework, string>>;
+  /** The frameworks that have a page for this component. @default the keys of `hrefs`, else React and Vue */
+  available?: readonly Framework[];
 }) {
   const router = useRouter();
+  const shown = FRAMEWORKS.filter(({ id }) =>
+    id === framework || (available ? available.includes(id) : hrefs ? id in hrefs : id !== 'react-native'),
+  );
 
   // Prefetch the other framework's page only when the switch is pointed at,
   // focused or touched: on Vercel each prefetch of a prerendered page is an ISR read.
   const prefetchOther = () => {
     for (const { id } of FRAMEWORKS) {
-      if (id !== framework) router.prefetch(hrefFor(id, slug, hrefs));
+      if (id !== framework && shown.some((item) => item.id === id)) router.prefetch(hrefFor(id, slug, hrefs));
     }
   };
 
   return (
     <div
-      className="mb-6 flex items-center justify-between gap-4"
+      className="mb-6 flex flex-wrap items-center justify-between gap-4"
       onPointerEnter={prefetchOther}
       onFocusCapture={prefetchOther}
       onTouchStartCapture={prefetchOther}
     >
+      {shown.length > 1 ? (
       <SegmentedControl<Framework>
         value={framework}
         onChange={(next) => router.push(hrefFor(next, slug, hrefs))}
@@ -79,13 +89,16 @@ export function FrameworkSwitch({
         pill
         className={styles.Switch}
       >
-        {FRAMEWORKS.map(({ id, label, mark }) => (
+        {shown.map(({ id, label, mark }) => (
           <SegmentedControl.Option key={id} value={id} icon={mark}>
             {label}
           </SegmentedControl.Option>
         ))}
       </SegmentedControl>
-      {!hrefs && <PreviewViewportControl />}
+      ) : (
+        <span />
+      )}
+      {hrefs ? null : framework === 'react-native' ? <RNPreviewControl /> : <PreviewViewportControl />}
     </div>
   );
 }

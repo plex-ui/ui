@@ -1,0 +1,31 @@
+{
+  "title": "Components",
+  "root": true,
+  "pages": [
+    "index",
+    "action-sheet",
+    "avatar",
+    "badge",
+    "bottom-sheet",
+    "button",
+    "card",
+    "checkbox",
+    "chip",
+    "dialog",
+    "empty-message",
+    "input",
+    "list",
+    "menu",
+    "page-control",
+    "radio-group",
+    "segmented-control",
+    "select",
+    "skeleton",
+    "slider",
+    "switch",
+    "tab-bar",
+    "text",
+    "toast",
+    "toolbar"
+  ]
+}

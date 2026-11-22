@@ -1,4 +1,4 @@
-import { componentsSource, vueComponentsSource } from '@/lib/source';
+import { componentsSource, reactNativeComponentsSource, vueComponentsSource } from '@/lib/source';
 import type { TOCItemType } from 'fumadocs-core/toc';
 import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/mdx-components';
@@ -44,9 +44,14 @@ export default async function Page(props: {
     .join(' ');
 
   const MDX = page.data.body;
-  // React / Vue switch, only for components that have a Vue page
-  const vueSlug =
-    params.slug && vueComponentsSource.getPage(params.slug) ? params.slug.join('/') : null;
+  // React / Vue / React Native switch, only for components that have a page in another framework
+  const otherFrameworks = params.slug
+    ? ([
+        vueComponentsSource.getPage(params.slug) ? 'vue' : null,
+        reactNativeComponentsSource.getPage(params.slug) ? 'react-native' : null,
+      ].filter(Boolean) as ('vue' | 'react-native')[])
+    : [];
+  const frameworkSlug = otherFrameworks.length > 0 ? params.slug!.join('/') : null;
   const pageUrl = `https://plexui.com${page.url}`;
   const dateModified = (page.data as { lastModified?: Date }).lastModified?.toISOString();
 
@@ -133,7 +138,7 @@ export default async function Page(props: {
       <DocsDescription className="plex-docs-description">
         {page.data.description}
       </DocsDescription>
-      {vueSlug && <FrameworkSwitch framework="react" slug={vueSlug} />}
+      {frameworkSlug && <FrameworkSwitch framework="react" slug={frameworkSlug} available={['react', ...otherFrameworks]} />}
       <DocsBody className="plex-docs-body">
         <MDX components={getMDXComponents()} />
         {/* `Related components` card row at the bottom of every

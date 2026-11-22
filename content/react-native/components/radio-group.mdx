@@ -1,0 +1,106 @@
+---
+title: RadioGroup
+description: Radio group for choosing one option of several, with descriptions, a row layout and disabled options; the checkmark of a list row on iOS, Material 3's radio button on Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const [plan, setPlan] = useState("monthly")
+
+<RadioGroup aria-label="Plan" value={plan} onChange={setPlan}>
+  <RadioGroup.Item value="monthly">Monthly</RadioGroup.Item>
+  <RadioGroup.Item value="yearly">Yearly</RadioGroup.Item>
+  <RadioGroup.Item value="lifetime">Lifetime</RadioGroup.Item>
+</RadioGroup>
+<Text variant="footnote" color="secondary">Plan: {plan}</Text>`
+
+export const descriptionsCode = `<RadioGroup aria-label="Delivery" defaultValue="standard">
+  <RadioGroup.Item value="standard" description="3 to 5 working days, free">
+    Standard
+  </RadioGroup.Item>
+  <RadioGroup.Item value="express" description="Next working day">
+    Express
+  </RadioGroup.Item>
+  <RadioGroup.Item value="pickup" description="Not available in your area" disabled>
+    Pick up in store
+  </RadioGroup.Item>
+</RadioGroup>`
+
+export const rowCode = `<RadioGroup aria-label="Size" defaultValue="m" direction="row">
+  <RadioGroup.Item value="s">Small</RadioGroup.Item>
+  <RadioGroup.Item value="m">Medium</RadioGroup.Item>
+  <RadioGroup.Item value="l">Large</RadioGroup.Item>
+</RadioGroup>`
+
+export const markAtEndCode = `<RadioGroup aria-label="Sort by" defaultValue="recent">
+  <RadioGroup.Item value="recent" orientation="right">Most recent</RadioGroup.Item>
+  <RadioGroup.Item value="popular" orientation="right">Most popular</RadioGroup.Item>
+</RadioGroup>`
+
+export const disabledCode = `<RadioGroup aria-label="Theme" defaultValue="system" disabled>
+  <RadioGroup.Item value="light">Light</RadioGroup.Item>
+  <RadioGroup.Item value="dark">Dark</RadioGroup.Item>
+  <RadioGroup.Item value="system">System</RadioGroup.Item>
+</RadioGroup>`
+
+<UsageBlock>{`import { RadioGroup } from "@plexui/react-native"`}</UsageBlock>
+
+The props follow `@plexui/ui`'s RadioGroup, with `RadioGroup.Item` for each option. iOS has no radio button: the chosen option shows the checkmark of a list row in a 22pt column, and the others leave the column empty, in 44pt rows. Android draws Material 3's 20dp radio button, a 2dp ring with a dot in the Plex primary, in a 48dp touch target with the press's state layer. A phone stacks the options in a column by default.
+
+## Examples
+
+### Overview
+
+<RNPreview demo="radio-group/Overview" code={overviewCode} />
+
+### Descriptions
+
+A description sits under its option's label and is read after it by VoiceOver and TalkBack. A disabled option dims and takes no presses.
+
+<RNPreview demo="radio-group/Descriptions" code={descriptionsCode} />
+
+### Row
+
+`direction="row"` lays short options side by side, wrapping when they do not fit.
+
+<RNPreview demo="radio-group/Row" code={rowCode} />
+
+### Mark at the end
+
+`orientation="right"` on an item puts its mark after the label.
+
+<RNPreview demo="radio-group/MarkAtEnd" code={markAtEndCode} />
+
+### Disabled
+
+`disabled` on the group disables every option.
+
+<RNPreview demo="radio-group/Disabled" code={disabledCode} />
+
+## API
+
+### RadioGroup
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "The chosen option's value (controlled)" },
+  { prop: "defaultValue", type: "string", description: "The option chosen at first (uncontrolled)" },
+  { prop: "onChange", type: "(value: string) => void", description: "Called with the value of the option a person chooses" },
+  { prop: "aria-label", type: "string", description: "Name of the group for assistive technology" },
+  { prop: "direction", type: '"row" | "col"', default: '"col"', description: "Stacks the options, or lays them side by side" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disables every option" },
+  { prop: "children", type: "ReactNode", description: "RadioGroup.Item elements" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the group" },
+]} />
+
+### RadioGroup.Item
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "The option's value (required)" },
+  { prop: "children", type: "ReactNode", description: "The label" },
+  { prop: "description", type: "ReactNode", description: "Secondary text under the label" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the option and takes no presses" },
+  { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Where the mark stands against the label" },
+  { prop: "aria-label", type: "string", description: "Name of an option without a text label" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />

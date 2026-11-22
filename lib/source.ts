@@ -3,6 +3,7 @@ import {
   components,
   icons,
   vueComponents,
+  reactNativeComponents,
   blog as blogPosts,
 } from 'fumadocs-mdx:collections/server';
 import { loader } from 'fumadocs-core/source';
@@ -31,6 +32,12 @@ export const iconsSource = loader({
 export const vueComponentsSource = loader({
   baseUrl: '/vue/components',
   source: vueComponents.toFumadocsSource(),
+});
+
+/** React Native pages at /react-native/components/*: the same slugs as the React pages where a component has one. */
+export const reactNativeComponentsSource = loader({
+  baseUrl: '/react-native/components',
+  source: reactNativeComponents.toFumadocsSource(),
 });
 
 export const blog = loader({

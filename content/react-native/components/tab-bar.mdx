@@ -1,0 +1,153 @@
+---
+title: TabBar
+description: "The tab bar of a phone screen: two to five sections in a floating glass capsule on iOS 26, Material 3's navigation bar on Android, with badges, a search or prominent tab, an accessory and a minimized state."
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const [tab, setTab] = useState("home")
+
+<TabBar value={tab} onValueChange={setTab}>
+  <TabBar.Item value="home" label="Home" icon={<Home />} />
+  <TabBar.Item value="chats" label="Chats" icon={<Chats />} badge={3} />
+  <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
+  <TabBar.Item value="settings" label="Settings" icon={<SettingsCog />} />
+</TabBar>`
+
+export const searchCode = `<TabBar defaultValue="home" search={{ value: "search" }}>
+  <TabBar.Item value="home" label="Home" icon={<Home />} />
+  <TabBar.Item value="chats" label="Chats" icon={<Chats />} />
+  <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
+  <TabBar.Item value="settings" label="Settings" icon={<SettingsCog />} />
+</TabBar>`
+
+export const prominentCode = `<TabBar defaultValue="home" prominent={{ value: "new", label: "New", icon: <PlusLg /> }}>
+  <TabBar.Item value="home" label="Home" icon={<Home />} />
+  <TabBar.Item value="chats" label="Chats" icon={<Chats />} />
+  <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} />
+</TabBar>`
+
+export const badgesCode = `<TabBar defaultValue="home">
+  <TabBar.Item value="home" label="Home" icon={<Home />} badge={0} />
+  <TabBar.Item value="chats" label="Chats" icon={<Chats />} badge={128} />
+  <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} badge="New" />
+  <TabBar.Item value="settings" label="Settings" icon={<SettingsCog />} badge />
+</TabBar>`
+
+export const disabledCode = `<TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} disabled />`
+
+export const accessoryCode = `<TabBar
+  defaultValue="home"
+  accessory={
+    <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16 }}>
+      <Music size={20} />
+      <Text variant="subheadline" weight="medium" numberOfLines={1} style={{ flex: 1 }}>
+        Morning walk
+      </Text>
+      <PlayCircle size={24} />
+    </View>
+  }
+>
+  {tabs}
+</TabBar>`
+
+export const minimizedCode = `const { onScroll, scrollEventThrottle, minimized, onMinimizedChange } = useTabBarMinimize()
+
+<View style={{ flex: 1 }}>
+  <ScrollView onScroll={onScroll} scrollEventThrottle={scrollEventThrottle}>
+    {content}
+  </ScrollView>
+  <TabBar
+    defaultValue="home"
+    search={{ value: "search" }}
+    minimized={minimized}
+    onMinimizedChange={onMinimizedChange}
+    style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
+  >
+    {tabs}
+  </TabBar>
+</View>`
+
+<UsageBlock>{`import { TabBar, useTabBarMinimize } from "@plexui/react-native"`}</UsageBlock>
+
+The props follow `@plexui/ui`'s TabBar. On iOS the tab bar of iOS 26: two to five tabs, each a 28pt symbol over a 10pt label, in a floating glass capsule, the selected one on a pill, with an optional search or prominent tab in a glass circle of its own. On Android Material 3 Expressive's navigation bar: 64dp in `surfaceContainer`, each destination a 24dp icon in a 56x32 indicator (`secondaryContainer` when selected) over a Label M label. By default the bar pads itself for the home indicator; the examples turn that off with `safeArea={false}`. The arrow keys move between tabs on the web.
+
+## Examples
+
+### Tabs
+
+`TabBar.Item` is one destination: a `value`, a `label` and an `icon`. Control the selected tab with `value` and `onValueChange`, or let the bar keep it from `defaultValue` (the first tab when there is none).
+
+<RNPreview demo="tab-bar/Overview" minHeight={150} code={overviewCode} />
+
+### Search tab
+
+`search` adds a search tab in a glass circle of its own at the trailing end, as iOS 26's separate search tab. On Android it is a plain destination of the bar.
+
+<RNPreview demo="tab-bar/Search" minHeight={120} code={searchCode} />
+
+### Prominent tab
+
+`prominent` lifts one destination out of the capsule into the circle, its symbol alone with `label` as its accessible name. With `search` too, the prominent tab takes the circle and search becomes the last tab of the capsule. On Android both are plain destinations.
+
+<RNPreview demo="tab-bar/Prominent" minHeight={120} code={prominentCode} />
+
+### Badges
+
+`badge` shows a count or a short word in a red capsule over the symbol, read after the label ("Chats, 128"). A count of 0 shows none, as on iOS; `true` draws Material's small dot on Android and an empty capsule on iOS.
+
+<RNPreview demo="tab-bar/Badges" minHeight={120} code={badgesCode} />
+
+### Disabled tab
+
+<RNPreview demo="tab-bar/Disabled" minHeight={120} code={disabledCode} />
+
+### Accessory
+
+`accessory` puts content in a glass capsule above the tabs, as iOS 26's bottom accessory (a song playing, a draft). Material has none: on Android it is a 48dp row above the bar.
+
+<RNPreview demo="tab-bar/Accessory" minHeight={170} code={accessoryCode} />
+
+### Minimized on scroll
+
+`minimized` shows the selected tab alone in a 48pt circle, as iOS 26's `tabBarMinimizeBehavior`; a tap on it expands the bar. `useTabBarMinimize` drives it from a scroll: the bar minimizes while the content scrolls down and expands when it scrolls back up or reaches the top. Scroll the list on iOS. Android's navigation bar does not minimize.
+
+<RNPreview demo="tab-bar/Minimized" minHeight={360} code={minimizedCode} />
+
+## API
+
+### TabBar
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "The selected tab (controlled); use with onValueChange" },
+  { prop: "defaultValue", type: "string", description: "The selected tab when it is first rendered; the first tab when there is none" },
+  { prop: "onValueChange", type: "(value: string) => void", description: "Called with the value of the tab a person selects" },
+  { prop: "search", type: "{ value: string; label?: string }", description: 'A search tab in a glass circle at the trailing end; label is its accessible name (default "Search")' },
+  { prop: "prominent", type: "{ value: string; label: string; icon: ReactNode }", description: "The one destination lifted out of the capsule into a glass circle" },
+  { prop: "minimized", type: "boolean", description: "Shows the selected tab alone in a 48pt circle on iOS (controlled)" },
+  { prop: "defaultMinimized", type: "boolean", default: "false", description: "The minimized state when it is first rendered" },
+  { prop: "onMinimizedChange", type: "(minimized: boolean) => void", description: "Called when the bar minimizes or expands" },
+  { prop: "background", type: '"soft" | "glass" | "hard" | "none"', default: '"soft"', description: "How the bar meets content under it on iOS: soft and none let it run under the capsule, hard is an opaque bar, glass a translucent blurred one" },
+  { prop: "scrolled", type: "boolean", default: "false", description: "Content is under the bar: the lines and the glass of background show" },
+  { prop: "accessory", type: "ReactNode", description: "Content in a glass capsule above the tabs; on Android a row above the bar" },
+  { prop: "safeArea", type: "boolean", default: "true", description: "Pads the bar for the home indicator" },
+  { prop: "aria-label", type: "string", default: '"Tabs"', description: "Accessible name of the navigation" },
+  { prop: "children", type: "ReactNode", description: "TabBar.Item elements" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the bar (all of View's props pass through)" },
+]} />
+
+### TabBar.Item
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "The value of the tab (required)" },
+  { prop: "label", type: "string", description: "The label under the symbol, and the tab's accessible name (required)" },
+  { prop: "icon", type: "ReactNode", description: "The symbol, a Plex UI icon (required)" },
+  { prop: "badge", type: "ReactNode", description: "A count or a short word over the symbol; true draws a dot, 0 shows none" },
+  { prop: "disabled", type: "boolean", default: "false", description: "The tab cannot be selected" },
+  { prop: "onPress", type: "() => void", description: "Called when the tab is pressed, before it is selected" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+### useTabBarMinimize
+
+`useTabBarMinimize()` returns `{ minimized, onMinimizedChange, onScroll, scrollEventThrottle }`: pass `onScroll` and `scrollEventThrottle` to the ScrollView, `minimized` and `onMinimizedChange` to the TabBar. A scroll of 8 points in one direction flips the bar.

@@ -1,0 +1,33 @@
+/* A React Native example: the phone screen over a tinted stage, then its code. */
+.Wrapper {
+  margin: 0 0 30px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.Stage {
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px;
+  background: var(--gray-50, var(--color-surface-secondary));
+}
+
+/* The phone's width; narrower pages shrink it with them */
+.Screen {
+  position: relative;
+  width: 393px;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 24px;
+  box-shadow: 0 0 0 1px var(--color-border);
+}
+
+.Code {
+  border-top: 1px solid var(--color-border);
+}
+
+.Code :global(pre) {
+  margin: 0;
+  border-radius: 0;
+}

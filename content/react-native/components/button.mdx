@@ -1,0 +1,99 @@
+---
+title: Button
+description: Button with four variants (solid, soft, outline, ghost), eight semantic colors, icons, loading, toggle and block layout; an iOS 26 capsule on iOS, a Material 3 Expressive button on Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const [count, setCount] = useState(0)
+
+<Button onPress={() => setCount((n) => n + 1)}>Pressed {count}</Button>
+<Button variant="soft">Soft</Button>
+<Button variant="outline">Outline</Button>
+<Button variant="ghost">Ghost</Button>`
+
+export const colorsCode = `<Button color="danger">danger</Button>
+<Button color="success" variant="soft">success</Button>`
+
+export const sizesCode = `<Button size="sm">Small</Button>
+<Button size="md">Medium</Button>
+<Button size="xl">Large</Button>`
+
+export const iconsCode = `import { ArrowRightSm, Plus, Search } from "@plexui/react-native/icons"
+
+<Button><Search />Search</Button>
+<Button variant="soft">Continue<ArrowRightSm /></Button>
+<IconButton icon={<Plus />} variant="soft" accessibilityLabel="Add" />`
+
+export const statesCode = `const [selected, setSelected] = useState(true)
+
+<Button variant="soft" selected={selected} onPress={() => setSelected((value) => !value)}>
+  <Star />
+  {selected ? "Saved" : "Save"}
+</Button>
+<Button loading>Loading</Button>
+<Button disabled>Disabled</Button>`
+
+export const blockCode = `<Button block size="xl">Continue</Button>
+<Button block size="xl" variant="soft">Not now</Button>`
+
+<UsageBlock>{`import { Button, IconButton } from "@plexui/react-native"`}</UsageBlock>
+
+The props follow `@plexui/ui`'s Button. On iOS a button takes the native heights of the phone layer (small 28, medium 34, large 50); on Android Material 3's sizes (XS 32 up to `sm`, S 40 at `md` and `lg`, M 56 from `xl`), with a 48dp touch target, the press's state layer and a shape that squares while pressed.
+
+## Examples
+
+### Variants
+
+<RNPreview demo="button/Overview" code={overviewCode} />
+
+### Colors
+
+`primary` is the Plex ink (or a brand's primary); the others are the semantic colors of the tokens.
+
+<RNPreview demo="button/Colors" code={colorsCode} />
+
+### Sizes
+
+<RNPreview demo="button/Sizes" code={sizesCode} />
+
+### Icons
+
+An icon element takes the label's color and the size's icon size. `IconButton` is a button with an icon alone: a circle on iOS, a Material icon button on Android.
+
+<RNPreview demo="button/Icons" code={iconsCode} />
+
+### Selected, loading, disabled
+
+A `selected` button is a toggle: on Android it morphs to its square shape, as Material 3 Expressive's toggle buttons.
+
+<RNPreview demo="button/States" code={statesCode} />
+
+### Block
+
+<RNPreview demo="button/Block" code={blockCode} />
+
+## API
+
+<PropsTable data={[
+  { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Semantic color" },
+  { prop: "variant", type: '"solid" | "soft" | "outline" | "ghost"', default: '"solid"', description: "Fill style" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Height step of the Plex UI scale, mapped to the platform's native sizes" },
+  { prop: "shape", type: '"round" | "square"', default: '"round"', description: "Material 3 Expressive shape on Android" },
+  { prop: "mobileMaterial", type: '"glass" | "flat"', description: "iOS 26 glass for a neutral soft or ghost button. Android has no glass" },
+  { prop: "uniform", type: "boolean", default: "false", description: "As wide as tall: an icon alone" },
+  { prop: "block", type: "boolean", default: "false", description: "Takes the whole width" },
+  { prop: "selected", type: "boolean", default: "false", description: "A toggle's on state" },
+  { prop: "loading", type: "boolean", default: "false", description: "Shows a spinner in place of the content and takes no presses" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the button and takes no presses" },
+  { prop: "inert", type: "boolean", default: "loading", description: "Takes no presses and draws as it is" },
+  { prop: "iconSize", type: '"sm" | "md" | "lg" | "xl" | "2xl"', description: "Icon size from the control scale; defaults to the size's" },
+  { prop: "gutterSize", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Gutter at the edges from the control scale" },
+  { prop: "opticallyAlign", type: '"start" | "end"', description: "Pulls the gutter in on one side so the label lines up with content around it" },
+  { prop: "pill", type: "boolean", description: "Kept for @plexui/ui's API: phone buttons are capsules on iOS and round on Android" },
+  { prop: "onPress", type: "(event) => void", description: "Called on a press (all of Pressable's props pass through)" },
+  { prop: "children", type: "ReactNode", description: "Icons and text" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the button" },
+]} />
+
+`IconButton` takes the same props without `children`, `uniform` and `block`, plus `icon` (the icon element) and a required `accessibilityLabel`; its variant defaults to `"ghost"`.

@@ -1,0 +1,99 @@
+---
+title: Badge
+description: Short label for a status or a count, in soft, solid and outline fills of seven semantic colors, four sizes, a pill shape, icons and a remove cross; the Plex badge on both iOS and Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `<Badge>Draft</Badge>
+<Badge color="success">Paid</Badge>
+<Badge color="warning">Pending</Badge>
+<Badge color="danger">Overdue</Badge>
+<Badge color="info" variant="solid">New</Badge>`
+
+export const variantsCode = `const COLORS = ["secondary", "success", "warning", "danger", "info", "discovery", "caution"]
+
+{COLORS.map((color) => <Badge key={color} color={color}>{color}</Badge>)}
+{COLORS.map((color) => <Badge key={color} color={color} variant="solid">{color}</Badge>)}
+{COLORS.map((color) => <Badge key={color} color={color} variant="outline">{color}</Badge>)}`
+
+export const sizesCode = `<Badge size="sm">Small</Badge>
+<Badge size="md">Medium</Badge>
+<Badge size="lg">Large</Badge>
+<Badge size="xl">Extra large</Badge>
+
+<Badge size="sm" pill color="info">Small</Badge>
+<Badge size="md" pill color="info">Medium</Badge>
+<Badge size="lg" pill color="info">Large</Badge>
+<Badge size="xl" pill color="info">Extra large</Badge>`
+
+export const iconsCode = `import { CheckCircle, Sparkles, Star } from "@plexui/react-native/icons"
+
+<Badge color="success"><CheckCircle />Verified</Badge>
+<Badge color="discovery" pill><Sparkles />New feature</Badge>
+<Badge color="caution" variant="solid" size="md"><Star />4.9</Badge>`
+
+export const removableCode = `const TAGS = ["Design", "Mobile", "Plex"]
+const [tags, setTags] = useState(TAGS)
+
+{tags.map((tag) => (
+  <Badge
+    key={tag}
+    size="lg"
+    pill
+    onRemove={() => setTags((list) => list.filter((item) => item !== tag))}
+    removeLabel={\`Remove \${tag}\`}
+  >
+    {tag}
+  </Badge>
+))}
+{tags.length === 0 ? <Button size="sm" variant="soft" onPress={() => setTags(TAGS)}>Reset</Button> : null}`
+
+<UsageBlock>{`import { Badge } from "@plexui/react-native"`}</UsageBlock>
+
+The props follow `@plexui/ui`'s Badge. iOS has no badge control for text, and Material 3's badge is a dot or a count on an icon (TabBar draws that one), so both platforms draw the Plex badge from the same tokens: the size, gutter, radius and semibold type of each size, and the semantic colors of the fills.
+
+## Examples
+
+### Overview
+
+<RNPreview demo="badge/Overview" code={overviewCode} />
+
+### Variants and colors
+
+`soft` (the default) tints the badge, `solid` fills it and `outline` draws a border.
+
+<RNPreview demo="badge/Variants" minHeight={200} code={variantsCode} />
+
+### Sizes and pill
+
+Four sizes, 20 to 36 points tall. `pill` rounds the ends into a capsule.
+
+<RNPreview demo="badge/Sizes" code={sizesCode} />
+
+### Icons
+
+An icon beside the text takes the badge's color and the size's icon size.
+
+<RNPreview demo="badge/Icons" code={iconsCode} />
+
+### Removable
+
+`onRemove` adds a cross at the end, a button named by `removeLabel`. Inside a control that takes the press itself, `removable` draws the cross as a plain mark.
+
+<RNPreview demo="badge/Removable" code={removableCode} />
+
+## API
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "Text, and icons beside it" },
+  { prop: "variant", type: '"soft" | "solid" | "outline"', default: '"soft"', description: "Fill style" },
+  { prop: "color", type: '"secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"', default: '"secondary"', description: "Semantic color" },
+  { prop: "size", type: '"sm" | "md" | "lg" | "xl"', default: '"sm"', description: "Height step, from 20 to 36 points tall" },
+  { prop: "pill", type: "boolean", default: "false", description: "A capsule" },
+  { prop: "onRemove", type: "() => void", description: "Adds a cross at the end that calls this when pressed" },
+  { prop: "removeLabel", type: "string", default: '"Remove"', description: "Name of the cross for screen readers" },
+  { prop: "removable", type: "boolean", default: "false", description: "Shows the cross as a mark, for a badge inside a control that takes the press" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the badge" },
+]} />

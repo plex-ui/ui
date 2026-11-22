@@ -1,0 +1,83 @@
+---
+title: Skeleton
+description: The place of content still loading, a block or a circle that pulses until the content arrives and stands still with reduced motion; the same on iOS and Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `<View accessibilityState={{ busy: true }} accessibilityLabel="Loading" style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+  <Skeleton circle height={44} />
+  <View style={{ flex: 1, gap: 8 }}>
+    <Skeleton height={14} width="60%" />
+    <Skeleton height={14} />
+    <Skeleton height={14} width="80%" />
+  </View>
+</View>`
+
+export const shapesCode = `<Skeleton height={160} />
+<Skeleton height={20} width="70%" />
+<Skeleton circle height={32} />
+<Skeleton circle height={44} />
+<Skeleton circle height={56} />
+<Skeleton height={56} width={56} />`
+
+export const loadingCode = `const [loading, setLoading] = useState(true)
+
+useEffect(() => {
+  if (!loading) return
+  const timer = setTimeout(() => setLoading(false), 1500)
+  return () => clearTimeout(timer)
+}, [loading])
+
+{loading ? (
+  <View accessibilityState={{ busy: true }} accessibilityLabel="Loading profile" style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+    <Skeleton circle height={44} />
+    <View style={{ flex: 1, gap: 8 }}>
+      <Skeleton height={17} width="50%" />
+      <Skeleton height={15} width="80%" />
+    </View>
+  </View>
+) : (
+  <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+    <Avatar name="Ada Lovelace" color="info" size={44} />
+    <View style={{ flex: 1 }}>
+      <Text variant="headline">Ada Lovelace</Text>
+      <Text variant="subheadline" color="secondary">Wrote the first program</Text>
+    </View>
+  </View>
+)}
+<Button size="sm" variant="soft" disabled={loading} onPress={() => setLoading(true)}>Reload</Button>`
+
+<UsageBlock>{`import { Skeleton } from "@plexui/react-native"`}</UsageBlock>
+
+The props follow `@plexui/ui`'s Skeleton. Both platforms draw it alike from the Plex tokens: a block of `--skeleton-background` with `--skeleton-radius` corners that pulses between full and half opacity every 1.5 seconds, and stands still when the system asks for reduced motion. Skeletons are hidden from screen readers: say what loads on their container with `accessibilityState={{ busy: true }}` and a label.
+
+## Examples
+
+### Overview
+
+Lay skeletons out in the shape of the content they stand in for.
+
+<RNPreview demo="skeleton/Overview" code={overviewCode} />
+
+### Shapes
+
+A skeleton takes the whole width unless `width` sets one, in points or as a percentage. `circle` makes a circle as wide as it is tall, the place of an avatar.
+
+<RNPreview demo="skeleton/Shapes" code={shapesCode} />
+
+### Loading content
+
+Show the skeleton while the content loads, then the content in its place.
+
+<RNPreview demo="skeleton/Loading" minHeight={180} code={loadingCode} />
+
+## API
+
+<PropsTable data={[
+  { prop: "width", type: "DimensionValue", default: '"100%"', description: "Width in points or as a percentage; a circle without one is as wide as its height" },
+  { prop: "height", type: "DimensionValue", default: "16", description: "Height in points or as a percentage" },
+  { prop: "circle", type: "boolean", default: "false", description: "A circle, the place of an avatar" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the block" },
+]} />

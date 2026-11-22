@@ -1,0 +1,90 @@
+---
+title: Chip
+description: Compact chip for filters, actions and removable tags, with an optional symbol; the filter capsules of iOS apps on iOS, Material 3's filter, assist and input chips on Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const FILTERS = ["Nearby", "Open now", "Top rated"]
+const [filters, setFilters] = useState(["Nearby"])
+const toggle = (name) => (on) => setFilters((list) => (on ? [...list, name] : list.filter((item) => item !== name)))
+
+<View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: 8 }}>
+  {FILTERS.map((name) => (
+    <Chip key={name} selected={filters.includes(name)} onSelectedChange={toggle(name)}>
+      {name}
+    </Chip>
+  ))}
+</View>`
+
+export const iconsCode = `import { MapPin, Star } from "@plexui/react-native/icons"
+
+<Chip icon={<MapPin />} defaultSelected>Nearby</Chip>
+<Chip icon={<Star />} selected={starred} onSelectedChange={setStarred}>Starred</Chip>`
+
+export const actionsCode = `import { Calendar, Filter } from "@plexui/react-native/icons"
+
+<Chip icon={<Filter />} onPress={() => setLast("Filters")}>Filters</Chip>
+<Chip icon={<Calendar />} onPress={() => setLast("Add to calendar")}>Add to calendar</Chip>`
+
+export const removableCode = `const [tags, setTags] = useState(["Design", "Mobile", "Plex"])
+
+{tags.map((tag) => (
+  <Chip key={tag} onRemove={() => setTags((list) => list.filter((item) => item !== tag))} removeLabel={\`Remove \${tag}\`}>
+    {tag}
+  </Chip>
+))}`
+
+export const disabledCode = `<Chip disabled defaultSelected>Selected</Chip>
+<Chip disabled onSelectedChange={() => {}}>Not selected</Chip>
+<Chip icon={<Star />} disabled onPress={() => {}}>Action</Chip>`
+
+<UsageBlock>{`import { Chip } from "@plexui/react-native"`}</UsageBlock>
+
+Chip is a React Native component: the web has none, so its props follow the toggles of `@plexui/ui` (`selected`, `onSelectedChange`) and Badge's `onRemove`. iOS has no chip control, so a chip is drawn as the filter capsules of iOS apps: a 34pt capsule in 15/20 medium on the soft gray fill, filled in the Plex primary when selected, as a selected Button. Android draws Material 3's chips: 32dp tall with 8dp corners, a 1dp outline and Label L; a selected filter chip fills with `secondaryContainer` and leads with a check. On both, the chip stands in a 44pt (iOS) or 48dp (Android) touch target.
+
+## Examples
+
+### Filter chips
+
+A chip with `selected`, `defaultSelected` or `onSelectedChange` is a filter chip: a press toggles it, and it is read as a checkbox by VoiceOver and TalkBack.
+
+<RNPreview demo="chip/Overview" code={overviewCode} />
+
+### With a symbol
+
+`icon` puts a symbol before the label. On Android it takes the place of the check of a selected filter chip.
+
+<RNPreview demo="chip/Icons" code={iconsCode} />
+
+### Action chips
+
+A chip with `onPress` alone is an action chip (Material's assist chip): it runs the action and keeps no state.
+
+<RNPreview demo="chip/Actions" code={actionsCode} />
+
+### Removable
+
+`onRemove` adds a cross after the label (Material's input chip). The cross is a button of its own beside the chip, named by `removeLabel`.
+
+<RNPreview demo="chip/Removable" code={removableCode} />
+
+### Disabled
+
+<RNPreview demo="chip/Disabled" code={disabledCode} />
+
+## API
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The label (required)" },
+  { prop: "selected", type: "boolean", description: "A filter chip's state (controlled). Leave it, defaultSelected and onSelectedChange out for an action chip" },
+  { prop: "defaultSelected", type: "boolean", description: "A filter chip's initial state (uncontrolled)" },
+  { prop: "onSelectedChange", type: "(selected: boolean) => void", description: "Called when a filter chip is toggled" },
+  { prop: "onPress", type: "() => void", description: "Called on a press: an action chip's action" },
+  { prop: "icon", type: "ReactNode", description: "A symbol before the label" },
+  { prop: "onRemove", type: "() => void", description: "An input chip: a cross after the label that calls it" },
+  { prop: "removeLabel", type: "string", default: '"Remove"', description: "Accessible name of the cross" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the chip and takes no presses" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the chip's outer box (its touch target)" },
+]} />

@@ -22,10 +22,12 @@ export function PageNav({
   // Composables steps from the Hooks entry, the one entry of both pages
   const pathname = treeUrlOf(normalizePath(usePathname()));
   // Vue pages navigate through the same (React) tree, with links mapped to
-  // the Vue pages that exist
+  // the Vue pages that exist. React Native pages step only between React Native pages: most components have none
+  // yet, and their arrows would leave the framework
   const items = useFooterItems()
     .filter((item) => typeof item.url === 'string')
-    .map((item) => ({ ...item, url: frameworkUrl(pathname, item.url!) }));
+    .map((item) => ({ ...item, url: frameworkUrl(pathname, item.url!) }))
+    .filter((item) => !pathname.startsWith('/react-native/') || item.url.startsWith('/react-native/'));
   const currentIndex = items.findIndex(
     (item) => reactPath(normalizePath(item.url ?? '')) === reactPath(pathname)
   );

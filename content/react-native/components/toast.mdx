@@ -1,0 +1,91 @@
+---
+title: Toast
+description: "Brief feedback with sonner's API: glass banners from the top on iOS 26, Material 3's snackbar at the bottom on Android, with types, a description, an action and a close button."
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `<Toaster />
+
+<Button color="secondary" variant="soft" onPress={() => toast("Saved to Photos")}>
+  Plain
+</Button>
+<Button
+  color="secondary"
+  variant="soft"
+  onPress={() => toast("Link copied", { description: "Anyone with the link can view it." })}
+>
+  With description
+</Button>`
+
+export const typesCode = `toast.success("Payment sent", { description: "$24.00 to Jane" })
+toast.error("Upload failed")
+toast.warning("Storage almost full")
+toast.info("Update available")`
+
+export const actionsCode = `toast("Message deleted", { action: { label: "Undo", onClick: undo } })
+
+toast("Connection lost", {
+  action: { label: "Retry", onClick: retry },
+  closeButton: true,
+  duration: Infinity,
+})
+
+toast.dismiss()`
+
+<UsageBlock>{`import { Toaster, toast } from "@plexui/react-native"`}</UsageBlock>
+
+`toast()` follows sonner on the web: `toast("Saved")`, `toast.success`, `toast.error`, `toast.warning`, `toast.info` and `toast.dismiss`. Render one `<Toaster />` near the root of the app, inside the `ThemeProvider`. On iOS a toast is a glass banner from the top of the screen (radius 24, a 15pt semibold title, the type's symbol and an action in a 34pt capsule), up to three at once, swiped up to go. On Android it is Material 3's snackbar at the bottom: `inverseSurface` with 4dp corners, Body M, the action in `inversePrimary`, one at a time while the others wait their turn, swiped down to go. A screen reader announces each toast.
+
+## Examples
+
+### Title and description
+
+A toast stays 4 seconds by default.
+
+<RNPreview demo="toast/Overview" minHeight={220} code={overviewCode} />
+
+### Types
+
+On iOS each type shows its symbol before the title, in its semantic color; `icon` gives a toast a symbol of its own. The snackbar of Android has no symbols.
+
+<RNPreview demo="toast/Types" minHeight={220} code={typesCode} />
+
+### Action and close button
+
+One `action` runs its `onClick` and closes the toast. `duration: Infinity` keeps a toast until it is closed or dismissed, and `closeButton` adds the snackbar's close icon on Android; iOS banners have none, a swipe up closes them. `toast.dismiss()` closes every toast, `toast.dismiss(id)` one; a toast shown again with the same `id` is updated in place.
+
+<RNPreview demo="toast/Actions" minHeight={220} code={actionsCode} />
+
+## API
+
+### toast
+
+<PropsTable data={[
+  { prop: "toast", type: "(title: ReactNode, options?: ToastOptions) => ToastId", description: "Shows a toast and returns its id" },
+  { prop: "toast.success", type: "(title: ReactNode, options?: ToastOptions) => ToastId", description: "A success toast" },
+  { prop: "toast.error", type: "(title: ReactNode, options?: ToastOptions) => ToastId", description: "An error toast" },
+  { prop: "toast.warning", type: "(title: ReactNode, options?: ToastOptions) => ToastId", description: "A warning toast" },
+  { prop: "toast.info", type: "(title: ReactNode, options?: ToastOptions) => ToastId", description: "An info toast" },
+  { prop: "toast.dismiss", type: "(id?: ToastId) => void", description: "Closes one toast, or every toast without an id" },
+]} />
+
+### ToastOptions
+
+<PropsTable data={[
+  { prop: "id", type: "string | number", description: "The toast's id; a toast with the same id is updated in place and its time starts again" },
+  { prop: "description", type: "ReactNode", description: "A second line under the title" },
+  { prop: "action", type: "{ label: string; onClick: () => void }", description: "One action, as sonner's" },
+  { prop: "duration", type: "number", default: "4000", description: "Milliseconds on screen; Infinity stays until it is dismissed" },
+  { prop: "icon", type: "ReactNode", description: "A symbol of its own before the title, on iOS" },
+  { prop: "closeButton", type: "boolean", description: "A close button: the snackbar's dismiss icon on Android. iOS ignores it" },
+  { prop: "closeButtonAriaLabel", type: "string", default: '"Close toast"', description: "Accessible name of the close button" },
+  { prop: "onDismiss", type: "() => void", description: "Called when the toast is dismissed" },
+]} />
+
+### Toaster
+
+<PropsTable data={[
+  { prop: "visibleToasts", type: "number", default: "3", description: "How many toasts stand at once on iOS; Android shows one snackbar at a time" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />

@@ -1,0 +1,139 @@
+---
+title: Input
+description: Single-line text field with outline, soft and ghost variants, adornments and a clear button, plus TextField with a label, help and an error; an iOS 26 field on iOS, Material 3's text field on Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `<Input placeholder="Outline" />
+<Input variant="soft" placeholder="Soft" />
+<Input variant="ghost" placeholder="Ghost" />`
+
+export const adornmentsCode = `import { Search } from "@plexui/react-native/icons"
+
+const [query, setQuery] = useState("Coffee")
+
+<Input
+  variant="soft"
+  value={query}
+  onChangeText={setQuery}
+  onClear={() => setQuery("")}
+  startAdornment={<Search />}
+  placeholder="Search"
+/>
+<Input placeholder="0.00" keyboardType="decimal-pad" endAdornment={<Text color="secondary">USD</Text>} />`
+
+export const pillCode = `<Input pill placeholder="Outline pill" />
+<Input pill variant="soft" startAdornment={<Search />} placeholder="Search" />`
+
+export const statesCode = `<Input defaultValue="hello@" invalid />
+<Input defaultValue="Can't be edited" disabled />`
+
+export const fieldCode = `const EMAIL = /^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/
+const [email, setEmail] = useState("hello@")
+
+<TextField label="Name" placeholder="Jane Appleseed" description="As on your card" />
+<TextField
+  label="Email"
+  value={email}
+  onChangeText={setEmail}
+  errorMessage={EMAIL.test(email) ? undefined : "Enter a full address"}
+  required
+  keyboardType="email-address"
+  autoCapitalize="none"
+/>`
+
+export const fieldVariantsCode = `<TextField label="Notes" variant="soft" defaultValue="Leave at the door" />
+<TextField label="Account" disabled defaultValue="jane@example.com" />`
+
+export const passwordCode = `import { Eye, EyeOff } from "@plexui/react-native/icons"
+
+const [visible, setVisible] = useState(false)
+
+<TextField
+  label="Password"
+  secureTextEntry={!visible}
+  autoCapitalize="none"
+  description="At least 8 characters"
+  endAdornment={
+    <IconButton
+      icon={visible ? <EyeOff /> : <Eye />}
+      accessibilityLabel={visible ? "Hide password" : "Show password"}
+      onPress={() => setVisible((value) => !value)}
+    />
+  }
+/>`
+
+<UsageBlock>{`import { Input, TextField } from "@plexui/react-native"`}</UsageBlock>
+
+The props follow `@plexui/ui`'s Input, on top of React Native's `TextInput`. On iOS a field takes the height of every phone control, with 17pt type and the radius of the control scale; `outline` draws a border that darkens on focus, `soft` a gray fill with no focus ring. On Android a field is Material 3's 56dp text field in Body L: `outline` is the outlined text field, `soft` the filled one (a `surfaceContainerHighest` fill over an indicator line) and `ghost` the filled one with no fill or line; the line turns 2dp in the accent on focus and the caret takes the accent. `TextField` adds a label, help and an error: over and under the field on iOS, a floating label and supporting text on Android.
+
+## Examples
+
+### Variants
+
+<RNPreview demo="input/Overview" code={overviewCode} />
+
+### Adornments and clear
+
+`startAdornment` and `endAdornment` take an icon (sized and colored for the platform) or any element. `onClear` shows a clear button while the field has a value: iOS's filled circle with an X, Material's cancel symbol on Android.
+
+<RNPreview demo="input/Adornments" code={adornmentsCode} />
+
+### Pill
+
+<RNPreview demo="input/Pill" code={pillCode} />
+
+### Invalid and disabled
+
+<RNPreview demo="input/States" code={statesCode} />
+
+### Text field
+
+`TextField` is an Input with a `label`, a `description` under it and an `errorMessage` that takes the description's place and marks the field invalid. `required` adds an asterisk to the label. On iOS the label stands over the field (15/20 medium) and the help 4pt under it; on Android the label floats into the outline (or to the top of a filled field) when the field has focus or a value, and the help is Material's supporting text.
+
+<RNPreview demo="input/Field" code={fieldCode} />
+
+### Text field variants
+
+<RNPreview demo="input/FieldVariants" code={fieldVariantsCode} />
+
+### Password
+
+Every prop of `TextInput` passes through, such as `secureTextEntry`. An `IconButton` in `endAdornment` toggles it.
+
+<RNPreview demo="input/Password" code={passwordCode} />
+
+## API
+
+### Input
+
+<PropsTable data={[
+  { prop: "variant", type: '"outline" | "soft" | "ghost"', default: '"outline"', description: "Fill style. On Android outline is Material's outlined text field, soft and ghost its filled one" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Step of the control scale. On iOS every step is the 44pt phone control and the size changes the radius, gutter and type; Android fields are 56dp" },
+  { prop: "value", type: "string", description: "Controlled text" },
+  { prop: "defaultValue", type: "string", description: "Initial text (uncontrolled)" },
+  { prop: "onChangeText", type: "(text: string) => void", description: "Called with the text on every change" },
+  { prop: "placeholder", type: "string", description: "Shown while the field is empty" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Draws the field in the error color" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the field and takes no input (TextInput's editable is not used)" },
+  { prop: "onClear", type: "() => void", description: "Shows a clear button while the field has a value. A press clears the text (onChangeText receives an empty string), then calls it" },
+  { prop: "startAdornment", type: "ReactNode", description: "An icon or element before the text" },
+  { prop: "endAdornment", type: "ReactNode", description: "An icon or element after the text" },
+  { prop: "pill", type: "boolean", default: "false", description: "A capsule" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the field's box" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+Every other prop of React Native's `TextInput` passes through to the text input (`keyboardType`, `secureTextEntry`, `autoCapitalize`, `onFocus`, `onBlur`, `readOnly` and so on). A read-only field shows no clear button.
+
+### TextField
+
+`TextField` takes every prop of `Input`, plus:
+
+<PropsTable data={[
+  { prop: "label", type: "ReactNode", description: "The field's name (required): over the field on iOS, floating inside it on Android" },
+  { prop: "description", type: "ReactNode", description: "Help under the field" },
+  { prop: "errorMessage", type: "ReactNode", description: "Shown under the field in place of the description, and marks it invalid" },
+  { prop: "required", type: "boolean", description: "Adds an asterisk to the label and marks the field required" },
+]} />

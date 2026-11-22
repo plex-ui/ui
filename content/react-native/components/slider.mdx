@@ -1,0 +1,127 @@
+---
+title: Slider
+description: Slider for choosing a value in a range, with a label and value, steps, a reset, two thumbs, marks and a vertical orientation; the iOS 26 slider on iOS, Material 3's slider on Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const [volume, setVolume] = useState(60)
+
+<Slider label="Volume" value={volume} onChange={setVolume} unit="%" />`
+
+export const adornmentsCode = `import { SoundOffSpeaker, SoundOnSpeaker } from "@plexui/react-native/icons"
+
+const theme = useTheme()
+const [volume, setVolume] = useState(30)
+
+<Slider
+  label="Volume"
+  value={volume}
+  onChange={setVolume}
+  unit="%"
+  resetValue={60}
+  startAdornment={<SoundOffSpeaker size={20} color={theme.colors.textSecondary} />}
+  endAdornment={<SoundOnSpeaker size={20} color={theme.colors.textSecondary} />}
+/>`
+
+export const stepsCode = `<Slider label="Brightness" value={brightness} onChange={setBrightness} step={10} unit="%" />
+<Slider label="Opacity" value={opacity} onChange={setOpacity} min={0} max={1} step={0.05} />`
+
+export const rangeCode = `const [price, setPrice] = useState([100, 350])
+
+<Slider range label="Price" value={price} onChange={setPrice} min={0} max={500} step={10} prefixUnit="$" minStepsBetweenThumbs={5} />`
+
+export const marksCode = `<Slider
+  label="Text size"
+  value={size}
+  onChange={setSize}
+  step={25}
+  hideValue
+  marks={[
+    { value: 0, label: "Small" },
+    { value: 50, label: "Default" },
+    { value: 100, label: "Large" },
+  ]}
+/>`
+
+export const verticalCode = `<View style={{ flexDirection: "row", gap: 32 }}>
+  <Slider orientation="vertical" label="Bass" value={bass} onChange={setBass} />
+  <Slider orientation="vertical" label="Treble" value={treble} onChange={setTreble} />
+</View>`
+
+export const disabledCode = `<Slider label="Disabled" value={40} onChange={() => {}} disabled />`
+
+<UsageBlock>{`import { Slider } from "@plexui/react-native"`}</UsageBlock>
+
+The props follow `@plexui/ui`'s Slider. On iOS the slider is the phone layer's: a 6pt track filled in the range color, a 38x24 white capsule thumb with a soft shadow, in a 52pt row, with the label and the value at 17/22 over it. On Android it is Material 3's slider: a 16dp track, the active part in the accent and the rest in `secondaryContainer`, a 4x44dp handle that narrows while held, 6dp from either part, and a stop at each free end. A press anywhere on the track moves the nearest thumb there, and each thumb is an adjustable element for VoiceOver and TalkBack.
+
+## Examples
+
+### Overview
+
+`label` puts a label over the track, with the value at its end; `unit` follows the value (or `prefixUnit` comes before it).
+
+<RNPreview demo="slider/Overview" code={overviewCode} />
+
+### Adornments and reset
+
+`startAdornment` and `endAdornment` stand at either end of the track. `resetValue` adds a small round reset button before the value while the value is another; a press sets it back.
+
+<RNPreview demo="slider/Adornments" code={adornmentsCode} />
+
+### Steps
+
+`step` snaps the value; the value shows as many decimals as the step has.
+
+<RNPreview demo="slider/Steps" code={stepsCode} />
+
+### Range
+
+`range` gives the slider a thumb for each value of an array. A thumb never passes its neighbor, and `minStepsBetweenThumbs` keeps them apart. On Android this is Material's range slider.
+
+<RNPreview demo="slider/Range" code={rangeCode} />
+
+### Marks
+
+`marks` puts labels under the track, each under the thumb's place at its value. Marks that would crowd each other all hide. `hideValue` hides the value beside the label.
+
+<RNPreview demo="slider/Marks" code={marksCode} />
+
+### Vertical
+
+`orientation="vertical"` stands the slider upright, 200pt tall with its label over the track, the minimum at the bottom. iOS has no vertical slider, so the same track and capsule stand upright; Android draws Material's vertical slider. Marks and adornments are for horizontal sliders only.
+
+<RNPreview demo="slider/Vertical" code={verticalCode} />
+
+### Disabled
+
+<RNPreview demo="slider/Disabled" code={disabledCode} />
+
+## API
+
+<PropsTable data={[
+  { prop: "value", type: "number | number[]", description: "The value (required); an array of values with range" },
+  { prop: "onChange", type: "(value: number | number[]) => void", description: "Called with the new value as a thumb moves (required); an array with range" },
+  { prop: "onChangeEnd", type: "(value: number | number[]) => void", description: "Called once the finger lets go, with the last value" },
+  { prop: "range", type: "boolean", default: "false", description: "A thumb for each value of an array" },
+  { prop: "min", type: "number", default: "0", description: "The least value" },
+  { prop: "max", type: "number", default: "100", description: "The greatest value" },
+  { prop: "step", type: "number", default: "1", description: "The value snaps to multiples of it from min" },
+  { prop: "minStepsBetweenThumbs", type: "number", default: "0", description: "With range: the fewest steps between two thumbs" },
+  { prop: "label", type: "ReactNode", description: "The label over the slider, with the value at its end" },
+  { prop: "unit", type: "string", description: "A unit after the value (%)" },
+  { prop: "prefixUnit", type: "string", description: "A unit before the value ($)" },
+  { prop: "hideValue", type: "boolean", default: "false", description: "Hides the value beside the label" },
+  { prop: "resetValue", type: "number", description: "One thumb only: a value offered back by a reset button beside the value, shown while the value is another" },
+  { prop: "resetTooltip", type: "string", default: '"Reset to default"', description: "Accessible name of the reset button" },
+  { prop: "marks", type: "{ value: number; label: string }[]", description: "Labels under the track. Horizontal only" },
+  { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "A vertical slider is 200pt tall, label included, the minimum at the bottom" },
+  { prop: "startAdornment", type: "ReactNode", description: "A symbol at the start of the track. Horizontal only" },
+  { prop: "endAdornment", type: "ReactNode", description: "A symbol at the end of the track. Horizontal only" },
+  { prop: "trackColor", type: "string", description: "Color of the track's inactive part" },
+  { prop: "rangeColor", type: "string", description: "Color of the track's active part" },
+  { prop: "disabled", type: "boolean", description: "Dims the slider and takes no presses" },
+  { prop: "aria-label", type: "string", description: "Name for assistive technology when there is no text label" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the slider's outer box" },
+]} />

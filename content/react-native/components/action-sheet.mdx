@@ -1,0 +1,77 @@
+---
+title: ActionSheet
+description: "A choice of actions from the bottom of the screen: UIAlertController's action sheet on iOS, a Material 3 bottom sheet of list rows on Android."
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const [open, setOpen] = useState(false)
+
+<Button color="secondary" variant="soft" onPress={() => setOpen(true)}>
+  Photo actions
+</Button>
+<ActionSheet
+  open={open}
+  onOpenChange={setOpen}
+  title="Photo"
+  message="What would you like to do with it?"
+  actions={[
+    { label: "Share", icon: <Share />, onPress: share },
+    { label: "Duplicate", icon: <Copy />, onPress: duplicate },
+    { label: "Delete", icon: <RemoveTrash />, destructive: true, onPress: remove },
+  ]}
+/>`
+
+export const actionsOnlyCode = `<ActionSheet
+  open={open}
+  onOpenChange={setOpen}
+  cancelLabel="Not now"
+  actions={[
+    { label: "Take Photo", icon: <CameraPhoto />, disabled: true },
+    { label: "Photo Library", icon: <Images />, onPress: openLibrary },
+    { label: "Browse Files", icon: <Folder />, onPress: browse },
+  ]}
+/>`
+
+<UsageBlock>{`import { ActionSheet } from "@plexui/react-native"`}</UsageBlock>
+
+ActionSheet is React Native only: the web offers a [Menu](/components/menu). On iOS it is the action sheet of iOS 26 on an iPhone: a glass panel of 48pt capsule actions with the title and message over them, and the cancel capsule apart under it. On Android it is a Material 3 modal [BottomSheet](/react-native/components/bottom-sheet) with a list of 56dp rows, each with its icon. It has no cancel row: a tap outside, a drag down or Back closes it.
+
+## Examples
+
+### Title and message
+
+The button opens the sheet; an action runs its `onPress` and closes it. A `destructive` action is red. iOS leaves the icons out, as UIAlertController does.
+
+<RNPreview demo="action-sheet/Overview" code={overviewCode} minHeight={520} />
+
+### Actions alone
+
+Without a title and a message the sheet holds its actions only. A `disabled` action is dimmed and takes no presses, and `cancelLabel` names the cancel capsule of iOS. Many actions scroll inside the panel, the cancel capsule staying in view.
+
+<RNPreview demo="action-sheet/ActionsOnly" code={actionsOnlyCode} minHeight={520} />
+
+## API
+
+### ActionSheet
+
+<PropsTable data={[
+  { prop: "open", type: "boolean", description: "Shows the sheet (required)" },
+  { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called with false when an action, the cancel, a tap outside or Back closes it (required)" },
+  { prop: "title", type: "ReactNode", description: "A title over the actions" },
+  { prop: "message", type: "ReactNode", description: "A message under the title" },
+  { prop: "actions", type: "ActionSheetAction[]", description: "The actions (required)" },
+  { prop: "cancelLabel", type: "string", default: '"Cancel"', description: "The cancel action of iOS, apart from the others. Android has none" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+### ActionSheetAction
+
+<PropsTable data={[
+  { prop: "label", type: "string", description: "The action's label (required)" },
+  { prop: "onPress", type: "() => void", description: "Called when the action is pressed, before the sheet closes" },
+  { prop: "icon", type: "ReactNode", description: "A symbol before the label; Material's list shows it, iOS leaves it out" },
+  { prop: "destructive", type: "boolean", default: "false", description: "A red action" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the action and takes no presses" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />

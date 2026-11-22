@@ -1,0 +1,65 @@
+---
+title: PageControl
+description: A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them; the iOS 26 page control, drawn in Material's colors on Android.
+---
+
+import { RNPreview } from "@/components/docs/react-native/RNPreview"
+
+export const overviewCode = `const PAGES = [
+  { title: "Save places", body: "Keep the places you love in one list." },
+  { title: "Plan a trip", body: "Put saved places on a map, day by day." },
+  { title: "Share it", body: "Send the plan to the people you travel with." },
+  { title: "Go offline", body: "Download maps for when you have no signal." },
+]
+const [page, setPage] = useState(0)
+
+<Text variant="title3" weight="semibold">{PAGES[page].title}</Text>
+<Text variant="subheadline" color="secondary" align="center">{PAGES[page].body}</Text>
+<PageControl count={PAGES.length} value={page} onChange={setPage} />`
+
+export const manyPagesCode = `const [page, setPage] = useState(5)
+
+<PageControl count={12} value={page} onChange={setPage} />
+<Text variant="footnote" color="secondary">Page {page + 1} of 12</Text>`
+
+export const backgroundCode = `<PageControl count={5} defaultValue={1} />
+<PageControl count={5} defaultValue={1} background="prominent" />
+<PageControl count={5} defaultValue={1} background="minimal" />`
+
+<UsageBlock>{`import { PageControl } from "@plexui/react-native"`}</UsageBlock>
+
+The props follow `@plexui/ui`'s PageControl. On iOS the page control of iOS 26: 8pt dots 8pt apart, the current one in the label color and the rest in the tertiary label, a 24pt capsule behind them while pressed and a 44pt touch target. Material has no page indicator of its own, so Android draws the same dots, the current one in `onSurface` and the rest in `outlineVariant`. A tap on either side of the current dot shows the previous or next page and a drag scrubs page by page. For screen readers the control is adjustable: swipe up or down for the next or previous page.
+
+## Examples
+
+### Overview
+
+Control the page with `value` and `onChange`, and show that page's content.
+
+<RNPreview demo="page-control/Overview" code={overviewCode} />
+
+### Many pages
+
+Up to six pages show every dot. From seven, a window of full-size dots holds the current page, with smaller dots past each side of it, as iOS does.
+
+<RNPreview demo="page-control/ManyPages" code={manyPagesCode} />
+
+### Background
+
+`background` sets the capsule behind the dots: `automatic` shows it while a finger presses or scrubs, `prominent` always, `minimal` never, and a minimal control does not scrub.
+
+<RNPreview demo="page-control/Background" minHeight={200} code={backgroundCode} />
+
+## API
+
+<PropsTable data={[
+  { prop: "count", type: "number", description: "The number of pages" },
+  { prop: "value", type: "number", description: "The current page's index, from 0 (controlled)" },
+  { prop: "defaultValue", type: "number", default: "0", description: "The first page's index (uncontrolled)" },
+  { prop: "onChange", type: "(index: number, details: { scrubbing: boolean }) => void", description: "Called with the next page's index; scrubbing is true when a drag changed it, so the page can show without the scroll animation" },
+  { prop: "background", type: '"automatic" | "prominent" | "minimal"', default: '"automatic"', description: "The capsule behind the dots: while pressed, always, or never (and no scrubbing)" },
+  { prop: "valueText", type: "(index: number, count: number) => string", default: "Page {index + 1} of {count}", description: "What screen readers say for the current page" },
+  { prop: "aria-label", type: "string", default: '"Pages"', description: "Name of the control for screen readers" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the touch target" },
+]} />
