@@ -33,7 +33,7 @@ export function OverlaysScreen() {
   }, [link])
   return (
     <>
-      <Section title="Dialog" note={theme.isAndroid ? "Material 3 basic dialog: radius 28, text buttons" : "iOS 26 alert: glass, 320 wide, capsule actions"}>
+      <Section title="Dialog" note={theme.isAndroid ? "Android 16 Settings dialog: the positive button filled, the cancel outlined" : "iOS 26 alert: glass, 320 wide, capsule actions"}>
         <Row>
           <Button color="secondary" variant="soft" onPress={() => setDialog("two")} testID="open-dialog">
             Two actions

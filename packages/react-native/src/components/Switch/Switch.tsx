@@ -3,6 +3,7 @@ import { Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type Vie
 import { spaceToggles, useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"
 import { stateLayer, withAlpha } from "../../theme/material"
+import { MaterialCheckSymbol, MaterialClose } from "../Icon/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 
@@ -28,8 +29,9 @@ export function selectionColor(theme: Theme, color: "primary" | "accent" = "prim
 }
 
 /**
- * A switch: the iOS 26 switch of the phone layer (a 63x28 track, a 37x24 capsule thumb, `--switch-*`), or Material 3's
- * (a 52x32 track, its thumb 16 off, 24 on and 28 held). Props follow @plexui/ui.
+ * A switch: the iOS 26 switch of the phone layer (a 63x28 track, a 37x24 capsule thumb, `--switch-*`), or the switch of
+ * Android 16's Settings (Material 3's 52x32 track, a 24dp thumb with a check on and an X off, 28 held). Props follow
+ * @plexui/ui.
  */
 export function Switch({
   checked: checkedProp,
@@ -113,9 +115,10 @@ function IOSTrack({ theme, checked, disabled, color, progress }: TrackProps) {
 
 function AndroidTrack({ theme, checked, pressed, disabled, color, progress }: TrackProps & { pressed: boolean }) {
   const m = theme.material
-  // Compose SwitchTokens: track 52x32, a 2dp outline off; handle 16 off, 24 on, 28 held
+  // Compose SwitchTokens: track 52x32, a 2dp outline off; a handle with an icon is 24 on and off, 28 held. Settings
+  // draws every switch with its thumb icon (settingslib_expressive_switch_thumb_icon): a check on, an X off
   const held = pressed && !disabled
-  const handle = held ? 28 : checked ? 24 : 16
+  const handle = held ? 28 : 24
   const selection = selectionColor(theme, color)
   const trackOn = disabled ? withAlpha(m.onSurface, 0.12) : selection
   const trackOff = disabled ? withAlpha(m.surfaceContainerHighest, 0.12) : m.surfaceContainerHighest
@@ -123,6 +126,9 @@ function AndroidTrack({ theme, checked, pressed, disabled, color, progress }: Tr
   const handleOn = disabled ? m.surface : held ? theme.color(color === "accent" ? "--color-background-accent-soft" : "--color-background-primary-soft") : theme.color(color === "accent" ? "--color-text-accent-solid" : "--color-text-primary-solid")
   const handleOff = disabled ? withAlpha(m.onSurface, 0.38) : held ? m.onSurfaceVariant : m.outline
   const border = checked ? "transparent" : disabled ? withAlpha(m.onSurface, 0.12) : m.outline
+  // The icon takes the track's color: the selection on, surfaceContainerHighest off (Compose's disabled alphas)
+  const icon = checked ? (disabled ? withAlpha(m.onSurface, 0.38) : selection) : disabled ? withAlpha(m.surfaceContainerHighest, 0.38) : m.surfaceContainerHighest
+  const Glyph = checked ? MaterialCheckSymbol : MaterialClose
   // The handle's center travels from 16 to 36 of the track; children are placed inside its 2dp border
   const center = (size: number) => progress.interpolate({ inputRange: [0, 1], outputRange: [16 - 2 - size / 2, 36 - 2 - size / 2] })
   return (
@@ -131,7 +137,9 @@ function AndroidTrack({ theme, checked, pressed, disabled, color, progress }: Tr
         // The 40dp pressed layer around the handle: the selection color on, onSurface off
         <Animated.View pointerEvents="none" style={[styles.layer, { left: center(40), backgroundColor: withAlpha(checked ? selection : m.onSurface, stateLayer.pressed) }]} />
       ) : null}
-      <Animated.View style={{ position: "absolute", left: center(handle), width: handle, height: handle, borderRadius: handle / 2, backgroundColor: checked ? handleOn : handleOff }} />
+      <Animated.View style={[styles.handle, { left: center(handle), width: handle, height: handle, borderRadius: handle / 2, backgroundColor: checked ? handleOn : handleOff }]}>
+        <Glyph size={16} color={icon} />
+      </Animated.View>
     </View>
   )
 }
@@ -140,4 +148,5 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", alignSelf: "stretch" },
   grow: { flex: 1, minWidth: 0 },
   layer: { position: "absolute", top: 16 - 2 - 20, width: 40, height: 40, borderRadius: 20 },
+  handle: { position: "absolute", alignItems: "center", justifyContent: "center" },
 })

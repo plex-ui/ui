@@ -31,3 +31,6 @@ export const MaterialCheck = createIcon("MaterialCheck", "0 0 18 18", [["path", 
 
 /** The indeterminate mark: the check's ends gravitated to the middle line. */
 export const MaterialDash = createIcon("MaterialDash", "0 0 18 18", [["path", { d: "M4.5 9H13.5", fill: "none", stroke: 0, strokeWidth: 2, strokeLinecap: "square" }]])
+
+/** `check`: the Material Symbol a switch's thumb shows on (SettingsLib's `settingslib_expressive_switch_thumb_icon`). */
+export const MaterialCheckSymbol = createIcon("MaterialCheckSymbol", "0 -960 960 960", [["path", { d: "M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z", fill: 0 }]])

@@ -41,8 +41,9 @@ export type DialogProps = {
 
 /**
  * A dialog that asks for a decision: on iOS the alert of iOS 26 (UIAlertController `.alert`: 320 wide, glass, radius
- * 34, capsule actions 48 tall, `--dialog-alert-*`, Dialog.module.css), on Android Material 3's basic dialog
- * (radius 28, surfaceContainerHigh, Headline S, text buttons). The web Dialog's `mobileVariant="alert"` as one call;
+ * 34, capsule actions 48 tall, `--dialog-alert-*`, Dialog.module.css), on Android the dialog of Android 16's
+ * Settings (Material 3's basic dialog: radius 28, surfaceContainerHigh, Headline S; the preferred action a filled
+ * button, a cancel one outlined, others text buttons). The web Dialog's `mobileVariant="alert"` as one call;
  * a sheet is `BottomSheet`.
  */
 export function Dialog({ open, onOpenChange, title, description, actions = [], children, mobileLayout, dismissible, testID }: DialogProps) {
@@ -167,6 +168,45 @@ function AndroidDialog({ theme, title, description, actions, run, children }: Pa
   const headline = materialType.headlineSmall
   const body = materialType.bodyMedium
   const label = materialType.labelLarge
+  // The positive button: the preferred action, else the last that is not a cancel
+  const filled = actions.find((action) => action.preferred) ?? [...actions].reverse().find((action) => action.variant !== "cancel")
+  const negative = actions.filter((action) => action !== filled && action.variant === "cancel")
+  const neutral = actions.filter((action) => action !== filled && action.variant !== "cancel")
+  // SettingsLib's AlertDialog: the positive button filled, the negative outlined, the neutral a text button
+  const button = (action: DialogAction, kind: "filled" | "outlined" | "text") => {
+    // In Plex's colors, as Button: the filled one the primary ink (or the error), the outlined one neutral
+    const destructive = action.variant === "destructive"
+    const ink = kind === "filled" ? (destructive ? m.onError : theme.color("--color-text-primary-solid")) : destructive ? m.error : kind === "outlined" ? m.onSurfaceVariant : m.primary
+    const color = action.disabled ? withAlpha(m.onSurface, 0.38) : ink
+    const fill = destructive ? m.error : theme.color("--color-background-primary-solid")
+    const background = kind === "filled" ? (action.disabled ? withAlpha(m.onSurface, 0.12) : fill) : "transparent"
+    return (
+      <Pressable
+        key={action.label}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: !!action.disabled }}
+        disabled={action.disabled}
+        onPress={() => run(action)}
+        testID={action.testID}
+        // A 40dp button in a 48dp touch target, as Compose's minimumInteractiveComponentSize
+        hitSlop={TARGET_SLOP}
+        style={[
+          styles.androidButton,
+          { paddingHorizontal: kind === "text" ? 12 : 16, backgroundColor: background },
+          kind === "outlined" ? { borderWidth: 1, borderColor: action.disabled ? withAlpha(m.onSurface, 0.12) : m.outlineVariant } : null,
+        ]}
+      >
+        {({ pressed }) => (
+          <>
+            {pressed ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: withAlpha(color, stateLayer.pressed) }]} /> : null}
+            <Text color={color} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight, ...theme.font("medium") }}>
+              {action.label}
+            </Text>
+          </>
+        )}
+      </Pressable>
+    )
+  }
   return (
     <View style={[styles.android, { width, backgroundColor: m.surfaceContainerHigh }]}>
       <ScrollView style={styles.scroll} bounces={false}>
@@ -182,26 +222,11 @@ function AndroidDialog({ theme, title, description, actions, run, children }: Pa
       </ScrollView>
       {actions.length ? (
         <View style={styles.androidActions}>
-          {actions.map((action) => {
-            const color = action.disabled ? withAlpha(m.onSurface, 0.38) : action.variant === "destructive" ? m.error : m.primary
-            return (
-              <Pressable
-                key={action.label}
-                accessibilityRole="button"
-                accessibilityState={{ disabled: !!action.disabled }}
-                disabled={action.disabled}
-                onPress={() => run(action)}
-                testID={action.testID}
-                // A 40dp text button in a 48dp touch target, as Compose's minimumInteractiveComponentSize
-                hitSlop={TARGET_SLOP}
-                style={({ pressed }) => [styles.androidButton, pressed ? { backgroundColor: withAlpha(color, stateLayer.pressed) } : null]}
-              >
-                <Text color={color} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight, ...theme.font("medium") }}>
-                  {action.label}
-                </Text>
-              </Pressable>
-            )
-          })}
+          {/* AlertDialog's button bar: the neutral actions at the start, then the negative and the positive at the end */}
+          {neutral.map((action) => button(action, "text"))}
+          {neutral.length ? <View style={styles.grow} /> : null}
+          {negative.map((action) => button(action, "outlined"))}
+          {filled ? button(filled, "filled") : null}
         </View>
       ) : null}
     </View>
@@ -219,5 +244,5 @@ const styles = StyleSheet.create({
   iosAction: { alignItems: "center", justifyContent: "center", paddingVertical: 13, paddingHorizontal: 16, borderCurve: "continuous" },
   android: { flexShrink: 1, borderRadius: 28, padding: 24 },
   androidActions: { flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end", gap: 8, marginTop: 24 },
-  androidButton: { height: 40, paddingHorizontal: 12, borderRadius: 20, alignItems: "center", justifyContent: "center" },
+  androidButton: { height: 40, borderRadius: 20, overflow: "hidden", alignItems: "center", justifyContent: "center" },
 })

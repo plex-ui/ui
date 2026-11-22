@@ -17,9 +17,10 @@ export type ListProps = {
   /** A note under the section. */
   footer?: ReactNode
   /**
-   * The canvas the section stands on (iOS). `grouped`: the gray grouped canvas of a settings screen, the section in
-   * the grouped secondary surface (white in light). `plain`: a plain canvas, the section in the plain secondary
-   * gray (`--field-group-background`). @default "grouped"
+   * The canvas the section stands on. `grouped`: the gray grouped canvas of a settings screen, the section in the
+   * grouped secondary surface (white in light); on Android the Settings page (surfaceContainer), its rows in
+   * surfaceBright. `plain`: a plain canvas, the section in the plain secondary gray (`--field-group-background`); on
+   * Android a surface page, its rows in surfaceContainer. @default "grouped"
    */
   surface?: "grouped" | "plain"
   "aria-label"?: string
@@ -27,20 +28,23 @@ export type ListProps = {
   style?: StyleProp<ViewStyle>
 }
 
-type RowPlace = { last: boolean }
-const PlaceContext = createContext<RowPlace>({ last: true })
+type RowPlace = { first: boolean; last: boolean; fill?: string }
+const PlaceContext = createContext<RowPlace>({ first: true, last: true })
 
 /**
  * A section of rows. iOS 26: a section of an inset grouped list, as @plexui/ui's FieldGroup on a phone
  * (`--field-group-radius` 26, the grouped secondary surface, rows 20 in from its edges, hairlines between rows
- * from the text's start; the header 17/22 at 590 in the secondary label, the footer 13/16). Android: a Material 3
- * list (no container, a Title S header in `primary` as Android's settings, 56 and 72dp rows, no dividers).
+ * from the text's start; the header 17/22 at 590 in the secondary label, the footer 13/16). Android: a group of
+ * Android 16's Settings (SettingsLib's expressive preference groups): every row its own card, 2dp apart, the group's
+ * outer corners 20dp and its inner corners 4dp, a 14sp medium header in `primary` and the footer 24dp from the
+ * screen's edge (8 in from the cards, which the screen insets 16).
  */
 export function List({ children, header, footer, surface = "grouped", "aria-label": ariaLabel, testID, style }: ListProps) {
   const theme = useTheme()
   const rows = flattenChildren(children).filter(isValidElement)
+  const fill = theme.isAndroid ? (surface === "plain" ? theme.material.surfaceContainer : theme.material.surfaceBright) : undefined
   const body = rows.map((row, index) => (
-    <PlaceContext.Provider key={row.key ?? index} value={{ last: index === rows.length - 1 }}>
+    <PlaceContext.Provider key={row.key ?? index} value={{ first: index === 0, last: index === rows.length - 1, fill }}>
       {row}
     </PlaceContext.Provider>
   ))
@@ -48,15 +52,17 @@ export function List({ children, header, footer, surface = "grouped", "aria-labe
   if (theme.isAndroid) {
     const m = theme.material
     return (
-      <View accessibilityRole="list" aria-label={label} testID={testID} style={style}>
+      <View testID={testID} style={style}>
         {header != null ? (
           <Text accessibilityRole="header" color={m.primary} style={[styles.androidHeader, { fontSize: materialType.titleSmall.fontSize, lineHeight: materialType.titleSmall.lineHeight, ...theme.font("medium") }]}>
             {header}
           </Text>
         ) : null}
-        {body}
+        <View accessibilityRole="list" aria-label={label} style={styles.androidGroup}>
+          {body}
+        </View>
         {footer != null ? (
-          <Text color={m.onSurfaceVariant} style={[styles.androidFooter, { fontSize: materialType.bodySmall.fontSize, lineHeight: materialType.bodySmall.lineHeight }]}>
+          <Text color={m.onSurfaceVariant} style={[styles.androidFooter, { fontSize: materialType.bodyMedium.fontSize, lineHeight: materialType.bodyMedium.lineHeight }]}>
             {footer}
           </Text>
         ) : null}
@@ -114,17 +120,18 @@ export type ListItemProps = {
 /**
  * A row of a List: the label (17/22, `--field-row-*`: 52 tall, 12 above and below the text) with a description,
  * a leading symbol, a value or a control, and the chevron of a drill-in (`Disclosure`, in the tertiary label). On
- * Android a Material 3 Expressive list item: Body L headline, Body M supporting text, a 24dp leading icon 12 from the text, the
- * value in Label S.
+ * Android a preference of Android 16's Settings: 72dp tall at least, the title in Title M, the value and the
+ * description under it in Body M (Settings shows a value as the summary, and a drill-in has no chevron), a 24dp
+ * icon in a 40dp frame 12 from the text, a control 16 after it.
  */
 export function ListItem({ label, description, leading, leadingColor, value, trailing, disclosure, onPress, disabled = false, destructive = false, accessibilityLabel, testID }: ListItemProps) {
   const theme = useTheme()
-  const { last } = useContext(PlaceContext)
+  const { first, last, fill } = useContext(PlaceContext)
   const chevron = disclosure ?? (!!onPress && trailing == null)
   const name = accessibilityLabel ?? ([textOf(label), textOf(value)].filter(Boolean).join(", ") || undefined)
   // A pressable row reads its description after its name, as a hint
   const described = useDescription(onPress ? description : undefined)
-  const row = (pressed: boolean) => (theme.isAndroid ? androidRow(theme, pressed, description != null) : iosRow(theme, pressed, last))
+  const row = (pressed: boolean) => (theme.isAndroid ? androidRow(fill ?? theme.material.surfaceBright, first, last) : iosRow(theme, pressed, last))
   const content = theme.isAndroid ? (
     <AndroidContent theme={theme} label={label} description={description} descriptionId={described.id} leading={leading} value={value} trailing={trailing} disabled={disabled} destructive={destructive} />
   ) : (
@@ -133,7 +140,13 @@ export function ListItem({ label, description, leading, leadingColor, value, tra
   if (onPress) {
     return (
       <Pressable {...described.props} accessibilityRole="button" accessibilityLabel={name} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} testID={testID} style={({ pressed }) => row(pressed)}>
-        {content}
+        {({ pressed }) => (
+          <>
+            {/* Android's press is a layer over the card's fill, clipped to its corners */}
+            {theme.isAndroid && pressed ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: withAlpha(theme.material.onSurface, stateLayer.pressed) }]} /> : null}
+            {content}
+          </>
+        )}
       </Pressable>
     )
   }
@@ -159,18 +172,24 @@ function iosRow(theme: Theme, pressed: boolean, last: boolean): ViewStyle {
 }
 
 /**
- * Compose's Expressive interactive list item (ListTokens, ListItemDefaults.ContentPadding): 16 at the sides, 10 above
- * and below, 12 between the slots, 56 tall with one line and 72 with supporting text.
+ * A row of a Settings group (settingslib_expressive_preference, settingslib_round_background_*): its own card in the
+ * group's fill, 72dp tall at least, the content 16 in from the card's sides; 20dp at the group's outer corners, 4dp
+ * where it meets the next row.
  */
-function androidRow(theme: Theme, pressed: boolean, twoLine: boolean): ViewStyle {
+function androidRow(fill: string, first: boolean, last: boolean): ViewStyle {
+  const outer = 20
+  const inner = 4
   return {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    minHeight: twoLine ? 72 : 56,
+    minHeight: 72,
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: pressed ? withAlpha(theme.material.onSurface, stateLayer.pressed) : undefined,
+    overflow: "hidden",
+    backgroundColor: fill,
+    borderTopLeftRadius: first ? outer : inner,
+    borderTopRightRadius: first ? outer : inner,
+    borderBottomLeftRadius: last ? outer : inner,
+    borderBottomRightRadius: last ? outer : inner,
   }
 }
 
@@ -226,32 +245,35 @@ function IOSContent({ theme, label, description, descriptionId, leading, leading
 
 function AndroidContent({ theme, label, description, descriptionId, leading, value, trailing, disabled, destructive }: ContentProps) {
   const m = theme.material
+  // A disabled row fades to onSurface at 38%, as Settings' main switch bar
   const off = withAlpha(m.onSurface, 0.38)
-  const body = materialType.bodyLarge
-  const small = materialType.bodyMedium
-  const tag = materialType.labelSmall
+  const title = materialType.titleMedium
+  const summary = materialType.bodyMedium
+  const secondary = disabled ? off : m.onSurfaceVariant
   return (
     <>
       {leading != null ? (
-        <IconDefaultsProvider size={24} color={disabled ? off : destructive ? m.error : m.onSurfaceVariant}>
-          {leading}
-        </IconDefaultsProvider>
+        <View style={styles.androidIcon}>
+          <IconDefaultsProvider size={24} color={disabled ? off : destructive ? m.error : m.onSurfaceVariant}>
+            {leading}
+          </IconDefaultsProvider>
+        </View>
       ) : null}
       <View style={styles.androidText}>
-        <Text color={disabled ? off : destructive ? m.error : m.onSurface} style={{ fontSize: body.fontSize, lineHeight: body.lineHeight }}>
+        <Text color={disabled ? off : destructive ? m.error : m.onSurface} numberOfLines={2} style={{ fontSize: title.fontSize, lineHeight: title.lineHeight, ...theme.font("medium") }}>
           {label}
         </Text>
+        {value != null ? (
+          <Text color={secondary} numberOfLines={1} style={{ fontSize: summary.fontSize, lineHeight: summary.lineHeight }}>
+            {value}
+          </Text>
+        ) : null}
         {description != null ? (
-          <Text nativeID={descriptionId} color={disabled ? off : m.onSurfaceVariant} style={{ fontSize: small.fontSize, lineHeight: small.lineHeight }}>
+          <Text nativeID={descriptionId} color={secondary} style={{ fontSize: summary.fontSize, lineHeight: summary.lineHeight }}>
             {description}
           </Text>
         ) : null}
       </View>
-      {value != null ? (
-        <Text color={disabled ? off : m.onSurfaceVariant} numberOfLines={1} style={[styles.androidValue, { fontSize: tag.fontSize, lineHeight: tag.lineHeight, ...theme.font("medium") }]}>
-          {value}
-        </Text>
-      ) : null}
       {trailing != null ? <View style={styles.androidEnd}>{trailing}</View> : null}
     </>
   )
@@ -268,12 +290,13 @@ const styles = StyleSheet.create({
   tile: { alignItems: "center", justifyContent: "center" },
   end: { flexDirection: "row", alignItems: "center", flexShrink: 1, maxWidth: "60%" },
   disclosure: { marginHorizontal: -5 },
-  androidHeader: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 },
-  androidFooter: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8 },
-  androidText: { flex: 1, minWidth: 0 },
-  androidEnd: { flexDirection: "row", alignItems: "center", flexShrink: 0 },
-  // A long value gives way to the label and to a control: it takes at most 40% of the row and ends in an ellipsis
-  androidValue: { flexShrink: 1, maxWidth: "40%" },
+  // Settings' category: 8 around the text inside the 16 the screen insets, 2 more to the first card
+  androidHeader: { paddingHorizontal: 8, paddingTop: 8, paddingBottom: 8, marginBottom: 2 },
+  androidGroup: { gap: 2 },
+  androidFooter: { paddingHorizontal: 8, paddingTop: 10, paddingBottom: 8 },
+  androidIcon: { width: 40, height: 40, alignItems: "center", justifyContent: "center", marginRight: 12 },
+  androidText: { flex: 1, minWidth: 0, paddingVertical: 16 },
+  androidEnd: { flexDirection: "row", alignItems: "center", justifyContent: "center", flexShrink: 0, minWidth: 40, marginLeft: 16 },
   shrink: { flexShrink: 1 },
   keep: { flexShrink: 0 },
 })

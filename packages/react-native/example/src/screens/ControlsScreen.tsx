@@ -10,7 +10,7 @@ export function ControlsScreen() {
   const [plan, setPlan] = useState("monthly")
   return (
     <>
-      <Section title="Switch" note={theme.isAndroid ? "Material 3: 52x32, the thumb 16 off, 24 on, 28 held" : "iOS 26: 63x28, a 37x24 thumb"}>
+      <Section title="Switch" note={theme.isAndroid ? "Android 16 Settings: 52x32, a 24dp thumb with a check on and an X off" : "iOS 26: 63x28, a 37x24 thumb"}>
         <View style={styles.stack}>
           <Switch label="Wi-Fi" checked={wifi} onCheckedChange={setWifi} labelPosition="start" testID="switch-wifi" />
           <Switch label="Off" defaultChecked={false} labelPosition="start" />

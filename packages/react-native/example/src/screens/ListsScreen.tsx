@@ -18,7 +18,7 @@ export function ListsScreen() {
   const [opened, setOpened] = useState("none")
   return (
     <>
-      <Section title="List" note={theme.isAndroid ? "Material 3 list: 56 and 72dp rows, a Title S header" : "iOS 26 inset grouped: radius 26, 52pt rows, hairlines from the text"}>
+      <Section title="List" note={theme.isAndroid ? "Android 16 Settings: a card per row, 2dp apart, 20 and 4dp corners, 72dp rows" : "iOS 26 inset grouped: radius 26, 52pt rows, hairlines from the text"}>
         <List header="General" footer="Notifications show on the lock screen." testID="list-general">
           <ListItem label="Notifications" leading={<Bell />} leadingColor={theme.color("--color-background-danger-solid")} value="On" onPress={() => setOpened("notifications")} testID="row-notifications" />
           <ListItem label="Language" leading={<Globe />} leadingColor={theme.color("--color-background-info-solid")} value="English" onPress={() => setOpened("language")} />
