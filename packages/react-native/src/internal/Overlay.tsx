@@ -33,11 +33,11 @@ export function usePresence(open: boolean, { enter = 250, exit = 200 }: { enter?
 
 export type OverlayProps = {
   open: boolean
-  /** Called on a tap outside (when `dismissible`) and on Android's back. */
+  /** Called on a tap outside, Android's back and the web's Escape, when `dismissible`. */
   onDismiss: () => void
   /** The dim over the screen; transparent for a menu. */
   scrim?: string
-  /** A tap outside dismisses it. An iOS alert asks for an action instead. @default true */
+  /** A tap outside, back or Escape dismisses it. An iOS alert asks for an action instead. @default true */
   dismissible?: boolean
   enter?: number
   exit?: number
@@ -77,7 +77,9 @@ export function Overlay({ open, onDismiss, scrim = "transparent", dismissible = 
   }, [leaving, ios])
   if (!mounted) return null
   return (
-    <Modal visible transparent animationType="none" onRequestClose={onDismiss} statusBarTranslucent navigationBarTranslucent supportedOrientations={ORIENTATIONS}>
+    // Android's back and the web's Escape close it as a tap outside does: an overlay that is not dismissible waits for an
+    // action (Android's `setCancelable(false)`)
+    <Modal visible transparent animationType="none" onRequestClose={dismissible ? onDismiss : ignore} statusBarTranslucent navigationBarTranslucent supportedOrientations={ORIENTATIONS}>
       {/* A closing overlay takes no more touches: an action cannot run twice while it fades */}
       <View
         style={StyleSheet.absoluteFill}
@@ -98,6 +100,8 @@ export function Overlay({ open, onDismiss, scrim = "transparent", dismissible = 
     </Modal>
   )
 }
+
+const ignore = () => {}
 
 /** The overlays fading out on iOS, which an opening overlay waits for. */
 let leavingCount = 0

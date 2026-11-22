@@ -121,7 +121,7 @@ export type HeadingProps = Omit<TextProps, "variant" | "size"> & {
 }
 
 /** A heading of the Plex UI scale, semibold, announced as a header. */
-export function Heading({ size = "md", weight = "semibold", color, align, style, children, ...rest }: HeadingProps) {
+export function Heading({ size = "md", weight = "semibold", color, align, mono, tabularNums, style, children, ...rest }: HeadingProps) {
   const theme = useTheme()
   const fontSize = theme.length(`--font-heading-${size}-size`, 20)
   const lineHeight = theme.length(`--font-heading-${size}-line-height`, fontSize * 1.3)
@@ -130,7 +130,9 @@ export function Heading({ size = "md", weight = "semibold", color, align, style,
       accessibilityRole="header"
       {...rest}
       style={[
-        { fontSize, lineHeight, letterSpacing: theme.tracking(fontSize), ...theme.font(weight) },
+        { fontSize, lineHeight },
+        mono ? { ...theme.monoFont, fontWeight: weightNumber(weight), letterSpacing: 0 } : { letterSpacing: theme.tracking(fontSize), ...theme.font(weight) },
+        tabularNums ? { fontVariant: ["tabular-nums"] } : null,
         { color: textColor(theme, color ?? "primary") },
         align ? { textAlign: align } : null,
         style,

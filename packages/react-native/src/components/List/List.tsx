@@ -107,7 +107,7 @@ export type ListItemProps = {
   value?: ReactNode
   /** A control at the end: a Switch, a Badge. */
   trailing?: ReactNode
-  /** The chevron of a row that opens a page. @default true when the row has `onPress` and no `trailing` */
+  /** The chevron of a row that opens a page. @default true when the row has `onPress`, no `trailing` and is not `destructive` */
   disclosure?: boolean
   onPress?: () => void
   disabled?: boolean
@@ -127,7 +127,8 @@ export type ListItemProps = {
 export function ListItem({ label, description, leading, leadingColor, value, trailing, disclosure, onPress, disabled = false, destructive = false, accessibilityLabel, testID }: ListItemProps) {
   const theme = useTheme()
   const { first, last, fill } = useContext(PlaceContext)
-  const chevron = disclosure ?? (!!onPress && trailing == null)
+  // A destructive row is an action, not a page (Settings' Sign Out has no chevron)
+  const chevron = disclosure ?? (!!onPress && trailing == null && !destructive)
   const name = accessibilityLabel ?? ([textOf(label), textOf(value)].filter(Boolean).join(", ") || undefined)
   // A pressable row reads its description after its name, as a hint
   const described = useDescription(onPress ? description : undefined)

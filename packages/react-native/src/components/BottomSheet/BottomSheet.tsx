@@ -12,7 +12,7 @@ export type BottomSheetProps = {
   /** A title over the content, centered on iOS. */
   title?: ReactNode
   children?: ReactNode
-  /** A tap on the dim and a drag down close it. @default true */
+  /** A tap on the dim, a drag down, Android's back and Escape close it. @default true */
   dismissible?: boolean
   /** Accessible name when there is no title. */
   "aria-label"?: string

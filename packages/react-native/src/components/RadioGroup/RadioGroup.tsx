@@ -74,7 +74,7 @@ function RadioGroupItem({ value, children, description, disabled: itemDisabled =
     const selection = selectionColor(theme)
     const color = disabled ? withAlpha(m.onSurface, 0.38) : selected ? selection : pressed ? m.onSurface : m.onSurfaceVariant
     mark = (
-      <View style={styles.androidTarget}>
+      <View style={[styles.androidTarget, orientation === "right" ? styles.androidTargetEnd : styles.androidTargetStart]}>
         {/* Material's pressed layer: onSurface over a chosen option, the selection color over an empty one */}
         {pressed && !disabled ? <View pointerEvents="none" style={[styles.androidLayer, { backgroundColor: withAlpha(selected ? m.onSurface : selection, stateLayer.pressed) }]} /> : null}
         <View style={[styles.androidRing, { borderColor: color }]}>{selected ? <View style={[styles.androidDot, { backgroundColor: color }]} /> : null}</View>
@@ -109,7 +109,7 @@ function RadioGroupItem({ value, children, description, disabled: itemDisabled =
       ]}
     >
       {mark}
-      <View style={styles.text}>
+      <View style={[styles.text, orientation === "right" ? styles.fill : null]}>
         <ControlLabel label={children} description={description} disabled={disabled} descriptionId={described.id} />
       </View>
     </Pressable>
@@ -167,7 +167,12 @@ const styles = StyleSheet.create({
   item: { flexDirection: "row", alignItems: "center" },
   reverse: { flexDirection: "row-reverse" },
   text: { flexShrink: 1, minWidth: 0 },
-  androidTarget: { width: 48, height: 48, alignItems: "center", justifyContent: "center", marginLeft: -14 },
+  // A label before the mark fills the row, so the mark ends it, as the control of a settings row
+  fill: { flexGrow: 1 },
+  androidTarget: { width: 48, height: 48, alignItems: "center", justifyContent: "center" },
+  // The 48dp target reaches past the box: the box lines up with the row's edge, on whichever side it stands
+  androidTargetStart: { marginLeft: -14 },
+  androidTargetEnd: { marginRight: -14 },
   androidLayer: { position: "absolute", width: 40, height: 40, borderRadius: 20 },
   androidRing: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, alignItems: "center", justifyContent: "center" },
   androidDot: { width: 10, height: 10, borderRadius: 5 },

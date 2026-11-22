@@ -73,7 +73,10 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
         : m.secondaryContainer
       : "transparent"
     : selected
-      ? theme.color("--color-background-primary-solid")
+      ? // A disabled selected chip dims as a disabled solid Button does
+        disabled
+        ? theme.color("--button-mobile-disabled-background")
+        : theme.color("--color-background-primary-solid")
       : theme.color("--color-background-secondary-soft-alpha")
   const height = android ? 32 : 34
   const label = android ? materialType.labelLarge : { fontSize: 15, lineHeight: 20 }

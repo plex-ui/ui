@@ -72,7 +72,7 @@ export function Checkbox({
     const layer = invalid ? m.error : on ? m.onSurface : selection
     const Mark = state === "indeterminate" ? MaterialDash : MaterialCheck
     box = (
-      <View style={styles.androidTarget}>
+      <View style={[styles.androidTarget, orientation === "right" ? styles.androidTargetEnd : styles.androidTargetStart]}>
         {pressed && !disabled ? <View pointerEvents="none" style={[styles.androidLayer, { backgroundColor: withAlpha(layer, stateLayer.pressed) }]} /> : null}
         <View style={[styles.androidBox, on ? { backgroundColor: fill, borderWidth: 0 } : { borderColor: ring }]}>{on ? <Mark size={18} color={markColor} /> : null}</View>
       </View>
@@ -128,7 +128,7 @@ export function Checkbox({
       ]}
     >
       {box}
-      <View style={styles.grow}>{text}</View>
+      <View style={[styles.grow, orientation === "right" ? styles.fill : null]}>{text}</View>
     </Pressable>
   )
 }
@@ -137,7 +137,12 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", alignSelf: "stretch" },
   reverse: { flexDirection: "row-reverse" },
   grow: { flexShrink: 1, minWidth: 0 },
-  androidTarget: { width: 48, height: 48, alignItems: "center", justifyContent: "center", marginLeft: -15 },
+  // A label before the mark fills the row, so the mark ends it, as the control of a settings row
+  fill: { flexGrow: 1 },
+  androidTarget: { width: 48, height: 48, alignItems: "center", justifyContent: "center" },
+  // The 48dp target reaches past the box: the box lines up with the row's edge, on whichever side it stands
+  androidTargetStart: { marginLeft: -15 },
+  androidTargetEnd: { marginRight: -15 },
   androidLayer: { position: "absolute", width: 40, height: 40, borderRadius: 20 },
   androidBox: { width: 18, height: 18, borderRadius: 2, borderWidth: 2, alignItems: "center", justifyContent: "center" },
 })

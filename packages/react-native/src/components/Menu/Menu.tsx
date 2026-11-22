@@ -103,7 +103,14 @@ export type MenuContentProps = {
 
 function MenuContent(props: MenuContentProps) {
   const menu = useMenu("Menu.Content")
-  return <MenuSurface {...props} open={menu.open} anchor={menu.anchor} onClose={() => menu.setOpen(false)} />
+  // A menu whose items say `checked` (true or false) is a set of options: it keeps the checkmark's column, as Select's
+  return <MenuSurface {...props} check={hasCheckedItems(props.children)} open={menu.open} anchor={menu.anchor} onClose={() => menu.setOpen(false)} />
+}
+
+function hasCheckedItems(children: ReactNode): boolean {
+  return Children.toArray(children).some((child) =>
+    isValidElement<{ checked?: boolean; children?: ReactNode }>(child) ? child.props.checked !== undefined || (child.type === Fragment && hasCheckedItems(child.props.children)) : false,
+  )
 }
 MenuContent.displayName = "Menu.Content"
 
@@ -229,7 +236,7 @@ export type MenuItemProps = {
   description?: ReactNode
   danger?: boolean
   disabled?: boolean
-  /** Shows the checkmark of a chosen option (Select, a radio item). */
+  /** Shows the checkmark of a chosen option (Select, a radio item). A menu with such items keeps the checkmark's column. */
   checked?: boolean
   onSelect?: () => void
   testID?: string

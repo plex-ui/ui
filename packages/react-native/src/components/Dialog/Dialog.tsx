@@ -34,7 +34,7 @@ export type DialogProps = {
   children?: ReactNode
   /** `stacked` stacks two actions too; `inline` keeps more in a row. @default by count, as the web */
   mobileLayout?: "inline" | "stacked"
-  /** A tap outside closes it: Material's dialogs do, an iOS alert does not. @default Android true, iOS false */
+  /** A tap outside, Android's back and Escape close it: Material's dialogs do, an iOS alert does not. @default Android true, iOS false */
   dismissible?: boolean
   testID?: string
 }

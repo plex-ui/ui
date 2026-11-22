@@ -287,7 +287,7 @@ export function InputField({
             styles.input,
             look.text,
             theme.font("regular"),
-            floating && !outlined ? { paddingTop: 24, paddingBottom: 8 } : { paddingVertical: theme.isAndroid ? 16 : 11 },
+            floating && !outlined ? { paddingTop: 24, paddingBottom: 8 } : { paddingVertical: theme.isAndroid ? 16 : 10 },
           ]}
         />
       </View>
