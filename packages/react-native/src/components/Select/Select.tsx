@@ -4,7 +4,7 @@ import ChevronUpDown from "../../icons/plex/ChevronUpDown"
 import { createIcon } from "../Icon/createIcon"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { ControlSize } from "../Button/Button"
-import { fieldLook, type InputVariant } from "../Input/Input"
+import { FieldOutline, fieldLook, type InputVariant } from "../Input/Input"
 import { Menu, MenuSurface, measure, type MenuAnchor, type Measurable } from "../Menu/Menu"
 import { Text } from "../Text/Text"
 
@@ -82,15 +82,17 @@ export function Select<T extends SelectOption>({
         disabled={disabled}
         onPress={() => measure(trigger.current, (box) => (setAnchor(box), setOpen(true)))}
         testID={testID}
-        style={[styles.box, look.box, { gap: look.gap }]}
+        // The arrow sits in Compose's trailing icon slot, 12 from the edge
+        style={[styles.box, look.box, { gap: look.gap }, theme.isAndroid ? { paddingRight: 12 } : null]}
       >
+        {theme.isAndroid ? <FieldOutline frame={look.frame} /> : null}
         <Text numberOfLines={1} color={chosen ? look.text.color : look.placeholder} style={[styles.grow, { fontSize: look.text.fontSize, lineHeight: look.text.lineHeight }]}>
           {chosen?.label ?? placeholder}
         </Text>
         {theme.isAndroid ? (
           // Turned about the box's center while the menu is open, as Compose rotates its trailing icon 180°
           <View style={open ? styles.turned : null}>
-            <ArrowDropDown size={24} color={look.icon} />
+            <ArrowDropDown size={24} color={look.trailingIcon} />
           </View>
         ) : (
           <ChevronUpDown size={17} color={theme.color("--mobile-label-secondary")} />

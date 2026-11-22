@@ -6,7 +6,7 @@ import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { materialType } from "../../theme/typography"
 import type { ControlSize } from "../Button/Button"
-import { IconDefaultsProvider } from "../Icon/createIcon"
+import { createIcon, IconDefaultsProvider } from "../Icon/createIcon"
 import { Text } from "../Text/Text"
 
 export type InputVariant = "outline" | "soft" | "ghost"
@@ -28,32 +28,67 @@ export type InputProps = Omit<TextInputProps, "editable" | "style"> & {
   testID?: string
 }
 
+/**
+ * Material's `cancel` (Material Symbols Outlined, 24dp): the clear icon of a text field's trailing slot, a ring with an
+ * X. Plex's XCircleFilled is the iOS glyph (`xmark.circle.fill`).
+ */
+const Cancel = createIcon("Cancel", "0 -960 960 960", [
+  [
+    "path",
+    {
+      d: "m336-280 144-144 144 144 56-56-144-144 144-144-56-56-144 144-144-144-56 56 144 144-144 144 56 56Zm144 200q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z",
+      fill: 0,
+    },
+  ],
+])
+
 type FrameState = { focused: boolean; filled: boolean; disabled: boolean; invalid: boolean }
+
+/**
+ * The line around (outlined) or under (filled) an Android field. Drawn as a layer over the field, not as the field's
+ * border, so the field stays 56 tall and its content does not move when the line thickens on focus (Compose draws it
+ * inside the container the same way).
+ */
+export type FieldFrame = { outlined: boolean; color: string; width: number; radius: number }
 
 /** The look of a field on this platform: its box, text and colors. Shared by Input, TextField and Select. */
 export function fieldLook(theme: Theme, { variant, size, pill }: { variant: InputVariant; size: ControlSize; pill: boolean }, state: FrameState) {
   if (theme.isAndroid) {
+    // Compose material3 OutlinedTextFieldTokens / FilledTextFieldTokens
     const m = theme.material
     const outlined = variant === "outline"
     const accent = state.invalid ? m.error : state.focused ? m.primary : null
+    const radius = outlined && pill ? 28 : 4
+    const frame: FieldFrame | null =
+      variant === "ghost"
+        ? null
+        : {
+            outlined,
+            color: state.disabled ? withAlpha(m.onSurface, outlined ? 0.12 : 0.38) : (accent ?? (outlined ? m.outline : m.onSurfaceVariant)),
+            width: state.focused && !state.disabled ? 2 : 1,
+            radius,
+          }
     const box: ViewStyle = outlined
-      ? { minHeight: 56, borderRadius: pill ? 28 : 4, borderWidth: accent ? 2 : 1, borderColor: state.disabled ? withAlpha(m.onSurface, 0.12) : (accent ?? m.outline), paddingHorizontal: accent ? 15 : 16 }
+      ? { minHeight: 56, borderRadius: radius, paddingHorizontal: 16 }
       : {
           minHeight: 56,
           borderTopLeftRadius: 4,
           borderTopRightRadius: 4,
           backgroundColor: variant === "ghost" ? "transparent" : state.disabled ? withAlpha(m.onSurface, 0.04) : m.surfaceContainerHighest,
-          borderBottomWidth: accent ? 2 : 1,
-          borderBottomColor: state.disabled ? withAlpha(m.onSurface, 0.38) : (accent ?? m.onSurfaceVariant),
           paddingHorizontal: 16,
         }
     const type = materialType.bodyLarge
+    const off = withAlpha(m.onSurface, 0.38)
     return {
       box,
+      frame,
       gap: 16,
-      text: { fontSize: type.fontSize, lineHeight: type.lineHeight, color: state.disabled ? withAlpha(m.onSurface, 0.38) : m.onSurface },
+      text: { fontSize: type.fontSize, lineHeight: type.lineHeight, color: state.disabled ? off : m.onSurface },
       placeholder: m.onSurfaceVariant,
-      icon: state.disabled ? withAlpha(m.onSurface, 0.38) : state.invalid ? m.error : m.onSurfaceVariant,
+      // A leading icon keeps its color in error; a trailing one turns to the error color
+      icon: state.disabled ? off : m.onSurfaceVariant,
+      trailingIcon: state.disabled ? off : state.invalid ? m.error : m.onSurfaceVariant,
+      caret: state.invalid ? m.error : m.primary,
       iconSize: 24,
       clearSize: 24,
     }
@@ -85,10 +120,45 @@ export function fieldLook(theme: Theme, { variant, size, pill }: { variant: Inpu
     text: { fontSize: theme.length(`--control-font-size-${size}`, 17), lineHeight: 22, color: theme.color("--input-text-color", theme.colors.text) },
     placeholder: theme.color("--input-placeholder-text-color", theme.colors.textTertiary),
     icon: theme.color("--mobile-label-secondary"),
+    frame: null as FieldFrame | null,
+    trailingIcon: theme.color("--mobile-label-secondary"),
+    caret: theme.color("--color-background-accent-solid"),
     iconSize: 20,
     clearSize: 17,
   }
 }
+
+/**
+ * Draws a field's frame. An outlined field whose label has floated is cut where the label sits on the line, as
+ * Compose's `outlineCutout`: the outline shows through three windows (left of the cut, under it, right of it), each
+ * a clipped copy of the whole outline, so the cut animates with the label and needs no background color behind it.
+ */
+export function FieldOutline({ frame, cut }: { frame: FieldFrame | null; cut?: { start: number; width: Animated.AnimatedInterpolation<number> | number } | null }) {
+  if (!frame) return null
+  if (!frame.outlined) return <View pointerEvents="none" style={[styles.underline, { height: frame.width, backgroundColor: frame.color }]} />
+  const line = { borderWidth: frame.width, borderColor: frame.color, borderRadius: frame.radius }
+  if (!cut) return <View pointerEvents="none" style={[StyleSheet.absoluteFill, line]} />
+  const end = typeof cut.width === "number" ? cut.start + cut.width : Animated.add(cut.start, cut.width)
+  const back = typeof end === "number" ? -end : Animated.multiply(end, -1)
+  return (
+    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      <View style={[styles.window, { left: 0, width: cut.start, top: 0 }]}>
+        <View style={[styles.copy, line, { left: 0, right: FAR, top: 0 }]} />
+      </View>
+      <Animated.View style={[styles.window, { left: cut.start, width: cut.width, top: CUT_DEPTH }]}>
+        <View style={[styles.copy, line, { left: -cut.start, right: FAR, top: -CUT_DEPTH }]} />
+      </Animated.View>
+      <Animated.View style={[styles.window, { left: end, right: 0, top: 0 }]}>
+        <Animated.View style={[styles.copy, line, { left: back, right: 0, top: 0 }]} />
+      </Animated.View>
+    </View>
+  )
+}
+
+/** A clipped copy of the outline reaches this far past its window, so only its own edges show. */
+const FAR = -2000
+/** The cut removes the top line only: deeper than the 2dp focused line, shallower than the 16dp it may run. */
+const CUT_DEPTH = 4
 
 /** A single-line text field: Plex UI's Input. iOS 26 draws a 44pt field in 17pt type, Android Material 3's text field. */
 export function Input(props: InputProps) {
@@ -135,8 +205,23 @@ export function InputField({
   }, [up, float, theme.reducedMotion])
   const m = theme.material
   const labelColor = disabled ? withAlpha(m.onSurface, 0.38) : invalid ? m.error : focused ? m.primary : m.onSurfaceVariant
+  const showClear = !!onClear && filled && !disabled && !readOnly
+  // Compose places a 24dp icon in a 48dp slot at the field's edge (the icon 12 in) and the text 4 past the slot (52 in)
+  const sides: ViewStyle | null = theme.isAndroid ? { paddingLeft: startAdornment ? 12 : 16, paddingRight: endAdornment || showClear ? 12 : 16 } : null
+  const textStart = theme.isAndroid ? (startAdornment ? 52 : 16) : 0
+  // An outlined label floats to the field's start padding over the line (past a pill's round end), the cut 4 around it
+  const floatedStart = pill ? 28 : 16
+  const [labelWidth, setLabelWidth] = useState(0)
+  const cut = floating && outlined && look.frame ? { start: floatedStart - 4, width: float.interpolate({ inputRange: [0, 1], outputRange: [0, labelWidth + 8] }) } : null
+  const labelText = (
+    <>
+      {label}
+      {required ? " *" : ""}
+    </>
+  )
   return (
-    <View style={[styles.box, look.box, { gap: look.gap }, style]} testID={testID}>
+    <View style={[styles.box, look.box, { gap: look.gap }, sides, style]} testID={testID}>
+      {theme.isAndroid ? <FieldOutline frame={look.frame} cut={cut} /> : null}
       {startAdornment ? (
         <IconDefaultsProvider size={look.iconSize} color={look.icon}>
           {startAdornment}
@@ -144,33 +229,45 @@ export function InputField({
       ) : null}
       <View style={styles.grow}>
         {floating ? (
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.floating,
-              outlined
-                ? {
-                    top: float.interpolate({ inputRange: [0, 1], outputRange: [16, -9] }),
-                    backgroundColor: float.interpolate({ inputRange: [0, 1], outputRange: ["transparent", theme.colors.background] }),
-                    marginLeft: -4,
-                    paddingHorizontal: 4,
-                  }
-                : { top: float.interpolate({ inputRange: [0, 1], outputRange: [16, 8] }) },
-            ]}
-          >
-            <Animated.Text
-              style={{
-                color: labelColor,
-                fontSize: float.interpolate({ inputRange: [0, 1], outputRange: [materialType.bodyLarge.fontSize, materialType.bodySmall.fontSize] }),
-                lineHeight: float.interpolate({ inputRange: [0, 1], outputRange: [materialType.bodyLarge.lineHeight, materialType.bodySmall.lineHeight] }),
-                ...theme.font("regular"),
-              }}
-              numberOfLines={1}
+          <>
+            {outlined ? (
+              // The floated label's width, for the cut in the outline
+              <Text
+                aria-hidden
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+                numberOfLines={1}
+                onLayout={(event) => setLabelWidth(event.nativeEvent.layout.width)}
+                style={[styles.measure, { fontSize: materialType.bodySmall.fontSize, lineHeight: materialType.bodySmall.lineHeight, ...theme.font("regular") }]}
+              >
+                {labelText}
+              </Text>
+            ) : null}
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.floating,
+                outlined
+                  ? {
+                      top: float.interpolate({ inputRange: [0, 1], outputRange: [16, -materialType.bodySmall.lineHeight / 2] }),
+                      left: float.interpolate({ inputRange: [0, 1], outputRange: [0, floatedStart - textStart] }),
+                    }
+                  : { top: float.interpolate({ inputRange: [0, 1], outputRange: [16, 8] }) },
+              ]}
             >
-              {label}
-              {required ? " *" : ""}
-            </Animated.Text>
-          </Animated.View>
+              <Animated.Text
+                style={{
+                  color: labelColor,
+                  fontSize: float.interpolate({ inputRange: [0, 1], outputRange: [materialType.bodyLarge.fontSize, materialType.bodySmall.fontSize] }),
+                  lineHeight: float.interpolate({ inputRange: [0, 1], outputRange: [materialType.bodyLarge.lineHeight, materialType.bodySmall.lineHeight] }),
+                  ...theme.font("regular"),
+                }}
+                numberOfLines={1}
+              >
+                {labelText}
+              </Animated.Text>
+            </Animated.View>
+          </>
         ) : null}
         <TextInput
           {...rest}
@@ -193,7 +290,8 @@ export function InputField({
           editable={!disabled}
           placeholder={floating && !up ? undefined : rest.placeholder}
           placeholderTextColor={look.placeholder}
-          selectionColor={theme.isAndroid ? m.primary : theme.color("--color-background-accent-solid")}
+          selectionColor={look.caret}
+          cursorColor={look.caret}
           style={[
             styles.input,
             look.text,
@@ -202,11 +300,11 @@ export function InputField({
           ]}
         />
       </View>
-      {onClear && filled && !disabled && !readOnly ? (
+      {showClear ? (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Clear"
-          hitSlop={8}
+          hitSlop={theme.isAndroid ? 12 : 8}
           onPress={() => {
             if (value === undefined) setOwn("")
             onChangeText?.("")
@@ -214,11 +312,11 @@ export function InputField({
           }}
           style={styles.clear}
         >
-          <XCircleFilled size={look.clearSize} color={theme.isAndroid ? m.onSurfaceVariant : theme.color("--mobile-label-tertiary")} />
+          {theme.isAndroid ? <Cancel size={look.clearSize} color={look.trailingIcon} /> : <XCircleFilled size={look.clearSize} color={theme.color("--mobile-label-tertiary")} />}
         </Pressable>
       ) : null}
       {endAdornment ? (
-        <IconDefaultsProvider size={look.iconSize} color={look.icon}>
+        <IconDefaultsProvider size={look.iconSize} color={look.trailingIcon}>
           {endAdornment}
         </IconDefaultsProvider>
       ) : null}
@@ -254,7 +352,7 @@ export function TextField({ label, description, errorMessage, required, invalid,
         <InputField {...input} label={label} required={required} invalid={bad} />
         {help != null ? (
           <Text
-            color={bad ? m.error : m.onSurfaceVariant}
+            color={input.disabled ? withAlpha(m.onSurface, 0.38) : bad ? m.error : m.onSurfaceVariant}
             accessibilityLiveRegion={error ? "polite" : undefined}
             style={{ fontSize: small.fontSize, lineHeight: small.lineHeight, paddingHorizontal: 16, paddingTop: 4 }}
           >
@@ -289,6 +387,10 @@ const styles = StyleSheet.create({
   grow: { flex: 1, minWidth: 0, justifyContent: "center" },
   input: { margin: 0, padding: 0, outlineWidth: 0, minWidth: 0 },
   floating: { position: "absolute", left: 0, maxWidth: "100%", flexDirection: "row" },
+  measure: { position: "absolute", left: 0, top: 0, opacity: 0 },
+  underline: { position: "absolute", left: 0, right: 0, bottom: 0 },
+  window: { position: "absolute", bottom: 0, overflow: "hidden" },
+  copy: { position: "absolute", bottom: 0 },
   clear: { alignItems: "center", justifyContent: "center", minWidth: 24, alignSelf: "stretch" },
   field: { alignSelf: "stretch" },
 })

@@ -1,4 +1,4 @@
-import { cloneElement, createContext, isValidElement, useCallback, useContext, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
+import { Children, cloneElement, createContext, Fragment, isValidElement, useCallback, useContext, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
 import { Animated, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import CheckMd from "../../icons/plex/CheckMd"
@@ -34,9 +34,10 @@ export function measure(node: Measurable | null, done: (anchor: MenuAnchor) => v
 
 /**
  * A menu of actions from a trigger: iOS 26's pop-up menu (glass, radius 34, 250 wide, 17/20 rows of 42 with the
- * symbol at the leading edge, `--menu-*` of the phone layer), Android Material 3's dropdown menu (surfaceContainer,
- * 4dp corners, 48dp rows in Label L). Parts as @plexui/ui: `Menu.Trigger`, `Menu.Content`, `Menu.Item`,
- * `Menu.Separator`, `Menu.Label`.
+ * symbol at the leading edge, `--menu-*` of the phone layer), Android Material 3 Expressive's menu (Compose's
+ * `DropdownMenuGroup`: surfaceContainerLow, 16dp corners, 44dp items in Label L, a chosen item filled with
+ * tertiaryContainer). Parts as @plexui/ui: `Menu.Trigger`, `Menu.Content`, `Menu.Item`, `Menu.Separator`,
+ * `Menu.Label`.
  */
 function MenuRoot({ children, open: openProp, onOpenChange }: MenuProps) {
   const [own, setOwn] = useState(false)
@@ -94,7 +95,7 @@ export type MenuContentProps = {
   children: ReactNode
   /** The menu's edge that lines up with the trigger's. @default "start" */
   align?: "start" | "end"
-  /** @default 250 on iOS; Material's menu fits its items, 112 to 280 */
+  /** @default 250 on iOS; Material's menu fits its items, 112 to 280 (and 4 on each side) */
   width?: number
   "aria-label"?: string
   testID?: string
@@ -130,7 +131,8 @@ export function MenuSurface({
   const box = anchor ?? { x: window.width / 2, y: window.height / 2, width: 0, height: 0 }
   const panelWidth = android ? undefined : (width ?? theme.length("--menu-default-width", 250))
   const measured = panelWidth ?? size.width
-  const gap = android ? 4 : 8
+  // Compose opens a dropdown menu right at its anchor's edge
+  const gap = android ? 0 : 8
   const margin = 8
   let left = align === "end" ? box.x + box.width - measured : box.x
   left = Math.max(margin, Math.min(left, window.width - measured - margin))
@@ -139,7 +141,7 @@ export function MenuSurface({
   const top = fitsBelow ? below : Math.max(insets.top + margin, box.y - gap - size.height)
   const maxHeight = window.height - insets.top - insets.bottom - 2 * margin
   const scrolls = natural != null && natural.height > maxHeight
-  const content = <SurfaceContext.Provider value={{ close: onClose, check }}>{children}</SurfaceContext.Provider>
+  const content = <SurfaceContext.Provider value={{ close: onClose, check }}>{android ? placeItems(children) : children}</SurfaceContext.Provider>
   return (
     <Overlay open={open} onDismiss={onClose} enter={200} exit={150} testID={testID}>
       {(progress) => (
@@ -160,13 +162,13 @@ export function MenuSurface({
           ]}
         >
           {android ? (
-            <View style={[styles.android, { backgroundColor: m.surfaceContainer, minWidth: Math.max(112, width ?? 0), maxWidth: Math.max(280, width ?? 0) }, width ? { width } : scrolls ? { width: natural.width } : null]}>
+            <View style={[styles.android, { backgroundColor: m.surfaceContainerLow, minWidth: Math.max(120, width ?? 0), maxWidth: Math.max(288, width ?? 0) }, width ? { width } : scrolls ? { width: natural.width } : null]}>
               {scrolls ? (
                 <ScrollView style={styles.scroll} bounces={false}>
                   {content}
                 </ScrollView>
               ) : (
-                <View onLayout={(event) => setNatural({ width: event.nativeEvent.layout.width, height: event.nativeEvent.layout.height + 16 })}>{content}</View>
+                <View onLayout={(event) => setNatural({ width: event.nativeEvent.layout.width, height: event.nativeEvent.layout.height + 4 })}>{content}</View>
               )}
             </View>
           ) : (
@@ -181,6 +183,36 @@ export function MenuSurface({
       )}
     </Overlay>
   )
+}
+
+/** An item's place in its group, the items between two separators: Compose rounds a group's first and last item more. */
+const ItemPlaceContext = createContext<{ first: boolean; last: boolean }>({ first: false, last: false })
+
+function flatten(children: ReactNode): ReactNode[] {
+  return Children.toArray(children).flatMap((child) => (isValidElement<{ children?: ReactNode }>(child) && child.type === Fragment ? flatten(child.props.children) : [child]))
+}
+
+/** Tells each Menu.Item where it stands in its group. */
+function placeItems(children: ReactNode) {
+  const flat = flatten(children)
+  let group = 0
+  const groups = flat.map((child) => {
+    if (isValidElement(child) && child.type === MenuSeparator) group++
+    return isValidElement(child) && child.type === MenuItem ? group : -1
+  })
+  return flat.map((child, index) => {
+    const own = groups[index]
+    if (own < 0) return child
+    const before = groups.slice(0, index).filter((g) => g >= 0)
+    const after = groups.slice(index + 1).filter((g) => g >= 0)
+    const first = before.length === 0 || before[before.length - 1] !== own
+    const last = after.length === 0 || after[0] !== own
+    return (
+      <ItemPlaceContext.Provider key={index} value={{ first, last }}>
+        {child}
+      </ItemPlaceContext.Provider>
+    )
+  })
 }
 
 export type MenuItemProps = {
@@ -199,15 +231,27 @@ export type MenuItemProps = {
 function MenuItem({ children, icon, description, danger = false, disabled = false, checked, onSelect, testID }: MenuItemProps) {
   const theme = useTheme()
   const surface = useContext(SurfaceContext)
+  const place = useContext(ItemPlaceContext)
   const select = () => {
     if (disabled) return
     onSelect?.()
     surface.close()
   }
   if (theme.isAndroid) {
+    // Compose material3 Expressive: SegmentedMenuTokens (geometry) and StandardMenuTokens (colors)
     const m = theme.material
-    const color = disabled ? withAlpha(m.onSurface, 0.38) : danger ? m.error : m.onSurface
+    const chosen = surface.check && !!checked
+    const off = withAlpha(chosen ? m.onTertiaryContainer : m.onSurface, 0.38)
+    const color = disabled ? off : chosen ? m.onTertiaryContainer : danger ? m.error : m.onSurface
+    const iconColor = disabled ? off : chosen ? m.onTertiaryContainer : danger ? m.error : m.onSurfaceVariant
     const label = materialType.labelLarge
+    const body = materialType.bodyMedium
+    // The first and last item of a group round to the group's corners; a chosen item is a 12dp rounded fill
+    const top = chosen || place.first ? 12 : 4
+    const bottom = chosen || place.last ? 12 : 4
+    const shape = { borderTopLeftRadius: top, borderTopRightRadius: top, borderBottomLeftRadius: bottom, borderBottomRightRadius: bottom }
+    // A chosen item shows the check at its leading edge, in place of its icon
+    const leading = chosen ? <CheckMd /> : icon
     return (
       <Pressable
         accessibilityRole="menuitem"
@@ -215,24 +259,28 @@ function MenuItem({ children, icon, description, danger = false, disabled = fals
         disabled={disabled}
         onPress={select}
         testID={testID}
-        style={({ pressed }) => [styles.androidItem, pressed ? { backgroundColor: withAlpha(m.onSurface, stateLayer.pressed) } : null]}
+        style={[styles.androidItem, shape, description != null ? styles.androidItemTall : null, chosen ? { backgroundColor: m.tertiaryContainer } : null]}
       >
-        {icon ? (
-          <IconDefaultsProvider size={24} color={disabled ? color : danger ? m.error : m.onSurfaceVariant}>
-            {icon}
-          </IconDefaultsProvider>
-        ) : null}
-        <View style={styles.text}>
-          <Text color={color} numberOfLines={1} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight, ...theme.font("medium") }}>
-            {children}
-          </Text>
-          {description != null ? (
-            <Text color={disabled ? color : m.onSurfaceVariant} style={{ fontSize: materialType.bodySmall.fontSize, lineHeight: materialType.bodySmall.lineHeight }}>
-              {description}
-            </Text>
-          ) : null}
-        </View>
-        {surface.check && checked ? <CheckMd size={24} color={color} /> : null}
+        {({ pressed }) => (
+          <>
+            {pressed ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, shape, { backgroundColor: withAlpha(color, stateLayer.pressed) }]} /> : null}
+            {leading ? (
+              <IconDefaultsProvider size={20} color={iconColor}>
+                {leading}
+              </IconDefaultsProvider>
+            ) : null}
+            <View style={styles.text}>
+              <Text color={color} numberOfLines={1} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight, ...theme.font("medium") }}>
+                {children}
+              </Text>
+              {description != null ? (
+                <Text color={disabled ? off : chosen ? m.onTertiaryContainer : m.onSurfaceVariant} style={{ fontSize: body.fontSize, lineHeight: body.lineHeight }}>
+                  {description}
+                </Text>
+              ) : null}
+            </View>
+          </>
+        )}
       </Pressable>
     )
   }
@@ -293,11 +341,14 @@ MenuSeparator.displayName = "Menu.Separator"
 function MenuLabel({ children }: { children: ReactNode }) {
   const theme = useTheme()
   if (theme.isAndroid) {
-    const type = materialType.labelMedium
+    // Compose's DropdownMenuGroupLabel: Label L, at least 32 tall, 12 in
+    const type = materialType.labelLarge
     return (
-      <Text color={theme.material.onSurfaceVariant} style={{ fontSize: type.fontSize, lineHeight: type.lineHeight, paddingHorizontal: 12, paddingVertical: 8, ...theme.font("medium") }}>
-        {children}
-      </Text>
+      <View style={styles.androidLabel}>
+        <Text color={theme.material.onSurfaceVariant} style={{ fontSize: type.fontSize, lineHeight: type.lineHeight, ...theme.font("medium") }}>
+          {children}
+        </Text>
+      </View>
     )
   }
   return (
@@ -319,9 +370,13 @@ const styles = StyleSheet.create({
   surface: { position: "absolute" },
   shrink: { flexShrink: 1 },
   scroll: { flexGrow: 0 },
-  android: { flexShrink: 1, borderRadius: 4, paddingVertical: 8, boxShadow: "0 2px 6px 2px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.3)" },
-  androidItem: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 12 },
-  androidSeparator: { height: 1, marginVertical: 8 },
+  // A standalone group: 16dp corners, 2 above and below its items, elevation level 2
+  android: { flexShrink: 1, borderRadius: 16, paddingVertical: 2, boxShadow: "0 2px 6px 2px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.3)" },
+  // 44 tall, 12 around its content, 4 in from the group's sides; the icon 8 before the label
+  androidItem: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 12, paddingVertical: 12, marginHorizontal: 4 },
+  androidItemTall: { marginVertical: 2 },
+  androidSeparator: { height: 1, marginHorizontal: 12, marginVertical: 2 },
+  androidLabel: { minHeight: 32, justifyContent: "center", paddingLeft: 12, paddingRight: 4 },
   iosItem: { flexDirection: "row", alignItems: "center", paddingTop: 10, paddingBottom: 10, paddingLeft: 6, paddingRight: 8, borderCurve: "continuous" },
   iosSeparator: { height: StyleSheet.hairlineWidth, marginVertical: 10, marginHorizontal: 8 },
   // The check column, 8.5 before the label (6 of the row gap and 2.5): the label stands 27.5 in, as `--menu-check-label-inset`
