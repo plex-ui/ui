@@ -1,0 +1,147 @@
+import { ActionSheet, BottomSheet, Button, Dialog, Input, Menu, Text, toast, useTheme } from "@plexui/react-native"
+import { Copy, Pencil, RemoveTrash, Share } from "@plexui/react-native/icons"
+import { useState } from "react"
+import { StyleSheet, View } from "react-native"
+import { Row, Section } from "../demo"
+
+export function OverlaysScreen() {
+  const theme = useTheme()
+  const [dialog, setDialog] = useState<"two" | "three" | "field" | null>(null)
+  const [sheet, setSheet] = useState(false)
+  const [actions, setActions] = useState(false)
+  const [last, setLast] = useState("nothing yet")
+  return (
+    <>
+      <Section title="Dialog" note={theme.isAndroid ? "Material 3 basic dialog: radius 28, text buttons" : "iOS 26 alert: glass, 320 wide, capsule actions"}>
+        <Row>
+          <Button color="secondary" variant="soft" onPress={() => setDialog("two")} testID="open-dialog">
+            Two actions
+          </Button>
+          <Button color="secondary" variant="soft" onPress={() => setDialog("three")} testID="open-dialog-three">
+            Three actions
+          </Button>
+          <Button color="secondary" variant="soft" onPress={() => setDialog("field")} testID="open-dialog-field">
+            With a field
+          </Button>
+        </Row>
+      </Section>
+      <Section title="Sheets" note={theme.isAndroid ? "Material 3 modal bottom sheets" : "iOS 26 sheet and action sheet"}>
+        <Row>
+          <Button color="secondary" variant="soft" onPress={() => setSheet(true)} testID="open-sheet">
+            Bottom sheet
+          </Button>
+          <Button color="secondary" variant="soft" onPress={() => setActions(true)} testID="open-actions">
+            Action sheet
+          </Button>
+        </Row>
+      </Section>
+      <Section title="Menu" note={theme.isAndroid ? "Material 3 dropdown menu" : "iOS 26 glass menu, 250 wide"}>
+        <Menu>
+          <Menu.Trigger>
+            <Button color="secondary" variant="soft" testID="open-menu">
+              Actions
+            </Button>
+          </Menu.Trigger>
+          <Menu.Content aria-label="Actions" testID="menu">
+            <Menu.Label>Document</Menu.Label>
+            <Menu.Item icon={<Pencil />} onSelect={() => setLast("Rename")} testID="menu-rename">
+              Rename
+            </Menu.Item>
+            <Menu.Item icon={<Copy />} description="A copy in the same folder" onSelect={() => setLast("Duplicate")}>
+              Duplicate
+            </Menu.Item>
+            <Menu.Item icon={<Share />} disabled>
+              Share
+            </Menu.Item>
+            <Menu.Separator />
+            <Menu.Item icon={<RemoveTrash />} danger onSelect={() => setLast("Delete")}>
+              Delete
+            </Menu.Item>
+          </Menu.Content>
+        </Menu>
+        <Text variant="footnote" color="secondary" testID="overlay-last">
+          Last: {last}
+        </Text>
+      </Section>
+      <Section title="Toast" note={theme.isAndroid ? "Material 3 snackbar, one at a time" : "iOS 26 glass banners from the top"}>
+        <Row>
+          <Button color="secondary" variant="soft" onPress={() => toast("Saved to Photos")} testID="toast-plain">
+            Plain
+          </Button>
+          <Button color="secondary" variant="soft" onPress={() => toast.success("Payment sent", { description: "$24.00 to Jane" })} testID="toast-success">
+            Success
+          </Button>
+          <Button
+            color="secondary"
+            variant="soft"
+            onPress={() => toast("Message deleted", { action: { label: "Undo", onClick: () => setLast("Undo") } })}
+            testID="toast-action"
+          >
+            With action
+          </Button>
+        </Row>
+      </Section>
+
+      <Dialog
+        open={dialog === "two"}
+        onOpenChange={() => setDialog(null)}
+        title="Delete this photo?"
+        description="It will be removed from all your devices."
+        actions={[
+          { label: "Cancel", variant: "cancel", testID: "dialog-cancel" },
+          { label: "Delete", variant: "destructive", onPress: () => setLast("Deleted"), testID: "dialog-delete" },
+        ]}
+        testID="dialog"
+      />
+      <Dialog
+        open={dialog === "three"}
+        onOpenChange={() => setDialog(null)}
+        title="Unsaved changes"
+        description="Save the changes to this document before closing?"
+        actions={[
+          { label: "Save", preferred: true, onPress: () => setLast("Save") },
+          { label: "Don't Save", variant: "destructive", onPress: () => setLast("Don't Save") },
+          { label: "Cancel", variant: "cancel" },
+        ]}
+        testID="dialog-three"
+      />
+      <Dialog
+        open={dialog === "field"}
+        onOpenChange={() => setDialog(null)}
+        title="New folder"
+        description="Enter a name for this folder."
+        actions={[
+          { label: "Cancel", variant: "cancel" },
+          { label: "Save", preferred: true },
+        ]}
+        testID="dialog-field"
+      >
+        <Input variant="soft" size="3xl" pill={theme.isIOS} defaultValue="Untitled folder" accessibilityLabel="Name" />
+      </Dialog>
+      <BottomSheet open={sheet} onOpenChange={setSheet} title="Share" testID="sheet">
+        <View style={styles.sheet}>
+          <Text color="secondary">A sheet with content of its own. Drag it down or tap outside to close it.</Text>
+          <Button block onPress={() => setSheet(false)} testID="sheet-done">
+            Done
+          </Button>
+        </View>
+      </BottomSheet>
+      <ActionSheet
+        open={actions}
+        onOpenChange={setActions}
+        title="Photo"
+        message="What would you like to do with it?"
+        actions={[
+          { label: "Share", icon: <Share />, onPress: () => setLast("Share"), testID: "action-share" },
+          { label: "Duplicate", icon: <Copy />, onPress: () => setLast("Duplicate") },
+          { label: "Delete", icon: <RemoveTrash />, destructive: true, onPress: () => setLast("Delete") },
+        ]}
+        testID="actions"
+      />
+    </>
+  )
+}
+
+const styles = StyleSheet.create({
+  sheet: { gap: 16 },
+})

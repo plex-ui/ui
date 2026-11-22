@@ -73,6 +73,30 @@ const minimize = useTabBarMinimize()
 </TabBar>
 ```
 
+### Forms and overlays
+
+- `Switch`, `Checkbox` (`checked` may be `"indeterminate"`), `RadioGroup` + `RadioGroup.Item`: iOS 26 switch, circle
+  checkbox and list checkmark; Material 3 switch, checkbox and radio button.
+- `Input` and `TextField` (`label`, `description`, `errorMessage`): a 44pt iOS field; Material's outlined (`outline`)
+  or filled (`soft`) text field with its floating label.
+- `Select` (`options`, `value`, `onChange(option)`): the field and a menu with a checkmark at the chosen option.
+- `Menu` (`Trigger`, `Content`, `Item`, `Separator`, `Label`): iOS 26 glass menu; Material 3 dropdown menu.
+- `Dialog` (`title`, `description`, `actions`): the iOS 26 alert; Material 3's basic dialog.
+- `BottomSheet`, `ActionSheet` (React Native only): sheets from the bottom edge, dragged down to close.
+- `toast()` and `<Toaster />`, as sonner on the web: iOS glass banners from the top; Material's snackbar.
+
+```tsx
+<Dialog
+  open={open}
+  onOpenChange={setOpen}
+  title="Delete this photo?"
+  description="It will be removed from all your devices."
+  actions={[{ label: "Cancel", variant: "cancel" }, { label: "Delete", variant: "destructive", onPress: remove }]}
+/>
+
+toast.success("Payment sent", { description: "$24.00 to Jane", action: { label: "Undo", onClick: undo } })
+```
+
 ## Peers
 
 `react`, `react-native`, `react-native-svg`, `react-native-safe-area-context`. Optional: `expo-glass-effect` (native

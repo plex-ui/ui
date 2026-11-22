@@ -1,0 +1,321 @@
+import { cloneElement, createContext, isValidElement, useCallback, useContext, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
+import { Animated, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import CheckMd from "../../icons/plex/CheckMd"
+import { Glass } from "../../internal/Glass"
+import { canTransformGlass, glassOpacity, Overlay } from "../../internal/Overlay"
+import { stateLayer, withAlpha } from "../../theme/material"
+import { useTheme } from "../../theme/ThemeProvider"
+import { materialType } from "../../theme/typography"
+import { IconDefaultsProvider } from "../Icon/createIcon"
+import { Text } from "../Text/Text"
+
+export type MenuAnchor = { x: number; y: number; width: number; height: number }
+
+export type Measurable = { measureInWindow?: (callback: (x: number, y: number, width: number, height: number) => void) => void }
+
+type MenuContextValue = { open: boolean; setOpen: (open: boolean) => void; anchor: MenuAnchor | null; setTrigger: (node: Measurable | null) => void }
+const MenuContext = createContext<MenuContextValue | null>(null)
+
+/** Closes the menu once an item is chosen; also used by Select. */
+const SurfaceContext = createContext<{ close: () => void; check: boolean }>({ close: () => {}, check: false })
+
+export type MenuProps = {
+  children: ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}
+
+/** Measures an element in the window, where the overlay lays the menu out. */
+export function measure(node: Measurable | null, done: (anchor: MenuAnchor) => void) {
+  if (!node?.measureInWindow) return done({ x: 0, y: 0, width: 0, height: 0 })
+  node.measureInWindow((x, y, width, height) => done({ x, y, width, height }))
+}
+
+/**
+ * A menu of actions from a trigger: iOS 26's pop-up menu (glass, radius 34, 250 wide, 17/20 rows of 42 with the
+ * symbol at the leading edge, `--menu-*` of the phone layer), Android Material 3's dropdown menu (surfaceContainer,
+ * 4dp corners, 48dp rows in Label L). Parts as @plexui/ui: `Menu.Trigger`, `Menu.Content`, `Menu.Item`,
+ * `Menu.Separator`, `Menu.Label`.
+ */
+function MenuRoot({ children, open: openProp, onOpenChange }: MenuProps) {
+  const [own, setOwn] = useState(false)
+  const open = openProp ?? own
+  const [anchor, setAnchor] = useState<MenuAnchor | null>(null)
+  const trigger = useRef<Measurable | null>(null)
+  const setTrigger = useCallback((node: Measurable | null) => {
+    trigger.current = node
+  }, [])
+  const setOpen = (next: boolean) => {
+    const apply = () => {
+      if (openProp === undefined) setOwn(next)
+      onOpenChange?.(next)
+    }
+    if (next) measure(trigger.current, (box) => (setAnchor(box), apply()))
+    else apply()
+  }
+  // A menu opened from outside (the controlled `open`) is placed at its trigger too
+  useEffect(() => {
+    if (openProp) measure(trigger.current, setAnchor)
+  }, [openProp])
+  return <MenuContext.Provider value={{ open, setOpen, anchor, setTrigger }}>{children}</MenuContext.Provider>
+}
+MenuRoot.displayName = "Menu"
+
+function useMenu(part: string) {
+  const context = useContext(MenuContext)
+  if (!context) throw new Error(`${part} must be inside a Menu`)
+  return context
+}
+
+/** The element that opens the menu: a Button or anything with `onPress`. */
+function MenuTrigger({ children, style }: { children: ReactElement<{ onPress?: (event: GestureResponderEvent) => void }>; style?: StyleProp<ViewStyle> }) {
+  const { open, setOpen, setTrigger } = useMenu("Menu.Trigger")
+  const onPress = isValidElement(children) ? children.props.onPress : undefined
+  const child = isValidElement(children)
+    ? cloneElement(children, {
+        onPress: (event: GestureResponderEvent) => {
+          onPress?.(event)
+          setOpen(!open)
+        },
+        "aria-haspopup": "menu",
+        "aria-expanded": open,
+      } as Record<string, unknown>)
+    : children
+  return (
+    <View ref={setTrigger as never} collapsable={false} style={[styles.trigger, style]}>
+      {child}
+    </View>
+  )
+}
+MenuTrigger.displayName = "Menu.Trigger"
+
+export type MenuContentProps = {
+  children: ReactNode
+  /** The menu's edge that lines up with the trigger's. @default "start" */
+  align?: "start" | "end"
+  /** @default 250 on iOS; Material's menu fits its items, 112 to 280 */
+  width?: number
+  "aria-label"?: string
+  testID?: string
+}
+
+function MenuContent(props: MenuContentProps) {
+  const menu = useMenu("Menu.Content")
+  return <MenuSurface {...props} open={menu.open} anchor={menu.anchor} onClose={() => menu.setOpen(false)} />
+}
+MenuContent.displayName = "Menu.Content"
+
+/** The floating panel of a menu, placed under its anchor (over it when the screen ends first). */
+export function MenuSurface({
+  open,
+  anchor,
+  onClose,
+  align = "start",
+  width,
+  check = false,
+  children,
+  "aria-label": ariaLabel,
+  testID,
+}: MenuContentProps & { open: boolean; anchor: MenuAnchor | null; onClose: () => void; check?: boolean }) {
+  const theme = useTheme()
+  const insets = useSafeAreaInsets()
+  const window = useWindowDimensions()
+  const [size, setSize] = useState({ width: 0, height: 0 })
+  const android = theme.isAndroid
+  const m = theme.material
+  const box = anchor ?? { x: window.width / 2, y: window.height / 2, width: 0, height: 0 }
+  const panelWidth = android ? undefined : (width ?? theme.length("--menu-default-width", 250))
+  const measured = panelWidth ?? size.width
+  const gap = android ? 4 : 8
+  const margin = 8
+  let left = align === "end" ? box.x + box.width - measured : box.x
+  left = Math.max(margin, Math.min(left, window.width - measured - margin))
+  const below = box.y + box.height + gap
+  const fitsBelow = below + size.height <= window.height - insets.bottom - margin
+  const top = fitsBelow ? below : Math.max(insets.top + margin, box.y - gap - size.height)
+  const content = <SurfaceContext.Provider value={{ close: onClose, check }}>{children}</SurfaceContext.Provider>
+  return (
+    <Overlay open={open} onDismiss={onClose} enter={200} exit={150} testID={testID}>
+      {(progress) => (
+        <Animated.View
+          accessibilityRole="menu"
+          aria-label={ariaLabel}
+          onLayout={(event) => setSize({ width: event.nativeEvent.layout.width, height: event.nativeEvent.layout.height })}
+          style={[
+            styles.surface,
+            {
+              left,
+              top,
+              width: panelWidth,
+              maxHeight: window.height - insets.top - insets.bottom - 2 * margin,
+              opacity: android ? progress : glassOpacity(progress, open),
+              transform: android || canTransformGlass ? [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [android ? 0.95 : 0.8, 1] }) }] : undefined,
+            },
+          ]}
+        >
+          {android ? (
+            <View style={[styles.android, { backgroundColor: m.surfaceContainer, minWidth: Math.max(112, width ?? 0), maxWidth: Math.max(280, width ?? 0) }, width ? { width } : null]}>
+              <ScrollView style={styles.scroll} bounces={false}>
+                {content}
+              </ScrollView>
+            </View>
+          ) : (
+            <Glass radius={theme.length("--menu-radius", 34)} elevation="raised" fillToken="--menu-mobile-background" style={[styles.shrink, { padding: theme.length("--menu-gutter", 10) }]}>
+              {/* A long menu scrolls inside the screen */}
+              <ScrollView style={styles.scroll} bounces={false}>
+                {content}
+              </ScrollView>
+            </Glass>
+          )}
+        </Animated.View>
+      )}
+    </Overlay>
+  )
+}
+
+export type MenuItemProps = {
+  children: ReactNode
+  /** A symbol at the leading edge. */
+  icon?: ReactNode
+  description?: ReactNode
+  danger?: boolean
+  disabled?: boolean
+  /** Shows the checkmark of a chosen option (Select, a radio item). */
+  checked?: boolean
+  onSelect?: () => void
+  testID?: string
+}
+
+function MenuItem({ children, icon, description, danger = false, disabled = false, checked, onSelect, testID }: MenuItemProps) {
+  const theme = useTheme()
+  const surface = useContext(SurfaceContext)
+  const select = () => {
+    if (disabled) return
+    onSelect?.()
+    surface.close()
+  }
+  if (theme.isAndroid) {
+    const m = theme.material
+    const color = disabled ? withAlpha(m.onSurface, 0.38) : danger ? m.error : m.onSurface
+    const label = materialType.labelLarge
+    return (
+      <Pressable
+        accessibilityRole="menuitem"
+        accessibilityState={{ disabled, checked: surface.check ? !!checked : undefined }}
+        disabled={disabled}
+        onPress={select}
+        testID={testID}
+        style={({ pressed }) => [styles.androidItem, pressed ? { backgroundColor: withAlpha(m.onSurface, stateLayer.pressed) } : null]}
+      >
+        {icon ? (
+          <IconDefaultsProvider size={24} color={disabled ? color : danger ? m.error : m.onSurfaceVariant}>
+            {icon}
+          </IconDefaultsProvider>
+        ) : null}
+        <View style={styles.text}>
+          <Text color={color} numberOfLines={1} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight, ...theme.font("medium") }}>
+            {children}
+          </Text>
+          {description != null ? (
+            <Text color={disabled ? color : m.onSurfaceVariant} style={{ fontSize: materialType.bodySmall.fontSize, lineHeight: materialType.bodySmall.lineHeight }}>
+              {description}
+            </Text>
+          ) : null}
+        </View>
+        {surface.check && checked ? <CheckMd size={24} color={color} /> : null}
+      </Pressable>
+    )
+  }
+  const color = disabled ? theme.color("--menu-disabled-label-color") : danger ? theme.color("--color-text-danger") : theme.colors.text
+  const inner = theme.length("--menu-radius", 34) - theme.length("--menu-gutter", 10)
+  return (
+    <Pressable
+      accessibilityRole="menuitem"
+      accessibilityState={{ disabled, checked: surface.check ? !!checked : undefined }}
+      disabled={disabled}
+      onPress={select}
+      testID={testID}
+      style={({ pressed }) => [
+        styles.iosItem,
+        { minHeight: theme.length("--menu-row-min-height", 42), borderRadius: inner, gap: theme.length("--menu-item-gap", 6) },
+        pressed ? { backgroundColor: theme.color("--menu-press-background") } : null,
+      ]}
+    >
+      {surface.check ? (
+        <View style={styles.check}>{checked ? <CheckMd size={theme.length("--menu-check-size", 18)} color={color} /> : null}</View>
+      ) : null}
+      {icon ? (
+        <View style={{ width: theme.length("--menu-leading-icon-slot", 36), alignItems: "center" }}>
+          <IconDefaultsProvider size={theme.length("--menu-leading-icon-size", 20)} color={color}>
+            {icon}
+          </IconDefaultsProvider>
+        </View>
+      ) : null}
+      <View style={styles.text}>
+        <Text color={color} style={{ fontSize: theme.length("--menu-font-size", 17), lineHeight: theme.length("--menu-line-height", 20) }}>
+          {children}
+        </Text>
+        {description != null ? (
+          <Text
+            color={disabled ? theme.color("--menu-disabled-description-color") : theme.color("--menu-description-color")}
+            style={{ fontSize: theme.length("--menu-description-font-size", 13), lineHeight: theme.length("--menu-description-line-height", 18) }}
+          >
+            {description}
+          </Text>
+        ) : null}
+      </View>
+    </Pressable>
+  )
+}
+MenuItem.displayName = "Menu.Item"
+
+function MenuSeparator() {
+  const theme = useTheme()
+  return theme.isAndroid ? (
+    <View style={[styles.androidSeparator, { backgroundColor: theme.material.outlineVariant }]} />
+  ) : (
+    <View style={[styles.iosSeparator, { backgroundColor: theme.color("--alpha-10") }]} />
+  )
+}
+MenuSeparator.displayName = "Menu.Separator"
+
+/** A heading over a group of items. */
+function MenuLabel({ children }: { children: ReactNode }) {
+  const theme = useTheme()
+  if (theme.isAndroid) {
+    const type = materialType.labelMedium
+    return (
+      <Text color={theme.material.onSurfaceVariant} style={{ fontSize: type.fontSize, lineHeight: type.lineHeight, paddingHorizontal: 12, paddingVertical: 8, ...theme.font("medium") }}>
+        {children}
+      </Text>
+    )
+  }
+  return (
+    <Text
+      color="secondary"
+      weight="medium"
+      style={{ fontSize: theme.length("--menu-label-font-size", 13), lineHeight: theme.length("--menu-label-line-height", 15), paddingTop: 4, paddingHorizontal: 8, paddingBottom: 10 }}
+    >
+      {children}
+    </Text>
+  )
+}
+MenuLabel.displayName = "Menu.Label"
+
+export const Menu = Object.assign(MenuRoot, { Trigger: MenuTrigger, Content: MenuContent, Item: MenuItem, Separator: MenuSeparator, Label: MenuLabel })
+
+const styles = StyleSheet.create({
+  trigger: { alignSelf: "flex-start" },
+  surface: { position: "absolute" },
+  shrink: { flexShrink: 1 },
+  scroll: { flexGrow: 0 },
+  android: { flexShrink: 1, borderRadius: 4, paddingVertical: 8, boxShadow: "0 2px 6px 2px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.3)" },
+  androidItem: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 12 },
+  androidSeparator: { height: 1, marginVertical: 8 },
+  iosItem: { flexDirection: "row", alignItems: "center", paddingTop: 10, paddingBottom: 10, paddingLeft: 6, paddingRight: 8, borderCurve: "continuous" },
+  iosSeparator: { height: StyleSheet.hairlineWidth, marginVertical: 10, marginHorizontal: 8 },
+  // The check column, 8.5 before the label (6 of the row gap and 2.5): the label stands 27.5 in, as `--menu-check-label-inset`
+  check: { width: 13, marginRight: 2.5, alignItems: "center", overflow: "visible" },
+  text: { flex: 1, minWidth: 0 },
+})
