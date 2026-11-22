@@ -70,10 +70,13 @@ function RadioGroupItem({ value, children, description, disabled: itemDisabled =
   let mark: ReactNode
   if (theme.isAndroid) {
     const m = theme.material
-    const color = disabled ? withAlpha(m.onSurface, 0.38) : selected ? selectionColor(theme) : m.onSurfaceVariant
+    // Compose material3 RadioButtonTokens: the ring turns onSurface while an empty one is held
+    const selection = selectionColor(theme)
+    const color = disabled ? withAlpha(m.onSurface, 0.38) : selected ? selection : pressed ? m.onSurface : m.onSurfaceVariant
     mark = (
       <View style={styles.androidTarget}>
-        {pressed && !disabled ? <View pointerEvents="none" style={[styles.androidLayer, { backgroundColor: withAlpha(selected ? color : m.onSurface, stateLayer.pressed) }]} /> : null}
+        {/* Material's pressed layer: onSurface over a chosen option, the selection color over an empty one */}
+        {pressed && !disabled ? <View pointerEvents="none" style={[styles.androidLayer, { backgroundColor: withAlpha(selected ? m.onSurface : selection, stateLayer.pressed) }]} /> : null}
         <View style={[styles.androidRing, { borderColor: color }]}>{selected ? <View style={[styles.androidDot, { backgroundColor: color }]} /> : null}</View>
       </View>
     )

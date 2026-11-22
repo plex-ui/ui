@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react"
 import { Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import { spaceToggles, useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"
-import { withAlpha } from "../../theme/material"
+import { stateLayer, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 
@@ -113,26 +113,25 @@ function IOSTrack({ theme, checked, disabled, color, progress }: TrackProps) {
 
 function AndroidTrack({ theme, checked, pressed, disabled, color, progress }: TrackProps & { pressed: boolean }) {
   const m = theme.material
-  // Compose SwitchTokens: track 52x32, a 2dp outline off; thumb 16 off, 24 on, 28 pressed
-  const thumb = pressed && !disabled ? 28 : checked ? 24 : 16
-  const trackOn = disabled ? withAlpha(m.onSurface, 0.12) : selectionColor(theme, color)
+  // Compose SwitchTokens: track 52x32, a 2dp outline off; handle 16 off, 24 on, 28 held
+  const held = pressed && !disabled
+  const handle = held ? 28 : checked ? 24 : 16
+  const selection = selectionColor(theme, color)
+  const trackOn = disabled ? withAlpha(m.onSurface, 0.12) : selection
   const trackOff = disabled ? withAlpha(m.surfaceContainerHighest, 0.12) : m.surfaceContainerHighest
-  const thumbOn = disabled ? m.surface : theme.color(color === "accent" ? "--color-text-accent-solid" : "--color-text-primary-solid")
-  const thumbOff = disabled ? withAlpha(m.onSurface, 0.38) : m.outline
+  // A held handle takes the track color's container (primaryContainer) on, onSurfaceVariant off
+  const handleOn = disabled ? m.surface : held ? theme.color(color === "accent" ? "--color-background-accent-soft" : "--color-background-primary-soft") : theme.color(color === "accent" ? "--color-text-accent-solid" : "--color-text-primary-solid")
+  const handleOff = disabled ? withAlpha(m.onSurface, 0.38) : held ? m.onSurfaceVariant : m.outline
   const border = checked ? "transparent" : disabled ? withAlpha(m.onSurface, 0.12) : m.outline
+  // The handle's center travels from 16 to 36 of the track; children are placed inside its 2dp border
+  const center = (size: number) => progress.interpolate({ inputRange: [0, 1], outputRange: [16 - 2 - size / 2, 36 - 2 - size / 2] })
   return (
     <View style={{ width: 52, height: 32, borderRadius: 16, borderWidth: 2, borderColor: border, backgroundColor: checked ? trackOn : trackOff, justifyContent: "center" }}>
-      <Animated.View
-        style={{
-          position: "absolute",
-          // The thumb's center travels from 16 to 36 of the track (inside its 2dp border)
-          left: progress.interpolate({ inputRange: [0, 1], outputRange: [16 - 2 - thumb / 2, 36 - 2 - thumb / 2] }),
-          width: thumb,
-          height: thumb,
-          borderRadius: thumb / 2,
-          backgroundColor: checked ? thumbOn : thumbOff,
-        }}
-      />
+      {held ? (
+        // The 40dp pressed layer around the handle: the selection color on, onSurface off
+        <Animated.View pointerEvents="none" style={[styles.layer, { left: center(40), backgroundColor: withAlpha(checked ? selection : m.onSurface, stateLayer.pressed) }]} />
+      ) : null}
+      <Animated.View style={{ position: "absolute", left: center(handle), width: handle, height: handle, borderRadius: handle / 2, backgroundColor: checked ? handleOn : handleOff }} />
     </View>
   )
 }
@@ -140,4 +139,5 @@ function AndroidTrack({ theme, checked, pressed, disabled, color, progress }: Tr
 const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", alignSelf: "stretch" },
   grow: { flex: 1, minWidth: 0 },
+  layer: { position: "absolute", top: 16 - 2 - 20, width: 40, height: 40, borderRadius: 20 },
 })

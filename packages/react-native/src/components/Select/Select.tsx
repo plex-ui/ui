@@ -83,7 +83,7 @@ export function Select<T extends SelectOption>({
         onPress={() => measure(trigger.current, (box) => (setAnchor(box), setOpen(true)))}
         testID={testID}
         // The arrow sits in Compose's trailing icon slot, 12 from the edge
-        style={[styles.box, look.box, { gap: look.gap }, theme.isAndroid ? { paddingRight: 12 } : null]}
+        style={[styles.box, look.box, { gap: look.gap }, theme.isAndroid ? { paddingEnd: 12 } : null]}
       >
         {theme.isAndroid ? <FieldOutline frame={look.frame} /> : null}
         <Text numberOfLines={1} color={chosen ? look.text.color : look.placeholder} style={[styles.grow, { fontSize: look.text.fontSize, lineHeight: look.text.lineHeight }]}>

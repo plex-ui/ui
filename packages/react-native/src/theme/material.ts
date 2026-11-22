@@ -7,17 +7,20 @@ const channel = (hex: string, at: number) => parseInt(hex.slice(at, at + 2), 16)
 const linear = (v: number) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)
 const encode = (y: number) => (y <= 0.0031308 ? 12.92 * y : 1.055 * y ** (1 / 2.4) - 0.055)
 
+/** The relative luminance Y of a color (linear light, 0-1). */
+const luminance = (hex: string) => 0.2126 * linear(channel(hex, 1)) + 0.7152 * linear(channel(hex, 3)) + 0.0722 * linear(channel(hex, 5))
+
 /** Material's tone of a color: its CIELAB lightness L*, 0 (black) to 100 (white). */
 export function toneOf(hex: string): number {
-  const y = 0.2126 * linear(channel(hex, 1)) + 0.7152 * linear(channel(hex, 3)) + 0.0722 * linear(channel(hex, 5))
+  const y = luminance(hex)
   const f = y > 216 / 24389 ? Math.cbrt(y) : ((24389 / 27) * y + 16) / 116
   return 116 * f - 16
 }
 
-/** The sRGB channel (0-1) of the gray of a tone. */
-function grayOfTone(tone: number): number {
+/** The relative luminance of a tone. */
+function luminanceOfTone(tone: number): number {
   const f = (tone + 16) / 116
-  return encode(f ** 3 > 216 / 24389 ? f ** 3 : (116 * f - 16) / (24389 / 27))
+  return f ** 3 > 216 / 24389 ? f ** 3 : (116 * f - 16) / (24389 / 27)
 }
 
 const hex2 = (v: number) => Math.round(Math.min(1, Math.max(0, v)) * 255).toString(16).padStart(2, "0")
@@ -35,11 +38,10 @@ function neutralTone(grays: readonly string[], tone: number): string {
   if (tone >= last.tone) return last.gray
   const upper = ramp.findIndex((step) => step.tone >= tone)
   const [a, b] = [ramp[upper - 1], ramp[upper]]
-  // Where the tone's own gray falls between the two, measured on the green channel (nearest to lightness)
-  const ga = channel(a.gray, 3)
-  const gb = channel(b.gray, 3)
-  const t = gb === ga ? 0 : (grayOfTone(tone) - ga) / (gb - ga)
-  return "#" + [1, 3, 5].map((at) => hex2(channel(a.gray, at) + (channel(b.gray, at) - channel(a.gray, at)) * t)).join("")
+  const ya = luminance(a.gray)
+  const yb = luminance(b.gray)
+  const t = yb === ya ? 0 : Math.min(1, Math.max(0, (luminanceOfTone(tone) - ya) / (yb - ya)))
+  return "#" + [1, 3, 5].map((at) => hex2(encode(linear(channel(a.gray, at)) + (linear(channel(b.gray, at)) - linear(channel(a.gray, at))) * t))).join("")
 }
 
 /**

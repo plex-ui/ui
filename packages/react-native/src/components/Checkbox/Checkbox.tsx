@@ -6,6 +6,7 @@ import { spaceToggles, useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"
 import { stateLayer, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
+import { createIcon } from "../Icon/createIcon"
 import { selectionColor } from "../Switch/Switch"
 
 export type CheckboxProps = {
@@ -60,15 +61,20 @@ export function Checkbox({
   const Glyph = state === "indeterminate" ? Minus : CheckMd
   let box: ReactNode
   if (theme.isAndroid) {
+    // Compose material3 CheckboxTokens: an 18dp box, a 2dp outline off, filled on; the mark a 2dp stroke
     const m = theme.material
-    const fill = disabled ? withAlpha(m.onSurface, 0.38) : invalid ? m.error : selectionColor(theme)
-    const ring = disabled ? withAlpha(m.onSurface, 0.38) : invalid ? m.error : m.onSurfaceVariant
+    const selection = selectionColor(theme)
+    const off = withAlpha(m.onSurface, 0.38)
+    const fill = disabled ? off : invalid ? m.error : selection
+    const ring = disabled ? off : invalid ? m.error : pressed ? m.onSurface : m.onSurfaceVariant
+    const markColor = disabled ? m.surface : invalid ? m.onError : theme.color("--color-text-primary-solid")
+    // Material's pressed layer: onSurface over a checked box, the selection color over an empty one, error when invalid
+    const layer = invalid ? m.error : on ? m.onSurface : selection
+    const Mark = state === "indeterminate" ? MaterialDash : MaterialCheck
     box = (
       <View style={styles.androidTarget}>
-        {pressed && !disabled ? <View pointerEvents="none" style={[styles.androidLayer, { backgroundColor: withAlpha(on ? fill : m.onSurface, stateLayer.pressed) }]} /> : null}
-        <View style={[styles.androidBox, on ? { backgroundColor: fill, borderColor: fill } : { borderColor: ring }]}>
-          {on ? <Glyph size={18} color={disabled ? m.surface : theme.color("--color-text-primary-solid")} /> : null}
-        </View>
+        {pressed && !disabled ? <View pointerEvents="none" style={[styles.androidLayer, { backgroundColor: withAlpha(layer, stateLayer.pressed) }]} /> : null}
+        <View style={[styles.androidBox, on ? { backgroundColor: fill, borderWidth: 0 } : { borderColor: ring }]}>{on ? <Mark size={18} color={markColor} /> : null}</View>
       </View>
     )
   } else {
@@ -126,6 +132,14 @@ export function Checkbox({
     </Pressable>
   )
 }
+
+/**
+ * Material's checkmark, as Compose draws it in an 18dp box (`drawCheck` with the checkbox styling fix, which sizes the
+ * box by CheckboxTokens.ContainerSize): from (.25, .5) through (.4, .65) to (.75, .3), a 2dp stroke with square caps.
+ */
+const MaterialCheck = createIcon("MaterialCheck", "0 0 18 18", [["path", { d: "M4.5 9L7.2 11.7L13.5 5.4", fill: "none", stroke: 0, strokeWidth: 2, strokeLinecap: "square" }]])
+/** The indeterminate mark: the check's ends gravitated to the middle line. */
+const MaterialDash = createIcon("MaterialDash", "0 0 18 18", [["path", { d: "M4.5 9H13.5", fill: "none", stroke: 0, strokeWidth: 2, strokeLinecap: "square" }]])
 
 const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", alignSelf: "stretch" },

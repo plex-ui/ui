@@ -185,31 +185,38 @@ export function MenuSurface({
   )
 }
 
+/** The 2dp around an item that its 48dp touch target takes. */
+const ITEM_SLOP = { top: 2, bottom: 2, left: 4, right: 4 }
+
 /** An item's place in its group, the items between two separators: Compose rounds a group's first and last item more. */
 const ItemPlaceContext = createContext<{ first: boolean; last: boolean }>({ first: false, last: false })
 
-function flatten(children: ReactNode): ReactNode[] {
-  return Children.toArray(children).flatMap((child) => (isValidElement<{ children?: ReactNode }>(child) && child.type === Fragment ? flatten(child.props.children) : [child]))
+/** The children of a menu with fragments opened, each with a key scoped by the fragments it came from. */
+function flatten(children: ReactNode, scope = ""): Array<{ node: ReactNode; key: string }> {
+  return Children.toArray(children).flatMap((child, index) => {
+    const key = `${scope}${isValidElement(child) && child.key != null ? child.key : index}`
+    return isValidElement<{ children?: ReactNode }>(child) && child.type === Fragment ? flatten(child.props.children, `${key}/`) : [{ node: child, key }]
+  })
 }
 
-/** Tells each Menu.Item where it stands in its group. */
+/** Tells each Menu.Item where it stands in its group, keeping every child's identity (its own key). */
 function placeItems(children: ReactNode) {
   const flat = flatten(children)
   let group = 0
-  const groups = flat.map((child) => {
-    if (isValidElement(child) && child.type === MenuSeparator) group++
-    return isValidElement(child) && child.type === MenuItem ? group : -1
+  const groups = flat.map(({ node }) => {
+    if (isValidElement(node) && node.type === MenuSeparator) group++
+    return isValidElement(node) && node.type === MenuItem ? group : -1
   })
-  return flat.map((child, index) => {
+  return flat.map(({ node, key }, index) => {
     const own = groups[index]
-    if (own < 0) return child
+    if (own < 0) return <Fragment key={key}>{node}</Fragment>
     const before = groups.slice(0, index).filter((g) => g >= 0)
     const after = groups.slice(index + 1).filter((g) => g >= 0)
     const first = before.length === 0 || before[before.length - 1] !== own
     const last = after.length === 0 || after[0] !== own
     return (
-      <ItemPlaceContext.Provider key={index} value={{ first, last }}>
-        {child}
+      <ItemPlaceContext.Provider key={key} value={{ first, last }}>
+        {node}
       </ItemPlaceContext.Provider>
     )
   })
@@ -259,7 +266,8 @@ function MenuItem({ children, icon, description, danger = false, disabled = fals
         disabled={disabled}
         onPress={select}
         testID={testID}
-        style={[styles.androidItem, shape, description != null ? styles.androidItemTall : null, chosen ? { backgroundColor: m.tertiaryContainer } : null]}
+        hitSlop={ITEM_SLOP}
+        style={[styles.androidItem, shape, chosen ? { backgroundColor: m.tertiaryContainer } : null]}
       >
         {({ pressed }) => (
           <>
@@ -372,9 +380,10 @@ const styles = StyleSheet.create({
   scroll: { flexGrow: 0 },
   // A standalone group: 16dp corners, 2 above and below its items, elevation level 2
   android: { flexShrink: 1, borderRadius: 16, paddingVertical: 2, boxShadow: "0 2px 6px 2px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.3)" },
-  // 44 tall, 12 around its content, 4 in from the group's sides; the icon 8 before the label
-  androidItem: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 12, paddingVertical: 12, marginHorizontal: 4 },
-  androidItemTall: { marginVertical: 2 },
+  // 44 tall, 12 around its content, 4 in from the group's sides; the icon 8 before the label. Compose's item Surface
+  // takes the 48dp minimum touch size, so a one-line item keeps 2 above and below (a two-line one has the same 2 as
+  // padding): the items stand 4 apart and 4 in from the group's edge, concentric with its 16dp corners
+  androidItem: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 12, paddingVertical: 12, marginHorizontal: 4, marginVertical: 2 },
   androidSeparator: { height: 1, marginHorizontal: 12, marginVertical: 2 },
   androidLabel: { minHeight: 32, justifyContent: "center", paddingLeft: 12, paddingRight: 4 },
   iosItem: { flexDirection: "row", alignItems: "center", paddingTop: 10, paddingBottom: 10, paddingLeft: 6, paddingRight: 8, borderCurve: "continuous" },

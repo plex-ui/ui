@@ -396,6 +396,9 @@ function AndroidTrack({ theme, centers, range, vertical, length, active, disable
   const gap = 6
   const inner = 2
   const outer = track / 2
+  // Compose lays the track between the handle's centers at either end (2 in, half the 4dp handle) and puts a stop
+  // indicator's center a corner (8) in from the track's free end
+  const edge = 2
   const on = disabled ? withAlpha(m.onSurface, 0.38) : (rangeColor ?? m.primary)
   const off = disabled ? withAlpha(m.onSurface, 0.12) : (trackColor ?? m.secondaryContainer)
   const handles = centers.map((at, index) => ({ at, width: active === index ? 2 : 4 }))
@@ -404,9 +407,9 @@ function AndroidTrack({ theme, centers, range, vertical, length, active, disable
   // Inactive from the start to a range's first handle, active between each handle and the next (from the start for
   // one thumb), inactive from the last handle to the end
   const parts = [
-    ...(range ? [{ from: 0, to: first.at - first.width / 2 - gap, color: off, start: outer, end: inner, stop: "start" }] : [{ from: 0, to: first.at - first.width / 2 - gap, color: on, start: outer, end: inner, stop: null }]),
+    ...(range ? [{ from: edge, to: first.at - first.width / 2 - gap, color: off, start: outer, end: inner, stop: "start" }] : [{ from: edge, to: first.at - first.width / 2 - gap, color: on, start: outer, end: inner, stop: null }]),
     ...handles.slice(1).map((handle, index) => ({ from: handles[index].at + handles[index].width / 2 + gap, to: handle.at - handle.width / 2 - gap, color: on, start: inner, end: inner, stop: null })),
-    { from: last.at + last.width / 2 + gap, to: length, color: off, start: inner, end: outer, stop: "end" },
+    { from: last.at + last.width / 2 + gap, to: length - edge, color: off, start: inner, end: outer, stop: "end" },
   ]
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.center]}>
@@ -418,7 +421,7 @@ function AndroidTrack({ theme, centers, range, vertical, length, active, disable
       {/* The stop indicators at the free ends of the track, where an inactive part has room for them */}
       {parts.map((part, index) =>
         part.stop && part.to - part.from > 12 ? (
-          <View key={`stop-${index}`} style={[span(vertical, part.stop === "start" ? 6 : length - 10, part.stop === "start" ? 10 : length - 6, 4), { borderRadius: 2, backgroundColor: on }]} />
+          <View key={`stop-${index}`} style={[span(vertical, part.stop === "start" ? edge + outer - 2 : length - edge - outer - 2, part.stop === "start" ? edge + outer + 2 : length - edge - outer + 2, 4), { borderRadius: 2, backgroundColor: on }]} />
         ) : null,
       )}
       {handles.map((handle, index) => (

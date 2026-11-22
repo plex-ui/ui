@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react"
-import { Animated, Easing, Pressable, StyleSheet, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from "react-native"
+import { Animated, Easing, Pressable, StyleSheet, Text as NativeText, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from "react-native"
 import XCircleFilled from "../../icons/plex/XCircleFilled"
 import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
@@ -130,8 +130,11 @@ export function fieldLook(theme: Theme, { variant, size, pill }: { variant: Inpu
 
 /**
  * Draws a field's frame. An outlined field whose label has floated is cut where the label sits on the line, as
- * Compose's `outlineCutout`: the outline shows through three windows (left of the cut, under it, right of it), each
- * a clipped copy of the whole outline, so the cut animates with the label and needs no background color behind it.
+ * Compose's `outlineCutout`. The outline shows through three windows that do not overlap (a translucent disabled
+ * line would darken where two did), each a clipped copy of the outline aligned with the field: before the cut (full
+ * height), after it below the top line, and after it on the top line. So the cut animates with the label, needs no
+ * fill behind the label, and keeps a pill's round ends. The windows are placed by `start` / `end`, so the cut
+ * follows the label to the right in a right-to-left layout.
  */
 export function FieldOutline({ frame, cut }: { frame: FieldFrame | null; cut?: { start: number; width: Animated.AnimatedInterpolation<number> | number } | null }) {
   if (!frame) return null
@@ -142,14 +145,15 @@ export function FieldOutline({ frame, cut }: { frame: FieldFrame | null; cut?: {
   const back = typeof end === "number" ? -end : Animated.multiply(end, -1)
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-      <View style={[styles.window, { left: 0, width: cut.start, top: 0 }]}>
-        <View style={[styles.copy, line, { left: 0, right: FAR, top: 0 }]} />
+      <View style={[styles.window, { start: 0, width: cut.start, top: 0, bottom: 0 }]}>
+        <View style={[styles.copy, line, { start: 0, end: FAR, top: 0, bottom: 0 }]} />
       </View>
-      <Animated.View style={[styles.window, { left: cut.start, width: cut.width, top: CUT_DEPTH }]}>
-        <View style={[styles.copy, line, { left: -cut.start, right: FAR, top: -CUT_DEPTH }]} />
-      </Animated.View>
-      <Animated.View style={[styles.window, { left: end, right: 0, top: 0 }]}>
-        <Animated.View style={[styles.copy, line, { left: back, right: 0, top: 0 }]} />
+      <View style={[styles.window, { start: cut.start, end: 0, top: CUT_DEPTH, bottom: 0 }]}>
+        <View style={[styles.copy, line, { start: -cut.start, end: 0, top: -CUT_DEPTH, bottom: 0 }]} />
+      </View>
+      <Animated.View style={[styles.window, { start: end, end: 0, top: 0, height: CUT_DEPTH }]}>
+        {/* Only its top line and the start of its corner show: it may run past the field's bottom */}
+        <Animated.View style={[styles.copy, line, { start: back, end: 0, top: 0, bottom: FAR }]} />
       </Animated.View>
     </View>
   )
@@ -157,7 +161,7 @@ export function FieldOutline({ frame, cut }: { frame: FieldFrame | null; cut?: {
 
 /** A clipped copy of the outline reaches this far past its window, so only its own edges show. */
 const FAR = -2000
-/** The cut removes the top line only: deeper than the 2dp focused line, shallower than the 16dp it may run. */
+/** The cut removes the top line only: deeper than the 2dp focused line. */
 const CUT_DEPTH = 4
 
 /** A single-line text field: Plex UI's Input. iOS 26 draws a 44pt field in 17pt type, Android Material 3's text field. */
@@ -207,7 +211,7 @@ export function InputField({
   const labelColor = disabled ? withAlpha(m.onSurface, 0.38) : invalid ? m.error : focused ? m.primary : m.onSurfaceVariant
   const showClear = !!onClear && filled && !disabled && !readOnly
   // Compose places a 24dp icon in a 48dp slot at the field's edge (the icon 12 in) and the text 4 past the slot (52 in)
-  const sides: ViewStyle | null = theme.isAndroid ? { paddingLeft: startAdornment ? 12 : 16, paddingRight: endAdornment || showClear ? 12 : 16 } : null
+  const sides: ViewStyle | null = theme.isAndroid ? { paddingStart: startAdornment ? 12 : 16, paddingEnd: endAdornment || showClear ? 12 : 16 } : null
   const textStart = theme.isAndroid ? (startAdornment ? 52 : 16) : 0
   // An outlined label floats to the field's start padding over the line (past a pill's round end), the cut 4 around it
   const floatedStart = pill ? 28 : 16
@@ -231,8 +235,8 @@ export function InputField({
         {floating ? (
           <>
             {outlined ? (
-              // The floated label's width, for the cut in the outline
-              <Text
+              // The floated label's width, in the visible label's own type (React Native's Text: no Plex tracking)
+              <NativeText
                 aria-hidden
                 accessibilityElementsHidden
                 importantForAccessibility="no-hide-descendants"
@@ -241,7 +245,7 @@ export function InputField({
                 style={[styles.measure, { fontSize: materialType.bodySmall.fontSize, lineHeight: materialType.bodySmall.lineHeight, ...theme.font("regular") }]}
               >
                 {labelText}
-              </Text>
+              </NativeText>
             ) : null}
             <Animated.View
               pointerEvents="none"
@@ -250,7 +254,7 @@ export function InputField({
                 outlined
                   ? {
                       top: float.interpolate({ inputRange: [0, 1], outputRange: [16, -materialType.bodySmall.lineHeight / 2] }),
-                      left: float.interpolate({ inputRange: [0, 1], outputRange: [0, floatedStart - textStart] }),
+                      start: float.interpolate({ inputRange: [0, 1], outputRange: [0, floatedStart - textStart] }),
                     }
                   : { top: float.interpolate({ inputRange: [0, 1], outputRange: [16, 8] }) },
               ]}
@@ -386,11 +390,11 @@ const styles = StyleSheet.create({
   box: { flexDirection: "row", alignItems: "center", alignSelf: "stretch" },
   grow: { flex: 1, minWidth: 0, justifyContent: "center" },
   input: { margin: 0, padding: 0, outlineWidth: 0, minWidth: 0 },
-  floating: { position: "absolute", left: 0, maxWidth: "100%", flexDirection: "row" },
-  measure: { position: "absolute", left: 0, top: 0, opacity: 0 },
+  floating: { position: "absolute", start: 0, maxWidth: "100%", flexDirection: "row" },
+  measure: { position: "absolute", start: 0, top: 0, opacity: 0 },
   underline: { position: "absolute", left: 0, right: 0, bottom: 0 },
-  window: { position: "absolute", bottom: 0, overflow: "hidden" },
-  copy: { position: "absolute", bottom: 0 },
+  window: { position: "absolute", overflow: "hidden" },
+  copy: { position: "absolute" },
   clear: { alignItems: "center", justifyContent: "center", minWidth: 24, alignSelf: "stretch" },
   field: { alignSelf: "stretch" },
 })
