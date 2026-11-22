@@ -1,4 +1,4 @@
-import { createContext, Fragment, isValidElement, useContext, useEffect, useState, type ReactNode } from "react"
+import { createContext, Fragment, isValidElement, useContext, useEffect, useRef, useState, type ReactNode } from "react"
 import {
   ActivityIndicator,
   Animated,
@@ -70,6 +70,8 @@ type Metrics = {
   gap: number
   radius: number
   pressedRadius: number
+  /** A selected (toggle) button's resting corners: Material 3 Expressive morphs a round one to its square shape. */
+  selectedRadius: number
   indicator: number
   weight: "regular" | "medium" | "semibold"
 }
@@ -113,9 +115,13 @@ export function buttonMetrics(theme: Theme, size: ControlSize, shape: "round" | 
       fontSize: type.fontSize,
       lineHeight: type.lineHeight,
       iconSize: uniform ? (m === "XS" ? 20 : 24) : m === "M" ? 24 : 20,
-      gap: 8,
+      // ButtonDefaults.ExtraSmallIconSpacing: 4 in an XS button (its token still says 8, flagged in Compose)
+      gap: m === "XS" ? 4 : 8,
       radius: shape === "round" ? height / 2 : square,
       pressedRadius: m === "M" ? 12 : 8,
+      // ToggleButton's checkedShape (Button*Tokens.SelectedContainerShapeSquare) and the icon button's
+      // (*IconButtonTokens.SelectedContainerShapeRound): a round one squares; a square icon button turns round
+      selectedRadius: shape === "round" ? square : uniform ? height / 2 : square,
       indicator: m === "M" ? 24 : 20,
       weight: "medium",
     }
@@ -131,6 +137,7 @@ export function buttonMetrics(theme: Theme, size: ControlSize, shape: "round" | 
     gap: theme.length("--button-touch-gap", 8),
     radius: Math.min(radius, height / 2),
     pressedRadius: Math.min(radius, height / 2),
+    selectedRadius: Math.min(radius, height / 2),
     indicator: theme.length(`--button-indicator-size-${size}`, 20),
     weight: theme.length("--button-font-weight", 400) >= 590 ? "semibold" : theme.length("--button-font-weight", 400) >= 500 ? "medium" : "regular",
   }
@@ -138,16 +145,17 @@ export function buttonMetrics(theme: Theme, size: ControlSize, shape: "round" | 
 
 type Colors = { background: string; pressed: string; text: string; border?: string }
 
-export function buttonColors(theme: Theme, color: ButtonColor, variant: ButtonVariant, disabled: boolean, selected: boolean): Colors {
+export function buttonColors(theme: Theme, color: ButtonColor, variant: ButtonVariant, disabled: boolean, selected: boolean, uniform = false): Colors {
   const c = (name: string) => theme.color(`--color-${name}`)
   const m = theme.material
   if (disabled) {
     if (theme.isAndroid) {
+      // Button tokens dim onSurfaceVariant, icon button tokens onSurface; an outline keeps outlineVariant
       return {
         background: variant === "solid" || variant === "soft" ? withAlpha(m.onSurface, 0.1) : "transparent",
         pressed: "transparent",
-        text: withAlpha(m.onSurfaceVariant, 0.38),
-        border: variant === "outline" ? withAlpha(m.onSurface, 0.12) : undefined,
+        text: withAlpha(uniform ? m.onSurface : m.onSurfaceVariant, 0.38),
+        border: variant === "outline" ? m.outlineVariant : undefined,
       }
     }
     return {
@@ -171,6 +179,8 @@ export function buttonColors(theme: Theme, color: ButtonColor, variant: ButtonVa
           ? { background: m.inverseSurface, pressed: m.inverseSurface, text: m.inverseOnSurface }
           : { background: "transparent", pressed: "transparent", text: m.onSurfaceVariant, border: m.outlineVariant }
       case "ghost":
+        // A standard icon button (IconButtonTokens): onSurfaceVariant, and the primary with no container when selected
+        if (uniform) return { background: "transparent", pressed: "transparent", text: selected ? m.primary : m.onSurfaceVariant }
         return { background: selected ? m.secondaryContainer : "transparent", pressed: "transparent", text: m.onSurface }
     }
   }
@@ -206,7 +216,7 @@ function barColors(
   if (!bar) return colors
   if (theme.isAndroid) {
     // Material top app bar (AppBarTokens): the navigation icon in onSurface, the actions in onSurfaceVariant
-    return neutral && variant === "ghost" && !disabled ? { ...colors, text: bar.leading ? theme.material.onSurface : theme.material.onSurfaceVariant } : colors
+    return neutral && variant === "ghost" && !disabled && !selected ? { ...colors, text: bar.leading ? theme.material.onSurface : theme.material.onSurfaceVariant } : colors
   }
   if (prominent) {
     return disabled
@@ -308,26 +318,35 @@ export function Button({
           pressedRadius: bar.height / 2,
         }
       : base
-  const colors = barColors(theme, buttonColors(theme, color, variant, disabled, selected), { bar, prominent, neutral, disabled, variant, selected, flat: mobileMaterial === "flat" })
+  const colors = barColors(theme, buttonColors(theme, color, variant, disabled, selected, uniform), { bar, prominent, neutral, disabled, variant, selected, flat: mobileMaterial === "flat" })
   // In a bar every neutral soft or ghost button is glass, as on iOS 26, unless it asks to stay flat or is selected
   const wantsGlass = bar ? mobileMaterial !== "flat" && neutral && !selected && !bar.inGroup : mobileMaterial === "glass" && (variant === "soft" || variant === "ghost") && !disabled
   const glass = theme.isIOS && wantsGlass
   const nativeRipple = useMaterialPress(theme)
   const [pressed, setPressed] = useState(false)
-  const [radius] = useState(() => new Animated.Value(metrics.radius))
-  useEffect(() => radius.setValue(metrics.radius), [radius, metrics.radius])
+  // The corners at rest: a selected Android button has morphed to its checked shape
+  const resting = theme.isAndroid && selected ? metrics.selectedRadius : metrics.radius
+  const [radius] = useState(() => new Animated.Value(resting))
   const animateRadius = (to: number) => {
-    if (!theme.isAndroid || metrics.pressedRadius === metrics.radius) return
+    if (!theme.isAndroid) return
     Animated.timing(radius, { toValue: to, duration: theme.reducedMotion ? 0 : 150, useNativeDriver: false }).start()
   }
+  // A change of selection morphs the shape as Compose's animated toggle shapes do; a change of size jumps
+  const wasSelected = useRef(selected)
+  useEffect(() => {
+    const morph = theme.isAndroid && wasSelected.current !== selected
+    wasSelected.current = selected
+    if (morph) Animated.timing(radius, { toValue: resting, duration: theme.reducedMotion ? 0 : 150, useNativeDriver: false }).start()
+    else radius.setValue(resting)
+  }, [radius, resting, selected, theme.isAndroid, theme.reducedMotion])
   const handleIn = (event: GestureResponderEvent) => {
     setPressed(true)
-    animateRadius(metrics.pressedRadius)
+    if (metrics.pressedRadius !== resting) animateRadius(metrics.pressedRadius)
     onPressIn?.(event)
   }
   const handleOut = (event: GestureResponderEvent) => {
     setPressed(false)
-    animateRadius(metrics.radius)
+    if (metrics.pressedRadius !== resting) animateRadius(resting)
     onPressOut?.(event)
   }
   const inert = disabled || inertProp

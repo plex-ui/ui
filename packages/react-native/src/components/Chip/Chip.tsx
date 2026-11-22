@@ -51,12 +51,16 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
   const android = theme.isAndroid
   const m = theme.material
   const off = withAlpha(m.onSurface, 0.38)
+  // Compose's three chips: an assist chip (an action) labels in onSurface, a filter or input chip in onSurfaceVariant
+  const assist = !filter && !onRemove
   const color = android
     ? disabled
       ? off
       : selected
         ? m.onSecondaryContainer
-        : m.onSurfaceVariant
+        : assist
+          ? m.onSurface
+          : m.onSurfaceVariant
     : disabled
       ? theme.colors.textDisabled
       : selected
@@ -76,6 +80,9 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
   // Material's selected filter chip leads with a check where it has no symbol of its own
   const leading = android && selected && icon == null ? <CheckMd /> : icon
   const iconSize = android ? 18 : 17
+  // The leading icon: primary on an assist or unselected filter chip, onSurfaceVariant on an unselected input chip
+  // and primary on a selected one (InputChipTokens), the label's color on a selected filter chip
+  const leadingColor = !android || disabled ? color : onRemove ? (selected ? m.primary : m.onSurfaceVariant) : selected ? color : m.primary
   // The chip is drawn 32 (34) tall inside a 48dp (44pt) touch target, as Compose's minimum interactive size and the
   // HIG ask: the target is the layout box, the chip a layer inside it, so every press in the target reaches it
   const target = android ? 48 : 44
@@ -90,7 +97,8 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
   )
   const box = {
     minHeight: target,
-    paddingLeft: leading != null ? (android ? 8 : 12) : android ? 16 : 14,
+    // Compose: 8 of padding and 8 of spacing around the label; an input chip pads 4 where it has no leading icon
+    paddingLeft: leading != null ? (android ? 8 : 12) : android ? (onRemove ? 12 : 16) : 14,
     paddingRight: onRemove ? 0 : android ? 16 : 14,
     gap: android ? 8 : 6,
     opacity: !android && pressed ? 0.7 : 1,
@@ -100,7 +108,7 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
       {/* In a View: on the web the absolute layer paints over a bare (unpositioned) svg, never over a View */}
       {leading != null ? (
         <View>
-          <IconDefaultsProvider size={iconSize} color={android && !selected && !disabled ? m.primary : color}>
+          <IconDefaultsProvider size={iconSize} color={leadingColor}>
             {leading}
           </IconDefaultsProvider>
         </View>

@@ -114,7 +114,7 @@ export type ListItemProps = {
 /**
  * A row of a List: the label (17/22, `--field-row-*`: 52 tall, 12 above and below the text) with a description,
  * a leading symbol, a value or a control, and the chevron of a drill-in (`Disclosure`, in the tertiary label). On
- * Android a Material 3 list item: Body L headline, Body M supporting text, a 24dp leading icon 16 from the text, the
+ * Android a Material 3 Expressive list item: Body L headline, Body M supporting text, a 24dp leading icon 12 from the text, the
  * value in Label S.
  */
 export function ListItem({ label, description, leading, leadingColor, value, trailing, disclosure, onPress, disabled = false, destructive = false, accessibilityLabel, testID }: ListItemProps) {
@@ -124,7 +124,7 @@ export function ListItem({ label, description, leading, leadingColor, value, tra
   const name = accessibilityLabel ?? ([textOf(label), textOf(value)].filter(Boolean).join(", ") || undefined)
   // A pressable row reads its description after its name, as a hint
   const described = useDescription(onPress ? description : undefined)
-  const row = (pressed: boolean) => (theme.isAndroid ? androidRow(theme, pressed) : iosRow(theme, pressed, last))
+  const row = (pressed: boolean) => (theme.isAndroid ? androidRow(theme, pressed, description != null) : iosRow(theme, pressed, last))
   const content = theme.isAndroid ? (
     <AndroidContent theme={theme} label={label} description={description} descriptionId={described.id} leading={leading} value={value} trailing={trailing} disabled={disabled} destructive={destructive} />
   ) : (
@@ -158,14 +158,18 @@ function iosRow(theme: Theme, pressed: boolean, last: boolean): ViewStyle {
   }
 }
 
-function androidRow(theme: Theme, pressed: boolean): ViewStyle {
+/**
+ * Compose's Expressive interactive list item (ListTokens, ListItemDefaults.ContentPadding): 16 at the sides, 10 above
+ * and below, 12 between the slots, 56 tall with one line and 72 with supporting text.
+ */
+function androidRow(theme: Theme, pressed: boolean, twoLine: boolean): ViewStyle {
   return {
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
-    minHeight: 56,
+    gap: 12,
+    minHeight: twoLine ? 72 : 56,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     backgroundColor: pressed ? withAlpha(theme.material.onSurface, stateLayer.pressed) : undefined,
   }
 }
@@ -233,7 +237,7 @@ function AndroidContent({ theme, label, description, descriptionId, leading, val
           {leading}
         </IconDefaultsProvider>
       ) : null}
-      <View style={[styles.androidText, description != null ? styles.twoLine : null]}>
+      <View style={styles.androidText}>
         <Text color={disabled ? off : destructive ? m.error : m.onSurface} style={{ fontSize: body.fontSize, lineHeight: body.lineHeight }}>
           {label}
         </Text>
@@ -272,5 +276,4 @@ const styles = StyleSheet.create({
   androidValue: { flexShrink: 1, maxWidth: "40%" },
   shrink: { flexShrink: 1 },
   keep: { flexShrink: 0 },
-  twoLine: { minHeight: 56, justifyContent: "center" },
 })
