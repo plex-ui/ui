@@ -97,6 +97,32 @@ const minimize = useTabBarMinimize()
 toast.success("Payment sent", { description: "$24.00 to Jane", action: { label: "Undo", onClick: undo } })
 ```
 
+### Content
+
+- `Avatar` (`name`, `imageUrl`, `Icon`, `overflowCount`, `color`, `variant`), `AvatarGroup`: an initial, a symbol or
+  `+N` on a soft or solid fill, a picture over it.
+- `Badge` (`color`, `variant` soft/solid/outline, `size`, `pill`, `onRemove`) and `Chip` (filter: `selected`,
+  `onSelectedChange`; action: `onPress`; input: `onRemove`): iOS capsules; Material 3 chips.
+- `Card` with `Card.Header`, `.Title`, `.Description`, `.Content`, `.Footer`, `.Action` and `Card.Media` (a picture
+  to the card's edges, with a `title` and `description` over it): a section of an iOS inset grouped list; Material's
+  outlined and filled cards.
+- `List` (`header`, `footer`) with `ListItem` (`label`, `description`, `leading`, `leadingColor`, `value`, `trailing`,
+  `onPress`): an iOS 26 inset grouped section (the Settings look); a Material 3 list.
+- `Skeleton`, `EmptyMessage` (also `EmptyState`) with `.Icon`, `.Title`, `.Description`, `.ActionRow`.
+- `Slider` (`label`, `value`, `onChange`, `min`, `max`, `step`, `unit`): the iOS 26 slider; Material 3's.
+- `PageControl` (`count`, `value`, `onChange`): the iOS page dots, tapped or scrubbed.
+
+```tsx
+<List header="General" footer="Notifications show on the lock screen.">
+  <ListItem label="Notifications" leading={<Bell />} leadingColor="#ff3b30" value="On" onPress={openNotifications} />
+  <ListItem label="Dark mode" trailing={<Switch checked={dark} onCheckedChange={setDark} accessibilityLabel="Dark mode" />} />
+</List>
+
+<Card onPress={openTrip}>
+  <Card.Media source={photo} aspectRatio={4 / 3} title="Sunset over the hills" description="Saved yesterday" />
+</Card>
+```
+
 ## Peers
 
 `react`, `react-native`, `react-native-svg`, `react-native-safe-area-context`. Optional: `expo-glass-effect` (native

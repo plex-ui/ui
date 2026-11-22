@@ -1,10 +1,12 @@
 import type { ComponentType } from "react"
 import { BarsScreen } from "./BarsScreen"
 import { ButtonsScreen } from "./ButtonsScreen"
+import { ContentScreen } from "./ContentScreen"
 import { ControlsScreen } from "./ControlsScreen"
 import { FieldsScreen } from "./FieldsScreen"
 import { IconButtonsScreen } from "./IconButtonsScreen"
 import { IconsScreen } from "./IconsScreen"
+import { ListsScreen } from "./ListsScreen"
 import { OverlaysScreen } from "./OverlaysScreen"
 import { SegmentedScreen } from "./SegmentedScreen"
 import { TabBarScreen } from "./TabBarScreen"
@@ -26,4 +28,6 @@ export const screens: Screen[] = [
   { id: "controls", title: "Controls", stage: 3, Component: ControlsScreen },
   { id: "fields", title: "Fields", stage: 3, Component: FieldsScreen },
   { id: "overlays", title: "Overlays", stage: 3, Component: OverlaysScreen },
+  { id: "content", title: "Content", stage: 4, Component: ContentScreen },
+  { id: "lists", title: "Lists & cards", stage: 4, Component: ListsScreen },
 ]

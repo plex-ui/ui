@@ -51,3 +51,24 @@ for (const platform of ["ios", "android"] as const) {
     await expect(page.getByTestId("select-fruit-menu")).toHaveCount(0)
   })
 }
+
+test("the keyboard of the web: Space toggles a switch and a checkbox, the arrows choose a radio", async ({ page }) => {
+  await openGallery(page, { platform: "ios", scheme: "light", screen: "controls" })
+  const wifi = page.getByRole("switch", { name: "Wi-Fi" })
+  await wifi.focus()
+  await page.keyboard.press("Space")
+  await expect(page.getByTestId("switch-value")).toHaveText("Wi-Fi: off")
+  await page.getByRole("checkbox", { name: "Accept the terms" }).focus()
+  await page.keyboard.press("Space")
+  await expect(page.getByTestId("checkbox-value")).toHaveText("Terms: true")
+  // One radio in the tab order, the chosen one; the arrows move and choose, past the disabled one
+  await expect(page.getByRole("radio", { name: "Yearly" })).toHaveAttribute("tabindex", "-1")
+  await page.getByRole("radio", { name: "Monthly" }).focus()
+  await page.keyboard.press("ArrowDown")
+  await expect(page.getByTestId("radio-value")).toHaveText("Plan: yearly")
+  await expect(page.getByRole("radio", { name: "Yearly" })).toBeFocused()
+  await page.keyboard.press("ArrowDown")
+  await expect(page.getByTestId("radio-value")).toHaveText("Plan: monthly")
+  // A description is read with its control
+  await expect(page.getByRole("radio", { name: "Monthly" })).toHaveAccessibleDescription("Billed every month")
+})

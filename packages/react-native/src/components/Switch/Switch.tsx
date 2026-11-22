@@ -59,6 +59,7 @@ export function Switch({
   }
   const control = theme.isAndroid ? <AndroidTrack theme={theme} checked={checked} pressed={pressed} disabled={disabled} color={color} progress={progress} /> : <IOSTrack theme={theme} checked={checked} disabled={disabled} color={color} progress={progress} />
   const described = useDescription(description)
+  const hasText = label != null || description != null
   const text = <ControlLabel label={label} description={description} disabled={disabled} descriptionId={described.id} />
   return (
     <Pressable
@@ -75,9 +76,10 @@ export function Switch({
       testID={testID}
       style={[styles.row, { gap: theme.isAndroid ? 16 : theme.length("--switch-label-gap", 8), minHeight: theme.isAndroid ? 48 : 44 }, style]}
     >
-      {labelPosition === "start" ? <View style={styles.grow}>{text}</View> : null}
+      {/* A switch without a label hugs its track: an empty growing slot would push it away from a row's end */}
+      {labelPosition === "start" && hasText ? <View style={styles.grow}>{text}</View> : null}
       {control}
-      {labelPosition === "end" ? <View style={styles.grow}>{text}</View> : null}
+      {labelPosition === "end" && hasText ? <View style={styles.grow}>{text}</View> : null}
     </Pressable>
   )
 }
