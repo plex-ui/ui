@@ -6,7 +6,7 @@ import { spaceToggles, useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"
 import { stateLayer, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
-import { createIcon } from "../Icon/createIcon"
+import { MaterialCheck, MaterialDash } from "../Icon/material"
 import { selectionColor } from "../Switch/Switch"
 
 export type CheckboxProps = {
@@ -132,14 +132,6 @@ export function Checkbox({
     </Pressable>
   )
 }
-
-/**
- * Material's checkmark, as Compose draws it in an 18dp box (`drawCheck` with the checkbox styling fix, which sizes the
- * box by CheckboxTokens.ContainerSize): from (.25, .5) through (.4, .65) to (.75, .3), a 2dp stroke with square caps.
- */
-const MaterialCheck = createIcon("MaterialCheck", "0 0 18 18", [["path", { d: "M4.5 9L7.2 11.7L13.5 5.4", fill: "none", stroke: 0, strokeWidth: 2, strokeLinecap: "square" }]])
-/** The indeterminate mark: the check's ends gravitated to the middle line. */
-const MaterialDash = createIcon("MaterialDash", "0 0 18 18", [["path", { d: "M4.5 9H13.5", fill: "none", stroke: 0, strokeWidth: 2, strokeLinecap: "square" }]])
 
 const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", alignSelf: "stretch" },

@@ -1,7 +1,7 @@
 import { useRef, useState, type ReactNode } from "react"
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import ChevronUpDown from "../../icons/plex/ChevronUpDown"
-import { createIcon } from "../Icon/createIcon"
+import { MaterialArrowDropDown } from "../Icon/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { ControlSize } from "../Button/Button"
 import { FieldOutline, fieldLook, type InputVariant } from "../Input/Input"
@@ -14,13 +14,6 @@ export type SelectOption<V extends string = string> = {
   description?: ReactNode
   disabled?: boolean
 }
-
-/**
- * Material's exposed dropdown arrow, `arrow_drop_down`: a sharp 10x5 triangle in a 24dp box (Compose material3
- * `Icons.Filled.ArrowDropDown`, used by `ExposedDropdownMenuDefaults.TrailingIcon`). The Plex carets are rounded and
- * 12x8, a size larger.
- */
-const ArrowDropDown = createIcon("ArrowDropDown", "0 0 24 24", [["path", { d: "M7 10l5 5 5-5z", fill: 0 }]])
 
 export type SelectProps<T extends SelectOption> = {
   /** The options, as @plexui/ui's `options`. */
@@ -92,7 +85,7 @@ export function Select<T extends SelectOption>({
         {theme.isAndroid ? (
           // Turned about the box's center while the menu is open, as Compose rotates its trailing icon 180°
           <View style={open ? styles.turned : null}>
-            <ArrowDropDown size={24} color={look.trailingIcon} />
+            <MaterialArrowDropDown size={24} color={look.trailingIcon} />
           </View>
         ) : (
           <ChevronUpDown size={17} color={theme.color("--mobile-label-secondary")} />

@@ -146,7 +146,7 @@ browser the fragment (`#platform=android&scheme=dark&screen=lists&scroll=1200`),
 through Expo Go (`xcrun simctl openurl booted "exp://127.0.0.1:8081/--/?platform=ios&screen=lists&scroll=1200"`, or
 `adb shell am start -a android.intent.action.VIEW -d "exp://10.0.2.2:8081/--/?platform=android&screen=lists"`).
 `scroll` is how far down the screen to open; on the Overlays screen `open` shows an overlay (`dialog`,
-`dialog-three`, `dialog-field`, `sheet`, `actions`, `menu`, `toast`, `toast-success`, `toast-action`). The browser's
+`dialog-three`, `dialog-field`, `sheet`, `actions`, `menu`, `toast`, `toast-success`, `toast-action`, `toast-close`). The browser's
 address keeps both until a control of the gallery changes.
 
 `npm run typecheck` and `npm test` regenerate the icon modules; a running Metro can lose track of them while they are

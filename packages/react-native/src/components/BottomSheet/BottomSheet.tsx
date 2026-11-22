@@ -2,7 +2,6 @@ import { useMemo, useState, type ReactNode } from "react"
 import { Animated, PanResponder, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type StyleProp, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { iosDim, MATERIAL_SCRIM, Overlay } from "../../internal/Overlay"
-import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { materialType } from "../../theme/typography"
 import { Text } from "../Text/Text"
@@ -91,7 +90,7 @@ export function BottomSheet({ open, onOpenChange, title, children, dismissible =
                 disabled={!dismissible}
                 onPress={close}
                 hitSlop={12}
-                style={android ? [styles.androidHandle, { backgroundColor: withAlpha(m.onSurfaceVariant, 0.4) }] : [styles.iosGrabber, { backgroundColor: theme.color("--mobile-label-tertiary") }]}
+                style={android ? [styles.androidHandle, { backgroundColor: m.onSurfaceVariant }] : [styles.iosGrabber, { backgroundColor: theme.color("--mobile-label-tertiary") }]}
               />
               {title != null ? (
                 <Text
@@ -105,7 +104,7 @@ export function BottomSheet({ open, onOpenChange, title, children, dismissible =
               ) : null}
             </View>
             {/* Content taller than the screen scrolls; the drag stays on the handle */}
-            <ScrollView style={styles.scroll} contentContainerStyle={[android ? styles.androidContent : styles.iosContent, contentStyle]} bounces={false}>
+            <ScrollView style={styles.scroll} contentContainerStyle={[android ? [styles.androidContent, title == null && styles.androidContentUntitled] : styles.iosContent, contentStyle]} bounces={false}>
               {children}
             </ScrollView>
           </Animated.View>
@@ -127,4 +126,6 @@ const styles = StyleSheet.create({
   androidHandle: { width: 32, height: 4, borderRadius: 2 },
   androidTitle: { alignSelf: "stretch", marginTop: 22, paddingHorizontal: 24 },
   androidContent: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 24 },
+  // Compose's DragHandle has 22 above and below it (SheetDefaults.DragHandle's vertical padding)
+  androidContentUntitled: { paddingTop: 22 },
 })

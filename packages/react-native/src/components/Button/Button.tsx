@@ -92,6 +92,8 @@ export type BarItemStyle = {
   inGroup?: boolean
   /** A solid primary button is the bar's prominent one, in the accent. @default true */
   prominent?: boolean
+  /** The navigation side of a Material top app bar: its icon in onSurface (AppBarTokens.LeadingIconColor). */
+  leading?: boolean
 }
 
 export const BarItemContext = createContext<BarItemStyle | null>(null)
@@ -203,8 +205,8 @@ function barColors(
 ): Colors {
   if (!bar) return colors
   if (theme.isAndroid) {
-    // Material top app bar: actions in onSurfaceVariant, the navigation icon in onSurface
-    return neutral && variant === "ghost" && !disabled ? { ...colors, text: theme.material.onSurfaceVariant } : colors
+    // Material top app bar (AppBarTokens): the navigation icon in onSurface, the actions in onSurfaceVariant
+    return neutral && variant === "ghost" && !disabled ? { ...colors, text: bar.leading ? theme.material.onSurface : theme.material.onSurfaceVariant } : colors
   }
   if (prominent) {
     return disabled

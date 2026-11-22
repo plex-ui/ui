@@ -192,6 +192,8 @@ function AndroidDialog({ theme, title, description, actions, run, children }: Pa
                 disabled={action.disabled}
                 onPress={() => run(action)}
                 testID={action.testID}
+                // A 40dp text button in a 48dp touch target, as Compose's minimumInteractiveComponentSize
+                hitSlop={TARGET_SLOP}
                 style={({ pressed }) => [styles.androidButton, pressed ? { backgroundColor: withAlpha(color, stateLayer.pressed) } : null]}
               >
                 <Text color={color} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight, ...theme.font("medium") }}>
@@ -205,6 +207,8 @@ function AndroidDialog({ theme, title, description, actions, run, children }: Pa
     </View>
   )
 }
+
+const TARGET_SLOP = { top: 4, bottom: 4 }
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 16 },

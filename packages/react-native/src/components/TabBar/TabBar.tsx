@@ -259,8 +259,9 @@ function AndroidTab({ value, label, icon, badge, disabled = false, onPress, test
         ]}
       >
         {/* The state layer of a press fills the indicator's shape, as Compose's indicator ripple; the badge stands
-            outside it, unclipped */}
-        {pressed && !disabled ? <View pointerEvents="none" style={[styles.androidLayer, { backgroundColor: withAlpha(iconColor, stateLayer.pressed) }]} /> : null}
+            outside it, unclipped. An inactive destination's layer is onSurface (NavigationBarTokens'
+            InactivePressedStateLayerColor), not its onSurfaceVariant symbol */}
+        {pressed && !disabled ? <View pointerEvents="none" style={[styles.androidLayer, { backgroundColor: withAlpha(selected ? m.onSecondaryContainer : m.onSurface, stateLayer.pressed) }]} /> : null}
         <View style={styles.androidIconBox}>
           <IconDefaultsProvider size={24} color={iconColor}>
             {icon}

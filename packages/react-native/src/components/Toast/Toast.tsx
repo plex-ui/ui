@@ -8,10 +8,11 @@ import Warning from "../../icons/plex/Warning"
 import { Glass } from "../../internal/Glass"
 import { glassOpacity } from "../../internal/Overlay"
 import { textOf } from "../../internal/children"
-import { stateLayer, withAlpha } from "../../theme/material"
+import { elevationShadow, stateLayer, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { materialType } from "../../theme/typography"
+import { MaterialClose } from "../Icon/material"
 import { Text } from "../Text/Text"
 
 export type ToastId = string | number
@@ -26,6 +27,13 @@ export type ToastOptions = {
   duration?: number
   /** A symbol of its own before the title (iOS). */
   icon?: ReactNode
+  /**
+   * A close button, as the web's `closeButton`. Android: the snackbar's dismiss action, a Material close icon at its
+   * end. iOS banners have none: they close with a swipe up, and the option is ignored there.
+   */
+  closeButton?: boolean
+  /** The close button's accessible name. @default "Close toast" */
+  closeButtonAriaLabel?: string
   onDismiss?: () => void
 }
 
@@ -150,7 +158,7 @@ function ToastView({ item, theme, hidden }: { item: ToastT; theme: Theme; hidden
     const body = materialType.bodyMedium
     const label = materialType.labelLarge
     return (
-      <Animated.View {...responder.panHandlers} accessibilityRole="alert" style={[styles.snackbar, { backgroundColor: m.inverseSurface }, motion]}>
+      <Animated.View {...responder.panHandlers} accessibilityRole="alert" style={[styles.snackbar, { backgroundColor: m.inverseSurface }, item.closeButton ? styles.snackClosable : null, motion]}>
         <View style={styles.snackText}>
           <Text color={m.inverseOnSurface} style={{ fontSize: body.fontSize, lineHeight: body.lineHeight }}>
             {item.title}
@@ -173,6 +181,17 @@ function ToastView({ item, theme, hidden }: { item: ToastT; theme: Theme; hidden
             <Text color={m.inversePrimary} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight, ...theme.font("medium") }}>
               {item.action.label}
             </Text>
+          </Pressable>
+        ) : null}
+        {item.closeButton ? (
+          // Compose's dismissAction: an IconButton with Icons.Filled.Close in inverseOnSurface, flush with the end
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={item.closeButtonAriaLabel ?? "Close toast"}
+            onPress={leave}
+            style={({ pressed }) => [styles.snackClose, pressed ? { backgroundColor: withAlpha(m.inverseOnSurface, stateLayer.pressed) } : null]}
+          >
+            <MaterialClose size={24} color={m.inverseOnSurface} />
           </Pressable>
         ) : null}
       </Animated.View>
@@ -227,7 +246,11 @@ const styles = StyleSheet.create({
   iosToast: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
   iosText: { flex: 1, minWidth: 0, gap: 1 },
   iosAction: { height: 34, paddingHorizontal: 14, borderRadius: 17, alignItems: "center", justifyContent: "center" },
-  snackbar: { minHeight: 48, borderRadius: 4, flexDirection: "row", alignItems: "center", paddingLeft: 16, paddingRight: 8, maxWidth: 600, alignSelf: "center", width: "100%" },
+  // SnackbarTokens: 4dp corners, level 3 shadow; OneRowSnackbar's 16 before the text, 8 after the action
+  snackbar: { minHeight: 48, borderRadius: 4, flexDirection: "row", alignItems: "center", paddingLeft: 16, paddingRight: 8, maxWidth: 600, alignSelf: "center", width: "100%", boxShadow: elevationShadow.level3 },
+  // With a dismiss action its 48dp button ends the row
+  snackClosable: { paddingRight: 0 },
+  snackClose: { width: 48, height: 48, borderRadius: 24, alignItems: "center", justifyContent: "center" },
   snackText: { flex: 1, minWidth: 0, paddingVertical: 14 },
   snackAction: { height: 40, paddingHorizontal: 12, borderRadius: 20, alignItems: "center", justifyContent: "center" },
 })

@@ -96,6 +96,15 @@ export function materialColors(resolve: (css: string) => string, scheme?: "light
  */
 export const stateLayer = { hover: 0.08, focus: 0.1, pressed: 0.1, dragged: 0.16 } as const
 
+/**
+ * Material's shadow elevations as CSS box shadows (the key and ambient shadows of the Material web components'
+ * `--md-elevation-level`): level 2 is a menu, level 3 a snackbar.
+ */
+export const elevationShadow = {
+  level2: "0 2px 6px 2px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.3)",
+  level3: "0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 8px 3px rgba(0, 0, 0, 0.15)",
+} as const
+
 /** A color with its alpha multiplied: a state layer or a disabled container. */
 export function withAlpha(color: string, alpha: number): string {
   if (color.startsWith("#") && (color.length === 7 || color.length === 9)) {

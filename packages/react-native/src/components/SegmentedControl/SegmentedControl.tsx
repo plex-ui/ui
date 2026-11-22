@@ -317,6 +317,8 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, size
  * Material 3 Expressive's connected button group, the successor of segmented buttons: 40dp toggle buttons 2dp apart,
  * the outer corners full and the inner 8dp, the selected one fully round in the Plex primary solid.
  */
+const TARGET_SLOP = { top: 4, bottom: 4 }
+
 function AndroidControl({ options, value, select, keys, disabled, block, equal }: ControlProps) {
   const theme = useTheme()
   const m = theme.material
@@ -360,6 +362,8 @@ function AndroidControl({ options, value, select, keys, disabled, block, equal }
             onPressIn={() => setPressed(option.value)}
             onPressOut={() => setPressed(null)}
             android_ripple={nativeRipple ? { color: withAlpha(color, stateLayer.pressed), foreground: true } : undefined}
+            // Material's 48dp touch target around the 40dp button (ButtonGroup's minimumInteractiveComponentSize)
+            hitSlop={TARGET_SLOP}
             testID={option.testID}
             style={[
               styles.androidOption,

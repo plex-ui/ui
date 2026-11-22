@@ -29,6 +29,7 @@ export function OverlaysScreen() {
     if (link?.open === "toast") toast("Saved to Photos")
     if (link?.open === "toast-success") toast.success("Payment sent", { description: "$24.00 to Jane" })
     if (link?.open === "toast-action") toast("Message deleted", { action: { label: "Undo", onClick: () => setLast("Undo") } })
+    if (link?.open === "toast-close") toast("Connection lost", { action: { label: "Retry", onClick: () => setLast("Retry") }, closeButton: true, duration: Infinity })
   }, [link])
   return (
     <>
@@ -98,6 +99,14 @@ export function OverlaysScreen() {
             testID="toast-action"
           >
             With action
+          </Button>
+          <Button
+            color="secondary"
+            variant="soft"
+            onPress={() => toast("Connection lost", { action: { label: "Retry", onClick: () => setLast("Retry") }, closeButton: true, duration: Infinity })}
+            testID="toast-close"
+          >
+            With close
           </Button>
         </Row>
       </Section>

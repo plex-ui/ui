@@ -6,7 +6,8 @@ import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { materialType } from "../../theme/typography"
 import type { ControlSize } from "../Button/Button"
-import { createIcon, IconDefaultsProvider } from "../Icon/createIcon"
+import { IconDefaultsProvider } from "../Icon/createIcon"
+import { MaterialCancel } from "../Icon/material"
 import { Text } from "../Text/Text"
 
 export type InputVariant = "outline" | "soft" | "ghost"
@@ -27,20 +28,6 @@ export type InputProps = Omit<TextInputProps, "editable" | "style"> & {
   style?: StyleProp<ViewStyle>
   testID?: string
 }
-
-/**
- * Material's `cancel` (Material Symbols Outlined, 24dp): the clear icon of a text field's trailing slot, a ring with an
- * X. Plex's XCircleFilled is the iOS glyph (`xmark.circle.fill`).
- */
-const Cancel = createIcon("Cancel", "0 -960 960 960", [
-  [
-    "path",
-    {
-      d: "m336-280 144-144 144 144 56-56-144-144 144-144-56-56-144 144-144-144-56 56 144 144-144 144 56 56Zm144 200q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z",
-      fill: 0,
-    },
-  ],
-])
 
 type FrameState = { focused: boolean; filled: boolean; disabled: boolean; invalid: boolean }
 
@@ -316,7 +303,7 @@ export function InputField({
           }}
           style={styles.clear}
         >
-          {theme.isAndroid ? <Cancel size={look.clearSize} color={look.trailingIcon} /> : <XCircleFilled size={look.clearSize} color={theme.color("--mobile-label-tertiary")} />}
+          {theme.isAndroid ? <MaterialCancel size={look.clearSize} color={look.trailingIcon} /> : <XCircleFilled size={look.clearSize} color={theme.color("--mobile-label-tertiary")} />}
         </Pressable>
       ) : null}
       {endAdornment ? (

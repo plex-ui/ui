@@ -80,4 +80,21 @@ for (const platform of ["ios", "android"] as const) {
     await expect(page.getByTestId("overlay-last")).toHaveText("Last: Undo")
     await expect(toaster.getByText("Message deleted")).toHaveCount(0)
   })
+
+  test(`a toast with closeButton closes from its button on Android only (${platform})`, async ({ page }) => {
+    await page.setViewportSize(PHONE)
+    await openGallery(page, { platform, scheme: "light", screen: "overlays" })
+    await page.getByTestId("toast-close").click()
+    const toaster = page.getByTestId("toaster")
+    await expect(toaster.getByText("Connection lost")).toBeVisible()
+    const close = toaster.getByRole("button", { name: "Close toast" })
+    if (platform === "ios") {
+      // iOS banners close with a swipe: the option is ignored
+      await expect(close).toHaveCount(0)
+      return
+    }
+    await expectOverlay(page, "toast-close-android-light.png")
+    await close.click()
+    await expect(toaster.getByText("Connection lost")).toHaveCount(0)
+  })
 }

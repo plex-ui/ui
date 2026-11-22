@@ -277,7 +277,11 @@ function ToolbarRoot({
             ]}
           >
             <View style={[styles.androidRow, { paddingHorizontal: top ? 4 : 16, justifyContent: top ? "flex-start" : "space-between" }]}>
-              {leading ? <View style={styles.androidEdge}>{leading}</View> : null}
+              {leading ? (
+                <BarItemContext.Provider value={top ? { ...item, leading: true } : item}>
+                  <View style={styles.androidEdge}>{leading}</View>
+                </BarItemContext.Provider>
+              ) : null}
               {top && title && !large && centered ? (
                 // Center-aligned app bar: the title centered on the bar, the actions at its ends
                 <>

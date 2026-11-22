@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import CheckMd from "../../icons/plex/CheckMd"
 import { Glass } from "../../internal/Glass"
 import { canTransformGlass, glassOpacity, Overlay } from "../../internal/Overlay"
-import { stateLayer, withAlpha } from "../../theme/material"
+import { elevationShadow, stateLayer, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { materialType } from "../../theme/typography"
 import { IconDefaultsProvider } from "../Icon/createIcon"
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   shrink: { flexShrink: 1 },
   scroll: { flexGrow: 0 },
   // A standalone group: 16dp corners, 2 above and below its items, elevation level 2
-  android: { flexShrink: 1, borderRadius: 16, paddingVertical: 2, boxShadow: "0 2px 6px 2px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.3)" },
+  android: { flexShrink: 1, borderRadius: 16, paddingVertical: 2, boxShadow: elevationShadow.level2 },
   // 44 tall, 12 around its content, 4 in from the group's sides; the icon 8 before the label. Compose's item Surface
   // takes the 48dp minimum touch size, so a one-line item keeps 2 above and below (a two-line one has the same 2 as
   // padding): the items stand 4 apart and 4 in from the group's edge, concentric with its 16dp corners
