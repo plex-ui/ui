@@ -19,7 +19,20 @@ declare const location: { hash: string } | undefined
  */
 export function initialSettings(defaults: Settings): Settings {
   if (Platform.OS !== "web" || typeof location === "undefined") return defaults
-  const query = new URLSearchParams(location.hash.replace(/^#/, ""))
+  return settingsFrom(location.hash.replace(/^#/, ""), defaults)
+}
+
+/**
+ * The settings a link names: the query of a deep link on a device (`exp://host:8081/--/?platform=android&screen=bars`,
+ * `xcrun simctl openurl` or `adb shell am start -d`), so a state opens without a tap.
+ */
+export function settingsFromUrl(url: string, defaults: Settings): Settings {
+  const query = url.includes("?") ? url.slice(url.indexOf("?") + 1) : ""
+  return query ? settingsFrom(query, defaults) : defaults
+}
+
+function settingsFrom(search: string, defaults: Settings): Settings {
+  const query = new URLSearchParams(search)
   const pick = <T extends string>(name: string, values: readonly T[], fallback: T): T => {
     const value = query.get(name)
     return values.includes(value as T) ? (value as T) : fallback

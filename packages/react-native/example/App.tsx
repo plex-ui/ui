@@ -6,11 +6,11 @@ import { ThemeProvider, defaultPlatform, interFonts } from "@plexui/react-native
 import { useFonts } from "expo-font"
 import { StatusBar } from "expo-status-bar"
 import { useEffect, useState } from "react"
-import { Platform, useColorScheme } from "react-native"
+import { Linking, Platform, useColorScheme } from "react-native"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { violetBrand } from "./src/brand"
 import { Gallery } from "./src/Gallery"
-import { initialSettings, type Settings } from "./src/settings"
+import { initialSettings, settingsFromUrl, type Settings } from "./src/settings"
 
 declare const window: { addEventListener(type: string, listener: () => void): void; removeEventListener(type: string, listener: () => void): void }
 
@@ -22,7 +22,15 @@ export default function App() {
   )
   // A link to another state of the gallery (a new fragment) opens it
   useEffect(() => {
-    if (Platform.OS !== "web") return
+    if (Platform.OS !== "web") {
+      // On a device, a deep link with a query does the same
+      const open = (url: string | null | undefined) => {
+        if (url) setSettings((current) => settingsFromUrl(url, current))
+      }
+      void Linking.getInitialURL().then(open)
+      const subscription = Linking.addEventListener("url", ({ url }) => open(url))
+      return () => subscription.remove()
+    }
     const follow = () => setSettings((current) => initialSettings(current))
     window.addEventListener("hashchange", follow)
     return () => window.removeEventListener("hashchange", follow)

@@ -41,17 +41,47 @@ export function Labeled({ label, children }: { label: string; children?: ReactNo
 export function Backdrop({ children }: { children?: ReactNode }) {
   return (
     <View style={styles.backdrop}>
-      <View style={StyleSheet.absoluteFill}>
-        {["#ff6b6b", "#ffd43b", "#51cf66", "#339af0", "#845ef7"].map((color) => (
-          <View key={color} style={{ flex: 1, backgroundColor: color }} />
-        ))}
-      </View>
+      <Stripes />
       <View style={styles.backdropContent}>{children}</View>
     </View>
   )
 }
 
+const STRIPES = ["#ff6b6b", "#ffd43b", "#51cf66", "#339af0", "#845ef7"]
+
+/** Colored stripes that fill their parent, under bars and glass. */
+export function Stripes() {
+  return (
+    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      {STRIPES.map((color) => (
+        <View key={color} style={{ flex: 1, backgroundColor: color }} />
+      ))}
+    </View>
+  )
+}
+
+/**
+ * A piece of a phone screen: the canvas of the platform, with stripes under it where content runs under a bar.
+ * `align` puts a bottom bar at the bottom.
+ */
+export function Frame({ children, striped = false, align = "top", height, testID }: { children?: ReactNode; striped?: boolean; align?: "top" | "bottom"; height?: number; testID?: string }) {
+  const theme = useTheme()
+  return (
+    <View
+      testID={testID}
+      style={[
+        styles.frame,
+        { backgroundColor: theme.isAndroid ? theme.material.surface : theme.colors.background, borderColor: theme.colors.border, justifyContent: align === "bottom" ? "flex-end" : "flex-start", height },
+      ]}
+    >
+      {striped ? <Stripes /> : null}
+      {children}
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
+  frame: { borderRadius: 16, overflow: "hidden", borderCurve: "continuous", borderWidth: StyleSheet.hairlineWidth },
   section: { gap: 8, paddingHorizontal: 16, paddingVertical: 12 },
   iosTitle: { letterSpacing: 0 },
   body: { gap: 12, marginTop: 4 },

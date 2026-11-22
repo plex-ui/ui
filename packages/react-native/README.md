@@ -51,6 +51,28 @@ export default function App() {
 `useTheme()` gives any token resolved for the current scheme: `theme.color("--color-text")`,
 `theme.length("--button-size-md")`, and Material 3 roles on `theme.material`.
 
+## Components
+
+- `Text`, `Heading`, icons (`@plexui/react-native/icons`, `/icons/lucide`, `/icons/tabler`, `/icons/hugeicons`)
+- `Button`, `IconButton`, `NavigationButton` (back, close, confirm)
+- `Toolbar` with `Toolbar.Leading`, `.Title`, `.Content`, `.Group`, `.Trailing`, `.Row`: an iOS 26 bar or a
+  Material 3 top app bar (`placement="bottom"`: a bottom toolbar or Material's docked toolbar)
+- `TabBar` with `TabBar.Item`: the iOS 26 glass tab bar (search and prominent tabs, badges, minimized, accessory) or
+  Material 3's navigation bar; `useTabBarMinimize()` minimizes it on scroll
+- `SegmentedControl` with `SegmentedControl.Tab`: the iOS segmented control (small plain, large glass) or Material 3's
+  connected button group
+
+```tsx
+const [tab, setTab] = useState("home")
+const minimize = useTabBarMinimize()
+
+<ScrollView onScroll={minimize.onScroll} scrollEventThrottle={16}>…</ScrollView>
+<TabBar value={tab} onValueChange={setTab} minimized={minimize.minimized} onMinimizedChange={minimize.onMinimizedChange}>
+  <TabBar.Item value="home" label="Home" icon={<Home />} />
+  <TabBar.Item value="chats" label="Chats" icon={<Chats />} badge={3} />
+</TabBar>
+```
+
 ## Peers
 
 `react`, `react-native`, `react-native-svg`, `react-native-safe-area-context`. Optional: `expo-glass-effect` (native

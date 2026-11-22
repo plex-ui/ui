@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test"
 import { expectScreen, openGallery, type State } from "./gallery"
 
 /** Every screen of the gallery, by stage. */
-const SCREENS = ["theme", "text", "icons", "buttons", "icon-buttons"]
+const SCREENS = ["theme", "text", "icons", "buttons", "icon-buttons", "bars", "tab-bar", "segmented"]
 
 /** Both platforms and both schemes for every screen; all four, and the brand, where the theme shows most. */
 const STATES: Omit<State, "screen">[] = [
@@ -15,6 +15,18 @@ const FULL: Record<string, Omit<State, "screen">[]> = {
     { platform: "android", scheme: "light" },
     { platform: "ios", scheme: "light", brand: "violet" },
     { platform: "android", scheme: "dark", brand: "violet" },
+  ],
+  "bars": [
+    { platform: "ios", scheme: "dark" },
+    { platform: "android", scheme: "light" },
+  ],
+  "tab-bar": [
+    { platform: "ios", scheme: "dark" },
+    { platform: "android", scheme: "light" },
+  ],
+  "segmented": [
+    { platform: "ios", scheme: "dark" },
+    { platform: "android", scheme: "light", brand: "violet" },
   ],
   buttons: [
     { platform: "ios", scheme: "dark" },

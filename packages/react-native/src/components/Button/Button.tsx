@@ -1,4 +1,4 @@
-import { Children, createContext, Fragment, isValidElement, useContext, useEffect, useState, type ReactElement, type ReactNode } from "react"
+import { createContext, Fragment, isValidElement, useContext, useEffect, useState, type ReactNode } from "react"
 import {
   ActivityIndicator,
   Animated,
@@ -11,6 +11,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from "react-native"
+import { flattenChildren } from "../../internal/children"
 import { Glass } from "../../internal/Glass"
 import { stateLayer, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
@@ -198,7 +199,7 @@ export function buttonColors(theme: Theme, color: ButtonColor, variant: ButtonVa
 function barColors(
   theme: Theme,
   colors: Colors,
-  { bar, prominent, neutral, disabled, variant }: { bar: BarItemStyle | null; prominent: boolean; neutral: boolean; disabled: boolean; variant: ButtonVariant },
+  { bar, prominent, neutral, disabled, variant, selected, flat }: { bar: BarItemStyle | null; prominent: boolean; neutral: boolean; disabled: boolean; variant: ButtonVariant; selected: boolean; flat: boolean },
 ): Colors {
   if (!bar) return colors
   if (theme.isAndroid) {
@@ -214,7 +215,9 @@ function barColors(
           text: theme.color("--toolbar-prominent-color"),
         }
   }
-  if (neutral) {
+  // A selected button keeps its fill, and so does a flat one standing on its own: only glass and a group's capsule
+  // replace the fill
+  if (neutral && !selected && (bar.inGroup || !flat)) {
     const pressed = bar.inGroup ? theme.color("--toolbar-group-item-active") : theme.color("--mobile-glass-background-active")
     return { background: "transparent", pressed, text: disabled ? theme.colors.labelTertiary : colors.text }
   }
@@ -224,16 +227,6 @@ function barColors(
 /** On Android a pressed button shows Material's state layer: its label color at 10% (the native ripple on a device). */
 export function useMaterialPress(theme: Theme) {
   return theme.isAndroid && Platform.OS === "android"
-}
-
-/** The children with fragments opened, as the DOM would lay them out: a fragment adds no box. */
-function flatten(children: ReactNode, out: ReactNode[] = []): ReactNode[] {
-  // toArray keys the elements
-  for (const child of Children.toArray(children)) {
-    if (isValidElement(child) && child.type === Fragment) flatten((child as ReactElement<{ children?: ReactNode }>).props.children, out)
-    else out.push(child)
-  }
-  return out
 }
 
 /** Strings and numbers in a row make one label ("Pressed {count}"); an element (an icon) stands on its own. */
@@ -249,7 +242,7 @@ function renderChildren(children: ReactNode, metrics: Metrics) {
     )
     label = []
   }
-  flatten(children).forEach((child, index) => {
+  flattenChildren(children).forEach((child, index) => {
     if (typeof child === "string" || typeof child === "number") {
       label.push(child)
     } else if (isValidElement(child)) {
@@ -313,9 +306,9 @@ export function Button({
           pressedRadius: bar.height / 2,
         }
       : base
-  const colors = barColors(theme, buttonColors(theme, color, variant, disabled, selected), { bar, prominent, neutral, disabled, variant })
-  // In a bar every neutral soft or ghost button is glass, as on iOS 26, unless it asks to stay flat
-  const wantsGlass = bar ? mobileMaterial !== "flat" && neutral && !bar.inGroup : mobileMaterial === "glass" && (variant === "soft" || variant === "ghost") && !disabled
+  const colors = barColors(theme, buttonColors(theme, color, variant, disabled, selected), { bar, prominent, neutral, disabled, variant, selected, flat: mobileMaterial === "flat" })
+  // In a bar every neutral soft or ghost button is glass, as on iOS 26, unless it asks to stay flat or is selected
+  const wantsGlass = bar ? mobileMaterial !== "flat" && neutral && !selected && !bar.inGroup : mobileMaterial === "glass" && (variant === "soft" || variant === "ghost") && !disabled
   const glass = theme.isIOS && wantsGlass
   const nativeRipple = useMaterialPress(theme)
   const [pressed, setPressed] = useState(false)
