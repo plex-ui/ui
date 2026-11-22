@@ -127,3 +127,27 @@ test("a toolbar's title is a header and its Android title starts at the leading 
   // Centered on iOS: the middle of the title is the middle of the bar (393 wide, 16 + 16 around the frame)
   expect(Math.abs(frame.x + frame.width / 2 - 393 / 2)).toBeLessThan(2)
 })
+
+test("a link scrolls a screen and opens an overlay, and the address keeps both", async ({ page }) => {
+  await page.goto("/#platform=ios&scheme=light&brand=plex&screen=lists&scroll=1200")
+  const lists = page.getByTestId("screen-lists")
+  await expect(lists).toBeVisible()
+  await expect.poll(() => lists.evaluate((element) => element.scrollTop)).toBe(1200)
+  await expect(page).toHaveURL(/scroll=1200/)
+  // Once reached, the offset is left alone: a later change of the layout keeps where the reader scrolled to
+  await page.mouse.move(200, 500)
+  await page.mouse.wheel(0, -900)
+  await expect.poll(() => lists.evaluate((element) => element.scrollTop)).toBe(300)
+  await page.setViewportSize({ width: 393, height: 700 })
+  await page.waitForTimeout(300)
+  expect(await lists.evaluate((element) => element.scrollTop)).toBe(300)
+  // A control of the gallery drops the link's offset
+  await page.getByTestId("scheme-dark").click()
+  await expect(page).not.toHaveURL(/scroll=/)
+
+  await page.goto("/#platform=ios&scheme=light&brand=plex&screen=overlays&open=menu")
+  await expect(page.getByTestId("menu")).toBeVisible()
+  await expect(page).toHaveURL(/open=menu/)
+  await page.goto("/#platform=android&scheme=light&brand=plex&screen=overlays&open=toast-success")
+  await expect(page.getByText("Payment sent")).toBeVisible()
+})

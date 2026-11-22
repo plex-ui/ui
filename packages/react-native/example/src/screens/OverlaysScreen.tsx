@@ -1,8 +1,9 @@
 import { ActionSheet, BottomSheet, Button, Dialog, Input, Menu, Text, toast, useTheme } from "@plexui/react-native"
 import { Copy, Pencil, RemoveTrash, Share } from "@plexui/react-native/icons"
-import { useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { StyleSheet, View } from "react-native"
 import { Row, Section } from "../demo"
+import { LinkContext, type Settings } from "../settings"
 
 export function OverlaysScreen() {
   const theme = useTheme()
@@ -10,6 +11,25 @@ export function OverlaysScreen() {
   const [sheet, setSheet] = useState(false)
   const [actions, setActions] = useState(false)
   const [last, setLast] = useState("nothing yet")
+  const [menu, setMenu] = useState(false)
+  // A link opens an overlay by name (`open=dialog`), so a device can be checked without a finger
+  const link = useContext(LinkContext)
+  const [seen, setSeen] = useState<Settings | null>(null)
+  if (link !== seen) {
+    setSeen(link)
+    const open = link?.open
+    if (open) {
+      setDialog(open === "dialog" ? "two" : open === "dialog-three" ? "three" : open === "dialog-field" ? "field" : null)
+      setSheet(open === "sheet")
+      setActions(open === "actions")
+      setMenu(open === "menu")
+    }
+  }
+  useEffect(() => {
+    if (link?.open === "toast") toast("Saved to Photos")
+    if (link?.open === "toast-success") toast.success("Payment sent", { description: "$24.00 to Jane" })
+    if (link?.open === "toast-action") toast("Message deleted", { action: { label: "Undo", onClick: () => setLast("Undo") } })
+  }, [link])
   return (
     <>
       <Section title="Dialog" note={theme.isAndroid ? "Material 3 basic dialog: radius 28, text buttons" : "iOS 26 alert: glass, 320 wide, capsule actions"}>
@@ -36,7 +56,7 @@ export function OverlaysScreen() {
         </Row>
       </Section>
       <Section title="Menu" note={theme.isAndroid ? "Material 3 dropdown menu" : "iOS 26 glass menu, 250 wide"}>
-        <Menu>
+        <Menu open={menu} onOpenChange={setMenu}>
           <Menu.Trigger>
             <Button color="secondary" variant="soft" testID="open-menu">
               Actions

@@ -55,4 +55,63 @@ for (const platform of ["ios", "android"] as const) {
     await expect(page.getByTestId("pages-value")).toHaveText("Page 4 of 4")
     await expect(pages).toHaveAttribute("aria-valuetext", "Page 4 of 4")
   })
+
+  test(`a range, marks, a reset and a vertical slider (${platform})`, async ({ page }) => {
+    await openGallery(page, { platform, scheme: "light", screen: "lists" })
+    const more = page.getByTestId("slider-more-value")
+    // Each thumb of a range is a slider of its own, named Minimum and Maximum as Radix names the web's
+    const low = page.getByRole("slider", { name: "Price Minimum" })
+    const high = page.getByRole("slider", { name: "Price Maximum" })
+    await expect(low).toHaveAttribute("aria-valuetext", "$100")
+    await low.focus()
+    await page.keyboard.press("ArrowRight")
+    await expect(more).toContainText("Price: 110–300")
+    // A thumb stops minStepsBetweenThumbs (5 x 10) short of the other
+    await page.keyboard.press("End")
+    await expect(more).toContainText("Price: 250–300")
+    await high.focus()
+    await page.keyboard.press("Home")
+    await expect(more).toContainText("Price: 250–300")
+    // A press on the track moves the nearest thumb
+    const track = low.locator("..")
+    await track.scrollIntoViewIfNeeded()
+    const box = (await track.boundingBox())!
+    await page.mouse.click(box.x + box.width - 2, box.y + box.height / 2)
+    await expect(more).toContainText("Price: 250–500")
+    // The pressed thumb takes the focus, so the arrows go on moving it
+    await expect(high).toBeFocused()
+    await page.mouse.click(box.x + 2, box.y + box.height / 2)
+    await expect(more).toContainText("Price: 0–500")
+    await expect(low).toBeFocused()
+    await page.keyboard.press("ArrowRight")
+    await expect(more).toContainText("Price: 10–500")
+
+    // The marks stand under the track
+    for (const mark of ["Small", "Default", "Large"]) await expect(page.getByText(mark, { exact: true })).toBeVisible()
+
+    // The reset shows once the value leaves it, and brings it back
+    const reset = page.getByRole("button", { name: "Reset to default" })
+    await expect(reset).toHaveCount(0)
+    const volume = page.getByRole("slider", { name: "Volume" })
+    await volume.focus()
+    await page.keyboard.press("ArrowLeft")
+    await expect(page.getByTestId("slider-value")).toHaveText("Volume: 59, brightness: 30")
+    await reset.click()
+    await expect(page.getByTestId("slider-value")).toHaveText("Volume: 60, brightness: 30")
+    await expect(reset).toHaveCount(0)
+
+    // A vertical slider runs from the bottom up
+    const bass = page.getByRole("slider", { name: "Bass" })
+    await expect(bass).toHaveAttribute("aria-orientation", "vertical")
+    await expect(low).toHaveAttribute("aria-orientation", "horizontal")
+    await bass.scrollIntoViewIfNeeded()
+    await bass.focus()
+    await page.keyboard.press("ArrowUp")
+    await expect(more).toContainText("bass: 41")
+    const column = (await bass.boundingBox())!
+    await page.mouse.click(column.x + column.width / 2, column.y + 2)
+    await expect(more).toContainText("bass: 100")
+    await page.mouse.click(column.x + column.width / 2, column.y + column.height - 2)
+    await expect(more).toContainText("bass: 0")
+  })
 }

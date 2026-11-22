@@ -1,6 +1,7 @@
-import { useEffect, useState, type ReactNode } from "react"
+import { useEffect, useLayoutEffect, useState, useSyncExternalStore, type ReactNode } from "react"
 import { Animated, Easing, Modal, Platform, Pressable, StyleSheet, View } from "react-native"
 import { useTheme } from "../theme/ThemeProvider"
+import { liquidGlassModule } from "./optional"
 
 /**
  * Keeps an overlay mounted while it animates out: `progress` runs 0 to 1 as it opens and back as it closes, and
@@ -50,15 +51,38 @@ export type OverlayProps = {
  * fades with the overlay. One host for all of them, so focus, the back button and the screen reader behave alike.
  */
 export function Overlay({ open, onDismiss, scrim = "transparent", dismissible = true, enter, exit, testID, children }: OverlayProps) {
-  const { mounted, progress } = usePresence(open, { enter, exit })
+  // On iOS an overlay that opens while another fades out waits for it: a Modal presented while another is dismissed
+  // is presented from it, and UIKit takes it away with it (a menu item that opens a dialog showed no dialog). It looks
+  // a frame later, once an overlay closed in the same change has marked itself leaving.
+  const ios = Platform.OS === "ios"
+  const clear = useSyncExternalStore(subscribeLeaving, noneLeaving, noneLeaving)
+  const [looked, setLooked] = useState(false)
+  const [held, setHeld] = useState(false)
+  useEffect(() => {
+    if (!open || !ios) return
+    const frame = requestAnimationFrame(() => setLooked(true))
+    return () => cancelAnimationFrame(frame)
+  }, [open, ios])
+  if (!open && (held || looked)) {
+    setHeld(false)
+    setLooked(false)
+  }
+  if (open && !held && (!ios || (looked && clear))) setHeld(true)
+  const show = open && (held || !ios)
+  const { mounted, progress } = usePresence(show, { enter, exit })
+  const leaving = mounted && !show
+  useLayoutEffect(() => {
+    if (!leaving || !ios) return
+    return markLeaving()
+  }, [leaving, ios])
   if (!mounted) return null
   return (
     <Modal visible transparent animationType="none" onRequestClose={onDismiss} statusBarTranslucent navigationBarTranslucent supportedOrientations={ORIENTATIONS}>
       {/* A closing overlay takes no more touches: an action cannot run twice while it fades */}
       <View
         style={StyleSheet.absoluteFill}
-        pointerEvents={open ? "box-none" : "none"}
-        onAccessibilityEscape={dismissible && open ? onDismiss : undefined}
+        pointerEvents={show ? "box-none" : "none"}
+        onAccessibilityEscape={dismissible && show ? onDismiss : undefined}
         testID={testID}
       >
         <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: scrim, opacity: progress }]} />
@@ -66,13 +90,32 @@ export function Overlay({ open, onDismiss, scrim = "transparent", dismissible = 
           accessible={false}
           importantForAccessibility="no"
           style={StyleSheet.absoluteFill}
-          onPress={dismissible && open ? onDismiss : undefined}
+          onPress={dismissible && show ? onDismiss : undefined}
           testID={testID ? `${testID}-scrim` : undefined}
         />
-        {children(progress, open)}
+        {children(progress, show)}
       </View>
     </Modal>
   )
+}
+
+/** The overlays fading out on iOS, which an opening overlay waits for. */
+let leavingCount = 0
+const leavingListeners = new Set<() => void>()
+const noneLeaving = () => leavingCount === 0
+function subscribeLeaving(listener: () => void) {
+  leavingListeners.add(listener)
+  return () => {
+    leavingListeners.delete(listener)
+  }
+}
+function markLeaving() {
+  leavingCount += 1
+  leavingListeners.forEach((listener) => listener())
+  return () => {
+    leavingCount -= 1
+    leavingListeners.forEach((listener) => listener())
+  }
 }
 
 const ORIENTATIONS = ["portrait", "portrait-upside-down", "landscape", "landscape-left", "landscape-right"] as const
@@ -84,12 +127,15 @@ const ORIENTATIONS = ["portrait", "portrait-upside-down", "landscape", "landscap
 export const canTransformGlass = Platform.OS !== "web"
 
 /**
- * The opacity of an overlay of glass. Chromium can leave a backdrop blur off for good when its glass was first painted
- * transparent (it fades in unblurred in headless Chromium), so on the web glass appears at once, over a dim that
- * fades, and fades only as it leaves.
+ * The opacity of an overlay of glass. Glass that fades in can stay unpainted: Chromium can leave a backdrop blur off
+ * for good when its glass was first painted transparent (headless Chromium fades it in unblurred), and iOS 26's
+ * Liquid Glass (expo-glass-effect, as Expo Go ships it) draws no glass when it fades in inside a view React Native
+ * recycled from an earlier overlay (the second dialog of a screen showed its text over no panel). So where glass is
+ * real, it appears at once over a dim that fades, and fades only as it leaves; a blur under a fill (iOS before 26)
+ * fades in.
  */
 export function glassOpacity(progress: Animated.Value, open: boolean) {
-  return Platform.OS === "web" && open ? 1 : progress
+  return open && (Platform.OS === "web" || liquidGlassModule() != null) ? 1 : progress
 }
 
 /** The scrim of Material's modal surfaces: `scrim` at 32%. */

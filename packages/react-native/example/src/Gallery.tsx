@@ -1,10 +1,10 @@
 import { Button, Heading, Text, useTheme } from "@plexui/react-native"
-import { useEffect } from "react"
-import { Platform, ScrollView, StyleSheet, View } from "react-native"
+import { useEffect, useRef, useState } from "react"
+import { Platform, ScrollView, StyleSheet, View, type ScrollViewInstance } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Row } from "./demo"
 import { screens } from "./screens"
-import type { Settings } from "./settings"
+import { LinkContext, type Settings } from "./settings"
 
 declare const history: { replaceState(data: unknown, unused: string, url: string): void } | undefined
 
@@ -37,12 +37,34 @@ export function Gallery({ settings, onChange }: { settings: Settings; onChange: 
   const theme = useTheme()
   const insets = useSafeAreaInsets()
   const screen = screens.find((item) => item.id === settings.screen) ?? screens[0]
-  const set = <K extends keyof Settings>(key: K) => (value: Settings[K]) => onChange({ ...settings, [key]: value })
+  // A change made here leaves the offset and the overlay a link asked for
+  const set = <K extends keyof Settings>(key: K) => (value: Settings[K]) => onChange({ ...settings, [key]: value, scroll: undefined, open: undefined })
+  const scroller = useRef<ScrollViewInstance>(null)
+  const [viewport, setViewport] = useState(0)
+  const [content, setContent] = useState(0)
+  // The offset of a link (`scroll=`), kept until a finger scrolls: it is reached as the content grows tall enough
+  const [linked, setLinked] = useState(settings)
+  const [pending, setPending] = useState(settings.scroll)
+  if (linked !== settings) {
+    setLinked(settings)
+    setPending(settings.scroll)
+  }
+  useEffect(() => {
+    if (pending == null || viewport === 0 || content <= viewport) return
+    scroller.current?.scrollTo({ y: Math.min(pending, content - viewport), animated: false })
+    if (content - viewport < pending) return
+    // Reached: a later change of the content's height leaves the offset alone (the web fires no `onScrollBeginDrag`)
+    const frame = requestAnimationFrame(() => setPending(undefined))
+    return () => cancelAnimationFrame(frame)
+  }, [pending, content, viewport])
   useEffect(() => {
     if (Platform.OS !== "web" || typeof history === "undefined") return
     const query = new URLSearchParams({ platform: settings.platform, scheme: settings.scheme, brand: settings.brand, screen: screen.id })
+    // A link's offset and overlay stay in the address until a control of the gallery changes, so a reload keeps them
+    if (settings.scroll != null) query.set("scroll", String(settings.scroll))
+    if (settings.open != null) query.set("open", settings.open)
     history.replaceState(null, "", `#${query}`)
-  }, [settings.platform, settings.scheme, settings.brand, screen.id])
+  }, [settings.platform, settings.scheme, settings.brand, settings.scroll, settings.open, screen.id])
   const canvas = theme.isAndroid ? theme.material.surface : theme.colors.groupedBackground
   const bar = theme.isAndroid ? theme.material.surfaceContainer : theme.colors.background
   return (
@@ -99,8 +121,18 @@ export function Gallery({ settings, onChange }: { settings: Settings; onChange: 
             ))}
           </ScrollView>
         </View>
-        <ScrollView key={screen.id} testID={`screen-${screen.id}`} contentContainerStyle={{ paddingBottom: insets.bottom + 32, paddingTop: 8 }}>
-          <screen.Component />
+        <ScrollView
+          key={screen.id}
+          ref={scroller}
+          testID={`screen-${screen.id}`}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 32, paddingTop: 8 }}
+          onLayout={(event) => setViewport(event.nativeEvent.layout.height)}
+          onContentSizeChange={(_, height) => setContent(height)}
+          onScrollBeginDrag={() => setPending(undefined)}
+        >
+          <LinkContext.Provider value={settings}>
+            <screen.Component />
+          </LinkContext.Provider>
         </ScrollView>
       </View>
     </View>

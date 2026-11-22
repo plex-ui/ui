@@ -109,7 +109,8 @@ toast.success("Payment sent", { description: "$24.00 to Jane", action: { label: 
 - `List` (`header`, `footer`) with `ListItem` (`label`, `description`, `leading`, `leadingColor`, `value`, `trailing`,
   `onPress`): an iOS 26 inset grouped section (the Settings look); a Material 3 list.
 - `Skeleton`, `EmptyMessage` (also `EmptyState`) with `.Icon`, `.Title`, `.Description`, `.ActionRow`.
-- `Slider` (`label`, `value`, `onChange`, `min`, `max`, `step`, `unit`): the iOS 26 slider; Material 3's.
+- `Slider` (`label`, `value`, `onChange`, `min`, `max`, `step`, `unit`, `marks`, `resetValue`; `range` with a value
+  for each thumb; `orientation="vertical"`): the iOS 26 slider; Material 3's Slider, RangeSlider and VerticalSlider.
 - `PageControl` (`count`, `value`, `onChange`): the iOS page dots, tapped or scrubbed.
 
 ```tsx
@@ -139,3 +140,14 @@ npm test                     # typecheck, lint and the Playwright tests of the e
 
 The example app (`example/`) shows every component in every state, with iOS / Android, light / dark and a brand
 theme. `npm run web --prefix example` opens it in a browser; `npm run ios` / `npm run android` on a simulator.
+
+A link opens any state of the example, which lets a script take screenshots of a device without a finger: in a
+browser the fragment (`#platform=android&scheme=dark&screen=lists&scroll=1200`), on a device the query of a deep link
+through Expo Go (`xcrun simctl openurl booted "exp://127.0.0.1:8081/--/?platform=ios&screen=lists&scroll=1200"`, or
+`adb shell am start -a android.intent.action.VIEW -d "exp://10.0.2.2:8081/--/?platform=android&screen=lists"`).
+`scroll` is how far down the screen to open; on the Overlays screen `open` shows an overlay (`dialog`,
+`dialog-three`, `dialog-field`, `sheet`, `actions`, `menu`, `toast`, `toast-success`, `toast-action`). The browser's
+address keeps both until a control of the gallery changes.
+
+`npm run typecheck` and `npm test` regenerate the icon modules; a running Metro can lose track of them while they are
+rewritten (an icon "could not be found"): restart it.

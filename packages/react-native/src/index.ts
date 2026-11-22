@@ -76,5 +76,5 @@ export { List, ListItem, type ListItemProps, type ListProps } from "./components
 export { Chip, type ChipProps } from "./components/Chip/Chip"
 export { Skeleton, type SkeletonProps } from "./components/Skeleton/Skeleton"
 export { EmptyMessage, EmptyState, type EmptyMessageProps } from "./components/EmptyMessage/EmptyMessage"
-export { Slider, type SliderProps } from "./components/Slider/Slider"
+export { Slider, type SliderMark, type SliderProps } from "./components/Slider/Slider"
 export { PageControl, pageControlDots, type PageControlChangeDetails, type PageControlDotSize, type PageControlProps } from "./components/PageControl/PageControl"

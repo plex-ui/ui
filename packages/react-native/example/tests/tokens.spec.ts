@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test"
-import { readFileSync } from "node:fs"
+import { readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import postcss from "postcss"
 // The functions of the Plex UI PostCSS pipeline (`alpha()`, `spacing()`): the browser has no such functions
 import functions from "../../../styles/postcss/functions.mjs"
 // The compiled tokens module of @plexui/styles (npm run build:styles), as an app on a phone gets it
-import { resolvedTokens, skippedDeclarations } from "../../../styles/dist/es/tokens/index.js"
+import { createTokenResolver, resolvedTokens, skippedDeclarations, tokenLayers } from "../../../styles/dist/es/tokens/index.js"
 
 const styles = join(__dirname, "../../../styles/src/styles")
 const FILES = [
@@ -76,3 +76,18 @@ for (const scheme of ["light", "dark"] as const) {
     expect(mismatches, `${mismatches.length} of ${colors.length} colors differ (${skippedDeclarations} contextual declarations are not compared)`).toEqual([])
   })
 }
+
+// `theme.color(name)` without a fallback draws a missing token transparent: every such name must exist, on a phone,
+// in both schemes (a checkmark read `--radio-group-checkmark-color`, which the CSS only ever falls back from)
+test("every color token the components read without a fallback exists", () => {
+  const src = join(__dirname, "../../src")
+  const names = new Set<string>()
+  for (const file of readdirSync(src, { recursive: true }) as string[]) {
+    if (!/\.tsx?$/.test(file)) continue
+    for (const match of readFileSync(join(src, file), "utf8").matchAll(/theme\.color\("(--[a-z0-9-]+)"\)/g)) names.add(match[1])
+  }
+  expect(names.size).toBeGreaterThan(20)
+  const resolver = createTokenResolver(tokenLayers, { width: 393, highDensity: true, reducedMotion: false })
+  const missing = [...names].flatMap((name) => (["light", "dark"] as const).filter((scheme) => !/^(#|rgba\()/.test(String(resolver.get(name, scheme)))).map((scheme) => `${name} (${scheme})`))
+  expect(missing).toEqual([])
+})

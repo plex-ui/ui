@@ -1,6 +1,7 @@
 import { useRef, useState, type ReactNode } from "react"
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
-import ChevronDown from "../../icons/plex/ChevronDown"
+import CaretDown from "../../icons/plex/CaretDown"
+import CaretUp from "../../icons/plex/CaretUp"
 import ChevronUpDown from "../../icons/plex/ChevronUpDown"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { ControlSize } from "../Button/Button"
@@ -64,7 +65,9 @@ export function Select<T extends SelectOption>({
   const trigger = useRef<Measurable | null>(null)
   const chosen = options.find((option) => option.value === value)
   const look = fieldLook(theme, { variant, size, pill }, { focused: open, filled: !!chosen, disabled, invalid })
-  const Chevron = theme.isAndroid ? ChevronDown : ChevronUpDown
+  // Android: Material's exposed dropdown arrow (a 10x5 triangle in a 24dp box, `arrow_drop_down`), turned up while the
+  // menu is open, as Compose's `ExposedDropdownMenuDefaults.TrailingIcon`. iOS: the up-down chevron of a pop-up button
+  const Chevron = theme.isAndroid ? (open ? CaretUp : CaretDown) : ChevronUpDown
   return (
     <View ref={trigger as never} collapsable={false} style={[block ? styles.block : styles.hug, style]}>
       <Pressable

@@ -122,6 +122,9 @@ export function MenuSurface({
   const insets = useSafeAreaInsets()
   const window = useWindowDimensions()
   const [size, setSize] = useState({ width: 0, height: 0 })
+  // An Android menu is as wide as its items, which a ScrollView does not tell its parent: the items stand in a plain
+  // View, measured, and only a menu taller than the screen scrolls, at the width they took
+  const [natural, setNatural] = useState<{ width: number; height: number } | null>(null)
   const android = theme.isAndroid
   const m = theme.material
   const box = anchor ?? { x: window.width / 2, y: window.height / 2, width: 0, height: 0 }
@@ -134,6 +137,8 @@ export function MenuSurface({
   const below = box.y + box.height + gap
   const fitsBelow = below + size.height <= window.height - insets.bottom - margin
   const top = fitsBelow ? below : Math.max(insets.top + margin, box.y - gap - size.height)
+  const maxHeight = window.height - insets.top - insets.bottom - 2 * margin
+  const scrolls = natural != null && natural.height > maxHeight
   const content = <SurfaceContext.Provider value={{ close: onClose, check }}>{children}</SurfaceContext.Provider>
   return (
     <Overlay open={open} onDismiss={onClose} enter={200} exit={150} testID={testID}>
@@ -148,17 +153,21 @@ export function MenuSurface({
               left,
               top,
               width: panelWidth,
-              maxHeight: window.height - insets.top - insets.bottom - 2 * margin,
+              maxHeight,
               opacity: android ? progress : glassOpacity(progress, open),
               transform: android || canTransformGlass ? [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [android ? 0.95 : 0.8, 1] }) }] : undefined,
             },
           ]}
         >
           {android ? (
-            <View style={[styles.android, { backgroundColor: m.surfaceContainer, minWidth: Math.max(112, width ?? 0), maxWidth: Math.max(280, width ?? 0) }, width ? { width } : null]}>
-              <ScrollView style={styles.scroll} bounces={false}>
-                {content}
-              </ScrollView>
+            <View style={[styles.android, { backgroundColor: m.surfaceContainer, minWidth: Math.max(112, width ?? 0), maxWidth: Math.max(280, width ?? 0) }, width ? { width } : scrolls ? { width: natural.width } : null]}>
+              {scrolls ? (
+                <ScrollView style={styles.scroll} bounces={false}>
+                  {content}
+                </ScrollView>
+              ) : (
+                <View onLayout={(event) => setNatural({ width: event.nativeEvent.layout.width, height: event.nativeEvent.layout.height + 16 })}>{content}</View>
+              )}
             </View>
           ) : (
             <Glass radius={theme.length("--menu-radius", 34)} elevation="raised" fillToken="--menu-mobile-background" style={[styles.shrink, { padding: theme.length("--menu-gutter", 10) }]}>
@@ -317,5 +326,6 @@ const styles = StyleSheet.create({
   iosSeparator: { height: StyleSheet.hairlineWidth, marginVertical: 10, marginHorizontal: 8 },
   // The check column, 8.5 before the label (6 of the row gap and 2.5): the label stands 27.5 in, as `--menu-check-label-inset`
   check: { width: 13, marginRight: 2.5, alignItems: "center", overflow: "visible" },
-  text: { flex: 1, minWidth: 0 },
+  // Grows and shrinks from its own width (not `flex: 1`, whose zero basis gives an Android menu sized by its items no width)
+  text: { flexGrow: 1, flexShrink: 1, minWidth: 0 },
 })

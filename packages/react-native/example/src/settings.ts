@@ -1,4 +1,5 @@
 import type { ColorScheme, PlatformStyle } from "@plexui/react-native"
+import { createContext } from "react"
 import { Platform } from "react-native"
 
 export type BrandName = "plex" | "violet"
@@ -8,7 +9,14 @@ export type Settings = {
   scheme: ColorScheme
   brand: BrandName
   screen: string
+  /** How far down the screen a link opens (`scroll=800`), for screenshots of a device without a finger. */
+  scroll?: number
+  /** An overlay a link opens on its screen (`open=dialog`, `sheet`, `actions`, `menu`, `toast`). */
+  open?: string
 }
+
+/** The settings of the last link, for a screen to open what it names (`open=`); a new link is a new object. */
+export const LinkContext = createContext<Settings | null>(null)
 
 declare const location: { hash: string } | undefined
 
@@ -42,5 +50,7 @@ function settingsFrom(search: string, defaults: Settings): Settings {
     scheme: pick("scheme", ["light", "dark"] as const, defaults.scheme),
     brand: pick("brand", ["plex", "violet"] as const, defaults.brand),
     screen: query.get("screen") ?? defaults.screen,
+    scroll: Number(query.get("scroll")) > 0 ? Number(query.get("scroll")) : undefined,
+    open: query.get("open") ?? undefined,
   }
 }

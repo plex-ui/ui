@@ -82,7 +82,7 @@ function RadioGroupItem({ value, children, description, disabled: itemDisabled =
     mark = (
       <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
         {/* The 24-unit checkmark drawn at 26 over the 22 column, as RadioGroup.module.css */}
-        {selected ? <CheckMd size={26} color={disabled ? theme.colors.textDisabled : theme.color("--radio-group-checkmark-color") || theme.colors.text} /> : null}
+        {selected ? <CheckMd size={26} color={disabled ? theme.colors.textDisabled : theme.color("--radio-group-checkmark-color", theme.colors.text)} /> : null}
       </View>
     )
   }
