@@ -132,7 +132,7 @@ export function createTheme(options: {
     material: materialColors((css) => {
       const value = resolver.value(css, scheme)
       return typeof value === "string" ? value : "transparent"
-    }),
+    }, scheme),
   }
   theme.colors = {
     text: color("--color-text"),

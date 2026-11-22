@@ -41,9 +41,16 @@ export type MaterialColors = {
   onPrimary: string
   primaryContainer: string
   onPrimaryContainer: string
+  secondary: string
+  onSecondary: string
   secondaryContainer: string
   onSecondaryContainer: string
+  tertiaryContainer: string
+  onTertiaryContainer: string
   surface: string
+  surfaceDim: string
+  surfaceBright: string
+  surfaceVariant: string
   surfaceContainerLowest: string
   surfaceContainerLow: string
   surfaceContainer: string
