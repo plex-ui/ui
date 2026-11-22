@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2023"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "types": [],
+    "baseUrl": ".",
+    // The package has no node_modules of its own: its peer dependencies resolve from the example app, which pins
+    // the versions of one Expo SDK (the docs site at the repo root runs another React).
+    "paths": {
+      "@plexui/styles/tokens": ["../styles/src/tokens/index.ts"],
+      "react-native": ["./example/node_modules/react-native/types_generated/index.d.ts"],
+      // The example imports the package by its name, as an app does
+      "@plexui/react-native": ["./src/index.ts"],
+      "@plexui/react-native/icons": ["./src/icons/plex/index.ts"],
+      "@plexui/react-native/icons/lucide/*": ["./src/icons/lucide/*"],
+      "@plexui/react-native/icons/tabler/*": ["./src/icons/tabler/*"],
+      "@plexui/react-native/icons/hugeicons/*": ["./src/icons/hugeicons/*"],
+      "@plexui/react-native/icons/*": ["./src/icons/plex/*"],
+      "*": ["./example/node_modules/@types/*", "./example/node_modules/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "example/App.tsx", "example/index.ts", "example/src/**/*.ts", "example/src/**/*.tsx"]
+}

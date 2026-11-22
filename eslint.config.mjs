@@ -73,6 +73,8 @@ const eslintConfig = defineConfig([
     // Independent packages with their own package.json and tooling.
     "skills/dev-browser/**",
     "video/**",
+    // React Native runs another React than the docs site: own lint config and example app.
+    "packages/react-native/**",
   ]),
 ]);
 

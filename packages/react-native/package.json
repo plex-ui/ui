@@ -1,0 +1,93 @@
+{
+  "name": "@plexui/react-native",
+  "version": "0.1.0",
+  "description": "Plex UI components for React Native and Expo: iOS 26 and Material 3, on the shared @plexui/styles tokens",
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://plexui.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plex-ui/ui.git",
+    "directory": "packages/react-native"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "ui",
+    "components",
+    "design-system",
+    "plexui",
+    "ios",
+    "material-3"
+  ],
+  "sideEffects": false,
+  "main": "./dist/es/index.js",
+  "types": "./dist/types/index.d.ts",
+  "react-native": "./src/index.ts",
+  "exports": {
+    ".": {
+      "react-native": "./src/index.ts",
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/es/index.js"
+    },
+    "./icons": {
+      "react-native": "./src/icons/plex/index.ts",
+      "types": "./dist/types/icons/plex/index.d.ts",
+      "default": "./dist/es/icons/plex/index.js"
+    },
+    "./icons/lucide": {
+      "react-native": "./src/icons/lucide/index.ts",
+      "types": "./dist/types/icons/lucide/index.d.ts",
+      "default": "./dist/es/icons/lucide/index.js"
+    },
+    "./icons/lucide/*": "./src/icons/lucide/*.ts",
+    "./icons/tabler": {
+      "react-native": "./src/icons/tabler/index.ts",
+      "types": "./dist/types/icons/tabler/index.d.ts",
+      "default": "./dist/es/icons/tabler/index.js"
+    },
+    "./icons/tabler/*": "./src/icons/tabler/*.ts",
+    "./icons/hugeicons": {
+      "react-native": "./src/icons/hugeicons/index.ts",
+      "types": "./dist/types/icons/hugeicons/index.d.ts",
+      "default": "./dist/es/icons/hugeicons/index.js"
+    },
+    "./icons/hugeicons/*": "./src/icons/hugeicons/*.ts",
+    "./icons/*": "./src/icons/plex/*.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/**",
+    "dist/es/**",
+    "dist/types/**"
+  ],
+  "scripts": {
+    "build:icons": "node ./scripts/build-icons.mjs",
+    "build": "npm run build:icons && rm -rf dist && tsc -p tsconfig.build.json",
+    "typecheck": "npm run build:icons && tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src scripts example/App.tsx example/src example/tests example/metro.config.js example/playwright.config.ts",
+    "test": "npm run typecheck && npm run lint && npm run test:web --prefix example"
+  },
+  "dependencies": {
+    "@plexui/styles": "*"
+  },
+  "peerDependencies": {
+    "expo-blur": ">=15",
+    "expo-glass-effect": ">=0.1",
+    "react": ">=19",
+    "react-native": ">=0.80",
+    "react-native-safe-area-context": ">=5",
+    "react-native-svg": ">=15"
+  },
+  "peerDependenciesMeta": {
+    "expo-blur": {
+      "optional": true
+    },
+    "expo-glass-effect": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

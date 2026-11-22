@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "dist/es",
+    "declaration": true,
+    "declarationDir": "dist/types",
+    "paths": {
+      "@plexui/styles/tokens": ["../styles/dist/types/tokens/index.d.ts"],
+      "react-native": ["./example/node_modules/react-native/types_generated/index.d.ts"],
+      "*": ["./example/node_modules/@types/*", "./example/node_modules/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx"]
+}

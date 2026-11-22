@@ -1,0 +1,41 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "dependencies": {
+    "@expo-google-fonts/inter": "^0.4.2",
+    "@expo/metro-runtime": "~58.0.17",
+    "expo": "~58.0.26",
+    "expo-blur": "~58.0.6",
+    "expo-font": "~58.0.12",
+    "expo-glass-effect": "~58.0.5",
+    "expo-status-bar": "~58.0.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.1",
+    "react-native-safe-area-context": "~5.11.1",
+    "react-native-svg": "15.16.0",
+    "react-native-web": "^0.21.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/react": "~19.3.0",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "icons": "node -e \"process.exit(require('fs').existsSync('../src/icons/plex/index.ts') ? 0 : 1)\" || npm run build:icons --prefix ..",
+    "prestart": "npm run icons",
+    "start": "expo start",
+    "preandroid": "npm run icons",
+    "android": "expo start --android",
+    "preios": "npm run icons",
+    "ios": "expo start --ios",
+    "preweb": "npm run icons",
+    "web": "expo start --web",
+    "preexport:web": "npm run icons",
+    "export:web": "expo export --platform web --output-dir dist",
+    "test:web": "playwright test",
+    "test:web:update": "playwright test --update-snapshots"
+  },
+  "private": true
+}

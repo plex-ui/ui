@@ -45,6 +45,10 @@
       "types": "./dist/types/types.d.ts",
       "default": "./dist/es/types.js"
     },
+    "./tokens": {
+      "types": "./dist/types/tokens/index.d.ts",
+      "default": "./dist/es/tokens/index.js"
+    },
     "./postcss": "./postcss.config.mjs"
   },
   "scripts": {
@@ -55,7 +59,8 @@
     "dev:css": "node ./scripts/build-css.mjs --watch",
     "dev": "npm run build:clean && npm run build:js && npm run build:css && (npm run dev:js & npm run dev:css & wait)",
     "build": "npm run build:clean && npm run build:js && npm run build:css",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "generate:tokens": "node ./scripts/build-tokens.mjs"
   },
   "peerDependencies": {
     "@tailwindcss/postcss": "^4.0.10",

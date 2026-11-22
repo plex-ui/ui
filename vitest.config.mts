@@ -13,7 +13,7 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
-    include: ["tests/parity/**/*.test.{ts,tsx}"],
+    include: ["tests/parity/**/*.test.{ts,tsx}", "tests/tokens/**/*.test.ts"],
     setupFiles: ["tests/parity/setup.ts"],
     css: {
       include: [/\.module\.css$/],

@@ -23,6 +23,7 @@
     "predev": "node scripts/build-icon-catalogs.mjs",
     "postinstall": "npm run build:styles && npm run build:ui && npm run build:vue",
     "build:styles": "npm run build --workspace=packages/styles",
+    "generate:tokens": "npm run generate:tokens --workspace=packages/styles",
     "build:ui": "npm run build --workspace=packages/ui",
     "build:vue": "npm run build --workspace=packages/vue",
     "build:vue-icons": "node scripts/build-vue-icons.mjs",
