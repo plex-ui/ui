@@ -115,3 +115,23 @@ for (const platform of ["ios", "android"] as const) {
     await expect(more).toContainText("bass: 0")
   })
 }
+
+test.describe("on a touch screen", () => {
+  test.use({ hasTouch: true })
+
+  test("a tap on a range slider focuses the thumb it moved", async ({ page }) => {
+    await openGallery(page, { platform: "android", scheme: "light", screen: "lists" })
+    const more = page.getByTestId("slider-more-value")
+    const low = page.getByRole("slider", { name: "Price Minimum" })
+    const high = page.getByRole("slider", { name: "Price Maximum" })
+    const track = low.locator("..")
+    await track.scrollIntoViewIfNeeded()
+    const box = (await track.boundingBox())!
+    // A tap's emulated mouse events come after the touch ends; the focus the release gave stays
+    await page.touchscreen.tap(box.x + box.width - 2, box.y + box.height / 2)
+    await expect(more).toContainText("Price: 100–500")
+    await expect(high).toBeFocused()
+    await page.keyboard.press("ArrowLeft")
+    await expect(more).toContainText("Price: 100–490")
+  })
+})

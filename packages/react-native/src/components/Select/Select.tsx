@@ -1,8 +1,7 @@
 import { useRef, useState, type ReactNode } from "react"
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
-import CaretDown from "../../icons/plex/CaretDown"
-import CaretUp from "../../icons/plex/CaretUp"
 import ChevronUpDown from "../../icons/plex/ChevronUpDown"
+import { createIcon } from "../Icon/createIcon"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { ControlSize } from "../Button/Button"
 import { fieldLook, type InputVariant } from "../Input/Input"
@@ -15,6 +14,13 @@ export type SelectOption<V extends string = string> = {
   description?: ReactNode
   disabled?: boolean
 }
+
+/**
+ * Material's exposed dropdown arrow, `arrow_drop_down`: a sharp 10x5 triangle in a 24dp box (Compose material3
+ * `Icons.Filled.ArrowDropDown`, used by `ExposedDropdownMenuDefaults.TrailingIcon`). The Plex carets are rounded and
+ * 12x8, a size larger.
+ */
+const ArrowDropDown = createIcon("ArrowDropDown", "0 0 24 24", [["path", { d: "M7 10l5 5 5-5z", fill: 0 }]])
 
 export type SelectProps<T extends SelectOption> = {
   /** The options, as @plexui/ui's `options`. */
@@ -65,9 +71,6 @@ export function Select<T extends SelectOption>({
   const trigger = useRef<Measurable | null>(null)
   const chosen = options.find((option) => option.value === value)
   const look = fieldLook(theme, { variant, size, pill }, { focused: open, filled: !!chosen, disabled, invalid })
-  // Android: Material's exposed dropdown arrow (a 10x5 triangle in a 24dp box, `arrow_drop_down`), turned up while the
-  // menu is open, as Compose's `ExposedDropdownMenuDefaults.TrailingIcon`. iOS: the up-down chevron of a pop-up button
-  const Chevron = theme.isAndroid ? (open ? CaretUp : CaretDown) : ChevronUpDown
   return (
     <View ref={trigger as never} collapsable={false} style={[block ? styles.block : styles.hug, style]}>
       <Pressable
@@ -84,7 +87,14 @@ export function Select<T extends SelectOption>({
         <Text numberOfLines={1} color={chosen ? look.text.color : look.placeholder} style={[styles.grow, { fontSize: look.text.fontSize, lineHeight: look.text.lineHeight }]}>
           {chosen?.label ?? placeholder}
         </Text>
-        <Chevron size={theme.isAndroid ? 24 : 17} color={theme.isAndroid ? look.icon : theme.color("--mobile-label-secondary")} />
+        {theme.isAndroid ? (
+          // Turned about the box's center while the menu is open, as Compose rotates its trailing icon 180°
+          <View style={open ? styles.turned : null}>
+            <ArrowDropDown size={24} color={look.icon} />
+          </View>
+        ) : (
+          <ChevronUpDown size={17} color={theme.color("--mobile-label-secondary")} />
+        )}
       </Pressable>
       <MenuSurface
         open={open}
@@ -113,6 +123,7 @@ export function Select<T extends SelectOption>({
 }
 
 const styles = StyleSheet.create({
+  turned: { transform: [{ rotate: "180deg" }] },
   block: { alignSelf: "stretch" },
   hug: { alignSelf: "flex-start" },
   box: { flexDirection: "row", alignItems: "center" },

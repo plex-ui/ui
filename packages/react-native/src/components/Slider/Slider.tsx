@@ -237,6 +237,9 @@ export function Slider(props: SliderProps) {
         if (range && Platform.OS === "web" && active != null) thumbs.current[active]?.focus?.()
       }}
       onResponderTerminate={() => setActive(null)}
+      // A tap on a touch screen ends with emulated mouse events, whose mousedown would take the focus the release just
+      // gave a thumb; the track keeps its press to itself (a range's thumbs take the focus on release instead)
+      {...(range && !disabled && Platform.OS === "web" ? { onMouseDown: (event: { preventDefault: () => void }) => event.preventDefault() } : {})}
       style={vertical ? { width: control, flex: 1 } : { height: control }}
     >
       {android ? (
