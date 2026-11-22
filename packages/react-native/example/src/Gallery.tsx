@@ -65,8 +65,9 @@ export function Gallery({ settings, onChange }: { settings: Settings; onChange: 
     if (settings.open != null) query.set("open", settings.open)
     history.replaceState(null, "", `#${query}`)
   }, [settings.platform, settings.scheme, settings.brand, settings.scroll, settings.open, screen.id])
-  // A settings page on both: iOS's grouped background, Android Settings' surfaceContainer (its cards surfaceBright)
-  const canvas = theme.isAndroid ? theme.material.surfaceContainer : theme.colors.groupedBackground
+  // iOS: the grouped background. Android: a settings page stands on Settings' surfaceContainer (its cards
+  // surfaceBright), the others on surface, as Google's apps
+  const canvas = theme.isAndroid ? (screen.grouped ? theme.material.surfaceContainer : theme.material.surface) : theme.colors.groupedBackground
   const bar = theme.isAndroid ? theme.material.surfaceContainer : theme.colors.background
   return (
     <View style={[styles.page, { backgroundColor: Platform.OS === "web" ? theme.color("--gray-100") : canvas }]}>

@@ -13,7 +13,8 @@ import { TabBarScreen } from "./TabBarScreen"
 import { TextScreen } from "./TextScreen"
 import { ThemeScreen } from "./ThemeScreen"
 
-export type Screen = { id: string; title: string; stage: number; Component: ComponentType }
+/** `grouped`: a settings page, whose Android canvas is Settings' surfaceContainer (other screens stand on surface). */
+export type Screen = { id: string; title: string; stage: number; grouped?: boolean; Component: ComponentType }
 
 /** Every screen of the gallery, in the order of the stages of the package. */
 export const screens: Screen[] = [
@@ -29,5 +30,5 @@ export const screens: Screen[] = [
   { id: "fields", title: "Fields", stage: 3, Component: FieldsScreen },
   { id: "overlays", title: "Overlays", stage: 3, Component: OverlaysScreen },
   { id: "content", title: "Content", stage: 4, Component: ContentScreen },
-  { id: "lists", title: "Lists & cards", stage: 4, Component: ListsScreen },
+  { id: "lists", title: "Lists & cards", stage: 4, grouped: true, Component: ListsScreen },
 ]
