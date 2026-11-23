@@ -9,6 +9,7 @@ import {
   FloatingLabelInputOverviewDemo,
   FloatingLabelInputTextareaDemo,
   FloatingLabelInputPasswordDemo,
+  FloatingLabelInputCardDemo,
   FloatingLabelInsideDemo,
   FloatingLabelInputPhoneDemo,
   FloatingLabelSelectPlainDemo,
@@ -79,10 +80,10 @@ const [clearable, setClearable] = useState(false)
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
-  <p>On Phone a label does not float: iOS has no floating label. Each field is a cell of a <code>FieldGroup</code> on the grouped background, and its placeholder names it: an <a href="/components/input">Input</a>, a <a href="/components/textarea">Textarea</a> or a <a href="/components/select">Select</a> in a <code>Field row hideLabel</code>, as the <a href="/components/settings-forms">Forms: Settings</a> do. The label stays for screen readers, a description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; where the label rests and the shape of the field are desktop settings, and the Label inside example has no Phone view.</p>
+  <p>On Phone each field is a cell of a <code>FieldGroup</code> on the grouped background, and its placeholder names it: an <a href="/components/input">Input</a>, a <a href="/components/textarea">Textarea</a> or a <a href="/components/select">Select</a> in a <code>Field row hideLabel</code>, as the <a href="/components/settings-forms">Forms: Settings</a> do. On iOS a label does not float: iOS has no floating label, and the label stays for screen readers. On Android these cells stay hint cells; a row that shows its label over the value floats it instead (see <a href="#card-of-fields">Card of fields</a>). A description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; where the label rests and the shape of the field are desktop settings, and the Label inside example has no Phone view.</p>
   <p>Two things set the type: where the label rests (<code>labelPlacement</code>: on the border, or <code>inside</code> the box with the value under it), and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. <code>pill={'{false}'}</code> takes the rounded box of <code>Input</code> and <code>Select</code> with the label on the border; <code>inside</code> always takes the rounded box, so <code>pill</code> is offered only with the label on the border. Text fields, textareas and selects take both settings the same way. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place.</p>
   <p>Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid, so <code>invalid</code> is offered only without one; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied. <code>onClear</code> shows a built-in clear button: it appears when the field has a value and is not disabled or read-only, and focus returns to the field.</p>
-  <p>On Phone the field is a cell named by its placeholder: the label does not float and the cell is the frame, so <code>labelPlacement</code> and <code>pill</code> are desktop settings. The description goes in the group's footer and the error stands inside the cell. A cell has no frame to color, so <code>invalid</code> alone is desktop only.</p>
+  <p>On Phone the field is a cell named by its placeholder, and the cell is the frame, so <code>labelPlacement</code> and <code>pill</code> are desktop settings. The description goes in the group's footer and the error stands inside the cell. A cell has no frame to color, so <code>invalid</code> alone is desktop only.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <FloatingLabelInputOverviewDemo />
 </ComponentPreview>
@@ -127,6 +128,37 @@ const [visible, setVisible] = useState(false)
   </Field>
 </FieldGroup>`} previewMinHeight={168}>
   <FloatingLabelInputPasswordDemo />
+</ComponentPreview>
+
+#### Card of fields
+
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>The fields of one form, such as a proxy server's settings, stand together. On Phone they are the rows of one <code>FieldGroup</code>, each with its label over the value: a <code>Field row orientation="vertical"</code>. On iOS the label stands above the value. On Android the group is an input card: an empty field shows its label as the hint, the label floats over the value in the accent once the field has the focus or a value, and a line runs under each field, turning to the accent while it is edited; each field is 64 tall. A cell named only by its placeholder (<code>hideLabel</code>, as in the examples above) stays a hint cell on Android.</>} code={`const [proxy, setProxy] = useState({ server: "", port: "1080", username: "", password: "" })
+const update = (key) => (event) => setProxy((current) => ({ ...current, [key]: event.target.value }))
+
+// Desktop
+<div className="flex w-[360px] flex-col gap-3">
+  <FloatingLabelInput label="Server" inputMode="url" autoCapitalize="none" value={proxy.server} onChange={update("server")} />
+  <FloatingLabelInput label="Port" inputMode="numeric" value={proxy.port} onChange={update("port")} />
+  <FloatingLabelInput label="Username" autoCapitalize="none" autoComplete="username" value={proxy.username} onChange={update("username")} />
+  <FloatingLabelInput label="Password" type="password" autoComplete="current-password" value={proxy.password} onChange={update("password")} />
+</div>
+
+// Phone: one group, each label over its value; on Android, an input card with floating labels.
+<FieldGroup footer={<p>Ask your network administrator for these settings.</p>}>
+  <Field row orientation="vertical" label="Server">
+    <Input inputMode="url" autoCapitalize="none" value={proxy.server} onChange={update("server")} />
+  </Field>
+  <Field row orientation="vertical" label="Port">
+    <Input inputMode="numeric" value={proxy.port} onChange={update("port")} />
+  </Field>
+  <Field row orientation="vertical" label="Username">
+    <Input autoCapitalize="none" autoComplete="username" value={proxy.username} onChange={update("username")} />
+  </Field>
+  <Field row orientation="vertical" label="Password">
+    <Input type="password" autoComplete="current-password" value={proxy.password} onChange={update("password")} />
+  </Field>
+</FieldGroup>`} previewMinHeight={300}>
+  <FloatingLabelInputCardDemo />
 </ComponentPreview>
 
 #### Phone input

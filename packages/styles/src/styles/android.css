@@ -21,17 +21,17 @@
   }
 
   /* Bars and overlays (Toolbar, TabBar, NavigationButton, a Sheet's bar). A glass control (a bar's circle or pill, a
-     search field in a bar, a Button with `mobileMaterial="glass"`) is no liquid glass: white at 80% over the screen
-     (at night a near-black gray at 80%), a 0.55dp white rim along its top and bottom (white at 12.5% and 7.8% at
+     search field in a bar, a Button with `mobileMaterial="glass"`) is no liquid glass: the card's color at 80% over the
+     screen, white by day and the dark card at night, as the reference's glass follows its theme's card in each of its
+     palettes (so a themed palette tints it too), a 0.55dp white rim along its top and bottom (white at 12.5% and 7.8% at
      night), a shadow of #333 at 8.6% blurred 8 and 2.33 down (none at night), the content blurred 7 under it. The tab
-     bar's capsule is the card at 76% with a thinner, darker rim and a tighter shadow. A held control shows a layer of
-     the text at 7%. */
+     bar's capsule is the card at 76% with a thinner, darker rim and a tighter shadow. A held control ripples (Android
+     press ripple, at the end of this file) over its glass, which keeps its color. */
   :root[data-platform="android"] {
-    --android-bar-glass: light-dark(rgb(255 255 255 / 80%), rgb(30 30 31 / 80%));
+    --android-bar-glass: color-mix(in srgb, var(--android-card) 80%, transparent);
     --android-bar-shadow: 0 2.33px 8px light-dark(rgb(51 51 51 / 8.6%), transparent), inset 0 0.55px 0 light-dark(#fff, rgb(255 255 255 / 12.5%)), inset 0 -0.55px 0 light-dark(#fff, rgb(255 255 255 / 7.8%));
     --android-tabs-glass: light-dark(rgb(255 255 255 / 76%), color-mix(in srgb, var(--gray-300) 76%, transparent));
     --android-tabs-shadow: 0 0.85px 2.67px light-dark(rgb(0 0 0 / 12.5%), rgb(255 255 255 / 1.6%)), inset 0 0.4px 0 light-dark(rgb(0 0 0 / 6.7%), rgb(255 255 255 / 2.4%)), inset 0 -0.4px 0 light-dark(rgb(0 0 0 / 12.5%), rgb(255 255 255 / 6.7%));
-    --android-bar-press: color-mix(in srgb, var(--color-text) 7%, transparent);
     --mobile-glass-background: var(--android-bar-glass);
     --mobile-glass-background-hover: var(--android-bar-glass);
     --mobile-glass-background-active: color-mix(in srgb, var(--android-bar-glass), var(--color-text) 7%);
@@ -79,9 +79,9 @@
      the popup's card with 12px corners and a soft shadow, the screen behind it dimmed 40% (20% at night: a spread of
      its shadow, which a press goes through), no space above and under its rows, which run flush with its sides. A row
      is 48 tall, its 24px symbol 18 in (the glyph about 20) and the label 16/20 Regular 20 after it (62 in); a
-     description 13/16 in the secondary text; a held row is the text at 12%. A chosen row's check stands at its end. A
-     separator is an 8px band of light gray; a section title 13/16 in the text, 13 from the sides and 8 above and under
-     it. A disabled row is the text at 38%. A menu opened from a bar's button is the bar's glass instead
+     description 13/16 in the secondary text; a held row ripples (Android press ripple, at the end of this file). A
+     chosen row's check stands at its end. A separator is an 8px band of light gray; a section title 13/16 in the text,
+     13 from the sides and 8 above and under it. A disabled row is the text at 38%. A menu opened from a bar's button is the bar's glass instead
      (Menu.module.css: --android-header-menu-*). */
   :root[data-platform="android"] {
     --menu-radius: 12px;
@@ -136,15 +136,14 @@
      is 50dp at least (64 with a description, its text 12 from the row's top and bottom), its label 16/20, a
      description 13/16 in the secondary label 4 under it, the text 21 in; a label over its value (a vertical row) 13/16,
      4 over it, 10 above and below. A tile leads 18 in and the text follows at 64 (corners 10). An error under a row or a field is a line of 13/16 (14/18 under a
-     field of its own) in the error color, with no mark. A held row is the list selector: the text at 11.4% over a
-     light card, white at 5% over a dark one. The text in the accent (a header, a value) is the bright accent over a
+     field of its own) in the error color, with no mark. A held row ripples in the reference's selector for a card's
+     rows (Android press ripple, at the end of this file). The text in the accent (a header, a value) is the bright accent over a
      light card and its lighter text at night; red text is the danger solid, its soft text at night; the line between
      rows is a light gray, the darkest gray at night. */
   :root[data-platform="android"] {
     --android-accent-text: light-dark(var(--color-background-accent-solid), var(--color-text-accent));
     --android-danger-text: light-dark(var(--color-background-danger-solid), var(--color-text-danger-soft));
     --android-divider: light-dark(#d9d9d9, var(--gray-0));
-    --android-list-press: light-dark(rgb(0 0 16 / 11.4%), rgb(255 255 255 / 5%));
     /* An off switch's track and an empty checkbox's outline: a mid gray, a darker one at night. A held solid button's
        layer: black at 5.9%, white at 5.1% at night. */
     --android-switch-off: light-dark(#a7adb2, var(--gray-500));
@@ -171,7 +170,7 @@
     --field-row-icon-offset: -3px;
     --field-row-icon-gap: 18px;
     --field-row-icon-radius: 10px;
-    --field-row-press-background: var(--android-list-press);
+    --field-row-press-background: var(--android-ripple-card-color);
     --field-group-radius: 16px;
     --mobile-field-error-font-size: 14px;
     --mobile-field-error-line-height: 18px;
@@ -292,5 +291,164 @@
     --button-indicator-size-xl: 24px;
     --button-indicator-size-2xl: 24px;
     --button-indicator-size-3xl: 24px;
+  }
+}
+
+/* Android sheet search. The search field a top bar opens (`Toolbar.Content search`, Toolbar.module.css): its hint in
+   the reference's hint gray (#A8A8A8, #7D7D7D at night). It morphs out of its circle over 380ms on the reference's
+   EASE_OUT_QUINT, and a clear button grows in over 250ms. */
+@media (max-width: 767px) {
+  :root[data-platform="android"] {
+    --android-search-hint: light-dark(#a8a8a8, #7d7d7d);
+    --android-search-duration: 380ms;
+    --android-search-clear-duration: 250ms;
+    --android-search-easing: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+}
+
+/* Android press ripple. A press in the Android look is Android's RippleDrawable (its RippleForeground), not a flat
+   fill. PlexUIProvider marks the control under the finger (`data-ripple`) and gives it where the circle starts and
+   ends (--android-ripple-x, -y, -r0, -r1: its packages' androidRipple.ts); a control's own stylesheet paints
+   --android-ripple-image on the layer that has its shape (its corners, a menu's first and last rows, a circle). The
+   circle starts at 30% of the control's longer side round the finger and grows over 225ms (fast out, slow in) to
+   the circle round the control's center that reaches its corners, sliding to that center as it grows; a key starts
+   it at the center. It shows in 75ms and stays at least 225ms from the press, then fades over 150ms once the finger
+   lifts. With reduced motion it is a plain fade of the whole circle. No scale and no other fill. The ink is the
+   reference's list selector: black at 5.9% (#0F000000), white at 5.1% at night (the night theme's
+   listSelectorSDK21, #0DFFFFFF); a row of a card (a sectioned list) black at 4.7%, as the phone's build draws a
+   held card row (243 on its white; the public source's settings selector, #1D000010 at 11.4%, read as too dark
+   beside it), at night the list selector's white at 5.1%; a menu's row its dialog button selector,
+   white at 9.8% at night (#19FFFFFF). A small button's circle (a bar's icon, a field's button) is borderless: 20px
+   round the button's center, not clipped to its box. */
+@property --android-ripple-r {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --android-ripple-cx {
+  syntax: "<length-percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+
+@property --android-ripple-cy {
+  syntax: "<length-percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+
+/* Shown (0 to 1 in the first 75ms), the hold (1 for 225ms, then 0 over 150ms) and the finger down (1, then 0 over
+   150ms from the release): the ripple's strength is shown × the larger of the other two, which is Android's fade
+   delayed until 225ms after the press. */
+@property --android-ripple-in {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --android-ripple-hold {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --android-ripple-held {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@keyframes android-ripple-grow {
+  from {
+    --android-ripple-r: var(--android-ripple-r0, 0px);
+    --android-ripple-cx: var(--android-ripple-x, 50%);
+    --android-ripple-cy: var(--android-ripple-y, 50%);
+  }
+
+  to {
+    --android-ripple-r: var(--android-ripple-r1, 0px);
+    --android-ripple-cx: 50%;
+    --android-ripple-cy: 50%;
+  }
+}
+
+@keyframes android-ripple-fade {
+  0% {
+    --android-ripple-in: 0;
+    --android-ripple-hold: 1;
+  }
+
+  20% {
+    --android-ripple-in: 1;
+  }
+
+  60% {
+    --android-ripple-hold: 1;
+  }
+
+  100% {
+    --android-ripple-in: 1;
+    --android-ripple-hold: 0;
+  }
+}
+
+@keyframes android-ripple-release {
+  from {
+    --android-ripple-held: 1;
+  }
+
+  to {
+    --android-ripple-held: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  :root[data-platform="android"] {
+    --android-ripple-color: light-dark(rgb(0 0 0 / 5.9%), rgb(255 255 255 / 5.1%));
+    --android-ripple-card-color: light-dark(rgb(0 0 0 / 4.7%), rgb(255 255 255 / 5.1%));
+    --android-ripple-menu-color: light-dark(rgb(0 0 0 / 5.9%), rgb(255 255 255 / 9.8%));
+    --android-ripple-grow-duration: 225ms;
+  }
+
+  /* The ink is a control's --android-ripple-ink (a button's label at 10%, a menu's row), else the list selector */
+  :root[data-platform="android"] [data-ripple] {
+    --android-ripple-image: radial-gradient(
+      circle var(--android-ripple-r) at var(--android-ripple-cx) var(--android-ripple-cy),
+      color-mix(in srgb, var(--android-ripple-ink, var(--android-ripple-color)) calc(var(--android-ripple-in) * max(var(--android-ripple-hold), var(--android-ripple-held)) * 100%), transparent) calc(100% - 0.5px),
+      transparent 100%
+    );
+
+    animation:
+      android-ripple-grow var(--android-ripple-grow-duration) cubic-bezier(0.4, 0, 0.2, 1) both,
+      android-ripple-fade 375ms linear both;
+    /* No flat layer beside it: a held glass keeps its glass */
+    --mobile-glass-background-active: var(--mobile-glass-background);
+  }
+
+  :root[data-platform="android"] [data-ripple]:active {
+    --android-ripple-held: 1;
+  }
+
+  :root[data-platform="android"] [data-ripple]:not(:active) {
+    animation:
+      android-ripple-grow var(--android-ripple-grow-duration) cubic-bezier(0.4, 0, 0.2, 1) both,
+      android-ripple-fade 375ms linear both,
+      android-ripple-release 150ms linear both;
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  :root[data-platform="android"] {
+    --android-ripple-grow-duration: 0s;
+  }
+}
+
+/* A segmented control in a bar's own row (Tabs.module.css, the Plex Android segmented control in a bar): the
+   reference's in-bar capsule shows its selected segment in the screen's gray, the grouped page's color (#f1f1f3 on
+   its white capsule), and at night the dark page's, under the glass of the bar. */
+@media (max-width: 767px) {
+  :root[data-platform="android"] {
+    --android-bar-segment-thumb: var(--mobile-surface-grouped-primary);
   }
 }

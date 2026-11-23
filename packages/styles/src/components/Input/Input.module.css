@@ -804,3 +804,28 @@
     opacity: 1;
   }
 }
+
+/* Android press ripple. In the Plex Android look an adornment button and the clear button ripple as the reference's
+   small in-field buttons (its 20dp circle, no mask): a borderless circle of 20px round their center, not clipped to
+   their box, in the list selector (android.css, Android press ripple). */
+@media (max-width: 767px) {
+  [data-platform="android"] :is(.AdornmentButton, .Clear) {
+    --android-ripple-radius: 20px;
+    --android-ripple-ink: var(--android-ripple-color);
+
+    isolation: isolate;
+  }
+
+  /* Under the glyph, as the reference draws it: the button's background, round the glyph (which a row's 44px target
+     holds at its end) */
+  [data-platform="android"] :is(.AdornmentButton, .Clear):not(:disabled)[data-ripple]::after {
+    position: absolute;
+    z-index: -1;
+    inset: calc(50% - 20px);
+    border-radius: 50%;
+    translate: var(--android-ripple-ox, 0px) var(--android-ripple-oy, 0px);
+    background-image: var(--android-ripple-image);
+    content: "";
+    pointer-events: none;
+  }
+}

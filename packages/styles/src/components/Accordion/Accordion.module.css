@@ -178,6 +178,16 @@
     --accordion-content-padding-bottom: 12px;
     --accordion-content-padding-inline-start: 0px;
   }
+
+  /* Held, an item's title ripples over its row (android.css, Android press ripple), in the reference's selector for a
+     card's rows (black at 11.4%) */
+  [data-platform="android"] .Trigger {
+    --android-ripple-ink: var(--android-ripple-card-color);
+  }
+
+  [data-platform="android"] .Trigger[data-ripple]:not(:disabled) {
+    background-image: var(--android-ripple-image);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

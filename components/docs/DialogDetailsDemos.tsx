@@ -13,10 +13,20 @@ const CLIENT_ID = 'client_76fb07f7-78e2-4656-abdf-e77b5d7b1ed1';
 
 function CopyValue({ value, label }: { value: string; label: string }) {
   const wide = useBreakpoint('md');
+  if (!wide) {
+    // On a phone the value reads as the row's other values, in their type and color, shortened to fit beside its label
+    return (
+      <CopyTooltip copyValue={value} sideOffset={24} align="end">
+        <button type="button" className="min-w-0 max-w-full cursor-pointer truncate" aria-label={label}>
+          {value.slice(0, 11)}…{value.slice(-6)}
+        </button>
+      </CopyTooltip>
+    );
+  }
   return (
-    <CopyTooltip copyValue={value} sideOffset={wide ? 5 : 24} align={wide ? 'center' : 'start'}>
+    <CopyTooltip copyValue={value} sideOffset={5}>
       <Button color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 min-w-0 max-w-full" aria-label={label}>
-        <span className="flex min-w-0 md:font-mono md:text-xs">
+        <span className="flex min-w-0 font-mono text-xs">
           <span className="truncate">{value.slice(0, -6)}</span>
           <span className="shrink-0">{value.slice(-6)}</span>
         </span>
@@ -28,7 +38,6 @@ function CopyValue({ value, label }: { value: string; label: string }) {
 export function DetailsDialogExample({ initialOpen = false, previewOpen = false }: { initialOpen?: boolean; previewOpen?: boolean }) {
   const [open, setOpen] = useState(initialOpen);
   const heading = useRef<HTMLDivElement>(null);
-  const wide = useBreakpoint('md');
 
   return (
     <div data-demo-stage className="flex flex-col items-center gap-4 py-10">
@@ -44,8 +53,7 @@ export function DetailsDialogExample({ initialOpen = false, previewOpen = false 
           <Dialog.Body>
             <FieldGroup>
               <Field row label="Name"><output>Plex application</output></Field>
-              {/* On a phone a value too long for the row goes under its label, as iOS lays out a value cell */}
-              <Field row label="Client ID" orientation={wide ? undefined : 'vertical'}><CopyValue value={CLIENT_ID} label="Copy client ID" /></Field>
+              <Field row label="Client ID"><CopyValue value={CLIENT_ID} label="Copy client ID" /></Field>
               <Field row label="Status"><output>Active</output></Field>
               <Field row label="Created"><output>Nov 3, 2026</output></Field>
               <Field row label="Last used"><output>Nov 4, 2026</output></Field>

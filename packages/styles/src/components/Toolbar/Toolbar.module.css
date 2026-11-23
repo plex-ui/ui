@@ -899,7 +899,7 @@
     --toolbar-subtitle-line-height: 18px;
     --toolbar-subtitle-font-weight: var(--font-weight-normal);
     --toolbar-row-gap: 8px;
-    /* The bar's glass (android.css); a press is a layer of the text at 7%, drawn by the rules below. */
+    /* The bar's glass (android.css), which a press keeps: the control ripples over it (Android press ripple, below). */
     --mobile-glass-background: var(--android-bar-glass);
     --mobile-glass-background-hover: var(--android-bar-glass);
     --mobile-glass-background-active: var(--android-bar-glass);
@@ -1031,21 +1031,8 @@
     backdrop-filter: var(--mobile-glass-backdrop-filter);
   }
 
-  /* A press: a label takes it in its own shape, a symbol as a 40px circle round it (38 in a group's slot). */
-  [data-platform="android"] .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a):not([data-disabled], [data-variant="solid"]):active {
-    --button-mobile-material-sheen: linear-gradient(var(--android-bar-press), var(--android-bar-press));
-  }
-
-  [data-platform="android"] .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-uniform]:not([data-disabled], [data-variant="solid"]):active {
-    --button-mobile-material-sheen: radial-gradient(circle 20px, var(--android-bar-press) calc(100% - 0.5px), transparent 100%);
-  }
-
   [data-platform="android"] .Toolbar .Group > :where(button, a)[data-uniform] {
     width: 38px;
-  }
-
-  [data-platform="android"] .Toolbar .Group > :where(button, a)[data-uniform]:not([data-disabled]):active {
-    --button-mobile-material-sheen: radial-gradient(circle 19px, var(--android-bar-press) calc(100% - 0.5px), transparent 100%);
   }
 
   /* A search field in the bar or in a row of it is the bar's own capsule: 46 of its glass, 18px text 20 in, the hint
@@ -1346,24 +1333,24 @@
   [data-platform="android"] .Toolbar[data-placement="top"][data-background="hard"] :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-variant="solid"]:not([data-disabled])::before {
     background-color: transparent;
   }
-
-  [data-platform="android"] .Toolbar[data-placement="top"][data-background="hard"] :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-uniform]:not([data-disabled]):active {
-    --button-mobile-material-sheen: radial-gradient(circle 20px, var(--android-bar-press) calc(100% - 0.5px), transparent 100%);
-  }
 }
 
 /* =============================================
   Android sheet bar. A Sheet's bar in the Plex Android look (`data-platform="android"`) keeps the bar's 46px circles
-  and its centered title (above); as the reference messenger's sheets set them, the circles stand 11 under the
-  sheet's top edge (its 24px corners, Dialog.module.css) and 6 from its sides.
+  and its centered title (above). The circles stand 12 from the sheet's top edge and sides, in line with the content's
+  groups, so with the sheet's 35px corners (Dialog.module.css) a circle and the end pill sit concentric in each corner
+  (23 + 12). The reference messenger's stand 11 under the top and 6 from the sides of 24px corners. Full screen (no
+  corners) the bar is a page's again: 6 from the sides.
 ============================================= */
 @media (max-width: 767px) {
   [data-platform="android"] .Toolbar[data-host="dialog"][data-placement="top"] {
-    --toolbar-padding-top: 11px;
+    --toolbar-padding-top: 12px;
+    --toolbar-gutter: 12px;
   }
 
   [data-platform="android"] :where([data-mobile-placement="fullscreen"]) .Toolbar[data-host="dialog"][data-placement="top"] {
     --toolbar-padding-top: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 5px);
+    --toolbar-gutter: 6px;
   }
 
   /* Content scrolled under the sheet's bar fades out under it, whatever the bar's `background`, with no line and no bar
@@ -1388,5 +1375,315 @@
 
   [data-platform="android"] .Toolbar[data-host="dialog"][data-placement="top"]::after {
     display: none;
+  }
+}
+
+/* =============================================
+  Android press ripple. A bar's control ripples when held (android.css, Android press ripple; the Button draws it),
+  with no flat layer, in the list selector, as the reference's bar items: a symbol as a circle of 19px round its
+  center, 4 inside its glass (in a 46 circle or a group's 38 slot; the reference's 20 is a point wider), a label as a
+  circle round its center that reaches its corners, clipped to its glass pill (the reference's bar items with text,
+  whose borderless ripple the glass under them clips), the confirm pill in a pill 4 inside its glass
+  (NavigationButton). A prominent action of a glass bar (the accent's circle or pill) ripples in its label's color at
+  20%, as the reference's accent Done pill.
+============================================= */
+@media (max-width: 767px) {
+  [data-platform="android"] .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-uniform] {
+    --android-ripple-radius: 19px;
+  }
+
+  [data-platform="android"] .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-variant]:not([data-variant="solid"]) {
+    --android-ripple-ink: var(--android-ripple-color);
+  }
+
+  [data-platform="android"] .Toolbar:not([data-placement="top"][data-background="hard"]) :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-variant="solid"]:not([data-navigation-action="confirm"]) {
+    --android-button-press: color-mix(in srgb, var(--button-text-color) 20%, transparent);
+  }
+}
+
+/* =============================================
+  Android sheet search. A screen's search at the top (`Toolbar.Content search`, "auto" in the Plex Android look, or
+  "top"): a search button first among the top bar's trailing actions, in the capsule of the icon buttons beside it
+  (Toolbar.tsx makes its places: the capsule, and the layer over the bar its field opens in). Pressed, the field grows
+  out of the button to the bar's end, from after a back circle in the leading place (the gutter, the circle and the
+  gap: 6 + 46 + 6 = 58 to the width less 6 on a full screen, as the reference messenger's), while the title fades out
+  to 0.94 of its size and the trailing actions to 0.7, the leading action gives way to the back arrow, and the text
+  comes in. Back reverses it. All of it runs 380ms on the reference's EASE_OUT_QUINT (android.css); a Sheet stands at
+  the full screen meanwhile (Dialog.module.css), its bar 5 under the status bar and 6 from the sides, as a page's.
+============================================= */
+@media (max-width: 767px) {
+  .Toolbar[data-toolbar][data-search][data-placement="top"] {
+    --toolbar-search-duration: var(--android-search-duration, 380ms);
+    --toolbar-search-easing: var(--android-search-easing, cubic-bezier(0.23, 1, 0.32, 1));
+    --toolbar-search-clear-duration: var(--android-search-clear-duration, 250ms);
+    transition: padding var(--toolbar-search-duration) var(--toolbar-search-easing);
+  }
+
+  /* The search button is one circle of the bar's size: the capsule holds it with no padding of its own, but in the
+     Plex Android look, where a capsule's symbols stand in 38px slots 4 from its ends (46 in all). */
+  .Group[data-toolbar-search-button]:not([data-platform="android"] *) {
+    padding-inline: 0;
+  }
+
+  /* The field takes the button's place at once and gives it back once it has shrunk into it. Closing, the button is
+     there at once, unseen, so it takes the focus back. */
+  .Toolbar[data-toolbar][data-search][data-placement="top"] > .Trailing > [data-toolbar-search-button] {
+    transition: opacity 0s var(--toolbar-search-duration);
+  }
+
+  .Toolbar[data-toolbar][data-search-open][data-placement="top"] > .Trailing > [data-toolbar-search-button] {
+    visibility: hidden;
+    opacity: 0;
+    transition: none;
+  }
+
+  /* The title and the trailing actions fade and shrink away and come back; the leading action leaves at once, as the
+     back circle takes its place, and comes back at once, its symbol fading in. */
+  .Toolbar[data-toolbar][data-search][data-placement="top"] > :is(.Heading, .CollapsedTitle, .Trailing) {
+    transition:
+      opacity var(--toolbar-search-duration) var(--toolbar-search-easing),
+      scale var(--toolbar-search-duration) var(--toolbar-search-easing),
+      visibility 0s;
+  }
+
+  .Toolbar[data-toolbar][data-search][data-placement="top"] > .Trailing {
+    transform-origin: 100% 50%;
+
+    &:dir(rtl) {
+      transform-origin: 0% 50%;
+    }
+  }
+
+  .Toolbar[data-toolbar][data-search-open][data-placement="top"] > :is(.Heading, .CollapsedTitle, .Trailing) {
+    visibility: hidden;
+    opacity: 0;
+    scale: 0.94;
+    transition:
+      opacity var(--toolbar-search-duration) var(--toolbar-search-easing),
+      scale var(--toolbar-search-duration) var(--toolbar-search-easing),
+      visibility 0s var(--toolbar-search-duration);
+  }
+
+  .Toolbar[data-toolbar][data-search-open][data-placement="top"] > .Trailing {
+    scale: 0.7;
+  }
+
+  .Toolbar[data-toolbar][data-search-open][data-placement="top"] > .Leading {
+    visibility: hidden;
+  }
+
+  .Toolbar[data-toolbar][data-search][data-placement="top"]:not(:has(> .Leading [data-navigation-action="back"])) > .Leading svg {
+    transition:
+      opacity var(--toolbar-search-duration) var(--toolbar-search-easing),
+      rotate var(--toolbar-search-duration) var(--toolbar-search-easing);
+  }
+
+  .Toolbar[data-toolbar][data-search-open][data-placement="top"]:not(:has(> .Leading [data-navigation-action="back"])) > .Leading svg {
+    opacity: 0;
+    rotate: 45deg;
+  }
+
+  /* The layer over the bar's row: hidden while the search is closed, but for the field shrinking back into its button. */
+  .SearchLayer {
+    position: absolute;
+    z-index: 2;
+    top: var(--toolbar-padding-top, 0px);
+    right: 0;
+    left: 0;
+    height: var(--toolbar-item-size);
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      top var(--toolbar-search-duration) var(--toolbar-search-easing),
+      visibility 0s var(--toolbar-search-duration);
+
+    & > * {
+      pointer-events: auto;
+    }
+  }
+
+  .Toolbar[data-search-open] > .SearchLayer {
+    visibility: visible;
+    transition: top var(--toolbar-search-duration) var(--toolbar-search-easing);
+  }
+
+  /* The back circle stands where the leading action stood, at once, its arrow turning in; with no leading action it
+     fades in. */
+  .SearchBack {
+    position: absolute;
+    top: 0;
+    left: var(--toolbar-gutter);
+    visibility: hidden;
+    transition: left var(--toolbar-search-duration) var(--toolbar-search-easing);
+
+    &:dir(rtl) {
+      right: var(--toolbar-gutter);
+      left: auto;
+      transition: right var(--toolbar-search-duration) var(--toolbar-search-easing);
+    }
+
+    & svg {
+      opacity: 0;
+      rotate: -45deg;
+      transition:
+        opacity var(--toolbar-search-duration) var(--toolbar-search-easing),
+        rotate var(--toolbar-search-duration) var(--toolbar-search-easing);
+    }
+  }
+
+  .Toolbar[data-search-open] > .SearchLayer > .SearchBack {
+    visibility: visible;
+
+    & svg {
+      opacity: 1;
+      rotate: 0deg;
+    }
+  }
+
+  .Toolbar:has(> .Leading [data-navigation-action="back"]) > .SearchLayer > .SearchBack svg {
+    opacity: 1;
+    rotate: 0deg;
+    transition: none;
+  }
+
+  .Toolbar:not(:has(> .Leading > *)) > .SearchLayer > .SearchBack {
+    opacity: 0;
+    transition:
+      left var(--toolbar-search-duration) var(--toolbar-search-easing),
+      opacity var(--toolbar-search-duration) var(--toolbar-search-easing),
+      visibility 0s var(--toolbar-search-duration);
+  }
+
+  .Toolbar[data-search-open]:not(:has(> .Leading > *)) > .SearchLayer > .SearchBack {
+    opacity: 1;
+    transition:
+      left var(--toolbar-search-duration) var(--toolbar-search-easing),
+      opacity var(--toolbar-search-duration) var(--toolbar-search-easing),
+      visibility 0s;
+  }
+
+  /* The field: closed, the search button's capsule (its end and size, which Toolbar.tsx measures from the bar's end, so
+     it follows the gutter); open, from after the back circle to the gutter. */
+  .SearchField {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: calc(var(--toolbar-gutter) + var(--toolbar-search-from-end, 0px));
+    left: calc(100% - var(--toolbar-gutter) - var(--toolbar-search-from-end, 0px) - var(--toolbar-search-from-size, var(--toolbar-item-size)));
+    transition:
+      left var(--toolbar-search-duration) var(--toolbar-search-easing),
+      right var(--toolbar-search-duration) var(--toolbar-search-easing);
+
+    &:dir(rtl) {
+      right: calc(100% - var(--toolbar-gutter) - var(--toolbar-search-from-end, 0px) - var(--toolbar-search-from-size, var(--toolbar-item-size)));
+      left: calc(var(--toolbar-gutter) + var(--toolbar-search-from-end, 0px));
+    }
+
+    & > [data-slot="input"] > input {
+      opacity: 0;
+      transition: opacity var(--toolbar-search-duration) var(--toolbar-search-easing);
+    }
+
+    /* The clear button grows in over 250ms */
+    & > [data-slot="input"] > input + button {
+      transition:
+        opacity var(--toolbar-search-clear-duration) var(--toolbar-search-easing),
+        scale var(--toolbar-search-clear-duration) var(--toolbar-search-easing);
+
+      @starting-style {
+        opacity: 0;
+        scale: 0.5;
+      }
+    }
+  }
+
+  .Toolbar[data-search-open] > .SearchLayer > .SearchField {
+    right: var(--toolbar-gutter);
+    left: calc(var(--toolbar-gutter) + var(--toolbar-item-size) + var(--toolbar-item-gap));
+
+    &:dir(rtl) {
+      right: calc(var(--toolbar-gutter) + var(--toolbar-item-size) + var(--toolbar-item-gap));
+      left: var(--toolbar-gutter);
+    }
+
+    & > [data-slot="input"] > input {
+      opacity: 1;
+    }
+  }
+
+  /* A Sheet's bar at the full screen: 5 under the status bar and 6 from the sides, as a page's. */
+  [data-platform="android"] .Toolbar[data-host="dialog"][data-placement="top"][data-search-open] {
+    --toolbar-padding-top: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 5px);
+    --toolbar-gutter: 6px;
+  }
+
+  /* The reference's field: its text 17 (the caret 20 tall), 18 in, the hint in its hint gray, the caret in the text
+     color, with no magnifier (the button showed it). A top bar's own open search (a filled Content, Android bar
+     audit below) takes the same field. */
+  [data-platform="android"] .Toolbar .SearchLayer > .SearchField > [data-slot="input"][data-variant],
+  [data-platform="android"] .Toolbar[data-placement="top"] > .Content[data-fill] > [data-slot="input"][data-variant] {
+    --input-font-size: 17px;
+    --input-gutter: 18px;
+    --input-placeholder-text-color: var(--android-search-hint);
+    caret-color: var(--color-text);
+
+    & > svg:first-child {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .Toolbar[data-toolbar][data-search][data-placement="top"] {
+    --toolbar-search-duration: 0s;
+    --toolbar-search-clear-duration: 0s;
+  }
+}
+
+/* =============================================
+  Android bar audit. Three gaps of the Plex Android look's bars, measured on the reference messenger:
+  - A bottom bar's single wide solid action (a filled `Toolbar.Content` with a solid Button, alone in the bar) floats
+    as the reference's main action at the bottom of a screen: a 48px pill in the line of the cards (--page-gutter, 12
+    from the sides), 8 over the gesture inset, with no shadow. The reference rings it 3px in the card's color to part
+    it from content scrolled under it; over our pages the ring read as a stray border (owner, 23.11), so it has none.
+  - A top bar's open search written in the iOS order (a filled Content with its field, Close after it, nothing
+    leading) takes the reference's: the back circle first, in the leading place (Close drawn as the back arrow), the
+    field from after it to the bar's end, as the sheet search's field above (17, 18 in, the hint gray, no magnifier).
+  - A title from the start after a leading control is the reference's count of a selection: Medium 18, 14.5 past the
+    circle (66.5 from the screen's side), not 24 past it.
+============================================= */
+@media (max-width: 767px) {
+  [data-platform="android"] .Toolbar[data-placement="bottom"]:has(> .Content[data-fill] > :where(button, a, [role="link"])[data-variant="solid"]):not(:has(> .Leading, > .Trailing)) {
+    --toolbar-bottom-item-size: 48px;
+    --toolbar-bottom-gutter: var(--page-gutter, 12px);
+    --toolbar-bottom-padding-bottom: calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 8px);
+    --toolbar-prominent-shadow: none;
+  }
+
+  [data-platform="android"] .Toolbar[data-placement="top"]:has(> .Content[data-fill]):not(:has(> .Leading)):has(> .Trailing > [data-navigation-action="close"]:only-child) {
+    grid-template-areas: "trailing content";
+    grid-template-columns: max-content minmax(0, 1fr);
+
+    & > .Trailing {
+      justify-self: start;
+    }
+
+    /* Material's arrow_back on the 20 grid of the close glyph's box (NavigationButton.module.css), mirrored right to
+       left as Back's is. */
+    & > .Trailing > [data-navigation-action="close"] [data-navigation-glyph="close"] path {
+      d: path("M16.667 9.167H6.525l4.658-4.658L10 3.333l-6.667 6.667 6.667 6.667 1.175-1.175L6.525 10.833H16.667v-1.666z");
+    }
+
+    & > .Trailing > [data-navigation-action="close"]:dir(rtl) [data-navigation-glyph="close"] {
+      transform: scaleX(-1);
+    }
+  }
+
+  [data-platform="android"] .Toolbar[data-placement="top"][data-title-align="start"]:not([data-background="hard"]):has(> .Leading) {
+    --toolbar-title-font-size: 18px;
+
+    & > .Heading {
+      margin-inline-start: calc(14.5px - var(--toolbar-item-gap));
+    }
   }
 }

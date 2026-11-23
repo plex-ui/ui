@@ -1,4 +1,5 @@
 import { createContext } from "react"
+import type { GestureResponderEvent } from "react-native"
 
 /** The end of a List row, as its control sees it. */
 export type RowEnd = {
@@ -38,7 +39,7 @@ export const RowEndContext = createContext<RowEnd | null>(null)
  * checkbox's toggle) and tells the row while a finger is on it, so the row shows its press. iOS lights a held choice
  * row (a check or a radio), not a switch row; Android's list selector shows for a touch anywhere on the row.
  */
-export const RowHoldContext = createContext<((held: boolean) => void) | null>(null)
+export const RowHoldContext = createContext<((held: boolean, event?: GestureResponderEvent) => void) | null>(null)
 
 /**
  * Inside the start of a List row: a RadioGroup option given as the row's `leading` (a list of choices with the mark
@@ -60,6 +61,7 @@ export type RowFrame = {
 export const RowFrameContext = createContext<RowFrame | null>(null)
 
 /** A control's press handlers that hold its row while a finger is on it (none outside a pressable row). */
-export function rowHold(hold: ((held: boolean) => void) | null) {
-  return hold ? { onPressIn: () => hold(true), onPressOut: () => hold(false) } : null
+export function rowHold(hold: ((held: boolean, event?: GestureResponderEvent) => void) | null) {
+  // The touch goes with the hold: Android's row ripples from it
+  return hold ? { onPressIn: (event: GestureResponderEvent) => hold(true, event), onPressOut: () => hold(false) } : null
 }

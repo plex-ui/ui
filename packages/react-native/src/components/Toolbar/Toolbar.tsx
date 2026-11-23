@@ -248,7 +248,7 @@ function barItem(theme: Theme, placement: ToolbarPlacement, plain: boolean): Bar
   // Android's opaque bar: 24dp glyphs plain in 48dp targets, a label (Save) Medium 15 12 in from the ends of its press
   if (theme.isAndroid && plain) return { height: 48, fontSize: 15, lineHeight: 20, weight: "medium", prominentWeight: "medium", iconSize: 24, gutter: 12, plain: true }
   // Android: 46dp circles with 24dp glyphs; a label (Save) Medium 15 in a capsule 16 in from its ends
-  if (theme.isAndroid) return { height: 46, fontSize: 15, lineHeight: 20, weight: "medium", prominentWeight: "medium", iconSize: 24, gutter: 16 }
+  if (theme.isAndroid) return { height: 46, fontSize: 15, lineHeight: 20, weight: "medium", prominentWeight: "medium", iconSize: 24, gutter: 16, bottom: placement === "bottom" }
   const bottom = placement === "bottom"
   const weight = (name: string, fallback: number) => {
     const value = theme.length(name, fallback)

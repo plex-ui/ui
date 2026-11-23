@@ -685,3 +685,24 @@
     transition: none;
   }
 }
+
+/* Android press ripple. Held, a day ripples in its 40px circle (android.css, Android press ripple), in the list
+   selector, and the selected day in its own ink at 10%, which shows on its fill. */
+@media (max-width: 767px) {
+  [data-platform="android"] .InteractiveDay {
+    --android-ripple-radius: 20px;
+  }
+
+  [data-platform="android"] [data-is-selected] .InteractiveDay {
+    --android-ripple-ink: color-mix(in srgb, var(--color-text-inverse) 10%, transparent);
+  }
+
+  [data-platform="android"] .InteractiveDay[data-ripple]:not([disabled])::after {
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background-image: var(--android-ripple-image);
+    content: "";
+    pointer-events: none;
+  }
+}

@@ -1,4 +1,5 @@
 import { defineComponent, onBeforeUnmount, onMounted, provide, watch, type Component, type InjectionKey, type PropType } from "vue"
+import { installAndroidRipple } from "./androidRipple.js"
 
 /** Component used to render internal links: `"a"` or your router's link (e.g. vue-router's `RouterLink`). */
 export type LinkComponent = Component | "a"
@@ -44,10 +45,15 @@ export const PlexUIProvider = defineComponent({
     // Sets `data-platform` on the document's root, which the phone styles read. `"auto"` leaves the root alone
     // except on Android, so a page (or a docs frame) that sets the attribute itself keeps it.
     let restore: (() => void) | null = null
+    // A press ripples in the Android look (androidRipple.ts); the iOS look has no listener.
+    let stopRipple: (() => void) | null = null
     const apply = () => {
       restore?.()
       restore = null
+      stopRipple?.()
+      stopRipple = null
       const resolved = props.platform === "auto" ? detectPlatform() : props.platform
+      if (resolved === "android") stopRipple = installAndroidRipple()
       if (!resolved) return
       const root = document.documentElement
       const previous = root.getAttribute("data-platform")
@@ -62,6 +68,8 @@ export const PlexUIProvider = defineComponent({
     onBeforeUnmount(() => {
       restore?.()
       restore = null
+      stopRipple?.()
+      stopRipple = null
     })
 
     return () => slots.default?.()

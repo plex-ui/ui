@@ -38,7 +38,7 @@ export const ViewOptionsSheet = defineComponent({
           h(DialogDescription, { class: 'sr-only' }, () => 'Choose how items are sorted and displayed. Changes apply immediately.'),
           h(DialogHeaderAction, null, () => h(DialogClose, null, () =>
             // The shared confirm of a bar: the accent capsule and the checkmark of native sheets (IMG_5686).
-            h(NavigationButton, { action: 'confirm', 'aria-label': 'Done' }),
+            h(NavigationButton, { action: 'confirm', label: 'Done' }),
           )),
         ]),
         h(DialogBody, null, () => h('div', { class: s.Sections }, [

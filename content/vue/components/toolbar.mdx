@@ -25,6 +25,11 @@ export const list = `<FieldGroup>
 
 export const overviewList = list.replace("row in rows", "row in rows.filter((order) => !segmented || view === 'all' || order.status.toLowerCase() === view)")
 
+export const matching = "rows.filter((order) => !query.trim() || (order.customer + ' ' + order.number).toLowerCase().includes(query.trim().toLowerCase()))"
+
+export const searchList = list.replace("<FieldGroup>", `<FieldGroup v-if="${matching}.length">`).replace("row in rows", `row in ${matching}`) + `
+      <p v-else class="${toolbarStyles.NoMatches}">No orders match “{{ query.trim() }}”.</p>`
+
 export const formList = `<FieldGroup>
         <div v-for="row in form" :key="row.label" data-row class="${toolbarStyles.Row}">
           <span>{{ row.label }}</span>
@@ -184,6 +189,32 @@ export const searchUnderTitle = `<Page surface="grouped">
   <PageContent>...</PageContent>
 </Page>`
 
+export const searchPlacement = (body) => `<Page surface="grouped">
+  <Toolbar>
+    <ToolbarLeading>
+      <NavigationButton action="back" />
+    </ToolbarLeading>
+    <ToolbarTitle>Orders</ToolbarTitle>
+    <ToolbarTrailing>
+      <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
+    </ToolbarTrailing>
+  </Toolbar>
+  <PageContent>
+    ${body}
+  </PageContent>
+  <Toolbar placement="bottom">
+    <ToolbarContent fill :search="search">
+      <Input v-model:value="query" variant="soft" pill placeholder="Search" aria-label="Search orders" @clear="query = ''">
+        <template #startAdornment>
+          <SearchSm />
+        </template>
+      </Input>
+    </ToolbarContent>
+  </Toolbar>
+</Page>`
+
+export const searchPlacementCode = searchPlacement("...").replace('<ToolbarContent fill :search="search">', '<!-- "auto"; or search="top", search="bottom" -->\n    <ToolbarContent fill search>')
+
 export const disabledCode = `<Page surface="grouped">
   <Toolbar>
     <ToolbarLeading>
@@ -191,7 +222,7 @@ export const disabledCode = `<Page surface="grouped">
     </ToolbarLeading>
     <ToolbarTitle>New order</ToolbarTitle>
     <ToolbarTrailing>
-      <NavigationButton action="confirm" disabled />
+      <NavigationButton action="confirm" label="Done" disabled />
     </ToolbarTrailing>
   </Toolbar>
   <PageContent>...</PageContent>
@@ -287,6 +318,17 @@ export const sheetCode = sheet.replace(list, "...").replace(':title-style="title
   ]} />
 </ComponentPreview>
 
+### Search placement
+
+<ComponentPreview phoneOnly language="vue" details={<>
+  <p><code>search</code> on <code>ToolbarContent</code> marks the screen's search field and sets where it stands. Write the field once, in the bottom bar. <code>"bottom"</code> keeps it there, in reach of the thumb, as iOS 26 places a screen's search. <code>"top"</code> turns it into a search button, first among the top bar's trailing actions and in one capsule with the icon buttons beside it. Pressed, the field grows out of the button to the bar's end, the title and the actions fade, and the leading action becomes a back arrow; the bottom bar, which held only the field, leaves its place. Back or Escape closes the search, clears the field and gives the focus back to the button. <code>"auto"</code>, or <code>search</code> alone, is the platform's place: the bottom on iOS, the top in the Plex Android look. The button takes the field's <code>aria-label</code> as its name.</p>
+  <p>In the Plex Android look the open field is a 46px pill of the bar's glass from 58px (the gutter, the back circle and the gap) to 6px from the screen's edge, its text 17px with the hint in a light gray, and it opens over 380ms. In a Sheet the sheet stands at the full screen, with no corners, while the search is open, its bar 5px under the status bar and 6px from the sides, and settles back as the search closes.</p>
+</>} code={searchPlacementCode}>
+  <VueDemo stageClassName={STAGE} state={{ rows, query: "" }} template={frame(searchPlacement(searchList).replace(/^/gm, "  "))} controls={[
+    { name: "search", type: "select", options: ["auto", "top", "bottom"], default: "auto" },
+  ]} />
+</ComponentPreview>
+
 ### Disabled
 
 <ComponentPreview phoneOnly language="vue" details={<>A disabled bar button keeps its glass capsule and draws its symbol or label in the tertiary label color, as the iOS 26 bar buttons do. Inside <code>ToolbarGroup</code> the capsule belongs to the group, so the enabled actions next to it keep their look. A prominent action, <code>NavigationButton action="confirm"</code> or a solid primary Button, drops its color for a gray capsule, with a white label in light and a dim one in dark. Cancel and More stay enabled.</>} code={disabledCode}>
@@ -299,7 +341,7 @@ export const sheetCode = sheet.replace(list, "...").replace(':title-style="title
       </ToolbarLeading>
       <ToolbarTitle>New order</ToolbarTitle>
       <ToolbarTrailing>
-        <NavigationButton action="confirm" :disabled="disabled" />
+        <NavigationButton action="confirm" label="Done" :disabled="disabled" />
       </ToolbarTrailing>
     </Toolbar>
     <PageContent>
@@ -358,6 +400,13 @@ All other attributes fall through to the bar.
 <PropsTable data={[
   { prop: "subtitle", type: "string", description: "Second, smaller line below the title. The subtitle slot takes precedence" },
   { prop: "as", type: '"h1" | "h2" | "h3"', default: '"h1"', description: "Heading level of the title" },
+]} />
+
+### ToolbarContent
+
+<PropsTable data={[
+  { prop: "fill", type: "boolean", default: "false", description: "Stretch across the row between the leading and trailing items, as a search field does" },
+  { prop: "search", type: 'boolean | "auto" | "top" | "bottom"', description: 'Marks the content as the screen\'s search field and sets where it stands, see Search placement. Write it in the bottom bar: "bottom" keeps the field there, "top" makes it a search button of the top bar that opens the field over it, "auto" (or true) is the bottom on iOS and the top on Android' },
 ]} />
 
 ### Parts

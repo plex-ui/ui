@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { PlexUIProvider } from '@plexui/ui/components/PlexUIProvider';
 import s from './PreviewEmbed.module.css';
 import { installPreviewScrollBridge } from './previewScroll';
 import { createPreviewKeyboardController, isPreviewKeyboardCommand } from './previewKeyboardInput';
@@ -394,7 +395,14 @@ export function PreviewEmbed({ target, platform = null, children }: { target: st
     <PreviewEmbedContext.Provider value={target}>
       <PreviewEmbedPlatformContext.Provider value={platform}>
         <DemoControlEmbedContext.Provider value={controls}>
-          <div className={s.Root}>{children}</div>
+          {/* The Android frame is an app with the Android look: PlexUIProvider gives its presses the ripple */}
+          {platform === 'android' ? (
+            <PlexUIProvider linkComponent="a" platform="android">
+              <div className={s.Root}>{children}</div>
+            </PlexUIProvider>
+          ) : (
+            <div className={s.Root}>{children}</div>
+          )}
         </DemoControlEmbedContext.Provider>
       </PreviewEmbedPlatformContext.Provider>
     </PreviewEmbedContext.Provider>

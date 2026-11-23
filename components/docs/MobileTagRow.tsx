@@ -19,7 +19,8 @@ export type MobileTagOption = {
 
 /** The row shows committed values; the Sheet owns a draft until Apply. The sheet picks as iOS does from a row with a
  * chevron: a checkmark in the tint at the end of each row picked, Clear all as the list's own action, and the search in the
- * bar at the bottom, in reach of the thumb (owner 14.11). */
+ * bar at the bottom, in reach of the thumb (owner 14.11). In the Plex Android look the search is a button in the sheet's
+ * bar that opens the field over it (`Toolbar.Content search`). */
 export function MobileTagRow({ label, one, options, value, onChange }: {
   label: string;
   one: string;
@@ -86,7 +87,7 @@ export function MobileTagRow({ label, one, options, value, onChange }: {
               Select {label.toLowerCase()}, or search for one {one}. Apply to save your changes.
             </Dialog.Description>
             <Dialog.HeaderAction>
-              <NavigationButton action="confirm" aria-label={`Apply ${label.toLowerCase()}`} onClick={apply} />
+              <NavigationButton action="confirm" label="Apply" aria-label={`Apply ${label.toLowerCase()}`} onClick={apply} />
             </Dialog.HeaderAction>
           </Dialog.Header>
           <Dialog.Body className="flex flex-col gap-6 [--field-group-gap:11px]">
@@ -103,9 +104,9 @@ export function MobileTagRow({ label, one, options, value, onChange }: {
             </FieldGroup>}
           </Dialog.Body>
           <Toolbar placement="bottom">
-            <Toolbar.Content fill>
+            <Toolbar.Content fill search>
               <Input variant="soft" pill placeholder={`Search ${label.toLowerCase()}`} aria-label={`Search ${label.toLowerCase()}`}
-                startAdornment={<SearchSm />} value={query} onChange={(event) => setQuery(event.target.value)} />
+                startAdornment={<SearchSm />} value={query} onChange={(event) => setQuery(event.target.value)} onClear={() => setQuery('')} />
             </Toolbar.Content>
           </Toolbar>
         </Dialog.Content>

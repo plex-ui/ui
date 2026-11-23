@@ -24,7 +24,7 @@ export function ControlsScreen() {
           Wi-Fi: {wifi ? "on" : "off"}
         </Text>
       </Section>
-      <Section title="Checkbox" note={theme.isAndroid ? "Android: an 18dp square box, 4dp corners" : "iOS: a 22pt circle, filled when checked"}>
+      <Section title="Checkbox" note={theme.isAndroid ? "Android: a round 20dp check in the accent" : "iOS: a 22pt circle, filled when checked"}>
         <View style={styles.stack}>
           <Checkbox label="Subscribe to the newsletter" checked={newsletter} onCheckedChange={setNewsletter} testID="checkbox-newsletter" />
           <Checkbox label="Remember me" defaultChecked />

@@ -1356,15 +1356,22 @@
   line-height: 20px;
 }
 
-/* The Plex Android look (`data-platform="android"`, android.css): a Sheet as the reference messenger draws its sheets:
-   24px top corners, no grabber, its bar the bar of 46px circles 11 under the top edge (Toolbar.module.css); the content
-   13 under the circles (2 under the bar), 12 from the sides (as a page's groups) and 16 over the gesture bar; a footer's
+/* The Plex Android look (`data-platform="android"`, android.css): a Sheet as the reference messenger draws its sheets,
+   with no grabber, its bar the bar of 46px circles (Toolbar.module.css). The circles and the end pill stand 12 from the
+   top edge and the sides, in line with the content's groups, and the top corners are 35, so each sits concentric in its
+   corner (23 + 12). The reference has 24 corners with its circles 11 under the top and 6 from the sides; the owner
+   asked for concentric corners and found 6 too tight (23.11). A bare Close (no Toolbar) stands in the same place.
+   The content 13 under the circles (2 under the bar),
+   12 from the sides (as a page's groups) and 16 over the gesture bar; a footer's
    actions 48 tall, 4 apart, 12 from the sides (in line with the groups) and 12 over the gesture bar, over the sheet's
    color at 80% that fades in over its top 24px (no line, no blur). */
 @media (max-width: 767px) {
   [data-platform="android"] .Content[data-mobile-variant="sheet"] {
-    --dialog-sheet-radius: 24px;
+    --dialog-sheet-radius: 35px;
     --dialog-sheet-action-height: 48px;
+    --dialog-sheet-close-size: 46px;
+    --dialog-sheet-action-inset-block: 12px;
+    --dialog-sheet-action-inset-inline: 12px;
   }
 
   [data-platform="android"] .Content[data-mobile-variant="sheet"] .Panel > .Body,
@@ -1386,6 +1393,13 @@
 
   [data-platform="android"] .Content[data-mobile-variant="sheet"] .Footer > :where(button, a, [role="link"]) {
     padding-block: 12px;
+  }
+
+  /* A footer's main action is the reference's big button: the accent, flat, with no edge of glass (no sheen, no rim,
+     no shadow); held, it shrinks a little and ripples (Button). */
+  [data-platform="android"] .Content:is([data-mobile-variant="sheet"], [data-mobile-variant="alert"]) {
+    --toolbar-prominent-sheen: none;
+    --toolbar-prominent-shadow: none;
   }
 
   /* A sheet's Header meets content scrolled under it as the sheet's bar does on Android (Toolbar.module.css), whatever
@@ -1427,7 +1441,8 @@
    Android (decision 0026) and the Android reference's dialogs: a flat panel 24 from the screen's sides and at most
    356 wide, 21px corners, the card's
    color (white; at night the gray of a container), no glass and no shadow, over a dim of 50% black. The title Medium
-   20/24 and the message 16/22 in the text color stand 24 in, 19 from the top, 10 apart and 20 over the actions. The
+   20/24 and the message 16/19 (the reference's 18.7 line) in the text color stand 24 in, 21 from the top (the title's
+   baseline 40 under it), 13 apart (33 between their first baselines) and 20 over the actions. The
    actions are text buttons in a row at the end, 9 from the sides (their labels 21 in), 6 over and 9 under them, 8
    apart: 40 tall, at least 64 wide, 12 at their sides, Medium 16 in the accent's text (a destructive one red), a
    press the label's color at
@@ -1444,11 +1459,11 @@
     --dialog-alert-background: var(--android-dialog-surface);
     --dialog-alert-backdrop-filter: none;
     --dialog-alert-shadow: none;
-    --dialog-alert-header-gap: 10px;
-    --dialog-alert-header-padding: 19px 24px 20px;
+    --dialog-alert-header-gap: 13px;
+    --dialog-alert-header-padding: 21px 24px 20px;
     --dialog-alert-message-color: var(--color-text);
     --dialog-alert-message-size: 16px;
-    --dialog-alert-message-leading: 22px;
+    --dialog-alert-message-leading: 19px;
     --dialog-alert-action-height: 40px;
     --dialog-alert-action-gap: 8px;
     --dialog-alert-action-font-weight: var(--font-weight-medium);
@@ -1523,5 +1538,49 @@
 
   [data-platform="android"] .Content[data-mobile-variant="alert"] .Footer > :where(button, a, [role="link"])[data-disabled] {
     opacity: 0.5;
+  }
+}
+
+/* Android sheet search. While the search of a Sheet's bar is open (`Toolbar.Content search`, Toolbar.module.css), the
+   Sheet stands at the full screen with no corners, as the reference messenger's sheets do while they search, and
+   settles back as it closes: its height and corners on the search's 380ms EASE_OUT_QUINT (android.css). Its entrance,
+   its exit and a drag keep their own motion. */
+@media (max-width: 767px) {
+  [data-platform="android"] .Content[data-mobile-variant="sheet"][data-mobile-placement="bottom"] > .Panel:has(> [data-toolbar][data-search]) {
+    interpolate-size: allow-keywords;
+  }
+
+  [data-platform="android"] .Transition:not([data-entering], [data-entering-active], [data-exiting], [data-exiting-active]) .Content[data-mobile-variant="sheet"][data-mobile-placement="bottom"] > .Panel:has(> [data-toolbar][data-search]) {
+    transition:
+      scale var(--motion-enter-large) var(--cubic-enter),
+      translate var(--motion-enter-large) var(--cubic-enter),
+      height var(--android-search-duration, 380ms) var(--android-search-easing, cubic-bezier(0.23, 1, 0.32, 1)),
+      max-height var(--android-search-duration, 380ms) var(--android-search-easing, cubic-bezier(0.23, 1, 0.32, 1)),
+      border-radius var(--android-search-duration, 380ms) var(--android-search-easing, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+
+  /* Set as the panel's sizes, so a panel sized from them (a height of its own at the sheet's full height) follows */
+  [data-platform="android"] .Content[data-mobile-variant="sheet"][data-mobile-placement="bottom"] > .Panel:has(> [data-toolbar][data-search-open]) {
+    --dialog-panel-height: var(--dialog-viewport-height, 100dvh);
+    --dialog-panel-max-height: var(--dialog-viewport-height, 100dvh);
+    --dialog-panel-radius: 0;
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  [data-platform="android"] .Content[data-mobile-variant="sheet"][data-mobile-placement="bottom"] > .Panel:has(> [data-toolbar][data-search]) {
+    --android-search-duration: 0s;
+  }
+}
+
+/* Android press ripple. Held, an alert's button ripples as the reference's dialog buttons: in its own pill, in its
+   label's color at 10%, without the scale of a large button (android.css, Android press ripple; Button.module.css). */
+@media (max-width: 767px) {
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Footer > [data-variant][data-variant] {
+    --android-ripple-ink: color-mix(in srgb, var(--button-text-color) 10%, transparent);
+
+    &:active {
+      scale: none;
+    }
   }
 }

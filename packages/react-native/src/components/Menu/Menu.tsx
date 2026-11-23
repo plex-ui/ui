@@ -10,10 +10,13 @@ import { lastInputKeyboard, spaceToggles } from "../../internal/a11y"
 import { textOf } from "../../internal/children"
 import { isRTL, mirrored } from "../../internal/direction"
 import { curves } from "../../internal/motion"
+import { useRipple } from "../../internal/ripple"
 import { RowFrameContext, type RowFrame } from "../../internal/row"
 import { Glass } from "../../internal/Glass"
 import { ACCELERATE_DECELERATE, canTransformGlass, glassOpacity, Overlay, overlayTiming } from "../../internal/Overlay"
-import { barSurface, elevationShadow, withAlpha, dangerText } from "../../theme/material"
+import { androidGray, androidSelector, barSurface, withAlpha, dangerText } from "../../theme/material"
+import { useAndroidGlass } from "../../internal/BarBackdrop"
+import { BarItemContext } from "../Button/Button"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { IconDefaultsProvider } from "../Icon/createIcon"
@@ -35,6 +38,9 @@ type MenuContextValue = {
   anchor: MenuAnchor | null
   /** The List row the trigger stands in. */
   row: MenuRow | null
+  /** The trigger stands in a bar (Android's header menu: the bar's glass). */
+  header: boolean
+  setHeader: (header: boolean) => void
   setTrigger: (node: Measurable | null) => void
   setRowFrame: (frame: RowFrame | null) => void
   /** Measures the trigger again, as it moves while the menu is open. */
@@ -43,7 +49,7 @@ type MenuContextValue = {
 const MenuContext = createContext<MenuContextValue | null>(null)
 
 /** Closes the menu once an item is chosen; also used by Select. */
-const SurfaceContext = createContext<{ close: () => void; check: boolean; openSub?: (sub: OpenSub) => void; subOpen?: boolean }>({ close: () => {}, check: false })
+const SurfaceContext = createContext<{ close: () => void; check: boolean; multiple?: boolean; openSub?: (sub: OpenSub) => void; subOpen?: boolean; header?: boolean }>({ close: () => {}, check: false })
 
 export type MenuProps = {
   children: ReactNode
@@ -120,6 +126,7 @@ function MenuRoot({ children, open: openProp, onOpenChange }: MenuProps) {
   const open = openProp ?? own
   // A menu opened from outside (the controlled `open`) is placed at its trigger too
   const { anchor, row, place, setTrigger, setRowFrame } = useMenuAnchor(open)
+  const [header, setHeader] = useState(false)
   // Listens for the input from the start, so a menu opened from the keyboard knows it (the web)
   useEffect(() => {
     lastInputKeyboard()
@@ -132,7 +139,7 @@ function MenuRoot({ children, open: openProp, onOpenChange }: MenuProps) {
     if (next) place(apply)
     else apply()
   }
-  return <MenuContext.Provider value={{ open, setOpen, anchor, row, setTrigger, setRowFrame, place: () => place() }}>{children}</MenuContext.Provider>
+  return <MenuContext.Provider value={{ open, setOpen, anchor, row, header, setHeader, setTrigger, setRowFrame, place: () => place() }}>{children}</MenuContext.Provider>
 }
 MenuRoot.displayName = "Menu"
 
@@ -144,13 +151,18 @@ function useMenu(part: string) {
 
 /** The element that opens the menu: a Button or anything with `onPress`. */
 function MenuTrigger({ children, style }: { children: ReactElement<{ onPress?: (event: GestureResponderEvent) => void }>; style?: StyleProp<ViewStyle> }) {
-  const { open, setOpen, setTrigger, setRowFrame, place } = useMenu("Menu.Trigger")
-  // A trigger in a List row tells the menu its row
+  const { open, setOpen, setTrigger, setRowFrame, setHeader, place } = useMenu("Menu.Trigger")
+  // A trigger in a List row tells the menu its row; one in a bar that it is the bar's (Android's header menu)
   const frame = useContext(RowFrameContext)
+  const inBar = useContext(BarItemContext) != null
   useLayoutEffect(() => {
     setRowFrame(frame)
     return () => setRowFrame(null)
   }, [frame, setRowFrame])
+  useLayoutEffect(() => {
+    setHeader(inBar)
+    return () => setHeader(false)
+  }, [inBar, setHeader])
   const onPress = isValidElement(children) ? children.props.onPress : undefined
   const child = isValidElement(children)
     ? cloneElement(children, {
@@ -184,7 +196,7 @@ export type MenuContentProps = {
 function MenuContent(props: MenuContentProps) {
   const menu = useMenu("Menu.Content")
   // A menu whose items say `checked` (true or false) is a set of options: it keeps the checkmark's column, as Select's
-  return <MenuSurface {...props} check={hasCheckedItems(props.children)} open={menu.open} anchor={menu.anchor} row={menu.row} onClose={() => menu.setOpen(false)} />
+  return <MenuSurface {...props} check={hasCheckedItems(props.children)} open={menu.open} anchor={menu.anchor} row={menu.row} header={menu.header} onClose={() => menu.setOpen(false)} />
 }
 
 function hasCheckedItems(children: ReactNode): boolean {
@@ -199,10 +211,14 @@ type SurfaceProps = MenuContentProps & {
   anchor: MenuAnchor | null
   onClose: () => void
   check?: boolean
+  /** Select's `multiple`: a press checks or unchecks an option and the menu stays open. */
+  multiple?: boolean
   /** The menu opens over its trigger, as Android's popup and the web's phone menu (a dropdown field's list opens under it). @default true */
   cover?: boolean
   /** The List row the menu opens from: on Android the screen dims around it and the popup stands under it. */
   row?: MenuRow | null
+  /** Opened from a bar's button: on Android the header menu, in the bar's glass. */
+  header?: boolean
 }
 
 /** The floating panel of a menu, placed under its anchor (over it when the screen ends first). */
@@ -212,7 +228,7 @@ export function MenuSurface(props: SurfaceProps) {
 }
 
 /** iOS 26's pop-up menu: glass, a submenu over the menu at its row while the menu steps back. */
-function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check = false, cover, children, "aria-label": ariaLabel, testID }: SurfaceProps) {
+function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check = false, multiple = false, cover, children, "aria-label": ariaLabel, testID }: SurfaceProps) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
   const window = useWindowDimensions()
@@ -279,7 +295,7 @@ function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check =
     moveTo(step, 1, true)
   }
   const collapse = () => moveTo(step, 0, false, () => setSub(null))
-  const surface = { close: onClose, check, openSub, subOpen: sub != null }
+  const surface = { close: onClose, check, multiple, openSub, subOpen: sub != null }
   const content = <SurfaceContext.Provider value={surface}>{children}</SurfaceContext.Provider>
   const subItems = sub != null ? <SurfaceContext.Provider value={{ close: onClose, check: hasCheckedItems(sub.items) }}>{sub.items}</SurfaceContext.Provider> : null
   const scale = !theme.reducedMotion && canTransformGlass
@@ -547,7 +563,7 @@ function AndroidPage({ children, width, minWidth, maxWidth, maxHeight, onSize, s
  * width back, shrinks to 0.95 under a dim of up to 25% black, and the popup's size turns into the submenu's; Back, a
  * drag towards the end or a flick takes it back.
  */
-function AndroidMenuSurface({ open, anchor, row, onClose, align = "start", width, check = false, cover, children, "aria-label": ariaLabel, testID }: SurfaceProps) {
+function AndroidMenuSurface({ open, anchor, row, header = false, onClose, align = "start", width, check = false, multiple = false, cover, children, "aria-label": ariaLabel, testID }: SurfaceProps) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
   const window = useWindowDimensions()
@@ -724,11 +740,11 @@ function AndroidMenuSurface({ open, anchor, row, onClose, align = "start", width
       },
     })
   })
-  const surface = { close: onClose, check, openSub, subOpen: sub != null }
+  const surface = { close: onClose, check, multiple, openSub, subOpen: sub != null, header }
   // The submenu's page: Back, the 8dp band, the items
   const subItems =
     sub != null ? (
-      <SurfaceContext.Provider value={{ close: onClose, check: hasCheckedItems(sub.items) }}>
+      <SurfaceContext.Provider value={{ close: onClose, check: hasCheckedItems(sub.items), header }}>
         <MenuRow icon={<ArrowLeftLg />} stay={collapse}>
           {sub.backLabel}
         </MenuRow>
@@ -770,7 +786,16 @@ function AndroidMenuSurface({ open, anchor, row, onClose, align = "start", width
   const hidden = sub != null && !web ? { importantForAccessibility: "no-hide-descendants" as const, accessibilityElementsHidden: true } : null
   // The submenu stands at the popup's start edge
   const startEdge = rtl && !swapped ? { right: 0 } : { left: 0 }
-  const background = barSurface(m, theme.scheme)
+  // A row's menu (and any other) is the popup's card: white, a raised gray at night (the web's --android-card); a
+  // header menu the bar's glass, blurred 36 under it on the web
+  const glass = useAndroidGlass("bar")
+  const card = theme.scheme === "dark" ? theme.color("--gray-300", barSurface(m, theme.scheme)) : barSurface(m, theme.scheme)
+  const background = header ? (glass.backgroundColor as string) : card
+  const fillLook: ViewStyle = header
+    ? ({ ...glass, borderRadius: 22, ...(web ? { backdropFilter: "blur(36px)", WebkitBackdropFilter: "blur(36px)" } : null) } as ViewStyle)
+    : { backgroundColor: card, borderRadius: 12, boxShadow: theme.scheme === "dark" ? "0 3px 8px rgba(0, 0, 0, 0.4)" : "0 3px 8px rgba(0, 0, 0, 0.14), 0 0 1px rgba(0, 0, 0, 0.12)" }
+  // The screen behind it dims: black at 40% (20% at night) around a row's menu and any other, 10% behind a header menu
+  const dimAlpha = header ? 0.1 : theme.scheme === "dark" ? 0.2 : 0.4
   // From a List row: the popup's fade (and the dim's) over the first 150ms of its 200, and its growth from 0.95
   const popFade = clock.interpolate({ inputRange: [0, ROW_POP.fade / ROW_POP.scale], outputRange: [0, 1], easing: ACCELERATE_DECELERATE, extrapolate: "clamp" })
   const popScale = clock.interpolate({ inputRange: [0, 1], outputRange: [0.95, 1], easing: ROW_POP.easing })
@@ -784,7 +809,11 @@ function AndroidMenuSurface({ open, anchor, row, onClose, align = "start", width
         const opacity = reduced || !opening ? progress : popping ? popFade : 1
         return (
           <>
-            {row ? <RowDim row={row} fade={popIn ? popFade : progress} alpha={theme.scheme === "dark" ? 0.2 : 0.4} width={window.width} height={window.height} /> : null}
+            {row ? (
+              <RowDim row={row} fade={popIn ? popFade : progress} alpha={dimAlpha} width={window.width} height={window.height} />
+            ) : (
+              <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: `rgba(0, 0, 0, ${dimAlpha})`, opacity: progress }]} />
+            )}
             <Animated.View
               ref={panel as never}
               // The panel takes the focus of a menu opened by a pointer (the web), with no ring of its own
@@ -804,8 +833,8 @@ function AndroidMenuSurface({ open, anchor, row, onClose, align = "start", width
               ]}
             >
               {/* The panel's fill and shadow, which fade in as it unrolls; the rows fade in on their own */}
-              <Animated.View pointerEvents="none" style={[styles.androidFill, { backgroundColor: background, opacity: unrolling ? reveal([0, 1]) : 1 }]} />
-              <Animated.View pointerEvents={moving ? "none" : "auto"} style={[styles.android, { width: panelWidth, height: panelHeight }]}>
+              <Animated.View pointerEvents="none" style={[styles.androidFill, fillLook, { opacity: unrolling ? reveal([0, 1]) : 1 }]} />
+              <Animated.View pointerEvents={moving ? "none" : "auto"} style={[styles.android, header ? styles.androidHeaderPanel : null, { width: panelWidth, height: panelHeight }]}>
                 <Animated.View
                   ref={mainPage as never}
                   {...hidden}
@@ -825,7 +854,7 @@ function AndroidMenuSurface({ open, anchor, row, onClose, align = "start", width
                   ]}
                 >
                   <CascadeContext.Provider value={cascade}>
-                    <AndroidPage width={morphing ? size.width : width} minWidth={minWidth} maxWidth={maxWidth} maxHeight={maxHeight} onSize={(measured) => setSize(sameSize(measured))}>
+                    <AndroidPage width={morphing ? size.width : width} minWidth={minWidth} maxWidth={maxWidth} maxHeight={maxHeight} onSize={(measured) => setSize(sameSize(measured))} style={header ? styles.androidHeaderPage : undefined}>
                       <SurfaceContext.Provider value={surface}>{children}</SurfaceContext.Provider>
                     </AndroidPage>
                   </CascadeContext.Provider>
@@ -840,7 +869,7 @@ function AndroidMenuSurface({ open, anchor, row, onClose, align = "start", width
                     pointerEvents="box-none"
                     style={[styles.androidSubPage, startEdge, { width: maxWidth, transform: [{ translateX: swipe.interpolate({ inputRange: [0, 1], outputRange: [span || window.width, 0] }) }] }]}
                   >
-                    <AndroidPage width={width} minWidth={minWidth} maxWidth={maxWidth} maxHeight={maxHeight} onSize={onSubSize} style={{ backgroundColor: background }}>
+                    <AndroidPage width={width} minWidth={minWidth} maxWidth={maxWidth} maxHeight={maxHeight} onSize={onSubSize} style={[{ backgroundColor: background }, header ? styles.androidHeaderPage : null]}>
                       {subItems}
                     </AndroidPage>
                   </Animated.View>
@@ -887,7 +916,7 @@ type DomItem = { getAttribute: (name: string) => string | null; focus: (options?
 
 /** The enabled items of a menu's panel on the web, in their order. */
 function menuItems(node: unknown): DomItem[] {
-  const found = (node as { querySelectorAll?: (selector: string) => ArrayLike<DomItem> } | null)?.querySelectorAll?.('[role="menuitem"], [role="menuitemradio"]')
+  const found = (node as { querySelectorAll?: (selector: string) => ArrayLike<DomItem> } | null)?.querySelectorAll?.('[role="menuitem"], [role="menuitemradio"], [role="menuitemcheckbox"]')
   return found ? Array.from(found).filter((item) => item.getAttribute("aria-disabled") !== "true") : []
 }
 
@@ -977,32 +1006,39 @@ function MenuRow({ children, icon, description, danger = false, disabled = false
   const surface = useContext(SurfaceContext)
   const own = useRef<unknown>(null)
   const node = rowRef ?? own
+  // An item that says `checked` in a menu of options is a radio item (a checkbox item when several can be chosen): the
+  // web names it so, and a phone reads its state
+  const option = surface.check && checked !== undefined && !stay
   const select = () => {
     if (disabled) return
     if (stay) return stay()
     onSelect?.()
-    surface.close()
+    // An option of a multiple choice checks or unchecks itself and the menu stays open
+    if (!(surface.multiple && option)) surface.close()
   }
-  // An item that says `checked` in a menu of options is a radio item: the web names it so, and a phone reads its state
-  const option = surface.check && checked !== undefined && !stay
   const semantics = {
-    ...(Platform.OS === "web" ? { role: (option ? "menuitemradio" : "menuitem") as "menuitem" } : { accessibilityRole: "menuitem" as const }),
+    ...(Platform.OS === "web"
+      ? { role: (option ? (surface.multiple ? "menuitemcheckbox" : "menuitemradio") : "menuitem") as "menuitem", "aria-checked": option ? !!checked : undefined }
+      : { accessibilityRole: "menuitem" as const }),
     accessibilityState: { disabled, checked: option ? !!checked : undefined, expanded: opens ? !!expanded : undefined },
     ...(opens ? { "aria-haspopup": "menu" as const, "aria-expanded": !!expanded } : null),
     // React Native Web's Pressable takes Space only for a button
     ...spaceToggles(select),
   }
   const rtl = isRTL()
+  // Android's press: the item's ripple from the touch point in the dialog button selector, clipped to the item and the
+  // popup's corners at the first and the last; the platform's on a device, drawn here on the web
+  const nativeRipple = theme.isAndroid && Platform.OS === "android"
+  const ripple = useRipple(androidSelector(theme.scheme), theme.isAndroid && !nativeRipple, theme.reducedMotion)
   if (theme.isAndroid) {
-    // Android's popup item: 48dp, 18 in, Regular 16 in the text color, a 24dp icon at 18 with the text 43 past it, a
-    // 13 gray description; red for a destructive item. A chosen option shows the bare check at the leading edge, the
-    // text 34 past it (at the end after an icon); a row that opens a submenu shows its arrow 8 after the text. The
-    // press is the text color at 12%
+    // Android's popup item: 48dp, 18 in, Regular 16 in the text color, a 24dp icon at 18 with the text 20 past it (62
+    // in), a 13 gray description; red for a destructive item. A chosen option shows the bare check at the end, 18
+    // after the text; a row that opens a submenu shows its arrow 8 after the text. Keyboard focus shows as the text
+    // color at 12%
     const m = theme.material
     const chosen = surface.check && !!checked && !stay
     const color = danger ? dangerText(theme) : m.onSurface
-    const leadCheck = surface.check && !icon
-    const trailCheck = surface.check && !!icon && !opens && !stay
+    const trailCheck = surface.check && !opens && !stay
     return (
       <CascadeRow>
         <Pressable
@@ -1010,16 +1046,19 @@ function MenuRow({ children, icon, description, danger = false, disabled = false
           ref={node as never}
           disabled={disabled}
           onPress={select}
+          onPressIn={nativeRipple ? undefined : ripple.start}
+          onPressOut={nativeRipple ? undefined : ripple.end}
+          android_ripple={nativeRipple ? { color: androidSelector(theme.scheme), foreground: true } : undefined}
           testID={testID}
-          // The web's keyboard focus shows as the press does (React Native Web passes `focused`), in place of the
-          // browser's square ring, which the popup's round corners would cut
+          // The web's keyboard focus shows as a layer (React Native Web passes `focused`), in place of the browser's
+          // square ring, which the popup's round corners would cut
           style={(state) => [
             styles.androidItem,
             { opacity: disabled ? 0.5 : 1 },
-            state.pressed || ((state as { focused?: boolean }).focused && focusVisible(node.current)) ? { backgroundColor: withAlpha(color, 0.12) } : null,
+            (state as { focused?: boolean }).focused && focusVisible(node.current) ? { backgroundColor: withAlpha(color, 0.12) } : null,
           ]}
         >
-          {leadCheck ? <View style={styles.androidLeadCheck}>{chosen ? <PopupCheck color={color} /> : null}</View> : null}
+          {ripple.layer}
           {icon ? (
             <View style={[styles.androidIcon, mirrored(rtl && stay != null && !opens)]}>
               <IconDefaultsProvider size={24} color={color}>
@@ -1179,12 +1218,13 @@ MenuSubContent.displayName = "Menu.SubContent"
 
 function MenuSeparator() {
   const theme = useTheme()
-  // Android parts a popup's groups with an 8dp band (the text at 4.5% on the popup, a shade darker than it in dark
-  // mode)
+  const surface = useContext(SurfaceContext)
+  // Android parts a popup's groups with an 8dp band: a light gray (#F5F5F5, #262626 at night) in a row's menu, the text
+  // at 6% in a header menu
   if (theme.isAndroid)
     return (
       <CascadeRow>
-        <View style={[styles.androidSeparator, { backgroundColor: theme.scheme === "dark" ? "rgba(0, 0, 0, 0.25)" : withAlpha(theme.material.onSurface, 0.045) }]} />
+        <View style={[styles.androidSeparator, { backgroundColor: androidGray(theme, surface.header ? "menuBand" : "popupGap") }]} />
       </CascadeRow>
     )
   // The phone layer's separator: 1 tall in `--menu-separator-background-color`, `--menu-separator-gutter` around it
@@ -1261,18 +1301,20 @@ const styles = StyleSheet.create({
   scroll: { flexGrow: 0 },
   // Android's popup: 12dp corners, the items flush with its edges, a soft shadow
   android: { borderRadius: 12, overflow: "hidden" },
-  androidFill: { position: "absolute", top: 0, bottom: 0, start: 0, end: 0, borderRadius: 12, boxShadow: elevationShadow.level2 },
+  androidFill: { position: "absolute", top: 0, bottom: 0, start: 0, end: 0 },
+  // A header menu: 22dp corners, 5 above and under its rows
+  androidHeaderPanel: { borderRadius: 22 },
+  androidHeaderPage: { paddingVertical: 5 },
   // A page keeps its own size while the popup's changes around it
   androidPageBox: { alignSelf: "flex-start", flexShrink: 0 },
   androidPage: { flexShrink: 0, flexGrow: 0 },
   androidSubPage: { position: "absolute", top: 0, alignItems: "flex-start" },
   gone: { opacity: 0 },
   androidItem: { minHeight: 48, flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 6, outlineWidth: 0, outlineStyle: "none" as "solid" },
-  // The 24dp icon at 18, the text 43 past the item's padding: 19 after the icon
-  androidIcon: { width: 24, marginEnd: 19, alignItems: "center" },
-  // The check's 26dp box at the leading edge, the text 34 past the item's padding; at the end after an icon
-  androidLeadCheck: { width: 26, marginEnd: 8, alignItems: "center" },
-  androidTrailCheck: { width: 26, marginStart: 8, alignItems: "center" },
+  // The 24dp icon at 18, the text 20 after it (62 in)
+  androidIcon: { width: 24, marginEnd: 20, alignItems: "center" },
+  // A chosen option's check at the end: a 24dp column 18 after the text (the 26 glyph box centered on it)
+  androidTrailCheck: { width: 24, marginStart: 18, alignItems: "center", justifyContent: "center" },
   // The submenu arrow: 24dp at the end, the text 8 before it
   androidArrow: { width: 24, marginStart: 8, alignItems: "center" },
   androidSeparator: { height: 8 },

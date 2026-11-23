@@ -1124,3 +1124,44 @@
     font-weight: var(--font-weight-normal);
   }
 }
+
+/* =============================================
+  Android press ripple. In the Plex Android look a held row ripples (android.css, Android press ripple) in the
+  reference's dialog button selector (black at 5.9%, white at 9.8% at night), across the whole row, with no flat fill
+  and no scale. The first row takes the popup's corners at its top and the last at its bottom (less the space above
+  and under the rows), as the reference rounds a popup's first and last rows. The ripple is drawn on the row's
+  ::after; its ::before keeps the highlight of a row reached by keys.
+============================================= */
+@media (max-width: 767px) {
+  [data-platform="android"] .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *)) {
+    --android-ripple-ink: var(--android-ripple-menu-color);
+  }
+
+  [data-platform="android"] .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *)):not(:has(.ItemActions:active)):active::before {
+    opacity: 0;
+  }
+
+  [data-platform="android"] .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *)):is([data-highlighted], [data-state="open"]):not(:has(.ItemActions:active)):active::before {
+    opacity: var(--menu-item-highlight-opacity, 1);
+  }
+
+  [data-platform="android"] .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *))[data-ripple]:not([data-disabled])::after {
+    position: absolute;
+    inset: 0;
+    background-image: var(--android-ripple-image);
+    content: "";
+    pointer-events: none;
+  }
+
+  [data-platform="android"] .MenuList :is(.Items, .SubmenuItems) > .MenuItem:first-child::after,
+  [data-platform="android"] .MenuList :is(.Items, .SubmenuItems) > :first-child > .MenuItem:first-child::after {
+    border-start-start-radius: calc(var(--menu-radius) - var(--menu-gutter));
+    border-start-end-radius: calc(var(--menu-radius) - var(--menu-gutter));
+  }
+
+  [data-platform="android"] .MenuList :is(.Items, .SubmenuItems) > .MenuItem:last-child::after,
+  [data-platform="android"] .MenuList :is(.Items, .SubmenuItems) > :last-child > .MenuItem:last-child::after {
+    border-end-start-radius: calc(var(--menu-radius) - var(--menu-gutter));
+    border-end-end-radius: calc(var(--menu-radius) - var(--menu-gutter));
+  }
+}

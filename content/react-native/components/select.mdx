@@ -1,7 +1,7 @@
 ---
 title: Select
-description: Choose one option from a menu, with descriptions, disabled options and a placeholder.
-metaDescription: Select for choosing one option from a menu, with descriptions, disabled options and a placeholder; UIKit's pop-up button on iOS, a field with a single-choice dialog on Android.
+description: Choose one or more options from a menu, with descriptions, disabled options and a placeholder.
+metaDescription: Select for choosing one or more options from a menu, with descriptions, disabled options and a placeholder; UIKit's pop-up button on iOS, a field with a single-choice dialog on Android.
 ---
 
 import { RNExample } from "@/components/docs/react-native/RNExample"
@@ -67,6 +67,34 @@ const [role, setRole] = useState("editor")
   />
 </List>`
 
+export const pickerCode = `import { List, ListItem, Select } from "@plexui/react-native"
+
+const SORTS = [
+  { value: "name", label: "Name" },
+  { value: "date", label: "Date added" },
+  { value: "size", label: "Size" },
+]
+
+const [sort, setSort] = useState("date")
+
+// Android: the row's menu in place of the single-choice dialog
+<List>
+  <ListItem
+    label="Sort by"
+    trailing={
+      <Select
+        aria-label="Sort by"
+        options={SORTS}
+        value={sort}
+        onChange={(option) => setSort(option.value)}
+        picker="menu"
+        variant="ghost"
+        block={false}
+      />
+    }
+  />
+</List>`
+
 <UsageBlock>{`import { Select } from "@plexui/react-native"`}</UsageBlock>
 
 The menu's rows are those of a [Menu](/react-native/components/menu).
@@ -81,7 +109,7 @@ The menu's rows are those of a [Menu](/react-native/components/menu).
   <p>On a phone, put a select in a row of a <code>List</code>, the grouped section of a settings form: the value and its indicator sit at the row's end, a <code>ghost</code> field with <code>block={"{false}"}</code>, and a press opens a menu of the options with a checkmark at the chosen one. On iOS it is the row's pop-up button, as on the web's phone: the value in the secondary gray (the placeholder lighter), the menu picker's small up and down chevrons after it, and the menu opening over it at its end; on Android the value alone in the accent (the placeholder in the hint's gray), and a press anywhere on the row opens a single-choice dialog in the middle of the screen: the setting's name as its title (<code>title</code>, else the <code>aria-label</code>), a 50dp row with a radio for each option, and Cancel (<code>cancelLabel</code>). Choosing a row picks it and closes the dialog; Cancel, a tap on the dim or Back closes it as it was. Outside a row the Android field keeps its dropdown arrow and opens the same dialog.</p>
   <p>Pass the chosen option's value as <code>value</code>, or <code>null</code> while nothing is chosen, when the field shows the <code>placeholder</code> in the placeholder color: None here, as an iOS pop-up button names an empty choice. <code>onChange</code> receives the option a person chooses. The field is drawn as an <a href="/react-native/components/input">Input</a> of the same <code>variant</code> and <code>size</code>; <code>pill</code> makes a capsule, and <code>block</code>, the default, fills the width, while <code>block={"{false}"}</code> makes the field as wide as its value, as at the end of a row. <code>invalid</code> draws the field in the error color.</p>
   <p><code>disabled</code> dims the field and takes no presses; a field disabled while its menu is open closes the menu. In a form, pass <code>disabled</code> to the row's <code>ListItem</code> too, which dims its label. An option's own <code>disabled</code> shows it dimmed in the menu, where it cannot be chosen.</p>
-  <p>As the row's <code>ghost</code> field, in its <code>trailing</code> slot, the example offers neither <code>variant</code> nor <code>size</code>. Of the React page's phone settings, React Native's Select has <code>disabled</code> only: it has no <code>checkPosition</code> (the checkmark always leads the chosen row on iOS; Android marks it with its radio), no <code>clearable</code> None row, no <code>multiple</code> selection and no <code>loading</code> state.</p>
+  <p>As the row's <code>ghost</code> field, in its <code>trailing</code> slot, the example offers neither <code>variant</code> nor <code>size</code>. Of the React page's phone settings, React Native's Select has <code>disabled</code> only: it has no <code>checkPosition</code> (the checkmark always leads the chosen row on iOS; Android marks it with its radio, or with a check at the end in its menu), no <code>clearable</code> None row and no <code>loading</code> state.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="select/Overview" />
 </ComponentPreview>
@@ -92,11 +120,17 @@ The menu's rows are those of a [Menu](/react-native/components/menu).
   <RNExample demo="select/Descriptions" />
 </ComponentPreview>
 
+### Android picker
+
+<ComponentPreview details={<>On Android, <code>picker</code> sets what a press opens. <code>dialog</code>, the default, is the single-choice dialog in the middle of the screen, as a settings value row. <code>menu</code> opens the row's menu instead: an opaque popup with 12dp corners under the row, which stays lit while the screen around it dims, with 48dp rows and a check at the end of the chosen one. Outside a row the menu opens under the field, as wide as the field. iOS always opens its menu, so the setting changes nothing there. A <code>multiple</code> select opens the menu, where each press checks or unchecks a row and the menu stays open; with <code>picker="dialog"</code> it opens the dialog with an 18dp checkbox in each row's radio place, Cancel and OK (<code>okLabel</code>), and nothing changes until OK.</>} code={pickerCode} previewMinHeight={168}>
+  <RNExample demo="select/Picker" />
+</ComponentPreview>
+
 ## Platforms
 
 | | iOS 26 | Android |
 | --- | --- | --- |
-| Native component | Pop-up button (menu picker) | Single-choice dialog |
+| Native component | Pop-up button (menu picker) | Choice dialog (radio rows; checkbox rows and OK with `multiple`), or a popup menu with `picker="menu"` |
 | Look | An up and down chevron; a glass menu at least 250pt wide, over the value in a row | The value in the accent in a row (a dropdown arrow on a field); a dialog of radio rows with Cancel |
 
 ## API
@@ -105,8 +139,10 @@ The menu's rows are those of a [Menu](/react-native/components/menu).
 
 <PropsTable data={[
   { prop: "options", type: "readonly SelectOption[]", description: "The options (required)" },
-  { prop: "value", type: "string | null | undefined", description: "The value of the chosen option (required); null or a value of no option shows the placeholder" },
-  { prop: "onChange", type: "(option: SelectOption) => void", description: "Called with the option a person chooses (required)" },
+  { prop: "value", type: "string | null | undefined", description: "The value of the chosen option (required); null or a value of no option shows the placeholder. With multiple, the values of the chosen options (string[])" },
+  { prop: "onChange", type: "(option: SelectOption) => void", description: "Called with the option a person chooses (required). With multiple, (options: SelectOption[]) => void, called with the options chosen in their order" },
+  { prop: "multiple", type: "boolean", default: "false", description: "Several options can be chosen: the field shows the one label, the count (3 selected) or allSelectedLabel" },
+  { prop: "allSelectedLabel", type: "string", default: '"All selected"', description: "The field's text when a multiple select has every option chosen" },
   { prop: "placeholder", type: "string", default: '"Select…"', description: "Shown while no option is chosen" },
   { prop: "variant", type: '"outline" | "soft" | "ghost"', default: '"outline"', description: "The field's fill style, as Input's" },
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Step of the control scale, as Input's" },
@@ -115,9 +151,11 @@ The menu's rows are those of a [Menu](/react-native/components/menu).
   { prop: "invalid", type: "boolean", default: "false", description: "Draws the field in the error color" },
   { prop: "disabled", type: "boolean", default: "false", description: "Dims the field and takes no presses" },
   { prop: "aria-label", type: "string", description: "Name of the field and its menu for assistive technology" },
-  { prop: "title", type: "string", default: "the aria-label", description: "Android: the title of the picker dialog, the setting's name" },
-  { prop: "cancelLabel", type: "string", default: '"Cancel"', description: "Android: the button that closes the picker dialog" },
-  { prop: "testID", type: "string", description: "Test id; the menu (Android: the dialog) takes <testID>-menu, each option <testID>-option-<value>, Android's Cancel <testID>-cancel" },
+  { prop: "picker", type: '"dialog" | "menu"', default: '"dialog" ("menu" with multiple)', description: "Android: what a press opens, the choice dialog (radio rows; with multiple, checkbox rows, Cancel and OK) or the menu of the options (a row's menu in a List row); iOS always opens its menu" },
+  { prop: "title", type: "string", default: "the aria-label", description: "Android: the title of the picker dialog (picker=\"dialog\"), the setting's name" },
+  { prop: "cancelLabel", type: "string", default: '"Cancel"', description: "Android: the button that closes the picker dialog (picker=\"dialog\") with no change" },
+  { prop: "okLabel", type: "string", default: '"OK"', description: "Android: the button of a multiple select's picker dialog (picker=\"dialog\") that applies the rows checked" },
+  { prop: "testID", type: "string", description: "Test id; the menu (Android: the dialog) takes <testID>-menu, each option <testID>-option-<value>, Android's Cancel <testID>-cancel and OK <testID>-ok" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the field's outer box" },
 ]} />
 

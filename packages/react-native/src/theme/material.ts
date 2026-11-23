@@ -154,10 +154,17 @@ export function materialColors(resolve: (css: string) => string, scheme?: "light
 export const stateLayer = { hover: 0.08, focus: 0.1, pressed: 0.1, dragged: 0.16 } as const
 
 /**
- * The press of a row in a section on Android: the settings list selector, a near-black at 11% (#1D000010) over a
- * light card, and the dark theme's list selector, white at 5%, over a dark one.
+ * The press of a row in a section on Android: black at 4.7% over a light card, as the reference's phone build draws a
+ * held card row (its public source's settings selector, #1D000010 at 11%, reads too dark beside it), and the dark
+ * theme's list selector, white at 5%, over a dark one.
  */
-export const controlHighlight = (scheme: "light" | "dark") => (scheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 16, 0.114)")
+export const controlHighlight = (scheme: "light" | "dark") => (scheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.047)")
+
+/**
+ * Android's list selector outside a section, the ripple of a popup's item and of a dialog's row: black at 0x0F of
+ * 255 over a light surface, white at 0x0D at night.
+ */
+export const androidSelector = (scheme: "light" | "dark") => (scheme === "dark" ? "rgba(255, 255, 255, 0.051)" : "rgba(0, 0, 0, 0.059)")
 
 /**
  * Text in the accent on Android, as the blue text over a card (a section header, a row's value). Light: #298ACF,
@@ -178,12 +185,37 @@ export function dangerText(theme: Theme): string {
 }
 
 /**
- * The divider between the rows of a card on Android: a light gray over a light card (#D9D9D9; the Plex `--gray-150`)
- * and darker than the card at night (#000000 under a #181819 card; the darkest Plex gray, `--gray-0`, the grouped
- * canvas).
+ * The divider between the rows of a card on Android: a light gray over a light card (#D9D9D9) and darker than the
+ * card at night (#000000 under a #181819 card; the darkest Plex gray, `--gray-0`, the grouped canvas), as the web's
+ * `--android-divider`.
  */
 export function divider(theme: Theme): string {
-  return theme.color(theme.scheme === "dark" ? "--gray-0" : "--gray-150", theme.colors.separator)
+  return theme.scheme === "dark" ? theme.color("--gray-0", theme.colors.separator) : "#D9D9D9"
+}
+
+/**
+ * The fixed grays of the Plex Android look, each with its night pair, as the web's android.css sets them: an off
+ * switch's track (`--android-switch-off`: #A7ADB2, `--gray-500` at night), an empty checkbox's ring
+ * (`--android-checkbox-ring`: #B0B9C2, `--gray-500`), a field's idle line (`--android-field-line`: #DBDBDB, the text
+ * at 24%), a field's hint (`--android-hint`: #A8A8A8, #7D7D7D), the gap between a row menu's groups
+ * (`--android-popup-gap`: #F5F5F5, #262626) and a header menu's (`--android-menu-band`: the text at 6%).
+ */
+export function androidGray(theme: Theme, role: "switchOff" | "checkboxRing" | "fieldLine" | "hint" | "popupGap" | "menuBand"): string {
+  const dark = theme.scheme === "dark"
+  switch (role) {
+    case "switchOff":
+      return dark ? theme.color("--gray-500") : "#A7ADB2"
+    case "checkboxRing":
+      return dark ? theme.color("--gray-500") : "#B0B9C2"
+    case "fieldLine":
+      return dark ? withAlpha(theme.colors.text, 0.24) : "#DBDBDB"
+    case "hint":
+      return dark ? "#7D7D7D" : "#A8A8A8"
+    case "popupGap":
+      return dark ? "#262626" : "#F5F5F5"
+    case "menuBand":
+      return withAlpha(theme.colors.text, 0.06)
+  }
 }
 
 /**

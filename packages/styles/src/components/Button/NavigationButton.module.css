@@ -52,16 +52,18 @@
 }
 
 /* The Plex Android look: confirm in a top bar (a page's, a Toolbar's, a sheet's) is the bar's glass text pill, not a
-   check: 46 tall, 16 at its sides, at least 46 wide, its label (the button's accessible name) 15/20 bold in the text
-   color, cut short with an ellipsis past 160px; disabled, the label at 38%. It needs no markup of its own: the label
-   is drawn from `aria-label`, and the focus ring moves onto the button. A confirm in a bottom bar keeps its circle. */
+   check: 46 tall, 16 at its sides, at least 46 wide, its label 15/20 medium (the reference's "bold" face) in the text
+   color, cut short with an ellipsis past 160px (a safety net: the label is one short word); disabled, the label at
+   38%. It needs no markup of its own: the label is drawn from `data-navigation-label` (the button's `label`, "Done"
+   by default; never the accessible name, which can be long), and the focus ring moves onto the button. A confirm in
+   a bottom bar keeps its circle. */
 @media (max-width: 767px) {
     [data-platform="android"] .NavigationButton[data-navigation-action="confirm"]:not([data-toolbar][data-placement="bottom"] *) {
         --button-size: var(--navigation-button-size, 46px);
         --button-gutter: 16px;
         --button-background-color: var(--android-bar-glass);
         --button-background-color-hover: var(--android-bar-glass);
-        --button-background-color-active: color-mix(in srgb, var(--android-bar-glass), var(--color-text) 7%);
+        --button-background-color-active: var(--android-bar-glass);
         --button-text-color: var(--color-text);
         --button-text-color-hover: var(--color-text);
         --button-mobile-material-backdrop-filter: var(--mobile-glass-backdrop-filter);
@@ -88,9 +90,10 @@
             display: block;
             max-width: 160px;
             overflow: hidden;
-            content: attr(aria-label);
+            content: attr(data-navigation-label);
             font-size: 15px;
-            font-weight: var(--font-weight-bold);
+            /* The reference's "bold" is its medium face (weight 500), as its titles are */
+            font-weight: var(--font-weight-medium);
             line-height: 20px;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -110,6 +113,35 @@
             --button-background-color: var(--android-bar-glass);
             --button-text-color: var(--android-bar-disabled);
             opacity: 1;
+        }
+    }
+}
+
+/* Android press ripple. Back, close and a bottom bar's confirm ripple in their glass circle as the reference's
+   BackButtonView, in the list selector (android.css, Android press ripple): a circle round the center 4 inside the
+   glass (19 in a 46 circle; the reference's 20 is a point wider), as a capsule's symbols do in their slots (Toolbar),
+   so every glass control of a bar shows its ink the same way. The confirm pill of a top bar ripples over its glass
+   (::before) in a pill 4 inside it, as the circles (its ::after is its label), with no flat fill: the ripple is its
+   whole press. */
+@media (max-width: 767px) {
+    [data-platform="android"] .NavigationButton[data-navigation-action][data-uniform] {
+        --android-ripple-radius: 19px;
+    }
+
+    /* The pill is no circle: its ripple fills the pill (the reference's rad selector), not 20px round its center */
+    [data-platform="android"] .NavigationButton[data-navigation-action="confirm"]:not([data-toolbar][data-placement="bottom"] *) {
+        --android-ripple-radius: initial;
+    }
+
+    [data-platform="android"] .NavigationButton[data-navigation-action="confirm"]:not([data-toolbar][data-placement="bottom"] *):not([data-disabled])[data-ripple] {
+        &::before {
+            border: 4px solid transparent;
+            background-image: var(--android-ripple-image), none;
+            background-clip: padding-box, border-box;
+        }
+
+        &::after {
+            background-image: none;
         }
     }
 }

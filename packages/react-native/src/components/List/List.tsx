@@ -1,8 +1,9 @@
 import { cloneElement, createContext, isValidElement, useCallback, useContext, useMemo, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
-import { Platform, Pressable, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type TextStyle, type ViewStyle } from "react-native"
+import { Platform, Pressable, StyleSheet, View, type GestureResponderEvent, type LayoutChangeEvent, type StyleProp, type TextStyle, type ViewStyle } from "react-native"
 import Disclosure from "../../icons/plex/Disclosure"
 import ExclamationMarkCircle from "../../icons/plex/ExclamationMarkCircle"
 import { spaceToggles, useDescription } from "../../internal/a11y"
+import { useRipple } from "../../internal/ripple"
 import { flattenChildren, textOf } from "../../internal/children"
 import { cssBox } from "../../internal/cssBox"
 import { mirrored, useRTL } from "../../internal/direction"
@@ -68,6 +69,8 @@ export function useInList() {
 
 /** The corners of Android's card of rows. */
 const ANDROID_CARD_RADIUS = 16
+/** The start and end of an Android row's text, 21dp in from the card's edge (`--list-row-inset`). */
+const ANDROID_INSET = 21
 
 /** A row's place in its section, and the radius of the corners it shares with the section's card (none in a plain list). */
 type RowPlace = { first: boolean; last: boolean; top: number; bottom: number }
@@ -78,10 +81,10 @@ const PlaceContext = createContext<RowPlace>({ first: true, last: true, top: 0, 
  * (`--field-group-radius` 26, the grouped secondary surface, rows 20 in from its edges, hairlines between rows from
  * the text's start; the header 17/22 at 590 in the secondary label over its description 15/20, the footer 13/16, an
  * error 15/20 in the danger color). Android: a section of a settings screen: one card of the section's rows,
- * 16dp round, a 1px divider between rows from the text's start; the header inside the card, a 40dp row of 14sp Medium
- * in the accent 20 in, its description 14sp in the secondary label under it; the footer under the card, 14sp in the
- * secondary label 12 in (24 from the screen's edge, as the screen insets the card 12), 10 above and 17 below, an
- * error the same in the error color. The screen sets the cards 12 from its edges and 12 apart. On a plain canvas
+ * 16dp round, a 1px divider between rows from the text's start to the card's end; the header inside the card, a 40dp
+ * row of 15sp Medium in the accent 21 in (14 above it), its description 14sp in the secondary label under it; the
+ * footer under the card, 14sp in the secondary label 13 in (25 from the screen's edge, as the screen insets the card
+ * 12), 11 above and 17 below, an error the same in the error color (the web's FieldGroup on Android). The screen sets the cards 12 from its edges and 12 apart. On a plain canvas
  * Android draws a plain list: the rows across the screen with no card, the header a 32dp band of the grouped gray,
  * the footer on that gray.
  */
@@ -315,12 +318,13 @@ export type ListItemProps = {
  * A row of a List: the label (17/22, `--field-row-*`: 52 tall, 70 with a description, 12 above and below the text at
  * least) with a description, a leading symbol, a value (wrapping within 60% of the row, or under the label: `valuePlacement`) or a control, and the chevron
  * of a drill-in (`Disclosure`, in the tertiary label, turned over right to left). A row with `checked` is a switch
- * row. On Android a row of a settings screen: 50dp tall at least (60 with a description), the label 16sp, the
- * description 13sp in the secondary label under it, the value 16sp in the accent at the end, 17 from it (20 in a row
- * with a tile), no chevron; the text 20 in, or 71 after a 24dp symbol at 21, or 64 after a 28dp tile of
- * `leadingColor` at 18 with a 24dp symbol (the tile's corners 10), or 64 after a RadioGroup option's 20dp ring at 22
- * (the row 64dp with a description); a 1px divider from the text's start to the next row, none under a row with a
- * tile (a tiled row draws none).
+ * row. On Android a row of a settings screen: 50dp tall at least (64 with a description, its text 12 from the row's
+ * top and bottom), the label 16sp, the description 13sp in the secondary label under it, the value 16sp in the accent
+ * at the end, 17 from it (20 in a row with a tile), no chevron; the text 21 in, or 64 after a 24dp symbol at 20, or 64
+ * after a 28dp tile of `leadingColor` at 18 with a 24dp symbol (the tile's corners 10), or 64 after a RadioGroup
+ * option's 20dp ring at 22; a lone Checkbox at the end of a row with no `leading` leads it instead, its 20dp circle 22
+ * in (a multi-select list); a 1px divider from the text's start to the card's end, none under a row with a tile (a
+ * tiled row draws none).
  */
 export function ListItem({
   label,
@@ -365,6 +369,9 @@ export function ListItem({
     !switchRow && !onPress && !atEnd && radios != null && isValidElement(leading) && leading.type === RadioGroup.Item
       ? { kind: "radio" as const, element: leading as ReactElement<RadioGroupItemProps> }
       : null
+  // Android's multi-select row: a lone checkbox (no text of its own) at the end of a row with no symbol leads the row
+  const checkLeads =
+    theme.isAndroid && atEnd?.kind === "checkbox" && leading == null && atEnd.element.props.label == null && atEnd.element.props.description == null
   const found = atEnd ?? atStart
   const [controlOwn, setControlOwn] = useState<boolean | "indeterminate">(() => (found && found.kind !== "radio" ? (found.element.props.defaultChecked ?? false) : false))
   const rowName = textOf(label) || undefined
@@ -388,11 +395,20 @@ export function ListItem({
     theme.isAndroid ? styles.androidRow : iosRow(theme, pressed && lit, last, description != null || error != null)
   // A finger on the control at the end holds the row, as one on the row's text does
   const [held, setHeld] = useState(false)
+  // Android's press is the list selector's ripple from the touch point, clipped to the row (and the card's corners):
+  // the platform's on a device; drawn here on the web, and for a row held through the control at its end
+  const ripple = useRipple(controlHighlight(theme.scheme), theme.isAndroid, theme.reducedMotion)
+  const hold = (next: boolean, event?: GestureResponderEvent) => {
+    setHeld(next)
+    if (!theme.isAndroid) return
+    if (next) ripple.start(event)
+    else ripple.end()
+  }
   const content = (pressed: boolean) => {
     // The row's switch is drawn only: the row is the control
     const track = <SwitchTrack checked={checked} disabled={disabled} pressed={pressed} />
     const end = !switchRow ? (
-      atStart ? trailing : (control?.node ?? trailing)
+      atStart ? trailing : checkLeads ? null : (control?.node ?? trailing)
     ) : trailing != null ? (
       <View style={[styles.pair, { gap: theme.isAndroid ? 16 : theme.length("--field-row-disclosure-gap", 8) }]}>
         {trailing}
@@ -401,12 +417,12 @@ export function ListItem({
     ) : (
       track
     )
-    const start = atStart && control ? <RowStartContext.Provider value>{control.node}</RowStartContext.Provider> : leading
-    const startColor = atStart ? undefined : leadingColor
+    const start = (atStart || checkLeads) && control ? <RowStartContext.Provider value>{control.node}</RowStartContext.Provider> : leading
+    const startColor = atStart || checkLeads ? undefined : leadingColor
     return (
       <RowFrameContext.Provider value={frame}>
         {theme.isAndroid ? (
-          <AndroidContent handPress={handPress} theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} leadingMark={atStart != null} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} disabled={disabled} destructive={destructive} last={last} />
+          <AndroidContent handPress={handPress} theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} leadingMark={atStart != null || checkLeads} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} disabled={disabled} destructive={destructive} last={last} />
         ) : (
           <IOSContent theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} chevron={chevron} disabled={disabled} destructive={destructive} last={last} />
         )}
@@ -414,8 +430,9 @@ export function ListItem({
     )
   }
   if (press) {
-    // Android's rows press in the list selector: the native ripple on a device, a layer on the web
+    // Android's rows press in the list selector: the native ripple on a device, the drawn one on the web
     const highlight = controlHighlight(theme.scheme)
+    const drawn = theme.isAndroid && !nativeRipple
     return (
       <Pressable
         ref={frameNode as never}
@@ -432,13 +449,15 @@ export function ListItem({
         aria-checked={switchRow ? checked : undefined}
         disabled={disabled}
         onPress={press}
+        onPressIn={drawn ? ripple.start : undefined}
+        onPressOut={drawn ? ripple.end : undefined}
         android_ripple={nativeRipple ? { color: highlight, foreground: true } : undefined}
         testID={testID}
         style={({ pressed }) => row(pressed || held)}
       >
         {({ pressed }) => (
-          <RowHoldContext.Provider value={disabled ? null : setHeld}>
-            {theme.isAndroid && ((!nativeRipple && pressed) || held) ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: highlight }]} /> : null}
+          <RowHoldContext.Provider value={disabled ? null : theme.isAndroid ? hold : setHeld}>
+            {ripple.layer}
             {content(pressed || held)}
           </RowHoldContext.Provider>
         )}
@@ -462,7 +481,7 @@ function ActionRow({ children }: { children: ReactNode }) {
       {last ? null : (
         <View
           pointerEvents="none"
-          style={[styles.actionSeparator, { start: theme.isAndroid ? 20 : theme.length("--list-row-inset", 20), backgroundColor: theme.isAndroid ? divider(theme) : theme.colors.separator }]}
+          style={[styles.actionSeparator, { start: theme.isAndroid ? ANDROID_INSET : theme.length("--list-row-inset", 20), backgroundColor: theme.isAndroid ? divider(theme) : theme.colors.separator }]}
         />
       )}
     </View>
@@ -488,21 +507,25 @@ export type StackedRowProps = {
  * on a phone. iOS: the label 15/20 in the secondary label (`--field-row-above-*`), the value under it in the row's
  * 17/22, 13 above and below (68 for one line); with no label the value alone, centred in the row's 52. The error 4
  * under the value, as a row's. Android: the label 13sp in the secondary label, 4 over the bare value (17sp, as a card's
- * text field), 10 above and below; with no label 15, as a 50dp row.
+ * text field), 10 above and below, 21 in; with no label the value alone 17 above and below and 22 in, a 54dp row (the
+ * reference's card input), the line above the row starting there too.
  */
 export function ListStackedRow({ label, description, error, disabled = false, action, children, testID }: StackedRowProps) {
   const theme = useTheme()
   const { last } = useContext(PlaceContext)
   const rowEnd = useMemo<RowEnd>(() => ({ fill: () => {}, stacked: true }), [])
   const android = theme.isAndroid
-  const inset = android ? 20 : theme.length("--list-row-inset", 20)
   const hidden = label == null
   const rowLine = theme.length("--field-row-label-line-height", 22)
   // iOS: a row with words under its value (a description or an error) keeps the insets of a row with text, 12, as
   // the web's phone rows do; an error stands 4 under the value and the value 4 under the label
   const texted = description != null || error != null
+  // Android: a field alone in its row (no label, no words under it) is the reference's card input, 17 above and below
+  // and 22 in; with words under it 15 above and below
+  const alone = android && hidden && !texted
+  const inset = android ? (alone ? 22 : ANDROID_INSET) : theme.length("--list-row-inset", 20)
   const padding = android
-    ? hidden ? 15 : 10
+    ? alone ? 17 : hidden ? 15 : 10
     : texted ? theme.length("--field-row-text-padding-block", 12) : hidden ? (theme.length("--field-row-min-height", 52) - rowLine) / 2 : theme.length("--field-row-above-padding-block", 13)
   const secondary = disabled ? (android ? withAlpha(theme.colors.labelSecondary, 0.5) : theme.colors.labelTertiary) : theme.colors.labelSecondary
   const labelType = android
@@ -823,14 +846,14 @@ function AndroidContent({
   // Android's row symbols are the text's ink over a light card and a gray over a dark one
   const symbol = dim(destructive ? danger : theme.scheme === "dark" ? theme.colors.labelSecondary : theme.colors.text)
   const tile = leading != null && !!leadingColor
-  // A choice led by its mark: the 20dp ring 22 in, the text (and the divider) 64 in, 64dp tall with a description
-  const textStart = leading == null ? 20 : tile || leadingMark ? 64 : 71
+  // The text (and the divider) 21 in, or 64 after a symbol, a tile or a choice's mark (its 20dp circle 22 in)
+  const textStart = leading == null ? ANDROID_INSET : 64
   // A value that ends the row stands 17 from the end (a value row), 20 in a row with a tile (a tiled row)
   const valueEnd = trailing == null && !tile ? 17 : 20
   // At the end the value takes half the row at most, 16 from the label and from a control
   const { below, probe, onRowLayout, onTrailingLayout } = useValueBelow(valuePlacement, label, value, { label: styles.androidLabel, value: styles.androidLabel }, (widths) => {
     const end = 16 + widths.value + (trailing != null ? 16 + widths.trailing : 0)
-    return widths.value <= (widths.row - 40) * 0.5 + 0.5 && widths.label + end <= widths.row - textStart - valueEnd + 0.5
+    return widths.value <= (widths.row - 2 * ANDROID_INSET) * 0.5 + 0.5 && widths.label + end <= widths.row - textStart - valueEnd + 0.5
   })
   // A field at the end fills the room after the label, as on iOS; a select opens from the whole row
   const [fill, setFill] = useState(false)
@@ -851,7 +874,9 @@ function AndroidContent({
       <View
         style={[
           columns ? [styles.androidTextHug, styles.column] : fill ? styles.androidTextHug : styles.androidText,
-          { paddingVertical: error != null ? 0 : description != null || below ? (leadingMark ? 12 : 10) : 15 },
+          // One line centred in the 50dp row (54 beside a text field: a card's input row); with a second line 12 above
+          // and below (a 64dp row)
+          { paddingVertical: error != null ? 0 : description != null || below ? 12 : fill ? 17 : 15 },
         ]}
       >
         <Text color={ink} style={styles.androidLabel}>
@@ -870,7 +895,7 @@ function AndroidContent({
         ) : null}
       </View>
       {value != null && !below ? (
-        <Text color={dim(accentText(theme))} numberOfLines={1} style={[styles.androidLabel, styles.androidValue, { marginEnd: valueEnd - 20 }]}>
+        <Text color={dim(accentText(theme))} numberOfLines={1} style={[styles.androidLabel, styles.androidValue, { marginEnd: valueEnd - ANDROID_INSET }]}>
           {value}
         </Text>
       ) : null}
@@ -925,21 +950,22 @@ const styles = StyleSheet.create({
   // Android's section: one card, 16 round; the header a 40dp row inside it (a header row), the footer under it
   // (a footer: 24 from the screen's edge, 10 above, 17 below)
   androidCard: { borderRadius: ANDROID_CARD_RADIUS, overflow: "hidden" },
-  androidHeader: { height: 40, paddingHorizontal: 20, paddingTop: 15, fontSize: 14, lineHeight: 18 },
-  androidDescriptionLine: { paddingHorizontal: 20, paddingBottom: 6, fontSize: 14, lineHeight: 18 },
-  androidDescriptionAlone: { paddingTop: 15 },
-  androidFooter: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 17, fontSize: 14, lineHeight: 18 },
+  // The header: 15/20 Medium 14 under the card's top and 21 in, 6 under it to close its 40dp line
+  androidHeader: { minHeight: 40, paddingHorizontal: ANDROID_INSET, paddingTop: 14, paddingBottom: 6, fontSize: 15, lineHeight: 20 },
+  androidDescriptionLine: { paddingHorizontal: ANDROID_INSET, paddingBottom: 6, fontSize: 14, lineHeight: 18 },
+  androidDescriptionAlone: { paddingTop: 14 },
+  androidFooter: { paddingHorizontal: 13, paddingTop: 11, paddingBottom: 17, fontSize: 14, lineHeight: 18 },
   // A plain list's header band (32dp, its text 16 in), its description and its footer 20 in as the rows' text, the
   // footer on the band's gray as the space between sections
   androidBand: { height: 32, justifyContent: "center", paddingHorizontal: 16 },
   androidBandText: { fontSize: 14, lineHeight: 18 },
   androidDescriptionPlain: { paddingTop: 10 },
-  androidFooterPlain: { paddingHorizontal: 20 },
-  androidRow: { flexDirection: "row", alignItems: "center", minHeight: 50, paddingStart: 20, paddingEnd: 20 },
-  // A symbol at 21 and the text at 71; a 28dp tile at 18 with a 24dp symbol and the text at 64 (a tiled row)
-  androidIcon: { width: 24, height: 24, alignItems: "center", justifyContent: "center", marginStart: 1, marginEnd: 26 },
-  androidMark: { width: 20, alignItems: "center", justifyContent: "center", marginStart: 2, marginEnd: 22 },
-  androidTile: { width: 28, height: 28, borderRadius: 10, alignItems: "center", justifyContent: "center", marginStart: -2, marginEnd: 18 },
+  androidFooterPlain: { paddingHorizontal: ANDROID_INSET },
+  androidRow: { flexDirection: "row", alignItems: "center", minHeight: 50, paddingStart: ANDROID_INSET, paddingEnd: ANDROID_INSET },
+  // A 24dp symbol at 20, a 28dp tile at 18 with a 24dp symbol, or a choice's 20dp mark at 22: the text at 64
+  androidIcon: { width: 24, height: 24, alignItems: "center", justifyContent: "center", marginStart: -1, marginEnd: 20 },
+  androidMark: { width: 20, alignItems: "center", justifyContent: "center", marginStart: 1, marginEnd: 22 },
+  androidTile: { width: 28, height: 28, borderRadius: 10, alignItems: "center", justifyContent: "center", marginStart: -3, marginEnd: 18 },
   androidText: { flex: 1, minWidth: 0, gap: 4 },
   androidTextHug: { flexShrink: 1, minWidth: 0, gap: 4 },
   androidColumn: { flex: 1, minWidth: 0, paddingVertical: 10 },
@@ -966,8 +992,8 @@ const styles = StyleSheet.create({
   androidEndEdge: { marginStart: "auto" },
   endAtEdge: { justifyContent: "flex-end" },
   iosHeaderRow: { flexDirection: "row", alignItems: "flex-end", gap: 16 },
-  androidHeaderRow: { flexDirection: "row", alignItems: "flex-start", height: 40, paddingHorizontal: 20, paddingTop: 15, gap: 16 },
-  androidHeaderTitle: { flex: 1, minWidth: 0, fontSize: 14, lineHeight: 18 },
+  androidHeaderRow: { flexDirection: "row", alignItems: "flex-start", minHeight: 40, paddingHorizontal: ANDROID_INSET, paddingTop: 14, paddingBottom: 6, gap: 16 },
+  androidHeaderTitle: { flex: 1, minWidth: 0, fontSize: 15, lineHeight: 20 },
   // A prominent header: the title 16sp in the text color
   androidHeaderIncreased: { fontSize: 16, lineHeight: 20 },
   androidBandRow: { flexDirection: "row", alignItems: "center", gap: 16 },

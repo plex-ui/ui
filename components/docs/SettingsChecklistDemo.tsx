@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Button, NavigationButton, type ButtonProps } from '@plexui/ui/components/Button';
 import { Checkbox } from '@plexui/ui/components/Checkbox';
 import { Dialog } from '@plexui/ui/components/Dialog';
@@ -10,6 +10,7 @@ import { Disclosure } from '@plexui/ui/components/Icon';
 import { Menu } from '@plexui/ui/components/Menu';
 import { Page } from '@plexui/ui/components/Page';
 import { RadioGroup } from '@plexui/ui/components/RadioGroup';
+import { Select } from '@plexui/ui/components/Select';
 import { DropdownIcon } from '@plexui/ui/components/SelectControl';
 import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { TransitionGroup } from '@plexui/ui/components/Transition';
@@ -43,14 +44,26 @@ function SettingRow({ id, label, summary, trailing, ...props }: { id: SettingId;
   );
 }
 
-/** A picker saved immediately: on a phone a row opens its own screen and Back returns to settings;
- * on desktop the row opens a menu of checkboxes, or of radio items for one choice, so no screen needs a top bar. */
+// The Plex Android look is on: the docs' Android switch (PreviewEmbed) and PlexUIProvider set it on the document's root
+const watchRootPlatform = (onChange: () => void) => {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-platform'] });
+  return () => observer.disconnect();
+};
+const useAndroidLook = () => useSyncExternalStore(watchRootPlatform,
+  () => document.documentElement.getAttribute('data-platform') === 'android', () => false);
+
+/** A picker saved immediately: on a phone a row opens its own screen and Back returns to settings; on an Android
+ * phone it opens Android's choice dialog instead (Select's picker), radios for one choice and checkboxes with OK for
+ * several, as a value row of the reference messenger's settings does; on desktop the row opens a menu of checkboxes,
+ * or of radio items for one choice, so no screen needs a top bar. */
 export function SettingsChecklistDemo() {
   const presentation = useScreenPresentation();
   const phonePreview = usePreviewEmbed() !== null;
   const phoneViewport = usePhoneViewport();
   const wide = useBreakpoint('md');
   const phone = phoneViewport || !wide;
+  const android = useAndroidLook();
   const hiddenPhoneHost = phoneViewport && !phonePreview;
   const { open: dialogOpen, present: dialogPresent, onOpenAutoFocus: onDialogScopeOpen, onCloseAutoFocus: onDialogScopeClose, pageRef: bindPage } = useDialogStagePresence(presentation.dialog, !hiddenPhoneHost);
   const [active, setActive] = useState<SettingId | null>(null);
@@ -101,6 +114,8 @@ export function SettingsChecklistDemo() {
   }));
   // One choice replaces the selection; the page stays, as Settings keeps its list open after a pick.
   const choose = (id: SettingId, value: string) => setSelection((current) => ({ ...current, [id]: [value] }));
+  // Several choices applied at once (the Android dialog's OK)
+  const apply = (id: SettingId, values: string[]) => setSelection((current) => ({ ...current, [id]: values }));
   const transition = { ...settingsNavigationTiming, overlay: true, onExit: hideExitingSettingsScreen, onEnter: showEnteringSettingsScreen };
   // Both screens of a Page show Back, so it stays in place; in a Dialog the root's Close and Back change places.
   const back = <span className={s.BackViewport} data-demo-navigation-direction={navigation.direction} data-settings-direction={navigation.direction} data-demo-navigation-same=""><TransitionGroup {...transition} className={motionStyles.Bar}>
@@ -147,7 +162,20 @@ export function SettingsChecklistDemo() {
                 const summary = checklistSummary(item, selection[item.id]);
                 return (
                   <div key={item.id} data-row>
-                    {phone ? (
+                    {phone && android && !item.disabled ? (
+                      // Android: the row opens the setting's choice dialog in place of its screen
+                      item.single ? (
+                        <Select options={item.options} title={item.label} value={selection[item.id][0] ?? ''}
+                          onChange={({ value }) => choose(item.id, value)}
+                          trigger={({ onToggle }) => <SettingRow id={item.id} label={item.label} summary={summary}
+                            trailing={<Disclosure className={s.Disclosure} data-no-autosize />} onClick={onToggle} />} />
+                      ) : (
+                        <Select multiple picker="dialog" options={item.options} title={item.label} value={selection[item.id]}
+                          onChange={(options) => apply(item.id, options.map((option) => option.value))}
+                          trigger={({ onToggle }) => <SettingRow id={item.id} label={item.label} summary={summary}
+                            trailing={<Disclosure className={s.Disclosure} data-no-autosize />} onClick={onToggle} />} />
+                      )
+                    ) : phone ? (
                       <SettingRow id={item.id} label={item.label} summary={summary} disabled={item.disabled}
                         trailing={<Disclosure className={s.Disclosure} data-no-autosize />} onClick={() => open(item.id)} />
                     ) : (

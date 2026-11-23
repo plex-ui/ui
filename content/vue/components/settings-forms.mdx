@@ -447,7 +447,7 @@ export const rowActions = formScreen("Account settings", `<template v-if="accoun
   </DialogContent>
 </Dialog>`, "", "actions-form").replace(' title="Account settings"', ' title="Account settings" :fill="accountDeleted"')
 
-export const rowErrors = formScreen("Edit payout details", `<FieldGroup title="Payout details">
+export const rowErrors = formScreen("Edit payout details", `<FieldGroup title="Payout details" class="[--field-row-text-width:320px]">
   <Field row :orientation="wide ? undefined : 'vertical'" label="Account holder">
     <Input :variant="wide ? undefined : 'ghost'" v-model:value="payout.accountHolder" />
   </Field>
@@ -611,7 +611,7 @@ Short values sit beside the label. Longer values wrap below it, and the disclosu
 
 This example uses the [SettingsChecklistDemo helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SettingsChecklistDemo.ts), [sample data](https://github.com/plex-ui/ui/blob/master/components/docs/settingsChecklistData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SettingsChecklistDemo.module.css), alongside the existing DemoBackButton helper.
 
-<ComponentPreview phonePresentation="screen" language="vue" details={<>Selection takes effect immediately. On a phone a row opens its own screen in a <code>Toolbar</code> with Back and the setting's title. From 768px up the same row opens a menu of checkboxes, or of radio items for one choice, so the desktop layout needs no top bar. The form examples above use a Sheet with Apply and Close for draft editing.</>} code={`<script setup lang="ts">
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Selection takes effect immediately. On a phone a row opens its own screen in a <code>Toolbar</code> with Back and the setting's title; on an Android phone it opens Android's choice dialog instead, the <a href="/vue/components/select"><code>Select</code></a> picker: radios for one choice, checkboxes with OK for several. From 768px up the same row opens a menu of checkboxes, or of radio items for one choice, so the desktop layout needs no top bar. The form examples above use a Sheet with Apply and Close for draft editing.</>} code={`<script setup lang="ts">
 import { ref } from 'vue';
 import { SettingsChecklistDemo } from './SettingsChecklistDemo';
 const surface = ref<'plain' | 'grouped'>('grouped');

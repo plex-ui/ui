@@ -1,7 +1,7 @@
 ---
 title: Bottom Sheet
 description: "A sheet from the bottom edge with content of its own, closed by a drag down."
-metaDescription: "A React Native bottom sheet with content of its own: the iOS 26 sheet on iOS, a sheet with 24dp top corners on Android. Drag it down to close it."
+metaDescription: "A React Native bottom sheet with content of its own: the iOS 26 sheet on iOS, a sheet with 35dp top corners on Android. Drag it down to close it."
 ---
 
 import { RNExample } from "@/components/docs/react-native/RNExample"
@@ -73,7 +73,7 @@ A choice of actions is an [Action Sheet](/react-native/components/action-sheet).
 ### Overview
 
 <ComponentPreview details={<>
-  <p>BottomSheet is the sheet the web <a href="/components/dialog">Dialog</a> is on a phone by default. On iOS it is the sheet of iOS 26 as the web's phone Sheet draws it: radius 38 on its top corners, a bar 16pt under its top edge with Close at the leading edge and the 17pt semibold title centered, the content 32pt under the bar where its soft edge ends, and no grabber, since its height does not change. On Android it is a plain sheet: white (dark gray at night) with 24dp top corners, no drag handle, a Medium 20 title at the start, a 20% dim, and the screen's full width in portrait (80% of it in landscape). On both a tap on the dim, a drag down or Back closes it: on iOS the drag of its bar, on Android a drag anywhere on the sheet, down past about 50dp or a flick, starting on the content once it is scrolled to its top. Let go short of that, the Android sheet goes back to its place. A decision is a <a href="/react-native/components/dialog">Dialog</a>.</p>
+  <p>BottomSheet is the sheet the web <a href="/components/dialog">Dialog</a> is on a phone by default. On iOS it is the sheet of iOS 26 as the web's phone Sheet draws it: radius 38 on its top corners, a bar 16pt under its top edge with Close at the leading edge and the 17pt semibold title centered, the content 32pt under the bar where its soft edge ends, and no grabber, since its height does not change. On Android it is a plain sheet: white (dark gray at night) with 35dp top corners, no drag handle, and with a title a bar over the content: Close in a 46dp glass circle 12 from the top and the side, in line with the content and concentric with the corner, and the title 17 Medium centered; a 20% dim, and the screen's full width in portrait (80% of it in landscape). On both a tap on the dim, a drag down or Back closes it: on iOS the drag of its bar, on Android a drag anywhere on the sheet, down past about 50dp or a flick, starting on the content once it is scrolled to its top. Let go short of that, the Android sheet goes back to its place. A decision is a <a href="/react-native/components/dialog">Dialog</a>.</p>
   <p>One sheet with every setting, laid out as the web Dialog's Steps lay out their first step, and as Apple Account asks for an address: its text and a soft capsule field, with the action pinned under them in <code>BottomSheet.Footer</code>. As the web Dialog's sheets do in its phone preview, the sheet here opens with the phone's screen.</p>
   <p><code>title</code> stands in the sheet's bar: on iOS centered on the 44pt row of Close, as the web's phone Sheet sets it, on Android in Medium 20 at the start of the sheet's top. A sheet without a title takes an <code>aria-label</code>. <code>dismissible</code> (the default) lets a tap on the dim, a drag down, Close, Android's back and Escape close the sheet; with <code>dismissible={"{false}"}</code> none of them does and iOS draws no Close, so the content closes the sheet through <code>onOpenChange</code>, as Continue does here. <code>closeLabel</code> names what closes it for VoiceOver and TalkBack: Close on iOS, the dim above the sheet on Android.</p>
   <p>The sheet is as tall as its content and rises over the keyboard while a field has focus.</p>
@@ -92,7 +92,7 @@ A choice of actions is an [Action Sheet](/react-native/components/action-sheet).
 | | iOS 26 | Android |
 | --- | --- | --- |
 | Native component | Sheet | Modal bottom sheet |
-| Look | Bar with Close and a centered title | A sheet with 24dp top corners, no handle, the title at the start |
+| Look | Bar with Close and a centered title | A sheet with 35dp top corners, no handle; Close in a glass circle concentric with the corner and a centered title |
 
 ## API
 

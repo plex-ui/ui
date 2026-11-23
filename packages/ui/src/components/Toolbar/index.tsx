@@ -8,6 +8,7 @@ export {
   type ToolbarHost,
   type ToolbarPlacement,
   type ToolbarProps,
+  type ToolbarSearchPlacement,
   type ToolbarSlotProps,
   type ToolbarTitleAlign,
   type ToolbarTitleProps,

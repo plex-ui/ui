@@ -16,6 +16,7 @@ import Svg, { Circle } from "react-native-svg"
 import { flattenChildren } from "../../internal/children"
 import { Glass } from "../../internal/Glass"
 import { useAndroidGlass } from "../../internal/BarBackdrop"
+import { useRipple } from "../../internal/ripple"
 import { curves } from "../../internal/motion"
 import { accentText, barShadow, controlHighlight, dangerText, stateLayer, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
@@ -108,6 +109,8 @@ export type BarItemStyle = {
    * action is the accent's ink, as Android's classic bars draw them.
    */
   plain?: boolean
+  /** A bottom bar's item (Android: a confirm there keeps its circle, not a top bar's text pill). */
+  bottom?: boolean
 }
 
 export const BarItemContext = createContext<BarItemStyle | null>(null)
@@ -144,16 +147,16 @@ const ANDROID_SIZE = (size: ControlSize) => (["3xs", "2xs", "xs", "sm"].includes
 
 export function buttonMetrics(theme: Theme, size: ControlSize, shape: "round" | "square" = "round", uniform = false): Metrics {
   if (theme.isAndroid) {
-    // Android's buttons: the big one 48dp with a 14 Medium label, a pill in the redesigned screens (round) or 8dp
-    // corners (square); the steps under it keep the label (14 at every step) and the shape. No shape morphs on a
-    // press or a selection, as the Android look has none
+    // Android's buttons: the big one 48dp with a 15 Medium label, a pill in the redesigned screens (round) or 8dp
+    // corners (square); the steps under it keep the shape and a 14 label. No shape morphs on a press or a selection,
+    // as the Android look has none
     const step = ANDROID_SIZE(size)
     const height = step === "XS" ? 32 : step === "S" ? 40 : 48
     const corner = shape === "round" ? height / 2 : step === "XS" ? 6 : 8
     return {
       height,
       gutter: step === "XS" ? 12 : step === "S" ? 16 : 20,
-      fontSize: 14,
+      fontSize: step === "M" ? 15 : 14,
       lineHeight: 20,
       iconSize: uniform ? (step === "XS" ? 18 : step === "S" ? 20 : 24) : step === "XS" ? 16 : 20,
       gap: step === "XS" ? 4 : 6,
@@ -446,10 +449,11 @@ function ListActionButton({
             theme.color("--color-text-info", theme.colors.accent)
         : buttonColors(theme, color, "ghost", false, false).text
   const ink = disabled ? (android ? withAlpha(base, 0.5) : theme.colors.labelTertiary) : !row && pressed && !android ? lighten(theme, base) : base
+  // Android: a row's words 16/20, a header's 15/20 Medium (the web's FieldGroup header action)
   const type = android
     ? row
       ? { fontSize: 16, lineHeight: 20 }
-      : { fontSize: 14, lineHeight: 18 }
+      : { fontSize: 15, lineHeight: 20 }
     : row
       ? { fontSize: theme.length("--field-row-label-font-size", 17), lineHeight: theme.length("--field-row-label-line-height", 22) }
       : { fontSize: theme.length("--field-group-title-font-size", 17), lineHeight: theme.length("--field-group-title-line-height", 22) }
@@ -487,7 +491,7 @@ function ListActionButton({
       style={[
         styles.row,
         row
-          ? { alignSelf: "stretch", justifyContent: "flex-start", minHeight: android ? 50 : theme.length("--field-row-min-height", 52), paddingHorizontal: android ? 20 : theme.length("--list-row-inset", 20), gap: 8 }
+          ? { alignSelf: "stretch", justifyContent: "flex-start", minHeight: android ? 50 : theme.length("--field-row-min-height", 52), paddingHorizontal: android ? 21 : theme.length("--list-row-inset", 20), gap: 8 }
           : { flexShrink: 0, gap: 4 },
         fill ? { backgroundColor: fill } : null,
         !row && android && pressed && !inert ? { opacity: 0.6 } : null,
@@ -588,8 +592,9 @@ function ButtonBody({
   const corners = android && selected ? metrics.selectedRadius : metrics.radius
   // An icon in a group's capsule takes the group's 38dp slot, a circle of its own the bar's height
   const width = uniform ? (android && bar?.inGroup ? 38 : metrics.height) : undefined
-  // Android's press on a bar's icon: its borderless ripple, a 40dp circle (20dp radius) centered on the icon, a little
-  // wider than a group's slot; a label in a bar takes the press in its own shape
+  // Android's press on a bar's icon: its borderless ripple, a 40dp circle (20dp radius) centered on the icon, inside
+  // a 46dp glass circle and a little wider than a group's slot (the reference's selector of mask 1, radius 20); a label
+  // in a bar ripples in its own pill
   const dot = android && bar && uniform && width ? 40 : 0
   // Android's press of a button standing on its own (a bar's have none): it shrinks to 0.98 in 80ms on the default
   // curve and comes back on release in 350ms on an overshoot of 1.2, just past its size and back
@@ -606,21 +611,37 @@ function ButtonBody({
         : { toValue: 1, duration: 350, easing: curves.overshoot(1.2), useNativeDriver: false },
     ).start()
   }
-  // The web's stand-in for a bar icon's borderless ripple fades in over 80ms, linear, rather than appearing at once
-  const [glow] = useState(() => new Animated.Value(1))
+  // Android's press in a bar: the list selector on its glass circles and pills, the content color at 20% on an accent
+  // one, the ink at 7% (#121A1D21) in a plain bar; a filled button's is the list selector; any other's Material's
+  // pressed state layer of its label
+  const pressLayer =
+    android && bar
+      ? bar.plain
+        ? withAlpha(colors.text, 0.07)
+        : accentAction
+          ? withAlpha(colors.text, 0.2)
+          : listSelector(theme.scheme)
+      : android && variant === "solid"
+        ? listSelector(theme.scheme)
+        : withAlpha(colors.text, stateLayer.pressed)
+  // Android's press: the ripple from the touch point, the platform's on a device and drawn here on the web, in the
+  // button's shape (its corners clip it) or a bar's bare icon's 40dp circle
+  const ripple = useRipple(
+    pressLayer,
+    android && !nativeRipple,
+    still,
+    dot && width ? { width: dot, height: dot, borderRadius: dot / 2, top: (metrics.height - dot) / 2, start: (width - dot) / 2 } : undefined,
+  )
   const handleIn = (event: GestureResponderEvent) => {
     setPressed(true)
     scaleTo(true)
-    if (dot && !nativeRipple) {
-      glow.stopAnimation()
-      glow.setValue(still ? 1 : 0)
-      if (!still) Animated.timing(glow, { toValue: 1, duration: 80, easing: Easing.linear, useNativeDriver: false }).start()
-    }
+    if (android && !nativeRipple && !(disabled || inertProp)) ripple.start(event)
     onPressIn?.(event)
   }
   const handleOut = (event: GestureResponderEvent) => {
     setPressed(false)
     scaleTo(false)
+    ripple.end()
     onPressOut?.(event)
   }
   const inert = disabled || inertProp
@@ -722,21 +743,7 @@ function ButtonBody({
       </IconDefaultsProvider>
     </TextColorProvider>
   )
-  // Android's press in a bar is its ink at 7% (#121A1D21); a filled button's is the list selector; any other's
-  // Material's pressed state layer of its label
-  const pressLayer = android && bar ? withAlpha(colors.text, 0.07) : android && variant === "solid" ? listSelector(theme.scheme) : withAlpha(colors.text, stateLayer.pressed)
-  const layer =
-    theme.isAndroid && !nativeRipple && pressed && !inert ? (
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          dot && width
-            ? { position: "absolute", width: dot, height: dot, borderRadius: dot / 2, top: (metrics.height - dot) / 2, start: (width - dot) / 2, opacity: glow }
-            : StyleSheet.absoluteFill,
-          { backgroundColor: pressLayer },
-        ]}
-      />
-    ) : null
+  const layer = ripple.layer
   const pressable = {
     accessibilityRole: "button" as const,
     accessibilityState: { disabled: inert, selected, busy: loading, ...accessibilityState },

@@ -624,7 +624,7 @@ const heading = useRef<HTMLDivElement>(null)
           <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Generate a component</Dialog.Title></div>
           <Dialog.Description className="sr-only">Describe what to build in plain English.</Dialog.Description>
           <Dialog.HeaderAction>
-            <NavigationButton action="confirm" aria-label="Generate" onClick={() => setOpen(false)} />
+            <NavigationButton action="confirm" label="Generate" onClick={() => setOpen(false)} />
           </Dialog.HeaderAction>
         </Dialog.Header>
         <Dialog.Body>
@@ -663,6 +663,10 @@ Props:
   - iconSize ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in children; defaults from size
   - type ("button" | "submit" | "reset") default: "button" — Native button type
   - onClick ((event: MouseEvent) => void) — Called on click, unless disabled
+  NavigationButton:
+    - action ("back" | "close" | "confirm") — Visual role and glyph; the caller owns navigation, dismissal and submission
+    - label (string) default: "Done" — The text of confirm's pill in the Plex Android look: a short word, one or two at most; the accessible name stays in aria-label. iOS shows a check circle and no text
+    - aria-label (string) default: label, or "Back", "Close", "Confirm" — Accessible name: the destination or operation, which may be long
   ButtonLink:
     - children (ReactNode) — Content inside the link button
     - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color
@@ -2186,7 +2190,7 @@ const cancel = (
 ```
 
 ### Metadata details
-Put labels and values in the rows of a FieldGroup, each value an output: on a phone the Sheet is grouped and the rows are the cells of an iOS list, as Settings' About. A value too long for its row goes under its label there, as iOS lays out a value cell. CopyTooltip wraps a real ghost Button, so the value supports pointer and keyboard copying. The visible value truncates in the middle while the full value is copied. Focus starts at the heading, then Tab reaches the controls.
+Put labels and values in the rows of a FieldGroup, each value an output: on a phone the Sheet is grouped and the rows are the cells of an iOS list, as Settings' About. CopyTooltip wraps a real ghost Button, so the value supports pointer and keyboard copying. The visible value truncates in the middle while the full value is copied. Focus starts at the heading, then Tab reaches the controls.
 ```tsx
 'use client';
 
@@ -2202,10 +2206,20 @@ const CLIENT_ID = 'client_76fb07f7-78e2-4656-abdf-e77b5d7b1ed1';
 
 function CopyValue({ value, label }: { value: string; label: string }) {
   const wide = useBreakpoint('md');
+  if (!wide) {
+    // On a phone the value reads as the row's other values, in their type and color, shortened to fit beside its label
+    return (
+      <CopyTooltip copyValue={value} sideOffset={24} align="end">
+        <button type="button" className="min-w-0 max-w-full cursor-pointer truncate" aria-label={label}>
+          {value.slice(0, 11)}…{value.slice(-6)}
+        </button>
+      </CopyTooltip>
+    );
+  }
   return (
-    <CopyTooltip copyValue={value} sideOffset={wide ? 5 : 24} align={wide ? 'center' : 'start'}>
+    <CopyTooltip copyValue={value} sideOffset={5}>
       <Button color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 min-w-0 max-w-full" aria-label={label}>
-        <span className="flex min-w-0 md:font-mono md:text-xs">
+        <span className="flex min-w-0 font-mono text-xs">
           <span className="truncate">{value.slice(0, -6)}</span>
           <span className="shrink-0">{value.slice(-6)}</span>
         </span>
@@ -2217,7 +2231,6 @@ function CopyValue({ value, label }: { value: string; label: string }) {
 export function DetailsDialogExample() {
   const [open, setOpen] = useState(false);
   const heading = useRef<HTMLDivElement>(null);
-  const wide = useBreakpoint('md');
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -2232,8 +2245,7 @@ export function DetailsDialogExample() {
         <Dialog.Body>
           <FieldGroup>
             <Field row label="Name"><output>Plex application</output></Field>
-            {/* On a phone a value too long for the row goes under its label, as iOS lays out a value cell */}
-            <Field row label="Client ID" orientation={wide ? undefined : 'vertical'}><CopyValue value={CLIENT_ID} label="Copy client ID" /></Field>
+            <Field row label="Client ID"><CopyValue value={CLIENT_ID} label="Copy client ID" /></Field>
             <Field row label="Status"><output>Active</output></Field>
             <Field row label="Created"><output>Nov 3, 2026</output></Field>
             <Field row label="Last used"><output>Nov 4, 2026</output></Field>
@@ -2389,7 +2401,7 @@ const note = phone
     {/* On a phone Save is the bar's checkmark, opposite Close */}
     {phone && (
       <Dialog.HeaderAction>
-        <NavigationButton action="confirm" aria-label="Save" onClick={() => setOpen(false)} />
+        <NavigationButton action="confirm" label="Save" onClick={() => setOpen(false)} />
       </Dialog.HeaderAction>
     )}
   </Dialog.Header>
@@ -2435,7 +2447,7 @@ const dirty = note.trim() !== ''
     <Dialog.Title>New note</Dialog.Title>
     {phone && (
       <Dialog.HeaderAction>
-        <NavigationButton action="confirm" aria-label="Save" disabled={!dirty} onClick={() => setOpen(false)} />
+        <NavigationButton action="confirm" label="Save" disabled={!dirty} onClick={() => setOpen(false)} />
       </Dialog.HeaderAction>
     )}
   </Dialog.Header>
@@ -2561,7 +2573,7 @@ Props:
     - className (string) default: — — Applied to the root <label> element
 
 ### Overview
-Field wraps a form control with a label, a description and an error message, and links them: the label's htmlFor, aria-describedby and aria-invalid reach the control. required adds an asterisk after the label; it is visual only, so give the control its own required for form validation. The layout control puts the label in its four places: above: the default, orientation="vertical". columns: orientation="horizontal", every value starting at one column. end: row, one line of a FieldGroup with the value at its end. A framed field is a pill there and takes --field-row-control-width, as its width cannot follow what is typed; pill={'{false}'} on the control keeps the rounded box. hidden: hideLabel. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field. On Phone a field is always a cell of a FieldGroup on the grouped background, as in an iOS form, in the same four places: the label above its value (row orientation="vertical"), values in one column (FieldGroup columns), the value at the end of the row, or the placeholder alone (row hideLabel), its value starting at the row's edge. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's footer, and a required field says so in its placeholder, as iOS account forms do. A disabled text field dims only its value, as iOS shows a value that cannot be changed; a row unavailable as a whole takes data-disabled on the Field, which dims its label too; a row with a disabled checkbox, radio, switch or picker dims whole. A one-time code is the exception: OTPInput keeps its own digit cells on the screen, outside a group, as in Verify email. labelAction holds a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size. On Phone a row has no label line to hold it: the link stands under the group in the rows' text, as under the Apple Account sign-in. A group's footer is a footnote, for words to read. Here it is offered for a label above the field or in its column. The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the child is a render prop. Outside a row, with touch.css a text field is 44px from 3xs to 2xl and 50px at 3xl, with the 17px text of iOS. size, pill and opticallyAlign are the web's: on Phone a row sets the field's height, insets and type, and has no frame to align. opticallyAlign: "start" applies a negative margin on the child control, aligning its text with the surrounding content. Works with pill inputs. The label, description, and error message stay at the container edge while the control extends past it.
+Field wraps a form control with a label, a description and an error message, and links them: the label's htmlFor, aria-describedby and aria-invalid reach the control. required adds an asterisk after the label; it is visual only, so give the control its own required for form validation. The layout control puts the label in its four places: above: the default, orientation="vertical". columns: orientation="horizontal", every value starting at one column. end: row, one line of a FieldGroup with the value at its end. A framed field is a pill there and takes --field-row-control-width, as its width cannot follow what is typed; pill={'{false}'} on the control keeps the rounded box. hidden: hideLabel. The label still names the control for screen readers; the placeholder shows what to type, and a description moves under the field. On Phone a field is always a cell of a FieldGroup on the grouped background, as in an iOS form, in the same four places: the label above its value (row orientation="vertical"), values in one column (FieldGroup columns), the value at the end of the row, or the placeholder alone (row hideLabel), its value starting at the row's edge. On Android a text field with its label above is a field of an input card, its label standing in the empty field and floating over the value, with a line under the field (Card of fields), and a placeholder-only cell stays a hint cell. The row is the field's frame, so a framed or soft field loses its frame. The error stands inside the cell, under the value. The words that explain a field go in the group's footer, and a required field says so in its placeholder, as iOS account forms do. A disabled text field dims only its value, as iOS shows a value that cannot be changed; a row unavailable as a whole takes data-disabled on the Field, which dims its label too; a row with a disabled checkbox, radio, switch or picker dims whole. A one-time code is the exception: OTPInput keeps its own digit cells on the screen, outside a group, as in Verify email. labelAction holds a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size. On Phone a row has no label line to hold it: the link stands under the group in the rows' text, as under the Apple Account sign-in. A group's footer is a footnote, for words to read. Here it is offered for a label above the field or in its column. The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the child is a render prop. Outside a row, with touch.css a text field is 44px from 3xs to 2xl and 50px at 3xl, with the 17px text of iOS. size, pill and opticallyAlign are the web's: on Phone a row sets the field's height, insets and type, and has no frame to align. opticallyAlign: "start" applies a negative margin on the child control, aligning its text with the surrounding content. Works with pill inputs. The label, description, and error message stay at the container edge while the control extends past it.
 ```tsx
 // Desktop
 <Field label="Name" required>
@@ -2850,7 +2862,7 @@ Docs: https://plexui.com/components/floating-label-input
     - onInteract (() => void) — Called on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
 
 ### Overview
-On Phone a label does not float: iOS has no floating label. Each field is a cell of a FieldGroup on the grouped background, and its placeholder names it: an Input, a Textarea or a Select in a Field row hideLabel, as the Forms: Settings do. The label stays for screen readers, a description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; where the label rests and the shape of the field are desktop settings, and the Label inside example has no Phone view. Two things set the type: where the label rests (labelPlacement: on the border, or inside the box with the value under it), and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. pill={'{false}'} takes the rounded box of Input and Select with the label on the border; inside always takes the rounded box, so pill is offered only with the label on the border. Text fields, textareas and selects take both settings the same way. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place. Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid, so invalid is offered only without one; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied. onClear shows a built-in clear button: it appears when the field has a value and is not disabled or read-only, and focus returns to the field. On Phone the field is a cell named by its placeholder: the label does not float and the cell is the frame, so labelPlacement and pill are desktop settings. The description goes in the group's footer and the error stands inside the cell. A cell has no frame to color, so invalid alone is desktop only.
+On Phone each field is a cell of a FieldGroup on the grouped background, and its placeholder names it: an Input, a Textarea or a Select in a Field row hideLabel, as the Forms: Settings do. On iOS a label does not float: iOS has no floating label, and the label stays for screen readers. On Android these cells stay hint cells; a row that shows its label over the value floats it instead (see Card of fields). A description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; where the label rests and the shape of the field are desktop settings, and the Label inside example has no Phone view. Two things set the type: where the label rests (labelPlacement: on the border, or inside the box with the value under it), and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. pill={'{false}'} takes the rounded box of Input and Select with the label on the border; inside always takes the rounded box, so pill is offered only with the label on the border. Text fields, textareas and selects take both settings the same way. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place. Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid, so invalid is offered only without one; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied. onClear shows a built-in clear button: it appears when the field has a value and is not disabled or read-only, and focus returns to the field. On Phone the field is a cell named by its placeholder, and the cell is the frame, so labelPlacement and pill are desktop settings. The description goes in the group's footer and the error stands inside the cell. A cell has no frame to color, so invalid alone is desktop only.
 ```tsx
 const [value, setValue] = useState("")
 const [labelPlacement, setLabelPlacement] = useState("border")
@@ -2929,6 +2941,37 @@ const [visible, setVisible] = useState(false)
       </Input.AdornmentButton>
     }
   />
+</Field>
+</FieldGroup>
+```
+
+### Card of fields
+The fields of one form, such as a proxy server's settings, stand together. On Phone they are the rows of one FieldGroup, each with its label over the value: a Field row orientation="vertical". On iOS the label stands above the value. On Android the group is an input card: an empty field shows its label as the hint, the label floats over the value in the accent once the field has the focus or a value, and a line runs under each field, turning to the accent while it is edited; each field is 64 tall. A cell named only by its placeholder (hideLabel, as in the examples above) stays a hint cell on Android.
+```tsx
+const [proxy, setProxy] = useState({ server: "", port: "1080", username: "", password: "" })
+const update = (key) => (event) => setProxy((current) => ({ ...current, [key]: event.target.value }))
+
+// Desktop
+<div className="flex w-[360px] flex-col gap-3">
+<FloatingLabelInput label="Server" inputMode="url" autoCapitalize="none" value={proxy.server} onChange={update("server")} />
+<FloatingLabelInput label="Port" inputMode="numeric" value={proxy.port} onChange={update("port")} />
+<FloatingLabelInput label="Username" autoCapitalize="none" autoComplete="username" value={proxy.username} onChange={update("username")} />
+<FloatingLabelInput label="Password" type="password" autoComplete="current-password" value={proxy.password} onChange={update("password")} />
+</div>
+
+// Phone: one group, each label over its value; on Android, an input card with floating labels.
+<FieldGroup footer={<p>Ask your network administrator for these settings.</p>}>
+<Field row orientation="vertical" label="Server">
+  <Input inputMode="url" autoCapitalize="none" value={proxy.server} onChange={update("server")} />
+</Field>
+<Field row orientation="vertical" label="Port">
+  <Input inputMode="numeric" value={proxy.port} onChange={update("port")} />
+</Field>
+<Field row orientation="vertical" label="Username">
+  <Input autoCapitalize="none" autoComplete="username" value={proxy.username} onChange={update("username")} />
+</Field>
+<Field row orientation="vertical" label="Password">
+  <Input type="password" autoComplete="current-password" value={proxy.password} onChange={update("password")} />
 </Field>
 </FieldGroup>
 ```
@@ -5827,6 +5870,10 @@ Props:
   - TriggerView (React.FC) — Custom trigger render: the selected option, or { values, selectedAll } with multiple
   - TriggerStartIcon (ComponentType) — Icon at the start of the trigger
   - trigger (({ open, onToggle }) => ReactNode) — Custom trigger element, wrapped as the popover trigger
+  - picker ("dialog" | "menu") default: "dialog" ("menu" with multiple) — What a press opens on an Android phone (the Plex Android look, 767px or narrower). "dialog" is Android's choice dialog: a radio row for each option, chosen by a press, and Cancel; with multiple, a checkbox row for each option, Cancel and OK. "menu" is the list. iOS and desktop always open the list
+  - title (string) default: the field label (aria-labelledby), else aria-label — Android: the title of the picker dialog
+  - cancelLabel (string) default: "Cancel" — Android: the picker dialog's button that closes it with no change
+  - okLabel (string) default: "OK" — Android: the button of a multiple select's picker dialog that applies the checked rows
   - dropdownIconType ("chevronDown" | "dropdown" | "none") default: "dropdown" — Indicator at the end of the trigger
   - side ("top" | "bottom") default: "bottom" — Preferred side of the list. Without one, on a phone the list opens over its trigger toward the larger part of the screen
   - align ("start" | "center" | "end") default: "end" at the end of a Field row ("start" in a FieldGroup with columns), "center" when block, otherwise "start" — Alignment of the list against the trigger
@@ -5857,7 +5904,7 @@ Props:
     - className (string) — Applied to the control
 
 ### Overview
-On Phone, put a select in a Field row of a FieldGroup, as the Forms: Settings do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, and toward the larger part of the screen. The value is hidden under the list while it is open. The list is an iOS menu, so its rows are the rows of Menu › On a phone: a description is the row's subtitle, and so is a tooltip; the checkmark leads every row whatever checkPosition says, and "none" still leaves it out, so the Overview's Phone view offers "start" and "none" and the other Phone previews leave out that control. It has no search, as an iOS menu has none: a long list scrolls. A clearable select with its default trigger has no clear button there, as an iOS pop-up button has none (a custom trigger owns its clearing): its list leads with a None row in a section of its own, checked while nothing is chosen, and choosing it unsets the value and closes the list, a multiple one too, as Reminders does. noneLabel names the row. Pass the selection as value: a string, or an array of strings with multiple. multiple also changes how onChange and TriggerView are typed: onChange receives the selected option, or every selected option, and TriggerView receives {"{ values, selectedAll }"}. The trigger is a SelectControl: variant, size (the 9-step scale of Button, Input, SelectControl and SegmentedControl), pill and dropdownIconType style it. block stretches it across its container, here the 290px field, and the list takes its width. Without block the trigger fits its value and the list is at least listMinWidth, here 240px, wider than the trigger, so align places it against the trigger. side is the side the list prefers. checkPosition puts the checkmark at the start or the end of a row; "none" leaves the column out. clearable adds a clear action. loading shows loadingPlaceholder and keeps the list closed. disabled disables the select, and a disabled select is not submitted with its form. opticallyAlign offsets the trigger by its gutter: "start" puts the text of a ghost trigger on the label's edge, and "end" puts the end of a block one, its indicator, on the field's end. A framed trigger keeps its gutter, so the example offers the setting for ghost only, and "end" only with block: a narrower trigger does not reach the field's end. On Phone the select is the value of a row in a FieldGroup, with {"block={false}"} and align="end". The row sets its height, insets, type and colors, and the list opens over the value with the checkmark leading. So the Phone preview has no variant, size, pill, block, dropdownIconType, side, align and opticallyAlign controls, and its checkPosition is "start" or "none": the checkmark leads every row, and "none" leaves it out. A clearable select leads its list with a None row instead of a clear button.
+On Phone, put a select in a Field row of a FieldGroup, as the Forms: Settings do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, and toward the larger part of the screen. The value is hidden under the list while it is open. The list is an iOS menu, so its rows are the rows of Menu › On a phone: a description is the row's subtitle, and so is a tooltip; the checkmark leads every row whatever checkPosition says, and "none" still leaves it out, so the Overview's Phone view offers "start" and "none" and the other Phone previews leave out that control. It has no search, as an iOS menu has none: a long list scrolls. A clearable select with its default trigger has no clear button there, as an iOS pop-up button has none (a custom trigger owns its clearing): its list leads with a None row in a section of its own, checked while nothing is chosen, and choosing it unsets the value and closes the list, a multiple one too, as Reminders does. noneLabel names the row. On an Android phone a press opens Android's choice dialog instead of the list, as a value row of an Android settings screen does: the field's label as its title (title sets another), a row with a radio for each option, and Cancel. A press on a row chooses it and closes the dialog; Cancel, Escape or a press outside change nothing. picker="menu" keeps the list. A multiple select keeps the list unless picker="dialog" asks for the dialog: a checkbox in each row, and OK applies them, as in the Notifications example of the Forms: Settings. Pass the selection as value: a string, or an array of strings with multiple. multiple also changes how onChange and TriggerView are typed: onChange receives the selected option, or every selected option, and TriggerView receives {"{ values, selectedAll }"}. The trigger is a SelectControl: variant, size (the 9-step scale of Button, Input, SelectControl and SegmentedControl), pill and dropdownIconType style it. block stretches it across its container, here the 290px field, and the list takes its width. Without block the trigger fits its value and the list is at least listMinWidth, here 240px, wider than the trigger, so align places it against the trigger. side is the side the list prefers. checkPosition puts the checkmark at the start or the end of a row; "none" leaves the column out. clearable adds a clear action. loading shows loadingPlaceholder and keeps the list closed. disabled disables the select, and a disabled select is not submitted with its form. opticallyAlign offsets the trigger by its gutter: "start" puts the text of a ghost trigger on the label's edge, and "end" puts the end of a block one, its indicator, on the field's end. A framed trigger keeps its gutter, so the example offers the setting for ghost only, and "end" only with block: a narrower trigger does not reach the field's end. On Phone the select is the value of a row in a FieldGroup, with {"block={false}"} and align="end". The row sets its height, insets, type and colors, and the list opens over the value with the checkmark leading. So the Phone preview has no variant, size, pill, block, dropdownIconType, side, align and opticallyAlign controls, and its checkPosition is "start" or "none": the checkmark leads every row, and "none" leaves it out. A clearable select leads its list with a None row instead of a clear button.
 ```tsx
 const [currency, setCurrency] = useState("")
 const [currencies, setCurrencies] = useState([])
@@ -7837,6 +7884,9 @@ Props:
   Toolbar.Title:
     - subtitle (ReactNode) default: — — Second, smaller line below the title
     - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
+  Toolbar.Content:
+    - fill (boolean) default: false — Stretch across the row between the leading and trailing items, as a search field does
+    - search (boolean | "auto" | "top" | "bottom") default: — — Marks the content as the screen's search field and sets where it stands, see Search placement. Write it in the bottom bar: "bottom" keeps the field there, "top" makes it a search button of the top bar that opens the field over it, "auto" (or true) is the bottom on iOS and the top on Android
 
 ### Overview
 Toolbar is a phone component: under 768px it renders, from 768px up it takes no space. Each example shows the phone view. Leading and trailing items take 44px targets; an inline title is centered across the whole width. titleStyle sets the size and place of the title: inline in the row of controls, large on a row of its own below them (on a page it stands at the top of the content and scrolls with it, overscroll included; once it has gone under the controls, they show it inline), and compact-large or compact-medium at the leading edge of the row, on a screen with no Back button. subtitle adds a second line under an inline or large title. titleAlign="start" puts an inline title after the leading items. Scroll the content: the bar's background meets the rows under it, and the glass starts to cast a shadow. Toolbar.Group puts related actions in one capsule; a single action, as Back or Close, keeps a capsule of its own. Without Toolbar.Title the bar holds its controls alone. A ButtonGroup in a toolbar is the same capsule. Name each icon button with aria-label. Toolbar.Content fill stretches a search field across the row in the place of the title, up to the trailing items; the field takes the row height and the material of the bar buttons. That is the open search: until a tap opens it, the search waits in a field across a row under the controls (search row) or behind a Search button in the bar (search button), and Close puts it back, as iOS 27.2 raises the field of the bar's drawer into the bar and hides the title and the buttons; a segmented row stays under the open field. A Search button can open its field at the bottom instead (field bottom), as SwiftUI's search button opens it over the keyboard: the field and Close take a bottom bar of their own, the top bar's title and buttons go, and a segmented row moves up in their place. Toolbar.Row adds a row under the controls, part of the bar: a SegmentedControl that switches the screen's views, as a chat list shows its folders under its bar, or a search field. It spans the bar between its gutters, 10px under the controls, and the bar's background and line take it in. Several rows stand in their order, 10px apart: a search field over a segmented control, as iOS 27.2 sets them under the search field of a bar's drawer. A segmented control in it is glass at its default size, as a chat list draws its folders under its bar in iOS 27: a 40px capsule, the gray selection 34px and 3px inside it, 15px labels 12px from their segments' ends. It fills the row: its segments share the width and scroll when they do not fit, and a badge is not drawn, its count staying in the segment's accessible name. size="sm" gives the small plain one (32px, as iOS 27.2 draws a segmented Picker under a bar) and size="lg" the large glass one (48px). A search field in it is the bar's: 44px of glass. Under a large title on a page the rows stand under the title at the top of the content, 16px under its baseline; scrolled up to the bar they stay pinned under its controls, and the bar's background, edge and line reach under them, as iOS 27.2 pins them. placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, whatever the background: iOS 27.2 keeps them in place over every scroll edge, and a band (glass or hard) only starts 10px above them. A search field holds SearchSm, set in Regular; a plus next to it takes iconSize="sm", as Contacts draws it smaller than the other symbols. The page content scrolls under both bars. A screen holds one search field, so with one in the top bar the bottom bar offers neither its own field nor its Search button. background sets how a bar meets the content scrolled under it. glass, the default of a top bar, is a translucent, blurred bar with a hairline. soft, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: once content is under a top bar with a title, a blur hides it under the controls and lets go of it past the bar, under a thin veil of the canvas color (iOS 27.2: 55% at the top, 20% at the bar's bottom, none 24px below), while a top bar of controls alone on a page covers only the status bar, and once content runs on under a bottom bar on a page, a blur hides it under the controls behind a veil of the canvas color that grows toward the screen's edge, with no band and no line (iOS 27.2: none 34px above the items, 15% at their top, 46% from 43px into them); each glass control stands out over it. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a hairline. blur has no fill and no line: the content under the bar is blurred a little over the bar and past it, and heavily toward the screen's edge. Glass, hard and blur show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values. The top and the bottom bar each take their own; the bottom bar's controls stand under the preview.
@@ -8001,6 +8051,37 @@ A search field under the title is a row of the bar: Toolbar.Row holding an Input
 </Page>
 ```
 
+### Search placement
+search on Toolbar.Content marks the screen's search field and sets where it stands. Write the field once, in the bottom bar. "bottom" keeps it there, in reach of the thumb, as iOS 26 places a screen's search. "top" turns it into a search button, first among the top bar's trailing actions and in one capsule with the icon buttons beside it. Pressed, the field grows out of the button to the bar's end, the title and the actions fade, and the leading action becomes a back arrow; the bottom bar, which held only the field, leaves its place. Back or Escape closes the search, clears the field and gives the focus back to the button. "auto", or search alone, is the platform's place: the bottom on iOS, the top in the Plex Android look. The button takes the field's aria-label as its name. In the Plex Android look the open field is a 46px pill of the bar's glass from 58px (the gutter, the back circle and the gap) to 6px from the screen's edge, its text 17px with the hint in a light gray, and it opens over 380ms. In a Sheet the sheet stands at the full screen, with no corners, while the search is open, its bar 5px under the status bar and 6px from the sides, and settles back as the search closes.
+```tsx
+<Page surface="grouped">
+<Toolbar>
+  <Toolbar.Leading>
+    <NavigationButton action="back" />
+  </Toolbar.Leading>
+  <Toolbar.Title>Orders</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
+  </Toolbar.Trailing>
+</Toolbar>
+<Page.Content>...</Page.Content>
+<Toolbar placement="bottom">
+  <Toolbar.Content fill search> {/* "auto"; or search="top", search="bottom" */}
+    <Input
+      variant="soft"
+      pill
+      placeholder="Search"
+      aria-label="Search orders"
+      startAdornment={<SearchSm />}
+      value={query}
+      onChange={(evt) => setQuery(evt.target.value)}
+      onClear={() => setQuery("")}
+    />
+  </Toolbar.Content>
+</Toolbar>
+</Page>
+```
+
 ### Disabled
 A disabled bar button keeps its glass capsule and draws its symbol or label in the tertiary label color, as the iOS 26 bar buttons do. Inside Toolbar.Group the capsule belongs to the group, so the enabled actions next to it keep their look. A prominent action, NavigationButton action="confirm" or a solid primary Button, drops its color for a gray capsule, with a white label in light and a dim one in dark. Cancel and More stay enabled.
 ```tsx
@@ -8011,7 +8092,7 @@ A disabled bar button keeps its glass capsule and draws its symbol or label in t
   </Toolbar.Leading>
   <Toolbar.Title>New order</Toolbar.Title>
   <Toolbar.Trailing>
-    <NavigationButton action="confirm" disabled />
+    <NavigationButton action="confirm" label="Done" disabled />
   </Toolbar.Trailing>
 </Toolbar>
 <Page.Content>...</Page.Content>

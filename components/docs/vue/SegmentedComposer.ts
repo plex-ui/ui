@@ -115,7 +115,7 @@ export const SegmentedComposer = defineComponent({
               h(DialogDescription, { class: 'sr-only' }, () => 'Choose a type, edit its draft, then save the local sample. Cancel discards unsaved changes.'),
               h(DialogHeaderAction, { class: s.Confirm }, () => h(NavigationButton, {
                 action: 'confirm', type: 'submit', form: formId,
-                disabled: !draft.title.trim() || endBeforeStart, 'aria-label': `Save ${mode.value}`,
+                disabled: !draft.title.trim() || endBeforeStart, label: 'Save', 'aria-label': `Save ${mode.value}`,
               })),
             ]),
             h(DialogBody, { class: s.Body }, () => h('form', { id: formId, class: s.Form, onSubmit: confirm }, [

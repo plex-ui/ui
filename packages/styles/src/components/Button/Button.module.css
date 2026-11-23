@@ -1094,10 +1094,14 @@
 }
 
 /* The Plex Android button (@plexui/react-native's Button on Android; its sizes, gutters and label are in
-   android.css). Held, a button shrinks to 98% in 80ms and springs back in 350ms, and shows a layer over its fill:
-   a solid one the list selector (black at 5.9%, white at 5.1% at night), the others their label's color at 10%; the
-   label keeps its color. Disabled, it keeps its fill and its label fades to half. A text button's symbol is 16 in the
-   32 step; an icon-only (uniform) one's is 24 in the 48 step. A glass button (a bar's) keeps its own. */
+   android.css). Held, a button ripples in its own shape (android.css, Android press ripple): a solid one in the list
+   selector (black at 5.9%, white at 5.1% at night), the others in their label's color at 10%, as the reference's
+   buttons; its fill and label keep their colors. A solid, soft or outline one on its own also shrinks to 98% in 80ms
+   and springs back in 350ms, as the reference's large buttons (their scale animator: 0.02, tension 1.2), a bottom
+   bar's too; a small one (icon-only, in a field or a row, or a top bar's item) does not. A glass button (a bar's) ripples in the list selector over its glass.
+   The ripple is drawn on ::after, so the fill and the press layers of ::before stay as they are. Disabled, it keeps
+   its fill and its label fades to half. A text button's symbol is 16 in the 32 step; an icon-only (uniform) one's is
+   24 in the 48 step. */
 @media (max-width: 767px) {
   [data-platform="android"] .Button:not([data-uniform], [data-icon-size]):where([data-size="sm"]) {
     --button-icon-size: 16px;
@@ -1110,24 +1114,43 @@
   [data-platform="android"] .Button[data-variant]:not([data-mobile-material="glass"]) {
     --button-press-text-color: var(--button-text-color);
     --android-button-press: color-mix(in srgb, var(--button-text-color) 10%, transparent);
-
-    transition:
-      opacity var(--transition-duration-basic) var(--transition-ease-basic),
-      color var(--transition-duration-basic) var(--transition-ease-basic),
-      scale 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    --android-ripple-ink: var(--android-button-press);
 
     &[data-variant="solid"] {
       --android-button-press: var(--android-button-solid-press);
     }
   }
 
-  [data-platform="android"] .Button[data-variant]:not([data-mobile-material="glass"], [data-disabled]):active {
-    scale: 0.98;
-    transition-duration: 80ms;
-    transition-timing-function: ease-out;
+  [data-platform="android"] .Button[data-variant]:not([data-disabled])[data-ripple]::after {
+    background-image: var(--android-ripple-image);
+  }
 
-    &::before {
-      background-image: linear-gradient(var(--android-button-press), var(--android-button-press));
+  [data-platform="android"] .Button:is([data-variant="solid"], [data-variant="soft"], [data-variant="outline"]):not([data-mobile-material="glass"], [data-uniform], [data-navigation-action], :where([data-row], [data-slot="input-group"], [data-slot="input"], [data-toolbar]:not([data-placement="bottom"])) *) {
+    transition:
+      opacity var(--transition-duration-basic) var(--transition-ease-basic),
+      color var(--transition-duration-basic) var(--transition-ease-basic),
+      scale 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &:not([data-disabled]):active {
+      scale: 0.98;
+      transition-duration: 80ms;
+      transition-timing-function: ease-out;
+    }
+  }
+
+  /* A ghost button in a field or a row (InputGroup.Button, a row's own small action; not a full-row action) and a
+     ghost icon-only one ripple borderless, as the reference's small buttons (its 20dp circle, no mask): a circle of
+     20px round the button's center, not clipped to the button's box, in the list selector. */
+  [data-platform="android"] .Button[data-variant="ghost"]:not([data-mobile-material="glass"], [data-block]):is([data-uniform], :where([data-row], [data-slot="input-group"], [data-slot="input"]) *) {
+    --android-ripple-radius: 20px;
+    --android-ripple-ink: var(--android-ripple-color);
+
+    /* Pressed only, so the focus ring of an unpressed button keeps the button's shape; round what it shows (a row's
+       button holds its label at the end of its 44px target) */
+    &[data-ripple]::after {
+      inset: calc(50% - 20px);
+      border-radius: 50%;
+      translate: var(--android-ripple-ox, 0px) var(--android-ripple-oy, 0px);
     }
   }
 

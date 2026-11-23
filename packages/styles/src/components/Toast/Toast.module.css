@@ -605,6 +605,7 @@
     }
 
     & > :is(.ActionButton, .CancelButton) {
+      --android-ripple-ink: color-mix(in srgb, var(--android-toast-action) 10%, transparent);
       min-height: 34px;
       margin-inline: 8px !important;
       padding: 8px 12px !important;
@@ -615,8 +616,9 @@
       font-weight: var(--font-weight-medium) !important;
       line-height: 18px;
 
-      &:active {
-        background: color-mix(in srgb, var(--android-toast-action) 10%, transparent) !important;
+      /* Held, it ripples in its own shape (android.css, Android press ripple), in the action's color at 10% */
+      &[data-ripple] {
+        background-image: var(--android-ripple-image) !important;
       }
     }
 

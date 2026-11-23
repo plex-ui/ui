@@ -48,6 +48,10 @@ Props:
   - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in the slot; defaults from size
   - type ("button" | "submit" | "reset") default: "button" — Native button type
   - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
+  NavigationButton:
+    - action ("back" | "close" | "confirm") — Visual role and glyph; the caller owns navigation, dismissal and submission
+    - label (string) default: "Done" — The text of confirm's pill in the Plex Android look: a short word, one or two at most; the accessible name stays in aria-label. iOS shows a check circle and no text
+    - aria-label (string) default: label, or "Back", "Close", "Confirm" — Accessible name: the destination or operation, which may be long
   ButtonLink:
     - default slot (VNode[]) — Content inside the link button
     - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color
@@ -280,7 +284,7 @@ Docs: https://plexui.com/vue/components/floating-label-input
     - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
     - @clear-click (() => void) — Shows a clear button when a value is selected
     - @interact (() => void) — Fires on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
-Examples: Overview, Textarea, Password input, Phone input, Select, Multiple selection, Country select, Label inside
+Examples: Overview, Textarea, Password input, Card of fields, Phone input, Select, Multiple selection, Country select, Label inside
 
 ## Input
 Text input with start and end adornments, a clear button and a password visibility toggle.
@@ -634,6 +638,10 @@ Props:
   - #triggerView / TriggerView (slot | Component) — Custom trigger render: the selected option, or { values, selectedAll } with multiple
   - TriggerStartIcon (Component) — Icon at the start of the trigger
   - #trigger / trigger (slot ({ open, onToggle }) | function) — Custom trigger element, wrapped as the popover trigger
+  - picker ("dialog" | "menu") default: "dialog" ("menu" with multiple) — What a press opens on an Android phone (the Plex Android look, 767px or narrower). "dialog" is Android's choice dialog: a radio row for each option, chosen by a press, and Cancel; with multiple, a checkbox row for each option, Cancel and OK. "menu" is the list. iOS and desktop always open the list
+  - title (string) default: the field label (aria-labelledby), else aria-label — Android: the title of the picker dialog
+  - cancel-label (string) default: "Cancel" — Android: the picker dialog's button that closes it with no change
+  - ok-label (string) default: "OK" — Android: the button of a multiple select's picker dialog that applies the checked rows
   - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Indicator at the end of the trigger
   - side ("top" | "bottom") default: "bottom" — Preferred side of the list. Without one, on a phone the list opens over its trigger toward the larger part of the screen
   - align ("start" | "center" | "end") default: "end" at the end of a Field row ("start" in a FieldGroup with columns), "center" when block, otherwise "start" — Alignment of the list against the trigger
@@ -929,7 +937,10 @@ Props:
   ToolbarTitle:
     - subtitle (string) — Second, smaller line below the title. The subtitle slot takes precedence
     - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
-Examples: Overview, Search under the title, Disabled, Sheet
+  ToolbarContent:
+    - fill (boolean) default: false — Stretch across the row between the leading and trailing items, as a search field does
+    - search (boolean | "auto" | "top" | "bottom") — Marks the content as the screen's search field and sets where it stands, see Search placement. Write it in the bottom bar: "bottom" keeps the field there, "top" makes it a search button of the top bar that opens the field over it, "auto" (or true) is the bottom on iOS and the top on Android
+Examples: Overview, Search under the title, Search placement, Disabled, Sheet
 
 ## Dialog
 Modal dialog for confirmations, forms and destructive alerts, with a focus trap and an overlay scrim.

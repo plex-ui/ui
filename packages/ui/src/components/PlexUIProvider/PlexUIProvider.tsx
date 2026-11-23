@@ -1,6 +1,7 @@
 "use client"
 
 import { type ComponentType, type ForwardRefExoticComponent, type ReactNode, useEffect, useLayoutEffect } from "react"
+import { installAndroidRipple } from "./androidRipple"
 import { PlexUIContext } from "./PlexUIContext"
 
 // The link component's type comes from PlexUIConfig in global.d.ts, which is
@@ -37,6 +38,14 @@ function usePlatformAttribute(platform: PlexUIPlatform) {
   }, [platform])
 }
 
+/** A press ripples in the Android look (androidRipple.ts); the iOS look has no listener. */
+function useAndroidRipple(platform: PlexUIPlatform) {
+  useEffect(() => {
+    if ((platform === "auto" ? detectPlatform() : platform) !== "android") return
+    return installAndroidRipple()
+  }, [platform])
+}
+
 /**
  * Shared context for all Plex UI components - wrap your app in this
  * provider to use Plex UI components.
@@ -56,5 +65,6 @@ export function PlexUIProvider({
   platform?: PlexUIPlatform
 }) {
   usePlatformAttribute(platform)
+  useAndroidRipple(platform)
   return <PlexUIContext.Provider value={{ linkComponent }}>{children}</PlexUIContext.Provider>
 }

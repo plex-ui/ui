@@ -195,10 +195,10 @@
     --segmented-control-option-gutter: 0px;
   }
 
-  /* Keep the visible thumb 40px while each real radio has a 44px touch box. */
+  /* Keep the visible thumb (40px, 28px in the Plex Android look) while each real radio has a 44px touch box. */
   .Composer .Mode [role="radio"] {
     min-height: 44px;
-    margin-block: -2px;
+    margin-block: calc((var(--segmented-control-size) - 2 * var(--segmented-control-gutter) - 44px) / 2);
   }
 
   .Body {

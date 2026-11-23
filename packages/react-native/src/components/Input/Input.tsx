@@ -23,7 +23,7 @@ import { Glass } from "../../internal/Glass"
 import { useRTL } from "../../internal/direction"
 import { springTo, stiffSpring } from "../../internal/motion"
 import { RowEndContext } from "../../internal/row"
-import { barShadow, barSurface, withAlpha, dangerText, stateLayer } from "../../theme/material"
+import { androidGray, barShadow, barSurface, withAlpha, dangerText, stateLayer } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { BarFieldContext, type ControlSize } from "../Button/Button"
@@ -82,8 +82,8 @@ const IOS_FIELD: Record<ControlSize, { height: ControlSize; radius: "sm" | "md" 
 const IOS_RADIUS = { sm: 6, md: 8, lg: 10, xl: 12 }
 const IOS_GAP = { md: 8, lg: 10 }
 
-/** Android's outlined line with focus. */
-const FOCUS_LINE = 1.667
+/** Android's outlined line with focus: 1.5dp (the reference's focused field). */
+const FOCUS_LINE = 1.5
 
 /** Android's idle outlined line: 0.5dp, at least 2 device pixels (1 on a 1x screen). */
 function hairline() {
@@ -188,25 +188,25 @@ export function fieldLook(
         gutter: 18,
       }
     }
-    // Android's fields: `outline` is the outlined field (radius 8, a hairline that thickens to 1.667dp in the accent
-    // on focus, the label floating on the top line), `soft` a field filled with the text color at 5% (the chips' and
-    // sheets' search fields), `ghost` the bare field of a card. The text is 17 with a 38% hint; a field is 50dp (a
-    // row's height), 56 with a label; disabled dims it to 50%. Focused, the line and the label take the accent, its
-    // lighter text in dark mode (#6EB2EF)
+    // Android's fields: `outline` is the outlined field (radius 8, a hairline in a light gray that thickens to 1.5dp in
+    // the accent on focus, the label floating on the top line, the text 16), `soft` a field filled with the text color
+    // at 5% (the chips' and sheets' search fields), `ghost` the bare field of a card (the text 17, 22 in). The hint is
+    // a light gray (#A8A8A8, #7D7D7D at night); a field is 50dp (a row's height), 56 with a label; disabled dims it to
+    // 50%. Focused, the line and the label take the accent, its lighter text in dark mode (#6EB2EF)
     const outlined = variant === "outline"
     const ghost = variant === "ghost"
     const accent = state.invalid ? dangerText(theme) : state.focused ? focusAccent(theme) : null
     const height = label ? 56 : 50
     const radius = pill ? height / 2 : 8
-    // The idle line: a hairline in the text at 16%, 24% in dark mode
-    const idle = withAlpha(m.onSurface, theme.scheme === "dark" ? 0.24 : 0.16)
+    // The idle line: a hairline in a light gray (#DBDBDB), the text at 24% in dark mode
+    const idle = androidGray(theme, "fieldLine")
     const frame: FieldFrame | null = outlined
       ? { outlined: true, color: accent ?? idle, width: state.focused && !state.disabled ? FOCUS_LINE : hairline(), radius }
       : state.invalid
         ? // A field with no line of its own shows an error as Android's underline does: 2dp in the error color
           ghost
           ? { outlined: false, color: dangerText(theme), width: 2, radius: 0 }
-          : { outlined: true, color: dangerText(theme), width: 1.667, radius }
+          : { outlined: true, color: dangerText(theme), width: FOCUS_LINE, radius }
         : null
     const box: ViewStyle = {
       minHeight: height,
@@ -214,13 +214,13 @@ export function fieldLook(
       backgroundColor: variant === "soft" ? withAlpha(m.onSurface, 0.05) : "transparent",
       opacity: state.disabled ? 0.5 : 1,
     }
-    const hint = withAlpha(m.onSurface, 0.38)
+    const hint = androidGray(theme, "hint")
     return {
       box,
       glass: false,
       frame,
       gap: 12,
-      text: { fontSize: 17, lineHeight: 20, color: m.onSurface },
+      text: { fontSize: outlined ? 16 : 17, lineHeight: 20, color: m.onSurface },
       placeholder: hint,
       icon: m.onSurfaceVariant,
       trailingIcon: state.invalid ? dangerText(theme) : m.onSurfaceVariant,
@@ -232,8 +232,8 @@ export function fieldLook(
       clearTarget: 48,
       adornmentOffset: 0,
       height,
-      // A card's bare field stands 21dp in, as a card's edit row; the others 14
-      gutter: ghost ? 21 : 14,
+      // A card's bare field stands 22dp in, as a card's input row; the others 14
+      gutter: ghost ? 22 : 14,
     }
   }
   if (bar) {

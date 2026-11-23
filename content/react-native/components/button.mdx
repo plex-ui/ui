@@ -85,7 +85,7 @@ export const navigationCode = `import { NavigationButton, Toolbar } from "@plexu
   </Toolbar.Leading>
   <Toolbar.Title>New album</Toolbar.Title>
   <Toolbar.Trailing>
-    <NavigationButton action="confirm" accessibilityLabel="Save album" onPress={save} />
+    <NavigationButton action="confirm" accessibilityLabel="Save album" label="Save" onPress={save} />
   </Toolbar.Trailing>
 </Toolbar>`
 
@@ -131,7 +131,7 @@ export const navigationCode = `import { NavigationButton, Toolbar } from "@plexu
 
 <ComponentPreview details={<>
   <p><code>NavigationButton</code> supplies a Back, Close, or Confirm glyph inside the public Button, in the platform's own drawing: the chevron, the cross and the checkmark of iOS 26 in glass, or Material's arrow, close and check icons. The caller owns navigation, dismissal, and submission.</p>
-  <p><code>action</code> is required: <code>"back" | "close" | "confirm"</code>. Accessible names default to Back, Close, and Confirm; set <code>accessibilityLabel</code> for the destination or operation. On iOS Back and Close are the 44pt glass circles of a bar and Confirm is the accent's; on Android, in a bar, Back and Close take a 46dp glass circle and Confirm an accent one, and outside a bar Back and Close are plain icon buttons and Confirm a filled one. An explicit <code>color</code> or <code>variant</code> still overrides them. Its size defaults to <code>"lg"</code>, a bar's item.</p>
+  <p><code>action</code> is required: <code>"back" | "close" | "confirm"</code>. Accessible names default to Back, Close, and Confirm (Android's confirm pill is named by its word); set <code>accessibilityLabel</code> for the destination or operation. On iOS Back and Close are the 44pt glass circles of a bar and Confirm is the accent's; on Android Back and Close take a 46dp glass circle in a bar and are plain icon buttons outside one, and Confirm is a glass text pill of a top bar, in a bottom bar an accent circle. The pill draws <code>label</code>, a short word such as Save or Apply (Done by default), never the <code>accessibilityLabel</code>, which stays the name; iOS draws no text, so <code>label</code> is unused there. An explicit <code>color</code> or <code>variant</code> still overrides them. Its size defaults to <code>"lg"</code>, a bar's item.</p>
 </>} code={navigationCode} previewMinHeight={168}>
   <RNExample demo="button/Navigation" />
 </ComponentPreview>
@@ -142,7 +142,7 @@ export const navigationCode = `import { NavigationButton, Toolbar } from "@plexu
 | --- | --- | --- |
 | Button | Button: a capsule, filled, gray or glass | Button: a pill, filled, tinted, outlined or text |
 | IconButton | A circular button | A circular button; in a bar a 46dp glass circle |
-| NavigationButton | Bar button item: the back chevron, close cross and confirm checkmark in glass circles | The back arrow, close cross and check of a bar, in glass and accent 46dp circles |
+| NavigationButton | Bar button item: the back chevron, close cross and confirm checkmark in glass circles | The back arrow and close cross in 46dp glass circles; confirm a glass text pill (an accent check circle in a bottom bar) |
 
 ## API
 
@@ -168,3 +168,5 @@ export const navigationCode = `import { NavigationButton, Toolbar } from "@plexu
 ]} />
 
 `IconButton` takes the same props without `children`, `uniform` and `block`, plus `icon` (the icon element) and a required `accessibilityLabel`; its variant defaults to `"ghost"`.
+
+`NavigationButton` takes them without `children`, `uniform` and `pill`, plus `action` (`"back" | "close" | "confirm"`, required), `accessibilityLabel` (default Back, Close or Confirm) and `label`: the short word on Android's confirm pill, Done by default (the pill never shows the `accessibilityLabel`); unused on iOS.

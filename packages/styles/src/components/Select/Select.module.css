@@ -703,3 +703,272 @@
     margin-inline-start: auto;
   }
 }
+
+/* =============================================
+  Android's single-choice dialog (`picker="dialog"`)
+============================================= */
+
+/* The Plex Android look of Select's picker dialog (Select.tsx, SelectChoiceDialog): Android's choice dialog, as a value
+   row of the reference messenger's settings opens one (an AlertDialog of RadioColorCell rows, or of CheckBoxCell rows
+   for several choices), measured on its screenshots. It is Dialog's Android alert (Dialog.module.css: 24 from the
+   screen's sides and at most 356 wide, 21px corners, the dim at 50%, the title Medium 20/24 24 in, Cancel an accent
+   text button at the end, OK after it) with rows across its width in place of the message: the title's capitals 26
+   under the panel's top and the first row 56 down (its radio 71), the buttons 8 under the last row (the buttons' 8dp
+   padding). A row is 50 tall: a 20 radio in a 22 frame 22 from the dialog's start (the row's 4 of padding and the
+   radio's 18) and 14 down, the label 16/20 at 55 on one line, 25 from the end (4 and 21); a description 14 in the
+   secondary label (#808384 on the screenshots) 4 under it, its lines 16.4 apart (Android's line for 14sp) and 2 more
+   under the last (the text view's font padding). The empty ring is a light gray (#b3b3b3 on the screenshots), the
+   chosen one the accent with a 10 dot (Android's selection color, as RadioGroup's). A multiple select's row has an 18
+   square with 4px corners in the same frame (CheckBoxSquare): empty, a 1.5 outline of a mid gray (#737373); checked,
+   the accent with a white check 2 wide. A held row is the text at 6%; a row that cannot be chosen is at half. A
+   group's name stands over its rows, Medium 15/20 in the accent's text, 24 in. */
+.ChoiceDialog {
+  /* Top-level selector needs to exist */
+}
+
+.ChoicePanel {
+  /* Top-level selector needs to exist */
+}
+
+.ChoiceHeader {
+  /* Top-level selector needs to exist */
+}
+
+.ChoiceBody {
+  /* Top-level selector needs to exist */
+}
+
+.ChoiceFooter {
+  /* Top-level selector needs to exist */
+}
+
+.ChoiceList {
+  display: flex;
+  flex-direction: column;
+}
+
+.ChoiceGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.ChoiceGroupHeading {
+  padding: 12px 24px 4px;
+  color: var(--android-accent-text, var(--color-text-secondary));
+  font-size: 15px;
+  font-weight: var(--font-weight-medium);
+  line-height: 20px;
+}
+
+.ChoiceRow {
+  display: flex;
+  align-items: flex-start;
+  min-height: 50px;
+  padding-inline: 22px 25px;
+  color: var(--color-text);
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active:not([data-disabled]) {
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: -2px;
+  }
+
+  &[data-disabled] {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+.ChoiceRadio {
+  --select-choice-radio: light-dark(var(--gray-300), var(--gray-500));
+
+  position: relative;
+  display: grid;
+  flex: none;
+  inline-size: 22px;
+  block-size: 22px;
+  margin-top: 14px;
+  place-items: center;
+
+  &::before {
+    width: 20px;
+    height: 20px;
+    box-sizing: border-box;
+    border-radius: var(--radius-full);
+    box-shadow: inset 0 0 0 2px var(--select-choice-radio);
+    content: "";
+    grid-area: 1 / 1;
+  }
+
+  &::after {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-full);
+    background: var(--select-choice-radio);
+    content: "";
+    grid-area: 1 / 1;
+    opacity: 0;
+  }
+
+  .ChoiceRow[aria-checked="true"] > & {
+    --select-choice-radio: var(--color-background-accent-solid);
+
+    &::after {
+      opacity: 1;
+    }
+  }
+}
+
+.ChoiceCheck {
+  --select-choice-check: light-dark(var(--gray-450), var(--gray-550));
+
+  display: grid;
+  flex: none;
+  inline-size: 22px;
+  block-size: 22px;
+  margin-top: 14px;
+  place-items: center;
+
+  &::before {
+    width: 18px;
+    height: 18px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: inset 0 0 0 1.5px var(--select-choice-check);
+    content: "";
+    grid-area: 1 / 1;
+  }
+
+  &::after {
+    width: 18px;
+    height: 18px;
+    background: var(--color-text-accent-solid);
+    content: "";
+    grid-area: 1 / 1;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M4 10l3 3 7-7' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 18px 18px no-repeat;
+    opacity: 0;
+  }
+
+  .ChoiceRow[aria-checked="true"] > & {
+    --select-choice-check: var(--color-background-accent-solid);
+
+    &::before {
+      background: var(--select-choice-check);
+    }
+
+    &::after {
+      opacity: 1;
+    }
+  }
+}
+
+.ChoiceText {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  gap: 4px;
+  margin-inline-start: 11px;
+  padding-block: 15px;
+}
+
+.ChoiceLabel {
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ChoiceDescription {
+  color: var(--mobile-label-secondary, var(--color-text-secondary));
+  font-size: 14px;
+  line-height: 16.4px;
+
+  &:last-child {
+    margin-bottom: 2px;
+  }
+}
+
+/* In Dialog's Android alert the rows run across the panel: no body inset, the title's line 21 under the panel's top
+   and 11 over them (so its capitals stand where the screenshots have them), the buttons 8 under them. The doubled
+   class outweighs the alert's own rules, whatever order the style sheets load in. */
+@media (max-width: 767px) {
+  [data-platform="android"] .ChoiceDialog[data-mobile-variant="alert"] .ChoiceHeader.ChoiceHeader {
+    padding-top: 21px;
+    padding-bottom: 11px;
+  }
+
+  [data-platform="android"] .ChoiceDialog[data-mobile-variant="alert"] .ChoiceBody.ChoiceBody {
+    margin-inline: 0;
+    padding: 0;
+  }
+
+  /* Without a title the rows start 16 down (the custom view's top margin) */
+  [data-platform="android"] .ChoiceDialog[data-mobile-variant="alert"] .ChoiceBody.ChoiceBody:first-child {
+    padding-top: 16px;
+  }
+
+  [data-platform="android"] .ChoiceDialog[data-mobile-variant="alert"] .ChoiceFooter.ChoiceFooter {
+    padding-top: 8px;
+  }
+}
+
+/* Android press ripple. In the Plex Android look a held option of the list ripples as a menu's row (Menu.module.css,
+   android.css, Android press ripple): across the whole row in the menu's selector, the first and last rows rounded to
+   the popup's corners, with no flat fill and no scale; a row of the choice dialog ripples across the dialog in the list
+   selector (black at 5.9%, white at 5.1% at night) in place of its flat fill. */
+@media (max-width: 767px) {
+  [data-platform="android"] .Option {
+    --android-ripple-ink: var(--android-ripple-menu-color);
+  }
+
+  [data-platform="android"] .Option:active::before {
+    opacity: 0;
+  }
+
+  [data-platform="android"] .Option[data-highlight]:active::before {
+    opacity: var(--menu-item-highlight-opacity, 1);
+    transform: none;
+  }
+
+  [data-platform="android"] .Option[data-ripple]:not([data-disabled])::after {
+    position: absolute;
+    inset-block: 0;
+    inset-inline: calc(var(--menu-gutter) - var(--menu-padding-inline, var(--menu-gutter)));
+    background-image: var(--android-ripple-image);
+    content: "";
+    pointer-events: none;
+  }
+
+  [data-platform="android"] .OptionsList:first-child > .Option:first-child::after,
+  [data-platform="android"] .OptionsList:first-child > .NoneSection:first-child > .Option::after {
+    border-start-start-radius: calc(var(--menu-radius) - var(--menu-gutter));
+    border-start-end-radius: calc(var(--menu-radius) - var(--menu-gutter));
+  }
+
+  [data-platform="android"] .OptionsList:last-child > .Option:last-child::after,
+  [data-platform="android"] .OptionsList:last-child > .OptionGroup:last-child > .Option:last-child::after {
+    border-end-start-radius: calc(var(--menu-radius) - var(--menu-gutter));
+    border-end-end-radius: calc(var(--menu-radius) - var(--menu-gutter));
+  }
+
+  [data-platform="android"] .ChoiceRow {
+    --android-ripple-ink: var(--android-ripple-color);
+  }
+
+  [data-platform="android"] .ChoiceRow:active:not([data-disabled]) {
+    background-color: transparent;
+  }
+
+  [data-platform="android"] .ChoiceRow[data-ripple]:not([data-disabled]) {
+    background-image: var(--android-ripple-image);
+  }
+}

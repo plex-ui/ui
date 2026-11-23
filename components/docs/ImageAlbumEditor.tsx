@@ -102,7 +102,7 @@ export function ImageAlbumEditor({
         <NavigationButton action="close" aria-label="Cancel album changes" onClick={cancel} />
     );
     const doneButton = (
-        <NavigationButton action="confirm" type="submit" form={formId} aria-label="Save album" />
+        <NavigationButton action="confirm" type="submit" form={formId} label="Save" aria-label="Save album" />
     );
     // The phone bar of the screen and of the Sheet: Cancel, the title and Save.
     const bar = (

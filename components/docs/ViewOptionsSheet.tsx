@@ -37,7 +37,7 @@ export function ViewOptionsSheet({ open, onOpenChange, value, onValueChange, tri
           <Dialog.Description className="sr-only">Choose how items are sorted and displayed. Changes apply immediately.</Dialog.Description>
           <Dialog.HeaderAction>
             {/* The shared confirm of a bar: the accent capsule and the checkmark of native sheets (IMG_5686). */}
-            <Dialog.Close><NavigationButton action="confirm" aria-label="Done" /></Dialog.Close>
+            <Dialog.Close><NavigationButton action="confirm" label="Done" /></Dialog.Close>
           </Dialog.HeaderAction>
         </Dialog.Header>
         <Dialog.Body>

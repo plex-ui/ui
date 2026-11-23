@@ -13,6 +13,7 @@ export {
   type ToolbarHost,
   type ToolbarPlacement,
   type ToolbarProps,
+  type ToolbarSearchPlacement,
   type ToolbarTitleAlign,
   type ToolbarTitleStyle,
 } from "./Toolbar.js"

@@ -9,7 +9,7 @@ import { DotsHorizontal, Filter, Plus, PlusLg, Search, SearchSm, Share, Tag } fr
 import { Input } from '@plexui/ui/components/Input';
 import { Page } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { Toolbar, type BarBackground, type ToolbarTitleAlign, type ToolbarTitleStyle } from '@plexui/ui/components/Toolbar';
+import { Toolbar, type BarBackground, type ToolbarSearchPlacement, type ToolbarTitleAlign, type ToolbarTitleStyle } from '@plexui/ui/components/Toolbar';
 import { DemoControlBoolean, DemoControlRow, DemoControlSelect, Segments, controlsTableStyle } from './ButtonDemos';
 import { DemoControlsBottom, usePreviewEmbed } from './PreviewEmbed';
 import s from './PageDemos.module.css';
@@ -301,6 +301,76 @@ export function ToolbarSearchLargeTitleDemo() {
   );
 }
 
+/** The orders a search finds, by customer or number, or a line that none match. */
+function SearchRows({ query }: { query: string }) {
+  const needle = query.trim().toLowerCase();
+  const shown = ordersIn('all').filter((order) => !needle || `${order.customer} ${order.number}`.toLowerCase().includes(needle));
+  if (shown.length === 0) return <p className={t.NoMatches}>No orders match “{query.trim()}”.</p>;
+  return (
+    <FieldGroup>
+      {shown.map((order) => (
+        <div key={order.number} data-row className={`${t.Row} ${t.TwoLines}`}>
+          <span className={t.Text}>
+            <span>{order.customer}</span>
+            <span className={t.Detail}>{orderDetail(order)}</span>
+          </span>
+          <span className={t.Value}>{order.total}</span>
+        </div>
+      ))}
+    </FieldGroup>
+  );
+}
+
+// Where a screen's search stands (owner 23.11: a setting): the platform's place, the top bar or the bottom bar
+const SEARCH_PLACEMENTS = ['auto', 'top', 'bottom'] as const satisfies readonly ToolbarSearchPlacement[];
+
+/**
+ * A screen's search, written once in the bottom bar and placed by `search`: the field in the bottom bar (iOS, "auto"),
+ * or a search button in the top bar that opens the field over it (the Plex Android look, "auto"). On Android the button
+ * shares the Filter button's capsule.
+ */
+export function ToolbarSearchPlacementDemo() {
+  const [placement, setPlacement] = useState<ToolbarSearchPlacement>('auto');
+  const [query, setQuery] = useState('');
+  return (
+    <>
+    <div data-demo-controls style={controlsTableStyle}>
+      <DemoControlSelect name="search" options={SEARCH_PLACEMENTS} value={placement} onChange={setPlacement} />
+    </div>
+    <Frame>
+      <Page surface="grouped">
+        <Toolbar>
+          <Toolbar.Leading>
+            <NavigationButton action="back" />
+          </Toolbar.Leading>
+          <Toolbar.Title>Orders</Toolbar.Title>
+          <Toolbar.Trailing>
+            <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
+          </Toolbar.Trailing>
+        </Toolbar>
+        <Page.Content>
+          <SearchRows query={query} />
+        </Page.Content>
+        <Toolbar placement="bottom">
+          <Toolbar.Content fill search={placement}>
+            <Input
+              variant="soft"
+              pill
+              placeholder="Search"
+              aria-label="Search orders"
+              startAdornment={<SearchSm />}
+              value={query}
+              onChange={(evt) => setQuery(evt.target.value)}
+              onClear={() => setQuery('')}
+            />
+          </Toolbar.Content>
+        </Toolbar>
+      </Page>
+    </Frame>
+    </>
+  );
+}
+
 export const BAR_BACKGROUNDS = ['soft', 'hard', 'glass', 'blur'] as const satisfies readonly BarBackground[];
 
 /** One `background` row of the bar demos: a SegmentedControl over the bar backgrounds. */
@@ -348,7 +418,7 @@ export function ToolbarDisabledDemo() {
             </Toolbar.Leading>
             <Toolbar.Title>New order</Toolbar.Title>
             <Toolbar.Trailing>
-              <NavigationButton action="confirm" disabled={disabled} />
+              <NavigationButton action="confirm" label="Done" disabled={disabled} />
             </Toolbar.Trailing>
           </Toolbar>
           <Page.Content>

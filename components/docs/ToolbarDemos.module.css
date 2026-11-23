@@ -15,6 +15,15 @@
   color: var(--mobile-label-secondary, var(--color-text-secondary));
 }
 
+/* What a search that finds no order shows in the list's place */
+.NoMatches {
+  margin: 0;
+  padding-block: 24px;
+  color: var(--mobile-label-secondary, var(--color-text-secondary));
+  font-size: 17px;
+  text-align: center;
+}
+
 /* A row with a line under its label (an order's number and status), as iOS spaces a subtitle row */
 .TwoLines {
   min-height: var(--field-row-description-min-height, var(--field-row-min-height));

@@ -2048,3 +2048,46 @@
     display: none;
   }
 }
+
+/* Android press ripple. Held, a row of the phone's list ripples over its cell (android.css, Android press ripple), in
+   the reference's selector for a card's rows (black at 11.4%), with no flat fill; the card clips the corners, and a
+   selected row keeps its fill under the ripple. The menu button ripples as a small icon button: a borderless circle of
+   20px round its symbol, in the list selector. */
+@media (max-width: 767px) {
+  [data-platform="android"] :is(.MenuButton, .MenuSubButton) {
+    --android-ripple-ink: var(--android-ripple-card-color);
+  }
+
+  [data-platform="android"] :is(.MenuButton, .MenuSubButton):active:not([data-active="true"])::before {
+    opacity: 0;
+  }
+
+  [data-platform="android"] :is(.MenuButton, .MenuSubButton)[data-ripple]::before {
+    background-image: var(--android-ripple-image);
+    transform: none;
+    transition: none;
+  }
+
+  [data-platform="android"] :is(.MenuButton, .MenuSubButton)[data-ripple]:not([data-active="true"])::before {
+    background-color: transparent;
+    opacity: 1;
+  }
+
+  [data-platform="android"] .MobileMenuButton {
+    --android-ripple-radius: 20px;
+  }
+
+  [data-platform="android"] .MobileMenuButton:active:not([data-expanded])::before {
+    opacity: 0;
+  }
+
+  [data-platform="android"] .MobileMenuButton[data-ripple]::after {
+    position: absolute;
+    inset: calc(50% - 20px);
+    border-radius: 50%;
+    background-image: var(--android-ripple-image);
+    content: "";
+    pointer-events: none;
+    translate: var(--android-ripple-ox, 0px) var(--android-ripple-oy, 0px);
+  }
+}

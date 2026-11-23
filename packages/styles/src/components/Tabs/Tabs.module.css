@@ -1077,3 +1077,73 @@
     color: var(--android-tab-selected);
   }
 }
+
+/* Android press ripple. Held, a segment ripples in its own pill and a tab of the underline in its own box (android.css,
+   Android press ripple), in the list selector, as the reference's tabs: the capsule neither grows nor changes its glass
+   and the held label keeps its color, which iOS does (touch.css). */
+@media (max-width: 767px) {
+  [data-platform="android"] .Tabs.Tabs:is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
+    --segmented-control-pressed-scale: 1;
+    --segmented-control-pressed-background: var(--segmented-control-background);
+    --segmented-control-option-pressed-opacity: 1;
+  }
+
+  [data-platform="android"] .Tabs[data-variant="segmented"] .Tab[data-ripple]:not([disabled])::before {
+    inset: 0;
+    background: var(--android-ripple-image);
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  [data-platform="android"] .Tabs[data-variant="underline"] .Tab[data-ripple]:not([disabled]) {
+    background-image: var(--android-ripple-image);
+  }
+}
+
+/* The Plex Android segmented control in a bar (a phone Toolbar, a sheet's header). touch.css gives a bar's control
+   the 48 glass capsule of iOS (and a 40 one in a Toolbar.Row) with rules that outrank the ones above, so these name the
+   root's platform and the bar. In a row of the bar (Toolbar.Row) it is the content's control above, as the reference
+   draws its tabs under a bar. In the bar's own row it is the reference's in-bar capsule: 36 tall and as wide as its
+   labels (a `block` one fills its slot), each segment its label and 12 at both ends, no gap; the selection a 28 pill 4
+   inside it in the screen's gray (android.css, --android-bar-segment-thumb); every label 14 Medium, the selected one in
+   the text and the others in the secondary text. The selection slides as in content, without the lens and the timing
+   of iOS. */
+@media (max-width: 767px) {
+  html[data-platform="android"] [data-toolbar] .Tabs.Tabs[data-variant="segmented"][data-orientation="horizontal"] {
+    --segmented-control-size: 36px;
+    --segmented-control-gutter: 4px;
+    --segmented-control-gap: 0px;
+    --segmented-control-option-gutter: 14px;
+    --segmented-control-font-size: 15px;
+    --segmented-control-line-height: 20px;
+    --segmented-control-font-weight: var(--font-weight-medium);
+    --segmented-control-active-font-weight: var(--font-weight-medium);
+    --segmented-control-background: var(--android-bar-glass);
+    --segmented-control-shadow: var(--android-bar-shadow);
+    --segmented-control-thumb-background: var(--android-segment-thumb);
+    --segmented-control-pressed-scale: 1;
+    --segmented-control-pressed-background: var(--segmented-control-background);
+    --segmented-control-option-pressed-opacity: 1;
+    --segmented-control-thumb-lens-outset: initial;
+  }
+
+  html[data-platform="android"] [data-toolbar] .Tabs.Tabs[data-variant="segmented"][data-orientation="horizontal"]:not([data-toolbar-row] *) {
+    --tabs-equal-segments: 0;
+    --segmented-control-option-gutter: 12px;
+    --segmented-control-font-size: 14px;
+    --segmented-control-line-height: 18px;
+    --segmented-control-thumb-background: var(--android-bar-segment-thumb);
+  }
+
+  html[data-platform="android"] [data-toolbar] .Tabs.Tabs[data-variant="segmented"][data-orientation="horizontal"]:not([data-toolbar-row] *) .Tab[data-state="on"] {
+    color: var(--color-text);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html[data-platform="android"] [data-toolbar] .Tabs.Tabs[data-variant="segmented"][data-orientation="horizontal"] {
+      --tabs-thumb-transition-duration: initial;
+      --tabs-thumb-transition-easing: initial;
+    }
+  }
+}

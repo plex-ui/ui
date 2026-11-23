@@ -312,7 +312,7 @@ const heading = useRef<HTMLDivElement>(null)
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Generate a component</Dialog.Title></div>
             <Dialog.Description className="sr-only">Describe what to build in plain English.</Dialog.Description>
             <Dialog.HeaderAction>
-              <NavigationButton action="confirm" aria-label="Generate" onClick={() => setOpen(false)} />
+              <NavigationButton action="confirm" label="Generate" onClick={() => setOpen(false)} />
             </Dialog.HeaderAction>
           </Dialog.Header>
           <Dialog.Body>

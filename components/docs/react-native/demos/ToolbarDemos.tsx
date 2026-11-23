@@ -437,14 +437,8 @@ export const Disabled = docsDemo(function Disabled() {
               <Toolbar.Leading>{android ? <NavigationButton action="back" /> : <Button variant="ghost">Cancel</Button>}</Toolbar.Leading>
               <Toolbar.Title>New order</Toolbar.Title>
               <Toolbar.Trailing>
-                {/* Android confirms a form with Save, a label in the bar's glass capsule, no accent */}
-                {android ? (
-                  <Button variant="ghost" disabled={disabled}>
-                    Save
-                  </Button>
-                ) : (
-                  <NavigationButton action="confirm" disabled={disabled} />
-                )}
+                {/* Android confirms a form with Save, a short label in the bar's glass capsule, no accent; iOS with the check */}
+                <NavigationButton action="confirm" accessibilityLabel="Save order" label="Save" disabled={disabled} />
               </Toolbar.Trailing>
             </Toolbar>
           )}

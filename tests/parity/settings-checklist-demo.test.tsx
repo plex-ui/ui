@@ -22,6 +22,8 @@ vi.mock("@plexui/ui/components/Menu", async () => import("../../packages/ui/src/
 vi.mock("@plexui/vue/components/Menu", async () => import("../../packages/vue/src/components/Menu"))
 vi.mock("@plexui/ui/components/RadioGroup", async () => import("../../packages/ui/src/components/RadioGroup"))
 vi.mock("@plexui/vue/components/RadioGroup", async () => import("../../packages/vue/src/components/RadioGroup"))
+vi.mock("@plexui/ui/components/Select", async () => import("../../packages/ui/src/components/Select"))
+vi.mock("@plexui/vue/components/Select", async () => import("../../packages/vue/src/components/Select"))
 vi.mock("@plexui/ui/components/Toolbar", async () => import("../../packages/ui/src/components/Toolbar"))
 vi.mock("@plexui/vue/components/Toolbar", async () => import("../../packages/vue/src/components/Toolbar"))
 
@@ -346,5 +348,47 @@ describe.each<Framework>(["React", "Vue"])("%s Settings checklist pages", (frame
     expect(page.getAllByRole("checkbox", { checked: true })).toHaveLength(4)
     expect(document.activeElement).toBe(page.getByRole("heading", { name: "Security alerts" }))
     assertPageOnly()
+  })
+  // The Plex Android look: a row opens Android's choice dialog (Select's picker), as a value row of the reference
+  // messenger's settings does, in place of its page
+  test("on an Android phone a row opens Android's choice dialog in place of its page: radios, or checkboxes with OK", async () => {
+    usePhone()
+    document.documentElement.setAttribute("data-platform", "android")
+    vi.stubGlobal("IntersectionObserver", class { observe() {} unobserve() {} disconnect() {} takeRecords() { return [] } })
+    vi.stubGlobal("matchMedia", (query: string) => Object.assign(new EventTarget(), {
+      media: query, matches: query === "(max-width: 767px)", addListener() {}, removeListener() {},
+    }))
+    try {
+      const page = await mountDemo(framework)
+      await click(page.getByRole("button", { name: "Show previews: Always" }))
+      const single = await waitFor(() => page.getByRole("dialog", { name: "Show previews" }))
+      expect(within(single).getAllByRole("radio").map((radio) => [radio.textContent, radio.getAttribute("aria-checked")])).toEqual([
+        ["Always", "true"], ["When Unlocked", "false"], ["Never", "false"],
+      ])
+      await click(within(single).getByRole("radio", { name: "Never" }))
+      await waitFor(() => expect(page.queryByRole("dialog", { name: "Show previews" })).toBeNull())
+      expect(page.getByRole("button", { name: "Show previews: Never" })).toBeTruthy()
+      expect(document.querySelector("[data-settings-screen]")?.getAttribute("data-settings-screen")).toBe("root")
+
+      await click(page.getByRole("button", { name: /^Security alerts:/ }))
+      const several = await waitFor(() => page.getByRole("dialog", { name: "Security alerts" }))
+      expect(within(several).getAllByRole("checkbox").map((box) => box.getAttribute("aria-checked"))).toEqual(["true", "true", "true", "false"])
+      await click(within(several).getByRole("checkbox", { name: "New devices" }))
+      // Nothing changes before OK
+      expect(document.querySelector('[data-setting="activity"]')?.getAttribute("aria-label"))
+        .toBe("Security alerts: New sign-ins, Password changes, and Recovery requests")
+      await click(within(several).getByRole("button", { name: "OK" }))
+      await waitFor(() => expect(page.queryByRole("dialog", { name: "Security alerts" })).toBeNull())
+      expect(page.getByRole("button", { name: "Security alerts: New sign-ins, Password changes, Recovery requests, and New devices" })).toBeTruthy()
+
+      await click(page.getByRole("button", { name: "Delivery: Email" }))
+      const delivery = await waitFor(() => page.getByRole("dialog", { name: "Delivery" }))
+      await click(within(delivery).getByRole("checkbox", { name: "Push notifications" }))
+      await click(within(delivery).getByRole("button", { name: "Cancel" }))
+      await waitFor(() => expect(page.queryByRole("dialog", { name: "Delivery" })).toBeNull())
+      expect(page.getByRole("button", { name: "Delivery: Email" })).toBeTruthy()
+    } finally {
+      document.documentElement.removeAttribute("data-platform")
+    }
   })
 })

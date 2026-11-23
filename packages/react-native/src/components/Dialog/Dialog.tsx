@@ -2,6 +2,7 @@ import { useId, useState, type ReactNode } from "react"
 import { Animated, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Glass } from "../../internal/Glass"
+import { useRipple } from "../../internal/ripple"
 import { useKeyboardHeight } from "../../internal/keyboard"
 import { androidDialogMotion, canTransformGlass, glassOpacity, iosDim, Overlay, ANDROID_DIALOG, ANDROID_DIM } from "../../internal/Overlay"
 import { withAlpha, dangerText } from "../../theme/material"
@@ -42,7 +43,7 @@ export type DialogProps = {
 /**
  * A dialog that asks for a decision: on iOS the alert of iOS 26 (UIAlertController `.alert`: 320 wide, glass, radius
  * 34, capsule actions 48 tall, `--dialog-alert-*`, Dialog.module.css), on Android a flat alert (at most 356 wide,
- * radius 20, a Medium 20 title over 16 text, text buttons in the accent at the end, Android's dialog animation). The
+ * radius 21, a Medium 20 title over 16 text, text buttons in the accent at the end, Android's dialog animation). The
  * web Dialog's `mobileVariant="alert"` as one call; a sheet is `BottomSheet`.
  */
 export function Dialog({ open, onOpenChange, title, description, actions = [], children, mobileLayout, dismissible, testID }: DialogProps) {
@@ -183,8 +184,11 @@ export type ChoiceDialogProps = {
   onClose: () => void
   /** The setting's name, over the rows. */
   title?: ReactNode
-  /** The one button, which closes the dialog. */
+  /** The button that closes the dialog with no change (the one button of a single choice). */
   cancelLabel: string
+  /** A multiple choice's button after Cancel, which applies the rows checked (`onOk`) and closes the dialog. */
+  okLabel?: string
+  onOk?: () => void
   /** The rows, across the dialog's whole width; they scroll under the title when the screen is short. */
   children: ReactNode
   /** Props for the element that holds the rows (its role and name). */
@@ -193,10 +197,11 @@ export type ChoiceDialogProps = {
 }
 
 /**
- * Android's single-choice alert (one option picked from a list): the dialog's panel, its title,
- * rows across its width and one Cancel button. Select's picker on Android; not part of the public API.
+ * Android's choice alert: the dialog's panel, its title and rows across its width; one Cancel button for a single
+ * choice (a row picks and closes), Cancel and OK at the end, 8 apart, for a multiple one (the rows check, OK applies).
+ * Select's picker on Android; not part of the public API.
  */
-export function ChoiceDialog({ open, onClose, title, cancelLabel, children, listProps, testID }: ChoiceDialogProps) {
+export function ChoiceDialog({ open, onClose, title, cancelLabel, okLabel, onOk, children, listProps, testID }: ChoiceDialogProps) {
   const theme = useTheme()
   const ids = { title: useId(), description: useId() }
   const a11y =
@@ -213,7 +218,14 @@ export function ChoiceDialog({ open, onClose, title, cancelLabel, children, list
       <AndroidDialog
         theme={theme}
         title={title}
-        actions={[{ label: cancelLabel, testID: testID ? `${testID}-cancel` : undefined }]}
+        actions={
+          okLabel != null
+            ? [
+                { label: cancelLabel, variant: "cancel", testID: testID ? `${testID}-cancel` : undefined },
+                { label: okLabel, preferred: true, onPress: onOk, testID: testID ? `${testID}-ok` : undefined },
+              ]
+            : [{ label: cancelLabel, testID: testID ? `${testID}-cancel` : undefined }]
+        }
         run={run}
         ids={ids}
         list={<View {...listProps}>{children}</View>}
@@ -366,27 +378,14 @@ function AndroidDialog({ theme, title, description, actions, run, ids, children,
   const order = stacked ? [...bar.keys()].reverse() : [...bar.keys()]
   const button = (index: number) => {
     const action = bar[index]
-    // Android's dialog button: Medium 16 in the accent, red for a destructive one, half faded when
-    // disabled; its press a pill of the label's color at 10%
-    const color = action.variant === "destructive" ? dangerText(theme) : m.primary
     return (
-      <Pressable
+      <AndroidDialogButton
         key={actions.indexOf(action)}
-        accessibilityRole="button"
-        accessibilityState={{ disabled: !!action.disabled }}
-        disabled={action.disabled}
-        onPress={() => run(action)}
-        onLayout={(event) => {
-          const next = event.nativeEvent.layout.width
-          setWidths((current) => (current[index] === next ? current : Object.assign([...current], { [index]: next })))
-        }}
-        testID={action.testID}
-        style={({ pressed }) => [styles.androidButton, { opacity: action.disabled ? 0.5 : 1 }, pressed ? { backgroundColor: withAlpha(color, 0.1) } : null]}
-      >
-        <Text color={color} style={[styles.androidLabel, { ...theme.font("medium") }]}>
-          {action.label}
-        </Text>
-      </Pressable>
+        theme={theme}
+        action={action}
+        run={run}
+        onWidth={(next) => setWidths((current) => (current[index] === next ? current : Object.assign([...current], { [index]: next })))}
+      />
     )
   }
   return (
@@ -417,7 +416,7 @@ function AndroidDialog({ theme, title, description, actions, run, ids, children,
         </ScrollView>
       )}
       {bar.length ? (
-        <View onLayout={(event) => setRoom(event.nativeEvent.layout.width - 16)} style={stacked ? styles.androidStack : [styles.androidActions, list != null ? styles.androidListActions : null]}>
+        <View onLayout={(event) => setRoom(event.nativeEvent.layout.width - 16)} style={stacked ? styles.androidStack : styles.androidActions}>
           {order.map((index) =>
             // The neutral actions at the start, a space, then the negative and the positive
             !stacked && index === neutral.length && neutral.length ? [<View key="space" style={styles.grow} />, button(index)] : button(index),
@@ -425,6 +424,36 @@ function AndroidDialog({ theme, title, description, actions, run, ids, children,
         </View>
       ) : null}
     </View>
+  )
+}
+
+/**
+ * Android's dialog button: Medium 16 in the accent, red for a destructive one, half faded when disabled; its press the
+ * ripple of the label's color at 10% from the touch point, clipped to its 20dp pill (the platform's on a device).
+ */
+function AndroidDialogButton({ theme, action, run, onWidth }: { theme: Theme; action: DialogAction; run: (action: DialogAction) => void; onWidth: (width: number) => void }) {
+  const color = action.variant === "destructive" ? dangerText(theme) : theme.material.primary
+  const press = withAlpha(color, 0.1)
+  const nativeRipple = Platform.OS === "android"
+  const ripple = useRipple(press, !nativeRipple, theme.reducedMotion)
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !!action.disabled }}
+      disabled={action.disabled}
+      onPress={() => run(action)}
+      onPressIn={nativeRipple ? undefined : ripple.start}
+      onPressOut={nativeRipple ? undefined : ripple.end}
+      android_ripple={nativeRipple ? { color: press, foreground: true } : undefined}
+      onLayout={(event) => onWidth(event.nativeEvent.layout.width)}
+      testID={action.testID}
+      style={[styles.androidButton, { opacity: action.disabled ? 0.5 : 1 }]}
+    >
+      {ripple.layer}
+      <Text color={color} style={[styles.androidLabel, { ...theme.font("medium") }]}>
+        {action.label}
+      </Text>
+    </Pressable>
   )
 }
 
@@ -441,21 +470,22 @@ const styles = StyleSheet.create({
   grow: { flex: 1, flexBasis: 0 },
   centered: { textAlign: "center" },
   iosAction: { alignItems: "center", justifyContent: "center", paddingVertical: 13, paddingHorizontal: 16, borderCurve: "continuous" },
-  // Android's alert: 20dp corners; the text 24 in, the title 19 from the top and 10 over the message, the
-  // message 20 over the buttons
-  android: { flexShrink: 1, borderRadius: 20, overflow: "hidden" },
-  androidText: { paddingHorizontal: 24, paddingTop: 19, paddingBottom: 20, gap: 10 },
+  // Android's alert: 21dp corners (the catalog's); the text 24 in. Measured on the reference's alerts: the title's
+  // baseline 40 under the top, the message's first 33 under it in lines 18.75 apart (16sp Roboto's), its last 59
+  // over the buttons' (Roboto's font padding sets these 2 to 3 lower than the layout's 19, 10 and 20 would)
+  android: { flexShrink: 1, borderRadius: 21, overflow: "hidden" },
+  androidText: { paddingHorizontal: 24, paddingTop: 21, paddingBottom: 21, gap: 13 },
   androidTitle: { fontSize: 20, lineHeight: 24 },
-  // Over a list the title keeps its 24 at the sides and 19 above, and stands 14 over the rows
-  androidListTitle: { paddingHorizontal: 24, paddingTop: 19, paddingBottom: 14 },
+  // Over a list the title keeps its 24 at the sides, its line 21 under the panel's top (its capitals 25 under it and
+  // its baseline 40, as the reference's) and 11 over the rows, which start 56 under the top (the first radio at 71), as
+  // the web's
+  androidListTitle: { paddingHorizontal: 24, paddingTop: 21, paddingBottom: 11 },
   // A list with no title starts 8 under the panel's top
   androidListTop: { paddingTop: 8 },
-  androidMessage: { fontSize: 16, lineHeight: 22 },
+  androidMessage: { fontSize: 16, lineHeight: 18.75 },
   androidContent: { marginTop: 6 },
-  // The button row: 52 tall (6 over and under its 40dp buttons), 8 in from the sides
-  androidActions: { flexDirection: "row", justifyContent: "flex-end", alignItems: "center", gap: GAP, paddingHorizontal: 8, paddingVertical: 6 },
-  // Under a list of choices the row is 56: 8 over and under the buttons (measured on the platform's single-choice dialog)
-  androidListActions: { paddingVertical: 8 },
+  // The button row: 56 tall (8 over and under its 40dp buttons, measured on the reference's alerts), 8 in from the sides
+  androidActions: { flexDirection: "row", justifyContent: "flex-end", alignItems: "center", gap: GAP, paddingHorizontal: 8, paddingVertical: 8 },
   // Stacked: 8 over and under the 40dp buttons (two make 96)
   androidStack: { alignItems: "flex-end", paddingHorizontal: 8, paddingVertical: 8 },
   // Android's dialog button: 40 tall, at least 64 wide, 12 at the sides; at least 40, so a larger font grows it
@@ -467,6 +497,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
+    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
   },

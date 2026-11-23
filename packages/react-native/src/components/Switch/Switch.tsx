@@ -3,6 +3,7 @@ import { Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type Vie
 import { spaceToggles, useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"
 import { RowEndContext, RowHoldContext, rowHold } from "../../internal/row"
+import { androidGray } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { SelectionColor, Theme } from "../../theme/types"
 
@@ -43,18 +44,18 @@ export function iosCheckmarkColor(theme: Theme) {
 }
 
 /**
- * The gray of an Android off switch and of the dots past the choice of a stepped slider: #A6ADB3 on white, #606060 at
- * night. The nearest neutral grays: --gray-300 (#AFAFAF) and, at night, --gray-500 (#5D5D5D).
+ * The gray of an Android off switch and of the dots past the choice of a stepped slider: #A7ADB2 on white, --gray-500
+ * (#5D5D5D) at night, as the web's `--android-switch-off`.
  */
 export function androidSwitchOff(theme: Theme) {
-  return theme.color(theme.scheme === "dark" ? "--gray-500" : "--gray-300")
+  return androidGray(theme, "switchOff")
 }
 
 /** Android's default ease-in-out (AccelerateDecelerateInterpolator), which an ObjectAnimator runs by default. */
 export const androidEaseInOut = Easing.inOut(Easing.sin)
 
-/** A List row on Android ends 20dp in from the card's edge: a control at its end moves in from there. */
-export const ANDROID_ROW_END = 20
+/** A List row on Android ends 21dp in from the card's edge (`--list-row-inset`): a control at its end moves in from there. */
+export const ANDROID_ROW_END = 21
 /** A switch row: the switch's 37dp view stands 22dp in from the row's end. */
 const ANDROID_SWITCH_END = 22
 
@@ -71,7 +72,7 @@ function useSwitchProgress(theme: Theme, checked: boolean) {
 
 /**
  * A switch: the iOS 26 switch of the phone layer (a 63x28 track, a 37x24 capsule thumb, `--switch-*`), or Android's
- * (a 31x14dp track and a 20dp thumb over it, a ring of the track's color around a 16dp knob of the card's color, the
+ * (a 31x14dp track and a 20.6dp thumb over it, a 2dp ring of the track's color around a knob of the card's color, the
  * track's color changing as the thumb moves; a 50dp switch row, the label 11dp from the switch). Props follow
  * @plexui/ui.
  */
@@ -210,10 +211,15 @@ function IOSTrack({ theme, checked, disabled, color, progress, held = false }: T
   )
 }
 
-/** Android's switch: its view 37x20dp, the track 31x14 in it, the thumb's center 7 to 24 along the track. */
+/**
+ * Android's switch: its view 37x20dp, the track 31x14 in it, the 20.6dp thumb (a 2dp ring) reaching 3dp past the
+ * track's ends, its center 7.3 to 23.7 along the track (the reference: 31.2x14.1, a 20.6 thumb with a 1.9 ring).
+ */
 const ANDROID_VIEW = { width: 37, height: 20 }
 const ANDROID_TRACK = { width: 31, height: 14 }
 const ANDROID_START = (ANDROID_VIEW.width - ANDROID_TRACK.width) / 2
+const ANDROID_THUMB = 20.6
+const ANDROID_RING = 2
 
 function AndroidTrack({ theme, color, progress }: TrackProps) {
   // The knob is the card's color (the white of a card); the track off the gray of an off switch, on the selection
@@ -222,8 +228,8 @@ function AndroidTrack({ theme, color, progress }: TrackProps) {
   const off = androidSwitchOff(theme)
   const on = selectionColor(theme, color)
   const track = progress.interpolate({ inputRange: [0, 1], outputRange: [off, on] })
-  // The thumb's left edge: its 20dp circle centered 7 and 24 along the track (mirrored in a right-to-left row)
-  const start = progress.interpolate({ inputRange: [0, 1], outputRange: [ANDROID_START + 7 - 10, ANDROID_START + 24 - 10] })
+  // The thumb's start edge: 3dp before the track's start off, 3dp past its end on (mirrored in a right-to-left row)
+  const start = progress.interpolate({ inputRange: [0, 1], outputRange: [ANDROID_START - 3, ANDROID_START + ANDROID_TRACK.width + 3 - ANDROID_THUMB] })
   return (
     <View style={styles.androidView}>
       <Animated.View style={[styles.androidTrack, { backgroundColor: track }]} />
@@ -238,10 +244,18 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", alignSelf: "stretch" },
   grow: { flex: 1, minWidth: 0 },
   dim: { opacity: 0.5 },
-  // The row ends 20dp in; Android's switch stands 22dp in
+  // The row ends 21dp in; Android's switch stands 22dp in
   androidRowEnd: { marginEnd: ANDROID_SWITCH_END - ANDROID_ROW_END },
   androidView: { width: ANDROID_VIEW.width, height: ANDROID_VIEW.height, justifyContent: "center" },
   androidTrack: { position: "absolute", start: ANDROID_START, top: (ANDROID_VIEW.height - ANDROID_TRACK.height) / 2, width: ANDROID_TRACK.width, height: ANDROID_TRACK.height, borderRadius: ANDROID_TRACK.height / 2 },
-  androidThumb: { position: "absolute", top: 0, width: 20, height: 20, borderRadius: 10, alignItems: "center", justifyContent: "center" },
-  androidKnob: { width: 16, height: 16, borderRadius: 8 },
+  androidThumb: {
+    position: "absolute",
+    top: (ANDROID_VIEW.height - ANDROID_THUMB) / 2,
+    width: ANDROID_THUMB,
+    height: ANDROID_THUMB,
+    borderRadius: ANDROID_THUMB / 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  androidKnob: { width: ANDROID_THUMB - 2 * ANDROID_RING, height: ANDROID_THUMB - 2 * ANDROID_RING, borderRadius: ANDROID_THUMB / 2 - ANDROID_RING },
 })

@@ -101,7 +101,7 @@ export const ImageAlbumEditor = defineComponent({
             action: 'close', 'aria-label': 'Cancel album changes', onClick: cancel,
         });
         const doneButton = () => h(NavigationButton, {
-            action: 'confirm', type: 'submit', form: formId, 'aria-label': 'Save album',
+            action: 'confirm', type: 'submit', form: formId, label: 'Save', 'aria-label': 'Save album',
         });
         const desktopActions = () => [
             h(Button, { type: 'button', color: 'secondary', variant: 'soft', onClick: cancel }, () => 'Cancel'),

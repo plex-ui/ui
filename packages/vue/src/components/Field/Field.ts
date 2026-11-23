@@ -10,6 +10,9 @@ import {
   h,
   isVNode,
   mergeProps,
+  onBeforeUnmount,
+  onMounted,
+  onUpdated,
   useId,
   type PropType,
   type SlotsType,
@@ -19,7 +22,7 @@ import {
 } from "vue"
 import type { ControlSize } from "@plexui/styles/types"
 import { FieldError } from "../FieldError/index.js"
-import { provideFieldRow } from "../../lib/fieldRow.js"
+import { blankPlaceholder, provideFieldRow } from "../../lib/fieldRow.js"
 import { hasContent } from "../../lib/slotContent.js"
 import s from "@plexui/styles/components/Field/Field.module.css"
 
@@ -198,7 +201,12 @@ const FieldComponent = defineComponent({
     size: String as PropType<ControlSize>,
     /** Shows a required asterisk after the label. Visual only: no `required` attribute. @default false */
     required: { type: Boolean, default: false },
-    /** Layout direction of label and control. @default "horizontal" on a `row` with a visible label, else "vertical" */
+    /**
+     * Layout direction of label and control. In the Plex Android look a vertical `row` whose control is
+     * an Input or a Textarea is a field of an input card: the label stands in the empty field as its hint and floats
+     * over the value once the field has the focus or a value, with a line under the field.
+     * @default "horizontal" on a `row` with a visible label, else "vertical"
+     */
     orientation: String as PropType<"vertical" | "horizontal">,
     /** One line of a FieldGroup. Its non-interactive area focuses the text editor or activates the choice control or popup trigger. @default false */
     row: { type: Boolean, default: false },
@@ -227,6 +235,26 @@ const FieldComponent = defineComponent({
     let forwardingRowClick = false
 
     provideFieldRow(() => !!props.row && (props.orientation ?? (props.hideLabel ? "vertical" : "horizontal")) === "horizontal")
+
+    // In the Plex Android look a text field under its shown label floats the label in its place while it is empty
+    let blankControlId = ""
+    let blankActive = false
+    let blank: ReturnType<typeof blankPlaceholder> | null = null
+    const syncBlank = () => {
+      if (blankActive && !blank) {
+        blank = blankPlaceholder(() => blankControlId)
+        blank.start()
+      } else if (!blankActive && blank) {
+        blank.stop()
+        blank = null
+      } else blank?.sync()
+    }
+    onMounted(syncBlank)
+    onUpdated(syncBlank)
+    onBeforeUnmount(() => {
+      blank?.stop()
+      blank = null
+    })
 
     return () => {
       const { required, row, opticallyAlign } = props
@@ -268,6 +296,8 @@ const FieldComponent = defineComponent({
         resolvedChildren = child ? [cloneWithFieldProps(child, { ...fieldChildProps, id: controlId }, labelId)] : nodes
       }
       const size = props.size ?? (CONTROL_SIZES.has(childSize) ? (childSize as ControlSize) : "md")
+      blankControlId = controlId
+      blankActive = !!row && orientation === "vertical" && !props.hideLabel
 
       const icon = row && slots.icon ? slots.icon() : null
       const labelAction = slots.labelAction ? slots.labelAction() : props.labelAction

@@ -462,17 +462,42 @@
     margin-top: calc(var(--field-group-stack-spacing, 0) * (var(--field-group-gap, 35px) - 35px));
   }
 
-  /* A full-row action is a list row: held, it shows the list selector over the whole row and does not shrink, as a
-     Button does on its own (Button.module.css) */
+  /* A row of the card ripples in the ink of a card's row, black at 4.7% (android.css, Android press ripple). A
+     full-row action is such a row: held, it ripples over the whole row (the Button draws it on its ::after), to the
+     card's corners on the first and last rows, with no flat fill under it. */
+  [data-platform="android"] .Body > :is([data-row], [data-sortable] > [data-row], [data-swipe-actions] [data-row]) {
+    --android-ripple-ink: var(--android-ripple-card-color);
+  }
+
   [data-platform="android"] .Body > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
   [data-platform="android"] .Body > [data-sortable] > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
   [data-platform="android"] .Body > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"],
   [data-platform="android"] .Body > [data-sortable] > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"] {
-    --android-button-press: var(--field-row-press-background);
+    --android-button-press: var(--android-ripple-card-color);
+    --button-press-fill-opacity: 0;
+    /* Nor a tint of its color: the layer under the ripple is clear at rest, held and while its popup opens, which a
+       colored ghost (a danger or an info row) would otherwise fade through as it changes state */
+    --button-background-color: transparent;
+  }
 
-    &:active {
-      scale: none;
-    }
+  [data-platform="android"] .Body > [data-row]:first-child > :is(button, a)[data-block][data-variant="ghost"]::after,
+  [data-platform="android"] .Body > [data-sortable]:first-child > [data-row]:first-child > :is(button, a)[data-block][data-variant="ghost"]::after,
+  [data-platform="android"] .Body > [data-row]:first-child > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"]::after {
+    border-start-start-radius: var(--field-group-radius);
+    border-start-end-radius: var(--field-group-radius);
+  }
+
+  [data-platform="android"] .Body > [data-row]:last-child > :is(button, a)[data-block][data-variant="ghost"]::after,
+  [data-platform="android"] .Body > [data-sortable]:last-child > [data-row]:last-child > :is(button, a)[data-block][data-variant="ghost"]::after,
+  [data-platform="android"] .Body > [data-row]:last-child > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"]::after {
+    border-end-start-radius: var(--field-group-radius);
+    border-end-end-radius: var(--field-group-radius);
+  }
+
+  [data-platform="android"] .FieldGroup:has(> .Header) > .Body > [data-row]:first-child > :is(button, a)[data-block][data-variant="ghost"]::after,
+  [data-platform="android"] .FieldGroup:has(> .Header) > .Body > [data-sortable]:first-child > [data-row]:first-child > :is(button, a)[data-block][data-variant="ghost"]::after {
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
   }
 }
 

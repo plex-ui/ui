@@ -462,3 +462,27 @@
     box-shadow: var(--android-bar-shadow);
   }
 }
+
+/* Android press ripple. Held, Close ripples as the reference's small icon buttons, a borderless circle of 20px round its
+   symbol in the list selector, and an action as a text button, in its own pill in its color at 10%, without the scale
+   of a large button (android.css, Android press ripple; Button.module.css). */
+@media (max-width: 767px) {
+  [data-platform="android"] .Tip > .Close[data-variant][data-uniform] {
+    --android-ripple-radius: 20px;
+    --android-ripple-ink: var(--android-ripple-color);
+  }
+
+  [data-platform="android"] .Tip > .Close[data-variant][data-ripple]::after {
+    inset: calc(50% - 20px);
+    border-radius: 50%;
+    translate: var(--android-ripple-ox, 0px) var(--android-ripple-oy, 0px);
+  }
+
+  [data-platform="android"] .Tip:not([data-mobile-actions="buttons"]) > .Actions > [data-variant][data-variant] {
+    --android-ripple-ink: color-mix(in srgb, var(--tip-action-color, var(--color-text)) 10%, transparent);
+
+    &:active {
+      scale: none;
+    }
+  }
+}

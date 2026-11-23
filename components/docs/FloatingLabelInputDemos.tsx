@@ -302,6 +302,49 @@ export function FloatingLabelInputPasswordDemo() {
   );
 }
 
+/** Several fields of one form, a proxy server's settings. On a phone they are the rows of one FieldGroup, each with its
+ * label over its value (a vertical row): on iOS the label above the value, on Android an input card, where the label
+ * stands in the empty field, floats over the value and a line runs under each field. */
+export function FloatingLabelInputCardDemo() {
+  const phone = usePhoneRows();
+  const [proxy, setProxy] = useState({ server: '', port: '1080', username: '', password: '' });
+  const update = (key: keyof typeof proxy) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setProxy((current) => ({ ...current, [key]: value }));
+  };
+
+  if (phone) {
+    return (
+      <PhoneRowsStage>
+        <FieldGroup footer={<p>Ask your network administrator for these settings.</p>}>
+          <Field row orientation="vertical" label="Server">
+            <Input inputMode="url" autoCapitalize="none" value={proxy.server} onChange={update('server')} />
+          </Field>
+          <Field row orientation="vertical" label="Port">
+            <Input inputMode="numeric" value={proxy.port} onChange={update('port')} />
+          </Field>
+          <Field row orientation="vertical" label="Username">
+            <Input autoCapitalize="none" autoComplete="username" value={proxy.username} onChange={update('username')} />
+          </Field>
+          <Field row orientation="vertical" label="Password">
+            <Input type="password" autoComplete="current-password" value={proxy.password} onChange={update('password')} />
+          </Field>
+        </FieldGroup>
+      </PhoneRowsStage>
+    );
+  }
+  return (
+    <div data-demo-stage className="py-10">
+      <div className="flex w-[360px] flex-col gap-3">
+        <FloatingLabelInput label="Server" inputMode="url" autoCapitalize="none" value={proxy.server} onChange={update('server')} />
+        <FloatingLabelInput label="Port" inputMode="numeric" value={proxy.port} onChange={update('port')} />
+        <FloatingLabelInput label="Username" autoCapitalize="none" autoComplete="username" value={proxy.username} onChange={update('username')} />
+        <FloatingLabelInput label="Password" type="password" autoComplete="current-password" value={proxy.password} onChange={update('password')} />
+      </div>
+    </div>
+  );
+}
+
 type FloatingLabelValuePreset = 'empty' | 'filled' | 'custom';
 
 const LABEL_PLACEMENT_OPTIONS = ['border', 'inside'] as const;

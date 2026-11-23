@@ -19,6 +19,8 @@ import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { useFieldColumns, useFieldRow, useFieldRowPill } from "../../lib/fieldRow"
 import { keepMovedFocus, preventDefaultHandler, toCssVariables, waitForAnimationFrame } from "../../lib/helpers"
+import { Button } from "../Button"
+import { Dialog } from "../Dialog"
 import { Check, Info, Search } from "../Icon"
 import type { ControlSize } from "../../types"
 import { Input } from "../Input"
@@ -293,6 +295,30 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
    */
   checkPosition?: 'start' | 'end' | 'none'
   trigger?: (props: { open: boolean; onToggle: () => void }) => ReactNode
+  /**
+   * What a press opens on Android: the Plex Android look (`data-platform="android"` on the document's root) in a
+   * window 767px wide or narrower. `dialog`, Android's choice dialog: the setting's name over a row for each option,
+   * and Cancel. With one choice a row has a radio, and a press on it chooses it and closes the dialog; a `multiple`
+   * select has a checkbox in each row and OK, which applies the rows checked. `menu`, the popup of the options. iOS
+   * and a desktop always open the menu.
+   * @default "dialog", or "menu" for a `multiple` select
+   */
+  picker?: "dialog" | "menu"
+  /**
+   * Android: the title of the picker dialog (`picker="dialog"`), the setting's name.
+   * @default the field's label (`aria-labelledby`), else `aria-label`
+   */
+  title?: string
+  /**
+   * Android: the button that closes the picker dialog (`picker="dialog"`) with no change.
+   * @default Cancel
+   */
+  cancelLabel?: string
+  /**
+   * Android: the button of a `multiple` select's picker dialog (`picker="dialog"`) that applies the rows checked.
+   * @default OK
+   */
+  okLabel?: string
 }
 
 type SingleSelectContextValue<T extends Option> = {
@@ -359,6 +385,13 @@ type SelectContextValue<T extends Option> = (
   checkPosition: 'start' | 'end' | 'none'
   // Custom trigger
   trigger?: (props: { open: boolean; onToggle: () => void }) => ReactNode
+  /** A press on Android opens the choice dialog: `picker="dialog"` (the default for one choice), a phone-wide window */
+  choiceDialog: boolean
+  title?: string
+  cancelLabel: string
+  okLabel: string
+  /** A `multiple` select's dialog applies its checked rows at once (OK) */
+  onValuesRef: React.MutableRefObject<(values: string[]) => void>
 }
 
 const SelectContext = createContext<SelectContextValue<Option> | null>(null)
@@ -434,6 +467,10 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     searchEmptyMessage = "No results found.",
     trigger,
     checkPosition = 'start',
+    picker,
+    title,
+    cancelLabel = "Cancel",
+    okLabel = "OK",
   } = props
   const pill = useFieldRowPill(pillProp)
   const listPill = listPillProp ?? pill
@@ -472,6 +509,10 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     } else {
       onChange(selectedOption)
     }
+  })
+  const onValuesRef = useLatestValue((nextValues: string[]) => {
+    if (!multiple || disabled || loading) return
+    onChange(getOptionsByValues(options, nextValues))
   })
 
   const searchPredicateRef = useRef<SearchPredicate<T>>(searchPredicate)
@@ -514,6 +555,11 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
   // the search.
   // A custom trigger owns its clearing, so only the default one gives its clear button to the row.
   const noneRow = clearable && phone && !trigger
+  // On Android a single choice opens Android's single-choice dialog, as a value row of the reference messenger's settings
+  // does, unless `picker="menu"` asks for the popup; a multiple choice keeps the menu, where it picks several, unless
+  // `picker="dialog"` asks for the dialog of checkboxes. The window decides, as for the search; the platform is read as
+  // the press opens it (isAndroidLook).
+  const choiceDialog = phone && (multiple ? picker === "dialog" : picker !== "menu")
 
   // A block menu matches its field. An inline one, or one at the end of a Field row, fits its
   // options: no narrower than its trigger (the CSS fallback reads the trigger width), no wider than 300px.
@@ -591,6 +637,11 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       disabled,
       trigger,
       checkPosition,
+      choiceDialog,
+      title,
+      cancelLabel,
+      okLabel,
+      onValuesRef,
     }),
     [
       dynamicContextProps,
@@ -639,6 +690,11 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       disabled,
       trigger,
       checkPosition,
+      choiceDialog,
+      title,
+      cancelLabel,
+      okLabel,
+      onValuesRef,
     ],
   )
 
@@ -829,6 +885,13 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
 // ============================================================
 // Custom Select
 // ============================================================
+type SelectPresentation = {
+  /** On Android: the single-choice dialog in place of the list */
+  dialog: boolean
+  /** The field's label as the dialog opened, its default title */
+  label: string | undefined
+}
+
 const CustomSelect = () => {
   const {
     loading,
@@ -842,9 +905,15 @@ const CustomSelect = () => {
     listMaxWidth,
     trigger,
     listPill,
+    choiceDialog,
+    "aria-labelledby": ariaLabelledBy,
   } = useSelectContext()
-  const [open, setOpen] = useState<boolean>(false)
-  const floatingBoundary = useFloatingBoundary(open && avoidCollisions, { bottom: 30, top: 30 })
+  const [open, setOpenState] = useState<boolean>(false)
+  // What this opening shows: the list (the menu), or on Android the single-choice dialog. Decided as it opens and kept
+  // until the next opening, so a closing dialog leaves as the dialog.
+  const [presentation, setPresentation] = useState<SelectPresentation>({ dialog: false, label: undefined })
+  const menuOpen = open && !presentation.dialog
+  const floatingBoundary = useFloatingBoundary(menuOpen && avoidCollisions, { bottom: 30, top: 30 })
   const selectContentRef = useRef<HTMLDivElement>(null)
   // The trigger element, the default one or a custom `trigger` (which has no `triggerId`)
   const popoverTriggerRef = useRef<HTMLButtonElement>(null)
@@ -865,14 +934,14 @@ const CustomSelect = () => {
   // Only in a phone-wide window, where the list is laid out as on a phone (Select.module.css)
   const [cover, setCover] = useState<MenuTriggerCover | null>(null)
   useLayoutEffect(() => {
-    if (!open || !triggerElement) return
+    if (!menuOpen || !triggerElement) return
     return observeMenuTriggerCover(triggerElement, setCover, { windowOnly: true })
-  }, [open, triggerElement])
+  }, [menuOpen, triggerElement])
   // The covered trigger is hidden while the list is open, and shown again as it closes, before focus returns to it
   useLayoutEffect(() => {
-    if (!open || !cover || !triggerElement || !contentElement) return
+    if (!menuOpen || !cover || !triggerElement || !contentElement) return
     return markCoveredMenuTrigger(triggerElement, contentElement)
-  }, [open, cover, triggerElement, contentElement])
+  }, [menuOpen, cover, triggerElement, contentElement])
   // A mouse opens the list as its button goes down, so on a phone the list is under it when the button comes up: that
   // release chooses nothing while it is over the trigger, as in Menu
   useEffect(() => {
@@ -896,12 +965,21 @@ const CustomSelect = () => {
     }
   }, [])
 
+  // An opening decides what it shows: on Android, as the press opens it, the single-choice dialog, titled by the
+  // field's label as it reads then
+  const present = useCallback(() => {
+    const doc = popoverTriggerRef.current?.ownerDocument ?? document
+    const dialog = choiceDialog && isAndroidLook(doc)
+    setPresentation({ dialog, label: dialog ? labelledByText(doc, ariaLabelledBy) : undefined })
+  }, [choiceDialog, ariaLabelledBy])
+
   const handleOpenChange = useCallback((maybeNextState?: boolean) => {
     clearTimeout(focusRestoreTimer.current)
     // Toggle the current state when called without a specific state
     const nextState = maybeNextState === undefined ? !open : maybeNextState
     if (nextState && (disabled || loading)) return
-    setOpen(nextState)
+    if (nextState && !open) present()
+    setOpenState(nextState)
 
     // When we're closing, manage focus back to trigger manually
     if (!nextState) {
@@ -924,19 +1002,21 @@ const CustomSelect = () => {
         }
       })
     }
-  }, [disabled, loading, open])
+  }, [disabled, loading, open, present])
 
   // Forget the open request when availability changes, so re-enabling does not
   // reopen an old menu. Radix's exit autofocus below handles this close.
-  if (open && (disabled || loading)) setOpen(false)
+  if (open && (disabled || loading)) setOpenState(false)
 
-  useEscCloseStack(open, () => {
+  // The dialog closes on Escape itself
+  useEscCloseStack(menuOpen, () => {
     handleOpenChange(false)
   })
 
   return (
+    <>
     <Popover.Root
-      open={open}
+      open={menuOpen}
       onOpenChange={(nextState) => {
         // Prevent opening while loading
         if (loading && nextState) {
@@ -948,11 +1028,15 @@ const CustomSelect = () => {
       modal={false}
     >
       <Popover.Trigger asChild ref={setTrigger}>
-        {trigger ? trigger({ open, onToggle: () => { if (!disabled && !loading) setOpen((current) => !current) } }) : <SelectTrigger onOpenChange={handleOpenChange} />}
+        {trigger ? trigger({ open, onToggle: () => {
+          if (disabled || loading) return
+          if (!open) present()
+          setOpenState((current) => !current)
+        } }) : <SelectTrigger onOpenChange={handleOpenChange} />}
       </Popover.Trigger>
       <Popover.Portal forceMount>
         <TransitionGroup className={s.Menu} {...overlayTiming} overlay>
-          {open && (
+          {menuOpen && (
             <Popover.Content
               key="dropdown"
               ref={setContent}
@@ -994,6 +1078,269 @@ const CustomSelect = () => {
         </TransitionGroup>
       </Popover.Portal>
     </Popover.Root>
+    {/* Mounted from the first opening that shows it, so a page of selects that never open one has no dialog */}
+    {presentation.dialog && (
+      <SelectChoiceDialog
+        open={open}
+        label={presentation.label}
+        onClose={() => handleOpenChange(false)}
+        triggerRef={popoverTriggerRef}
+        focusRestoreRef={focusRestoreRef}
+      />
+    )}
+    </>
+  )
+}
+
+// ============================================================
+// Android's single-choice dialog
+// ============================================================
+
+/**
+ * The Plex Android look is on: android.css draws it from the root's `data-platform`, and only there are its tokens
+ * set, so the dialog follows the root.
+ */
+const isAndroidLook = (doc: Document) => doc.documentElement.getAttribute("data-platform") === "android"
+
+/** The text of the elements `aria-labelledby` names: the field's label */
+const labelledByText = (doc: Document, ids: string | undefined) => {
+  const text = (ids ?? "")
+    .split(/\s+/)
+    .map((id) => (id ? doc.getElementById(id)?.textContent?.trim() : ""))
+    .filter(Boolean)
+    .join(" ")
+  return text || undefined
+}
+
+type SelectChoiceDialogProps = {
+  open: boolean
+  /** The field's label, the title when there is no `title` */
+  label: string | undefined
+  onClose: () => void
+  triggerRef: React.RefObject<HTMLElement | null>
+  focusRestoreRef: React.RefObject<ReturnType<typeof createFocusRestore> | null>
+}
+
+/** The row that takes focus as the dialog opens */
+const FIRST_CHOICE_FOCUS = '[role="radio"][tabindex="0"], [role="checkbox"][tabindex="0"]'
+
+/**
+ * Android's choice dialog (a value row of the reference messenger's settings: AlertDialog with a list of
+ * RadioColorCell rows, or of CheckBoxCell rows for several choices): the alert of Dialog (Dialog.module.css draws its
+ * Android look) with the setting's name, a row for each option across its width, and Cancel. With one choice a press
+ * on a row chooses it and closes the dialog; with several a press checks or unchecks its row and OK applies them.
+ * Cancel, Escape or a press outside close it with no change. Focus starts on the chosen row and returns to the trigger.
+ */
+const SelectChoiceDialog = ({ open, label, onClose, triggerRef, focusRestoreRef }: SelectChoiceDialogProps) => {
+  return (
+    <Dialog open={open} onOpenChange={(next) => { if (!next) onClose() }}>
+      <Dialog.Content
+        mobileVariant="alert"
+        showClose={false}
+        className={s.ChoicePanel}
+        rootProps={{ className: s.ChoiceDialog }}
+        data-select-dialog=""
+        // The chosen row takes focus, else the first that can be chosen
+        onOpenAutoFocus={(event) => {
+          event.preventDefault()
+          const container = event.target instanceof HTMLElement ? event.target : null
+          const row = container?.querySelector<HTMLElement>(FIRST_CHOICE_FOCUS)
+          row?.focus({ preventScroll: true })
+          row?.scrollIntoView({ block: "nearest" })
+        }}
+        // Focus returns to the trigger, unless it moved on outside the dialog
+        onCloseAutoFocus={(event) => {
+          keepMovedFocus(event)
+          const trigger = triggerRef.current
+          if (!event.defaultPrevented && trigger) focusRestoreRef.current?.restore(trigger)
+          event.preventDefault()
+        }}
+      >
+        <SelectChoiceContent label={label} onClose={onClose} />
+      </Dialog.Content>
+    </Dialog>
+  )
+}
+
+/**
+ * The dialog's title, rows and buttons, mounted with each opening: the choice they show is the value as it opened,
+ * and a multiple select's checked rows are kept here until OK applies them
+ */
+const SelectChoiceContent = ({ label, onClose }: { label: string | undefined; onClose: () => void }) => {
+  const {
+    multiple, value, title, "aria-label": ariaLabel, cancelLabel, okLabel, actions, onActionSelect, onValuesRef,
+  } = useSelectContext()
+  const name = title ?? label ?? ariaLabel
+  const [checked, setChecked] = useState<string[]>(() => (multiple ? [...value] : []))
+  return (
+    <>
+      {name && (
+        <Dialog.Header className={s.ChoiceHeader}>
+          <Dialog.Title>{name}</Dialog.Title>
+        </Dialog.Header>
+      )}
+      <Dialog.Body className={s.ChoiceBody}>
+        <SelectChoiceRows name={name} onChoose={onClose} checked={checked} onCheckedChange={setChecked} />
+      </Dialog.Body>
+      <Dialog.Footer className={s.ChoiceFooter}>
+        {/* The list's actions are the dialog's buttons, before Cancel */}
+        {actions.map((action) => (
+          <Button key={action.id} color="secondary" variant="soft" onClick={() => { onActionSelect(action.id); onClose() }}>
+            {action.label}
+          </Button>
+        ))}
+        <Dialog.Close>
+          <Button color="secondary" variant="soft">{cancelLabel}</Button>
+        </Dialog.Close>
+        {multiple && (
+          <Button color="secondary" variant="soft" onClick={() => { onValuesRef.current(checked); onClose() }}>
+            {okLabel}
+          </Button>
+        )}
+      </Dialog.Footer>
+    </>
+  )
+}
+
+type SelectChoiceRowsProps = {
+  name: string | undefined
+  /** One choice: a row was chosen */
+  onChoose: () => void
+  /** Several choices: the rows checked, applied by OK */
+  checked: string[]
+  onCheckedChange: (checked: string[]) => void
+}
+
+const SelectChoiceRows = ({ name, onChoose, checked, onCheckedChange }: SelectChoiceRowsProps) => {
+  const { multiple, options, value, noneRow, noneLabel, onSelectRef } = useSelectContext()
+  // Kept for this opening, so the radio does not move while the dialog leaves
+  const [openingValue] = useState(() => value)
+  const opening = Array.isArray(openingValue) ? openingValue : [openingValue]
+  const noneChosen = noneRow && !opening.some((item) => hasChosenOption(options, item))
+  const chosen = opening.map((item) => getOptionByValue(options, item)).find((option) => option && !option.disabled)
+  // The tab stop and the first focus: the chosen row (the first checked), else the first that can be chosen
+  const focusValue = noneChosen
+    ? NONE_OPTION_VALUE
+    : chosen ? chosen.value : noneRow ? NONE_OPTION_VALUE : getFirstValidOption(options)?.value
+
+  const choose = (option: Option, none: boolean) => {
+    if (multiple) {
+      // The None row unchecks every row; another row checks or unchecks itself
+      if (none) onCheckedChange([])
+      else onCheckedChange(checked.includes(option.value) ? checked.filter((item) => item !== option.value) : [...checked, option.value])
+      return
+    }
+    // The None row unsets the value, as the clear button does
+    onSelectRef.current(none ? { value: "", label: "" } : option)
+    onChoose()
+  }
+
+  // The arrows move focus through the rows that can be chosen, round from the last to the first; a row is chosen
+  // (or checked) by a press, Enter or Space
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.defaultPrevented || event.nativeEvent.isComposing) return
+    const rows = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(
+      ':is([role="radio"], [role="checkbox"]):not([aria-disabled="true"])',
+    ))
+    if (!rows.length) return
+    const index = rows.indexOf(document.activeElement as HTMLElement)
+    let next: HTMLElement | undefined
+    switch (event.key) {
+      case "ArrowDown":
+      case "ArrowRight":
+        next = rows[(index + 1) % rows.length]
+        break
+      case "ArrowUp":
+      case "ArrowLeft":
+        next = rows[index <= 0 ? rows.length - 1 : index - 1]
+        break
+      case "Home":
+        next = rows[0]
+        break
+      case "End":
+        next = rows[rows.length - 1]
+        break
+      default:
+        return
+    }
+    event.preventDefault()
+    next?.focus({ preventScroll: true })
+    next?.scrollIntoView({ block: "nearest" })
+  }
+
+  const row = (option: Option, none = false) => (
+    <SelectChoiceRow
+      key={none ? NONE_OPTION_VALUE : option.value}
+      option={option}
+      none={none}
+      checked={multiple
+        ? (none ? checked.length === 0 : checked.includes(option.value))
+        : (none ? noneChosen : option.value === openingValue)}
+      focusable={(none ? NONE_OPTION_VALUE : option.value) === focusValue}
+      onChoose={() => choose(option, none)}
+    />
+  )
+
+  return (
+    <div className={s.ChoiceList} role={multiple ? "group" : "radiogroup"} aria-label={name} onKeyDown={handleKeyDown}>
+      {noneRow && row({ value: NONE_OPTION_VALUE, label: noneLabel }, true)}
+      {isOptionGroupArray(options)
+        ? options.map((group) => <SelectChoiceGroup key={group.label} group={group} row={row} />)
+        : options.map((option) => row(option))}
+    </div>
+  )
+}
+
+const SelectChoiceGroup = ({ group, row }: { group: OptionGroup<Option>; row: (option: Option) => ReactNode }) => {
+  const headingId = useId()
+  return (
+    <div role="group" aria-labelledby={headingId} className={s.ChoiceGroup}>
+      <div id={headingId} className={s.ChoiceGroupHeading}>{group.label}</div>
+      {group.options.map((option) => row(option))}
+    </div>
+  )
+}
+
+type SelectChoiceRowProps = {
+  option: Option
+  none: boolean
+  checked: boolean
+  /** The list's one tab stop */
+  focusable: boolean
+  onChoose: () => void
+}
+
+/**
+ * A row of the dialog (RadioColorCell): 50 tall, a 20 radio in a 22 frame 22 in and 14 down, the label 16/20 at 55,
+ * one line, a description 14 in the secondary text 4 under it. The chosen radio is the accent, with a dot. A multiple
+ * select's row has an 18 checkbox in that frame (CheckBoxCell's square), the accent with a check when checked.
+ */
+const SelectChoiceRow = ({ option, none, checked, focusable, onChoose }: SelectChoiceRowProps) => {
+  const { multiple, OptionView } = useSelectContext()
+  const { disabled, description, tooltip } = option
+  return (
+    <div
+      className={s.ChoiceRow}
+      role={multiple ? "checkbox" : "radio"}
+      aria-checked={checked}
+      aria-disabled={disabled || undefined}
+      data-disabled={disabled ? "" : undefined}
+      tabIndex={focusable ? 0 : -1}
+      onClick={() => { if (!disabled) onChoose() }}
+      onKeyDown={(event) => {
+        if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return
+        event.preventDefault()
+        if (!disabled) onChoose()
+      }}
+    >
+      <span className={multiple ? s.ChoiceCheck : s.ChoiceRadio} aria-hidden="true" />
+      <div className={s.ChoiceText}>
+        <div className={s.ChoiceLabel}>{none ? option.label : <OptionView {...option} />}</div>
+        {description && <div className={s.ChoiceDescription}>{description}</div>}
+        {/* A dialog has no tooltips: the tooltip is the row's second line, as in a phone's list */}
+        {tooltip && <div className={s.ChoiceDescription}>{tooltip.content}</div>}
+      </div>
+    </div>
   )
 }
 

@@ -100,7 +100,7 @@ export function SegmentedComposer({ surface = 'grouped', pinnedOpen = false }: {
             <Dialog.Description className="sr-only">Choose a type, edit its draft, then save the local sample. Cancel discards unsaved changes.</Dialog.Description>
             <Dialog.HeaderAction className={s.Confirm}>
               <NavigationButton action="confirm" type="submit" form={formId}
-                disabled={!draft.title.trim() || endBeforeStart} aria-label={`Save ${mode}`} />
+                disabled={!draft.title.trim() || endBeforeStart} label="Save" aria-label={`Save ${mode}`} />
             </Dialog.HeaderAction>
           </Dialog.Header>
           <Dialog.Body className={s.Body}>

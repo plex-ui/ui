@@ -75,7 +75,7 @@ For a sheet use [Bottom Sheet](/react-native/components/bottom-sheet), for a cho
 <span id="text-field" />
 
 <ComponentPreview details={<>
-  <p>Dialog is the web Dialog's <code>mobileVariant="alert"</code> as one call with props: a short question and its answers. On iOS it is the alert of iOS 26 and UIAlertController, a 320pt glass panel with radius 34 whose actions are 48pt capsules, and a tap outside does nothing. On Android it is a white panel (dark gray at night) at most 356dp wide with 20dp corners over a 50% dim, and a tap outside or Back closes it. It comes in growing from 90% of its size over 220ms as it fades in over 150ms, and leaves the same way back.</p>
+  <p>Dialog is the web Dialog's <code>mobileVariant="alert"</code> as one call with props: a short question and its answers. On iOS it is the alert of iOS 26 and UIAlertController, a 320pt glass panel with radius 34 whose actions are 48pt capsules, and a tap outside does nothing. On Android it is a white panel (dark gray at night) at most 356dp wide with 21dp corners over a 50% dim, and a tap outside or Back closes it. It comes in growing from 90% of its size over 220ms as it fades in over 150ms, and leaves the same way back.</p>
   <p>One alert with every setting. One, two or three actions: two stand side by side with Cancel first, as iOS sets them, and three or more stack in the order written, as the web's alert does; <code>mobileLayout="stacked"</code> stacks two, for long labels. The main action is <code>preferred</code> (semibold white on the accent, with the edge of a bar's prominent button), plain (on the alert's fill), or <code>variant="destructive"</code> (a red label on the alert's fill). A title without a message stands centered. A field, the dialog's children, asks for one short value: a 48pt capsule on iOS, its text selected when it takes focus, and Rename unavailable (<code>disabled</code>) while it is empty. On the web the alert itself takes the first focus as it opens, so the field raises no keyboard and no button shows a focus ring. Label actions in title case, as iOS does.</p>
   <p>On Android the title stands at the start in Medium 20 and the message in 16sp, and every action is a text button in the accent, Medium 16, red when it is destructive and faded to half when disabled. The <code>preferred</code> action, or else the last that is not a cancel, stands last at the end of the row with a cancel before it, and any other action stands at the start of the row. Buttons that do not fit side by side stack at the end, the preferred one on top, so <code>mobileLayout</code> is iOS's alone. A field is Input's outlined field.</p>
   <p>Any action closes the dialog after its <code>onPress</code>, unless it sets <code>keepOpen</code>. As the React page's phone preview, the alert here opens with the phone's screen.</p>
@@ -88,7 +88,7 @@ For a sheet use [Bottom Sheet](/react-native/components/bottom-sheet), for a cho
 | | iOS 26 | Android |
 | --- | --- | --- |
 | Native component | Alert | Dialog |
-| Look | Glass panel with capsule actions | A white (night: dark gray) panel with 20dp corners, text buttons in the accent at the end |
+| Look | Glass panel with capsule actions | A white (night: dark gray) panel with 21dp corners, text buttons in the accent at the end |
 
 iOS calls its sheets dialogs too; for a sheet use [Bottom Sheet](/react-native/components/bottom-sheet).
 

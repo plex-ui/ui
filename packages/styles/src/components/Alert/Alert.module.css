@@ -517,8 +517,17 @@
       inset: 12px;
     }
 
-    &:active {
-      opacity: 0.5;
+    /* Held, it ripples as the reference's small icon buttons: a borderless circle of 20px round its symbol, in the
+       list selector (android.css, Android press ripple; over the Button's own ink), and does not fade */
+    &[data-variant][data-uniform] {
+      --android-ripple-radius: 20px;
+      --android-ripple-ink: var(--android-ripple-color);
+    }
+
+    &[data-ripple]::after {
+      inset: calc(50% - 20px);
+      border-radius: 50%;
+      translate: var(--android-ripple-ox, 0px) var(--android-ripple-oy, 0px);
     }
   }
 }

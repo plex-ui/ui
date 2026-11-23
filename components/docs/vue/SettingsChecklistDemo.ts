@@ -1,4 +1,4 @@
-import { defineComponent, h, ref, watch, type PropType, type VNode } from 'vue';
+import { defineComponent, h, onBeforeUnmount, onMounted, ref, watch, type PropType, type VNode } from 'vue';
 import { Button, NavigationButton } from '@plexui/vue/components/Button';
 import { Checkbox } from '@plexui/vue/components/Checkbox';
 import { Field } from '@plexui/vue/components/Field';
@@ -6,6 +6,7 @@ import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { Disclosure } from '@plexui/vue/components/Icon';
 import { Menu, MenuCheckboxItem, MenuContent, MenuRadioGroup, MenuRadioItem, MenuTrigger } from '@plexui/vue/components/Menu';
 import { RadioGroup, RadioGroupItem } from '@plexui/vue/components/RadioGroup';
+import { Select } from '@plexui/vue/components/Select';
 import { DropdownIcon } from '@plexui/vue/components/SelectControl';
 import { Toolbar, ToolbarLeading, ToolbarTitle } from '@plexui/vue/components/Toolbar';
 import { TransitionGroup } from '@plexui/vue/components/Transition';
@@ -39,6 +40,18 @@ export const SettingsChecklistDemo = defineComponent({
     const contentRoot = ref<HTMLElement | null>(null);
     const title = ref<HTMLElement | null>(null);
     let savedScroll = 0;
+    // The Plex Android look is on: the docs' Android switch (PreviewEmbed) and PlexUIProvider set it on the document's
+    // root. On an Android phone a row opens Android's choice dialog (Select's picker) in place of its screen.
+    const android = ref(false);
+    let platformObserver: MutationObserver | undefined;
+    onMounted(() => {
+      const root = document.documentElement;
+      const read = () => { android.value = root.getAttribute('data-platform') === 'android'; };
+      read();
+      platformObserver = new MutationObserver(read);
+      platformObserver.observe(root, { attributes: true, attributeFilter: ['data-platform'] });
+    });
+    onBeforeUnmount(() => platformObserver?.disconnect());
 
     watch(active, (current, previous) => {
       const content = contentRoot.value ?? stage.value?.querySelector<HTMLElement>('[data-settings-content]');
@@ -66,6 +79,10 @@ export const SettingsChecklistDemo = defineComponent({
     // One choice replaces the selection; the page stays, as Settings keeps its list open after a pick.
     const choose = (id: SettingId, value: string | null) => {
       if (value !== null) selection.value = { ...selection.value, [id]: [value] };
+    };
+    // Several choices applied at once (the Android dialog's OK)
+    const apply = (id: SettingId, values: string[]) => {
+      selection.value = { ...selection.value, [id]: values };
     };
     const toggle = (id: SettingId, value: string, checked: boolean) => {
       const values = selection.value[id];
@@ -108,8 +125,21 @@ export const SettingsChecklistDemo = defineComponent({
             : h(FieldGroup, { title: desktopRoot ? 'Notifications' : undefined, 'aria-label': desktopRoot ? undefined : 'Notification settings' }, () =>
                 checklistSettings.map((item) => {
                   const summary = checklistSummary(item, selection.value[item.id]);
-                  return h('div', { key: item.id, 'data-row': '' }, [phone
-                    ? row(item.id, item.label, summary, item.disabled, () => h(Disclosure, { class: s.Disclosure, 'data-no-autosize': '' }), () => open(item.id))
+                  const disclosure = () => h(Disclosure, { class: s.Disclosure, 'data-no-autosize': '' });
+                  return h('div', { key: item.id, 'data-row': '' }, [phone && android.value && !item.disabled
+                    // Android: the row opens the setting's choice dialog in place of its screen
+                    ? h(Select, {
+                        options: item.options, title: item.label,
+                        trigger: ({ onToggle }: { onToggle: () => void }) => row(item.id, item.label, summary, item.disabled, disclosure, onToggle),
+                        ...(item.single
+                          ? { value: selection.value[item.id][0] ?? '', onChange: (option: { value: string }) => choose(item.id, option.value) }
+                          : {
+                              multiple: true, picker: 'dialog', value: selection.value[item.id],
+                              onChange: (options: { value: string }[]) => apply(item.id, options.map((option) => option.value)),
+                            }),
+                      })
+                    : phone
+                    ? row(item.id, item.label, summary, item.disabled, disclosure, () => open(item.id))
                     : h(Menu, null, () => [
                       h(MenuTrigger, null, () => row(item.id, item.label, summary, item.disabled, () => h(DropdownIcon, { iconType: 'dropdown' }))),
                       h(MenuContent, { align: 'end' }, () => item.single

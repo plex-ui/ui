@@ -7,6 +7,7 @@ metaDescription: "React phone toolbar in the iOS 26 style: top and bottom bars w
 import {
   ToolbarOverviewDemo,
   ToolbarSearchLargeTitleDemo,
+  ToolbarSearchPlacementDemo,
   ToolbarDisabledDemo,
   ToolbarSheetDemo,
 } from "@/components/docs/ToolbarDemos"
@@ -195,6 +196,40 @@ const closeSearch = () => {
   <ToolbarSearchLargeTitleDemo />
 </ComponentPreview>
 
+### Search placement
+
+<ComponentPreview phoneOnly details={<>
+  <p><code>search</code> on <code>Toolbar.Content</code> marks the screen's search field and sets where it stands. Write the field once, in the bottom bar. <code>"bottom"</code> keeps it there, in reach of the thumb, as iOS 26 places a screen's search. <code>"top"</code> turns it into a search button, first among the top bar's trailing actions and in one capsule with the icon buttons beside it. Pressed, the field grows out of the button to the bar's end, the title and the actions fade, and the leading action becomes a back arrow; the bottom bar, which held only the field, leaves its place. Back or Escape closes the search, clears the field and gives the focus back to the button. <code>"auto"</code>, or <code>search</code> alone, is the platform's place: the bottom on iOS, the top in the Plex Android look. The button takes the field's <code>aria-label</code> as its name.</p>
+  <p>In the Plex Android look the open field is a 46px pill of the bar's glass from 58px (the gutter, the back circle and the gap) to 6px from the screen's edge, its text 17px with the hint in a light gray, and it opens over 380ms. In a Sheet the sheet stands at the full screen, with no corners, while the search is open, its bar 5px under the status bar and 6px from the sides, and settles back as the search closes.</p>
+</>} code={`<Page surface="grouped">
+  <Toolbar>
+    <Toolbar.Leading>
+      <NavigationButton action="back" />
+    </Toolbar.Leading>
+    <Toolbar.Title>Orders</Toolbar.Title>
+    <Toolbar.Trailing>
+      <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
+    </Toolbar.Trailing>
+  </Toolbar>
+  <Page.Content>...</Page.Content>
+  <Toolbar placement="bottom">
+    <Toolbar.Content fill search> {/* "auto"; or search="top", search="bottom" */}
+      <Input
+        variant="soft"
+        pill
+        placeholder="Search"
+        aria-label="Search orders"
+        startAdornment={<SearchSm />}
+        value={query}
+        onChange={(evt) => setQuery(evt.target.value)}
+        onClear={() => setQuery("")}
+      />
+    </Toolbar.Content>
+  </Toolbar>
+</Page>`}>
+  <ToolbarSearchPlacementDemo />
+</ComponentPreview>
+
 ### Disabled
 
 <ComponentPreview phoneOnly details={<>A disabled bar button keeps its glass capsule and draws its symbol or label in the tertiary label color, as the iOS 26 bar buttons do. Inside <code>Toolbar.Group</code> the capsule belongs to the group, so the enabled actions next to it keep their look. A prominent action, <code>NavigationButton action="confirm"</code> or a solid primary Button, drops its color for a gray capsule, with a white label in light and a dim one in dark. Cancel and More stay enabled.</>} code={`<Page surface="grouped">
@@ -204,7 +239,7 @@ const closeSearch = () => {
     </Toolbar.Leading>
     <Toolbar.Title>New order</Toolbar.Title>
     <Toolbar.Trailing>
-      <NavigationButton action="confirm" disabled />
+      <NavigationButton action="confirm" label="Done" disabled />
     </Toolbar.Trailing>
   </Toolbar>
   <Page.Content>...</Page.Content>
@@ -274,6 +309,13 @@ All other `<div>` attributes and `ref` are forwarded to the bar.
 |------|------|---------|-------------|
 | `subtitle` | `ReactNode` | — | Second, smaller line below the title |
 | `as` | `"h1" \| "h2" \| "h3"` | `"h1"` | Heading level of the title |
+
+### Toolbar.Content
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fill` | `boolean` | `false` | Stretch across the row between the leading and trailing items, as a search field does |
+| `search` | `boolean \| "auto" \| "top" \| "bottom"` | — | Marks the content as the screen's search field and sets where it stands, see [Search placement](#search-placement). Write it in the bottom bar: `"bottom"` keeps the field there, `"top"` makes it a search button of the top bar that opens the field over it, `"auto"` (or `true`) is the bottom on iOS and the top on Android |
 
 ### Compound parts
 

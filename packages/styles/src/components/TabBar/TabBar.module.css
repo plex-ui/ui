@@ -432,8 +432,10 @@
   }
 
   /* The circle beside the capsule: a symbol in the text color, the accent when selected; a prominent one the accent
-     with its ink. A press is a layer of the symbol's color at 10%. */
+     with its ink. Held, it ripples as a bar's glass circle (android.css, Android press ripple): a circle of 20px round
+     its center in the list selector, a prominent one in its ink at 20%, as the reference's accent Done pill. */
   [data-platform="android"] .Item:is(.Search, .Prominent) {
+    --android-ripple-radius: 20px;
     color: var(--color-text);
 
     &::before {
@@ -448,9 +450,13 @@
       }
     }
 
-    &:active:not([data-disabled])::before {
-      background: color-mix(in srgb, currentColor 10%, transparent);
+    &[data-ripple]:not([data-disabled])::before {
+      background-image: var(--android-ripple-image);
     }
+  }
+
+  [data-platform="android"] .Item.Prominent {
+    --android-ripple-ink: color-mix(in srgb, var(--color-text-accent-solid) 20%, transparent);
   }
 
   [data-platform="android"] .Item.Prominent:not([data-disabled]) {

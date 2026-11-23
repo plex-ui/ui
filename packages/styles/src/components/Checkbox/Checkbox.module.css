@@ -354,3 +354,14 @@
     padding-right: 0;
   }
 }
+
+/* On a phone the label of a check, a switch or a radio is part of the control it presses: a long press or a double tap
+   does not select it nor call up the text menu. */
+@media (max-width: 767px) {
+  .Label,
+  .LabelGroup {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}

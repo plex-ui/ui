@@ -1,12 +1,16 @@
 import {
+  Comment,
   computed,
   defineComponent,
+  Fragment,
   h,
   inject,
   onBeforeUnmount,
   onMounted,
+  onUpdated,
   provide,
   ref,
+  shallowRef,
   Teleport,
   watch,
   type ComputedRef,
@@ -14,13 +18,26 @@ import {
   type InjectionKey,
   type PropType,
   type Ref,
+  type VNode,
 } from "vue"
 import s from "@plexui/styles/components/Toolbar/Toolbar.module.css"
+import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
+import { Button, NavigationButton } from "../Button/index.js"
+import Search from "../Icon/svg/Search.js"
 
 // Vue port of packages/ui/src/components/Toolbar/Toolbar.tsx. Exports are flat
 // (`ToolbarLeading` for `Toolbar.Leading`, ...).
 
 export type ToolbarPlacement = "top" | "bottom"
+/**
+ * Where a screen's search field stands (`ToolbarContent search`):
+ * - `"bottom"`: the field itself, in the bar it is written in: in a bottom bar, in reach of the thumb, as iOS 26 places a
+ *   screen's search
+ * - `"top"`: a search button first among the top bar's trailing actions; pressed, it grows into the field over the bar,
+ *   the bar's leading action turns into a back arrow that closes it, and a Sheet goes full screen on Android
+ * - `"auto"`: the platform's place, the bottom on iOS and the top in the Plex Android look (`data-platform="android"`)
+ */
+export type ToolbarSearchPlacement = "auto" | "top" | "bottom"
 /** Title layouts of the phone top bar. */
 export type ToolbarTitleStyle = "inline" | "large" | "compact-large" | "compact-medium"
 export type ToolbarTitleAlign = "center" | "start"
@@ -83,6 +100,9 @@ export const TOOLBAR_HOST: InjectionKey<ToolbarHost> = Symbol("ToolbarHost")
 const TOOLBAR_TITLE_STYLE: InjectionKey<ComputedRef<ToolbarTitleStyle | undefined>> = Symbol("ToolbarTitleStyle")
 // The bar itself, which a large title in the content marks once it has gone under the bar.
 const TOOLBAR_ELEMENT: InjectionKey<Ref<HTMLElement | null>> = Symbol("ToolbarElement")
+// The bar a part is written in: its placement, and the count of its searches that stand in the other bar
+type ToolbarBar = { placement: () => ToolbarPlacement; searchAway: () => () => void }
+const TOOLBAR_BAR: InjectionKey<ToolbarBar> = Symbol("ToolbarBar")
 
 // The tokens of a large title a bar can set for itself, which the title in the content no longer inherits from it.
 const LARGE_TITLE_TOKENS = [
@@ -154,6 +174,21 @@ const ToolbarComponent = defineComponent({
     provide(TOOLBAR_TITLE_STYLE, computed(() => (props.placement === "top" ? props.titleStyle : undefined)))
     const element = ref<HTMLElement | null>(null)
     provide(TOOLBAR_ELEMENT, element)
+    // A bar that holds nothing but a search standing in the other bar (a bottom bar's field that the Plex Android look
+    // puts at the top) leaves its place: it draws nothing and takes no height, and the search still renders from it.
+    const searchesAway = ref(0)
+    provide(TOOLBAR_BAR, {
+      placement: () => props.placement,
+      searchAway: () => {
+        searchesAway.value += 1
+        let released = false
+        return () => {
+          if (released) return
+          released = true
+          searchesAway.value -= 1
+        }
+      },
+    })
     let observer: ResizeObserver | undefined
     let reported: ToolbarPlacement | undefined
     onMounted(() => {
@@ -183,19 +218,24 @@ const ToolbarComponent = defineComponent({
       observer?.disconnect()
       if (reported) host?.setHeight?.(reported, undefined)
     })
-    return () => h("div", {
-      "ref": element,
-      "class": s.Toolbar,
-      "data-toolbar": "",
-      "data-placement": props.placement,
-      "data-title-style": props.placement === "top" ? props.titleStyle : undefined,
-      "data-title-align": props.placement === "top" ? props.titleAlign : undefined,
-      "data-background": barBackground(props.background) ?? (props.placement === "bottom" ? "soft" : "glass"),
-      "data-host": host?.kind,
-      "data-scrolled": props.placement === "top" && host?.scrolled?.value ? "" : undefined,
-      "data-content-below": props.placement === "bottom" && host?.contentBelow?.value ? "" : undefined,
-      "data-rows-pinned": props.placement === "top" && host?.rowsPinned?.value ? "" : undefined,
-    }, slots.default?.())
+    return () => {
+      const children = slots.default?.()
+      // The same element, so the parts keep their state as the bar leaves and comes back; hidden, it reports no height
+      if (searchesAway.value > 0 && children?.every(isSearchContent)) return h("div", { "ref": element, "hidden": true, "data-toolbar-vacant": "" }, children)
+      return h("div", {
+        "ref": element,
+        "class": s.Toolbar,
+        "data-toolbar": "",
+        "data-placement": props.placement,
+        "data-title-style": props.placement === "top" ? props.titleStyle : undefined,
+        "data-title-align": props.placement === "top" ? props.titleAlign : undefined,
+        "data-background": barBackground(props.background) ?? (props.placement === "bottom" ? "soft" : "glass"),
+        "data-host": host?.kind,
+        "data-scrolled": props.placement === "top" && host?.scrolled?.value ? "" : undefined,
+        "data-content-below": props.placement === "bottom" && host?.contentBelow?.value ? "" : undefined,
+        "data-rows-pinned": props.placement === "top" && host?.rowsPinned?.value ? "" : undefined,
+      }, children)
+    }
   },
 })
 
@@ -316,17 +356,236 @@ export const ToolbarRow = defineComponent({
   },
 })
 
-/** Custom middle content: a search field, a segmented control or a single centered action (React `Toolbar.Content`). */
+const ANDROID = '[data-platform="android"]'
+const TOP_BAR = '[data-toolbar][data-placement="top"]'
+
+/** The places of a search at the top: its button's capsule among the bar's trailing actions, and the layer its field opens in. */
+type SearchPlaces = { bar: HTMLElement; button: HTMLElement; layer: HTMLElement }
+
+/**
+ * The top bar a search at the top stands in: the bar it is written in, or the top bar beside it (a Page's, a Sheet's),
+ * looked up no further than its dialog. (React's twin)
+ */
+function findTopBar(anchor: HTMLElement): HTMLElement | null {
+  const home = anchor.parentElement
+  if (home?.matches(TOP_BAR)) return home
+  for (let node = home?.parentElement; node; node = node.parentElement) {
+    const bar = node.querySelector<HTMLElement>(`:scope > ${TOP_BAR}`)
+    if (bar) return bar
+    if (node.hasAttribute("data-plex-dialog")) return null
+  }
+  return null
+}
+
+/**
+ * Makes the places of a search in the top bar and keeps them there: its button's capsule first among the bar's trailing
+ * actions (in a trailing place of its own while the bar has none) and the layer over the bar its field opens in. The
+ * bar's parts come and go and a page or a sheet can replace its bar: the places follow, and `onPlaces` hears of each
+ * new bar. Returns the release. (React's twin)
+ */
+function placeSearch(anchor: HTMLElement, onPlaces: (places: SearchPlaces | null) => void) {
+  const doc = anchor.ownerDocument
+  const make = (className: string, mark: string) => {
+    const element = doc.createElement("div")
+    element.className = className
+    element.setAttribute(mark, "")
+    return element
+  }
+  const button = make(s.Group, "data-toolbar-search-button")
+  const layer = make(s.SearchLayer, "data-toolbar-search-layer")
+  const ownTrailing = make(s.Trailing, "data-toolbar-search-trailing")
+  let bar: HTMLElement | null = null
+  let reported: HTMLElement | null | undefined
+  const leave = () => {
+    bar?.removeAttribute("data-search")
+    bar?.removeAttribute("data-search-open")
+    button.remove()
+    layer.remove()
+    ownTrailing.remove()
+  }
+  const observer = typeof MutationObserver !== "undefined" ? new MutationObserver(() => place()) : undefined
+  const place = () => {
+    const next = findTopBar(anchor)
+    if (next !== bar) {
+      leave()
+      observer?.disconnect()
+      bar = next
+      // The bar's own parts, and the bars beside it (a bar replaced, or one that comes later)
+      for (const scope of [bar, bar?.parentElement, anchor.parentElement?.parentElement]) if (scope) observer?.observe(scope, { childList: true })
+    }
+    if (bar) {
+      const trailing = Array.from(bar.children).find((child) => child.classList.contains(s.Trailing) && child !== ownTrailing)
+      const home = trailing ?? ownTrailing
+      if (home.firstElementChild !== button) home.prepend(button)
+      if (trailing) ownTrailing.remove()
+      else if (ownTrailing.parentElement !== bar) bar.append(ownTrailing)
+      if (layer.parentElement !== bar) bar.append(layer)
+      bar.setAttribute("data-search", "")
+    }
+    if (bar !== reported) {
+      reported = bar
+      onPlaces(bar ? { bar, button, layer } : null)
+    }
+  }
+  place()
+  return () => {
+    observer?.disconnect()
+    leave()
+  }
+}
+
+/**
+ * The field grows out of its button and shrinks back into it: the button's capsule in the bar, by its layout box. Its
+ * distance from the end of the bar's content is kept, not from the bar's edge, so it holds as the bar's gutter changes
+ * (a Sheet's at the full screen). Set at once, with no transition. (React's twin)
+ */
+function followSearchButton({ bar, button, layer }: SearchPlaces, field: HTMLElement | null) {
+  let left = 0
+  for (let node: HTMLElement | null = button; node && node !== bar; node = node.offsetParent as HTMLElement | null) left += node.offsetLeft
+  const style = getComputedStyle(bar)
+  const end = style.direction === "rtl"
+    ? left - (Number.parseFloat(style.paddingLeft) || 0)
+    : bar.clientWidth - (Number.parseFloat(style.paddingRight) || 0) - left - button.offsetWidth
+  layer.style.setProperty("--toolbar-search-from-end", `${end}px`)
+  layer.style.setProperty("--toolbar-search-from-size", `${button.offsetWidth}px`)
+  if (!field) return
+  field.style.transition = "none"
+  void field.offsetWidth
+  field.style.transition = ""
+}
+
+/** Closing the search clears its field, as a search closed on Android or canceled on iOS does: the field's own input event. */
+function clearSearchField(field: HTMLElement | null) {
+  const input = field?.querySelector("input")
+  if (!input || input.value === "") return
+  Object.getOwnPropertyDescriptor(Object.getPrototypeOf(input), "value")?.set?.call(input, "")
+  input.dispatchEvent(new Event("input", { bubbles: true }))
+}
+
+/**
+ * Custom middle content: a search field, a segmented control or a single centered action (React `Toolbar.Content`).
+ * With `search` it is the screen's search field, where its placement puts it. At the bottom it is the field in its bar.
+ * At the top a search button stands first among the top bar's trailing actions, in the capsule of the icon buttons next
+ * to it; pressed, it grows into the field over the bar (from after a back circle to the bar's end) as the title and the
+ * actions fade, and the leading action becomes a back arrow. Back, or Escape, closes it, clears the field and gives the
+ * button its focus back; a Sheet on Android stands at the full screen while it is open (Dialog.module.css).
+ */
 export const ToolbarContent = defineComponent({
   name: "ToolbarContent",
+  inheritAttrs: false,
   props: {
     /** Stretch between the leading and trailing items, as a search field does. */
     fill: { type: Boolean, default: false },
+    /**
+     * Marks the content as the screen's search field (an `Input`) and sets where it stands (`ToolbarSearchPlacement`):
+     * write it in the bottom bar, and at the top it becomes a search button of the top bar beside it, a Page's or a
+     * Sheet's, that opens the field over that bar. `true` is `"auto"`: the bottom on iOS, the top on Android.
+     */
+    search: { type: [Boolean, String] as PropType<boolean | ToolbarSearchPlacement>, default: undefined },
   },
-  setup(props, { slots }) {
-    return () => h("div", { "class": s.Content, "data-fill": props.fill ? "" : undefined }, slots.default?.())
+  setup(props, { slots, attrs }) {
+    const bar = inject(TOOLBAR_BAR, null)
+    const placement = computed<ToolbarSearchPlacement | undefined>(() => (props.search === true ? "auto" : props.search || undefined))
+    const anchor = ref<HTMLElement | null>(null)
+    // Whether it stands in the Plex Android look: `data-platform="android"` on it or around it (PlexUIProvider)
+    const android = ref(false)
+    watch([placement, anchor], ([value, mark], _, onCleanup) => {
+      if (!value || !mark) return
+      const read = () => { android.value = !!mark.closest(ANDROID) }
+      read()
+      if (typeof MutationObserver === "undefined") return
+      const observer = new MutationObserver(read)
+      observer.observe(mark.ownerDocument.documentElement, { attributes: true, attributeFilter: ["data-platform"], subtree: true })
+      onCleanup(() => observer.disconnect())
+    }, { flush: "post", immediate: true })
+    const top = computed(() => !!placement.value && (placement.value === "auto" ? (android.value ? "top" : "bottom") : placement.value) === "top")
+    const places = shallowRef<SearchPlaces | null>(null)
+    watch([top, anchor], ([value, mark], _, onCleanup) => {
+      if (!value || !mark) return
+      const release = placeSearch(mark, (next) => { places.value = next })
+      onCleanup(() => { release(); places.value = null })
+    }, { flush: "post", immediate: true })
+    // Written in the bottom bar, it leaves that bar to the top one
+    watch(() => !!places.value && bar?.placement() !== "top", (away, _, onCleanup) => {
+      if (away && bar) onCleanup(bar.searchAway())
+    }, { immediate: true })
+
+    const open = ref(false)
+    const field = ref<HTMLElement | null>(null)
+    watch(places, (value) => {
+      if (value) followSearchButton(value, field.value)
+      else open.value = false
+    }, { flush: "post" })
+    watch([places, open], ([value, isOpen]) => {
+      if (!value) return
+      value.bar.toggleAttribute("data-search-open", isOpen)
+      if (isOpen) field.value?.querySelector("input")?.focus({ preventScroll: true })
+    }, { flush: "post" })
+    // The button takes the field's name: "Search materials"
+    const name = ref("Search")
+    const readName = () => {
+      const input = field.value?.querySelector("input")
+      name.value = input?.getAttribute("aria-label") || input?.placeholder || "Search"
+    }
+    onMounted(readName)
+    onUpdated(readName)
+    watch(places, readName, { flush: "post" })
+    const openSearch = () => {
+      if (places.value) followSearchButton(places.value, field.value)
+      open.value = true
+    }
+    const closeSearch = () => {
+      if (places.value) {
+        followSearchButton(places.value, null)
+        // Closed at once, so the button is there to take the focus back
+        places.value.bar.removeAttribute("data-search-open")
+      }
+      clearSearchField(field.value)
+      open.value = false
+      places.value?.button.querySelector<HTMLElement>("[data-toolbar-search-trigger]")?.focus({ preventScroll: true })
+    }
+    useEscCloseStack(open, closeSearch)
+
+    return () => {
+      const children = slots.default?.()
+      const content = { ...attrs, "class": [s.Content, attrs.class], "data-fill": props.fill ? "" : undefined }
+      if (!placement.value) return h("div", content, children)
+      const mark = h("span", { "ref": anchor, "hidden": true, "data-toolbar-search-anchor": "" })
+      const place = places.value
+      if (!place) return [mark, h("div", { ...content, ref: field }, children)]
+      return [
+        mark,
+        h(Teleport, { to: place.button }, [h(Button, {
+          "color": "secondary",
+          "variant": "soft",
+          "uniform": true,
+          "pill": true,
+          "aria-label": name.value,
+          "aria-expanded": open.value ? "true" : "false",
+          "data-toolbar-search-trigger": "",
+          "onClick": openSearch,
+        }, () => h(Search))]),
+        h(Teleport, { to: place.layer }, [
+          h("div", { class: [s.Leading, s.SearchBack] }, [h(NavigationButton, {
+            "action": "back",
+            "aria-label": "Close search",
+            "tabindex": open.value ? undefined : -1,
+            "onClick": closeSearch,
+          })]),
+          h("div", { ...attrs, "ref": field, "class": [s.Content, s.SearchField, attrs.class], "data-fill": "" }, children),
+        ]),
+      ]
+    }
   },
 })
+
+/** Whether a part of a bar is a search (`ToolbarContent search`), or renders nothing. */
+function isSearchContent(node: VNode): boolean {
+  if (node.type === Comment) return true
+  if (node.type === Fragment && Array.isArray(node.children)) return (node.children as VNode[]).every(isSearchContent)
+  const search = (node.props as Record<string, unknown> | null)?.search
+  return node.type === ToolbarContent && search != null && search !== false
+}
 
 /** The bar title, with an optional second line (React `Toolbar.Title`). */
 export const ToolbarTitle = defineComponent({

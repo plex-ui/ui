@@ -1,4 +1,4 @@
-import { isValidElement, useId, useLayoutEffect, useState, type ReactNode } from "react"
+import { isValidElement, useId, useLayoutEffect, useMemo, useState, type ReactNode } from "react"
 import { Animated, Easing, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { childrenOfType, flattenChildren } from "../../internal/children"
@@ -6,6 +6,7 @@ import { useKeyboardHeight } from "../../internal/keyboard"
 import { iosDim, Overlay, ANDROID_DIM } from "../../internal/Overlay"
 import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
+import { BarItemContext, type BarItemStyle } from "../Button/Button"
 import { NavigationButton } from "../NavigationButton/NavigationButton"
 import { Text } from "../Text/Text"
 
@@ -235,8 +236,9 @@ export function BottomSheetBase({
   }, [open, drag])
   const keyboard = useKeyboardHeight(open)
   const m = theme.material
-  // Android's sheet: 24dp top corners (measured on a Pixel), the dialog's background (white, near-black in dark mode)
-  const radius = android ? 24 : theme.length("--dialog-sheet-radius", 38)
+  // Android's sheet: 35dp top corners, concentric with its bar's 46dp circles 12 in from its top and sides (23 + 12),
+  // the dialog's background (white, near-black in dark mode)
+  const radius = android ? 35 : theme.length("--dialog-sheet-radius", 38)
   // iOS: the panel of the phone layer, --mobile-surface-elevated-plain-primary (Dialog.module.css), white in light and
   // the elevated near-black in dark
   const background = android
@@ -244,7 +246,8 @@ export function BottomSheetBase({
       ? m.surfaceContainer
       : m.surfaceContainerLowest
     : theme.color("--mobile-surface-elevated-plain-primary", theme.color("--color-surface-elevated", theme.colors.background))
-  const titleType = android ? { fontSize: 20, lineHeight: 24 } : { fontSize: theme.length("--toolbar-title-font-size", 17), lineHeight: theme.length("--toolbar-title-line-height", 22) }
+  // Android's sheet title: 17/22 Medium, centered in its bar, as iOS's
+  const titleType = android ? { fontSize: 17, lineHeight: 22 } : { fontSize: theme.length("--toolbar-title-font-size", 17), lineHeight: theme.length("--toolbar-title-line-height", 22) }
   const titleId = useId()
   const web = Platform.OS === "web"
   // The web names the dialog by its title; a phone keeps the modal view
@@ -257,15 +260,36 @@ export function BottomSheetBase({
   const maxWidth = android && width > screen ? Math.max(width * 0.8, Math.min(480, width)) : undefined
   const closeSize = theme.length("--dialog-sheet-close-size", 44)
   const margin = theme.length("--mobile-layout-margin", 16)
-  // Android's sheet has no handle: the whole sheet takes the drag, its top with the title (Medium 20, 21 in)
+  // Android: content scrolled under the bar fades out under it; the footer's height sets the room under the content
+  const [scrolled, setScrolled] = useState(false)
+  const [footerHeight, setFooterHeight] = useState(0)
+  // Android's sheet has no handle: the whole sheet takes the drag. With a title its bar is the reference's sheet bar,
+  // over the content: Close in a 46dp glass circle 12 under the top edge and 12 from the side (in line with the
+  // content's cards), concentric with the sheet's corner, the title 17/22 Medium centered between the circles' places
+  // (69 in all). Content scrolled under it shows through the sheet's color at
+  // 63% over a light blur, let go over its last 32dp (12 past the bar), with no line
+  const barItem = useMemoBarItem(background)
   const header = android ? (
-    <View onStartShouldSetResponderCapture={gesture.chrome} style={title != null ? styles.androidHeader : styles.androidGrip}>
-      {title != null ? (
-        <Text nativeID={titleId} accessibilityRole="header" weight="medium" color={m.onSurface} style={{ fontSize: titleType.fontSize, lineHeight: titleType.lineHeight }}>
-          {title}
-        </Text>
-      ) : null}
-    </View>
+    title != null ? (
+      <View onStartShouldSetResponderCapture={gesture.chrome} style={styles.androidBar}>
+        <SheetBarFade fill={background} shown={scrolled} />
+        <View style={styles.androidCircle}>
+          {dismissible ? (
+            <BarItemContext.Provider value={barItem}>
+              <NavigationButton action="close" accessibilityLabel={closeLabel} onPress={close} />
+            </BarItemContext.Provider>
+          ) : null}
+        </View>
+        <View style={styles.androidHeading}>
+          <Text nativeID={titleId} accessibilityRole="header" weight="medium" align="center" numberOfLines={1} color={m.onSurface} style={{ fontSize: titleType.fontSize, lineHeight: titleType.lineHeight }}>
+            {title}
+          </Text>
+        </View>
+        <View style={styles.androidCircle} />
+      </View>
+    ) : (
+      <View onStartShouldSetResponderCapture={gesture.chrome} style={styles.androidGrip} />
+    )
   ) : dismissible || title != null ? (
     // The web's phone Sheet bar: one 44 row 16 under the top edge, Close at the leading edge and the title alone centered
     // The bar is the web's Toolbar: 16 above the row and --toolbar-padding-bottom under it
@@ -337,23 +361,52 @@ export function BottomSheetBase({
               },
             ]}
           >
-            {header}
+            {android && title != null ? null : header}
             {/* Content taller than the screen scrolls; on iOS the drag stays on the bar, on Android it starts at the
                 content's top */}
             <ScrollView
               style={styles.scroll}
-              {...(android ? { ...gesture.content, scrollEventThrottle: 16 } : null)}
-              contentContainerStyle={[android ? [styles.androidContent, footer ? styles.androidContentOverFooter : null] : iosContent, contentStyle]}
+              {...(android
+                ? {
+                    ...gesture.content,
+                    onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+                      gesture.content.onScroll(event)
+                      const under = event.nativeEvent.contentOffset.y > 0
+                      if (under !== scrolled) setScrolled(under)
+                    },
+                    scrollEventThrottle: 16,
+                  }
+                : null)}
+              contentContainerStyle={[
+                android
+                  ? [
+                      styles.androidContent,
+                      title != null ? styles.androidContentUnderBar : null,
+                      // Over a footer: 8 above its height, which reaches over the sheet's bottom padding
+                      footer ? { paddingBottom: 8 + Math.max(0, footerHeight - insets.bottom - keyboard) } : null,
+                    ]
+                  : iosContent,
+                contentStyle,
+              ]}
               keyboardShouldPersistTaps="handled"
               bounces={false}
             >
               {content}
             </ScrollView>
+            {/* Android's bar stands over the content, which scrolls under it */}
+            {android && title != null ? header : null}
             {footer ? (
               <View
                 onStartShouldSetResponderCapture={android ? gesture.chrome : undefined}
+                onLayout={android ? (event) => setFooterHeight(event.nativeEvent.layout.height) : undefined}
                 style={[
-                  android ? styles.androidFooter : [styles.iosFooter, { paddingHorizontal: margin, paddingBottom: keyboard ? 16 : Math.max(16, insets.bottom) }],
+                  android
+                    ? [
+                        styles.androidFooter,
+                        // Over the sheet's color at 80%, faded in over its top 24dp, down over the gesture bar
+                        { paddingBottom: 12 + insets.bottom + keyboard, backgroundImage: `linear-gradient(to bottom, ${withAlpha(background, 0)}, ${withAlpha(background, 0.8)} 24px)` } as ViewStyle,
+                      ]
+                    : [styles.iosFooter, { paddingHorizontal: margin, paddingBottom: keyboard ? 16 : Math.max(16, insets.bottom) }],
                   footer.props.style,
                 ]}
               >
@@ -383,11 +436,38 @@ export function BottomSheetBase({
 
 const isFooter = (child: ReactNode) => isValidElement(child) && child.type === BottomSheetFooter
 
+/** The item of an Android sheet's bar: a 46dp glass circle solved against the sheet's color. */
+function useMemoBarItem(canvas: string): BarItemStyle {
+  return useMemo(() => ({ height: 46, fontSize: 15, lineHeight: 20, weight: "medium", prominentWeight: "medium", iconSize: 24, gutter: 16, canvas }), [canvas])
+}
+
+/**
+ * The fade under an Android sheet's bar once content is under it: the sheet's color at 63% over a light blur (8),
+ * reaching 12 past the bar and let go over its last 32 (a mask on the web; a gradient of the color where there is no
+ * mask or blur).
+ */
+function SheetBarFade({ fill, shown }: { fill: string; shown: boolean }) {
+  const veil = withAlpha(fill, 0.63)
+  const style: ViewStyle =
+    Platform.OS === "web"
+      ? ({
+          backgroundColor: veil,
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          maskImage: "linear-gradient(to bottom, #000 calc(100% - 32px), transparent)",
+          WebkitMaskImage: "linear-gradient(to bottom, #000 calc(100% - 32px), transparent)",
+        } as ViewStyle)
+      : ({ backgroundImage: `linear-gradient(to bottom, ${veil} calc(100% - 32px), ${withAlpha(fill, 0)})` } as ViewStyle)
+  return <View pointerEvents="none" style={[styles.androidBarFade, style, { opacity: shown ? 1 : 0 }]} />
+}
+
 /**
  * A sheet from the bottom edge: on iOS 26 the sheet of the phone layer (`--dialog-sheet-radius` 38 on its top corners,
  * a bar 16 under its top edge with Close at the leading edge and the title centered, as the web's phone Sheet; no
- * grabber, since its height does not change), on Android a flat sheet (24dp top corners, white, a Medium 20 title
- * at 21, no handle, a 20% dim, the screen's width in portrait). Drag it down to close it: its bar on iOS, anywhere on
+ * grabber, since its height does not change), on Android the reference's sheet (35dp top corners, white, no handle,
+ * a bar of 46dp glass circles 12 under the top edge and 12 from the sides, concentric with the corners, with the title
+ * 17 Medium centered, the
+ * content 12 from the sides, a 20% dim, the screen's width in portrait). Drag it down to close it: its bar on iOS, anywhere on
  * Android (from content that scrolls once it is at its top, and on a phone only from its rows and fields, since its
  * plain parts keep the drag for the scroll).
  * `BottomSheet.Footer` pins actions under the content.
@@ -401,14 +481,20 @@ const styles = StyleSheet.create({
   iosBar: { flexDirection: "row", alignItems: "center", gap: 8 },
   iosHeading: { flex: 1, alignItems: "center", justifyContent: "center" },
   scrimTarget: { position: "absolute", top: 0, left: 0, right: 0 },
-  // The title's 24 line 20 from the top edge and 8 over the content; with no title the top 8 of the sheet's padding
-  androidHeader: { paddingTop: 20, paddingBottom: 8, paddingHorizontal: 21 },
+  // The bar: 46dp circles 12 under the top edge and 12 from the sides, 11 under them; with no title the top 8 of the
+  // sheet's padding
+  androidBar: { position: "absolute", top: 0, left: 0, right: 0, zIndex: 1, flexDirection: "row", alignItems: "center", paddingTop: 12, paddingBottom: 11, paddingHorizontal: 12, gap: 6 },
+  androidBarFade: { position: "absolute", top: 0, left: 0, right: 0, bottom: -12 },
+  androidCircle: { width: 46, height: 46 },
+  androidHeading: { flex: 1, minWidth: 0, alignItems: "center", justifyContent: "center" },
   androidGrip: { height: 8 },
-  // The content at the title's 21, with the sheet's 8 under it (16 over the navigation bar)
-  androidContent: { paddingHorizontal: 21, paddingTop: 4, paddingBottom: 16 },
-  androidContentOverFooter: { paddingBottom: 8 },
+  // The content 12 from the sides (as a page's groups), 16 over the navigation bar; under a bar 13 under its circles
+  // (71 from the sheet's top, 2 under the bar)
+  androidContent: { paddingHorizontal: 12, paddingTop: 4, paddingBottom: 16 },
+  androidContentUnderBar: { paddingTop: 12 + 46 + 13 },
   iosFooter: { gap: 10, paddingTop: 12 },
   iosFooterEdge: { position: "absolute", top: -15, left: 0, right: 0, bottom: 0 },
-  // Android's sheet actions: a 48dp button 16 from the sides, a text button under it, 16 under the last
-  androidFooter: { gap: 4, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 16 },
+  // Android's sheet actions: 48dp buttons 4 apart, 12 from the sides and above, 12 over the gesture bar, over the
+  // content that scrolls under them
+  androidFooter: { position: "absolute", left: 0, right: 0, bottom: 0, gap: 4, paddingHorizontal: 12, paddingTop: 12 },
 })

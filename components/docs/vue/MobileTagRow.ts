@@ -17,7 +17,8 @@ export type MobileTagOption = {
 
 /** A Phone summary row whose Sheet edits a draft until Apply is pressed. The sheet picks as iOS does from a row with a
  * chevron: a checkmark in the tint at the end of each row picked, Clear all as the list's own action, and the search in the
- * bar at the bottom, in reach of the thumb (owner 14.11). */
+ * bar at the bottom, in reach of the thumb (owner 14.11). In the Plex Android look the search is a button in the sheet's
+ * bar that opens the field over it (`ToolbarContent search`). */
 export const MobileTagRow = defineComponent({
   name: 'MobileTagRow',
   props: {
@@ -99,7 +100,7 @@ export const MobileTagRow = defineComponent({
                 ]),
                 h(DialogDescription, { class: 'sr-only' }, () => `Select ${props.label.toLowerCase()}, or search for one ${props.one}. Apply to save your changes.`),
                 h(DialogHeaderAction, null, {
-                  default: () => h(NavigationButton, { action: 'confirm', 'aria-label': `Apply ${props.label.toLowerCase()}`, onClick: apply }),
+                  default: () => h(NavigationButton, { action: 'confirm', label: 'Apply', 'aria-label': `Apply ${props.label.toLowerCase()}`, onClick: apply }),
                 }),
               ],
             }),
@@ -119,9 +120,9 @@ export const MobileTagRow = defineComponent({
                 }),
               ],
             }),
-            h(Toolbar, { placement: 'bottom' }, () => h(ToolbarContent, { fill: true }, () => h(Input, {
+            h(Toolbar, { placement: 'bottom' }, () => h(ToolbarContent, { fill: true, search: true }, () => h(Input, {
               variant: 'soft', pill: true, placeholder: `Search ${props.label.toLowerCase()}`, 'aria-label': `Search ${props.label.toLowerCase()}`,
-              value: query.value, 'onUpdate:value': (value: string) => { query.value = value; },
+              value: query.value, 'onUpdate:value': (value: string) => { query.value = value; }, onClear: () => { query.value = ''; },
             }, { startAdornment: () => h(SearchSm) }))),
           ],
         }),

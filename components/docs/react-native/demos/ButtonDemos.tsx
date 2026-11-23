@@ -158,7 +158,7 @@ export const Navigation = docsDemo(function Navigation() {
           <Toolbar.Title>{action === 'back' ? 'Album' : 'New album'}</Toolbar.Title>
           {action === 'confirm' ? (
             <Toolbar.Trailing>
-              <NavigationButton action="confirm" accessibilityLabel="Save album" />
+              <NavigationButton action="confirm" accessibilityLabel="Save album" label="Save" />
             </Toolbar.Trailing>
           ) : null}
         </Toolbar>

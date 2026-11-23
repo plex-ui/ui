@@ -678,7 +678,7 @@ export function FormRowsPayoutDemo() {
       <ScreenPresentationControls {...presentation} />
     </div>
     <FormScreen title="Edit payout details" {...presentation} onDialogChange={presentation.setDialog}>
-      <FieldGroup title="Payout details">
+      <FieldGroup title="Payout details" className="[--field-row-text-width:320px]">
         <Field row orientation={wide ? undefined : "vertical"} label="Account holder">
           <Input variant={wide ? undefined : "ghost"} value={holder} onChange={(event) => setHolder(event.target.value)} />
         </Field>

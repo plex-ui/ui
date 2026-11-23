@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { List, ListItem, Select } from '@plexui/react-native';
-import { DemoControlBoolean, controlsTableStyle } from '../../ButtonDemos';
+import { DemoControlBoolean, Segments, controlsTableStyle } from '../../ButtonDemos';
 import { RNScreen, docsDemo } from '../RNScreen';
 
 /** The docs see @plexui/react-native untyped: the option a Select passes to onChange. */
@@ -74,5 +74,76 @@ export const Descriptions = docsDemo(function Descriptions() {
         />
       </List>
     </RNScreen>
+  );
+});
+
+const SORTS = [
+  { value: 'name', label: 'Name' },
+  { value: 'date', label: 'Date added' },
+  { value: 'size', label: 'Size' },
+];
+
+const ALERTS = [
+  { value: 'messages', label: 'Messages' },
+  { value: 'mentions', label: 'Mentions' },
+  { value: 'reactions', label: 'Reactions' },
+  { value: 'calls', label: 'Calls' },
+];
+
+const PICKERS = ['dialog', 'menu'] as const;
+
+/**
+ * What a press opens on Android: the choice dialog (`dialog`) or the row's menu (`menu`), with the chosen row checked
+ * at its end. `multiple` switches the row to several choices: checkbox rows with Cancel and OK in the dialog. iOS
+ * always opens its menu.
+ */
+export const Picker = docsDemo(function Picker() {
+  const [picker, setPicker] = useState<(typeof PICKERS)[number]>('menu');
+  const [multiple, setMultiple] = useState(false);
+  const [sort, setSort] = useState('date');
+  const [alerts, setAlerts] = useState<string[]>(['messages', 'mentions']);
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <Segments name="picker" options={PICKERS} value={picker} onChange={setPicker} />
+        <DemoControlBoolean name="multiple" value={multiple} onChange={setMultiple} />
+      </div>
+      <RNScreen grouped>
+        <List>
+          {multiple ? (
+            <ListItem
+              label="Notify me about"
+              trailing={
+                <Select
+                  multiple
+                  aria-label="Notify me about"
+                  options={ALERTS}
+                  value={alerts}
+                  onChange={(options: Option[]) => setAlerts(options.map((option) => option.value))}
+                  picker={picker}
+                  variant="ghost"
+                  block={false}
+                />
+              }
+            />
+          ) : (
+            <ListItem
+              label="Sort by"
+              trailing={
+                <Select
+                  aria-label="Sort by"
+                  options={SORTS}
+                  value={sort}
+                  onChange={(option: Option) => setSort(option.value)}
+                  picker={picker}
+                  variant="ghost"
+                  block={false}
+                />
+              }
+            />
+          )}
+        </List>
+      </RNScreen>
+    </>
   );
 });

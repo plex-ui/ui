@@ -348,7 +348,7 @@ export function DialogKeepOpenDemo() {
             <Dialog.Description className={phone ? 'sr-only' : undefined}>{note}</Dialog.Description>
             {phone && (
               <Dialog.HeaderAction>
-                <NavigationButton action="confirm" aria-label="Save" onClick={() => setOpen(false)} />
+                <NavigationButton action="confirm" label="Save" onClick={() => setOpen(false)} />
               </Dialog.HeaderAction>
             )}
           </Dialog.Header>
@@ -397,7 +397,7 @@ export function DialogConfirmCloseDemo() {
             <Dialog.Title>New note</Dialog.Title>
             {phone && (
               <Dialog.HeaderAction>
-                <NavigationButton action="confirm" aria-label="Save" disabled={!dirty} onClick={() => setOpen(false)} />
+                <NavigationButton action="confirm" label="Save" disabled={!dirty} onClick={() => setOpen(false)} />
               </Dialog.HeaderAction>
             )}
           </Dialog.Header>

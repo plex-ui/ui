@@ -41,7 +41,9 @@ import type { ControlSize } from "@plexui/styles/types"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
 import { usePhoneWindow } from "../PhoneLayout/PhoneLayout.js"
 import { useFieldColumns, useFieldRow, useFieldRowPill } from "../../lib/fieldRow.js"
-import { preventDefaultHandler, toCssVariables, waitForAnimationFrame } from "../../lib/helpers.js"
+import { keepMovedFocus, preventDefaultHandler, toCssVariables, waitForAnimationFrame } from "../../lib/helpers.js"
+import { Button } from "../Button/index.js"
+import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../Dialog/index.js"
 import { Check, Info, Search } from "../Icon/index.js"
 import { Input } from "../Input/index.js"
 import { useDeferredPointerDownOutside } from "../Popover/deferredPointerDownOutside.js"
@@ -230,6 +232,21 @@ const selectProps = {
   checkPosition: { type: String as PropType<CheckPosition>, default: "start" },
   /** Renders a custom trigger (or the `#trigger` slot), wrapped as the popover trigger */
   trigger: Function as PropType<(props: SelectTriggerRenderProps) => VNodeChild>,
+  /**
+   * What a press opens on Android: the Plex Android look (`data-platform="android"` on the document's root) in a
+   * window 767px wide or narrower. `dialog`, Android's choice dialog: the setting's name over a row for each option,
+   * and Cancel. With one choice a row has a radio, and a press on it chooses it and closes the dialog; a `multiple`
+   * select has a checkbox in each row and OK, which applies the rows checked. `menu`, the popup of the options. iOS
+   * and a desktop always open the menu.
+   * @default "dialog", or "menu" for a `multiple` select
+   */
+  picker: { type: String as PropType<"dialog" | "menu">, default: undefined },
+  /** Android: the title of the picker dialog (`picker="dialog"`), the setting's name. @default the field's label (`aria-labelledby`), else `aria-label` */
+  title: String,
+  /** Android: the button that closes the picker dialog (`picker="dialog"`) with no change. @default "Cancel" */
+  cancelLabel: { type: String, default: "Cancel" },
+  /** Android: the button of a `multiple` select's picker dialog (`picker="dialog"`) that applies the rows checked. @default "OK" */
+  okLabel: { type: String, default: "OK" },
   "ariaLabel": String,
   "ariaLabelledby": String,
   "ariaDescribedby": String,
@@ -279,6 +296,10 @@ type SelectPropsValue = {
   searchEmptyMessage: string | number | VNode
   checkPosition: CheckPosition
   trigger?: (props: SelectTriggerRenderProps) => VNodeChild
+  picker?: "dialog" | "menu"
+  title?: string
+  cancelLabel: string
+  okLabel: string
   ariaLabel?: string
   ariaLabelledby?: string
   ariaDescribedby?: string
@@ -312,8 +333,12 @@ type SelectContextValue = {
   searchable: ComputedRef<boolean>
   /** A phone's list leads with a row that unsets the value, in place of the trigger's clear button */
   noneRow: ComputedRef<boolean>
+  /** A press on Android opens the choice dialog: `picker="dialog"` (the default for one choice), a phone-wide window */
+  choiceDialog: ComputedRef<boolean>
   actions: ShallowRef<SelectAction[]>
   onSelect: (option: Option, removeOption?: boolean) => void
+  /** A `multiple` select's dialog applies its checked rows at once (OK) */
+  onValues: (values: string[]) => void
   onActionSelect: CallbackWithActionId
   /** The latest predicate, read without tracking (React keeps it in a ref) */
   searchPredicate: () => SearchPredicate<Option>
@@ -456,6 +481,10 @@ const SelectComponent = defineComponent({
         change(selectedOption)
       }
     }
+    const onValues = (values: string[]) => {
+      if (!props.multiple || props.disabled || props.loading) return
+      change(getOptionsByValues(props.options, values))
+    }
 
     // It should be exceedingly uncommon to change actions dynamically: like
     // React's memo, the rendered actions only follow a change of length.
@@ -504,6 +533,11 @@ const SelectComponent = defineComponent({
       void slotsVersion.value
       return props.clearable && phone.value && !(slots.trigger || props.trigger)
     })
+    // On Android a single choice opens Android's single-choice dialog, as a value row of the reference messenger's
+    // settings does, unless `picker="menu"` asks for the popup; a multiple choice keeps the menu, where it picks
+    // several, unless `picker="dialog"` asks for the dialog of checkboxes. The window decides, as for the search; the
+    // platform is read as the press opens it (isAndroidLook).
+    const choiceDialog = computed(() => phone.value && (props.multiple ? props.picker === "dialog" : props.picker !== "menu"))
 
     provide(SelectContextKey, {
       props,
@@ -520,8 +554,10 @@ const SelectComponent = defineComponent({
       listMaxWidth,
       searchable,
       noneRow,
+      choiceDialog,
       actions,
       onSelect,
+      onValues,
       onActionSelect,
       searchPredicate: () => (toRaw(rawProps) as SelectPropsValue).searchPredicate ?? defaultSearchPredicate,
     })
@@ -727,11 +763,22 @@ const SelectPopoverTrigger = defineComponent({
 // Custom Select
 // ============================================================
 
+type SelectPresentation = {
+  /** On Android: the single-choice dialog in place of the list */
+  dialog: boolean
+  /** The field's label as the dialog opened, its default title */
+  label: string | undefined
+}
+
 const CustomSelect = defineComponent({
   name: "CustomSelect",
   setup() {
-    const { props, slots, slotsVersion, triggerEl } = useSelectContext()
+    const { props, slots, slotsVersion, triggerEl, choiceDialog } = useSelectContext()
     const open = ref(false)
+    // What this opening shows: the list (the menu), or on Android the single-choice dialog. Decided as it opens and
+    // kept until the next opening, so a closing dialog leaves as the dialog.
+    const presentation = shallowRef<SelectPresentation>({ dialog: false, label: undefined })
+    const menuOpen = computed(() => open.value && !presentation.value.dialog)
     const selectContentRef = shallowRef<HTMLElement | null>(null)
     const popoverTriggerEl = shallowRef<HTMLElement | null>(null)
     // A mouse opens the list as its button goes down, so on a phone the list is under it when the button comes up
@@ -751,11 +798,20 @@ const CustomSelect = defineComponent({
     let focusRestore: ReturnType<typeof createFocusRestore> | undefined
     let focusRestoreTimer: ReturnType<typeof setTimeout> | undefined
 
+    // An opening decides what it shows: on Android, as the press opens it, the single-choice dialog, titled by the
+    // field's label as it reads then
+    const present = () => {
+      const doc = popoverTriggerEl.value?.ownerDocument ?? document
+      const dialog = choiceDialog.value && isAndroidLook(doc)
+      presentation.value = { dialog, label: dialog ? labelledByText(doc, props.ariaLabelledby) : undefined }
+    }
+
     const handleOpenChange = (maybeNextState?: boolean) => {
       clearTimeout(focusRestoreTimer)
       // Toggle the current state when called without a specific state
       const nextState = maybeNextState === undefined ? !open.value : maybeNextState
       if (nextState && (props.disabled || props.loading)) return
+      if (nextState && !open.value) present()
       open.value = nextState
 
       // When we're closing, manage focus back to trigger manually
@@ -785,7 +841,8 @@ const CustomSelect = defineComponent({
       if (open.value && (props.disabled || props.loading)) handleOpenChange(false)
     }, { flush: "sync" })
 
-    useEscCloseStack(open, () => {
+    // The dialog closes on Escape itself
+    useEscCloseStack(menuOpen, () => {
       handleOpenChange(false)
     })
 
@@ -845,7 +902,9 @@ const CustomSelect = defineComponent({
       const renderProps: SelectTriggerRenderProps = {
         open: open.value,
         onToggle: () => {
-          if (!props.disabled && !props.loading) open.value = !open.value
+          if (props.disabled || props.loading) return
+          if (!open.value) present()
+          open.value = !open.value
         },
       }
       if (slots.trigger) return slots.trigger(renderProps)
@@ -855,9 +914,9 @@ const CustomSelect = defineComponent({
 
     return () => {
       void slotsVersion.value
-      return h(
+      return [h(
         RekaPopoverRoot,
-        { "open": open.value, "onUpdate:open": handleRootOpenChange, "modal": false },
+        { "open": menuOpen.value, "onUpdate:open": handleRootOpenChange, "modal": false },
         {
           default: () => [
             h(SelectPopoverTrigger, null, { default: renderTrigger }),
@@ -866,17 +925,342 @@ const CustomSelect = defineComponent({
             // new one to <body>. A Teleport keeps its place in <body>: a new
             // one per state moves the wrapper to the end the same way. With
             // animations the group has to stay, to run the exit.
-            h(RekaPopoverPortal, { key: !getDisableAnimations() || open.value ? "open" : "closed", forceMount: mounted.value }, {
+            h(RekaPopoverPortal, { key: !getDisableAnimations() || menuOpen.value ? "open" : "closed", forceMount: mounted.value }, {
               default: () => [
                 h(
                   TransitionGroup,
                   { class: s.Menu, ...overlayTiming, overlay: true },
-                  { default: () => [open.value ? h(SelectPopoverContent, { key: "dropdown" }) : createCommentVNode()] },
+                  { default: () => [menuOpen.value ? h(SelectPopoverContent, { key: "dropdown" }) : createCommentVNode()] },
                 ),
               ],
             }),
           ],
         },
+      ),
+      // Mounted from the first opening that shows it, so a page of selects that never open one has no dialog
+      presentation.value.dialog
+        ? h(SelectChoiceDialog, {
+            open: open.value,
+            label: presentation.value.label,
+            onClose: () => handleOpenChange(false),
+            trigger: () => popoverTriggerEl.value,
+            focusRestore: () => focusRestore,
+          })
+        : createCommentVNode()]
+    }
+  },
+})
+
+// ============================================================
+// Android's single-choice dialog
+// ============================================================
+
+/**
+ * The Plex Android look is on: android.css draws it from the root's `data-platform`, and only there are its tokens
+ * set, so the dialog follows the root.
+ */
+const isAndroidLook = (doc: Document) => doc.documentElement.getAttribute("data-platform") === "android"
+
+/** The text of the elements `aria-labelledby` names: the field's label */
+const labelledByText = (doc: Document, ids: string | undefined) => {
+  const text = (ids ?? "")
+    .split(/\s+/)
+    .map((id) => (id ? doc.getElementById(id)?.textContent?.trim() : ""))
+    .filter(Boolean)
+    .join(" ")
+  return text || undefined
+}
+
+/** The row that takes focus as the dialog opens */
+const FIRST_CHOICE_FOCUS = '[role="radio"][tabindex="0"], [role="checkbox"][tabindex="0"]'
+
+/**
+ * Android's choice dialog (a value row of the reference messenger's settings: AlertDialog with a list of
+ * RadioColorCell rows, or of CheckBoxCell rows for several choices): the alert of Dialog (Dialog.module.css draws its
+ * Android look) with the setting's name, a row for each option across its width, and Cancel. With one choice a press
+ * on a row chooses it and closes the dialog; with several a press checks or unchecks its row and OK applies them.
+ * Cancel, Escape or a press outside close it with no change. Focus starts on the chosen row and returns to the trigger.
+ */
+const SelectChoiceDialog = defineComponent({
+  name: "SelectChoiceDialog",
+  props: {
+    open: { type: Boolean, required: true },
+    /** The field's label, the title when there is no `title` */
+    label: String,
+    onClose: { type: Function as PropType<() => void>, required: true },
+    trigger: { type: Function as PropType<() => HTMLElement | null>, required: true },
+    focusRestore: { type: Function as PropType<() => ReturnType<typeof createFocusRestore> | undefined>, required: true },
+  },
+  setup(ownProps) {
+    // The chosen row takes focus, else the first that can be chosen
+    const handleOpenAutoFocus = (event: Event) => {
+      event.preventDefault()
+      const container = event.target instanceof HTMLElement ? event.target : null
+      const row = container?.querySelector<HTMLElement>(FIRST_CHOICE_FOCUS)
+      row?.focus({ preventScroll: true })
+      row?.scrollIntoView({ block: "nearest" })
+    }
+    // Focus returns to the trigger, unless it moved on outside the dialog
+    const handleCloseAutoFocus = (event: Event) => {
+      keepMovedFocus(event)
+      const trigger = ownProps.trigger()
+      if (!event.defaultPrevented && trigger) ownProps.focusRestore()?.restore(trigger)
+      event.preventDefault()
+    }
+
+    return () =>
+      h(
+        Dialog,
+        { "open": ownProps.open, "onUpdate:open": (next: boolean) => { if (!next) ownProps.onClose() } },
+        {
+          default: () => [
+            h(
+              DialogContent,
+              {
+                "mobileVariant": "alert",
+                "showClose": false,
+                "class": s.ChoicePanel,
+                "rootProps": { class: s.ChoiceDialog },
+                "data-select-dialog": "",
+                "onOpenAutoFocus": handleOpenAutoFocus,
+                "onCloseAutoFocus": handleCloseAutoFocus,
+              },
+              { default: () => [h(SelectChoiceContent, { label: ownProps.label, onClose: ownProps.onClose })] },
+            ),
+          ],
+        },
+      )
+  },
+})
+
+/**
+ * The dialog's title, rows and buttons, mounted with each opening: the choice they show is the value as it opened,
+ * and a multiple select's checked rows are kept here until OK applies them
+ */
+const SelectChoiceContent = defineComponent({
+  name: "SelectChoiceContent",
+  props: {
+    label: String,
+    onClose: { type: Function as PropType<() => void>, required: true },
+  },
+  setup(ownProps) {
+    const { props, actions, onActionSelect, onValues } = useSelectContext()
+    const checked = ref<string[]>(props.multiple ? [...(props.value as string[])] : [])
+
+    return () => {
+      const name = props.title ?? ownProps.label ?? props.ariaLabel
+      return [
+        name ? h(DialogHeader, { class: s.ChoiceHeader }, { default: () => [h(DialogTitle, null, { default: () => name })] }) : null,
+        h(DialogBody, { class: s.ChoiceBody }, {
+          default: () => [h(SelectChoiceRows, {
+            name,
+            onChoose: ownProps.onClose,
+            checked: checked.value,
+            onCheckedChange: (next: string[]) => { checked.value = next },
+          })],
+        }),
+        h(DialogFooter, { class: s.ChoiceFooter }, {
+          default: () => [
+            // The list's actions are the dialog's buttons, before Cancel
+            ...actions.value.map((action) =>
+              h(Button, {
+                key: action.id,
+                color: "secondary",
+                variant: "soft",
+                onClick: () => {
+                  onActionSelect(action.id)
+                  ownProps.onClose()
+                },
+              }, { default: () => action.label }),
+            ),
+            h(DialogClose, null, {
+              default: () => [h(Button, { color: "secondary", variant: "soft" }, { default: () => props.cancelLabel })],
+            }),
+            props.multiple
+              ? h(Button, {
+                  color: "secondary",
+                  variant: "soft",
+                  onClick: () => {
+                    onValues(checked.value)
+                    ownProps.onClose()
+                  },
+                }, { default: () => props.okLabel })
+              : null,
+          ],
+        }),
+      ]
+    }
+  },
+})
+
+const SelectChoiceRows = defineComponent({
+  name: "SelectChoiceRows",
+  props: {
+    name: String,
+    /** One choice: a row was chosen */
+    onChoose: { type: Function as PropType<() => void>, required: true },
+    /** Several choices: the rows checked, applied by OK */
+    checked: { type: Array as PropType<string[]>, required: true },
+    onCheckedChange: { type: Function as PropType<(checked: string[]) => void>, required: true },
+  },
+  setup(ownProps) {
+    const { props, noneRow, onSelect } = useSelectContext()
+    // Kept for this opening, so the radio does not move while the dialog leaves
+    const openingValue = props.value
+    const opening = Array.isArray(openingValue) ? [...openingValue] : [openingValue]
+
+    const choose = (option: Option, none: boolean) => {
+      if (props.multiple) {
+        // The None row unchecks every row; another row checks or unchecks itself
+        const { checked } = ownProps
+        if (none) ownProps.onCheckedChange([])
+        else ownProps.onCheckedChange(checked.includes(option.value) ? checked.filter((item) => item !== option.value) : [...checked, option.value])
+        return
+      }
+      // The None row unsets the value, as the clear button does
+      onSelect(none ? { value: "", label: "" } : option)
+      ownProps.onChoose()
+    }
+
+    // The arrows move focus through the rows that can be chosen, round from the last to the first; a row is chosen
+    // (or checked) by a press, Enter or Space
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.isComposing) return
+      const group = event.currentTarget as HTMLElement
+      const rows = Array.from(group.querySelectorAll<HTMLElement>(
+        ':is([role="radio"], [role="checkbox"]):not([aria-disabled="true"])',
+      ))
+      if (!rows.length) return
+      const index = rows.indexOf(document.activeElement as HTMLElement)
+      let next: HTMLElement | undefined
+      switch (event.key) {
+        case "ArrowDown":
+        case "ArrowRight":
+          next = rows[(index + 1) % rows.length]
+          break
+        case "ArrowUp":
+        case "ArrowLeft":
+          next = rows[index <= 0 ? rows.length - 1 : index - 1]
+          break
+        case "Home":
+          next = rows[0]
+          break
+        case "End":
+          next = rows[rows.length - 1]
+          break
+        default:
+          return
+      }
+      event.preventDefault()
+      next?.focus({ preventScroll: true })
+      next?.scrollIntoView({ block: "nearest" })
+    }
+
+    return () => {
+      const { options, multiple } = props
+      const noneChosen = noneRow.value && !opening.some((item) => hasChosenOption(options, item))
+      const chosen = opening.map((item) => getOptionByValue(options, item)).find((option) => option && !option.disabled)
+      // The tab stop and the first focus: the chosen row (the first checked), else the first that can be chosen
+      const focusValue = noneChosen
+        ? NONE_OPTION_VALUE
+        : chosen ? chosen.value : noneRow.value ? NONE_OPTION_VALUE : getFirstValidOption(options)?.value
+
+      const row = (option: Option, none = false) =>
+        h(SelectChoiceRow, {
+          key: none ? NONE_OPTION_VALUE : option.value,
+          option,
+          none,
+          checked: multiple
+            ? (none ? ownProps.checked.length === 0 : ownProps.checked.includes(option.value))
+            : (none ? noneChosen : option.value === openingValue),
+          focusable: (none ? NONE_OPTION_VALUE : option.value) === focusValue,
+          onChoose: () => choose(option, none),
+        })
+
+      return h("div", { "class": s.ChoiceList, "role": multiple ? "group" : "radiogroup", "aria-label": ownProps.name, "onKeydown": handleKeyDown }, [
+        noneRow.value ? row({ value: NONE_OPTION_VALUE, label: props.noneLabel }, true) : null,
+        ...(isOptionGroupArray(options)
+          ? options.map((group) => h(SelectChoiceGroup, { key: group.label, group, row }))
+          : (options as Option[]).map((option) => row(option))),
+      ])
+    }
+  },
+})
+
+const SelectChoiceGroup = defineComponent({
+  name: "SelectChoiceGroup",
+  props: {
+    group: { type: Object as PropType<OptionGroup<Option>>, required: true },
+    row: { type: Function as PropType<(option: Option) => VNode>, required: true },
+  },
+  setup(ownProps) {
+    const headingId = useId()
+    return () =>
+      h("div", { "role": "group", "aria-labelledby": headingId, "class": s.ChoiceGroup }, [
+        h("div", { id: headingId, class: s.ChoiceGroupHeading }, ownProps.group.label),
+        ...ownProps.group.options.map((option) => ownProps.row(option)),
+      ])
+  },
+})
+
+/**
+ * A row of the dialog (RadioColorCell): 50 tall, a 20 radio in a 22 frame 22 in and 14 down, the label 16/20 at 55,
+ * one line, a description 14 in the secondary text 4 under it. The chosen radio is the accent, with a dot. A multiple
+ * select's row has an 18 checkbox in that frame (CheckBoxCell's square), the accent with a check when checked.
+ */
+const SelectChoiceRow = defineComponent({
+  name: "SelectChoiceRow",
+  props: {
+    option: { type: Object as PropType<Option>, required: true },
+    none: { type: Boolean, required: true },
+    checked: { type: Boolean, required: true },
+    /** The list's one tab stop */
+    focusable: { type: Boolean, required: true },
+    onChoose: { type: Function as PropType<() => void>, required: true },
+  },
+  setup(ownProps) {
+    const { props, slots, slotsVersion } = useSelectContext()
+
+    const renderOptionView = (option: Option): VNodeChild => {
+      if (slots.optionView) return slots.optionView(option)
+      if (props.OptionView) return h(props.OptionView, option)
+      return option.label
+    }
+
+    return () => {
+      void slotsVersion.value
+      const { option, none } = ownProps
+      const { disabled, description, tooltip } = option
+      return h(
+        "div",
+        {
+          "class": s.ChoiceRow,
+          "role": props.multiple ? "checkbox" : "radio",
+          "aria-checked": ownProps.checked,
+          "aria-disabled": disabled || undefined,
+          "data-disabled": disabled ? "" : undefined,
+          "tabindex": ownProps.focusable ? 0 : -1,
+          "onClick": () => {
+            if (!disabled) ownProps.onChoose()
+          },
+          "onKeydown": (event: KeyboardEvent) => {
+            if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return
+            event.preventDefault()
+            if (!disabled) ownProps.onChoose()
+          },
+          // iOS Safari applies :active, which draws a held row, only under a touch listener
+          "onTouchstartPassive": () => {},
+        },
+        [
+          h("span", { "class": props.multiple ? s.ChoiceCheck : s.ChoiceRadio, "aria-hidden": "true" }),
+          h("div", { class: s.ChoiceText }, [
+            h("div", { class: s.ChoiceLabel }, [none ? option.label : renderOptionView(option)]),
+            // React's `description && ...`: a 0 (or NaN) renders as text
+            description && h("div", { class: s.ChoiceDescription }, [renderContent(description)]),
+            // A dialog has no tooltips: the tooltip is the row's second line, as in a phone's list
+            tooltip ? h("div", { class: s.ChoiceDescription }, [renderContent(tooltip.content)]) : null,
+          ]),
+        ],
       )
     }
   },

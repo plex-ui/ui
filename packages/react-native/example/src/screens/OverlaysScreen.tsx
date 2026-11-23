@@ -46,7 +46,7 @@ export function OverlaysScreen() {
   }, [link])
   return (
     <>
-      <Section title="Dialog" note={theme.isAndroid ? "Android alert: 20dp corners, text buttons in the accent" : "iOS 26 alert: glass, 320 wide, capsule actions"}>
+      <Section title="Dialog" note={theme.isAndroid ? "Android alert: 21dp corners, text buttons in the accent" : "iOS 26 alert: glass, 320 wide, capsule actions"}>
         <Row>
           <Button color="secondary" variant="soft" onPress={() => setDialog("two")} testID="open-dialog">
             Two actions
@@ -59,7 +59,7 @@ export function OverlaysScreen() {
           </Button>
         </Row>
       </Section>
-      <Section title="Sheets" note={theme.isAndroid ? "Android sheets: 24dp corners, no handle" : "iOS 26 sheet and action sheet"}>
+      <Section title="Sheets" note={theme.isAndroid ? "Android sheets: 35dp corners, close 12 in" : "iOS 26 sheet and action sheet"}>
         <Row>
           <Button color="secondary" variant="soft" onPress={() => setSheet(true)} testID="open-sheet">
             Bottom sheet

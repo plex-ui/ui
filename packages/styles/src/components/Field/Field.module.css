@@ -1007,8 +1007,11 @@
     caret-color: var(--color-text);
   }
 
+  /* A row's multi-line field starts one line tall and grows as it is written in, up to its maximum rows, as the
+     reference's text fields: no empty lines are held under the hint (its `rows` still sets the lines elsewhere). */
   [data-platform="android"] .Field:where([data-row]) .Control > [data-variant]:has(> textarea) {
     --textarea-line-height: 20px;
+    --textarea-min-height: calc(var(--textarea-gutter-y) * 2 + var(--textarea-line-height));
   }
 
   [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant] > input {
@@ -1024,12 +1027,202 @@
   }
 
   /* A field under its label (13/16, 4 over it, 10 above and below: android.css) or alone in the row: alone, its
-     value stands 17 above and below, a 54dp row, and starts 22 in, where the line above the row starts */
+     value stands 17 above and below, a 54dp row, and starts at the row's text (21 in), where the line above the row
+     starts. The reference sets it 22 in, a point off its own rows and headers: here a card's text keeps one edge. */
   [data-platform="android"] .Field:where([data-row][data-label-hidden][data-orientation="vertical"]):has(> .Content > .Control > [data-variant] > :is(input, textarea)):not(:has(> .LabelGroup > .Description, > .Content > :not(.Control))) {
-    --field-group-separator-inset-start: 22px;
+    --field-group-separator-inset-start: var(--field-row-padding-inline);
 
     padding-block: 17px;
-    padding-inline-start: 22px;
+  }
+
+  /* A row's text field being typed in: the line under the row turns the accent, 2 thick, spreading from its middle in
+     150ms, as the line of an input card's field (below) and the reference's text fields; while the field is invalid
+     it is the error color. It lies over the card's separator under the row (the next row's line), from where that
+     line starts to the card's edge. A card's last row, where no separator runs, ends 8 lower (a clear border, so its
+     padding and the line's place are the rows' above): its line stands as far under its text as theirs and 7 over
+     the card's edge (on the edge it read as the card's border), to where the card's 16 corner has curved in at that
+     height. An input card's field draws its own line. */
+  [data-platform="android"] .Field:where([data-row]:not(:has(> .Content > .Control [data-row]))):has(> .Content > .Control :is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="hidden"], [type="file"], [type="color"], [aria-hidden="true"]), textarea)) {
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      inset-inline: var(--field-group-separator-inset-start, var(--field-group-separator-inset, 0px)) 0;
+      bottom: -1px;
+      height: 2px;
+      background: var(--android-accent-text);
+      pointer-events: none;
+      transform: scaleX(0);
+      transition: transform 150ms ease-in-out;
+    }
+
+    &:last-child {
+      /* The 54 row and the 8 under it */
+      min-height: 62px;
+      border-block-end: 8px solid transparent;
+
+      &::before {
+        inset-inline-end: 3px;
+      }
+    }
+
+    &:has(> .Content > .Control :is(input:not([type="checkbox"], [type="radio"], [type="range"], [aria-hidden="true"]), textarea):focus:not([readonly]))::before {
+      transform: scaleX(1);
+    }
+
+    &:has(> .Content > .Control :is(input, textarea)[aria-invalid="true"])::before {
+      background: var(--android-danger-text);
+      transform: scaleX(1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      &::before {
+        transition: none;
+      }
+    }
+  }
+
+  /* The reference's input card: a text field under its label (a vertical row with the label shown) is a field with a
+     floating label and a line under it (a row with a hidden label stays the hint cell above). The row is 64 tall, the
+     value 16/20 at the row's text (21 in; the reference sets its fields 17 in, off its own rows and headers, so a card
+     with a header here keeps one edge), its baseline 38.5 under the row's top; the line runs as far in from both of
+     the card's edges, its
+     top 46 under the row's top (7.6 under the baseline): 1 in a light gray, 2 in the accent while the field is edited
+     (spreading from its middle in 150ms), 2 in the error color with an error. Empty and unfocused, the label stands in
+     the value's place as the hint (16 in the hint's gray; a placeholder shows only while the field is edited); with
+     the focus or a value it floats to 0.7 of its size (11.2) in the accent, its baseline 21.3 over the value's, in
+     200ms. The first field of a card stands 6 lower in its 64 (the line 52 under the card's top). An error is a 13/16
+     line 8 under the value's line. The value's 20px line starts 22.25 under the row's top, which sets the 16px type's
+     baseline at 38.5. A Textarea is such a field too: the row grows with its lines and the line stays under the last
+     one (the Control draws it, 2.75 under the value). The field's line stands for the card's separator: none above
+     the field nor under it. A field with no placeholder gets a blank one on Android from Field, so
+     :placeholder-shown tells an empty field. */
+  [data-platform="android"] .Field:where([data-row][data-orientation="vertical"]:not([data-label-hidden])):has(> .Content > .Control > :is([data-slot="input"], [data-slot="textarea"])[data-variant] > :is(input, textarea)):not(:has(> .Icon, > .Action, > .LabelGroup > .Description, > .LabelGroup > .LabelRow)) {
+    --android-float-top: 22.25px;
+
+    position: relative;
+    min-height: 64px;
+    padding: var(--android-float-top) var(--field-row-padding-inline) calc(64px - var(--android-float-top) - 20px);
+    /* Not a text row's last-row room: the field's line has its own place */
+    border-block-end-width: 0;
+
+    &:first-child {
+      --android-float-top: 28.25px;
+    }
+
+    &::before,
+    &::after,
+    & + [data-row]::after,
+    & + [data-sortable] > [data-row]:first-child::after {
+      content: none;
+    }
+
+    &:has(> .Content > [role="alert"]) {
+      row-gap: 8px;
+      padding-bottom: 12px;
+    }
+
+    > .Content > .Control > :is([data-slot="input"], [data-slot="textarea"]),
+    > .Content > .Control > :is([data-slot="input"], [data-slot="textarea"]) > :is(input, textarea) {
+      font-size: 16px;
+      line-height: 20px;
+    }
+
+    &:not(:focus-within) > .Content > .Control > [data-variant] > :is(input, textarea)::placeholder {
+      color: transparent;
+    }
+
+    > .LabelGroup {
+      position: absolute;
+      grid-area: auto;
+      inset-inline: var(--field-row-padding-inline);
+      top: var(--android-float-top);
+      display: block;
+      width: auto;
+      height: 20px;
+      margin: 0;
+      overflow: visible;
+      clip-path: none;
+      pointer-events: none;
+    }
+
+    > .LabelGroup > .Label {
+      position: static;
+      display: block;
+      width: calc(100% / 0.7);
+      height: auto;
+      margin: 0;
+      overflow: hidden;
+      clip-path: none;
+      color: var(--android-accent-text);
+      font-size: 16px;
+      line-height: 20px;
+      font-weight: var(--font-weight-normal);
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      transform-origin: 0 0;
+      translate: 0 -16.5px;
+      scale: 0.7;
+      transition:
+        translate 200ms cubic-bezier(0.23, 1, 0.32, 1),
+        scale 200ms cubic-bezier(0.23, 1, 0.32, 1),
+        width 200ms cubic-bezier(0.23, 1, 0.32, 1),
+        color 200ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    &:not(:focus-within):has(> .Content > .Control > [data-variant] > :is(input, textarea):placeholder-shown) > .LabelGroup > .Label {
+      width: 100%;
+      color: var(--android-hint);
+      translate: 0 0;
+      scale: 1;
+    }
+
+    > .Content > .Control {
+      position: relative;
+    }
+
+    > .Content > .Control::after {
+      content: "";
+      position: absolute;
+      inset-inline: 0;
+      top: calc(100% + 2.75px);
+      height: 2px;
+      background:
+        linear-gradient(var(--android-accent-text), var(--android-accent-text)) center bottom / 0% 2px no-repeat,
+        linear-gradient(var(--android-field-line), var(--android-field-line)) center bottom / 100% 1px no-repeat;
+      pointer-events: none;
+      transition: background-size 150ms ease-in-out;
+    }
+
+    &:focus-within > .Content > .Control::after {
+      background-size: 100% 2px, 100% 1px;
+    }
+
+    &:has(> .Content > .Control > [data-variant] > [aria-invalid="true"]) {
+      > .LabelGroup > .Label {
+        color: var(--android-danger-text);
+      }
+
+      > .Content > .Control::after {
+        background: var(--android-danger-text);
+      }
+    }
+
+    &:has(> .Content > .Control > [data-variant] > :disabled) {
+      > .LabelGroup,
+      > .Content > .Control::after {
+        opacity: 0.5;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      > .LabelGroup > .Label,
+      > .Content > .Control::after {
+        transition: none;
+      }
+    }
   }
 
   /* A disabled row fades to half, its value and control too (they dim themselves) */
@@ -1043,14 +1236,25 @@
     }
   }
 
-  /* Android's rows light when held, a switch row too */
+  /* Android's rows ripple when held, a switch row too (android.css, Android press ripple), in the row's own shape: the
+     card's corners on its first and last rows (FieldGroup). No flat fill. */
   [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Content > .Control [data-row]))):has(> .Content > .Control :is(button[role="switch"], button[role="checkbox"], button[role="radio"], input[type="checkbox"], input[type="radio"]):not([disabled], [data-disabled], [aria-disabled="true"], [aria-hidden="true"])) {
-    transition: background-color var(--transition-duration-basic) var(--transition-ease-basic);
-
     &:active:not(:has(:is(button, a, [role="button"]):not([role="checkbox"], [role="radio"], [role="switch"]):active)) {
-      background: var(--field-row-press-background);
+      background: none;
       transition-duration: 0s;
     }
+
+    &[data-ripple],
+    &[data-ripple]:active:not(:has(:is(button, a, [role="button"]):not([role="checkbox"], [role="radio"], [role="switch"]):active)) {
+      background-image: var(--android-ripple-image);
+    }
+  }
+
+  /* A value row (a Select or a date at its end) is one press, which opens its choices (Field.tsx forwards it): held,
+     on its value or anywhere on it, the row ripples in its own shape (androidRipple.ts gives the row the press of the
+     value in it), in a card's row selector in a card (FieldGroup). */
+  [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"])):has(> .Content > .Control [data-slot="select-control"]:not([data-disabled]))[data-ripple] {
+    background-image: var(--android-ripple-image);
   }
 
   /* A row's lone checkbox leads the row, as Android's multi-select lists: its circle 22 in from the card's edge (its
@@ -1148,4 +1352,15 @@
 
 .Field:where([data-row][data-label-hidden][data-orientation="vertical"]) > .LabelGroup {
   grid-row: auto;
+}
+
+/* On a phone a row pressed as a whole (its check, radio, switch or value takes the press) is a control, not text: a
+   long press or a double tap does not select its label nor call up the text menu, as a native list row. A row with a
+   text field keeps its text selectable. */
+@media (max-width: 767px) {
+  .Field:where([data-row]):has(> .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"], [data-slot="select-control"], [data-date-picker])):not(:has(> .Content > .Control :is(input:not([type="checkbox"], [type="radio"], [type="hidden"]), textarea, [contenteditable="true"]))) {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }

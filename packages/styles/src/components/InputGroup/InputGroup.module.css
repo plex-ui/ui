@@ -316,3 +316,17 @@ textarea.Control {
     height: var(--input-group-icon-size);
   }
 }
+
+/* The Plex Android look (`data-platform="android"`, android.css): a button in an addon that opens a menu (a unit, a
+   currency) is a value the reader can change, so it takes the accent, as the reference messenger draws a tappable
+   value at a row's end; plain addon text (a fixed "€") stays secondary. It outweighs a color an author gave the button
+   for the iOS look, a `text-secondary` utility too (an important rule: here its secondary text is the accent). iOS
+   and the desktop are unchanged. */
+@media (max-width: 767px) {
+  [data-platform="android"] .InputGroup .Addon > .Button[aria-haspopup]:not([aria-haspopup="false"], [data-disabled]) {
+    --button-text-color: var(--android-accent-text);
+    --button-text-color-hover: var(--android-accent-text);
+    --color-text-secondary: var(--android-accent-text);
+    color: var(--android-accent-text);
+  }
+}

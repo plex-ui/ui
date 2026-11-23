@@ -2,6 +2,12 @@
   "framework": "nextjs",
   "buildCommand": "npm run build:styles && npm run build:ui && npm run build:vue && npm run build:react-native-icons && next build",
   "installCommand": "npm install",
+  "git": {
+    "deploymentEnabled": {
+      "master": true,
+      "**": false
+    }
+  },
   "redirects": [
     {
       "source": "/:path(.*)",

@@ -774,18 +774,37 @@
     display: none;
   }
 
+  /* An arrow of its own in a row (a unit button's `kg` and arrow, InputGroup) leaves no space either: a wrapper whose
+     one element is the arrow gives up its box, so its margin and the gap before it go, and the unit ends at the row's
+     21 as a field's `€` does. `contents`, not `none`: text beside the arrow in that wrapper stays. A button's own
+     inner span is never that wrapper. */
+  [data-platform="android"] :where([data-row]) :not(button, a, [role="button"]) > :has(> .DropdownIcon:only-child) {
+    display: contents;
+  }
+
   /* The value ends 18 from the card's edge, 3 past the row's 21 (a switch keeps 21), as the reference's value rows. */
   [data-platform="android"] :where([data-row][data-orientation="horizontal"]:not([data-field-columns] *)) .SelectControl {
     margin-inline-end: -3px;
-    --field-row-popup-value-color: var(--color-background-accent-solid);
+    --field-row-popup-value-color: var(--android-accent-text);
     --input-placeholder-text-color: color-mix(in srgb, var(--color-text) 35%, transparent);
 
     &[data-disabled][data-variant] {
-      color: color-mix(in srgb, var(--color-background-accent-solid) 50%, transparent);
+      color: color-mix(in srgb, var(--android-accent-text) 50%, transparent);
     }
 
     &[data-disabled][data-variant][data-selected="false"] {
       color: color-mix(in srgb, var(--color-text) 17.5%, transparent);
     }
+  }
+
+  /* In columns too: on Android a value that opens a choice is the accent wherever it stands, as the reference draws
+     every value the reader can change (a unit in an input group and a tag summary do the same), at half when
+     disabled; typed values stay in the text color. iOS keeps the column's value primary (above). */
+  [data-platform="android"] :where([data-field-columns] [data-row][data-orientation="horizontal"]) .SelectControl[data-selected="true"]:not([data-disabled]) {
+    color: var(--android-accent-text);
+  }
+
+  [data-platform="android"] :where([data-field-columns] [data-row][data-orientation="horizontal"]) .SelectControl[data-selected="true"][data-disabled][data-variant] {
+    color: color-mix(in srgb, var(--android-accent-text) 50%, transparent);
   }
 }

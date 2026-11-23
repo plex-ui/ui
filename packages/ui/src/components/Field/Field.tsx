@@ -3,7 +3,7 @@
 import clsx from "clsx"
 import { cloneElement, isValidElement, useId, useRef } from "react"
 
-import { FieldRowContext } from "../../lib/fieldRow"
+import { FieldRowContext, useBlankPlaceholder } from "../../lib/fieldRow"
 import type { ControlSize } from "../../types"
 import { FieldError } from "../FieldError"
 
@@ -91,6 +91,9 @@ export type FieldProps = {
    * Layout direction of label and control.
    * - "vertical": label stacked above control (default)
    * - "horizontal": label beside control
+   * In the Plex Android look a vertical `row` whose control is an Input or a Textarea is a field
+   * of an input card: the label stands in the empty field as its hint and floats over the value once the
+   * field has the focus or a value, with a line under the field.
    * @default "horizontal" on a `row` with a visible label, else "vertical"
    */
   orientation?: "vertical" | "horizontal"
@@ -168,6 +171,9 @@ export function Field({
   const controlId = childProps?.id || fieldId
   const descriptionId = description ? `${fieldId}-description` : undefined
   const errorId = errorMessage ? `${fieldId}-error` : undefined
+
+  // In the Plex Android look a text field under its shown label floats the label in its place while it is empty
+  useBlankPlaceholder(controlId, row && orientation === "vertical" && !hideLabel)
 
   // Build aria-describedby from description + error IDs
   const ariaDescribedBy =

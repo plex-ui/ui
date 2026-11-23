@@ -223,8 +223,9 @@
 }
 
 /* The Plex Android look (`data-platform="android"`): a summary row and an account row are Android list rows, with
-   no chevron; a summary's value is the row's value, in the accent, ending 17 from the card's edge (in columns the
-   row's data, in the text color); an account row's detail is a description 4 under its label. */
+   no chevron; a summary's value is the row's value, in the accent as every value that opens a choice on Android,
+   ending 17 from the card's edge (in columns at the column's end); an account row's detail is a description 4 under
+   its label. */
 @media (max-width: 767px) {
   [data-platform="android"] :is(.TagSummary, :is(.ScreenStage, .FormDialog) [data-account-row]) [data-row-disclosure] {
     display: none;
@@ -249,7 +250,6 @@
 
   [data-platform="android"] [data-field-columns] .TagSummary [data-tag-summary-value] {
     margin-inline-end: 0;
-    color: var(--color-text);
   }
 
   [data-platform="android"] :is(.ScreenStage, .FormDialog) [data-account-detail] {
